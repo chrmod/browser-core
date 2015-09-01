@@ -114,15 +114,6 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('floatify', function(f) {
-        try {
-            return parseFloat(f);
-        } catch(e) {
-            return f;
-        }
-    });
-
-
     Handlebars.registerHelper('generate_logo', function(url, options) {
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
@@ -202,8 +193,11 @@ function registerHelpers(){
         return mw; // default
     });
 
-    Handlebars.registerHelper('localize_numbers', function(num) {
-        return (CliqzUtils.isNumber(num))? num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) : "-"
+    Handlebars.registerHelper('localizeNumbers', function(num) {
+        var parsedNum = parseFloat(num),
+            postfix = (num + "").substring((parsedNum + "").length);
+
+        return (!isNaN(parsedNum) && isFinite(parsedNum))? parsedNum.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) + postfix : "-"
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
