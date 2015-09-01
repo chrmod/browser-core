@@ -195,10 +195,12 @@ function registerHelpers(){
 
     Handlebars.registerHelper('localizeNumbers', function(num) {
         /*
-        * USE only when you really understand your data!
-        * this function supports localization for: normal number string (e.g. 1.2, 3...), standardized abrv. strings: 12e-4, and
-        * extended form, e.g. 1.2B, 1M etc.
-        * In general, any string in the form xxxyyy where xxx is a standardized string form (recognized by isFinite())
+        * USE only when you really understand your data (see below)!
+        * this function supports localization for:
+        *   + normal number strings (e.g. 1.2, 3...),
+        *   + standardized abrv. strings: 12e-4, and
+        *   + extended forms, e.g. 1.2B, 1M etc.
+        * In general, any string in the form of xxxyyy where xxx is a standardized number string (recognized by isFinite())
         * and yyy is an arbitrary string (called postfix) that does not start with a number will be localized
         * WARNING: numbers in the form such as: 12e3M, which might be seen as 12000 Million, will be parsed incorrectly
         */
