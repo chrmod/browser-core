@@ -78,7 +78,11 @@ CLIQZEnvironment = {
     //default location - office -> ovveride
     USER_LAT: 48.1517322,
     USER_LNG: 11.62013,
-	TEMPLATES_PATH: 'generic/static/templates/',
+    setLocation: function(lat, lng) {
+        this.USER_LAT = lat;
+        this.USER_LNG = lng;
+    },
+	  TEMPLATES_PATH: 'generic/static/templates/',
     LOCALE_PATH: 'generic/static/locale/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
