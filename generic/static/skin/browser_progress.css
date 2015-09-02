@@ -659,6 +659,7 @@
 
 
 /***** LOCAL MOVIE EZ ******/
+#cliqz-results .cqz-movie-container,
 #cliqz-results .cqz-cinema-container {
     width: calc(100% - 35px);
     max-width: 700px;
@@ -737,11 +738,12 @@
   white-space:  normal;
 }
 
+#cliqz-results .cinema-showtimes-container .location_permission_prompt { height: 100%; }
 #cliqz-results .local-sc-data-container {
   width: 80%;
   max-width: 650px;
 }
-#cliqz-results .cinema-showtimes-container { height: 140px; margin-bottom: 13px; }
+#cliqz-results .cinema-showtimes-container { height: 140px; margin-bottom: 5px; }
 #cliqz-results .cqz-cinema-program-btn { background: #333; }
 
 #cliqz-results .cinema-showtimes-table {
@@ -795,9 +797,43 @@
   padding: 16px 20px 10px;
   background-color: rgb(255, 83, 73);
 }
+#cliqz-results .location_permission_prompt.loading { position: relative; padding: 0; }
+#cliqz-results .location_permission_prompt.loading:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border-radius: 100%;
+    background-color: #fff;
+    -webkit-animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
+    animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
+}
+@-webkit-keyframes cqz-loading-circle-animation {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+@keyframes cqz-loading-circle-animation {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+#cliqz-results .location_permission_prompt.loading > * { opacity: 0 !important; }
 
 #cliqz-results .loc_permission_prompt_message {
-    height: 70%;
+    min-height: calc(100% - 80px);
     font-size: 16px;
     white-space: normal;
     margin-bottom: 15px;

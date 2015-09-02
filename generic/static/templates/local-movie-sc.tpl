@@ -33,7 +33,9 @@
         {{#if cinemas}}
           {{> partials/timetable-cinema }}
         {{else}}
-          {{local 'no_cinemas_to_show'}}
+          <div class="location_permission_prompt">
+            {{local 'no_cinemas_to_show'}}
+          </div>
         {{/if}}
       {{/if}}
     </div>

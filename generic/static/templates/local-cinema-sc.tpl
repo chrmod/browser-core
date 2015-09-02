@@ -13,16 +13,19 @@
                 </div>
             </div>
         </div>
-        <div class="cinema-showtimes-container local-sc-data-container" id="cinema-showtimes-container">
+        <div id="cinema-showtimes-container" class="cinema-showtimes-container local-sc-data-container">
             {{#if no_location }}
                 {{#unlesspref 'share_location' 'no'}}
-                    {{>missing_location}}
+                    {{> missing_location}}
                 {{/unlesspref}}
             {{else}}
                 {{#if movies }}
                     {{> partials/timetable-movie }}
                 {{else}}
-                    {{local 'no_cinemas_to_show'}}
+                    <div class="location_permission_prompt">
+                        {{local 'no_cinemas_to_show'}}
+                    </div>  aq
+
                 {{/if}}
             {{/if}}
         </div>

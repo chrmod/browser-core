@@ -24,7 +24,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       'onboarding-callout-extended',
       'confirm_no_00',
       'confirm_no_01',
-      'slow_connection'
+      'slow_connection',
+      'partials/no-locale-data'
     ],
     PARTIALS = [
         'url',

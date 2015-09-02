@@ -786,7 +786,16 @@
       "message": "Never. I hate awesome stuff."
     },
     "no_local_data_msg": {
-      "message": "Sorry. It seems like we have no local details for this result around your area."
+      "message": "Oh no, something went wrong. Always share you location with us to avoid this in future?"
+    },
+    "location_sorry_msg": {
+      "message": "Oh no, something went wrong. Shouldn't happen again!"
+    },
+    "location_thank_you_msg": {
+      "message": "Thank you so much!"
+    },
+    "location_not_share_msg": {
+      "message": "Too bad, you are missing out on some cool stuff. You can always change your location settings in the CLIQZ menu."
     },
     "movies_confirm_no": {
       "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
