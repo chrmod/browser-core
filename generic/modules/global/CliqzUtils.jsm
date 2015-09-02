@@ -599,9 +599,15 @@ var CliqzUtils = {
              '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-   encodeLocation: function(specifySource, lat, lng) {
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng){
-      return [
+
+  encodeLocation: function(specifySource, lat, lng) {
+    var qs = [
+     '&loc_pref=',
+     CliqzUtils.getPref('share_location','ask')
+    ].join('')
+
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
+      qs += [
         '&loc=',
         lat || CLIQZEnvironment.USER_LAT,
         ',',
@@ -609,7 +615,8 @@ var CliqzUtils = {
         (specifySource ? ',U' : '')
       ].join('');
     }
-    else return ''
+
+    return qs;
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
