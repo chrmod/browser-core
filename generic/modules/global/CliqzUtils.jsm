@@ -599,7 +599,10 @@ var CliqzUtils = {
              '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
+<<<<<<< HEAD
 
+=======
+>>>>>>> encodeLocation also sends the location preference to the backend
   encodeLocation: function(specifySource, lat, lng) {
     var qs = [
      '&loc_pref=',
