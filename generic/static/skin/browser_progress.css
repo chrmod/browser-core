@@ -702,7 +702,7 @@
     border-radius: 3px;
 }
 
-#cliqz-results .local-cinema-result .cinema-showtimes-container { position: relative; padding-top: 3px; }
+#cliqz-results .local-cinema-result .cinema-showtimes-container { position: relative; padding-top: 3px; margin-bottom: 13px; }
 #cliqz-results .cinema-showtimes-container .cqz-movie-playing {
     width: 140px;
     padding: 4px 0 6px;
