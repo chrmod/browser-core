@@ -2,12 +2,26 @@
     {{#with data}}
         <div class='cqz-cinema-container'>
             <div class='cinema_data'>
-                <div class="cinema_title cqz-ez-title"><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
+                <div class="cinema_title cqz-ez-title"><a href="{{url}}">{{ emphasis cinema.name text 2 true }}</a></div>
                 <div class="cqz-result-url cinema_url">{{emphasis friendly_url text 2 true}}</div>
                 <div class="cinema_description cqz-multy-lines-ellipses cqz-line-vis-3">
                     <p>
+                        <span>
+                          {{#if cinema.rating}}
+                            {{#for 0 cinema.rating 1}}
+                              <span class='cqz-rating-star-on'>★</span>
+                            {{/for}}
+                            {{#for cinema.rating 5 1}}
+                              <span class='cqz-rating-star-off'>★</span>
+                            {{/for}}
+                          {{else}}
+                            {{#for 0 5 1}}
+                              <span class='cqz-rating-star-off'>★</span>
+                            {{/for}}
+                          {{/if}}
+                        </span>
                         <span class="movie_desc">
-                              {{description}}
+                              {{cinema.desc}}
                         </span>
                     </p>
                 </div>

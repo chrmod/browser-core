@@ -1,6 +1,6 @@
 <div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-movie-result">
   {{#with data}}
-    <div class='cqz-movie-container'>
+    <div class='movie_container'>
       <div class='movie_poster'>
         <img src='{{movie.poster_img}}' class='movie_poster_img'/>
       </div>
@@ -9,7 +9,7 @@
         <div class="cqz-result-url movie_url">{{emphasis friendly_url text 2 true}}</div>
         <div class="movie_description cqz-multy-lines-ellipses cqz-line-vis-3">
             <p>
-              <span class="cqz-rating-holder">
+              <span>
                 {{#for 0 movie.rating 1}}
                   <span class='cqz-rating-star-on'>★</span>
                 {{/for}}
@@ -31,11 +31,9 @@
         {{/unlesspref}}
       {{else}}
         {{#if cinemas}}
-          {{> partials/timetable-cinema }}
+          {{>cinema_showtimes_partial}}
         {{else}}
-          <div class="location_permission_prompt">
-            {{local 'no_cinemas_to_show'}}
-          </div>
+          {{local 'no_cinemas_to_show'}}
         {{/if}}
       {{/if}}
     </div>

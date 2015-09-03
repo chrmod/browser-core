@@ -771,11 +771,11 @@
 #cliqz-results .cinema-showtimes-table td  {
   max-width: 100px;
   padding: 8px 10px;
+  border-top: 1px solid #eaeaea;
 }
 
 #cliqz-results .cinema-name {
   font-size: 16px;
-  border-top: 1px solid #eaeaea;
 }
 
 #cliqz-results  .cinema-showtimes-table .cinema-row {
