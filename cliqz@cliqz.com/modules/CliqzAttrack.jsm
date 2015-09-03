@@ -344,6 +344,9 @@ var CliqzAttrack = {
         "BetterPrivacy": true,
         "NoScript": true
     },
+    statMD5:{},
+    trackReload:{},
+    reloadWhiteList:{},
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
     observerService: Components.classes["@mozilla.org/observer-service;1"]
@@ -776,6 +779,17 @@ var CliqzAttrack = {
             // @konarkm : Does not look like this being used anywhere in
             // http-open-request, hence commenting.
             // var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
+
+            var _key = source_tab + ":" + source_url;
+            if(CliqzAttrack.reloadWhiteList && CliqzAttrack.reloadWhiteList[_key]){
+                var source_url_parts = CliqzAttrack.parseURL(source_url);
+                if(CliqzAttrack.tp_events['_active'][source_tab]){
+                    if(!(CliqzAttrack.tp_events['_active'][source_tab]['ra'])){
+                        CliqzAttrack.tp_events['_active'][source_tab]['ra'] = 1;
+                    }
+                }
+                return;
+            }
 
             var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
             if (source_url == '' || source_url.indexOf('about:')==0) return;
@@ -1693,6 +1707,22 @@ var CliqzAttrack = {
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.visitCache[keys[i]];
             }
 
+
+            var keys = Object.keys(CliqzAttrack.reloadWhiteList);
+            for(var i=0;i<keys.length;i++) {
+                var diff = curr_time - (CliqzAttrack.reloadWhiteList[keys[i]] || 0);
+                if (diff > CliqzAttrack.timeCleaningCache) {
+                    delete CliqzAttrack.reloadWhiteList[keys[i]];
+                }
+            }
+
+            var keys = Object.keys(CliqzAttrack.trackReload);
+            for(var i=0;i<keys.length;i++) {
+                var diff = curr_time - (CliqzAttrack.trackReload[keys[i]] || 0);
+                if (diff > CliqzAttrack.timeCleaningCache) {
+                    delete CliqzAttrack.trackReload[keys[i]];
+                }
+            }
             // @konarkm : Does not look like reloadCache is being populated anywhere.
             // Commenting it out.
             /*
@@ -3329,6 +3359,20 @@ var CliqzAttrack = {
                         var windowID = util.outerWindowID;
                         // add window -> url pair to tab cache.
                         this._tabsStatus[windowID] = url;
+                        var _key = windowID + ":" + url;
+                        if(!(CliqzAttrack.trackReload[_key])) {
+                            CliqzAttrack.trackReload[_key] = new Date();
+                        }
+                        else{
+                            var t2 = new Date();
+                            var dur = (t2 -  CliqzAttrack.trackReload[_key]) / 1000;
+                            if(dur < 30000){
+                                // CliqzUtils.log("PageReLoaded:1 " +  dur + "XOXOXO");
+                                // CliqzUtils.log("PageReLoaded:2 " +  ((t2 - CliqzAttrack.trackReload[windowID +  ":" + url]) / 1000) + "XOXOXO");
+                                CliqzAttrack.reloadWhiteList[_key] = t2;
+                            }
+                        }
+
                         CliqzAttrack.tp_events.onFullPage(url, windowID);
                     } catch(e) {}
                 }
@@ -3396,7 +3440,7 @@ var CliqzAttrack = {
         _staged: [],
         _last_clean: 0,
         _clean_interval: 1000*10, // 10s
-        _push_interval: 1000*60*5, // 5 minutes
+        _push_interval: 1000*60*20, // 20 minutes @konarkm: Decreasing the frequency from 5 minutes to 20 minutes.
         _last_push: 0,
         _stats: ['c', // hit counter
                  'has_qs', // qs counter
@@ -3434,7 +3478,9 @@ var CliqzAttrack = {
                  'cookie_block_favicon',
                  'cookie_block_tp1',
                  'cookie_block_tp2',
-                 'cookie_block_ntp'
+                 'cookie_block_ntp',
+                 'cookie_allow_ntp',
+                 'reloadAttempted'
                 ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
@@ -3602,6 +3648,7 @@ var CliqzAttrack = {
                         path: this.path,
                         c: this.c,
                         t: this.e - this.s,
+                        ra: this.ra || 0,
                         tps: {}
                     };
                 if(!obj.hostname) return obj;
@@ -3620,6 +3667,12 @@ var CliqzAttrack = {
                             return tp_domain_data[k];
                         });
                         obj['tps'][tp_domain] = path_data.reduce(this._sumStats);
+
+                        // Remove the keys which have value == 0;
+                        CliqzAttrack.tp_events._stats.forEach(function(eachKey){
+                            if(obj['tps'][tp_domain] && obj['tps'][tp_domain][eachKey] == 0)
+                                delete obj['tps'][tp_domain][eachKey];
+                        });
                     }
                 }
                 return obj;
@@ -3628,10 +3681,9 @@ var CliqzAttrack = {
             this._sumStats = function(a, b) {
                 var c = {},
                     stats_keys = CliqzAttrack.tp_events._stats;
-                for(let k in stats_keys) {
-                    var s = stats_keys[k];
+                stats_keys.forEach(function(s){
                     c[s] = a[s] + b[s];
-                }
+                });
                 c['paths'] = a['paths'].concat(b['paths']);
                 return c;
             };
