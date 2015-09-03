@@ -208,7 +208,7 @@ function registerHelpers(){
             var parsedNum = parseFloat(num), postfix, dummy = "-";
             if (!isNaN(parsedNum) && isFinite(parsedNum)) {
                 postfix = isFinite(num) ? "" : (num + "").substring((parsedNum + "").length);
-                return isFinite(parsedNum) ? parsedNum.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) + postfix : dummy
+                return parsedNum.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) + postfix;
             }
             return dummy;
         }
