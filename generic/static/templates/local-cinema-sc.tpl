@@ -24,8 +24,7 @@
                 {{else}}
                     <div class="location_permission_prompt">
                         {{local 'no_cinemas_to_show'}}
-                    </div>  aq
-
+                    </div>
                 {{/if}}
             {{/if}}
         </div>
