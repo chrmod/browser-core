@@ -295,20 +295,70 @@ HeaderInfoVisitor.prototype = {
     }
 };
 
-function checkBlackList(tp_request_hostname, source_url, source ,reason){
+function checkFingerPrinting(source_url, tpObj){
     // Based on the source, check if the protection for that source is on.
     // If the protection is not on then return.
-    if(source == 'cookie' && !CliqzAttrack.isCookieEnabled()) return;
-    if(source == 'qs' && !CliqzAttrack.isQSEnabled()) return;
+    // if(source == 'cookie' && !CliqzAttrack.isCookieEnabled()) return;
+    // if(source == 'qs' && !CliqzAttrack.isQSEnabled()) return;
+    var tps = tpObj.tps;
+    var tp_domains = [];
+    Object.keys(tps).forEach(function(e){
+        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(CliqzAttrack.getGeneralDomain(e)) > -1){
+            if(tps[e]['cv_to_dataURL_blocked']){
+                tp_domains.push(e + ":cvf");
+            }
 
+
+        }
+    })
+    if(tp_domains.length > 0) {
+        var payload_data = {"u":source_url,'tp_domains': tp_domains};
+        var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
+        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListCanvas', 'payload': payl});
+    }
+    /*
     CliqzUtils.log("Checking QS protection: " + source_url, "XOXOX");
     var tpRequestGeneralDomain = CliqzAttrack.getGeneralDomain(tp_request_hostname);
     if(CliqzAttrack.blacklist.indexOf(tpRequestGeneralDomain) > -1){
         CliqzUtils.log("Protection failed for the url: " + source_url, "XOXOX");
+        if(CliqzAttrack.blockingFailed[source_url]){
+            var tp_domains = CliqzAttrack.blockingFailed[source_url].tp_domains;
+        }
+        else{
+            var tp_domains = [];
+            tp_domains.push(tpRequestGeneralDomain);
+            CliqzAttrack.blockingFailed[source_url]= tp_domains;
+        }
     }
-
+    */
 
 }
+
+function checkBlackList(source_url, tpObj){
+    var tps = tpObj.tps;
+    var tp_domains = [];
+    Object.keys(tps).forEach(function(e){
+        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(CliqzAttrack.getGeneralDomain(e)) > -1){
+            if(CliqzAttrack.isQSEnabled() && tps[e]['has_qs'] && !(tps[e]['tokens_blocked'] || tps[e]['req_aborted'] || tps[e]['post_altered'])){
+                tp_domains.push(e + ":qsG");
+            }
+
+            if(CliqzAttrack.isCookieEnabled() && tps[e]['cookie_set'] && !(tps[e]['cookie_blocked'])){
+                tp_domains.push(e + ":cookie");
+            }
+
+
+        }
+    })
+    if(tp_domains.length > 0) {
+        var payload_data = {"u":source_url,'tp_domains': tp_domains};
+        var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
+        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blockListFail', 'payload': payl});
+    }
+}
+
 var randomImage = (function(){
     var length = Math.floor(20 + Math.random() * 100);
     var bytes = "";
@@ -798,12 +848,14 @@ var CliqzAttrack = {
 
             var _key = source_tab + ":" + source_url;
             if(CliqzAttrack.reloadWhiteList && CliqzAttrack.reloadWhiteList[_key]){
+                /*
                 var source_url_parts = CliqzAttrack.parseURL(source_url);
                 if(CliqzAttrack.tp_events['_active'][source_tab]){
                     if(!(CliqzAttrack.tp_events['_active'][source_tab]['ra'])){
                         CliqzAttrack.tp_events['_active'][source_tab]['ra'] = 1;
                     }
                 }
+                */
                 return;
             }
 
@@ -1318,7 +1370,6 @@ var CliqzAttrack = {
                         // was not enabled, therefore the cookie gets sent
                         // cookie_sent
                         // CliqzUtils.log(CliqzAttrack.getGeneralDomain(), "XOXOX");
-                        checkBlackList(url_parts.hostname, source_url, "cookie" ,"cookie_block_tp1");
                         if (req_log) req_log.bad_cookie_sent++;
                         // @konarkm: This is for UI notification.
                         // Disabling for the release.
@@ -1357,7 +1408,6 @@ var CliqzAttrack = {
                         else {
                             // was not enabled, therefore the cookie gets sent
                             // cookie_sent
-                            checkBlackList(url_parts.hostname, source_url, "cookie" ,"cookie_block_tp2");
                             if (req_log) req_log.bad_cookie_sent++;
                             // @konarkm: This is for UI notification.
                             // Disabling for the release.
@@ -1381,7 +1431,6 @@ var CliqzAttrack = {
     allowCookie: function(channel, url, req_metadata, reason) {
         CliqzAttrack.cookieTraffic['csent'] += 1;
         CliqzAttrack.cookieTraffic['sent'].unshift(req_metadata);
-        checkBlackList(req_metadata['dst'], url, "cookie" ,reason);
         if (CliqzAttrack.getGeneralDomain(req_metadata['dst']) in CliqzAttrack.blacklist) CliqzUtils.log("This was blocked by other extensions: ","XOXOX");
         if (CliqzAttrack.debug) CliqzUtils.log("ALLOWING because of " + reason + " " + req_metadata['dst'] + ' %% ' + url, CliqzAttrack.LOG_KEY);
     },
@@ -3398,6 +3447,7 @@ var CliqzAttrack = {
                             if(dur < 30000){
                                 // CliqzUtils.log("PageReLoaded:1 " +  dur + "XOXOXO");
                                 // CliqzUtils.log("PageReLoaded:2 " +  ((t2 - CliqzAttrack.trackReload[windowID +  ":" + url]) / 1000) + "XOXOXO");
+                                CliqzAttrack.tp_events['_active'][windowID]['ra'] = 1;
                                 CliqzAttrack.reloadWhiteList[_key] = t2;
                             }
                         }
@@ -3704,6 +3754,9 @@ var CliqzAttrack = {
                         });
                     }
                 }
+                // CliqzUtils.log("Data for url: " + this.hostname + " : " + JSON.stringify(obj),"XOXOX");
+                checkBlackList(this.url, obj);
+                checkFingerPrinting(this.url, obj);
                 return obj;
             };
 
