@@ -295,6 +295,20 @@ HeaderInfoVisitor.prototype = {
     }
 };
 
+function checkBlackList(tp_request_hostname, source_url, source ,reason){
+    // Based on the source, check if the protection for that source is on.
+    // If the protection is not on then return.
+    if(source == 'cookie' && !CliqzAttrack.isCookieEnabled()) return;
+    if(source == 'qs' && !CliqzAttrack.isQSEnabled()) return;
+
+    CliqzUtils.log("Checking QS protection: " + source_url, "XOXOX");
+    var tpRequestGeneralDomain = CliqzAttrack.getGeneralDomain(tp_request_hostname);
+    if(CliqzAttrack.blacklist.indexOf(tpRequestGeneralDomain) > -1){
+        CliqzUtils.log("Protection failed for the url: " + source_url, "XOXOX");
+    }
+
+
+}
 var randomImage = (function(){
     var length = Math.floor(20 + Math.random() * 100);
     var bytes = "";
@@ -344,6 +358,8 @@ var CliqzAttrack = {
         "BetterPrivacy": true,
         "NoScript": true
     },
+    blacklist:{},
+    blockingFailed:{},
     statMD5:{},
     trackReload:{},
     reloadWhiteList:{},
@@ -1301,6 +1317,8 @@ var CliqzAttrack = {
                     else {
                         // was not enabled, therefore the cookie gets sent
                         // cookie_sent
+                        // CliqzUtils.log(CliqzAttrack.getGeneralDomain(), "XOXOX");
+                        checkBlackList(url_parts.hostname, source_url, "cookie" ,"cookie_block_tp1");
                         if (req_log) req_log.bad_cookie_sent++;
                         // @konarkm: This is for UI notification.
                         // Disabling for the release.
@@ -1339,6 +1357,7 @@ var CliqzAttrack = {
                         else {
                             // was not enabled, therefore the cookie gets sent
                             // cookie_sent
+                            checkBlackList(url_parts.hostname, source_url, "cookie" ,"cookie_block_tp2");
                             if (req_log) req_log.bad_cookie_sent++;
                             // @konarkm: This is for UI notification.
                             // Disabling for the release.
@@ -1362,6 +1381,8 @@ var CliqzAttrack = {
     allowCookie: function(channel, url, req_metadata, reason) {
         CliqzAttrack.cookieTraffic['csent'] += 1;
         CliqzAttrack.cookieTraffic['sent'].unshift(req_metadata);
+        checkBlackList(req_metadata['dst'], url, "cookie" ,reason);
+        if (CliqzAttrack.getGeneralDomain(req_metadata['dst']) in CliqzAttrack.blacklist) CliqzUtils.log("This was blocked by other extensions: ","XOXOX");
         if (CliqzAttrack.debug) CliqzUtils.log("ALLOWING because of " + reason + " " + req_metadata['dst'] + ' %% ' + url, CliqzAttrack.LOG_KEY);
     },
     blockCookie: function(channel, url, req_metadata, reason) {
@@ -1849,6 +1870,14 @@ var CliqzAttrack = {
 
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
         CliqzAttrack.initDB();
+        CliqzUtils.httpGet('chrome://cliqz/content/blacklist.json',
+            function success(req){
+                CliqzAttrack.blacklist = JSON.parse(req.response).tpdomains;
+            },
+            function error(){
+                CliqzUtils.log("Could not load blacklist.")
+            }
+         );
 
 
 
