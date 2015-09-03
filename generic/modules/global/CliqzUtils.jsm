@@ -83,7 +83,7 @@ var CliqzUtils = {
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'entity-portal': 3, 'topsites': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'entity-search-1': 2, 'flightStatusEZ-2': 2, 'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1,
@@ -599,9 +599,15 @@ var CliqzUtils = {
              '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-   encodeLocation: function(specifySource, lat, lng) {
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng){
-      return [
+
+  encodeLocation: function(specifySource, lat, lng) {
+    var qs = [
+     '&loc_pref=',
+     CliqzUtils.getPref('share_location','ask')
+    ].join('')
+
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
+      qs += [
         '&loc=',
         lat || CLIQZEnvironment.USER_LAT,
         ',',
@@ -609,7 +615,8 @@ var CliqzUtils = {
         (specifySource ? ',U' : '')
       ].join('');
     }
-    else return ''
+
+    return qs;
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
