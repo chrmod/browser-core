@@ -902,10 +902,10 @@ var CliqzAttrack = {
                     }
 
                     // stats
-                    if (CliqzAttrack.QSStats[source_url_parts.hostname] == null) CliqzAttrack.QSStats[source_url_parts.hostname] = {};
-                    if (CliqzAttrack.QSStats[source_url_parts.hostname][source_url_parts.hostname] == null)
-                        CliqzAttrack.QSStats[source_url_parts.hostname][source_url_parts.hostname + url_parts.path] = 0;
-                    CliqzAttrack.QSStats[source_url_parts.hostname][url_parts.hostname + url_parts.path] += badTokens.length;
+                    // if (CliqzAttrack.QSStats[source_url_parts.hostname] == null) CliqzAttrack.QSStats[source_url_parts.hostname] = {};
+                    // if (CliqzAttrack.QSStats[source_url_parts.hostname][source_url_parts.hostname] == null)
+                    //     CliqzAttrack.QSStats[source_url_parts.hostname][source_url_parts.hostname + url_parts.path] = 0;
+                    // CliqzAttrack.QSStats[source_url_parts.hostname][url_parts.hostname + url_parts.path] += badTokens.length;
                     var ts = Date.now();
                     var blockedItem = {
                         'ts': ts,
@@ -1776,7 +1776,7 @@ var CliqzAttrack = {
         CliqzAttrack.saveTokenWhitelist();
         CliqzAttrack.saveSafeKey();
         CliqzAttrack.saveRequestKeyValue();
-        CliqzAttrack.saveQSStats();
+        // CliqzAttrack.saveQSStats();
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
         window.gBrowser.removeProgressListener(CliqzAttrack.listener);
     },
@@ -1834,7 +1834,7 @@ var CliqzAttrack = {
 		if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
         if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
-        if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
+        // if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
         // @konarkm : Since we already have window, passing it.
         // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
