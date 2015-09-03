@@ -31,7 +31,7 @@
         {{/unlesspref}}
       {{else}}
         {{#if cinemas}}
-          {{>cinema_showtimes_partial}}
+          {{>partials/timetable-cinema}}
         {{else}}
           {{local 'no_cinemas_to_show'}}
         {{/if}}
