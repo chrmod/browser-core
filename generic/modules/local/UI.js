@@ -17,6 +17,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
+
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
@@ -79,6 +81,7 @@ var UI = {
     urlbar_box: null,
     DROPDOWN_HEIGHT: 349,
     popupClosed: true,
+    VIEWS: Object.create(null),
     init: function(_urlbar){
         urlbar = _urlbar
         if(!urlbar.mInputField) urlbar.mInputField = urlbar; //not FF
@@ -99,7 +102,7 @@ var UI = {
             urlbar.removeEventListener(ev, CLIQZ.UI['urlbar' + ev]);
         }
     },
-    main: function(box){
+    main: function(box) {
         gCliqzBox = box;
 
         //check if loading is done
@@ -2080,6 +2083,17 @@ function handleMouseDown(e) {
 
        setTimeout(tick, 100);
     }
+
+
+
+Object.keys(TEMPLATES).forEach(function (templateName) {
+  UI.VIEWS[templateName] = Object.create(null);
+  try {
+    Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
+  } catch (ex) {
+
+  }
+})
 
 ctx.CLIQZ.UI = UI;
 
