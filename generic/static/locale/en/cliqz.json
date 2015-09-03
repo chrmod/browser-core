@@ -1,4 +1,19 @@
 {
+    "open": {
+        "message": "Open"
+    },
+    "close_soon": {
+        "message": "Closing soon"
+    },
+    "open_soon": {
+        "message": "Opening soon"
+    },
+    "closed": {
+        "message": "Closed"
+    },
+    "open_hour": {
+        "message": "Opening hours"
+    },
     "from_lcase":{
         "message": "from"
     },
@@ -720,7 +735,7 @@
         "message": "Dismiss"
     },
     "cqz_watch_trailer": {
-      "message": "Watch Trailer"
+      "message": "Watch trailer"
     },
     "Monday": {
       "message": "Monday"
