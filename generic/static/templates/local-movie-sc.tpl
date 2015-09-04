@@ -30,11 +30,7 @@
           {{>missing_location}}
         {{/unlesspref}}
       {{else}}
-        {{#if cinemas}}
-          {{>partials/timetable-cinema}}
-        {{else}}
-          {{local 'no_cinemas_to_show'}}
-        {{/if}}
+        {{>partials/timetable-cinema}}
       {{/if}}
     </div>
     {{#if movie.trailer_url}}

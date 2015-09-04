@@ -878,6 +878,7 @@
 }
 
 #cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes,
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes_confirm,
 #cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
   border: none;
   height: 18px;

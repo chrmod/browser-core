@@ -33,13 +33,7 @@
                     {{> missing_location}}
                 {{/unlesspref}}
             {{else}}
-                {{#if movies }}
-                    {{> partials/timetable-movie }}
-                {{else}}
-                    <div class="location_permission_prompt">
-                        {{local 'no_cinemas_to_show'}}
-                    </div>
-                {{/if}}
+                {{> partials/timetable-movie }}
             {{/if}}
         </div>
         <p>

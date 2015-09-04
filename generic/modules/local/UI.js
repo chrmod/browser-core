@@ -1572,82 +1572,19 @@ function resultClick(ev) {
                 default:
                     break;
             }
-        } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
-            ev.preventDefault();
-
-            $('.location_permission_prompt', gCliqzBox).classList.add("loading");
-
-            if (el.id == 'cqz_location_yes') {
-                CLIQZEnvironment.setLocationPermission(window, 'yes');
-            }
-            CLIQZEnvironment.getGeo(true, function (loc) {
-                CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-                    "&q=" + CLIQZ.Core.urlbar.value +
-                    CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
-                    "&bmresult=" + el.getAttribute('bm_url'),
-                    handleNewLocalResults(el));
-            }, function () {
-                //TODO: provide user feedback
-                CliqzUtils.log("Unable to get user's location", "CliqzUtils.getGeo")
-            });
+        } else {
+          var elId = el.getAttribute("id");
+          if( elId in UI.clickHandlers ) {
+            UI.clickHandlers[elId](ev);
             break;
-        } else if (el.id == 'cqz_location_no') {
-            var container = $(".local-sc-data-container", gCliqzBox);
-            /* Show a message to confirm user's decision*/
-            var confirm_no_id = el.getAttribute('location_confirm_no_msg');
-            if (!confirm_no_id)
-                confirm_no_id = '00'; // Default to the generic message
-
-            container.innerHTML = CliqzHandlebars.tplCache['confirm_no_' + confirm_no_id]({
-                'friendly_url': el.getAttribute('bm_url')
-            });
-
-        } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
-            if (el.id == 'cqz_location_never')
-                CLIQZEnvironment.setLocationPermission(window, "no");
-
-            /* Hide the prompt that asks for permision to get user's location */
-            var container = $(".local-sc-data-container", gCliqzBox);
-            if (container) container.innerHTML = CliqzHandlebars.tplCache['partials/no-locale-data']({'display_msg': 'location-no'});
-            break;
-        } else if (el.id == 'cqz_location_yes_confirm') {
-            CLIQZEnvironment.setLocationPermission(window, "yes");
-
-            var container = $(".local-sc-data-container", gCliqzBox);
-            if (container) container.innerHTML = CliqzHandlebars.tplCache['partials/no-locale-data']({'display_msg': 'location-thank-you'});
-            break;
+          }
         }
+
         if (el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
 }
 
-
-function handleNewLocalResults(el) {
-  return function(req) {
-    //CliqzUtils.log(req, "RESPONSE FROM RH");
-    var resp = JSON.parse(req.response);
-    var container = el;
-    while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
-      container = container.parentElement;
-      if (!container || container.id == "cliqz-results") return;
-    }
-    //CliqzUtils.log(container,'cinema-container');
-    if (resp.results && resp.results.length > 0) {
-      var data = resp.results[0];
-      data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
-      var tpl = data.data.superTemplate;
-      if (container) container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
-    } else {
-        var container = $(".local-sc-data-container", gCliqzBox);
-        if (el.id === 'cqz_location_yes') {
-            container.innerHTML = CliqzHandlebars.tplCache['partials/no-locale-data']({'display_msg': 'location-sorry'});
-        } else if (el.id == 'cqz_location_once') {
-            container.innerHTML = CliqzHandlebars.tplCache['partials/no-locale-data']({'display_msg': 'location-permission-ask'});
-        }
-    }
-  }
-}
 
 
 function getResultSelection(){
@@ -2085,13 +2022,15 @@ function handleMouseDown(e) {
     }
 
 
-
-Object.keys(TEMPLATES).forEach(function (templateName) {
+UI.clickHandlers = {};
+Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
     Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
+    Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+      UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+    });
   } catch (ex) {
-
   }
 })
 

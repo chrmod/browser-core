@@ -63,6 +63,11 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
 
 CliqzHandlebars.tplCache = {};
 
+/* Needed by the view layer */
+CliqzHandlebars.TEMPLATES = TEMPLATES;
+CliqzHandlebars.MESSAGE_TEMPLATES = MESSAGE_TEMPLATES;
+CliqzHandlebars.PARTIALS = PARTIALS;
+
 compileTemplates();
 registerHelpers();
 

@@ -19,7 +19,7 @@
 
    {{#if (logic display_msg '===' 'location-permission-ask') }}
         <div class="loc_permission_prompt_buttons">
-            <span class="cqz-btn-default" id="cqz_location_yes_confirm">
+            <span class="cqz-btn-default cqz-btn-yes" id="cqz_location_yes_confirm">
                 {{local 'yes'}}
             </span>
         </div>
