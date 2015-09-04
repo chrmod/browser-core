@@ -803,6 +803,15 @@
     "no_local_data_msg": {
       "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe."
     },
+    "location_sorry_msg": {
+      "message": "Oh nein, leider ist etwas schief gegangen. Passiert nicht noch einmal!"
+    },
+    "location_thank_you_msg": {
+      "message": "Vielen Dank!"
+    },
+    "location_not_share_msg": {
+      "message": "Voll blöd, Du verpasst etwas. Solltest Du Deine Meinung noch ändern, dann kannst Du Deine Einstellungen jederzeit im Cliqz Menü ändern"
+    },
     "movies_confirm_no": {
       "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"
     },
@@ -828,7 +837,13 @@
       "message": "Nein, zeige mir lokale Informationen."
     },
     "extended_forecast": {
-      "message": "Detailiertere Vorhersage"
+        "message": "Detailiertere Vorhersage"
+    },
+    "cinema_program_btn": {
+        "message": "Kinoprogramm"
+    },
+    "now_playing_in_cinema": {
+        "message": "Aktuelle Filme"
     },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
