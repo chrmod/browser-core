@@ -89,6 +89,28 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 				return Promise.resolve();
 			});
 		});
+
+        it('should open URL on confirm without limit', function() {
+            var campaign = CliqzMsgCenter._campaigns.TEST001,
+                core = CliqzUtils.getWindow().CLIQZ.Core,
+                url = 'http://www.cliqz.com';
+
+            campaign.limits.confirm = -1;
+            campaign.message.options[0].url = url;
+            CliqzMsgCenter._onMessageAction('TEST001', 'confirm');
+            chai.expect(core.urlbar.value ).to.equal(url);
+        });
+
+        it('should open URL on actions other than confirm', function() {
+            var campaign = CliqzMsgCenter._campaigns.TEST001,
+                core = CliqzUtils.getWindow().CLIQZ.Core,
+                url = 'http://www.cliqz.com';
+
+            campaign.limits.postpone = 1;
+            campaign.message.options[1].url = url;
+            CliqzMsgCenter._onMessageAction('TEST001', 'postpone');
+            chai.expect(core.urlbar.value ).to.equal(url);
+        });
 	});
 };
 
