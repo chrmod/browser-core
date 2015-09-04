@@ -140,6 +140,8 @@ window.CLIQZ.Core = {
             CliqzCategories.init();
         }
 
+        CLIQZ.Core.resetAboutCliqzPrefs();
+
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
@@ -251,6 +253,44 @@ window.CLIQZ.Core = {
         // antiphishing listener
         //gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
     },
+
+    // Reset newtab and homepage if about:cliqz does not exist
+    resetAboutCliqzPrefs: function() {
+
+        // if about:cliqz is registered
+        if(!Components.classes["@mozilla.org/network/protocol/about;1?what=cliqz"]) {
+
+            // if new tab page is set to about:cliqz
+            if(CliqzUtils.genericPrefs.getCharPref("browser.newtab.url") == "about:cliqz") {
+                var newtab_backup = CliqzUtils.getPref("backup.newtab")
+                if(newtab_backup) {
+                    // reset with backup
+                    CliqzUtils.genericPrefs.setCharPref("browser.newtab.url", newtab_backup);
+                } else {
+                    // reset to default if no backup
+                    CliqzUtils.genericPrefs.clearUserPref("browser.newtab.url");
+                }
+            }
+
+            // if homepage page is set to about:cliqz
+            if(CliqzUtils.genericPrefs.getCharPref("browser.startup.homepage") == "about:cliqz") {
+                var homepage_backup = CliqzUtils.getPref("backup.homepage")
+                if(homepage_backup) {
+                    // reset with backup
+                    CliqzUtils.genericPrefs.setCharPref("browser.startup.homepage", homepage_backup);
+                } else {
+                    // reset to default if no backup
+                    CliqzUtils.genericPrefs.clearUserPref("browser.startup.homepage");
+                }
+            }
+
+            // Cleanup backups
+            CliqzUtils.cliqzPrefs.clearUserPref("backup.newtab");
+            CliqzUtils.cliqzPrefs.clearUserPref("backup.homepage");
+            CliqzUtils.cliqzPrefs.clearUserPref("freshtabdone");
+        }
+    },
+
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
         CLIQZ.Core.elem.push(
