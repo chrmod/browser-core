@@ -519,7 +519,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 				}
 
 				// end campaign if limit reached
-				if (campaign.limits[action] != -1 ||
+				if (campaign.limits[action] != -1 &&
 					++campaign.counts[action] == campaign.limits[action]) {
 					campaign.setState('end');
 				} else {
