@@ -510,13 +510,11 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 
 				// open URL in new tab if specified for this action
 				var gBrowser = CliqzUtils.getWindow().gBrowser;
-				for (var i = 0; i < campaign.message.options.length; i++) {
-					if (campaign.message.options[i].action == action &&
-						campaign.message.options[i].url) {
-							gBrowser.selectedTab =
-								gBrowser.addTab(campaign.message.options[i].url);
+				campaign.message.options.forEach(function (option) {
+					if (option.action === action && option.url) {
+						gBrowser.selectedTab = gBrowser.addTab(option.url);
 					}
-				}
+				});
 
 				// end campaign if limit reached
 				if (campaign.limits[action] != -1 &&
