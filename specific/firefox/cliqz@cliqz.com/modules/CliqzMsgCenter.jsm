@@ -510,14 +510,14 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 
 					if (action == 'confirm') {
 						CliqzUtils.httpGet(_getEndpoint('click', campaign));
-						// TODO: potentially move to method
-						var gBrowser = CliqzUtils.getWindow().gBrowser;
-						for (var i = 0; i < campaign.message.options.length; i++) {
-							if (campaign.message.options[i].action == action &&
-								campaign.message.options[i].url) {
-									gBrowser.selectedTab =
-										gBrowser.addTab(campaign.message.options[i].url);
-							}
+					}
+					// TODO: potentially move to method
+					var gBrowser = CliqzUtils.getWindow().gBrowser;
+					for (var i = 0; i < campaign.message.options.length; i++) {
+						if (campaign.message.options[i].action == action &&
+							campaign.message.options[i].url) {
+								gBrowser.selectedTab =
+									gBrowser.addTab(campaign.message.options[i].url);
 						}
 					}
 				} else {
