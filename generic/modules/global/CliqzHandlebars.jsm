@@ -24,9 +24,21 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       'onboarding-callout-extended',
       'confirm_no_00',
       'confirm_no_01',
-      'slow_connection'
+      'slow_connection',
+      'partials/no-locale-data'
     ],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
+    PARTIALS = [
+        'url',
+        'logo',
+        'EZ-category',
+        'EZ-history',
+        'feedback',
+        'rd-h3-w-rating',
+        'pcgame_movie_side_snippet',
+        'missing_location',
+        'partials/timetable-cinema',
+        'partials/timetable-movie'
+    ],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -50,6 +62,11 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
 
 
 CliqzHandlebars.tplCache = {};
+
+/* Needed by the view layer */
+CliqzHandlebars.TEMPLATES = TEMPLATES;
+CliqzHandlebars.MESSAGE_TEMPLATES = MESSAGE_TEMPLATES;
+CliqzHandlebars.PARTIALS = PARTIALS;
 
 compileTemplates();
 registerHelpers();
@@ -312,6 +329,7 @@ function registerHelpers(){
             case "is":          return lvalue == rvalue;
             case "starts_with": return lvalue.indexOf(rvalue) == 0;
             case "===":         return lvalue === rvalue;
+            case "!=":          return lvalue != rvalue;
             case "<":           return lvalue < rvalue;
             case ">":           return lvalue > rvalue;
         }

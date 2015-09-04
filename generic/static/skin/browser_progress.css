@@ -109,22 +109,43 @@
 #cliqz-results .cqz-rd .cqz-ez-btns {margin-top: 19px;}
 #cliqz-results .cqz-rd-body {height: calc(100% - 52px);height: -moz-calc(100% - 52px); width: -moz-calc(100% - 70px); width: calc(100% - 70px); max-width: 700px;}
 #cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-1px);}
-#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.6em; line-height: 1.4em; }
-#cliqz-results .cqz-rd-max-lines4:before {
-    white-space: normal; content:""; float: left; width: 5px; height: 5.6em;}
-#cliqz-results .cqz-rd-max-lines4 > *:first-child {
-    white-space: normal; float: right; width: 100%; margin-left: -5px; }
-#cliqz-results .cqz-rd-max-lines4:after {
+
+#cliqz-results .cqz-multy-lines-ellipses {
+    overflow: hidden;
+    height: 5.6em; /*4 lines*/
+    white-space: normal;
+    line-height: 1.4em;
+}
+
+#cliqz-results .cqz-multy-lines-ellipses:before {
+    content: "";
+    float: left;
+    width: 5px;
+    height: 5.6em;
+    white-space: normal;
+}
+
+#cliqz-results .cqz-multy-lines-ellipses > * {
+    float: right;
+    width: 100%;
+    margin-left: -5px;
+    white-space: normal;
+    line-height: 1.4em;
+}
+
+#cliqz-results .cqz-multy-lines-ellipses:after {
     white-space: normal;
     content: "\02026";
 
     box-sizing: content-box;
-    -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
 
-    float: right; position: relative;
-    top: -1.4em; left: 100%;
-    width: 2.5em; margin-left: -2.5em;
+    float: right;
+    position: relative;
+    top: -1.4em;
+    left: 100%;
+    width: 15px;
+    margin-left: -15px;
     padding-right: 5px;
 
     text-align: right;
@@ -133,7 +154,9 @@
     background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
-#cliqz-results .cqz-rd-max-lines4 p{line-height: 1.4em;}
+/* ==== 3 lines ====*/
+#cliqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3 { height: 4.2em; }
+#cliqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3:before { height: 4.2em; }
 
 #cliqz-results .cqz-rd-info{color: #999999; padding-bottom: 7px;}
 #cliqz-results .cqz-rd-info-2{color: #999999;}
@@ -651,97 +674,135 @@
 
 
 /***** LOCAL MOVIE EZ ******/
-
-#cliqz-results .movie_container {
-  height:160px;
-  max-height:160px;
-  width: calc(100% - 35px);
-  max-width: 700px;
+#cliqz-results .cqz-movie-container,
+#cliqz-results .cqz-cinema-container {
+    width: calc(100% - 35px);
+    max-width: 700px;
+    margin-bottom: 15px;
 }
 
-#cliqz-results .movie_poster, #cliqz-results .movie_poster_img {
-  max-width: 110px;
-  border-radius: 6px;
+#cliqz-results .movie_poster,
+#cliqz-results .cqz-cinema-image {
+    float:left;
+    margin-right: 20px;
 }
 
-#cliqz-results .movie_poster {
-  /* position:absolute; */
-  float:left;
+#cliqz-results .movie_poster,
+#cliqz-results .movie_poster_img {
+    max-width: 80px;
+    max-height: 120px;
+    height: auto;
+    border-radius: 3px;
 }
+
+#cliqz-results .cqz-cinema-image {
+    max-width: 125px;
+    max-height: 125px;
+    height: auto;
+    border-radius: 3px;
+}
+
+#cliqz-results .local-cinema-result .cinema-showtimes-container { position: relative; padding-top: 3px; margin-bottom: 13px; }
+#cliqz-results .cinema-showtimes-container .cqz-movie-playing {
+    width: 140px;
+    padding: 4px 0 6px;
+    position: absolute;
+    left: 22px;
+    bottom: 0;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1em;
+    text-align: center;
+    text-transform: uppercase;
+    transform-origin: left bottom 0px;
+    transform: rotate(-90deg);
+    word-spacing: 5px;
+    background: #ccc;
+}
+#cliqz-results .cinema-showtimes-container .cqz-movie-playing + .cinema-showtimes-table { margin-left: 40px; }
 
 #cliqz-popup #cliqz-results .movie_data {
-  margin-left: 125px;
-  height:160px;
   padding-right: 60px;
 }
 
 #cliqz-results .movie_url {
-  margin-top: 0px;
-  margin-bottom:10px;
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 
 #cliqz-results .cqz-ez-title.movie_title {
+  display: block;
   margin-bottom: 10px;
-  display:block;
 }
 
 #cliqz-results .movie_description {
   text-align: left;
 }
 
+
+#cliqz-results .cqz-rating-holder { margin-right: 10px; }
 #cliqz-results .cqz-rating-star-on {
-  color:#FDDD32;
+  color: #FDDD32;
 }
 
 #cliqz-results .cqz-rating-star-off {
-  color:#CDCDCD;
+  color: #CDCDCD;
 }
 
 #cliqz-results .movie_desc {
-  max-height:150px;
-  padding-left:10px;
-  overflow:ellipsis;
-  white-space: normal;
+  white-space:  normal;
 }
+
+#cliqz-results .cinema-showtimes-container .location_permission_prompt { height: 100%; }
+#cliqz-results .local-sc-data-container {
+  width: 80%;
+  max-width: 650px;
+}
+#cliqz-results .cinema-showtimes-container { height: 140px; margin-bottom: 5px; }
+#cliqz-results .cqz-cinema-program-btn { background: #333; }
 
 #cliqz-results .cinema-showtimes-table {
-  width:100%;
-  max-width:650px;
-  border-spacing: 0;
-  border-collapse: collapse;
-  margin-top: 10px;
+    table-layout: fixed;
+    max-width: 650px;
+    border-spacing: 0;
+    border-collapse: collapse;
 }
 
-#cliqz-results .local-sc-data-container {
-  width:80%;
-  max-width:650px;
-}
-
-#cliqz-results .cinema-name-td, #cliqz-results .cinema-showtime-td  {
-  font-size: 16px;
-  border-top: 1px solid #EAEAEA;
-  padding-top:5px;
-  padding-bottom:5px;
-  max-width:100px;
+#cliqz-results .cinema-showtimes-table td  {
+  max-width: 100px;
+  padding: 8px 10px;
+  border-top: 1px solid #eaeaea;
 }
 
 #cliqz-results .cinema-name {
   font-size: 16px;
 }
 
-#cliqz-results .cinema-row {
-  height:15px;
+#cliqz-results  .cinema-showtimes-table .cinema-row {
+  height: 15px;
 }
-#cliqz-results .cinema-showtime-td  {
+#cliqz-results  .cinema-showtimes-table .cinema-showtime-td  {
   text-align:center;
-  /* color:#CECECE; */
+}
+#cliqz-results  .cinema-showtimes-table .cinema-name-td {
+    max-width: 200px;
+    padding-left: 0;
+    padding-right: 35px;
 }
 
-#cliqz-results .showtimes-date {
-  float:right;
-  margin-bottom: 10px;
-  margin-top:0px;
-  color:#CECECE;
+#cliqz-results  .cinema-showtimes-table .showtimes-date {
+    padding-left: 0;
+    padding-bottom: 10px;
+    text-align: left;
+    color: #CECECE;
+    font-weight: normal;
+    font-size: 16px;
+}
+
+#cliqz-results  .cinema-showtimes-table span.cinema-showtime  { color: #999; font-size: 14px; }
+
+#cliqz-results .cinema-name {
+    font-size: 16px;
 }
 
 #cliqz-results .movie-trailer-btn {
@@ -750,30 +811,62 @@
 }
 
 #cliqz-results .location_permission_prompt {
-  height: 85px;
-  background-color: rgb(255, 83, 73);
   color: #FFF;
-  margin-top: 10px;
-  padding: 10px;
+  padding: 16px 20px 10px;
+  background-color: rgb(255, 83, 73);
+}
+#cliqz-results .location_permission_prompt.loading { position: relative; padding: 0; }
+#cliqz-results .location_permission_prompt.loading:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border-radius: 100%;
+    background-color: #fff;
+    -webkit-animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
+    animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
+}
+@-webkit-keyframes cqz-loading-circle-animation {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
 }
 
+@keyframes cqz-loading-circle-animation {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+#cliqz-results .location_permission_prompt.loading > * { opacity: 0 !important; }
+
 #cliqz-results .loc_permission_prompt_message {
-  height: 70%;
-  font-size:16px;
-  white-space: normal;
+    min-height: calc(100% - 80px);
+    font-size: 16px;
+    white-space: normal;
+    margin-bottom: 15px;
 }
 
 #cliz-results .cqz_location_once {
   color:white;
-
 }
 
 #cliqz-results .cqz_location_never {
   color:white;
 }
 
-#cliqz-results .loc_permission_prompt_buttons>span {
-  border-radius: 6px;
+#cliqz-results .loc_permission_prompt_buttons > span {
+  border-radius: 3px;
   display: inline-block;
   margin-bottom: 10px;
   position: relative;
@@ -784,12 +877,14 @@
   background: transparent none repeat scroll 0% 0%;
 }
 
-#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes, #cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes,
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes_confirm,
+#cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
   border: none;
   height: 18px;
-  background-color: rgb(47, 196, 252);
   width: auto;
   text-align: center;
+  background-color: #5498f8;
 }
 
 /*** END LOCAL MOVIE EZ ****/
