@@ -100,7 +100,7 @@ CLIQZEnvironment = {
     httpHandler: function(method, url, callback, onerror, timeout, data){
         var req = new XMLHttpRequest();
         if (url.indexOf("https://newbeta.cliqz.com/api/v1/results?q=") == 0) {
-            url = "http://localhost:3000/myproxy?url=" + encodeURIComponent(url);
+            url = "http://localhost:3001/myproxy?url=" + encodeURIComponent(url);
         }
         req.open(method, url, true);
         req.overrideMimeType('application/json');
