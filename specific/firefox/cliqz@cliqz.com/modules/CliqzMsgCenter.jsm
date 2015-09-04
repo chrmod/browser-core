@@ -504,22 +504,24 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 				_log('campaign ' + campaign.id + ': ' + action);
 				_telemetry(campaign, action);
 
+				if (action == 'confirm') {
+					CliqzUtils.httpGet(_getEndpoint('click', campaign));
+				}
+
+				// open URL in new tab if specified for this action
+				var gBrowser = CliqzUtils.getWindow().gBrowser;
+				for (var i = 0; i < campaign.message.options.length; i++) {
+					if (campaign.message.options[i].action == action &&
+						campaign.message.options[i].url) {
+							gBrowser.selectedTab =
+								gBrowser.addTab(campaign.message.options[i].url);
+					}
+				}
+
+				// end campaign if limit reached
 				if (campaign.limits[action] != -1 ||
 					++campaign.counts[action] == campaign.limits[action]) {
 					campaign.setState('end');
-
-					if (action == 'confirm') {
-						CliqzUtils.httpGet(_getEndpoint('click', campaign));
-					}
-					// TODO: potentially move to method
-					var gBrowser = CliqzUtils.getWindow().gBrowser;
-					for (var i = 0; i < campaign.message.options.length; i++) {
-						if (campaign.message.options[i].action == action &&
-							campaign.message.options[i].url) {
-								gBrowser.selectedTab =
-									gBrowser.addTab(campaign.message.options[i].url);
-						}
-					}
 				} else {
 					campaign.setState('idle');
 				}
