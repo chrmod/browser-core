@@ -1,6 +1,6 @@
 <div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-movie-result">
   {{#with data}}
-    <div class='movie_container'>
+    <div class='cqz-movie-container'>
       <div class='movie_poster'>
         <img src='{{movie.poster_img}}' class='movie_poster_img'/>
       </div>

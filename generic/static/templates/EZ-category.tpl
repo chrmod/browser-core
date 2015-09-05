@@ -1,6 +1,6 @@
 <div class='cqz-ez-btns'>
 {{#each data.btns}}
-    <div
+    <span
       class="cqz-ez-btn {{ ../logo.buttonsClass }}"
       url="{{ url }}"
       extra="{{../data.btnExtra}}-{{@index }}" arrow="false" arrow-if-visible='true'>
@@ -9,6 +9,6 @@
       {{else}}
         {{ emphasis title ../../text 2 true}}
       {{/if}}
-    </div>
+    </span>
 {{/each}}
 </div>
