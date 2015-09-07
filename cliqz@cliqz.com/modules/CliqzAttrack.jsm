@@ -1090,6 +1090,9 @@ var CliqzAttrack = {
         observe: function(subject, topic, data) {
             // For headers only, AFAIK the etags (if-none-match) becomes available only in the response
             // So let's at least do the counting
+            if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
+                return;
+            }
             var aChannel = subject.QueryInterface(nsIHttpChannel);
             var url = '' + aChannel.URI.spec;
             if (!url || url == '') return;
