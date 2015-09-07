@@ -1349,7 +1349,9 @@ var CliqzAttrack = {
 
             // This is order to only allow visited sources from browser. Else some redirect calls
             // Getting leaked.
-            var s_host = CliqzAttrack.getGeneralDomain(source_url_parts.hostname);
+            if(source_url && source_url_parts.hostname){
+                var s_host = CliqzAttrack.getGeneralDomain(source_url_parts.hostname);
+            }
 
             // check visitcache to see if this domain is temporarily allowed.
             // Additional check required when gd=false and request_type== full_page, else block
