@@ -5,7 +5,7 @@
         <img src='{{movie.poster_img}}' class='movie_poster_img'/>
       </div>
       <div class='movie_data'>
-        <div class="movie_title cqz-ez-title"><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
+        <div class="movie_title cqz-ez-title"><a extra="movieSC_title" href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class="cqz-result-url movie_url">{{emphasis friendly_url text 2 true}}</div>
         <div class="movie_description cqz-multy-lines-ellipses cqz-line-vis-3">
             <p>
@@ -37,7 +37,8 @@
       <div
         arrow-override=''
         class="cqz-ez-btn movie-trailer-btn {{ ../../logo.buttonsClass }}"
-        url="{{ movie.trailer_url }}">
+        url="{{ movie.trailer_url }}"
+        extra="movieSC_trailer">
          {{local 'cqz_watch_trailer'}}
       </div>
     {{/if}}
