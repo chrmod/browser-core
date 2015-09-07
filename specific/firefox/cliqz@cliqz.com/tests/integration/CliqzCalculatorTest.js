@@ -18,17 +18,12 @@ TESTS.CliqzCalculatorTest = function (CliqzCalculator) {
             });
 
             it('Results should have ID calc-answer, in localized format', function () {
-                expect(checkLocaliseString($cliqzResults()
-                        .find(".cqz-result-box")
-                        .find("#calc-answer")[0]
-                        .textContent.trim()
-                    , {'de': '6.666,4', 'default': '6,666.4'}))
-                    .to.be.true;
+                expect($cliqzResults().find(".cqz-result-box").find("#calc-answer")[0].textContent.trim())
+                    .to.equal(getLocaliseString({'de': '6.666,4', 'default': '6,666.4'}));
             });
 
             it('Should have copy message', function () {
-                expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim())
-                    .to.have.length.above(10);
+                expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
             });
         });
 
@@ -42,29 +37,17 @@ TESTS.CliqzCalculatorTest = function (CliqzCalculator) {
             });
 
             it('Results should have ID calc-answer, in localized format', function () {
-                expect(checkLocaliseString($cliqzResults()
-                        .find(".cqz-result-box")
-                        .find("#calc-answer")[0]
-                        .textContent.trim()
-                    , {'de': '1.000 mm', 'default': '1,000 mm'}))
-                    .to.be.true;
+                expect($cliqzResults().find(".cqz-result-box").find("#calc-answer")[0].textContent.trim())
+                    .to.equal(getLocaliseString({'de': '1.000 mm', 'default': '1,000 mm'}));
             });
 
             it('Should have base-unit conversion in localized format', function () {
-
-                expect(checkLocaliseString($cliqzResults()
-                        .find(".cqz-result-box")
-                        .find(".expression")[0]
-                        .firstChild
-                        .textContent.trim()
-                    , {'de': '1 m = 1.000 mm', 'default': '1 m = 1,000 mm'}))
-                    .to.be.true;
+                expect($cliqzResults().find(".cqz-result-box").find(".expression")[0].firstChild.textContent.trim())
+                    .to.equal(getLocaliseString({'de': '1 m = 1.000 mm', 'default': '1 m = 1,000 mm'}));
             });
 
-
             it('Should have copy message', function () {
-                expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim())
-                    .to.have.length.above(10);
+                expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
             });
         });
 

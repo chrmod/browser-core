@@ -90,7 +90,7 @@ function injectTestHelpers(CliqzUtils) {
       });
   };
 
-  window.checkLocaliseString = function(test_str, targets) {
-    return lang === "de-DE" ? test_str === targets.de : test_str === targets.default;
+  window.getLocaliseString = function(targets) {
+    return lang === "de-DE" ? targets.de : targets.default;
   };
 }
