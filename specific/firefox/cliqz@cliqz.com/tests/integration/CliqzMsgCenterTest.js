@@ -2,13 +2,13 @@
 
 TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 	describe('CliqzMsgCenter (integration)', function() {
-        var campaigns,
+        var response,
             core = CliqzUtils.getWindow().CLIQZ.Core,
             ui = CliqzUtils.getWindow().CLIQZ.UI,
             gBrowser = CliqzUtils.getWindow().gBrowser;
 
         beforeEach(function() {
-            campaigns = {
+            response = {
                 campaigns: {
                     TEST001: {
                         DEBUG_remaining_clicks: 10,
@@ -53,7 +53,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
             for (var c in CliqzMsgCenter._campaigns) {
                 CliqzMsgCenter._removeCampaign(c);
             }
-            CliqzMsgCenter._addCampaign('TEST001', campaigns.campaigns.TEST001);
+            CliqzMsgCenter._addCampaign('TEST001', response.campaigns.TEST001);
             chai.expect(Object.keys(CliqzMsgCenter._campaigns).length).to.equal(1);
        	});
 
@@ -69,7 +69,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 			chai.expect(ui.messageCenterMessage).to.exist;
 			fillIn('some query');
 			return waitForResult().then(function() {
-				chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.contain(campaigns.campaigns.TEST001.message.text);
+				chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.contain(response.campaigns.TEST001.message.text);
 				return Promise.resolve();
 			});
 		});
@@ -111,11 +111,13 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
                     click($cliqzMessageContainer().find(".cqz-msg-btn-action-confirm")[0]);
                     setTimeout(function () {
                         chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
+                        // checks (1) for expected URL and (2) that new tab is focused
                         chai.expect(core.urlbar.value).to.equal(url);
                         done();
                     }, 1000)
                 });
             });
+
 
             it('should open URL on actions other than confirm', function(done) {
                 CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
@@ -130,6 +132,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
                     click($cliqzMessageContainer().find(".cqz-msg-btn-action-postpone")[0]);
                     setTimeout(function () {
                         chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
+                        // checks (1) for expected URL and (2) that new tab is focused
                         chai.expect(core.urlbar.value).to.equal(url);
                         done();
                     }, 1000)
