@@ -75,6 +75,10 @@ function injectTestHelpers(CliqzUtils) {
     return $(chrome.document.getElementById("cliqz-results"));
   }
 
+  window.$cliqzMessageContainer = function $cliqzResults() {
+    return $(chrome.document.getElementById("cliqz-message-container"));
+  }
+
   window.waitForPopup = function () {
     return waitFor(function () {
       var popup = chrome.document.getElementById("PopupAutoCompleteRichResultCliqz");
