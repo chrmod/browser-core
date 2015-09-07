@@ -195,7 +195,7 @@ MessageHandlerDropdownFooter.prototype.unload = function (win) {
 
 	var msgContainer = win.document.getElementById('cliqz-message-container');
 	if (msgContainer) {
-		msgContainer.removeEventListener('click', this._onClick);
+		msgContainer.removeEventListener('mouseup', this._onClick);
 		delete msgContainer[this.id];
 	} else {
 		_log('message container not found');
@@ -253,7 +253,7 @@ MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
 
 	var msgContainer = win.getElementById('cliqz-message-container');
 	if (msgContainer) {
-		msgContainer.addEventListener('click', self._onClick);
+		msgContainer.addEventListener('mouseup', self._onClick);
 		msgContainer[self.id] = self;
 	} else {
 		_log('message container not found');
