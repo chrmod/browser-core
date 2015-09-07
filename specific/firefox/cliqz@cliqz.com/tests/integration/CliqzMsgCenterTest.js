@@ -1,49 +1,53 @@
 'use strict';
 
-var campaigns = {
-    campaigns: {
-        TEST001: {
-            DEBUG_remaining_clicks: 10,
-            DEBUG_remaining_shows: 48,
-            handlerId: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
-            limits: {
-                confirm: -1,
-                discard: -1,
-                ignore: -1,
-                postpone: -1,
-                show: -1,
-                trigger: 1
-            },
-            message: {
-                backgroundColor: 'FC554F',
-                options: [
-                    {
-                        action: 'confirm',
-                        label: 'Jetzt installieren!',
-                        style: 'default'
-                    },
-                    {
-                        action: 'postpone',
-                        label: 'Später',
-                        style: 'default'
-                    },
-                    {
-                        action: 'discard',
-                        label: 'Nicht mehr anzeigen',
-                        style: 'gray'
-                    }
-                ],
-                text: 'Der CLIQZ browser ist besser als Firefox.',
-                textColor: 'FFFFFF'
-            },
-            triggerId: 'TRIGGER_URLBAR_FOCUS'
-        }
-    }
-};
-
 TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 	describe('CliqzMsgCenter (integration)', function() {
+        var campaigns,
+            core = CliqzUtils.getWindow().CLIQZ.Core,
+            ui = CliqzUtils.getWindow().CLIQZ.UI,
+            gBrowser = CliqzUtils.getWindow().gBrowser;
+
         beforeEach(function() {
+            campaigns = {
+                campaigns: {
+                    TEST001: {
+                        DEBUG_remaining_clicks: 10,
+                        DEBUG_remaining_shows: 48,
+                        handlerId: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
+                        limits: {
+                            confirm: -1,
+                            discard: -1,
+                            ignore: -1,
+                            postpone: -1,
+                            show: -1,
+                            trigger: 1
+                        },
+                        message: {
+                            backgroundColor: 'FC554F',
+                            options: [
+                                {
+                                    action: 'confirm',
+                                    label: 'Jetzt installieren!',
+                                    style: 'default'
+                                },
+                                {
+                                    action: 'postpone',
+                                    label: 'Später',
+                                    style: 'default'
+                                },
+                                {
+                                    action: 'discard',
+                                    label: 'Nicht mehr anzeigen',
+                                    style: 'gray'
+                                }
+                            ],
+                            text: 'Der CLIQZ browser ist besser als Firefox.',
+                            textColor: 'FFFFFF'
+                        },
+                        triggerId: 'TRIGGER_URLBAR_FOCUS'
+                    }
+                }
+            };
             CliqzMsgCenter._updateCampaigns = function () { };
             CliqzMsgCenter._deactivateCampaignUpdates();
             for (var c in CliqzMsgCenter._campaigns) {
@@ -55,8 +59,6 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 
 		it('should show message', function() {
 			CliqzMsgCenter._campaigns.TEST001.limits.trigger = 2;
-			var core = CliqzUtils.getWindow().CLIQZ.Core,
-				ui = CliqzUtils.getWindow().CLIQZ.UI;
 
 		 	core.urlbar.blur();
 			core.urlbar.focus();
@@ -73,9 +75,6 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 		});
 
 		it('should hide message', function() {
-			var core = CliqzUtils.getWindow().CLIQZ.Core,
-				ui = CliqzUtils.getWindow().CLIQZ.UI;
-
 			CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
 			core.urlbar.blur();
 			core.urlbar.focus();
@@ -90,30 +89,52 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 			});
 		});
 
-        it('should open URL on confirm without limit', function() {
-            var campaign = CliqzMsgCenter._campaigns.TEST001,
-                core = CliqzUtils.getWindow().CLIQZ.Core,
-                gBrowser = CliqzUtils.getWindow().gBrowser,
-                url = 'http://www.cliqz.com';
+        context('URL tests', function () {
+            var url = 'https://cliqz.com/';
 
-            campaign.limits.confirm = -1;
-            campaign.message.options[0].url = url;
-            CliqzMsgCenter._onMessageAction('TEST001', 'confirm');
-            chai.expect(core.urlbar.value ).to.equal(url);
-            gBrowser.removeTab(gBrowser.selectedTab);
-        });
+            afterEach(function () {
+                if (gBrowser.tabs.length > 1) {
+                    gBrowser.removeTab(gBrowser.selectedTab);
+                }
+            });
 
-        it('should open URL on actions other than confirm', function() {
-            var campaign = CliqzMsgCenter._campaigns.TEST001,
-                core = CliqzUtils.getWindow().CLIQZ.Core,
-                gBrowser = CliqzUtils.getWindow().gBrowser,
-                url = 'http://www.cliqz.com';
+            it('should open URL on confirm without limit', function(done) {
+                CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
+                CliqzMsgCenter._campaigns.TEST001.limits.confirm = -1;
+                CliqzMsgCenter._campaigns.TEST001.message.options[0].url = url;
 
-            campaign.limits.postpone = 1;
-            campaign.message.options[1].url = url;
-            CliqzMsgCenter._onMessageAction('TEST001', 'postpone');
-            chai.expect(core.urlbar.value ).to.equal(url);
-            gBrowser.removeTab(gBrowser.selectedTab);
+
+                core.urlbar.blur();
+                core.urlbar.focus();
+                fillIn('some query');
+                waitForResult().then(function() {
+                    click($cliqzMessageContainer().find(".cqz-msg-btn-action-confirm")[0]);
+                    setTimeout(function () {
+                        chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
+                        chai.expect(core.urlbar.value).to.equal(url);
+                        done();
+                    }, 1000)
+                });
+            });
+
+            it('should open URL on actions other than confirm', function(done) {
+                CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
+                CliqzMsgCenter._campaigns.TEST001.limits.postpone = 1;
+                CliqzMsgCenter._campaigns.TEST001.message.options[1].url = url;
+
+
+                core.urlbar.blur();
+                core.urlbar.focus();
+                fillIn('some query');
+                waitForResult().then(function() {
+                    click($cliqzMessageContainer().find(".cqz-msg-btn-action-postpone")[0]);
+                    setTimeout(function () {
+                        chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
+                        chai.expect(core.urlbar.value).to.equal(url);
+                        done();
+                    }, 1000)
+                });
+            });
         });
 	});
 };
