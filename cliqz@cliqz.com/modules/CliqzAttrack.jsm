@@ -1977,11 +1977,12 @@ var CliqzAttrack = {
 
         CliqzAttrack.saveTokenWhitelist();
         CliqzAttrack.saveSafeKey();
-        CliqzAttrack.saveRequestKeyValue();
-        // CliqzAttrack.saveQSStats();
-        window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
-        window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        window.gBrowser.removeProgressListener(onUrlbarFocus);
+
+        if (window != null) {
+            window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
+            window.gBrowser.removeProgressListener(CliqzAttrack.listener);
+            window.gBrowser.removeProgressListener(onUrlbarFocus);
+        }
     },
     unloadAtBrowser: function(){
         try {
@@ -2241,7 +2242,26 @@ var CliqzAttrack = {
 
         // send also safe keys
         if (CliqzAttrack.safeKey) {
-            payl = {'data': CliqzAttrack.safeKey, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.safeKeyExtVersion};
+            CliqzAttrack.saveSafeKey();
+            // get only keys from local key
+            var day = CliqzAttrack.getTime().substring(0, 8);
+            var dts = {}, local = {}, localE = 0, s, k;
+            for (s in CliqzAttrack.safeKey) {
+                for (k in CliqzAttrack.safeKey[s]) {
+                    if (CliqzAttrack.safeKey[s][k][1] == 'l') {
+                        if (!local[s]) {
+                            local[s] = {};
+                            localE ++;
+                        }
+                        local[s] = CliqzAttrack.safeKey[s][k];
+                        if (CliqzAttrack.safeKey[s][k][0] == day) {
+                            if (!dts[s]) dts[s] = {};
+                            dts[s][k] = CliqzAttrack.safeKey[s][k][0];
+                        }
+                    }
+                }
+            }
+            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length};
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
         }
     },
@@ -2374,9 +2394,9 @@ var CliqzAttrack = {
     newUTCDate: function() {
         var dayHour = CliqzAttrack.getTime();
         return new Date(Date.UTC(dayHour.substring(0, 4),
-                                 dayHour.substring(4, 2),
-                                 dayHour.substring(6, 2),
-                                 dayHour.substring(8, 2)));
+                                 parseInt(dayHour.substring(4, 6)) - 1,
+                                 dayHour.substring(6, 8),
+                                 dayHour.substring(8, 10)));
     },
     saveSafeKey: function() {
         var day = CliqzAttrack.newUTCDate();
@@ -2384,7 +2404,7 @@ var CliqzAttrack = {
         var dayCutoff = CliqzAttrack.dateString(day);
         for (var s in CliqzAttrack.safeKey) {
             for (var key in CliqzAttrack.safeKey[s]) {
-                if (CliqzAttrack.safeKey[s][key] < dayCutoff) {
+                if (CliqzAttrack.safeKey[s][key][0] < dayCutoff) {
                     delete CliqzAttrack.safeKey[s][key];
                 }
             }
@@ -2396,6 +2416,7 @@ var CliqzAttrack = {
         CliqzAttrack.saveRecord('safeKey', JSON.stringify(CliqzAttrack.safeKey));
         if (!CliqzAttrack.safeKeyExtVersion) return;
         CliqzAttrack.saveRecord('safeKeyExtVersion', CliqzAttrack.safeKeyExtVersion);
+        CliqzAttrack.saveRequestKeyValue();
     },
     saveRequestKeyValue: function() {
         var day = CliqzAttrack.newUTCDate();
@@ -2466,15 +2487,22 @@ var CliqzAttrack = {
         CliqzUtils.loadResource(
             CliqzAttrack.URL_SAFE_KEY,
             function(req) {
-                var safeKey = JSON.parse(req.response);
+                var safeKey = JSON.parse(req.response),
+                    s, k;
+                for (s in safeKey) {
+                    for (k in safeKey[s]) {
+                        // r for remote keys
+                        safeKey[s][k] = [safeKey[s][k], 'r'];
+                    }
+                }
                 CliqzAttrack.safeKeyExtVersion = md5(req.response);
-                for (var s in safeKey) {
+                for (s in safeKey) {
                     if (!(s in CliqzAttrack.safeKey)) {
                         CliqzAttrack.safeKey[s] = safeKey[s];
                     } else {
                         for (var key in safeKey[s]) {
                             if (CliqzAttrack.safeKey[s][key] == null ||
-                                CliqzAttrack.safeKey[s][key] < safeKey[s][key])
+                                CliqzAttrack.safeKey[s][key][0] < safeKey[s][key][0])
                                 CliqzAttrack.safeKey[s][key] = safeKey[s][key];
                         }
                     }
@@ -2513,9 +2541,18 @@ var CliqzAttrack = {
                 // safeKey should be stored as md5, if not, clean the cache
                 for (var k in CliqzAttrack.safeKey) {
                     if (k.length != 16) {
+                        if (CliqzAttrack.debug) CliqzUtils.log('Cleaning unhashed data', 'attrack');
                         CliqzAttrack.safeKey = {};
                         CliqzAttrack.saveSafeKey();
-                        return;
+                        break;
+                    }
+                    for (var kk in CliqzAttrack.safeKey[k]) {
+                        if (CliqzAttrack.safeKey[k][kk].length != 2) {
+                            if (CliqzAttrack.debug) CliqzUtils.log('Cleaning data without source', 'attrack');
+                            CliqzAttrack.safeKey = {};
+                            CliqzAttrack.saveSafeKey();
+                            break;
+                        }
                     }
                 }
             }
@@ -3311,7 +3348,7 @@ var CliqzAttrack = {
             if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > 2) {
                 if (CliqzAttrack.safeKey[s] == null)
                     CliqzAttrack.safeKey[s] = {};
-                CliqzAttrack.safeKey[s][key] = today;
+                CliqzAttrack.safeKey[s][key] = [today, 'l'];
                 // keep the last seen token
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};
             }
