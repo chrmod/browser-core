@@ -5,27 +5,29 @@
         <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
         <div class="cqz-liga-genSM-des multi-ellipsis2_14"><p>{{static.description}}</p></div>
 
-        <div class="ez-liga-genSM-gamestt rotate90 {{#if score}} ez-liga-genSM-gamestt_live {{/if}}">
-            {{#if score}}LIVE{{else}}{{#if scored}}{{local 'LAST GAME'}}{{else}}{{local 'NEXT GAME'}}{{/if}}
-            {{/if}}
-        </div>
-        <div url="{{live_url}}" class="ez-liga-genSM-game-box {{#if score}} ez-liga-genSM-game-box_live {{/if}}" extra="soccer-live">
-              <div class="ez-liga-genSM-1line">{{leagueName}}</div>
-              <div class="ez-liga-genSM-1line">{{spielTag}} - {{gameTime}}</div>
-              <div class="ez-liga-genSM-1line ez-liga-genSM-Loc">{{location}}</div>
+        <div class="ez-liga-genSM-gamestt-holder">
+            <div class="ez-liga-genSM-gamestt rotate90 {{#if score}} ez-liga-genSM-gamestt_live {{/if}}">
+                {{#if score}}LIVE{{else}}{{#if scored}}{{local 'LAST GAME'}}{{else}}{{local 'NEXT GAME'}}{{/if}}
+                {{/if}}
+            </div>
+            <div url="{{live_url}}" class="ez-liga-genSM-game-box {{#if score}} ez-liga-genSM-game-box_live {{/if}}" extra="soccer-live">
+                  <div class="ez-liga-genSM-1line">{{leagueName}}</div>
+                  <div class="ez-liga-genSM-1line">{{spielTag}} - {{gameTime}}</div>
+                  <div class="ez-liga-genSM-1line ez-liga-genSM-Loc">{{location}}</div>
 
-             <div class="ez-liga-oneGameScore">
-                 <div class="ez-liga-teamName">{{HOST}}</div>
-                 <div class="ez-liga-connector">
-                        {{#if score}} <div class="ez-liga-score">{{score}}</div>
-                        {{else}}
-                            {{#if scored}} <div class="ez-liga-vs">{{scored}}</div>
-                            {{else}} <div class="ez-liga-genSM-vs">{{local 'vs'}}</div>
-                            {{/if}}
-                         {{/if}}
+                 <div class="ez-liga-oneGameScore">
+                     <div class="ez-liga-teamName">{{HOST}}</div>
+                     <div class="ez-liga-connector">
+                            {{#if score}} <div class="ez-liga-score">{{score}}</div>
+                            {{else}}
+                                {{#if scored}} <div class="ez-liga-vs">{{scored}}</div>
+                                {{else}} <div class="ez-liga-genSM-vs">{{local 'vs'}}</div>
+                                {{/if}}
+                             {{/if}}
+                     </div>
+                     <div class="ez-liga-teamName">{{GUESS}}</div>
                  </div>
-                 <div class="ez-liga-teamName">{{GUESS}}</div>
-             </div>
+            </div>
         </div>
 
         <div class="ez-liga-sponsor">{{local 'KickerSponsor'}}</div>

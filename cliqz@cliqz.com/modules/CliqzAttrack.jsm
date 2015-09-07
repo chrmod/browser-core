@@ -329,6 +329,7 @@ function checkFingerPrinting(source_url, tpObj){
         var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
         var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListCanvas', 'payload': payl});
+        CliqzAttrack.blockingFailed[source_url] = 1;
     }
     /*
     CliqzUtils.log("Checking QS protection: " + source_url, "XOXOX");
@@ -365,18 +366,19 @@ function checkBlackList(source_url, tpObj){
                 tp_domains.push(e + ":notInExtWhiteList");
             }
 
-            if(CliqzAttrack.isCookieEnabled() && tps[e]['cookie_set'] && !(tps[e]['cookie_blocked']) && !(tps[e]['cookie_allow_userinit']) && !(tps[e]['cookie_allow_oauth'])){
+            if(CliqzAttrack.isCookieEnabled() && tps[e]['cookie_set'] && !(tps[e]['cookie_blocked']) && !(tps[e]['cookie_allow_userinit']) && !(tps[e]['cookie_allow_visitcache']) && !(tps[e]['cookie_allow_oauth'])){
                 tp_domains.push(e + ":cookie");
             }
 
 
         }
     })
-    if(tp_domains.length > 0) {
+    if(tp_domains.length > 0 && !(CliqzAttrack.blockingFailed[source_url])) {
         var payload_data = {"u":source_url,'tp_domains': tp_domains};
         var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
         var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListFail', 'payload': payl});
+        CliqzAttrack.blockingFailed[source_url] = 1;
     }
 }
 
@@ -1175,7 +1177,7 @@ var CliqzAttrack = {
             var aChannel = subject.QueryInterface(nsIHttpChannel);
             var url = '' + aChannel.URI.spec;
             if (!url || url == '') return;
-            var url_parts = CliqzAttrack.parseURL(url);
+            var url_parts = CliqzHumanWeb.parseURL(url);
 
             var cookie_data = null;
             try {
@@ -1214,7 +1216,6 @@ var CliqzAttrack = {
                 refstr = aChannel.getRequestHeader("Referer");
                 referrer = dURIC(refstr);
             } catch(ee) {}
-
 
             // if the request is originating from a tab, we can get a source url
             // The implementation below is causing a bug, if we load different urls in same tab.
@@ -1279,11 +1280,17 @@ var CliqzAttrack = {
                 }
             }
 
-
             // Fallback to referrer if we don't find source from tab
+            /*
             if (!source_url && referrer != '') {
                 source_url = referrer;
             }
+            */
+
+            if (referrer != '') {
+                source_url = referrer;
+            }
+
             source_url_parts = CliqzAttrack.parseURL(source_url);
 
             var req_log = null;
@@ -1330,6 +1337,7 @@ var CliqzAttrack = {
                 if (source_url.indexOf('about:')==0) {
                     // it's a brand new tab, and the url is loaded externally,
                     // about:home, about:blank
+                    req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
                     if(req_log != null) req_log.cookie_allow_newtab++;
                     CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': source_url, 'data': cookie_data, 'ts': curr_time}, "about:blank");
                     return;
@@ -1339,13 +1347,22 @@ var CliqzAttrack = {
             var host = CliqzAttrack.getGeneralDomain(url_parts.hostname);
             var diff = curr_time - (CliqzAttrack.visitCache[host] || 0);
 
+            // This is order to only allow visited sources from browser. Else some redirect calls
+            // Getting leaked.
+            var s_host = '';
+            if(source_url && source_url_parts.hostname){
+                s_host = CliqzAttrack.getGeneralDomain(source_url_parts.hostname);
+            }
 
             // check visitcache to see if this domain is temporarily allowed.
             // Additional check required when gd=false and request_type== full_page, else block
-            if (diff < CliqzAttrack.timeActive && request_type == 'fullpage') {
+            //
+            if (diff < CliqzAttrack.timeActive && CliqzAttrack.visitCache[s_host]) {
                 var src = null;
                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
-                if(req_log != null) req_log.cookie_allow_visitcache++;
+                if(req_log != null) {
+                    req_log.cookie_allow_visitcache++;
+                }
                 CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "visitcache");
                 return;
             }
@@ -1383,6 +1400,7 @@ var CliqzAttrack = {
                 var diff = curr_time - (CliqzAttrack.contextOauth.ts || 0);
                 if (diff < CliqzAttrack.timeActive) {
 
+
                     var pu = url.split(/[?&;]/)[0];
 
                     if (CliqzAttrack.contextOauth.html.indexOf(pu)!=-1) {
@@ -1402,6 +1420,7 @@ var CliqzAttrack = {
                                 var src = null;
                                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                                 if(req_log != null) req_log.cookie_allow_oauth++;
+                                if(req_log != null) req_log.req_oauth++;
                                 CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextOauth");
                                 return;
                             }
@@ -1571,7 +1590,6 @@ var CliqzAttrack = {
             if ((url_parts.path.length < 50) && url_parts.query_string && (url_parts.path.indexOf('oauth')!=-1)) {
 
                 var qso = CliqzAttrack.parseQuery(url_parts.query_string);
-
                 var k = Object.keys(qso);
                 for(var i=0;i<k.length;i++) {
                     if (k[i].indexOf('callback')!=-1 || k[i].indexOf('redirect')!=-1) {
@@ -1596,7 +1614,6 @@ var CliqzAttrack = {
                     }
                 }
             }
-
             return value;
 
         } catch(ee) {
@@ -3713,7 +3730,8 @@ var CliqzAttrack = {
                  'cookie_allow_ntp',
                  'reloadAttempted',
                  'bad_headers',
-                 'header.cookie'
+                 'header.cookie',
+                 'req_oauth'
                  ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
