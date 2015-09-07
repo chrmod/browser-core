@@ -216,7 +216,7 @@ var CliqzHumanWeb = {
     httpCache401: {},
     queryCache: {},
     privateCache: {},
-    UrlsCache :false
+    UrlsCache :false,
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
