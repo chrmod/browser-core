@@ -12,27 +12,27 @@
         {{/if}}
     </div>
     <div class="cqz-ez-stock-trend">
-        <span>{{ localize_numbers (floatify data.message.LastTradePriceOnly ) }}</span><span class="{{ data.message.Colour }}"><img
+        <span>{{ localizeNumbers data.message.LastTradePriceOnly }} {{data.message.Currency}}</span><span class="{{ data.message.Colour }}"><img
             src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg"
-            class="cqz-ez-img-trend"/>{{ localize_numbers (floatify data.message.Change) }} ({{ localize_numbers  (floatify  data.message.PercentChange) }})</span>
+            class="cqz-ez-img-trend"/>{{ localizeNumbers data.message.Change }} ({{ localizeNumbers data.message.PercentChange }}%)</span>
     </div>
 
     <table class="cliqz-stock-price-table">
         <tr>
             <td> {{local 'cliqz_stock_open'}} </td>
-            <td class="cliqz-stock-price-td">{{ localize_numbers (floatify data.message.Open ) }}</td>
+            <td class="cliqz-stock-price-td">{{ localizeNumbers data.message.Open }}</td>
             <td class="cliqz-stock-price-td"> {{local 'cliqz_stock_market_cap'}} </td>
-            <td class="cliqz-stock-price-td">{{ localize_numbers (floatify data.message.MarketCapitalization ) }}</td>
+            <td class="cliqz-stock-price-td">{{ localizeNumbers data.message.MarketCapitalization }}</td>
         </tr>
         <tr>
             <td> {{local 'cliqz_stock_high'}} </td>
-            <td class="cliqz-stock-price-td">{{ localize_numbers (floatify data.message.DaysHigh ) }}</td>
+            <td class="cliqz-stock-price-td">{{ localizeNumbers data.message.DaysHigh }}</td>
             <td class="cliqz-stock-price-td"> {{local 'cliqz_stock_pe_ratio'}}</td>
-            <td class="cliqz-stock-price-td">{{ localize_numbers (floatify data.message.PERatio ) }}</td>
+            <td class="cliqz-stock-price-td">{{ localizeNumbers data.message.PERatio }}</td>
         </tr>
         <tr>
             <td> {{local 'cliqz_stock_low'}} </td>
-            <td colspan="3" class="cliqz-stock-price-td">{{ localize_numbers  (floatify data.message.DaysLow ) }}</td>
+            <td colspan="3" class="cliqz-stock-price-td">{{ localizeNumbers data.message.DaysLow }}</td>
         </tr>
     </table>
 

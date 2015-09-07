@@ -1,6 +1,8 @@
 function injectTestHelpers(CliqzUtils) {
   var chrome = CliqzUtils.getWindow();
   var urlBar = chrome.CLIQZ.Core.urlbar;
+  var lang = CliqzUtils.getLocalizedString('locale_lang_code');
+
   
   window.fillIn = function fillIn(text) {
     urlBar.focus();
@@ -38,7 +40,7 @@ function injectTestHelpers(CliqzUtils) {
 
   window.clearIntervals = function clearIntervals() {
     window.TestIntervals && window.TestIntervals.forEach(window.clearInterval);
-  }
+  };
 
   window.click = function click(el) {
     var ev = new MouseEvent("mouseup", {
@@ -71,9 +73,9 @@ function injectTestHelpers(CliqzUtils) {
     };
   };
 
- 	window.$cliqzResults = function $cliqzResults() {
+  window.$cliqzResults = function $cliqzResults() {
     return $(chrome.document.getElementById("cliqz-results"));
-  }
+  };
 
   window.$cliqzMessageContainer = function $cliqzResults() {
     return $(chrome.document.getElementById("cliqz-message-container"));
@@ -90,5 +92,9 @@ function injectTestHelpers(CliqzUtils) {
       return waitFor(function () {
         return $cliqzResults().find(".cqz-result-box").length > 0;
       });
-  }
+  };
+
+  window.getLocaliseString = function(targets) {
+    return lang === "de-DE" ? targets.de : targets.default;
+  };
 }
