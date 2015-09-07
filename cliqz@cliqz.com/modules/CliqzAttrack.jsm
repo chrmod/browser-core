@@ -2192,14 +2192,16 @@ var CliqzAttrack = {
 
     },
     checkInstalledAddons: function() {
+        CliqzAttrack.similarAddon = false;
         if (CliqzUtils.genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
             CliqzAttrack.similarAddon = true;
             return;
         }
         AddonManager.getAllAddons(function(aAddons) {
             aAddons.forEach(function(a) {
-                if (a.name in CliqzAttrack.similarAddonNames){
+                if (a.isActive === true && a.name in CliqzAttrack.similarAddonNames){
                     CliqzAttrack.similarAddon = true;
+                    return;
                 }
             });
         });
