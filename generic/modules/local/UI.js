@@ -17,6 +17,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
+
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
@@ -79,6 +81,7 @@ var UI = {
     urlbar_box: null,
     DROPDOWN_HEIGHT: 349,
     popupClosed: true,
+    VIEWS: Object.create(null),
     init: function(_urlbar){
         urlbar = _urlbar
         if(!urlbar.mInputField) urlbar.mInputField = urlbar; //not FF
@@ -99,7 +102,7 @@ var UI = {
             urlbar.removeEventListener(ev, CLIQZ.UI['urlbar' + ev]);
         }
     },
-    main: function(box){
+    main: function(box) {
         gCliqzBox = box;
 
         //check if loading is done
@@ -1502,12 +1505,12 @@ function copyResult(val) {
     gClipboardHelper.copyString(val);
 }
 
-function resultClick(ev){
+function resultClick(ev) {
     var el = ev.target, href,
         newTab = ev.metaKey || ev.button == 1 ||
-                 ev.ctrlKey ||
-                 (ev.target.getAttribute('newtab') || false);
-        var extra = null;
+            ev.ctrlKey ||
+            (ev.target.getAttribute('newtab') || false);
+    var extra = null;
 
     var coordinate = null;
     if (UI.urlbar_box)
@@ -1515,24 +1518,24 @@ function resultClick(ev){
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
-        if(href = el.getAttribute("href")) {
-          el.setAttribute('url', href);
+        if (href = el.getAttribute("href")) {
+            el.setAttribute('url', href);
         }
-        if(el.getAttribute('url')){
+        if (el.getAttribute('url')) {
             logUIEvent(el, "result", {
-              action: "result_click",
-              new_tab: newTab,
-              extra: extra,
-              mouse: coordinate
+                action: "result_click",
+                new_tab: newTab,
+                extra: extra,
+                mouse: coordinate
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZEnvironment.openLink(window, url, newTab);
             //Lucian: decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
-            if(!newTab) CLIQZ.Core.popup.hidePopup();
+            if (!newTab) CLIQZ.Core.popup.hidePopup();
             break;
-        }else if (el.getAttribute('cliqz-action')) {
-            switch(el.getAttribute('cliqz-action')) {
+        } else if (el.getAttribute('cliqz-action')) {
+            switch (el.getAttribute('cliqz-action')) {
                 case 'copy_val':
                     copyResult(el.textContent.trim());
                     return;
@@ -1561,7 +1564,7 @@ function resultClick(ev){
                     }
                 case 'searchEZbutton':
                     ev.preventDefault();
-                    navigateToEZinput($('input',el));
+                    navigateToEZinput($('input', el));
                     return;
                 case 'alternative-search-engine':
                     enginesClick(ev);
@@ -1569,84 +1572,19 @@ function resultClick(ev){
                 default:
                     break;
             }
-        } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
-          ev.preventDefault();
-          if (el.id == 'cqz_location_yes')
-            CLIQZEnvironment.setLocationPermission(window, 'yes');
-
-          CLIQZEnvironment.getGeo(true, function(loc) {
-            CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-                "&q=" + CLIQZ.Core.urlbar.value +
-                CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
-                "&bmresult=" + el.getAttribute('bm_url'),
-                handleNewLocalResults(el));
-          }, function() {
-            //TODO: provide user feedback
-            CliqzUtils.log ("Unable to get user's location", "CliqzUtils.getGeo")
-          });
-          break;
-        } else if (el.id == 'cqz_location_no') {
-          var container = $(".local-sc-data-container",gCliqzBox);
-          /* Show a message to confirm user's decision*/
-          var confirm_no_id = el.getAttribute('location_confirm_no_msg');
-          if (!confirm_no_id)
-            confirm_no_id = '00'; // Default to the generic message
-
-          container.innerHTML = CliqzHandlebars.tplCache['confirm_no_' + confirm_no_id]({
-            'friendly_url': el.getAttribute('bm_url')
-          });
-
-        } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
-          if (el.id == 'cqz_location_never')
-            CLIQZEnvironment.setLocationPermission(window, "no");
-
-          /* Hide the prompt that asks for permision to get user's location */
-          var container = $(".local-sc-data-container",gCliqzBox);
-          container.innerHTML = "";
-          /* Reduce the size of the result now that the prompt is hidden */
-          while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
-            container = container.parentElement;
-            if (container.id == "cliqz-results") return;
+        } else {
+          var elId = el.getAttribute("id");
+          if( elId in UI.clickHandlers ) {
+            UI.clickHandlers[elId](ev);
+            break;
           }
-          container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
-          break;
         }
-        if(el.className == IC) break; //do not go higher than a result
+
+        if (el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
 }
 
-
-function handleNewLocalResults(el) {
-  return function(req) {
-    //CliqzUtils.log(req, "RESPONSE FROM RH");
-    var resp = JSON.parse(req.response);
-    var container = el;
-    while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
-      container = container.parentElement;
-      if (!container || container.id == "cliqz-results") return;
-    }
-    //CliqzUtils.log(container,'cinema-container');
-    if (resp.results && resp.results.length > 0) {
-      var data = resp.results[0];
-      data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
-      var tpl = data.data.superTemplate;
-      if (container) container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
-    } else {
-      var container = el;
-      while (container && !CliqzUtils.hasClass(container, "local-sc-data-container")) {
-        container = container.parentElement;
-        if (!container || container.id == "cliqz-results") return;
-      }
-      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_local_data_msg');
-      while ( container && !CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
-        container = container.parentElement;
-        if (!container || container.id == "cliqz-results") return;
-      }
-      if (container) container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
-    }
-  }
-}
 
 
 function getResultSelection(){
@@ -2082,6 +2020,19 @@ function handleMouseDown(e) {
 
        setTimeout(tick, 100);
     }
+
+
+UI.clickHandlers = {};
+Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
+  UI.VIEWS[templateName] = Object.create(null);
+  try {
+    Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
+    Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+      UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+    });
+  } catch (ex) {
+  }
+})
 
 ctx.CLIQZ.UI = UI;
 
