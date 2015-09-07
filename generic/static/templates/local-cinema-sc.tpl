@@ -2,7 +2,7 @@
     {{#with data}}
         <div class='cqz-cinema-container'>
             <div class='cinema_data'>
-                <div class="cinema_title cqz-ez-title"><a href="{{url}}">{{ emphasis cinema.name text 2 true }}</a></div>
+                <div class="cinema_title cqz-ez-title"><a extra="cinemaSC_title" href="{{url}}">{{ emphasis cinema.name text 2 true }}</a></div>
                 <div class="cqz-result-url cinema_url">{{emphasis friendly_url text 2 true}}</div>
                 <div class="cinema_description cqz-multy-lines-ellipses cqz-line-vis-3">
                     <p>
@@ -40,6 +40,7 @@
             <a xmlns="http://www.w3.org/1999/xhtml" arrow-override=""
                  class="cqz-ez-btn cqz-cinema-program-btn"
                  url="{{ cinema.cinepass_url }}"
+                 extra="cinemaSC_program"
             >
                 {{local 'cinema_program_btn'}}
             </a>
