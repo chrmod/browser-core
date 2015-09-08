@@ -327,7 +327,7 @@ function checkFingerPrinting(source_url, tpObj){
     if(tp_domains.length > 0) {
         var payload_data = {"u":source_url,'tp_domains': tp_domains};
         var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
-        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
+        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter};
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListCanvas', 'payload': payl});
         CliqzAttrack.blockingFailed[source_url] = 1;
     }
@@ -376,7 +376,7 @@ function checkBlackList(source_url, tpObj){
     if(tp_domains.length > 0 && !(CliqzAttrack.blockingFailed[source_url])) {
         var payload_data = {"u":source_url,'tp_domains': tp_domains};
         var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
-        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
+        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter};
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListFail', 'payload': payl});
         CliqzAttrack.blockingFailed[source_url] = 1;
     }
@@ -422,6 +422,7 @@ var CliqzAttrack = {
     canvasTraffic : {'observed' : []},
     canvasURL : {},
     whitelist: null,
+    obsCounter: {},
     similarAddon: false,
     similarAddonNames: {
         "Adblock Plus": true,
@@ -1361,6 +1362,7 @@ var CliqzAttrack = {
             // Additional check required when gd=false and request_type== full_page, else block
             //
             if (diff < CliqzAttrack.timeActive && CliqzAttrack.visitCache[s_host]) {
+                CliqzUtils.log(url, 'attrack-allow-visited');
                 var src = null;
                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                 if(req_log != null) {
@@ -2194,17 +2196,30 @@ var CliqzAttrack = {
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
         if (CliqzUtils.genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
-            CliqzAttrack.similarAddon = true;
-            return;
+            CliqzAttrack.similarAddon = 'Firefox';
         }
         AddonManager.getAllAddons(function(aAddons) {
             aAddons.forEach(function(a) {
                 if (a.isActive === true && a.name in CliqzAttrack.similarAddonNames){
-                    CliqzAttrack.similarAddon = true;
-                    return;
+                    if (CliqzAttrack.similarAddon == false) {
+                        CliqzAttrack.similarAddon = a.name; 
+                    } else {
+                        CliqzAttrack.similarAddon = true;
+                    }
                 }
             });
         });
+        // count the number of observers
+        ['http-on-modify-request', 'http-on-opening-request', 'http-on-examine-response', 'http-on-examine-cached-response', 'http-on-examine-merged-response'].forEach(
+            function(x) {
+                var obs = CliqzAttrack.observerService.enumerateObservers(x),
+                    counter = 0;
+                while (obs.hasMoreElements()) {
+                    counter += 1;
+                    obs.getNext();
+                }
+                CliqzAttrack.obsCounter[x] = counter;
+            });
     },
     sendState: function() {
 
@@ -3894,7 +3909,7 @@ var CliqzAttrack = {
                 if(payload_data.length > 0) {
                     if (CliqzAttrack.debug) CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
                     var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
-                    var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
+                    var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter};
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
                 }
                 this._staged = [];
