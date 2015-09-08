@@ -2192,14 +2192,16 @@ var CliqzAttrack = {
 
     },
     checkInstalledAddons: function() {
+        CliqzAttrack.similarAddon = false;
         if (CliqzUtils.genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
             CliqzAttrack.similarAddon = true;
             return;
         }
         AddonManager.getAllAddons(function(aAddons) {
             aAddons.forEach(function(a) {
-                if (a.name in CliqzAttrack.similarAddonNames){
+                if (a.isActive === true && a.name in CliqzAttrack.similarAddonNames){
                     CliqzAttrack.similarAddon = true;
+                    return;
                 }
             });
         });
@@ -3578,10 +3580,35 @@ var CliqzAttrack = {
         return o;
     },
     getParametersQS: function(qs) {
-        var res = {};
+        var res = {},
+            _blacklist = {};
         let state = 'key';
         let k = '';
         let v = '';
+        var _reviewQS = function(k, v) {
+            if (v.indexOf('=') > -1) {
+                var items = v.split('=');
+                k = k + '_' + items[0];
+                v = items.splice(1).join('=');
+            }
+            return [k, v];
+        };
+        var _updateQS = function(k, v) {
+            if (k in res || k in _blacklist) {
+                _blacklist[k] = true;
+                var kv = _reviewQS(k, v);
+                res[kv[0]] = kv[1];
+                // also the old one
+                if (k in res) {
+                    v = res[k];
+                    kv = _reviewQS(k, v);
+                    res[kv[0]] = kv[1];
+                    delete res[k];
+                }
+            } else {
+                res[k] = v;
+            }
+        };
         for(let i=0; i<qs.length; i++) {
             let c = qs.charAt(i);
             if(c == '=' && state == 'key' && k.length > 0) {
@@ -3590,7 +3617,8 @@ var CliqzAttrack = {
             } else if(c == '&' || c == ';') {
                 if(state == 'value') {
                     state = 'key';
-                    res[k] = v;
+                    // in case the same key already exists
+                    _updateQS(k, v);
                 } else if(state == 'key' && k.length > 0) {
                     // key with no value, set value=true
                     res[k] = true;
@@ -3610,7 +3638,7 @@ var CliqzAttrack = {
         }
         if(state == 'value') {
             state = 'key';
-            res[k] = v;
+            _updateQS(k, v);
         } else if(state == 'key' && k.length > 0) {
             res[k] = true;
         }
