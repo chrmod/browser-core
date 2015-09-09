@@ -395,7 +395,7 @@ var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"
         .getService(Components.interfaces.mozIAsyncFavicons);
 
 var CliqzAttrack = {
-    VERSION: '0.89',
+    VERSION: '0.90',
     LOG_KEY: 'attrack',
     URL_TOKEN_WHITELIST: 'http://anti-tracking-whitelist.fbt.co/domain_whitelist_tokens_md5.json',
     URL_ALERT_RULES: 'chrome://cliqz/content/anti-tracking-rules.json',
