@@ -794,8 +794,9 @@ a {
 
 /* ez currency */
 #cliqz-results .EZ-currency-result {
-    font-size: 25px;
     margin-top: -6px;
+    font-size: 25px;
+    line-height: 1.3em;
 }
 
 #cliqz-results .EZ-currency-rate {
