@@ -403,7 +403,7 @@ var CliqzAttrack = {
     // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
     URL_SAFE_KEY: 'http://anti-tracking-whitelist.fbt.co/domain_safe_key.json',
     URL_SAFE_KEY_VERSIONCHECK: 'http://anti-tracking-whitelist.fbt.co/versioncheck.json',
-    debug: true,
+    debug: false,
     msgType:'attrack',
     trackExamplesThreshold: 0,
     timeCleaningCache: 180*1000,
@@ -1025,7 +1025,7 @@ var CliqzAttrack = {
                         // CliqzAttrack.QSTraffic['blocked'].unshift(blockedItem);
                             // CliqzUtils.log("Cancelling request: " + tmp_url,"XXXXX");
                             // subject.cancel(Components.results.NS_BINDING_ABORTED);
-                            Channel.redirectTo(Services.io.newURI(tmp_url, null, null));
+                            aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
                             if (req_log) req_log.req_aborted++;
                         }
                     }
@@ -1295,7 +1295,7 @@ var CliqzAttrack = {
             }
             */
 
-            if (referrer != '') {
+            if (referrer != ''){
                 source_url = referrer;
             }
 
@@ -1366,7 +1366,6 @@ var CliqzAttrack = {
             // Additional check required when gd=false and request_type== full_page, else block
             //
             if (diff < CliqzAttrack.timeActive && CliqzAttrack.visitCache[s_host]) {
-                CliqzUtils.log(url, 'attrack-allow-visited');
                 var src = null;
                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                 if(req_log != null) {
@@ -2206,7 +2205,7 @@ var CliqzAttrack = {
             aAddons.forEach(function(a) {
                 if (a.isActive === true && a.name in CliqzAttrack.similarAddonNames){
                     if (CliqzAttrack.similarAddon == false) {
-                        CliqzAttrack.similarAddon = a.name; 
+                        CliqzAttrack.similarAddon = a.name;
                     } else {
                         CliqzAttrack.similarAddon = true;
                     }
