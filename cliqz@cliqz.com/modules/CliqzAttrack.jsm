@@ -1023,6 +1023,8 @@ var CliqzAttrack = {
                             // 'src': source_url_parts.hostname
                         // };
                         // CliqzAttrack.QSTraffic['blocked'].unshift(blockedItem);
+                            // CliqzUtils.log("Cancelling request: " + tmp_url,"XXXXX");
+                            // subject.cancel(Components.results.NS_BINDING_ABORTED);
                             aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
                             if (req_log) req_log.req_aborted++;
                         }
@@ -1109,6 +1111,7 @@ var CliqzAttrack = {
             } catch(ee) {}
             var same_gd = false;
 
+
             var source = CliqzAttrack.getRefToSource(subject, referrer);
             var source_url = source.url,
                 source_url_parts = null,
@@ -1160,6 +1163,7 @@ var CliqzAttrack = {
                 var stats = {};
                 var badHeaders = CliqzAttrack.checkHeaders(url_parts, headers, cookievalue, stats);
                 if (req_log) {
+                    req_log.resp_ob++;
                     Object.keys(stats).forEach(function(key) {
                         if(stats[key] > 0)
                             req_log['header.' + key] = stats[key];
@@ -1291,7 +1295,7 @@ var CliqzAttrack = {
             }
             */
 
-            if (referrer != '') {
+            if (referrer != ''){
                 source_url = referrer;
             }
 
@@ -1362,7 +1366,6 @@ var CliqzAttrack = {
             // Additional check required when gd=false and request_type== full_page, else block
             //
             if (diff < CliqzAttrack.timeActive && CliqzAttrack.visitCache[s_host]) {
-                CliqzUtils.log(url, 'attrack-allow-visited');
                 var src = null;
                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                 if(req_log != null) {
@@ -2202,7 +2205,7 @@ var CliqzAttrack = {
             aAddons.forEach(function(a) {
                 if (a.isActive === true && a.name in CliqzAttrack.similarAddonNames){
                     if (CliqzAttrack.similarAddon == false) {
-                        CliqzAttrack.similarAddon = a.name; 
+                        CliqzAttrack.similarAddon = a.name;
                     } else {
                         CliqzAttrack.similarAddon = true;
                     }
@@ -3814,7 +3817,8 @@ var CliqzAttrack = {
                  'reloadAttempted',
                  'bad_headers',
                  'header.cookie',
-                 'req_oauth'
+                 'req_oauth',
+                 'resp_ob'
                  ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
