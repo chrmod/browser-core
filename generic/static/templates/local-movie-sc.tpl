@@ -5,10 +5,9 @@
         <img src='{{movie.poster_img}}' class='movie_poster_img'/>
       </div>
       <div class='movie_data'>
-        <div class="movie_title cqz-ez-title"><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
+        <div class="movie_title cqz-ez-title"><a extra="movieSC_title" href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class="cqz-result-url movie_url">{{emphasis friendly_url text 2 true}}</div>
-        <div class="movie_description">
-          <div class="cqz-rd-max-lines4">
+        <div class="movie_description cqz-multy-lines-ellipses cqz-line-vis-3">
             <p>
               <span>
                 {{#for 0 movie.rating 1}}
@@ -22,8 +21,6 @@
                 {{description}}
               </span>
             </p>
-          </div>
-
         </div>
       </div>
     </div>
@@ -33,24 +30,19 @@
           {{>missing_location}}
         {{/unlesspref}}
       {{else}}
-        {{#if cinemas}}
-          {{>cinema_showtimes_partial}}
-        {{else}}
-          {{local 'no_cinemas_to_show'}}
-        {{/if}}
+        {{>partials/timetable-cinema}}
       {{/if}}
     </div>
     {{#if movie.trailer_url}}
       <div
         arrow-override=''
         class="cqz-ez-btn movie-trailer-btn {{ ../../logo.buttonsClass }}"
-        url="{{ movie.trailer_url }}">
+        url="{{ movie.trailer_url }}"
+        extra="movieSC_trailer">
          {{local 'cqz_watch_trailer'}}
       </div>
     {{/if}}
   {{/with}}
 
-
   {{>logo}}
-
 </div>

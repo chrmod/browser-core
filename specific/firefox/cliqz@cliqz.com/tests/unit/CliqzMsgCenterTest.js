@@ -180,11 +180,31 @@ TESTS.CliqzMsgCenterTestUnit = function (CliqzMsgCenter) {
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('end');
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.counts.show).to.equal(2);
             });
+            it('should show but not end campaign', function() {
+                CliqzMsgCenter._addCampaign('TEST001', campaigns.campaigns.TEST001);
+                CliqzMsgCenter._campaigns.TEST001.init();
+                CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
+                CliqzMsgCenter._campaigns.TEST001.limits.confirm = 2;
+                CliqzMsgCenter._campaigns.TEST001.limits.show = -1;
+
+                CliqzMsgCenter._triggerCampaign(CliqzMsgCenter._campaigns.TEST001);
+                chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('show');
+
+                CliqzMsgCenter._onMessageAction('TEST001', 'confirm');
+                chai.expect(CliqzMsgCenter._campaigns.TEST001.counts.confirm).to.equal(1);
+                chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('idle');
+            });
         });
 
         describe('onMessageAction', function() {
             it('should increment action counts', function() {
                 CliqzMsgCenter._addCampaign('TEST001', campaigns.campaigns.TEST001);
+                CliqzMsgCenter._campaigns.TEST001.init();
+                CliqzMsgCenter._campaigns.TEST001.limits.confirm = 5;
+                CliqzMsgCenter._campaigns.TEST001.limits.discard = 5;
+                CliqzMsgCenter._campaigns.TEST001.limits.ignore = 5;
+                CliqzMsgCenter._campaigns.TEST001.limits.postpone = 5;
+                CliqzMsgCenter._campaigns.TEST001.limits.show = 5;
                 CliqzMsgCenter._campaigns.TEST001.state = 'show';
 
                 CliqzMsgCenter._onMessageAction('TEST001', 'confirm');

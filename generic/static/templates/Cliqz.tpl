@@ -1,9 +1,9 @@
 {{#with data}}
 <div class="cqz-result-h2 nopadding">
  <div class="EZ-Cliqz-Header"
-        style="background-image: url({{cliqz_logo}})">
+        style="background-image: url({{cliqz_logo}})" arrow-override=''>
         {{#each social_contact}}
-            <img  extra="title" url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" src="{{logo}}" arrow-override=''/>
+            <img  extra="title" url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" src="{{logo}}" />
         {{/each}}
  </div>
 
