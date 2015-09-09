@@ -403,7 +403,7 @@ var CliqzAttrack = {
     // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
     URL_SAFE_KEY: 'http://anti-tracking-whitelist.fbt.co/domain_safe_key.json',
     URL_SAFE_KEY_VERSIONCHECK: 'http://anti-tracking-whitelist.fbt.co/versioncheck.json',
-    debug: false,
+    debug: true,
     msgType:'attrack',
     trackExamplesThreshold: 0,
     timeCleaningCache: 180*1000,
@@ -1022,7 +1022,9 @@ var CliqzAttrack = {
                             // 'src': source_url_parts.hostname
                         // };
                         // CliqzAttrack.QSTraffic['blocked'].unshift(blockedItem);
-                            aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
+                            // CliqzUtils.log("Cancelling request: " + tmp_url,"XXXXX");
+                            // subject.cancel(Components.results.NS_BINDING_ABORTED);
+                            Channel.redirectTo(Services.io.newURI(tmp_url, null, null));
                             if (req_log) req_log.req_aborted++;
                         }
                     }
@@ -1108,6 +1110,7 @@ var CliqzAttrack = {
             } catch(ee) {}
             var same_gd = false;
 
+
             var source = CliqzAttrack.getRefToSource(subject, referrer);
             var source_url = source.url,
                 source_url_parts = null,
@@ -1159,6 +1162,7 @@ var CliqzAttrack = {
                 var stats = {};
                 var badHeaders = CliqzAttrack.checkHeaders(url_parts, headers, cookievalue, stats);
                 if (req_log) {
+                    req_log.resp_ob++;
                     Object.keys(stats).forEach(function(key) {
                         if(stats[key] > 0)
                             req_log['header.' + key] = stats[key];
@@ -3771,7 +3775,8 @@ var CliqzAttrack = {
                  'reloadAttempted',
                  'bad_headers',
                  'header.cookie',
-                 'req_oauth'
+                 'req_oauth',
+                 'resp_ob'
                  ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
