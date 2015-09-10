@@ -133,7 +133,7 @@ var CliqzCalculator = {
     return null
   },
 
-  get: function(q) {
+  calculate: function(q) {
     if (this.CALCULATOR_RES === null || this.CALCULATOR_RES === q) {
       return null;
     }
