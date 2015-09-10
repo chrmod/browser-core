@@ -1,0 +1,89 @@
+/* ------- Ramadan EZ ----------*/
+.cqz-ramadan table .icon {
+    height: 14px;
+    background-repeat: no-repeat;
+    text-indent: -9999px;
+    margin: 0 0 10px;
+}
+
+.icon.turkishflag {
+    background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/turkish-flag.svg");
+    width: 21px;
+}
+
+.icon.sunup {
+    background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/sunrise.svg");
+    width: 29px;
+}
+
+.icon.sundown {
+    background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/sunset.svg");
+    width: 29px;
+}
+
+.ramadanEZ_info {
+    max-width: 550px;
+}
+
+.ramadanEZ-daylef {
+    max-width: 550px;
+    width: -moz-calc(100% - 100px);
+}
+
+.ramadanEZ-daylef-bar {
+    overflow: hidden;
+    height: 2px;
+    float: left;
+    width: 100%;
+    padding-right: 10px;
+    background-color: #999;
+    position: relative;
+}
+
+.ramadanEZ-daylef-bar-dayover {
+    position: absolute;
+    background-color: #56eac6;
+    height: 100%
+}
+
+.ramadanEZ-dayinfo {
+    padding-top: 10px
+}
+
+.ramadanEZ-dayinfo-left {
+    float: left
+}
+
+.ramadanEZ-dayinfo-right {
+    float: right
+}
+
+.ramadanEZ-dayinfo-txt {
+    color: #cccccc
+}
+
+.cqz-ramadan table {
+    padding: 20px 0;
+}
+
+.cqz-ramadan td {
+    padding: 0 20px;
+    line-height: 25px;
+    color: #333;
+    border-bottom: 1px solid #cccccc;
+}
+
+.cqz-ramadan tr:nth-child(5) * {
+    border-bottom: none;
+}
+
+.cqz-ramadan table td.name {
+    color: #1F69AF;
+}
+
+.cqz-ramadan-desc {
+    margin: 12px 0px 15px 0px;
+    width: -moz-calc(100% - 100px);
+}
+
+/* ------- END Ramadan EZ ----------*/

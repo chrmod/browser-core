@@ -1,0 +1,91 @@
+/* ez news, video, portal */
+.entity-stories {
+    margin-left: -22px;
+    padding-right: 75px;
+    height: 200px;
+    margin-bottom: 25px;
+}
+
+.entity-story {
+    position: relative;
+    overflow: hidden;
+    padding-left: 22px;
+    margin-bottom: 10px;
+}
+
+.entity-story * {
+    cursor: pointer;
+}
+
+.entity-story-image {
+    position: relative;
+    float: left;
+    width: 100px;
+    height: 60px;
+    background: #ddd center center;
+    background-size: cover;
+}
+
+.entity-story-image span {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: black;
+    color: white;
+    font-size: 12px;
+    padding: 5px;
+}
+
+.entity-story-image + .entity-story-description {
+    overflow: hidden;
+    padding-left: 20px;
+    max-width: 540px;
+}
+
+.entity-story-description {
+    max-width: 600px;
+
+    a {
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+    .entity-story-title {
+        @extend .cqz-ellipsis;
+
+        padding-top: 4px;
+        max-width: 550px;
+    }
+}
+
+
+.entity-story-title a {
+    font-size: 18px;
+}
+
+.entity-story-comment {
+    color: #c3043e;
+    padding-top: 9px;
+}
+
+.entity-stories .cqz-twitter-count {
+    display: inline-block;
+    margin-left: 16px;
+    padding-left: 19px;
+    color: #49c0f4;
+    vertical-align: top;
+    background: url('https://cdn.cliqz.com/extension/EZ/news/twitter-bird.svg') no-repeat 0 3px;
+}
+
+/* ez video specials */
+.ez-video .entity-story-comment {
+    color: #333333;
+    padding-top: 4px;
+}
+
+/* ez portal specials */
+.ez-portal .entity-story-image {
+    border-radius: 3px 3px;
+}
