@@ -2,9 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.CliqzHandlebarsTest = function (CliqzHandlebars, CliqzUtils) {
-    var lang = CliqzUtils.getLocalizedString('locale_lang_code');
-
+TESTS.CliqzHandlebarsTest = function (CliqzHandlebars) {
     describe('CliqzHandlebarsTest', function () {
         describe('localizeNumber', function () {
             it('normal number string localisation 1', function () {
