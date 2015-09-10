@@ -10,8 +10,6 @@ from boto.s3.connection import S3Connection
 from optparse import OptionParser
 from PIL import Image
 
-conn = S3Connection()
-
 
 def main(argv):
     usage = "extracts dropdown from screenshots and " +\
@@ -223,6 +221,7 @@ def upload(filename, bucket, key, is_dryrun=False):
     if is_dryrun:
         sys.stderr.write("skipped (dry run)\n")
     else:
+        conn = S3Connection()
         bucket = conn.get_bucket(bucket)
         key = bucket.new_key(key)
         key.set_contents_from_filename(filename)
