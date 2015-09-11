@@ -60,7 +60,14 @@ function loadLocalResults(el) {
 function handleNewLocalResults(el) {
   return function(req) {
     //CliqzUtils.log(req, "RESPONSE FROM RH");
-    var resp = JSON.parse(req.response);
+    var resp;
+    try {
+      resp = JSON.parse(req.response);
+      CliqzUtils.log(resp, "RH RESPONSE");
+    } catch (ex) {
+      failedToLoadResults(el);
+      return;
+    }
     var container = el;
     while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
       container = container.parentElement;
@@ -69,6 +76,8 @@ function handleNewLocalResults(el) {
     //CliqzUtils.log(container,"cinema-container");
     if (resp.results && resp.results.length > 0) {
       var data = resp.results[0];
+      console.log(data.data);
+      CLIQZ.UI.enhanceSpecificResult(data.data);
       data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
       var tpl = data.data.superTemplate;
       if (container) container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
