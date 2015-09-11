@@ -1,7 +1,12 @@
-<div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-cinema-result local-movie-result">
+<div class="cqz-result-h1 cqz-result-padding local-cinema-result local-movie-result">
     {{#with data}}
         <div class='cqz-cinema-container'>
-            <div class='cinema_data'>
+            {{#if cinema.map_img}}
+              <div class="cinema-image cqz-image-round">
+                <img url="{{cinema.map_url}}" src="{{cinema.map_img}}"/>
+              </div>
+            {{/if}}
+            <div class='cinema-data'>
                 <div class="cinema_title cqz-ez-title"><a extra="cinemaSC_title" href="{{url}}">{{ emphasis cinema.name text 2 true }}</a></div>
                 <div class="cqz-result-url cinema_url">{{emphasis friendly_url text 2 true}}</div>
                 <div class="cinema_description cqz-multy-lines-ellipses cqz-line-vis-3">
