@@ -10,6 +10,8 @@ See - [wiki](https://github.com/cliqz/navigation-extension/wiki)
 npm install -g bower
 npm install -g grunt-cli
 npm install -g gulp-cli
+
+npm install # to satify package.json
 ```
 
 ## Build
