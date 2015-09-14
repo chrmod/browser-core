@@ -689,7 +689,6 @@ var UI = {
     enhanceSpecificResult: function(data) {
       var specificView = UI.VIEWS[data.superTemplate]  || UI.VIEWS[data.template];
       if (specificView && specificView.enhanceResults) {
-        CliqzUtils.log(data,"ENHANCE_SPECIFIC");
         specificView.enhanceResults(data);
       }
     },
