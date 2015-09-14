@@ -252,6 +252,43 @@ window.CLIQZ.Core = {
 
         // antiphishing listener
         //gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+
+
+        ///////
+
+        this._actionTaken = false;
+
+        let buttons = [{
+          label: 'Learn More',
+          accessKey: 'Access Key',
+          popup: null,
+          callback: function(){
+            gBrowser.addTab('https://cliqz.com/privacy');
+          }
+        }];
+
+        document.getElementById("global-notificationbox").appendNotification(
+          "Cliqz anonymously collects browsing data to power this service ",
+          null,
+          null,
+          document.getElementById("global-notificationbox").PRIORITY_INFO_HIGH,
+          buttons,
+          function(){
+            console.log('AAA', arguments)
+          }
+        );
+
+        gBrowser.getNotificationBox().appendNotification("Cliqz anonymously collects browsing data to power this service", "test", "chrome://global/skin/notification/info-icon.png", 1, [{
+          label: 'Learn More',
+          accessKey: 'Access Key',
+          popup: null,
+          callback: function(){
+            gBrowser.addTab('https://cliqz.com/privacy');
+          }
+        }]);
+
+        //////
     },
 
     // Reset newtab and homepage if about:cliqz does not exist
