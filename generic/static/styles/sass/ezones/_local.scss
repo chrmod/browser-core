@@ -1,31 +1,69 @@
 /*--------------- Local EZ ----------- */
-#cliqz-results .cqz-local-top-blk {height: 80px; margin-bottom: 10px;}
-#cliqz-results .cqz-local-top-blk .cqz-rd-h3img-div {height: 100%; margin-bottom: 5px;}
-#cliqz-results .cqz-local-hr {
-    width: 100%;
-    height: 1px;
-    background-color: #cccccc;
-    margin-top: 10px;}
-#cliqz-results .cqz-local-des-blk {width: calc(100% - 90px); max-width: 550px;}
-#cliqz-results .cqz-local-info-left {width: calc(50% - 20px); float: left; margin-right: 39px;}
-#cliqz-results .cqz-local-info-right {width: calc(50% - 19px); float: left}
-#cliqz-results .cqz-local-info {margin-top: 18px;}
-#cliqz-results .cqz-local-icon {
-    height: 14px;
-    padding-right: 10px;
-    transform: translateY(1px);
-    float:left;}
-#cliqz-results .cqz-local-address{margin-bottom: 10px; color: #506bb8}
-#cliqz-results .cqz-local-time{color: #506bb8}
-#cliqz-results .cqz-local-img-container {
-    height:80px;
-    width: 80px;
-    cursor:pointer;
-    float:left;
-    margin-right: 10px;
-}
-#cliqz-results .local-data-img {
-    cursor:pointer;
-}
 
-/*--------------- END LOCAL EZ ----------- */
+.cqz-local-result {
+    .cqz-zone-holder { width: calc(100% - 90px); max-width: $zones-max-width; }
+    .cqz-local-top-blk { height: auto; margin-bottom: 0; }
+    .cqz-local-top-blk .cqz-rd-h3img-div { height: 100%; margin-bottom: 5px; }
+
+    .cqz-local-hr {
+        width: 100%;
+        height: 1px;
+        padding: 0;
+        margin: 10px 0 0;
+        border: none;
+        background-color: #cccccc;
+    }
+
+    .cqz-local-des-blk { width: 100%; max-width: 100%; }
+
+    .cqz-local-info-box {
+        float: left;
+        width: calc(50% - 20px);
+        margin-right: 39px;
+
+        * { @extend .cqz-ellipsis; }
+        &:last-child { margin: 0; }
+    }
+
+    .cqz-local-info {
+        margin-top: 18px;
+        line-height: 1.3em;
+
+        * {}
+        p { margin: 0; }
+        .cqz-local-address { margin-bottom: 10px; color: #506bb8; cursor:pointer; }
+        .cqz-local-time {
+            padding-left: 24px;
+            color: #506bb8;
+
+            .cqz-local-time-title {
+                margin-left: -24px;
+            }
+            .cqz-local-icon {
+                float: left;
+                width: 14px;
+                height: 14px;
+                margin-right: 10px;
+                transform: translateY(1px);
+            }
+        }
+    }
+
+    .local-data-img { cursor:pointer; }
+
+    .cqz-local-img-container {
+         cursor: pointer;
+         float: left;
+         height: 80px;
+         width: 80px;
+         margin-right: 10px;
+    }
+
+    .local-sc-data-container { overflow: hidden; }
+    .cqz-local-result-descr {
+        @extend .cqz-ellipsis;
+
+        clear: both;
+        margin: 18px 0 0;
+    }
+}
