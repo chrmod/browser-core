@@ -238,6 +238,7 @@ window.CLIQZ.Core = {
         // antiphishing listener
         //gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
     },
+    responsiveClasses: function(){}, //tmp 15.09.2015 - some older version do not correctly deregister a resize handler
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
         CLIQZ.Core.elem.push(
