@@ -208,7 +208,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.5',
+    VERSION: '1.6',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -553,16 +553,19 @@ var CliqzHumanWeb = {
     },
     getRedirects: function(url, res) {
         var res = res || []
-        for(var key in CliqzHumanWeb.httpCache) {
-            if(CliqzHumanWeb.httpCache[key]){
-                if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
-                    if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
-                        res.unshift(key)
-                        CliqzHumanWeb.getRedirects(key, res);
+        try{
+            for(var key in CliqzHumanWeb.httpCache) {
+                if(CliqzHumanWeb.httpCache[key]){
+                    if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
+                        if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
+                            res.unshift(key)
+                            CliqzHumanWeb.getRedirects(key, res);
+                        }
                     }
                 }
             }
         }
+        catch(ee){};
         return res;
     },
     checkIfSearchURL:function(activeURL) {
@@ -923,11 +926,11 @@ var CliqzHumanWeb = {
 
                         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'suspiciousUrl', 'payload': payload});
 
-                        // Check if we can still send the url as page model as well. 
+                        // Check if we can still send the url as page model as well.
                         // To not drop good URLs.
                         // Onlye send ig they have canonical.
 
-                        
+
                         //delete page_doc['isMU'];
 
                         if (!CliqzHumanWeb.dropLongURL(url)) {
@@ -940,8 +943,8 @@ var CliqzHumanWeb = {
 
                             }
                         }
-                        
-                        
+
+
 
                     }
                     else{
@@ -965,6 +968,7 @@ var CliqzHumanWeb = {
         }
 
     },
+    /*
     getMetaRefresh: function(cd, url){
         var metas = null;
         var redURL = null;
@@ -980,6 +984,7 @@ var CliqzHumanWeb = {
         return redURL;
 
     },
+    */
     eventDoorWayPage: function(cd){
         var payload = {};
         var url = cd.location.href;
@@ -1090,36 +1095,37 @@ var CliqzHumanWeb = {
         return x;
     },
     getCDByURL: function(url) {
-
-
         var dd_url = url;
 
         try {
             dd_url = decodeURI(decodeURI(url));
         } catch(ee) {}
 
-        for (var j = 0; j < CliqzHumanWeb.windowsRef.length; j++) {
-            var gBrowser = CliqzHumanWeb.windowsRef[j].gBrowser;
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            var gBrowser = win.gBrowser;
             if (gBrowser.tabContainer) {
                 var numTabs = gBrowser.tabContainer.childNodes.length;
                 for (var i=0; i<numTabs; i++) {
                     var currentTab = gBrowser.tabContainer.childNodes[i];
                     var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                    var currURL=''+currentBrowser.contentDocument.location;
+                    var cd = currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'];
+                    var currURL=''+cd.location;
 
                     if (CliqzHumanWeb.debug) {
                         CliqzUtils.log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL, CliqzHumanWeb.LOG_KEY);
                     }
 
                     if (currURL==''+url) {
-                        return currentBrowser.contentDocument;
+                        return cd;
                     }
                     else {
                         // silent fail is currURL is invalid, we need to ignore that element otherwise
                         // one bad url would prevent any other url to be found
                         //
                         try {
-                            if (decodeURI(decodeURI(currURL))==dd_url) return currentBrowser.contentDocument;
+                            if (decodeURI(decodeURI(currURL))==dd_url) return cd;
                         }
                         catch(ee) {}
                     }
@@ -1129,13 +1135,32 @@ var CliqzHumanWeb = {
 
         return null;
     },
+    captureJSRefresh: function(aRequest, aURI){
+        if(aRequest && aRequest.referrer) {
+            var refU = aRequest.referrer.asciiSpec;
+            var newURL =  aURI.spec;
+            if(refU.indexOf('t.co/') > -1) CliqzHumanWeb.httpCache[refU] = {'status': '301', 'time': CliqzHumanWeb.counter, 'location': aURI.spec};
+
+            //Get first redirection.. for yahoo and stuff
+            var refyahoo = /\.search.yahoo\..*RU=/;
+            if(refyahoo.test(refU)){
+                try{var _url = CliqzHumanWeb.linkCache[decodeURIComponent(refU)]['s']}catch(ee){var _url = refU}
+                CliqzHumanWeb.linkCache[newURL] = {'s': ''+_url, 'time': CliqzHumanWeb.counter};
+
+            }
+        }
+    },
     listener: {
         tmpURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
- 
+
+            if(aProgress.isLoadingDocument){
+                CliqzHumanWeb.captureJSRefresh(aRequest, aURI);
+            }
+
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
@@ -1166,10 +1191,25 @@ var CliqzHumanWeb = {
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
             var gadurl = /\.google..*?\/(aclk)\?/;
-            var currwin = CliqzUtils.getWindow();
-            var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
+
+            // suggested by AMO - requires further testing in case of rapid tab switching (orange, blue)
+            // original:
+            // var currwin = aProgress.topWindow || CliqzUtils.getWindow().gBrowser.selectedBrowser.contentDocument;
+
+            var currwin = aProgress.DOMWindow.top;
+            if(!currwin) return; //internal FF page
+            if(gadurl.test(aURI.spec)){
+                var tabID = CliqzHumanWeb.getTabID();
+                if(tabID){
+                    CliqzHumanWeb.ismRefresh = true;//{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(aURI.spec)['queryKey']['adurl'])};
+                    CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(aURI.spec);
+                }
+            }
+            // var currwin = CliqzUtils.getWindow();
+            // var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
 
+            /*
             //This needs to go away. Should get the content from contentDocument, but it is coming as null right now.
             if(_currURL.indexOf('t.co/') > -1){
                 CliqzUtils.httpGet(_currURL,
@@ -1201,11 +1241,12 @@ var CliqzHumanWeb = {
                     CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(_currURL);
                 }
             }
+            */
 
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
 
-            var activeURL = CliqzHumanWeb.currentURL();
+            var activeURL = CliqzHumanWeb.cleanCurrentUrl(aURI.spec);
             //Check if the URL is know to be bad: private, about:, odd ports, etc.
             if (CliqzHumanWeb.isSuspiciousURL(activeURL)) return;
 
@@ -1219,7 +1260,7 @@ var CliqzHumanWeb = {
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1){
-                        currwin.setTimeout(function(currURLAtTime) {
+                        CliqzUtils.setTimeout(function(currURLAtTime, doc) {
 
                             // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
                             if (CliqzHumanWeb) {
@@ -1232,7 +1273,7 @@ var CliqzHumanWeb = {
                                     var searchURL = null;
 
                                     if (currURLAtTime == activeURL) {
-                                        document = currwin.gBrowser.selectedBrowser.contentDocument;
+                                        document = doc; //currwin.gBrowser.selectedBrowser.contentDocument;
                                         searchURL = activeURL;
                                     }
                                     else{
@@ -1253,7 +1294,7 @@ var CliqzHumanWeb = {
                                 }
                             }
 
-                        }, CliqzHumanWeb.WAIT_TIME, activeURL);
+                        }, CliqzHumanWeb.WAIT_TIME, activeURL, aProgress.document);
                     }
 
                     var status = null;
@@ -1318,7 +1359,7 @@ var CliqzHumanWeb = {
                         }
                     }
 
-                    currwin.setTimeout(function(currWin, currURL) {
+                    CliqzUtils.setTimeout(function(currWin, currURL) {
 
                         // Extract info about the page, title, length of the page, number of links, hash signature,
                         // 404, soft-404, you name it
@@ -1394,11 +1435,11 @@ var CliqzHumanWeb = {
                 }
 
                 // they need to be loaded upon each onlocation, not only the first time
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CliqzHumanWeb.captureScrollPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("copy", CliqzHumanWeb.captureCopyPage);
+                currwin.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
+                currwin.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
+                currwin.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
+                currwin.addEventListener("scroll", CliqzHumanWeb.captureScrollPage);
+                currwin.addEventListener("copy", CliqzHumanWeb.captureCopyPage);
 
             }
         },
@@ -1429,7 +1470,7 @@ var CliqzHumanWeb = {
 
 
 
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % 1 == 0) {
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % 5 == 0) {
 
             var openPages = CliqzHumanWeb.getAllOpenPages();
             var tt = new Date().getTime();
@@ -1602,16 +1643,20 @@ var CliqzHumanWeb = {
         } catch(e){}
     },
     currentURL: function() {
-        var currwin = CliqzUtils.getWindow();
-        if (currwin) {
-            var currURL = ''+currwin.gBrowser.selectedBrowser.contentDocument.location;
-            try {
-                currURL = decodeURIComponent(currURL.trim());
-            } catch(ee) {}
-
-            if (currURL!=null || currURL!=undefined) return currURL;
-            else return null;
+        var currwin = CliqzUtils.getWindow(), ret = null;
+        if (currwin && currwin.gBrowser) {
+            // http://mikeconley.github.io/e10s-MM-CPOW-talk/#slide-54
+            // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/browser.js#2395
+            ret = ''+currwin.gBrowser.selectedBrowser[currwin.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'].location;
         }
+        return CliqzHumanWeb.cleanCurrentUrl(ret);
+    },
+    cleanCurrentUrl: function(url){
+        try {
+            url = decodeURIComponent(url.trim());
+        } catch(ee) {}
+
+        if (url!=null || url!=undefined) return url;
         else return null;
     },
     pacemakerId: null,
@@ -1650,7 +1695,7 @@ var CliqzHumanWeb = {
             }
             CliqzHumanWeb.lastEv['keypresspage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
-            var activeURL = CliqzHumanWeb.currentURL();
+            var activeURL = CliqzHumanWeb.cleanCurrentUrl(ev.target.baseURI);
             if (CliqzHumanWeb.state['v'][activeURL]!=null && CliqzHumanWeb.state['v'][activeURL]['a'] > 1*CliqzHumanWeb.tmult) {
                 CliqzHumanWeb.state['v'][activeURL]['e']['kp'] += 1;
             }
@@ -1663,7 +1708,7 @@ var CliqzHumanWeb = {
             }
             CliqzHumanWeb.lastEv['mousemovepage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
-            var activeURL = CliqzHumanWeb.currentURL();
+            var activeURL = CliqzHumanWeb.cleanCurrentUrl(ev.target.baseURI);
             if (CliqzHumanWeb.state['v'][activeURL]!=null && CliqzHumanWeb.state['v'][activeURL]['a'] > 1*CliqzHumanWeb.tmult) {
                 CliqzHumanWeb.state['v'][activeURL]['e']['mm'] += 1;
             }
@@ -1742,7 +1787,7 @@ var CliqzHumanWeb = {
             }
             CliqzHumanWeb.lastEv['mouseclickpage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
-            var activeURL = CliqzHumanWeb.currentURL();
+            var activeURL = CliqzHumanWeb.cleanCurrentUrl(ev.target.baseURI);;
             if (CliqzHumanWeb.state['v'][activeURL]!=null && CliqzHumanWeb.state['v'][activeURL]['a'] > 1*CliqzHumanWeb.tmult) {
                 CliqzHumanWeb.state['v'][activeURL]['e']['md'] += 1;
             }
@@ -1756,7 +1801,7 @@ var CliqzHumanWeb = {
 
             CliqzHumanWeb.lastEv['scrollpage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
-            var activeURL = CliqzHumanWeb.currentURL();
+            var activeURL = CliqzHumanWeb.cleanCurrentUrl(ev.target.baseURI);
             if (CliqzHumanWeb.state['v'][activeURL]!=null && CliqzHumanWeb.state['v'][activeURL]['a'] > 1*CliqzHumanWeb.tmult) {
                 CliqzHumanWeb.state['v'][activeURL]['e']['sc'] += 1;
             }
@@ -1769,7 +1814,7 @@ var CliqzHumanWeb = {
             }
             CliqzHumanWeb.lastEv['copypage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
-            var activeURL = CliqzHumanWeb.currentURL();
+            var activeURL = CliqzHumanWeb.cleanCurrentUrl(ev.target.baseURI);
             if (CliqzHumanWeb.state['v'][activeURL]!=null && CliqzHumanWeb.state['v'][activeURL]['a'] > 1*CliqzHumanWeb.tmult) {
                 CliqzHumanWeb.state['v'][activeURL]['e']['cp'] += 1;
             }
@@ -1784,14 +1829,16 @@ var CliqzHumanWeb = {
     getAllOpenPages: function() {
         var res = [];
         try {
-            for (var j = 0; j < CliqzHumanWeb.windowsRef.length; j++) {
-                var gBrowser = CliqzHumanWeb.windowsRef[j].gBrowser;
+            var enumerator = Services.wm.getEnumerator('navigator:browser');
+            while (enumerator.hasMoreElements()) {
+                var win = enumerator.getNext();
+                var gBrowser = win.gBrowser;
                 if (gBrowser.tabContainer) {
                     var numTabs = gBrowser.tabContainer.childNodes.length;
                     for (var i=0; i<numTabs; i++) {
                         var currentTab = gBrowser.tabContainer.childNodes[i];
                         var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                        var currURL=''+currentBrowser.contentDocument.location;
+                        var currURL=''+currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'].location;
                         if (currURL.indexOf('about:')!=0) {
                             res.push(decodeURIComponent(currURL));
                         }
@@ -1804,8 +1851,6 @@ var CliqzHumanWeb = {
             return [];
         }
     },
-    windowsRef: [],
-    windowsMem: {},
     init: function(window) {
         refineFuncMappings = {
            "splitF":CliqzHumanWeb.refineSplitFunc,
@@ -1821,6 +1866,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.state == null) {
             CliqzHumanWeb.state = {};
         }
+        /*
         else {
 
             var util = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
@@ -1839,6 +1885,7 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.windowsMem[win_id] = window;
             CliqzHumanWeb.windowsRef.push(window);
         }
+        */
 
         if (CliqzHumanWeb.pacemakerId==null) {
             CliqzHumanWeb.pacemakerId = CliqzUtils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
@@ -2067,7 +2114,7 @@ var CliqzHumanWeb = {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
                 CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]))
-                
+
             }
             CliqzHumanWeb.createTable();
             return;
@@ -2396,7 +2443,7 @@ var CliqzHumanWeb = {
                                 }
                             }
                         });
-                       
+
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
@@ -2573,7 +2620,7 @@ var CliqzHumanWeb = {
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
-        
+
         if(listOfUncheckedUrls.length > 1){
             // Notify is the list of unchecked urls recieved is more than one
             // Generate a telemetry signal.
@@ -2956,12 +3003,11 @@ var CliqzHumanWeb = {
     },
     getTabID: function(){
         try{
-            for (var j = 0; j < CliqzHumanWeb.windowsRef.length; j++) {
-                //CliqzUtils.log("Window ID: " + j, CliqzHumanWeb.LOG);
-                var gBrowser = CliqzHumanWeb.windowsRef[j].gBrowser;
-                var uniqueID = CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
-                return uniqueID;
-            }
+            var enumerator = Services.wm.getEnumerator('navigator:browser');
+            var win = enumerator.getNext();
+            var currWindID = win.__SSi.split('window')[1];
+
+            return win.__SSi + ":" + win.gBrowser.mCurrentTab._tPos;
         }
         catch(e){
             return null;
@@ -3062,16 +3108,16 @@ var CliqzHumanWeb = {
 
     // Calculate duplicates
     arr.forEach(function(i, idx) {
-        if (typeof(i) == 'object' && i.action == 'page'){ 
+        if (typeof(i) == 'object' && i.action == 'page'){
             var d = JSON.stringify(i);
-            duplicate[d] = (duplicate[d]||0)+1; 
+            duplicate[d] = (duplicate[d]||0)+1;
         }
     });
 
     Object.keys(duplicate).forEach(function(key){
         if(duplicate[key] > 1){
             duplicates[key] = duplicate[key];
-            
+
         }
 
     })
@@ -3084,14 +3130,14 @@ var CliqzHumanWeb = {
         notificationMsg['payload'] = duplicates;
         CliqzHumanWeb.notification(notificationMsg);
     }
-    
+
   },
   notification: function(payload){
     try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
     if(payload && typeof(payload) == 'object'){
         payload['ctry'] = location;
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
-  
+
     }
     else{
         if (CliqzHumanWeb.debug) CliqzUtils.log("Not a valid object, not sent to notification", CliqzHumanWeb.LOG_KEY);
