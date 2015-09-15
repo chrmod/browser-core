@@ -1861,7 +1861,6 @@ var CliqzHumanWeb = {
 
         if (CliqzHumanWeb.debug) CliqzUtils.log("Init function called:", CliqzHumanWeb.LOG_KEY)
         CliqzHumanWeb.initDB();
-        var win_id = CliqzUtils.getWindowID()
 
         if (CliqzHumanWeb.state == null) {
             CliqzHumanWeb.state = {};
