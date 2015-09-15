@@ -253,42 +253,50 @@ window.CLIQZ.Core = {
         // antiphishing listener
         //gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
 
+        /*
+            dataCollectionMessageState
+                    0 - not shown
+                    1 - shown
+                    2 - ignored
+                    3 - learn more
+        */
+        if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
+          CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
+        }
+    },
+    showDataCollectionMessage: function(){
+      function updateDataCollectionState(state){
+        CliqzUtils.telemetry({
+          type: 'dataCollectionMessageAAA',
+          state: state
+        });
 
+        CliqzUtils.setPref('dataCollectionMessageState', state);
+      }
 
-        ///////
+      var buttons = [{
+        label: CliqzUtils.getLocalizedString("dataCollectionButton"),
+        callback: function(){
+          gBrowser.selectedTab  = gBrowser.addTab('https://cliqz.com/privacy');
+          updateDataCollectionState(3);
+        }
+      }];
 
-        this._actionTaken = false;
-
-        let buttons = [{
-          label: 'Learn More',
-          accessKey: 'Access Key',
-          popup: null,
-          callback: function(){
-            gBrowser.addTab('https://cliqz.com/privacy');
+      document.getElementById("global-notificationbox").appendNotification(
+        CliqzUtils.getLocalizedString("dataCollection"),
+        null,
+        null,
+        document.getElementById("global-notificationbox").PRIORITY_INFO_HIGH,
+        buttons,
+        function(){
+          // notification hides if the user closes it or presses learn more
+          if(CliqzUtils.getPref('dataCollectionMessageState', 0) < 2){
+            updateDataCollectionState(2);
           }
-        }];
+        }
+      );
 
-        document.getElementById("global-notificationbox").appendNotification(
-          "Cliqz anonymously collects browsing data to power this service ",
-          null,
-          null,
-          document.getElementById("global-notificationbox").PRIORITY_INFO_HIGH,
-          buttons,
-          function(){
-            console.log('AAA', arguments)
-          }
-        );
-
-        gBrowser.getNotificationBox().appendNotification("Cliqz anonymously collects browsing data to power this service", "test", "chrome://global/skin/notification/info-icon.png", 1, [{
-          label: 'Learn More',
-          accessKey: 'Access Key',
-          popup: null,
-          callback: function(){
-            gBrowser.addTab('https://cliqz.com/privacy');
-          }
-        }]);
-
-        //////
+      CliqzUtils.setPref('dataCollectionMessageState', 1); //change the state to shown
     },
 
     // Reset newtab and homepage if about:cliqz does not exist
@@ -409,6 +417,7 @@ window.CLIQZ.Core = {
     unload: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
+        clearTimeout(CLIQZ.Core._dataCollectionTimer);
 
         CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.removeGeoLocationWatch(CliqzUtils.GEOLOC_WATCH_ID);
 

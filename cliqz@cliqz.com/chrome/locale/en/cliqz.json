@@ -817,6 +817,12 @@
     },
     "extended_forecast": {
         "message": "Extended Forecast"
+    },
+    "dataCollection": {
+        "message": "To improve the search and browsing experience, CLIQZ for Firefox sends some anonymous data to Cliqz. Your privacy remains secured."
+    },
+    "dataCollectionButton": {
+        "message": "Learn More"
     }
 
 }
