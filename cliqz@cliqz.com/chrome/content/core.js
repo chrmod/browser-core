@@ -252,6 +252,55 @@ window.CLIQZ.Core = {
 
         // antiphishing listener
         //gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+        /*
+            dataCollectionMessageState
+                    0 - not shown
+                    1 - shown
+                    2 - ignored
+                    3 - learn more
+        */
+        if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
+          CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
+        }
+    },
+    showDataCollectionMessage: function(){
+      function updateDataCollectionState(state){
+        CliqzUtils.telemetry({
+          type: 'dataCollectionMessage',
+          state: state
+        });
+
+        CliqzUtils.setPref('dataCollectionMessageState', state);
+      }
+
+      var buttons = [{
+        label: CliqzUtils.getLocalizedString("dataCollectionButton"),
+        callback: function(){
+          // we only have the website localized in english end german
+          var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
+              learnMoreUrl = 'https://cliqz.com/' + lang + 'privacy#humanweb';
+
+          gBrowser.selectedTab  = gBrowser.addTab(learnMoreUrl);
+          updateDataCollectionState(3);
+        }
+      }];
+
+      document.getElementById("global-notificationbox").appendNotification(
+        CliqzUtils.getLocalizedString("dataCollection"),
+        null,
+        null,
+        document.getElementById("global-notificationbox").PRIORITY_INFO_HIGH,
+        buttons,
+        function(){
+          // notification hides if the user closes it or presses learn more
+          if(CliqzUtils.getPref('dataCollectionMessageState', 0) < 2){
+            updateDataCollectionState(2);
+          }
+        }
+      );
+
+      updateDataCollectionState(1);
     },
 
     // Reset newtab and homepage if about:cliqz does not exist
@@ -372,6 +421,7 @@ window.CLIQZ.Core = {
     unload: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
+        clearTimeout(CLIQZ.Core._dataCollectionTimer);
 
         CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.removeGeoLocationWatch(CliqzUtils.GEOLOC_WATCH_ID);
 
