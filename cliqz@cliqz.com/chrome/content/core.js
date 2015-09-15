@@ -267,7 +267,7 @@ window.CLIQZ.Core = {
     showDataCollectionMessage: function(){
       function updateDataCollectionState(state){
         CliqzUtils.telemetry({
-          type: 'dataCollectionMessageAAA',
+          type: 'dataCollectionMessage',
           state: state
         });
 
@@ -296,7 +296,7 @@ window.CLIQZ.Core = {
         }
       );
 
-      CliqzUtils.setPref('dataCollectionMessageState', 1); //change the state to shown
+      updateDataCollectionState(1);
     },
 
     // Reset newtab and homepage if about:cliqz does not exist
