@@ -38,7 +38,7 @@ var CliqzLanguage = {
     regexGoogleAdRef: /\.google\..*?\/aclk\?/,
     regexGoogleRefUrl: /url=(.+?)&/,
 
-    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position, is_ad) {
+    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position, is_ad, last_popup_open) {
         var action = {
             type: 'performance',
             redirect: redirect,
@@ -49,6 +49,7 @@ var CliqzLanguage = {
             result_type: result_type,
             result_position: result_position,
             is_ad: is_ad,
+            last_popup_open: last_popup_open,
             v: 1
         };
         CliqzUtils.telemetry(action)
@@ -109,36 +110,37 @@ var CliqzLanguage = {
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
             // if completed request without error (status)
             if (aRequest && (aStateFlag && Ci.nsIWebProgressListener.STATE_STOP) && !aStatus) {
-                if (CliqzAutocomplete.lastPopupOpen && // if last result set was shown to the user
-                    CliqzLanguage.regexGoogleRef.test(aRequest.name)) { // if request is a Google ref
+                if (CliqzLanguage.regexGoogleRef.test(aRequest.name)) { // if request is a Google ref
                     // extract referred URL
                     var match = aRequest.name.match(CliqzLanguage.regexGoogleRefUrl);
-                    if (match) {
+                    if(CliqzLanguage.regexGoogleAdRef.test(aRequest.name)) {
+                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, true, CliqzAutocomplete.lastPopupOpen);
+                    } else if (match) {
                         var googleUrl = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(match[1])),
                             results = CliqzAutocomplete.lastResult._results,
                             found = false;
 
-                        for (var i = 0; i < results.length; i++) {
-                            var cliqzUrl = CliqzHistoryPattern.generalizeUrl(results[i].val);
+                        if (CliqzAutocomplete.lastPopupOpen) {
+                            for (var i = 0; i < results.length; i++) {
+                                var cliqzUrl = CliqzHistoryPattern.generalizeUrl(results[i].val);
 
-                            // same result as in dropdown
-                            if (googleUrl == cliqzUrl) {
-                                var resType = CliqzUtils.encodeResultType(results[i].style || results[i].type);
-                                CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i, false);
-                                CliqzAutocomplete.afterQueryCount = 0;
-                                found = true;
+                                // same result as in dropdown
+                                if (googleUrl == cliqzUrl) {
+                                    var resType = CliqzUtils.encodeResultType(results[i].style || results[i].type);
+                                    CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i, false, true);
+                                    CliqzAutocomplete.afterQueryCount = 0;
+                                    found = true;
 
-                                CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
-                                break;
+                                    CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
+                                    break;
+                                }
                             }
                         }
 
                         // we don't have the same result
                         if (!found) {
-                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, false);
+                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, false, CliqzAutocomplete.lastPopupOpen);
                         }
-                    } else if(CliqzLanguage.regexGoogleAdRef.test(aRequest.name)) {
-                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, true);
                     }
                 }
             }
