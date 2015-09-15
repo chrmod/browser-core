@@ -64,9 +64,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTour',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
-  'chrome://cliqzmodules/content/CUcrawl.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
@@ -121,11 +118,6 @@ window.CLIQZ.Core = {
             if(CliqzUtils.getPref("humanWeb", false)){
                 //Also need to add for Humanweb
                 hs.addObserver(CliqzHumanWeb.historyObserver, false);
-            }
-
-            if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-                //Also need to add for Humanweb
-                hs.addObserver(CUcrawl.historyObserver, false);
             }
           } catch(e) {}
         }
@@ -214,11 +206,6 @@ window.CLIQZ.Core = {
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
-            }
-
-            if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-                CUcrawl.init(window);
-                window.gBrowser.addProgressListener(CUcrawl.listener);
             }
 
             // Update CLIQZ history data
@@ -439,23 +426,6 @@ window.CLIQZ.Core = {
                 }
             }
 
-            if(CliqzUtils.getPref("safeBrowsingMozTest", false) && !CliqzUtils.isPrivate(window)){
-                window.gBrowser.removeProgressListener(CUcrawl.listener);
-
-                //Remove indi.event handlers
-                CUcrawl.destroy();
-
-                var numTabs = window.gBrowser.tabContainer.childNodes.length;
-                for (var i=0; i<numTabs; i++) {
-                  var currentTab = gBrowser.tabContainer.childNodes[i];
-                  var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                  currentBrowser.contentDocument.removeEventListener("keypress", CUcrawl.captureKeyPressPage);
-                  currentBrowser.contentDocument.removeEventListener("mousemove", CUcrawl.captureMouseMovePage);
-                  currentBrowser.contentDocument.removeEventListener("mousedown", CUcrawl.captureMouseClickPage);
-                  currentBrowser.contentDocument.removeEventListener("scroll", CUcrawl.captureScrollPage);
-                  currentBrowser.contentDocument.removeEventListener("copy", CUcrawl.captureCopyPage);
-                }
-            }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
         }
@@ -475,12 +445,6 @@ window.CLIQZ.Core = {
                     //Also, remove from Humanweb
                     hs.removeObserver(CliqzHumanWeb.historyObserver);
                 }
-
-                if(CliqzUtils.getPref("safeBrowsingMozTest", false) ){
-                    //Also, remove from Humanweb
-                    hs.removeObserver(CUcrawl.historyObserver);
-                }
-
             } catch(e) {}
         }
 
@@ -505,7 +469,6 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryPattern;
             delete window.CliqzHandlebars;
             delete window.CliqzTour;
-            delete window.CUcrawl;
             delete window.CliqzAntiPhishing;
         }
     },
