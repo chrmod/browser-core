@@ -1469,7 +1469,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
 
-      if (CliqzHumanWeb && CliqzHumanWeb.queryCache && CliqzUtils.getPref('enableHumanWeb', false)) {
+      if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
           CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {
            'd': 1,
            'q': CliqzAutocomplete.lastSearch ,
