@@ -595,27 +595,24 @@ window.CLIQZ.Core = {
         } catch(e) { }
 
         CliqzHistoryManager.getStats(function(history){
-            Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                var info = {
-                        type: 'environment',
-                        agent: navigator.userAgent,
-                        language: navigator.language,
-                        width: window.document.width,
-                        height: window.document.height,
-                        screen_width: screenWidth.value,
-                        screen_height: screenHeight.value,
-                        version: beVersion,
-                        history_days: history.days,
-                        history_urls: history.size,
-                        startup: startup? true: false,
-                        prefs: CliqzUtils.getPrefs(),
-                        defaultSearchEngine: defaultSearchEngine,
-                        private_window: CliqzUtils.isPrivate(window)
-                    };
+            var info = {
+                type: 'environment',
+                agent: navigator.userAgent,
+                language: navigator.language,
+                width: window.document.width,
+                height: window.document.height,
+                screen_width: screenWidth.value,
+                screen_height: screenHeight.value,
+                version: CliqzUtils.extensionVersion,
+                history_days: history.days,
+                history_urls: history.size,
+                startup: startup? true: false,
+                prefs: CliqzUtils.getPrefs(),
+                defaultSearchEngine: defaultSearchEngine,
+                private_window: CliqzUtils.isPrivate(window)
+            };
 
-                CliqzUtils.telemetry(info);
-            });
+            CliqzUtils.telemetry(info);
         });
     },
     showUninstallMessage: function(currentVersion){

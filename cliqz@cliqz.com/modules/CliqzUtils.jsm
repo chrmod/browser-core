@@ -10,7 +10,7 @@
  *  ...
  */
 Components.utils.import('resource://gre/modules/Services.jsm');
-
+Components.utils.import('resource://gre/modules/AddonManager.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
@@ -1071,14 +1071,6 @@ var CliqzUtils = {
         }
     }
   },
-  version: function(callback){
-    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                     .getService(Components.interfaces.nsIWindowMediator),
-        win = wm.getMostRecentWindow("navigator:browser");
-      win.Application.getExtensions(function(extensions) {
-            callback(extensions.get('cliqz@cliqz.com').version);
-      });
-  },
   extensionRestart: function(){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
@@ -1296,18 +1288,15 @@ var CliqzUtils = {
           menupopup.removeChild(menupopup.lastChild);
 
         function feedback_FAQ(){
-            win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
-                    function success(req){
-                        var source = JSON.parse(req.response).shortName;
-                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
-                    },
-                    function error(){
-                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion);
-                    }
-                );
-            });
+          CliqzUtils.httpGet('chrome://cliqz/content/source.json',
+              function success(req){
+                  var source = JSON.parse(req.response).shortName;
+                  CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion + '-' + source);
+              },
+              function error(){
+                  CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion);
+              }
+          );
         }
 
         //feedback and FAQ
