@@ -1469,15 +1469,13 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
 
-      if(!CliqzUtils.isPrivateResultType(action.position_type)){
-          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
-          }
-      }
-      else{
-          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
-          }
+      if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
+          CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {
+           'd': 1,
+           'q': CliqzAutocomplete.lastSearch ,
+           't': CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+           'pt' : action.position_type
+          };
       }
     }
     CliqzHistory.updateQuery(query, autocompleteUrl);
