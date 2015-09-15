@@ -806,5 +806,11 @@
     },
     "extended_forecast": {
         "message": "Detailiertere Vorhersage"
+    },
+    "dataCollection": {
+        "message": "Um die Such- und Browser-Funktionen zu verbessern, übermittelt CLQZ for Firefox anonyme Daten an Cliqz. Deine Privatsphäre bleibt dabei geschützt."
+    },
+    "dataCollectionButton": {
+        "message": "Mehr erfahren"
     }
 }
