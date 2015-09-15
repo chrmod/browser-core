@@ -277,7 +277,11 @@ window.CLIQZ.Core = {
       var buttons = [{
         label: CliqzUtils.getLocalizedString("dataCollectionButton"),
         callback: function(){
-          gBrowser.selectedTab  = gBrowser.addTab('https://cliqz.com/privacy');
+          // we only have the website localized in english end german
+          var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
+              learnMoreUrl = 'https://cliqz.com/' + lang + 'privacy#humanweb';
+
+          gBrowser.selectedTab  = gBrowser.addTab(learnMoreUrl);
           updateDataCollectionState(3);
         }
       }];
