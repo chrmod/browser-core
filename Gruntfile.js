@@ -225,6 +225,11 @@ module.exports = function(grunt) {
                     'build-css',
                 ]
             }
+        },
+        shell: {
+            target: {
+                command: 'gulp build-css'
+            }
         }
     })
 
@@ -234,8 +239,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-nodemon");
     grunt.loadNpmTasks("grunt-concurrent");
     grunt.loadNpmTasks('grunt-run');
+    grunt.loadNpmTasks('grunt-shell');
 
-    grunt.registerTask("build",["run:build", "copy", "concat"]);
+    grunt.registerTask("build",["shell", "copy", "concat"]);
     grunt.registerTask("default",["build","concurrent"]);
     grunt.registerTask("serve",["build", "watch"]);
 
