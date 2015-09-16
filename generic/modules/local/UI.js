@@ -687,7 +687,7 @@ var UI = {
       };
     },
     enhanceSpecificResult: function(data) {
-      var specificView = UI.VIEWS[data.superTemplate]  || UI.VIEWS[data.template];
+      var specificView = UI.VIEWS[data.template];
       if (specificView && specificView.enhanceResults) {
         specificView.enhanceResults(data);
       }

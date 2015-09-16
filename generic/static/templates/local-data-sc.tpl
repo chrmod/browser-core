@@ -19,49 +19,49 @@
           <div class="cqz-local-result-descr">{{description}}</div>
         </div>
         <div class="cqz-local-des-blk local-sc-data-container">
-            {{#unless no_location}}
+          {{#unless no_location}}
             <hr class="cqz-local-hr" />
 
             <div class="cqz-local-info">
-                {{#if phone_address}}
+              {{#if phone_address}}
                 <div class="cqz-local-info-left cqz-local-info-box" >
-                    {{#if address}}
+                  {{#if address}}
                     <div class="cqz-local-address" extra="address" show-status='true' url="{{mu}}">
-                        <img src="http://cdn.cliqz.com/extension/EZ/local/map-pin.svg" class="cqz-local-icon clz_link" onerror="this.style.display='none';"/>
-                        {{address}}
+                      <img src="http://cdn.cliqz.com/extension/EZ/local/map-pin.svg" class="cqz-local-icon clz_link" onerror="this.style.display='none';"/>
+                      {{address}}
                     </div>
-                    {{/if}}
-                    {{#if phonenumber}}
+                  {{/if}}
+                  {{#if phonenumber}}
                     <div extra="phone_num" cliqz-action="copy_val">
-                        <img src="http://cdn.cliqz.com/extension/EZ/local/phone-1.svg" class="cqz-local-icon clz_copy" onerror="this.style.display='none';"/>
-                        <span class="clz_copy">{{phonenumber}}</span>
+                      <img src="http://cdn.cliqz.com/extension/EZ/local/phone-1.svg" class="cqz-local-icon clz_copy" onerror="this.style.display='none';"/>
+                      <span class="clz_copy">{{phonenumber}}</span>
                     </div>
-                    {{/if}}
+                  {{/if}}
                 </div>
-                {{/if}}
-                {{#if opening_hours}}
+              {{/if}}
+              {{#if opening_hours}}
                 <div class="cqz-local-info-right cqz-local-info-box" extra="open-hour">
-                        <div class="cqz-local-time">
-                            <p class="cqz-local-time-title" style="color: {{opening_status.color}}">
-                              <img src="http://cdn.cliqz.com/extension/EZ/local/clock.svg" class="cqz-local-icon" onerror="this.style.display='none';"/>
-                              {{opening_status.stt_text}}
-                            </p>
-                            <p>
-                              {{opening_status.time_info_til}}
-                            </p>
-                            <p>
-                                {{opening_status.time_info_str}}
-                            </p>
-                        </div>
+                  <div class="cqz-local-time">
+                    <p class="cqz-local-time-title" style="color: {{opening_status.color}}">
+                      <img src="http://cdn.cliqz.com/extension/EZ/local/clock.svg" class="cqz-local-icon" onerror="this.style.display='none';"/>
+                      {{opening_status.stt_text}}
+                    </p>
+                    <p>
+                      {{opening_status.time_info_til}}
+                    </p>
+                    <p>
+                      {{opening_status.time_info_str}}
+                    </p>
+                  </div>
                 </div>
-                {{/if}}
+              {{/if}}
 
             </div>
-            {{else}}
-              {{#unlesspref 'share_location' 'no'}}
-                {{>missing_location}}
-              {{/unlesspref}}
-            {{/unless}}
+          {{else}}
+            {{#unlesspref 'share_location' 'no'}}
+              {{>missing_location}}
+            {{/unlesspref}}
+          {{/unless}}
         </div>
       {{/with}}
     </div>
