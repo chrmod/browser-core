@@ -218,14 +218,6 @@ module.exports = function(grunt) {
                 dest: build("tool_iOS/js/libs.js")
             }
         },
-        run: {
-            build: {
-                cmd: 'gulp',
-                args: [
-                    'build-css',
-                ]
-            }
-        },
         shell: {
             target: {
                 command: 'gulp build-css'
@@ -238,7 +230,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-nodemon");
     grunt.loadNpmTasks("grunt-concurrent");
-    grunt.loadNpmTasks('grunt-run');
     grunt.loadNpmTasks('grunt-shell');
 
     grunt.registerTask("build",["shell", "copy", "concat"]);
