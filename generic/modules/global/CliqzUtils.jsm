@@ -222,7 +222,18 @@ var CliqzUtils = {
 
     return result
   },
-  httpHandler: CLIQZEnvironment.httpHandler,
+  httpHandler: function () {
+    var errorHandler = arguments[2]; // see httpGet or httpPost arguments
+    try {
+      return CLIQZEnvironment.httpHandler.apply(CLIQZEnvironment, arguments);
+    } catch(e) {
+      if(errorHandler) {
+        errorHandler(e);
+      } else {
+        CliqzUtils.log(e, "httpHandler failed");
+      }
+    }
+  },
   httpGet: function(url, callback, onerror, timeout){
     return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
   },
