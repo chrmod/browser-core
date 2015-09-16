@@ -506,6 +506,10 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 
 				if (action === 'confirm') {
 					CliqzUtils.httpGet(_getEndpoint('click', campaign));
+				} else if (action === 'postpone') {
+					CliqzUtils.httpGet(_getEndpoint('postpone', campaign));
+				} else if (action === 'discard') {
+					CliqzUtils.httpGet(_getEndpoint('discard', campaign));
 				}
 
 				// open URL in new tab if specified for this action
