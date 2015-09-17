@@ -546,7 +546,7 @@ var CliqzAutocomplete = {
                 this.instant = [];
 
                 this.callback = callback;
-                this.searchString = searchString;
+                this.searchString = searchString.trim();
                 this.searchStringSuggest = null;
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
