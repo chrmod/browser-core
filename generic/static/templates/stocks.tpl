@@ -1,5 +1,4 @@
 <div class="cqz-result-h2">
-    THUY
     <div class="cqz-ez-title cqz-ez-stock-title cqz-ez-black-title">
         <span href="{{url}}">{{data.message.Name}}</span>
     </div>
