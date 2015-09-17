@@ -108,46 +108,46 @@ var CliqzLanguage = {
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
-            var match, googleUrl, results, found;
+            var isRequestSuccessful = aRequest && aStateFlag &&
+                    Ci.nsIWebProgressListener.STATE_STOP && !aStatus,
+                isGoogleRef = CliqzLanguage.regexGoogleRef.test(aRequest.name);
 
-            // if completed request without error (status)
-            if (aRequest && (aStateFlag && Ci.nsIWebProgressListener.STATE_STOP) && !aStatus) {
-                if (CliqzLanguage.regexGoogleRef.test(aRequest.name)) { // if request is a Google ref
-                    // extract referred URL
-                    match = aRequest.name.match(CliqzLanguage.regexGoogleRefUrl);
-                    if(CliqzLanguage.regexGoogleAdRef.test(aRequest.name)) {
-                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, true, CliqzAutocomplete.lastPopupOpen);
-                    } else if (match) {
-                        googleUrl = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(match[1]));
-                        results = CliqzAutocomplete.lastResult._results;
-                        found = false;
-
-                        if (CliqzAutocomplete.lastPopupOpen) {
-                            results.forEach(function (r, i) {
-                                var cliqzUrl = CliqzHistoryPattern.generalizeUrl(r.val),
-                                    resType = CliqzUtils.encodeResultType(r.style || r.type);
-
-                                if (!found) {
-                                    // same result as in dropdown
-                                    if (googleUrl == cliqzUrl) {
-                                        CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i, false, true);
-                                        CliqzAutocomplete.afterQueryCount = 0;
-                                        found = true;
-
-                                        CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
-                                    }
-                                }
-                            });
-                        }
-
-                        // we don't have the same result
-                        if (!found) {
-                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, false, CliqzAutocomplete.lastPopupOpen);
-                        }
-                    }
-                }
+            if (!isRequestSuccessful || !isGoogleRef) {
+                return;
             }
-        },
+
+            var isGoogleAdRef = CliqzLanguage.regexGoogleAdRef.test(aRequest.name),
+                googleUrlMatch = !isGoogleAdRef && aRequest.name.match(CliqzLanguage.regexGoogleRefUrl),
+                isLastPopupOpen = CliqzAutocomplete.lastPopupOpen,
+                cliqzResults = CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results,
+                cliqzResultType = null,
+                cliqzResultIndex = null,
+                isSameResult = false,
+                googleUrl;
+
+            if (!isGoogleAdRef && isLastPopupOpen && googleUrlMatch) {
+                googleUrl =
+                    CliqzHistoryPattern.generalizeUrl(decodeURIComponent(googleUrlMatch[1]));
+                isSameResult = cliqzResults && cliqzResults.some(function (r, i) {
+                    var cliqzUrl = CliqzHistoryPattern.generalizeUrl(r.val);
+
+                    if (cliqzUrl === googleUrl) {
+                        CliqzAutocomplete.afterQueryCount = 0;
+                        CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
+                        cliqzResultType = CliqzUtils.encodeResultType(r.style || r.type);
+                        cliqzResultIndex = i;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+            }
+
+            CliqzLanguage.sendCompSignal(
+                    'result_compare', true, isSameResult, cliqzResultType,
+                    cliqzResultIndex, isGoogleAdRef,
+                    isLastPopupOpen);
+        }
     },
 
     // load from the about:config settings
