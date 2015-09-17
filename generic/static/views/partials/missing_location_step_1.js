@@ -1,4 +1,27 @@
-var events = {
+var messages = {
+  "movies": {
+    'trans_str': {
+      'message': 'movies_confirm_no',
+      'yes': 'yes',
+      'no': 'show_local_movies'
+    }
+  },
+  "cinemas": {
+    'trans_str': {
+      'message': 'cinemas_confirm_no',
+      'yes': 'yes',
+      'no': 'show_local_cinemas'
+    }
+  },
+  "default": {
+    'trans_str': {
+      'message': 'location_confirm_no',
+      'yes': 'yes',
+      'no': 'show_local_results'
+    }
+  }
+},
+events = {
   click: {
       "cqz_location_yes": function(ev) {
         ev.preventDefault();
@@ -14,12 +37,10 @@ var events = {
         var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
         var el = ev.target;
         /* Show a message to confirm user"s decision*/
-        var confirm_no_id = el.getAttribute("location_confirm_no_msg");
-        if (!confirm_no_id) {
-            confirm_no_id = "00"; // Default to the generic message
-        }
-        container.innerHTML = CliqzHandlebars.tplCache["confirm_no_" + confirm_no_id]({
-            "friendly_url": el.getAttribute("bm_url")
+        var localType = el.getAttribute("local_sc_type") || "default";
+        container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
+            friendly_url: el.getAttribute("bm_url"),
+            trans_str: messages[localType].trans_str
         });
       },
       "cqz_location_never": function(ev) {

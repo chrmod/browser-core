@@ -27,7 +27,7 @@
     <div class="cinema-showtimes-container local-sc-data-container" id="cinema-showtimes-container">
       {{#if no_location }}
         {{#unlesspref 'share_location' 'no'}}
-          {{>missing_location}}
+          {{>partials/missing_location_step_1}}
         {{/unlesspref}}
       {{else}}
         {{>partials/timetable-cinema}}

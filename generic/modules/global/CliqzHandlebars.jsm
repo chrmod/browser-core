@@ -22,10 +22,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       'footer-message',
       'onboarding-callout',
       'onboarding-callout-extended',
-      'confirm_no_00',
-      'confirm_no_01',
-      'confirm_no_02',
       'slow_connection',
+      'partials/missing_location_step_2',
       'partials/no-locale-data'
     ],
     PARTIALS = [
@@ -36,7 +34,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'feedback',
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
-        'missing_location',
+        'partials/missing_location_step_1',
         'partials/timetable-cinema',
         'partials/timetable-movie'
     ],
@@ -150,6 +148,18 @@ function registerHelpers(){
 
     Handlebars.registerHelper('local', function() {
         return CliqzUtils.getLocalizedString.apply(null, arguments);
+    });
+
+    Handlebars.registerHelper('local_multi', function() {
+      var arg;
+      for (var i=0; i < arguments.length; i++) {
+        if (arguments[i]) {
+          arg = arguments[i];
+          break;
+        }
+      }
+      CliqzUtils.log(arg, "LOCALTEST ARG");
+      return CliqzUtils.getLocalizedString.apply(null, [arg]);
     });
 
     Handlebars.registerHelper('views_helper', function(val) {
