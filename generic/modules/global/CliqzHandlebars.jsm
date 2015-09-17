@@ -150,18 +150,6 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString.apply(null, arguments);
     });
 
-    Handlebars.registerHelper('local_multi', function() {
-      var arg;
-      for (var i=0; i < arguments.length; i++) {
-        if (arguments[i]) {
-          arg = arguments[i];
-          break;
-        }
-      }
-      CliqzUtils.log(arg, "LOCALTEST ARG");
-      return CliqzUtils.getLocalizedString.apply(null, [arg]);
-    });
-
     Handlebars.registerHelper('views_helper', function(val) {
         if(!val || val == '-1')return '';
 
@@ -412,7 +400,7 @@ function registerHelpers(){
 
     Handlebars.registerHelper('for', function(start, end, incr, block) {
       var accum = '';
-      for(var i = parseInt(start); i < parseInt(end); i += incr) {
+      for(var i = Math.round(start); i < Math.round(end); i += incr) {
         accum += block.fn(i);
       }
       return accum;
