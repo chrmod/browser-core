@@ -48,10 +48,10 @@ var CliqzLanguage = {
             same_result: options.isSameResult,
             result_type: options.cliqzResultType,
             result_position: options.cliqzResultIndex,
-            is_ad: options.isGoogleAd
+            is_ad: options.isGoogleAd,
             v: 1
         };
-        CliqzUtils.telemetry(action)
+        CliqzUtils.telemetry(action);
     },
     _locale: null,
     getLocale: function(){
@@ -115,8 +115,8 @@ var CliqzLanguage = {
                 return;
             }
 
-            var isGoogleAdRef = CliqzLanguage.regexGoogleAdRef.test(aRequest.name),
-                googleUrlMatch = !isGoogleAdRef && aRequest.name.match(CliqzLanguage.regexGoogleRefUrl),
+            var isGoogleAd = CliqzLanguage.regexGoogleAdRef.test(aRequest.name),
+                googleUrlMatch = !isGoogleAd && aRequest.name.match(CliqzLanguage.regexGoogleRefUrl),
                 isLastPopupOpen = CliqzAutocomplete.lastPopupOpen,
                 cliqzResults = CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results,
                 cliqzResultType = null,
@@ -124,7 +124,7 @@ var CliqzLanguage = {
                 isSameResult = false,
                 googleUrl;
 
-            if (!isGoogleAdRef && isLastPopupOpen && googleUrlMatch) {
+            if (!isGoogleAd && isLastPopupOpen && googleUrlMatch) {
                 googleUrl =
                     CliqzHistoryPattern.generalizeUrl(decodeURIComponent(googleUrlMatch[1]));
                 isSameResult = cliqzResults && cliqzResults.some(function (r, i) {
