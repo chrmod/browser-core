@@ -77,7 +77,7 @@ var CliqzResultProviders = {
             ];
             q = customQuery.updatedQ;
         } else if(CliqzCalculator.isCalculatorSearch(q)){
-            var calcRes = CliqzCalculator.get(q);
+            var calcRes = CliqzCalculator.calculate(q);
             if (calcRes != null){
                 results = [calcRes];
             }

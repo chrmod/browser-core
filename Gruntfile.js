@@ -20,8 +20,8 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: ["generic/**/*.*","specific/**/*.*", "Gruntfile.js"],
-                tasks: ["copy","concat"],
+                files: ["generic/**/*.*", "specific/**/*.*", "Gruntfile.js", "!generic/static/styles/css"],
+                tasks: ["build"],
                 options: {
                     spawn: false,
                     livereload: 3001
@@ -72,7 +72,7 @@ module.exports = function(grunt) {
             androidkit: {
                 files: [
                     { expand: true, cwd: "generic/static/locale", src: "**", dest: build("androidkit/navigation/locale") },
-                    { expand: true, cwd: "generic/static/skin", src: ["**", '!*css'], dest: build("androidkit/navigation/skin") },
+                    { expand: true, cwd: "generic/static/skin", src: ["**", '!*a'], dest: build("androidkit/navigation/skin") },
                     { expand: true, cwd: "specific/mobile/skin", src: ["*", '!*sass'], dest: build("androidkit/navigation/skin/mobile") },
                     { expand: true, cwd: "specific/mobile/templates", src: '*', dest: build("androidkit/navigation/templates") },
                     { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("androidkit/navigation") },
@@ -217,18 +217,24 @@ module.exports = function(grunt) {
                 src: ["generic/modules/libs/*"],
                 dest: build("tool_iOS/js/libs.js")
             }
-
+        },
+        shell: {
+            target: {
+                command: 'gulp build-css'
+            }
         }
     })
 
-    grunt.loadNpmTasks("grunt-contrib-watch")
-    grunt.loadNpmTasks("grunt-contrib-copy")
-    grunt.loadNpmTasks("grunt-contrib-concat")
-    grunt.loadNpmTasks("grunt-nodemon")
-    grunt.loadNpmTasks("grunt-concurrent")
+    grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-contrib-copy");
+    grunt.loadNpmTasks("grunt-contrib-concat");
+    grunt.loadNpmTasks("grunt-nodemon");
+    grunt.loadNpmTasks("grunt-concurrent");
+    grunt.loadNpmTasks('grunt-shell');
 
-    grunt.registerTask("default",["copy","concat","concurrent"])
-    grunt.registerTask("build",["copy","concat"])
+    grunt.registerTask("build",["shell", "copy", "concat"]);
+    grunt.registerTask("default",["build","concurrent"]);
+    grunt.registerTask("serve",["build", "watch"]);
 
     grunt.registerTask('package', '', function(version){
         var result, exec = require('child_process').execSync;

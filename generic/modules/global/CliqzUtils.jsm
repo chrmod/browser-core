@@ -56,7 +56,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-//  RESULTS_PROVIDER:               'http://10.0.59.229:8080/api/v1/results?q=',
+//  RESULTS_PROVIDER:               'http://mixer-beta.clyqz.com/api/v1/results?q=',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
@@ -84,13 +84,19 @@ var CliqzUtils = {
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'entity-portal': 3, 'topsites': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'entity-search-1': 2, 'flightStatusEZ-2': 2, 'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
-      'recipe': 3, 'rd-h3-w-rating': 1,
-      'ramadan': 3, 'ez-generic-2': 3,
+      'ligaEZ1Game': 2,
+      'ligaEZUpcomingGames': 3,
+      'ligaEZTable': 3,
+      'local-movie-sc':3,
+      'local-cinema-sc':3,
+      'recipe': 3,
+      'rd-h3-w-rating': 1,
+      'ramadan': 3,
+      'ez-generic-2': 3,
       'cpgame_movie': 3,
-      "delivery-tracking": 2
+      'delivery-tracking': 2
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
@@ -216,7 +222,18 @@ var CliqzUtils = {
 
     return result
   },
-  httpHandler: CLIQZEnvironment.httpHandler,
+  httpHandler: function () {
+    var errorHandler = arguments[2]; // see httpGet or httpPost arguments
+    try {
+      return CLIQZEnvironment.httpHandler.apply(CLIQZEnvironment, arguments);
+    } catch(e) {
+      if(errorHandler) {
+        errorHandler(e);
+      } else {
+        CliqzUtils.log(e, "httpHandler failed");
+      }
+    }
+  },
   httpGet: function(url, callback, onerror, timeout){
     return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
   },
@@ -608,9 +625,15 @@ var CliqzUtils = {
              '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-   encodeLocation: function(specifySource, lat, lng) {
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng){
-      return [
+
+  encodeLocation: function(specifySource, lat, lng) {
+    var qs = [
+     '&loc_pref=',
+     CliqzUtils.getPref('share_location','ask')
+    ].join('')
+
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
+      qs += [
         '&loc=',
         lat || CLIQZEnvironment.USER_LAT,
         ',',
@@ -618,7 +641,8 @@ var CliqzUtils = {
         (specifySource ? ',U' : '')
       ].join('');
     }
-    else return ''
+
+    return qs;
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(

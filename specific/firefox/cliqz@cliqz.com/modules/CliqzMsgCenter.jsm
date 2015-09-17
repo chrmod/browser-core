@@ -139,7 +139,7 @@ MessageHandler.prototype.unload = function (win) {
 MessageHandler.prototype.enqueueMessage = function (message, callback) {
 	this._messageQueue.push(message);
 	this._callbacks[message.id] = callback;
-	if (this._messageQueue.length == 1) {
+	if (this._messageQueue.length === 1) {
 		this._renderMessage(message);
 	}
 };
@@ -195,7 +195,7 @@ MessageHandlerDropdownFooter.prototype.unload = function (win) {
 
 	var msgContainer = win.document.getElementById('cliqz-message-container');
 	if (msgContainer) {
-		msgContainer.removeEventListener('click', this._onClick);
+		msgContainer.removeEventListener('mouseup', this._onClick);
 		delete msgContainer[this.id];
 	} else {
 		_log('message container not found');
@@ -253,7 +253,7 @@ MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
 
 	var msgContainer = win.getElementById('cliqz-message-container');
 	if (msgContainer) {
-		msgContainer.addEventListener('click', self._onClick);
+		msgContainer.addEventListener('mouseup', self._onClick);
 		msgContainer[self.id] = self;
 	} else {
 		_log('message container not found');
@@ -262,10 +262,10 @@ MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
 MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
 		msgContainer = e.target;
-	while (msgContainer && msgContainer.id != 'cliqz-message-container') {
+	while (msgContainer && msgContainer.id !== 'cliqz-message-container') {
 		msgContainer = msgContainer.parentNode;
 	}
-	if (!msgContainer || msgContainer.id != 'cliqz-message-container') {
+	if (!msgContainer || msgContainer.id !== 'cliqz-message-container') {
 		_log('message container not found');
 		return;
 	}
@@ -434,7 +434,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 				var campaign = new Campaign(cIds[i]);
 				if (campaign.load()) {
 					CliqzMsgCenter._campaigns[cIds[i]] = campaign;
-					if (campaign.state == 'show') {
+					if (campaign.state === 'show') {
 						CliqzMsgCenter.showMessage(campaign.message,
 							campaign.handlerId,
 							CliqzMsgCenter._onMessageAction);
@@ -464,7 +464,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 		var campaigns = CliqzMsgCenter._campaigns;
 		for (var cId in campaigns) {
 			if (campaigns.hasOwnProperty(cId)) {
-				if (campaigns[cId].triggerId == id) {
+				if (campaigns[cId].triggerId === id) {
 					CliqzMsgCenter._triggerCampaign(campaigns[cId]);
 				}
 			}
@@ -472,9 +472,9 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	},
 	_triggerCampaign: function (campaign) {
 		_log('campaign ' + campaign.id + ' trigger');
-		if (campaign.isEnabled && campaign.state == 'idle') {
-			if (++campaign.counts.trigger == campaign.limits.trigger) {
-				if (campaign.limits.show == -1 ||
+		if (campaign.isEnabled && campaign.state === 'idle') {
+			if (++campaign.counts.trigger === campaign.limits.trigger) {
+				if (campaign.limits.show === -1 ||
 					++campaign.counts.show <= campaign.limits.show) {
 					campaign.setState('show');
 					campaign.counts.trigger = 0;
@@ -495,31 +495,35 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
 		if (campaign) {
-			if (campaign.state == 'end') {
+			if (campaign.state === 'end') {
 				_log('campaign ' + campaign.id + ' has ended');
 				return;
 			}
 
-			if (ACTIONS.indexOf(action) != -1) {
+			if (ACTIONS.indexOf(action) !== -1) {
 				_log('campaign ' + campaign.id + ': ' + action);
 				_telemetry(campaign, action);
 
-				if (campaign.limits[action] != -1 ||
-					++campaign.counts[action] == campaign.limits[action]) {
-					campaign.setState('end');
+				if (action === 'confirm') {
+					CliqzUtils.httpGet(_getEndpoint('click', campaign));
+				} else if (action === 'postpone') {
+					CliqzUtils.httpGet(_getEndpoint('postpone', campaign));
+				} else if (action === 'discard') {
+					CliqzUtils.httpGet(_getEndpoint('discard', campaign));
+				}
 
-					if (action == 'confirm') {
-						CliqzUtils.httpGet(_getEndpoint('click', campaign));
-						// TODO: potentially move to method
-						var gBrowser = CliqzUtils.getWindow().gBrowser;
-						for (var i = 0; i < campaign.message.options.length; i++) {
-							if (campaign.message.options[i].action == action &&
-								campaign.message.options[i].url) {
-									gBrowser.selectedTab =
-										gBrowser.addTab(campaign.message.options[i].url);
-							}
-						}
+				// open URL in new tab if specified for this action
+				var gBrowser = CliqzUtils.getWindow().gBrowser;
+				campaign.message.options.forEach(function (option) {
+					if (option.action === action && option.url) {
+						gBrowser.selectedTab = gBrowser.addTab(option.url);
 					}
+				});
+
+				// end campaign if limit reached
+				if (campaign.limits[action] !== -1 &&
+					++campaign.counts[action] === campaign.limits[action]) {
+					campaign.setState('end');
 				} else {
 					campaign.setState('idle');
 				}
@@ -528,7 +532,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 					dequeueMessage(campaign.message);
 			}
 
-			if (campaign.counts.show == campaign.limits.show) {
+			if (campaign.counts.show === campaign.limits.show) {
 				campaign.setState('end');
 			}
 			campaign.save();

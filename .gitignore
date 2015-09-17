@@ -19,3 +19,4 @@ bower_components
 cliqz@cliqz.com/modules/*_bck.jsm
 
 *.scssc
+generic/static/styles/css/
