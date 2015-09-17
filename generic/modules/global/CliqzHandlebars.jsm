@@ -410,11 +410,11 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('for', function(from, to, incr, block) {
-      // repeat block in for loop
+    Handlebars.registerHelper('for', function(start, end, incr, block) {
       var accum = '';
-      for(var i = from; i < to; i += incr)
-          accum += block.fn(i);
+      for(var i = parseInt(start); i < parseInt(end); i += incr) {
+        accum += block.fn(i);
+      }
       return accum;
     });
 
