@@ -48,7 +48,8 @@
     text-overflow: ellipsis;
 }
 
-.cqz-popup .cqz-one-line {
+.cqz-popup .cqz-one-line,
+.cqz-popup .cqz-celeb-desc {
     @extend .cqz-ellipsis;
 }
 
