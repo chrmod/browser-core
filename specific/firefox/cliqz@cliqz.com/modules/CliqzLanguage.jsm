@@ -38,18 +38,17 @@ var CliqzLanguage = {
     regexGoogleAdRef: /\.google\..*?\/aclk\?/,
     regexGoogleRefUrl: /url=(.+?)&/,
 
-    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position, is_ad, last_popup_open) {
+    sendCompSignal: function(actionName, options) {
         var action = {
             type: 'performance',
-            redirect: redirect,
+            redirect: options.isRedirect,
             action: actionName,
             query_made: CliqzAutocomplete.afterQueryCount,
             popup: CliqzAutocomplete.lastPopupOpen,
-            same_result: same_result,
-            result_type: result_type,
-            result_position: result_position,
-            is_ad: is_ad,
-            last_popup_open: last_popup_open,
+            same_result: options.isSameResult,
+            result_type: options.cliqzResultType,
+            result_position: options.cliqzResultIndex,
+            is_ad: options.isGoogleAd
             v: 1
         };
         CliqzUtils.telemetry(action)
@@ -143,10 +142,13 @@ var CliqzLanguage = {
                 });
             }
 
-            CliqzLanguage.sendCompSignal(
-                    'result_compare', true, isSameResult, cliqzResultType,
-                    cliqzResultIndex, isGoogleAdRef,
-                    isLastPopupOpen);
+            CliqzLanguage.sendCompSignal('result_compare', {
+                isRedirect: true,
+                isGoogleAd: isGoogleAd,
+                isSameResult: isSameResult,
+                cliqzResultType: cliqzResultType,
+                cliqzResultIndex: cliqzResultIndex
+            });
         }
     },
 
