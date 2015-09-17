@@ -104,9 +104,9 @@ Mocha.reporters.XUnit.prototype.write = function (line) {
 
   //append project="ff-version" in the test report for jenkins purposes
   if(line.indexOf('<testsuite') !== -1) {
-    line = line.split(" ")
-               .splice(1, 0, 'package="' + 'ff-' + version + '"')
-               .join(" ");
+    var line_parts = line.split(" ");
+    line_parts.splice(1, 0, 'package="' + 'ff-' + version + '"');
+    line = line_parts.join(" ");
   }
 
   XMLReport += line;
