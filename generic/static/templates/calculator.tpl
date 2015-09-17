@@ -4,9 +4,14 @@
         2. Calculator: 1+2
         3. Unit Converter: 10m to cm
 }}
-
 {{#if data.is_calculus}}
-    <div class='cqz-result-h3 ez-calculator ez-type-{{ data.ez_type }}' cliqz-action='copy-calc-answer'>
+    <div class='cqz-result-h3
+                ez-calculator
+                ez-type-{{ data.ez_type }}'
+         {{#if data.support_copy_ans}}
+             cliqz-action='copy-calc-answer'
+         {{/if}}
+      >
     {{#with data}}
         <div class="cqz-result-holder">
            {{! RESULT }}

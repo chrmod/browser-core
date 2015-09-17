@@ -151,7 +151,7 @@ var CliqzCalculator = {
           template: 'calculator', //calculator_bck',
           expression: expandedExpression,
           answer: this.CALCULATOR_RES,
-          prefix_answer: resultSign,
+          //prefix_answer: resultSign,
           is_calculus: true,
 //                              is_calculus: !this.IS_UNIT_CONVERTER,
           support_copy_ans: true

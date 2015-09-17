@@ -9,7 +9,9 @@
            url="{{ url }}"
            extra="entry-{{ @index }}"
            arrow="false">
-        <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
+        <div class="entity-story-image">
+          <span class="cqz-img-holder" style="background-image: url({{ thumbnail }})"></span>
+        </div>
         <div class="entity-story-description">
           <div class="entity-story-title"><a href="{{url}}">{{ title }}</a></div>
           <div class="entity-story-comment">
