@@ -1,5 +1,5 @@
 function enhanceResults(data) {
-  var rating = Math.round(data.cinema.rating),
+  var rating = data.cinema.rating ? Math.round(data.cinema.rating) : 0,
       ratingCss = {
         true: 'on',
         false: 'off'
@@ -8,5 +8,9 @@ function enhanceResults(data) {
     return {
       star_class: "cqz-rating-star-" + ratingCss[i<rating]
     };
+  });
+
+  data.movies.map(function(m, _) {
+     m.num_empty_columns = data.table_size - m.showtimes.length;
   });
 }

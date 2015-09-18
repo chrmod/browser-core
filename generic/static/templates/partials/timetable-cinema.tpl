@@ -29,11 +29,11 @@
 
                 </td>
             {{/each}}
-            {{#for showtimes.length ../table_size 1}}
+            {{#repeat num_empty_columns}}
                 <td class="cinema-showtime-td">
                     <span class="cinema-showtime"> </span>
                 </td>
-            {{/for}}
+            {{/repeat}}
         </tr>
     {{/each}}
 </table>

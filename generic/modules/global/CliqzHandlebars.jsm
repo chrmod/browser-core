@@ -398,6 +398,14 @@ function registerHelpers(){
         }
     });
 
+    Handlebars.registerHelper('repeat', function(num, block) {
+      var accum = '';
+      for(var i = 0; i < num; i++) {
+        accum += block.fn(i);
+      }
+      return accum;
+    });
+
     /* Math comparisons */
     Handlebars.registerHelper('ifeq', function(v1, v2, options) { // if equal
       return v1 == v2 ? options.fn(this) : options.inverse(this);
