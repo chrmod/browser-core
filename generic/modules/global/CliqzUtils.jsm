@@ -223,7 +223,7 @@ var CliqzUtils = {
     return result
   },
   httpHandler: function () {
-    var errorHandler = arguments[2]; // see httpGet or httpPost arguments
+    var errorHandler = arguments[3]; // see httpGet or httpPost arguments
     try {
       return CLIQZEnvironment.httpHandler.apply(CLIQZEnvironment, arguments);
     } catch(e) {
