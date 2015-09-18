@@ -38,20 +38,20 @@ var CliqzLanguage = {
     regexGoogleAdRef: /\.google\..*?\/aclk\?/,
     regexGoogleRefUrl: /url=(.+?)&/,
 
-    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position, is_ad) {
+    sendCompSignal: function(actionName, options) {
         var action = {
             type: 'performance',
-            redirect: redirect,
+            redirect: options.isRedirect,
             action: actionName,
             query_made: CliqzAutocomplete.afterQueryCount,
             popup: CliqzAutocomplete.lastPopupOpen,
-            same_result: same_result,
-            result_type: result_type,
-            result_position: result_position,
-            is_ad: is_ad,
+            same_result: options.isSameResult,
+            result_type: options.cliqzResultType,
+            result_position: options.cliqzResultIndex,
+            is_ad: options.isGoogleAd,
             v: 1
         };
-        CliqzUtils.telemetry(action)
+        CliqzUtils.telemetry(action);
     },
     _locale: null,
     getLocale: function(){
@@ -107,42 +107,49 @@ var CliqzLanguage = {
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
-            // if completed request without error (status)
-            if (aRequest && (aStateFlag && Ci.nsIWebProgressListener.STATE_STOP) && !aStatus) {
-                if (CliqzAutocomplete.lastPopupOpen && // if last result set was shown to the user
-                    CliqzLanguage.regexGoogleRef.test(aRequest.name)) { // if request is a Google ref
-                    // extract referred URL
-                    var match = aRequest.name.match(CliqzLanguage.regexGoogleRefUrl);
-                    if (match) {
-                        var googleUrl = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(match[1])),
-                            results = CliqzAutocomplete.lastResult._results,
-                            found = false;
+            var isRequestSuccessful = aRequest && aStateFlag &&
+                    Ci.nsIWebProgressListener.STATE_STOP && !aStatus,
+                isGoogleRef = CliqzLanguage.regexGoogleRef.test(aRequest.name);
 
-                        for (var i = 0; i < results.length; i++) {
-                            var cliqzUrl = CliqzHistoryPattern.generalizeUrl(results[i].val);
-
-                            // same result as in dropdown
-                            if (googleUrl == cliqzUrl) {
-                                var resType = CliqzUtils.encodeResultType(results[i].style || results[i].type);
-                                CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i, false);
-                                CliqzAutocomplete.afterQueryCount = 0;
-                                found = true;
-
-                                CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
-                                break;
-                            }
-                        }
-
-                        // we don't have the same result
-                        if (!found) {
-                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, false);
-                        }
-                    } else if(CliqzLanguage.regexGoogleAdRef.test(aRequest.name)) {
-                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, true);
-                    }
-                }
+            if (!isRequestSuccessful || !isGoogleRef) {
+                return;
             }
-        },
+
+            var isGoogleAd = CliqzLanguage.regexGoogleAdRef.test(aRequest.name),
+                googleUrlMatch = !isGoogleAd && aRequest.name.match(CliqzLanguage.regexGoogleRefUrl),
+                isLastPopupOpen = CliqzAutocomplete.lastPopupOpen,
+                cliqzResults = CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results,
+                cliqzResultType = null,
+                cliqzResultIndex = null,
+                isSameResult = false,
+                googleUrl;
+
+            if (!isGoogleAd && isLastPopupOpen && googleUrlMatch) {
+                googleUrl =
+                    CliqzHistoryPattern.generalizeUrl(decodeURIComponent(googleUrlMatch[1]));
+                isSameResult = cliqzResults && cliqzResults.some(function (r, i) {
+                    var cliqzUrl = CliqzHistoryPattern.generalizeUrl(r.val);
+
+                    if (cliqzUrl === googleUrl) {
+                        CliqzAutocomplete.afterQueryCount = 0;
+                        CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
+                        cliqzResultType = CliqzUtils.encodeResultType(r.style || r.type);
+                        cliqzResultIndex = i;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+            }
+
+            CliqzLanguage.sendCompSignal('result_compare', {
+                isRedirect: true,
+                isGoogleAd: isGoogleAd,
+                isSameResult: isSameResult,
+                cliqzResultType: cliqzResultType,
+                cliqzResultIndex: cliqzResultIndex
+            });
+        }
     },
 
     // load from the about:config settings
