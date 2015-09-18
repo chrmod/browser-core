@@ -58,9 +58,7 @@
 
             </div>
           {{else}}
-            {{#unlesspref 'share_location' 'no'}}
-              {{>partials/missing_location_step_1}}
-            {{/unlesspref}}
+            {{>partials/missing_location_step_1}}
           {{/unless}}
         </div>
       {{/with}}
