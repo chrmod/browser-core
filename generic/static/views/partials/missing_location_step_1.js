@@ -34,10 +34,10 @@ events = {
         loadLocalResults(ev.target);
       },
       "cqz_location_no": function(ev) {
-        var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-        var el = ev.target;
-        /* Show a message to confirm user"s decision*/
-        var localType = el.getAttribute("local_sc_type") || "default";
+        var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
+            el = ev.target,
+            localType = el.getAttribute("local_sc_type") || "default";
+
         container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
             friendly_url: el.getAttribute("bm_url"),
             trans_str: messages[localType].trans_str
@@ -81,29 +81,22 @@ function loadLocalResults(el) {
 function handleNewLocalResults(el) {
   return function(req) {
     //CliqzUtils.log(req, "RESPONSE FROM RH");
-    var resp;
+    var resp,
+        container = el,
+        r;
+
     try {
       resp = JSON.parse(req.response);
       CliqzUtils.log(resp, "RH RESPONSE");
     } catch (ex) {
-      failedToLoadResults(el);
-      return;
     }
-    var container = el;
-    /* Find the cqz-result-box container to place the new local content */
-    while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
-      container = container.parentElement;
-      if (!container || container.id == "cliqz-results") return;
-    }
-
-    if (resp.results && resp.results.length > 0) {
-      var r = resp.results[0];
-      if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
-        r.data.template = r.data.superTemplate;
-      }
-      CLIQZ.UI.enhanceSpecificResult(r.data);
-      r.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url));
-
+    if (resp && resp.results && resp.results.length > 0) {
+      while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
+        container = container.parentElement;
+        if (!container || container.id == "cliqz-results") return;
+      }      
+      CLIQZ.UI.enhanceResults(resp);
+      r = resp.results[0];
       if (container) container.innerHTML = CliqzHandlebars.tplCache[r.data.template](r);
     } else {
       failedToLoadResults(el);
