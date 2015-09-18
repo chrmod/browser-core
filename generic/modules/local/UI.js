@@ -17,10 +17,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-
-
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
+
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 (function(ctx) {
 

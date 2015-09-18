@@ -208,6 +208,9 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+
+      Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
@@ -292,6 +295,27 @@ var Extension = {
             CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
+
+    addCliqzStarButton: function(win, needPlaceHolder){
+        var btn_id = CliqzLoyalty.get_browser_button_ID();
+        if (needPlaceHolder)
+            ToolbarButtonManager.setDefaultPosition(btn_id, 'nav-bar', BTN_ID);
+
+        var button = win.document.createElement('toolbarbutton');
+        button.setAttribute('id', btn_id);
+        button.setAttribute('tooltiptext', 'CLIQZ Star');
+        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
+        button.setAttribute('image', CliqzLoyalty.get_browser_icon(false));
+        button.addEventListener("command",
+            function(ev){
+                CliqzUtils.openTabInWindow(win, 'chrome://cliqz/content/loyalty/index.html');
+                CliqzLoyalty.on_browser_icon_click();
+            }
+            , false);
+
+        ToolbarButtonManager.restorePosition(win.document, button);
+    },
+
     addButtons: function(win){
         var doc = win.document;
         if (!CliqzUtils.PREFERRED_LANGUAGE) {
@@ -300,9 +324,11 @@ var Extension = {
           CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
           CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
         }
-        if (!CliqzUtils.getPref(firstRunPref, false)) {
-            CliqzUtils.setPref(firstRunPref, true);
 
+        var firstRunPrefVal = CliqzUtils.getPref(firstRunPref, false);
+
+        if (!firstRunPrefVal) {
+            CliqzUtils.setPref(firstRunPref, true);
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
         }
 
@@ -342,6 +368,8 @@ var Extension = {
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
+
+        Extension.addCliqzStarButton(win, firstRunPrefVal);
     },
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
