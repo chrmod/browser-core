@@ -55,6 +55,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
 
         Cu.import('resource://gre/modules/Services.jsm');
 
@@ -63,6 +64,13 @@ var Extension = {
         CLIQZEnvironment.init();
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
+
+        if(CliqzLoyalty.has_joined()) {
+            CliqzLoyalty.init();
+        }else{
+            CliqzUtils.setPref('participateLoyalty', false);
+            CliqzLoyalty.init_min();
+        }
 
         CliqzClusterHistory.init();
     },
@@ -111,6 +119,7 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
+        CliqzLoyalty.unload();
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
 
         if(uninstall){

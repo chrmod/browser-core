@@ -1,0 +1,32 @@
+<div class="topNav">
+    {{#if msg_notify.notify_msg}}
+        <div class="notif-top notifif-orange">
+            <div class="notify_content">
+              <div class="notify_icon clz_float_left"><img src="{{mem_ship.status.icon.url}}" /> </div>
+              <div class="notify_msg clz_float_left">
+                      {{msg_notify.notify_msg}}
+              </div>
+            </div>
+        </div>
+    {{/if}}
+
+    {{#if data.hmw}}
+    <div class="clz-point-box-con">
+        <div class="clz-point-box-info" style="background-color: {{mem_ship.status.icon.color}}">
+            <div class="clz-point-box-info-txt">{{mem_ship.status.status}}</div>
+            {{#if mem_ship.status.icon.url}}
+            <div class="clz-point-box-info-icon"><img src="{{mem_ship.status.icon.url}}"></div>
+            {{/if}}
+            <div class="clz-point-box-info-txt">{{mem_ship.point}}</div>
+        </div>
+
+        <div class="clz-point-box-info-deco">
+            <svg width="94" height="30">
+                <path d="M0 0 H94 V30 L47 10 L0 30 Z" fill="{{mem_ship.status.icon.color}}"/>
+            </svg>
+        </div>
+    </div>
+    {{/if}}
+
+
+</div>

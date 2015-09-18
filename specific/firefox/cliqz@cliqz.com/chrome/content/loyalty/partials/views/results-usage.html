@@ -1,0 +1,92 @@
+{{> notifications-top }}
+<div class="clz-loyalty-headline"> Deine persönliche CLIQZ-Nutzung</div>
+<hr class="cqz-hr"/>
+
+<div class="cqz-loyalty-usage start-content">
+  {{> optin }}
+  <div class="cqz-loyalty-section">
+    <div class="cqz-label-list">
+      <div class="cqz-label-1item clz_float_left" id="cqz-usage-cur-term" onclick="navigate_terms(this, null)">Aktuelles
+        Quartal
+      </div>
+      {{#each data.pre_term_list}}
+      <div class="cqz-label-1item clz_float_left" active="false" current="false"
+           onclick="navigate_terms(this, {{term_idx}})">{{meta.term_name}}
+      </div>
+      {{/each}}
+      <div class="clz_clear_left"></div>
+    </div>
+
+    <div class="cqz-loyalty-container" id="cqz_usage_charts">
+
+    </div>
+  </div>
+  <div class="cqz-loyalty-section">
+    <div class="cqz-loyalty-label pink">
+      <span>DU vs Die ANDEREN</span>
+    </div>
+    <div class="cqz-loyalty-container cqz_use_meter">
+      <div class="clz_total_use_meter_section">
+        {{#unless data.hmw}}
+        <div id="clz_usage_meter_HumanWeb_Optin_lockscreen" closed="0">
+          <div class="cqz-hmw-optin-background"></div>
+          <div class="cqz-hmw-optin-main-screen">
+            <div class="cqz-hmw-optin-title">Join HumanWeb</div>
+            <div>
+              <p>Aktiviere HumanWeb.</p>
+
+              <p>Du musst HumanWeb aktivieren um diese Informationen freizuschalten.</p>
+
+              <p>
+                HumanWeb ist eine Technologie von CLIQZ,
+                die die Qualität deiner Website-Vorschläge durch die "Weisheit der Masse" erhöht und dich vor Malware
+                und Phishing Sites beschützt.
+                Das läuft komplett anonym ab, ohne sich auf deine ID oder persönliche Daten zu beziehen.
+                Für weitere Informationen: <a target="_blank" href="https://cliqz.com/privacy#humanweb">Was ist
+                HumanWeb?</a>
+              </p>
+            </div>
+            <div class="optin-cta-con">
+              <div class="cqz-optin-btn"
+                   onclick="clz_activate_humanweb_close_optin('clz_usage_meter_HumanWeb_Optin_lockscreen')">Join
+                HumanWeb
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/unless}}
+
+        <div class="clz-usemeter-title">Die Messlatte liegt hoch:</div>
+        <div>
+          <div class="clz_float_left">
+            <svg id="cliqz-use-meter_rootSVG"></svg>
+          </div>
+          <div class="clz_float_left clz_total_use_meter_body">
+            {{#if meter_total_use.break_best_record}}
+            <div class="clz_congrate_box">
+              <div class="clz_congrate_box_title">NEUER REKORD!</div>
+              <div><b>Glückwunsch!!</b></div>
+              <div>Du hast den Rekord geknackt! Kontaktiere uns, um dir Ruhm und Ehre zu sichern!</div>
+              <div class="contact_btn_wrapper">
+                <div onclick="location.href='https://cliqz.com/support';" class="btn">
+                  Kontaktiere CLIQZ
+                </div>
+              </div>
+            </div>
+            {{/if}}
+
+            <div class="clz_total_use_meter_txt">
+              <p>Deine absolute CLIQZ-Nutzung zeigt dir an, wie viele CLIQZ-Vorschläge du in den letzten 3 Monaten
+                verwendet hast.
+                Der Spitzenrekord wird von Nutzern wie dir gesetzt und passt sich in Echtzeit dem aktuellen Bestwert an.
+              </p>
+            </div>
+            <div class="clz_clear_left"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

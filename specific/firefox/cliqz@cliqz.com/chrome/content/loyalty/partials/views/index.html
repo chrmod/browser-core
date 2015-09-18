@@ -1,0 +1,47 @@
+{{> notifications-top }}
+<div class="clz-loyalty-headline">Deine CLIQZ-Übersicht!</div>
+<hr class="cqz-hr" />
+
+<div class="cqz-loyalty-dashboard start-content">
+  {{> optin }}
+  <div class="cqz-loyalty-section">
+    <div class="cqz-loyalty-label blue">
+      <span class="awards">Deine Auszeichnungen: </span>
+      <span class="numOfAwards">{{mem_ship.awards.nAward}}/{{mem_ship.awards.totalAwards}}</span>
+    </div>
+
+    <div id="CliqzAwardBoard_div" class="cqz-loyalty-container">
+        {{#each mem_ship.awards.awardList}}
+            <div class="wrapper award_container">
+                <div class="award_icon_div"><img class="award_icon" src="{{img}}"/></div>
+                <div class="{{#unless st}}award_sub_locked{{/unless}} award_sub">{{name}}</div>
+                {{#unless st}}
+                    <div class="award_sub_locked">(Gesperrt)</div>
+                {{/unless}}
+                <div class="tooltip">{{des}}</div>
+            </div>
+        {{/each}}
+    </div>
+  </div>
+
+  <div class="cqz-notifications cqz-loyalty-section">
+    <div class="cqz-loyalty-label green">
+      <span class="awards">Wusstest du schon...</span>
+    </div>
+
+    <div class="cqz-loyalty-container">
+        {{#each msg_all}}
+        <div class="notifications {{msg_class @index}}">
+            <div class="notify_content">
+              <div class="notify_icon clz_float_left"><img src="images/{{this.icon}}" /> </div>
+              <div class="notify_msg clz_float_left">
+                   {{this.msg}}
+              <div class="clz_clear_left"></div>
+            </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+  </div>
+
+</div>

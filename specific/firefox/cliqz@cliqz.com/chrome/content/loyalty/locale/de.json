@@ -1,0 +1,38 @@
+{
+    "CliqzBadges" : {
+        "HMW": {"img": "images/Badges/Soziale_Dienste.svg", "name": "Soziale Dienste",
+            "des":[ "Danke, dass du am Human Web teilnimmst. Damit trägst du zur \"Weisheit der Masse\" bei, die CLIQZ seine Intelligenz verleiht. Für zusätzliche Infos, siehe http://www.cliqz.com",
+                "Dienst an der Gesellschaft - das 1x1 eines Helden. Aktiviere Human Web, damit trägst du zur \"Weißheit der Masse\" bei, die CLIQz seine Intelligenz verleiht. Obendrein schaltest du zusätzliche Inhalte für dich frei - für weitere Infos, siehe http://www.cliqz.com"]
+        },
+        "LV": {"img": "images/Badges/Neuware.svg", "name": "Neuware",
+            "des":[ "Alles OK. Deine Version von CLIQZ ist up-to-date.",
+                "Ausrüstung ist alles! CLIQZ ist nicht auf dem neuesten Stand. Siehe http://cliqz.com/latest.html."]
+        },
+        "FU": {"img": "images/Badges/Winning Team.svg", "name": "Never change a winning team",
+            "des":[ "Du nutzt CLIQZ genau richtig. Du wählst CLIQZ-Vorschläge bei mindestens 4 von 5 Suchanfragen",
+                "Batman ohne Robin? Siegfried ohne Roy? Vertraue auf deinen Partner und nutze bei über 80% deiner Eingaben CLIQZ-Vorschläge!"]
+        },
+        "CLE": {"img": "images/Badges/Geruch_Ambrsosia.svg", "name" : "Der Geruch von Ambrosia",
+            "des":[ "Phänomenal! Ein Festmahl unter Helden und Legenden? Für dich nur noch ein kleiner Schritt!",
+                "Du bist verdächtig nahe und kannst die Ruhmeshalle bereits sehen. Erreiche {0} Punkte mit deinem absoluten Nutzungsverhalten!"]
+        }
+    },
+    "MEM_STATUS_DES": {
+        "MEMBER": "Respekt. Aller Anfang ist schwer und du weißt, die Reise ist lang. Aber du hast das Ziel fest im Blick und der Rucksack ist gepackt. Du strahlst eine unauslöschbare Ruhe und Zuversicht aus, denn du weißt, du tust das Richtige.",
+        "BUDDY": "Anerkennung und Bewunderung. Du bist schon weit gekommen und du hast schon viele scheitern sehen. Aber du machst weiter. Du nimmst nicht nur, du gibst ebenso, denn du bist ein Vorbild und dir deiner Verantwortung bewusst.",
+        "HERO": "Hochachtung und Gewissheit. Du hast geschwitzt, du hast geblutet und du hast verdammt oft CLIQZ benutzt. Langsam wird dir klar, dass du wahrlich ein Held bist und viele deinem Beispiel folgen werden. ",
+        "LEGEND": "Ruhm und Ehre. So oft wie du nutzen nur wenige CLIQZ. Du weißt, dass sie Lieder über dich singen werden. Dein Name wird nie in Vergessenheit geraten. Du wirst ein Vorbild über Generationen hinweg sein und Kinder werden nach dir benannt. Weil du gehandelt hast als es darauf ankam."
+    },
+    "MEM_STATUS_TODO": {
+        "MEMBER": "Trete dem CLIQZ for Glory Programm bei!",
+        "BUDDY": "Verdiene dir {} Punkte",
+        "HERO": "Steigere dein Punktekonto auf {} Punkte",
+        "LEGEND": "Erreiche {} Punkte"
+    },
+    "MEM_STATUS_CONGRATS_MSG": {
+        "MEMBER": "",
+        "BUDDY": "Glückwunsch, du bist zum Buddy aufgestiegen! Du hast etwas Besonderes an dir und die Leute fühlen das. Großes ist von dir zu erwarten.",
+        "HERO": "Respekt, du bist zum Helden aufgestiegen! Deine Errungenschaften sind in aller Munde und verbreiten sich wie ein Lauffeuer über das Land.",
+        "LEGEND": "Eine Legende. Der Schleier der Sterblichkeit, welcher dich bis eben umhüllte, wurde gelüftet - mit kräftigen Schlägen meißelst du deinen Namen in die Annalen der Menschheit."
+    }
+}

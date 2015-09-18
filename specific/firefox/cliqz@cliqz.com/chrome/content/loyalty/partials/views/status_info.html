@@ -1,0 +1,39 @@
+{{> notifications-top }}
+<div class="clz-loyalty-headline">Statusinformationen</div>
+<hr class="cqz-hr" />
+
+<div class="cqz-about-section cqz-loyalty-section start-content">
+    <div class="cqz-status-intro">
+        <p>Mit <b>CLIQZ for Glory</b> kannst du vier verschiedene Stati erreichen, die abhängig davon sind,
+            wie viele Punkte du gesammelt hast.
+            So bekommst du beispielsweise für jede Suchanfrage mit CLIQZ einen Punkt,
+            die Nutzung anderer Suchmaschinen lässt dich leider nicht aufsteigen.
+            Du kannst alle drei Monate von Neuem unbeirrt nach Ruhm und Ehre streben - neues Quartal,
+            neue Chance! Weiterhin besteht auch die Option, deine Helden-Chronik,
+            also deine Erfolge aus vergangenen Quartalen, einzusehen.
+        </p>
+    </div>
+
+    <div class="cqz-loyalty-container cqz_loyalty_guide_section">
+        {{#each stt_meta}}
+            <div class="clz-point-box-con">
+                <div class="clz-point-box-info" style="background-color: {{icon.color}}">
+                    <div class="name">{{name}}</div>
+                    {{#if icon.url}}
+                        <div class="icon"><img src="{{icon.url}}"></div>
+                    {{/if}}
+                    <div class="todo">{{format_str do bench_mark}}</div>
+                    <div class="des_title">Was du bekommst:</div>
+                    <div class="des mem-status-{{@index}}">{{des}}</div>
+                </div>
+
+                <div class="clz-point-box-info-deco">
+                    <svg width="250" height="40">
+                        <path d="M0 0 H250 V40 L125 10 L0 40 Z" fill="{{icon.color}}"/>
+                    </svg>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>
+
