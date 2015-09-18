@@ -12,18 +12,9 @@
         <div class="cinema_description cqz-multy-lines-ellipses cqz-line-vis-3">
           <p>
             <span>
-              {{#if cinema.rating}}
-                {{#for 0 cinema.rating 1}}
-                  <span class='cqz-rating-star-on'>★</span>
-                {{/for}}
-                {{#for cinema.rating 5 1}}
-                  <span class='cqz-rating-star-off'>★</span>
-                {{/for}}
-              {{else}}
-                {{#for 0 5 1}}
-                  <span class='cqz-rating-star-off'>★</span>
-                {{/for}}
-              {{/if}}
+              {{#each stars}}
+                <span class='cqz-rating-star {{star_class}}'>★</span>
+              {{/each}}
             </span>
             <span class="movie_desc">
               {{cinema.desc}}
