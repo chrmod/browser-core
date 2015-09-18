@@ -65,7 +65,7 @@ window.SCRIPTS = {};
   }
   
   function init() {
-    console.log("in app.js init()  THUY----------");
+//    console.log("in app.js init()  THUY----------");
 
     var viewName = findViewName();
     registerPartials().then(function () {
