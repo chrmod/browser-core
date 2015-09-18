@@ -84,7 +84,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 			CliqzMsgCenter._onMessageAction('TEST001', 'postpone');
 			chai.expect(ui.messageCenterMessage).not.to.exist;
 			return waitForResult().then(function() {
-				chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.equal('');
+				chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(response.campaigns.TEST001.message.text);
 				return Promise.resolve();
 			});
 		});

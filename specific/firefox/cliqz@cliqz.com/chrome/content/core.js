@@ -310,19 +310,9 @@ window.CLIQZ.Core = {
             var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
                 .getService(Components.interfaces.nsIVersionComparator);
 
-            // running under Firefox 36.0 or later
-            if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
-                // 50% chance of showing new onboarding
-                if (session) {
-                    var tokens = session.split("|");
-                    if (tokens.length > 0) {
-                        var lastDigit = parseInt(tokens[0].substr(tokens[0].length - 1));
-                        showNewOnboarding = (lastDigit < 5);
-                    }
-                }
-            }
+            showNewOnboarding = (versionChecker.compare(appInfo.version, "36.0") >= 0);
         } catch (e) {
-            CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
+            CliqzUtils.log('error checking browser version: ' + e, "Cliqz Onboarding");
         }
 
         var tutorialUrl = showNewOnboarding ?
@@ -331,9 +321,9 @@ window.CLIQZ.Core = {
             showNewOnboarding ? CliqzTour.VERSION : "0.0");
         CliqzUtils.setPref('onboarding_finishedWatching', false);
 
-        if(onInstall){
-            CLIQZ.Core._tutorialTimeout = setTimeout(function(){
-                gBrowser.addTab(tutorialUrl)
+        if (onInstall) {
+            CLIQZ.Core._tutorialTimeout = setTimeout(function() {
+                gBrowser.selectedTab = gBrowser.addTab(tutorialUrl);
             }, 100);
         }
     },
