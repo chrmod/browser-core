@@ -68,7 +68,7 @@ var Extension = {
         if(CliqzLoyalty.has_joined()) {
             CliqzLoyalty.init();
         }else{
-            CliqzUtils.setPref('participateLoyalty', false);
+            CliqzLoyalty.setPref('participateLoyalty', false);
             CliqzLoyalty.init_min();
         }
 
@@ -209,7 +209,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 
-      Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
@@ -308,7 +308,7 @@ var Extension = {
         button.setAttribute('image', CliqzLoyalty.get_browser_icon(false));
         button.addEventListener("command",
             function(ev){
-                CliqzUtils.openTabInWindow(win, 'chrome://cliqz/content/loyalty/index.html');
+                CLIQZEnvironment.openTabInWindow(win, 'chrome://cliqz/content/loyalty/index.html');
                 CliqzLoyalty.on_browser_icon_click();
             }
             , false);
@@ -384,6 +384,7 @@ var Extension = {
             win.CLIQZ.Core.createQbutton(win, menupopup);
         }
     },
+
     unloadFromWindow: function(win){
         try {
             if(win && win.document){

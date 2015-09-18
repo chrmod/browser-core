@@ -1,6 +1,5 @@
 SCRIPTS.layout = function () {
-  Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm'); // todo: unload this module
-  Components.utils.import('chrome://cliqzmodules/content/Extension.jsm'); // todo: unload this module
+  Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
   if (typeof window == 'undefined') {
     window = {};
   }
@@ -124,13 +123,13 @@ SCRIPTS.layout = function () {
 
   function clz_activate_humanweb_close_optin(optinID) {
     CliqzUtils.setPref("dnt", false);
-    CliqzUtils.refreshButtons();
+    CliqzUtils.getWindow().CLIQZ.Core.refreshButtons();
     clz_hide_element_by_id(optinID);
   }
   window.clz_activate_humanweb_close_optin = clz_activate_humanweb_close_optin;
 
   function optinLoyalty(optinID) {
-    CliqzUtils.setPref('participateLoyalty', true);
+    CliqzLoyalty.setPref('participateLoyalty', true);
     CliqzLoyalty.init();
 //    document.location.reload(true);
     clz_hide_element_by_id(optinID);

@@ -879,6 +879,7 @@ window.CLIQZ.Core = {
             } catch(e){}
         }
     },
+
     createQbutton: function(win, menupopup){
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);

@@ -1,3 +1,4 @@
+
 window.SCRIPTS = {};
 (function () {
   var PARTIALS = [
@@ -10,9 +11,8 @@ window.SCRIPTS = {};
     "views/status_info"
   ];
 
-  Components.utils.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');  // todo: unload this module
-      CliqzHandlebars.registerHelpers();
-  Components.utils.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');  // todo: unload this module
+  Components.utils.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
+  Components.utils.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
   function fetchPartial(name) {
     var partialPath = "chrome://cliqz/content/loyalty/partials/";

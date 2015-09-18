@@ -9,8 +9,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 
 
 /**-----------------------------------------------------------------------//
-//---------------------------- HELPER FUNCTIONS --------------------------//
-//-----------------------------------------------------------------------//
+ //---------------------------- HELPER FUNCTIONS --------------------------//
+ //-----------------------------------------------------------------------//
  */
 
 if (!String.format) {
@@ -25,9 +25,84 @@ if (!String.format) {
   };
 }
 
+/**
+ //---------------------------------- CORE - to work with browser ----------------------------------//
+ //----------------------------we try to decouple the Loyalty from the extension, thus whenever possible
+ --- we extract extension's functionality to the core of loyalty ----------------------------------------//
+ */
+
+var CORE = {
+  Services: null,
+  loyaltyDntPrefs: Components.classes['@mozilla.org/preferences-service;1']
+    .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.'),
+  PREF_STRING: 32,
+  PREF_INT: 64,
+  PREF_BOOL: 128,
+
+  getPref: function (pref, notFound) {
+    try {
+      switch (CORE.loyaltyDntPrefs.getPrefType(pref)) {
+        case CORE.PREF_BOOL:
+          return CORE.loyaltyDntPrefs.getBoolPref(pref);
+        case CORE.PREF_STRING:
+          return CORE.loyaltyDntPrefs.getCharPref(pref);
+        case CORE.PREF_INT:
+          return CORE.loyaltyDntPrefs.getIntPref(pref);
+        default:
+          return notFound;
+      }
+    } catch (e) {
+      return notFound;
+    }
+  },
+
+  setPref: function (pref, val) {
+    switch (typeof val) {
+      case 'boolean':
+        CORE.loyaltyDntPrefs.setBoolPref(pref, val);
+        break;
+      case 'number':
+        CORE.loyaltyDntPrefs.setIntPref(pref, val);
+        break;
+      case 'string':
+        CORE.loyaltyDntPrefs.setCharPref(pref, val);
+        break;
+    }
+  },
+
+  iterateWindows: function(func, arg) {
+    CORE.Services = CORE.Services || CliqzUtils.getWindow().Services;
+    var enumerator = CORE.Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+      var win = enumerator.getNext();
+      try {
+        func.apply(null, [win].concat(arg))
+      } catch (e) {
+      }
+    }
+  },
+
+  refreshCliqzStarButtons: function (icon_url) {
+    CORE.iterateWindows(function(win, icon_url){
+      var button = win.document.getElementById(ICONS.BTN_ID);
+      button.setAttribute('image', icon_url);
+    },
+    [icon_url]);
+  },
+
+  unload: function () {
+    CORE.iterateWindows(function(win){
+      var btn;
+      if (btn = win.document.getElementById(ICONS.BTN_ID)) {
+        btn.parentNode.removeChild(btn);
+      }
+    },
+    []);
+  }
+};
 
 /**-----------------------------------------------------------------------//
-//-----------------------------------------------------------------------//
+ //-----------------------------------------------------------------------//
  */
 
 var META_KEY = "loyalty_m",
@@ -45,7 +120,7 @@ function set_meta_pref(cur_term, cur_year) {
   var m = {};
   m[CUR_TERM_Y] = cur_term;
   m[CUR_TERM_YEAR] = cur_year;
-  CliqzUtils.setPref(META_KEY, JSON.stringify(m), false);
+  CORE.setPref(META_KEY, JSON.stringify(m));
 }
 
 function build_notify_info(is_notify, notify_msg) {
@@ -56,7 +131,7 @@ function build_notify_info(is_notify, notify_msg) {
   var info = {};
   info[NOTIFY_FLAG] = is_notify;
   if (notify_msg === null) {
-    var tmp = JSON.parse(CliqzUtils.getPref(NOTIFY_KEY, '{}', false));
+    var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     info[NOTIFY_FLAG_MSG] = tmp[NOTIFY_INFO][NOTIFY_FLAG_MSG] || "";
   }
   else
@@ -76,7 +151,7 @@ function update_notify_pref(val, notify) {
 
   val[NOTIFY_INFO] = notify;
 
-  CliqzUtils.setPref(NOTIFY_KEY, JSON.stringify(val), false);
+  CORE.setPref(NOTIFY_KEY, JSON.stringify(val));
 }
 
 /**
@@ -153,6 +228,7 @@ var CLIQZ_OBSERVER = {
  */
 
 var CliqzStatsGlobal = {
+  LOYALTY_DATA_PROVIDER: "http://newbeta.cliqz.com/api/v1/rich-header?path=/cl",
   // ------------ DEFAULT values from the backend -------------//
   MemberSystem: {"MEMBER": 0, "Buddy": 100, "Hero": 250, "LEGEND": 750},
   CliqzUsage: {  // user Cliqz Usage stat for comparison
@@ -194,12 +270,12 @@ var CliqzStatsGlobal = {
 //    return CliqzStatsGlobal.CliqzUsage.metric[CliqzStatsGlobal.CliqzUsage.metric.length - 1].val;
 //  },
 
-  getLegendBenchMark: function() {
+  getLegendBenchMark: function () {
     return CliqzStatsGlobal.MemberSystem.LEGEND;
   },
 
   fetch_data: function () {
-    CliqzUtils.httpGet(CliqzUtils.LOYALTY_DATA_PROVIDER,
+    CliqzUtils.httpGet(CliqzStatsGlobal.LOYALTY_DATA_PROVIDER,
       function (res) {
 
         CliqzStatsGlobal.update_fail_retry = 0;
@@ -218,7 +294,7 @@ var CliqzStatsGlobal = {
             CliqzStatsGlobal.message_all = data["message_all"] || CliqzStatsGlobal.message_all;
             CliqzStatsGlobal.MemberSystem = data["MemberSystem"] || CliqzStatsGlobal.MemberSystem;
 
-            Object.keys(CliqzStatsGlobal.MemberSystem).forEach(function(sttName) {
+            Object.keys(CliqzStatsGlobal.MemberSystem).forEach(function (sttName) {
               var tmp = CliqzStatsGlobal.MemberSystem[sttName];
               delete CliqzStatsGlobal.MemberSystem[sttName];
               CliqzStatsGlobal.MemberSystem[sttName.toUpperCase()] = tmp;
@@ -319,7 +395,7 @@ var CliqzLLogic = {
 
     CliqzLLogic.current_status = CliqzLLogic.mem_status.calStatus(CliqzStats.cliqz_usage_cached);
 
-    var notify_meta = JSON.parse(CliqzUtils.getPref(NOTIFY_KEY, '{}', false));
+    var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     if (notify_meta) {
       CliqzLLogic.notify.is_notify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
       CliqzLLogic.notify.notify_msg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
@@ -424,7 +500,7 @@ var CliqzLLogic = {
       img: 'images/magnifier.svg',
       name: "CLIQZ Expert",
       des: ["", ""],
-      buildDes: function(self, data){
+      buildDes: function (self, data) {
         return [self.des[0], String.format(self.des[1], data.totalCliqzUse.Legend.toString())];
       }
     },
@@ -515,7 +591,7 @@ var CliqzLLogic = {
     },
 
     check_update_msg: function () {
-      var notify_meta = JSON.parse(CliqzUtils.getPref(NOTIFY_KEY, '{}', false)),
+      var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)),
         msg_id_list_cur = notify_meta[NOTIFY_NORM_MSG] || [],
         new_msg = false;
       CliqzStatsGlobal.message_all.forEach(function (msg_obj) {
@@ -553,7 +629,7 @@ var CliqzLLogic = {
         notify_msg = CliqzLLogic.notify.notify_msg || "";
 
       if (trigger_by === "hw" || latest_stt_info["is_new"] || msg_update || badges_update) {
-        CliqzUtils.refreshCliqzStarButtons(ICONS.BTN_ID, ICONS.get_icon_browser(true, latest_stt["status"], true));
+        CORE.refreshCliqzStarButtons(ICONS.get_icon_browser(true, latest_stt["status"], true));
         CliqzLLogic.notify.is_notify = true;
         is_notify = true;
         if (latest_stt_info["is_new"]) {
@@ -568,12 +644,12 @@ var CliqzLLogic = {
     update_on_open_program_page: function () {  // turn off notification
       var latest_stt = CliqzLLogic.mem_status.calStatus(CliqzStats.cliqz_usage_cached);
       CliqzLLogic.notify.is_notify = false;
-      update_notify_pref(JSON.parse(CliqzUtils.getPref(NOTIFY_KEY, '{}', false)), build_notify_info(false, CliqzLLogic.notify.notify_msg));
-      CliqzUtils.refreshCliqzStarButtons(ICONS.BTN_ID, ICONS.get_icon_browser(true, latest_stt["status"], false));
+      update_notify_pref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)), build_notify_info(false, CliqzLLogic.notify.notify_msg));
+      CORE.refreshCliqzStarButtons(ICONS.get_icon_browser(true, latest_stt["status"], false));
     },
 
     get_notify_info: function () {
-      var tmp = JSON.parse(CliqzUtils.getPref(NOTIFY_KEY, '{}', false));
+      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
       return {
         "is_notify": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG],
         "notify_msg": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG]
@@ -625,7 +701,7 @@ var Cliqz_TERM = {
      @para m: month, 0,1,...11
      @para update: = true (default): update the pref if it's a new term
      */
-    var meta = JSON.parse(CliqzUtils.getPref(META_KEY, '{}', false)),
+    var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false)),
       t = Cliqz_TERM.cal_term_of_year(time_.m);
     return t !== meta[CUR_TERM_Y];
   },
@@ -662,7 +738,7 @@ var Cliqz_TERM = {
 
 var db_wrapper = function (func, call_back) {
   return function () {
-    var db = JSON.parse(CliqzUtils.getPref(STATS_KEY, '{}', false)),
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false)),
       day = CliqzUtils.getDay();
 
     // call the original method
@@ -746,7 +822,7 @@ var CliqzStats = {
     if (t === CliqzStats.cur_db_term && CliqzStats.cliqz_db_cur_term_cached)
       s = CliqzStats.cliqz_db_cur_term_cached;
     else {
-      var db = JSON.parse(CliqzUtils.getPref(STATS_KEY, '{}', false));
+      var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
       s = computeTerm(db, t);
       if (t === CliqzStats.cur_db_term)
         CliqzStats.cliqz_db_cur_term_cached = s;
@@ -756,7 +832,7 @@ var CliqzStats = {
 
   get_all_terms: function () {
 //    get_all_terms: db_wrapper(function(db){
-    var db = JSON.parse(CliqzUtils.getPref(STATS_KEY, '{}', false));
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
     var s = computeTerm(db, -1);
     var data = CliqzStats.format_term_data_4_external(s["current"] || {});
     data["previous"] = {};
@@ -768,7 +844,7 @@ var CliqzStats = {
   },
 
   count_term: function () {
-    var db = JSON.parse(CliqzUtils.getPref(STATS_KEY, '{}', false));
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
     return Object.keys(db).length;
   },
 //    count_term: db_wrapper(function(db){return Object.keys(db).length; }),
@@ -818,7 +894,7 @@ var CliqzStats = {
    * Re-organizing the db when starting a new term
    */
   prepNewTerm: db_wrapper(function (db, day, time_) {
-    var meta = JSON.parse(CliqzUtils.getPref(META_KEY, '{}', false));
+    var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false));
 
     if (CliqzStats.cur_db_term >= 0) {
       db[CliqzStats.cur_db_term] = computeTerm(db, CliqzStats.cur_db_term);
@@ -938,7 +1014,7 @@ function computeTerm(db, term_idx) {
 }
 
 function setPersistent(val) {
-  CliqzUtils.setPref(STATS_KEY, JSON.stringify(val), false);
+  CORE.setPref(STATS_KEY, JSON.stringify(val));
 }
 
 /**
@@ -970,7 +1046,9 @@ var CliqzLoyalty = {
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
     CLIQZ_OBSERVER.unload();
+    CORE.unload();
   },
+
   on_browser_icon_click: function () {
     // disable notification icon
     CliqzLLogic.notify.update_on_open_program_page();
@@ -1057,7 +1135,7 @@ var CliqzLoyalty = {
   },
 
   has_joined: function () {
-    return CliqzUtils.getPref('participateLoyalty') === true
+    return CORE.getPref('participateLoyalty') === true
   },
 
   get_browser_button_ID: function () {
@@ -1072,7 +1150,7 @@ var CliqzLoyalty = {
 
     var status = CliqzLoyalty.get_mem_status();
     if (status) {
-      var tmp = JSON.parse(CliqzUtils.getPref(NOTIFY_KEY, '{}', false));
+      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
       is_notifier = (tmp[NOTIFY_INFO] || {} )[NOTIFY_FLAG] || false;
     }
 
@@ -1081,9 +1159,16 @@ var CliqzLoyalty = {
 
   test: function (f_name) {
     return CliqzLLogic.mem_status;
+  },
+
+  setPref: function (pref, val) {
+    CORE.setPref(pref, val)
+  },
+
+  getPref: function (pref, notFound) {
+    return CORE.getPref(pref, notFound)
   }
 };
-
 
 //{"16609":{"cSel":{"cTotal":1500,"cEnter":1300,"cHistory":100,"cActiveSel":1300,"cEZ":100},"q":5,"gSel":50},"16612":{"cSel":{"cTotal":234,"cClick":10,"cActiveSel":13,"cBM":8,"cEnter":3,"cAuto":221},"q":16,"gSel":2},"16626":{"gSel":5,"q":10,"cSel":{"cTotal":5,"cEnter":3,"cBM":3,"cActiveSel":5,"cClick":2}},"16627":{"gSel":1,"q":1},"16630":{"cSel":{"cTotal":3,"cClick":3,"cActiveSel":3},"q":3},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1}}
 //{"0":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":4,"q":105,"cSel":{"cTotal":101,"cAuto":101,"cActiveSel":0}}}}

@@ -51,7 +51,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
         classDescription : 'Cliqz',
         contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
+        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
 var CLIQZEnvironment = {

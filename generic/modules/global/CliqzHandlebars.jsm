@@ -471,4 +471,26 @@ function registerHelpers(){
 
         return new Handlebars.SafeString(result);
     });
+
+    //---- for loyalty program-------//
+    Handlebars.registerHelper('msg_class', function(msg_idx) {
+        var css_class = [  // todo: refactor this
+            "notifif-light-blue",
+            "notifif-blue",
+            "notifif-dark-blue",
+            "notifif-dark-blue-2"
+        ];
+        return css_class[(msg_idx) % css_class.length];
+    });
+
+    Handlebars.registerHelper('format_str', function(ret) {
+        if(arguments.length>1){
+          var i = 1, args = arguments;
+          ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
+        }
+
+        return ret;
+    });
+
+    //---- END for loyalty program-------//
 }
