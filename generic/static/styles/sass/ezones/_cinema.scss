@@ -8,7 +8,7 @@
 
 .movie_poster,
 .cqz-cinema-image {
-    float:left;
+    float: left;
     margin-right: 20px;
 }
 
@@ -48,19 +48,19 @@
     max-width: 125px;
     max-height: 125px;
     height: auto;
-    cursor:pointer;
-    margin-right:20px;
+    cursor: pointer;
+    margin-right: 20px;
 }
 
 .cinema-image img {
-    width:124px;
+    width: 124px;
     height: 124px;
     border-radius: 3px;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 .cinema-data {
-    overflow:hidden;
+    overflow: hidden;
 }
 
 .cinema-showtimes-container .cqz-movie-playing + .cinema-showtimes-table { margin-left: 40px; }
@@ -94,7 +94,7 @@
 }
 
 .movie_desc {
-    white-space:  normal;
+    white-space: normal;
 }
 
 .cinema-showtimes-container .location_permission_prompt { height: 100%; }
@@ -129,7 +129,7 @@
 }
 
 .cinema-showtimes-table .cinema-showtime-td  {
-    text-align:center;
+    text-align: center;
 }
 
 .cinema-showtimes-table .cinema-name-td {
