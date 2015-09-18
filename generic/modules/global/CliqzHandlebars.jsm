@@ -398,14 +398,6 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('for', function(start, end, incr, block) {
-      var accum = '';
-      for(var i = Math.round(start); i < Math.round(end); i += incr) {
-        accum += block.fn(i);
-      }
-      return accum;
-    });
-
     /* Math comparisons */
     Handlebars.registerHelper('ifeq', function(v1, v2, options) { // if equal
       return v1 == v2 ? options.fn(this) : options.inverse(this);
