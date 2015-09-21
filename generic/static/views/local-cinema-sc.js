@@ -1,20 +1,5 @@
-var EZConfig = {
-  'cinema': {
-    'ratingStars': 'cinema',
-    'emptyColumns': 'movies'
-  },
-  'movie': {
-    'ratingStars': 'movie',
-    'emptyColumns': 'cinemas'
-  }
-};
-
-function enhanceMovieSC(data, which) {
-  /** @param which  = 'movie' || 'cinema'
-            determines what kind of result this is
-  **/
-  which = EZConfig[which];
-  var rating = data[which.ratingStars].rating ? Math.round(data[which.ratingStars].rating) : 0,
+function enhanceMovieSC(data) {
+  var rating = data.ratingStars.rating ? Math.round(data.ratingStars.rating) : 0,
       ratingCss = {
         true: 'on',
         false: 'off'
@@ -25,11 +10,15 @@ function enhanceMovieSC(data, which) {
     };
   });
 
-  data[which.emptyColumns].map(function(x, _) {
-     x.num_empty_columns = data.table_size - x.showtimes.length;
-  });
+  if (data.emptyColumns) {
+    data.emptyColumns.map(function(x, _) {
+      x.num_empty_columns = data.table_size - x.showtimes.length;
+    });
+  }
 }
 
 function enhanceResults(data) {
-  enhanceMovieSC(data, 'cinema');
+  data.ratingStars = data.cinema;
+  data.emptyColumns = data.movies;
+  enhanceMovieSC(data);
 }
