@@ -482,17 +482,31 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 			CliqzUtils.httpGet(endpointUrl, function success(req) {
         		try {
-	        		var smartCliqz =
-	        			JSON.parse(req.response).extra.results[0];
-	        		smartCliqz = Result.cliqzExtra(smartCliqz);
-	        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
-        			resolve(smartCliqz);
+	        		var smartCliqzData = JSON.parse(req.response).extra.results[0],
+	        			smartCliqzIdExists = (typeof smartCliqzData != 'undefined'),
+	        			smartCliqz;
+
+	        		if (!smartCliqzIdExists) {
+	        			reject({
+	        				type: 'ID_NOT_FOUND',
+	        				message: id + ' not found on server'
+	        			});
+	        		} else {
+		        		smartCliqz = Result.cliqzExtra(smartCliqzData);
+		        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
+	        			resolve(smartCliqz);
+	        		}
         		} catch (e) {
-        			_this._log('_fetchSmartCliqz: error fetching for id ' + id + ': ' + e);
-        			reject(e);
+        			reject({
+        				type: 'UNKNOWN_ERROR',
+        				message: e
+        			});
         		}
-        	}, function onerror() {
-        		reject('http request failed for id ' + id);
+        	}, function error() {
+        		reject({
+    				type: 'HTTP_REQUEST_ERROR',
+    				message: ''
+    			});
         	});
 		});
 		return promise;
