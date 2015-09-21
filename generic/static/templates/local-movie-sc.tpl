@@ -10,12 +10,9 @@
         <div class="movie_description cqz-multy-lines-ellipses cqz-line-vis-3">
             <p>
               <span>
-                {{#for 0 movie.rating 1}}
-                  <span class='cqz-rating-star-on'>★</span>
-                {{/for}}
-                {{#for movie.rating 5 1}}
-                  <span class='cqz-rating-star-off'>★</span>
-                {{/for}}
+                {{#each stars}}
+                  <span class='cqz-rating-star {{star_class}}'>★</span>
+                {{/each}}
               </span>
               <span class="movie_desc">
                 {{description}}
@@ -26,9 +23,7 @@
     </div>
     <div class="cinema-showtimes-container local-sc-data-container" id="cinema-showtimes-container">
       {{#if no_location }}
-        {{#unlesspref 'share_location' 'no'}}
-          {{>missing_location}}
-        {{/unlesspref}}
+        {{>partials/missing_location_step_1}}
       {{else}}
         {{>partials/timetable-cinema}}
       {{/if}}
