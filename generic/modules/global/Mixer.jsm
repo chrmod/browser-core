@@ -107,7 +107,7 @@ var Mixer = {
         for (var cachedUrl in CliqzSmartCliqzCache.triggerUrls._cache) {
             var id = CliqzSmartCliqzCache.triggerUrls.retrieve(cachedUrl);
             if (id) {
-                CliqzUtils.setTimeout(deleteIfWithoutTriggerUrl, (delay++) * 1000, id, cachedUrl);
+                CliqzUtils.setTimeout(deleteIfWithoutTriggerUrl.bind(null, id, cachedUrl), (delay++) * 1000);
             }
         }
         CliqzUtils.setTimeout(function () {
