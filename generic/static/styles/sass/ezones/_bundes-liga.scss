@@ -216,13 +216,13 @@
 }
 
 .ez-liga table {
-    margin-top: 5px;
+    margin-top: 20px;
     border-collapse: collapse;
     text-align: center;
 }
 
 .ez-liga th, .ez-liga td {
-    padding: 5px 0px;
+    padding: 5px 0;
     border-bottom: 1px solid #cccccc;
 }
 
@@ -241,13 +241,13 @@
     padding-right: 15px;
 }
 
-.ez-liga td:nth-child(2), .ez-liga th:nth-child(2) {
-    width: 130px;
-    text-align: left;
+.ez-liga td:nth-child(2),
+.ez-liga th:nth-child(2) {
     overflow: hidden;
-    display: inline-block;
-    text-overflow: ellipsis;
+    max-width: 130px;
     white-space: nowrap;
+    text-align: left;
+    text-overflow: ellipsis;
 }
 
 .ez-liga th:nth-child(2) {

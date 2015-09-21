@@ -863,88 +863,6 @@
     height: 205px;
 }
 
-/*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
-.cqz-results .multi-ellipsis {
-    white-space: normal;
-    overflow: hidden;
-    height: 3.9em;
-    line-height: 1.3em;
-}
-
-.cqz-results .multi-ellipsis:before {
-    content: "";
-    float: left;
-    width: 5px;
-    height: 3.9em;
-    white-space: normal;
-}
-
-.cqz-results .multi-ellipsis > *:first-child {
-    float: right;
-    width: 100%;
-    margin-left: -5px;
-    white-space: normal;
-}
-
-.cqz-results .multi-ellipsis:after {
-    content: "\02026";
-    box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    float: right;
-    position: relative;
-    top: -22px;
-    left: 100%;
-    width: 3em;
-    margin-left: -3em;
-    padding-right: 5px;
-    text-align: right;
-    white-space: normal;
-
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-}
-
-.cqz-results .multi-ellipsis2_14 {
-    white-space: normal;
-    overflow: hidden;
-    height: 2.8em;
-    line-height: 1.4em;
-}
-
-.cqz-results .multi-ellipsis2_14:before {
-    white-space: normal;
-    content: "";
-    float: left;
-    width: 5px;
-    height: 2.8em;
-}
-
-.cqz-results .multi-ellipsis2_14 > *:first-child {
-    line-height: 1.4em;
-    white-space: normal;
-    float: right;
-    width: 100%;
-    margin-left: -5px;
-}
-
-.cqz-results .multi-ellipsis2_14:after {
-    white-space: normal;
-    content: "\02026";
-    box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    float: right;
-    position: relative;
-    top: -1.4em;
-    left: 100%;
-    width: 2em;
-    margin-left: -2em;
-    padding-right: 5px;
-    text-align: right;
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-}
 
 /* ------- RICH DATA Result----------*/
 .cqz-results .cqz-result-padding2 {
@@ -967,10 +885,11 @@
 
 .cqz-results .cqz-rd-rateimg {
     height: 13px;
-    margin-top: 1px;
     vertical-align: top;
     transform: translateX(-1px);
 }
+
+/*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
 
 .cqz-results .cqz-multy-lines-ellipses {
     overflow: hidden;
@@ -990,7 +909,7 @@
 .cqz-results .cqz-multy-lines-ellipses > * {
     float: right;
     width: 100%;
-    margin-left: -5px;
+    margin: 0 0 0 -5px;
     white-space: normal;
     line-height: 1.4em;
 }
@@ -999,31 +918,26 @@
     white-space: normal;
     content: "\02026";
 
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-
     float: right;
     position: relative;
     top: -1.4em;
     left: 100%;
-    width: 15px;
-    margin-left: -15px;
-    padding-right: 5px;
-
+    width: 21px;
+    margin-left: -20px;
+    padding-right: 4px;
     text-align: right;
-
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    line-height: 1.3em;
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 30%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 30%, white);
 }
+
+/* ==== 2 lines ====*/
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-2 { height: 2.8em; }
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-2:before { height: 2.8em; }
 
 /* ==== 3 lines ====*/
-.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3 {
-    height: 4.2em;
-}
-
-.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3:before {
-    height: 4.2em;
-}
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3 { height: 4.2em; }
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3:before { height: 4.2em; }
 
 .cqz-results .cqz-rd-info {
     color: #999999;
@@ -1033,10 +947,12 @@
 .cqz-results .cqz-rd-info-2 {
     color: #999999;
 }
+.cqz-results .cqz-result-h1 .cqz-rd-info-2 { margin-bottom: 18px; }
+
 
 .cqz-results .cqz-rd-rate {
     color: #506bb8;
-    padding-top: 6px;
+    margin: 6px 0 18px;
 }
 
 .cqz-results .cqz-rd-link {
@@ -1065,7 +981,6 @@
 }
 
 .cqz-results .cqz-rd-img {
-    height: 100%;
     display: block;
 }
 
