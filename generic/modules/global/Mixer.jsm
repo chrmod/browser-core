@@ -95,7 +95,13 @@ var Mixer = {
                         }
                     }
                 }).catch(function (e) {
-                    CliqzUtils.log('error fetching SmartCliqz: ' + e);
+                    if (e.type && e.type === 'ID_NOT_FOUND') {
+                        CliqzUtils.log('ID ' + id + ' not found on server: removing SmartCliqz from cache');
+                        CliqzSmartCliqzCache.triggerUrls.delete(cachedUrl);
+                        CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
+                    } else {
+                        CliqzUtils.log('error fetching SmartCliqz: ' + e);
+                    }
                 });
             } catch (e) {
                 CliqzUtils.log('error during cleaning trigger URLs: ' + e);
