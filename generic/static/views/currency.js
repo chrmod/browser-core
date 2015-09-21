@@ -1,12 +1,13 @@
 function enhanceResults(data) {
-  var currency_formatter = new Intl.NumberFormat('en-US', {
+  var cur_amount = data.toAmount.main.replace(/,/g,'.'),
+  //First param is the Locale: en-US....
+  currency_formatter = new Intl.NumberFormat(CliqzUtils.PREFERRED_LANGUAGE, {
     style: 'currency',
-    currency: 'USD',
+    currency: data.toCurrency,
     minimumFractionDigits: 2,
   });
 
-  CliqzUtils.log('===== CUR', currency_formatter.format(123));
   if ( data.toAmount.main ) {
-     data.toAmount.main = currency_formatter.format( data.toAmount.main );
+     data.toAmount.main = currency_formatter.format(parseFloat(cur_amount));
   }
 }

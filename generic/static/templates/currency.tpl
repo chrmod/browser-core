@@ -2,7 +2,6 @@
     <div>
         <div class="EZ-currency EZ-currency-result">
             <span class="cqz-amount">{{ data.toAmount.main }}</span>
-            <span class="cqz-currency-code">{{ data.toCurrency }}</span>
         </div>
         <div class="EZ-currency EZ-currency-rate">
             {{localizeNumbers data.multiplyer}} {{data.fromCurrency}} = {{convRateDigitSplit (localizeNumbers data.mConversionRate)}} {{data.toCurrency}}
