@@ -22,9 +22,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       'footer-message',
       'onboarding-callout',
       'onboarding-callout-extended',
-      'confirm_no_00',
-      'confirm_no_01',
       'slow_connection',
+      'partials/missing_location_step_2',
       'partials/no-locale-data'
     ],
     PARTIALS = [
@@ -35,7 +34,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'feedback',
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
-        'missing_location',
+        'partials/missing_location_step_1',
         'partials/timetable-cinema',
         'partials/timetable-movie'
     ],
@@ -399,11 +398,11 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('for', function(from, to, incr, block) {
-      // repeat block in for loop
+    Handlebars.registerHelper('repeat', function(num, block) {
       var accum = '';
-      for(var i = from; i < to; i += incr)
-          accum += block.fn(i);
+      for(var i = 0; i < num; i++) {
+        accum += block.fn(i);
+      }
       return accum;
     });
 
