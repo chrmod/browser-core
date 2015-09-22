@@ -275,7 +275,6 @@ var CliqzStatsGlobal = {
   },
 
   fetchData: function () {
-    CliqzUtils.log("THuy--- fetch data");
     CliqzUtils.httpGet(CliqzStatsGlobal.LOYALTY_DATA_PROVIDER,
       function (res) {
 
@@ -287,7 +286,6 @@ var CliqzStatsGlobal = {
 
         if (res && res.response) {
           try {
-            CliqzUtils.log("THuy--- fetch data OK");
             var data = JSON.parse(res.response);
             CliqzTERM.updateTime(data["GMTime"]);
             CliqzStatsGlobal.CliqzUsage = data["CliqzUsage"] || CliqzStatsGlobal.CliqzUsage;
