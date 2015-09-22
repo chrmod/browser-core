@@ -5,9 +5,8 @@
  */
 
 var EXPORTED_SYMBOLS = ['CliqzEvents'];
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -30,14 +29,10 @@ var CliqzEvents = CliqzEvents || {
    * to be executed when the event is observed
    */
   sub: function (id, fn) {
-    CliqzUtils.log('Subscribe to event: ' + id, 'Events.sub');
-    if (!CliqzEvents.cache[id]) {
-      CliqzEvents.cache[id] = [fn];
-    } else {
-      CliqzEvents.cache[id].push(fn);
-    }
-
+    CliqzEvents.cache[id] = CliqzEvents.cache[id] || [];
+    CliqzEvents.cache[id].push(fn);
   },
+
   un_sub: function (id, fn) {
     var index;
     if (!CliqzEvents.cache[id]) {
