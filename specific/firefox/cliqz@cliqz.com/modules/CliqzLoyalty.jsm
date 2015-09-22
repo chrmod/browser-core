@@ -774,6 +774,8 @@ var CliqzStats = {
   cliqz_usage_cached: 0,
   cliqz_db_cur_term_cached: null,
 
+
+
   init_min: function () {
     CliqzStats.migrateDataV0();
     CliqzStats.cur_db_term = CliqzStats.count_term() - 1;
@@ -956,8 +958,10 @@ function cal_meta_term(y, t) {
   };
 }
 
+var VERTICALS = Object.keys(CliqzUtils.VERTICAL_TEMPLATES);
+CliqzUtils.log(VERTICALS, "THUY ---- VERTICALs");
 function isBMResult(signal, meta) {
-  return signal.position_type && signal.position_type[0] && (signal.position_type[0][0] === 'm' || (meta && (meta['vertical_list'] || []).indexOf(signal.position_type[0][0]) >= 0));
+  return signal.position_type && signal.position_type[0] && (signal.position_type[0][0] === 'm' || (meta && (VERTICALS || []).indexOf(signal.position_type[0][0]) >= 0));
 }
 
 function isHistoryResult(signal) {  // please refer to CliqzUtils.encodeResultType() for up-to-date codes

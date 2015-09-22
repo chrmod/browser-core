@@ -148,14 +148,6 @@ a {text-decoration: none;}
     text-align: center;
 }
 
-.notifif-light-blue {background-color: #4ABDD7;}
-
-.notifif-blue {background-color: #479ABB;}
-
-.notifif-mauve-blue {background-color: #516DB6;}
-
-.notifif-dark-blue {background-color: #073673;}
-
 .notifif-orange {background-color: #ff6705;}
 
 .notif-top {
@@ -304,6 +296,11 @@ a {text-decoration: none;}
 .cqz-notifications .cqz-loyalty-container{
     padding-top: 83px;
 }
+
+.notifications:nth-child(4n+1) {background-color: #4ABDD7;}
+.notifications:nth-child(4n+2) {background-color: #479ABB;}
+.notifications:nth-child(4n+3) {background-color: #516DB6;}
+.notifications:nth-child(4n) {background-color: #073673;}
 
 .cqz-loyalty .toggle-btn {
   display: none;

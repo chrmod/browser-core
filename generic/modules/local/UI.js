@@ -28,15 +28,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
-    VERTICALS = {
-        'n': 'news'    ,
-        'p': 'people'  ,
-        'v': 'video'   ,
-        'h': 'hq'      ,
-        'r': 'recipe' ,
-        'g': 'cpgame_movie',
-        'o': 'cpgame_movie'
-    },
+    VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
     IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
@@ -1539,7 +1531,7 @@ function resultClick(ev) {
             logUIEvent(el, "result", signal, CliqzAutocomplete.lastSearch);
 
             //publish result_click
-            CliqzEvents.pub("result_click", signal, {'vertical_list': Object.keys(VERTICALS)});
+            CliqzEvents.pub("result_click", signal, {});
 
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZEnvironment.openLink(window, url, newTab);

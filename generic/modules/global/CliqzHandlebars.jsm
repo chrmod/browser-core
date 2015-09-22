@@ -472,16 +472,6 @@ function registerHelpers(){
     });
 
     //---- for loyalty program-------//
-    Handlebars.registerHelper('msg_class', function(msg_idx) {
-        var css_class = [  // todo: refactor this
-            "notifif-light-blue",
-            "notifif-blue",
-            "notifif-dark-blue",
-            "notifif-dark-blue-2"
-        ];
-        return css_class[(msg_idx) % css_class.length];
-    });
-
     Handlebars.registerHelper('format_str', function(ret) {
         if(arguments.length>1){
           var i = 1, args = arguments;

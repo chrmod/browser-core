@@ -21,8 +21,8 @@ if (!String.format) {
 }
 
 /**-----------------------------------------------------------------------//
-//---------------------------- BAR CHARTS -------------------------------//
-//-----------------------------------------------------------------------//
+ //---------------------------- BAR CHARTS -------------------------------//
+ //-----------------------------------------------------------------------//
  */
 function CliqzUseMeterBarChart() {
   var self = this;
@@ -134,8 +134,8 @@ CliqzUseMeterBarChart.prototype.draw = function (svg, data) {
 
 
 /**-----------------------------------------------------------------------//
-//---------------------------- PIE CHARTS  --------------------------//
-//-----------------------------------------------------------------------//
+ //---------------------------- PIE CHARTS  --------------------------//
+ //-----------------------------------------------------------------------//
  */
 
 function CliqzMeterPieChart(r1, r0) {
@@ -374,7 +374,9 @@ CliqzUsePieChart_V2.prototype.drawEmptyPie = function (svg, data, pie_name) {
 
 CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
   var self = this,
-    data = data_.data.filter(function(item){return item["val"] >0;}),
+    data = data_.data.filter(function (item) {
+      return item["val"] > 0;
+    }),
     total = data.reduce(function (x, y) {
       return x + y["val"]
     }, 0);
@@ -452,7 +454,7 @@ CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
 
       // write 2 lines of test for legend
       var nLine = 2;
-      [0,nLine-1].forEach(function(i){
+      [0, nLine - 1].forEach(function (i) {
         legends.append("svg:text").text(function (d) {
           return d.data["val"] ? d.data["til"][i] : "";
         })
