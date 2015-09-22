@@ -26,9 +26,9 @@ if (!String.format) {
 }
 
 /**
- //---------------------------------- CORE - to work with browser ----------------------------------//
- //----------------------------we try to decouple the Loyalty from the extension, thus whenever possible
- --- we extract extension's functionality to the core of loyalty ----------------------------------------//
+ //--------------------------------------- CORE - to work with browser --------------------------------------------//
+ //----------------------------we try to decouple the Loyalty from the extension, thus whenever possible ----------//
+ //---------------------------- we extract extension's functionality to the core of loyalty -----------------------//
  */
 
 var CORE = {
@@ -156,11 +156,13 @@ function updateNotifyPref(val, notify) {
 
 /**
  * //---------------------------------- LISTENING TO CHANGES IN PREF OF CLIQZ EXTENSION ----------------------------//
- * in the attempt to detach the Loyalty Program from the Extension code, we use Preference listener to observe changes in the pref. of the Cliqz Extension.
- * By doing this, we avoid situations such as: force to add an event listener when user changes configuration, e.g. activate/deactivate human web.
+ * in the attempt to detach the Loyalty Program from the Extension code, we use Preference listener to observe
+ * changes in the pref. of the Cliqz Extension.
+ * By doing this, we avoid situations such as: force to add an event listener when user changes configuration,
+ * e.g. activate/deactivate human web.
  * for more info. on how this works.
  * https://developer.mozilla.org/en-US/Add-ons/Code_snippets/Preferences#Using_preference_observers
- *--------------------------------------------------------------------------------------//
+ *------------------------------------------------------------------------------------------------------------------//
  */
 
 /**
@@ -223,7 +225,7 @@ var CLIQZ_OBSERVER = {
 };
 
 /**
- //---------------------------------------- GETTING INFO FROM BACKEND ----------------------------------//
+ //---------------------------------------- GETTING INFO FROM BACKEND -----------------------------------------//
  //------------------------------------------------------------------------------------------------------------//
  */
 
@@ -331,7 +333,7 @@ var CliqzStatsGlobal = {
 
 /**
  * //-------------------------------------- ALL LOGIC ON AWARDING IN LOYALTY --------------------------------//
- *------------------------------------------------------------------------//
+ *-----------------------------------------------------------------------------------------------------------//
  */
 
 var ICONS = {
@@ -404,7 +406,8 @@ var CliqzLLogic = {
   },
 
   memStatus: {
-    statusName: ["MEMBER", "BUDDY", "HERO", "LEGEND"],  // !!! NOT ALLOWING CHANGING NAMES FROM THE BACK_END (because other data in de.json uses these keys)
+    // !!! NOT ALLOWING CHANGING NAMES FROM THE BACK_END (because other data in de.json uses these keys)
+    statusName: ["MEMBER", "BUDDY", "HERO", "LEGEND"],
     status_description: {"MEMBER": "1st level", "BUDDY": "2nd level", "HERO": "3rd level", "LEGEND": "Highest level"},
     statusTodo: {"MEMBER": "Join the Glory program", "BUDDY": "...", "HERO": "...", "LEGEND": "..."},
     statusBenchmark: {"MEMBER": 0, "BUDDY": 100, "HERO": 250, "LEGEND": 750},
@@ -510,7 +513,6 @@ var CliqzLLogic = {
     },
 
     update: function (data) {
-//      CliqzUtils.log(data, "THUY ---------------- badges update");
       var bs = data["CliqzBadges"];
       CliqzLLogic.badges.badgeCode.forEach(function (b_code) {
         var b = CliqzLLogic.badges[b_code];
@@ -683,7 +685,7 @@ var CliqzLLogic = {
 
 /**
  //---------------------------------- TERM (Loyalty follows 3month terms) -------------------------------------//
- //------------------------------------------------------------------------------------//
+ //------------------------------------------------------------------------------------------------------------//
  */
 
 var CliqzTERM = {
@@ -736,7 +738,7 @@ var CliqzTERM = {
 
 /**
  //---------------------------------- LOYALTY STAT (store user data)-------------------------------//
- //------------------------------------------------------------------------//
+ //------------------------------------------------------------------------------------------------//
  */
 
 var dbWrapper = function (func, callBack) {
@@ -1024,9 +1026,9 @@ function setPersistent(val) {
 
 /**
  //---------------------------------- MAIN CLASS - LOYALTY STAT ----------------------------------//
- //---------------Note: this class encapsulates all others,---------------//
- // -----------------and is the only one exposed to outside---------------//
- //-----------------------------------------------------------------------//
+ //--------------------Note: this class encapsulates all others,----------------------------------//
+ // ----------------------and is the only one exposed to outside----------------------------------//
+ //-----------------------------------------------------------------------------------------------//
  */
 
 var CliqzLoyalty = {
@@ -1086,7 +1088,6 @@ var CliqzLoyalty = {
       msgNotify: CliqzLLogic.notify.getNotifyInfo()
     };
 
-//    CliqzUtils.log(stat, "THUY--------- stat for Loyalty");
     return stat;
   },
 
