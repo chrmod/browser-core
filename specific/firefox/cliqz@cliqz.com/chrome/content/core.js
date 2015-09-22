@@ -893,10 +893,10 @@ window.CLIQZ.Core = {
         }
 
         //feedback and FAQ
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ, 'feedback'));
         menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
           CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
-        }));
+        }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
@@ -999,11 +999,21 @@ window.CLIQZ.Core = {
       return menu;
     },
 
-    createSimpleBtn: function(doc, txt, func){
+    createSimpleBtn: function(doc, txt, func, btnName){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
         if(func)
-            item.addEventListener('command', func, false);
+            item.addEventListener(
+                'command',
+                function() {
+                    CliqzUtils.telemetry({
+                        type: 'activity',
+                        action: 'cliqz_menu_button',
+                        menu_item: btnName
+                    });
+                    func();
+                },
+                false);
         else
             item.setAttribute('disabled', 'true');
 
@@ -1043,7 +1053,8 @@ window.CLIQZ.Core = {
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
                         CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
-                    }
+                    },
+                'safe_search_desc'
             )
         );
 
