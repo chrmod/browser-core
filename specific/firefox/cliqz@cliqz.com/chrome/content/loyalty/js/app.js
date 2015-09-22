@@ -39,7 +39,7 @@ window.SCRIPTS = {};
   }
 
   function renderLayout() {
-    $("body").html(CliqzHandlebars.compile("{{> layout}}")(CliqzLoyalty.get_all_stat_current_term()));
+    $("body").html(CliqzHandlebars.compile("{{> layout}}")(CliqzLoyalty.getAllStatCurrentTerm()));
     window.SCRIPTS["layout"]();
     return Promise.resolve();
   }

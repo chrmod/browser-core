@@ -7,11 +7,11 @@
   <div class="cqz-loyalty-section">
     <div class="cqz-loyalty-label blue">
       <span class="awards">Deine Auszeichnungen: </span>
-      <span class="numOfAwards">{{mem_ship.awards.nAward}}/{{mem_ship.awards.totalAwards}}</span>
+      <span class="numOfAwards">{{membership.awards.nAward}}/{{membership.awards.totalAwards}}</span>
     </div>
 
     <div id="CliqzAwardBoard_div" class="cqz-loyalty-container">
-        {{#each mem_ship.awards.awardList}}
+        {{#each membership.awards.awardList}}
             <div class="wrapper award_container">
                 <div class="award_icon_div"><img class="award_icon" src="{{img}}"/></div>
                 <div class="{{#unless st}}award_sub_locked{{/unless}} award_sub">{{name}}</div>
@@ -30,7 +30,7 @@
     </div>
 
     <div class="cqz-loyalty-container">
-        {{#each msg_all}}
+        {{#each msgAll}}
         <div class="notifications">
             <div class="notify_content">
               <div class="notify_icon clz_float_left"><img src="images/{{this.icon}}" /> </div>

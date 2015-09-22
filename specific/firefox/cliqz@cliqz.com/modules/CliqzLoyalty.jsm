@@ -82,12 +82,12 @@ var CORE = {
     }
   },
 
-  refreshCliqzStarButtons: function (icon_url) {
-    CORE.iterateWindows(function(win, icon_url){
+  refreshCliqzStarButtons: function (iconUrl) {
+    CORE.iterateWindows(function(win, iconUrl){
       var button = win.document.getElementById(ICONS.BTN_ID);
-      button.setAttribute('image', icon_url);
+      button.setAttribute('image', iconUrl);
     },
-    [icon_url]);
+    [iconUrl]);
   },
 
   unload: function () {
@@ -116,37 +116,37 @@ var META_KEY = "loyalty_m",
   NOTIFY_BADGES = "b",
   ALERT_THRESHOLD_UPDATE_FAIL = 2;
 
-function set_meta_pref(cur_term, cur_year) {
+function setMetaPref(curTerm, curYear) {
   var m = {};
-  m[CUR_TERM_Y] = cur_term;
-  m[CUR_TERM_YEAR] = cur_year;
+  m[CUR_TERM_Y] = curTerm;
+  m[CUR_TERM_YEAR] = curYear;
   CORE.setPref(META_KEY, JSON.stringify(m));
 }
 
-function build_notify_info(is_notify, notify_msg) {
+function buildNotifyInfo(isNotify, notifyMsg) {
   /*
-   * @para notify_msg: a string
+   * @para notifyMsg: a string
    *               + leave null to use current value in ref.
    */
   var info = {};
-  info[NOTIFY_FLAG] = is_notify;
-  if (notify_msg === null) {
+  info[NOTIFY_FLAG] = isNotify;
+  if (notifyMsg === null) {
     var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     info[NOTIFY_FLAG_MSG] = tmp[NOTIFY_INFO][NOTIFY_FLAG_MSG] || "";
   }
   else
-    info[NOTIFY_FLAG_MSG] = notify_msg;
+    info[NOTIFY_FLAG_MSG] = notifyMsg;
 
   return info;
 }
 
-function update_notify_pref(val, notify) {
+function updateNotifyPref(val, notify) {
   if (!val) {
     val = {};
-    val[NOTIFY_NORM_MSG] = CliqzStatsGlobal.message_all.map(function (msg_obj) {
-      return msg_obj["id"] || 0;
+    val[NOTIFY_NORM_MSG] = CliqzStatsGlobal.messageAll.map(function (msgObj) {
+      return msgObj["id"] || 0;
     });
-    val[NOTIFY_BADGES] = CliqzLLogic.badges.cur_badges || {};
+    val[NOTIFY_BADGES] = CliqzLLogic.badges.curBadges || {};
   }
 
   val[NOTIFY_INFO] = notify;
@@ -240,7 +240,7 @@ var CliqzStatsGlobal = {
 
   CliqzLatestVersion: "1.0.25",
 
-  message_all: [
+  messageAll: [
     { "msg": "..., dass das CLIQZ-Team gegenwärtig aus 28 Nationalitäten besteht?",
       "icon": "globe.svg",
       "id": "NM1"
@@ -256,13 +256,13 @@ var CliqzStatsGlobal = {
   ],
 
   // ------------ END DEFAULT values from the backend -------------//
-  request_time_out: 5 * 1e3,  // 10 sec
-//    update_time : 30*1e3,  // 63 minutes
-  update_time: 63 * 60 * 1e3,  // 63 minutes
+  requestTimeout: 5 * 1e3,  // 10 sec
+//    updateTime : 30*1e3,  // 63 minutes
+  updateTime: 63 * 60 * 1e3,  // 63 minutes
   failConnectHandler: {
     updateTime: 60 * 1e3,  // 1 minutes
     retryCount: 0,
-    retryLim: 10, // reckomment: to avoid concurrent update, make sure updateTime*retryLim < update_time
+    retryLim: 10, // reckomment: to avoid concurrent update, make sure updateTime*retryLim < updateTime
     setTimeOutID: null
   },
 
@@ -274,24 +274,26 @@ var CliqzStatsGlobal = {
     return CliqzStatsGlobal.MemberSystem.LEGEND;
   },
 
-  fetch_data: function () {
+  fetchData: function () {
+    CliqzUtils.log("THuy--- fetch data");
     CliqzUtils.httpGet(CliqzStatsGlobal.LOYALTY_DATA_PROVIDER,
       function (res) {
 
-        CliqzStatsGlobal.update_fail_retry = 0;
-        if (CliqzStatsGlobal.update_timeOut) {
-          clearTimeout(CliqzStatsGlobal.update_timeOut);
-          CliqzStatsGlobal.update_timeOut = null;
+        CliqzStatsGlobal.updateFailRetry = 0;
+        if (CliqzStatsGlobal.updateTimeOut) {
+          clearTimeout(CliqzStatsGlobal.updateTimeOut);
+          CliqzStatsGlobal.updateTimeOut = null;
         }
 
         if (res && res.response) {
           try {
+            CliqzUtils.log("THuy--- fetch data OK");
             var data = JSON.parse(res.response);
-            Cliqz_TERM.update_time(data["GMTime"]);
+            CliqzTERM.updateTime(data["GMTime"]);
             CliqzStatsGlobal.CliqzUsage = data["CliqzUsage"] || CliqzStatsGlobal.CliqzUsage;
             CliqzStatsGlobal.CliqzUsage.metric = [CliqzStatsGlobal.CliqzUsage.metric[CliqzStatsGlobal.CliqzUsage.metric.length - 1]];
             CliqzStatsGlobal.CliqzLatestVersion = data["CliqzLatestVersion"] || CliqzStatsGlobal.CliqzLatestVersion;
-            CliqzStatsGlobal.message_all = data["message_all"] || CliqzStatsGlobal.message_all;
+            CliqzStatsGlobal.messageAll = data["message_all"] || CliqzStatsGlobal.messageAll;
             CliqzStatsGlobal.MemberSystem = data["MemberSystem"] || CliqzStatsGlobal.MemberSystem;
 
             Object.keys(CliqzStatsGlobal.MemberSystem).forEach(function (sttName) {
@@ -300,32 +302,32 @@ var CliqzStatsGlobal = {
               CliqzStatsGlobal.MemberSystem[sttName.toUpperCase()] = tmp;
             });
 
-            CliqzLLogic.update_data(CliqzStatsGlobal);
+            CliqzLLogic.updateData(CliqzStatsGlobal);
             CliqzLLogic.notify.update("be");
 
           } catch (e) {
-            CliqzUtils.telemetry({'type': 'CliqzStatsGlobal.msgType', 'action': 'loadGlobalData', 'status': 'exception'});
+            CliqzUtils.telemetry({'type': 'CliqzStatsGlobal.parseData', 'action': 'update_backend_data', 'status': 'exception'});
           }
         }
       },
       function () {
-        Cliqz_TERM.update_time(null);
-        CliqzUtils.telemetry({'type': 'CliqzStatsGlobal.msgType', 'action': 'loadGlobalData', 'status': 'error'});
+        CliqzTERM.updateTime(null);
+        CliqzUtils.telemetry({'type': 'CliqzStatsGlobal.BackEndConnect', 'action': 'fetch_backend_data', 'status': 'Request error'});
 
         if (CliqzStatsGlobal.failConnectHandler.retryCount < CliqzStatsGlobal.failConnectHandler.retryLim) {
           CliqzStatsGlobal.failConnectHandler.retryCount += 1;
-          CliqzStatsGlobal.failConnectHandler.setTimeOutID = CliqzUtils.setTimeout(CliqzStatsGlobal.fetch_data, CliqzStatsGlobal.failConnectHandler.updateTime)
+          CliqzStatsGlobal.failConnectHandler.setTimeOutID = CliqzUtils.setTimeout(CliqzStatsGlobal.fetchData, CliqzStatsGlobal.failConnectHandler.updateTime)
         } else {
           CliqzStatsGlobal.failConnectHandler.retryCount = 0;
           CliqzStatsGlobal.failConnectHandler.setTimeOutID = null;
         }
       },
-      CliqzStatsGlobal.request_time_out
+      CliqzStatsGlobal.requestTimeout
     );
   },
 
   cron: function () {
-    CliqzStatsGlobal.timer = CliqzUtils.setInterval(CliqzStatsGlobal.fetch_data, CliqzStatsGlobal.update_time); // please remember to destroy the thread when unload
+    CliqzStatsGlobal.timer = CliqzUtils.setInterval(CliqzStatsGlobal.fetchData, CliqzStatsGlobal.updateTime); // please remember to destroy the thread when unload
   }
 };
 
@@ -335,8 +337,8 @@ var CliqzStatsGlobal = {
  */
 
 var ICONS = {
-  icons_status: {
-    'no_notify': {
+  iconsStatus: {
+    "noNotify": {
       "MEMBER": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-member.svg", color: "#ABC8E2"},
       "BUDDY": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-buddy.svg", color: "#5EA3F9"},
       "HERO": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-hero.svg", color: "#733090"},
@@ -344,8 +346,8 @@ var ICONS = {
     }
   },
 
-  icons_browser: {
-    'no_notify': {
+  iconsBrowser: {
+    "noNotify": {
       "MEMBER": "chrome://cliqzres/content/content/loyalty/images/browser_icons/member-browser.svg",
       "BUDDY": "chrome://cliqzres/content/content/loyalty/images/browser_icons/buddy-browser.svg",
       "HERO": "chrome://cliqzres/content/content/loyalty/images/browser_icons/hero-browser.svg",
@@ -361,26 +363,26 @@ var ICONS = {
 
   BTN_ID: "cliqz-star-button",
 
-  get_icon_browser: function (has_joined, status_name, is_notify) {
-    if (!has_joined)
-      return ICONS.icons_browser.notify["MEMBER"];
+  getIconBrowser: function (hasJoined, statusName, isNotify) {
+    if (!hasJoined)
+      return ICONS.iconsBrowser.notify["MEMBER"];
 
-    var t = is_notify ? ICONS.icons_browser.notify : ICONS.icons_browser.no_notify;
-    var icon = t[status_name];
+    var t = isNotify ? ICONS.iconsBrowser.notify : ICONS.iconsBrowser.noNotify;
+    var icon = t[statusName];
     if (!icon)
       icon = t["MEMBER"];
     return icon;
   },
 
-  get_icon_member_stt: function (status) {
-    var t = ICONS.icons_status["no_notify"];
+  getIconMemberStt: function (status) {
+    var t = ICONS.iconsStatus["noNotify"];
     return status === null ? t : t[status] || "";
   }
 };
 
 var CliqzLLogic = {
   init: function () {
-    // NOTE: call this after CliqzStats.cliqz_usage_cached is initialized
+    // NOTE: call this after CliqzStats.cliqzUsageCached is initialized
     // Call this before running fetching  back-end data
 
     CliqzUtils.loadResource('chrome://cliqzres/content/content/loyalty/locale/de.json',
@@ -388,39 +390,39 @@ var CliqzLLogic = {
         if (CliqzUtils) {
           var data = JSON.parse(req.response);
           CliqzLLogic.badges.update(data);
-          CliqzLLogic.mem_status.update(data);
+          CliqzLLogic.memStatus.update(data);
         }
       }
     );
 
-    CliqzLLogic.current_status = CliqzLLogic.mem_status.calStatus(CliqzStats.cliqz_usage_cached);
+    CliqzLLogic.currentStatus = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
 
     var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     if (notify_meta) {
-      CliqzLLogic.notify.is_notify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
-      CliqzLLogic.notify.notify_msg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
-      CliqzLLogic.badges.cur_badges = notify_meta[NOTIFY_BADGES];
+      CliqzLLogic.notify.isNotify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
+      CliqzLLogic.notify.notifyMsg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
+      CliqzLLogic.badges.curBadges = notify_meta[NOTIFY_BADGES];
     }
   },
 
-  mem_status: {
-    status_name: ["MEMBER", "BUDDY", "HERO", "LEGEND"],  // !!! NOT ALLOWING CHANGING NAMES FROM THE BACK_END (because other data in de.json uses these keys)
+  memStatus: {
+    statusName: ["MEMBER", "BUDDY", "HERO", "LEGEND"],  // !!! NOT ALLOWING CHANGING NAMES FROM THE BACK_END (because other data in de.json uses these keys)
     status_description: {"MEMBER": "1st level", "BUDDY": "2nd level", "HERO": "3rd level", "LEGEND": "Highest level"},
-    status_todo: {"MEMBER": "Join the Glory program", "BUDDY": "...", "HERO": "...", "LEGEND": "..."},
-    status_benchmark: {"MEMBER": 0, "BUDDY": 100, "HERO": 250, "LEGEND": 750},
-    status_congrats_msg: {},
+    statusTodo: {"MEMBER": "Join the Glory program", "BUDDY": "...", "HERO": "...", "LEGEND": "..."},
+    statusBenchmark: {"MEMBER": 0, "BUDDY": 100, "HERO": 250, "LEGEND": 750},
+    statusCongratsMsg: {},
 
-    current_status: "",
+    currentStatus: "",
 
     calStatus: function (point) {
-      var status_level = 0;
-      while (status_level < CliqzLLogic.mem_status.status_name.length - 1) {
-        if (point < CliqzLLogic.mem_status.status_benchmark[CliqzLLogic.mem_status.status_name[status_level + 1]])
+      var statusLevel = 0;
+      while (statusLevel < CliqzLLogic.memStatus.statusName.length - 1) {
+        if (point < CliqzLLogic.memStatus.statusBenchmark[CliqzLLogic.memStatus.statusName[statusLevel + 1]])
           break;
-        status_level += 1;
+        statusLevel += 1;
       }
-      var stt_name = CliqzLLogic.mem_status.status_name[status_level];
-      return {'status': stt_name, 'status_level': status_level, 'icon': ICONS.get_icon_member_stt(stt_name)};
+      var sttName = CliqzLLogic.memStatus.statusName[statusLevel];
+      return {'status': sttName, 'status_level': statusLevel, 'icon': ICONS.getIconMemberStt(sttName)};
     },
 
     update: function (data) {
@@ -428,8 +430,8 @@ var CliqzLLogic = {
       if (mem_s) {
         Object.keys(mem_s).forEach(function (m) {
           var tmp = m.toUpperCase(); //mem_s[m];
-          if (CliqzLLogic.mem_status.status_benchmark.hasOwnProperty(tmp)) {
-            CliqzLLogic.mem_status.status_benchmark[tmp] = mem_s[m];
+          if (CliqzLLogic.memStatus.statusBenchmark.hasOwnProperty(tmp)) {
+            CliqzLLogic.memStatus.statusBenchmark[tmp] = mem_s[m];
           }
         });
       }
@@ -438,15 +440,15 @@ var CliqzLLogic = {
       var mem_des = data["MEM_STATUS_DES"];
       if (mem_des) {
         Object.keys(mem_des).forEach(function (stt_code) {
-          CliqzLLogic.mem_status.status_description[stt_code] = mem_des[stt_code];
+          CliqzLLogic.memStatus.status_description[stt_code] = mem_des[stt_code];
         })
       }
 
-      //--------- update status_todo (what to do to get this status)
+      //--------- update statusTodo (what to do to get this status)
       var mem_todo = data["MEM_STATUS_TODO"];
       if (mem_todo) {
         Object.keys(mem_todo).forEach(function (stt_code) {
-          CliqzLLogic.mem_status.status_todo[stt_code] = mem_todo[stt_code];
+          CliqzLLogic.memStatus.statusTodo[stt_code] = mem_todo[stt_code];
         })
       }
 
@@ -454,14 +456,14 @@ var CliqzLLogic = {
       var status_congrats_msg = data["MEM_STATUS_CONGRATS_MSG"];
       if (status_congrats_msg) {
         Object.keys(status_congrats_msg).forEach(function (stt_code) {
-          CliqzLLogic.mem_status.status_congrats_msg[stt_code] = status_congrats_msg[stt_code];
+          CliqzLLogic.memStatus.statusCongratsMsg[stt_code] = status_congrats_msg[stt_code];
         })
       }
     }
   },
 
   badges: {
-    cur_badges: null,
+    curBadges: null,
     // list of Badges this extension counts (we may have more from the backend, but is not supported by this version)
     badgeCode: [ "HMW", // human web
       "LV", // latest version
@@ -470,7 +472,7 @@ var CliqzLLogic = {
     ],
 
     HMW: {
-      is_achieved: function (data) {
+      isAchieved: function (data) {
         return data.hmw ? true : false;
       },
       img: 'images/Mad scientist_icn.svg',
@@ -478,7 +480,7 @@ var CliqzLLogic = {
       des: ["", ""]
     },
     LV: {
-      is_achieved: function (data) {
+      isAchieved: function (data) {
         return data.version.current >= data.version.latest;
       },
       img: 'images/Early adopter_icn.svg',
@@ -486,7 +488,7 @@ var CliqzLLogic = {
       des: ["", ""]
     },
     FU: {
-      is_achieved: function (data) {
+      isAchieved: function (data) {
         return data.freqCliqzUse.current >= data.freqCliqzUse.threshold;
       },
       img: 'images/Loyal_icn.svg',
@@ -494,7 +496,7 @@ var CliqzLLogic = {
       des: ["", ""]
     },
     CLE: {
-      is_achieved: function (data) {
+      isAchieved: function (data) {
         return data.totalCliqzUse.current >= data.totalCliqzUse.Legend;
       },
       img: 'images/magnifier.svg',
@@ -521,14 +523,14 @@ var CliqzLLogic = {
     calBadges: function (data) {
       var awards = {}, nAward = 0;
       CliqzLLogic.badges.badgeCode.forEach(function (badge) {
-        var achieve = CliqzLLogic.badges[badge].is_achieved(data);
+        var achieve = CliqzLLogic.badges[badge].isAchieved(data);
         nAward += achieve ? 1 : 0;
         awards[badge] = achieve;
       });
       return {"awardList": awards, "nAward": nAward, "totalAwards": CliqzLLogic.badges.badgeCode.length};
     },
 
-    prep_calBadges: function (user_stat, hmw_) {
+    prepCalBadges: function (user_stat, hmw_) {
       var hmw = (hmw_ === null) ? (CliqzUtils.getPref('dnt', false) ? 0 : 1) : hmw_,
         freqCliqzUse, totalSearch;
 
@@ -542,7 +544,7 @@ var CliqzLLogic = {
       }
     },
 
-    get_badges_info: function (data) {
+    getBadgesInfo: function (data) {
       var badges = {};
       CliqzLLogic.badges.badgeCode.forEach(function (badge) {
         var b = CliqzLLogic.badges[badge];
@@ -551,7 +553,7 @@ var CliqzLLogic = {
       return badges;
     },
 
-    is_badges_updated: function (new_b, cur_b) {
+    isBadgesUpdated: function (new_b, cur_b) {
       if (new_b && !cur_b)
         return true;
       if (new_b["nAward"] !== cur_b["nAward"] || new_b["totalAwards"] !== cur_b["totalAwards"])
@@ -569,48 +571,48 @@ var CliqzLLogic = {
     // 1. user has new status
     // 2. we send new msg from the back-end in Did You Know section
     // 3. When user gets a new badge
-    is_notify: null,
-    notify_msg: "",
+    isNotify: null,
+    notifyMsg: "",
 
     // new status only happens while using the extension
-    check_update_status: function () {
-      var latest_stt = CliqzLLogic.mem_status.calStatus(CliqzStats.cliqz_usage_cached);
+    checkUpdateStatus: function () {
+      var latestStt = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
 
-      if (!CliqzLLogic.mem_status.current_status.status_level)
-        CliqzLLogic.mem_status.current_status = latest_stt;
-      if (CliqzLLogic.mem_status.current_status.status_level !== latest_stt.status_level) {
-        CliqzLLogic.mem_status.current_status = latest_stt;
+      if (!CliqzLLogic.memStatus.currentStatus.status_level)
+        CliqzLLogic.memStatus.currentStatus = latestStt;
+      if (CliqzLLogic.memStatus.currentStatus.status_level !== latestStt.status_level) {
+        CliqzLLogic.memStatus.currentStatus = latestStt;
         return {
-          "val": latest_stt,
+          "val": latestStt,
           "is_new": true,
-          "notify_msg": CliqzLLogic.mem_status.status_congrats_msg[latest_stt["status"]] || ""
+          "notifyMsg": CliqzLLogic.memStatus.statusCongratsMsg[latestStt["status"]] || ""
         };
       }
-      return {"val": latest_stt, "is_new": false, "notify_msg": ""
+      return {"val": latestStt, "is_new": false, "notifyMsg": ""
       };
     },
 
-    check_update_msg: function () {
-      var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)),
-        msg_id_list_cur = notify_meta[NOTIFY_NORM_MSG] || [],
-        new_msg = false;
-      CliqzStatsGlobal.message_all.forEach(function (msg_obj) {
-        new_msg = new_msg || !(msg_obj["id"] in msg_id_list_cur);
+    checkUpdateMsg: function () {
+      var notifyMeta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)),
+        msgIDListCur = notifyMeta[NOTIFY_NORM_MSG] || [],
+        newMsg = false;
+      CliqzStatsGlobal.messageAll.forEach(function (msgObj) {
+        newMsg = newMsg || !(msgObj["id"] in msgIDListCur);
       });
-      return new_msg;
+      return newMsg;
     },
 
-    check_update_badges: function () {
+    checkUpdateBadges: function () {
       /**
        * @para: trigger_by: see update()
        */
-      var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prep_calBadges(CliqzStats.get(), null));
-      var changed = CliqzLLogic.badges.is_badges_updated(awards, CliqzLLogic.badges.cur_badges);
-      CliqzLLogic.badges.cur_badges = awards;
+      var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
+      var changed = CliqzLLogic.badges.isBadgesUpdated(awards, CliqzLLogic.badges.curBadges);
+      CliqzLLogic.badges.curBadges = awards;
       return changed;
     },
 
-    update: function (trigger_by) {
+    update: function (triggerBy) {
       /*
        * @para: trigger_by: what triggers this update function. Val:
        *      + "be" (back-end update)
@@ -620,52 +622,51 @@ var CliqzLLogic = {
        * NOTE: depends when what triggers this, different checks are required
        * THIS FUNCTION only turns the notification on if applicable. It does not turn the notification off!
        */
-      var latest_stt_info = CliqzLLogic.notify.check_update_status(),
-        latest_stt = latest_stt_info["val"];
+      var latestSttInfo = CliqzLLogic.notify.checkUpdateStatus(),
+        latestStt = latestSttInfo["val"],
+        msgUpdate = triggerBy in ["be"] ? CliqzLLogic.notify.checkUpdateMsg() : false,
+        badgesUpdate = CliqzLLogic.notify.checkUpdateBadges(),
+        isNotify = CliqzLLogic.notify.isNotify || false,
+        notifyMsg = CliqzLLogic.notify.notifyMsg || "";
 
-      var msg_update = trigger_by in ["be"] ? CliqzLLogic.notify.check_update_msg() : false;
-      var badges_update = CliqzLLogic.notify.check_update_badges();
-      var is_notify = CliqzLLogic.notify.is_notify || false,
-        notify_msg = CliqzLLogic.notify.notify_msg || "";
-
-      if (trigger_by === "hw" || latest_stt_info["is_new"] || msg_update || badges_update) {
-        CORE.refreshCliqzStarButtons(ICONS.get_icon_browser(true, latest_stt["status"], true));
-        CliqzLLogic.notify.is_notify = true;
-        is_notify = true;
-        if (latest_stt_info["is_new"]) {
-          notify_msg = latest_stt_info["notify_msg"] || "";
-          CliqzLLogic.notify.notify_msg = notify_msg;
+      if (triggerBy === "hw" || latestSttInfo["is_new"] || msgUpdate || badgesUpdate) {
+        CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], true));
+        CliqzLLogic.notify.isNotify = true;
+        isNotify = true;
+        if (latestSttInfo["is_new"]) {
+          notifyMsg = latestSttInfo["notifyMsg"] || "";
+          CliqzLLogic.notify.notifyMsg = notifyMsg;
         }
       }
 
-      update_notify_pref(null, build_notify_info(is_notify, notify_msg));
+      updateNotifyPref(null, buildNotifyInfo(isNotify, notifyMsg));
     },
 
-    update_on_open_program_page: function () {  // turn off notification
-      var latest_stt = CliqzLLogic.mem_status.calStatus(CliqzStats.cliqz_usage_cached);
-      CliqzLLogic.notify.is_notify = false;
-      update_notify_pref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)), build_notify_info(false, CliqzLLogic.notify.notify_msg));
-      CORE.refreshCliqzStarButtons(ICONS.get_icon_browser(true, latest_stt["status"], false));
+    updateOnOpenProgramPage: function () {  // turn off notification
+      var latestStt = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
+      CliqzLLogic.notify.isNotify = false;
+      updateNotifyPref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)), buildNotifyInfo(false, CliqzLLogic.notify.notifyMsg));
+      CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], false));
     },
 
-    get_notify_info: function () {
+    getNotifyInfo: function () {
       var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
       return {
-        "is_notify": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG],
-        "notify_msg": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG]
+        "isNotify": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG],
+        "notifyMsg": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG]
       }
     },
 
-    on_unload: function () {
+    onUnload: function () {
       // reset notify msg to empty
-      if (CliqzLLogic.notify.notify_msg && !CliqzLLogic.notify.is_notify)
-        update_notify_pref(null, build_notify_info(false, ""));
-      CliqzLLogic.notify.notify_msg = "";
+      if (CliqzLLogic.notify.notifyMsg && !CliqzLLogic.notify.isNotify)
+        updateNotifyPref(null, buildNotifyInfo(false, ""));
+      CliqzLLogic.notify.notifyMsg = "";
     }
   },
 
-  update_data: function (data) {
-    CliqzLLogic.mem_status.update(data);
+  updateData: function (data) {
+    CliqzLLogic.memStatus.update(data);
 //        CliqzLLogic.badges.update(data);
   },
 
@@ -673,8 +674,8 @@ var CliqzLLogic = {
     return nCliqzUse || 0;
   },
 
-  on_unload: function () {
-    CliqzLLogic.notify.on_unload();
+  onUnload: function () {
+    CliqzLLogic.notify.onUnload();
   }
 };
 
@@ -683,43 +684,43 @@ var CliqzLLogic = {
  //------------------------------------------------------------------------------------//
  */
 
-var Cliqz_TERM = {
-  num_cons_fail_time_chk: ALERT_THRESHOLD_UPDATE_FAIL,
-  cal_term_of_year: function (m) {
+var CliqzTERM = {
+  numConnFailTimeChk: ALERT_THRESHOLD_UPDATE_FAIL,
+  calTermOfYear: function (m) {
     // @para m: 0,1,...11
     return Math.floor(m / 3);
   },
-  get_months_of_term: function (term) {
+  getMonthsOfTerm: function (term) {
     // @para: term: 0, 1, 2, 3 ()  - month in a year
     // NOTE: return monsth counting from 0 (to 11)
     return [0, 1, 2].map(function (c) {
       return 3 * term + c;
     })
   },
-  is_new_term: function (time_) {
+  isNewTerm: function (time_) {
     /*
      @para m: month, 0,1,...11
      @para update: = true (default): update the pref if it's a new term
      */
     var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false)),
-      t = Cliqz_TERM.cal_term_of_year(time_.m);
-    return t !== meta[CUR_TERM_Y];
+      t = CliqzTERM.calTermOfYear(time_.m);
+    return t > meta[CUR_TERM_Y] || (!t && meta[CUR_TERM_Y]);
   },
-  update_time: function (be_time) { // backend time
-    var t = be_time;
-    if (!be_time && Cliqz_TERM.num_cons_fail_time_chk > ALERT_THRESHOLD_UPDATE_FAIL) {
-      t = Cliqz_TERM.get_time_local();
-      Cliqz_TERM.num_cons_fail_time_chk = 0;
+  updateTime: function (BackendTime) { // backend time
+    var t = BackendTime;
+    if (!BackendTime && CliqzTERM.numConnFailTimeChk > ALERT_THRESHOLD_UPDATE_FAIL) {
+      t = CliqzTERM.getTimeLocal();
+      CliqzTERM.numConnFailTimeChk = 0;
     }
     if (t) {
-      if (Cliqz_TERM.is_new_term(t))
+      if (CliqzTERM.isNewTerm(t))
         CliqzStats.prepNewTerm(t);
-    } else Cliqz_TERM.num_cons_fail_time_chk += 1
+    } else CliqzTERM.numConnFailTimeChk += 1
   },
   /*
    * in case can't get time from the back-end, we use device time as the fall-back option
    */
-  get_time_local: function () {
+  getTimeLocal: function () {
     var t = new Date();
     return {
       'y': t.getUTCFullYear(),
@@ -736,7 +737,7 @@ var Cliqz_TERM = {
  //------------------------------------------------------------------------//
  */
 
-var db_wrapper = function (func, call_back) {
+var dbWrapper = function (func, callBack) {
   return function () {
     var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false)),
       day = CliqzUtils.getDay();
@@ -747,8 +748,8 @@ var db_wrapper = function (func, call_back) {
 
     setPersistent(db);
 
-    if (call_back) {
-      call_back();
+    if (callBack) {
+      callBack();
     }
 
     return ret;
@@ -769,20 +770,18 @@ var STATS_KEY = 'loyalty',
   EZ = 'cEZ';
 
 var CliqzStats = {
-  cur_db_term: -1,
-  max_store_term: 20,
-  cliqz_usage_cached: 0,
-  cliqz_db_cur_term_cached: null,
+  curDBTerm: -1,
+  maxStoreTerm: 20,
+  cliqzUsageCached: 0,
+  cliqzDBCurTermCached: null,
 
-
-
-  init_min: function () {
+  initMin: function () {
     CliqzStats.migrateDataV0();
-    CliqzStats.cur_db_term = CliqzStats.count_term() - 1;
+    CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
 
     // to avoid access to often to the db, we cache certain info here
-    var user_db = CliqzStats.get();
-    CliqzStats.cliqz_usage_cached = user_db["resultsCliqz"]["total"];
+    var userDB = CliqzStats.get();
+    CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
   },
 
   //subscribe to events
@@ -792,17 +791,17 @@ var CliqzStats = {
     CliqzEvents.sub('result_click', CliqzStats.cliqzSelectedResults);
     CliqzEvents.sub('result_enter', CliqzStats.cliqzSelectedResults);
 
-    CliqzStats.init_min();
+    CliqzStats.initMin();
 
     CliqzStats.migrateDataV0();
-    CliqzStats.cur_db_term = CliqzStats.count_term() - 1;
+    CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
 
     // to avoid access to often to the db, we cache certain info here
-    var user_db = CliqzStats.get();
-    CliqzStats.cliqz_usage_cached = user_db["resultsCliqz"]["total"];
+    var userDB = CliqzStats.get();
+    CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
   },
 
-  format_term_data_4_external: function (s) {
+  formatTermDataForExternal: function (s) {
     return {
       resultsGoogle: s.resultsGoogle,
       resultsCliqz: {
@@ -820,43 +819,43 @@ var CliqzStats = {
 
   get: function (term) {
     // @para: term 0,1,2... where 0 is the first term the user start using loyalty. Leave term = null for default: current term
-    var t = term === undefined ? CliqzStats.cur_db_term : term, s;
-    if (t === CliqzStats.cur_db_term && CliqzStats.cliqz_db_cur_term_cached)
-      s = CliqzStats.cliqz_db_cur_term_cached;
+    var t = term === undefined ? CliqzStats.curDBTerm : term, s;
+    if (t === CliqzStats.curDBTerm && CliqzStats.cliqzDBCurTermCached)
+      s = CliqzStats.cliqzDBCurTermCached;
     else {
       var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
       s = computeTerm(db, t);
-      if (t === CliqzStats.cur_db_term)
-        CliqzStats.cliqz_db_cur_term_cached = s;
+      if (t === CliqzStats.curDBTerm)
+        CliqzStats.cliqzDBCurTermCached = s;
     }
-    return CliqzStats.format_term_data_4_external(s);
+    return CliqzStats.formatTermDataForExternal(s);
   },
 
-  get_all_terms: function () {
-//    get_all_terms: db_wrapper(function(db){
+  getAllTerms: function () {
+//    getAllTerms: dbWrapper(function(db){
     var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
     var s = computeTerm(db, -1);
-    var data = CliqzStats.format_term_data_4_external(s["current"] || {});
+    var data = CliqzStats.formatTermDataForExternal(s["current"] || {});
     data["previous"] = {};
     Object.keys(s["previous"] || {}).forEach(function (term) {
-      data["previous"][term] = CliqzStats.format_term_data_4_external(s["previous"][term]);
+      data["previous"][term] = CliqzStats.formatTermDataForExternal(s["previous"][term]);
       data["previous"][term]["meta"] = s["previous"][term]["meta"] || {};
     });
     return data;
   },
 
-  count_term: function () {
+  countTerm: function () {
     var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
     return Object.keys(db).length;
   },
-//    count_term: db_wrapper(function(db){return Object.keys(db).length; }),
+//    countTerm: dbWrapper(function(db){return Object.keys(db).length; }),
 
   /*
    * Increment google selected results + total queries
    */
-  googleSelectedResults: db_wrapper(function (db, day) {
-    CliqzStats.cliqz_db_cur_term_cached = null;
-    var t = CliqzStats.cur_db_term;
+  googleSelectedResults: dbWrapper(function (db, day) {
+    CliqzStats.cliqzDBCurTermCached = null;
+    var t = CliqzStats.curDBTerm;
     db[t][day] = db[t][day] || {};
     db[t][day][G_SELECTED] = (db[t][day][G_SELECTED] || 0) + 1;
     //increment total number of searches
@@ -869,14 +868,14 @@ var CliqzStats = {
    * Increment cliqz selected results + total queries
    * Cliqz selected results = (autocompleted + click + enter)
    */
-  cliqzSelectedResults: db_wrapper(function (db, day, signal, meta) {  // todo: rethink on how to organize all this encodeResultType, VERTICAL_ENCODINGS, etc
-    CliqzStats.cliqz_db_cur_term_cached = null;
-    var t = CliqzStats.cur_db_term;
+  cliqzSelectedResults: dbWrapper(function (db, day, signal, meta) {  // todo: rethink on how to organize all this encodeResultType, VERTICAL_ENCODINGS, etc
+    CliqzStats.cliqzDBCurTermCached = null;
+    var t = CliqzStats.curDBTerm;
     db[t][day] = db[t][day] || {};
 
     db[t][day][C_SELECTED] = db[t][day][C_SELECTED] || {};
     db[t][day][C_SELECTED][TOTAL] = (db[t][day][C_SELECTED][TOTAL] || 0) + 1;
-    CliqzStats.cliqz_usage_cached += 1;
+    CliqzStats.cliqzUsageCached += 1;
 
     if (typeof signal.autocompleted !== 'undefined') {
       db[t][day][C_SELECTED][AUTO_COMPLETED] = (db[t][day][C_SELECTED][AUTO_COMPLETED] || 0) + 1;
@@ -895,43 +894,43 @@ var CliqzStats = {
   /*
    * Re-organizing the db when starting a new term
    */
-  prepNewTerm: db_wrapper(function (db, day, time_) {
+  prepNewTerm: dbWrapper(function (db, day, time_) {
     var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false));
 
-    if (CliqzStats.cur_db_term >= 0) {
-      db[CliqzStats.cur_db_term] = computeTerm(db, CliqzStats.cur_db_term);
-      db[CliqzStats.cur_db_term]["meta"] = cal_meta_term(meta[CUR_TERM_YEAR], meta[CUR_TERM_Y]);
+    if (CliqzStats.curDBTerm >= 0) {
+      db[CliqzStats.curDBTerm] = computeTerm(db, CliqzStats.curDBTerm);
+      db[CliqzStats.curDBTerm]["meta"] = calMetaTerm(meta[CUR_TERM_YEAR], meta[CUR_TERM_Y]);
 
-      set_meta_pref(Cliqz_TERM.cal_term_of_year(time_.m), time_.y);
+      setMetaPref(CliqzTERM.calTermOfYear(time_.m), time_.y);
     }
-    CliqzStats.cur_db_term += 1;
-    db[CliqzStats.cur_db_term] = {};
+    CliqzStats.curDBTerm += 1;
+    db[CliqzStats.curDBTerm] = {};
 
     // cleaning up db if it contains too many terms
     var termsID = Object.keys(db);
-    if (termsID.length > CliqzStats.max_store_term) {
+    if (termsID.length > CliqzStats.maxStoreTerm) {
 
-      var low_bound = CliqzStats.cur_db_term - CliqzStats.max_store_term + 1;
+      var lowBound = CliqzStats.curDBTerm - CliqzStats.maxStoreTerm + 1;
       termsID.forEach(function (id) {
-        if (parseInt(id) < low_bound)
+        if (parseInt(id) < lowBound)
           delete db[id];
       });
     }
 
-    CliqzStats.cliqz_db_cur_term_cached = null;
+    CliqzStats.cliqzDBCurTermCached = null;
   }),
 
   /*
    * Migrate old db structure to the new one
    */
-  migrateDataV0: db_wrapper(function (db, day) {
-    if (db && db[CliqzStats.count_term() - 1] === undefined) {
+  migrateDataV0: dbWrapper(function (db, day) {
+    if (db && db[CliqzStats.countTerm() - 1] === undefined) {
       var date_ = new Date(),
         N = date_.getUTCMonth() % 3 === 0 ? 7 : 30,
         td = {},
-        term = Cliqz_TERM.cal_term_of_year(date_.getUTCMonth());
-      set_meta_pref(term, date_.getUTCFullYear());
-      CliqzStats.cur_db_term = 0;
+        term = CliqzTERM.calTermOfYear(date_.getUTCMonth());
+      setMetaPref(term, date_.getUTCFullYear());
+      CliqzStats.curDBTerm = 0;
       for (var i = day; i > day - N; i--) {
         var d = db[i];
         if (!d)continue;
@@ -946,7 +945,7 @@ var CliqzStats = {
   })
 };
 
-function cal_meta_term(y, t) {
+function calMetaTerm(y, t) {
   /*
    * @para y: year (full)
    * @para t: term of the year (0,1,2,3)
@@ -954,12 +953,12 @@ function cal_meta_term(y, t) {
   return {
     'y': y,  // year
     'ty': t,  // term of the year
-    'ms': Cliqz_TERM.get_months_of_term(t)// months in the term
+    'ms': CliqzTERM.getMonthsOfTerm(t)// months in the term
   };
 }
 
 var VERTICALS = Object.keys(CliqzUtils.VERTICAL_TEMPLATES);
-CliqzUtils.log(VERTICALS, "THUY ---- VERTICALs");
+
 function isBMResult(signal, meta) {
   return signal.position_type && signal.position_type[0] && (signal.position_type[0][0] === 'm' || (meta && (VERTICALS || []).indexOf(signal.position_type[0][0]) >= 0));
 }
@@ -972,13 +971,13 @@ function isEZResult(signal) {
   return signal.position_type && signal.position_type[0] && signal.position_type[0][0] === 'X';
 }
 
-function computeTerm(db, term_idx) {
+function computeTerm(db, termIdx) {
   /*
-   *   @para: term_idx int, (used in the db as string), leave term_idx = -1 to get all terms in the db
+   *   @para: termIdx int, (used in the db as string), leave termIdx = -1 to get all terms in the db
    */
-  var c = db[term_idx] || {};
+  var c = db[termIdx] || {};
   var summary = {};
-  if (term_idx === CliqzStats.cur_db_term) {
+  if (termIdx === CliqzStats.curDBTerm) {
     summary = {
       resultsGoogle: 0,
       resultsCliqzTotal: 0,
@@ -1005,11 +1004,11 @@ function computeTerm(db, term_idx) {
       }
     })
   } else {
-    if (term_idx === -1) {
-      summary["current"] = computeTerm(db, CliqzStats.cur_db_term);
+    if (termIdx === -1) {
+      summary["current"] = computeTerm(db, CliqzStats.curDBTerm);
       summary["previous"] = {};
       Object.keys(db).forEach(function (d) {
-        if (d !== CliqzStats.cur_db_term + "")
+        if (d !== CliqzStats.curDBTerm + "")
           summary["previous"][d] = db[d];
       })
     }
@@ -1031,8 +1030,8 @@ function setPersistent(val) {
 var CliqzLoyalty = {
   VERSION: "TTAM15",
 
-  init_min: function () {
-    CliqzStats.init_min();
+  initMin: function () {
+    CliqzStats.initMin();
     CliqzLLogic.init();
   },
 
@@ -1041,128 +1040,128 @@ var CliqzLoyalty = {
     CliqzLLogic.init();
     CLIQZ_OBSERVER.init();
 
-    CliqzStatsGlobal.fetch_data();
+    CliqzStatsGlobal.fetchData();
     CliqzStatsGlobal.cron();
   },
 
   unload: function () {
-    CliqzLLogic.on_unload();
+    CliqzLLogic.onUnload();
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
     CLIQZ_OBSERVER.unload();
     CORE.unload();
   },
 
-  on_browser_icon_click: function () {
+  onBrowserIconClick: function () {
     // disable notification icon
-    CliqzLLogic.notify.update_on_open_program_page();
+    CliqzLLogic.notify.updateOnOpenProgramPage();
   },
 
   // ----------- serving data to the UI -----------------//
-  prepare_data_for_ui: function (user_stat) {
+  prepareDataForUI: function (userStat) {
     var stat,
       hmw = CliqzUtils.getPref('dnt', false) ? 0 : 1,
       point, awards, status;
 
-    awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prep_calBadges(user_stat, hmw));
+    awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(userStat, hmw));
 
-    point = CliqzLLogic.calPoint(user_stat.resultsCliqz.total) || 0;
-    status = CliqzLLogic.mem_status.calStatus(point);
-    user_stat['hmw'] = hmw;
+    point = CliqzLLogic.calPoint(userStat.resultsCliqz.total) || 0;
+    status = CliqzLLogic.memStatus.calStatus(point);
+    userStat['hmw'] = hmw;
     stat = {
-      joined: CliqzLoyalty.has_joined(),
-      data: user_stat,
-      mem_ship: {
+      joined: CliqzLoyalty.hasJoined(),
+      data: userStat,
+      membership: {
         point: point,
         status: status,
         awards: awards
       },
-      meter_total_use: {
+      meterTotalUse: {
         metric: CliqzStatsGlobal.CliqzUsage.metric,
         name: CliqzStatsGlobal.CliqzUsage.name
       },
-      msg_all: CliqzStatsGlobal.message_all,
-      msg_notify: CliqzLLogic.notify.get_notify_info()
+      msgAll: CliqzStatsGlobal.messageAll,
+      msgNotify: CliqzLLogic.notify.getNotifyInfo()
     };
 
 //    CliqzUtils.log(stat, "THUY--------- stat for Loyalty");
     return stat;
   },
 
-  get_all_stat_current_term: function () {
-    return CliqzLoyalty.prepare_data_for_ui(CliqzStats.get());
+  getAllStatCurrentTerm: function () {
+    return CliqzLoyalty.prepareDataForUI(CliqzStats.get());
   },
 
-  get_all_stat: function () {
-    return CliqzLoyalty.prepare_data_for_ui(CliqzStats.get_all_terms());
+  getAllStat: function () {
+    return CliqzLoyalty.prepareDataForUI(CliqzStats.getAllTerms());
   },
 
-  get_badges_info: function () {
-    return CliqzLLogic.badges.get_badges_info(CliqzLLogic.badges.prep_calBadges(CliqzStats.get(), null));
+  getBadgesInfo: function () {
+    return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
 //        return CliqzStatsGlobal.CliqzBadges;
   },
 
-  get_badge_code: function () {
+  getBadgeCode: function () {
     return CliqzLLogic.badges.badgeCode;
   },
 
-  get_mem_status: function () {
+  getMemStatus: function () {
     /*
      * return null: have not joined the program
      */
     var stt = null;
-    if (CliqzLoyalty.has_joined()) {
+    if (CliqzLoyalty.hasJoined()) {
       var user_stat = CliqzStats.get(),
         point = CliqzLLogic.calPoint(user_stat.resultsCliqz.total);
-      stt = CliqzLLogic.mem_status.calStatus(point);
+      stt = CliqzLLogic.memStatus.calStatus(point);
     }
     return stt;
   },
 
-  get_mem_status_meta: function () {
-//        status_name : ["MEMBER", "BUDDY", "HERO", "LEGEND"],
+  getMemStatusMeta: function () {
+//        statusName : ["MEMBER", "BUDDY", "HERO", "LEGEND"],
 //        status_description: {"MEMBER": "1st level", "BUDDY": "2nd level", "HERO": "3rd level", "LEGEND": "Highest level"},
-//        status_benchmark: {"MEMBER": 0, "BUDDY": 100, "HERO": 250, "LEGEND": 750},
+//        statusBenchmark: {"MEMBER": 0, "BUDDY": 100, "HERO": 250, "LEGEND": 750},
 
-    var m = CliqzLLogic.mem_status,
-      icons = ICONS.get_icon_member_stt(null);
+    var m = CliqzLLogic.memStatus,
+      icons = ICONS.getIconMemberStt(null);
 
-    return m.status_name.map(function (stt_name) {
+    return m.statusName.map(function (stt_name) {
       return {
         "name": stt_name,
         "des": m.status_description[stt_name] || "",
-        "do": m.status_todo[stt_name] || "",
-        "bench_mark": m.status_benchmark[stt_name] || "_",
+        "do": m.statusTodo[stt_name] || "",
+        "bench_mark": m.statusBenchmark[stt_name] || "_",
         "icon": icons[stt_name] || {}
       }
     });
   },
 
-  has_joined: function () {
+  hasJoined: function () {
     return CORE.getPref('participateLoyalty') === true
   },
 
-  get_browser_button_ID: function () {
+  getBrowserButtonID: function () {
     return ICONS.BTN_ID;
   },
 
   // identify which icon to used for the browser
-  get_browser_icon: function (is_notifier) {
+  getBrowserIcon: function (is_notifier) {
     /*
      * @para is_notifier: true if we want a notifier, else false (default)
      */
 
-    var status = CliqzLoyalty.get_mem_status();
+    var status = CliqzLoyalty.getMemStatus();
     if (status) {
       var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
       is_notifier = (tmp[NOTIFY_INFO] || {} )[NOTIFY_FLAG] || false;
     }
 
-    return status ? ICONS.get_icon_browser(true, status["status"], is_notifier) : ICONS.get_icon_browser(false);
+    return status ? ICONS.getIconBrowser(true, status["status"], is_notifier) : ICONS.getIconBrowser(false);
   },
 
   test: function (f_name) {
-    return CliqzLLogic.mem_status;
+    return CliqzLLogic.memStatus;
   },
 
   setPref: function (pref, val) {

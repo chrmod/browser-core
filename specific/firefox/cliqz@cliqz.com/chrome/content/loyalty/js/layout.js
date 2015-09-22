@@ -38,27 +38,27 @@ SCRIPTS.layout = function () {
   });
 
   //------------------- Helper functions ----------------//
-  function clz_hide_element_by_id(itemID) {
+  function clzHideElementById(itemID) {
     var el = document.getElementById(itemID);
     el.style.display = 'none';
     el.setAttribute("closed", "1");
   }
 
-  window.clz_hide_element_by_id = clz_hide_element_by_id;
+  window.clzHideElementById = clzHideElementById;
 
-  function clz_activate_humanweb_close_optin(optinID) {
+  function clzActivateHumanwebCloseOptin(optinID) {
     CliqzUtils.setPref("dnt", false);
     CliqzUtils.getWindow().CLIQZ.Core.refreshButtons();
-    clz_hide_element_by_id(optinID);
+    clzHideElementById(optinID);
   }
 
-  window.clz_activate_humanweb_close_optin = clz_activate_humanweb_close_optin;
+  window.clzActivateHumanwebCloseOptin = clzActivateHumanwebCloseOptin;
 
   function optinLoyalty(optinID) {
     CliqzLoyalty.setPref('participateLoyalty', true);
     CliqzLoyalty.init();
 //    document.location.reload(true);
-    clz_hide_element_by_id(optinID);
+    clzHideElementById(optinID);
   }
 
   window.optinLoyalty = optinLoyalty;

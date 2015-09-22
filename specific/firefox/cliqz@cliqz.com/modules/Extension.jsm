@@ -65,11 +65,11 @@ var Extension = {
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
-        if(CliqzLoyalty.has_joined()) {
+        if(CliqzLoyalty.hasJoined()) {
             CliqzLoyalty.init();
         }else{
             CliqzLoyalty.setPref('participateLoyalty', false);
-            CliqzLoyalty.init_min();
+            CliqzLoyalty.initMin();
         }
 
         CliqzClusterHistory.init();
@@ -297,7 +297,7 @@ var Extension = {
     },
 
     addCliqzStarButton: function(win, needPlaceHolder){
-        var btn_id = CliqzLoyalty.get_browser_button_ID();
+        var btn_id = CliqzLoyalty.getBrowserButtonID();
         if (needPlaceHolder)
             ToolbarButtonManager.setDefaultPosition(btn_id, 'nav-bar', BTN_ID);
 
@@ -305,11 +305,11 @@ var Extension = {
         button.setAttribute('id', btn_id);
         button.setAttribute('tooltiptext', 'CLIQZ Star');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.setAttribute('image', CliqzLoyalty.get_browser_icon(false));
+        button.setAttribute('image', CliqzLoyalty.getBrowserIcon(false));
         button.addEventListener("command",
             function(ev){
                 CLIQZEnvironment.openTabInWindow(win, 'chrome://cliqz/content/loyalty/index.html');
-                CliqzLoyalty.on_browser_icon_click();
+                CliqzLoyalty.onBrowserIconClick();
             }
             , false);
 

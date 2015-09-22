@@ -4,10 +4,10 @@ window.SCRIPTS["results-usage"] = {
   stats: null,
 
   model: function () {
-    var cliqz_loyal_data = CliqzLoyalty.get_all_stat();
+    var cliqz_loyal_data = CliqzLoyalty.getAllStat();
     // Best-record in Cliqz Usage meter:
-    //cliqz_loyal_data.meter_total_use.break_best_record = cliqz_loyal_data.data.resultsCliqz.total > cliqz_loyal_data.meter_total_use.metric[cliqz_loyal_data.meter_total_use.metric.length-1].val; 17Oct2015 - new decision: not to show congrat box, automatically update this record (users don't need to contact us)
-    cliqz_loyal_data.meter_total_use.break_best_record = false;
+    //cliqz_loyal_data.meterTotalUse.break_best_record = cliqz_loyal_data.data.resultsCliqz.total > cliqz_loyal_data.meterTotalUse.metric[cliqz_loyal_data.meterTotalUse.metric.length-1].val; 17Oct2015 - new decision: not to show congrat box, automatically update this record (users don't need to contact us)
+    cliqz_loyal_data.meterTotalUse.break_best_record = false;
 
     // prepare additional data for previous quarters
     var pr = cliqz_loyal_data.data.previous;
@@ -30,13 +30,12 @@ window.SCRIPTS["results-usage"] = {
   },
 
   ready: function (stats) {
-    var self = window.SCRIPTS["results-usage"];
     var el = document.getElementById("cqz-usage-cur-term");
-    self.current_shown_term = el;
+    this.current_shown_term = el;
     el.style.backgroundColor = "#006567";
 
-    self.draw_charts(stats);
-    self.stats = stats;
+    this.draw_charts(stats);
+    this.stats = stats;
   },
 
   //------------ NORMAL (no d3 svg) EVENT HANDLERS ---------------//
@@ -54,9 +53,8 @@ window.SCRIPTS["results-usage"] = {
   //------------ Chart (d3.js svg) drawing ---------------//
 
   draw_charts: function (stats) {
-    var self = window.SCRIPTS["results-usage"];
-    self.draw_usage_charts(stats.data);
-    self.draw_your_vs_others_charts(stats);
+    this.draw_usage_charts(stats.data);
+    this.draw_your_vs_others_charts(stats);
   },
 
   draw_usage_charts: function (stats_term) {
@@ -200,8 +198,8 @@ window.SCRIPTS["results-usage"] = {
     var mt_CUse = {  // meter Cliqz Usage
       data: {
         user: {'val': stats.data.resultsCliqz.total},
-        metric: stats.meter_total_use.metric,
-        name: stats.meter_total_use.metric.name  //"Total Cliqz-Use"
+        metric: stats.meterTotalUse.metric,
+        name: stats.meterTotalUse.metric.name  //"Total Cliqz-Use"
       },
 
       width: 250, height: 450,
@@ -213,7 +211,8 @@ window.SCRIPTS["results-usage"] = {
     mt_CUse.bar_CU = new CliqzUseMeterBarChart();
     mt_CUse.bar_CU.draw(mt_CUse.svg, mt_CUse.data);
 
-    // ------------draw pie chart Cliqz Frequent Use ---------------- remove in Aug. 2015//
+    // ------------draw pie chart Cliqz Frequent Use ---------------- temporarily remove in Aug. 2015.//
+    // todo: remove this code if this chart is not likely to return to the program
 //        var mt_CT = {  // meter Cliqz Frequent Use
 //            data: {
 //                name: "Frequent CLIQZ-Use",
