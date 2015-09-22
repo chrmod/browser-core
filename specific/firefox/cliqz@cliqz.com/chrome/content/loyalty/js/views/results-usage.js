@@ -15,7 +15,7 @@ window.SCRIPTS["results-usage"] = {
       return (a.length - b.length) || (a - b);
     });
 
-    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+    var months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez" ];
 
     // the name of the term (e.g. Jan-Mar '15)
     cliqz_loyal_data.data["pre_term_list"] = term_list.map(function (term_idx) {
@@ -93,6 +93,7 @@ window.SCRIPTS["results-usage"] = {
       pie_CvsG: null, // pie_CvsG = Cliqz vs Gooogle
       svg: null
     };
+
     usage.x0 = usage.width / 2;
 
     window.SCRIPTS["results-usage"].current_usage_charts_cfg = usage;
