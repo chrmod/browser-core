@@ -1009,7 +1009,7 @@ window.CLIQZ.Core = {
                     CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'cliqz_menu_button',
-                        menu_item: btnName
+                        button_name: btnName
                     });
                     func();
                 },
