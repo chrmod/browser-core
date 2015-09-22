@@ -97,14 +97,6 @@ SCRIPTS.layout = function () {
     setActiveItem(navItem);
   });
 
-//  $('.cqz-optin-btn').click(function () {
-//    CliqzUtils.setPref('participateLoyalty', true);
-//    CliqzLoyalty.init();
-//    document.location.reload(true);
-//    CliqzUtils.log("FINSIH THUY");
-//    optin.close();
-//  });
-
   $('.toggle-btn').click(function () {
     $('#menu').toggleClass('active');
     $("html, body").animate({

@@ -1558,8 +1558,6 @@ function resultClick(ev) {
                     copyResult(document.getElementById('calc-answer').innerHTML);
                     document.getElementById('calc-copied-msg').style.display = "";
                     document.getElementById('calc-copy-msg').style.display = "none";
-                    //publish result_click
-//                    CliqzEvents.pub("result_click", {action: "result_click"});
                     break;
                 case 'toggle':
                     var toggleId = el.getAttribute('toggle-id');

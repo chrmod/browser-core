@@ -24,9 +24,6 @@ window.SCRIPTS["results-usage"] = {
             };
         });
 
-
-        CliqzUtils.log(cliqz_loyal_data, 'THUY------ data for result_usage');
-
         return Promise.resolve(cliqz_loyal_data);
     },
 
@@ -43,7 +40,6 @@ window.SCRIPTS["results-usage"] = {
     //------------ NORMAL (no d3 svg) EVENT HANDLERS ---------------//
 
     navigate_terms: function (el, term_idx){
-        CliqzUtils.log(term_idx,"THUY----- clicking");
         var self = window.SCRIPTS["results-usage"];
         el.style.backgroundColor = "#006567";
         if (self.current_shown_term && self.current_shown_term !==el)

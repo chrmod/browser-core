@@ -76,7 +76,9 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
           ['wetter m', 'wetter ber', 'bier',
            'http://www.imdb.com/title/tt0499549', 'imdb ava',
            'http://allrecipes.com/Recipe/Beef-Pho',
-           'http://www.imdb.com/title/tt0121766']
+           'http://www.imdb.com/title/tt0121766',
+           'bayern muenchen'
+          ]
     };
 
     var i = 0;

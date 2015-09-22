@@ -792,12 +792,12 @@ var CliqzStats = {
 
     CliqzStats.init_min();
 
-//        CliqzStats.migrateDataV0();  THUY
-//        CliqzStats.cur_db_term = CliqzStats.count_term() - 1;
-//
-//        // to avoid access to often to the db, we cache certain info here
-//        var user_db = CliqzStats.get();
-//        CliqzStats.cliqz_usage_cached = user_db["resultsCliqz"]["total"];
+    CliqzStats.migrateDataV0();
+    CliqzStats.cur_db_term = CliqzStats.count_term() - 1;
+
+    // to avoid access to often to the db, we cache certain info here
+    var user_db = CliqzStats.get();
+    CliqzStats.cliqz_usage_cached = user_db["resultsCliqz"]["total"];
   },
 
   format_term_data_4_external: function (s) {
