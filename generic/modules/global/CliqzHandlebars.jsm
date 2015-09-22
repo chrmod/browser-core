@@ -471,15 +471,4 @@ function registerHelpers(){
         return new Handlebars.SafeString(result);
     });
 
-    //---- for loyalty program-------//
-    Handlebars.registerHelper('format_str', function(ret) {
-        if(arguments.length>1){
-          var i = 1, args = arguments;
-          ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
-        }
-
-        return ret;
-    });
-
-    //---- END for loyalty program-------//
 }

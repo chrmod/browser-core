@@ -412,6 +412,10 @@ var CliqzLLogic = {
     statusBenchmark: {"MEMBER": 0, "BUDDY": 100, "HERO": 250, "LEGEND": 750},
     statusCongratsMsg: {},
 
+    buildStatusTodoMsg: function(sttName){
+      return String.format(CliqzLLogic.memStatus.statusTodo[sttName], CliqzLLogic.memStatus.statusBenchmark[sttName])
+    },
+
     currentStatus: "",
 
     calStatus: function (point) {
@@ -1126,13 +1130,13 @@ var CliqzLoyalty = {
     var m = CliqzLLogic.memStatus,
       icons = ICONS.getIconMemberStt(null);
 
-    return m.statusName.map(function (stt_name) {
+    return m.statusName.map(function (sttName) {
       return {
-        "name": stt_name,
-        "des": m.status_description[stt_name] || "",
-        "do": m.statusTodo[stt_name] || "",
-        "bench_mark": m.statusBenchmark[stt_name] || "_",
-        "icon": icons[stt_name] || {}
+        "name": sttName,
+        "des": m.status_description[sttName] || "",
+        "do": m.buildStatusTodoMsg(sttName) || "",
+        "bench_mark": m.statusBenchmark[sttName] || "_",
+        "icon": icons[sttName] || {}
       }
     });
   },

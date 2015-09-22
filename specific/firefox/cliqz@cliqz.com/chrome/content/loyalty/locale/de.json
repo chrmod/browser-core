@@ -25,9 +25,9 @@
     },
     "MEM_STATUS_TODO": {
         "MEMBER": "Trete dem CLIQZ for Glory Programm bei!",
-        "BUDDY": "Verdiene dir {} Punkte",
-        "HERO": "Steigere dein Punktekonto auf {} Punkte",
-        "LEGEND": "Erreiche {} Punkte"
+        "BUDDY": "Verdiene dir {0} Punkte",
+        "HERO": "Steigere dein Punktekonto auf {0} Punkte",
+        "LEGEND": "Erreiche {0} Punkte"
     },
     "MEM_STATUS_CONGRATS_MSG": {
         "MEMBER": "",
