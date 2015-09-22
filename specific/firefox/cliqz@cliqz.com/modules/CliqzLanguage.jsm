@@ -109,7 +109,7 @@ var CliqzLanguage = {
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
             var isRequestSuccessful = aRequest && aStateFlag &&
                     Ci.nsIWebProgressListener.STATE_STOP && !aStatus,
-                isGoogleRef = CliqzLanguage.regexGoogleRef.test(aRequest.name);
+                isGoogleRef = aRequest && CliqzLanguage.regexGoogleRef.test(aRequest.name);
 
             if (!isRequestSuccessful || !isGoogleRef) {
                 return;
