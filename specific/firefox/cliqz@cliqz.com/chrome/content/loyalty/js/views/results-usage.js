@@ -30,10 +30,7 @@ window.SCRIPTS["results-usage"] = {
   },
 
   ready: function (stats) {
-    var el = document.getElementById("cqz-usage-cur-term");
-    this.current_shown_term = el;
-    el.style.backgroundColor = "#006567";
-
+    this.current_shown_term = document.getElementById("cqz-usage-cur-term");
     this.draw_charts(stats);
     this.stats = stats;
   },
@@ -42,9 +39,10 @@ window.SCRIPTS["results-usage"] = {
 
   navigate_terms: function (el, term_idx) {
     var self = window.SCRIPTS["results-usage"];
-    el.style.backgroundColor = "#006567";
+
+    el.setAttribute("data-shown", true);
     if (self.current_shown_term && self.current_shown_term !== el)
-      self.current_shown_term.style.backgroundColor = "#A8D8D1";
+      self.current_shown_term.setAttribute("data-shown", false);
     self.current_shown_term = el;
 
     self.draw_usage_charts(term_idx === null ? self.stats.data : self.stats.data.previous[term_idx]);
@@ -65,25 +63,46 @@ window.SCRIPTS["results-usage"] = {
       data: [
         {
           "data": [
-            {"val": stats_term.resultsCliqz.total, "til": ["Mit", "CLIQZ"]},
-            {"val": stats_term.resultsGoogle, "til": ["Mit anderen", "Suchmaschinen"]}
+            {
+              "val": stats_term.resultsCliqz.total,
+              "til": ["Mit", "CLIQZ"]
+            },
+            {
+              "val": stats_term.resultsGoogle,
+              "til": ["Mit anderen", "Suchmaschinen"]
+            }
           ],
           "center_name": ["ABSOLUTE", "SUCHANFRAGEN"],
           "name": "CLIQZ-Nutzung"
         },  // use, not use Cliqz result
         {
           "data": [
-            {"val": stats_term.resultsCliqz.active, "til": ["Mit", "Dropdown-Auswahl"]},
-            {"val": stats_term.resultsCliqz.auto, "til": ["Mit", "Autocomplete"]}
+            {
+              "val": stats_term.resultsCliqz.active,
+              "til": ["Mit", "Dropdown-Auswahl"]
+            },
+            {
+              "val": stats_term.resultsCliqz.auto,
+              "til": ["Mit", "Autocomplete"]
+            }
           ],
           "center_name": ["CLIQZ", "SUCHANFRAGEN"],
           "name": "CLIQZ-Vorschläge"
         },
         {
           "data": [
-            {"val": stats_term.resultsCliqz.bigMachine, "til": ["Mit", "einfachem Ergebnis"]},
-            {"val": stats_term.resultsCliqz.ez, "til": ["Mit", "SmartCliqz"]},
-            {"val": stats_term.resultsCliqz.history, "til": ["Mit", "Chronik"]}
+            {
+              "val": stats_term.resultsCliqz.bigMachine,
+              "til": ["Mit", "einfachem Ergebnis"]
+            },
+            {
+              "val": stats_term.resultsCliqz.ez,
+              "til": ["Mit", "SmartCliqz"]
+            },
+            {
+              "val": stats_term.resultsCliqz.history,
+              "til": ["Mit", "Chronik"]
+            }
           ],
           "center_name": ["CLIQZ", "AUSWAHL"],
           "name": "CLIQZ-Ergebnisse"

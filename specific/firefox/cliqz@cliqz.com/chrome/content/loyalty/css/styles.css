@@ -338,12 +338,18 @@ a {
 }
 
 .cqz-label-1item {
-    /*background-color:  ; #006567;*/
-    background-color: #A8D8D1;
     padding: 6px 10px;
     margin-right: 20px;
     margin-bottom: 10px;
     cursor: pointer;
+}
+
+.cqz-label-1item[data-shown=true] {
+    background-color: #006567;
+}
+
+.cqz-label-1item[data-shown=false] {
+    background-color: #A8D8D1;
 }
 
 #CliqzAwardBoard_div {
