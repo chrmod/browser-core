@@ -1,5 +1,5 @@
 /**
- * thuy@cliqz.com 10/09/15.
+ * thuy@cliqz.com 22/09/15.
  */
 
 'use strict';
