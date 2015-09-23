@@ -1,6 +1,6 @@
 {{> notifications-top }}
 <div class="clz-loyalty-headline">Deine CLIQZ-Übersicht!</div>
-<hr class="cqz-hr" />
+<hr class="cqz-hr"/>
 
 <div class="cqz-loyalty-dashboard start-content">
   {{> optin }}
@@ -11,16 +11,16 @@
     </div>
 
     <div id="CliqzAwardBoard_div" class="cqz-loyalty-container">
-        {{#each membership.awards.awardList}}
-            <div class="wrapper award_container">
-                <div class="award_icon_div"><img class="award_icon" src="{{img}}"/></div>
-                <div class="{{#unless st}}award_sub_locked{{/unless}} award_sub">{{name}}</div>
-                {{#unless st}}
-                    <div class="award_sub_locked">(Gesperrt)</div>
-                {{/unless}}
-                <div class="tooltip">{{des}}</div>
-            </div>
-        {{/each}}
+      {{#each membership.awards.awardList}}
+      <div class="wrapper award_container">
+        <div class="award_icon_div"><img class="award_icon" src="{{img}}"/></div>
+        <div class="{{#unless st}}award_sub_locked{{/unless}} award_sub">{{name}}</div>
+        {{#unless st}}
+        <div class="award_sub_locked">(Gesperrt)</div>
+        {{/unless}}
+        <div class="tooltip">{{des}}</div>
+      </div>
+      {{/each}}
     </div>
   </div>
 
@@ -30,17 +30,17 @@
     </div>
 
     <div class="cqz-loyalty-container">
-        {{#each msgAll}}
-        <div class="notifications">
-            <div class="notify_content">
-              <div class="notify_icon clz_float_left"><img src="images/{{this.icon}}" /> </div>
-              <div class="notify_msg clz_float_left">
-                   {{this.msg}}
-              <div class="clz_clear_left"></div>
-            </div>
-            </div>
+      {{#each msgAll}}
+      <div class="notifications">
+        <div class="notify_content">
+          <div class="notify_icon clz_float_left"><img src="images/{{this.icon}}"/></div>
+          <div class="notify_msg clz_float_left">
+            {{this.msg}}
+            <div class="clz_clear_left"></div>
+          </div>
         </div>
-        {{/each}}
+      </div>
+      {{/each}}
     </div>
   </div>
 
