@@ -12,7 +12,7 @@ if (!String.format) {
   String.format = function (format) {
     var args = Array.prototype.slice.call(arguments, 1);
     return format.replace(/{(\d+)}/g, function (match, number) {
-      return typeof args[number] != 'undefined'
+      return typeof args[number] != "undefined"
         ? args[number]
         : match
         ;
@@ -33,7 +33,7 @@ function CliqzUseMeterBarChart() {
     align_st: {"stroke": "rgb(49,130,189)", "stroke-width": 1, "stroke-dasharray": "5,5", "fill": "none"}};
   self.axis = {spacing: 3, // spacing between elements, e..g the tick - text - icon
     x0_left: 5, w: 10, stl: {"fill": "none", "stroke": "#f8458f", "stroke-width": 1},
-    txtl_stl: {"fill": "#f8458f", "text-anchor": "end"}, // text left style , "font-size": '12px'
+    txtl_stl: {"fill": "#f8458f", "text-anchor": "end"}, // text left style , "font-size": "12px"
     icon: {w: 22, h: 22}  // the icon on the left of the y-axis text (if any icon)
   };
   self.bname = {  y0: 55,
@@ -50,10 +50,10 @@ function CliqzUseMeterBarChart() {
 }
 
 CliqzUseMeterBarChart.prototype.draw = function (svg, data) {
-  var self = this;
-  var user = data["user"];
-  var metric = data["metric"], total = Math.max(metric[metric.length - 1]["val"], user["val"]);
-  var bar_name = data["name"];
+  var self = this,
+    user = data["user"],
+    metric = data["metric"], total = Math.max(metric[metric.length - 1]["val"], user["val"]);
+//  var bar_name = data["name"];
   // ------------ prepare data
   metric.forEach(function (d) {
     d["y"] = Math.round(self.y0 + self.bar.h - d["val"] * self.bar.h / total);
@@ -67,15 +67,15 @@ CliqzUseMeterBarChart.prototype.draw = function (svg, data) {
   //   the y-grid line
 //    svg.selectAll(".barAlign").data(metric).enter().append("svg:path").attr("class","barAlign")
 //        .attr("d", function(d){
-//            return String.format("M{0} {1} H{2}", ''+(self.x0+self.x1), ''+d["y"], ''+(self.x0+self.x1+self.bar.w));
+//            return String.format("M{0} {1} H{2}", ""+(self.x0+self.x1), ""+d["y"], ""+(self.x0+self.x1+self.bar.w));
 //        })
 //        .style(self.bar.align_st);
 
   // ----------- draw the y axis
-//    svg.append("svg:path").attr("d", function(){return String.format("M{0} {1} V{2}", ''+self.x0, ''+self.y0, ''+(self.y0+self.bar.h));}).style(self.axis.stl);
+//    svg.append("svg:path").attr("d", function(){return String.format("M{0} {1} V{2}", ""+self.x0, ""+self.y0, ""+(self.y0+self.bar.h));}).style(self.axis.stl);
   var ticks = svg.selectAll(".yTick").data(metric).enter().append("svg:g");
   ticks.append("svg:path").attr("d", function (d) {
-    return String.format("M{0} {1} H{2}", '' + (self.x0 - self.axis.w - self.axis.x0_left), '' + d["y"], '' + (self.x0 - self.axis.x0_left))
+    return String.format("M{0} {1} H{2}", "" + (self.x0 - self.axis.w - self.axis.x0_left), "" + d["y"], "" + (self.x0 - self.axis.x0_left))
   })
     .style(self.axis.stl);
 
@@ -159,7 +159,7 @@ CliqzMeterPieChart.prototype.drawPie = function (svg, data) {
   if (data["norm"] === 0) return 0;
   var self = this;
   var data_l = [data["val"], data["norm"] - data["val"]]; // data_list
-  var renderarcs = svg.selectAll('.arc_g').data(self.pie(data_l)).enter().append("svg:g").attr('class', 'arc_g');
+  var renderarcs = svg.selectAll(".arc_g").data(self.pie(data_l)).enter().append("svg:g").attr("class", "arc_g");
   renderarcs.append("svg:path").attr("d", self.arc).style("fill", function (d, i) {
     return self.color[i];
   });
@@ -195,10 +195,10 @@ function CliqzUsePieChart_V1(r1, r0) {
     return self.color_PIE_LIST[idx % self.color_PIE_LIST.length];
   };
   self.legend_ = [
-    { 'tx_c': [6, -3], 'tx-a': "start"},  // top right
-    { 'tx_c': [6, 12], 'tx-a': "start"},  // bottom right
-    { 'tx_c': [-6, 12], 'tx-a': "end"},  // bottom left
-    { 'tx_c': [-6, -3], 'tx-a': "end"}  // top left
+    { "tx_c": [6, -3], "tx-a": "start"},  // top right
+    { "tx_c": [6, 12], "tx-a": "start"},  // bottom right
+    { "tx_c": [-6, 12], "tx-a": "end"},  // bottom left
+    { "tx_c": [-6, -3], "tx-a": "end"}  // top left
   ];
   self.story = {h: 80, w: 340};
   self.title = {y0: 50,  // g: distance from the top of the pie to the bottom of the title
@@ -220,52 +220,52 @@ CliqzUsePieChart_V1.prototype.drawPie = function (svg, data_) {
   }, 0);
   if (total === 0) return 0;
   var self = this;
-  var renderarcs = svg.selectAll('.arc_g').data(self.pie(data)).enter().append("svg:g").attr('class', 'arc_g');
+  var renderarcs = svg.selectAll(".arc_g").data(self.pie(data)).enter().append("svg:g").attr("class", "arc_g");
   renderarcs.append("svg:path")
     .attr("d", self.arc0).style("fill", "white")
     .transition().duration(1000).delay(100)
     .attr("d", self.arc).style("fill", function (d, i) {
-      d['color'] = self.color(i);
-      return d['color'];
+      d["color"] = self.color(i);
+      return d["color"];
     })
     .each("end", post_rendering);
 
   function post_rendering(d, i) {
-    d.data['extra'] = {"total": total};
+    d.data["extra"] = {"total": total};
     if (i === data.length - 1) {
       // ---------- pie name
-      svg.append('svg:text').text(data_['name']).attr("class", self.title.cl).style(self.title.stl)
+      svg.append("svg:text").text(data_["name"]).attr("class", self.title.cl).style(self.title.stl)
         .attr("transform", String.format("translate(0,{0})", "-" + (self.radius + self.title.y0)));
 
       // ----------- text (% value)
-      renderarcs.append("svg:text").attr('transform', function (d) {
+      renderarcs.append("svg:text").attr("transform", function (d) {
         var c = self.arc.centroid(d);
-        d['txt'] = this;
-        d['centroid'] = c;
+        d["txt"] = this;
+        d["centroid"] = c;
         return "translate(" + c[0] + "," + c[1] + ")";
       })
         .text(function (d) {
-          return Math.round(100 * d.data["val"] / total) + '%';
+          return Math.round(100 * d.data["val"] / total) + "%";
         })
-        .style({"fill": "white", "text-anchor": "middle", "font-size": '12px'});
+        .style({"fill": "white", "text-anchor": "middle", "font-size": "12px"});
 
       // ----------- legend
-      var legends = renderarcs.append("svg:g").attr('transform', function (d) {
-        d['legend'] = this;
+      var legends = renderarcs.append("svg:g").attr("transform", function (d) {
+        d["legend"] = this;
         var legend = self.legend_[0];
         if (d.centroid[0] >= 0 && d.centroid[1] >= 0) legend = self.legend_[1];
         else if (d.centroid[0] <= 0 && d.centroid[1] >= 0) legend = self.legend_[2];
         else if (d.centroid[0] <= 0 && d.centroid[1] <= 0) legend = self.legend_[3];
-        d['legend_'] = legend;
+        d["legend_"] = legend;
         var r_ = 2 * self.radius / (self.radius + self.radius0), x0 = d.centroid[0] * r_, y0 = d.centroid[1] * r_;
         return "translate(" + x0 + "," + y0 + ")";
       });
-//                        legends.append("svg:rect").attr('width', 8).attr('height', 8).attr('x', -4).attr('y', -4)
-//                                .style("fill", function(d){return d['color'];});
+//                        legends.append("svg:rect").attr("width", 8).attr("height", 8).attr("x", -4).attr("y", -4)
+//                                .style("fill", function(d){return d["color"];});
       legends.append("svg:text").text(function (d) {
         return d.data["til"]
       }).style({"fill": function (d) {
-        return d['color'];
+        return d["color"];
       }, "font-size": "12px"})
         .attr("x", function (d) {
           return d["legend_"]["tx_c"][0]
@@ -278,19 +278,19 @@ CliqzUsePieChart_V1.prototype.drawPie = function (svg, data_) {
       // ------------- add msg (story)
       renderarcs.each(function (d) {
         if (d.data.get_st) {
-          d['msg'] = self.add_story(svg, d.data.get_st());
-          d['msg'][0].attr("transform", String.format("translate({0},{1})", "-" + self.story.w / 2, "" + (self.radius + 35)));
+          d["msg"] = self.add_story(svg, d.data.get_st());
+          d["msg"][0].attr("transform", String.format("translate({0},{1})", "-" + self.story.w / 2, "" + (self.radius + 35)));
         }
       });
 
       // ------------- add event listeners
       renderarcs.on("mouseover", function (d) {
         d3.event.stopPropagation();
-        if (d['legend']) d3.select(d['legend']).style({"opacity": 0});
+        if (d["legend"]) d3.select(d["legend"]).style({"opacity": 0});
         d3.select(this).select("path").transition().duration(500).attr("d", self.arcOver);
-        if (d['txt']) d3.select(d['txt']).transition().duration(500)
+        if (d["txt"]) d3.select(d["txt"]).transition().duration(500)
           .each("end", function (d) {
-            if (d['msg']) d['msg'][1].attr("class", "clz_usage_pie_sub");
+            if (d["msg"]) d["msg"][1].attr("class", "clz_usage_pie_sub");
           });
 
         // the message box of the charts
@@ -299,10 +299,10 @@ CliqzUsePieChart_V1.prototype.drawPie = function (svg, data_) {
         .on("mouseout", function (d) {
           d3.event.stopPropagation();
           d3.select(this).select("path").transition().duration(200).attr("d", self.arc);
-          if (d['txt']) d3.select(d['txt']).transition().duration(200)
+          if (d["txt"]) d3.select(d["txt"]).transition().duration(200)
             .each("end", function (d) {
-              if (d['msg']) d['msg'][1].attr("class", "clz_usage_pie_sub_hide");
-              if (d['legend']) d3.select(d['legend']).style({"opacity": 1});
+              if (d["msg"]) d["msg"][1].attr("class", "clz_usage_pie_sub_hide");
+              if (d["legend"]) d3.select(d["legend"]).style({"opacity": 1});
             });
         });
 
@@ -337,10 +337,10 @@ function CliqzUsePieChart_V2(r1, r0) {
     return self.color_PIE_LIST[idx % self.color_PIE_LIST.length];
   };
   self.legend_ = [
-    { 'tx_c': [6, -3], 'tx-a': "start", 'dy': ['-2.4em', '-1.2em', 0]},  // top right. dy: [1st line, 2nd line, ...]
-    { 'tx_c': [6, 12], 'tx-a': "start", 'dy': ['0', '1.2em', '2.4em']},  // bottom right
-    { 'tx_c': [-6, 12], 'tx-a': "end", 'dy': ['0', '1.2em', '2.4em']},  // bottom left
-    { 'tx_c': [-6, -3], 'tx-a': "end", 'dy': ['-2.4em', '-1.2em', '0']}  // top left
+    { "tx_c": [6, -3], "tx-a": "start", "dy": ["-2.4em", "-1.2em", 0]},  // top right. dy: [1st line, 2nd line, ...]
+    { "tx_c": [6, 12], "tx-a": "start", "dy": ["0", "1.2em", "2.4em"]},  // bottom right
+    { "tx_c": [-6, 12], "tx-a": "end", "dy": ["0", "1.2em", "2.4em"]},  // bottom left
+    { "tx_c": [-6, -3], "tx-a": "end", "dy": ["-2.4em", "-1.2em", "0"]}  // top left
   ];
   self.title = {y0: 60,  // g: distance from the top of the pie to the bottom of the title
     stl: {"fill": "#333333", "text-anchor": "middle"},
@@ -350,9 +350,9 @@ function CliqzUsePieChart_V2(r1, r0) {
 
 CliqzUsePieChart_V2.prototype.drawEmptyPie = function (svg, data, pie_name) {
   var self = this,
-    renderarcs = svg.selectAll('.arc_g').data(self.pie([
+    renderarcs = svg.selectAll(".arc_g").data(self.pie([
       {"val": 1}
-    ])).enter().append("svg:g").attr('class', 'arc_g');
+    ])).enter().append("svg:g").attr("class", "arc_g");
   renderarcs.append("svg:path")
     .attr("d", self.arc0).style("fill", "white")
     .transition().duration(1000).delay(100)
@@ -361,7 +361,7 @@ CliqzUsePieChart_V2.prototype.drawEmptyPie = function (svg, data, pie_name) {
 
   function post_rendering(d, i) {
     // ---------- pie name
-    svg.append('svg:text').text(pie_name).attr("class", self.title.cl).style(self.title.stl)
+    svg.append("svg:text").text(pie_name).attr("class", self.title.cl).style(self.title.stl)
       .attr("transform", String.format("translate(0,{0})", "-" + (self.radius + self.title.y0)));
 
     // ------- Value text (center of the pie)
@@ -390,38 +390,38 @@ CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
     data = data.concat(tmp);
   }
 
-  var renderarcs = svg.selectAll('.arc_g').data(self.pie(data)).enter().append("svg:g").attr('class', 'arc_g');
+  var renderarcs = svg.selectAll(".arc_g").data(self.pie(data)).enter().append("svg:g").attr("class", "arc_g");
 
   renderarcs.append("svg:path")
     .attr("d", self.arc0).style("fill", "white")
     .transition().duration(1000).delay(100)
     .attr("d", self.arc).style("fill", function (d, i) {
-      d['color'] = self.color(i);
-      return d['color'];
+      d["color"] = self.color(i);
+      return d["color"];
     })
     .each("end", post_rendering);
 
   function post_rendering(d, i) {
-    d.data['extra'] = {"total": total};
+    d.data["extra"] = {"total": total};
     if (i === data.length - 1) {
       // ---------- pie name
-      svg.append('svg:text').text(data_['name']).attr("class", self.title.cl).style(self.title.stl)
+      svg.append("svg:text").text(data_["name"]).attr("class", self.title.cl).style(self.title.stl)
         .attr("transform", String.format("translate(0,{0})", "-" + (self.radius + self.title.y0)));
 
       // ----------- text (% value)
       renderarcs.append("svg:text")
-        .attr('transform', function (d) {
+        .attr("transform", function (d) {
           var c = self.arc.centroid(d);
-          d['txt'] = this;
-          d['centroid'] = c;
+          d["txt"] = this;
+          d["centroid"] = c;
           return "translate(" + c[0] + "," + c[1] + ")";
         })
         .text(function (d) {
           var val = Math.round(100 * d.data["val"] / total);
-          return val < 5 ? "" : val + '%';
+          return val < 5 ? "" : val + "%";
         })
         .attr("dy", "0.3em")
-        .style({"fill": "white", "text-anchor": "middle", "font-size": '12px'});
+        .style({"fill": "white", "text-anchor": "middle", "font-size": "12px"});
 
       // ------- Value text (center of the pie)
       var size_ = 2 * self.radius0;
@@ -430,7 +430,7 @@ CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
         "<div>{2}</div><div>{3}</div><div class='value'>{4}</div>" +
         "</div>" +
         "</div>", size_, size_, data_["center_name"][0], data_["center_name"][1], total);
-//            var center_txt = String.format("<div class='pie_center_txt' style='width: {0}px; height: {1}px;'>" +
+//            var center_txt = String.format("<div class="pie_center_txt" style='width: {0}px; height: {1}px;'>" +
 //                                                "<div class='info_block'>" +
 //                                                    "<div>TOTAL</div><div class='value'>{2}</div><div>SEARCHES</div>" +
 //                                                "</div>" +
@@ -441,13 +441,13 @@ CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
         .append("xhtml:body").html(center_txt);
 
       // ----------- legend
-      var legends = renderarcs.append("svg:g").attr('transform', function (d) {
-        d['legend'] = this;
+      var legends = renderarcs.append("svg:g").attr("transform", function (d) {
+        d["legend"] = this;
         var legend = self.legend_[0];
         if (d.centroid[0] >= 0 && d.centroid[1] >= 0) legend = self.legend_[1];
         else if (d.centroid[0] <= 0 && d.centroid[1] >= 0) legend = self.legend_[2];
         else if (d.centroid[0] <= 0 && d.centroid[1] <= 0) legend = self.legend_[3];
-        d['legend_'] = legend;
+        d["legend_"] = legend;
         var r_ = 2 * self.radius / (self.radius + self.radius0), x0 = d.centroid[0] * r_, y0 = d.centroid[1] * r_;
         return "translate(" + x0 + "," + y0 + ")";
       });
@@ -459,7 +459,7 @@ CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
           return d.data["val"] ? d.data["til"][i] : "";
         })
           .style({"fill": function (d) {
-            return d['color'];
+            return d["color"];
           }, "font-size": "12px", "font-weight": "bold"})
           .attr("x", function (d) {
             return d["legend_"]["tx_c"][0]
@@ -480,7 +480,7 @@ CliqzUsePieChart_V2.prototype.drawPie = function (svg, data_) {
         return d.data["val"] ? d.data["val"] + (d.data["val"] === 1 ? " Abfrage" : " Abfragen") : "";
       })
         .style({"fill": function (d) {
-          return d['color'];
+          return d["color"];
         }, "font-size": "12px"})
         .attr("x", function (d) {
           return d["legend_"]["tx_c"][0]

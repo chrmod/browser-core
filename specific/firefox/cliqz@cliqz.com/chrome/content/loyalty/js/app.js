@@ -10,12 +10,12 @@ window.SCRIPTS = {};
     "views/status_info"
   ];
 
-  Components.utils.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
-  Components.utils.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+  Components.utils.import("chrome://cliqzmodules/content/CliqzLoyalty.jsm");
+  Components.utils.import("chrome://cliqzmodules/content/CliqzHandlebars.jsm");
 
   function fetchPartial(name) {
     var partialPath = "chrome://cliqz/content/loyalty/partials/";
-    var url = partialPath + name + '.hbs';
+    var url = partialPath + name + ".hbs";
     return new Promise(function (resolve, reject) {
       try {
         var xmlHttp = new XMLHttpRequest();
