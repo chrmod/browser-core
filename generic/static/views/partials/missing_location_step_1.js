@@ -30,7 +30,7 @@ events = {
 
       },
       "cqz_location_once": function(ev) {
-        ev.preventDefault ();
+        ev.preventDefault();
         loadLocalResults(ev.target);
       },
       "cqz_location_no": function(ev) {

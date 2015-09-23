@@ -1,7 +1,12 @@
 <div class='cqz-result-h3'>
     <div>
         <div class="EZ-currency EZ-currency-result">
-            <span class="cqz-amount">{{ data.toAmount.main }}</span>
+            {{# if data.CurrencyFormatSuport }}
+                <span class="cqz-amount">{{ data.toAmount.main }}</span>
+            {{else}}
+                <span class="cqz-amount">{{ localizeNumbers data.toAmount.main }}</span>
+                <span class="cqz-currency-code">{{ data.toCurrency }}</span>
+            {{/if}}
         </div>
         <div class="EZ-currency EZ-currency-rate">
             {{localizeNumbers data.multiplyer}} {{data.fromCurrency}} = {{convRateDigitSplit (localizeNumbers data.mConversionRate)}} {{data.toCurrency}}
