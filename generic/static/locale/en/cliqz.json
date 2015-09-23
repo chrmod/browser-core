@@ -871,5 +871,11 @@
     },
     "slow_connection_text_4": {
       "message": "Please check your connection."
+    },
+    "dataCollection": {
+        "message": "To improve the search and browsing experience, CLIQZ for Firefox sends some anonymous data to Cliqz. Your privacy remains secured."
+    },
+    "dataCollectionButton": {
+        "message": "Learn More"
     }
 }

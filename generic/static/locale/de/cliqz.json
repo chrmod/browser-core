@@ -871,5 +871,11 @@
     },
     "slow_connection_text_4": {
       "message": "Bitte die Internet-Verbindung überprüfen"
+    },
+    "dataCollection": {
+        "message": "Um die Such- und Browser-Funktionen zu verbessern, übermittelt CLQZ for Firefox anonyme Daten an Cliqz. Deine Privatsphäre bleibt dabei geschützt."
+    },
+    "dataCollectionButton": {
+        "message": "Mehr erfahren"
     }
 }
