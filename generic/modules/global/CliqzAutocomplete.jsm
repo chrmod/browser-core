@@ -543,7 +543,7 @@ var CliqzAutocomplete = {
                 this.instant = [];
 
                 this.callback = callback;
-                this.searchString = searchString.trim();
+                this.searchString = searchString;
                 this.searchStringSuggest = null;
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
@@ -599,7 +599,7 @@ var CliqzAutocomplete = {
 
                 // trigger history search
                 CLIQZEnvironment.historySearch(
-                    searchString.trim(),
+                    searchString,
                     this.onHistoryDone.bind(this),
                     CliqzAutocomplete.sessionStart);
 
