@@ -15,7 +15,7 @@ window.SCRIPTS = {};
 
   function fetchPartial(name) {
     var partialPath = "chrome://cliqz/content/loyalty/partials/";
-    var url = partialPath + name + '.html';
+    var url = partialPath + name + '.hbs';
     return new Promise(function (resolve, reject) {
       try {
         var xmlHttp = new XMLHttpRequest();
@@ -66,11 +66,10 @@ window.SCRIPTS = {};
 
   function init() {
     var viewName = findViewName();
-    registerPartials().then(function () {
-      return renderLayout();
-    }).then(function () {
-      return renderView(viewName);
-    });
+    registerPartials().then(renderLayout)
+      .then(function () {
+        return renderView(viewName);
+      });
   }
 
   $(document).ready(init);

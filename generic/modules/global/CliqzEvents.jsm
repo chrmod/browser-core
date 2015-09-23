@@ -18,7 +18,7 @@ var CliqzEvents = CliqzEvents || {
 //     * Publish events of interest with a specific id
 //     */
   pub: function (id) {
-    var args = [].slice.call(arguments, 1);
+    var args = Array.prototype.slice.call(arguments, 1);
     (CliqzEvents.cache[id] || []).forEach(function (ev) {
       ev.apply(null, args);
     });
