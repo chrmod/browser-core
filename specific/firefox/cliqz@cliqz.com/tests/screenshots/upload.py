@@ -43,6 +43,11 @@ def main(argv):
                            "to S3 bucket <OUTPUT_BUCKET> "
                            "[default: '%default']",
                       default="tests-dropdown-appearance")
+    parser.add_option("--key-prefix", metavar="KEY_PREFIX",
+                      action="store", dest="key_prefix",
+                      help="folder in the --bucket to upload screenshots to "
+                           "[default: '%default']",
+                      default="")
     parser.add_option("--dropdown-width", metavar="DROPDOWN_WIDTH",
                       action="store", dest="dropdown_width",
                       help="width of dropdown "
@@ -166,11 +171,14 @@ def main(argv):
         mosaic.save(mosaic_filename)
         n += 1
 
+    key_prefix = output_folder_base
+    if options.key_prefix:
+        key_prefix = '/'.join([options.key_prefix, output_folder_base])
     sys.stderr.write("uploading all files to 's3://%s/%s'\n" %
-                     (options.output_bucket, output_folder_base))
+                     (options.output_bucket, key_prefix))
     upload_folder(output_folder,
                   options.output_bucket,
-                  output_folder_base,
+                  key_prefix,
                   options.dry_run)
 
     if not options.keep_files:
