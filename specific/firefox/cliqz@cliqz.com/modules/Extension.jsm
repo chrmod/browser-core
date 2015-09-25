@@ -65,12 +65,7 @@ var Extension = {
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
-        if(CliqzLoyalty.hasJoined()) {
-            CliqzLoyalty.init();
-        }else{
-            CliqzLoyalty.setPref('participateLoyalty', false);
-            CliqzLoyalty.initMin();
-        }
+        CliqzLoyalty.onExtensionStart();
 
         CliqzClusterHistory.init();
     },

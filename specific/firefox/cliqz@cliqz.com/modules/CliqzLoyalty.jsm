@@ -385,7 +385,7 @@ var CliqzLLogic = {
     // NOTE: call this after CliqzStats.cliqzUsageCached is initialized
     // Call this before running fetching  back-end data
 
-    CliqzUtils.loadResource('chrome://cliqzres/content/content/loyalty/locale/de.json',
+    CliqzUtils.loadResource('chrome://cliqzres/content/content/loyalty/content/extensionSpecific.json',
       function (req) {
         if (CliqzUtils) {
           var data = JSON.parse(req.response);
@@ -1033,6 +1033,15 @@ function setPersistent(val) {
 
 var CliqzLoyalty = {
   VERSION: "TTAM15",
+
+  onExtensionStart: function s() {
+    if(this.hasJoined()) {
+        CliqzLoyalty.init();
+    }else{
+        CliqzLoyalty.setPref('participateLoyalty', false);
+        CliqzLoyalty.initMin();
+    }
+  },
 
   initMin: function () {
     CliqzStats.initMin();
