@@ -248,14 +248,12 @@ var UI = {
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
-          var query = r.text;
           //var qt = query + ": " + new Date().getTime();
           //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
               //CliqzUtils.log(r, "GOT SOME RESULTS");
-              var resp = undefined;
               try {
                 resp = JSON.parse(req.response).results[0];
                 //CliqzUtils.log(resp, "FINAL RESPONSE");
