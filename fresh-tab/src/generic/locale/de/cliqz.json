@@ -1,0 +1,44 @@
+{
+    "shortcut":{
+        "message": "Shortcut"
+    },
+    "weather":{
+        "message": "Wetter"
+    },
+    "clock":{
+        "message": "Uhrzeit"
+    },
+    "ok":{
+        "message": "OK"
+    },
+    "cancel":{
+        "message": "Abbrechen"
+    },
+    "login":{
+        "message": "Für den Login hier klicken"
+    },
+    "email_no_unread":{
+        "message": "Du hast keine ungelesenen E-Mails"
+    },
+    "onboarding-card-tip1":{
+        "message": "Willkommen zu Deiner neuen Startseite! Deine Favoriten sind schon angelegt, um Dir den Einstieg zu erleichtern."
+    },
+    "onboarding-card-tip2":{
+        "message": "Fehlt einer Deiner Favoriten? Klicke auf den “Plus”-Button unten rechts."
+    },
+    "onboarding-card-tip3":{
+        "message": "Füge Deine Lieblings-News-Websites (zum Beispiel „spiegel.de“) hinzu um auf dem Laufenden zu bleiben."
+    },
+    "onboarding-card-tip4":{
+        "message": "Du kannst die Karten per drag-and-drop neu anordnen."
+    },
+    "onboarding-card-tip5":{
+        "message": "Das “Plus” hat noch mehr zu bieten. Füge die aktuelle Uhrzeit und Wetteransage hinzu!"
+    },
+    "onboarding-card-tip6":{
+        "message": "Vielen Dank! Wir hoffen Deine neue Startseite gefällt Dir. Klicke auf das „X“ rechts oben auf dieser Karte um sie zu schließen."
+    },
+    "not_supported_card":{
+        "message": "Diese Kachel wird nicht mehr unterstützt und kann gelöscht werden."
+    }
+}

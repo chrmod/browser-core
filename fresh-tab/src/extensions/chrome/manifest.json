@@ -1,0 +1,27 @@
+{
+    "name": "Fresh Tab",
+    "short_name": "Fresh Tab",
+    "description": "Fresh Tab by CLIQZ",
+    "version": "1.0.0",
+    "permissions": ["storage","unlimitedStorage","topSites","*://*/*","tabs","webRequest","webRequestBlocking"],
+    "manifest_version": 2,
+    "icons": {
+        "16": "resources/img/Fresh New Tab logo 16.png",
+        "48": "resources/img/Fresh New Tab logo 48.png",
+        "128": "resources/img/Fresh New Tab logo 128.png"
+    },
+    "background": {
+        "scripts": ["page/js/environment.js","background.js"]
+    },
+    "chrome_url_overrides": {
+        "newtab": "page/freshtab.html"
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "browser_action": {
+        "default_icon": "resources/img/Fresh New Tab logo 48.png",
+        "default_title": "Add to freshtab"
+    },
+    "web_accessible_resources": [
+        "page/freshtab.html"
+    ]
+}

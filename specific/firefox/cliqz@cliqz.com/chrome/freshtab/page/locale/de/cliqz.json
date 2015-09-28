@@ -1,0 +1,44 @@
+{
+    "shortcut":{
+        "message": "Shortcut"
+    },
+    "weather":{
+        "message": "Wetter"
+    },
+    "clock":{
+        "message": "Uhrzeit"
+    },
+    "ok":{
+        "message": "OK"
+    },
+    "cancel":{
+        "message": "Abbrechen"
+    },
+    "login":{
+        "message": "Für den Login hier klicken"
+    },
+    "email_no_unread":{
+        "message": "Du hast keine ungelesenen E-Mails"
+    },
+    "onboarding-card-tip1":{
+        "message": "Willkommen bei FreshTab! Hier eine Auswahl deiner beliebtesten Seiten."
+    },
+    "onboarding-card-tip2":{
+        "message": "Einer deiner Favoriten fehlt? Probier den 'plus' button."
+    },
+    "onboarding-card-tip3":{
+        "message": "Füge deine neue Lieblings-Website (e.g. spiegel.de) hinzu, um weitere Funktionen nutzen zu können."
+    },
+    "onboarding-card-tip4":{
+        "message": "Wusstest du, dass du die Kacheln verschieben kannst, um sie neu anzuordnen?"
+    },
+    "onboarding-card-tip5":{
+        "message": "Der Plus button hat noch mehr zu bieten... Versuche, ein Widget hinzuzufügen!"
+    },
+    "onboarding-card-tip6":{
+        "message": "Danke! Wir hoffen, dass dir FreshTab gefällt. Lasse den Mauscursor über der oberen rechten Ecke schweben und klicke, um das Fenster zu schließen. "
+    },
+    "not_supported_card":{
+        "message": "Diese Kachel wird nicht mehr unterstützt und kann gelöscht werden."
+    }
+}
