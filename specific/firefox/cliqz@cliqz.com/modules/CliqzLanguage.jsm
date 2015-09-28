@@ -73,7 +73,7 @@ var CliqzLanguage = {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
-            if (aURI.spec == this.currentURL ||
+            if (!aURI || aURI.spec == this.currentURL ||
                 !CliqzAutocomplete.lastResult) return;
 
             this.currentURL = aURI.spec;
