@@ -16,10 +16,6 @@
                 this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
                 this.setAttribute("onpopuphiding", "CLIQZ.UI.closeResults(event)");
                 CLIQZ.UI.main(this.cliqzBox);
-                CLIQZ.Core.responsiveClasses(CLIQZ.Core.popup);
-                window.addEventListener('resize', function () {
-                    CLIQZ.Core.responsiveClasses(CLIQZ.Core.popup);
-                });
                 // adds "title" attribute support
                 this.cliqzBox.setAttribute('tooltip', 'aHTMLTooltip');
             ]]>

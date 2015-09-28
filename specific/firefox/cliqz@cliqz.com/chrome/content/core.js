@@ -61,9 +61,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTour',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
-  'chrome://cliqzmodules/content/CUcrawl.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
@@ -123,11 +120,6 @@ window.CLIQZ.Core = {
                 //Also need to add for Humanweb
                 hs.addObserver(CliqzHumanWeb.historyObserver, false);
             }
-
-            if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-                //Also need to add for Humanweb
-                hs.addObserver(CUcrawl.historyObserver, false);
-            }
           } catch(e) {}
         }
 
@@ -148,6 +140,14 @@ window.CLIQZ.Core = {
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/styles/css/extension.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
+        if(CliqzUtils.isWindows()) {
+            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-win.css');
+        } else {
+            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-mac.css');
+        }
 
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
@@ -216,11 +216,6 @@ window.CLIQZ.Core = {
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
 
-            if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-                CUcrawl.init(window);
-                window.gBrowser.addProgressListener(CUcrawl.listener);
-            }
-
             // Update CLIQZ history data
             CliqzHistory.tabOpen({
               target: window.gBrowser.selectedTab
@@ -252,7 +247,57 @@ window.CLIQZ.Core = {
 
         // antiphishing listener
         //gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+        /*
+            dataCollectionMessageState
+                    0 - not shown
+                    1 - shown
+                    2 - ignored
+                    3 - learn more
+        */
+        if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
+          CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
+        }
     },
+    showDataCollectionMessage: function(){
+      function updateDataCollectionState(state){
+        CliqzUtils.telemetry({
+          type: 'dataCollectionMessage',
+          state: state
+        });
+
+        CliqzUtils.setPref('dataCollectionMessageState', state);
+      }
+
+      var buttons = [{
+        label: CliqzUtils.getLocalizedString("dataCollectionButton"),
+        callback: function(){
+          // we only have the website localized in english end german
+          var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
+              learnMoreUrl = 'https://cliqz.com/' + lang + 'privacy#humanweb';
+
+          gBrowser.selectedTab  = gBrowser.addTab(learnMoreUrl);
+          updateDataCollectionState(3);
+        }
+      }];
+
+      document.getElementById("global-notificationbox").appendNotification(
+        CliqzUtils.getLocalizedString("dataCollection"),
+        null,
+        null,
+        document.getElementById("global-notificationbox").PRIORITY_INFO_HIGH,
+        buttons,
+        function(){
+          // notification hides if the user closes it or presses learn more
+          if(CliqzUtils.getPref('dataCollectionMessageState', 0) < 2){
+            updateDataCollectionState(2);
+          }
+        }
+      );
+
+      updateDataCollectionState(1);
+    },
+    responsiveClasses: function(){}, //tmp 15.09.2015 - some older version do not correctly deregister a resize handler
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
         CLIQZ.Core.elem.push(
@@ -335,6 +380,7 @@ window.CLIQZ.Core = {
     unload: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
+        clearTimeout(CLIQZ.Core._dataCollectionTimer);
 
         CLIQZ.UI.unload();
 
@@ -401,23 +447,6 @@ window.CLIQZ.Core = {
                 }
             }
 
-            if(CliqzUtils.getPref("safeBrowsingMozTest", false) && !CliqzUtils.isPrivate(window)){
-                window.gBrowser.removeProgressListener(CUcrawl.listener);
-
-                //Remove indi.event handlers
-                CUcrawl.destroy();
-
-                var numTabs = window.gBrowser.tabContainer.childNodes.length;
-                for (var i=0; i<numTabs; i++) {
-                  var currentTab = gBrowser.tabContainer.childNodes[i];
-                  var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                  currentBrowser.contentDocument.removeEventListener("keypress", CUcrawl.captureKeyPressPage);
-                  currentBrowser.contentDocument.removeEventListener("mousemove", CUcrawl.captureMouseMovePage);
-                  currentBrowser.contentDocument.removeEventListener("mousedown", CUcrawl.captureMouseClickPage);
-                  currentBrowser.contentDocument.removeEventListener("scroll", CUcrawl.captureScrollPage);
-                  currentBrowser.contentDocument.removeEventListener("copy", CUcrawl.captureCopyPage);
-                }
-            }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
         }
@@ -437,12 +466,6 @@ window.CLIQZ.Core = {
                     //Also, remove from Humanweb
                     hs.removeObserver(CliqzHumanWeb.historyObserver);
                 }
-
-                if(CliqzUtils.getPref("safeBrowsingMozTest", false) ){
-                    //Also, remove from Humanweb
-                    hs.removeObserver(CUcrawl.historyObserver);
-                }
-
             } catch(e) {}
         }
 
@@ -465,7 +488,6 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryPattern;
             delete window.CliqzHandlebars;
             delete window.CliqzTour;
-            delete window.CUcrawl;
             delete window.CliqzAntiPhishing;
         }
     },
@@ -589,27 +611,24 @@ window.CLIQZ.Core = {
         } catch(e) { }
 
         CliqzHistoryManager.getStats(function(history){
-            Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                var info = {
-                        type: 'environment',
-                        agent: navigator.userAgent,
-                        language: navigator.language,
-                        width: window.document.width,
-                        height: window.document.height,
-                        screen_width: screenWidth.value,
-                        screen_height: screenHeight.value,
-                        version: beVersion,
-                        history_days: history.days,
-                        history_urls: history.size,
-                        startup: startup? true: false,
-                        prefs: CliqzUtils.getPrefs(),
-                        defaultSearchEngine: defaultSearchEngine,
-                        private_window: CliqzUtils.isPrivate(window)
-                    };
+            var info = {
+                type: 'environment',
+                agent: navigator.userAgent,
+                language: navigator.language,
+                width: window.document.width,
+                height: window.document.height,
+                screen_width: screenWidth.value,
+                screen_height: screenHeight.value,
+                version: CliqzUtils.extensionVersion,
+                history_days: history.days,
+                history_urls: history.size,
+                startup: startup? true: false,
+                prefs: CliqzUtils.getPrefs(),
+                defaultSearchEngine: defaultSearchEngine,
+                private_window: CliqzUtils.isPrivate(window)
+            };
 
-                CliqzUtils.telemetry(info);
-            });
+            CliqzUtils.telemetry(info);
         });
     },
     showUninstallMessage: function(currentVersion){
@@ -1204,6 +1223,5 @@ window.CLIQZ.Core = {
         });
 
         elm.className = result.join(" ").trim();
-
     }
 };

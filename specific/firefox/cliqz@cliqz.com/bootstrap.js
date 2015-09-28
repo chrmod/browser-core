@@ -8,20 +8,21 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
-  'chrome://cliqzmodules/content/CUcrawl.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLoyalty',
   'chrome://cliqzmodules/content/CliqzLoyalty.jsm');
 
-
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
+
+    try{
+        Cu.import("chrome://cliqzres/content/freshtab/page/js/FreshTab.jsm");
+        FreshTab.startup('chrome://cliqzres/content/freshtab/page/freshtab.html')
+    } catch(e){}
 }
 
 function shutdown(aData, aReason) {
     CliqzHumanWeb.unload();
-    CUcrawl.destroy();
+
     if (aReason == APP_SHUTDOWN){
         CliqzLoyalty.unload();
         eventLog('browser_shutdown');
@@ -34,7 +35,8 @@ function shutdown(aData, aReason) {
     Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
     Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
-    Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
+
+    try{ FreshTab.shutdown(aData, aReason); } catch(e){}
 }
 
 function eventLog(ev){
