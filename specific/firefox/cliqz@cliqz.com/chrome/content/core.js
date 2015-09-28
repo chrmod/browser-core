@@ -238,7 +238,7 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.addEventListener("TabClose", CliqzHistory.tabClose, false);
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
-            window.gBrowser.addProgressListener(CliqzLanguage.listener);
+            window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -369,7 +369,7 @@ window.CLIQZ.Core = {
 
         // remove listeners
         if ('gBrowser' in window) {
-            window.gBrowser.removeProgressListener(CliqzLanguage.listener);
+            window.gBrowser.removeTabsProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
 
             window.removeEventListener('close', CliqzHistory.updateAllTabs);
