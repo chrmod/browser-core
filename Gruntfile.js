@@ -175,7 +175,8 @@ module.exports = function(grunt) {
             local: {
                 src: [
                     "generic/modules/local/core.js",
-                    "generic/modules/local/ui.js"
+                    "generic/modules/local/UI.js",
+                    "generic/modules/local/ContextMenu.js"
                 ],
                 options: {
                     banner: "'use strict';\n\n",

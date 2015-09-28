@@ -298,16 +298,17 @@ var CliqzExtOnboarding = {
             return false;
         }
 
-        // decide which subgroup we are going to be in
+        // enabled for all: put all users into show sub group
         if (_prefs["sub_group"] == "tbd") {
-            _prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+            _prefs["sub_group"] = "show";
             CliqzExtOnboarding._savePrefs(type, _prefs);
             CliqzExtOnboarding._log(type + ": decided for subgroup " + _prefs["sub_group"]);
         }
 
+        // enable for all users: move all no_shows to show
         if (_prefs["sub_group"] == "no_show") {
-            CliqzExtOnboarding._log(type + ": user is in sub_group no show; not interrupting");
-            return false;
+            _prefs["sub_group"] = "show";
+            CliqzExtOnboarding._log(type + ": user was in sub_group no show; moving to show");
         }
 
         _prefs["result_count"] = 0;

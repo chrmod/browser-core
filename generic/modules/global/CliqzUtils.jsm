@@ -91,6 +91,7 @@ var CliqzUtils = {
       'ligaEZTable': 3,
       'local-movie-sc':3,
       'local-cinema-sc':3,
+      'local-data-sc': 2,
       'recipe': 3,
       'rd-h3-w-rating': 1,
       'ramadan': 3,
