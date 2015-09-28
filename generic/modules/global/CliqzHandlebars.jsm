@@ -470,4 +470,5 @@ function registerHelpers(){
 
         return new Handlebars.SafeString(result);
     });
+
 }

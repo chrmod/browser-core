@@ -8,6 +8,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLoyalty',
+  'chrome://cliqzmodules/content/CliqzLoyalty.jsm');
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
@@ -22,6 +24,7 @@ function shutdown(aData, aReason) {
     CliqzHumanWeb.unload();
 
     if (aReason == APP_SHUTDOWN){
+        CliqzLoyalty.unload();
         eventLog('browser_shutdown');
         return;
     }
@@ -29,6 +32,7 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
+    Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
     Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 
