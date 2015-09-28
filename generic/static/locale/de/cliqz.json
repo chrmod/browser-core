@@ -815,8 +815,14 @@
     "movies_confirm_no": {
       "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"
     },
+    "cinemas_confirm_no": {
+      "message": "Sicher, dass Du nicht sehen möchtest welche Filme in diesem Kino laufen?"
+    },
     "show_local_movies": {
       "message": "Nein, zeig mir wo ich den Film schauen kann."
+    },
+    "show_local_cinemas": {
+      "message": "Nein, zeig mir welche Filme ich sehen kann."
     },
     "location_just_once": {
       "message": "Dieses eine mal"

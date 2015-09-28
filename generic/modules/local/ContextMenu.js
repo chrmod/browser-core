@@ -59,25 +59,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   var ContextMenu = {
     enableContextMenu: function(box) {
       CONTEXT_MENU_ITEMS = [
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),         'command': openNewTab },
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),      'command': openNewWindow },
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInPrivateWindow'),  'command': openInPrivateWindow },
-        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),             'command': openFeedback }
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),         'command': openNewTab,            'displayInDebug': true },
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),      'command': openNewWindow,         'displayInDebug': true },
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInPrivateWindow'),  'command': openInPrivateWindow,   'displayInDebug': false },
+        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),             'command': openFeedback,          'displayInDebug': true }       
       ];
-      contextMenu = document.createElement('menupopup');
-      box.appendChild(contextMenu);
 
-      for(var item = 0; item < CONTEXT_MENU_ITEMS.length; item++) {
-          var menuItem = document.createElement('menuitem');
-          menuItem.setAttribute('label', CONTEXT_MENU_ITEMS[item].label);
-          menuItem.addEventListener("command", CONTEXT_MENU_ITEMS[item].command, false);
-          if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
-            menuItem.setAttribute('class', 'menuitem-iconic');
-            menuItem.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.png)';
-          }
-          contextMenu.appendChild(menuItem);
-      }
-
+      contextMenu = CLIQZEnvironment.createContextMenu(box, CONTEXT_MENU_ITEMS);
       box.addEventListener('contextmenu', rightClick);
     }
   };
@@ -93,7 +81,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
         children[i].setAttribute('data-url', url);
         children[i].setAttribute('data-kind', CLIQZ.UI.getResultOrChildAttr(ev.target, 'kind'));
       }
-      contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
+      CLIQZEnvironment.openPopup(contextMenu, ev, ev.screenX, ev.screenY);
 
       var signal = {
         type: 'activity',

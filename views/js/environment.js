@@ -3,7 +3,13 @@ var db = {
     share_location: 'ask'
 };
 
-var ENGINES;
+var ENGINES,
+    contextMenu,
+    contextMenuState = 0,
+    contextMenuActive = 'context-menu-active',
+    menuPosition,
+    menuPositionX,
+    menuPositionY;
 
 CLIQZEnvironment = {
 	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/templates/' : '/generic/static/templates/',
@@ -60,11 +66,15 @@ CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(win, url, newTab) {
+    openLink: function(win, url, newTab, newWindow) {
         // Don't open links for mobile because the swipe causes random click events
         // on non-touch devices
         if (!_cliqzIsMobile) {
-            //win.open(url,newTab?'_blank':'_self');
+          if(newTab) {
+            win.open(url,'_blank');
+          } else if(newWindow) {
+            win.open(url, '_blank', 'height=800,width=800');
+          }
         }
     },
     historySearch: function(q, callback, searchParam, sessionStart){
@@ -97,6 +107,80 @@ CLIQZEnvironment = {
 
             return e
         });
+    },
+    createContextMenu: function(box, menuItems) {
+      if (contextMenu == undefined) {
+        contextMenu = document.createElement('ul');
+        contextMenu.setAttribute('class', 'context-menu');
+        for(var item = 0; item < menuItems.length; item++) {
+          if (menuItems[item].displayInDebug) {
+            var menuItem = document.createElement('li');
+            menuItem.setAttribute('class', 'context-menu-item');
+            menuItem.addEventListener('click', menuItems[item].command);
+            contextMenu.appendChild(menuItem);
+            menuItem.innerHTML = menuItems[item].label;
+          }
+        }
+        document.body.appendChild(contextMenu);
+        CLIQZEnvironment.clickListener();
+    
+      }
+      return contextMenu;
+    },
+    clickListener: function() {
+      document.addEventListener('click', function(e) {
+          var button = e.which || e.button;
+          //hide the context menu when left mouse is clicked
+          if (button === 1) {
+            CLIQZEnvironment.toggleContextMenuOff();
+          }
+      });
+    },
+    openPopup: function(contextMenu, ev, x, y) {
+      ev.preventDefault();
+      CLIQZEnvironment.toggleContextMenuOn();
+      CLIQZEnvironment.positionMenu(ev);
+    },
+    toggleContextMenuOn: function() {
+      if(contextMenuState !== 1) {
+        contextMenuState = 1;
+        contextMenu.classList.add(contextMenuActive);
+      }  
+    },
+    toggleContextMenuOff: function() {
+      if(contextMenuState !== 0) {
+        contextMenuState = 0;
+        contextMenu.classList.remove(contextMenuActive);
+      }
+    },
+    getContextMenuPosition: function(e) {
+      var posX = 0,
+          posY = 0;
+
+      if (!e) var e = window.event;
+
+      if (e.pageX || e.pageY) {
+        posX = e.pageX;
+        posY = e.pageY;
+      } else if (e.clientX || e.clientY) {
+        posX = e.clientX + document.body.scrollLeft + 
+                document.documentElement.scrollLeft;
+        posY = e.clientY + document.body.scrollTop + 
+                       document.documentElement.scrollTop;
+      }
+
+      return {
+        x: posX,
+        y: posY
+      }
+    },
+    positionMenu: function(e) {
+      menuPosition = CLIQZEnvironment.getContextMenuPosition(e);
+      menuPositionX = menuPosition.x + "px";
+      menuPositionY = menuPosition.y + "px";
+
+      contextMenu.style.left = menuPositionX;
+      contextMenu.style.top = menuPositionY;
     }
 }
 
