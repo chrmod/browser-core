@@ -374,6 +374,28 @@ var CLIQZEnvironment = {
         CLIQZEnvironment.updateGeoLocation();
       }
     },
+    // from ContextMenu
+    openPopup: function(contextMenu, ev, x, y) {
+      contextMenu.openPopupAtScreen(x, y, false);
+    },
+    createContextMenu: function(box, menuItems) {
+      CLIQZEnvironment.log("!!!Create")
+      var doc = CliqzUtils.getWindow().document,
+          contextMenu = doc.createElement('menupopup');
+      box.appendChild(contextMenu);
+
+      for(var item = 0; item < menuItems.length; item++) {
+          var menuItem = doc.createElement('menuitem');
+          menuItem.setAttribute('label', menuItems[item].label);
+          menuItem.addEventListener("command", menuItems[item].command, false);
+          if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
+            menuItem.setAttribute('class', 'menuitem-iconic');
+            menuItem.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.png)';
+          }
+          contextMenu.appendChild(menuItem);
+      }
+      return contextMenu
+    },
     // lazy init
     // callback called multiple times
     historySearch: (function(){
