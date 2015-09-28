@@ -72,7 +72,7 @@ var CliqzLanguage = {
         currURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
-        onLocationChange: function(aProgress, aRequest, aURI) {
+        onLocationChange: function(aBrowser, aProgress, aRequest, aURI) {
             if (!aURI || aURI.spec == this.currentURL ||
                 !CliqzAutocomplete.lastResult) return;
 
@@ -106,12 +106,12 @@ var CliqzLanguage = {
 
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
-        onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
-            var isRequestSuccessful = aRequest && (aStateFlag &
-                    Ci.nsIWebProgressListener.STATE_STOP) && !aStatus,
+        onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
+            var isRequestValid = aRequest && (aStateFlag &
+                    Ci.nsIWebProgressListener.STATE_START) && !aStatus,
                 isGoogleRef = aRequest && CliqzLanguage.regexGoogleRef.test(aRequest.name);
 
-            if (!isRequestSuccessful || !isGoogleRef) {
+            if (!isRequestValid || !isGoogleRef) {
                 return;
             }
 
