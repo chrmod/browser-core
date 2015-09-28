@@ -3,6 +3,8 @@ navigation-extension
 
 See - [wiki](https://github.com/cliqz/navigation-extension/wiki)
 
+Please use the configuration from [editorconfig](https://github.com/cliqz/navigation-extension/blob/master/.editorconfig)
+ - for sublimetext install [this](https://github.com/sindresorhus/editorconfig-sublime)
 
 ## Requirements
 
