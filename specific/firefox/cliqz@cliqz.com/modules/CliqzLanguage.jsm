@@ -107,8 +107,8 @@ var CliqzLanguage = {
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
-            var isRequestSuccessful = aRequest && aStateFlag &&
-                    Ci.nsIWebProgressListener.STATE_STOP && !aStatus,
+            var isRequestSuccessful = aRequest && (aStateFlag &
+                    Ci.nsIWebProgressListener.STATE_STOP) && !aStatus,
                 isGoogleRef = aRequest && CliqzLanguage.regexGoogleRef.test(aRequest.name);
 
             if (!isRequestSuccessful || !isGoogleRef) {
