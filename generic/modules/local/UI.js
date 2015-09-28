@@ -1208,12 +1208,16 @@ function enhanceResults(res){
       updateMessageState("show", CLIQZ.UI.messageCenterMessage);
     } else if (!CliqzUtils.requestMonitor.inHealth()) {
       var rand = getRandomForCurrentTime(4);
-      updateMessageState("show", {
-        slow_connection: {
-          header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
-          text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
-        }
-      });
+
+      // Temporarily disabled while we re-evaluate the slow connection method
+      CliqzUtils.log(CliqzUtils.getLocalizedString("slow_connection_header_"+rand) + " - " +
+                     CliqzUtils.getLocalizedString("slow_connection_text_"+rand), "UI.js")
+      // updateMessageState("show", {
+      //   slow_connection: {
+      //     header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
+      //     text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
+      //   }
+      // });
     }
 
     return res;
