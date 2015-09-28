@@ -18,6 +18,9 @@
     @import 'ezones/_ramadan';
     @import 'ezones/_stocks';
     @import 'ezones/_weather';
-
+    @import 'ezones/_local';
+    
     @import 'parts/_footer-msg';
 }
+
+@import 'parts/_context-menu'

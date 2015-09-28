@@ -815,8 +815,14 @@
     "movies_confirm_no": {
       "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
     },
+    "cinemas_confirm_no": {
+      "message": "Are you sure you don’t want to see what movies are playing in this cinema?"
+    },
     "show_local_movies": {
-      "message": "No. Show me where I can watch it!"
+      "message": "No. Show me where I can watch it."
+    },
+    "show_local_cinemas": {
+      "message": "No, show me what movies I can watch."
     },
     "location_just_once": {
       "message": "Just this once"

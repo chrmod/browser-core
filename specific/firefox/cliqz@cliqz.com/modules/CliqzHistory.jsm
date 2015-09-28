@@ -408,7 +408,13 @@ var CliqzHistory = {
       return;
 
     return new Promise( function(resolve, reject) {
-      url = CliqzHistoryPattern.generalizeUrl(url);
+      var genUrl = CliqzHistoryPattern.generalizeUrl(url);
+
+      // don't let the lookup take longer than 40ms
+      CliqzUtils.setTimeout(function () {
+        resolve("");
+      }, 40);
+
       // first try urldescriptions table
       CliqzHistory.SQL("SELECT description FROM urldescriptions WHERE url=:url",
         function(r) { // onRow for urldescriptions
@@ -421,7 +427,7 @@ var CliqzHistory = {
               function(r) {  // onRow for opengrah
                 var data = JSON.parse(r[0]);
                 if(data.description) {
-                  resolve(r[0]);
+                  resolve(data.description);
                 } else {
                   resolve("");
                 }
@@ -436,7 +442,7 @@ var CliqzHistory = {
               });
           }
         }, {
-          url: url
+          url: genUrl
         });
     });
   },
