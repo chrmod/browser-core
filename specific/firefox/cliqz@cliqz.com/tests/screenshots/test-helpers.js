@@ -69,7 +69,8 @@ function prepareScreenshotTest(cfg){
                 queries: cfg.queries,
                 emails: cfg.emails,
                 subject: cfg.subject,
-                template: cfg.template
+                template: cfg.template,
+                upload: cfg.upload
             };
 
             return LambdaConfigWriter.writeFileToDownloads({
@@ -118,6 +119,10 @@ function prepareScreenshotTest(cfg){
             this.timeout(t);
 
             try {
+                if (cfg.hasOwnProperty('width')) {
+                    window.resizeTo(cfg.width, window.outerHeight);
+                }
+
                 // override, add extra steps, or use the default before() code
                 if (cfg.hasOwnProperty('before')) {
                     if (typeof(cfg.before) == 'function')

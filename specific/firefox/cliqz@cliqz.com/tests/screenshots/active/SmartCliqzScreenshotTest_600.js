@@ -1,6 +1,10 @@
 TESTS.SmartCliqzTest = prepareScreenshotTest({
     emails: ['andrey@cliqz.com'],
     subject: 'Test screenshots report',
+    width: 600,
+    upload: {
+        dropdown_width: 502
+    },
     queries: {
           'top':
               ['google.de', 'g', 'f', 'y', 'goo', 'fa', 'www.google.de', 'face',
