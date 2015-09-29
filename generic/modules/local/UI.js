@@ -1052,7 +1052,8 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            var _tmp = getDebugMsg(r.title);
+            var title = r.title ? r.title : '';
+            var _tmp = getDebugMsg(title);
             r.title = _tmp[0];
             r.debug = _tmp[1];
             if(!UI.showDebug)
