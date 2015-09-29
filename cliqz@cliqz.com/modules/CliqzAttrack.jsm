@@ -2463,7 +2463,6 @@ var CliqzAttrack = {
                 delete CliqzAttrack.tokenDomain[tok];
             }
         }
-        CliqzUtils.log(CliqzAttrack.tokenDomain);
         if (CliqzAttrack.tokenDomain)
             CliqzAttrack.saveRecord('tokenDomain', JSON.stringify(CliqzAttrack.tokenDomain));
     },
