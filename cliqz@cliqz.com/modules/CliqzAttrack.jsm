@@ -323,8 +323,6 @@ function checkFingerPrinting(source_url, tpObj){
             if(tps[e]['cv_to_dataURL_blocked']){
                 tp_domains.push(e + ":cvf");
             }
-
-
         }
     })
     if(tp_domains.length > 0) {
@@ -406,6 +404,7 @@ var CliqzAttrack = {
     // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
     URL_SAFE_KEY: 'http://anti-tracking-whitelist.fbt.co/domain_safe_key.json',
     URL_SAFE_KEY_VERSIONCHECK: 'http://anti-tracking-whitelist.fbt.co/versioncheck.json',
+    URL_BLOCK_RULES: 'http://anti-tracking-whitelist.fbt.co/anti-tracking-block-rules.json',
     debug: false,
     msgType:'attrack',
     trackExamplesThreshold: 0,
@@ -443,6 +442,8 @@ var CliqzAttrack = {
     tokenDomain: null,
     tokenDomainCountThreshold: 2,
     safeKeyExpire: 7,
+    qsBlockRule: null,  // list of domains should be blocked instead of shuffling
+    blocked: null,  // log what's been blocked
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
     observerService: Components.classes["@mozilla.org/observer-service;1"]
@@ -980,6 +981,18 @@ var CliqzAttrack = {
                 }
 
                 if (badTokens.length == 0) return;
+
+                // Block request based on rules specified
+                for (var i = 0; i < CliqzAttrack.qsBlockRule.length; i++) {
+                    var sRule = CliqzAttrack.qsBlockRule[i][0],
+                        uRule = CliqzAttrack.qsBlockRule[i][1];
+                    if (source_url_parts.hostname.endsWith(sRule) &&
+                        url_parts.hostname.endsWith(uRule)) {
+                        subject.cancel(Components.results.NS_BINDING_ABORTED);
+                        if (req_log) req_log.req_rule_aborted++;
+                        return;
+                    }
+                }
 
                 // altering request
                 // Additional check to verify if the user reloaded the page.
@@ -2030,7 +2043,7 @@ var CliqzAttrack = {
             window.gBrowser.addProgressListener(CliqzAttrack.listener);
         }
         else{
-            return
+            return;
         }
 
         // Replace getWindow functions with window object used in init.
@@ -2051,15 +2064,14 @@ var CliqzAttrack = {
 
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
         if (CliqzAttrack.tokens==null) CliqzAttrack.loadTokens();
+        if (CliqzAttrack.blocked==null) CliqzAttrack.loadBlocked();
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
-
-        // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
-        // if (CliqzAttrack.whitelist==null) CliqzAttrack.loadWhitelist();
 
 		if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
         if (CliqzAttrack.tokenDomain == null) CliqzAttrack.loadTokenDomain();
+        if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
         if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
         // if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
@@ -2293,6 +2305,16 @@ var CliqzAttrack = {
             payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length};
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
         }
+        // send block list
+        if (CliqzAttrack.blocked) {
+            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
+
+            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
+
+            // reset the state
+            CliqzAttrack.blocked = {};
+            CliqzAttrack.saveBlocked();
+        }
     },
     /*
     sendHistStats: function() {
@@ -2400,8 +2422,12 @@ var CliqzAttrack = {
         });
     },
     saveTokens: function() {
-        if (!CliqzAttrack.tokens) return;
-        CliqzAttrack.saveRecord('tokens', JSON.stringify(CliqzAttrack.tokens));
+        if (CliqzAttrack.tokens)
+            CliqzAttrack.saveRecord('tokens', JSON.stringify(CliqzAttrack.tokens));
+    },
+    saveBlocked: function() {
+        if (CliqzAttrack.blocked)
+            CliqzAttrack.saveRecord('blocked', JSON.stringify(CliqzAttrack.blocked));
     },
     loadQSStats: function() {
         CliqzAttrack.loadRecord('QSStats', function(data) {
@@ -2520,6 +2546,15 @@ var CliqzAttrack = {
             if (CliqzAttrack.debug) CliqzUtils.log("error checking token list versions", "attrack");
             CliqzAttrack.loadRemoteTokenWhitelist();
             CliqzAttrack.loadRemoteSafeKey();
+        });
+    },
+    loadBlockRules: function() {
+        CliqzUtils.loadResource(CliqzAttrack.URL_BLOCK_RULES, function(req) {
+            try {
+                CliqzAttrack.qsBlockRule = JSON.parse(req.response);
+            } catch(e) {
+                CliqzAttrack.qsBlockRule = [];
+            }
         });
     },
     loadRemoteTokenWhitelist: function() {
@@ -2659,6 +2694,21 @@ var CliqzAttrack = {
                     CliqzAttrack.tokens = JSON.parse(data);
                 } catch(ee) {
                     CliqzAttrack.tokens = {};
+                }
+            }
+        });
+    },
+    loadBlocked: function() {
+        CliqzAttrack.loadRecord('blocked', function(data) {
+            if (data==null) {
+                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.blocked", CliqzAttrack.LOG_KEY);
+                CliqzAttrack.blocked = {};
+            }
+            else {
+                try {
+                    CliqzAttrack.blocked = JSON.parse(data);
+                } catch(ee) {
+                    CliqzAttrack.blocked = {};
                 }
             }
         });
@@ -3276,6 +3326,15 @@ var CliqzAttrack = {
             CliqzAttrack.tokenDomain[tok][sourceD] = today;
             return Object.keys(CliqzAttrack.tokenDomain[tok]).length;
         };
+
+        var _addBlockLog = function(s, k, v) {
+            k = md5(k);
+            v = md5(v);
+            if (!(s in CliqzAttrack.blocked)) CliqzAttrack.blocked[s] = {};
+            if (!(k in CliqzAttrack.blocked[s])) CliqzAttrack.blocked[s][k] = {};
+            if (!(v in CliqzAttrack.blocked[s][k])) CliqzAttrack.blocked[s][k][v] = 0;
+            CliqzAttrack.blocked[s][k][v]++;
+        };
         
         var _checkTokens = function(key, val) {
             var tok = dURIC(val);
@@ -3298,6 +3357,7 @@ var CliqzAttrack = {
                     } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
                         stats['cookie_newToken']++;
                     } else {
+                        _addBlockLog(s, tok, val);
                         badTokens.push(tok);
                         if (cc == CliqzAttrack.tokenDomainCountThreshold)
                             stats['cookie_countThreshold']++;
@@ -3320,6 +3380,7 @@ var CliqzAttrack = {
                     } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
                         stats['private_newToken']++;
                     } else {
+                        _addBlockLog(s, tok, val);
                         badTokens.push(tok);
                         if (cc == CliqzAttrack.tokenDomainCountThreshold)
                             stats['private_countThreshold']++;
@@ -3347,6 +3408,7 @@ var CliqzAttrack = {
                         } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
                             stats['cookie_b64_newToken']++;
                         } else {
+                            _addBlockLog(s, tok, val);
                             badTokens.push(tok);
                             if (cc == CliqzAttrack.tokenDomainCountThreshold)
                                 stats['cookie_b64_countThreshold']++;
@@ -3367,6 +3429,7 @@ var CliqzAttrack = {
                         } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
                             stats['private_b64_newToken']++;
                         } else {
+                            _addBlockLog(s, tok, val);
                             badTokens.push(tok);
                             if (cc == CliqzAttrack.tokenDomainCountThreshold)
                                 stats['private_b64_countThreshold']++;
@@ -3395,6 +3458,7 @@ var CliqzAttrack = {
                     } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
                         stats['qs_newToken']++;
                     } else {
+                        _addBlockLog(s, tok, val);
                         badTokens.push(tok);
                         if (cc == CliqzAttrack.tokenDomainCountThreshold)
                             stats['qs_countThreshold']++;
@@ -3931,18 +3995,30 @@ var CliqzAttrack = {
                  'header.cookie',
                  'req_oauth',
                  'resp_ob',
-                 'short_no_hash',
-                 'cookie_newToken',
-                 'cookie_countThreshold',
-                 'private_newToken',
-                 'private_countThreshold',
-                 'short_no_hash',
-                 'cookie_b64_newToken',
-                 'cookie_b64_countThreshold',
-                 'private_b64_newToken',
+                 'token.has_short_no_hash',
+                 'token.short_no_hash',
+                 'token.has_cookie_newToken',
+                 'token.cookie_newToken',
+                 'token.has_cookie_countThreshold',
+                 'token.cookie_countThreshold',
+                 'token.has_private_newToken',
+                 'token.private_newToken',
+                 'token.has_private_countThreshold',
+                 'token.private_countThreshold',
+                 'token.has_cookie_b64_newToken',
+                 'token.cookie_b64_newToken',
+                 'token.has_cookie_b64_countThreshold',
+                 'token.cookie_b64_countThreshold',
+                 'token.has_private_b64_newToken',
+                 'token.private_b64_newToken',
+                 'token.has_private_b64_countThreshold',
+                 'token.private_b64_countThreshold',
                  'private_b64_countThreshold',
-                 'qs_newToken',
-                 'qs_countThreshold'
+                 'token.has_qs_newToken',
+                 'token.qs_newToken',
+                 'token.has_qs_countThreshold',
+                 'token.qs_countThreshold',
+                 'req_rule_aborted'
                  ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
