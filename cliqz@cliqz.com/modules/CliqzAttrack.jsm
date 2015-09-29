@@ -3262,7 +3262,9 @@ var CliqzAttrack = {
         var w2 = {};
 
         // stats keys
-        ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted'].forEach(function(k) {stats[k] = 0;});
+        ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted',
+         'short_no_hash', 'cookie_b64_newToken', 'cookie_b64_countThreshold', 'private_b64_newToken',
+         'private_b64_countThreshold', 'qs_newToken', 'qs_countThreshold', ].forEach(function(k) {stats[k] = 0;});
 
         var _countCheck = function(tok) {
             // for token length < 12 and may be not a hash, we let it pass
@@ -3281,13 +3283,13 @@ var CliqzAttrack = {
             while (tok != dURIC(tok)) {
                 tok = dURIC(tok);
             }
+            var cc = _countCheck(tok);
             if (tok.length < 8 || source_url.indexOf(tok) > -1) return;
 
             // Bad values (cookies)
             for (var c in cookievalue) {
                 if ((tok.indexOf(c) > -1 && c.length > 8) || c.indexOf(tok) > -1) {
                     if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + val, 'tokk');
-                    var cc = _countCheck(tok);
                     if (c != tok) {
                         cc = Math.max(cc, _countCheck(c));
                     }
@@ -3309,7 +3311,6 @@ var CliqzAttrack = {
             for (var c in CliqzAttrack.privateValues) {
                 if ((tok.indexOf(c) > -1 && c.length > 8) || c.indexOf(tok) > -1) {
                     if (CliqzAttrack.debug) CliqzUtils.log('same private values ' + val, 'tokk');
-                    var cc = _countCheck(tok);
                     if (c != tok) {
                         cc = Math.max(cc, _countCheck(c));
                     }
@@ -3336,7 +3337,6 @@ var CliqzAttrack = {
                 for (var c in cookievalue) {
                     if ((b64.indexOf(c) > -1 && c.length > 8) || c.indexOf(b64) > -1) {
                         if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + b64, 'tokk-b64');
-                        var cc = _countCheck(tok);
                         if (c != tok) {
                             cc = Math.max(cc, _countCheck(c));
                         }
@@ -3356,7 +3356,6 @@ var CliqzAttrack = {
                 for (var c in CliqzAttrack.privateValues) {
                     if (b64.indexOf(c) > -1 && c.length > 8) {
                         if (CliqzAttrack.debug) CliqzUtils.log('same private values ' + b64, 'tokk-b64');
-                        var cc = _countCheck(tok);
                         if (c != tok) {
                             cc = Math.max(cc, _countCheck(c));
                         }
@@ -3387,7 +3386,6 @@ var CliqzAttrack = {
 
             if (source_url.indexOf(tok) == -1) {
                 if(!(md5(tok) in CliqzAttrack.tokenExtWhitelist[s])) {
-                    var cc = _countCheck(tok);
                     if (cc == 0) {
                         stats['short_no_hash']++;
                     } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
