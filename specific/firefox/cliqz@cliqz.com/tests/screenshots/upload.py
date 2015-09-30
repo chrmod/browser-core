@@ -3,6 +3,7 @@ import datetime
 import glob
 import math
 import os
+import uuid
 import shutil
 import sys
 
@@ -35,7 +36,12 @@ def main(argv):
                       action="store", dest="config_file_name",
                       help="name of config file "
                            "[default: '%default']",
-                      default="config.json")
+                      default="config.json"),
+    parser.add_option("-t", metavar="TEST_NAME",
+                      action="store", dest="test_name",
+                      help="name of test folder "
+                           "[default: '%default']",
+                      default=str(uuid.uuid4()).replace('-', '')[:10]),
     parser.add_option("--dry-run",
                       action="store_true", dest="dry_run",
                       help="do not upload to S3")
@@ -116,9 +122,7 @@ def main(argv):
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")\
         if len(options.timestamp) == 0 else options.timestamp
-    output_folder_base = \
-        os.path.join(timestamp,
-                     "width-" + str(options.dropdown_width))
+    output_folder_base = os.path.join(timestamp, options.test_name)
     output_folder = \
         os.path.join(options.output_folder, output_folder_base)
     output_folder_individual = \

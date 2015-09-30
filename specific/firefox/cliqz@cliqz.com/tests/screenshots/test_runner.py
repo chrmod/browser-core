@@ -77,6 +77,9 @@ def upload_test_results(args, uploader_path):
         '--timestamp', args.timestamp
     ]]
 
+    if 'test_name' in upload_config:
+        cmd.extend(['-t', upload_config['test_name']])
+
     log.debug('Uploader command: %s', cmd)
     try:
         subprocess.check_call(cmd)
