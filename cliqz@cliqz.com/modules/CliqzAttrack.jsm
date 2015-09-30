@@ -720,12 +720,14 @@ var CliqzAttrack = {
         return same;
 
     },
-    obsfuscate: function(s, method, replacement) {
+    obfuscate: function(s, method, replacement) {
         switch(method) {
         case 'replace':
             return replacement;
         case 'shuffle':
             return shuffle(s);
+        case 'same':
+            return s;
         default:
             return shuffle(s);
         }
