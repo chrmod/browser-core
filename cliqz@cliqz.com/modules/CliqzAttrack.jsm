@@ -780,12 +780,12 @@ var CliqzAttrack = {
         var p = {};
         // var navigator = CliqzUtils.getWindow().navigator;
         var navigator = window.navigator;
-        var badList = ['userAgent', 'buildID', 'oscpu'];
-        for (var i = 0; i < badList.length; i++) {
-            var val = navigator[badList[i]];
-            if (val.length >= 8)
-                p[val] = true;
-        }
+        // var badList = ['userAgent', 'buildID', 'oscpu'];
+        // for (var i = 0; i < badList.length; i++) {
+        //     var val = navigator[badList[i]];
+        //     if (val.length >= 8)
+        //         p[val] = true;
+        // }
         // plugins
         for (var i = 0; i < navigator.plugins.length; i++) {
             var name = navigator.plugins[i].name;
@@ -3312,6 +3312,7 @@ var CliqzAttrack = {
 
         // stats keys
         ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted',
+         'cookie_newToken', 'cookie_countThreshold', 'private_newToken', 'private_countThreshold',
          'short_no_hash', 'cookie_b64_newToken', 'cookie_b64_countThreshold', 'private_b64_newToken',
          'private_b64_countThreshold', 'qs_newToken', 'qs_countThreshold', ].forEach(function(k) {stats[k] = 0;});
 
@@ -3327,13 +3328,30 @@ var CliqzAttrack = {
             return Object.keys(CliqzAttrack.tokenDomain[tok]).length;
         };
 
-        var _addBlockLog = function(s, k, v) {
+        var _incrStats = function(cc, prefix, tok, key, val) {
+            if (cc == 0)
+                stats['short_no_hash']++;
+            else if (cc < CliqzAttrack.tokenDomainCountThreshold)
+                stats[prefix+'_newToken']++;
+            else {
+                _addBlockLog(s, tok, val, prefix);
+                badTokens.push(tok);
+                if (cc == CliqzAttrack.tokenDomainCountThreshold)
+                    stats[prefix + '_countThreshold']++;
+                stats[prefix]++;
+                return true;
+            }
+            return false;
+        };
+
+        var _addBlockLog = function(s, k, v, prefix) {
             k = md5(k);
             v = md5(v);
             if (!(s in CliqzAttrack.blocked)) CliqzAttrack.blocked[s] = {};
             if (!(k in CliqzAttrack.blocked[s])) CliqzAttrack.blocked[s][k] = {};
-            if (!(v in CliqzAttrack.blocked[s][k])) CliqzAttrack.blocked[s][k][v] = 0;
-            CliqzAttrack.blocked[s][k][v]++;
+            if (!(v in CliqzAttrack.blocked[s][k])) CliqzAttrack.blocked[s][k][v] = {};
+            if (!(prefix in CliqzAttrack.blocked[s][k][v])) CliqzAttrack.blocked[s][k][v][prefix] = 0;
+            CliqzAttrack.blocked[s][k][v][prefix]++;
         };
         
         var _checkTokens = function(key, val) {
@@ -3352,18 +3370,8 @@ var CliqzAttrack = {
                     if (c != tok) {
                         cc = Math.max(cc, _countCheck(c));
                     }
-                    if (cc == 0) {
-                        stats['short_no_hash']++;
-                    } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
-                        stats['cookie_newToken']++;
-                    } else {
-                        _addBlockLog(s, tok, val);
-                        badTokens.push(tok);
-                        if (cc == CliqzAttrack.tokenDomainCountThreshold)
-                            stats['cookie_countThreshold']++;
-                        stats['cookie']++;
+                    if (_incrStats(cc, 'cookie', tok, key, val))
                         return;
-                    } 
                 }
             }
 
@@ -3375,18 +3383,8 @@ var CliqzAttrack = {
                     if (c != tok) {
                         cc = Math.max(cc, _countCheck(c));
                     }
-                    if (cc == 0) {
-                        stats['short_no_hash']++;
-                    } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
-                        stats['private_newToken']++;
-                    } else {
-                        _addBlockLog(s, tok, val);
-                        badTokens.push(tok);
-                        if (cc == CliqzAttrack.tokenDomainCountThreshold)
-                            stats['private_countThreshold']++;
-                        stats['private']++;
+                    if (_incrStats(cc, 'private', tok, key, val))
                         return;
-                    }
                 }
             }
             var b64 = null;
@@ -3403,18 +3401,8 @@ var CliqzAttrack = {
                         if (c != tok) {
                             cc = Math.max(cc, _countCheck(c));
                         }
-                        if (cc == 0) {
-                            stats['short_no_hash']++;
-                        } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
-                            stats['cookie_b64_newToken']++;
-                        } else {
-                            _addBlockLog(s, tok, val);
-                            badTokens.push(tok);
-                            if (cc == CliqzAttrack.tokenDomainCountThreshold)
-                                stats['cookie_b64_countThreshold']++;
-                            stats['cookie_b64']++;
+                        if (_incrStats(cc, 'cookie_b64', tok, key, val))
                             return;
-                        }
                     }
                 }
                 for (var c in CliqzAttrack.privateValues) {
@@ -3424,18 +3412,8 @@ var CliqzAttrack = {
                         if (c != tok) {
                             cc = Math.max(cc, _countCheck(c));
                         }
-                        if (cc == 0) {
-                            stats['short_no_hash']++;
-                        } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
-                            stats['private_b64_newToken']++;
-                        } else {
-                            _addBlockLog(s, tok, val);
-                            badTokens.push(tok);
-                            if (cc == CliqzAttrack.tokenDomainCountThreshold)
-                                stats['private_b64_countThreshold']++;
-                            stats['private_b64']++;
+                        if (_incrStats(cc, 'private_b64', tok, key, val))
                             return;
-                        }
                     }
                 }
             }
@@ -3453,16 +3431,7 @@ var CliqzAttrack = {
             if (source_url.indexOf(tok) == -1) {
                 if(!(md5(tok) in CliqzAttrack.tokenExtWhitelist[s])) {
                     var cc = _countCheck(tok);
-                    if (cc == 0) {
-                        stats['short_no_hash']++;
-                    } else if (cc < CliqzAttrack.tokenDomainCountThreshold) {
-                        stats['qs_newToken']++;
-                    } else {
-                        _addBlockLog(s, tok, val);
-                        badTokens.push(tok);
-                        if (cc == CliqzAttrack.tokenDomainCountThreshold)
-                            stats['qs_countThreshold']++;
-                    }
+                    _incrStats(cc, 'qs', tok, key, val);
                 } else
                     stats['whitelisted']++;
             }
