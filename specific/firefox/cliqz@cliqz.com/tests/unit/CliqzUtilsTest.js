@@ -143,7 +143,7 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor) {
 
     describe("getCliqzResults", function () {
       var mockReq,
-          mockHttpGet = function () {console.log("ssssssssS"); return mockReq; },
+          mockHttpGet = function () { return mockReq; },
           httpGet, requestMonitor;
 
       beforeEach(function () {

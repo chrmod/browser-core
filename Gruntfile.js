@@ -269,4 +269,12 @@ module.exports = function(grunt) {
                 grunt.log.writeln('please specify the version, eg: publish:beta');
         }
     });
+
+    grunt.registerTask('prepare_host', '', function (version) {
+        grunt.log.writeln('Installing dependencies');
+        var exec = require('child_process').execSync;
+        grunt.log.writeln(exec("sudo npm install -g bower"));
+        grunt.log.writeln(exec("cd build/dev/firefox/cliqz@cliqz.com; bower install"));
+        grunt.log.writeln(exec("cd build/dev/firefoxDebug/cliqz@cliqz.com; bower install"));
+    });
 }
