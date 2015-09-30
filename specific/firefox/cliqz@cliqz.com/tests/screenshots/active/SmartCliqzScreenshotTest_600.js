@@ -3,6 +3,7 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
     subject: 'Test screenshots report',
     width: 600,
     upload: {
+        test_name: 'SmartCliqzScreenshotTest_600',
         dropdown_width: 502
     },
     queries: {
