@@ -140,9 +140,6 @@ window.CLIQZ.Core = {
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/styles/css/extension.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
         if(CliqzUtils.isWindows()) {
             CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-win.css');
         } else {
