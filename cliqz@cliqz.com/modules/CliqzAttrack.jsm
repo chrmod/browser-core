@@ -995,14 +995,17 @@ var CliqzAttrack = {
                 if (badTokens.length == 0) return;
 
                 // Block request based on rules specified
-                for (var i = 0; i < CliqzAttrack.qsBlockRule.length; i++) {
-                    var sRule = CliqzAttrack.qsBlockRule[i][0],
-                        uRule = CliqzAttrack.qsBlockRule[i][1];
-                    if (source_url_parts.hostname.endsWith(sRule) &&
-                        url_parts.hostname.endsWith(uRule)) {
-                        subject.cancel(Components.results.NS_BINDING_ABORTED);
-                        if (req_log) req_log.req_rule_aborted++;
-                        return;
+                var _key = source_tab + ":" + source_url;
+                if (CliqzAttrack.isQSEnabled() && !(CliqzAttrack.reloadWhiteList[_key])) {
+                    for (var i = 0; i < CliqzAttrack.qsBlockRule.length; i++) {
+                        var sRule = CliqzAttrack.qsBlockRule[i][0],
+                            uRule = CliqzAttrack.qsBlockRule[i][1];
+                        if (source_url_parts.hostname.endsWith(sRule) &&
+                            url_parts.hostname.endsWith(uRule)) {
+                            subject.cancel(Components.results.NS_BINDING_ABORTED);
+                            if (req_log) req_log.req_rule_aborted++;
+                            return;
+                        }
                     }
                 }
 
@@ -1013,8 +1016,6 @@ var CliqzAttrack = {
 
                 // altering request
                 // Additional check to verify if the user reloaded the page.
-
-                var _key = source_tab + ":" + source_url;
                 if (CliqzAttrack.isQSEnabled() && !(CliqzAttrack.reloadWhiteList[_key])) {
                     if (CliqzAttrack.debug) {
                         CliqzUtils.log("altering request " + url + " " + source_url + ' ' + same_gd, 'tokk');
@@ -3135,8 +3136,6 @@ var CliqzAttrack = {
             el.style.display = 'block';
 
         }, 500);
-
-
 
     },
     insertAlertNotification: function(url, doc) {
