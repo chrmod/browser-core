@@ -3323,6 +3323,9 @@ var CliqzAttrack = {
 
         var s = CliqzAttrack.getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
+        // If it's a rare 3rd party, we don't do the rest
+        if (!(s in CliqzAttrack.tokenExtWhitelist)) return;
+
         var sourceD = md5(source_url_parts.hostname).substr(0, 16);
         var today = CliqzAttrack.getTime().substr(0, 8);
 
@@ -3449,9 +3452,7 @@ var CliqzAttrack = {
                 }
             }
 
-            // If it's a rare 3rd party, we don't do the rest
-            if (!(s in CliqzAttrack.tokenExtWhitelist)) return;
-
+            
             // Good keys.
             if (CliqzAttrack.safeKey[s] &&
                 CliqzAttrack.safeKey[s][md5(key)]) {
