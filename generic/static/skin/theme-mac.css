@@ -56,7 +56,8 @@
     -moz-box-pack: center;
 }
 #urlbar-wrapper {
-    max-width: 850px;
+    max-width: 100%;
+    -moz-box-pack: center;
 }
 
 /*/!* ====== Close, minimize & fullscreen btns*!/*/
