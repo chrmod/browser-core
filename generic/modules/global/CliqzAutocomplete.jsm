@@ -664,8 +664,8 @@ var CliqzAutocomplete = {
                 obj.sendResultsSignal(obj, false);
 
                 obj.startTime = null;
-                CliqzUtils.clearTimeout(this.resultsTimer);
-                CliqzUtils.clearTimeout(this.historyTimer);
+                CliqzUtils.clearTimeout(obj.resultsTimer);
+                CliqzUtils.clearTimeout(obj.historyTimer);
                 obj.resultsTimer = null;
                 obj.historyTimer = null;
                 obj.cliqzResults = null;
