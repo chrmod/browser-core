@@ -31,6 +31,11 @@ def main(argv):
                       help="name pattern of screenshot files "
                            "[default: '%default']",
                       default="dropdown*.png")
+    parser.add_option("-c", metavar="CONFIG_FILE",
+                      action="store", dest="config_file_name",
+                      help="name of config file "
+                           "[default: '%default']",
+                      default="config.json")
     parser.add_option("--dry-run",
                       action="store_true", dest="dry_run",
                       help="do not upload to S3")
@@ -159,6 +164,10 @@ def main(argv):
                 (options.mosaic_tile_width, mosaic_tile_height),
                 Image.ANTIALIAS)
         mosaic_images.append(dropdown_image)
+
+    config_file_path = os.path.join(options.input_folder, options.config_file_name)
+    if os.path.exists(config_file_path):
+        shutil.copy(config_file_path, output_folder)
 
     n = 0
     for i in range(0, len(mosaic_images), options.mosaic_tiles):
