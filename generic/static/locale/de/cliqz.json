@@ -795,7 +795,7 @@
       "message": "Dezember"
     },
     "location_permission_prompt": {
-      "message": "Wir würden Dir gerne zeigen in welchen Kinos der Film gerade läuft. Möchtest Du Deinen Standort mit uns teilen?"
+      "message": "Dürfen wir deine Standort benutzen, um die Ergebnisse zu verbessern?"
     },
     "location_never": {
       "message": "Nein, ich mag coole Sachen nicht."
@@ -877,5 +877,11 @@
     },
     "slow_connection_text_4": {
       "message": "Bitte die Internet-Verbindung überprüfen"
+    },
+    "dataCollection": {
+        "message": "Um die Such- und Browser-Funktionen zu verbessern, übermittelt CLQZ for Firefox anonyme Daten an Cliqz. Deine Privatsphäre bleibt dabei geschützt."
+    },
+    "dataCollectionButton": {
+        "message": "Mehr erfahren"
     }
 }

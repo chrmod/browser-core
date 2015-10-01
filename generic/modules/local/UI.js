@@ -259,14 +259,12 @@ var UI = {
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
-          var query = r.text;
           //var qt = query + ": " + new Date().getTime();
           //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
               //CliqzUtils.log(r, "GOT SOME RESULTS");
-              var resp = undefined;
               try {
                 resp = JSON.parse(req.response).results[0];
                 //CliqzUtils.log(resp, "FINAL RESPONSE");
@@ -1489,15 +1487,13 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
 
-      if(!CliqzUtils.isPrivateResultType(action.position_type)){
-          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
-          }
-      }
-      else{
-          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
-          }
+      if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
+          CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {
+           'd': 1,
+           'q': CliqzAutocomplete.lastSearch ,
+           't': CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+           'pt' : action.position_type
+          };
       }
     }
     //LUCIAN: TODO - decouple CliqzHistory
