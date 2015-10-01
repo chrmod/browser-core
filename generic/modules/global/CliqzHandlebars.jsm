@@ -187,26 +187,11 @@ function registerHelpers(){
         var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
         // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
-        var big_template = (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
-        data_richData['type_final'] = data_richData['superType'] || data_richData['type'];
-
-        return big_template
+        return (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
     });
 
     Handlebars.registerHelper('image_rd_specification', function(richData){
-        var mw = "76px";
-        switch (richData["type_final"] || richData['superType'] || richData["type"]){
-            case "movie":
-                mw = "50px";
-                break;
-            case "reciperd":
-                mw = "76px";
-                break;
-            case "game":
-                mw = "76px";
-                break;
-        }
-        return mw; // default
+        return richData['superType'] === "movie" ? "50px" : "76px";
     });
 
     Handlebars.registerHelper('localizeNumbers', function(num) {

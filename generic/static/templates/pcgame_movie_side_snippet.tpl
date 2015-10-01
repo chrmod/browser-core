@@ -1,5 +1,5 @@
 {{#with richData}}
-{{#if (logic type_final '===' 'game')}}
+{{#if (logic superType '===' 'game')}}
 <div>
     <div class="cqz-rd-info">{{local 'GameCategory'}}: {{game_cat}}</div>
     {{#if rating}}
@@ -9,7 +9,7 @@
     <div class="cqz-multy-lines-ellipses cqz-rd-snippet_hspacing">{{des}}</div>
 </div>
 {{/if}}
-{{#if (logic type_final '===' 'movie')}}
+{{#if (logic superType '===' 'movie')}}
 <div>
     {{#if (logic director '&&' director.title)}}
         <div class="cqz-rd-info">{{local director.title}}: <a href="{{director.info.url}}" class="cqz-rd-link" extra="director">{{director.info.name}}</a> </div>
