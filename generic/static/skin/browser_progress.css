@@ -108,7 +108,7 @@
 #cliqz-results .cqz-result-padding2 {padding-top: 20px; padding-bottom: 20px; padding-left: 20px;}
 #cliqz-results .cqz-rd .cqz-ez-btns {margin-top: 19px;}
 #cliqz-results .cqz-rd-body {height: calc(100% - 52px);height: -moz-calc(100% - 52px); width: -moz-calc(100% - 70px); width: calc(100% - 70px); max-width: 700px;}
-#cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-1px);}
+#cliqz-results .snippet_hspacing { height: 13px; transform: translateX(-1px);}
 
 #cliqz-results .cqz-multy-lines-ellipses {
     overflow: hidden;
