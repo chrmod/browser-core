@@ -146,7 +146,7 @@ var CliqzResultProviders = {
       return {
         updatedQ  : uq,
         engineName: MAPPING[end],
-        queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
+        queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[end], uq),
         code: CliqzResultProviders.getEngineCode(MAPPING[end])
       };
     }
