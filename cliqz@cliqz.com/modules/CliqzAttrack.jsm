@@ -398,14 +398,14 @@ var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"
 var CliqzAttrack = {
     VERSION: '0.91',
     LOG_KEY: 'attrack',
-    URL_TOKEN_WHITELIST: 'http://anti-tracking-whitelist.fbt.co/domain_whitelist_tokens_md5.json',
+    URL_TOKEN_WHITELIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
     URL_ALERT_RULES: 'chrome://cliqz/content/anti-tracking-rules.json',
     // URL_ALERT_TEMPLATE: 'chrome://cliqz/content/anti-tracking-index.html',
     // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
-    URL_SAFE_KEY: 'http://anti-tracking-whitelist.fbt.co/domain_safe_key.json',
-    URL_SAFE_KEY_VERSIONCHECK: 'http://anti-tracking-whitelist.fbt.co/versioncheck.json',
-    URL_BLOCK_RULES: 'http://anti-tracking-whitelist.fbt.co/anti-tracking-block-rules.json',
-    URL_BLOCK_REPROT_LIST: 'http://anti-tracking-whitelist.fbt.co/anti-tracking-report-list.json',
+    URL_SAFE_KEY: 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json',
+    URL_SAFE_KEY_VERSIONCHECK: 'versioncheck.json',
+    URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
+    URL_BLOCK_REPROT_LIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
     debug: false,
     msgType:'attrack',
     trackExamplesThreshold: 0,
@@ -3427,7 +3427,6 @@ var CliqzAttrack = {
             } catch(e) {
             }
             if (b64 != null) {
-                if (CliqzAttrack.debug) CliqzUtils.log(b64, 'tokk-b64');
                 for (var c in cookievalue) {
                     if ((b64.indexOf(c) > -1 && c.length > 8) || c.indexOf(b64) > -1) {
                         if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + b64, 'tokk-b64');
