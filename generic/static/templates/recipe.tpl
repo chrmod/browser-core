@@ -23,7 +23,7 @@
                           {{/if}}
                </div>
         </div>
-        <div class="multi-ellipsis">
+        <div class="cqz-multy-lines-ellipses cqz-line-vis-3">
             <p>{{richData.des}}</p>
         </div>
     </div>
