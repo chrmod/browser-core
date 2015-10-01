@@ -194,19 +194,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('image_rd_specification', function(richData){
-        var mw = "76px";
-        switch (richData["type_final"] || richData['superType'] || richData["type"]){
-            case "movie":
-                mw = "50px";
-                break;
-            case "reciperd":
-                mw = "76px";
-                break;
-            case "game":
-                mw = "76px";
-                break;
-        }
-        return mw; // default
+        return (richData["type_final"] || richData['superType'] || richData["type"]) === "movie" ? "50px" : "76px";
     });
 
     Handlebars.registerHelper('localizeNumbers', function(num) {
