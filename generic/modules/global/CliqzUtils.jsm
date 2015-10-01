@@ -91,6 +91,7 @@ var CliqzUtils = {
       'ligaEZTable': 3,
       'local-movie-sc':3,
       'local-cinema-sc':3,
+      'local-data-sc': 2,
       'recipe': 3,
       'rd-h3-w-rating': 1,
       'ramadan': 3,
@@ -223,7 +224,7 @@ var CliqzUtils = {
     return result
   },
   httpHandler: function () {
-    var errorHandler = arguments[2]; // see httpGet or httpPost arguments
+    var errorHandler = arguments[3]; // see httpGet or httpPost arguments
     try {
       return CLIQZEnvironment.httpHandler.apply(CLIQZEnvironment, arguments);
     } catch(e) {

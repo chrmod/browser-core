@@ -208,9 +208,6 @@ var CliqzAutocomplete = {
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
                             // override the template if the superTemplate is known
-                            if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate))
-                                r.data.template = r.data.superTemplate;
-
                             if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
                                 // unexpected/unknown template
                                 continue;
@@ -546,7 +543,7 @@ var CliqzAutocomplete = {
                 this.instant = [];
 
                 this.callback = callback;
-                this.searchString = searchString.trim();
+                this.searchString = searchString;
                 this.searchStringSuggest = null;
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
@@ -602,7 +599,7 @@ var CliqzAutocomplete = {
 
                 // trigger history search
                 CLIQZEnvironment.historySearch(
-                    searchString.trim(),
+                    searchString,
                     this.onHistoryDone.bind(this),
                     CliqzAutocomplete.sessionStart);
 
@@ -667,6 +664,8 @@ var CliqzAutocomplete = {
                 obj.sendResultsSignal(obj, false);
 
                 obj.startTime = null;
+                CliqzUtils.clearTimeout(obj.resultsTimer);
+                CliqzUtils.clearTimeout(obj.historyTimer);
                 obj.resultsTimer = null;
                 obj.historyTimer = null;
                 obj.cliqzResults = null;

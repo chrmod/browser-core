@@ -259,14 +259,12 @@ var UI = {
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
-          var query = r.text;
           //var qt = query + ": " + new Date().getTime();
           //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
               //CliqzUtils.log(r, "GOT SOME RESULTS");
-              var resp = undefined;
               try {
                 resp = JSON.parse(req.response).results[0];
                 //CliqzUtils.log(resp, "FINAL RESPONSE");
@@ -686,9 +684,24 @@ var UI = {
         selectionEnd: end
       };
     },
+    enhanceSpecificResult: function(r) {
+      var specificView;
+      if (r.subType && JSON.parse(r.subType).ez) {
+        // Indicate that this is a RH result.
+        r.type = "cliqz-extra";
+      }
+      if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+        r.data.template = r.data.superTemplate;
+      }
+      specificView = UI.VIEWS[r.data.template];
+      if (specificView && specificView.enhanceResults) {
+        specificView.enhanceResults(r.data);
+      }
+    },
     closeResults: closeResults,
     sessionEnd: sessionEnd,
-    getResultOrChildAttr: getResultOrChildAttr
+    getResultOrChildAttr: getResultOrChildAttr,
+    enhanceResults: enhanceResults
 };
 
 function navigateToEZinput(element){
@@ -1003,32 +1016,26 @@ function enhanceResults(res){
           } else if(r.data.actions) {
             r.data.btns = r.data.actions;
             r.data.btnExtra = 'action';
-          } else if (r.data && (r.data.template === 'weatherEZ' || r.data.template === 'weatherAlert') && r.data["forecast_url"]) {
-              r.data.btns = [
-                  {
-                      'title_key': 'extended_forecast',
-                      'url': r.data["forecast_url"]
-                  }
-              ]
           } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
               r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
           }
+          UI.enhanceSpecificResult(r);
         }
 
-        if(r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') == 0){
+        if (r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') === 0) {
             var d = r.data;
             if(d){
-                if(d.template && TEMPLATES.hasOwnProperty(d.template)){
-                    r.vertical = d.template;
-                    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-                    if(r.vertical == 'text')r.dontCountAsResult = true;
-                } else {
-                    // double safety - to be removed
-                    r.invalid = true;
-                    r.dontCountAsResult = true;
-                    continue;
-                }
+              if(d.template && TEMPLATES.hasOwnProperty(d.template)){
+                r.vertical = d.template;
+                r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+                if (r.vertical == 'text') r.dontCountAsResult = true;
+              } else {
+                // double safety - to be removed
+                r.invalid = true;
+                r.dontCountAsResult = true;
+                continue;
+              }
 
               // Display the title instead of the name, if available
               if(d.title)
@@ -1038,10 +1045,10 @@ function enhanceResults(res){
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
-             if (getPartial(r.type) != 'images'){
-                 r.image = constructImage(r.data);
-                 //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
-                }
+             if (getPartial(r.type) != 'images') {
+               r.image = constructImage(r.data);
+               //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+             }
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -1199,12 +1206,16 @@ function enhanceResults(res){
       updateMessageState("show", CLIQZ.UI.messageCenterMessage);
     } else if (!CliqzUtils.requestMonitor.inHealth()) {
       var rand = getRandomForCurrentTime(4);
-      updateMessageState("show", {
-        slow_connection: {
-          header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
-          text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
-        }
-      });
+
+      // Temporarily disabled while we re-evaluate the slow connection method
+      CliqzUtils.log(CliqzUtils.getLocalizedString("slow_connection_header_"+rand) + " - " +
+                     CliqzUtils.getLocalizedString("slow_connection_text_"+rand), "UI.js")
+      // updateMessageState("show", {
+      //   slow_connection: {
+      //     header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
+      //     text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
+      //   }
+      // });
     }
 
     return res;
@@ -1476,15 +1487,13 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
 
-      if(!CliqzUtils.isPrivateResultType(action.position_type)){
-          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
-          }
-      }
-      else{
-          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
-          }
+      if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
+          CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {
+           'd': 1,
+           'q': CliqzAutocomplete.lastSearch ,
+           't': CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+           'pt' : action.position_type
+          };
       }
     }
     //LUCIAN: TODO - decouple CliqzHistory

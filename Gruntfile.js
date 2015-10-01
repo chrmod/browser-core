@@ -175,7 +175,8 @@ module.exports = function(grunt) {
             local: {
                 src: [
                     "generic/modules/local/core.js",
-                    "generic/modules/local/ui.js"
+                    "generic/modules/local/UI.js",
+                    "generic/modules/local/ContextMenu.js"
                 ],
                 options: {
                     banner: "'use strict';\n\n",
@@ -267,5 +268,13 @@ module.exports = function(grunt) {
             default:
                 grunt.log.writeln('please specify the version, eg: publish:beta');
         }
+    });
+
+    grunt.registerTask('prepare_host', '', function (version) {
+        grunt.log.writeln('Installing dependencies');
+        var exec = require('child_process').execSync;
+        grunt.log.writeln(exec("sudo npm install -g bower"));
+        grunt.log.writeln(exec("cd build/dev/firefox/cliqz@cliqz.com; bower install"));
+        grunt.log.writeln(exec("cd build/dev/firefoxDebug/cliqz@cliqz.com; bower install"));
     });
 }
