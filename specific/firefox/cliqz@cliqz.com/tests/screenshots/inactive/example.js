@@ -16,6 +16,7 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
     },
     subject: 'Test screenshots report',
     emails: ['andrey@cliqz.com', 'andrey@cliqz.com'],
+    name: 'ExampleTest',
     template: 'grid',
     timeout: 10000,
 

@@ -70,6 +70,7 @@ function prepareScreenshotTest(cfg){
                 emails: cfg.emails,
                 subject: cfg.subject,
                 template: cfg.template,
+                name: cfg.name,
                 upload: cfg.upload
             };
 

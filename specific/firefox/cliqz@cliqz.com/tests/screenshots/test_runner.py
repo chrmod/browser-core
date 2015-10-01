@@ -7,6 +7,13 @@ import datetime
 import json
 import logging
 import logging.config
+import uuid
+import shutil
+from boto.ses.connection import SESConnection
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 
 CHROME_URL = 'chrome://cliqztests/content/screenshots/run.html'
 
@@ -36,6 +43,36 @@ logging.config.dictConfig({
 log = logging.getLogger(__name__)
 
 
+def render_mosaic(args, config):
+    mosaic_file_name = os.path.join(
+        args.output_path, args.timestamp, config['name'], 'mosaic', 'mosaic-000.png'
+    )
+    s3_key_path = '/'.join([c for c in
+        [args.key_prefix, args.timestamp, config['name'], 'mosaic', 'mosaic-000.png']
+        if c
+    ])
+    s3_path = 's3://%s/%s' % (args.bucket, s3_key_path)
+
+    msg = MIMEMultipart()
+    html = '<html><body>%s<br/><br/><img src="cid:%s" /></body></html>' % (s3_path, s3_key_path)
+    msg.attach(MIMEText(html, 'html'))
+
+    with open(mosaic_file_name, 'rb') as fp:
+        img = MIMEImage(fp .read())
+        img.add_header('Content-ID', s3_key_path)
+        msg.attach(img)
+
+    return msg
+
+
+# Mapping email template names to their rendering functions
+# Every function should accept (args, config) and return message object ready to be sent
+EMAIL_TEMPLATES = {
+    'mosaic': render_mosaic,
+    'default': render_mosaic,
+}
+
+
 def run_test(args, test_relpath):
     log.info('Running test %s', test_relpath)
 
@@ -50,14 +87,7 @@ def run_test(args, test_relpath):
         log.exception('Error running command %s:', cmd)
 
 
-def upload_test_results(args, uploader_path):
-    # Read uploader options from json.config
-    config_path = os.path.join(args.downloads_path, 'config.json')
-    if not os.path.exists(config_path):
-        log.error('Test did not generate %s!', config_path)
-        return
-
-    config = json.loads(open(config_path).read())
+def upload_test_results(args, config, uploader_path):
     upload_config = config.get('upload', {})
 
     cmd = [str(arg) for arg in [
@@ -65,6 +95,7 @@ def upload_test_results(args, uploader_path):
         uploader_path,
         '-i', args.downloads_path,
         '-o', args.output_path,
+        '-t', config['name'],
         '--bucket', args.bucket,
         '--key-prefix', args.key_prefix,
         '--dropdown-left', upload_config.get('dropdown_left', '32'),
@@ -74,11 +105,9 @@ def upload_test_results(args, uploader_path):
         '--mosaic-padding', upload_config.get('mosaic_padding', '1'),
         '--mosaic-cols', upload_config.get('mosaic_cols', '3'),
         '--mosaic-tiles', upload_config.get('mosaic_tiles', '100'),
-        '--timestamp', args.timestamp
+        '--timestamp', args.timestamp,
+        '--keep-files'
     ]]
-
-    if 'test_name' in upload_config:
-        cmd.extend(['-t', upload_config['test_name']])
 
     log.debug('Uploader command: %s', cmd)
     try:
@@ -87,13 +116,46 @@ def upload_test_results(args, uploader_path):
         log.exception('Error running command %s:', cmd)
 
 
+def send_emails(args, config):
+    template = config.get('template', 'default')
+    if template not in EMAIL_TEMPLATES:
+        log.error('No handler for mail template "%s" found, skip sending emails', template)
+        return
+
+    if 'emails' not in config:
+        log.error('No emails found in config, skip sending emails')
+        return
+
+    handler = EMAIL_TEMPLATES[template]
+    msg = handler(args, config)
+    msg['From'] = 'dominik.s@cliqz.com'
+    msg['To'] = ','.join(config['emails'])
+    if 'subject' in config:
+        msg['Subject'] = config['subject']
+    else:
+        msg['Subject'] = 'Test results for %s (%s)' % (args.timestamp, config['name'])
+
+    conn = SESConnection(
+        aws_access_key_id='AKIAJFBODEFNZWT3PITQ',
+        aws_secret_access_key='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'
+    )
+    conn.send_raw_email(msg.as_string())
+    log.debug('Sent "%s" mail for test %s to %s',
+              template, config['name'], config['emails'])
+
+
 def cleanup_after_test(args):
     for glob_expr in (
         os.path.join(args.downloads_path, 'dropdown*.png'),
         os.path.join(args.downloads_path, 'config.json'),
     ):
         for filename in glob.glob(glob_expr):
+            log.debug('Removing file %s', filename)
             os.remove(filename)
+
+    output_folder = os.path.join(args.output_path, args.timestamp)
+    log.debug('Removing directory %s', output_folder)
+    shutil.rmtree(output_folder)
 
 
 def main(args):
@@ -119,8 +181,21 @@ def main(args):
 
     for test_relpath in files_to_run:
         run_test(args, test_relpath)
-        upload_test_results(args, uploader_path)
-        cleanup_after_test(args)
+
+        config_path = os.path.join(args.downloads_path, 'config.json')
+        if os.path.exists(config_path):
+            config = json.loads(open(config_path).read())
+            # If test authors didn't provide us with a test name, generate one
+            if 'name' not in config:
+                config['name'] = str(uuid.uuid4()).replace('-', '')[:10]
+
+            upload_test_results(args, config, uploader_path)
+            send_emails(args, config)
+        else:
+            log.error('Test did not generate %s, skip uploading & sending emails', config_path)
+
+        if not args.keep_files:
+            cleanup_after_test(args)
 
 
 if __name__ == '__main__':
@@ -141,6 +216,9 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output-path',
                         dest='output_path', help='output directory for uploader, a temp folder',
                         default=r'C:\temp')
+    parser.add_argument('--keep-files', action='store_true',
+                        dest='keep_files', help='do not delete local screenshots',
+                        default=False)
     parser.add_argument('--bucket',
                         dest='bucket', help='bucket to upload files to',
                         default='tests-dropdown-appearance')
