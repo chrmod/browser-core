@@ -941,17 +941,21 @@
     float: left;
     margin-right: 20px;
     height: 100%;
-    max-width: 110px
+    max-width: 130px
 }
 
+.cqz-results .cqz-rd-recipe {
+    .cqz-rd-img_div { max-width: 110px; }
+    .cqz-rd-rateimg { margin-top: 13px; }
+}
 .cqz-results .cqz-rd-h3-snippet {
     height: 110px;
-    margin: 22px 0px 22px 0px;
+    margin: 22px 0 22px 0;
 }
 
 .cqz-results .cqz-rd-h2-snippet {
     height: 200px;
-    margin: 20px 0px 14px 0px;
+    margin: 20px 0 14px 0;
 }
 
 /* ------- END RICH DATA Result----------*/

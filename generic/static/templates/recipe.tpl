@@ -1,5 +1,5 @@
 {{#if (recipe_rd_template data.richData)}}
-<div class="cqz-result-h1 cqz-rd cqz-result-padding">
+<div class="cqz-result-h1 cqz-rd cqz-result-padding cqz-rd-recipe">
   {{#with data}}
     <div class="cqz-rd-body">
         <div class="cqz-result-title overflow" arrow-override=''>
