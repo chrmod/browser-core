@@ -9,11 +9,9 @@
 TESTS.SmartCliqzTest = prepareScreenshotTest({
     // The following keys are the basic test configuration
     // and are not related to our testing framework
-    queries: {
-        'top': [
-            'google.de', 'g', 'f'
-        ]
-    },
+    queries: [
+        'google.de', 'g', 'f'
+    ],
     subject: 'Test screenshots report',
     emails: ['andrey@cliqz.com', 'andrey@cliqz.com'],
     name: 'ExampleTest',

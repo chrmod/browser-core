@@ -1,10 +1,10 @@
 TESTS.SmartCliqzTest = prepareScreenshotTest({
     emails: ['andrey@cliqz.com'],
-    subject: '[testing] new dropdown screenshots (width: 502)',
-    width: 600,
-    name: 'SmartCliqzScreenshotTest_600',
+    subject: '[testing] new dropdown screenshots (width: 900)',
+    width: 1242,
+    name: 'SmartCliqzScreenshotTest_1242',
     upload: {
-        dropdown_width: 502
+        dropdown_width: 900
     },
     queries: QUERIES.top.concat(
         QUERIES.smartcliqz).concat(

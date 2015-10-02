@@ -89,24 +89,23 @@ function prepareScreenshotTest(cfg){
         var i = 0;
         var queries = cfg.queries;
 
-        for (k in queries) {
-            queries[k].forEach(function (query) {
-                it('should take screenshot of query: '+ query, function() {
-                    fillIn(query);
+        queries.forEach(function (query) {
+            it('should take screenshot of query: '+ query, function() {
+                fillIn(query);
 
-                    return waitForResult().then(function() {
-                        return new Promise(function (resolve) {
-                            setTimeout(resolve, 2000);
-                            i++;
-                        });
-                    }).then(function () {
-                        return Screenshot.exec({
-                            filename: 'dropdown-' + padNumber(i, 2) + '-' + escapeQuery(query)
-                        });
+                return waitForResult().then(function() {
+                    return new Promise(function (resolve) {
+                        setTimeout(resolve, 2000);
+                        i++;
+                    });
+                }).then(function () {
+                    return Screenshot.exec({
+                        filename: 'dropdown-' + padNumber(i, 2) + '-' + escapeQuery(query)
                     });
                 });
             });
-        }
+        });
+
         writeLambdaConfig(cfg);
     }
 
@@ -197,6 +196,12 @@ function prepareScreenshotTest(cfg){
     return testFunction;
 }
 
+
+// Load module with queries
+loadScript(
+    'chrome://cliqztests/content/screenshots/queries.js',
+    document.getElementsByTagName('head')[0]
+);
 
 // Prepare selected test
 loadScript(
