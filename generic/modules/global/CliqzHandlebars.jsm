@@ -96,6 +96,7 @@ function registerHelpers(){
             return "inherit";
         return "none";
     });
+
     Handlebars.registerHelper('partial', function(name, options) {
         var template = CliqzHandlebars.tplCache[name] || CliqzHandlebars.tplCache.empty;
         return new Handlebars.SafeString(template(this));
