@@ -1,6 +1,7 @@
 var urlbar = document.getElementById('urlbar');
 CliqzUtils.init(window);
 CLIQZ.UI.init(urlbar);
+CLIQZ.ContextMenu.enableContextMenu = function() { return false; }
 
 CLIQZ.Core = {
 	urlbar: urlbar,

@@ -974,6 +974,9 @@ function getDebugMsg(fullTitle){
     // 1) the title, can be anything ([\s\S] is more inclusive than '.' as it includes newline)
     // followed by:
     // 2) a debug string like this " (debug)!"
+    if(fullTitle === null) {
+      return [null, null];
+    }
     var r = fullTitle.match(/^([\s\S]+) \((.*)\)!$/)
     if(r && r.length >= 3)
         return [r[1], r[2]]
