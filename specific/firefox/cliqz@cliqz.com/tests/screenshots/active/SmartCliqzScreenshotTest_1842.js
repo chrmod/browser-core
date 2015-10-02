@@ -1,5 +1,8 @@
 TESTS.SmartCliqzTest = prepareScreenshotTest({
-    emails: ['andrey@cliqz.com'],
+    emails: [
+        'dominik.s@cliqz.com', 'panagiota@cliqz.com', 'sean@cliqz.com', 'elyse@cliqz.com',
+        'thuy@cliqz.com', 'stefanie@cliqz.com', 'andrey@cliqz.com'
+    ],
     subject: '[testing] new dropdown screenshots (width: 1500)',
     width: 1842,
     name: 'SmartCliqzScreenshotTest_1842',
