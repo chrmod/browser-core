@@ -820,10 +820,12 @@
 }
 
 .cqz-results .cqz-rd-body {
-    height: calc(100% - 52px);
+    width: -moz-calc(100% - 85px);
+    width: calc(100% - 85px);
+
     height: -moz-calc(100% - 52px);
-    width: -moz-calc(100% - 70px);
-    width: calc(100% - 70px);
+    height: calc(100% - 52px);
+
     max-width: 700px;
 }
 
