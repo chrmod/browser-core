@@ -2,7 +2,7 @@
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var EXPORTED_SYMBOLS = ['LambdaConfigWriter'];
+var EXPORTED_SYMBOLS = ['ConfigWriter'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Downloads.jsm');
@@ -18,7 +18,7 @@ const BRAND_SHORT_NAME = Cc["@mozilla.org/intl/stringbundle;1"]
 	                    .GetStringFromName("brandShortName");
 
 
-var LambdaConfigWriter = {
+var ConfigWriter = {
 	writeFileToDownloads: function(args) {
 		return serializeData(args).then(saveToFile);
 	}

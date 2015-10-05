@@ -1,5 +1,5 @@
 Components.utils.import('chrome://cliqztests/content/screenshots/Screenshot.jsm');
-Components.utils.import('chrome://cliqztests/content/screenshots/LambdaConfigWriter.jsm');
+Components.utils.import('chrome://cliqztests/content/screenshots/ConfigWriter.jsm');
 
 
 function getParameterByName(name) {
@@ -74,7 +74,7 @@ function prepareScreenshotTest(cfg){
                 upload: cfg.upload
             };
 
-            return LambdaConfigWriter.writeFileToDownloads({
+            return ConfigWriter.writeFileToDownloads({
                 data: data,
                 filename: 'config.json'
             });
