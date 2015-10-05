@@ -1,9 +1,3 @@
-'use strict';
-
-var updateAlias,
-    getSearchEngines,
-    getEngineByName;
-
 var ENGINES = [
     {
         "name": "Google",
@@ -27,7 +21,7 @@ var ENGINES = [
         "searchForm": "http://www.amazon.com/exec/obidos/external-search/?field-keywords=&mode=blended&tag=mozilla-20&sourceid=Mozilla-search"
     },
     {
-        "name": "YouTube",
+        "name": "YouTube Video Search",
         "alias": "#yt",
         "icon": "data:image/gif;base64,R0lGODlhEgANAOMKAAAAABUVFRoaGisrKzk5OUxMTGRkZLS0tM/Pz9/f3////////////////////////yH5BAEKAA8ALAAAAAASAA0AAART8Ml5Arg3nMkluQIhXMRUYNiwSceAnYAwAkOCGISBJC4mSKMDwpJBHFC/h+xhQAEMSuSo9EFRnSCmEzrDComAgBGbsuF0PHJq9WipnYJB9/UmFyIAOw==",
         "code": 1,
@@ -35,74 +29,25 @@ var ENGINES = [
     }
 ];
 
-TESTS.CliqzResultProviders = function (CliqzResultProviders, CliqzUtils) {
-  describe('CliqzResultProviders', function(){
-    describe('custom search - #team', function(){
-      it('should return #team result', function(){
-        var team = CliqzResultProviders.customizeQuery('#team'),
-        expected = {"updatedQ":"#team","engineName":"CLIQZ","queryURI":"https://cliqz.com/team/","code":"#"}
-        chai.expect(team).to.deep.equal(expected);
-      });
-    });
-
-    describe('custom search - maps', function(){
-      it('should return google maps result for wisen', function(){
-        var customQuery = CliqzResultProviders.customizeQuery('#gm wisen'),
-          expected = {"updatedQ":"wisen","engineName":"Google Maps","queryURI":"https://maps.google.de/maps?q=wisen","code":2};
-
-        chai.expect(customQuery).to.deep.equal(expected);
-      });
-      it('should return google maps result for wisen when shortcut is in the end', function(){
-        var customQuery = CliqzResultProviders.customizeQuery('wisen #gm'),
-          expected = {"updatedQ":"wisen","engineName":"Google Maps","queryURI":"https://maps.google.de/maps?q=wisen","code":2};
-
-        chai.expect(customQuery).to.deep.equal(expected);
-      });
-    });
-
-    describe('custom search - updateAliases', function() {
-      beforeEach(function() {
-        updateAlias = CliqzResultProviders.updateAlias;
-        getSearchEngines = CliqzResultProviders.getSearchEngines;
-
-        CliqzResultProviders.updateAlias = function(name, newAlias) {
-          for(var engine in ENGINES) {
-            if(ENGINES[engine].name === name) {
-              ENGINES[engine].alias = newAlias;
+CLIQZEnvironment = {
+    log: function(msg, key){ console.log(key, msg) },
+    getSearchEngines: function() {
+        CLIQZEnvironment.log("test", "test")
+        return ENGINES.map(function(e){
+            e.getSubmissionForQuery = function(q){
+                //TODO: create the correct search URL
+                return e.searchForm;
             }
-          }
+
+            return e
+        });
+    },
+    updateAlias: function(name, newAlias) {
+      for(var engine in ENGINES) {
+        console.log(engine)
+        if(ENGINES[engine].name === name) {
+          ENGINES[engine].alias = newAlias;
         }
-        CliqzResultProviders.getSearchEngines = function() {
-          return ENGINES.map(function(e){
-            e.prefix = CliqzResultProviders.getShortcut(e.name);
-            return e;
-          });
-        }
-        CliqzResultProviders.getEngineByName = function(name) {
-          return ENGINES.find(function (engine) { return engine.name === name; });
-        }
-
-      });
-
-      afterEach(function() {
-        CliqzResultProviders.updateAlias = updateAlias;
-        CliqzResultProviders.getSearchEngines = getSearchEngines;
-        CliqzResultProviders.getEngineByName = getEngineByName;
-      });
-
-      it('should update an empty alias to first 2 letters', function() {
-        //arrange
-        var expected = "#go";
-
-        //act
-        CliqzResultProviders.updateEngineAliases()
-
-        //asert
-        chai.expect(CliqzResultProviders.getEngineByName('Google').alias).to.equal(expected);
-      });
-    });
-
-  });
-};
-
-
+      }
+    }
+}

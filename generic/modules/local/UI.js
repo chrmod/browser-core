@@ -1838,7 +1838,7 @@ function onEnter(ev, item){
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
-    var customQuery = CliqzResultProviders.isCustomQuery(input);
+    var customQuery = CliqzResultProviders.customizeQuery(input);
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }

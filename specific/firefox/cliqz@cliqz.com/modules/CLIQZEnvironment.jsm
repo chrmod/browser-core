@@ -295,6 +295,7 @@ var CLIQZEnvironment = {
                 .map(function(e){
                     var r = {
                         name: e.name,
+                        alias: e.alias,
                         default: e.name == defEngineName,
                         icon: e.iconURI.spec,
                         base_url: e.searchForm,
@@ -305,6 +306,25 @@ var CLIQZEnvironment = {
                     }
                     return r;
                 });
+    },
+    updateAlias: function(name, newAlias) {
+      Services.search.getEngineByName(name).alias = newAlias;
+    },
+    getEngineByAlias: function(alias) {
+     return Services.search.getEngineByAlias(alias);
+    },
+    getEngineByName: function(engine) {
+      return Services.search.getEngineByName(engine);
+    },
+    addEngineWithDetails: function(engine) {
+      Services.search.addEngineWithDetails(
+        engine.name,
+        engine.iconURL,
+        engine.key,
+        engine.name,
+        engine.method,
+        engine.url
+      );
     },
     initWindow: function(win){
         var popup = win.CLIQZ.Core.popup;
