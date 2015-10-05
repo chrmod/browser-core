@@ -96,6 +96,18 @@ var CLIQZEnvironment = {
         }
         return prefs;
     },
+    isPrefBool: function(pref, notFound) {
+        try {
+            var prefs = CLIQZEnvironment.cliqzPrefs;
+            if(prefs.getPrefType(pref) === PREF_BOOL) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch(e) {
+            return notFound;
+        }
+    },
     setPref: function(pref, val){
         switch (typeof val) {
             case 'boolean': CLIQZEnvironment.cliqzPrefs.setBoolPref(pref, val); break;
