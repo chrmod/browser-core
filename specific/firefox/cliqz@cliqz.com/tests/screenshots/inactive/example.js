@@ -24,7 +24,8 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
 
     // The following keys specify which mocha hooks we would like to use / override.
     // There is a default implementation for before(), beforeEach() and after() hooks,
-    // which can be disabled by setting you own function (or any value) to the corresponding key.
+    // which can be disabled by setting you own function (or any value) to the corresponding key
+    // (some more explanation about it below).
     before: function(){
         console.log('Running custom before');
     },
@@ -37,10 +38,19 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
         }
     ],
     beforeEach: function() {
+        // By specifying beforeEach key in test config we override the default beforeEach hook
+        // that gets set up in prepareScreenshotTest()
         console.log('Running custom beforeEach');
-
     },
     extraBeforeEach: [
+        // By specifying extraBeforeEach you can add new functions to the default implementation,
+        // so the resulting hooks code will be equivalent to:
+        //      function generatedTestFunction(CliqzUtils) {
+        //          beforeEach(defaultBeforeEach);
+        //          beforeEach(extraBeforeEach[0]);
+        //          beforeEach(extraBeforeEach[1]);
+        //          ...
+        //      }
         function() {
             console.log('Running extra beforeEach #1');
         },
