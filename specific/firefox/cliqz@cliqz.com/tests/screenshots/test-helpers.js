@@ -10,8 +10,7 @@ function getParameterByName(name) {
 }
 
 
-function loadScript(url, element, callback)
-{
+function loadScript(url, element, callback) {
     var script = document.createElement('script');
     script.src = url;
     script.onreadystatechange = callback;
@@ -20,7 +19,7 @@ function loadScript(url, element, callback)
 }
 
 
-function prepareScreenshotTest(cfg){
+function prepareScreenshotTest(cfg) {
     function padNumber(i, n) {
         var t = i;
         while (t >= 10) {
