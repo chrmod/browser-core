@@ -90,7 +90,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 #nav-bar, #navigator-toolbox, .tab-content, #PersonalToolbar {
     background-image: none !important;
-    background-color: #eee !important;
+    /*background-color: #eee !important;*/
 }
 
 /*======= Gabriel Changes */
