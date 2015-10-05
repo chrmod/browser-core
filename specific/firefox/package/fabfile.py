@@ -221,7 +221,7 @@ def comment_cleaner(path=None):
 
     target = ['js', 'jsm', 'html']
     exclude_dirs = ['node_modules', 'bower_components']
-    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'freshtab.html']
+    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'Validations.js', 'freshtab.html']
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
@@ -240,6 +240,7 @@ def comment_cleaner(path=None):
                 except:
                     print 'ERROR', f
                     raise
+
             else:
                 print '.',
     print
