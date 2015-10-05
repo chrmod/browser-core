@@ -158,6 +158,12 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
 
         CLIQZ.Core.popup = popup;
+        // Change location of forward button
+        // TODO: do it with pure css
+        CLIQZ.Core.frwBtn = document.getElementById('forward-button');
+        CLIQZ.Core.urlbarContainer = document.getElementById('urlbar-container');
+        CLIQZ.Core.urlbarWrapper = document.getElementById('urlbar-wrapper');
+        CLIQZ.Core.urlbarContainer.insertBefore(CLIQZ.Core.frwBtn, CLIQZ.Core.urlbarWrapper);
 
         CLIQZ.UI.init(CLIQZ.Core.urlbar);
 
