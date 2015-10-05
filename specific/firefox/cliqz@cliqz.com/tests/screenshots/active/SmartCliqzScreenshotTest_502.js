@@ -5,7 +5,7 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
     ],
     subject: '[testing] new dropdown screenshots (width: 502)',
     width: 600,
-    name: 'SmartCliqzScreenshotTest_600',
+    name: 'SmartCliqzScreenshotTest_502',
     upload: {
         dropdown_width: 502
     },
