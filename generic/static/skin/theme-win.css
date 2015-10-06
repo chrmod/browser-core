@@ -14,7 +14,8 @@
     -moz-box-pack: center;
 }
 #urlbar-wrapper {
-    max-width: 850px;
+    max-width: 100%;
+    -moz-box-pack: center;
 }
 
 /*/!* ====== Close, minimize & fullscreen btns*!/*/
@@ -89,7 +90,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 #nav-bar, #navigator-toolbox, .tab-content, #PersonalToolbar {
     background-image: none !important;
-    background-color: #eee !important;
+    /*background-color: #eee !important;*/
 }
 
 /*======= Gabriel Changes */
@@ -122,7 +123,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #titlebar,
 #tab-view-deck,
 #titlebar-content {
-    background: #e0e0e0;
+    /*background: #e0e0e0;*/
 }
 
 /*========== Tabs =======*/
