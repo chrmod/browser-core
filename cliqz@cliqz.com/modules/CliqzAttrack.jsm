@@ -395,6 +395,53 @@ var randomImage = (function(){
 var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
         .getService(Components.interfaces.mozIAsyncFavicons);
 
+function HttpRequestContext(channel) {
+    this.channel = channel;
+    this.loadInfo = channel.loadInfo;
+    this.url = ''+ channel.URI.spec;
+    this.method = channel.requestMethod;
+    this._parsedURL = undefined;
+}
+
+HttpRequestContext.prototype = {
+
+    getInnerWindowID: function() {
+        return this.loadInfo ? this.loadInfo.innerWindowID : 0;
+    },
+    getOuterWindowID: function() {
+        return this.loadInfo.outerWindowID;
+    },
+    getParentWindowID: function() {
+        return this.loadInfo.parentOuterWindowID;
+    },
+    getLoadingDocument: function() {
+        return this.loadInfo && this.loadInfo.loadingDocument != null ? this.loadInfo.loadingDocument.location.href : ""
+    },
+    getContentPolicyType: function() {
+        return this.loadInfo ? this.loadInfo.contentPolicyType : undefined;
+    },
+    parsedURL: function() {
+        return this._parsedURL | CliqzAttrack.parseURL(this.url);
+    },
+    getCookieData: function() {
+        let cookie_data = null;
+        try {
+            cookie_data = this.channel.getRequestHeader("Cookie");
+        } catch(ee) {}
+        return cookie_data;
+    },
+    getReferrer: function() {
+        var refstr = null,
+            referrer = '';
+        try {
+            refstr = this.channel.getRequestHeader("Referer");
+            referrer = dURIC(refstr);
+        } catch(ee) {}
+        return referrer;
+    }
+
+}
+
 var CliqzAttrack = {
     VERSION: '0.91',
     LOG_KEY: 'attrack',
@@ -1212,14 +1259,14 @@ var CliqzAttrack = {
             // if (topic != "http-on-modify-request") return;
             // extract url and referrer from event subject
             var aChannel = subject.QueryInterface(nsIHttpChannel);
-            var url = '' + aChannel.URI.spec;
-            if (!url || url == '') return;
-            var url_parts = CliqzHumanWeb.parseURL(url);
+            var requestContext = new HttpRequestContext(aChannel);
+            var url = requestContext.url;
+            CliqzUtils.log(url);
 
-            var cookie_data = null;
-            try {
-                cookie_data = aChannel.getRequestHeader("Cookie");
-            } catch(ee) {}
+            if (!url || url == '') return;
+            var url_parts = requestContext.parsedURL();
+
+            var cookie_data = requestContext.getCookieData();
 
             // Quick escapes:
             // localhost
@@ -1247,12 +1294,7 @@ var CliqzAttrack = {
             }
 
 
-            var refstr = null,
-                referrer = '';
-            try {
-                refstr = aChannel.getRequestHeader("Referer");
-                referrer = dURIC(refstr);
-            } catch(ee) {}
+            var referrer = requestContext.getReferrer();
 
             // if the request is originating from a tab, we can get a source url
             // The implementation below is causing a bug, if we load different urls in same tab.
@@ -1282,40 +1324,50 @@ var CliqzAttrack = {
             }
             */
 
-            var source = CliqzAttrack.getRefToSource(subject, referrer);
-            var source_url = source.url,
+            // var source = CliqzAttrack.getRefToSource(subject, referrer);
+            var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
-                source_tab = source.tab;
+                source_tab = requestContext.getOuterWindowID();
 
             var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
-            var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
-
-            // classify request type
+            var page_load_type = null;
             var request_type = null;
-            if (page_load_type =='frame' && referrer != '' && source_url != '') {
-                if (is_xhr) {
-                    request_type = "frame_xhr"; // from iframe e.g. Facebook button
-                } else {
-                    request_type = "frame_content";
-                }
-            } else if (page_load_type == 'fullpage' && !is_xhr) {
-                source_url = '' + aChannel.URI.spec;
-                request_type = "fullpage"; // User request page in a tab.
-            } else if (page_load_type == null) {
-                if (referrer != '' || source_url != '') {
-                    if(is_xhr) {
-                        request_type = "ajax"; // XHR request from website JS
-                    } else {
-                        request_type = "site_resource"; // content from <link> etc type tags)
-                    }
-                } else if (source_tab == -1) {
-                    if(is_xhr) {
-                        request_type = "extension_xhr"; // extension API calls
-                    } else {
-                        request_type = "extension_resource"; // static resources for browser/extensions
-                    }
-                }
+            switch(requestContext.getContentPolicyType()) {
+                case 6: 
+                    page_load_type = "fullpage";
+                    request_type = "fullpage";
+                    break;
+                case 7: page_load_type = "frame"; break;
+                default: page_load_type = null;
             }
+            // var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
+
+            // // classify request type
+            // var request_type = null;
+            // if (page_load_type =='frame' && referrer != '' && source_url != '') {
+            //     if (is_xhr) {
+            //         request_type = "frame_xhr"; // from iframe e.g. Facebook button
+            //     } else {
+            //         request_type = "frame_content";
+            //     }
+            // } else if (page_load_type == 'fullpage' && !is_xhr) {
+            //     source_url = '' + aChannel.URI.spec;
+            //     request_type = "fullpage"; // User request page in a tab.
+            // } else if (page_load_type == null) {
+            //     if (referrer != '' || source_url != '') {
+            //         if(is_xhr) {
+            //             request_type = "ajax"; // XHR request from website JS
+            //         } else {
+            //             request_type = "site_resource"; // content from <link> etc type tags)
+            //         }
+            //     } else if (source_tab == -1) {
+            //         if(is_xhr) {
+            //             request_type = "extension_xhr"; // extension API calls
+            //         } else {
+            //             request_type = "extension_resource"; // static resources for browser/extensions
+            //         }
+            //     }
+            // }
 
             // Fallback to referrer if we don't find source from tab
             /*
@@ -1323,6 +1375,8 @@ var CliqzAttrack = {
                 source_url = referrer;
             }
             */
+
+            CliqzUtils.log([source_url, referrer]);
 
             if (referrer != ''){
                 source_url = referrer;
