@@ -798,7 +798,7 @@
       "message": "We'd love to enhance this result with some local info. Share your location with us?"
     },
     "location_never": {
-      "message": "Never. I hate awesome stuff."
+      "message": "No"
     },
     "no_local_data_msg": {
       "message": "Oh no, something went wrong. Always share your location with us to avoid this in the future?"
