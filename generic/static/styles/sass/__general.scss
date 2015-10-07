@@ -1475,87 +1475,12 @@
     margin-left: 10px;
 }
 
-.cqz-results .location_permission_prompt.loading {
-    position: relative;
-    padding: 0;
-}
-
-.cqz-results .location_permission_prompt.loading:before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    margin: -20px 0 0 -20px;
-    border-radius: 100%;
-    background-color: #fff;
-    -webkit-animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
-    animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
-}
-
-@-webkit-keyframes cqz-loading-circle-animation {
-    0% {
-        -webkit-transform: scale(0)
-    }
-    100% {
-        -webkit-transform: scale(1.0);
-        opacity: 0;
-    }
-}
-
-@keyframes cqz-loading-circle-animation {
-    0% {
-        -webkit-transform: scale(0);
-        transform: scale(0);
-    }
-    100% {
-        -webkit-transform: scale(1.0);
-        transform: scale(1.0);
-        opacity: 0;
-    }
-}
-
-.cqz-results .location_permission_prompt.loading > * {
-    opacity: 0 !important;
-}
-
-.cqz-results .loc_permission_prompt_message {
-    min-height: calc(100% - 80px);
-    margin-bottom: 10px;
-    white-space: normal;
-    font-size: 16px;
-    line-height: 1.25em;
-}
-
 #cliz-results .cqz_location_once {
     color: white;
 }
 
 .cqz-results .cqz_location_never {
     color: white;
-}
-
-.cqz-results .loc_permission_prompt_buttons > span {
-    position: relative;
-    display: inline-block;
-    padding: 6px 10px;
-    margin-bottom: 5px;
-    line-height: 1.1em;
-    cursor: pointer;
-    border-radius: 3px;
-    margin-right: 10px;
-    border: 1px solid white;
-    background: transparent none repeat scroll 0 0;
-}
-
-.cqz-results .loc_permission_prompt_buttons > span#cqz_location_yes,
-.cqz-results .loc_permission_prompt_buttons > span#cqz_location_yes_confirm,
-.cqz-results .loc_permission_prompt_buttons > span.cqz_location_once {
-    border: none;
-    width: auto;
-    text-align: center;
-    background-color: #5498f8;
 }
 
 /*** END LOCAL MOVIE EZ ****/
