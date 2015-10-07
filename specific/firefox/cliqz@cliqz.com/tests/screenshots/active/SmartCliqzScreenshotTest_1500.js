@@ -4,7 +4,7 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
         'thuy@cliqz.com', 'stefanie@cliqz.com', 'andrey@cliqz.com'
     ],
     subject: '[testing] new dropdown screenshots (width: 1500)',
-    width: 1842,
+    width: 1862,
     name: 'SmartCliqzScreenshotTest_1500',
     upload: {
         dropdown_width: 1500
