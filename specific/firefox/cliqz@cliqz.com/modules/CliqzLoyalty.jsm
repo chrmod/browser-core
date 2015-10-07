@@ -209,6 +209,7 @@ PrefListener.prototype.unregister = function () {
 
 var CLIQZ_OBSERVER = {
   clzListener: null,
+  initSucceed: false,
   init: function () {
     CLIQZ_OBSERVER.clzListener = new PrefListener(
       "extensions.cliqz.",
@@ -218,9 +219,12 @@ var CLIQZ_OBSERVER = {
     );
 
     CLIQZ_OBSERVER.clzListener.register(false);
+    CLIQZ_OBSERVER.initSucceed = true;
   },
   unload: function () {
-    CLIQZ_OBSERVER.clzListener.unregister();
+    if (CLIQZ_OBSERVER.initSucceed && CLIQZ_OBSERVER.clzListener) {
+      CLIQZ_OBSERVER.clzListener.unregister();
+    }
   }
 };
 
@@ -1061,11 +1065,15 @@ var CliqzLoyalty = {
     CliqzLLogic.onUnload();
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
-    CLIQZ_OBSERVER.unload();
+    if (CLIQZ_OBSERVER.initSucceed) {
+      CLIQZ_OBSERVER.unload();
+    }
     CORE.unload();
   },
 
   onBrowserIconClick: function () {
+    CliqzUtils.telemetry({'type': 'CliqzLoyalty.event', 'action': 'openLoyaltyPage'});
+
     // disable notification icon
     CliqzLLogic.notify.updateOnOpenProgramPage();
   },
