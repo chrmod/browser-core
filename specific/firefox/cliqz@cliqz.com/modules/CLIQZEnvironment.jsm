@@ -29,13 +29,14 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     // references to all the timers to avoid garbage collection before firing
     // automatically removed when fired
     _timers = [],
-    _setTimer = function(func, timeout, type, param) {
+    _setTimer = function(func, timeout, type, args) {
         var timer = Cc['@mozilla.org/timer;1'].createInstance(Ci.nsITimer);
         _timers.push(timer);
+
         var event = {
             notify: function (timer) {
-                func(param);
-                _removeTimerRef(timer);
+                func.apply(null, args);
+                _removeTimerRef && _removeTimerRef(timer);
             }
         };
         timer.initWithCallback(event, timeout, type);
@@ -206,11 +207,11 @@ var CLIQZEnvironment = {
 
         return window.cliqzIsPrivate
     },
-    setInterval: function(func, timeout, param) {
-        return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, param);
+    setInterval: function(func, timeout) {
+        return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
     },
-    setTimeout: function(func, timeout, param) {
-        return _setTimer(func, timeout, Ci.nsITimer.TYPE_ONE_SHOT, param);
+    setTimeout: function(func, timeout) {
+        return _setTimer(func, timeout, Ci.nsITimer.TYPE_ONE_SHOT, [].slice.call(arguments, 2));
     },
     clearTimeout: function(timer) {
         if (!timer) {
