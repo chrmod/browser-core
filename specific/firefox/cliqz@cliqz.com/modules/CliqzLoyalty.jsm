@@ -222,7 +222,7 @@ var CLIQZ_OBSERVER = {
     CLIQZ_OBSERVER.initSucceed = true;
   },
   unload: function () {
-    if (CLIQZ_OBSERVER.clzListener) {
+    if (CLIQZ_OBSERVER.initSucceed && CLIQZ_OBSERVER.clzListener) {
       CLIQZ_OBSERVER.clzListener.unregister();
     }
   }
