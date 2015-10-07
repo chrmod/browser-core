@@ -396,7 +396,7 @@ var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"
         .getService(Components.interfaces.mozIAsyncFavicons);
 
 var CliqzAttrack = {
-    VERSION: '0.91',
+    VERSION: '0.92',
     LOG_KEY: 'attrack',
     URL_TOKEN_WHITELIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
     URL_ALERT_RULES: 'chrome://cliqz/content/anti-tracking-rules.json',
@@ -451,7 +451,7 @@ var CliqzAttrack = {
     localBlockExpire: 24,
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
-    obfuscateMethod: 'shuffle',
+    obfuscateMethod: 'same',
     replacement: '',
     blockReportList: null,
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
