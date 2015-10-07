@@ -548,7 +548,6 @@ var UI = {
         }
         if(offset > 300) {
           // Remove autocomplete from urlbar
-          var urlbar = urlbar;
           urlbar.mInputField.value = urlbar.mInputField.value.substr(0, urlbar.selectionStart);
           CliqzAutocomplete.lastAutocomplete = null;
           CliqzAutocomplete.lastAutocompleteType = null;
@@ -1365,11 +1364,11 @@ function urlIndexInHistory(url, urlList) {
                         break;
 
                     case 'spellcorrect-revert':
-                        var s = CLIQZ.Core.urlbar.value;
+                        var s = urlbar.value;
                         for (var c in CliqzAutocomplete.spellCorr.correctBack) {
                             s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
                         }
-                        CLIQZ.Core.urlbar.mInputField.setUserInput(s);
+                        urlbar.mInputField.setUserInput(s);
                         CliqzAutocomplete.spellCorr.override = true;
                         updateMessageState("hide");
                         break;
