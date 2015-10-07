@@ -807,88 +807,6 @@
     height: 205px;
 }
 
-/*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
-.cqz-results .multi-ellipsis {
-    white-space: normal;
-    overflow: hidden;
-    height: 3.9em;
-    line-height: 1.3em;
-}
-
-.cqz-results .multi-ellipsis:before {
-    content: "";
-    float: left;
-    width: 5px;
-    height: 3.9em;
-    white-space: normal;
-}
-
-.cqz-results .multi-ellipsis > *:first-child {
-    float: right;
-    width: 100%;
-    margin-left: -5px;
-    white-space: normal;
-}
-
-.cqz-results .multi-ellipsis:after {
-    content: "\02026";
-    box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    float: right;
-    position: relative;
-    top: -22px;
-    left: 100%;
-    width: 3em;
-    margin-left: -3em;
-    padding-right: 5px;
-    text-align: right;
-    white-space: normal;
-
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-}
-
-.cqz-results .multi-ellipsis2_14 {
-    white-space: normal;
-    overflow: hidden;
-    height: 2.8em;
-    line-height: 1.4em;
-}
-
-.cqz-results .multi-ellipsis2_14:before {
-    white-space: normal;
-    content: "";
-    float: left;
-    width: 5px;
-    height: 2.8em;
-}
-
-.cqz-results .multi-ellipsis2_14 > *:first-child {
-    line-height: 1.4em;
-    white-space: normal;
-    float: right;
-    width: 100%;
-    margin-left: -5px;
-}
-
-.cqz-results .multi-ellipsis2_14:after {
-    white-space: normal;
-    content: "\02026";
-    box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    float: right;
-    position: relative;
-    top: -1.4em;
-    left: 100%;
-    width: 2em;
-    margin-left: -2em;
-    padding-right: 5px;
-    text-align: right;
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-}
 
 /* ------- RICH DATA Result----------*/
 .cqz-results .cqz-result-padding2 {
@@ -902,19 +820,22 @@
 }
 
 .cqz-results .cqz-rd-body {
-    height: calc(100% - 52px);
+    width: -moz-calc(100% - 85px);
+    width: calc(100% - 85px);
+
     height: -moz-calc(100% - 52px);
-    width: -moz-calc(100% - 70px);
-    width: calc(100% - 70px);
+    height: calc(100% - 52px);
+
     max-width: 700px;
 }
 
 .cqz-results .cqz-rd-rateimg {
     height: 13px;
-    margin-top: 1px;
     vertical-align: top;
     transform: translateX(-1px);
 }
+
+/*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
 
 .cqz-results .cqz-multy-lines-ellipses {
     overflow: hidden;
@@ -934,7 +855,7 @@
 .cqz-results .cqz-multy-lines-ellipses > * {
     float: right;
     width: 100%;
-    margin-left: -5px;
+    margin: 0 0 0 -5px;
     white-space: normal;
     line-height: 1.4em;
     margin-bottom: 0;
@@ -944,31 +865,26 @@
     white-space: normal;
     content: "\02026";
 
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-
     float: right;
     position: relative;
     top: -1.4em;
     left: 100%;
-    width: 15px;
-    margin-left: -15px;
-    padding-right: 5px;
-
+    width: 21px;
+    margin-left: -20px;
+    padding-right: 4px;
     text-align: right;
-
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    line-height: 1.3em;
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 30%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 30%, white);
 }
+
+/* ==== 2 lines ====*/
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-2 { height: 2.8em; }
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-2:before { height: 2.8em; }
 
 /* ==== 3 lines ====*/
-.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3 {
-    height: 4.2em;
-}
-
-.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3:before {
-    height: 4.2em;
-}
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3 { height: 4.2em; }
+.cqz-results .cqz-multy-lines-ellipses.cqz-line-vis-3:before { height: 4.2em; }
 
 .cqz-results .cqz-rd-info {
     color: #999999;
@@ -978,10 +894,12 @@
 .cqz-results .cqz-rd-info-2 {
     color: #999999;
 }
+.cqz-results .cqz-result-h1 .cqz-rd-info-2 { margin-bottom: 18px; }
+
 
 .cqz-results .cqz-rd-rate {
     color: #506bb8;
-    padding-top: 6px;
+    margin: 6px 0 18px;
 }
 
 .cqz-results .cqz-rd-link {
@@ -1010,7 +928,6 @@
 }
 
 .cqz-results .cqz-rd-img {
-    height: 100%;
     display: block;
 }
 
@@ -1027,14 +944,18 @@
     max-width: 130px
 }
 
+.cqz-results .cqz-rd-recipe {
+    .cqz-rd-img_div { max-width: 110px; }
+    .cqz-rd-rateimg { margin: 13px 0 3px; }
+}
 .cqz-results .cqz-rd-h3-snippet {
     height: 110px;
-    margin: 22px 0px 22px 0px;
+    margin: 22px 0 22px 0;
 }
 
 .cqz-results .cqz-rd-h2-snippet {
     height: 200px;
-    margin: 20px 0px 14px 0px;
+    margin: 20px 0 14px 0;
 }
 
 /* ------- END RICH DATA Result----------*/
@@ -1554,87 +1475,12 @@
     margin-left: 10px;
 }
 
-.cqz-results .location_permission_prompt.loading {
-    position: relative;
-    padding: 0;
-}
-
-.cqz-results .location_permission_prompt.loading:before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    margin: -20px 0 0 -20px;
-    border-radius: 100%;
-    background-color: #fff;
-    -webkit-animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
-    animation: cqz-loading-circle-animation 1.0s infinite ease-in-out;
-}
-
-@-webkit-keyframes cqz-loading-circle-animation {
-    0% {
-        -webkit-transform: scale(0)
-    }
-    100% {
-        -webkit-transform: scale(1.0);
-        opacity: 0;
-    }
-}
-
-@keyframes cqz-loading-circle-animation {
-    0% {
-        -webkit-transform: scale(0);
-        transform: scale(0);
-    }
-    100% {
-        -webkit-transform: scale(1.0);
-        transform: scale(1.0);
-        opacity: 0;
-    }
-}
-
-.cqz-results .location_permission_prompt.loading > * {
-    opacity: 0 !important;
-}
-
-.cqz-results .loc_permission_prompt_message {
-    min-height: calc(100% - 80px);
-    margin-bottom: 10px;
-    white-space: normal;
-    font-size: 16px;
-    line-height: 1.25em;
-}
-
 #cliz-results .cqz_location_once {
     color: white;
 }
 
 .cqz-results .cqz_location_never {
     color: white;
-}
-
-.cqz-results .loc_permission_prompt_buttons > span {
-    position: relative;
-    display: inline-block;
-    padding: 6px 10px;
-    margin-bottom: 5px;
-    line-height: 1.1em;
-    cursor: pointer;
-    border-radius: 3px;
-    margin-right: 10px;
-    border: 1px solid white;
-    background: transparent none repeat scroll 0 0;
-}
-
-.cqz-results .loc_permission_prompt_buttons > span#cqz_location_yes,
-.cqz-results .loc_permission_prompt_buttons > span#cqz_location_yes_confirm,
-.cqz-results .loc_permission_prompt_buttons > span.cqz_location_once {
-    border: none;
-    width: auto;
-    text-align: center;
-    background-color: #5498f8;
 }
 
 /*** END LOCAL MOVIE EZ ****/

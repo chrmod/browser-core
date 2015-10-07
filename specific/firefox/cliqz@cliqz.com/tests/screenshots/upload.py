@@ -3,6 +3,7 @@ import datetime
 import glob
 import math
 import os
+import uuid
 import shutil
 import sys
 
@@ -31,6 +32,16 @@ def main(argv):
                       help="name pattern of screenshot files "
                            "[default: '%default']",
                       default="dropdown*.png")
+    parser.add_option("-c", metavar="CONFIG_FILE",
+                      action="store", dest="config_file_name",
+                      help="name of config file "
+                           "[default: '%default']",
+                      default="config.json"),
+    parser.add_option("-t", metavar="TEST_NAME",
+                      action="store", dest="test_name",
+                      help="name of test folder "
+                           "[default: '%default']",
+                      default=str(uuid.uuid4()).replace('-', '')[:10]),
     parser.add_option("--dry-run",
                       action="store_true", dest="dry_run",
                       help="do not upload to S3")
@@ -43,6 +54,11 @@ def main(argv):
                            "to S3 bucket <OUTPUT_BUCKET> "
                            "[default: '%default']",
                       default="tests-dropdown-appearance")
+    parser.add_option("--key-prefix", metavar="KEY_PREFIX",
+                      action="store", dest="key_prefix",
+                      help="folder in the --bucket to upload screenshots to "
+                           "[default: '%default']",
+                      default="")
     parser.add_option("--dropdown-width", metavar="DROPDOWN_WIDTH",
                       action="store", dest="dropdown_width",
                       help="width of dropdown "
@@ -106,9 +122,7 @@ def main(argv):
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")\
         if len(options.timestamp) == 0 else options.timestamp
-    output_folder_base = \
-        os.path.join(timestamp,
-                     "width-" + str(options.dropdown_width))
+    output_folder_base = os.path.join(timestamp, options.test_name)
     output_folder = \
         os.path.join(options.output_folder, output_folder_base)
     output_folder_individual = \
@@ -155,6 +169,10 @@ def main(argv):
                 Image.ANTIALIAS)
         mosaic_images.append(dropdown_image)
 
+    config_file_path = os.path.join(options.input_folder, options.config_file_name)
+    if os.path.exists(config_file_path):
+        shutil.copy(config_file_path, output_folder)
+
     n = 0
     for i in range(0, len(mosaic_images), options.mosaic_tiles):
         mosaic = make_mosaic(mosaic_images[i:min(i + options.mosaic_tiles,
@@ -166,11 +184,14 @@ def main(argv):
         mosaic.save(mosaic_filename)
         n += 1
 
+    key_prefix = output_folder_base
+    if options.key_prefix:
+        key_prefix = '/'.join([options.key_prefix, output_folder_base])
     sys.stderr.write("uploading all files to 's3://%s/%s'\n" %
-                     (options.output_bucket, output_folder_base))
+                     (options.output_bucket, key_prefix))
     upload_folder(output_folder,
                   options.output_bucket,
-                  output_folder_base,
+                  key_prefix,
                   options.dry_run)
 
     if not options.keep_files:
