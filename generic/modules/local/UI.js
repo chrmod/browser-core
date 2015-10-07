@@ -264,7 +264,7 @@ var UI = {
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
-              //CliqzUtils.log(r, "GOT SOME RESULTS");
+              var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
                 //CliqzUtils.log(resp, "FINAL RESPONSE");
