@@ -1072,6 +1072,8 @@ var CliqzLoyalty = {
   },
 
   onBrowserIconClick: function () {
+    CliqzUtils.telemetry({'type': 'CliqzLoyalty.event', 'action': 'openLoyaltyPage'});
+
     // disable notification icon
     CliqzLLogic.notify.updateOnOpenProgramPage();
   },

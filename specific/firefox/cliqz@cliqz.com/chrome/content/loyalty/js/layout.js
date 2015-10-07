@@ -59,6 +59,7 @@ SCRIPTS.layout = function () {
     CliqzLoyalty.init();
 //    document.location.reload(true);
     clzHideElementById(optinID);
+    CliqzUtils.telemetry({'type': 'CliqzLoyalty.event', 'action': 'join', 'status': '1'});
   }
 
   window.optinLoyalty = optinLoyalty;
