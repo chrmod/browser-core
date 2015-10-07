@@ -795,7 +795,7 @@
       "message": "Dezember"
     },
     "location_permission_prompt": {
-      "message": "Dürfen wir deine Standort benutzen, um die Ergebnisse zu verbessern?"
+      "message": "Dürfen wir deinen Standort benutzen, um die Ergebnisse zu verbessern?"
     },
     "location_never": {
       "message": "Nein"
