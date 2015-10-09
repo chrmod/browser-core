@@ -18,9 +18,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
-// XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
-//   'chrome://cliqzmodules/content/CUcrawl.jsm');
-
 var countReload = false;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']

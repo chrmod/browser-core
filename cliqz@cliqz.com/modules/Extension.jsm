@@ -46,7 +46,6 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
-        Cu.import('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAttrack.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
@@ -90,10 +89,6 @@ var Extension = {
             CliqzHumanWeb.initAtBrowser();
         }
 
-        if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-            CUcrawl.initAtBrowser();
-        }
-
         if(CliqzUtils.getPref("antiTrackTest", false)){
             CliqzAttrack.initAtBrowser();
         }
@@ -120,10 +115,6 @@ var Extension = {
 
         if(CliqzUtils.getPref("humanWeb", false)){
             CliqzHumanWeb.unloadAtBrowser();
-        }
-
-        if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-            CUcrawl.destroyAtBrowser();
         }
 
         if(CliqzUtils.getPref("antiTrackTest", false)){
@@ -188,7 +179,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAttrack.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
