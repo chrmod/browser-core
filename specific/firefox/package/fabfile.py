@@ -16,7 +16,7 @@ import jsstrip
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
-PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
+PATH_TO_S3_BUCKET = "s3://cdncliqz/update/cross/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
@@ -166,8 +166,8 @@ def publish(beta='True', version=None):
         download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
         download_link_latest_html = "http://cdn2.cliqz.com/update/beta/%s" % output_file_name
     else:
-        download_link = "https://s3.amazonaws.com/cdncliqz/update/%s" % output_file_name
-        download_link_latest_html = "http://cdn2.cliqz.com/update/%s" % output_file_name
+        download_link = "https://s3.amazonaws.com/cdncliqz/update/cross/%s" % output_file_name
+        download_link_latest_html = "http://cdn2.cliqz.com/update/cross/%s" % output_file_name
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
@@ -221,7 +221,7 @@ def comment_cleaner(path=None):
 
     target = ['js', 'jsm', 'html']
     exclude_dirs = ['node_modules', 'bower_components']
-    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
+    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'Validations.js']
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
@@ -231,11 +231,15 @@ def comment_cleaner(path=None):
         for f in files:
             if f.split('.')[-1] in target and f not in ignore:
                 print 'X',
-                with open(root + '/' + f, 'r+') as handler:
-                    content = handler.read()
-                    handler.seek(0)
-                    handler.truncate()
-                    handler.write(js_comment_removal(content))
+                try:
+                    with open(root + '/' + f, 'r+') as handler:
+                        content = handler.read()
+                        handler.seek(0)
+                        handler.truncate()
+                        handler.write(js_comment_removal(content))
+                except:
+                    print 'ERROR', f
+                    raise
 
             else:
                 print '.',
