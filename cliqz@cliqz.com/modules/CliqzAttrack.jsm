@@ -2801,6 +2801,7 @@ var CliqzAttrack = {
             } catch(e) {
                 CliqzAttrack[name] = {};
             }
+            if (!CliqzAttrack[name]) CliqzAttrack[name] = {};
         });
     },
     loadLocalTokenStats: function() {
