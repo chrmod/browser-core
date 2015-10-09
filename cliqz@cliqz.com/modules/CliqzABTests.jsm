@@ -532,9 +532,11 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1050_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
+                break;
             case "1051_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
                 CliqzAttrack.unloadAtBrowser();
+                break;
             case "1052_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
                 break;
