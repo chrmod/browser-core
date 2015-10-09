@@ -295,6 +295,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1050_B":
                 CliqzUtils.setPref("attrackRefererTracking", true);
+                break;
             case "1051_B":
                 CliqzUtils.setPref("antiTrackTest", true);
                 CliqzAttrack.initAtBrowser();
