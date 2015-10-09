@@ -277,6 +277,9 @@ var CliqzABTests = CliqzABTests || {
             case "1048_A":
             case "1049_A":
             case "1050_A":
+            case "1051_A":
+            case "1052_A":
+            case "1053_A":
                 break;
             case "1046_B":
                 CliqzUtils.setPref("attrackBlockCookieTracking", true);
@@ -292,6 +295,16 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1050_B":
                 CliqzUtils.setPref("attrackRefererTracking", true);
+                break;
+            case "1051_B":
+                CliqzUtils.setPref("antiTrackTest", true);
+                CliqzAttrack.initAtBrowser();
+                break;
+            case "1052_B":
+                CliqzUtils.setPref("attrackBlockCookieTracking", true);
+                break;
+            case "1053_B":
+                CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
                 break;
             default:
                 rule_executed = false;
@@ -520,6 +533,16 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1050_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
+                break;
+            case "1051_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
+                CliqzAttrack.unloadAtBrowser();
+                break;
+            case "1052_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
+                break;
+            case "1053_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
                 break;
             default:
                 rule_executed = false;
