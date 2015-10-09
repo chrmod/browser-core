@@ -38,7 +38,7 @@ var VERTICAL_ENCODINGS = {
     'video':'v',
     'hq':'h',
     'bm': 'm',
-    'reciperd': 'r',
+    'recipeRD': 'r',
     'game': 'g',
     'movie': 'o'
 };
@@ -264,6 +264,7 @@ var CliqzUtils = {
   },
   getPrefs: CLIQZEnvironment.getPrefs,
   getPref: CLIQZEnvironment.getPref,
+  isPrefBool: CLIQZEnvironment.isPrefBool,
   setPref: CLIQZEnvironment.setPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){

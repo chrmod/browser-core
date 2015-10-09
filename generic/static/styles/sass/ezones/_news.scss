@@ -39,6 +39,14 @@
         background-size: cover;
     }
 
+    .cqz-video-duration {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        padding: 2px 3px;
+        color: #fff;
+        background: #000;
+    }
 }
 
 .entity-story-image + .entity-story-description {
