@@ -33,7 +33,7 @@ function GoogleAPI() {
 
     this.gmailUnread = function(){
         return this.validate().then(function(data){
-            return $.pget("https://www.googleapis.com/gmail/v1/users/me/messages",{ q: "is:unread", access_token: _this.token })
+            return $.pget("https://www.googleapis.com/gmail/v1/users/me/messages",{ q: "is:unread is:inbox", access_token: _this.token })
                     .then(function(data){
                         return new Promise(function(resolve,reject){
                             resolve((data.messages || []).length)
