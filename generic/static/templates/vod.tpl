@@ -44,9 +44,7 @@
     {{/with}}
     <div>
         <div style="float: left; margin-right: 10px">
-            <span class="cqz-ez-btn cliqz-brands-button-6" url="{{ data.itunes.ms.0.u }}" style="border-radius: 18px">
-                Watch on Itunes
-            </span>
+            <img src="{{data.itunes.logo}}" url="{{ data.itunes.ms.0.u }}" style="height: 30px" onerror="this.style.display='none';"/>
         </div>
         {{>EZ-category}}
     </div>
