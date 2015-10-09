@@ -221,11 +221,7 @@ def comment_cleaner(path=None):
 
     target = ['js', 'jsm', 'html']
     exclude_dirs = ['node_modules', 'bower_components']
-<<<<<<< HEAD
-    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', "Validations.js"]
-=======
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'Validations.js']
->>>>>>> cliqzorigin/master
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
