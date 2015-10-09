@@ -1068,7 +1068,7 @@ var CliqzAttrack = {
                     //     'src': source_url_parts.hostname
                     // };
 
-                    if (badTokens.length > 0) {
+                    if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
                         var tmp_url = aChannel.URI.spec;
 
                         for (var i = 0; i < badTokens.length; i++)
@@ -2520,6 +2520,8 @@ var CliqzAttrack = {
             CliqzAttrack.saveRecord('safeKey', JSON.stringify(CliqzAttrack.safeKey));
         if (CliqzAttrack.safeKeyExtVersion)
             CliqzAttrack.saveRecord('safeKeyExtVersion', CliqzAttrack.safeKeyExtVersion);
+        if (CliqzAttrack.lastUpdate)
+            CliqzAttrack.saveRecord('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
         CliqzAttrack.saveRequestKeyValue();
         CliqzAttrack.saveTokenDomain();
     },
@@ -2609,6 +2611,18 @@ var CliqzAttrack = {
             if (h < hourCutoff) delete CliqzAttrack.loadedPage[h];
     },
     _updated: {},
+    updateExpire: 48,
+    lastUpdate: null,
+    updatedInTime: function() {
+        var delay = CliqzAttrack.updateExpire,
+            hour = CliqzAttrack.newUTCDate();
+        hour.setHours(hour.getHours() - delay);
+        var hourCutoff = CliqzAttrack.hourString(hour);
+        if (CliqzAttrack.lastUpdate[0] > hourCutoff && 
+            CliqzAttrack.lastUpdate[1] > hourCutoff)
+            return true;
+        return false;
+    },
     checkWrongToken: function(key) {
         CliqzAttrack.cleanLocalBlocked();
         // send max one time a day
@@ -2726,6 +2740,7 @@ var CliqzAttrack = {
                 CliqzAttrack.saveTokenWhitelist();
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
                 CliqzAttrack.checkWrongToken('token');
+                CliqzAttrack.lastUpdate[1] = CliqzAttrack.getTime();
             },
             function() {},
             10000);
@@ -2757,6 +2772,7 @@ var CliqzAttrack = {
                 CliqzAttrack.saveSafeKey();
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
                 CliqzAttrack.checkWrongToken('safeKey');
+                CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
             },
             function() {
                 // on error
@@ -2817,6 +2833,18 @@ var CliqzAttrack = {
     loadSafeKey: function() {
         CliqzAttrack.safeKey = {}; // set empty value first, loading takes a while
         CliqzAttrack.safeKeyExtVersion = null;
+        CliqzAttrack.lastUpdate = ['0', '0'];
+        CliqzAttrack.loadRecord('lastUpdate', function(data) {
+            if (data == null) {
+                CliqzAttrack.lastUpdate = ['0', '0'];
+            } else {
+                try {
+                    CliqzAttrack.lastUpdate = JSON.parse(data);
+                } catch (e) {
+                    CliqzAttrack.lastUpdate = ['0', '0'];
+                }
+            }
+        });
         CliqzAttrack.loadRecord('safeKey', function(data) {
             if (data == null) {
                 CliqzAttrack.safeKey = {};
@@ -4300,7 +4328,7 @@ var CliqzAttrack = {
                 if(payload_data.length > 0) {
                     if (CliqzAttrack.debug) CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
                     var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
-                    var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter};
+                    var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter, 'updateInTime': CliqzAttrack.updatedInTime()};
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
                 }
                 this._staged = [];
