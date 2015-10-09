@@ -21,22 +21,22 @@
         "message": "Du hast keine ungelesenen E-Mails"
     },
     "onboarding-card-tip1":{
-        "message": "Willkommen zu Deiner neuen Startseite! Deine Favoriten sind schon angelegt, um Dir den Einstieg zu erleichtern."
+        "message": "Willkommen bei FreshTab! Hier eine Auswahl deiner beliebtesten Seiten."
     },
     "onboarding-card-tip2":{
-        "message": "Fehlt einer Deiner Favoriten? Klicke auf den “Plus”-Button unten rechts."
+        "message": "Einer deiner Favoriten fehlt? Probier den 'plus' button."
     },
     "onboarding-card-tip3":{
-        "message": "Füge Deine Lieblings-News-Websites (zum Beispiel „spiegel.de“) hinzu um auf dem Laufenden zu bleiben."
+        "message": "Füge deine neue Lieblings-Website (e.g. spiegel.de) hinzu, um weitere Funktionen nutzen zu können."
     },
     "onboarding-card-tip4":{
-        "message": "Du kannst die Karten per drag-and-drop neu anordnen."
+        "message": "Wusstest du, dass du die Kacheln verschieben kannst, um sie neu anzuordnen?"
     },
     "onboarding-card-tip5":{
-        "message": "Das “Plus” hat noch mehr zu bieten. Füge die aktuelle Uhrzeit und Wetteransage hinzu!"
+        "message": "Der Plus button hat noch mehr zu bieten... Versuche, ein Widget hinzuzufügen!"
     },
     "onboarding-card-tip6":{
-        "message": "Vielen Dank! Wir hoffen Deine neue Startseite gefällt Dir. Klicke auf das „X“ rechts oben auf dieser Karte um sie zu schließen."
+        "message": "Danke! Wir hoffen, dass dir FreshTab gefällt. Lasse den Mauscursor über der oberen rechten Ecke schweben und klicke, um das Fenster zu schließen. "
     },
     "not_supported_card":{
         "message": "Diese Kachel wird nicht mehr unterstützt und kann gelöscht werden."

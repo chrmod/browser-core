@@ -47,8 +47,8 @@ module.exports = function(grunt) {
             },
             "firefox-inject": {
                 files: [
-                    { expand: true, cwd: "src/generic/", src: '**', dest: '../cliqz@cliqz.com/chrome/freshtab/page/' },
-                    { expand: true, cwd: "src/environment/", src: 'firefox.js', dest: '../cliqz@cliqz.com/chrome/freshtab/page/js/', rename: function(dest,src){ return dest + 'environment.js' } }
+                    { expand: true, cwd: "src/generic/", src: '**', dest: '../specific/firefox/cliqz@cliqz.com/chrome/freshtab/page/' },
+                    { expand: true, cwd: "src/environment/", src: 'firefox.js', dest: '../specific/firefox/cliqz@cliqz.com/chrome/freshtab/page/js/', rename: function(dest,src){ return dest + 'environment.js' } }
                 ]
             }
         }
