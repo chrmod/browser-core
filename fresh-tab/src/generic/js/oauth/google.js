@@ -36,7 +36,7 @@ function GoogleAPI() {
             return $.pget("https://www.googleapis.com/gmail/v1/users/me/messages",{ q: "is:unread", access_token: _this.token })
                     .then(function(data){
                         return new Promise(function(resolve,reject){
-                            resolve(data.resultSizeEstimate)
+                            resolve((data.messages || []).length)
                         })
                     })
         })
