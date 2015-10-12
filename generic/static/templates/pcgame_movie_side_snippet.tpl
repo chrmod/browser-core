@@ -3,12 +3,12 @@
         <div>
             <div class="cqz-rd-info">{{local 'GameCategory'}}: {{game_cat}}</div>
             {{#if rating}}
-                <img src="{{rating.img}}" class="cqz-rd-rateimg cqz-rd-snippet_hspacing"
+                <img src="{{rating.img}}" class="cqz-rd-rateimg"
                      onerror="this.style.display='none';"/>
 
                 <div class="cqz-rd-rate">{{localizeNumbers rating.val}}/{{rating.scale}}</div>
             {{/if}}
-            <div class="cqz-multy-lines-ellipses cqz-rd-snippet_hspacing">{{des}}</div>
+            <div class="cqz-multy-lines-ellipses">{{des}}</div>
         </div>
     {{/if}}
     {{#if (logic superType '===' 'movie')}}
