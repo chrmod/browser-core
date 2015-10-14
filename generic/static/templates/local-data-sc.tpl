@@ -4,7 +4,7 @@
       {{#with data}}
         <div class="cqz-local-top-blk">
           {{#if map_img}}
-            <div class="cqz-image-round cqz-local-img-container" >
+            <div class="cqz-image-round cqz-local-img-container" extra="map-image">
               <img src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
             </div>
           {{/if}}
@@ -32,7 +32,7 @@
                     </div>
                   {{/if}}
                   {{#if phonenumber}}
-                    <div extra="phone_num" cliqz-action="copy_val">
+                    <div extra="phone_num" cliqz-action="copy_val" extra="phone-number">
                       <img src="http://cdn.cliqz.com/extension/EZ/local/phone-1.svg" class="cqz-local-icon clz_copy" onerror="this.style.display='none';"/>
                       <span class="clz_copy">{{phonenumber}}</span>
                     </div>
