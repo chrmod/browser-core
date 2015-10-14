@@ -2,7 +2,7 @@
   {{#with data}}
     <div class='cqz-cinema-container'>
       {{#if cinema.map_img}}
-        <div class="cinema-image cqz-image-round">
+        <div class="cinema-image cqz-image-round" extra="cinemaSC_map_img">
           <img url="{{cinema.map_url}}" src="{{cinema.map_img}}"/>
         </div>
       {{/if}}
