@@ -395,11 +395,11 @@ var randomImage = (function(){
 var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
         .getService(Components.interfaces.mozIAsyncFavicons);
 
-function HttpRequestContext(channel) {
-    this.channel = channel;
-    this.loadInfo = channel.loadInfo;
-    this.url = ''+ channel.URI.spec;
-    this.method = channel.requestMethod;
+function HttpRequestContext(subject) {
+    this.channel = subject.QueryInterface(nsIHttpChannel);
+    this.loadInfo = this.channel.loadInfo;
+    this.url = ''+ this.channel.URI.spec;
+    this.method = this.channel.requestMethod;
     this._parsedURL = undefined;
 }
 
@@ -435,6 +435,15 @@ HttpRequestContext.prototype = {
             referrer = dURIC(refstr);
         } catch(ee) {}
         return referrer;
+    },
+    getOriginWindowID: function() {
+        // in most cases this is the same as the outerWindowID.
+        // however for frames, it is the parentWindowId
+        if(this.getContentPolicyType() == 7) {
+            return this.getParentWindowID();
+        } else {
+            return this.getOuterWindowID();
+        }
     }
 
 }
@@ -938,7 +947,7 @@ var CliqzAttrack = {
             }
 
             var aChannel = subject.QueryInterface(nsIHttpChannel);
-            var requestContext = new HttpRequestContext(aChannel);
+            var requestContext = new HttpRequestContext(subject);
             var url = requestContext.url;
             if (!url || url == '') return;
             var url_parts = URLInfo.get(url);
@@ -964,17 +973,25 @@ var CliqzAttrack = {
             // 2. Get source url.
             // 3. header -> ORIGIN (This needs to be investigated.)
 
-            // var source = CliqzAttrack.getRefToSource(subject, referrer);
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
-                source_tab = requestContext.getOuterWindowID();
+                source_tab = requestContext.getOriginWindowID();
 
             // @konarkm : Does not look like this being used anywhere in
             // http-open-request, hence commenting.
             // var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
 
 
-            var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
+            var page_load_type = null;
+            var request_type = null;
+            switch(requestContext.getContentPolicyType()) {
+                case 6: 
+                    page_load_type = "fullpage";
+                    request_type = "fullpage";
+                    break;
+                case 7: page_load_type = "frame"; break;
+                default: page_load_type = null;
+            }
             if (source_url == '' || source_url.indexOf('about:')==0) return;
             if(page_load_type == 'fullpage') return;
 
@@ -1368,9 +1385,9 @@ var CliqzAttrack = {
             // var source = CliqzAttrack.getRefToSource(subject, referrer);
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
-                source_tab = requestContext.getOuterWindowID();
+                source_tab = requestContext.getOriginWindowID();
 
-            var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
+            //var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
             var page_load_type = null;
             var request_type = null;
             switch(requestContext.getContentPolicyType()) {
