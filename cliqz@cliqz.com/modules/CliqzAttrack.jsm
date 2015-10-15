@@ -87,7 +87,45 @@ function shuffle(s) {
     return a.join("");
 };
 
-var md5 = CliqzHumanWeb._md5;
+var LRUMapCache = function(item_ctor, size) {
+    this._cache_limit = size;
+    this._cache = {};
+    this._lru = [];
+    this._item_ctor = item_ctor;
+    this._hit_ctr = 0;
+    this._miss_ctr = 0;
+}
+
+LRUMapCache.prototype = {
+    get: function(key) {
+        if (key in this._cache) {
+            // cache hit, remove key from lru list
+            let ind = this._lru.indexOf(key);
+            if (ind != -1) {
+                this._lru.splice(ind, 1);
+            }
+            this._hit_ctr++;
+        } else {
+            // cache miss, generate value for key
+            this._cache[key] = this._item_ctor(key);
+            // prune cache - take from tail of list until short enough
+            while (this._lru.length > this._cache_limit) {
+                let lru = this._lru.pop();
+                delete this._cache[lru];
+            }
+            this._miss_ctr++;
+        }
+        // add key to head of list
+        this._lru.unshift(key);
+        return this._cache[key];
+    }
+}
+
+var md5Cache = new LRUMapCache(CliqzHumanWeb._md5, 1000);
+
+var md5 = function(s) {
+    return md5Cache.get(s);
+}
 
 function getHeaderMD5(headers) {
     var qsMD5 = {};
