@@ -786,6 +786,7 @@ var CliqzAttrack = {
     },
     sameGeneralDomain: function(dom1, dom2) {
 
+        if (dom1 === undefined || dom2 === undefined) return false;
         if (dom1==dom2) return true;
 
         var v1 = dom1.split('.').reverse();
