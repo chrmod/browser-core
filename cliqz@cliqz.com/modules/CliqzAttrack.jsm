@@ -1105,6 +1105,12 @@ var CliqzAttrack = {
                         if(url_parts['query'].length > 0) req_log.has_qs++;
                         if(url_parts['parameters'].length > 0) req_log.has_ps++;
                         if(url_parts['fragment'].length > 0) req_log.has_fragment++;
+                        let content_type = requestContext.getContentPolicyType();
+                        if (!content_type) {
+                            CliqzAttrack.tp_events.incrementStat(req_log, "type_unknown");
+                        } else {
+                            CliqzAttrack.tp_events.incrementStat(req_log, "type_" + content_type);
+                        }
                     }
                 }
 
@@ -1368,7 +1374,6 @@ var CliqzAttrack = {
             var aChannel = subject.QueryInterface(nsIHttpChannel);
             var requestContext = new HttpRequestContext(subject);
             var url = requestContext.url;
-            CliqzUtils.log(url);
 
             if (!url || url == '') return;
             var url_parts = URLInfo.get(url);
@@ -4391,6 +4396,14 @@ var CliqzAttrack = {
                 return c;
             };
 
-        }
+        },
+        incrementStat: function(req_log, stat_key) {
+            if (req_log != null) {
+                if(!(stat_key in req_log)) {
+                    req_log[stat_key] = 0;
+                }
+                req_log[stat_key]++;
+            }
+        } 
     }
 };
