@@ -1023,6 +1023,7 @@ var CliqzAttrack = {
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname']);
                 try{
+                    let source = CliqzAttrack.getRefToSource(subject, referrer);
                     if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
                         var doc = source.lc.topWindow.document;
                         if (doc.URL == source_url) {
@@ -1229,36 +1230,31 @@ var CliqzAttrack = {
                 return;
             }
             var aChannel = subject.QueryInterface(nsIHttpChannel);
-            var url = '' + aChannel.URI.spec;
+            var requestContext = new HttpRequestContext(subject);
+            var url = requestContext.url;
             if (!url || url == '') return;
             var visitor = new HeaderInfoVisitor(aChannel);
             var headers = visitor.visitRequest();
-            var url_parts = CliqzAttrack.parseURL(url);
+            var url_parts = URLInfo.get(url);
             // CliqzAttrack.examineHeaders(url_parts, headers);
-            var refstr = null,
-                referrer = '';
-            try {
-                refstr = aChannel.getRequestHeader("Referer");
-                referrer = dURIC(refstr);
-            } catch(ee) {}
+            var referrer = requestContext.getReferrer();
             var same_gd = false;
 
 
-            var source = CliqzAttrack.getRefToSource(subject, referrer);
-            var source_url = source.url,
+            var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
-                source_tab = source.tab;
+                source_tab = requestContext.getOriginWindowID();
 
             var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
             if (source_url == '' || source_url.indexOf('about:')==0) return;
             if(page_load_type == 'fullpage') return;
 
             if (source_url != null) {
-                source_url_parts = CliqzAttrack.parseURL(source_url);
+                source_url_parts = URLInfo.get(source_url);
                 // extract and save tokens
-                var valid_ref = CliqzAttrack.isTabURL(source_url);
+                //var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = CliqzAttrack.sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
-                if (same_gd && valid_ref) return;
+                if (same_gd) return;
                 CliqzAttrack.extractHeaderTokens(url_parts, source_url_parts['hostname'], headers);
                 try{
                     if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
@@ -1315,7 +1311,7 @@ var CliqzAttrack = {
             // if (topic != "http-on-modify-request") return;
             // extract url and referrer from event subject
             var aChannel = subject.QueryInterface(nsIHttpChannel);
-            var requestContext = new HttpRequestContext(aChannel);
+            var requestContext = new HttpRequestContext(subject);
             var url = requestContext.url;
             CliqzUtils.log(url);
 
