@@ -434,6 +434,7 @@ var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"
         .getService(Components.interfaces.mozIAsyncFavicons);
 
 function HttpRequestContext(subject) {
+    this.subject = subject;
     this.channel = subject.QueryInterface(nsIHttpChannel);
     this.loadInfo = this.channel.loadInfo;
     this.url = ''+ this.channel.URI.spec;
@@ -447,7 +448,11 @@ HttpRequestContext.prototype = {
         return this.loadInfo ? this.loadInfo.innerWindowID : 0;
     },
     getOuterWindowID: function() {
-        return this.loadInfo.outerWindowID;
+        if (this.loadInfo.outerWindowID === undefined) {
+            return this._legacyGetWindowId();
+        } else {
+            return this.loadInfo.outerWindowID;
+        }
     },
     getParentWindowID: function() {
         return this.loadInfo.parentOuterWindowID;
@@ -477,11 +482,22 @@ HttpRequestContext.prototype = {
     getOriginWindowID: function() {
         // in most cases this is the same as the outerWindowID.
         // however for frames, it is the parentWindowId
+        let origin = undefined;
         if(this.getContentPolicyType() == 7) {
-            return this.getParentWindowID();
+            origin =  this.getParentWindowID();
         } else {
-            return this.getOuterWindowID();
+            origin = this.getOuterWindowID();
         }
+        if (origin != undefined) {
+            return origin;
+        } else {
+            return this._legacyGetWindowId();
+        }
+    },
+    _legacyGetWindowId: function() {
+        // Firefox <=38 fallback for tab ID.
+        let source = CliqzAttrack.getRefToSource(this.subject, this.getReferrer());
+        return source.tab;
     }
 
 }
@@ -4158,7 +4174,7 @@ var CliqzAttrack = {
             // previous request finished. Move to staged
             this.stage(source);
             // create new page load entry for tab
-            if(url && url.hostname) {
+            if(url && url.hostname && source > 0) {
                 this._active[source] = new CliqzAttrack.tp_events.PageLoadData(url);
                 return this._active[source];
             } else {
@@ -4171,7 +4187,7 @@ var CliqzAttrack = {
         // for the requesting third party on the source page.
         // Returns null if the referrer is not valid.
         get: function(url, url_parts, ref, ref_parts, source) {
-            if(source == -1 || source === null || source === undefined) {
+            if(source <= 0|| source === null || source === undefined) {
                 if (CliqzAttrack.debug) CliqzUtils.log("No source for request, not logging!", "tp_events");
                 // return a blank stat counter, that won't be staged
                 return this._newStatCounter();
@@ -4182,7 +4198,8 @@ var CliqzAttrack = {
                     return null;
                 }
                 if (CliqzAttrack.debug) CliqzUtils.log("No fullpage request for referrer: "+ ref +" -> "+ url , "tp_events");
-                this._active[source] = new CliqzAttrack.tp_events.PageLoadData(ref, ref_parts.hostname);
+                //this._active[source] = new CliqzAttrack.tp_events.PageLoadData(ref_parts);
+                return null;
             }
 
             var page_graph = this._active[source];
