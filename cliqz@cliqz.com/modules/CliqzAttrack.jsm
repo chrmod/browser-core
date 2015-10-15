@@ -499,25 +499,11 @@ var URLInfo = function(url) {
     return this;
 }
 
-URLInfo._cache = {};
-URLInfo._lru = [];
-URLInfo._cache_limit = 100;
+URLInfo._cache = new LRUMapCache(function(url) { return new URLInfo(url) }, 100);
 
 /** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
 URLInfo.get = function(url) {
-    URLInfo._cache[url] = URLInfo._cache[url] || new URLInfo(url);
-    // update lru list
-    let ind = URLInfo._lru.indexOf(url);
-    if(ind != -1) {
-        URLInfo._lru.splice(ind, 1);
-    }
-    URLInfo._lru.unshift(url);
-    // prune cache
-    while(URLInfo._lru.length > URLInfo._cache_limit) {
-        let lru = URLInfo._lru.pop();
-        delete URLInfo._cache[lru];
-    }
-    return URLInfo._cache[url];
+    return URLInfo._cache.get(url);
 }
 
 URLInfo.prototype = {
