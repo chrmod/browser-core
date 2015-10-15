@@ -439,6 +439,9 @@ HttpRequestContext.prototype = {
 
 }
 
+/**
+    URLInfo class: holds a parsed URL.
+*/
 var URLInfo = function(url) {
     this.url_str = url;
     // map parsed url parts onto URL object
@@ -453,6 +456,7 @@ URLInfo._cache = {};
 URLInfo._lru = [];
 URLInfo._cache_limit = 100;
 
+/** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
 URLInfo.get = function(url) {
     URLInfo._cache[url] = URLInfo._cache[url] || new URLInfo(url);
     // update lru list
@@ -934,9 +938,15 @@ var CliqzAttrack = {
             }
 
             var aChannel = subject.QueryInterface(nsIHttpChannel);
-            var url = '' + aChannel.URI.spec;
+            var requestContext = new HttpRequestContext(aChannel);
+            var url = requestContext.url;
             if (!url || url == '') return;
-            var url_parts = CliqzAttrack.parseURL(url);
+            var url_parts = URLInfo.get(url);
+
+            if (requestContext.getContentPolicyType() == 6) {
+                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext)
+                return;
+            }
 
             // find the ok tokens fields
             CliqzAttrack.examineTokens(url_parts);
@@ -945,12 +955,7 @@ var CliqzAttrack = {
             if (url.indexOf("mime=video") > -1 || url.indexOf("mime=audio") > -1) return;
 
             // This needs to be a common function aswell. Also consider getting ORIGIN header.
-            var refstr = null,
-                referrer = '';
-            try {
-                refstr = aChannel.getRequestHeader("Referer");
-                referrer = dURIC(refstr);
-            } catch(ee) {}
+            var referrer = requestContext.getReferrer();
             var same_gd = false;
 
             // We need to get the source from where the request originated.
@@ -959,10 +964,10 @@ var CliqzAttrack = {
             // 2. Get source url.
             // 3. header -> ORIGIN (This needs to be investigated.)
 
-            var source = CliqzAttrack.getRefToSource(subject, referrer);
-            var source_url = source.url,
+            // var source = CliqzAttrack.getRefToSource(subject, referrer);
+            var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
-                source_tab = source.tab;
+                source_tab = requestContext.getOuterWindowID();
 
             // @konarkm : Does not look like this being used anywhere in
             // http-open-request, hence commenting.
@@ -989,12 +994,12 @@ var CliqzAttrack = {
             // Now refstr should not be null, but still keeping the clause to check from edge cases.
 
             if (source_url != null) {
-                source_url_parts = CliqzAttrack.parseURL(source_url);
+                source_url_parts = URLInfo.get(source_url);
 
                 // same general domain && ref is clearly in the tab
-                var valid_ref = CliqzAttrack.isTabURL(source_url);
+                // var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = CliqzAttrack.sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
-                if (same_gd && valid_ref) return;
+                if (same_gd) return;
 
 
                 // extract and save tokens
@@ -1325,7 +1330,10 @@ var CliqzAttrack = {
                 CliqzAttrack.contextOauth = {'ts': curr_time, 'html': dURIC(ourl) + ':' + url};
                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH: " + JSON.stringify(CliqzAttrack.contextOauth), CliqzAttrack.LOG_KEY);
             }
-
+            // content policy type 6 == TYPE_DOCUMENT: top level dom element. Do not block.
+            if (requestContext.getContentPolicyType() == 6) {
+                return;
+            }
 
             var referrer = requestContext.getReferrer();
 
@@ -1409,13 +1417,11 @@ var CliqzAttrack = {
             }
             */
 
-            CliqzUtils.log([source_url, referrer]);
-
-            if (referrer != ''){
+            if (referrer === undefined || referrer != ''){
                 source_url = referrer;
             }
 
-            source_url_parts = CliqzAttrack.parseURL(source_url);
+            source_url_parts = URLInfo.get(source_url);
 
             var req_log = null;
             if(request_type != 'fullpage' && source_url_parts && source_tab != -1) {
@@ -3970,7 +3976,7 @@ var CliqzAttrack = {
                         }
                         countReload = false;
 
-                        CliqzAttrack.tp_events.onFullPage(url, windowID);
+                        //CliqzAttrack.tp_events.onFullPage(url, windowID);
                     } catch(e) {}
                 }
             }
@@ -4109,13 +4115,13 @@ var CliqzAttrack = {
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
         //  or returns null if the url is malformed or null.
-        onFullPage: function(url, source) {
-            var url_parts = CliqzAttrack.parseURL(url);
+        onFullPage: function(url, requestContext) {
+            let source = requestContext.getOuterWindowID();
             // previous request finished. Move to staged
             this.stage(source);
             // create new page load entry for tab
-            if(url && url_parts && url_parts.hostname) {
-                this._active[source] = new CliqzAttrack.tp_events.PageLoadData(url, url_parts.hostname);
+            if(url && url.hostname) {
+                this._active[source] = new CliqzAttrack.tp_events.PageLoadData(url);
                 return this._active[source];
             } else {
                 return null;
@@ -4216,7 +4222,7 @@ var CliqzAttrack = {
             return ctr;
         },
         // Class to hold a page load and third party urls loaded by this page.
-        PageLoadData: function(url, hostname) {
+        PageLoadData: function(url) {
 
             // Create a short md5 hash of the input string s
             this._shortHash = function(s) {
@@ -4224,9 +4230,9 @@ var CliqzAttrack = {
                 return md5(s).substring(0, 16);
             };
 
-            this.url = url;
-            this.hostname = hostname;
-            this.path = this._shortHash(url);
+            this.url = url.toString();
+            this.hostname = url.hostname;
+            this.path = this._shortHash(url.path);
             this.c = 1;
             this.s = (new Date()).getTime();
             this.e = null;
