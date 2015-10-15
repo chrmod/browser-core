@@ -1,15 +1,17 @@
 function GoogleAPI() {
     var _this = this,
+        callbackUri = "https://oauth.freshtab.cliqz.com/chrome";
         url = "https://accounts.google.com/o/oauth2/auth?"
             + "scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly&"
             + "state=%2Fprofile&"
-            + "redirect_uri=https%3A%2F%2Foauth.freshtab.cliqz.com%2Fchrome&"
+            + "redirect_uri=" + encodeURIComponent(callbackUri) + "&"
             + "response_type=token&"
             + "client_id=624577338266-t11bgo04s73c1fh7gmpbaeuqjglod02u.apps.googleusercontent.com"
 
     this.token = env.get("oauth-google-token")
 
     this.oauth2 = function(){
+        env.oauthInit && env.oauthInit(callbackUri);
         window.location.href = url
     }
 
@@ -31,10 +33,10 @@ function GoogleAPI() {
 
     this.gmailUnread = function(){
         return this.validate().then(function(data){
-            return $.pget("https://www.googleapis.com/gmail/v1/users/me/messages",{ q: "is:unread", access_token: _this.token })
+            return $.pget("https://www.googleapis.com/gmail/v1/users/me/messages",{ q: "is:unread is:inbox", access_token: _this.token })
                     .then(function(data){
                         return new Promise(function(resolve,reject){
-                            resolve(data.resultSizeEstimate)
+                            resolve((data.messages || []).length)
                         })
                     })
         })

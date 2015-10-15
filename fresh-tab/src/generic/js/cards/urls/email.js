@@ -14,7 +14,7 @@ function CardEmail(data) {
                 gapi.gmailUnread()
                 .then(function(amount){
                     if (amount) {
-                        _this.element.find(".unread").text("You have " + amount + " new emails")
+                        _this.element.find(".unread").text("You have " + (amount >= 100 ? "+100" : amount) + " new emails")
                         _this.view("unread")
                     }
                     else _this.view("no-unread")
