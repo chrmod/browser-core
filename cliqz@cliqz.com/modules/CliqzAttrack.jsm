@@ -440,6 +440,7 @@ function HttpRequestContext(subject) {
     this.url = ''+ this.channel.URI.spec;
     this.method = this.channel.requestMethod;
     this._parsedURL = undefined;
+    this._legacy_source = undefined;
 }
 
 HttpRequestContext.prototype = {
@@ -448,17 +449,25 @@ HttpRequestContext.prototype = {
         return this.loadInfo ? this.loadInfo.innerWindowID : 0;
     },
     getOuterWindowID: function() {
-        if (this.loadInfo.outerWindowID === undefined) {
+        if (this.loadInfo == null || this.loadInfo.outerWindowID === undefined) {
             return this._legacyGetWindowId();
         } else {
             return this.loadInfo.outerWindowID;
         }
     },
     getParentWindowID: function() {
-        return this.loadInfo.parentOuterWindowID;
+        if (this.loadInfo == null) {
+            return this._legacyGetWindowId();
+        } else {
+            return this.loadInfo.parentOuterWindowID;
+        }
     },
     getLoadingDocument: function() {
-        return this.loadInfo && this.loadInfo.loadingDocument != null ? this.loadInfo.loadingDocument.location.href : ""
+        if (this.loadInfo != null) {
+            return this.loadInfo.loadingDocument != null ? this.loadInfo.loadingDocument.location.href : ""
+        } else {
+            return this._legacyGetSource().url;
+        }
     },
     getContentPolicyType: function() {
         return this.loadInfo ? this.loadInfo.contentPolicyType : undefined;
@@ -494,9 +503,15 @@ HttpRequestContext.prototype = {
             return this._legacyGetWindowId();
         }
     },
+    _legacyGetSource: function() {
+        if (this._legacy_source === undefined) {
+            this._legacy_source = CliqzAttrack.getRefToSource(this.subject, this.getReferrer());
+        }
+        return this._legacy_source;
+    },
     _legacyGetWindowId: function() {
         // Firefox <=38 fallback for tab ID.
-        let source = CliqzAttrack.getRefToSource(this.subject, this.getReferrer());
+        let source = this._legacyGetSource();
         return source.tab;
     }
 
