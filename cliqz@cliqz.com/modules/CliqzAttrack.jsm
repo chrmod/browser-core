@@ -420,9 +420,6 @@ HttpRequestContext.prototype = {
     getContentPolicyType: function() {
         return this.loadInfo ? this.loadInfo.contentPolicyType : undefined;
     },
-    parsedURL: function() {
-        return this._parsedURL | CliqzAttrack.parseURL(this.url);
-    },
     getCookieData: function() {
         let cookie_data = null;
         try {
@@ -440,6 +437,42 @@ HttpRequestContext.prototype = {
         return referrer;
     }
 
+}
+
+var URLInfo = function(url) {
+    this.url_str = url;
+    // map parsed url parts onto URL object
+    let url_parts = CliqzAttrack.parseURL(url);
+    for(let k in url_parts) {
+        this[k] = url_parts[k];
+    }
+    return this;
+}
+
+URLInfo._cache = {};
+URLInfo._lru = [];
+URLInfo._cache_limit = 100;
+
+URLInfo.get = function(url) {
+    URLInfo._cache[url] = URLInfo._cache[url] || new URLInfo(url);
+    // update lru list
+    let ind = URLInfo._lru.indexOf(url);
+    if(ind != -1) {
+        URLInfo._lru.splice(ind, 1);
+    }
+    URLInfo._lru.unshift(url);
+    // prune cache
+    while(URLInfo._lru.length > URLInfo._cache_limit) {
+        let lru = URLInfo._lru.pop();
+        delete URLInfo._cache[lru];
+    }
+    return URLInfo._cache[url];
+}
+
+URLInfo.prototype = {
+    toString: function() {
+        return this.url_str;
+    }
 }
 
 var CliqzAttrack = {
@@ -1264,7 +1297,7 @@ var CliqzAttrack = {
             CliqzUtils.log(url);
 
             if (!url || url == '') return;
-            var url_parts = requestContext.parsedURL();
+            var url_parts = URLInfo.get(url);
 
             var cookie_data = requestContext.getCookieData();
 
