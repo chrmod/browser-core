@@ -1417,28 +1417,6 @@ var CliqzAttrack = {
             // Then uri.spec == source_url
             // Only get source tabs for now.
 
-            /*
-            var source_url = '',
-                source_url_parts = null,
-                source_tab = -1;
-            try {
-                var lc = CliqzAttrack.getLoadContext(subject);
-                if(lc != null) {
-                   source_url =''+lc.topWindow.document.documentURI;
-                   var util = lc.topWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-                   source_tab = util.outerWindowID;
-                }
-            } catch(ex) {
-            }
-
-            if(source_tab == -1) {
-                var source_tabs = CliqzAttrack.tab_listener.getTabsForURL(referrer);
-                if(source_tabs.length > 0) {
-                    source_tab = source_tabs[0];
-                }
-            }
-            */
-
             // var source = CliqzAttrack.getRefToSource(subject, referrer);
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
@@ -1455,42 +1433,8 @@ var CliqzAttrack = {
                 case 7: page_load_type = "frame"; break;
                 default: page_load_type = null;
             }
-            // var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
-
-            // // classify request type
-            // var request_type = null;
-            // if (page_load_type =='frame' && referrer != '' && source_url != '') {
-            //     if (is_xhr) {
-            //         request_type = "frame_xhr"; // from iframe e.g. Facebook button
-            //     } else {
-            //         request_type = "frame_content";
-            //     }
-            // } else if (page_load_type == 'fullpage' && !is_xhr) {
-            //     source_url = '' + aChannel.URI.spec;
-            //     request_type = "fullpage"; // User request page in a tab.
-            // } else if (page_load_type == null) {
-            //     if (referrer != '' || source_url != '') {
-            //         if(is_xhr) {
-            //             request_type = "ajax"; // XHR request from website JS
-            //         } else {
-            //             request_type = "site_resource"; // content from <link> etc type tags)
-            //         }
-            //     } else if (source_tab == -1) {
-            //         if(is_xhr) {
-            //             request_type = "extension_xhr"; // extension API calls
-            //         } else {
-            //             request_type = "extension_resource"; // static resources for browser/extensions
-            //         }
-            //     }
-            // }
 
             // Fallback to referrer if we don't find source from tab
-            /*
-            if (!source_url && referrer != '') {
-                source_url = referrer;
-            }
-            */
-
             if (referrer === undefined || referrer != ''){
                 source_url = referrer;
             }
