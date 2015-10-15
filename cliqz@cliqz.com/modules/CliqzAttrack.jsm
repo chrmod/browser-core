@@ -4388,9 +4388,11 @@ var CliqzAttrack = {
 
             this._sumStats = function(a, b) {
                 var c = {},
-                    stats_keys = CliqzAttrack.tp_events._stats;
+                    stats_keys = new Set(Object.keys(a).concat(Object.keys(b)));
+                // paths is a special case
+                stats_keys.delete('paths');
                 stats_keys.forEach(function(s){
-                    c[s] = a[s] + b[s];
+                    c[s] = (a[s] || 0) + (b[s] || 0);
                 });
                 c['paths'] = a['paths'].concat(b['paths']);
                 return c;
