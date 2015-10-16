@@ -3,7 +3,9 @@
 
 var EXPORTED_SYMBOLS = ['CliqzHistoryPattern'];
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+var Cc = Components.classes,
+    Ci = Components.interfaces,
+    Cu = Components.utils;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
