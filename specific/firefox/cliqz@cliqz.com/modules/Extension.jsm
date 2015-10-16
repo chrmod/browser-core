@@ -11,9 +11,6 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
-    'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
     firstRunPref = 'firstStartDone',
@@ -55,12 +52,13 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
-
+        Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();
+        CliqzResultProviders.init();
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 

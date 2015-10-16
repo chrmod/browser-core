@@ -9,9 +9,9 @@ function GoogleAPI() {
             + "client_id=624577338266-t11bgo04s73c1fh7gmpbaeuqjglod02u.apps.googleusercontent.com"
 
     this.token = env.get("oauth-google-token")
+    env.oauthInit && env.oauthInit(callbackUri);
 
     this.oauth2 = function(){
-        env.oauthInit && env.oauthInit(callbackUri);
         window.location.href = url
     }
 
