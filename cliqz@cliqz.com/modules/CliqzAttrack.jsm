@@ -94,6 +94,7 @@ var LRUMapCache = function(item_ctor, size) {
     this._item_ctor = item_ctor;
     this._hit_ctr = 0;
     this._miss_ctr = 0;
+    this._keysize_limit = 1000;
 }
 
 LRUMapCache.prototype = {
@@ -107,6 +108,10 @@ LRUMapCache.prototype = {
             this._hit_ctr++;
         } else {
             // cache miss, generate value for key
+            if (key.length > this._keysize_limit) {
+                // if key is large, don't cache
+                return this._item_ctor(key);
+            }
             this._cache[key] = this._item_ctor(key);
             // prune cache - take from tail of list until short enough
             while (this._lru.length > this._cache_limit) {
