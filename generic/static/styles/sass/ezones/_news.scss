@@ -17,7 +17,8 @@
     cursor: pointer;
 }
 
-.entity-story-image {
+.entity-story-image,
+.cqz-video-image {
     position: relative;
     float: left;
     width: 100px;
@@ -43,11 +44,24 @@
         position: absolute;
         right: 0;
         bottom: 0;
-        padding: 2px 3px;
+        padding: 2px 3px 2px 15px;
         color: #fff;
-        background: #000;
+        background-color: rgba(0, 0, 0, 0.7);
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 4px;
+            width: 0;
+            height: 0;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            border-left: 6px solid #fff;
+        }
     }
 }
+.cqz-video-image { width: 114px; height: 74px; margin-right: 20px;}
 
 .entity-story-image + .entity-story-description {
     overflow: hidden;
