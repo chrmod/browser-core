@@ -13,8 +13,18 @@ html
         script(src="/views/js/environment.js")
         script(src="/tool/js/global.js")
         script(src="/tool/js/local.js")
-    body
-        button#location(onclick="getLocation()") Using CLIQZ office location - Update!
+    body.debugView
+        div#topBar
+            div#cpBtn
+                div.iconBar
+                div.iconBar
+                div.iconBar
+        div#panelWindow
+            h2 Control Panel
+            div#formControl
+                input#cMenuCb(type='checkbox', name='cMenuCb', onclick="togglecMenu(checked)")
+                label Disable Context Menu
+            button#location(onclick="getLocation()") Using CLIQZ office location - Update!
         input#urlbar(autofocus="true" autocomplete="off")
         #results
         script(src="/views/js/debug.js")
