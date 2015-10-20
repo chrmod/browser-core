@@ -12,8 +12,6 @@ function waitIfNotReady(fn) {
 
 TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
 
-    //describe('CliqzAttrack.')
-
     describe('CliqzAttrack.tp_events', function() {
 
         var win = CliqzUtils.getWindow(),
@@ -63,6 +61,7 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                     chai.expect(page_load).to.include.keys('hostname', 'url', 'path');
                     chai.expect(page_load.url).to.equal('https://cliqz.com/');
                     chai.expect(page_load.hostname).to.equal('cliqz.com');
+                    // md5('/')
                     chai.expect(page_load.path).to.equal('6666cd76f96956469e7be39d750cc7d9'.substring(0, 16));
                     chai.expect(page_load.tps).to.be.empty;
                     done();
@@ -96,6 +95,92 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
             });
         });
 
+        describe('PageLoadData', function() {
+
+            var page_load,
+                url = 'https://cliqz.com/privacy#saferWeb',
+                url_parts = CliqzAttrack.urlInfo.get(url);
+
+            beforeEach(function() {
+                page_load = new CliqzAttrack.tp_events.PageLoadData(url_parts);
+            });
+
+            it('should have initial attributes from source url', function() {
+                console.log(page_load);
+                chai.expect(page_load.url).to.equal(url);
+                chai.expect(page_load.hostname).to.equal(url_parts.hostname);
+                chai.expect(page_load.tps).to.be.empty;
+                chai.expect(page_load.path).to.equal(page_load._shortHash(url_parts.path));
+            });
+
+            describe('getTpUrl', function() {
+                var tp_url;
+
+                beforeEach(function() {
+                    tp_url = page_load.getTpUrl('hostname', '/');
+                });
+
+                it('should create a stat entry for the given page load', function() {
+                    chai.expect(tp_url).to.include.keys(CliqzAttrack.tp_events._stats);
+                    chai.expect(page_load.tps).to.have.property('hostname');
+                    chai.expect(page_load.tps['hostname']).to.have.property('/');
+                    chai.expect(page_load.tps['hostname']['/']).to.equal(tp_url);
+                });
+
+                it('should return the same object on repeated calls', function() {
+                    tp_url['c'] += 1;
+
+                    chai.expect(page_load.getTpUrl('hostname', '/')).to.equal(tp_url);
+                });
+            });
+
+            describe('asPlainObject', function() {
+
+                it('should contain page load metadata', function() {
+                    var plain = page_load.asPlainObject();
+                    chai.expect(plain).to.include.keys('hostname', 'path', 'c', 't', 'ra', 'tps');
+                });
+
+                it('should hash page load host', function() {
+                    var plain = page_load.asPlainObject();
+                    // md5('cliqz.com')
+                    chai.expect(plain.hostname).to.equal("716378bd1d4c36198e252476ef80c66e".substring(0, 16));
+                });
+
+                it('should sum third party stats', function() {
+                    var paths = ['script.js', 'beacon'],
+                        tps = paths.map(function(p) {
+                            return page_load.getTpUrl('example.com', p);
+                        });
+                    tps.forEach(function(tp) {
+                        tp['c'] += 1;
+                    });
+
+                    var plain = page_load.asPlainObject();
+                    chai.expect(Object.keys(plain.tps)).to.have.length(1);
+                    chai.expect(plain.tps).to.have.property('example.com');
+                    chai.expect(plain.tps['example.com']['c']).to.equal(2);
+                    chai.expect(plain.tps['example.com']['paths']).to.have.length(2);
+                    chai.expect(plain.tps['example.com']['paths']).to.eql(paths.map(page_load._shortHash));
+                });
+
+                it('should prune all zero stats', function() {
+                    var paths = ['script.js', 'beacon'],
+                        tps = paths.map(function(p) {
+                            return page_load.getTpUrl('example.com', p);
+                        }),
+                        paths_hash = paths.map(page_load._shortHash);
+                    tps.forEach(function(tp) {
+                        tp['c'] += 1;
+                    });
+                    tps[1]['has_qs'] += 1;
+
+                    var plain = page_load.asPlainObject();
+                    chai.expect(plain.tps['example.com']).to.eql({'c': 2, 'has_qs': 1, 'paths': paths_hash});
+                });
+            });
+
+        });
     });
 
 }

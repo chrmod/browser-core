@@ -608,6 +608,7 @@ var CliqzAttrack = {
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
     observerService: Components.classes["@mozilla.org/observer-service;1"]
                                 .getService(Components.interfaces.nsIObserverService),
+    urlInfo: URLInfo,
     getTime:function() {
         var ts = CliqzUtils.getPref('config_ts', null);
         if(!ts){
