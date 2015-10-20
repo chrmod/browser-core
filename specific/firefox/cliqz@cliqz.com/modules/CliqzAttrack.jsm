@@ -466,7 +466,7 @@ HttpRequestContext.prototype = {
     },
     getLoadingDocument: function() {
         if (this.loadInfo != null) {
-            return this.loadInfo.loadingDocument != null ? this.loadInfo.loadingDocument.location.href : ""
+            return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument ? this.loadInfo.loadingDocument.location.href : ""
         } else {
             return this._legacyGetSource().url;
         }
@@ -4416,9 +4416,10 @@ var CliqzAttrack = {
         commit: function(force_clean, force_stage) {
             var now = (new Date()).getTime();
             if(now - this._last_clean > this._clean_interval || force_clean == true) {
-                var active_tabs = CliqzAttrack.tab_listener.getActiveWindowIDs();
                 for(let k in this._active) {
-                    if(active_tabs.indexOf(k) == -1 || force_stage == true) {
+                    var active = CliqzAttrack.tab_listener.isWindowActive(k);
+                    CliqzUtils.log("Tab: "+ k + ", active = " + active, 'attrack');
+                    if(!CliqzAttrack.tab_listener.isWindowActive(k) || force_stage == true) {
                         if (CliqzAttrack.debug) CliqzUtils.log('Stage tab '+k, 'tp_events');
                         this.stage(k);
                     }
