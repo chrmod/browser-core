@@ -2262,7 +2262,7 @@ var CliqzAttrack = {
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
-        if (CliqzUtils.genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
+        if (genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
             CliqzAttrack.similarAddon = 'Firefox';
         }
         AddonManager.getAllAddons(function(aAddons) {
