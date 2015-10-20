@@ -13,7 +13,7 @@
           <span class="cqz-img-holder" style="background-image: url({{ thumbnail }})"></span>
         </div>
         <div class="entity-story-description">
-          <div class="entity-story-title"><a href="{{url}}">{{ title }}</a></div>
+          <div class="entity-story-title"><a> {{ title }} </a></div>
           <div class="entity-story-comment">
             {{ time }}
               {{#if (logic tweet_count '>' 1) }}
