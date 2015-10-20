@@ -1088,8 +1088,8 @@ var CliqzHistoryPattern = {
   },
 
   // Removes a given url from the instant.data.url list
-  removeUrlFromResult: function(urlList, url) {
-    var url = CliqzHistoryPattern.generalizeUrl(url);
+  removeUrlFromResult: function(urlList, _url) {
+    var url = CliqzHistoryPattern.generalizeUrl(_url);
     for(var key in urlList) {
       var r_url = CliqzHistoryPattern.generalizeUrl(urlList[key].href);
       if (r_url == url) {

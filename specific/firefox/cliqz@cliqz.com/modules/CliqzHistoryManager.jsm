@@ -131,7 +131,7 @@ var CliqzHistoryManager = {
 
                 handleResult: function(resultSet)  {
                   let row;
-                  while (row = resultSet.getNextRow()) {
+                  while ((row = resultSet.getNextRow())) {
                     // Read out the desired columns from the row into an object
                     let result;
                     if (columns != null) {

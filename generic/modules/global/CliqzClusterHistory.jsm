@@ -376,7 +376,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             if(category_order[c] == 'control')
                 data.control = categories[category_order[c]];
             else if(category_order[c] == 'base')
-                ;
+                {}
             else if(category_order[c] == 'exclude')
                 data.exclude = categories[category_order[c]];
             else if(category_order[c] == 'uncategorized')
