@@ -216,7 +216,7 @@ var CliqzHumanWeb = {
     httpCache401: {},
     queryCache: {},
     privateCache: {},
-    UrlsCache : {},
+    UrlsCache :false,
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
@@ -1732,12 +1732,46 @@ var CliqzHumanWeb = {
         }
         return null;
     },
+    contextFromEvent: null,
+    setContextFromEvent: function(ev) {
+        try {
+            var tar = ev.target;
+
+            var found = false;
+            var count = 0;
+            var def_html = null;
+
+            while(!found) {
+
+                var html = tar.innerHTML;
+
+                if (html.indexOf('http://')!=-1 || html.indexOf('https://')!=-1) {
+                    found = true;
+                    def_html = html;
+                    break;
+                }
+
+                tar = tar.parentNode;
+
+                count+=1;
+                if (count > 4) break;
+            }
+
+            if (found && def_html) {
+                CliqzHumanWeb.contextFromEvent = {'html': def_html, 'ts': (new Date()).getTime()};
+            }
+        }
+        catch(ee) {
+            CliqzHumanWeb.contextFromEvent = null;
+        }
+    },
     captureMouseClickPage: function(ev) {
 
         // if the target is a link of type hash it does not work, it will create a new page without referral
         //
 
         var targetURL = CliqzHumanWeb.getURLFromEvent(ev);
+        CliqzHumanWeb.setContextFromEvent(ev);
 
         if (targetURL!=null) {
 
@@ -2443,7 +2477,7 @@ var CliqzHumanWeb = {
                             }
                         });
 
-                        if(setPrivate){
+                       if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
                     }

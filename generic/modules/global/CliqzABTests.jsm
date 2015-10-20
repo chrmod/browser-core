@@ -11,6 +11,9 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
+  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
+
 var timer=null, ONE_HOUR = 60 * 60 * 1000;
 
 var CliqzABTests = {
@@ -275,6 +278,46 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
+            case "1045_A":
+                break;
+            case "1045_B":
+                CliqzUtils.setPref("antiTrackTest", true);
+                CliqzAttrack.initAtBrowser();
+                break;
+            case "1046_A":
+            case "1047_A":
+            case "1048_A":
+            case "1049_A":
+            case "1050_A":
+            case "1051_A":
+            case "1052_A":
+            case "1053_A":
+                break;
+            case "1046_B":
+                CliqzUtils.setPref("attrackBlockCookieTracking", true);
+                break;
+            case "1047_B":
+                CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
+                break;
+            case "1048_B":
+                CliqzUtils.setPref("attrackAlterPostdataTracking", true);
+                break;
+            case "1049_B":
+                CliqzUtils.setPref("attrackCanvasFingerprintTracking", true);
+                break;
+            case "1050_B":
+                CliqzUtils.setPref("attrackRefererTracking", true);
+                break;
+            case "1051_B":
+                CliqzUtils.setPref("antiTrackTest", true);
+                CliqzAttrack.initAtBrowser();
+                break;
+            case "1052_B":
+                CliqzUtils.setPref("attrackBlockCookieTracking", true);
+                break;
+            case "1053_B":
+                CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -476,6 +519,42 @@ var CliqzABTests = {
                break;
             case "1044_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
+                break;
+            case "1045_A":
+            case "1045_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
+                CliqzAttrack.unloadAtBrowser();
+                break;
+            case "1046_A":
+            case "1047_A":
+            case "1048_A":
+            case "1049_A":
+            case "1050_A":
+                break;
+            case "1046_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
+                break;
+            case "1047_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
+                break;
+            case "1048_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackAlterPostdataTracking");
+                break;
+            case "1049_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackCanvasFingerprintTracking");
+                break;
+            case "1050_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
+                break;
+            case "1051_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
+                CliqzAttrack.unloadAtBrowser();
+                break;
+            case "1052_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
+                break;
+            case "1053_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
                 break;
             default:
                 rule_executed = false;
