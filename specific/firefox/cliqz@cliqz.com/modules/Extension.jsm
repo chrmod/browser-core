@@ -9,6 +9,7 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
 var BTN_ID = 'cliqz-button',
@@ -58,7 +59,13 @@ var Extension = {
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();
-        CliqzResultProviders.init();
+        if(Services.search.init != null){
+          Services.search.init(function(){
+            CliqzResultProviders.init();
+          });
+        } else {
+          CliqzResultProviders.init();
+        }
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
