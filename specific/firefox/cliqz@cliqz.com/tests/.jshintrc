@@ -1,0 +1,13 @@
+{
+  "predef": [
+    "TESTS",
+    "describe",
+    "it",
+    "chai",
+    "context",
+    "fillIn",
+    "afterEach",
+    "beforeEach",
+    "waitForResult"
+  ]
+}

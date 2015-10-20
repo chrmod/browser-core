@@ -1,0 +1,553 @@
+@import 'bourbon'
+
+$rs-primary: 25px
+$rs-headings: 18px
+$rs: 16px
+$rs-small: 12px
+
+.cf
+	@include clearfix
+
+@mixin respond-to($breakpoint)
+	@media only screen and (min-width: $breakpoint + px)
+		@content
+
+@mixin complex-respond-to($width, $height, $orientation)
+	@media only screen and (min-width: $width + px) and (min-height: $height + px) and (orientation: $orientation)
+		@content
+
+body, html
+	font-family: lato
+	background-color: #ebebeb
+	font-size: $rs
+	padding: 0
+	margin: 0
+
+.wrapper
+	margin: 0 auto
+	padding: 0 0
+	position: fixed
+	top: 64px
+	left: 0
+	right: 0
+	bottom: 253px
+	overflow: hidden
+	overflow-x: scroll
+	@include complex-respond-to(568, 320, landscape)
+		bottom: 193px !important
+	@include respond-to(375)
+		bottom: 258px
+		@include complex-respond-to(667, 375, landscape)
+			bottom: 194px !important
+	@include respond-to(414)
+		bottom: 271px
+		@include complex-respond-to(736, 414, landscape)
+			bottom: 194px
+	.content
+		position: absolute
+		top: $rs
+		left: $rs
+		right: $rs
+		bottom: $rs
+
+.frame
+	position: absolute
+	top: 0
+	left: 0
+	bottom: 0
+	width: 100%
+
+.phoneui
+	background-color: red
+	height: 64px
+	position: fixed
+	top: 0
+	left: 0
+	right: 0
+	display: block
+
+.keyboard
+	background-color: red
+	height: 253px
+	position: fixed
+	bottom: 0
+	left: 0
+	right: 0
+	display: block
+	@include complex-respond-to(568, 320, landscape)
+		height: 193px !important
+	@include respond-to(375)
+		height: 258px
+		@include complex-respond-to(667, 375, landscape)
+			height: 194px !important
+	@include respond-to(414)
+		height: 271px
+		@include complex-respond-to(736, 414, landscape)
+			height: 194px
+
+.legend
+	font-size: $rs/4*3
+	line-height: $rs
+	padding: $rs 0 $rs/4
+	margin: 0
+	font-weight: 400
+	color: #999
+	display: none
+	text-align: center
+
+.ez, .rr
+	padding: $rs $rs $rs/2
+	@include clearfix
+	top: $rs
+	left: $rs
+	right: $rs
+	bottom: $rs
+	border: 1px #ccc solid
+	background-color: #fff
+	border-radius: $rs/4
+	position: absolute
+	box-shadow: 0 0 $rs/2 rgba(0,0,0,0.5)
+
+.meta
+	padding: 0 0
+	margin: 0
+	color: #666
+	@include clearfix
+	.meta__url
+		margin: 0 0 0 $rs*2
+		padding: 0
+		font-weight: 400
+		color: #999
+		font-size: $rs
+		line-height: $rs*2
+		white-space: nowrap
+		overflow: hidden
+		&.no-indent
+			margin-left: 0
+			span
+				color: #999
+		i
+			display: block
+			height: $rs*2
+			width: $rs*2
+			font-size: $rs
+			line-height: $rs*2
+			padding: 0
+			text-align: center
+			border-radius: $rs/4
+			float: left
+			margin-right: $rs/2
+			&.mobile
+				background-color: lighten(#8FDF57, 20%)
+				color: #0F603E
+			&.bookmark
+				background-color: lighten(#ADC9E2, 10%)
+				color: #526EB6
+				font-size: $rs/4*3
+		span
+			color: #c80000
+	.meta__logo
+		width: $rs*2
+		height: $rs*2
+		line-height: $rs*2
+		border-radius: $rs/4
+		background-color: #000
+		margin-right: $rs/2
+		float: left
+		color: #fff
+		text-align: center
+		&.image
+			text-indent: -9999px
+			background-image: url('logos/twitter.svg')
+			background-size: 62%
+			background-position: center
+			background-repeat: no-repeat
+			&.wikipedia
+				background-image: url('logos/Wikipedia.svg')
+
+a
+	color: #506bb8
+	text-decoration: none
+
+.meta__image
+	float: left
+	width: $rs*5
+	padding-top: $rs*2.5
+	background-repeat: no-repeat
+	background-size: cover
+	background-position: center
+	text-indent: -9999px
+	margin-right: $rs/4*3
+	border-radius: $rs/4
+
+.main
+	@include display(flex)
+	@include flex-direction(column)
+	@include align-items(stretch)
+	@include align-content(stretch)
+	max-height: $rs*7.5
+	@include respond-to(375)
+		max-height: $rs*12
+	@include respond-to(414)
+		max-height: $rs*15
+
+.main__content
+	font-size: $rs*1.25
+	color: #333
+	@include flex(0 99 auto)
+	box-sizing: border-box
+	display: block
+	display: -webkit-box
+	line-height: $rs*1.5
+	padding: 0 0 
+	margin: 0 0
+	-webkit-box-orient: vertical
+	overflow: hidden
+	text-overflow: ellipsis
+
+.main__headline
+	font-size: $rs*1.4
+	line-height: $rs*1.5
+	padding: 0r 0
+	box-sizing: border-box
+	margin: $rs 0 $rs/2
+	@include flex(1 0 auto)
+	color: #333
+	font-weight: 400
+	max-height: $rs*3
+	overflow: hidden
+	text-overflow: ellipsis
+	-webkit-line-clamp: 2
+	-webkit-box-orient: vertical
+
+.main.mulitple
+	@include display(flex)
+	@include flex-direction(column)
+	@include align-items(stretch)
+	@include align-content(stretch)
+	height: 80%
+	.item
+		position: relative
+		height: $rs*3
+		@include flex(1 1 auto)
+		border: 1px #eee solid
+		border-radius: $rs/4
+		margin-top: $rs/2
+		.main__headline
+			position: absolute
+			top: $rs/2
+			left: $rs*4.5
+			bottom: $rs/2
+			right: $rs/2
+			font-size: $rs/4*3
+			line-height: $rs
+			margin: 0
+			text-overflow: hidden
+			overflow: hidden
+			@include respond-to(375)
+				font-size: $rs
+				line-height: $rs*1.2
+			@include respond-to(414)
+				font-size: $rs
+				line-height: $rs*1.3
+		.main__image
+			position: absolute
+			top: 0
+			left: 0
+			width: $rs*4
+			bottom: 0
+			margin: 0
+			height: auto
+			border-top-left-radius: $rs/4
+			border-bottom-left-radius: $rs/4
+			border-top-right-radius: 0
+			border-bottom-right-radius: 0
+
+.main.weather
+	@include clearfix
+	.EZ-weather-container
+		width: 50%
+		float: left
+		.EZ-weather-img
+			width: 100%
+
+.main__image
+	@include flex(1 0 auto)
+	background-position: center
+	background-size: cover
+	background-repeat: no-repeat
+	height: $rs*2.5
+	border-radius: $rs/4
+	text-indent: -9999px
+	margin-top: $rs/4*3
+	@include respond-to(375)
+		height: $rs*4
+	@include respond-to(414)
+		height: $rs*5
+	&.many
+		text-indent: 0
+		@include display(flex)
+		@include flex-direction(row nowrap)
+		@include align-items(stretch)
+		@include align-content(stretch)
+		.main__image__many
+			@include flex(1 1 auto)
+			background-position: center
+			background-size: cover
+			background-repeat: no-repeat
+			height: $rs*2.5
+			border-radius: $rs/8
+			text-indent: -9999px
+			border-right: 1px #fff solid
+			&:last-child
+				border-right: 0px
+			@include respond-to(375)
+				height: $rs*4
+			@include respond-to(414)
+				height: $rs*5
+
+.main__meta
+	font-size: $rs*1.25
+	color: #506bb8
+	@include flex(0 1 auto)
+	box-sizing: border-box
+	display: block
+	display: -webkit-box
+	line-height: $rs*1.5
+	padding: 0 0 
+	margin: 0 0
+	-webkit-box-orient: vertical
+	overflow: hidden
+	text-overflow: ellipsis
+	@include respond-to(375)
+		padding: $rs/4*3 0 0
+		border-top: 1px lighten(#506bb8, 30%) solid
+		margin-top: $rs/4*3
+	@include respond-to(414)
+		padding: $rs/4*3 0 0
+		border-top: 1px lighten(#506bb8, 30%) solid
+		margin-top: $rs/4*3
+	
+.list
+	padding: 0 0 $rs/4*3
+	margin: 0
+	li
+		@include clearfix
+		list-style-type: none
+		padding: 0 0 $rs/4
+		margin: 0
+	.meta__image
+		width: $rs*4
+		padding-top: $rs*2
+		float: left
+	.meta__headline
+		font-size: $rs/4*3
+		display: block
+		display: -webkit-box
+		line-height: $rs
+		padding: $rs/8 0 0
+		margin: 0
+		color: #333
+		font-weight: 400
+		max-height: $rs*2
+		-webkit-line-clamp: 2
+		-webkit-box-orient: vertical
+		overflow: hidden
+		text-overflow: ellipsis
+	.meta__url
+		margin: 0
+		padding: 0
+		font-weight: 400
+		color: #999
+		font-size: $rs/4*3
+		line-height: $rs
+		span
+			color: #c80000
+.cta
+	margin: 0
+	padding: 0 0
+	position: absolute
+	bottom: 0
+	left: 0
+	right: 0
+	@include display(flex)
+	@include flex-direction(row nowrap)
+	@include align-items(stretch)
+	@include align-content(stretch)
+	border-bottom-left-radius: $rs/4
+	border-bottom-right-radius: $rs/4
+	overflow: hidden
+	height: $rs*3
+	li
+		list-style-type: none
+		@include flex(1 1 auto)
+		margin: 0 0 0
+		a
+			display: block
+			color: #fff
+			padding: 0 $rs/2
+			font-size: $rs
+			line-height: $rs*2
+			text-align: center
+			@include respond-to(375)
+				font-size: $rs*1.25
+				line-height: $rs*2.5
+			@include respond-to(414)
+				font-size: $rs*1.5
+				line-height: $rs*3
+	
+.video
+	.picture
+		position: relative
+		padding-top: 25%
+		background-color: #999
+		border-radius: $rs/4
+		margin-bottom: $rs/4
+		background-position: center
+		background-repeat: no-repeat
+		background-size: cover
+		@include respond-to(800)
+			width: 48%
+			float: left
+			padding-top: 20%
+		.meta__logo
+			width: $rs*3
+			height: $rs*3
+			line-height: $rs*3
+			border-radius: 50%
+			background-color: #000
+			float: left
+			color: #fff
+			text-align: center
+			position: absolute
+			top: -2px
+			left: -2px
+			border: 2px #fff solid
+			&.image
+				text-indent: -9999px
+				background-image: url('logos/twitter.svg')
+				background-size: 62%
+				background-position: center
+				background-repeat: no-repeat
+	.meta-nologo
+		padding: 0 0 $rs/2
+		margin: 0
+		color: #666
+		@include clearfix
+		@include respond-to(800)
+			width: 50%
+			float: right
+		.meta-nologo__headline
+			font-size: $rs-headings
+			line-height: $rs*1.8
+			padding: 0 0 0
+			margin: 0
+			color: #333
+			font-weight: 400
+		.meta-nologo__url
+			margin: 0 0 0
+			padding: 0
+			font-weight: 400
+			color: #999
+			font-size: $rs
+			line-height: $rs*1.2
+			
+	.main
+		@include respond-to(800)
+			width: 50%
+			float: right
+
+.cqz-ez-stock-trend
+	font-size: $rs*1.5
+	line-height: $rs*2
+	padding: $rs/2 0
+	img
+		max-height: $rs*1.5
+		display: inline-block
+		max-width: $rs*2
+		margin-bottom: -2px
+	.red
+		color: red
+	.green
+		color: green
+
+.cliqz-stock-price-table
+	td
+		color: #aaa
+		font-size: $rs/4*3
+		line-height: $rs
+		vertical-align: top
+		padding-right: $rs
+
+.cqz-disclaimer
+	font-size: $rs/4*3
+	color: #ccc
+	line-height: $rs
+	padding-top: $rs
+
+.flightStatusEZ-plane-position
+	position: relative
+	height: $rs*2
+	margin: $rs 0
+	.flightStatusEZ-plane-position-plane-img
+		width: $rs*2
+		position: absolute
+		top: 0
+		left: 0
+	.flightStatusEZ-plane-position-bar
+		background-color: #74d463
+		height: 2px
+		margin-top: 14px
+		position: absolute
+		top: 0
+		left: $rs*2.5
+		right: 0
+		.flightStatusEZ-plane-position-dot
+			background-color: #eee !important
+			position: absolute
+			top: 0
+			left: 0
+			right: 0
+			bottom: 0
+			&:after
+				content: ""
+				border-radius: 50%
+				background-color: #74d463
+				height: $rs/2
+				position: absolute
+				top: -3px
+				left: 0
+				width: $rs/2
+
+.flightStatusEZ-depart-arrival
+	div
+		font-size: $rs
+		line-height: $rs*1.5
+	.flightStatusEZ-depart
+		width: 50%
+		float: left
+		color: #999
+		.flightStatusEZ-depart-arrival-name
+			color: #000
+	.flightStatusEZ-arrival
+		width: 50%
+		float: right
+		color: #999
+		.flightStatusEZ-depart-arrival-name
+			color: #000
+	
+.currency, .ez-calculator 
+	.expression
+		color: #999
+	.message
+		color: #bbb
+	.main__headline
+		font-size: $rs*1.75
+		line-height: $rs*2
+		@include respond-to(375)
+			font-size: $rs*2
+			line-height: $rs*2.25
+		@include respond-to(414)
+			font-size: $rs*2.25
+			line-height: $rs*2.5	
+
