@@ -4379,8 +4379,7 @@ var CliqzAttrack = {
         get: function(url, url_parts, ref, ref_parts, source) {
             if(source <= 0|| source === null || source === undefined) {
                 if (CliqzAttrack.debug) CliqzUtils.log("No source for request, not logging!", "tp_events");
-                // return a blank stat counter, that won't be staged
-                return this._newStatCounter();
+                return null;
             }
 
             if(!(source in this._active)) {
@@ -4388,7 +4387,6 @@ var CliqzAttrack = {
                     return null;
                 }
                 if (CliqzAttrack.debug) CliqzUtils.log("No fullpage request for referrer: "+ ref +" -> "+ url , "tp_events");
-                //this._active[source] = new CliqzAttrack.tp_events.PageLoadData(ref_parts);
                 return null;
             }
 

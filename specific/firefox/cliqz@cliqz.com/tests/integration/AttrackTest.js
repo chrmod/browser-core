@@ -120,7 +120,7 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                         chai.expect(page_load.tps).to.be.empty;
                         done();
                     });
-                    
+
                 });
 
                 describe('when a tab is closed', function() {
@@ -208,7 +208,7 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                 });
             });
 
-            it("does not add a tab to _active if the tab ID <= 0", function() {                
+            it("does not add a tab to _active if the tab ID <= 0", function() {
                 [null, undefined, 0, -1].forEach(function(id) {
                     var request_context = {
                         getOuterWindowID: function() { return id; }
@@ -220,6 +220,86 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                 });
             });
 
+        });
+
+        describe('get', function() {
+
+            var src_url = "https://cliqz.com",
+                src_url_parts = CliqzAttrack.urlInfo.get(src_url),
+                url = "https://example.com/beacon",
+                url_parts = CliqzAttrack.urlInfo.get(url),
+                mock_request_context = {
+                    getOuterWindowID: function() { return 5; }
+                };
+
+            var testInvalidTabIds = function() {
+                [undefined, null, 0, -1, 552].forEach(function(tab_id) {
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, tab_id);
+                    chai.expect(req).to.be.null;
+                });
+            };
+
+            beforeEach(function() {
+                CliqzAttrack.tp_events.commit(true);
+                CliqzAttrack.tp_events._staged = [];
+                // prevent data push during the test
+                CliqzAttrack._last_push = (new Date()).getTime();
+            });
+
+            describe('after page load', function() {
+                var page_load;
+
+                beforeEach(function() {
+                    page_load = CliqzAttrack.tp_events.onFullPage(src_url_parts, mock_request_context);
+                });
+
+                it('returns a stats object for the specified page load and third party', function() {
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+
+                    chai.expect(req).to.not.be.null;
+                    chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
+                    chai.expect(req['c']).to.equal(0);
+                    chai.expect(page_load.tps).to.have.property(url_parts.hostname);
+                    chai.expect(page_load.tps[url_parts.hostname]).to.have.property(url_parts.path);
+                    chai.expect(page_load.tps[url_parts.hostname][url_parts.path]).to.equal(req);
+                });
+
+                it('returns null if source tab is invalid', testInvalidTabIds);
+
+                it('returns null if third party referrer is not related to the page load', function() {
+                    var alt_url = "https://www.w3.org/",
+                        alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
+
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, alt_url, alt_url_parts, 5);
+
+                    chai.expect(req).to.be.null;
+                });
+
+                it('third party referrer relation is transative', function() {
+                    var alt_url = "https://www.w3.org/",
+                        alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
+
+                    CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+                    var req = CliqzAttrack.tp_events.get(alt_url, alt_url_parts, url, url_parts, 5);
+
+                    chai.expect(req).to.not.be.null;
+                    chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
+                    chai.expect(req['c']).to.equal(0);
+                    chai.expect(page_load.tps).to.have.property(url_parts.hostname);
+                    chai.expect(page_load.tps).to.have.property(alt_url_parts.hostname);
+                    chai.expect(page_load.tps[alt_url_parts.hostname]).to.have.property(alt_url_parts.path);
+                    chai.expect(page_load.tps[alt_url_parts.hostname][alt_url_parts.path]).to.equal(req);
+                });
+            });
+
+            it('returns null if onFullPage has not been called for the referrer', function() {
+                var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+
+                chai.expect(req).to.be.null;
+                chai.expect(CliqzAttrack.tp_events._active).to.be.empty;
+            });
+
+            it('returns null if source tab is invalid', testInvalidTabIds);
         });
 
         describe('PageLoadData', function() {
