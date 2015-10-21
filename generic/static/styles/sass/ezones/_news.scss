@@ -6,11 +6,21 @@
     margin-bottom: 25px;
 }
 
-.entity-story {
+a.entity-story {
     position: relative;
     overflow: hidden;
+    display: block;
     padding-left: 22px;
     margin-bottom: 10px;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: none;
+
+        .entity-story-title {
+            text-decoration: underline;
+        }
+    }
 }
 
 .entity-story * {
