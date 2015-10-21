@@ -229,6 +229,7 @@ notification[type="warning"] {
 }
 
 notification[type="warning"] > button {
+    -moz-appearance: none;
     padding: 5px 10px;
     color: #fff;
     border: none;
@@ -240,4 +241,9 @@ notification[type="warning"] > button {
 
 notification[type="warning"] .messageText {
     font-weight: normal;
+}
+
+
+notification[type="warning"] .notification-inner {
+    border: none;
 }
