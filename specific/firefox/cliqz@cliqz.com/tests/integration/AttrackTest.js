@@ -12,6 +12,61 @@ function waitIfNotReady(fn) {
 
 TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
 
+    describe('CliqzAttrack.tab_listener', function() {
+
+        describe('isWindowActive', function() {
+
+            it('returns false for none existant tab ids', function() {
+                chai.expect(CliqzAttrack.tab_listener.isWindowActive(-1)).to.be.false;
+                chai.expect(CliqzAttrack.tab_listener.isWindowActive(0)).to.be.false;
+                chai.expect(CliqzAttrack.tab_listener.isWindowActive(532)).to.be.false;
+            });
+
+            describe('when tab is opened', function() {
+                var win = CliqzUtils.getWindow(),
+                    gBrowser = win.gBrowser,
+                    tabs = [],
+                    tab_id;
+
+                beforeEach(function(done) {
+                    tabs.push(gBrowser.addTab("https://cliqz.com"));
+                    // get tab id from tp_events (assumption that this is correct)
+                    waitIfNotReady(function() {
+                        return Object.keys(CliqzAttrack.tp_events._active).length > 0;
+                    }).then(function() {
+                        tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
+                        done();
+                    });
+                });
+
+                afterEach(function() {
+                    tabs.forEach(function(t) {
+                        gBrowser.removeTab(t);
+                    });
+                    tabs = [];
+                });
+
+                it('returns true for open tab id', function() {
+                    console.log(tab_id);
+                    chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.true;
+                });
+
+                describe('when tab is closed', function() {
+
+                    beforeEach(function() {
+                        gBrowser.removeTab(tabs.shift());
+                    });
+
+                    it('returns false for closed tab id', function() {
+                        console.log(tab_id);
+                        chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.false;
+                    });
+                });
+            });
+        });
+
+    });
+
     describe('CliqzAttrack.tp_events', function() {
 
         describe('Integration', function() {
