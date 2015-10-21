@@ -3,8 +3,10 @@
         <span class='cqz-result-debug'>{{ debug }}</span>
     {{/if}}
     {{#if image.src}}
-        <div class="cqz-image" style="background-image: url({{ image.src }});">
-            {{#if image.text }}<p class='cqz-video-arrow'>{{ image.text }}</p>{{/if}}
+        <div class="cqz-video-image">
+            <div class="cqz-img-holder" style="background-image: url({{ image.src }});">
+                {{#if image.text }}<span class='cqz-video-duration'>{{ image.text }}</span>{{/if}}
+            </div>
         </div>
     {{/if}}
     <div class='cqz-result-center'>

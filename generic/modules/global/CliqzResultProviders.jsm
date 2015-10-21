@@ -22,42 +22,41 @@ var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
  Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 
+// INIT_KEY ('newProvidersAdded') was used only as a boolean but now we have multiple states
+// state 1 -> Google images & Google maps
+// state 2 -> YouTube engine is added
+// state 3 -> Aliases (shortcuts) are updated:
+//  - to first 2 letters for default engines
+//  - to key property for NonDefaultProviders
  var INIT_KEY = 'newProvidersAdded',
- LOG_KEY = 'NonDefaultProviders.jsm',
- KEY ='#',
-  // default shortcut is first 2 lowercased letters
-  // the folowing are non default
-  MAPPING = {
-    '#gi': 'Google Images',
-    '#gm': 'Google Maps',
-    '#yt': 'YouTube Video Search'
-  },
-  CUSTOM = {
-    '#fee': {
-      url: 'https://cliqz.com/support/'
-    },
-    '#team': {
-      url: 'https://cliqz.com/team/'
-    },
-    '#cliqz': {
-      url: 'https://cliqz.com/'
-    },
-    '#join': {
-      url: 'https://cliqz.com/jobs/'
-    }
-  },
-  ENGINE_CODES = [
-    'google images', 
-    'google maps', 
-    'google', 
-    'yahoo', 
-    'bing', 
-    'wikipedia', 
-    'amazon', 
-    'ebay', 
-    'leo', 
-    'youtube'
-  ];
+     LOG_KEY = 'NonDefaultProviders.jsm',
+     KEY ='#',
+     CUSTOM = {
+      '#fee': {
+        url: 'https://cliqz.com/support/'
+      },
+      '#team': {
+        url: 'https://cliqz.com/team/'
+      },
+      '#cliqz': {
+        url: 'https://cliqz.com/'
+      },
+      '#join': {
+        url: 'https://cliqz.com/jobs/'
+      }
+     },
+     ENGINE_CODES = [
+      'google images',
+      'google maps',
+      'google',
+      'yahoo',
+      'bing',
+      'wikipedia',
+      'amazon',
+      'ebay',
+      'leo',
+      'youtube'
+    ];
 
 // REFS:
 // http://stenevang.wordpress.com/2013/02/22/google-search-url-request-parameters/
@@ -65,10 +64,65 @@ var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
 
 
 var CliqzResultProviders = {
-  init: function () { },
+  init: function () {
+    CliqzUtils.log('CliqzResultProviders initialized', LOG_KEY);
+    CliqzResultProviders.manageProviders();
+  },
+  manageProviders: function() {
+
+    CliqzResultProviders.addCustomProviders();
+    //at this point YouTube engine is added and state is 2
+    if ( CliqzUtils.getPref(INIT_KEY) === 2) {
+      CliqzResultProviders.updateEngineAliases();
+      CliqzUtils.setPref(INIT_KEY, 3);
+    }
+  },
+  addCustomProviders: function() {
+    var providersAddedState,
+        maxState = -1;
+
+    if (CliqzUtils.isPrefBool(CliqzUtils.getPref(INIT_KEY))) {
+      providersAddedState = 1;
+    } else {
+      providersAddedState = CliqzUtils.getPref(INIT_KEY, 1);
+    }
+
+    NonDefaultProviders.forEach(function (extern) {
+      CliqzUtils.log("NonDefaultProviders");
+      try {
+        CliqzUtils.log('Analysing ' + extern.name, LOG_KEY);
+        if (!CLIQZEnvironment.getEngineByName(extern.name)) {
+          if (providersAddedState < extern.state) {
+            maxState = extern.state > maxState ? extern.state : maxState;
+            CliqzUtils.log('Added ' + extern.name, LOG_KEY);
+            CLIQZEnvironment.addEngineWithDetails(extern);
+          }
+        }
+      } catch (e) {
+        CliqzUtils.log(e, 'err' + LOG_KEY);
+      }
+    });
+
+    if (maxState > 0) {
+      CliqzUtils.setPref(INIT_KEY, maxState);
+    }
+  },
+  updateEngineAliases: function() {
+    CliqzResultProviders.getSearchEngines().forEach(function (engine) {
+      var alias = engine.alias;
+      if(!alias) { alias = CliqzResultProviders.createShortcut(engine.name); }
+      if(engine.prefix && (engine.name === alias)) { alias = engine.prefix; }
+      CliqzResultProviders.updateAlias(engine.name, alias);
+
+    });
+  },
+  updateAlias: function(name, newAlias) {
+    CLIQZEnvironment.updateAlias(name, newAlias);
+    CliqzUtils.log("Alias of engine  " + name + " was updated to " + newAlias, LOG_KEY);
+  },
   getCustomResults: function (q) {
     var results = null;
-    var customQuery = CliqzResultProviders.isCustomQuery(q);
+    var customQuery = CliqzResultProviders.customizeQuery(q);
 
     if(customQuery){
       results = [
@@ -104,10 +158,10 @@ var CliqzResultProviders = {
     return 0;
   },
   setCurrentSearchEngine: function(engine){
-    Services.search.currentEngine = Services.search.getEngineByName(engine);
+    Services.search.currentEngine = CliqzResultProviders.getEngineByName(engine);
   },
   // called for each query
-  isCustomQuery: function(q){
+  customizeQuery: function(q){
     if(CUSTOM[q.trim()] && CUSTOM[q.trim()].url){
       return {
         updatedQ  : q,
@@ -124,40 +178,33 @@ var CliqzResultProviders = {
     if(components.length < 2) return false;
 
     var start = components[0],
-    end = components[components.length-1];
+        end = components[components.length-1],
+        engineName, uq;
 
-    if(MAPPING.hasOwnProperty(start)){
-      var uq = q.substring(start.length + 1);
-      if (CliqzResultProviders.isEngineInstalled(MAPPING[start]) === false) {
-        return null;
-      }
-      return {
-        updatedQ  : uq,
-        engineName: MAPPING[start],
-        queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
-        code: CliqzResultProviders.getEngineCode(MAPPING[start])
-      };
-    } else if(MAPPING.hasOwnProperty(end)) {
-      var uq = q.substring(0, q.length - end.length - 1);
-      if (!CliqzResultProviders.isEngineInstalled(MAPPING[end])) {
-        return null;
-      }
-
-      return {
-        updatedQ  : uq,
-        engineName: MAPPING[end],
-        queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[end], uq),
-        code: CliqzResultProviders.getEngineCode(MAPPING[end])
-      };
+    if(CliqzResultProviders.getEngineByAlias(start)) {
+      engineName = CliqzResultProviders.getEngineByAlias(start).name;
+      uq = q.substring(start.length + 1);
+    } else if(CliqzResultProviders.getEngineByAlias(end)) {
+      engineName = CliqzResultProviders.getEngineByAlias(end).name;
+      uq = q.substring(0, q.length - end.length - 1);
     }
-    return null;
+
+    if (engineName && uq) {
+      return {
+        updatedQ:   uq,
+        engineName: engineName,
+        queryURI:   CliqzResultProviders.getSubmissionByEngineName(engineName, uq),
+        code:       CliqzResultProviders.getEngineCode(engineName)
+      };
+    } else {
+      return null;
+    }
   },
-  isEngineInstalled: function(name) {
-    var engine = Services.search.getEngineByName(name);
-    if (engine === null) {
-      return false;
-    }
-    return true;
+  getEngineByName: function(engine) {
+    return CLIQZEnvironment.getEngineByName(engine);
+  },
+  getEngineByAlias: function(alias) {
+    return CLIQZEnvironment.getEngineByAlias(alias);
   },
   getSubmissionByEngineName: function(name, query){
     var engines = CliqzResultProviders.getSearchEngines();
@@ -169,24 +216,21 @@ var CliqzResultProviders = {
   },
   // called once at visual hashtag creation
   getShortcut: function(name){
-    for(var key in MAPPING)
-      if(MAPPING[key] === name)
-        return key;
+    var shortcut, nonDefaultProvider = NonDefaultProviders.find(function(provider) {
+      return provider.name === name;
+    });
 
-      return CliqzResultProviders.createShortcut(name);
-    },
-  // create a unique shortcut
-  createShortcut: function(name){
-    for(var i=2; i<name.length; i++){
-      var candidate = KEY + name.substring(0, i).toLowerCase();
-
-      if(MAPPING[candidate] == undefined){
-        //this shortcut doesn't exist yet so we can use it
-        MAPPING[candidate] = name;
-
-        return candidate;
-      }
+    if (nonDefaultProvider) {
+      shortcut = nonDefaultProvider.key;
+    } else {
+      shortcut = CliqzResultProviders.createShortcut(name);
     }
+
+    return shortcut;
+  },
+  // create a unique shortcut -> first 2 lowercased letters
+  createShortcut: function(name){
+    return KEY + name.substring(0, 2).toLowerCase();
   },
   getSearchEngines: function(){
     return CLIQZEnvironment.getSearchEngines().map(function(e){
@@ -195,8 +239,7 @@ var CliqzResultProviders = {
 
       return e;
     });
-  },
-  getM: function(){ return MAPPING }
+  }
 }
 
 // TODO: create language/location aware customization
@@ -207,7 +250,7 @@ var NonDefaultProviders = [
     name: "Google Images",
     iconURL: "data:image/gif;base64,R0lGODlhEgANAOMKAAAAABUVFRoaGisrKzk5OUxMTGRkZLS0tM/Pz9/f3////////////////////////yH5BAEKAA8ALAAAAAASAA0AAART8Ml5Arg3nMkluQIhXMRUYNiwSceAnYAwAkOCGISBJC4mSKMDwpJBHFC/h+xhQAEMSuSo9EFRnSCmEzrDComAgBGbsuF0PHJq9WipnYJB9/UmFyIAOw==",
     method: 'GET',
-    state: 1
+    state:1
   },
   {
     key: "#gm",
@@ -220,52 +263,9 @@ var NonDefaultProviders = [
   {
     key: "#yt",
     url: "https://www.youtube.de/results?search_query={searchTerms}",
-    name: "YouTube Video Search",
+    name: "YouTube",
     iconURL: 'data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAABMLAAATCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgNkQkIDZGiCA2RzAgNkcwIDZH/CA2R/wgNkf8IDZH/CA2R/wgNkf8IDZH/CA2R2AgNkcwIDZHMCA2RhAgNkQYIDpWHCA6V/wgOlf8IDpX/CA6V/wgOlf8IDpX/CA6V/wgOlf8IDpX/CA6V/wgOlf8IDpX/CA6V/wgOlf8IDpWHCQ6ZzAkOmf8JDpn/CQ6Z/wkOmf8JDpb/BQhc/wgMgf8JDpn/CQ6Z/wkOmf8JDpn/CQ6Z/wkOmf8JDpn/CQ6ZzAkOnuoJDp7/CQ6e/wkOnv8JDp7/Exed/8jIy/9RU4j/Bwp0/wkOm/8JDp7/CQ6e/wkOnv8JDp7/CQ6e/wkOnuoJD6T8CQ+k/wkPpP8JD6T/CQ+k/xUbo//V1dX/1dXV/4yNrP8QFG//CA6Y/wkPpP8JD6T/CQ+k/wkPpP8JD6T8CQ+q/wkPqv8JD6r/CQ+q/wkPqv8WG6n/3d3d/93d3f/d3d3/v7/M/y0wjv8JD6r/CQ+q/wkPqv8JD6r/CQ+q/woQr/8KEK//ChCv/woQr/8KEK//Fx2v/+fn5//n5+f/5+fn/+jo6P+YmtP/ChCv/woQr/8KEK//ChCv/woQr/8KELX8ChC1/woQtf8KELX/ChC1/xgdtf/x8fH/8fHx//Ly8v+bndv/Ehi3/woQtf8KELX/ChC1/woQtf8KELX8ChG76goRu/8KEbv/ChG7/woRu/8YH77/+fn5/+/v9/9fY9H/ChG7/woRu/8KEbv/ChG7/woRu/8KEbv/ChG76goRwMwKEcD/ChHA/woRwP8KEcD/EBfB/6Ol5/8tM8n/ChHA/woRwP8KEcD/ChHA/woRwP8KEcD/ChHA/woRwMwLEcSHCxHE/wsRxP8LEcT/CxHE/wsRxP8LEcT/CxHE/wsRxP8LEcT/CxHE/wsRxP8LEcT/CxHE/wsRxP8LEcSHCxLICQsSyKULEsjMCxLI+QsSyP8LEsj/CxLI/wsSyP8LEsj/CxLI/wsSyP8LEsj/CxLI0gsSyMwLEsiiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAD//wAA//8AAA==',
     method: 'GET',
     state: 2
   }
 ];
-
-// INIT_KEY ('newProvidersAdded') was used only as a boolean but now we have multiple states 
-// bacause we add more search engines than before
-// TODO: Move to a function and call it in init
-
-var providersAddedState;
-if (CliqzUtils.isPrefBool(CliqzUtils.getPref(INIT_KEY))) {
-  providersAddedState = 1;
-} else {
-  providersAddedState = CliqzUtils.getPref(INIT_KEY, 1);
-}
-
-var PROPS = ["name", "iconURL", "name" /*alias*/, "name" /*description*/, "method", "url"],
-maxState = -1;
-
-for(var idx = 0; idx < NonDefaultProviders.length; idx++){
-  CliqzUtils.log("NonDefaultProviders")
-  var extern = NonDefaultProviders[idx];
-
-  try {
-    CliqzUtils.log('Analysing ' + extern.name, LOG_KEY);
-    if (!Services.search.getEngineByName(extern.name)) {
-
-      if(providersAddedState < extern.state) {
-        maxState = extern.state > maxState ? extern.state : maxState;
-        CliqzUtils.log('Added ' + extern.name, LOG_KEY);
-        Services.search.addEngineWithDetails.apply(
-          Services.search,
-          PROPS.map(function (k) { return extern[k]; })
-        );
-      }
-    } 
-  }
-  catch(e){
-    CliqzUtils.log(e, 'err' + LOG_KEY);
-  }
-}
-
-if (maxState > 0) {
-  CliqzUtils.setPref(INIT_KEY, maxState);
-}
-
-CliqzResultProviders.init();

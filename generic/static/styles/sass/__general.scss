@@ -239,7 +239,6 @@
     @extend .cqz-ellipsis;
 
     display: inline-block;
-    max-width: 150px;
     line-height: 26px;
     margin: 0 7px 4px 0;
     padding: 0 9px;
@@ -277,15 +276,6 @@
 
 .cqz-results .cqz-image-round {
     border-radius: 3px;
-}
-
-.cqz-results .cqz-image > p {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    padding: 2px 5px;
-    background-color: rgba(0, 0, 0, 0.6);
-    color: white;
 }
 
 .cqz-results .cqz-result-text {
