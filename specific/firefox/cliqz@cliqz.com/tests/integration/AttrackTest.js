@@ -149,6 +149,32 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                     });
 
                 });
+
+                describe('when new page is loaded in existing tab', function() {
+
+                    beforeEach(function() {
+                        gBrowser.getBrowserForTab(tabs[0]).loadURI("http://www.w3.org/");
+                    });
+
+                    describe('CliqzAttrack.tp_events.commit', function() {
+                        beforeEach(function() {
+                            CliqzAttrack.tp_events.commit(true);
+                        });
+
+                        it('should stage previous page load', function() {
+                            // still have 2 active tabs
+                            chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(2);
+                            // check staged tab
+                            chai.expect(CliqzAttrack.tp_events._staged).to.have.length(1);
+                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('https://cliqz.com/');
+
+                            // check active tabs
+                            tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
+                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://www.w3.org/");
+                        });
+                    });
+
+                });
             });
         });
 
