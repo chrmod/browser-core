@@ -75,8 +75,6 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                 tabs = [];
 
             beforeEach(function() {
-                // CliqzAttrack.init(win);
-                // CliqzAttrack.initAtBrowser();
                 CliqzAttrack.tp_events.commit(true);
                 CliqzAttrack.tp_events._staged = [];
                 // prevent data push during the test
@@ -176,6 +174,52 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
 
                 });
             });
+        });
+
+        describe('onFullPage', function() {
+
+            var mock_request_context = {
+                getOuterWindowID: function() { return 5; }
+            }
+            var url_parts = CliqzAttrack.urlInfo.get("https://cliqz.com");
+
+            beforeEach(function() {
+                CliqzAttrack.tp_events.commit(true);
+                CliqzAttrack.tp_events._staged = [];
+                // prevent data push during the test
+                CliqzAttrack._last_push = (new Date()).getTime();
+            });
+
+            it("adds a tab to _active with request context's tab ID", function() {
+                var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, mock_request_context);
+
+                chai.expect(page_load).is.not.null;
+                chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
+                chai.expect(CliqzAttrack.tp_events._active).to.have.property(5);
+                chai.expect(CliqzAttrack.tp_events._active[5].url).to.equal(url_parts.toString());
+            });
+
+            it("does not add a tab to _active if the url is malformed", function() {
+                [null, undefined, 'http://cliqz.com', CliqzAttrack.urlInfo.get("/home/cliqz"), CliqzAttrack.urlInfo.get("about:config")].forEach(function(url) {
+                    var page_load = CliqzAttrack.tp_events.onFullPage(url, mock_request_context);
+
+                    chai.expect(page_load).is.null;
+                    chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(0);
+                });
+            });
+
+            it("does not add a tab to _active if the tab ID <= 0", function() {                
+                [null, undefined, 0, -1].forEach(function(id) {
+                    var request_context = {
+                        getOuterWindowID: function() { return id; }
+                    }
+                    var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, request_context);
+
+                    chai.expect(page_load).is.null;
+                    chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(0);
+                });
+            });
+
         });
 
         describe('PageLoadData', function() {
