@@ -84,7 +84,7 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
+    urlbarEvents: ['focus', 'blur', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
     _shouldDropdownStayOpen: false,
@@ -678,15 +678,6 @@ window.CLIQZ.Core = {
             CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
             CLIQZ.Core.historyDropMarker.showPopup();
         }
-    },
-    urlbarkeydown: function(ev){
-        CLIQZ.Core._lastKey = ev.keyCode;
-        CliqzAutocomplete._lastKey = ev.keyCode;
-        var cancel = CLIQZ.UI.keyDown(ev);
-        cancel && ev.preventDefault();
-
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {

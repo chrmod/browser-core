@@ -410,6 +410,9 @@ var UI = {
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
         cancel && ev.stopImmediatePropagation();
+
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
