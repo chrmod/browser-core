@@ -4253,10 +4253,16 @@ var CliqzAttrack = {
                         return true;
                     }
                 } catch(e) {
-                    if(wm.getOuterWindowWithId(int_id) == null) {
+                    let tabwindow = wm.getOuterWindowWithId(int_id);
+                    if(tabwindow == null) {
                         return false;
                     } else {
-                        return true;
+                        try {
+                            let contents = tabwindow._content;
+                            return true;
+                        } catch(ee) {
+                            return false;
+                        }
                     }
                 }
             }
