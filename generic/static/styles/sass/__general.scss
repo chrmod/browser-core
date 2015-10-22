@@ -9,10 +9,6 @@
     overflow: hidden;
 }
 
-#PopupAutoCompleteRichResultCliqz.cqz-popup-medium {
-    min-height: 232px;
-}
-
 #urlbar[focused="true"] {
     box-shadow: 0 0 1px #3B99FC inset !important;
 }
@@ -99,10 +95,6 @@
 .cqz-results .cqz-ez-title span.subtitle:hover {
     text-decoration: underline;
     cursor: pointer;
-}
-
-.cqz-popup-medium .cqz-results {
-    height: 233px;
 }
 
 /* common classes */

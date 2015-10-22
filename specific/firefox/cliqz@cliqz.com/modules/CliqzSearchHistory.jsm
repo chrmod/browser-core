@@ -74,8 +74,7 @@ var CliqzSearchHistory = {
             win = this.windows[CliqzUtils.getWindowID()];
         if(win && win.urlbar){
             var val = win.urlbar.value.trim(),
-                lastQ = CliqzAutocomplete.lastSearch === 'IGNORE_TOPSITES' ?
-                        '' : CliqzAutocomplete.lastSearch.trim();
+                lastQ = CliqzAutocomplete.lastSearch.trim();
 
             if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
                 this.showLastQuery(lastQ);

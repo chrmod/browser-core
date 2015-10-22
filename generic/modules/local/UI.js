@@ -184,15 +184,6 @@ var UI = {
         if (!gCliqzBox)
             return;
 
-        if(CliqzUtils.getPref('topSitesV2', false)) {
-          // makes sure that topsites show after changing tabs,
-          // rather than showing the previous results;
-          // (set to '' in CliqzSearchHistory.tabChanged)
-          if (CliqzAutocomplete.lastSearch === 'IGNORE_TOPSITES') {
-            return {};
-          }
-        }
-
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
             var cliqzBox = CLIQZ.Core.popup.cliqzBox;
@@ -218,17 +209,10 @@ var UI = {
 
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
 
-        if (CliqzUtils.getPref("topSitesV2", false)) {
-          // being here means we have results, i.e., no topsites
-          // thus remove topsites style
-          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
-        }
-
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
         }
-
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -410,9 +394,6 @@ var UI = {
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
         cancel && ev.stopImmediatePropagation();
-
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
@@ -461,9 +442,6 @@ var UI = {
             break;
             case ENTER:
                 UI.lastInput = "";
-                if (CliqzUtils.getPref('topSitesV2', false)) {
-                  CLIQZ.Core._shouldDropdownStayOpen = false;
-                }
                 return onEnter(ev, sel);
             break;
             case RIGHT:
