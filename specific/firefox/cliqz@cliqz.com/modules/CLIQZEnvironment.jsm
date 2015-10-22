@@ -412,7 +412,6 @@ var CLIQZEnvironment = {
       contextMenu.openPopupAtScreen(x, y, false);
     },
     createContextMenu: function(box, menuItems) {
-      CLIQZEnvironment.log("!!!Create")
       var doc = CliqzUtils.getWindow().document,
           contextMenu = doc.createElement('menupopup');
       box.appendChild(contextMenu);
