@@ -143,7 +143,7 @@ var CliqzAutocomplete = {
             top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
             top.data.url = results[0].url;
             top.data.template = 'topsites';
-            top.data.urls = results.map(function(r, i) {
+            top.data.urls = results.map(function(r) {
                 var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
                     logoDetails = CliqzUtils.getLogoDetails(urlDetails);
 

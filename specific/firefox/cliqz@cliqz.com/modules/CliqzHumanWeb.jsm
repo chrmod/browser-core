@@ -551,8 +551,8 @@ var CliqzHumanWeb = {
         }
       }
     },
-    getRedirects: function(url, res) {
-        var res = res || []
+    getRedirects: function(url, _res) {
+        var res = _res || []
         try{
             for(var key in CliqzHumanWeb.httpCache) {
                 if(CliqzHumanWeb.httpCache[key]){
