@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cross-domain request using a client-side proxy script and some iframe hacking</title>
+</head>
+<body>
+    <!--Load the client-side proxy script from a different origin-->
+    <iframe id="tp" src="http://127.0.0.1:60508/iframe.html" style="width:0px; height: 0px;" frameborder="0"></iframe>
+    <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
+    <script>
+        // local get
+        $.getJSON('/test', function(data) {
+            console.log(data);
+        });
+        //Listen to proxy responses
+        window.addEventListener(
+            "message",
+            onReceiveResponse,
+            false
+        );
+
+        function onReceiveResponse(event) {
+            var data = event.data;
+            $('#results').text(data.response);
+        }
+
+        //Wait for proxy iframe to load
+        $('#tp').load(function(){
+            sendRequestToProxy();
+        });
+
+        function sendRequestToProxy(){
+                var urlToGet = "http://127.0.0.1:60508/test?callback=func&uid=sfdngtsgfd";
+                var proxyParameters = {
+                    url : urlToGet
+                };
+                var originOfProxy = 'http://127.0.0.1:60508';
+
+                var proxyWindow = $("#tp")[0].contentWindow;
+                proxyWindow.postMessage(proxyParameters, originOfProxy);
+            }
+    </script>
+</body>
+</html>

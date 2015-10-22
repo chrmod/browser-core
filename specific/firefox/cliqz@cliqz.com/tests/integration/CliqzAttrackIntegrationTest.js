@@ -111,7 +111,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
       }
     };
 
-    ['thirdpartyscript.html', 'crossdomainxhr.html'].forEach(function (testpage) {
+    ['thirdpartyscript.html', 'crossdomainxhr.html', 'iframetest.html'].forEach(function (testpage) {
       describe(testpage, function() {
         var win = CliqzUtils.getWindow(),
                   gBrowser = win.gBrowser,
