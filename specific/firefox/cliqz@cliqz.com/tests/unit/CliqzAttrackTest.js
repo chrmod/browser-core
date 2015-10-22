@@ -1,3 +1,4 @@
+"use strict";
 
 function waitIfNotReady(fn) {
     var first = true;
