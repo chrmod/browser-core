@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Anti-tracking test page</title>
+    </head>
+    <body>
+        <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
+        <script>
+            // local get
+            $.getJSON('/test', function(data) {
+                console.log(data);
+            });
+        </script>
+        <script src="http://127.0.0.1:60508/test?abc"></script>
+    </body>
+</html>
