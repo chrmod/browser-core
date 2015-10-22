@@ -33,7 +33,6 @@ var TARGET = [
         'CliqzSpellCheck',
         'CliqzTour',
         'CliqzUtils',
-        'CUcrawl',
         'Extension',
         'Filter',
         'Mixer',
