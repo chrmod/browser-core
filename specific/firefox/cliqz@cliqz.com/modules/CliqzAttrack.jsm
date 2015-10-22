@@ -4239,6 +4239,7 @@ var CliqzAttrack = {
             var browserEnumerator = wm.getEnumerator("navigator:browser");
             // ensure an integer as getBrowserForOuterWindowID() is type sensitive
             var int_id = parseInt(windowID);
+            if(int_id <= 0) return false;
 
             while (browserEnumerator.hasMoreElements()) {
                 var browserWin = browserEnumerator.getNext();
@@ -4253,7 +4254,13 @@ var CliqzAttrack = {
                         return true;
                     }
                 } catch(e) {
-                    let tabwindow = wm.getOuterWindowWithId(int_id);
+                    let tabwindow;
+                    try {
+                      tabwindow = wm.getOuterWindowWithId(int_id);
+                    } catch(e) {
+                      // if getOuterWindowWithId randomly fails, keep the tab
+                      return true;
+                    }
                     if(tabwindow == null) {
                         return false;
                     } else {
@@ -4423,7 +4430,6 @@ var CliqzAttrack = {
             if(now - this._last_clean > this._clean_interval || force_clean == true) {
                 for(let k in this._active) {
                     var active = CliqzAttrack.tab_listener.isWindowActive(k);
-                    CliqzUtils.log("Tab: "+ k + ", active = " + active, 'attrack');
                     if(!CliqzAttrack.tab_listener.isWindowActive(k) || force_stage == true) {
                         if (CliqzAttrack.debug) CliqzUtils.log('Stage tab '+k, 'tp_events');
                         this.stage(k);
