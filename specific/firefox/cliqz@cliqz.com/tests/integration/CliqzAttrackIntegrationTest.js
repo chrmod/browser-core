@@ -38,9 +38,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
       }
       r_obj['headers'] = headers;
 
-      response.setHeader('Set-Cookie', 'domain='+r_obj.host+';uid=abcdefghijklmnop');
+      response.setHeader('Set-Cookie', 'uid=abcdefghijklmnop; Domain='+r_obj.host+'; Path=/');
       if(r_obj.host != "localhost") {
         response.setHeader('Access-Control-Allow-Origin', '*');
+        response.setHeader('Access-Control-Allow-Credentials', 'true');
       }
       echoed.push(r_obj);
       response.write('');
@@ -76,99 +77,100 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
       CliqzUtils.setPref('attrackRefererTracking', false);
     });
 
-    // thirdpartytest -> simple <script> tag to third party
-    describe('thirdpartytest.html', function() {
-      var win = CliqzUtils.getWindow(),
-                gBrowser = win.gBrowser,
-                tabs = [];
-
-      before(function() {
-        // initial request to ensure cookies are set
-        var url = "http://localhost:" + server_port + "/thirdpartytest.html";
-        var t = gBrowser.addTab(url);
-        setTimeout(function() {
-          gBrowser.removeTab(t);
-        }, 1000);
-      });
-
-      beforeEach(function() {
-        // open page in a new tab
-        var url = "http://localhost:" + server_port + "/thirdpartytest.html";
-        echoed = [];
-        tabs.push(gBrowser.addTab(url));
-      });
-
-      afterEach(function() {
-        // close all tabs
-        tabs.forEach(function(t) {
-            gBrowser.removeTab(t);
-        });
-        tabs = [];
-      });
-
-      context('cookie blocking disabled', function() {
-
-        beforeEach(function() {
-          CliqzUtils.setPref('attrackBlockCookieTracking', false);
-        });
-
-        it('pref check', function() {
-          chai.expect(CliqzAttrack.isCookieEnabled()).to.be.false;
-        });
-
-        it('allows all cookies', function(done) {
-          // wait for two requests to be made to test path, then check if cookies were sent.
-          this.timeout(5000);
+    var expectNRequests = function(n_requests) {
+      return {
+        assertEach: function(test, done) {
+          // wait for two requests to be made to test path, then do tests on metadata
           waitFor(function() {
-            return echoed.length >= 2;
+            return echoed.length >= n_requests;
           }).then(function() {
-            console.log(echoed);
             try {
-              // with cookie blocking disabled, both requests should receive the cookie
               for(var i=0; i<echoed.length; i++) {
-                chai.expect(echoed[i].headers).to.have.property('cookie');
-                chai.expect(echoed[i].headers['cookie']).to.contain('uid=abcdefghijklmnop');
+                test(echoed[i]);
               }
               done();
             } catch(e) {
               done(e);
             }
           });
-        });
-      });
+        }
+      }
+    };
 
-      context('cookie blocking enabled', function() {
+    var hasCookie = function(m) {
+      chai.expect(m.headers).to.have.property('cookie');
+      chai.expect(m.headers['cookie']).to.contain('uid=abcdefghijklmnop');
+    };
+
+    var onlyLocalhostCookie = function(m) {
+      if(m.host == 'localhost') {
+        chai.expect(m.headers).to.have.property('cookie');
+        chai.expect(m.headers['cookie']).to.contain('uid=abcdefghijklmnop');
+      } else {
+        chai.expect(m.headers).to.not.have.property('cookie');
+      }
+    };
+
+    ['thirdpartyscript.html', 'crossdomainxhr.html'].forEach(function (testpage) {
+      describe(testpage, function() {
+        var win = CliqzUtils.getWindow(),
+                  gBrowser = win.gBrowser,
+                  tabs = [];
+
+        before(function(done) {
+          // initial request to ensure cookies are set
+          var url = "http://localhost:" + server_port + "/" + testpage;
+          var t = gBrowser.addTab(url);
+          setTimeout(function() {
+            gBrowser.removeTab(t);
+            done();
+          }, 1000);
+        });
 
         beforeEach(function() {
-          CliqzUtils.setPref('attrackBlockCookieTracking', true);
+          // open page in a new tab
+          var url = "http://localhost:" + server_port + "/" + testpage;
+          echoed = [];
+          tabs.push(gBrowser.addTab(url));
         });
 
-        it('pref check', function() {
-          chai.expect(CliqzAttrack.isCookieEnabled()).to.be.true;
+        afterEach(function() {
+          // close all tabs
+          tabs.forEach(function(t) {
+              gBrowser.removeTab(t);
+          });
+          tabs = [];
         });
 
-        it('allows same-domain cookie and blocks third party domain cookie', function(done) {
-          // wait for two requests to be made to test path, then check if cookies were sent.
-          this.timeout(5000);
-          waitFor(function() {
-            return echoed.length >= 2;
-          }).then(function() {
-            console.log(echoed);
-            try {
-              // with cookie blocking enabled, only first party should get a cookie
-              for(var i=0; i<echoed.length; i++) {
-                var m = echoed[i];
-                if(m.host == 'localhost') {
-                  chai.expect(m.headers).to.have.property('cookie');
-                  chai.expect(m.headers['cookie']).to.contain('uid=abcdefghijklmnop');
-                } else {
-                  chai.expect(m.headers).to.not.have.property('cookie');
-                }
-              };
-              done();
-            } catch(e) {
-              done(e);
-            }
+        context('cookie blocking disabled', function() {
+
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackBlockCookieTracking', false);
+          });
+
+          it('pref check', function() {
+            chai.expect(CliqzAttrack.isCookieEnabled()).to.be.false;
+          });
+
+          it('allows all cookies', function(done) {
+            this.timeout(5000);
+            expectNRequests(2).assertEach(hasCookie, done);
+          });
+        });
+
+        context('cookie blocking enabled', function() {
+
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackBlockCookieTracking', true);
+          });
+
+          it('pref check', function() {
+            chai.expect(CliqzAttrack.isCookieEnabled()).to.be.true;
+          });
+
+          it('allows same-domain cookie and blocks third party domain cookie', function(done) {
+            this.timeout(5000);
+            expectNRequests(2).assertEach(onlyLocalhostCookie, done);
           });
         });
       });

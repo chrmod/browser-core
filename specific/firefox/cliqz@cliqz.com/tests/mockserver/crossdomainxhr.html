@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Anti-tracking Cross domain XHR test</title>
+    </head>
+    <body>
+        <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
+        <script>
+            // local get
+            $.getJSON('/test', function(data) {
+                console.log(data);
+            });
+            // third party get
+            $.ajax('http://127.0.0.1:60508/test?callback=func&uid=sfdngtsgfd', {
+                    crossDomain: true,
+                    xhrFields: {
+                      withCredentials: true
+                    }
+                }).done(function(data) {
+                    console.log(data);
+                });
+        </script>
+    </body>
+</html>
