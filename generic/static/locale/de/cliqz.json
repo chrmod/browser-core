@@ -110,8 +110,11 @@
     "whatIsCliqzTry":{
         "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
-    "settings":{
-        "message": "EINSTELLUNGEN"
+    "btnFeedbackFaq":{
+        "message": "Hilfe und Kontakt"
+    },
+    "btnTipsTricks":{
+        "message": "Tipps und Tricks"
     },
     "btnPrivacy":{
         "message": "Datenschutz"
@@ -123,7 +126,7 @@
         "message": "Newtab aktivieren"
     },
     "btnDefaultSearchEngine":{
-        "message": "Standard-Suchmaschine"
+        "message": "Ergänzende Suchmaschine"
     },
     "btnRegion":{
         "message": "Regionale Ergebnisse"
@@ -504,7 +507,7 @@
       "message":"Meintest Du wirklich"
     },
     "result_filter": {
-      "message":"Anstößige Inhalte"
+      "message":"Nicht-jugendfreie Inhalte blockieren"
     },
     "age": {
         "message": "Alter"
@@ -519,25 +522,22 @@
       "message":"Besuchte Seiten"
     },
     "adultInfo": {
-        "message": "Anstößige Inhalte wurden automatisch blockiert. Alle Ergebnisse anzeigen?"
-    },
-    "adultConservative": {
-      "message":"Blockieren"
-    },
-    "adultModerate": {
-      "message":"Nachfragen"
-    },
-    "adultLiberal": {
-      "message":"Immer anzeigen"
+        "message": "Nicht-jugendfreie Inhalte wurden automatisch blockiert. Weiterhin blockieren?"
     },
     "adult_show_once": {
-      "message":"Einmal anzeigen"
+      "message":"Jetzt anzeigen"
     },
     "yes": {
         "message": "Ja"
     },
+    "always": {
+        "message": "Immer"
+    },
     "no": {
         "message": "Nein"
+    },
+    "never": {
+        "message": "Niemals"
     },
     "options": {
         "message": "Suchergebnisfilter"
@@ -881,7 +881,7 @@
     "dataCollection": {
         "message": "Um die Such- und Browser-Funktionen zu verbessern, übermittelt CLQZ for Firefox anonyme Daten an Cliqz. Deine Privatsphäre bleibt dabei geschützt."
     },
-    "dataCollectionButton": {
+    "learnMore": {
         "message": "Mehr erfahren"
     }
 }

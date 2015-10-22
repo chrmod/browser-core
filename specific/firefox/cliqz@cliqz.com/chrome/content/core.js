@@ -261,7 +261,7 @@ window.CLIQZ.Core = {
       }
 
       var buttons = [{
-        label: CliqzUtils.getLocalizedString("dataCollectionButton"),
+        label: CliqzUtils.getLocalizedString("learnMore"),
         callback: function(){
           // we only have the website localized in english end german
           var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
@@ -831,17 +831,16 @@ window.CLIQZ.Core = {
         }
 
         //feedback and FAQ
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ, 'feedback'));
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnFeedbackFaq'), feedback_FAQ, 'feedback'));
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnTipsTricks'), function(){
           CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-        //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
         menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
-        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(win));
       }
       else {
         menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
@@ -907,8 +906,9 @@ window.CLIQZ.Core = {
         return menu;
     },
 
-    createLocationPermOptions: function(doc) {
-      var menu = doc.createElement('menu'),
+    createLocationPermOptions: function(win) {
+      var doc = win.document,
+          menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
       menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
@@ -933,6 +933,20 @@ window.CLIQZ.Core = {
 
         menupopup.appendChild(item);
       };
+
+      var learnMore = CLIQZ.Core.createSimpleBtn(
+          doc,
+          CliqzUtils.getLocalizedString('learnMore'),
+          function(){
+            var lang = CliqzUtils.getLanguage(win) == 'de' ? '' : 'en/';
+            CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + 'privacy');
+          },
+          'location_learn_more'
+      );
+      learnMore.setAttribute('class', 'menuitem-iconic');
+      menupopup.appendChild(doc.createElement('menuseparator'));
+      menupopup.appendChild(learnMore);
+
       menu.appendChild(menupopup);
       return menu;
     },
@@ -1022,7 +1036,7 @@ window.CLIQZ.Core = {
     getLocationPermState: function(){
         var data = {
           'yes': {
-                  name: CliqzUtils.getLocalizedString('yes'),
+                  name: CliqzUtils.getLocalizedString('always'),
                   selected: false
           },
           'ask': {
@@ -1030,7 +1044,7 @@ window.CLIQZ.Core = {
                   selected: false
           },
           'no': {
-              name: CliqzUtils.getLocalizedString('no'),
+              name: CliqzUtils.getLocalizedString('never'),
               selected: false
           }
         };
