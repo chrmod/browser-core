@@ -291,7 +291,7 @@ var Extension = {
       button.setAttribute('image', CliqzLoyalty.getBrowserIcon(false));
       button.addEventListener("command",
           function(ev){
-              CLIQZEnvironment.openTabInWindow(win, 'chrome://cliqz/content/loyalty/index.html');
+              CLIQZEnvironment.openTabInWindow(win, 'about:cliqzloyalty');
               CliqzLoyalty.onBrowserIconClick();
           }
           , false);
