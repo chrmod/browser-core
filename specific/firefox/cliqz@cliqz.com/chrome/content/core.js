@@ -87,10 +87,9 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
+    urlbarEvents: ['focus', 'blur', 'keypress'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
-    _shouldDropdownStayOpen: false,
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
 
@@ -504,18 +503,10 @@ window.CLIQZ.Core = {
         CLIQZ.UI.popupClosed = false;
     },
     popupClose: function(e){
-        if (CliqzUtils.getPref('topSitesV2', false) &&
-            CLIQZ.Core._shouldDropdownStayOpen) {
-            e.preventDefault();
-            // removing this line breaks search
-            CliqzAutocomplete.isPopupOpen = false;
-        } else {
-            CliqzAutocomplete.isPopupOpen = false;
-            CliqzAutocomplete.markResultsDone(null);
-            CLIQZ.Core.popupEvent(false);
-            CLIQZ.UI.popupClosed = true;
-            CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
-        }
+          CliqzAutocomplete.isPopupOpen = false;
+          CliqzAutocomplete.markResultsDone(null);
+          CLIQZ.Core.popupEvent(false);
+          CLIQZ.UI.popupClosed = true;
     },
     popupEvent: function(open) {
         var action = {
@@ -643,62 +634,6 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
-    showTopsites: function () {
-        var popup = CLIQZ.Core.popup,
-            urlbar = CLIQZ.Core.urlbar;
-
-        popup.classList.add("cqz-popup-medium");
-        if (popup.cliqzBox) {
-            popup.cliqzBox.messageContainer.innerHTML = "";
-        }
-        CLIQZ.UI.redrawDropdown(
-            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
-
-        if (popup.cliqzBox) {
-            var width = Math.max(urlbar.clientWidth, 500);
-            popup.cliqzBox.style.width = width + 1 + "px";
-            popup.cliqzBox.resultsBox.style.width =
-                width + (CliqzUtils.isWindows() ? -1 : 1) + "px";
-        }
-
-        popup._openAutocompletePopup(urlbar, urlbar);
-    },
-    urlbarmousedown: function(ev){
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = true;
-
-        // only consider the URLbar not the other icons in the urlbar
-        if(CLIQZ.UI.popupClosed &&
-           (ev.originalTarget.className == 'anonymous-div' ||
-            ev.originalTarget.className.indexOf('urlbar-input-box') != -1)) {
-            CLIQZ.Core.showTopsites();
-            CliqzUtils.telemetry({
-                type: 'activity',
-                action: 'topsites',
-                urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
-            });
-            // indicate this is a topsites result, indicates that no
-            // results should be returned in UI.results, which would
-            // override topsites
-            CliqzAutocomplete.lastSearch = "IGNORE_TOPSITES";
-        }
-        // open Firefox topsites when clicking on dropdown marker
-        else if (ev.originalTarget.className.indexOf('autocomplete-history-dropmarker') != -1 ||
-                   ev.originalTarget.className.indexOf('urlbar-history-dropmarke') != -1) {
-            CliqzAutocomplete.sessionStart = true;
-            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
-            CLIQZ.Core.historyDropMarker.showPopup();
-        }
-    },
-    urlbarkeydown: function(ev){
-        CLIQZ.Core._lastKey = ev.keyCode;
-        CliqzAutocomplete._lastKey = ev.keyCode;
-        var cancel = CLIQZ.UI.keyDown(ev);
-        cancel && ev.preventDefault();
-
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = false;
-    },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
             var urlbar = CLIQZ.Core.urlbar;
@@ -724,14 +659,6 @@ window.CLIQZ.Core = {
         } /* else {
            CliqzAutosuggestion.active = false;
         } */
-    },
-    urlbarmousemove: function(ev) {
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = true;
-    },
-    urlbarmouseleave: function(ev) {
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult, firstTitle, data){

@@ -124,10 +124,8 @@ var CliqzUtils = {
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
           function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
-            var retry;
-            if(retry = retryPattern.pop()){
-              CliqzUtils.setTimeout(getLogoDB, retry);
-            }
+            var retry = retryPattern.pop();
+            if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
           }
           , MINUTE/2);
       })();

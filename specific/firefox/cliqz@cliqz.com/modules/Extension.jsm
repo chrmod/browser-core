@@ -9,6 +9,7 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
 var BTN_ID = 'cliqz-button',
@@ -54,12 +55,16 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-        Cu.import('resource://gre/modules/Services.jsm');
-
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();
-        CliqzResultProviders.init();
+        if(Services.search.init != null){
+          Services.search.init(function(){
+            CliqzResultProviders.init();
+          });
+        } else {
+          CliqzResultProviders.init();
+        }
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
@@ -140,9 +145,9 @@ var Extension = {
         Services.ww.unregisterNotification(Extension.windowWatcher);
     },
     restoreSearchBar: function(win){
-        var toolbarId;
+        var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
         CliqzUtils.setPref(dontHideSearchBar, false);
-        if(toolbarId = CliqzUtils.getPref(searchBarPosition, '')){
+        if(toolbarId){
             var toolbar = win.document.getElementById(toolbarId);
             if(toolbar){
                 if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
@@ -343,10 +348,8 @@ var Extension = {
     unloadFromWindow: function(win){
         try {
             if(win && win.document){
-                var btn;
-                if(btn = win.document.getElementById('cliqz-button')){
-                    btn.parentNode.removeChild(btn);
-                }
+                var btn = win.document.getElementById('cliqz-button');
+                if(btn) btn.parentNode.removeChild(btn);
             }
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
