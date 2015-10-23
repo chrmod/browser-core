@@ -53,16 +53,21 @@ def render_mosaic(args, config):
     ])
     s3_path = 's3://%s/%s' % (args.bucket, s3_key_path)
 
-    msg = MIMEMultipart()
+    msg_rel = MIMEMultipart('related')
+    msg_alt = MIMEMultipart('alternative')
+    msg_rel.attach(msg_alt)
+
     html = '<html><body>%s<br/><br/><img src="cid:%s" /></body></html>' % (s3_path, s3_key_path)
-    msg.attach(MIMEText(html, 'html'))
+    msg_alt.attach(MIMEText(html, 'html'))
+    msg_alt.attach(MIMEText(s3_path, 'plain'))
 
     with open(mosaic_file_name, 'rb') as fp:
         img = MIMEImage(fp .read())
         img.add_header('Content-ID', s3_key_path)
-        msg.attach(img)
+        img.add_header('Content-Disposition', 'attachment')
+        msg_rel.attach(img)
 
-    return msg
+    return msg_rel
 
 
 # Mapping email template names to their rendering functions
