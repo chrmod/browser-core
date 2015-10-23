@@ -141,10 +141,10 @@
         "message": "Stats"
     },
     "adblockbild":{
-        "message": "AdBlock Plus Sperre auf BILD.de deaktivieren"
+        "message": "AdBlock Plus auf BILD.de deaktivieren"
     },
     "adblockbildWarning":{
-        "message": "Möchtest du, dass CLIQZ die AdBlock Plus Sperre auf BILD.de deaktiviert? (auf allen anderen Seiten bleibt AdBlock Plus aktiviert)"
+        "message": "Möchtest du, dass CLIQZ AdBlock Plus auf BILD.de deaktiviert? (Auf allen anderen Seiten bleibt AdBlock Plus aktiviert)"
     },
     "urlBarLastSearch":{
         "message":"↵  "
