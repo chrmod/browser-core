@@ -77,6 +77,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
       CliqzUtils.setPref('attrackRefererTracking', false);
     });
 
+    /** Helper function for testing each request to the /test endpoint after the expected
+     *  number of requests have arrived. */
     var expectNRequests = function(n_requests) {
       return {
         assertEach: function(test, done) {
@@ -97,11 +99,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
       }
     };
 
+    /** Asserts that the request metadata m contains the expected cookie value. */
     var hasCookie = function(m) {
       chai.expect(m.headers).to.have.property('cookie');
       chai.expect(m.headers['cookie']).to.contain('uid=abcdefghijklmnop');
     };
 
+    /** Asserts that the request metadata m contains a cookie value iff the request
+        was to localhost */
     var onlyLocalhostCookie = function(m) {
       if(m.host == 'localhost') {
         chai.expect(m.headers).to.have.property('cookie');
@@ -111,7 +116,148 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
       }
     };
 
-    ['thirdpartyscript.html', 'crossdomainxhr.html', 'iframetest.html'].forEach(function (testpage) {
+    /** Asserts that the tp_event object from a request matches the provided specification */
+    var test_tp_events = function(spec) {
+      chai.expect(Object.keys(CliqzAttrack.tp_events._active)).has.length(1);
+      var tab_id = Object.keys(CliqzAttrack.tp_events._active)[0],
+        evnt = CliqzAttrack.tp_events._active[tab_id];
+      // check first party is correct, and collected third parties match expectations
+      chai.expect(evnt.url).to.eql(spec.url);
+      chai.expect(evnt.tps).to.include.keys(Object.keys(spec.tps));
+      // check expected third party contents
+      for (var tp_domain in spec.tps) {
+        // has all paths for this third party
+        chai.expect(evnt.tps[tp_domain]).to.include.keys(Object.keys(spec.tps[tp_domain]));
+        for (var tp_path in spec.tps[tp_domain]) {
+          var expected_stats = spec.tps[tp_domain][tp_path],
+            actual_stats = evnt.tps[tp_domain][tp_path];
+          // must have all the stats we're testing
+          chai.expect(actual_stats).to.include.keys(Object.keys(expected_stats));
+          for (var stat_key in actual_stats) {
+            if (stat_key == 'paths') { continue; }
+            // stat should be 0 unless otherwise specified
+            var expected = 0;
+            if (stat_key in expected_stats) {
+              expected = expected_stats[stat_key];
+            }
+            chai.expect(actual_stats[stat_key]).to.equal(expected);
+          }
+        }
+      }
+    };
+
+    /** Helper class for generating tp_event expectations. */
+    var tp_events_expectations = function(testpage) {
+      this.url = "http://localhost:" + server_port + "/" + testpage;
+      this.tps = page_specs[testpage].base_tps();
+    }
+
+    tp_events_expectations.prototype = {
+
+      set_all: function(k, v) {
+        this.if('c', 1).set(k, v);
+      },
+
+      if: function(test_k, test_v) {
+        var self = this;
+        return {
+          set: function(set_k, set_v) {
+            for (var tp in self.tps) {
+              for (var path in self.tps[tp]) {
+                var s = self.tps[tp][path];
+                if(test_k in s && s[test_k] == test_v) {
+                  s[set_k] = set_v;
+                }
+              };
+            };
+            return this;
+          }
+        }
+      }
+    };
+
+    /** Specfies test pages, and the base expectations of these pages.
+        The base_tps function provides an object describing the actions of the page, i.e.
+        what third party resources should be requested, and what meta-data is expected in
+        tp_events.
+    */
+    var page_specs = {
+      'thirdpartyscript.html': {
+        base_tps: function() {
+          return {
+            'cdn.rawgit.com': {
+              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
+                'c': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            },
+            '127.0.0.1': {
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            }
+          }
+        }
+      },
+      'crossdomainxhr.html': {
+        base_tps: function() {
+          return {
+            'cdn.rawgit.com': {
+              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
+                'c': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            },
+            '127.0.0.1': {
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'resp_ob': 1,
+                'type_11': 1
+              }
+            }
+          }
+        }
+      },
+      'iframetest.html': {
+        base_tps: function() {
+          return {
+            'cdn.rawgit.com': {
+              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
+                'c': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            },
+            '127.0.0.1': {
+              '/iframe.html': {
+                'c': 1,
+                'cookie_set': 1,
+                'resp_ob': 1,
+                'type_7': 1
+              },
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            }
+          }
+        }
+      }
+    };
+
+    // Test each of the page_specs in various different configurations.
+    Object.keys(page_specs).forEach(function (testpage) {
       describe(testpage, function() {
         var win = CliqzUtils.getWindow(),
                   gBrowser = win.gBrowser,
@@ -154,7 +300,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
 
           it('allows all cookies', function(done) {
             this.timeout(5000);
-            expectNRequests(2).assertEach(hasCookie, done);
+
+            // with no cookie blocking, all pages setting cookies should also set them.
+            var tp_event_expectation = new tp_events_expectations(testpage);
+            tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+
+            expectNRequests(2).assertEach(hasCookie, function() {
+              try {
+                test_tp_events(tp_event_expectation);
+                done();
+              } catch(e) { done(e); }
+            });
           });
         });
 
@@ -170,7 +326,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
 
           it('allows same-domain cookie and blocks third party domain cookie', function(done) {
             this.timeout(5000);
-            expectNRequests(2).assertEach(onlyLocalhostCookie, done);
+
+            // cookie blocking will be done by the 'tp1' block.
+            var tp_event_expectation = new tp_events_expectations(testpage);
+            tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
+
+            expectNRequests(2).assertEach(onlyLocalhostCookie, function() {
+              try {
+                test_tp_events(tp_event_expectation);
+                done();
+              } catch(e) { done(e); }
+            });
           });
         });
       });
