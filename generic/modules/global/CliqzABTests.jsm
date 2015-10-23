@@ -374,7 +374,6 @@ var CliqzABTests = {
                 break;
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
-                //CliqzUCrawl.outOfABTest();
                 break;
             case "1018_A":
             case "1018_B":
