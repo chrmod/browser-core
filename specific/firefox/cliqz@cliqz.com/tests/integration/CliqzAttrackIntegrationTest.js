@@ -11,13 +11,14 @@ function getExtensionDirectory() {
   return JSON.parse(prefs.getCharPref('extensions.xpiState'))['app-profile']['cliqz@cliqz.com']['d'];
 }
 
-TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
+TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHumanWeb) {
 
   describe('CliqzAttrack (integration)', function() {
 
     var server = null,
       server_port = -1,
-      echoed = [];
+      echoed = [],
+      md5 = CliqzHumanWeb._md5;
 
     /** Collects metadata from the request and pushes it into the
       echoed array. Also sets cookie and access control headers.
@@ -140,7 +141,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
             if (stat_key in expected_stats) {
               expected = expected_stats[stat_key];
             }
-            chai.expect(actual_stats[stat_key]).to.equal(expected);
+            chai.expect(actual_stats[stat_key]).to.equal(expected, 'tp_event['+ [tp_domain, tp_path, stat_key].join('][') +']');
           }
         }
       }
@@ -231,7 +232,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
           return {
             'cdn.rawgit.com': {
               '/jquery/jquery/2.1.4/dist/jquery.min.js': {
-                'c': 1,
+                'c': 2,
                 'resp_ob': 1,
                 'type_2': 1
               }
@@ -278,6 +279,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
           var url = "http://localhost:" + server_port + "/" + testpage;
           echoed = [];
           tabs.push(gBrowser.addTab(url));
+          CliqzAttrack.tokenExtWhitelist = {};
+          CliqzAttrack.safeKey = {};
         });
 
         afterEach(function() {
@@ -299,7 +302,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
           });
 
           it('allows all cookies', function(done) {
-            this.timeout(5000);
+            this.timeout(60000);
 
             // with no cookie blocking, all pages setting cookies should also set them.
             var tp_event_expectation = new tp_events_expectations(testpage);
@@ -335,9 +338,58 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils) {
               try {
                 test_tp_events(tp_event_expectation);
                 done();
-              } catch(e) { done(e); }
+              } catch(e) {
+                console.log(echoed);
+                console.log(CliqzAttrack.tp_events._active);
+                done(e); }
             });
           });
+        });
+
+        context('QS blocking enabled', function() {
+
+          var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
+
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+          });
+
+          it('pref check', function() {
+            chai.expect(CliqzAttrack.isQSEnabled()).to.be.true;
+            chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('localhost').substring(0, 16));
+            chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('127.0.0.1').substring(0, 16));
+          });
+
+          it('allows query strings on domains not in the tracker list', function(done) {
+            this.timeout(5000);
+
+            expectNRequests(2).assertEach(function(m) {
+              chai.expect(m.qs).to.contain('uid=' + uid);
+              chai.expect(m.qs).to.contain('callback=func');
+            }, done);
+          });
+
+          describe('third party on tracker list', function() {
+
+            beforeEach(function() {
+              var tracker_hash = md5('127.0.0.1').substring(0, 16);
+              CliqzAttrack.tokenExtWhitelist[tracker_hash] = {}
+              CliqzAttrack.safeKey[tracker_hash] = {};
+            });
+
+            it('pref check', function() {
+              chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('localhost').substring(0, 16));
+              chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property(md5('127.0.0.1').substring(0, 16));
+            });
+
+            it('allows QS first time on tracker', function(done) {
+              expectNRequests(2).assertEach(function(m) {
+                chai.expect(m.qs).to.contain('uid=' + uid);
+                chai.expect(m.qs).to.contain('callback=func');
+              }, done);
+            });
+          });
+
         });
       });
     });
