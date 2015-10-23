@@ -83,6 +83,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       CliqzAttrack.requestKeyValue = {};
       CliqzAttrack.tokenExtWhitelist = {};
       CliqzAttrack.safeKey = {};
+      CliqzAttrack.tokenDomain = {};
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -442,8 +443,35 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   done(e);
                 }
               });
+            });
 
-              it
+            describe('domain count exceeds threshold', function() {
+
+              beforeEach(function() {
+                // make an artificial tokenDomain list to trigger blocking
+                // TODO: do it properly with a series of requests
+                var tok = md5(uid),
+                  today = CliqzAttrack.getTime().substr(0, 8);;
+                CliqzAttrack.tokenDomain[tok] = {};
+                ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
+                  CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
+                });
+                // enable token removal
+                CliqzAttrack.obfuscateMethod = 'replace';
+              });
+
+              it('blocks tokens after domain count is exceeded', function() {
+                this.timeout(5000);
+                openTestPage();
+                expectNRequests(2).assertEach(function(m) {
+                  if(m.host == 'localhost') {
+                    chai.expect(m.qs).to.contain('uid=' + uid);
+                  } else {
+                    chai.expect(m.qs).to.not.contain('uid=' + uid);
+                  }
+                  chai.expect(m.qs).to.contain('callback=func');
+                });
+              });
             });
           }); // tp on tracker list
         }); // context : QS enabled
@@ -472,6 +500,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       });
 
       it('adds local safekey if 3 different values seen', function(done) {
+        this.timeout(5000);
+
         expectNRequests(3).then(function(m) {
           try {
             var url_hash = md5('127.0.0.1').substring(0, 16),
