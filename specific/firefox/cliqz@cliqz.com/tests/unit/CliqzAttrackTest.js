@@ -391,4 +391,36 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
         });
     });
 
+    describe('CliqzAttrack.isHash', function() {
+
+        var not_hash = ['',
+            'Firefox',
+            'some words',
+            '23/9/2015 13:32:57 5 -120', // date string
+            'UTF-8',
+            'http://www.cliqz.com', // a url
+            '1440x900', // screen resolution
+            '/59666047/theguardian.com/international/front/ng',
+            'url=%2Finternational&edition=int&ct=section&p=ng&k=international&x=pirae8sgr%2Cpirak431b&su=0&pv=ig3kwi0qkucaub6l1azw&bp=desktop&si=f&fr=5plus' // 'cust_params' from doubleclick
+            ];
+
+        var hashes = ['04C2EAD03BAB7F5E-2E85855CF4C75134',
+            '54f5095c96e53deed8f9c147cfb12870',
+            '1AB62a15974a93a320e682g1445527405',
+            '22163a4ff9030048002213fd4895c8edc3160ed6ab']
+
+        not_hash.forEach(function(str) {
+          it("'" + str + "' is not a hash", function() {
+            chai.expect(CliqzAttrack.isHash(str)).to.be.false;
+          })
+        });
+
+        hashes.forEach(function(str) {
+          it("'" + str + "' is a hash", function() {
+            chai.expect(CliqzAttrack.isHash(str)).to.be.true;
+          })
+        });
+
+    });
+
 }
