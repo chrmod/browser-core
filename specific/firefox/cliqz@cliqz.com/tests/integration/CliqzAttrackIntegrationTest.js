@@ -296,6 +296,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   gBrowser = win.gBrowser,
                   tabs = [];
 
+        var openTestPage = function() {
+          // open page in a new tab
+          var url = "http://localhost:" + server_port + "/" + testpage;
+          echoed = [];
+          tabs.push(gBrowser.addTab(url));
+        };
+
         before(function(done) {
           // initial request to ensure cookies are set
           var url = "http://localhost:" + server_port + "/" + testpage;
@@ -304,13 +311,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
             gBrowser.removeTab(t);
             done();
           }, 1000);
-        });
-
-        beforeEach(function() {
-          // open page in a new tab
-          var url = "http://localhost:" + server_port + "/" + testpage;
-          echoed = [];
-          tabs.push(gBrowser.addTab(url));
         });
 
         afterEach(function() {
@@ -333,6 +333,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
           it('allows all cookies', function(done) {
             this.timeout(5000);
+            openTestPage();
 
             // with no cookie blocking, all pages setting cookies should also set them.
             var tp_event_expectation = new tp_events_expectations(testpage);
@@ -359,6 +360,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
           it('allows same-domain cookie and blocks third party domain cookie', function(done) {
             this.timeout(5000);
+            openTestPage();
 
             // cookie blocking will be done by the 'tp1' block.
             var tp_event_expectation = new tp_events_expectations(testpage);
@@ -392,6 +394,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
           it('allows query strings on domains not in the tracker list', function(done) {
             this.timeout(5000);
+            openTestPage();
 
             var tp_event_expectation = new tp_events_expectations(testpage);
             tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -422,6 +425,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
             it('allows QS first time on tracker', function(done) {
               this.timeout(5000);
+              openTestPage();
 
               var tp_event_expectation = new tp_events_expectations(testpage);
               tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -438,6 +442,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   done(e);
                 }
               });
+
+              it
             });
           }); // tp on tracker list
         }); // context : QS enabled
