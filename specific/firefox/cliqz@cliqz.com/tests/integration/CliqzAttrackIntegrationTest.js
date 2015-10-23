@@ -81,6 +81,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       CliqzAttrack.tp_events._staged = [];
       // clean up attrack caches
       CliqzAttrack.requestKeyValue = {};
+      CliqzAttrack.tokenExtWhitelist = {};
+      CliqzAttrack.safeKey = {};
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -88,10 +90,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     var expectNRequests = function(n_requests) {
       return {
         assertEach: function(test, done) {
-          // wait for two requests to be made to test path, then do tests on metadata
-          waitFor(function() {
-            return echoed.length >= n_requests;
-          }).then(function() {
+          // wait for n_requests requests to be made to test path, then do tests on metadata
+          this.then(function() {
             try {
               for(var i=0; i<echoed.length; i++) {
                 test(echoed[i]);
@@ -101,6 +101,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               done(e);
             }
           });
+        },
+        then: function(done) {
+          waitFor(function() {
+            return echoed.length >= n_requests;
+          }).then(done);
         }
       }
     };
@@ -306,8 +311,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           var url = "http://localhost:" + server_port + "/" + testpage;
           echoed = [];
           tabs.push(gBrowser.addTab(url));
-          CliqzAttrack.tokenExtWhitelist = {};
-          CliqzAttrack.safeKey = {};
         });
 
         afterEach(function() {
@@ -432,13 +435,55 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   test_tp_events(tp_event_expectation);
                   done();
                 } catch(e) {
-                  done(e); }
+                  done(e);
+                }
               });
             });
-          });
+          }); // tp on tracker list
+        }); // context : QS enabled
+      }); // describe testpage
+    }); // for each page
 
+    describe("local safeKey", function() {
+      var win = CliqzUtils.getWindow(),
+        gBrowser = win.gBrowser,
+        tabs = [],
+        testpage = 'localsafekey.html';
+
+      beforeEach(function() {
+        // open page in a new tab
+        var url = "http://localhost:" + server_port + "/" + testpage;
+        echoed = [];
+        tabs.push(gBrowser.addTab(url));
+      });
+
+      afterEach(function() {
+        // close all tabs
+        tabs.forEach(function(t) {
+            gBrowser.removeTab(t);
+        });
+        tabs = [];
+      });
+
+      it('adds local safekey if 3 different values seen', function(done) {
+        expectNRequests(3).then(function(m) {
+          try {
+            var url_hash = md5('127.0.0.1').substring(0, 16),
+              callback_hash = md5('callback'),
+              uid_hash = md5('uid');
+            console.log(CliqzAttrack.safeKey);
+            chai.expect(CliqzAttrack.safeKey).has.property(url_hash);
+            chai.expect(CliqzAttrack.safeKey[url_hash]).has.property(callback_hash);
+            chai.expect(CliqzAttrack.safeKey[url_hash]).not.has.property(uid_hash);
+            console.log(CliqzAttrack.tp_events._active);
+            done();
+          } catch(e) {
+            done(e);
+          }
         });
       });
+
     });
-  });
+
+  }); // describe integration test
 };
