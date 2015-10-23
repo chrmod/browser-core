@@ -423,4 +423,23 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
 
     });
 
+    describe('CliqzAttrack.getGeneralDomain', function() {
+
+        var spec = {
+          'cliqz.com': ['cliqz.com', 'www.cliqz.com', 'a.b.cliqz.com'],
+          'example.co.uk': ['example.co.uk', 'test.example.co.uk'],
+          '127.0.0.1': ['127.0.0.1'],
+          '1.2.3.4': ['1.2.3.4']
+        };
+
+        for (var general_domain in spec) {
+            spec[general_domain].forEach(function(sub_domain) {
+                var gen = general_domain;
+                it(sub_domain +' has general domain '+ gen, function() {
+                    chai.expect(CliqzAttrack.getGeneralDomain(sub_domain)).to.eql(gen);
+                });
+            });
+        }
+    });
+
 }
