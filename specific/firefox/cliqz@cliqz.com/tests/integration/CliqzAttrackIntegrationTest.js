@@ -76,6 +76,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       CliqzUtils.setPref('attrackAlterPostdataTracking', false);
       CliqzUtils.setPref('attrackCanvasFingerprintTracking', false);
       CliqzUtils.setPref('attrackRefererTracking', false);
+      // clean tp_events
+      CliqzAttrack.tp_events.commit(true);
+      CliqzAttrack.tp_events._staged = [];
+      // clean up attrack caches
+      CliqzAttrack.requestKeyValue = {};
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -205,6 +210,28 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           }
         }
       },
+      'injectedscript.html': {
+        base_tps: function() {
+          return {
+            'cdn.rawgit.com': {
+              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
+                'c': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            },
+            '127.0.0.1': {
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'resp_ob': 1,
+                'type_2': 1
+              }
+            }
+          }
+        }
+      },
       'crossdomainxhr.html': {
         base_tps: function() {
           return {
@@ -302,7 +329,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           });
 
           it('allows all cookies', function(done) {
-            this.timeout(60000);
+            this.timeout(5000);
 
             // with no cookie blocking, all pages setting cookies should also set them.
             var tp_event_expectation = new tp_events_expectations(testpage);
@@ -363,10 +390,18 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           it('allows query strings on domains not in the tracker list', function(done) {
             this.timeout(5000);
 
+            var tp_event_expectation = new tp_events_expectations(testpage);
+            tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+
             expectNRequests(2).assertEach(function(m) {
               chai.expect(m.qs).to.contain('uid=' + uid);
               chai.expect(m.qs).to.contain('callback=func');
-            }, done);
+            }, function() {
+              try {
+                test_tp_events(tp_event_expectation);
+                done();
+              } catch(e) { done(e); }
+            });
           });
 
           describe('third party on tracker list', function() {
@@ -383,10 +418,22 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
             });
 
             it('allows QS first time on tracker', function(done) {
+              this.timeout(5000);
+
+              var tp_event_expectation = new tp_events_expectations(testpage);
+              tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+              tp_event_expectation.if('has_qs', 1).set('token.has_qs_newToken', 1).set('token.qs_newToken', 1);
+
               expectNRequests(2).assertEach(function(m) {
                 chai.expect(m.qs).to.contain('uid=' + uid);
                 chai.expect(m.qs).to.contain('callback=func');
-              }, done);
+              }, function() {
+                try {
+                  test_tp_events(tp_event_expectation);
+                  done();
+                } catch(e) {
+                  done(e); }
+              });
             });
           });
 
