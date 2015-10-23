@@ -316,7 +316,6 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     }
 }
 
-
 notification[type="warning"] {
     padding: 6px 5px;
     border: none;
@@ -338,4 +337,5 @@ notification[type="warning"] > button {
 
 notification[type="warning"] .messageText {
     font-weight: normal;
+    color: black;
 }

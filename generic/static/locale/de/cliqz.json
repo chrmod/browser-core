@@ -140,6 +140,12 @@
     "btnStats":{
         "message": "Stats"
     },
+    "adblockbild":{
+        "message": "AdBlock Plus Sperre auf BILD.de umgehen"
+    },
+    "adblockbildWarning":{
+        "message": "Möchtest du, dass CLIQZ die AdBlock Plus Sperre auf BILD.de umgeht?"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },

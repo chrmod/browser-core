@@ -140,6 +140,12 @@
     "btnStats":{
         "message": "Stats"
     },
+    "adblockbild":{
+        "message": "Bypass AdBlock Plus barrier on BILD.de"
+    },
+    "adblockbildWarning":{
+        "message": "Would you like CLIQZ to bypass AdBlock Plus barrier on BILD.de?"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
