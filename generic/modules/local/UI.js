@@ -17,29 +17,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-
-
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
-//  'chrome://cliqzmodules/content/CliqzImages.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 (function(ctx) {
 
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
-    VERTICALS = {
-        //'s': 'shopping',
-        //'g': 'gaming'  ,
-        'n': 'news'    ,
-        'p': 'people'  ,
-        'v': 'video'   ,
-        'h': 'hq'      ,
-        'r': 'recipe' ,
-        'g': 'cpgame_movie',
-        'o': 'cpgame_movie'
-        //'q': 'qaa'     ,
-        //'k': 'science' ,
-        //'l': 'dictionary'
-    },
+    VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
     IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
@@ -1507,12 +1492,19 @@ function resultClick(ev) {
         extra = extra || el.getAttribute("extra");
         url = el.getAttribute("href") || el.getAttribute('url');
         if (url) {
-            logUIEvent(el, "result", {
+            var signal = {
                 action: "result_click",
                 new_tab: newTab,
                 extra: extra,
-                mouse: coordinate
-            }, CliqzAutocomplete.lastSearch);
+                mouse: coordinate,
+                position_type: getResultKind(el)
+            };
+
+            logUIEvent(el, "result", signal, CliqzAutocomplete.lastSearch);
+
+            //publish result_click
+            CliqzEvents.pub("result_click", signal, {});
+
             var url = CliqzUtils.cleanMozillaActions(url);
             CLIQZEnvironment.openLink(window, url, newTab);
             //Lucian: decouple!
@@ -1786,6 +1778,9 @@ function onEnter(ev, item){
       current_position: -1,
       new_tab: newTab
     });
+
+    //publish autocomplete event
+    CliqzEvents.pub('autocomplete', {"autocompleted": CliqzAutocomplete.lastAutocompleteType});
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
@@ -1808,6 +1803,10 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1
     });
+
+    //publish google event (loyalty)
+    CliqzEvents.pub("alternative_search", {});
+
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
@@ -1827,6 +1826,10 @@ function onEnter(ev, item){
       new_tab: newTab
     }, urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
+
+    //publish alternative search event (loyalty)
+    CliqzEvents.pub("alternative_search", {});
+
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
@@ -1834,6 +1837,9 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
+
+    //publish result_enter event (loyalty)
+    CliqzEvents.pub("result_enter", {"position_type": getResultKind(UI.keyboardSelection)}, {'vertical_list': Object.keys(VERTICALS)});
   }
 
   CLIQZEnvironment.openLink(window, input, newTab);
