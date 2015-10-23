@@ -29,25 +29,31 @@
   function checkUrl(_url){
     var url = _url.split("://")[1],
         isBildUrl = url && url.indexOf('www.bild.de') == 0,
-        newState = isBildUrl ? BLOCK : ALLOW;
+        newState = isBildUrl ? BLOCK : ALLOW,
+        cliqzState = CliqzUtils.getPref(prefKey, 0),
+        adBlockState = adBlockActive();
 
-    // double check the state if we need to change it
-    if(state != newState){
-      state = adBlockActive(); //state can be changed in the in adp directly
-      if(state != newState) {
-        var cliqzState = CliqzUtils.getPref(prefKey, 0);
-        if(cliqzState == 0){ // ask
-          setTimeout(showWarning, 0);
-        } else if(cliqzState == 1){ // enabled
-          changeAdBlockState(newState);
-          state = newState;
-        } else { // disabled
-          changeAdBlockState(initialState);
-          state = initialState;
-        }
-      } else {
-        //adblockplus state was changed outside - disable CLIQZ mechanism
-        adblockbild.unload();
+    //console.log('AdBlockBild -> state ',state,' new state:', newState,' prefState:', cliqzState,' adBlockState:', adBlockState)
+    if(cliqzState == 2) { // disabled
+      if(initialState != adBlockState){
+        changeAdBlockState(initialState);
+        state = initialState;
+      }
+      return;
+    }
+
+    //state can be changed in the in adp directly
+    if(state != adBlockState){
+      //adblockplus state was changed outside - disable CLIQZ mechanism
+      adblockbild.unload();
+    }
+
+    if(state != newState) {
+      if(cliqzState == 0){ // ask
+        if(newState == BLOCK) setTimeout(showWarning, 0);
+      } else if(cliqzState == 1){ // enabled
+        changeAdBlockState(newState);
+        state = newState;
       }
     }
   }
@@ -113,6 +119,8 @@
       item.filter_level = parseInt(level);
       item.addEventListener('command', function(event) {
         CliqzUtils.setPref(prefKey, this.filter_level);
+        changeAdBlockState(initialState);
+        state = initialState;
         CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
       }, false);
 
