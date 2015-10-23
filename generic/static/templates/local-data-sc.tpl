@@ -32,7 +32,7 @@
                     </div>
                   {{/if}}
                   {{#if phonenumber}}
-                    <div extra="phone_num" cliqz-action="copy_val" extra="phone-number">
+                    <div extra="phone_num" cliqz-action="copy_val">
                       <img src="http://cdn.cliqz.com/extension/EZ/local/phone-1.svg" class="cqz-local-icon clz_copy" onerror="this.style.display='none';"/>
                       <span class="clz_copy">{{phonenumber}}</span>
                     </div>

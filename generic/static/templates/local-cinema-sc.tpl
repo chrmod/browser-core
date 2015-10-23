@@ -2,13 +2,13 @@
   {{#with data}}
     <div class='cqz-cinema-container'>
       {{#if cinema.map_img}}
-        <div class="cinema-image cqz-image-round" extra="cinemaSC_map_img">
+        <div class="cinema-image cqz-image-round" extra="cinema-sc-map-img">
           <img url="{{cinema.map_url}}" src="{{cinema.map_img}}"/>
         </div>
       {{/if}}
       <div class='cinema-data'>
         <div class="cinema_title cqz-ez-title">
-          <a extra="cinemaSC_title" href="{{url}}">
+          <a extra="cinema-sc-title" href="{{url}}">
             {{ emphasis cinema.name text 2 true }}
           </a>
         </div>
@@ -35,7 +35,7 @@
       {{/if}}
     </div>
     <p>
-      <a class="cqz-ez-btn cqz-cinema-program-btn" url="{{ cinema.cinepass_url }}" extra="cinemaSC_program">
+      <a class="cqz-ez-btn cqz-cinema-program-btn" url="{{ cinema.cinepass_url }}" extra="cinema-sc-program">
         {{local 'cinema_program_btn'}}
       </a>
     </p>
