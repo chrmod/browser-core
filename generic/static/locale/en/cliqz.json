@@ -144,7 +144,7 @@
         "message": "Deactivate AdBlock Plus barrier on BILD.de"
     },
     "adblockbildWarning":{
-        "message": "Would you like CLIQZ to deactivate AdBlock Plus barrier on BILD.de?"
+        "message": "Would you like CLIQZ to deactivate AdBlock Plus barrier on BILD.de? (AdBlock Plus remains active on all other sites) "
     },
     "urlBarLastSearch":{
         "message":"↵  "
