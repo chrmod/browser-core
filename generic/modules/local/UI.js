@@ -1105,17 +1105,17 @@ function enhanceResults(res){
                     telemetry: 'adultFilter',
                     options: [
                         {
-                            text: CliqzUtils.getLocalizedString('adult_show_once'),
+                            text: CliqzUtils.getLocalizedString('show_once'),
                             action: 'adult-showOnce',
                             state: 'default'
                         },
                         {
-                            text: CliqzUtils.getLocalizedString('adultConservative'),
+                            text: CliqzUtils.getLocalizedString('always'),
                             action: 'adult-conservative',
                             state: 'default'
                         },
                         {
-                            text: CliqzUtils.getLocalizedString('adultLiberal'),
+                            text: CliqzUtils.getLocalizedString('never'),
                             action: 'adult-liberal',
                             state: 'default'
                         },

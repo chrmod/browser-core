@@ -524,7 +524,7 @@
     "adultInfo": {
         "message": "Nicht-jugendfreie Inhalte wurden automatisch blockiert. Weiterhin blockieren?"
     },
-    "adult_show_once": {
+    "show_once": {
       "message":"Jetzt anzeigen"
     },
     "yes": {

@@ -79,6 +79,7 @@ else {
     } catch(e){}
 }
 
+window.CLIQZ.COMPONENTS = []; //plug and play components
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
@@ -180,6 +181,10 @@ window.CLIQZ.Core = {
 
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
+
+        CLIQZ.COMPONENTS.forEach(function(c){
+          c.init && c.init();
+        });
 
         var urlBarGo = document.getElementById('urlbar-go-button');
         CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
@@ -419,6 +424,9 @@ window.CLIQZ.Core = {
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
             CliqzMsgCenter.unload(window);
+            CLIQZ.COMPONENTS.forEach(function(c){
+              c.unload && c.unload();
+            })
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -841,6 +849,11 @@ window.CLIQZ.Core = {
         menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
         menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
         menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(win));
+
+        CLIQZ.COMPONENTS.forEach(function(c){
+          var btn = c.button && c.button(win);
+          if(btn) menupopup.appendChild(btn);
+        });
       }
       else {
         menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));

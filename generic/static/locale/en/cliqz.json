@@ -524,7 +524,7 @@
     "adultInfo": {
         "message": "Explicit content has been blocked automatically. Continue blocking?"
     },
-    "adult_show_once": {
+    "show_once": {
       "message":"Show Once"
     },
     "yes": {
