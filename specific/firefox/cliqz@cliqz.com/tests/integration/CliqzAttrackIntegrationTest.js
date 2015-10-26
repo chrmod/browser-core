@@ -51,14 +51,18 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     before(function(done) {
       // set up HTTP server.
       server = new HttpServer();
+      server_port = 60508;
+      // add other test domains to server
+      server.identity.add("http", "cliqztest.com", server_port);
+      server.identity.add("http", "cliqztest.de", server_port);
+      server.identity.add("http", "www.cliqztest.com", server_port);
       // Add static resources from cliqz@cliqz.com/test/mockserver directory
       var f = new FileUtils.File(OS.Path.join(getExtensionDirectory(), 'tests', 'mockserver'));
       server.registerDirectory('/', f);
       // add specific hander for /test which will collect request parameters for testing.
       server.registerPathHandler('/test', collect_request_parameters);
 
-      server.start(60508);
-      server_port = server.identity.primaryPort;
+      server.start(server_port);
       // wait for server to be up
       setTimeout(done, 500);
     });
@@ -91,13 +95,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     var expectNRequests = function(n_requests) {
       return {
         assertEach: function(test, done) {
+          var _this = this;
           // wait for n_requests requests to be made to test path, then do tests on metadata
           this.then(function() {
             try {
               for(var i=0; i<echoed.length; i++) {
                 test(echoed[i]);
               }
-              done();
+              _this._assertNoMore(done);
             } catch(e) {
               done(e);
             }
@@ -107,6 +112,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           waitFor(function() {
             return echoed.length >= n_requests;
           }).then(done);
+        },
+        _assertNoMore: function(done) {
+          try {
+            chai.expect(echoed.length).to.equal(n_requests, "Number of requests exceeded.");
+            done();
+          } catch(e) {
+            done(e);
+          }
         }
       }
     };
@@ -297,22 +310,12 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   gBrowser = win.gBrowser,
                   tabs = [];
 
-        var openTestPage = function() {
+        var openTestPage = function(domainname = 'localhost') {
           // open page in a new tab
-          var url = "http://localhost:" + server_port + "/" + testpage;
+          var url = "http://"+ domainname +":" + server_port + "/" + testpage;
           echoed = [];
           tabs.push(gBrowser.addTab(url));
         };
-
-        before(function(done) {
-          // initial request to ensure cookies are set
-          var url = "http://localhost:" + server_port + "/" + testpage;
-          var t = gBrowser.addTab(url);
-          setTimeout(function() {
-            gBrowser.removeTab(t);
-            done();
-          }, 1000);
-        });
 
         afterEach(function() {
           // close all tabs
@@ -322,61 +325,75 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           tabs = [];
         });
 
-        context('cookie blocking disabled', function() {
+        context('cookie tests', function() {
 
-          beforeEach(function() {
-            CliqzUtils.setPref('attrackBlockCookieTracking', false);
+          before(function(done) {
+            // initial request to ensure cookies are set
+            var url = "http://localhost:" + server_port + "/" + testpage;
+            var t = gBrowser.addTab(url);
+            setTimeout(function() {
+              gBrowser.removeTab(t);
+              done();
+            }, 1000);
           });
 
-          it('pref check', function() {
-            chai.expect(CliqzAttrack.isCookieEnabled()).to.be.false;
-          });
+          context('cookie blocking disabled', function() {
 
-          it('allows all cookies', function(done) {
-            this.timeout(5000);
-            openTestPage();
+            beforeEach(function() {
+              CliqzUtils.setPref('attrackBlockCookieTracking', false);
+            });
 
-            // with no cookie blocking, all pages setting cookies should also set them.
-            var tp_event_expectation = new tp_events_expectations(testpage);
-            tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+            it('pref check', function() {
+              chai.expect(CliqzAttrack.isCookieEnabled()).to.be.false;
+            });
 
-            expectNRequests(2).assertEach(hasCookie, function() {
-              try {
-                test_tp_events(tp_event_expectation);
-                done();
-              } catch(e) { done(e); }
+            it('allows all cookies', function(done) {
+              this.timeout(5000);
+              openTestPage();
+
+              // with no cookie blocking, all pages setting cookies should also set them.
+              var tp_event_expectation = new tp_events_expectations(testpage);
+              tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+
+              expectNRequests(2).assertEach(hasCookie, function() {
+                try {
+                  test_tp_events(tp_event_expectation);
+                  done();
+                } catch(e) { done(e); }
+              });
             });
           });
-        });
 
-        context('cookie blocking enabled', function() {
+          context('cookie blocking enabled', function() {
 
-          beforeEach(function() {
-            CliqzUtils.setPref('attrackBlockCookieTracking', true);
-          });
+            beforeEach(function() {
+              CliqzUtils.setPref('attrackBlockCookieTracking', true);
+            });
 
-          it('pref check', function() {
-            chai.expect(CliqzAttrack.isCookieEnabled()).to.be.true;
-          });
+            it('pref check', function() {
+              chai.expect(CliqzAttrack.isCookieEnabled()).to.be.true;
+            });
 
-          it('allows same-domain cookie and blocks third party domain cookie', function(done) {
-            this.timeout(5000);
-            openTestPage();
+            it('allows same-domain cookie and blocks third party domain cookie', function(done) {
+              this.timeout(5000);
+              openTestPage();
 
-            // cookie blocking will be done by the 'tp1' block.
-            var tp_event_expectation = new tp_events_expectations(testpage);
-            tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
+              // cookie blocking will be done by the 'tp1' block.
+              var tp_event_expectation = new tp_events_expectations(testpage);
+              tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
 
-            expectNRequests(2).assertEach(onlyLocalhostCookie, function() {
-              try {
-                test_tp_events(tp_event_expectation);
-                done();
-              } catch(e) {
-                console.log(echoed);
-                console.log(CliqzAttrack.tp_events._active);
-                done(e); }
+              expectNRequests(2).assertEach(onlyLocalhostCookie, function() {
+                try {
+                  test_tp_events(tp_event_expectation);
+                  done();
+                } catch(e) {
+                  console.log(echoed);
+                  console.log(CliqzAttrack.tp_events._active);
+                  done(e); }
+              });
             });
           });
+
         });
 
         context('QS blocking enabled', function() {
@@ -417,6 +434,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               var tracker_hash = md5('127.0.0.1').substring(0, 16);
               CliqzAttrack.tokenExtWhitelist[tracker_hash] = {}
               CliqzAttrack.safeKey[tracker_hash] = {};
+              CliqzAttrack.tokenDomain = {};
             });
 
             it('pref check', function() {
@@ -445,33 +463,60 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               });
             });
 
-            describe('domain count exceeds threshold', function() {
-
-              beforeEach(function() {
-                // make an artificial tokenDomain list to trigger blocking
-                // TODO: do it properly with a series of requests
-                var tok = md5(uid),
-                  today = CliqzAttrack.getTime().substr(0, 8);;
-                CliqzAttrack.tokenDomain[tok] = {};
-                ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
-                  CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
-                });
-                // enable token removal
-                CliqzAttrack.obfuscateMethod = 'replace';
+            it('blocks tokens after domain count is exceeded', function(done) {
+              // make an artificial tokenDomain list to trigger blocking
+              var tok = md5(uid),
+                today = CliqzAttrack.getTime().substr(0, 8);;
+              CliqzAttrack.tokenDomain[tok] = {};
+              ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
+                CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
               });
+              // enable token removal
+              CliqzAttrack.obfuscateMethod = 'replace';
 
-              it('blocks tokens after domain count is exceeded', function() {
-                this.timeout(5000);
-                openTestPage();
-                expectNRequests(2).assertEach(function(m) {
+              this.timeout(5000);
+              openTestPage();
+              expectNRequests(2).assertEach(function(m) {
+                console.log(m);
+                if(m.host == 'localhost') {
+                  chai.expect(m.qs).to.contain('uid=' + uid);
+                } else {
+                  chai.expect(m.qs).to.not.contain('uid=' + uid);
+                }
+                chai.expect(m.qs).to.contain('callback=func');
+              }, done);
+            });
+
+            it('increments domain count when a tracker is visited', function(done) {
+              CliqzAttrack.obfuscateMethod = 'replace';
+              this.timeout(6000);
+
+              // open two pages so that token domain will be incremented
+              openTestPage();
+              openTestPage('cliqztest.com');
+              // open third page after a delay (so it will be after the first two)
+              // the updated token domain list should cause a tracker block event.
+              setTimeout(function() {
+                openTestPage('cliqztest.de');
+                expectNRequests(6).assertEach(function(m) {
+                  // only request from cliqztest.de to third party is modified.
                   if(m.host == 'localhost') {
                     chai.expect(m.qs).to.contain('uid=' + uid);
                   } else {
-                    chai.expect(m.qs).to.not.contain('uid=' + uid);
+                    if('cliqztest.de' in m.headers.referrer) {
+                      chai.expect(m.qs).to.not.contain('uid=' + uid);
+                    } else {
+                      chai.expect(m.qs).to.contain('uid=' + uid);
+                    }
                   }
-                  chai.expect(m.qs).to.contain('callback=func');
+                }, function() {
+                  var tok = md5(uid);
+                  chai.expect(CliqzAttrack.tokenDomain).to.have.property(tok);
+                  chai.expect(Object.keys(CliqzAttrack.tokenDomain[tok])).to.have.length(3);
+                  done();
                 });
-              });
+              }, 500);
+
             });
           }); // tp on tracker list
         }); // context : QS enabled
