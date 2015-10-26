@@ -13,7 +13,7 @@ function getExtensionDirectory() {
 
 TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHumanWeb) {
 
-  describe('CliqzAttrack (integration)', function() {
+  describe('CliqzAttrack_integration', function() {
 
     var server = null,
       server_port = -1,
@@ -99,10 +99,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           // wait for n_requests requests to be made to test path, then do tests on metadata
           this.then(function() {
             try {
+              chai.expect(echoed.length).to.equal(n_requests, "Number of requests exceeded.");
               for(var i=0; i<echoed.length; i++) {
                 test(echoed[i]);
               }
-              _this._assertNoMore(done);
+              done();
             } catch(e) {
               done(e);
             }
@@ -111,15 +112,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         then: function(done) {
           waitFor(function() {
             return echoed.length >= n_requests;
-          }).then(done);
-        },
-        _assertNoMore: function(done) {
-          try {
-            chai.expect(echoed.length).to.equal(n_requests, "Number of requests exceeded.");
-            done();
-          } catch(e) {
-            done(e);
-          }
+          }).then(function() {
+            setTimeout(function() {
+              done();
+            }, 50);
+          });
         }
       }
     };
@@ -355,7 +352,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               var tp_event_expectation = new tp_events_expectations(testpage);
               tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
 
-              expectNRequests(2).assertEach(hasCookie, function() {
+              expectNRequests(2).assertEach(hasCookie, function(e) {
+                if(e) { done(e); }
                 try {
                   test_tp_events(tp_event_expectation);
                   done();
@@ -382,7 +380,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               var tp_event_expectation = new tp_events_expectations(testpage);
               tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
 
-              expectNRequests(2).assertEach(onlyLocalhostCookie, function() {
+              expectNRequests(2).assertEach(onlyLocalhostCookie, function(e) {
+                if(e) { done(e); }
                 try {
                   test_tp_events(tp_event_expectation);
                   done();
@@ -420,7 +419,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
             expectNRequests(2).assertEach(function(m) {
               chai.expect(m.qs).to.contain('uid=' + uid);
               chai.expect(m.qs).to.contain('callback=func');
-            }, function() {
+            }, function(e) {
+              if(e) { done(e); }
               try {
                 test_tp_events(tp_event_expectation);
                 done();
@@ -453,7 +453,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               expectNRequests(2).assertEach(function(m) {
                 chai.expect(m.qs).to.contain('uid=' + uid);
                 chai.expect(m.qs).to.contain('callback=func');
-              }, function() {
+              }, function(e) {
+                if(e) { done(e); }
                 try {
                   test_tp_events(tp_event_expectation);
                   done();
@@ -477,46 +478,48 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               this.timeout(5000);
               openTestPage();
               expectNRequests(2).assertEach(function(m) {
-                console.log(m);
                 if(m.host == 'localhost') {
                   chai.expect(m.qs).to.contain('uid=' + uid);
                 } else {
                   chai.expect(m.qs).to.not.contain('uid=' + uid);
                 }
                 chai.expect(m.qs).to.contain('callback=func');
-              }, done);
+              }, function(e) {
+                if(e) { done(e); }
+                console.log(CliqzAttrack.tp_events._active);
+                done();
+              });
             });
 
             it('increments domain count when a tracker is visited', function(done) {
               CliqzAttrack.obfuscateMethod = 'replace';
+              CliqzAttrack.tokenDomain = {};
               this.timeout(6000);
 
-              // open two pages so that token domain will be incremented
+              // open a page so that token domain will be incremented
               openTestPage();
-              openTestPage('cliqztest.com');
               // open third page after a delay (so it will be after the first two)
               // the updated token domain list should cause a tracker block event.
-              setTimeout(function() {
-                openTestPage('cliqztest.de');
-                expectNRequests(6).assertEach(function(m) {
-                  // only request from cliqztest.de to third party is modified.
-                  if(m.host == 'localhost') {
+              expectNRequests(2).assertEach(function(m) {
+                chai.expect(m.qs).to.contain('uid=' + uid);
+              }, function(e) {
+                if(e) { done(e); }
+                echoed = [];
+                openTestPage('cliqztest.com');
+                expectNRequests(2).assertEach(function(m) {
+                  if(m.host == 'cliqztest.com') {
                     chai.expect(m.qs).to.contain('uid=' + uid);
                   } else {
-                    if('cliqztest.de' in m.headers.referrer) {
-                      chai.expect(m.qs).to.not.contain('uid=' + uid);
-                    } else {
-                      chai.expect(m.qs).to.contain('uid=' + uid);
-                    }
+                    chai.expect(m.qs).to.not.contain('uid=' + uid);
                   }
-                }, function() {
+                }, function(e) {
+                  if(e) { done(e); }
                   var tok = md5(uid);
                   chai.expect(CliqzAttrack.tokenDomain).to.have.property(tok);
-                  chai.expect(Object.keys(CliqzAttrack.tokenDomain[tok])).to.have.length(3);
+                  chai.expect(Object.keys(CliqzAttrack.tokenDomain[tok])).to.have.length(2);
                   done();
                 });
-              }, 500);
-
+              });
             });
           }); // tp on tracker list
         }); // context : QS enabled
