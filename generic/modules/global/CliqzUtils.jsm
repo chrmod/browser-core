@@ -133,10 +133,8 @@ var CliqzUtils = {
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
           function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
-            var retry;
-            if(retry = retryPattern.pop()){
-              CliqzUtils.setTimeout(getLogoDB, retry);
-            }
+            var retry = retryPattern.pop();
+            if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
           }
           , MINUTE/2);
       })();
@@ -884,15 +882,15 @@ var CliqzUtils = {
   getAdultFilterState: function(){
     var data = {
       'conservative': {
-              name: CliqzUtils.getLocalizedString('adultConservative'),
+              name: CliqzUtils.getLocalizedString('always'),
               selected: false
       },
       'moderate': {
-              name: CliqzUtils.getLocalizedString('adultModerate'),
+              name: CliqzUtils.getLocalizedString('always_ask'),
               selected: false
       },
       'liberal': {
-          name: CliqzUtils.getLocalizedString('adultLiberal'),
+          name: CliqzUtils.getLocalizedString('never'),
           selected: false
       }
     };

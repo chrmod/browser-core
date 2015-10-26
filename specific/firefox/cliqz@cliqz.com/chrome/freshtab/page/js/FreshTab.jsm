@@ -6,7 +6,6 @@ const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
     DEF_HOMEPAGE = "browser.startup.homepage",

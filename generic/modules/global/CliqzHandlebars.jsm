@@ -292,8 +292,8 @@ function registerHelpers(){
             return false
     });
 
-    Handlebars.registerHelper('date', function(date) {
-        var d = new Date(date);
+    Handlebars.registerHelper('date', function(_date) {
+        var d = new Date(_date);
         var date = d.getDate();
         var month = d.getMonth();
         month++;

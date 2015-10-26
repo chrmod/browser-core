@@ -1,7 +1,10 @@
 'use strict';
 var EXPORTED_SYMBOLS = ['CliqzLoyalty'];
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import("resource://gre/modules/Services.jsm");
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
@@ -32,7 +35,6 @@ if (!String.format) {
  */
 
 var CORE = {
-  Services: null,
   loyaltyDntPrefs: Components.classes['@mozilla.org/preferences-service;1']
     .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.'),
   PREF_STRING: 32,
@@ -71,8 +73,7 @@ var CORE = {
   },
 
   iterateWindows: function(func, arg) {
-    CORE.Services = CORE.Services || CliqzUtils.getWindow().Services;
-    var enumerator = CORE.Services.wm.getEnumerator('navigator:browser');
+    var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       try {
@@ -1045,6 +1046,41 @@ var CliqzLoyalty = {
         CliqzLoyalty.setPref('participateLoyalty', false);
         CliqzLoyalty.initMin();
     }
+
+    //add loyalty as an about page
+    Cm.QueryInterface(Ci.nsIComponentRegistrar);
+    function AboutURL() {}
+    AboutURL.prototype = {
+        QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
+        classDescription: 'about:cliqzloyalty',
+        classID: Components.ID("{bbab0a50-7988-11e5-a837-0800200c9a66}"),
+        contractID: "@mozilla.org/network/protocol/about;1?what=cliqzloyalty",
+
+        newChannel: function(uri) {
+            var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+            var html =  ["data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
+                        "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
+                        "</head><body><iframe src=\"chrome://cliqz/content/loyalty/index.html\"></iframe></body></html>"].join('')
+
+            var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
+            var channel = ioService.newChannel(html, null, null);
+            channel.originalURI = uri;
+            channel.owner = securityManager.getSystemPrincipal();
+
+            return channel;
+        },
+
+        getURIFlags: function(uri) { return Ci.nsIAboutModule.ALLOW_SCRIPT; }
+    }
+
+    Cm.registerFactory(
+        AboutURL.prototype.classID,
+        AboutURL.prototype.classDescription,
+        AboutURL.prototype.contractID,
+        XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID)
+    );
+
+
   },
 
   initMin: function () {

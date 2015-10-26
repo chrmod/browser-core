@@ -79,15 +79,15 @@ else {
     } catch(e){}
 }
 
+window.CLIQZ.COMPONENTS = []; //plug and play components
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
+    urlbarEvents: ['focus', 'blur', 'keypress'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
-    _shouldDropdownStayOpen: false,
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
 
@@ -193,6 +193,10 @@ window.CLIQZ.Core = {
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        CLIQZ.COMPONENTS.forEach(function(c){
+          c.init && c.init();
+        });
+
         var urlBarGo = document.getElementById('urlbar-go-button');
         CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
         urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + CLIQZ.Core._urlbarGoButtonClick);
@@ -273,7 +277,7 @@ window.CLIQZ.Core = {
       }
 
       var buttons = [{
-        label: CliqzUtils.getLocalizedString("dataCollectionButton"),
+        label: CliqzUtils.getLocalizedString("learnMore"),
         callback: function(){
           // we only have the website localized in english end german
           var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
@@ -431,6 +435,9 @@ window.CLIQZ.Core = {
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
             CliqzMsgCenter.unload(window);
+            CLIQZ.COMPONENTS.forEach(function(c){
+              c.unload && c.unload();
+            })
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -504,18 +511,10 @@ window.CLIQZ.Core = {
         CLIQZ.UI.popupClosed = false;
     },
     popupClose: function(e){
-        if (CliqzUtils.getPref('topSitesV2', false) &&
-            CLIQZ.Core._shouldDropdownStayOpen) {
-            e.preventDefault();
-            // removing this line breaks search
-            CliqzAutocomplete.isPopupOpen = false;
-        } else {
-            CliqzAutocomplete.isPopupOpen = false;
-            CliqzAutocomplete.markResultsDone(null);
-            CLIQZ.Core.popupEvent(false);
-            CLIQZ.UI.popupClosed = true;
-            CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
-        }
+          CliqzAutocomplete.isPopupOpen = false;
+          CliqzAutocomplete.markResultsDone(null);
+          CLIQZ.Core.popupEvent(false);
+          CLIQZ.UI.popupClosed = true;
     },
     popupEvent: function(open) {
         var action = {
@@ -643,62 +642,6 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
-    showTopsites: function () {
-        var popup = CLIQZ.Core.popup,
-            urlbar = CLIQZ.Core.urlbar;
-
-        popup.classList.add("cqz-popup-medium");
-        if (popup.cliqzBox) {
-            popup.cliqzBox.messageContainer.innerHTML = "";
-        }
-        CLIQZ.UI.redrawDropdown(
-            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
-
-        if (popup.cliqzBox) {
-            var width = Math.max(urlbar.clientWidth, 500);
-            popup.cliqzBox.style.width = width + 1 + "px";
-            popup.cliqzBox.resultsBox.style.width =
-                width + (CliqzUtils.isWindows() ? -1 : 1) + "px";
-        }
-
-        popup._openAutocompletePopup(urlbar, urlbar);
-    },
-    urlbarmousedown: function(ev){
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = true;
-
-        // only consider the URLbar not the other icons in the urlbar
-        if(CLIQZ.UI.popupClosed &&
-           (ev.originalTarget.className == 'anonymous-div' ||
-            ev.originalTarget.className.indexOf('urlbar-input-box') != -1)) {
-            CLIQZ.Core.showTopsites();
-            CliqzUtils.telemetry({
-                type: 'activity',
-                action: 'topsites',
-                urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
-            });
-            // indicate this is a topsites result, indicates that no
-            // results should be returned in UI.results, which would
-            // override topsites
-            CliqzAutocomplete.lastSearch = "IGNORE_TOPSITES";
-        }
-        // open Firefox topsites when clicking on dropdown marker
-        else if (ev.originalTarget.className.indexOf('autocomplete-history-dropmarker') != -1 ||
-                   ev.originalTarget.className.indexOf('urlbar-history-dropmarke') != -1) {
-            CliqzAutocomplete.sessionStart = true;
-            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
-            CLIQZ.Core.historyDropMarker.showPopup();
-        }
-    },
-    urlbarkeydown: function(ev){
-        CLIQZ.Core._lastKey = ev.keyCode;
-        CliqzAutocomplete._lastKey = ev.keyCode;
-        var cancel = CLIQZ.UI.keyDown(ev);
-        cancel && ev.preventDefault();
-
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = false;
-    },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
             var urlbar = CLIQZ.Core.urlbar;
@@ -724,14 +667,6 @@ window.CLIQZ.Core = {
         } /* else {
            CliqzAutosuggestion.active = false;
         } */
-    },
-    urlbarmousemove: function(ev) {
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = true;
-    },
-    urlbarmouseleave: function(ev) {
-        if(!CliqzUtils.getPref('topSitesV2', false)) return;
-        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult, firstTitle, data){
@@ -916,17 +851,21 @@ window.CLIQZ.Core = {
         }
 
         //feedback and FAQ
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ, 'feedback'));
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnFeedbackFaq'), feedback_FAQ, 'feedback'));
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnTipsTricks'), function(){
           CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-        //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
         menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
-        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(win));
+
+        CLIQZ.COMPONENTS.forEach(function(c){
+          var btn = c.button && c.button(win);
+          if(btn) menupopup.appendChild(btn);
+        });
       }
       else {
         menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
@@ -992,8 +931,9 @@ window.CLIQZ.Core = {
         return menu;
     },
 
-    createLocationPermOptions: function(doc) {
-      var menu = doc.createElement('menu'),
+    createLocationPermOptions: function(win) {
+      var doc = win.document,
+          menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
       menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
@@ -1018,6 +958,20 @@ window.CLIQZ.Core = {
 
         menupopup.appendChild(item);
       };
+
+      var learnMore = CLIQZ.Core.createSimpleBtn(
+          doc,
+          CliqzUtils.getLocalizedString('learnMore'),
+          function(){
+            var lang = CliqzUtils.getLanguage(win) == 'de' ? '' : 'en/';
+            CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + 'privacy');
+          },
+          'location_learn_more'
+      );
+      learnMore.setAttribute('class', 'menuitem-iconic');
+      menupopup.appendChild(doc.createElement('menuseparator'));
+      menupopup.appendChild(learnMore);
+
       menu.appendChild(menupopup);
       return menu;
     },
@@ -1107,7 +1061,7 @@ window.CLIQZ.Core = {
     getLocationPermState: function(){
         var data = {
           'yes': {
-                  name: CliqzUtils.getLocalizedString('yes'),
+                  name: CliqzUtils.getLocalizedString('always'),
                   selected: false
           },
           'ask': {
@@ -1115,7 +1069,7 @@ window.CLIQZ.Core = {
                   selected: false
           },
           'no': {
-              name: CliqzUtils.getLocalizedString('no'),
+              name: CliqzUtils.getLocalizedString('never'),
               selected: false
           }
         };
@@ -1123,108 +1077,5 @@ window.CLIQZ.Core = {
         data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
 
         return data;
-    },
-    //ResponsiveClasses generate responsive classes
-    responsiveClasses: function (elm) {
-        if(!elm)
-            return
-
-        var generateResponsiveClasses = function(curIndex, sizeClasses) {
-            curIndex = parseInt(curIndex);
-            // Everythinh on the right site of the curIndex is Bigger so it gets class cqz-size-smaller-than-XXXXX
-            // Everythinh on the left site of the curIndex is Small so it gets class cqz-size-smaller-bigger-XXXXX
-            var result = [];
-
-            //Smaller than /// It is going Right of the array
-            for(var ii = curIndex+1; ii < sizeClasses.length; ii++) {
-                if(sizeClasses[ii].rangeName1){
-                    result.push(" cqz-size-smaller-than-" + sizeClasses[ii].rangeName1);
-                }
-            }
-            //Bigger than /// It is going Left of the array
-            for(var ii = 0; ii < curIndex; ii++) {
-                if(sizeClasses[ii].rangeName2)
-                    result.push(" cqz-size-bigger-than-" + sizeClasses[ii].rangeName2);
-            }
-
-            return result;
-        }
-
-        //Responsive classes array, with the range
-        // Tange 1 is always > ||||| Range 2 is always <=
-        var elm_width = CLIQZ.Core.urlbar.clientWidth,
-            sizeClasses = [
-                {
-                    rangeName2: '500',
-                    range2: 500, //<=
-                },
-                {
-                    rangeName1: '500',
-                    rangeName2: '800',
-                    range1: 500, // >
-                    range2: 800, //<=
-                },
-                {
-                    rangeName1: '800',
-                    rangeName2: '1000',
-                    range1: 800, // >
-                    range2: 1000, //<=
-                },
-                {
-                    rangeName1: '1000',
-                    rangeName2: '1200',
-                    range1: 1000, // >
-                    range2: 1200, //<=
-                },
-                {
-                    rangeName1: '1200',
-                    rangeName2: '1400',
-                    range1: 1200, // >
-                    range2: 1400, //<=
-                },
-                {
-                    rangeName1: '1400',
-                    range1: 1400, // >
-                },
-            ];
-
-
-            for (var kk in sizeClasses) {
-                if(sizeClasses[kk].range1 && sizeClasses[kk].range2) {
-
-
-                    if(elm_width > sizeClasses[kk].range1 && eval(elm_width <= sizeClasses[kk].range2)) {
-                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
-
-                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
-                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1 + '-' + sizeClasses[kk].rangeName2;
-                    }
-
-                }else if (sizeClasses[kk].range1) {
-
-                    if(eval(elm_width > sizeClasses[kk].range1)) {
-                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
-                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
-                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1;
-                    }
-
-                }else if (sizeClasses[kk].range2) {
-
-                    if(eval(elm_width <= sizeClasses[kk].range2)) {
-                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
-                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
-                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName2;
-                    }
-
-                }
-            }
-    },
-    //Remove classes from element by prefix
-    removeClassesByPrefix: function (elm, prefix) {
-        var result = elm.className.split(" ").filter(function (c) {
-            return c.lastIndexOf(prefix, 0) !== 0;
-        });
-
-        elm.className = result.join(" ").trim();
     }
 };

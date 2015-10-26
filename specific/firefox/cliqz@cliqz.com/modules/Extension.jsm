@@ -9,6 +9,7 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
 var BTN_ID = 'cliqz-button',
@@ -53,12 +54,17 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-        Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();
-        CliqzResultProviders.init();
+        if(Services.search.init != null){
+          Services.search.init(function(){
+            CliqzResultProviders.init();
+          });
+        } else {
+          CliqzResultProviders.init();
+        }
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
@@ -101,7 +107,6 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
-        CliqzLoyalty.unload();
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
 
         if(uninstall){
@@ -130,14 +135,15 @@ var Extension = {
         CliqzCategories.unload();
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
+        CliqzLoyalty.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
     },
     restoreSearchBar: function(win){
-        var toolbarId;
+        var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
         CliqzUtils.setPref(dontHideSearchBar, false);
-        if(toolbarId = CliqzUtils.getPref(searchBarPosition, '')){
+        if(toolbarId){
             var toolbar = win.document.getElementById(toolbarId);
             if(toolbar){
                 if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
@@ -186,7 +192,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
-
         Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
@@ -251,6 +256,7 @@ var Extension = {
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
             Extension.addScript('ContextMenu', win);
+            Extension.addScript('users1st', win);
 
             Extension.addButtons(win);
 
@@ -273,27 +279,25 @@ var Extension = {
             CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
-
     addCliqzStarButton: function(win, needPlaceHolder){
-        var btn_id = CliqzLoyalty.getBrowserButtonID();
-        if (needPlaceHolder)
-            ToolbarButtonManager.setDefaultPosition(btn_id, 'nav-bar', BTN_ID);
+      var btn_id = CliqzLoyalty.getBrowserButtonID();
+      if (needPlaceHolder)
+          ToolbarButtonManager.setDefaultPosition(btn_id, 'nav-bar', BTN_ID);
 
-        var button = win.document.createElement('toolbarbutton');
-        button.setAttribute('id', btn_id);
-        button.setAttribute('tooltiptext', 'CLIQZ Star');
-        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.setAttribute('image', CliqzLoyalty.getBrowserIcon(false));
-        button.addEventListener("command",
-            function(ev){
-                CLIQZEnvironment.openTabInWindow(win, 'chrome://cliqz/content/loyalty/index.html');
-                CliqzLoyalty.onBrowserIconClick();
-            }
-            , false);
+      var button = win.document.createElement('toolbarbutton');
+      button.setAttribute('id', btn_id);
+      button.setAttribute('tooltiptext', 'CLIQZ Star');
+      button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
+      button.setAttribute('image', CliqzLoyalty.getBrowserIcon(false));
+      button.addEventListener("command",
+          function(ev){
+              CLIQZEnvironment.openTabInWindow(win, 'about:cliqzloyalty');
+              CliqzLoyalty.onBrowserIconClick();
+          }
+          , false);
 
-        ToolbarButtonManager.restorePosition(win.document, button);
+      ToolbarButtonManager.restorePosition(win.document, button);
     },
-
     addButtons: function(win){
         var doc = win.document;
         if (!CliqzUtils.PREFERRED_LANGUAGE) {
@@ -302,11 +306,10 @@ var Extension = {
           CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
           CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
         }
-
         var firstRunPrefVal = CliqzUtils.getPref(firstRunPref, false);
-
         if (!firstRunPrefVal) {
             CliqzUtils.setPref(firstRunPref, true);
+
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
         }
 
@@ -362,14 +365,11 @@ var Extension = {
             win.CLIQZ.Core.createQbutton(win, menupopup);
         }
     },
-
     unloadFromWindow: function(win){
         try {
             if(win && win.document){
-                var btn;
-                if(btn = win.document.getElementById('cliqz-button')){
-                    btn.parentNode.removeChild(btn);
-                }
+                var btn = win.document.getElementById('cliqz-button');
+                if(btn) btn.parentNode.removeChild(btn);
             }
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
