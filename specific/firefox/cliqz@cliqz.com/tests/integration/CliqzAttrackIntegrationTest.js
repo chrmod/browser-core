@@ -249,6 +249,21 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           }
         }
       },
+      'imgtest.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'resp_ob': 1,
+                'type_3': 1
+              }
+            }
+          }
+        }
+      },
       'crossdomainxhr.html': {
         base_tps: function() {
           return {
@@ -266,34 +281,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'has_qs': 1,
                 'resp_ob': 1,
                 'type_11': 1
-              }
-            }
-          }
-        }
-      },
-      'iframetest.html': {
-        base_tps: function() {
-          return {
-            'cdn.rawgit.com': {
-              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
-                'c': 2,
-                'resp_ob': 1,
-                'type_2': 1
-              }
-            },
-            '127.0.0.1': {
-              '/iframe.html': {
-                'c': 1,
-                'cookie_set': 1,
-                'resp_ob': 1,
-                'type_7': 1
-              },
-              '/test': {
-                'c': 1,
-                'cookie_set': 1,
-                'has_qs': 1,
-                'resp_ob': 1,
-                'type_2': 1
               }
             }
           }
