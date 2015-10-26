@@ -46,6 +46,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       }
       echoed.push(r_obj);
       response.write('');
+      console.log(r_obj);
     }
 
     before(function(done) {
@@ -475,7 +476,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               // enable token removal
               CliqzAttrack.obfuscateMethod = 'replace';
 
-              this.timeout(5000);
+              this.timeout(10000);
               openTestPage();
               expectNRequests(2).assertEach(function(m) {
                 if(m.host == 'localhost') {
@@ -494,7 +495,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
             it('increments domain count when a tracker is visited', function(done) {
               CliqzAttrack.obfuscateMethod = 'replace';
               CliqzAttrack.tokenDomain = {};
-              this.timeout(6000);
+              this.timeout(10000);
 
               // open a page so that token domain will be incremented
               openTestPage();

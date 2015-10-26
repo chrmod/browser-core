@@ -84,6 +84,26 @@ function shuffle(s) {
     return a.join("");
 };
 
+var CachedSet = function() {
+    this._items = new Set();
+};
+
+CachedSet.prototype = {
+    contains: function(item) {
+        return this._items.has(item);
+    },
+    add: function(item, ttl) {
+        var _this = this;
+        this._items.add(item);
+        CliqzUtils.setTimeout(function() {
+            _this.delete(item);
+        }, ttl);
+    },
+    remove: function(item) {
+        this._items.remove(item);
+    }
+};
+
 var LRUMapCache = function(item_ctor, size) {
     this._cache_limit = size;
     this._cache = {};
@@ -643,6 +663,7 @@ var CliqzAttrack = {
     requestKeyValue: null,
     // removeTracking: CliqzUtils.getPref('attrackRemoveTracking', false),
     // removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
+    recentlyModified: new CachedSet(),
     favicons: {
         // A simple capacity limited set, with least recently used items removed when
         // capcity is full.
@@ -1166,7 +1187,13 @@ var CliqzAttrack = {
 
                 if(url_parts.path.indexOf('/favicon.') == 0 || url.split('#')[0] in CliqzAttrack.favicons) return;
 
-                if (url in reflinks) return;
+                if (url in reflinks) {
+                    // work around for https://github.com/cliqz/navigation-extension/issues/1230
+                    if (CliqzAttrack.recentlyModified.contains(url)) {
+                        subject.cancel(Components.results.NS_BINDING_ABORTED);
+                    }
+                    return;
+                }
                 // get cookie data
                 var cookievalue = {},
                     docCookie = '';
@@ -1272,6 +1299,8 @@ var CliqzAttrack = {
                             aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
                             if (req_log) req_log.req_aborted++;
                         }
+                        CliqzAttrack.recentlyModified.add(url, 30000);
+
                     }
                 }
                 else{
@@ -3720,7 +3749,6 @@ var CliqzAttrack = {
         };
 
         var _checkTokens = function(key, val) {
-            CliqzUtils.log(key + ": "+ val, 'yyy');
             var hour = CliqzAttrack.getTime();
             if (!(hour in CliqzAttrack.checkedToken)) CliqzAttrack.checkedToken[hour] = 0;
             CliqzAttrack.checkedToken[hour]++;
