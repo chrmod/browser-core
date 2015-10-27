@@ -1191,6 +1191,15 @@ var CliqzAttrack = {
                     CliqzUtils.log('known url from reflinks: ' + url, 'tokk-kown-url');
                 }
                 */
+                if (url in reflinks) {
+                    // work around for https://github.com/cliqz/navigation-extension/issues/1230
+                    if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
+                        subject.cancel(Components.results.NS_BINDING_ABORTED);
+                        return;
+                    }
+                    // CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
+                    // return;
+                }
 
                 // log third party request
                 var req_log = null;
@@ -1212,15 +1221,6 @@ var CliqzAttrack = {
 
                 if(url_parts.path.indexOf('/favicon.') == 0 || url.split('#')[0] in CliqzAttrack.favicons) return;
 
-                if (url in reflinks) {
-                    // work around for https://github.com/cliqz/navigation-extension/issues/1230
-                    if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
-                        subject.cancel(Components.results.NS_BINDING_ABORTED);
-                        CliqzAttrack.tp_events.incrementStat(req_log, "double_request_after_mod");
-                    }
-                    // CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
-                    // return;
-                }
                 // get cookie data
                 var cookievalue = {},
                     docCookie = '';
@@ -1485,6 +1485,11 @@ var CliqzAttrack = {
             var url_parts = URLInfo.get(url);
 
             var cookie_data = requestContext.getCookieData();
+
+            if(aChannel.status == Components.results.NS_BINDING_ABORTED) {
+                // request already cancelled
+                return;
+            }
 
             // Quick escapes:
             // localhost

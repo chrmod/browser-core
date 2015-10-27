@@ -472,6 +472,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               // enable token removal
               CliqzAttrack.obfuscateMethod = 'replace';
 
+              var tp_event_expectation = new tp_events_expectations(testpage);
+              tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+              tp_event_expectation.if('has_qs', 1).set('bad_tokens', 1).set('bad_qs', 1);
+              // with an img tag we fallback to redirect, otherwise we just rewrite the channel URI.
+              // with redirect we also see the cookie twice!
+              if(testpage == "imgtest.html") {
+                tp_event_expectation.if('has_qs', 1).set('req_aborted', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
+              } else {
+                tp_event_expectation.if('has_qs', 1).set('tokens_blocked', 1);
+              }
+
               this.timeout(5000);
               openTestPage();
               expectNRequests(2).assertEach(function(m) {
@@ -484,6 +495,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               }, function(e) {
                 if(e) { done(e); }
                 console.log(CliqzAttrack.tp_events._active);
+                test_tp_events(tp_event_expectation);
                 done();
               });
             });
