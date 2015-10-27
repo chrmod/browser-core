@@ -60,6 +60,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       // Add static resources from cliqz@cliqz.com/test/mockserver directory
       var f = new FileUtils.File(OS.Path.join(getExtensionDirectory(), 'tests', 'mockserver'));
       server.registerDirectory('/', f);
+      var bower_dir = new FileUtils.File(OS.Path.join(getExtensionDirectory(), 'bower_components'));
+      server.registerDirectory('/bower_components/', bower_dir);
       // add specific hander for /test which will collect request parameters for testing.
       server.registerPathHandler('/test', collect_request_parameters);
 
@@ -89,6 +91,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       CliqzAttrack.tokenExtWhitelist = {};
       CliqzAttrack.safeKey = {};
       CliqzAttrack.tokenDomain = {};
+      CliqzAttrack.recentlyModified.clear();
+
+      console.log("----- TEST ----");
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -208,13 +213,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       'thirdpartyscript.html': {
         base_tps: function() {
           return {
-            'cdn.rawgit.com': {
-              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
-                'c': 1,
-                'resp_ob': 1,
-                'type_2': 1
-              }
-            },
             '127.0.0.1': {
               '/test': {
                 'c': 1,
@@ -230,13 +228,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       'injectedscript.html': {
         base_tps: function() {
           return {
-            'cdn.rawgit.com': {
-              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
-                'c': 1,
-                'resp_ob': 1,
-                'type_2': 1
-              }
-            },
             '127.0.0.1': {
               '/test': {
                 'c': 1,
@@ -267,13 +258,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       'crossdomainxhr.html': {
         base_tps: function() {
           return {
-            'cdn.rawgit.com': {
-              '/jquery/jquery/2.1.4/dist/jquery.min.js': {
-                'c': 1,
-                'resp_ob': 1,
-                'type_2': 1
-              }
-            },
             '127.0.0.1': {
               '/test': {
                 'c': 1,
@@ -281,6 +265,27 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'has_qs': 1,
                 'resp_ob': 1,
                 'type_11': 1
+              }
+            }
+          }
+        }
+      },
+      'iframetest.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/iframe.html': {
+                'c': 1,
+                'cookie_set': 1,
+                'resp_ob': 1,
+                'type_7': 1
+              },
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'resp_ob': 1,
+                'type_2': 1
               }
             }
           }
@@ -463,7 +468,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               // enable token removal
               CliqzAttrack.obfuscateMethod = 'replace';
 
-              this.timeout(10000);
+              this.timeout(5000);
               openTestPage();
               expectNRequests(2).assertEach(function(m) {
                 if(m.host == 'localhost') {

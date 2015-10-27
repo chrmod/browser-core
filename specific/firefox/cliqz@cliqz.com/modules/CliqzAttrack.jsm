@@ -86,6 +86,7 @@ function shuffle(s) {
 
 var CachedSet = function() {
     this._items = new Set();
+    this._timeouts = new Set();
 };
 
 CachedSet.prototype = {
@@ -95,12 +96,21 @@ CachedSet.prototype = {
     add: function(item, ttl) {
         var _this = this;
         this._items.add(item);
-        CliqzUtils.setTimeout(function() {
+        var timeout = CliqzUtils.setTimeout(function() {
             _this.delete(item);
+            _this._timeouts.delete(timeout);
         }, ttl);
+        _this._timeouts.add(timeout);
     },
-    remove: function(item) {
-        this._items.remove(item);
+    delete: function(item) {
+        this._items.delete(item);
+    },
+    clear: function() {
+        for (let t of this._timeouts) {
+            CliqzUtils.clearTimeout(t);
+        }
+        this._timeouts.clear();
+        this._items.clear();
     }
 };
 
@@ -1189,10 +1199,12 @@ var CliqzAttrack = {
 
                 if (url in reflinks) {
                     // work around for https://github.com/cliqz/navigation-extension/issues/1230
-                    if (CliqzAttrack.recentlyModified.contains(url)) {
+                    if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
                         subject.cancel(Components.results.NS_BINDING_ABORTED);
+                        CliqzAttrack.tp_events.incrementStat(req_log, "double_request_after_mod");
                     }
-                    return;
+                    // CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
+                    // return;
                 }
                 // get cookie data
                 var cookievalue = {},
@@ -1299,7 +1311,7 @@ var CliqzAttrack = {
                             aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
                             if (req_log) req_log.req_aborted++;
                         }
-                        CliqzAttrack.recentlyModified.add(url, 30000);
+                        CliqzAttrack.recentlyModified.add(source_tab + url, 30000);
 
                     }
                 }
@@ -3672,7 +3684,6 @@ var CliqzAttrack = {
 
         var s = CliqzAttrack.getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
-        CliqzUtils.log(+'(' + s + ') : ' + (s in CliqzAttrack.tokenExtWhitelist), 'yyy');
         // If it's a rare 3rd party, we don't do the rest
         if (!(s in CliqzAttrack.tokenExtWhitelist)) return [];
 

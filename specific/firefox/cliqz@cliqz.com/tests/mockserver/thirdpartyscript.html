@@ -4,12 +4,10 @@
         <title>Anti-tracking test page</title>
     </head>
     <body>
-        <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
         <script>
-            // local get
-            $.getJSON('/test?callback=func&uid=04C2EAD03BAB7F5E-2E85855CF4C75134', function(data) {
-                console.log(data);
-            });
+            var httpReq = new XMLHttpRequest();
+            httpReq.open('GET', '/test?callback=func&uid=04C2EAD03BAB7F5E-2E85855CF4C75134');
+            httpReq.send(null);
         </script>
         <script src="http://127.0.0.1:60508/test?callback=func&amp;uid=04C2EAD03BAB7F5E-2E85855CF4C75134"></script>
     </body>

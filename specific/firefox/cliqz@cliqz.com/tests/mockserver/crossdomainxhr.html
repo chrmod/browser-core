@@ -2,9 +2,9 @@
     <head>
         <meta charset="utf-8">
         <title>Anti-tracking Cross domain XHR test</title>
+        <script src="/bower_components/jquery/dist/jquery.min.js"></script>
     </head>
     <body>
-        <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
         <script>
             // local get
             $.getJSON('/test?callback=func&uid=04C2EAD03BAB7F5E-2E85855CF4C75134', function(data) {
