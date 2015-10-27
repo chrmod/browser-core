@@ -473,7 +473,24 @@ function HttpRequestContext(subject) {
     this.method = this.channel.requestMethod;
     this._parsedURL = undefined;
     this._legacy_source = undefined;
+
+    // tab tracking
+    if(this.getContentPolicyType() == 6) {
+        // fullpage - add tracked tab
+        let tab_id = this.getOuterWindowID();
+        HttpRequestContext._tabs[tab_id] = this.url;
+    }
 }
+
+HttpRequestContext._tabs = {};
+// clean up tab cache every minute
+HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
+    for (let t in HttpRequestContext._tabs) {
+        if(!CliqzAttrack.tab_listener.isWindowActive(t)) {
+            delete HttpRequestContext._tabs[t];
+        }
+    }
+}, 60000);
 
 HttpRequestContext.prototype = {
 
@@ -495,7 +512,10 @@ HttpRequestContext.prototype = {
         }
     },
     getLoadingDocument: function() {
-        if (this.loadInfo != null) {
+        let parentWindow = this.getParentWindowID();
+        if (parentWindow in HttpRequestContext._tabs) {
+            return HttpRequestContext._tabs[parentWindow];
+        } else if (this.loadInfo != null) {
             return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument ? this.loadInfo.loadingDocument.location.href : ""
         } else {
             return this._legacyGetSource().url;
@@ -523,16 +543,11 @@ HttpRequestContext.prototype = {
     getOriginWindowID: function() {
         // in most cases this is the same as the outerWindowID.
         // however for frames, it is the parentWindowId
-        let origin = undefined;
-        if(this.getContentPolicyType() == 7) {
-            origin =  this.getParentWindowID();
+        let parentWindow = this.getParentWindowID();
+        if (this.getContentPolicyType() != 6 && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
+            return parentWindow;
         } else {
-            origin = this.getOuterWindowID();
-        }
-        if (origin != undefined) {
-            return origin;
-        } else {
-            return this._legacyGetWindowId();
+            return this.getOuterWindowID();
         }
     },
     _legacyGetSource: function() {
@@ -1526,7 +1541,7 @@ var CliqzAttrack = {
             }
 
             // Fallback to referrer if we don't find source from tab
-            if (referrer === undefined || referrer != ''){
+            if (source_url === undefined || source_url == ''){
                 source_url = referrer;
             }
 
@@ -4416,6 +4431,7 @@ var CliqzAttrack = {
                  'token.qs_countThreshold',
                  'req_rule_aborted'
                  ],
+        ignore: new Set(['self-repair.mozilla.org']),
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
         //  or returns null if the url is malformed or null.
@@ -4424,7 +4440,7 @@ var CliqzAttrack = {
             // previous request finished. Move to staged
             this.stage(source);
             // create new page load entry for tab
-            if(url && url.hostname && source > 0) {
+            if(url && url.hostname && source > 0 && !this.ignore.has(url.hostname)) {
                 this._active[source] = new CliqzAttrack.tp_events.PageLoadData(url);
                 return this._active[source];
             } else {
