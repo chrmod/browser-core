@@ -34,34 +34,6 @@ var domParser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
 // CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
 // CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
 
-
-if (CliqzUtils.getPref('attrackRefererTracking', false)) {
-    // check that the user has not already set values here
-    if (!genericPrefs.prefHasUserValue('network.http.referer.XOriginPolicy') &&
-        !genericPrefs.prefHasUserValue('network.http.referer.trimmingPolicy') &&
-        !genericPrefs.prefHasUserValue('network.http.sendRefererHeader')) {
-        //Setting prefs for mitigating data leaks via referrers:
-        // Send only send if hosts match.
-        genericPrefs.setIntPref('network.http.referer.XOriginPolicy',2);
-        // // Send scheme+host+port+path
-        genericPrefs.setIntPref('network.http.referer.trimmingPolicy',1);
-        // // Send only when links are clicked
-        genericPrefs.setIntPref('network.http.sendRefererHeader',1);
-
-        // remember that we changed these
-        CliqzUtils.setPref('attrackRefererPreferences', true);
-    }
-} else {
-    if (CliqzUtils.getPref('attrackRefererPreferences', false)) {
-        // reset the settings we changed
-        genericPrefs.clearUserPref('network.http.referer.XOriginPolicy');
-        genericPrefs.clearUserPref('network.http.referer.trimmingPolicy');
-        genericPrefs.clearUserPref('network.http.sendRefererHeader');
-        CliqzUtils.cliqzPrefs.clearUserPref('attrackRefererPreferences');
-    }
-}
-
-
 function dURIC(s) {
     // avoide error from decodeURIComponent('%2')
     try {
@@ -2110,6 +2082,33 @@ var CliqzAttrack = {
     isReferrerEnabled: function() {
         return CliqzUtils.getPref('attrackRefererTracking', false);
     },
+    initialiseAntiRefererTracking: function() {
+        if (CliqzUtils.getPref('attrackRefererTracking', false)) {
+            // check that the user has not already set values here
+            if (!genericPrefs.prefHasUserValue('network.http.referer.XOriginPolicy') &&
+                !genericPrefs.prefHasUserValue('network.http.referer.trimmingPolicy') &&
+                !genericPrefs.prefHasUserValue('network.http.sendRefererHeader')) {
+                //Setting prefs for mitigating data leaks via referrers:
+                // Send only send if hosts match.
+                genericPrefs.setIntPref('network.http.referer.XOriginPolicy',2);
+                // // Send scheme+host+port+path
+                genericPrefs.setIntPref('network.http.referer.trimmingPolicy',1);
+                // // Send only when links are clicked
+                genericPrefs.setIntPref('network.http.sendRefererHeader',1);
+
+                // remember that we changed these
+                CliqzUtils.setPref('attrackRefererPreferences', true);
+            }
+        } else {
+            if (CliqzUtils.getPref('attrackRefererPreferences', false)) {
+                // reset the settings we changed
+                genericPrefs.clearUserPref('network.http.referer.XOriginPolicy');
+                genericPrefs.clearUserPref('network.http.referer.trimmingPolicy');
+                genericPrefs.clearUserPref('network.http.sendRefererHeader');
+                CliqzUtils.cliqzPrefs.clearUserPref('attrackRefererPreferences');
+            }
+        }
+    },
     pacemaker: function() {
         // every CliqzAttrack.tpace (10 sec now)
         //
@@ -2279,6 +2278,7 @@ var CliqzAttrack = {
         else{
             return;
         }
+        CliqzAttrack.initialiseAntiRefererTracking();
 
         // Replace getWindow functions with window object used in init.
 

@@ -75,6 +75,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       server.stop(function() {});
     });
 
+    var win = CliqzUtils.getWindow(),
+              gBrowser = win.gBrowser,
+              tabs = [];
+
+    var openTestPage = function(testpage, domainname = 'localhost') {
+      // open page in a new tab
+      var url = "http://"+ domainname +":" + server_port + "/" + testpage;
+      echoed = [];
+      tabs.push(gBrowser.addTab(url));
+    };
+
     beforeEach(function() {
       // clean preferences -> default everything to off, except Attrack module.
       CliqzUtils.setPref('antiTrackTest', true);
@@ -83,6 +94,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       CliqzUtils.setPref('attrackAlterPostdataTracking', false);
       CliqzUtils.setPref('attrackCanvasFingerprintTracking', false);
       CliqzUtils.setPref('attrackRefererTracking', false);
+      CliqzAttrack.initialiseAntiRefererTracking();
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
       CliqzAttrack.tp_events._staged = [];
@@ -94,6 +106,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       CliqzAttrack.recentlyModified.clear();
 
       console.log("----- TEST ----");
+    });
+
+    afterEach(function() {
+      // close all tabs
+      tabs.forEach(function(t) {
+          gBrowser.removeTab(t);
+      });
+      tabs = [];
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -302,24 +322,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     // Test each of the page_specs in various different configurations.
     Object.keys(page_specs).forEach(function (testpage) {
       describe(testpage, function() {
-        var win = CliqzUtils.getWindow(),
-                  gBrowser = win.gBrowser,
-                  tabs = [];
-
-        var openTestPage = function(domainname = 'localhost') {
-          // open page in a new tab
-          var url = "http://"+ domainname +":" + server_port + "/" + testpage;
-          echoed = [];
-          tabs.push(gBrowser.addTab(url));
-        };
-
-        afterEach(function() {
-          // close all tabs
-          tabs.forEach(function(t) {
-              gBrowser.removeTab(t);
-          });
-          tabs = [];
-        });
 
         context('cookie tests', function() {
 
@@ -345,7 +347,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
             it('allows all cookies', function(done) {
               this.timeout(5000);
-              openTestPage();
+              openTestPage(testpage);
 
               // with no cookie blocking, all pages setting cookies should also set them.
               var tp_event_expectation = new tp_events_expectations(testpage);
@@ -373,7 +375,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
             it('allows same-domain cookie and blocks third party domain cookie', function(done) {
               this.timeout(5000);
-              openTestPage();
+              openTestPage(testpage);
 
               // cookie blocking will be done by the 'tp1' block.
               var tp_event_expectation = new tp_events_expectations(testpage);
@@ -408,7 +410,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
           it('allows query strings on domains not in the tracker list', function(done) {
             this.timeout(5000);
-            openTestPage();
+            openTestPage(testpage);
 
             var tp_event_expectation = new tp_events_expectations(testpage);
             tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -418,6 +420,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               chai.expect(m.qs).to.contain('callback=func');
             }, function(e) {
               if(e) { done(e); }
+              console.log(CliqzAttrack.tp_events._active);
               try {
                 test_tp_events(tp_event_expectation);
                 done();
@@ -441,7 +444,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
             it('allows QS first time on tracker', function(done) {
               this.timeout(5000);
-              openTestPage();
+              openTestPage(testpage);
 
               var tp_event_expectation = new tp_events_expectations(testpage);
               tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -484,7 +487,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               }
 
               this.timeout(5000);
-              openTestPage();
+              openTestPage(testpage);
               expectNRequests(2).assertEach(function(m) {
                 if(m.host == 'localhost') {
                   chai.expect(m.qs).to.contain('uid=' + uid);
@@ -506,7 +509,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               this.timeout(10000);
 
               // open a page so that token domain will be incremented
-              openTestPage();
+              openTestPage(testpage);
               // open third page after a delay (so it will be after the first two)
               // the updated token domain list should cause a tracker block event.
               expectNRequests(2).assertEach(function(m) {
@@ -514,7 +517,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               }, function(e) {
                 if(e) { done(e); }
                 echoed = [];
-                openTestPage('cliqztest.com');
+                openTestPage(testpage, 'cliqztest.com');
                 expectNRequests(2).assertEach(function(m) {
                   if(m.host == 'cliqztest.com') {
                     chai.expect(m.qs).to.contain('uid=' + uid);
@@ -541,23 +544,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         tabs = [],
         testpage = 'localsafekey.html';
 
-      beforeEach(function() {
-        // open page in a new tab
-        var url = "http://localhost:" + server_port + "/" + testpage;
-        echoed = [];
-        tabs.push(gBrowser.addTab(url));
-      });
-
-      afterEach(function() {
-        // close all tabs
-        tabs.forEach(function(t) {
-            gBrowser.removeTab(t);
-        });
-        tabs = [];
-      });
-
       it('adds local safekey if 3 different values seen', function(done) {
         this.timeout(5000);
+        openTestPage(testpage)
 
         expectNRequests(3).then(function(m) {
           try {
@@ -576,6 +565,70 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         });
       });
 
+    });
+
+    describe('Referer Tracking Protection', function() {
+
+      var testpage = 'referertest.html';
+
+      describe('disabled', function() {
+
+        it('full referer is sent to third parties', function(done) {
+          openTestPage(testpage);
+
+          expectNRequests(2).assertEach(function(m) {
+            chai.expect(m.headers['referer']).to.contain("http://localhost:"+ server_port);
+          }, done);
+
+        });
+      });
+
+      describe('enabled', function() {
+
+        beforeEach(function() {
+          CliqzUtils.setPref('attrackRefererTracking', true);
+          CliqzAttrack.initialiseAntiRefererTracking();
+        });
+
+        it('does not send referer to anyone', function(done) {
+          openTestPage(testpage);
+
+          expectNRequests(2).assertEach(function(m) {
+            chai.expect(m.headers).to.not.have.property('referer');
+          }, done);
+        });
+
+        it('sends referer on link click to same domain', function(done) {
+          openTestPage(testpage);
+
+          expectNRequests(2).assertEach(function(m) {}, function(e) {
+            if(e) { done(e); }
+            var tab = gBrowser.getBrowserForTab(tabs[0]);
+            echoed = [];
+            tab.contentDocument.getElementById('local_link').click();
+            expectNRequests(1).assertEach(function(m) {
+              chai.expect(m.headers).to.have.property('referer');
+              chai.expect(m.headers['referer']).to.contain(testpage);
+            }, done);
+          });
+        });
+
+        it('blocks referer on link click to different domain', function(done) {
+          openTestPage(testpage);
+          this.timeout(20000);
+
+          expectNRequests(2).assertEach(function(m) {}, function(e) {
+            if(e) { done(e); }
+            var tab = gBrowser.getBrowserForTab(tabs[0]);
+            echoed = [];
+            tab.contentDocument.getElementById('remote_link').click();
+            expectNRequests(1).assertEach(function(m) {
+              chai.expect(m.headers).to.not.have.property('referer');
+            }, done);
+          });
+        });
+
+      });
     });
 
   }); // describe integration test
