@@ -1287,7 +1287,8 @@ function getResultKind(el){
 
 // bubbles up maximum to the result container
 function getResultOrChildAttr(el, attr){
-  if(el == null || el.className == IC) return ''
+  if(el == null) return '';
+  if(el.className == IC) return el.getAttribute(attr) || '';
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement);
 }
 
@@ -1507,6 +1508,7 @@ function resultClick(ev) {
         extra = extra || el.getAttribute("extra");
         url = el.getAttribute("href") || el.getAttribute('url');
         if (url) {
+            el.setAttribute('url', url); //set the url in DOM - will be checked later (to be improved)
             logUIEvent(el, "result", {
                 action: "result_click",
                 new_tab: newTab,
