@@ -505,8 +505,8 @@ HttpRequestContext.prototype = {
         }
     },
     getParentWindowID: function() {
-        if (this.loadInfo == null) {
-            return this._legacyGetWindowId();
+        if (this.loadInfo == null || this.loadInfo.parentOuterWindowID === undefined) {
+            return this.getOuterWindowID();
         } else {
             return this.loadInfo.parentOuterWindowID;
         }
