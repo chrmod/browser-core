@@ -464,42 +464,96 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               });
             });
 
-            it('blocks tokens after domain count is exceeded', function(done) {
-              // make an artificial tokenDomain list to trigger blocking
-              var tok = md5(uid),
-                today = CliqzAttrack.getTime().substr(0, 8);;
-              CliqzAttrack.tokenDomain[tok] = {};
-              ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
-                CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
+            context('when domain count exceeded', function() {
+
+              beforeEach(function() {
+                // make an artificial tokenDomain list to trigger blocking
+                var tok = md5(uid),
+                  today = CliqzAttrack.getTime().substr(0, 8);;
+                CliqzAttrack.tokenDomain[tok] = {};
+                ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
+                  CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
+                });
+                // enable token removal
+                CliqzAttrack.obfuscateMethod = 'replace';
               });
-              // enable token removal
-              CliqzAttrack.obfuscateMethod = 'replace';
 
-              var tp_event_expectation = new tp_events_expectations(testpage);
-              tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
-              tp_event_expectation.if('has_qs', 1).set('bad_tokens', 1).set('bad_qs', 1);
-              // with an img tag we fallback to redirect, otherwise we just rewrite the channel URI.
-              // with redirect we also see the cookie twice!
-              if(testpage == "imgtest.html") {
-                tp_event_expectation.if('has_qs', 1).set('req_aborted', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
-              } else {
-                tp_event_expectation.if('has_qs', 1).set('tokens_blocked', 1);
-              }
+              it('blocks long tokens on tracker domain', function(done) {
+                this.timeout(5000);
 
-              this.timeout(5000);
-              openTestPage(testpage);
-              expectNRequests(2).assertEach(function(m) {
-                if(m.host == 'localhost') {
-                  chai.expect(m.qs).to.contain('uid=' + uid);
+                var tp_event_expectation = new tp_events_expectations(testpage);
+                tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+                tp_event_expectation.if('has_qs', 1).set('bad_tokens', 1).set('bad_qs', 1);
+                // with an img tag we fallback to redirect, otherwise we just rewrite the channel URI.
+                // with redirect we also see the cookie twice!
+                if(testpage == "imgtest.html") {
+                  tp_event_expectation.if('has_qs', 1).set('req_aborted', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
                 } else {
-                  chai.expect(m.qs).to.not.contain('uid=' + uid);
+                  tp_event_expectation.if('has_qs', 1).set('tokens_blocked', 1);
                 }
-                chai.expect(m.qs).to.contain('callback=func');
-              }, function(e) {
-                if(e) { done(e); }
-                console.log(CliqzAttrack.tp_events._active);
-                test_tp_events(tp_event_expectation);
-                done();
+
+                openTestPage(testpage);
+
+                expectNRequests(2).assertEach(function(m) {
+                  if(m.host == 'localhost') {
+                    chai.expect(m.qs).to.contain('uid=' + uid);
+                  } else {
+                    chai.expect(m.qs).to.not.contain('uid=' + uid);
+                  }
+                  chai.expect(m.qs).to.contain('callback=func');
+                }, function(e) {
+                  if(e) { done(e); }
+                  test_tp_events(tp_event_expectation);
+                  done();
+                });
+              });
+
+              it('does not block if safekey', function(done) {
+                this.timeout(5000);
+
+                var key = md5('uid'),
+                  tracker_hash = md5('127.0.0.1').substring(0, 16),
+                  day = CliqzAttrack.newUTCDate();
+
+                CliqzAttrack.safeKey[tracker_hash][key] = ['r', day];
+
+                var tp_event_expectation = new tp_events_expectations(testpage);
+                tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+                tp_event_expectation.if('has_qs', 1).set('token.safekey', 1).set('token.has_safekey', 1);
+
+                openTestPage(testpage);
+
+                expectNRequests(2).assertEach(function(m) {
+                  chai.expect(m.qs).to.contain('uid=' + uid);
+                }, function(e) {
+                  if(e) { done(e); }
+                  test_tp_events(tp_event_expectation);
+                  done();
+                });
+              });
+
+              it('does not block if whitelisted token', function(done) {
+                this.timeout(5000);
+
+                var tok = md5(uid),
+                  tracker_hash = md5('127.0.0.1').substring(0, 16),
+                  day = CliqzAttrack.newUTCDate();
+
+                CliqzAttrack.tokenExtWhitelist[tracker_hash][tok] = true;
+
+                var tp_event_expectation = new tp_events_expectations(testpage);
+                tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+                tp_event_expectation.if('has_qs', 1).set('token.whitelisted', 1).set('token.has_whitelisted', 1);
+
+                openTestPage(testpage);
+
+                expectNRequests(2).assertEach(function(m) {
+                  chai.expect(m.qs).to.contain('uid=' + uid);
+                }, function(e) {
+                  if(e) { done(e); }
+                  test_tp_events(tp_event_expectation);
+                  done();
+                });
               });
             });
 
