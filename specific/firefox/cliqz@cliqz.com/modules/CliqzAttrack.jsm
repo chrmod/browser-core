@@ -2866,7 +2866,8 @@ var CliqzAttrack = {
         CliqzAttrack._updated = {};
     },
     loadRemoteWhitelists: function() {
-        CliqzUtils.httpGet(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK, function(req) {
+        var today = CliqzAttrack.getTime().substring(0, 8);
+        CliqzUtils.httpGet(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK +"?"+ today, function(req) {
             // on load
             var versioncheck = JSON.parse(req.response);
             // new version available
@@ -2919,8 +2920,9 @@ var CliqzAttrack = {
         });
     },
     loadRemoteTokenWhitelist: function() {
+        var today = CliqzAttrack.getTime().substring(0, 8);
         CliqzUtils.httpGet(
-            CliqzAttrack.URL_TOKEN_WHITELIST,
+            CliqzAttrack.URL_TOKEN_WHITELIST +"?"+ today,
             function(req){
                 CliqzAttrack.tokenExtWhitelist = JSON.parse(req.response);
                 CliqzAttrack.tokenWhitelistVersion = md5(req.response);
@@ -2933,8 +2935,9 @@ var CliqzAttrack = {
             10000);
     },
     loadRemoteSafeKey: function() {
+        var today = CliqzAttrack.getTime().substring(0, 8);
         CliqzUtils.httpGet(
-            CliqzAttrack.URL_SAFE_KEY,
+            CliqzAttrack.URL_SAFE_KEY +"?"+ today,
             function(req) {
                 var safeKey = JSON.parse(req.response),
                     s, k;
