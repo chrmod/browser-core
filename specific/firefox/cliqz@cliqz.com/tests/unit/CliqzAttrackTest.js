@@ -442,4 +442,282 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
         }
     });
 
+    describe('CliqzAttrack list update', function() {
+
+      var real_versioncheck_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
+        real_token_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
+        real_safekey_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json',
+        mock_token_url = "chrome://cliqztests/content/mockdata/token_whitelist.json",
+        mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac',
+        mock_safekey_url = "chrome://cliqztests/content/mockdata/safekey.json",
+        mock_safekey_hash = "3e82cf3535f01bfb960e826f1ad8ec2d";
+
+      it('version check URL is correct', function() {
+        chai.expect(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK).to.equal(real_versioncheck_url);
+      });
+
+      it('token whitelist URL is correct', function() {
+        chai.expect(CliqzAttrack.URL_TOKEN_WHITELIST).to.equal(real_token_url);
+      });
+
+      it('safekey list URL is correct', function() {
+        chai.expect(CliqzAttrack.URL_SAFE_KEY).to.equal(real_safekey_url);
+      });
+
+      describe('loadRemoteTokenWhitelist', function() {
+
+        beforeEach(function() {
+          // mock token whitelist URL
+          CliqzAttrack.URL_TOKEN_WHITELIST = mock_token_url;
+          CliqzAttrack.tokenWhitelistVersion = null;
+        });
+
+        afterEach(function() {
+          // restore original url
+          CliqzAttrack.URL_TOKEN_WHITELIST = real_token_url;
+        });
+
+        it('loads remote token list', function(done) {
+          CliqzAttrack.loadRemoteTokenWhitelist();
+          waitFor(function() {
+            return CliqzAttrack.tokenWhitelistVersion != null
+          }).then(function() {
+            try {
+              chai.expect(CliqzAttrack.tokenWhitelistVersion).to.equal(mock_token_hash);
+              chai.expect(Object.keys(CliqzAttrack.tokenExtWhitelist)).to.have.length(1);
+              chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property("f528764d624db129");
+              chai.expect(CliqzAttrack.tokenExtWhitelist["f528764d624db129"]).to.have.property("7269d282a42ce53e58c7b3f66ca19bac");
+              done();
+            } catch(e) { done(e); }
+          });
+        });
+      });
+
+      describe('loadRemoteSafeKey', function() {
+
+        beforeEach(function() {
+          // mock safekey URL
+          CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
+          CliqzAttrack.safeKeyExtVersion = null;
+          CliqzAttrack.safeKey = {};
+        });
+
+        afterEach(function() {
+          // restore original url
+          CliqzAttrack.URL_SAFE_KEY = real_safekey_url;
+        });
+
+        it('loads remote safekeys', function(done) {
+          CliqzAttrack.loadRemoteSafeKey();
+          waitFor(function() {
+            return CliqzAttrack.safeKeyExtVersion != null
+          }).then(function() {
+            try {
+              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(Object.keys(CliqzAttrack.safeKey)).to.have.length(1);
+              chai.expect(CliqzAttrack.safeKey).to.have.property("f528764d624db129");
+              chai.expect(CliqzAttrack.safeKey["f528764d624db129"]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
+              chai.expect(CliqzAttrack.safeKey["f528764d624db129"]["924a8ceeac17f54d3be3f8cdf1c04eb2"]).to.eql(["20200101", 'r']);
+              done();
+            } catch(e) { done(e); }
+          });
+        });
+
+        it('merges with existing safekeys', function(done) {
+          var domain1_hash = "f528764d624db129",
+            domain2_hash = "9776604f86ca9f6a",
+            key_hash = "4a8a08f09d37b73795649038408b5f33",
+            today = CliqzAttrack.getTime().substring(0, 8);
+          CliqzAttrack.safeKey[domain1_hash] = {};
+          CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
+          CliqzAttrack.safeKey[domain2_hash] = {};
+          CliqzAttrack.safeKey[domain2_hash][key_hash] = [today, 'l'];
+
+          CliqzAttrack.loadRemoteSafeKey();
+          waitFor(function() {
+            return CliqzAttrack.safeKeyExtVersion != null
+          }).then(function() {
+            try {
+              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(Object.keys(CliqzAttrack.safeKey)).to.have.length(2);
+              chai.expect(CliqzAttrack.safeKey).to.have.keys(domain1_hash, domain2_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
+              chai.expect(CliqzAttrack.safeKey[domain1_hash]["924a8ceeac17f54d3be3f8cdf1c04eb2"]).to.eql(["20200101", 'r']);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql([today, 'l']);
+              chai.expect(CliqzAttrack.safeKey[domain2_hash]).to.have.property(key_hash);
+              chai.expect(CliqzAttrack.safeKey[domain2_hash][key_hash]).to.eql([today, 'l']);
+              done();
+            } catch(e) { done(e); }
+          });
+        });
+
+        it('replaces local key with remote if remote is more recent', function(done) {
+          var domain1_hash = "f528764d624db129",
+            key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
+            today = CliqzAttrack.getTime().substring(0, 8);
+          CliqzAttrack.safeKey[domain1_hash] = {};
+          CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
+
+          CliqzAttrack.loadRemoteSafeKey();
+          waitFor(function() {
+            return CliqzAttrack.safeKeyExtVersion != null
+          }).then(function() {
+            try {
+              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql(["20200101", 'r']);
+              done();
+            } catch(e) { done(e); }
+          });
+        });
+
+        it('leaves local key if it is more recent than remote', function(done) {
+          var domain1_hash = "f528764d624db129",
+            key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
+            day = "20200102";
+          CliqzAttrack.safeKey[domain1_hash] = {};
+          CliqzAttrack.safeKey[domain1_hash][key_hash] = [day, 'l'];
+
+          CliqzAttrack.loadRemoteSafeKey();
+          waitFor(function() {
+            return CliqzAttrack.safeKeyExtVersion != null
+          }).then(function() {
+            try {
+              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql([day, 'l']);
+              done();
+            } catch(e) { done(e); }
+          });
+        });
+
+        it("prunes keys more than 7 days old", function(done) {
+          var domain1_hash = "f528764d624db129",
+            key_hash = "4a8a08f09d37b73795649038408b5f33",
+            day = "" + (parseInt(CliqzAttrack.getTime().substring(0, 8)) - 8);
+          CliqzAttrack.safeKey[domain1_hash] = {};
+          CliqzAttrack.safeKey[domain1_hash][key_hash] = [day, 'l'];
+
+          CliqzAttrack.loadRemoteSafeKey();
+          waitFor(function() {
+            return CliqzAttrack.safeKeyExtVersion != null
+          }).then(function() {
+            try {
+              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.not.have.property(key_hash);
+              done();
+            } catch(e) { done(e); }
+          });
+        });
+      });
+
+      describe('loadRemoteWhitelists', function() {
+
+        var calledLoadRemoteTokenWhitelist = 0,
+          calledLoadRemoteSafeKey = 0,
+          origLoadRemoteTokenWhitelistFn = CliqzAttrack.loadRemoteTokenWhitelist,
+          origLoadRemoteSafeKeyFn = CliqzAttrack.loadRemoteSafeKey;
+
+        beforeEach(function() {
+          // setup clean state
+          CliqzAttrack.safeKeyExtVersion = null;
+          CliqzAttrack.safeKey = {};
+          CliqzAttrack.tokenWhitelistVersion = null;
+          CliqzAttrack.tokenExtWhitelist = {};
+          CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqztests/content/mockdata/versioncheck.json";
+          // mock update functions
+          calledLoadRemoteTokenWhitelist = 0;
+          calledLoadRemoteSafeKey = 0;
+          CliqzAttrack.loadRemoteTokenWhitelist = function() {
+            calledLoadRemoteTokenWhitelist++;
+          };
+          CliqzAttrack.loadRemoteSafeKey = function() {
+            calledLoadRemoteSafeKey++;
+          };
+        });
+
+        afterEach(function() {
+          // restore original url
+          CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = real_versioncheck_url;
+          CliqzAttrack.loadRemoteTokenWhitelist = origLoadRemoteTokenWhitelistFn;
+          CliqzAttrack.loadRemoteSafeKey = origLoadRemoteSafeKeyFn;
+        });
+
+        it('does not update if versions match', function(done) {
+          CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+          CliqzAttrack.tokenWhitelistVersion = mock_token_hash;
+          CliqzAttrack.loadRemoteWhitelists();
+          setTimeout(function() {
+            try {
+              chai.expect(calledLoadRemoteTokenWhitelist).to.equal(0);
+              chai.expect(calledLoadRemoteSafeKey).to.equal(0);
+              done();
+            } catch(e) { done(e); }
+          }, 500);
+        });
+
+        it('updates if versions do not match', function(done) {
+          CliqzAttrack.loadRemoteWhitelists();
+
+          waitFor(function() {
+            return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 1;
+          }).then(done);
+        });
+
+        it('updates tokens only if needed', function(done) {
+          CliqzAttrack.tokenWhitelistVersion = mock_token_hash;
+
+          CliqzAttrack.loadRemoteWhitelists();
+          waitFor(function() {
+            return calledLoadRemoteTokenWhitelist == 0 && calledLoadRemoteSafeKey == 1;
+          }).then(done);
+        });
+
+        it('updates safekeys only if needed', function(done) {
+          CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+
+          CliqzAttrack.loadRemoteWhitelists();
+          waitFor(function() {
+            return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 0;
+          }).then(done);
+        });
+
+        describe("force_clean", function() {
+
+          beforeEach(function() {
+            CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqztests/content/mockdata/versioncheck_clean.json";
+          });
+
+          it('clears safekeys before loading new remote list', function(done) {
+            CliqzAttrack.safeKey['a'] = {'b': ['20150101', 'l']};
+            CliqzAttrack.loadRemoteWhitelists();
+            waitFor(function() {
+              return calledLoadRemoteSafeKey == 1;
+            }).then(function() {
+              try {
+                chai.expect(CliqzAttrack.safeKey).to.eql({});
+                chai.expect(CliqzAttrack.requestKeyValue).to.eql({});
+                done();
+              } catch(e) { done(e); }
+            });
+          });
+
+          it('only clears when safekey update is required', function(done) {
+            CliqzAttrack.safeKey['a'] = {'b': ['20150101', 'l']};
+            CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+            CliqzAttrack.loadRemoteWhitelists();
+            waitFor(function() {
+              return calledLoadRemoteTokenWhitelist == 1;
+            }).then(function() {
+              try {
+                chai.expect(CliqzAttrack.safeKey).to.not.eql({});
+                done();
+              } catch(e) { done(e); }
+            });
+          });
+        });
+      });
+    });
+
 }
