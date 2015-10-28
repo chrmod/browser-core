@@ -4,10 +4,10 @@ Components.utils.import("chrome://cliqz_bower_components/content/httpd/index.js"
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import('resource://gre/modules/osfile.jsm');
 
+var prefs = Components.classes['@mozilla.org/preferences-service;1']
+        .getService(Components.interfaces.nsIPrefBranch);
 /** Gets the absolute path to the Cliqz extension's root directory */
 function getExtensionDirectory() {
-  var prefs = Components.classes['@mozilla.org/preferences-service;1']
-        .getService(Components.interfaces.nsIPrefBranch);
   return JSON.parse(prefs.getCharPref('extensions.xpiState'))['app-profile']['cliqz@cliqz.com']['d'];
 }
 
@@ -49,6 +49,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       console.log(r_obj);
     }
 
+    var proxy_autoconfig_url = null,
+      proxy_type = null;
+
     before(function(done) {
       // set up HTTP server.
       server = new HttpServer();
@@ -68,11 +71,33 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       server.start(server_port);
       // wait for server to be up
       setTimeout(done, 500);
+
+      // install PAC file (to proxy fake domains back to localhost)
+      if(prefs.prefHasUserValue('network.proxy.autoconfig_url')) {
+        proxy_autoconfig_url = prefs.getCharPref('network.proxy.autoconfig_url');
+      }
+      prefs.setCharPref('network.proxy.autoconfig_url', 'chrome://cliqztests/content/proxy.pac');
+      if(prefs.prefHasUserValue('network.proxy.type')) {
+        proxy_type = prefs.getIntPref('network.proxy.type');
+      }
+      prefs.setIntPref('network.proxy.type', 2);
     });
 
     after(function() {
       // shutdown server
       server.stop(function() {});
+
+      // reset proxy settings
+      if(proxy_autoconfig_url == null) {
+        prefs.clearUserPref('network.proxy.autoconfig_url');
+      } else {
+        prefs.setCharPref('network.proxy.autoconfig_url', proxy_autoconfig_url);
+      }
+      if(proxy_type == null) {
+        prefs.clearUserPref('network.proxy.type');
+      } else {
+        prefs.setIntPref('network.proxy.type', proxy_type);
+      }
     });
 
     var win = CliqzUtils.getWindow(),
@@ -653,6 +678,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         });
 
         it('sends referer on link click to same domain', function(done) {
+          this.timeout(10000);
+
           openTestPage(testpage);
 
           expectNRequests(2).assertEach(function(m) {}, function(e) {
@@ -668,8 +695,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         });
 
         it('blocks referer on link click to different domain', function(done) {
+          this.timeout(10000);
+
           openTestPage(testpage);
-          this.timeout(20000);
 
           expectNRequests(2).assertEach(function(m) {}, function(e) {
             if(e) { done(e); }
