@@ -82,6 +82,7 @@ else {
     } catch(e){}
 }
 
+window.CLIQZ.COMPONENTS = []; //plug and play components
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
@@ -185,6 +186,10 @@ window.CLIQZ.Core = {
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        CLIQZ.COMPONENTS.forEach(function(c){
+          c.init && c.init();
+        });
+
         var urlBarGo = document.getElementById('urlbar-go-button');
         CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
         urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + CLIQZ.Core._urlbarGoButtonClick);
@@ -266,7 +271,7 @@ window.CLIQZ.Core = {
       }
 
       var buttons = [{
-        label: CliqzUtils.getLocalizedString("dataCollectionButton"),
+        label: CliqzUtils.getLocalizedString("learnMore"),
         callback: function(){
           // we only have the website localized in english end german
           var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
@@ -424,6 +429,9 @@ window.CLIQZ.Core = {
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
             CliqzMsgCenter.unload(window);
+            CLIQZ.COMPONENTS.forEach(function(c){
+              c.unload && c.unload();
+            })
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -842,17 +850,21 @@ window.CLIQZ.Core = {
         }
 
         //feedback and FAQ
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ, 'feedback'));
-        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnFeedbackFaq'), feedback_FAQ, 'feedback'));
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnTipsTricks'), function(){
           CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-        //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
         menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
-        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(win));
+
+        CLIQZ.COMPONENTS.forEach(function(c){
+          var btn = c.button && c.button(win);
+          if(btn) menupopup.appendChild(btn);
+        });
       }
       else {
         menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
@@ -918,8 +930,9 @@ window.CLIQZ.Core = {
         return menu;
     },
 
-    createLocationPermOptions: function(doc) {
-      var menu = doc.createElement('menu'),
+    createLocationPermOptions: function(win) {
+      var doc = win.document,
+          menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
       menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
@@ -944,6 +957,20 @@ window.CLIQZ.Core = {
 
         menupopup.appendChild(item);
       };
+
+      var learnMore = CLIQZ.Core.createSimpleBtn(
+          doc,
+          CliqzUtils.getLocalizedString('learnMore'),
+          function(){
+            var lang = CliqzUtils.getLanguage(win) == 'de' ? '' : 'en/';
+            CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + 'privacy');
+          },
+          'location_learn_more'
+      );
+      learnMore.setAttribute('class', 'menuitem-iconic');
+      menupopup.appendChild(doc.createElement('menuseparator'));
+      menupopup.appendChild(learnMore);
+
       menu.appendChild(menupopup);
       return menu;
     },
@@ -1033,7 +1060,7 @@ window.CLIQZ.Core = {
     getLocationPermState: function(){
         var data = {
           'yes': {
-                  name: CliqzUtils.getLocalizedString('yes'),
+                  name: CliqzUtils.getLocalizedString('always'),
                   selected: false
           },
           'ask': {
@@ -1041,7 +1068,7 @@ window.CLIQZ.Core = {
                   selected: false
           },
           'no': {
-              name: CliqzUtils.getLocalizedString('no'),
+              name: CliqzUtils.getLocalizedString('never'),
               selected: false
           }
         };

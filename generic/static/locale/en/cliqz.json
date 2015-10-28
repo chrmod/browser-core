@@ -110,8 +110,11 @@
     "whatIsCliqzTry":{
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
-    "settings":{
-        "message": "SETTINGS"
+    "btnFeedbackFaq":{
+        "message": "Support and contact"
+    },
+    "btnTipsTricks":{
+        "message": "Tips and tricks"
     },
     "btnPrivacy":{
         "message": "Privacy Policy"
@@ -123,7 +126,7 @@
         "message": "Enable Newtab"
     },
     "btnDefaultSearchEngine":{
-        "message": "Default Search Engine"
+        "message": "Complementary Search Engine"
     },
     "btnRegion":{
         "message": "Local Results"
@@ -504,7 +507,7 @@
       "message":"Did you really mean"
     },
     "result_filter": {
-      "message":"Explicit content"
+      "message":"Block explicit content"
     },
     "age": {
         "message": "Age"
@@ -519,25 +522,22 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Explicit content has been hidden. Show unfiltered results?"
+        "message": "Explicit content has been blocked automatically. Continue blocking?"
     },
-    "adultConservative": {
-      "message":"Block"
-    },
-    "adultModerate": {
-      "message":"Ask"
-    },
-    "adultLiberal": {
-      "message":"Always show"
-    },
-    "adult_show_once": {
+    "show_once": {
       "message":"Show Once"
     },
     "yes": {
         "message": "Yes"
     },
+    "always": {
+        "message": "Always"
+    },
     "no": {
         "message": "No"
+    },
+    "never": {
+        "message": "Never"
     },
     "options": {
         "message": "Options"
@@ -798,7 +798,7 @@
       "message": "We'd love to enhance this result with some local info. Share your location with us?"
     },
     "location_never": {
-      "message": "No"
+      "message": "Never"
     },
     "no_local_data_msg": {
       "message": "Oh no, something went wrong. Always share your location with us to avoid this in the future?"
@@ -881,7 +881,7 @@
     "dataCollection": {
         "message": "To improve the search and browsing experience, CLIQZ for Firefox sends some anonymous data to Cliqz. Your privacy remains secured."
     },
-    "dataCollectionButton": {
+    "learnMore": {
         "message": "Learn More"
     }
 }

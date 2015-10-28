@@ -873,15 +873,15 @@ var CliqzUtils = {
   getAdultFilterState: function(){
     var data = {
       'conservative': {
-              name: CliqzUtils.getLocalizedString('adultConservative'),
+              name: CliqzUtils.getLocalizedString('always'),
               selected: false
       },
       'moderate': {
-              name: CliqzUtils.getLocalizedString('adultModerate'),
+              name: CliqzUtils.getLocalizedString('always_ask'),
               selected: false
       },
       'liberal': {
-          name: CliqzUtils.getLocalizedString('adultLiberal'),
+          name: CliqzUtils.getLocalizedString('never'),
           selected: false
       }
     };
