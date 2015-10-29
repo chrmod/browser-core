@@ -158,10 +158,21 @@ var CliqzUtils = {
 
     return dsm.getLocalStorageForPrincipal(principal, '')
   },
+  //move this out of CliqzUtils!
   setSupportInfo: function(status){
+    var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
+        host = 'firefox', hostVersion='';
+
+    //check if the prefs exist and if they are string
+    if(prefs.getPrefType('distribution.id') == 32 && prefs.getPrefType('distribution.version') == 32){
+      host = prefs.getCharPref('distribution.id');
+      hostVersion = prefs.getCharPref('distribution.version');
+    }
     var info = JSON.stringify({
           version: CliqzUtils.extensionVersion,
-          status: status != undefined?status:"active"
+          host: host,
+          hostVersion: hostVersion,
+          status: status != undefined ? status : "active"
         }),
         sites = ["http://cliqz.com","https://cliqz.com"]
 

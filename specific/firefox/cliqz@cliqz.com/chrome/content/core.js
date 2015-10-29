@@ -824,18 +824,15 @@ window.CLIQZ.Core = {
           menupopup.removeChild(menupopup.lastChild);
 
         function feedback_FAQ(){
-            win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
-                    function success(req){
-                        var source = JSON.parse(req.response).shortName;
-                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
-                    },
-                    function error(){
-                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion);
-                    }
-                );
-            });
+            CliqzUtils.httpGet('chrome://cliqz/content/source.json',
+                function success(req){
+                    var source = JSON.parse(req.response).shortName;
+                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion + '-' + source);
+                },
+                function error(){
+                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion);
+                }
+            );
         }
 
         //feedback and FAQ
