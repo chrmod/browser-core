@@ -10,50 +10,37 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 (function(ctx) {
 
   var contextMenu,
-      CONTEXT_MENU_ITEMS,
-      action = "context_menu";
+      CONTEXT_MENU_ITEMS;
+
+  function telemetry(type){
+    var signal = {
+      type: 'activity',
+      action: 'context_menu'
+    };
+
+    if(type) signal.menu_open = type;
+
+    CliqzUtils.telemetry(signal);
+  }
 
   function openFeedback(e) {
     CLIQZEnvironment.openLink(window, CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
-
-    var signal = {
-      type: 'activity',
-      action: action,
-      menu_open: 'open_feedback'
-    };
-    CliqzUtils.telemetry(signal);
+    telemetry('open_feedback');
   }
 
   function openNewTab(e) {
     CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), true);
-    var signal = {
-      type: 'activity',
-      action: action,
-      menu_open: 'open_new_tab'
-    };
-    CliqzUtils.telemetry(signal);
+    telemetry('open_new_tab');
   }
 
   function openNewWindow(e) {
     CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), false, true);
-
-    var signal = {
-      type: 'activity',
-      action: action,
-      menu_open: 'open_new_window'
-    };
-    CliqzUtils.telemetry(signal);
+    telemetry('open_new_window');
   }
 
   function openInPrivateWindow(e) {
     CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), false, false, true);
-
-    var signal = {
-      type: 'activity',
-      action: action,
-      menu_open: 'open_private_window'
-    };
-    CliqzUtils.telemetry(signal);
+    telemetry('open_private_window');
   }
 
   var ContextMenu = {
@@ -62,7 +49,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
         { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),         'command': openNewTab,            'displayInDebug': true },
         { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),      'command': openNewWindow,         'displayInDebug': true },
         { 'label': CliqzUtils.getLocalizedString('cMenuOpenInPrivateWindow'),  'command': openInPrivateWindow,   'displayInDebug': false },
-        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),             'command': openFeedback,          'displayInDebug': true }       
+        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),             'command': openFeedback,          'displayInDebug': true }
       ];
 
       contextMenu = CLIQZEnvironment.createContextMenu(box, CONTEXT_MENU_ITEMS);
@@ -83,11 +70,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
       }
       CLIQZEnvironment.openPopup(contextMenu, ev, ev.screenX, ev.screenY);
 
-      var signal = {
-        type: 'activity',
-        action: action
-      };
-      CliqzUtils.telemetry(signal);
+      telemetry();
     }
   }
 
