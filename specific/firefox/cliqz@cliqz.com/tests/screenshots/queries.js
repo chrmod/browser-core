@@ -19,3 +19,9 @@ QUERIES.thuy = [
     'http://allrecipes.com/Recipe/Beef-Pho',
     'http://www.imdb.com/title/tt0121766'
 ];
+
+QUERIES.michel = [
+  'Flug EY1', 'james bond spectre imdb',
+  'www.mcdonalds.de', 'bundesliga',
+  'fcbayern.de', 'Flug EY1'
+]
