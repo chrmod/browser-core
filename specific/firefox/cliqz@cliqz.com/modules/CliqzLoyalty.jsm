@@ -1036,6 +1036,32 @@ function setPersistent(val) {
  //-----------------------------------------------------------------------------------------------//
  */
 
+Cm.QueryInterface(Ci.nsIComponentRegistrar);
+function AboutURL() {}
+AboutURL.prototype = {
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
+    classDescription: 'about:cliqzloyalty',
+    classID: Components.ID("{bbab0a50-7988-11e5-a837-0800200c9a66}"),
+    contractID: "@mozilla.org/network/protocol/about;1?what=cliqzloyalty",
+
+    newChannel: function(uri) {
+        var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+        var html =  ["data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
+                    "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
+                    "</head><body><iframe src=\"chrome://cliqz/content/loyalty/index.html\"></iframe></body></html>"].join('')
+
+        var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
+        var channel = ioService.newChannel(html, null, null);
+        channel.originalURI = uri;
+        channel.owner = securityManager.getSystemPrincipal();
+
+        return channel;
+    },
+
+    getURIFlags: function(uri) { return Ci.nsIAboutModule.ALLOW_SCRIPT; }
+}
+var AboutURLFactory = XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID);
+
 var CliqzLoyalty = {
   VERSION: "TTAM15",
 
@@ -1048,39 +1074,14 @@ var CliqzLoyalty = {
     }
 
     //add loyalty as an about page
-    Cm.QueryInterface(Ci.nsIComponentRegistrar);
-    function AboutURL() {}
-    AboutURL.prototype = {
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
-        classDescription: 'about:cliqzloyalty',
-        classID: Components.ID("{bbab0a50-7988-11e5-a837-0800200c9a66}"),
-        contractID: "@mozilla.org/network/protocol/about;1?what=cliqzloyalty",
-
-        newChannel: function(uri) {
-            var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-            var html =  ["data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
-                        "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
-                        "</head><body><iframe src=\"chrome://cliqz/content/loyalty/index.html\"></iframe></body></html>"].join('')
-
-            var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
-            var channel = ioService.newChannel(html, null, null);
-            channel.originalURI = uri;
-            channel.owner = securityManager.getSystemPrincipal();
-
-            return channel;
-        },
-
-        getURIFlags: function(uri) { return Ci.nsIAboutModule.ALLOW_SCRIPT; }
-    }
-
-    Cm.registerFactory(
-        AboutURL.prototype.classID,
-        AboutURL.prototype.classDescription,
-        AboutURL.prototype.contractID,
-        XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID)
-    );
-
-
+    try {
+      Cm.registerFactory(
+          AboutURL.prototype.classID,
+          AboutURL.prototype.classDescription,
+          AboutURL.prototype.contractID,
+          AboutURLFactory
+      );
+    } catch(e){}
   },
 
   initMin: function () {
@@ -1098,6 +1099,8 @@ var CliqzLoyalty = {
   },
 
   unload: function () {
+    Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
+
     CliqzLLogic.onUnload();
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
