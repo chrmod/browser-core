@@ -38,7 +38,7 @@ var VERTICAL_ENCODINGS = {
     'video':'v',
     'hq':'h',
     'bm': 'm',
-    'reciperd': 'r',
+    'recipeRD': 'r',
     'game': 'g',
     'movie': 'o'
 };
@@ -78,7 +78,7 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
-  TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+  TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
@@ -94,7 +94,6 @@ var CliqzUtils = {
       'local-data-sc': 2,
       'recipe': 3,
       'rd-h3-w-rating': 1,
-      'ramadan': 3,
       'ez-generic-2': 3,
       'cpgame_movie': 3,
       'delivery-tracking': 2
@@ -125,10 +124,8 @@ var CliqzUtils = {
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
           function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
-            var retry;
-            if(retry = retryPattern.pop()){
-              CliqzUtils.setTimeout(getLogoDB, retry);
-            }
+            var retry = retryPattern.pop();
+            if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
           }
           , MINUTE/2);
       })();
@@ -262,6 +259,7 @@ var CliqzUtils = {
   },
   getPrefs: CLIQZEnvironment.getPrefs,
   getPref: CLIQZEnvironment.getPref,
+  isPrefBool: CLIQZEnvironment.isPrefBool,
   setPref: CLIQZEnvironment.setPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
@@ -875,15 +873,15 @@ var CliqzUtils = {
   getAdultFilterState: function(){
     var data = {
       'conservative': {
-              name: CliqzUtils.getLocalizedString('adultConservative'),
+              name: CliqzUtils.getLocalizedString('always'),
               selected: false
       },
       'moderate': {
-              name: CliqzUtils.getLocalizedString('adultModerate'),
+              name: CliqzUtils.getLocalizedString('always_ask'),
               selected: false
       },
       'liberal': {
-          name: CliqzUtils.getLocalizedString('adultLiberal'),
+          name: CliqzUtils.getLocalizedString('never'),
           selected: false
       }
     };

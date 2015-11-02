@@ -3,10 +3,10 @@
     {{local trans_str.message }}
   </div>
   <div class="loc_permission_prompt_buttons">
-    <span class="cqz-btn-error" id="cqz_location_never">
+    <span class="cqz-btn-error" extra="share-location-never" id="cqz_location_never">
       {{local trans_str.yes }}
     </span>
-    <span class="cqz-btn-default cqz_location_once" id="cqz_location_once" bm_url='{{friendly_url}}'>
+    <span class="cqz-btn-default cqz_location_once" extra="share-location-once-step-2" id="cqz_location_once" bm_url='{{friendly_url}}'>
       {{local trans_str.no }}
     </span>
   </div>

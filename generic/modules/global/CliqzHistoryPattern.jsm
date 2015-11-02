@@ -3,6 +3,10 @@
 
 var EXPORTED_SYMBOLS = ['CliqzHistoryPattern'];
 
+var Cc = Components.classes,
+    Ci = Components.interfaces,
+    Cu = Components.utils;
+
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
@@ -1084,8 +1088,8 @@ var CliqzHistoryPattern = {
   },
 
   // Removes a given url from the instant.data.url list
-  removeUrlFromResult: function(urlList, url) {
-    var url = CliqzHistoryPattern.generalizeUrl(url);
+  removeUrlFromResult: function(urlList, _url) {
+    var url = CliqzHistoryPattern.generalizeUrl(_url);
     for(var key in urlList) {
       var r_url = CliqzHistoryPattern.generalizeUrl(urlList[key].href);
       if (r_url == url) {

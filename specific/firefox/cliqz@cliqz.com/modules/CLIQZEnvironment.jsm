@@ -29,13 +29,14 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     // references to all the timers to avoid garbage collection before firing
     // automatically removed when fired
     _timers = [],
-    _setTimer = function(func, timeout, type, param) {
+    _setTimer = function(func, timeout, type, args) {
         var timer = Cc['@mozilla.org/timer;1'].createInstance(Ci.nsITimer);
         _timers.push(timer);
+
         var event = {
             notify: function (timer) {
-                func(param);
-                _removeTimerRef(timer);
+                func.apply(null, args);
+                _removeTimerRef && _removeTimerRef(timer);
             }
         };
         timer.initWithCallback(event, timeout, type);
@@ -95,6 +96,18 @@ var CLIQZEnvironment = {
             prefs[pref] = CLIQZEnvironment.getPref(pref);
         }
         return prefs;
+    },
+    isPrefBool: function(pref, notFound) {
+        try {
+            var prefs = CLIQZEnvironment.cliqzPrefs;
+            if(prefs.getPrefType(pref) === PREF_BOOL) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch(e) {
+            return notFound;
+        }
     },
     setPref: function(pref, val){
         switch (typeof val) {
@@ -206,11 +219,11 @@ var CLIQZEnvironment = {
 
         return window.cliqzIsPrivate
     },
-    setInterval: function(func, timeout, param) {
-        return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, param);
+    setInterval: function(func, timeout) {
+        return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
     },
-    setTimeout: function(func, timeout, param) {
-        return _setTimer(func, timeout, Ci.nsITimer.TYPE_ONE_SHOT, param);
+    setTimeout: function(func, timeout) {
+        return _setTimer(func, timeout, Ci.nsITimer.TYPE_ONE_SHOT, [].slice.call(arguments, 2));
     },
     clearTimeout: function(timer) {
         if (!timer) {
@@ -282,6 +295,7 @@ var CLIQZEnvironment = {
                 .map(function(e){
                     var r = {
                         name: e.name,
+                        alias: e.alias,
                         default: e.name == defEngineName,
                         icon: e.iconURI.spec,
                         base_url: e.searchForm,
@@ -292,6 +306,25 @@ var CLIQZEnvironment = {
                     }
                     return r;
                 });
+    },
+    updateAlias: function(name, newAlias) {
+      Services.search.getEngineByName(name).alias = newAlias;
+    },
+    getEngineByAlias: function(alias) {
+     return Services.search.getEngineByAlias(alias);
+    },
+    getEngineByName: function(engine) {
+      return Services.search.getEngineByName(engine);
+    },
+    addEngineWithDetails: function(engine) {
+      Services.search.addEngineWithDetails(
+        engine.name,
+        engine.iconURL,
+        engine.key,
+        engine.name,
+        engine.method,
+        engine.url
+      );
     },
     initWindow: function(win){
         var popup = win.CLIQZ.Core.popup;
@@ -379,7 +412,6 @@ var CLIQZEnvironment = {
       contextMenu.openPopupAtScreen(x, y, false);
     },
     createContextMenu: function(box, menuItems) {
-      CLIQZEnvironment.log("!!!Create")
       var doc = CliqzUtils.getWindow().document,
           contextMenu = doc.createElement('menupopup');
       box.appendChild(contextMenu);
