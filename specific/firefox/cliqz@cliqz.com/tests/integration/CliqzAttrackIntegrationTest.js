@@ -18,7 +18,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     var server = null,
       server_port = -1,
       echoed = [],
-      md5 = CliqzHumanWeb._md5;
+      md5 = CliqzHumanWeb._md5,
+      module_enabled = CliqzUtils.getPref('antiTrackTest', false),
+      window = CliqzUtils.getWindow();
 
     /** Collects metadata from the request and pushes it into the
       echoed array. Also sets cookie and access control headers.
@@ -113,13 +115,19 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
     beforeEach(function() {
       // clean preferences -> default everything to off, except Attrack module.
-      CliqzUtils.setPref('antiTrackTest', true);
       CliqzUtils.setPref('attrackBlockCookieTracking', false);
       CliqzUtils.setPref('attrackRemoveQueryStringTracking', false);
       CliqzUtils.setPref('attrackAlterPostdataTracking', false);
       CliqzUtils.setPref('attrackCanvasFingerprintTracking', false);
       CliqzUtils.setPref('attrackRefererTracking', false);
       CliqzAttrack.initialiseAntiRefererTracking();
+      // make sure that module is loaded (default it is not initialised on extension startup)
+      if(!module_enabled) {
+        CliqzUtils.setPref('antiTrackTest', true);
+        CliqzAttrack.unloadAtBrowser();
+        CliqzAttrack.initAtBrowser();
+        CliqzAttrack.init(window);
+      }
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
       CliqzAttrack.tp_events._staged = [];
@@ -139,6 +147,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           gBrowser.removeTab(t);
       });
       tabs = [];
+      if(!module_enabled) {
+        CliqzUtils.setPref('antiTrackTest', false);
+        CliqzAttrack.unloadAtBrowser();
+      }
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -666,6 +678,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
         beforeEach(function() {
           CliqzUtils.setPref('attrackRefererTracking', true);
+          CliqzAttrack.initialiseAntiRefererTracking();
+        });
+
+        afterEach(function() {
+          CliqzUtils.setPref('attrackRefererTracking', false);
           CliqzAttrack.initialiseAntiRefererTracking();
         });
 

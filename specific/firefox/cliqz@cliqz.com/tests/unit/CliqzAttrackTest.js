@@ -13,6 +13,24 @@ function waitIfNotReady(fn) {
 
 TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
 
+    var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
+    beforeEach(function() {
+        // make sure that module is loaded (default it is not initialised on extension startup)
+        if(!module_enabled) {
+            CliqzUtils.setPref('antiTrackTest', true);
+            CliqzAttrack.unloadAtBrowser();
+            CliqzAttrack.initAtBrowser();
+        }
+    });
+
+    afterEach(function() {
+        // revert module status
+        if(!module_enabled) {
+            CliqzUtils.setPref('antiTrackTest', false);
+            CliqzAttrack.unloadAtBrowser();
+        }
+    });
+
     describe('CliqzAttrack.tab_listener', function() {
 
         describe('isWindowActive', function() {
