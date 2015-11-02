@@ -64,6 +64,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
+  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
@@ -137,6 +140,7 @@ window.CLIQZ.Core = {
             !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
             CliqzCategories.assessNewsTopsites();
         }
+
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/styles/css/extension.css');
@@ -231,6 +235,7 @@ window.CLIQZ.Core = {
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
         }
+        CliqzAttrack.init(window);
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
@@ -448,7 +453,12 @@ window.CLIQZ.Core = {
 
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+
         }
+        // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
+        CliqzAttrack.unload(window);
+
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -488,6 +498,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHandlebars;
             delete window.CliqzTour;
             delete window.CliqzAntiPhishing;
+            delete window.CliqzAttrack;
         }
     },
     restart: function(soft){
