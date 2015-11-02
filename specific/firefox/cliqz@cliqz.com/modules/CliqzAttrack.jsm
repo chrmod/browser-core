@@ -2799,7 +2799,7 @@ var CliqzAttrack = {
     },
     _updated: {},
     updateExpire: 48,
-    lastUpdate: null,
+    lastUpdate: ['0', '0'],
     updatedInTime: function() {
         var delay = CliqzAttrack.updateExpire,
             hour = CliqzAttrack.newUTCDate();
