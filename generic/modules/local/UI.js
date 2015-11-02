@@ -1289,7 +1289,7 @@ function getResultKind(el){
 function getResultOrChildAttr(el, attr){
   if(el == null) return '';
   if(el.className == IC) return el.getAttribute(attr) || '';
-  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement);
+  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
 function urlIndexInHistory(url, urlList) {
