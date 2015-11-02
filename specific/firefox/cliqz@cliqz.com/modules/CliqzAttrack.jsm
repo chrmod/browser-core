@@ -607,7 +607,7 @@ var CliqzAttrack = {
         "BetterPrivacy": true,
         "NoScript": true
     },
-    blacklist:{},
+    blacklist:[],
     blockingFailed:{},
     statMD5:{},
     trackReload:{},
