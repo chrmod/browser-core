@@ -1,5 +1,7 @@
 "use strict";
 
+Components.utils.import("chrome://cliqz_bower_components/content/httpd/index.js");
+
 function waitIfNotReady(fn) {
     var first = true;
     return waitFor(function() {
@@ -466,10 +468,34 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
       var real_versioncheck_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
         real_token_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
         real_safekey_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json',
-        mock_token_url = "chrome://cliqztests/content/mockdata/token_whitelist.json",
+        mock_token_string = "{\"f528764d624db129\": {\"7269d282a42ce53e58c7b3f66ca19bac\": true}}\n",
+        mock_token_url = "/token_whitelist.json",
         mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac',
-        mock_safekey_url = "chrome://cliqztests/content/mockdata/safekey.json",
-        mock_safekey_hash = "3e82cf3535f01bfb960e826f1ad8ec2d";
+        mock_safekey_string = "{\"f528764d624db129\": {\"924a8ceeac17f54d3be3f8cdf1c04eb2\": \"20200101\"}}\n",
+        mock_safekey_url = "/safekey.json",
+        mock_safekey_hash = "3e82cf3535f01bfb960e826f1ad8ec2d",
+        server,
+        server_port = -1;
+
+      before(function() {
+        // serve fake whitelists
+        server = new HttpServer();
+        server.registerPathHandler('/token_whitelist.json', function(request, response) {
+          response.write(mock_token_string);
+        });
+        server.registerPathHandler('/safekey.json', function(request, response) {
+          response.write(mock_safekey_string);
+        });
+        server.start(-1);
+        server_port = server.identity.primaryPort
+        mock_token_url = "http://localhost:" + server_port + "/token_whitelist.json";
+        mock_safekey_url = "http://localhost:" + server_port + "/safekey.json";
+      });
+
+      after(function() {
+        // shutdown server
+        server.stop(function() {});
+      });
 
       it('version check URL is correct', function() {
         chai.expect(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK).to.equal(real_versioncheck_url);
