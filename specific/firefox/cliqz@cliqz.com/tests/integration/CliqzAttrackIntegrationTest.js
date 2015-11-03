@@ -732,3 +732,5 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
 
   }); // describe integration test
 };
+
+TESTS.CliqzAttrackIntegrationTest.MIN_BROWSER_VERSION = 35;

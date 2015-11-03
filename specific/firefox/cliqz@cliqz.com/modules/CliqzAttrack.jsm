@@ -494,7 +494,7 @@ HttpRequestContext.prototype = {
         }
     },
     getContentPolicyType: function() {
-        return this.loadInfo ? this.loadInfo.contentPolicyType : undefined;
+        return this.loadInfo ? this.loadInfo.contentPolicyType : this._legacyGetContentPolicyType();
     },
     getCookieData: function() {
         let cookie_data = null;
@@ -532,8 +532,25 @@ HttpRequestContext.prototype = {
         // Firefox <=38 fallback for tab ID.
         let source = this._legacyGetSource();
         return source.tab;
-    }
+    },
+    _legacyGetContentPolicyType: function() {
+        // try to get policy get page load type
+        let load_type = CliqzAttrack.getPageLoadType(this.channel);
 
+        if (load_type == "fullpage") {
+            return 6;
+        } else if (load_type == "frame") {
+            return 7;
+        }
+
+        // XHR is easy
+        if (CliqzAttrack.isXHRRequest(this.channel)) {
+            return 11;
+        }
+
+        // other types
+        return 1;
+    }
 }
 
 /**
@@ -562,8 +579,15 @@ URLInfo.prototype = {
     }
 }
 
+var getBrowserMajorVersion = function() {
+    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                    .getService(Components.interfaces.nsIXULAppInfo);
+    return parseInt(appInfo.version.split('.')[0]);
+};
+
 var CliqzAttrack = {
-    VERSION: '0.92',
+    VERSION: '0.93',
+    MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
     URL_TOKEN_WHITELIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
     URL_ALERT_RULES: 'chrome://cliqz/content/anti-tracking-rules.json',
@@ -2271,6 +2295,10 @@ var CliqzAttrack = {
     alertAlreadyShown: {},
     // load from the about:config settings
     init: function(window) {
+        // disable for older browsers
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+            return;
+        }
         // Load listerners:
         if(CliqzUtils.getPref("antiTrackTest", false)){
             window.gBrowser.addProgressListener(CliqzAttrack.listener);
@@ -3202,6 +3230,9 @@ var CliqzAttrack = {
         });
     },
     initAtBrowser: function(){
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+            return;
+        }
         if (CliqzAttrack.debug) CliqzUtils.log("InitAtBrowser attrack");
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpmodObserver, "http-on-modify-request", false);
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpopenObserver, "http-on-opening-request", false);
