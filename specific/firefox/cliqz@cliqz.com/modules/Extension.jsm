@@ -54,6 +54,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();

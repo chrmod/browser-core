@@ -70,6 +70,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
+  'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
