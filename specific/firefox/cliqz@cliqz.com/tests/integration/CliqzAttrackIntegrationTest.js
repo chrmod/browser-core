@@ -47,7 +47,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         response.setHeader('Access-Control-Allow-Credentials', 'true');
       }
       echoed.push(r_obj);
-      response.write('');
+      response.write('{}');
       console.log(r_obj);
     }
 
@@ -369,7 +369,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
             setTimeout(function() {
               gBrowser.removeTab(t);
               done();
-            }, 1000);
+            }, 1500);
           });
 
           context('cookie blocking disabled', function() {
@@ -606,22 +606,28 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               expectNRequests(2).assertEach(function(m) {
                 chai.expect(m.qs).to.contain('uid=' + uid);
               }, function(e) {
-                if(e) { done(e); }
-                echoed = [];
-                openTestPage(testpage, 'cliqztest.com');
-                expectNRequests(2).assertEach(function(m) {
-                  if(m.host == 'cliqztest.com') {
-                    chai.expect(m.qs).to.contain('uid=' + uid);
-                  } else {
-                    chai.expect(m.qs).to.not.contain('uid=' + uid);
-                  }
-                }, function(e) {
-                  if(e) { done(e); }
-                  var tok = md5(uid);
-                  chai.expect(CliqzAttrack.tokenDomain).to.have.property(tok);
-                  chai.expect(Object.keys(CliqzAttrack.tokenDomain[tok])).to.have.length(2);
-                  done();
-                });
+                if(e) {
+                  done(e);
+                } else {
+                  echoed = [];
+                  openTestPage(testpage, 'cliqztest.com');
+                  expectNRequests(2).assertEach(function(m) {
+                    if(m.host == 'cliqztest.com') {
+                      chai.expect(m.qs).to.contain('uid=' + uid);
+                    } else {
+                      chai.expect(m.qs).to.not.contain('uid=' + uid);
+                    }
+                  }, function(e) {
+                    if(e) {
+                      done(e);
+                    } else {
+                      var tok = md5(uid);
+                      chai.expect(CliqzAttrack.tokenDomain).to.have.property(tok);
+                      chai.expect(Object.keys(CliqzAttrack.tokenDomain[tok])).to.have.length(2);
+                      done();
+                    }
+                  });
+                }
               });
             });
           }); // tp on tracker list

@@ -2240,6 +2240,10 @@ var CliqzAttrack = {
     },
     counter: 0,
     unload: function(window) {
+        // don't need to unload if disabled
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+            return;
+        }
         //Check is active usage, was sent
 
         // force send tab telemetry data
