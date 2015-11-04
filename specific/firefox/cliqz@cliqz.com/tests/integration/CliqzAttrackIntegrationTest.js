@@ -46,8 +46,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         response.setHeader('Access-Control-Allow-Origin', '*');
         response.setHeader('Access-Control-Allow-Credentials', 'true');
       }
+      if ('accept' in headers && headers['accept'].indexOf('image') > 0) {
+        // img request, send correct headers
+        response.setHeader('Content-Type', 'image/png');
+        response.write(null);
+      } else {
+        response.write('{}');
+      }
       echoed.push(r_obj);
-      response.write('{}');
       console.log(r_obj);
     }
 
@@ -391,11 +397,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
 
               expectNRequests(2).assertEach(hasCookie, function(e) {
-                if(e) { done(e); }
-                try {
-                  test_tp_events(tp_event_expectation);
-                  done();
-                } catch(e) { done(e); }
+                if(e) {
+                  done(e);
+                } else {
+                  console.log(CliqzAttrack.tokenExtWhitelist);
+                  try {
+                    test_tp_events(tp_event_expectation);
+                    done();
+                  } catch(e) { done(e); }
+                }
               });
             });
           });
@@ -419,12 +429,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
 
               expectNRequests(2).assertEach(onlyLocalhostCookie, function(e) {
-                if(e) { done(e); }
-                try {
-                  test_tp_events(tp_event_expectation);
-                  done();
-                } catch(e) {
-                  done(e); }
+                if(e) {
+                  done(e);
+                } else {
+                  try {
+                    test_tp_events(tp_event_expectation);
+                    done();
+                  } catch(e) {
+                    done(e);
+                  }
+                }
               });
             });
           });
@@ -456,12 +470,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               chai.expect(m.qs).to.contain('uid=' + uid);
               chai.expect(m.qs).to.contain('callback=func');
             }, function(e) {
-              if(e) { done(e); }
-              console.log(CliqzAttrack.tp_events._active);
-              try {
-                test_tp_events(tp_event_expectation);
-                done();
-              } catch(e) { done(e); }
+              if(e) {
+                done(e);
+              } else {
+                console.log(CliqzAttrack.tp_events);
+                try {
+                  test_tp_events(tp_event_expectation);
+                  done();
+                } catch(e) { done(e); }
+              }
             });
           });
 
@@ -491,12 +508,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 chai.expect(m.qs).to.contain('uid=' + uid);
                 chai.expect(m.qs).to.contain('callback=func');
               }, function(e) {
-                if(e) { done(e); }
-                try {
-                  test_tp_events(tp_event_expectation);
-                  done();
-                } catch(e) {
+                if(e) {
                   done(e);
+                } else {
+                  try {
+                    test_tp_events(tp_event_expectation);
+                    done();
+                  } catch(e) {
+                    done(e);
+                  }
                 }
               });
             });
@@ -539,9 +559,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   }
                   chai.expect(m.qs).to.contain('callback=func');
                 }, function(e) {
-                  if(e) { done(e); }
-                  test_tp_events(tp_event_expectation);
-                  done();
+                  if(e) {
+                    done(e);
+                  } else {
+                    try {
+                      test_tp_events(tp_event_expectation);
+                      done();
+                    } catch(e) {
+                      done(e);
+                    }
+                  }
                 });
               });
 
@@ -563,9 +590,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 expectNRequests(2).assertEach(function(m) {
                   chai.expect(m.qs).to.contain('uid=' + uid);
                 }, function(e) {
-                  if(e) { done(e); }
-                  test_tp_events(tp_event_expectation);
-                  done();
+                  if(e) {
+                    done(e);
+                  } else {
+                    try {
+                      test_tp_events(tp_event_expectation);
+                      done();
+                    } catch(e) {
+                      done(e);
+                    }
+                  }
                 });
               });
 
@@ -587,9 +621,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 expectNRequests(2).assertEach(function(m) {
                   chai.expect(m.qs).to.contain('uid=' + uid);
                 }, function(e) {
-                  if(e) { done(e); }
-                  test_tp_events(tp_event_expectation);
-                  done();
+                  if(e) {
+                    done(e);
+                  } else {
+                    try {
+                      test_tp_events(tp_event_expectation);
+                      done();
+                    } catch(e) {
+                      done(e);
+                    }
+                  }
                 });
               });
             });
@@ -706,14 +747,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           openTestPage(testpage);
 
           expectNRequests(2).assertEach(function(m) {}, function(e) {
-            if(e) { done(e); }
-            var tab = gBrowser.getBrowserForTab(tabs[0]);
-            echoed = [];
-            tab.contentDocument.getElementById('local_link').click();
-            expectNRequests(1).assertEach(function(m) {
-              chai.expect(m.headers).to.have.property('referer');
-              chai.expect(m.headers['referer']).to.contain(testpage);
-            }, done);
+            if(e) {
+              done(e);
+            } else {
+              var tab = gBrowser.getBrowserForTab(tabs[0]);
+              echoed = [];
+              tab.contentDocument.getElementById('local_link').click();
+              expectNRequests(1).assertEach(function(m) {
+                chai.expect(m.headers).to.have.property('referer');
+                chai.expect(m.headers['referer']).to.contain(testpage);
+              }, done);
+            }
           });
         });
 
@@ -723,13 +767,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           openTestPage(testpage);
 
           expectNRequests(2).assertEach(function(m) {}, function(e) {
-            if(e) { done(e); }
-            var tab = gBrowser.getBrowserForTab(tabs[0]);
-            echoed = [];
-            tab.contentDocument.getElementById('remote_link').click();
-            expectNRequests(1).assertEach(function(m) {
-              chai.expect(m.headers).to.not.have.property('referer');
-            }, done);
+            if(e) {
+              done(e);
+            } else {
+              var tab = gBrowser.getBrowserForTab(tabs[0]);
+              echoed = [];
+              tab.contentDocument.getElementById('remote_link').click();
+              expectNRequests(1).assertEach(function(m) {
+                chai.expect(m.headers).to.not.have.property('referer');
+              }, done);
+            }
           });
         });
 
