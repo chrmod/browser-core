@@ -1282,6 +1282,12 @@ var CliqzAttrack = {
                 // altering request
                 // Additional check to verify if the user reloaded the page.
                 if (CliqzAttrack.isQSEnabled() && !(CliqzAttrack.reloadWhiteList[_key])) {
+
+                    if (CliqzAttrack.isSourceWhitelisted(source_url_parts.hostname)) {
+                        CliqzAttrack.tp_events.incrementStat(req_log, "source_whitelisted");
+                        return;
+                    }
+
                     if (CliqzAttrack.debug) {
                         CliqzUtils.log("altering request " + url + " " + source_url + ' ' + same_gd, 'tokk');
                         CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
@@ -1713,7 +1719,7 @@ var CliqzAttrack = {
 
                     // now, let's kill that cookie and see what happens :-)
                     var _key = source_tab + ":" + source_url;
-                    if (CliqzAttrack.isCookieEnabled() && !(CliqzAttrack.reloadWhiteList[_key])) {
+                    if (CliqzAttrack.isCookieEnabled(source_url_parts.hostname) && !(CliqzAttrack.reloadWhiteList[_key])) {
                         // blocking cookie
                         var src = null;
                         if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
@@ -1752,7 +1758,7 @@ var CliqzAttrack = {
                     var key = url_parts.hostname + url_parts.path;
                     if (CliqzAttrack.bootupWhitelistCache[key]==null) {
 
-                        if (CliqzAttrack.isCookieEnabled() && !(CliqzAttrack.reloadWhiteList[_key])) {
+                        if (CliqzAttrack.isCookieEnabled(source_url_parts.hostname) && !(CliqzAttrack.reloadWhiteList[_key])) {
                             // blocking cookie
                             var src = null;
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
@@ -2091,7 +2097,10 @@ var CliqzAttrack = {
     isEnabled: function() {
         return CliqzUtils.getPref('antiTrackTest', false);
     },
-    isCookieEnabled: function() {
+    isCookieEnabled: function(source_hostname) {
+        if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
+            return false;
+        }
         return CliqzUtils.getPref('attrackBlockCookieTracking', false);
     },
     isQSEnabled: function() {
@@ -4746,5 +4755,12 @@ var CliqzAttrack = {
     disableModule: function() {
       CliqzUtils.setPref('antiTrackTest', false);
       CliqzAttrack.unloadAtBrowser();
+    },
+    disabled_sites: new Set(),
+    isSourceWhitelisted: function(hostname) {
+        return CliqzAttrack.disabled_sites.has(hostname);
+    },
+    disableOnSite: function(domain) {
+      CliqzAttrack.disabled_sites.add(domain);
     }
 };
