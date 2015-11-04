@@ -4731,5 +4731,20 @@ var CliqzAttrack = {
       });
 
       return result;
+    },
+    /** Enables Attrack module with cookie, QS and referrer protection enabled.
+     *  Currently just sets preferences, full protection will be enabled after extension reload
+     */
+    enableModule: function() {
+      CliqzUtils.setPref('antiTrackTest', true);
+      CliqzUtils.setPref('attrackBlockCookieTracking', true);
+      CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+      CliqzUtils.setPref('attrackRefererTracking', true);
+    },
+    /** Disables anti-tracking immediately.
+     */
+    disableModule: function() {
+      CliqzUtils.setPref('antiTrackTest', false);
+      CliqzAttrack.unloadAtBrowser();
     }
 };
