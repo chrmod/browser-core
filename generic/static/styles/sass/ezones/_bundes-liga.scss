@@ -210,51 +210,55 @@
     max-width: calc(100% - 350px);
 }
 
-.ez-liga table {
-    margin-top: 20px;
-    border-collapse: collapse;
-    text-align: center;
+.ez-liga {
+    max-width: 700px;
+    padding-right: 100px;
+
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-top: 20px;
+        text-align: center;
+
+        th, td {
+            color: #999;
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        td:nth-child(1) {
+            color: #999;
+            width: 10px;
+            padding-right: 15px;
+        }
+
+        td:nth-child(2),
+        th:nth-child(2) {
+            overflow: hidden;
+            width: 130px;
+            white-space: nowrap;
+            text-align: left;
+            text-overflow: ellipsis;
+        }
+
+        td:nth-child(2) {
+            color: #506bb8;
+        }
+
+        td:nth-child(10) {
+            color: #333;
+            font-weight: bold;
+        }
+
+        tr:nth-child(5) * {
+            border-bottom: none;
+        }
+    }
 }
 
-.ez-liga th, .ez-liga td {
-    padding: 5px 0;
-    border-bottom: 1px solid #cccccc;
-}
 
-.ez-liga th {
-    color: #999999;
-    font-weight: normal;
-}
 
-.ez-liga td {
-    width: 35px;
-}
 
-.ez-liga td:nth-child(1) {
-    color: #999999;
-    width: 10px;
-    padding-right: 15px;
-}
-
-.ez-liga td:nth-child(2),
-.ez-liga th:nth-child(2) {
-    overflow: hidden;
-    max-width: 130px;
-    white-space: nowrap;
-    text-align: left;
-    text-overflow: ellipsis;
-}
-
-.ez-liga th:nth-child(2) {
-    color: #999999;
-}
-
-.ez-liga td:nth-child(10) {
-    font-weight: bold;
-}
-
-.ez-liga tr:nth-child(5) * {
-    border-bottom: none;
-}
 
 /* ------- END Bundesliga EZ ----------*/
