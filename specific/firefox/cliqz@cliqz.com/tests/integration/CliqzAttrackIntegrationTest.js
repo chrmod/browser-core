@@ -46,15 +46,23 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         response.setHeader('Access-Control-Allow-Origin', '*');
         response.setHeader('Access-Control-Allow-Credentials', 'true');
       }
-      if ('accept' in headers && headers['accept'].indexOf('image') > 0) {
-        // img request, send correct headers
-        response.setHeader('Content-Type', 'image/png');
-        response.write(null);
+
+      // log request
+      echoed.push(r_obj);
+      console.log(r_obj);
+
+      // send an appropriate response
+      if ('accept' in headers && headers['accept'].indexOf('image') > -1) {
+        var imgFile = FileUtils.File(OS.Path.join(getExtensionDirectory(), 'tests', 'mockserver', 'Transparent.gif'));
+        // prevent img caching
+        response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.setHeader('Pragma', 'no-cache');
+        response.setHeader('Expires', '0');
+        // send actual gif file
+        server._handler._writeFileResponse(request, imgFile, response, 0, imgFile.fileSize);
       } else {
         response.write('{}');
       }
-      echoed.push(r_obj);
-      console.log(r_obj);
     }
 
     var proxy_autoconfig_url = null,
