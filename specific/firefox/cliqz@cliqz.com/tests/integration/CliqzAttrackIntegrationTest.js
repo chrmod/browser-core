@@ -377,6 +377,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
         context('cookie tests', function() {
 
           before(function(done) {
+            this.timeout(4000);
             // initial request to ensure cookies are set
             var url = "http://localhost:" + server_port + "/" + testpage;
             var t = gBrowser.addTab(url);
