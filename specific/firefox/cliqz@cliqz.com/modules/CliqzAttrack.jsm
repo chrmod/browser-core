@@ -4694,5 +4694,42 @@ var CliqzAttrack = {
                 req_log[stat_key]++;
             }
         }
+    },
+    /** Get info about trackers and blocking done in a specified tab.
+     *
+     *  Returns an object describing anti-tracking actions for this page, with keys as follows:
+     *    cookies: 'allowed' and 'blocked' counts.
+     *    requests: 'safe' and 'unsafe' counts. 'Unsafe' means that unsafe data was seen in a request to a tracker.
+     *    trackers: more detailed information about each tracker. Object with keys being tracker domain and values
+     *        more detailed blocking data.
+     */
+    getTabBlockingInfo: function(tab_id) {
+      if (! (tab_id in CliqzAttrack.tp_events._active) ) {
+        return {'error': 'Tab ID ' + tab_id + ' not active'};
+      }
+      var tab_data = CliqzAttrack.tp_events._active[tab_id],
+        result = {
+          hostname: tab_data.hostname,
+          cookies: {allowed: 0, blocked: 0},
+          requests: {safe: 0, unsafe: 0},
+          trackers: {}
+        },
+        trackers = Object.keys(tab_data.tps).filter(function(domain) {
+          return md5(CliqzAttrack.getGeneralDomain(domain)).substring(0, 16) in CliqzAttrack.tokenExtWhitelist;
+        }),
+        plain_data = tab_data.asPlainObject();
+
+      trackers.forEach(function(dom) {
+        result.trackers[dom] = {};
+        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs', 'tokens_blocked', 'req_aborted'].forEach(function (k) {
+          result.trackers[dom][k] = (k in plain_data.tps[dom] ? plain_data.tps[dom][k] : 0);
+        });
+        result.cookies.allowed += result.trackers[dom]['cookie_set'] - result.trackers[dom]['cookie_blocked'];
+        result.cookies.blocked += result.trackers[dom]['cookie_blocked'];
+        result.requests.safe += result.trackers[dom]['c'] - result.trackers[dom]['bad_qs'];
+        result.requests.unsafe += result.trackers[dom]['bad_qs'];
+      });
+
+      return result;
     }
 };
