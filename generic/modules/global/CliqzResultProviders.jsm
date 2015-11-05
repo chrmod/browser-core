@@ -215,18 +215,13 @@ var CliqzResultProviders = {
     }
   },
   // called once at visual hashtag creation
+  // TODO: use the updated shortcuts from about:preferences#search
   getShortcut: function(name){
-    var shortcut, nonDefaultProvider = NonDefaultProviders.find(function(provider) {
-      return provider.name === name;
-    });
+    for(var i=0; i < NonDefaultProviders.length; i++)
+      if(NonDefaultProviders[i].name === name)
+        return NonDefaultProviders[i].key;
 
-    if (nonDefaultProvider) {
-      shortcut = nonDefaultProvider.key;
-    } else {
-      shortcut = CliqzResultProviders.createShortcut(name);
-    }
-
-    return shortcut;
+    return CliqzResultProviders.createShortcut(name);
   },
   // create a unique shortcut -> first 2 lowercased letters
   createShortcut: function(name){
