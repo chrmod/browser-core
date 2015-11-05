@@ -4760,7 +4760,10 @@ var CliqzAttrack = {
     isSourceWhitelisted: function(hostname) {
         return CliqzAttrack.disabled_sites.has(hostname);
     },
-    disableOnSite: function(domain) {
+    addSourceDomainToWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.add(domain);
+    },
+    removeSourceDomainFromWhitelist: function(domain) {
+      CliqzAttrack.disabled_sites.delete(domain);
     }
 };
