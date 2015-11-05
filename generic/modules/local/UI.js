@@ -1272,8 +1272,9 @@ function getResultKind(el){
 
 // bubbles up maximum to the result container
 function getResultOrChildAttr(el, attr){
-  if(el == null || el.className == IC) return ''
-  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement);
+  if(el == null) return '';
+  if(el.className == IC) return el.getAttribute(attr) || '';
+  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
 function urlIndexInHistory(url, urlList) {
