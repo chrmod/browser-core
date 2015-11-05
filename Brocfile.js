@@ -126,7 +126,7 @@ var firefox = new MergeTrees([
     new Funnel(global,      { destDir: 'modules' }),
     new Funnel(local,       { destDir: 'chrome/content'}),
     new Funnel(compiledCss, { destDir: 'chrome/styles/css' }),
-  ]), { destDir: 'cliqz@cliqz.com' }),
+  ], { overwrite: true } ), { destDir: 'cliqz@cliqz.com' }),
   firefoxPackage,
 ]);
 
