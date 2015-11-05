@@ -1287,10 +1287,9 @@ function getResultKind(el){
 
 // bubbles up maximum to the result container
 function getResultOrChildAttr(el, attr){
-  var attr = el.getAttribute("href") || el.getAttribute('url');
   if(el == null) return '';
-  if(el.className == IC) return attr || '';
-  return attr || getResultOrChildAttr(el.parentElement);
+  if(el.className == IC) return el.getAttribute(attr) || '';
+  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
 function urlIndexInHistory(url, urlList) {
