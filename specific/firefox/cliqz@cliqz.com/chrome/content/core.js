@@ -961,9 +961,10 @@ window.CLIQZ.Core = {
       return menu;
     },
 
-    createSimpleBtn: function(doc, txt, func, btnName){
+    createSimpleBtn: function(doc, txt, func, action){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
+        item.setAttribute('action', action);
         if(func)
             item.addEventListener(
                 'command',
@@ -971,7 +972,7 @@ window.CLIQZ.Core = {
                     CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'cliqz_menu_button',
-                        button_name: btnName
+                        button_name: action
                     });
                     func();
                 },
