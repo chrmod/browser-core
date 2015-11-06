@@ -3,6 +3,7 @@ var MergeTrees = require('broccoli-merge-trees');
 var compileSass = require('broccoli-sass-source-maps');
 var concat = require('broccoli-sourcemap-concat');
 var jade = require('broccoli-jade');
+var fs = require('fs');
 
 // input trees
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
@@ -26,6 +27,14 @@ var compiledCss     = compileSass(
   'extension.css',
   { sourceMap: true }
 );
+
+// attach subprojects
+var modules = new MergeTrees(fs.readdirSync("modules").map(function (name) {
+  var path = 'modules/'+name;
+  if(fs.statSync(path).isDirectory()) {
+    return new Funnel(path+'/dist', { destDir: name });
+  }
+}).filter(function (funnel) { return funnel; }));
 
 var globalConcated = concat(global, {
   outputFile: 'global.js',
@@ -125,6 +134,7 @@ var firefox = new MergeTrees([
     new Funnel(libs,        { destDir: 'modules/extern' }),
     new Funnel(global,      { destDir: 'modules' }),
     new Funnel(local,       { destDir: 'chrome/content'}),
+    new Funnel(modules,     { destDir: 'chrome/content' }),
     new Funnel(compiledCss, { destDir: 'chrome/styles/css' }),
   ], { overwrite: true } ), { destDir: 'cliqz@cliqz.com' }),
   firefoxPackage,
