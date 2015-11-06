@@ -122,6 +122,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter, CliqzUtils) {
 
 
             it('should open URL on actions other than confirm', function(done) {
+                this.timeout(4000);
                 CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
                 CliqzMsgCenter._campaigns.TEST001.limits.postpone = 1;
                 CliqzMsgCenter._campaigns.TEST001.message.options[1].url = url;
