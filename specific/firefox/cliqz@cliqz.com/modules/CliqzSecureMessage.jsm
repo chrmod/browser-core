@@ -21,10 +21,53 @@ var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefBranch);
 
 
+// Import them in alphabetical order.
+Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/bigint.js');
+Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto.js');
+// var CryptoJS = this.CryptoJS;
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/jsencrypt.js');
-Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/bigint.js', this);
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 
+
+var JsonFormatter = {
+    stringify: function (cipherParams) {
+        // create json object with ciphertext
+        var jsonObj = {
+            ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64)
+        };
+
+        // optionally add iv and salt
+        if (cipherParams.iv) {
+            jsonObj.iv = cipherParams.iv.toString();
+        }
+        if (cipherParams.salt) {
+            jsonObj.s = cipherParams.salt.toString();
+        }
+
+        // stringify json object
+        return JSON.stringify(jsonObj);
+    },
+
+    parse: function (jsonStr) {
+        // parse json string
+        var jsonObj = JSON.parse(jsonStr);
+
+        // extract ciphertext from json object, and create cipher params object
+        var cipherParams = CryptoJS.lib.CipherParams.create({
+            ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
+        });
+
+        // optionally extract iv and salt
+        if (jsonObj.iv) {
+            cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv)
+        }
+        if (jsonObj.s) {
+            cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s)
+        }
+
+        return cipherParams;
+    }
+};
 
 // Create a new http handler.
 function _http(url){
@@ -80,10 +123,6 @@ function _http(url){
 
 // Set the context for message to be sent.
 var messageContext = function (msg) {
- 	/*
-
- 	*/
-
  	this.orgMessage = msg;
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
@@ -92,15 +131,78 @@ var messageContext = function (msg) {
 
 }
 
-messageContext.prototype.createPayload = function(){
-	// Return the public exponent
+/**
+ * Method to create payload to send for blind signature.
+ * The payload needs to consist of eventID, userPK, encryptedMessage
+ * @returns string with payload created.
+ */
+messageContext.prototype.createPayloadBlindSignature = function(){
 	var payload = {};
 	payload["uPK"] = "";
-	payload["encrypted"] = this.sha256; // This needs to be replaces with encrypted.
+	payload["encrypted"] = this.eventID + ":" + this.aes + ":"; // This needs to be replaces with encrypted.
 	payload["sm"] = this.signed;
 	payload["routeHash"] = this.routeHash;
 	return JSON.stringify(payload);
 }
+
+/**
+ * Method to parse a message and encrypt with AES.
+ * @returns string of AES encrypted message.
+ */
+messageContext.prototype.aesEncrypt = function(){
+	var _this = this;
+	var promise = new Promise(function(resolve, reject){
+		try{
+			var salt = CryptoJS.lib.WordArray.random(128/8);
+			var iv = CryptoJS.enc.Hex.parse(salt.toString());
+		    var eventID = ('' + iv).substring(0,5);
+		    var key = CryptoJS.MD5(_this.orgMessage);
+		    var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
+		    _this.log(eventID);
+		    _this.eventID = eventID;
+		    _this.aesKey = key;
+			_this.encryptedMessage = encrypted.toString();
+			_this.iv = encrypted.iv.toString(CryptoJS.enc.Hex);
+			_this.messageToSign = key + ";" + encrypted.iv + ";" + "instant;cPK;endPoint";
+			resolve(_this.aes);
+		}
+		catch(e){
+			reject(e);
+		}
+	})
+
+	return promise;
+}
+
+
+/**
+ * Method to sign the AES encryptiong key with Aggregator Public key.
+ * @returns string of encrypted key.
+ */
+messageContext.prototype.signKey = function(){
+	var aesKey = this.aesKey.toString(CryptoJS.enc.Base64);
+	var _this = this;
+	var promise = new Promise(function(resolve, reject){
+		try{
+			var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(_this.messageToSign);
+			_this.signedKey = signedKey;
+			resolve(signedKey);
+		}
+		catch(e){
+			reject(e);
+		}
+	})
+	return promise;
+}
+
+messageContext.prototype.log =  function(msg){
+	if(CliqzSecureMessage.debug){
+		CliqzUtils.log(msg, "Message signing");
+	}
+
+}
+
+
 // Set the context for blind signatures right.
 var blindSignContext = function (keySize) {
  	/*
@@ -111,6 +213,7 @@ var blindSignContext = function (keySize) {
  	*/
 
  	this.keyObj = new JSEncrypt({default_key_size:keySize});
+ 	this.signerEndPoint = "";
  	this.publicKeyPath = "chrome://cliqz/content/signer-pub-key.pub";
  	this.publicKey = "";
  	this.e = "65537";
@@ -245,6 +348,35 @@ blindSignContext.prototype.verify = function(){
 
 }
 
+/**
+ * Method to create payload to send for blind signature.
+ * The payload needs to consist of <hash(eventID:encryptedData:SignedKey:rateLimit), userPK>
+ * @returns string with payload created.
+ */
+blindSignContext.prototype.createPayloadBlindSignature = function(){
+	var payload = {};
+	payload["uPK"] = "";
+	payload["encrypted"] = ""; // This needs to be replaces with encrypted.
+	payload["sm"] = this.signed;
+	payload["routeHash"] = this.routeHash;
+	return JSON.stringify(payload);
+}
+
+var secureEventLoggerContext = function () {
+
+ 	this.keyObj = new JSEncrypt();
+ 	this.publicKeyPath = "chrome://cliqz/content/secureLogger-pub-key.pub";
+ 	var _this = this;
+	_http(this.publicKeyPath)
+	.get()
+	.then(function(response){
+		CliqzUtils.log("Secure event key loaded and parsed and loaded","SecureLogger");
+		var parseKey = _this.keyObj.setPublicKey(response);
+		CliqzUtils.log("Secure event key loaded and parsed and loaded","SecureLogger");
+	})
+	.catch(CliqzUtils.log("Error occurred while fetch signing key: ","SecureLogger"));
+
+}
 
 var CliqzSecureMessage = {
     VERSION: '0.2',
@@ -253,19 +385,68 @@ var CliqzSecureMessage = {
     blindSign: blindSignContext,
     messageContext: messageContext,
     keyPool:[],
-    httpHandler:_http
+    httpHandler:_http,
+    secureLogger: new secureEventLoggerContext(),
+    cryptoJS: CryptoJS
 }
 
 // CliqzSecureMessage.init();
 
 
 /*
-var mc = new CliqzSecureMessage.messageContext("konark");
-
 var signerKey =  new CliqzSecureMessage.blindSign()
 signerKey.fetchSignerKey()
 
+var mc = new CliqzSecureMessage.messageContext("snowden");
+
+mc.aesEncrypt()
+.then(function(data){
+	console.log("SigningAES-Key")
+	return mc.signKey()
+})
+.then(function(){
+	return bs.hashMessage(mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey)
+})
+.then(function(data){
+	console.log("Hashed message:");
+	console.log(data);
+	return bs.getBlindingNonce()
+})
+.then(function(data){
+	return bs.getBlinder();
+})
+.then(function(data1){
+	return bs.blindMessage();
+})
+.then(function(){
+	// Prepare payload
+	var payload = {};
+	payload["uPK"] = "uPK";
+	payload["bm"] = bs.bm;
+	return CliqzSecureMessage.httpHandler("http://192.168.3.249/sign")
+  		.post(JSON.stringify(payload))
+})
+.then(function(blindSignedMessage){
+	return bs.unBlindMessage(blindSignedMessage);
+})
+.then(function(data){
+	console.log("The final output is:");
+	console.log(data);
+	mc.signed = data;
+	return bs.verify()
+})
+.then(function(data){
+	console.log("Verified: " + data);
+	console.log(mc.createPayload());
+
+})
+*/
+
+
+/*
 console.log(message);
+
+for(var i=0;i<10;i++){
 var bs = new CliqzSecureMessage.blindSign()
 bs.e = signerKey.exponent();
 bs.n = signerKey.modulus();
@@ -304,4 +485,13 @@ bs.hashMessage(mc.orgMessage)
 
 })
 
+*/
+
+/*
+var payload1 = {}
+payload1['data'] = mc.eventID + ":" + mc.aes + ":" + mc.signedKey;
+// payload1['sm'] = mc.signed;
+// payload1['data'] = "mc.eventID + ":" + mc.aes + ":" + mc.signedKey";
+CliqzSecureMessage.httpHandler("http://10.10.68.230/telemetry")
+  		.post(JSON.stringify([payload1]))
 */
