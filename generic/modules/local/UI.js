@@ -17,11 +17,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-
-
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
-//  'chrome://cliqzmodules/content/CliqzImages.jsm');
-
 (function(ctx) {
 
 
@@ -205,14 +200,6 @@ var UI = {
         if (!query)
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
-        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
-        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
-        // Images-layout for Cliqz-Images-Search
-        //CliqzImages.process_images_result(res,
-        //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
-        //                                  urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
-
-        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
 
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
