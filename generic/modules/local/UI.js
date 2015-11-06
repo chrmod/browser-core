@@ -384,23 +384,7 @@ var UI = {
     keyDown: function(ev){
         var sel = getResultSelection(),
             //allArrowable should be cached
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
-
-        allArrowable = allArrowable.filter(function(el){
-            // dont consider hidden elements
-            if(el.offsetParent == null) return false;
-
-            if(!el.getAttribute('arrow-if-visible')) return true;
-
-            // check if the element is visible
-            //
-            // for now this check is enough but we might be forced to switch to a
-            // more generic approach - maybe using document.elementFromPoint(x, y)
-            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
-                return false
-            return true;
-        });
-
+            allArrowable = getAllArrowable();
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
@@ -489,6 +473,10 @@ var UI = {
                 UI.cursor = urlbar.selectionStart;
                 return false;
         }
+    },
+
+    selectResultByIndex: function (pos) {
+        setResultSelection(getAllArrowable()[pos], false, true);
     },
     entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
@@ -1627,6 +1615,24 @@ function smooth_scroll_to(element, target, duration) {
     }
     // boostrap the animation process
     setTimeout(function(){ scroll_frame(); }, 0);
+}
+
+function getAllArrowable() {
+    return Array.prototype.slice.call($$('[arrow]', gCliqzBox)).filter(
+        function(el) {
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+    });
 }
 
 function selectNextResult(pos, allArrowable) {

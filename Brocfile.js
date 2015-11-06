@@ -13,8 +13,11 @@ var chromeSpecific  = new Funnel('specific/chrome');
 var iOSSpecific     = new Funnel('specific/iOS');
 var mobileSpecific  = new Funnel('specific/mobile');
 var androidSpecific = new Funnel('specific/androidkit');
+var cliqziumSpecific= new Funnel('specific/cliqzium');
 var generic         = new Funnel('generic');
 var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*'] });
+var locales         = new Funnel(generic, { srcDir: 'static/locale', destDir: 'locale' });
+var templates       = new Funnel(generic, { srcDir: 'static/templates', destDir: 'templates'});
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local' });
@@ -140,6 +143,16 @@ var firefox = new MergeTrees([
   firefoxPackage,
 ]);
 
+var cliqzium = new MergeTrees([
+  new Funnel(locales, { }),
+  new Funnel(templates, { }),
+  new Funnel(compiledCss, { destDir: 'css' }),
+  new Funnel(globalConcated, { destDir: 'js' }),
+  new Funnel(localConcated, { destDir: 'js' }),
+  new Funnel(toolLibsConcated, { destDir: 'js' }),
+  new Funnel(cliqziumSpecific, { }),
+]);
+
 var tool = new MergeTrees([
   new Funnel(staticFiles, { exclude: ['module'] }),
   new Funnel(compiledCss, { destDir: 'styles/css' }),
@@ -168,6 +181,7 @@ var ios = new MergeTrees([
 module.exports = new MergeTrees([
   new Funnel(android,      { destDir: 'androidkit'   }),
   new Funnel(chrome,       { destDir: 'chrome'       }),
+  new Funnel(cliqzium,     { destDir: 'cliqzium'     }),
   new Funnel(firefox,      { destDir: 'firefox'      }),
   new Funnel(firefoxDebug, { destDir: 'firefoxDebug' }),
   new Funnel(tool,         { destDir: 'tool'         }),
