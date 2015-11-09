@@ -2340,7 +2340,7 @@ var CliqzAttrack = {
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
 
-		if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
+        if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
         if (CliqzAttrack.tokenDomain == null) CliqzAttrack.loadTokenDomain();
         if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
@@ -2349,6 +2349,10 @@ var CliqzAttrack = {
         if (CliqzAttrack.wrongTokenLastSent==null || CliqzAttrack.loadedPage==null ||
             CliqzAttrack.localBlocked==null || CliqzAttrack.checkedToken==null || CliqzAttrack.blockedToken)
             CliqzAttrack.loadLocalTokenStats();
+
+        if (Object.keys(CliqzAttrack.tracker_companies).length == 0) {
+            CliqzAttrack.loadTrackerCompanies();
+        }
 
         // if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
@@ -4721,7 +4725,8 @@ var CliqzAttrack = {
           hostname: tab_data.hostname,
           cookies: {allowed: 0, blocked: 0},
           requests: {safe: 0, unsafe: 0},
-          trackers: {}
+          trackers: {},
+          companies: {}
         },
         trackers = Object.keys(tab_data.tps).filter(function(domain) {
           return md5(CliqzAttrack.getGeneralDomain(domain)).substring(0, 16) in CliqzAttrack.tokenExtWhitelist;
@@ -4737,9 +4742,41 @@ var CliqzAttrack = {
         result.cookies.blocked += result.trackers[dom]['cookie_blocked'];
         result.requests.safe += result.trackers[dom]['c'] - result.trackers[dom]['bad_qs'];
         result.requests.unsafe += result.trackers[dom]['bad_qs'];
+
+        let tld = CliqzAttrack.getGeneralDomain(dom),
+          company = tld;
+        if (tld in CliqzAttrack.tracker_companies) {
+          company = CliqzAttrack.tracker_companies[tld];
+        }
+        if (!(company in result.companies)) {
+          result.companies[company] = [];
+        }
+        result.companies[company].push(dom);
       });
 
       return result;
+    },
+    tracker_companies: {},
+    loadTrackerCompanies: function() {
+      CliqzUtils.loadResource("https://cdn.cliqz.com/anti-tracking/tracker_owners.json", function(req) {
+        try {
+          CliqzAttrack._parseTrackerCompanies(req.response);
+        } catch(e) {
+          CliqzUtils.log(e);
+        }
+      });
+    },
+    /** Parse tracker owners list {Company: [list, of, domains]}, into lookup table {domain: Company}
+     */
+    _parseTrackerCompanies: function(response) {
+      var rev_list = {},
+        company_list = JSON.parse(response);
+      for (var company in company_list) {
+        company_list[company].forEach(function(d) {
+          rev_list[d] = company;
+        });
+      }
+      CliqzAttrack.tracker_companies = rev_list;
     },
     /** Enables Attrack module with cookie, QS and referrer protection enabled.
      *  Currently just sets preferences, full protection will be enabled after extension reload

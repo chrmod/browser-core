@@ -128,6 +128,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     };
 
     beforeEach(function() {
+      this.timeout(5000);
       // clean preferences -> default everything to off, except Attrack module.
       CliqzUtils.setPref('attrackBlockCookieTracking', false);
       CliqzUtils.setPref('attrackRemoveQueryStringTracking', false);
