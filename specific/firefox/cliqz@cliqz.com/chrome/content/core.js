@@ -34,8 +34,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-//  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');

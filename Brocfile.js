@@ -4,8 +4,11 @@ var compileSass = require('broccoli-sass-source-maps');
 var concat = require('broccoli-sourcemap-concat');
 var jade = require('broccoli-jade');
 var fs = require('fs');
+var Babel = require('broccoli-babel-transpiler');
+var amdNameResolver = require('amd-name-resolver');
 
 // input trees
+var bowerComponents = new Funnel('bower_components');
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var exceptionsJsm   = new Funnel('specific/firefox', { include: ['CliqzExceptions.jsm'] });
@@ -16,11 +19,14 @@ var androidSpecific = new Funnel('specific/androidkit');
 var cliqziumSpecific= new Funnel('specific/cliqzium');
 var generic         = new Funnel('generic');
 var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*'] });
+var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*', 'views/**/*'] });
+var staticViews     = new Funnel(generic, { srcDir: 'static/views' });
 var locales         = new Funnel(generic, { srcDir: 'static/locale', destDir: 'locale' });
 var templates       = new Funnel(generic, { srcDir: 'static/templates', destDir: 'templates'});
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local' });
+var ui              = new Funnel(local, { include: ['UI.js'] });
 var helpers         = new Funnel('views');
 var jadeViews       = new Funnel(helpers, { include: ['*.jade'] });
 var compiledViews   = jade(jadeViews);
@@ -38,6 +44,36 @@ var modules = new MergeTrees(fs.readdirSync("modules").map(function (name) {
     return new Funnel(path+'/dist', { destDir: name });
   }
 }).filter(function (funnel) { return funnel; }));
+
+var babelOptions = {
+  modules: "amdStrict",
+  moduleIds: true,
+  resolveModuleSource: amdNameResolver,
+  sourceMaps: "inline"
+};
+
+var loader = new Funnel(bowerComponents, { include: ['loader.js/loader.js'] });
+var babelStaticViews = new Babel(staticViews, babelOptions);
+var babelUi = new Babel(ui, babelOptions);
+var uiTree = MergeTrees([loader, babelStaticViews, babelUi]);
+
+var uiConcated = concat(uiTree, {
+  outputFile: 'UI.js',
+  headerFiles: ['loader.js/loader.js'],
+  inputFiles: [
+    "**/*.js"
+  ],
+  footerFiles: [
+    'UI.js',
+  ],
+  footer: "require('UI').default(this);",
+  sourceMapConfig: { enabled: true },
+});
+
+local = MergeTrees([
+  new Funnel(local, { exclude: ['UI.js'] }),
+  uiConcated
+])
 
 var globalConcated = concat(global, {
   outputFile: 'global.js',
@@ -118,10 +154,10 @@ var android = new MergeTrees([
   new Funnel(staticFiles, { srcDir: 'skin', destDir: 'navigation/skin' }),
   new Funnel(mobileSpecific, { srcDir: 'skin', destDir: 'navigation/skin/mobile' }),
   new Funnel(mobileSpecific, { srcDir: 'templates', destDir: 'navigation/templates' }),
-  new Funnel(androidSpecific, { destDir: 'navigation', exclude: ['js'] }),
+  new Funnel(androidSpecific, { destDir: 'navigation' }),
   new Funnel(globalConcated, { destDir: 'navigation/js' }),
   new Funnel(libsConcated, { destDir: 'navigation/js' }),
-  new Funnel(localMobile, { destDir: 'navigation/js' }),
+  new Funnel(localMobile, { destDir: 'navigation' }),
   new Funnel(local, { include: ['CliqzAntiPhishing.js'], destDir: 'navigation/js' }),
 ]);
 

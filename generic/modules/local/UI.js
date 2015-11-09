@@ -5,6 +5,8 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
+export default function(ctx) {
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -16,8 +18,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
-(function(ctx) {
 
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
@@ -2004,7 +2004,7 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
+    UI.VIEWS[templateName] = require(templateName).default;
     if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
       Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
         UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
@@ -2015,4 +2015,4 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
 
 ctx.CLIQZ.UI = UI;
 
-})(this);
+};
