@@ -29,6 +29,42 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/jsencrypt.js'
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 
 
+/*
+var worker = new Worker('chrome://cliqz/content/extern/demo-worker.js');
+// Decide what to do when the worker sends us a message
+worker.onmessage = function(e) {
+    CliqzUtils.log(e.data, "XXXXXXX");
+};
+
+// Send the worker a message
+worker.postMessage('hello worker');
+*/
+
+var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'];
+
+function fetchRouteTable(){
+	// This will fetch the route table from local file, will move it to webservice later.
+	_http("chrome://cliqz/content/route-hash-table.json")
+	.get()
+	.then(function(response){
+		CliqzUtils.log(respone, CliqzSecureMessage.LOG_KEY);
+	})
+	.catch(_this.log("Error occurred while fetch signing key: "));
+}
+
+var types = {
+   'get': function(prop) {
+      return Object.prototype.toString.call(prop);
+   },
+   'object': '[object Object]',
+   'array': '[object Array]',
+   'string': '[object String]',
+   'boolean': '[object Boolean]',
+   'number': '[object Number]'
+}
+
+// _keys.forEach(function(e){console.log(Object.getPrototypeOf(e))})
+
 var JsonFormatter = {
     stringify: function (cipherParams) {
         // create json object with ciphertext
@@ -121,13 +157,59 @@ function _http(url){
   };
 };
 
-// Set the context for message to be sent.
+/**
+Generate user Public-private key.
+This should be long-time key
+Only generate if the key is not already generated and stored on the machine.
+For now in prefs.
+*/
+var userPK = function () {
+	var keySet = CliqzUtils.getPref('userPKBeta',false);
+	this.keyGen = new JSEncrypt({default_key_size:2048});
+	if(!keySet) {
+		 // Using 2048 as 4096 is pretty compute intensive.
+		this.privateKey = this.keyGen.getPrivateKeyB64 ();
+		this.publiKey = this.keyGen.getPublicKeyB64();
+		CliqzUtils.setPref('userPKBeta', this.privateKey);
+	}
+	else{
+		this.keyGen.setPrivateKey(keySet);
+		this.privateKey = this.keyGen.getKey();
+		this.publiKey = this.keyGen.getPublicKeyB64();
+	}
+
+}
+
+/**
+ * Method to encrypt messages using long live public key.
+ */
+userPK.prototype.encrypt = function(msg){
+	return this.keyGen.encrypt(msg);
+
+}
+
+/**
+ * Method to decrypt messages using long live public key.
+ */
+userPK.prototype.decrypt = function(msg){
+	return this.keyGen.decrypt(msg);
+}
+
+/**
+ * Method to create object for message recieved..
+ * Only excepts valid JSON messages with the following fields:
+ * Type : Humanweb / Antitracking etc.
+ * Actions : Valid actions like Page, query etc.
+ * @returns string with payload created.
+ */
 var messageContext = function (msg) {
  	this.orgMessage = msg;
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
- 	this.routeHash = "routeHash" // Default : null;
+ 	this.routeHash = "http://192.168.3.249/verify"; // Default : null;
+ 	this.type = msg.type;
+ 	this.action = msg.action;
 
 }
 
@@ -193,6 +275,23 @@ messageContext.prototype.signKey = function(){
 		}
 	})
 	return promise;
+}
+
+/**
+ * Method to create hash for the message which will be used for routing purpose.
+ * @returns hash.
+ */
+messageContext.prototype.calculateRouteHash = function(msg){
+	var hash = "";
+	var _msg = msg || this.orgMessage;
+	var _keys = ['action'];
+	var hashM = sha256_digest(JSON.parse(_msg)[_keys[0]]);
+	CliqzUtils.log(JSON.parse(_msg)[_keys[0]]);
+	var hash = modInt(str2bigInt(hashM,16), 500);
+	this.routeHash = hashM;
+	this.proxyHash = hash;
+	this.rateLimit = '30'; // One-hour, needs to be in seconds.
+	CliqzUtils.log("Hash: " + hash,CliqzUtils.LOG_KEY);
 }
 
 messageContext.prototype.log =  function(msg){
@@ -379,7 +478,7 @@ var secureEventLoggerContext = function () {
 }
 
 var CliqzSecureMessage = {
-    VERSION: '0.2',
+    VERSION: '0.1',
     LOG_KEY: 'securemessage',
     debug: true,
     blindSign: blindSignContext,
@@ -387,7 +486,20 @@ var CliqzSecureMessage = {
     keyPool:[],
     httpHandler:_http,
     secureLogger: new secureEventLoggerContext(),
-    cryptoJS: CryptoJS
+    cryptoJS: CryptoJS,
+    uPK : new userPK(),
+    routeTable : [],
+    fetchRouteTable: function(){
+		// This will fetch the route table from local file, will move it to webservice later.
+		_http("chrome://cliqz/content/route-hash-table.json")
+		.get()
+		.then(function(response){
+			// CliqzUtils.log(response, CliqzSecureMessage.LOG_KEY);
+			CliqzSecureMessage.routeTable = JSON.parse(response);
+			return;
+		})
+		// .catch(CliqzUtils.log("Error occurred while fetch signing key: ", CliqzSecureMessage.LOG_KEY));
+	}
 }
 
 // CliqzSecureMessage.init();
@@ -396,8 +508,11 @@ var CliqzSecureMessage = {
 /*
 var signerKey =  new CliqzSecureMessage.blindSign()
 signerKey.fetchSignerKey()
+var bs = new CliqzSecureMessage.blindSign()
+bs.e = signerKey.exponent();
+bs.n = signerKey.modulus();
 
-var mc = new CliqzSecureMessage.messageContext("snowden");
+var mc = new CliqzSecureMessage.messageContext('{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}');
 
 mc.aesEncrypt()
 .then(function(data){
@@ -405,8 +520,8 @@ mc.aesEncrypt()
 	return mc.signKey()
 })
 .then(function(){
-	return bs.hashMessage(mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey)
-})
+	return bs.hashMessage(mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey + ":" + CliqzSecureMessage.uPK.publiKey + ":" + mc.rateLimit)
+	})
 .then(function(data){
 	console.log("Hashed message:");
 	console.log(data);
@@ -421,7 +536,7 @@ mc.aesEncrypt()
 .then(function(){
 	// Prepare payload
 	var payload = {};
-	payload["uPK"] = "uPK";
+	payload["uPK"] = CliqzSecureMessage.uPK.publiKey;
 	payload["bm"] = bs.bm;
 	return CliqzSecureMessage.httpHandler("http://192.168.3.249/sign")
   		.post(JSON.stringify(payload))
@@ -447,10 +562,8 @@ mc.aesEncrypt()
 console.log(message);
 
 for(var i=0;i<10;i++){
-var bs = new CliqzSecureMessage.blindSign()
-bs.e = signerKey.exponent();
-bs.n = signerKey.modulus();
-bs.hashMessage(mc.orgMessage)
+
+bs.hashMessage()
 .then(function(data){
 	console.log("Hashed message:");
 	console.log(data);
@@ -489,9 +602,87 @@ bs.hashMessage(mc.orgMessage)
 
 /*
 var payload1 = {}
-payload1['data'] = mc.eventID + ":" + mc.aes + ":" + mc.signedKey;
+// payload1['data'] = mc.eventID + ":" + mc.aes + ":" + mc.signedKey;
 // payload1['sm'] = mc.signed;
 // payload1['data'] = "mc.eventID + ":" + mc.aes + ":" + mc.signedKey";
-CliqzSecureMessage.httpHandler("http://10.10.68.230/telemetry")
-  		.post(JSON.stringify([payload1]))
+payload1['em'] = mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey;
+payload1['sm'] = mc.signed;
+payload1['rH'] = mc.routeHash;
+payload1['rL'] = mc.rateLimit;
+payload1['uPK'] =  CliqzSecureMessage.uPK.publiKey;
+
+CliqzSecureMessage.httpHandler("http://192.168.3.249/verify")
+  		.post(JSON.stringify(payload1))
 */
+
+
+
+
+
+/*
+var res = arr.reduce(function(p, c){
+    return p.then(function(){ return workerFunction(c); });
+}, Q());
+
+
+
+function securePush(i, secureData){
+    if(i < secureData.length){
+    	var mc = new CliqzSecureMessage.messageContext(secureData[i]);
+    	mc.aesEncrypt()
+		.then(function(data){
+			console.log("SigningAES-Key")
+			return mc.signKey()
+		})
+		.then(function(){
+			return bs.hashMessage(mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey + ":" CliqzSecureMessage.uPK.publiKey + mc.rateLimit);
+		})
+		.then(function(data){
+			console.log("Hashed message:");
+			console.log(data);
+			return bs.getBlindingNonce()
+		})
+		.then(function(data){
+			return bs.getBlinder();
+		})
+		.then(function(data1){
+			return bs.blindMessage();
+		})
+		.then(function(){
+			// Prepare payload
+			var payload = {};
+			payload["uPK"] = "uPK";
+			payload["bm"] = bs.bm;
+			return CliqzSecureMessage.httpHandler("http://192.168.3.249/sign")
+		  		.post(JSON.stringify(payload))
+		})
+		.then(function(blindSignedMessage){
+			return bs.unBlindMessage(blindSignedMessage);
+		})
+		.then(function(data){
+			console.log("The final output is:");
+			console.log(data);
+			mc.signed = data;
+			return bs.verify()
+		})
+		.then(function(data){
+			console.log("Verified: " + data);
+			// console.log(mc.createPayload());
+
+		var payload1 = {}
+			// payload1['data'] = mc.eventID + ":" + mc.aes + ":" + mc.signedKey;
+			// payload1['sm'] = mc.signed;
+			// payload1['data'] = "mc.eventID + ":" + mc.aes + ":" + mc.signedKey";
+			payload1['em'] = mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey;
+			payload1['sm'] = mc.signed;
+			CliqzSecureMessage.httpHandler("http://192.168.3.249/verify")
+			  		.post(JSON.stringify(payload1))
+		securePush(i+1, secureData)
+		})
+
+	}
+    }
+
+
+    securePush(0, arr)
+    */
