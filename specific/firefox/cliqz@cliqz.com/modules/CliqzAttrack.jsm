@@ -4756,6 +4756,9 @@ var CliqzAttrack = {
 
       return result;
     },
+    getCurrentTabBlockingInfo: function() {
+      return CliqzAttrack.getTabBlockingInfo(CliqzUtils.getWindow().gBrowser.selectedTab.linkedBrowser._loadContext.DOMWindowID);
+    },
     tracker_companies: {},
     loadTrackerCompanies: function() {
       CliqzUtils.loadResource("https://cdn.cliqz.com/anti-tracking/tracker_owners.json", function(req) {
