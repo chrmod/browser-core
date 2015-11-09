@@ -6,6 +6,8 @@ var urlbar      = document.getElementById('urlbar'),
     openPopup   = CLIQZEnvironment.openPopup;
 CliqzUtils.init(window);
 CLIQZ.UI.init(urlbar);
+//disable context menu by default
+togglecMenu(true);
 
 
 CLIQZ.Core = {
