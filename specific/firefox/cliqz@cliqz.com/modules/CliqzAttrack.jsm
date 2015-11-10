@@ -597,6 +597,7 @@ var CliqzAttrack = {
     URL_SAFE_KEY_VERSIONCHECK: 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
     URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
     URL_BLOCK_REPROT_LIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
+    URL_TRACKER_COMPANIES: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
     debug: false,
     msgType:'attrack',
     trackExamplesThreshold: 0,
@@ -4761,7 +4762,7 @@ var CliqzAttrack = {
     },
     tracker_companies: {},
     loadTrackerCompanies: function() {
-      CliqzUtils.loadResource("https://cdn.cliqz.com/anti-tracking/tracker_owners.json", function(req) {
+      CliqzUtils.loadResource(CliqzAttrack.URL_TRACKER_COMPANIES, function(req) {
         try {
           CliqzAttrack._parseTrackerCompanies(req.response);
         } catch(e) {
