@@ -64,9 +64,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
-  'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
-
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -206,7 +203,7 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             CliqzDemo.init(window);
-            CliqzMsgCenter.init(window);
+            CliqzUtils.messageCenter.registerWindow(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -423,7 +420,7 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
-            CliqzMsgCenter.unload(window);
+            CliqzUtils.messageCenter.unregisterWindow(window);
             CLIQZ.COMPONENTS.forEach(function(c){
               c.unload && c.unload();
             })
@@ -476,7 +473,6 @@ window.CLIQZ.Core = {
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.CliqzDemo;
-            delete window.CliqzMsgCenter;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
