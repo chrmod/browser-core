@@ -40,8 +40,74 @@ worker.onmessage = function(e) {
 worker.postMessage('hello worker');
 */
 
+/* Source mapping for routing keys, endpoints, rate-limit etc
+*/
+
+var sourceMap = {
+	"alive" :{				// Action which will identify the message type.
+		"keys":["action"],	// Keys to fetch to create route hash.
+		"ratelimit": 1,		// How many events are allowed in the defined interval.
+		"interval": 3600,	// Time window in which set of events are allowed.
+		"endpoint": {
+			"protocol": "https",
+			"method": "POST",
+			"service": "safe-browsing"
+		}
+	}
+}
+
+
+JSON.flatten = function (data) {
+    var result = {};
+
+    function recurse(cur, prop) {
+        if (Object(cur) !== cur) {
+            result[prop] = cur;
+        } else if (Array.isArray(cur)) {
+            for (var i = 0, l = cur.length; i < l; i++)
+            recurse(cur[i], prop + "[" + i + "]");
+            if (l == 0) result[prop] = [];
+        } else {
+            var isEmpty = true;
+            for (var p in cur) {
+                isEmpty = false;
+                recurse(cur[p], prop ? prop + "." + p : p);
+            }
+            if (isEmpty && prop) result[prop] = {};
+        }
+    }
+    recurse(data, "");
+    return result;
+};
+JSON.unflatten = function (data) {
+    "use strict";
+    if (Object(data) !== data || Array.isArray(data)) return data;
+    var regex = /\.?([^.\[\]]+)|\[(\d+)\]/g,
+        resultholder = {};
+    for (var p in data) {
+        var cur = resultholder,
+            prop = "",
+            m;
+        while (m = regex.exec(p)) {
+            cur = cur[prop] || (cur[prop] = (m[2] ? [] : {}));
+            prop = m[2] || m[1];
+        }
+        cur[prop] = data[p];
+    }
+    return resultholder[""] || resultholder;
+};
+
 var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'];
 
+/* This method will return the string based on mapping of which keys to use to hash for routing.
+*/
+
+function getRouteHash(msg){
+	var flastMsg = JSON.flatten(JSON.parse(msg));
+	var keys = sourceMap[msg.action]["keys"];
+	return msg[keys[0]];
+
+}
 function fetchRouteTable(){
 	// This will fetch the route table from local file, will move it to webservice later.
 	_http("chrome://cliqz/content/route-hash-table.json")
@@ -204,12 +270,15 @@ userPK.prototype.decrypt = function(msg){
  */
 var messageContext = function (msg) {
  	this.orgMessage = msg;
+ 	this.jMessage = JSON.parse(msg);
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
  	this.routeHash = "http://192.168.3.249/verify"; // Default : null;
- 	this.type = msg.type;
- 	this.action = msg.action;
+ 	this.type = this.jMessage.type;
+ 	this.action = this.jMessage.action;
+ 	this.interval = sourceMap[this.action]["interval"];
+ 	this.rateLimit = sourceMap[this.action]["ratelimit"];
 
 }
 
@@ -285,12 +354,13 @@ messageContext.prototype.calculateRouteHash = function(msg){
 	var hash = "";
 	var _msg = msg || this.orgMessage;
 	var _keys = ['action'];
-	var hashM = sha256_digest(JSON.parse(_msg)[_keys[0]]);
+	var stringRouteHash = getRouteHash(msg);
+	var hashM = sha256_digest(stringRouteHash);
 	CliqzUtils.log(JSON.parse(_msg)[_keys[0]]);
 	var hash = modInt(str2bigInt(hashM,16), 500);
 	this.routeHash = hashM;
 	this.proxyHash = hash;
-	this.rateLimit = '30'; // One-hour, needs to be in seconds.
+	this.rateLimit = 1; // One-hour, needs to be in seconds.
 	CliqzUtils.log("Hash: " + hash,CliqzUtils.LOG_KEY);
 }
 
@@ -514,13 +584,16 @@ bs.n = signerKey.modulus();
 
 var mc = new CliqzSecureMessage.messageContext('{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}');
 
+CliqzSecureMessage.fetchRouteTable()
+mc.calculateRouteHash()
+
 mc.aesEncrypt()
 .then(function(data){
 	console.log("SigningAES-Key")
 	return mc.signKey()
 })
 .then(function(){
-	return bs.hashMessage(mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey + ":" + CliqzSecureMessage.uPK.publiKey + ":" + mc.rateLimit)
+	return bs.hashMessage(mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey + ":" + CliqzSecureMessage.uPK.publiKey + ":" + mc.interval + ":" + mc.rateLimit)
 	})
 .then(function(data){
 	console.log("Hashed message:");
@@ -609,6 +682,7 @@ payload1['em'] = mc.eventID + ":" + mc.encryptedMessage + ":" + mc.signedKey;
 payload1['sm'] = mc.signed;
 payload1['rH'] = mc.routeHash;
 payload1['rL'] = mc.rateLimit;
+payload1['i'] = mc.interval;
 payload1['uPK'] =  CliqzSecureMessage.uPK.publiKey;
 
 CliqzSecureMessage.httpHandler("http://192.168.3.249/verify")
@@ -668,6 +742,9 @@ function securePush(i, secureData){
 		.then(function(data){
 			console.log("Verified: " + data);
 			// console.log(mc.createPayload());
+		.catch(function(err)){
+			console.log(err);
+		}
 
 		var payload1 = {}
 			// payload1['data'] = mc.eventID + ":" + mc.aes + ":" + mc.signedKey;
@@ -686,3 +763,71 @@ function securePush(i, secureData){
 
     securePush(0, arr)
     */
+
+/*
+let arrGenerator = function* (arr) {
+	for(var i=0;i<arr.length;i++){
+		yield arr[i];
+	}
+
+}
+arr = ['{"action": "alive", "type": "humanweb", "ver": "1.6", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'
+,'{"action": "alive", "type": "humanweb", "ver": "1.7", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'
+,'{"action": "alive", "type": "humanweb", "ver": "1.8", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'
+,'{"action": "alive", "type": "humanweb", "ver": "1.9", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'
+]
+aa = arrGenerator(arr)
+
+for(var i=0;i<arr.length;i++){
+	var _msg = aa.next();
+	// if(!_msg['done']) console.log("DOne");
+
+	// CliqzUtils.setTimeout(function(){
+
+	// }, [delay])
+
+	var msg = _msg['value'];
+	var mc = new CliqzSecureMessage.messageContext();
+	mc.aesEncrypt()
+	.then(function(data){
+		console.log("SigningAES-Key")
+		return mc.signKey()
+	})
+	.then(function(){
+		return bs.hashMessage(msg)
+		})
+	.then(function(data){
+		console.log("Hashed message:");
+		console.log(data);
+		return bs.getBlindingNonce()
+	})
+	.then(function(data){
+		return bs.getBlinder();
+	})
+	.then(function(data1){
+		return bs.blindMessage();
+	})
+	.then(function(){
+		// Prepare payload
+		var payload = {};
+		payload["uPK"] = CliqzSecureMessage.uPK.publiKey;
+		payload["bm"] = bs.bm;
+		return CliqzSecureMessage.httpHandler("http://192.168.3.249/sign")
+	  		.post(JSON.stringify(payload))
+	})
+	.then(function(blindSignedMessage){
+		return bs.unBlindMessage(blindSignedMessage);
+	})
+	.then(function(data){
+		console.log("The final output is:");
+		console.log(data);
+		mc.signed = data;
+		return bs.verify()
+	})
+	.then(function(data){
+		console.log("Verified: " + data);
+		console.log(mc.createPayload());
+
+	})
+}
+*/
