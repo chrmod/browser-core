@@ -265,7 +265,7 @@ var CliqzUnblock = {
     });
   },
   proxyFilter: {
-    applyFilter: function(pps, url, proxy) {
+    applyFilter: function(pps, url, default_proxy) {
       var unblockers = CliqzUnblock.unblockers.filter(function(b) {
         return b.canFilter(url.asciiSpec);
       });
@@ -293,7 +293,7 @@ var CliqzUnblock = {
           }
         }
       }
-      return proxy;
+      return default_proxy;
     }
   }
 }
