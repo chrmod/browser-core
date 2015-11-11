@@ -1,13 +1,15 @@
 'use strict';
 
-var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
+// Unused
+//
+// Cluster history using custom written rules
+
+var EXPORTED_SYMBOLS = ['CliqzRuleBasedClusterHistory'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 
 var CliqzClusterHistory = CliqzClusterHistory || {
@@ -411,8 +413,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     var new_entry2 = {
                         favicon: '',
                         href: tmp_entry.url,
-                        link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host + url_parts.extra), true),
-                        domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host), true).split('/')[0],
+                        link: CliqzUtils.cleanUrlProtocol(CliqzUtils.simplifyUrl(url_parts.host + url_parts.extra), true),
+                        domain: CliqzUtils.cleanUrlProtocol(CliqzUtils.simplifyUrl(url_parts.host), true).split('/')[0],
                         title: tmp_entry.title,
                         old_urls: tmp_entry.old_urls,
                         category: clean_categories[i].label

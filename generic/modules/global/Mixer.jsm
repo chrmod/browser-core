@@ -21,11 +21,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
-  'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryCluster',
+  'chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
     'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
@@ -188,12 +185,12 @@ var Mixer = {
         }
         instant = instant_new;
         for(var i=0; i < cliqz.length; i++) {
-            var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
+            var cl_url = CliqzUtils.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
             for (var j = 0; j < instant.length; j++) {
                 // Does the main link match?
-                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].label, true);
+                var instant_url = CliqzUtils.generalizeUrl(instant[j].label, true);
                 if(cl_url == instant_url) {
                     instant[j] = Result.combine(instant[j], Result.cliqz(cliqz[i]));
                     duplicate = true;
@@ -202,7 +199,7 @@ var Mixer = {
                 // Do any of the sublinks match?
                 if(instant[j].style == 'cliqz-pattern') {
                     for(var u in instant[j].data.urls) {
-                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].data.urls[u].href);
+                        var instant_url = CliqzUtils.generalizeUrl(instant[j].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // combinding sources for clustered results
                             var tmpResult = Result.cliqz(cliqz[i]);
@@ -260,7 +257,7 @@ var Mixer = {
            ) {
             var url = results[0].val;
 
-            url = CliqzHistoryPattern.generalizeUrl(url, true);
+            url = CliqzUtils.generalizeUrl(url, true);
             if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
                 var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
                 var ez = CliqzSmartCliqzCache.retrieve(ezId);
@@ -298,12 +295,12 @@ var Mixer = {
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data && results[0].data.cluster &&
-               CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
+               CliqzUtils.generalizeUrl(results[0].val, true) != CliqzUtils.generalizeUrl(cliqzExtra[0].val, true)) {
                 // do not show the EZ because the local bet is different than EZ
                 CliqzUtils.log("Not showing EZ " + cliqzExtra[0].val + " because different than cluster " + results[0].val , "Mixer");
 
             } else if(results.length > 0 && !only_instant && instant_autocomplete &&
-               CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
+               CliqzUtils.generalizeUrl(results[0].val, true) != CliqzUtils.generalizeUrl(cliqzExtra[0].val, true)) {
                 // do not show the EZ because the autocomplete will change
                 CliqzUtils.log("Not showing EZ " + cliqzExtra[0].val + " because autocomplete would change", "Mixer");
 
@@ -314,12 +311,12 @@ var Mixer = {
                 if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
                     var mainUrl = cliqzExtra[0].val;
                     var history = results[0].data.urls;
-                    CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
+                    CliqzHistoryCluster.removeUrlFromResult(history, mainUrl);
                     // Go through entity data and search for urls
                     for(var k in cliqzExtra[0].data) {
                         for(var l in cliqzExtra[0].data[k]) {
                             if(cliqzExtra[0].data[k][l].url) {
-                                CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
+                                CliqzHistoryCluster.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
                             }
                         }
                     }
@@ -340,8 +337,8 @@ var Mixer = {
                         var matchedEZ = false;
 
                         // Check if the main link matches
-                        if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
-                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val)) {
+                        if(CliqzUtils.generalizeUrl(results[i].val) ==
+                           CliqzUtils.generalizeUrl(cliqzExtra[0].val)) {
                             cliqzExtra[0] = Result.combine(cliqzExtra[0], results[i]);
 
                             matchedEZ = true;
@@ -350,8 +347,8 @@ var Mixer = {
                         // Look for sublinks that match
                         for(k in cliqzExtra[0].data) {
                             for(l in cliqzExtra[0].data[k]) {
-                                if(cliqzExtra[0].data[k][l] && CliqzHistoryPattern.generalizeUrl(results[i].val) ==
-                                   CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].data[k][l].url))
+                                if(cliqzExtra[0].data[k][l] && CliqzUtils.generalizeUrl(results[i].val) ==
+                                   CliqzUtils.generalizeUrl(cliqzExtra[0].data[k][l].url))
                                     matchedEZ = true;
                             }
                         }
@@ -365,7 +362,7 @@ var Mixer = {
                 // there is an EZ of a supported types then make a combined entry
                 if(results.length > 0 && results[0].data && results[0].data.cluster &&
                    Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1 &&
-                   CliqzHistoryPattern.generalizeUrl(results[0].val, true) == CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true) ) {
+                   CliqzUtils.generalizeUrl(results[0].val, true) == CliqzUtils.generalizeUrl(cliqzExtra[0].val, true) ) {
 
                     var temp_history = results[0];
                     var old_kind = temp_history.data.kind;

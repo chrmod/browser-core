@@ -19,8 +19,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryCluster',
+  'chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
@@ -484,7 +484,7 @@ window.CLIQZ.Core = {
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
             delete window.CliqzHistory;
-            delete window.CliqzHistoryPattern;
+            delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzTour;
             delete window.CliqzAntiPhishing;
@@ -691,7 +691,7 @@ window.CLIQZ.Core = {
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
-          CliqzHistoryPattern.generalizeUrl(firstResult) != CliqzHistoryPattern.generalizeUrl(results[0].url)) {
+          CliqzUtils.generalizeUrl(firstResult) != CliqzUtils.generalizeUrl(results[0].url)) {
             var newResult = [];
             newResult.url = firstResult;
             newResult.title = firstTitle;
@@ -701,10 +701,10 @@ window.CLIQZ.Core = {
         if (!CliqzUtils.isUrl(results[0].url)) return;
 
         // Detect autocomplete
-        var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
+        var autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[0], true);
         if(!autocomplete.autocomplete && results.length > 1 &&
-          CliqzHistoryPattern.generalizeUrl(results[0].url) != CliqzHistoryPattern.generalizeUrl(urlBar.value)) {
-          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[1], true);
+          CliqzUtils.generalizeUrl(results[0].url) != CliqzUtils.generalizeUrl(urlBar.value)) {
+          autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[1], true);
           CLIQZ.UI.autocompleteEl = 1;
         } else {
           CLIQZ.UI.autocompleteEl = 0;

@@ -20,8 +20,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
@@ -46,7 +44,7 @@ var CliqzHistory = {
       if (CliqzUtils.getPref('categoryAssessment', false)) {
         CliqzCategories.assess(aBrowser.currentURI.spec);
       }
-      var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
+      var url = CliqzUtils.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       // Skip if already saved or on any about: pages
@@ -82,7 +80,7 @@ var CliqzHistory = {
       CliqzHistory.reattachListeners(aBrowser, panel);
     },
     onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
-      var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
+      var url = CliqzUtils.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       if ((aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) && url == CliqzHistory.getTabData(panel, 'url') &&
@@ -258,7 +256,7 @@ var CliqzHistory = {
       aTarget.getAttribute("href") && (event.button == 0 || event.button == 1)) {
       var url = CliqzHistory.getTabData(panel, "url");
       if (!url || url.length == 0) return;
-      var linkUrl = CliqzHistoryPattern.simplifyUrl((aTarget.getAttribute("href") || ""));
+      var linkUrl = CliqzUtils.simplifyUrl((aTarget.getAttribute("href") || ""));
       // URLs like //www.google.com/...
       if (linkUrl.indexOf("//") == 0) {
         linkUrl = url.substr(0, url.indexOf("//")) + linkUrl;
@@ -286,7 +284,7 @@ var CliqzHistory = {
 
       // Update title in db
       if (title && title.trim().length > 0) {
-        CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title.trim());
+        CliqzHistory.updateTitle(CliqzUtils.simplifyUrl(linkUrl), null, title.trim());
       }
     }
   },
@@ -383,7 +381,7 @@ var CliqzHistory = {
     if (description) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urldescriptions (url, description)\
                         VALUES (:url, :description)", null, null, {
-        url: CliqzHistoryPattern.generalizeUrl(url),
+        url: CliqzUtils.generalizeUrl(url),
         description: description
       });
     }
@@ -412,7 +410,7 @@ var CliqzHistory = {
       return;
 
     return new Promise( function(resolve, reject) {
-      var genUrl = CliqzHistoryPattern.generalizeUrl(url);
+      var genUrl = CliqzUtils.generalizeUrl(url);
 
       // don't let the lookup take longer than 40ms
       CliqzUtils.setTimeout(function () {
@@ -838,12 +836,12 @@ var CliqzHistory = {
       CliqzHistory.deleteTimeFrame();
     },
     onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {
-      var url = CliqzHistoryPattern.simplifyUrl(aURI.spec);
+      var url = CliqzUtils.simplifyUrl(aURI.spec);
       CliqzHistory.lastVisit.push(url);
       CliqzHistory.lastVisitTransition.push(aTransitionType);
     },
     onTitleChanged: function(aURI, aPageTitle) {
-      var url = CliqzHistoryPattern.simplifyUrl(aURI.spec);
+      var url = CliqzUtils.simplifyUrl(aURI.spec);
       if (url.length > 0 && aPageTitle.length > 0)
         CliqzHistory.updateTitle(url, aPageTitle)
     },

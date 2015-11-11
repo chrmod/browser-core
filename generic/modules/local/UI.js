@@ -10,9 +10,6 @@ export default function(ctx) {
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
@@ -490,8 +487,8 @@ var UI = {
         var index = 0;
         var target = $$('[arrow]', gCliqzBox)[0];
         while(target &&
-          CliqzHistoryPattern.generalizeUrl(target.getAttribute("url")) !=
-          CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
+          CliqzUtils.generalizeUrl(target.getAttribute("url")) !=
+          CliqzUtils.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
           target = $$('[arrow]', gCliqzBox)[++index];
         // Prevent page changing
         var offset = target ? target.offsetTop : 0;
@@ -1751,8 +1748,8 @@ function onEnter(ev, item){
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
-    if(CliqzHistoryPattern.generalizeUrl(lastAuto)
-    == CliqzHistoryPattern.generalizeUrl(input))
+    if(CliqzUtils.generalizeUrl(lastAuto)
+    == CliqzUtils.generalizeUrl(input))
       input = lastAuto;
   }
 
@@ -1767,8 +1764,8 @@ function onEnter(ev, item){
 
   // Logging
   // Autocomplete
-  if (CliqzHistoryPattern.generalizeUrl(lastAuto)
-  == CliqzHistoryPattern.generalizeUrl(input) &&
+  if (CliqzUtils.generalizeUrl(lastAuto)
+  == CliqzUtils.generalizeUrl(input) &&
   urlbar.selectionStart !== 0 && urlbar.selectionStart !== urlbar.selectionEnd) {
     logUIEvent(UI.keyboardSelection, "autocomplete", {
       action: "result_enter",

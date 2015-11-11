@@ -535,6 +535,81 @@ var CliqzUtils = {
     if (decoded) return decoded;
     else return url;
   },
+  // Remove clutter (http, www) from urls
+  generalizeUrl: function(url, skipCorrection) {
+    if (!url) {
+      return '';
+    }
+    var val = url.toLowerCase();
+    var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
+      host = cleanParts[0],
+      pathLength = 0,
+      SYMBOLS = /,|\./g;
+    if (!skipCorrection) {
+      if (cleanParts.length > 1) {
+        pathLength = ('/' + cleanParts.slice(1).join('/')).length;
+      }
+      if (host.indexOf('www') === 0 && host.length > 4) {
+        // only fix symbols in host
+        if (SYMBOLS.test(host[3]) && host[4] != ' ')
+        // replace only issues in the host name, not ever in the path
+          val = val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
+          (pathLength ? val.substr(-pathLength) : '');
+      }
+    }
+    url = CliqzUtils.cleanUrlProtocol(val, true);
+    return url[url.length - 1] == '/' ? url.slice(0,-1) : url;
+  },
+  // Remove clutter from urls that prevents pattern detection, e.g. checksum
+  simplifyUrl: function(url) {
+    var q;
+    // Google redirect urls
+    if (url.search(/http(s?):\/\/www\.google\..*\/url\?.*url=.*/i) === 0) {
+      // Return target URL instead
+      url = url.substring(url.lastIndexOf('url=')).split('&')[0];
+      url = url.substr(4);
+      return decodeURIComponent(url);
+
+      // Remove clutter from Google searches
+    } else if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
+      q = url.substring(url.lastIndexOf('q=')).split('&')[0];
+      if (q != 'q=') {
+        // tbm defines category (images/news/...)
+        var param = url.indexOf('#') != -1 ? url.substr(url.indexOf('#')) : url.substr(url.indexOf('?'));
+        var tbm = param.indexOf('tbm=') != -1 ? ('&' + param.substring(param.lastIndexOf('tbm=')).split('&')[0]) : '';
+        var page = param.indexOf('start=') != -1 ? ('&' + param.substring(param.lastIndexOf('start=')).split('&')[0]) : '';
+        return 'https://www.google.com/search?' + q + tbm /*+ page*/;
+      } else {
+        return url;
+      }
+      // Bing
+    } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
+      q = url.substring(url.indexOf('q=')).split('&')[0];
+      if (q != 'q=') {
+        if (url.indexOf('search?') != -1)
+          return url.substr(0, url.indexOf('search?')) + 'search?' + q;
+        else
+          return url.substr(0, url.indexOf('/?')) + '/?' + q;
+      } else {
+        return url;
+      }
+      // Yahoo redirect
+    } else if (url.search(/http(s?):\/\/r.search\.yahoo\.com\/.*/i) === 0) {
+      url = url.substring(url.lastIndexOf('/RU=')).split('/RK=')[0];
+      url = url.substr(4);
+      return decodeURIComponent(url);
+      // Yahoo
+    } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
+      var p = url.substring(url.indexOf('p=')).split('&')[0];
+      if (p != 'p=' && url.indexOf(';') != -1) {
+        return url.substr(0, url.indexOf(';')) + '?' + p;
+      } else {
+        return url;
+      }
+    } else {
+      return url;
+    }
+  },
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
