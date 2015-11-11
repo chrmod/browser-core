@@ -55,9 +55,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTour',
-  'chrome://cliqzmodules/content/CliqzTour.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
@@ -79,7 +76,31 @@ else {
     } catch(e){}
 }
 
+function modulePath(moduleName, path) {
+  return "chrome://cliqz/content/"+moduleName+"/"+path;
+}
+
+function openTab(url) {
+  var win = CLIQZEnvironment.getWindow();
+  CLIQZEnvironment.openTabInWindow(win, url);
+}
+
+function isVersionHigherThan(version) {
+  try {
+    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+      .getService(Components.interfaces.nsIXULAppInfo);
+    var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+     .getService(Components.interfaces.nsIVersionComparator);
+
+    return versionChecker.compare(appInfo.version, version) >= 0;
+  } catch (e) {
+    CliqzUtils.log('error checking browser version: ' + e, "core.js");
+    return false;
+  }
+}
+
 window.CLIQZ.COMPONENTS = []; //plug and play components
+
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
@@ -159,7 +180,8 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        CLIQZ.Core.checkSession();
+        var settings = {};
+        settings.onInstall = CLIQZ.Core.checkSession();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -183,7 +205,7 @@ window.CLIQZ.Core = {
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
         CLIQZ.COMPONENTS.forEach(function(c){
-          c.init && c.init();
+          c.init && c.init(settings);
         });
 
         var urlBarGo = document.getElementById('urlbar-go-button');
@@ -310,7 +332,7 @@ window.CLIQZ.Core = {
 
         return stylesheet;
     },
-    checkSession: function(){
+    checkSession: function(settings){
         var prefs = CliqzUtils.cliqzPrefs;
         if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
@@ -318,16 +340,13 @@ window.CLIQZ.Core = {
                     var source = JSON.parse(req.response).shortName;
                     var session = CLIQZ.Core.generateSession(source);
                     prefs.setCharPref('session', session);
-                    CLIQZ.Core.showTutorial(true, session);
                 },
                 function error(){
                     var session = CLIQZ.Core.generateSession();
                     prefs.setCharPref('session', session);
-                    CLIQZ.Core.showTutorial(true, session);
                 }
             );
-        } else {
-            CLIQZ.Core.showTutorial(false);
+            return true;
         }
     },
     generateSession: function(source){
@@ -339,42 +358,12 @@ window.CLIQZ.Core = {
                + '|' +
                (source || 'NONE');
     },
-    //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
-    _tutorialTimeout:null,
-    showTutorial: function(onInstall, session){
-        var showNewOnboarding = false;
-
-
-        try {
-            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                .getService(Components.interfaces.nsIXULAppInfo);
-            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-                .getService(Components.interfaces.nsIVersionComparator);
-
-            showNewOnboarding = (versionChecker.compare(appInfo.version, "36.0") >= 0);
-        } catch (e) {
-            CliqzUtils.log('error checking browser version: ' + e, "Cliqz Onboarding");
-        }
-
-        var tutorialUrl = showNewOnboarding ?
-            CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
-        CliqzUtils.setPref('onboarding_versionShown',
-            showNewOnboarding ? CliqzTour.VERSION : "0.0");
-        CliqzUtils.setPref('onboarding_finishedWatching', false);
-
-        if (onInstall) {
-            CLIQZ.Core._tutorialTimeout = setTimeout(function() {
-                gBrowser.selectedTab = gBrowser.addTab(tutorialUrl);
-            }, 100);
-        }
-    },
     // trigger component reload at install/uninstall
     reloadComponent: function(el) {
         return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
     },
     // restoring
     unload: function(soft){
-        clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
         clearTimeout(CLIQZ.Core._dataCollectionTimer);
 
@@ -483,7 +472,6 @@ window.CLIQZ.Core = {
             delete window.CliqzHistory;
             delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
-            delete window.CliqzTour;
             delete window.CliqzAntiPhishing;
         }
     },
