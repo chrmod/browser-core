@@ -317,7 +317,7 @@ var CliqzAutocomplete = {
                 // abort if we already have results
                 if(this.mixedResults.matchCount > 0) return;
 
-                if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+                if (res.query == this.searchString) {
                     CliqzAutocomplete.lastPattern = res;
 
                     var latency = 0;
@@ -585,9 +585,6 @@ var CliqzAutocomplete = {
                     } else {
                         //CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
-                    // begin history pattern search
-                    CliqzHistoryPattern.detectPattern(searchString);
-
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {

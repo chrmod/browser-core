@@ -517,6 +517,24 @@ var CliqzUtils = {
       return true;
     }
   },
+  // extract query term from search engine result page URLs
+  extractQueryFromUrl: function(url) {
+    // Google
+    if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
+      url = url.substring(url.lastIndexOf('q=') + 2).split('&')[0];
+    // Bing
+    } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
+      url = url.substring(url.indexOf('q=') + 2).split('&')[0];
+    // Yahoo
+    } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
+      url = url.substring(url.indexOf('p=') + 2).split('&')[0];
+    } else {
+      url = null;
+    }
+    var decoded = url ? decodeURIComponent(url.replace(/\+/g,' ')) : null;
+    if (decoded) return decoded;
+    else return url;
+  },
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);

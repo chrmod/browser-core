@@ -1,4 +1,8 @@
 'use strict';
+/*
+ * This module provides an interface to the CLIQZ-specific history database.
+ */
+
 const {
   classes: Cc,
   interfaces: Ci,
@@ -290,14 +294,14 @@ var CliqzHistory = {
     Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
     if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow()) && browser) {
       var tab = CliqzHistory.getTabForContentWindow(browser.contentWindow),
-       panel = tab.linkedPanel,
-       url = CliqzHistory.getTabData(panel, 'url'),
-       type = CliqzHistory.getTabData(panel, 'type'),
-       query = CliqzHistory.getTabData(panel, 'query') || "",
-       acQuery = CliqzHistory.getTabData(panel, 'acQuery') || "",
-       autocompleteQuery = "",
-       now = new Date().getTime(),
-       queryDate = CliqzHistory.getTabData(panel, 'queryDate') || now;
+        panel = tab.linkedPanel,
+        url = CliqzHistory.getTabData(panel, 'url'),
+        type = CliqzHistory.getTabData(panel, 'type'),
+        query = CliqzHistory.getTabData(panel, 'query') || "",
+        acQuery = CliqzHistory.getTabData(panel, 'acQuery') || "",
+        autocompleteQuery = "",
+        now = new Date().getTime(),
+        queryDate = CliqzHistory.getTabData(panel, 'queryDate') || now;
 
       if (!url) return;
 
@@ -305,7 +309,7 @@ var CliqzHistory = {
         CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel, "visitDate"));
 
       // Create new session when external search engine query changes
-      var externalQuery = CliqzHistoryPattern.extractQueryFromUrl(url);
+      var externalQuery = CliqzUtils.extractQueryFromUrl(url);
       if (externalQuery && CliqzHistory.getTabData(panel, "extQuery") != externalQuery) {
         CliqzHistory.setTabData(panel, "queryDate", now);
         CliqzHistory.setTabData(panel, "extQuery", externalQuery);
@@ -787,7 +791,7 @@ var CliqzHistory = {
   },
   deleteTimeFrame: function() {
     // TODO: Delete complete sessions?
-    CliqzHistoryPattern.historyTimeFrame(function(min, max) {
+    CliqzHistoryManager.historyTimeFrame(function(min, max) {
       CliqzHistory.SQL("select url from visits where visit_date < :min OR visit_date > :max", function(r) {
         // TODO: this deletes all occurrences of the url, better: only in timeframe
         CliqzHistory.deleteVisit(r[0]);

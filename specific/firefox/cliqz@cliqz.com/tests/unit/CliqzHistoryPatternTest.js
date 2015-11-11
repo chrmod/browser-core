@@ -3,7 +3,7 @@
 TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
   describe('CliqzHistoryPattern', function(){
 
-    describe('removeDuplicates', function() {
+    describe('_removeDuplicates', function() {
 
       it('should take first if no https', function(){
         var source = [
@@ -26,7 +26,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[0] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take first if all https', function(){
@@ -50,7 +50,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[0] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take https if in pos 0', function(){
@@ -74,7 +74,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[0] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take https if in pos 1', function(){
@@ -98,7 +98,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[1] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take https in pos 0 if titles the same', function(){
@@ -119,7 +119,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[0] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take https in pos 1 if titles the same', function(){
@@ -140,7 +140,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[1] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should leave alone if all different urls and titles', function(){
@@ -161,7 +161,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = source;
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take one with best title without www', function(){
@@ -185,7 +185,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[1] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
       it('should take one with best title with www', function(){
@@ -209,7 +209,7 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
 
         var expected = [ source[1] ];
 
-        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+        chai.expect(CliqzHistoryPattern._removeDuplicates(source)).to.deep.equal(expected);
       });
 
     });
