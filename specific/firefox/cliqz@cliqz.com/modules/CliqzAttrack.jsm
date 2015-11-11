@@ -4509,6 +4509,7 @@ var CliqzAttrack = {
                 return null;
             }
 
+
             var page_graph = this._active[source];
             if(!page_graph.isReferredFrom(ref_parts)) {
                 if(!ref || !ref_parts || !ref_parts.hostname) return null;
@@ -4668,8 +4669,9 @@ var CliqzAttrack = {
                     }
                 }
                 // CliqzUtils.log("Data for url: " + this.hostname + " : " + JSON.stringify(obj),"XOXOX");
-                checkBlackList(this.url, obj);
-                checkFingerPrinting(this.url, obj);
+                // @konarkm : This was added to collect data for experiment, safe to stop collecting it now.
+                // checkBlackList(this.url, obj);
+                // checkFingerPrinting(this.url, obj);
                 return obj;
             };
 

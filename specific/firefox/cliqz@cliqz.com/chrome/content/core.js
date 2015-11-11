@@ -34,8 +34,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-//  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
@@ -835,18 +835,15 @@ window.CLIQZ.Core = {
           menupopup.removeChild(menupopup.lastChild);
 
         function feedback_FAQ(){
-            win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
-                    function success(req){
-                        var source = JSON.parse(req.response).shortName;
-                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
-                    },
-                    function error(){
-                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion);
-                    }
-                );
-            });
+            CliqzUtils.httpGet('chrome://cliqz/content/source.json',
+                function success(req){
+                    var source = JSON.parse(req.response).shortName;
+                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion + '-' + source);
+                },
+                function error(){
+                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion);
+                }
+            );
         }
 
         //feedback and FAQ
@@ -975,9 +972,10 @@ window.CLIQZ.Core = {
       return menu;
     },
 
-    createSimpleBtn: function(doc, txt, func, btnName){
+    createSimpleBtn: function(doc, txt, func, action){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
+        item.setAttribute('action', action);
         if(func)
             item.addEventListener(
                 'command',
@@ -985,7 +983,7 @@ window.CLIQZ.Core = {
                     CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'cliqz_menu_button',
-                        button_name: btnName
+                        button_name: action
                     });
                     func();
                 },

@@ -27,7 +27,9 @@
     "gulp-util": "^3.0.6"
   },
   "devDependencies": {
+    "amd-name-resolver": "0.0.2",
     "broccoli": "cliqz-oss/broccoli#building-server",
+    "broccoli-babel-transpiler": "^5.4.5",
     "broccoli-funnel": "^0.2.10",
     "broccoli-jade": "^1.1.0",
     "broccoli-merge-trees": "^0.2.3",
