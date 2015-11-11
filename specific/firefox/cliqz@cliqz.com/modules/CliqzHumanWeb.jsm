@@ -1169,7 +1169,7 @@ var CliqzHumanWeb = {
                     var tabID = CliqzHumanWeb.getTabID();
                     if(tabID){
                         var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
-                        var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
+                        var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s'];
                         CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
                         CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
                         if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
@@ -3034,6 +3034,7 @@ var CliqzHumanWeb = {
         var result = CliqzHumanWeb.maskURL(url);
         return result;
     },
+    /*
     getTabID: function(){
         try{
             var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -3043,6 +3044,17 @@ var CliqzHumanWeb = {
             return win.__SSi + ":" + win.gBrowser.mCurrentTab._tPos;
         }
         catch(e){
+            return null;
+        }
+    },*/
+    getTabID: function(){
+        // @Konark: Please check if this is fine
+        try {
+            var windowID = CliqzUtils.getWindow().__SSi.split('window')[1];
+            var gBrowser = CliqzHumanWeb.windowsRef[parseInt(windowID)].gBrowser;
+            return CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
+        }
+        catch(e) {
             return null;
         }
     },
