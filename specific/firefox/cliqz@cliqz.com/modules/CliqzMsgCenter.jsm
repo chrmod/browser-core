@@ -356,7 +356,7 @@ CliqzMsgCenter.prototype = {
 		for (var i = 0; i < this._windows.length; i++) {
 			trigger.init(this._windows[i]);
 		}
-		trigger.addListener(this._onTrigger);
+		trigger.addListener(this._onTrigger.bind(this));
 	},
 	registerMessageHandler: function (id, handler) {
 		this._messageHandlers[id] = handler;
@@ -448,7 +448,7 @@ CliqzMsgCenter.prototype = {
 					if (campaign.state === 'show') {
 						this.showMessage(campaign.message,
 							campaign.handlerId,
-							this._onMessageAction);
+							this._onMessageAction.bind(this));
 					}
 				} else {
 					campaign.delete();
@@ -492,7 +492,7 @@ CliqzMsgCenter.prototype = {
 					// need ID in message to associate callback with campaign
 					campaign.message.id = campaign.id;
 					this.showMessage(campaign.message,
-						campaign.handlerId, this._onMessageAction);
+						campaign.handlerId, this._onMessageAction.bind(this));
 					CliqzUtils.httpGet(_getEndpoint('show', campaign));
 					_telemetry(campaign, 'show');
 				} else {
