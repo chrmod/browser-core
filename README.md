@@ -11,7 +11,8 @@ Please use the configuration from [editorconfig](https://github.com/cliqz/naviga
 npm install -g bower
 npm install -g broccoli-cli
 
-npm install # to satify package.json
+npm install   # to satisfy package.json
+bower install # to satisfy bower.json
 ```
 
 ## Build
