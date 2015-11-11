@@ -138,6 +138,18 @@ var UI = {
         lastRes = CliqzAutocomplete.lastResult,
         width = Math.max(urlbar.clientWidth, 500);
 
+
+      // the search component UI might not be initialized yet
+      if (!gCliqzBox)
+         return;
+
+      // try to recreate main container if it doesnt exist
+      if(!gCliqzBox.resultsBox){
+          var cliqzBox = CLIQZ.Core.popup.cliqzBox;
+          if(cliqzBox){
+              UI.main(cliqzBox);
+          }
+      }
       // set the width
       // simply setting the width on the popup element and allowing the content to be 100% doenst work
       gCliqzBox.style.width = width + 1 + "px"
@@ -181,16 +193,6 @@ var UI = {
       CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
-        if (!gCliqzBox)
-            return;
-
-        //try to recreate main container if it doesnt exist
-        if(!gCliqzBox.resultsBox){
-            var cliqzBox = CLIQZ.Core.popup.cliqzBox;
-            if(cliqzBox){
-                UI.main(cliqzBox);
-            }
-        }
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
