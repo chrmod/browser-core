@@ -879,9 +879,39 @@
       "message": "Please check your connection."
     },
     "dataCollection": {
-        "message": "To improve the search and browsing experience, CLIQZ for Firefox sends some anonymous data to Cliqz. Your privacy remains secured."
+        "message": "To improve the search and browsing experience, CLIQZ for Firefox sends data about web searches and website visits to Cliqz’s servers in a completely anonymous, privacy-safe way."
     },
     "learnMore": {
         "message": "Learn More"
+    },
+    "humanWeb1": {
+      "message": "Human Web"
+    },
+    "humanWeb2": {
+      "message": "Privacy Statement"
+    },
+    "humanWeb3": {
+      "message": "Human Web collects CLIQZ usage data in a completely anonymous, privacy-safe way."
+    },
+    "humanWeb4": {
+      "message": "One for all. All for one. Together for a better web."
+    },
+    "humanWeb5": {
+      "message": "By using CLIQZ, you benefit from the wisdom of the crowd.  The community of users contributes – totally anonymously – to statistical web data. Our search technology uses this data to rate the relevance, trustworthiness and security of websites. We call this technology that indexes the Internet  with the help oft he users \"Human Web\"."
+    },
+    "humanWeb6": {
+      "message": "CLIQZ's Human Web technology calculates web traffic statistics for websites that are visited by all users who participate in the Human Web, e.g. the sites’ addresses (URLs) and the amount of time people spend there. This is carried out entirely anonymously, without reference to any personal data or user identity. IP addresses are removed automatically from the Human Web data."
+    },
+    "humanWeb7": {
+      "message": "Also completely anonymously, and separately from its web traffic data, CLIQZ for Firefox records what the community of users search the web for and what they enter into the CLIQZ universal browser bar (the combined search box and address bar at the top of your browser window). Each of such entries and site visits are evaluated only as a single event. We never combine data from multiple entries or multiple visits and do not attempt to draw even theoretically possible conclusions about our users. We also never associate any personal data (such as your IP or email address) with any events."
+    },
+    "humanWeb8": {
+      "message": "Participating in HumanWeb is optional"
+    },
+    "humanWeb9": {
+      "message": "You can choose If you want CLIQZ to submit anonymous statistical data to improve relevance and safety. To opt in or out Human Web, just click on the CLIQZ symbol (in the same line as the browser bar). In the menu, choose the item “Human Web” and set the checkmark accordingly."
+    },
+    "humanWeb10": {
+      "message": "Enable Human Web"
     }
 }
