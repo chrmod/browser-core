@@ -19,9 +19,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
 var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
