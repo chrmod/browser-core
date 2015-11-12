@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor) {
+TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage) {
   describe('CliqzUtils', function(){
 
     it('HOST should be set to cliqz.com', function(){
@@ -136,8 +136,8 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor) {
 
     describe("Locale", function () {
       it("de locale are complete when compared to en", function () {
-        expect(Object.keys(CliqzUtils.locale['default'])).to.eql(
-               Object.keys(CliqzUtils.locale['en-US']));
+        chai.expect(Object.keys(CliqzUtils.locale['default'])).to.eql(
+               Object.keys(CliqzUtils.locale[window.navigator.language]));
       });
     });
 

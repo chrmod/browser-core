@@ -1,6 +1,6 @@
 'use strict';
 
-TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
+TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter, CliqzUtils) {
 	describe('CliqzMsgCenter (integration)', function() {
         var response,
             core = CliqzUtils.getWindow().CLIQZ.Core,
@@ -90,7 +90,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 		});
 
         context('URL tests', function () {
-            var url = 'https://cliqz.com/';
+            var url = 'https://cliqz.com';
 
             afterEach(function () {
                 if (gBrowser.tabs.length > 1) {
@@ -112,7 +112,9 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
                     setTimeout(function () {
                         chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
                         // checks (1) for expected URL and (2) that new tab is focused
-                        chai.expect(core.urlbar.value).to.equal(url);
+                        //remove trailing slash
+                        var str = CliqzUtils.stripTrailingSlash(core.urlbar.value);
+                        chai.expect(str).to.equal(url);
                         done();
                     }, 1000)
                 });
@@ -120,6 +122,7 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
 
 
             it('should open URL on actions other than confirm', function(done) {
+                this.timeout(4000);
                 CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
                 CliqzMsgCenter._campaigns.TEST001.limits.postpone = 1;
                 CliqzMsgCenter._campaigns.TEST001.message.options[1].url = url;
@@ -133,7 +136,9 @@ TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
                     setTimeout(function () {
                         chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
                         // checks (1) for expected URL and (2) that new tab is focused
-                        chai.expect(core.urlbar.value).to.equal(url);
+                        //remove trailing slash
+                        var str = CliqzUtils.stripTrailingSlash(core.urlbar.value);
+                        chai.expect(str).to.equal(url);
                         done();
                     }, 1000)
                 });

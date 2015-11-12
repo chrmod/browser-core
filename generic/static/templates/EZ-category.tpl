@@ -5,9 +5,9 @@
       url="{{ url }}"
       extra="{{../data.btnExtra}}-{{@index }}" arrow="false" arrow-if-visible='true'>
       {{#if title_key}}
-        {{ emphasis (local title_key) ../../text 2 true}}
+        {{ local title_key }}
       {{else}}
-        {{ emphasis title ../../text 2 true}}
+        {{ title }}
       {{/if}}
     </span>
 {{/each}}

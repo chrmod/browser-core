@@ -1,5 +1,4 @@
-navigation-extension
-====================
+# Navigation Extension
 
 See - [wiki](https://github.com/cliqz/navigation-extension/wiki)
 
@@ -10,15 +9,15 @@ Please use the configuration from [editorconfig](https://github.com/cliqz/naviga
 
 ```bash
 npm install -g bower
-npm install -g grunt-cli
-npm install -g gulp-cli
+npm install -g broccoli-cli
 
-npm install # to satify package.json
+npm install   # to satisfy package.json
+bower install # to satisfy bower.json
 ```
 
 ## Build
 
-`grunt`
+`broccoli serve --output=build/dev`
 
 
 once having `build` folder present you need to install bower_component for your platform build, e.g.:

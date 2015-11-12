@@ -5,6 +5,8 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
+export default function(ctx) {
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -16,13 +18,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
-
-
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
-//  'chrome://cliqzmodules/content/CliqzImages.jsm');
-
-(function(ctx) {
 
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
@@ -135,13 +130,30 @@ var UI = {
         handlePopupHeight(box);
     },
     handleResults: function(){
+      // TODO: this is FF specific - move it to another place!
       var popup = urlbar.popup,
         data = [],
         ctrl = popup.mInput.controller,
         q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
-        lastRes = CliqzAutocomplete.lastResult;
+        lastRes = CliqzAutocomplete.lastResult,
+        width = Math.max(urlbar.clientWidth, 500);
 
-      //popup.style.height = "302px";
+
+      // the search component UI might not be initialized yet
+      if (!gCliqzBox)
+         return;
+
+      // try to recreate main container if it doesnt exist
+      if(!gCliqzBox.resultsBox){
+          var cliqzBox = CLIQZ.Core.popup.cliqzBox;
+          if(cliqzBox){
+              UI.main(cliqzBox);
+          }
+      }
+      // set the width
+      // simply setting the width on the popup element and allowing the content to be 100% doenst work
+      gCliqzBox.style.width = width + 1 + "px"
+      gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
       for(var i=0; i<popup._matchCount; i++) {
           data.push({
@@ -181,25 +193,6 @@ var UI = {
       CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
-        if (!gCliqzBox)
-            return;
-
-        if(CliqzUtils.getPref('topSitesV2', false)) {
-          // makes sure that topsites show after changing tabs,
-          // rather than showing the previous results;
-          // (set to '' in CliqzSearchHistory.tabChanged)
-          if (CliqzAutocomplete.lastSearch === 'IGNORE_TOPSITES') {
-            return {};
-          }
-        }
-
-        //try to recreate main container if it doesnt exist
-        if(!gCliqzBox.resultsBox){
-            var cliqzBox = CLIQZ.Core.popup.cliqzBox;
-            if(cliqzBox){
-                UI.main(cliqzBox);
-            }
-        }
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
@@ -209,35 +202,14 @@ var UI = {
         if (!query)
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
-        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
-        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
-        // Images-layout for Cliqz-Images-Search
-        //CliqzImages.process_images_result(res,
-        //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
-        //                                  urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
-
-        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
-
-        if (CliqzUtils.getPref("topSitesV2", false)) {
-          // being here means we have results, i.e., no topsites
-          // thus remove topsites style
-          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
-        }
 
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
         }
 
-
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
-
-        var width = Math.max(urlbar.clientWidth,500)
-
-        // set the width
-        gCliqzBox.style.width = width + 1 + "px"
-        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){
@@ -402,9 +374,8 @@ var UI = {
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
     redrawResult: function(filter, template, data){
-        var result;
-        if(result =$('.' + IC + filter, gCliqzBox))
-            result.innerHTML = CliqzHandlebars.tplCache[template](data);
+        var result = $('.' + IC + filter, gCliqzBox);
+        if(result) result.innerHTML = CliqzHandlebars.tplCache[template](data);
     },
     urlbarkeydown: function(ev){
         CliqzAutocomplete._lastKey = ev.keyCode;
@@ -415,23 +386,7 @@ var UI = {
     keyDown: function(ev){
         var sel = getResultSelection(),
             //allArrowable should be cached
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
-
-        allArrowable = allArrowable.filter(function(el){
-            // dont consider hidden elements
-            if(el.offsetParent == null) return false;
-
-            if(!el.getAttribute('arrow-if-visible')) return true;
-
-            // check if the element is visible
-            //
-            // for now this check is enough but we might be forced to switch to a
-            // more generic approach - maybe using document.elementFromPoint(x, y)
-            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
-                return false
-            return true;
-        });
-
+            allArrowable = getAllArrowable();
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
@@ -459,9 +414,6 @@ var UI = {
             break;
             case ENTER:
                 UI.lastInput = "";
-                if (CliqzUtils.getPref('topSitesV2', false)) {
-                  CLIQZ.Core._shouldDropdownStayOpen = false;
-                }
                 return onEnter(ev, sel);
             break;
             case RIGHT:
@@ -524,6 +476,10 @@ var UI = {
                 return false;
         }
     },
+
+    selectResultByIndex: function (pos) {
+        setResultSelection(getAllArrowable()[pos], false, true);
+    },
     entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
         event.preventDefault();
@@ -542,9 +498,8 @@ var UI = {
         // Prevent page changing
         var offset = target ? target.offsetTop : 0;
         if(target && target.className.indexOf("cliqz-pattern") != -1) {
-          var context;
-          if(context = $('.cqz-result-pattern', gCliqzBox))
-            offset += context.parentElement.offsetTop;
+          var context = $('.cqz-result-pattern', gCliqzBox);
+          if(context) offset += context.parentElement.offsetTop;
         }
         if(offset > 300) {
           // Remove autocomplete from urlbar
@@ -558,7 +513,7 @@ var UI = {
       };
       // Skip timeout if element was selected before
       if (target() && UI.lastSelectedUrl == target().getAttribute("url")) {
-        setResultSelection(target(), true, false);
+        setResultSelection(target(), false);
         return;
       }
       // Timeout to wait for user to finish keyboard input
@@ -569,7 +524,7 @@ var UI = {
           if (!UI.preventAutocompleteHighlight && time > UI.animationEnd
             && gCliqzBox && CliqzAutocomplete.selectAutocomplete) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection(target(), true, false);
+            setResultSelection(target(), false);
           }
         }
       },300);
@@ -580,7 +535,7 @@ var UI = {
     },
     // call from onboarding tour to look like mouse over
     simulateSelectFirstElement: function () {
-      setResultSelection($('[arrow]', gCliqzBox), true, false, false, true);
+      setResultSelection($('[arrow]', gCliqzBox), false, false, true);
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
@@ -1126,17 +1081,17 @@ function enhanceResults(res){
                     telemetry: 'adultFilter',
                     options: [
                         {
-                            text: CliqzUtils.getLocalizedString('adult_show_once'),
+                            text: CliqzUtils.getLocalizedString('show_once'),
                             action: 'adult-showOnce',
                             state: 'default'
                         },
                         {
-                            text: CliqzUtils.getLocalizedString('adultConservative'),
+                            text: CliqzUtils.getLocalizedString('always'),
                             action: 'adult-conservative',
                             state: 'default'
                         },
                         {
-                            text: CliqzUtils.getLocalizedString('adultLiberal'),
+                            text: CliqzUtils.getLocalizedString('never'),
                             action: 'adult-liberal',
                             state: 'default'
                         },
@@ -1306,14 +1261,11 @@ function getResultKind(el){
     return getResultOrChildAttr(el, 'kind').split(';');
 }
 
+// bubbles up maximum to the result container
 function getResultOrChildAttr(el, attr){
-    var ret;
-    while (el){
-        if(ret = el.getAttribute(attr)) return ret;
-        if(el.className == IC) return ''; //do not go higher than a result
-        el = el.parentElement;
-    }
-    return '';
+  if(el == null) return '';
+  if(el.className == IC) return el.getAttribute(attr) || '';
+  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
 function urlIndexInHistory(url, urlList) {
@@ -1450,7 +1402,8 @@ function urlIndexInHistory(url, urlList) {
 
 
 function logUIEvent(el, historyLogType, extraData, query) {
-  if(!query) var query = urlbar.value;
+  if(!query) query = urlbar.value;
+
   var queryAutocompleted = null;
   if (urlbar.selectionEnd !== urlbar.selectionStart) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
@@ -1517,7 +1470,7 @@ function copyResult(val) {
 }
 
 function resultClick(ev) {
-    var el = ev.target, href,
+    var el = ev.target, url,
         newTab = ev.metaKey || ev.button == 1 ||
             ev.ctrlKey ||
             (ev.target.getAttribute('newtab') || false);
@@ -1529,17 +1482,16 @@ function resultClick(ev) {
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
-        if (href = el.getAttribute("href")) {
-            el.setAttribute('url', href);
-        }
-        if (el.getAttribute('url')) {
+        url = el.getAttribute("href") || el.getAttribute('url');
+        if (url) {
+            el.setAttribute('url', url); //set the url in DOM - will be checked later (to be improved)
             logUIEvent(el, "result", {
                 action: "result_click",
                 new_tab: newTab,
                 extra: extra,
                 mouse: coordinate
             }, CliqzAutocomplete.lastSearch);
-            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+            var url = CliqzUtils.cleanMozillaActions(url);
             CLIQZEnvironment.openLink(window, url, newTab);
             //Lucian: decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
@@ -1667,21 +1619,39 @@ function smooth_scroll_to(element, target, duration) {
     setTimeout(function(){ scroll_frame(); }, 0);
 }
 
+function getAllArrowable() {
+    return Array.prototype.slice.call($$('[arrow]', gCliqzBox)).filter(
+        function(el) {
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+    });
+}
+
 function selectNextResult(pos, allArrowable) {
     if (pos != allArrowable.length - 1) {
         var nextEl = allArrowable[pos + 1];
-        setResultSelection(nextEl, true, false, true);
+        setResultSelection(nextEl, false, true);
         arrowNavigationTelemetry(nextEl);
     }
 }
 
 function selectPrevResult(pos, allArrowable) {
     var nextEl = allArrowable[pos - 1];
-    setResultSelection(nextEl, true, true, true);
+    setResultSelection(nextEl, true, true);
     arrowNavigationTelemetry(nextEl);
 }
 
-function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
+function setResultSelection(el, scrollTop, changeUrl, mouseOver){
     if(el && el.getAttribute("url")){
         //focus on the title - or on the arrow element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
@@ -1709,9 +1679,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         }
 
         if(target.className.indexOf("cliqz-pattern") != -1) {
-          var context;
-          if(context = $('.cqz-result-pattern', gCliqzBox))
-            offset += context.parentElement.offsetTop;
+          var context = $('.cqz-result-pattern', gCliqzBox);
+          if(context) offset += context.parentElement.offsetTop;
         }
         var scroll = parseInt(offset/UI.DROPDOWN_HEIGHT) * UI.DROPDOWN_HEIGHT;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
@@ -1767,7 +1736,7 @@ function resultMove(ev){
             el = el.parentElement;
         }
         clearTextSelection();
-        setResultSelection(el, false, false, false, true);
+        setResultSelection(el, false, false, true);
         lastMoveTime = Date.now();
 
         if(!el) return;
@@ -1838,7 +1807,7 @@ function onEnter(ev, item){
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
-    var customQuery = CliqzResultProviders.isCustomQuery(input);
+    var customQuery = CliqzResultProviders.customizeQuery(input);
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }
@@ -1869,12 +1838,12 @@ function onEnter(ev, item){
 }
 
 function enginesClick(ev){
-    var engineName;
-    var el = ev.target;
+    var el = ev.target,
+        engineName = getResultOrChildAttr(el, 'engine');
 
-    if(engineName = ev && ((el && el.getAttribute('engine')) || (el.parentElement && el.parentElement.getAttribute('engine')))){
-        var engine;
-        if(engine = Services.search.getEngineByName(engineName)){
+    if(engineName){
+        var engine = Services.search.getEngineByName(engineName);
+        if(engine){
             var userInput = urlbar.value;
 
             // avoid autocompleted urls
@@ -2037,14 +2006,15 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
-    Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
-      UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
-    });
-  } catch (ex) {
-  }
-})
+    UI.VIEWS[templateName] = require(templateName).default;
+    if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+      Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+        UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+      });
+    }
+  } catch (ex) {}
+});
 
 ctx.CLIQZ.UI = UI;
 
-})(this);
+};

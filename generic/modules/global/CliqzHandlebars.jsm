@@ -31,7 +31,6 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'logo',
         'EZ-category',
         'EZ-history',
-        'feedback',
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
         'partials/missing_location_step_1',
@@ -292,8 +291,8 @@ function registerHelpers(){
             return false
     });
 
-    Handlebars.registerHelper('date', function(date) {
-        var d = new Date(date);
+    Handlebars.registerHelper('date', function(_date) {
+        var d = new Date(_date);
         var date = d.getDate();
         var month = d.getMonth();
         month++;

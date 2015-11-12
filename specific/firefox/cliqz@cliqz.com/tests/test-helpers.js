@@ -3,7 +3,6 @@ function injectTestHelpers(CliqzUtils) {
   var urlBar = chrome.CLIQZ.Core.urlbar;
   var lang = CliqzUtils.getLocalizedString('locale_lang_code');
 
-  
   window.fillIn = function fillIn(text) {
     urlBar.focus();
     urlBar.mInputField.focus();
@@ -25,17 +24,16 @@ function injectTestHelpers(CliqzUtils) {
         resolver();
       }
     }
-    
     var interval = setInterval(check, 250);
     check();
     registerInterval(interval);
 
-    return promise;	
+    return promise;
   };
 
   window.registerInterval = function registerInterval(interval) {
     if(!window.TestIntervals) { window.TestIntervals = []; }
-    TestIntervals.push(interval);  
+    TestIntervals.push(interval);
   };
 
   window.clearIntervals = function clearIntervals() {
