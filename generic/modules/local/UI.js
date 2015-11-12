@@ -5,6 +5,8 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
+export default function(ctx) {
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -19,9 +21,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
-(function(ctx) {
-
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
@@ -120,13 +119,30 @@ var UI = {
         handlePopupHeight(box);
     },
     handleResults: function(){
+      // TODO: this is FF specific - move it to another place!
       var popup = urlbar.popup,
         data = [],
         ctrl = popup.mInput.controller,
         q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
-        lastRes = CliqzAutocomplete.lastResult;
+        lastRes = CliqzAutocomplete.lastResult,
+        width = Math.max(urlbar.clientWidth, 500);
 
-      //popup.style.height = "302px";
+
+      // the search component UI might not be initialized yet
+      if (!gCliqzBox)
+         return;
+
+      // try to recreate main container if it doesnt exist
+      if(!gCliqzBox.resultsBox){
+          var cliqzBox = CLIQZ.Core.popup.cliqzBox;
+          if(cliqzBox){
+              UI.main(cliqzBox);
+          }
+      }
+      // set the width
+      // simply setting the width on the popup element and allowing the content to be 100% doenst work
+      gCliqzBox.style.width = width + 1 + "px"
+      gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
       for(var i=0; i<popup._matchCount; i++) {
           data.push({
@@ -166,16 +182,6 @@ var UI = {
       CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
-        if (!gCliqzBox)
-            return;
-
-        //try to recreate main container if it doesnt exist
-        if(!gCliqzBox.resultsBox){
-            var cliqzBox = CLIQZ.Core.popup.cliqzBox;
-            if(cliqzBox){
-                UI.main(cliqzBox);
-            }
-        }
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
@@ -185,14 +191,6 @@ var UI = {
         if (!query)
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
-        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
-        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
-        // Images-layout for Cliqz-Images-Search
-        //CliqzImages.process_images_result(res,
-        //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
-        //                                  urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
-
-        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
 
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
@@ -201,12 +199,6 @@ var UI = {
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
-
-        var width = Math.max(urlbar.clientWidth,500)
-
-        // set the width
-        gCliqzBox.style.width = width + 1 + "px"
-        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){
@@ -383,23 +375,7 @@ var UI = {
     keyDown: function(ev){
         var sel = getResultSelection(),
             //allArrowable should be cached
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
-
-        allArrowable = allArrowable.filter(function(el){
-            // dont consider hidden elements
-            if(el.offsetParent == null) return false;
-
-            if(!el.getAttribute('arrow-if-visible')) return true;
-
-            // check if the element is visible
-            //
-            // for now this check is enough but we might be forced to switch to a
-            // more generic approach - maybe using document.elementFromPoint(x, y)
-            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
-                return false
-            return true;
-        });
-
+            allArrowable = getAllArrowable();
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
@@ -488,6 +464,10 @@ var UI = {
                 UI.cursor = urlbar.selectionStart;
                 return false;
         }
+    },
+
+    selectResultByIndex: function (pos) {
+        setResultSelection(getAllArrowable()[pos], false, true);
     },
     entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
@@ -1635,6 +1615,24 @@ function smooth_scroll_to(element, target, duration) {
     setTimeout(function(){ scroll_frame(); }, 0);
 }
 
+function getAllArrowable() {
+    return Array.prototype.slice.call($$('[arrow]', gCliqzBox)).filter(
+        function(el) {
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+    });
+}
+
 function selectNextResult(pos, allArrowable) {
     if (pos != allArrowable.length - 1) {
         var nextEl = allArrowable[pos + 1];
@@ -2018,7 +2016,7 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
+    UI.VIEWS[templateName] = require(templateName).default;
     if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
       Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
         UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
@@ -2029,4 +2027,4 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
 
 ctx.CLIQZ.UI = UI;
 
-})(this);
+};
