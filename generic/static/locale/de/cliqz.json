@@ -909,9 +909,9 @@
       "message": "Die Teilnahme am Human Web ist optional"
     },
     "humanWeb9": {
-      "message": "Du kannst bestimmen, ob Human Web von dir die oben beschriebenen anonymen statistischen Daten zur Verbesserung von CLIQZ sammeln darf. Um dich von der Teilnahme an Human Web ab- oder anmelden, klicke auf das CLIQZ-Symbol rechts oben auf deinem Browser-Bildschirm. Es erscheint ein Menü. Klicke auf \"Human Web\". Setze oder entferne das Häkchen vor „Ich nehme teil“."
+      "message": "Du kannst bestimmen, ob Human Web von dir die oben beschriebenen anonymen statistischen Daten zur Verbesserung von CLIQZ sammeln darf."
     },
     "humanWeb10": {
-      "message": "Human Web aktivieren"
+      "message": "Ich nehme am Human Web teil"
     }
 }

@@ -909,9 +909,9 @@
       "message": "Participating in HumanWeb is optional"
     },
     "humanWeb9": {
-      "message": "You can choose If you want CLIQZ to submit anonymous statistical data to improve relevance and safety. To opt in or out Human Web, just click on the CLIQZ symbol (in the same line as the browser bar). In the menu, choose the item “Human Web” and set the checkmark accordingly."
+      "message": "You can choose If you want CLIQZ to submit anonymous statistical data to improve relevance and safety via the Human Web."
     },
     "humanWeb10": {
-      "message": "Enable Human Web"
+      "message": "I participate in the Human Web"
     }
 }
