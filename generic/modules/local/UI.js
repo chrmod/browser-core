@@ -7,19 +7,6 @@
 
 export default function(ctx) {
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
-  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
-  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
-
 var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = {
         //'s': 'shopping',
