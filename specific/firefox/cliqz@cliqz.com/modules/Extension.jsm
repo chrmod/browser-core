@@ -54,6 +54,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzUnblock.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
@@ -71,6 +72,8 @@ var Extension = {
         CliqzLoyalty.onExtensionStart();
 
         CliqzClusterHistory.init();
+
+        CliqzUnblock.init();
     },
     load: function(upgrade, oldVersion, newVersion){
         AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
@@ -139,6 +142,8 @@ var Extension = {
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
+
+        CliqzUnblock.unload();
     },
     restoreSearchBar: function(win){
         var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
@@ -201,6 +206,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzUnblock.jsm');
         // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
         // Remove this observer here to correct bug in 0.5.57
