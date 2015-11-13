@@ -381,12 +381,3 @@ CliqzMsgCenter.prototype = {
 		this._updateCampaigns();
 	},
 };
-
-
-
-
-
-
-
-
-
