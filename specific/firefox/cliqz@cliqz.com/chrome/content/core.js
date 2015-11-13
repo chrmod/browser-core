@@ -34,8 +34,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-//  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
@@ -66,6 +66,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUnblock',
   'chrome://cliqzmodules/content/CliqzUnblock.jsm');
@@ -268,7 +271,7 @@ window.CLIQZ.Core = {
                     3 - learn more
         */
         if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
-          CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
+          //CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
         }
     },
     showDataCollectionMessage: function(){
@@ -980,9 +983,10 @@ window.CLIQZ.Core = {
       return menu;
     },
 
-    createSimpleBtn: function(doc, txt, func, btnName){
+    createSimpleBtn: function(doc, txt, func, action){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
+        item.setAttribute('action', action);
         if(func)
             item.addEventListener(
                 'command',
@@ -990,7 +994,7 @@ window.CLIQZ.Core = {
                     CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'cliqz_menu_button',
-                        button_name: btnName
+                        button_name: action
                     });
                     func();
                 },

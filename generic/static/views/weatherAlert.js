@@ -1,1 +1,2 @@
-Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/weatherEZ.js', this);
+import weatherEZ from 'weatherEZ';
+export default weatherEZ;

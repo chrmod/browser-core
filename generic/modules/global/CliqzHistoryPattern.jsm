@@ -1068,7 +1068,7 @@ var CliqzHistoryPattern = {
   // Retrieve description and save in instant results
   getDescription: function(instant) {
     var instant_data = instant.data;
-    var promise = CliqzHistory.getDescription(instant.val);
+    var promise = CliqzHistory && CliqzHistory.getDescription && CliqzHistory.getDescription(instant.val);
     if(promise) {
       return promise.then( function(desc) {
         instant_data.description = desc;
@@ -1078,7 +1078,7 @@ var CliqzHistoryPattern = {
   // Retrieve title and save in instant reuslt
   getTitle: function(instant) {
     var instant_data = instant.data;
-    var promise = CliqzHistory.getTitle(instant.val);
+    var promise = CliqzHistory && CliqzHistory.getTitle && CliqzHistory.getTitle(instant.val);
     if(promise) {
       return promise.then( function(title) {
         if(title)

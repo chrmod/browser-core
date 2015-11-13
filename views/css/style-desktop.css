@@ -3,7 +3,7 @@
     padding: 0;
 }
 
-input {
+#urlbar {
     width: 800px;
     display: block;
     margin: 100px auto 0;
@@ -12,7 +12,6 @@ input {
 }
 
 #results {
-	width: 800px;
 	height: 350px;
 	margin: 0px auto;
 	border: 1px solid gray;
