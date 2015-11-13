@@ -10,6 +10,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
+  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
+
 var CAMPAIGN_SERVER = 'https://fec.cliqz.com/message/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
@@ -120,61 +123,19 @@ TriggerUrlbarFocus._onUrlbarFocus = function () {
 /* ************************************************************************* */
 
 /* ************************************************************************* */
-var MessageHandler = function (id) {
-	this.id = id;
-	this._windows = [];
-	this._messageQueue = [];
-	// message id is key
-	this._callbacks = {};
-};
-MessageHandler.prototype.init = function (win) {
-	this._windows.push(win);
-};
-MessageHandler.prototype.unload = function (win) {
-	var i = this._windows.indexOf(win);
-	if (i > -1) {
-		this._windows.splice(i, 1);
-	}
-};
-MessageHandler.prototype.enqueueMessage = function (message, callback) {
-	this._messageQueue.push(message);
-	this._callbacks[message.id] = callback;
-	if (this._messageQueue.length === 1) {
-		this._renderMessage(message);
-	}
-};
-MessageHandler.prototype.dequeueMessage = function (message) {
-	var i = this._messageQueue.indexOf(message);
-	if (i === 0) {
-		this.showNextMessage();
-	} else if (i > -1) {
-		this._messageQueue.splice(i, 1);
-		delete this._callbacks[message.id];
-	}
-};
-MessageHandler.prototype.showNextMessage = function () {
-	var message = this._messageQueue.shift();
-	if (message) {
-		delete this._callbacks[message.id];
-		this._hideMessage(message);
-		if (this._messageQueue.length > 0) {
-			this._renderMessage(this._messageQueue[0]);
-		}
-	}
-};
 
 var MessageHandlerDropdownFooter = function () {
-	MessageHandler.call(this, MessageHandlerDropdownFooter.id);
+	CliqzMsgHandler.call(this, MessageHandlerDropdownFooter.id);
 };
 MessageHandlerDropdownFooter.id = 'MESSAGE_HANDLER_DROPDOWN_FOOTER';
 MessageHandlerDropdownFooter.prototype =
-	Object.create(MessageHandler.prototype);
+	Object.create(CliqzMsgHandler.prototype);
 MessageHandlerDropdownFooter.prototype.constructor =
 	MessageHandlerDropdownFooter;
 MessageHandlerDropdownFooter.prototype.parent =
-	MessageHandler.prototype;
-MessageHandlerDropdownFooter.prototype.init = function (win) {
-	this.parent.init.call(this, win);
+	CliqzMsgHandler.prototype;
+MessageHandlerDropdownFooter.prototype.registerWindow = function (win) {
+	this.parent.registerWindow.call(this, win);
 
 	win.CLIQZ.Core.popup.addEventListener('popupshowing',
 		this._addClickListener);
@@ -184,8 +145,8 @@ MessageHandlerDropdownFooter.prototype.init = function (win) {
 		this._renderMessage(this._messageQueue[0], win);
 	}
 };
-MessageHandlerDropdownFooter.prototype.unload = function (win) {
-	this.parent.unload.call(this, win);
+MessageHandlerDropdownFooter.prototype.unregisterWindow = function (win) {
+	this.parent.unregisterWindow.call(this, win);
 	// usually removed on popup showing, but not if window closed before
 	if (win.CLIQZ.Core.popup[this.id]) {
 		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
@@ -279,15 +240,15 @@ MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 };
 
 var MessageHandlerAlert = function () {
-	MessageHandler.call(this, MessageHandlerAlert.id);
+	CliqzMsgHandler.call(this, MessageHandlerAlert.id);
 };
 MessageHandlerAlert.id = 'MESSAGE_HANDLER_ALERT';
 MessageHandlerAlert.prototype =
-	Object.create(MessageHandler.prototype);
+	Object.create(CliqzMsgHandler.prototype);
 MessageHandlerAlert.prototype.constructor =
 	MessageHandlerAlert;
 MessageHandlerDropdownFooter.prototype.parent =
-	MessageHandler.prototype;
+	CliqzMsgHandler.prototype;
 MessageHandlerAlert.prototype._renderMessage = function (message) {
 	// TODO: wait for window to open
 	CliqzUtils.getWindow().alert(message.text);
@@ -329,7 +290,7 @@ CliqzMsgCenter.prototype = {
 		}
 		for (id in this._messageHandlers) {
 			if (this._messageHandlers.hasOwnProperty(id)) {
-				this._messageHandlers[id].init(win);
+				this._messageHandlers[id].registerWindow(win);
 			}
 		}
 	},
@@ -347,7 +308,7 @@ CliqzMsgCenter.prototype = {
 		}
 		for (id in this._messageHandlers) {
 			if (this._messageHandlers.hasOwnProperty(id)) {
-				this._messageHandlers[id].unload(win);
+				this._messageHandlers[id].unregisterWindow(win);
 			}
 		}
 	},
