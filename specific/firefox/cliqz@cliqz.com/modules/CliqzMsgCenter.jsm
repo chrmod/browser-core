@@ -13,6 +13,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerAlert',
+  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerAlert.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerDropdownFooter',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerDropdownFooter.jsm');
 
@@ -123,29 +126,6 @@ TriggerUrlbarFocus.unload = function (win) {
 TriggerUrlbarFocus._onUrlbarFocus = function () {
 	TriggerUrlbarFocus._notifyListeners();
 };
-/* ************************************************************************* */
-
-/* ************************************************************************* */
-var MessageHandlerAlert = function () {
-	CliqzMsgHandler.call(this, MessageHandlerAlert.id);
-};
-MessageHandlerAlert.id = 'MESSAGE_HANDLER_ALERT';
-MessageHandlerAlert.prototype =
-	Object.create(CliqzMsgHandler.prototype);
-MessageHandlerAlert.prototype.constructor =
-	MessageHandlerAlert;
-MessageHandlerDropdownFooter.prototype.parent =
-	CliqzMsgHandler.prototype;
-MessageHandlerAlert.prototype._renderMessage = function (message) {
-	// TODO: wait for window to open
-	CliqzUtils.getWindow().alert(message.text);
-	if (this._callbacks[message.id]) {
-		this._callbacks[message.id](message.id, message.options &&
-			message.options.length > 0 && message.options[0].action);
-	}
-	this.showNextMessage();
-};
-MessageHandlerAlert.prototype._hideMessage = function () { };
 /* ************************************************************************* */
 
 function CliqzMsgCenter() {

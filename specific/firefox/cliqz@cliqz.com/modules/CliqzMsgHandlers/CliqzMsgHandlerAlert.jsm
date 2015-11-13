@@ -1,0 +1,27 @@
+'use strict';
+
+var EXPORTED_SYMBOLS = ['CliqzMsgHandlerAlert'];
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
+  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
+
+var CliqzMsgHandlerAlert = function () {
+    CliqzMsgHandler.call(this, CliqzMsgHandlerAlert.id);
+};
+CliqzMsgHandlerAlert.id = 'MESSAGE_HANDLER_ALERT';
+CliqzMsgHandlerAlert.prototype =
+    Object.create(CliqzMsgHandler.prototype);
+CliqzMsgHandlerAlert.prototype.constructor =
+    CliqzMsgHandlerAlert;
+MessageHandlerDropdownFooter.prototype.parent =
+    CliqzMsgHandler.prototype;
+CliqzMsgHandlerAlert.prototype._renderMessage = function (message) {
+    // TODO: wait for window to open
+    CliqzUtils.getWindow().alert(message.text);
+    if (this._callbacks[message.id]) {
+        this._callbacks[message.id](message.id, message.options &&
+            message.options.length > 0 && message.options[0].action);
+    }
+    this.showNextMessage();
+};
+CliqzMsgHandlerAlert.prototype._hideMessage = function () { };
