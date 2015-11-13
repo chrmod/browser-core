@@ -1046,9 +1046,11 @@ AboutURL.prototype = {
 
     newChannel: function(uri) {
         var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-        var html =  ["data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
-                    "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
-                    "</head><body><iframe src=\"chrome://cliqz/content/loyalty/index.html\"></iframe></body></html>"].join('')
+        var html = [
+                      "data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
+                      "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
+                      "</head><body><iframe src=\"chrome://cliqz/content/loyalty/index.html\"></iframe></body></html>"
+                    ].join('');
 
         var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
         var channel = ioService.newChannel(html, null, null);
@@ -1060,6 +1062,7 @@ AboutURL.prototype = {
 
     getURIFlags: function(uri) { return Ci.nsIAboutModule.ALLOW_SCRIPT; }
 }
+
 var AboutURLFactory = XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID);
 
 var CliqzLoyalty = {

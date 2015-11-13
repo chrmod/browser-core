@@ -1,4 +1,5 @@
 SCRIPTS.layout = function () {
+  
   Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
   if (typeof window == 'undefined') {
     window = {};

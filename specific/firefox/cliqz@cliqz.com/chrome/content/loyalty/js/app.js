@@ -61,11 +61,12 @@ window.SCRIPTS = {};
   window.renderView = renderView;
 
   function findViewName() {
-    return window.location.hash.split("/")[1] || "index";
+    return window.location.href.split("/")[1] || "index";
   }
 
   function init() {
     var viewName = findViewName();
+
     registerPartials().then(renderLayout)
       .then(function () {
         return renderView(viewName);
