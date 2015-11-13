@@ -13,6 +13,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerDropdownFooter',
+  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerDropdownFooter.jsm');
+
 var CAMPAIGN_SERVER = 'https://fec.cliqz.com/message/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
@@ -123,122 +126,6 @@ TriggerUrlbarFocus._onUrlbarFocus = function () {
 /* ************************************************************************* */
 
 /* ************************************************************************* */
-
-var MessageHandlerDropdownFooter = function () {
-	CliqzMsgHandler.call(this, MessageHandlerDropdownFooter.id);
-};
-MessageHandlerDropdownFooter.id = 'MESSAGE_HANDLER_DROPDOWN_FOOTER';
-MessageHandlerDropdownFooter.prototype =
-	Object.create(CliqzMsgHandler.prototype);
-MessageHandlerDropdownFooter.prototype.constructor =
-	MessageHandlerDropdownFooter;
-MessageHandlerDropdownFooter.prototype.parent =
-	CliqzMsgHandler.prototype;
-MessageHandlerDropdownFooter.prototype.registerWindow = function (win) {
-	this.parent.registerWindow.call(this, win);
-
-	win.CLIQZ.Core.popup.addEventListener('popupshowing',
-		this._addClickListener);
-	// keep reference to this listener
-	win.CLIQZ.Core.popup[this.id] = this;
-	if (this._messageQueue[0]) {
-		this._renderMessage(this._messageQueue[0], win);
-	}
-};
-MessageHandlerDropdownFooter.prototype.unregisterWindow = function (win) {
-	this.parent.unregisterWindow.call(this, win);
-	// usually removed on popup showing, but not if window closed before
-	if (win.CLIQZ.Core.popup[this.id]) {
-		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
-			this._addClickListener);
-		delete win.CLIQZ.Core.popup[this.id];
-	}
-
-	var msgContainer = win.document.getElementById('cliqz-message-container');
-	if (msgContainer) {
-		msgContainer.removeEventListener('mouseup', this._onClick);
-		delete msgContainer[this.id];
-	} else {
-		_log('message container not found');
-	}
-};
-MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
-	// show in all open windows if win is not specified
-	if (win) {
-		// TODO: show immediately
-		win.CLIQZ.UI.messageCenterMessage =
-			message ? this._convertMessage(message) : null;
-		if (!message) {
-			// hide immediately
-			if (win.CLIQZ.Core.popup.cliqzBox &&
-				win.CLIQZ.Core.popup.cliqzBox.messageContainer) {
-				win.CLIQZ.Core.popup.cliqzBox.messageContainer.innerHTML = '';
-			}
-		}
-	} else {
-		this._windows.map(function (w) {
-			if (w) { this._renderMessage(message, w); }
-		}.bind(this));
-	}
-};
-MessageHandlerDropdownFooter.prototype._hideMessage = function (message) {
-	this._renderMessage(null);
-};
-// converts message into format expected by UI
-MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
-	var m = {
-		simple_message: message.text,
-		type: 'cqz-message-survey',
-		options: []
-	};
-
-	if (message.options) {
-		for (var i = 0; i < message.options.length; i++) {
-			m.options.push ({
-				text: message.options[i].label,
-				state: message.options[i].style,
-				action: message.options[i].action
-			});
-		}
-	}
-
-	return {'footer-message': m};
-};
-MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
-	var popup = e.target,
-		win = popup.parentNode.parentNode.parentNode,
-		self = popup[MessageHandlerDropdownFooter.id];
-
-	popup.removeEventListener('popupshowing', self._addClickListener);
-	delete popup[self.id];
-
-	var msgContainer = win.getElementById('cliqz-message-container');
-	if (msgContainer) {
-		msgContainer.addEventListener('mouseup', self._onClick);
-		msgContainer[self.id] = self;
-	} else {
-		_log('message container not found');
-	}
-};
-MessageHandlerDropdownFooter.prototype._onClick = function (e) {
-	var action = e.target ? e.target.getAttribute('state') : null,
-		msgContainer = e.target;
-	while (msgContainer && msgContainer.id !== 'cliqz-message-container') {
-		msgContainer = msgContainer.parentNode;
-	}
-	if (!msgContainer || msgContainer.id !== 'cliqz-message-container') {
-		_log('message container not found');
-		return;
-	}
-	var self = msgContainer[MessageHandlerDropdownFooter.id],
-	    message = self._messageQueue[0];
-	// not thread-safe: if current message is removed while it is showing,
-	// the next message is used when invoking the callback
-	if (message && self._callbacks[message.id]) {
-		self._callbacks[message.id](message.id, action);
-	}
-};
-
 var MessageHandlerAlert = function () {
 	CliqzMsgHandler.call(this, MessageHandlerAlert.id);
 };
@@ -269,8 +156,8 @@ function CliqzMsgCenter() {
   this._updateTimer = null;
 
   this.registerTrigger(TriggerUrlbarFocus.id, TriggerUrlbarFocus);
-  this.registerMessageHandler(MessageHandlerDropdownFooter.id,
-    new MessageHandlerDropdownFooter());
+  this.registerMessageHandler(CliqzMsgHandlerDropdownFooter.id,
+    new CliqzMsgHandlerDropdownFooter());
   this.registerMessageHandler(MessageHandlerAlert.id,
     new MessageHandlerAlert());
 
