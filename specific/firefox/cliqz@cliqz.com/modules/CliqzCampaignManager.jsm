@@ -90,10 +90,10 @@ CliqzCampaignManager.prototype = {
         _log('loading campaigns');
         try {
             var cIds = JSON.parse(_getPref('campaigns.ids', '[]'));
-            for (var i = 0; i < cIds.length; i++) {
-                var campaign = new CliqzCampaign(cIds[i]);
+            cIds.forEach(function (cId) {
+                var campaign = new CliqzCampaign(cId);
                 if (campaign.load()) {
-                    this._campaigns[cIds[i]] = campaign;
+                    this._campaigns[cId] = campaign;
                     if (campaign.state === 'show') {
                         CliqzEvents.pub('msg_center_show_message', campaign.message,
                             campaign.handlerId,
@@ -102,7 +102,7 @@ CliqzCampaignManager.prototype = {
                 } else {
                     campaign.delete();
                 }
-            }
+            }.bind(this));
         } catch (e) {
             _log('error loading campaigns: ' + e);
         }
