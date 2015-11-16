@@ -8,14 +8,12 @@ function CliqzCampaignTrigger(id) {
 }
 
 CliqzCampaignTrigger.prototype = {
-
     addListener: function(callback) {
         this._listeners.push(callback);
     },
-
     notifyListeners: function () {
-        for (var i = 0; i < this._listeners.length; i++) {
-            this._listeners[i](this.id);
-        }
+        this._listeners.forEach(function (listener) {
+          listener(this.id);
+        }.bind(this));
     }
 };
