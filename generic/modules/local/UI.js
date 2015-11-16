@@ -19,6 +19,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = {
@@ -1384,6 +1386,7 @@ function urlIndexInHistory(url, urlList) {
                     default:
                         break;
                 }
+                CliqzEvents.pub('ui_message_click', ev.originalTarget);
                 CliqzUtils.telemetry({
                     type: 'setting',
                     setting: el.getAttribute('cliqz-telemetry'),
