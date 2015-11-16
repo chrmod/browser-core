@@ -2,7 +2,7 @@
 
 var EXPORTED_SYMBOLS = ['CliqzMsgHandler'];
 
-Components.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
