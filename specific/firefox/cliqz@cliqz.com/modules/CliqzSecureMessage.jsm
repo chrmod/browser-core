@@ -29,17 +29,6 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/jsencrypt.js'
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 
 
-/*
-var worker = new Worker('chrome://cliqz/content/extern/demo-worker.js');
-// Decide what to do when the worker sends us a message
-worker.onmessage = function(e) {
-    CliqzUtils.log(e.data, "XXXXXXX");
-};
-
-// Send the worker a message
-worker.postMessage('hello worker');
-*/
-
 /* Source mapping for routing keys, endpoints, rate-limit etc
 */
 
@@ -97,14 +86,54 @@ JSON.unflatten = function (data) {
     return resultholder[""] || resultholder;
 };
 
+/* Convert the trk into a generator and execute each message sequentially.
+   when index reaches length of the trk,
+   yield's done will be true
+   and its value will be undefined;
+*/
+
+function *trkGen(trk) {
+	var index = 0;
+  	while (index < trk.length) {
+    	yield index++;
+    }
+}
+
+function sendM(m){
+    var mc = new CliqzSecureMessage.messageContext(m);
+    mc.aesEncrypt()
+	.then(function(data){
+		CliqzUtils.log("SigningAES-Key");
+		return mc.signKey()
+	})
+	.then(function(data){
+		CliqzUtils.log("Verified: " + data);
+		CliqzUtils.setTimeout(function(){
+			CliqzUtils.log("hehehe;");
+			var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
+			CliqzUtils.log("Midx: " + mIdx);
+			if(mIdx) {
+				sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
+			}
+		}, 5000)
+
+
+	})
+	.catch(function(err){
+		CliqzUtils.log("Error: " + err);
+	})
+
+}
+
 var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'];
 
 /* This method will return the string based on mapping of which keys to use to hash for routing.
 */
 
 function getRouteHash(msg){
-	var flastMsg = JSON.flatten(JSON.parse(msg));
-	var keys = sourceMap[msg.action]["keys"];
+	CliqzUtils.log("Msg recieved: " + msg,"XXXX");
+	var flastMsg = JSON.flatten(msg);
+	var keys = sourceMap[flastMsg.action]["keys"];
 	return msg[keys[0]];
 
 }
@@ -116,6 +145,18 @@ function fetchRouteTable(){
 		CliqzUtils.log(respone, CliqzSecureMessage.LOG_KEY);
 	})
 	.catch(_this.log("Error occurred while fetch signing key: "));
+}
+
+function isJson(str) {
+	// If can be parsed that means it's a str.
+	// If cannot be parsed and is an object then it's a JSON.
+    try {
+        JSON.parse(str);
+    } catch (e) {
+    	if(typeof str =='object')
+        return true;
+    }
+    return false;
 }
 
 var types = {
@@ -240,8 +281,8 @@ var userPK = function () {
 	}
 	else{
 		this.keyGen.setPrivateKey(keySet);
-		this.privateKey = this.keyGen.getKey();
-		this.publiKey = this.keyGen.getPublicKeyB64();
+		this.privateKey = this.keyGen.getPrivateKeyB64();
+		this.publiKey = this.keyGen.getPublicKey();
 	}
 
 }
@@ -269,8 +310,9 @@ userPK.prototype.decrypt = function(msg){
  * @returns string with payload created.
  */
 var messageContext = function (msg) {
- 	this.orgMessage = msg;
- 	this.jMessage = JSON.parse(msg);
+	if(!msg) return;
+ 	this.orgMessage = isJson(msg) ? JSON.stringify(msg) : msg;
+ 	this.jMessage = isJson(msg) ? msg : JSON.parse(msg);
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
@@ -353,10 +395,8 @@ messageContext.prototype.signKey = function(){
 messageContext.prototype.calculateRouteHash = function(msg){
 	var hash = "";
 	var _msg = msg || this.orgMessage;
-	var _keys = ['action'];
-	var stringRouteHash = getRouteHash(msg);
+	var stringRouteHash = getRouteHash(this.jMessage);
 	var hashM = sha256_digest(stringRouteHash);
-	CliqzUtils.log(JSON.parse(_msg)[_keys[0]]);
 	var hash = modInt(str2bigInt(hashM,16), 500);
 	this.routeHash = hashM;
 	this.proxyHash = hash;
@@ -569,7 +609,69 @@ var CliqzSecureMessage = {
 			return;
 		})
 		// .catch(CliqzUtils.log("Error occurred while fetch signing key: ", CliqzSecureMessage.LOG_KEY));
-	}
+	},
+    // ****************************
+    // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
+    // ****************************
+    trk: [],
+    trkTimer: null,
+    telemetry: function(msg, instantPush) {
+        if (!CliqzSecureMessage || //might be called after the module gets unloaded
+            CliqzUtils.getPref('dnt', false) ||
+            CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
+
+        if (msg) CliqzSecureMessage.trk.push(msg);
+        CliqzUtils.clearTimeout(CliqzSecureMessage.trkTimer);
+        if(instantPush || CliqzSecureMessage.trk.length % 100 == 0){
+            CliqzSecureMessage.pushTelemetry();
+        } else {
+            CliqzSecureMessage.trkTimer = CliqzUtils.setTimeout(CliqzSecureMessage.pushTelemetry, 60000);
+        }
+    },
+    _telemetry_req: null,
+    _telemetry_sending: [],
+    _telemetry_start: undefined,
+    telemetry_MAX_SIZE: 500,
+    previousDataPost: null,
+    pushMessage : [],
+    pushTelemetry: function() {
+        // if(CliqzSecureMessage._telemetry_req) return;
+
+        // put current data aside in case of failure
+        // Changing the slice and empty array function to splice.
+
+        //CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.slice(0);
+        //CliqzSecureMessage.trk = [];
+
+        // Check if track has duplicate messages.
+        // Generate a telemetry signal, with base64 endocing of data and respective count.
+
+        CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
+        CliqzSecureMessage._telemetry_start = (new Date()).getTime();
+		CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
+		sendM(CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()['value']])
+
+    },
+    pushTelemetryCallback: function(req){
+        try {
+            var response = JSON.parse(req.response);
+            CliqzSecureMessage._telemetry_sending = [];
+            CliqzSecureMessage._telemetry_req = null;
+        } catch(e){}
+    },
+    pushTelemetryError: function(req){
+        // pushTelemetry failed, put data back in queue to be sent again later
+        CliqzSecureMessage.trk = CliqzSecureMessage._telemetry_sending.concat(CliqzSecureMessage.trk);
+
+        // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
+        var slice_pos = CliqzSecureMessage.trk.length - CliqzSecureMessage.telemetry_MAX_SIZE + 100;
+        if(slice_pos > 0){
+            CliqzSecureMessage.trk = CliqzSecureMessage.trk.slice(slice_pos);
+        }
+
+        CliqzSecureMessage._telemetry_sending = [];
+        CliqzSecureMessage._telemetry_req = null;
+    },
 }
 
 // CliqzSecureMessage.init();
@@ -829,5 +931,37 @@ for(var i=0;i<arr.length;i++){
 		console.log(mc.createPayload());
 
 	})
+}
+*/
+
+/*
+function *foo() {
+     var index = 0;
+  while (index <= arr.length) // when index reaches 3,
+                     // yield's done will be true
+                     // and its value will be undefined;
+    yield index++;
+}
+
+var sm = foo();
+
+sendM(arr[sm.next()['value']])
+function sendM(m){
+    var mc = new CliqzSecureMessage.messageContext(m);
+    mc.aesEncrypt()
+	.then(function(data){
+		console.log("SigningAES-Key")
+		return mc.signKey()
+	})
+	.then(function(data){
+		console.log("Verified: " + data);
+		CliqzUtils.setTimeout(function(){
+			console.log("hehehe;");
+			sendM(arr[sm.next()['value']]);
+		}, 5000)
+
+
+	})
+
 }
 */

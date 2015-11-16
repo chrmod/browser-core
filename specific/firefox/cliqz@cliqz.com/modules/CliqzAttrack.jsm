@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict';
 /*
  * This module prevents user from 3rd party tracking
  */
@@ -1021,7 +1021,7 @@ var CliqzAttrack = {
                             req_log['token.has_'+ key]++;
                             req_log['token.'+ key] += stats[key];
                         }
-                    });                    
+                    });
                 }
 
                 if (badTokens.length == 0) return;
@@ -2118,7 +2118,7 @@ var CliqzAttrack = {
         if (CliqzAttrack.wrongTokenLastSent==null || CliqzAttrack.loadedPage==null ||
             CliqzAttrack.localBlocked==null || CliqzAttrack.checkedToken==null || CliqzAttrack.blockedToken)
             CliqzAttrack.loadLocalTokenStats();
-        
+
         // if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
         // @konarkm : Since we already have window, passing it.
@@ -2615,7 +2615,7 @@ var CliqzAttrack = {
             hour = CliqzAttrack.newUTCDate();
         hour.setHours(hour.getHours() - delay);
         var hourCutoff = CliqzAttrack.hourString(hour);
-        if (CliqzAttrack.lastUpdate[0] > hourCutoff && 
+        if (CliqzAttrack.lastUpdate[0] > hourCutoff &&
             CliqzAttrack.lastUpdate[1] > hourCutoff)
             return true;
         return false;
@@ -2632,7 +2632,7 @@ var CliqzAttrack = {
             countBlockedToken = 0,
             countWrongToken = 0,
             countWrongPage = 0;
-        
+
         for (var source in CliqzAttrack.localBlocked) {
             var _wrongSource = true;
             for (var s in CliqzAttrack.localBlocked[source]) {
@@ -2824,7 +2824,7 @@ var CliqzAttrack = {
                     CliqzAttrack.tokenDomain = JSON.parse(data);
                 } catch(e) {
                     CliqzAttrack.tokenDomain = {};
-                }                
+                }
             }
         });
     },
@@ -3580,7 +3580,7 @@ var CliqzAttrack = {
             // local logging of blocked tokens
             var hour = CliqzAttrack.getTime(),
                 source = md5(source_url);
-            
+
             if (!(source in CliqzAttrack.localBlocked)) CliqzAttrack.localBlocked[source] = {};
             if (!(s in CliqzAttrack.localBlocked[source])) CliqzAttrack.localBlocked[source][s] = {};
             if (!(k in CliqzAttrack.localBlocked[source][s])) CliqzAttrack.localBlocked[source][s][k] = {};
@@ -3588,7 +3588,7 @@ var CliqzAttrack = {
             if (!(hour in CliqzAttrack.localBlocked[source][s][k][v])) CliqzAttrack.localBlocked[source][s][k][v][hour] = 0;
             CliqzAttrack.localBlocked[source][s][k][v][hour]++;
         };
-        
+
         var _checkTokens = function(key, val) {
             var hour = CliqzAttrack.getTime();
             if (!(hour in CliqzAttrack.checkedToken)) CliqzAttrack.checkedToken[hour] = 0;
@@ -3597,7 +3597,7 @@ var CliqzAttrack = {
             while (tok != dURIC(tok)) {
                 tok = dURIC(tok);
             }
-            
+
             if (tok.length < 8 || source_url.indexOf(tok) > -1) return;
 
             // Bad values (cookies)
@@ -3655,7 +3655,7 @@ var CliqzAttrack = {
                 }
             }
 
-            
+
             // Good keys.
             if (CliqzAttrack.safeKey[s] &&
                 CliqzAttrack.safeKey[s][md5(key)]) {
