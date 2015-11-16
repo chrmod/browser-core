@@ -2,12 +2,20 @@
 
 var EXPORTED_SYMBOLS = ['CliqzMsgHandler'];
 
+Components.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
+
 function CliqzMsgHandler (id) {
     this.id = id;
     this._windows = [];
     this._messageQueue = [];
     // message id is key
     this._callbacks = {};
+
+    CliqzEvents.sub('core_window_added', this.registerWindow);
+    CliqzEvents.sub('core_window_removed', this.unregisterWindow);
 }
 
 CliqzMsgHandler.prototype = {

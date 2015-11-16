@@ -64,6 +64,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -203,8 +206,6 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             CliqzDemo.init(window);
-            CliqzUtils.messageCenter.registerWindow(window);
-            CliqzUtils.campaignManager.registerWindow(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -228,6 +229,8 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
+
+            CliqzEvents.pub('core_window_added', window);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -421,8 +424,6 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
-            CliqzUtils.messageCenter.unregisterWindow(window);
-            CliqzUtils.campaignManager.unregisterWindow(window);
             CLIQZ.COMPONENTS.forEach(function(c){
               c.unload && c.unload();
             })
@@ -444,7 +445,7 @@ window.CLIQZ.Core = {
                   currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
                 }
             }
-
+            CliqzEvents.pub('core_window_removed', window);
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
         }
