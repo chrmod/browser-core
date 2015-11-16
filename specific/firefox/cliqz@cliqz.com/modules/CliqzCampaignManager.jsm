@@ -4,6 +4,8 @@ var EXPORTED_SYMBOLS = ['CliqzCampaignManager'];
 
 Components.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -182,7 +184,7 @@ CliqzCampaignManager.prototype = {
                 if (campaign.load()) {
                     this._campaigns[cIds[i]] = campaign;
                     if (campaign.state === 'show') {
-                        CliqzUtils.messageCenter.showMessage(campaign.message,
+                        CliqzEvents.pub('show_message', campaign.message,
                             campaign.handlerId,
                             this._onMessageAction.bind(this));
                     }
@@ -219,11 +221,8 @@ CliqzCampaignManager.prototype = {
         _log('added campaign ' + id);
     },
     removeCampaign: function (id) {
-        var campaign = this._campaigns[id],
-            handler = CliqzUtils.messageCenter._messageHandlers[campaign.handlerId];
-        if (handler) {
-            handler.dequeueMessage(campaign.message);
-        }
+        var campaign = this._campaigns[id];
+        CliqzEvents.pub('hide_message', campaign.message, campaign.handlerId);
         campaign.delete();
         delete this._campaigns[id];
         _telemetry(campaign, 'remove');
@@ -267,8 +266,7 @@ CliqzCampaignManager.prototype = {
                     campaign.setState('idle');
                 }
 
-                CliqzUtils.messageCenter._messageHandlers[campaign.handlerId].
-                    dequeueMessage(campaign.message);
+                CliqzEvents.pub('hide_message', campaign.message, campaign.handlerId);
             }
 
             if (campaign.counts.show === campaign.limits.show) {
@@ -303,7 +301,7 @@ CliqzCampaignManager.prototype = {
                     campaign.counts.trigger = 0;
                     // need ID in message to associate callback with campaign
                     campaign.message.id = campaign.id;
-                    CliqzUtils.messageCenter.showMessage(campaign.message,
+                    CliqzEvents.pub('show_message', campaign.message,
                         campaign.handlerId, this._onMessageAction.bind(this));
                     CliqzUtils.httpGet(_getEndpoint('show', campaign));
                     _telemetry(campaign, 'show');

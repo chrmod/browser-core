@@ -4,6 +4,9 @@ var EXPORTED_SYMBOLS = ['CliqzMsgCenter'];
 
 Components.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -32,7 +35,12 @@ function CliqzMsgCenter() {
     new CliqzMsgHandlerDropdownFooter());
   this.registerMessageHandler(CliqzMsgHandlerAlert.id,
     new CliqzMsgHandlerAlert());
+
+  CliqzEvents.sub('show_message', this.showMessage);
+  CliqzEvents.sub('hide_message', this.hide_message);
 }
+
+// TODO: add destructor
 
 CliqzMsgCenter.prototype = {
 
@@ -76,5 +84,15 @@ CliqzMsgCenter.prototype = {
 		} else {
 			_log('message handler not found: ' + handlerId);
 		}
-	}
+	},
+
+  hideMessage: function (message, handlerId) {
+    var handler =
+      this._messageHandlers[handlerId];
+    if (handler) {
+      handler.dequeueMessage(message);
+    } else {
+      _log('message handler not found: ' + handlerId);
+    }
+  }
 };
