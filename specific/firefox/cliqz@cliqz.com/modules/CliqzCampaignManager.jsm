@@ -10,6 +10,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaign',
+  'chrome://cliqzmodules/content/CliqzCampaign.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaignTriggerUrlbarFocus',
   'chrome://cliqzmodules/content/CliqzCampaignTriggers/CliqzCampaignTriggerUrlbarFocus.jsm');
 
@@ -49,46 +52,6 @@ function _telemetry(campaign, action) {
     });
 }
 
-/* ************************************************************************* */
-var Campaign = function (id, data) {
-    this.id = id;
-    this.init();
-    this.update(data);
-};
-Campaign.prototype.init = function () {
-    this.state = 'idle';
-    this.isEnabled = true;
-    this.counts = {trigger: 0, show: 0, confirm: 0,
-                   postpone: 0, ignore: 0, discard: 0};
-};
-Campaign.prototype.update = function (data) {
-    for (var key in data) {
-        if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
-            this[key] = data[key];
-        }
-    }
-};
-Campaign.prototype.setState = function (newState) {
-    _log(this.id + ': ' + this.state + ' -> ' + newState);
-    this.state = newState;
-};
-Campaign.prototype.save = function () {
-    _setPref('campaigns.data.' + this.id, JSON.stringify(this));
-    _log('saved campaign ' + this.id);
-};
-Campaign.prototype.load = function () {
-    try {
-        this.update(JSON.parse(_getPref('campaigns.data.' + this.id, '{}')));
-        _log('loaded campaign ' + this.id);
-        return true;
-    } catch (e) {
-        _log('error loading campaign ' + this.id);
-        return false;
-    }
-};
-Campaign.prototype.delete = function () {
-    _clearPref('campaigns.data.' + this.id);
-};
 /* ************************************************************************* */
 
 function CliqzCampaignManager() {
@@ -155,7 +118,7 @@ CliqzCampaignManager.prototype = {
         try {
             var cIds = JSON.parse(_getPref('campaigns.ids', '[]'));
             for (var i = 0; i < cIds.length; i++) {
-                var campaign = new Campaign(cIds[i]);
+                var campaign = new CliqzCampaign(cIds[i]);
                 if (campaign.load()) {
                     this._campaigns[cIds[i]] = campaign;
                     if (campaign.state === 'show') {
@@ -190,7 +153,7 @@ CliqzCampaignManager.prototype = {
             });
     },
     addCampaign: function (id, data) {
-        this._campaigns[id] = new Campaign(id, data);
+        this._campaigns[id] = new CliqzCampaign(id, data);
         CliqzUtils.httpGet(_getEndpoint('accept', this._campaigns[id]));
         _telemetry(this._campaigns[id], 'add');
         _log('added campaign ' + id);
