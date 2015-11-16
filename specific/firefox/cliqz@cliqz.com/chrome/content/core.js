@@ -204,6 +204,7 @@ window.CLIQZ.Core = {
             CliqzLanguage.init(window);
             CliqzDemo.init(window);
             CliqzUtils.messageCenter.registerWindow(window);
+            CliqzUtils.campaignManager.registerWindow(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -421,6 +422,7 @@ window.CLIQZ.Core = {
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
             CliqzUtils.messageCenter.unregisterWindow(window);
+            CliqzUtils.campaignManager.unregisterWindow(window);
             CLIQZ.COMPONENTS.forEach(function(c){
               c.unload && c.unload();
             })

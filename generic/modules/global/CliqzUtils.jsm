@@ -33,6 +33,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRequestMonitor',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaignManager',
+  'chrome://cliqzmodules/content/CliqzCampaignManager.jsm');
+
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -136,6 +139,7 @@ var CliqzUtils = {
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
     CliqzUtils.messageCenter = CliqzUtils.messageCenter || new CliqzMsgCenter();
+    CliqzUtils.campaignManager = CliqzUtils.campaignManager || new CliqzCampaignManager();
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
 
