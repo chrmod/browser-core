@@ -35,8 +35,8 @@ function CliqzMsgCenter() {
   this.registerMessageHandler(CliqzMsgHandlerAlert.id,
     new CliqzMsgHandlerAlert());
 
-  CliqzEvents.sub('msg_center_show_message', this.showMessage);
-  CliqzEvents.sub('msg_center_hide_message', this.hide_message);
+  CliqzEvents.sub('msg_center_show_message', this.showMessage.bind(this));
+  CliqzEvents.sub('msg_center_hide_message', this.hideMessage.bind(this));
 }
 
 // TODO: add destructor
@@ -45,9 +45,6 @@ CliqzMsgCenter.prototype = {
 
 	registerMessageHandler: function (id, handler) {
 		this._messageHandlers[id] = handler;
-		for (var i = 0; i < this._windows.length; i++) {
-			handler.init(this._windows[i]);
-		}
 	},
 
   // TODO: add auto hide option

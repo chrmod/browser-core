@@ -14,8 +14,8 @@ function CliqzMsgHandler (id) {
     // message id is key
     this._callbacks = {};
 
-    CliqzEvents.sub('core_window_added', this.registerWindow);
-    CliqzEvents.sub('core_window_removed', this.unregisterWindow);
+    CliqzEvents.sub('core_window_added', this.registerWindow.bind(this));
+    CliqzEvents.sub('core_window_removed', this.unregisterWindow.bind(this));
 }
 
 CliqzMsgHandler.prototype = {
