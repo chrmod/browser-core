@@ -2,9 +2,8 @@
 
 var EXPORTED_SYMBOLS = ['CliqzCampaignManager'];
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Components.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');

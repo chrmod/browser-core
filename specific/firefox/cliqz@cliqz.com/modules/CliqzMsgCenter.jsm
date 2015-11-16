@@ -1,11 +1,8 @@
 'use strict';
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
 var EXPORTED_SYMBOLS = ['CliqzMsgCenter'];
 
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
