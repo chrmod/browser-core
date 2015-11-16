@@ -184,7 +184,7 @@ CliqzCampaignManager.prototype = {
                 if (campaign.load()) {
                     this._campaigns[cIds[i]] = campaign;
                     if (campaign.state === 'show') {
-                        CliqzEvents.pub('show_message', campaign.message,
+                        CliqzEvents.pub('msg_center_show_message', campaign.message,
                             campaign.handlerId,
                             this._onMessageAction.bind(this));
                     }
@@ -222,7 +222,7 @@ CliqzCampaignManager.prototype = {
     },
     removeCampaign: function (id) {
         var campaign = this._campaigns[id];
-        CliqzEvents.pub('hide_message', campaign.message, campaign.handlerId);
+        CliqzEvents.pub('msg_center_hide_message', campaign.message, campaign.handlerId);
         campaign.delete();
         delete this._campaigns[id];
         _telemetry(campaign, 'remove');
@@ -266,7 +266,7 @@ CliqzCampaignManager.prototype = {
                     campaign.setState('idle');
                 }
 
-                CliqzEvents.pub('hide_message', campaign.message, campaign.handlerId);
+                CliqzEvents.pub('msg_center_hide_message', campaign.message, campaign.handlerId);
             }
 
             if (campaign.counts.show === campaign.limits.show) {
@@ -301,7 +301,7 @@ CliqzCampaignManager.prototype = {
                     campaign.counts.trigger = 0;
                     // need ID in message to associate callback with campaign
                     campaign.message.id = campaign.id;
-                    CliqzEvents.pub('show_message', campaign.message,
+                    CliqzEvents.pub('msg_center_show_message', campaign.message,
                         campaign.handlerId, this._onMessageAction.bind(this));
                     CliqzUtils.httpGet(_getEndpoint('show', campaign));
                     _telemetry(campaign, 'show');
