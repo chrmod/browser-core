@@ -57,5 +57,13 @@ CliqzMsgHandler.prototype = {
                 this._renderMessage(this._messageQueue[0]);
             }
         }
+    },
+
+    _renderMessage: function () {
+      throw '_renderMessage not implemented';
+    },
+
+    _hideMessage: function () {
+      throw '_hideMessage not implemented';
     }
 };
