@@ -558,6 +558,7 @@ window.CLIQZ.Core = {
             action: 'urlbar_' + ev
         };
 
+        CliqzEvents.pub('core_urlbar_' + ev);
         CliqzUtils.telemetry(action);
     },
     urlbarGoClick: function(){

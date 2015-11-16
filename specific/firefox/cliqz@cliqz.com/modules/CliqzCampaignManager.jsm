@@ -10,6 +10,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaignTriggerUrlbarFocus',
+  'chrome://cliqzmodules/content/CliqzCampaignTriggers/CliqzCampaignTriggerUrlbarFocus.jsm');
+
 // TODO: refactor
 var CAMPAIGN_SERVER = 'https://fec.cliqz.com/message/',
     ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
@@ -88,35 +91,6 @@ Campaign.prototype.delete = function () {
 };
 /* ************************************************************************* */
 
-/* ************************************************************************* */
-var Trigger = function (id) {
-    this.id = id;
-    this._listeners = [];
-};
-Trigger.prototype.addListener = function(callback) {
-    this._listeners.push(callback);
-};
-Trigger.prototype._notifyListeners = function () {
-    for (var i = 0; i < this._listeners.length; i++) {
-        this._listeners[i](this.id);
-    }
-};
-
-var TriggerUrlbarFocus = TriggerUrlbarFocus ||
-    new Trigger('TRIGGER_URLBAR_FOCUS');
-TriggerUrlbarFocus.init = function (win) {
-    win.CLIQZ.Core.urlbar.addEventListener('focus',
-        this._onUrlbarFocus);
-};
-TriggerUrlbarFocus.unload = function (win) {
-    win.CLIQZ.Core.urlbar.removeEventListener('focus',
-        this._onUrlbarFocus);
-};
-TriggerUrlbarFocus._onUrlbarFocus = function () {
-    TriggerUrlbarFocus._notifyListeners();
-};
-/* ************************************************************************* */
-
 function CliqzCampaignManager() {
     this._campaigns = {};
     this._triggers = {};
@@ -125,7 +99,8 @@ function CliqzCampaignManager() {
 
     this.UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour
 
-    this.registerTrigger(TriggerUrlbarFocus.id, TriggerUrlbarFocus);
+    this.registerTrigger(CliqzCampaignTriggerUrlbarFocus.id,
+        new CliqzCampaignTriggerUrlbarFocus());
 
     this.loadCampaigns();
     this.activateCampaignUpdates();
