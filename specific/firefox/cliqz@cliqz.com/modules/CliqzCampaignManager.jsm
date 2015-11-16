@@ -58,7 +58,6 @@ function CliqzCampaignManager() {
     this._campaigns = {};
     this._triggers = {};
     this._updateTimer = null;
-    this._windows = [];
 
     this.UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour
 
@@ -72,33 +71,7 @@ function CliqzCampaignManager() {
 CliqzCampaignManager.prototype = {
     registerTrigger: function (id, trigger) {
         this._triggers[id] = trigger;
-        for (var i = 0; i < this._windows.length; i++) {
-            trigger.init(this._windows[i]);
-        }
         trigger.addListener(this._onTrigger.bind(this));
-    },
-    registerWindow: function (win) {
-        this._windows.push(win);
-
-        var id;
-        for (id in this._triggers) {
-            if (this._triggers.hasOwnProperty(id)) {
-                this._triggers[id].init(win);
-            }
-        }
-    },
-    unregisterWindow: function (win) {
-        var i = this._windows.indexOf(win);
-        if (i > -1) {
-            this._windows.splice(i, 1);
-        }
-
-        var id;
-        for (id in this._triggers) {
-            if (this._triggers.hasOwnProperty(id)) {
-                this._triggers[id].unload(win);
-            }
-        }
     },
     activateCampaignUpdates: function () {
         if (!this._updateTimer) {
