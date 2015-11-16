@@ -1,0 +1,21 @@
+<html>
+<head>
+    <script src="../webextensions-shim.js"></script>
+</head>
+<body style="margin: 0; padding: 0;">
+    <div style="height: 200px; background-color: yellow; overflow: hidden">
+Iframe height: <span id="height"></span>
+<p id="url"></p>
+    </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("height").innerHTML = document.body.offsetHeight
+        document.getElementById("height").innerHTML = document.body.scrollHeight
+        chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
+            document.getElementById("url").innerHTML = data.url;
+        });
+
+    });
+</script>
+</body>
+</html>
