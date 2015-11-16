@@ -2,6 +2,10 @@
 
 var EXPORTED_SYMBOLS = ['CliqzMsgHandlerDropdownFooter'];
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
 

@@ -138,11 +138,11 @@ function CliqzMsgCenter() {
   this.registerTrigger(TriggerUrlbarFocus.id, TriggerUrlbarFocus);
   this.registerMessageHandler(CliqzMsgHandlerDropdownFooter.id,
     new CliqzMsgHandlerDropdownFooter());
-  this.registerMessageHandler(MessageHandlerAlert.id,
-    new MessageHandlerAlert());
 
   this._loadCampaigns();
   this._activateCampaignUpdates();
+  this.registerMessageHandler(CliqzMsgHandlerAlert.id,
+    new CliqzMsgHandlerAlert());
 }
 
 CliqzMsgCenter.prototype = {

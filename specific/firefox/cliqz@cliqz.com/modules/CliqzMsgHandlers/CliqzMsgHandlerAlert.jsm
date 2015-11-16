@@ -2,6 +2,10 @@
 
 var EXPORTED_SYMBOLS = ['CliqzMsgHandlerAlert'];
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
 
@@ -13,7 +17,7 @@ CliqzMsgHandlerAlert.prototype =
     Object.create(CliqzMsgHandler.prototype);
 CliqzMsgHandlerAlert.prototype.constructor =
     CliqzMsgHandlerAlert;
-MessageHandlerDropdownFooter.prototype.parent =
+CliqzMsgHandlerAlert.prototype.parent =
     CliqzMsgHandler.prototype;
 CliqzMsgHandlerAlert.prototype._renderMessage = function (message) {
     // TODO: wait for window to open
