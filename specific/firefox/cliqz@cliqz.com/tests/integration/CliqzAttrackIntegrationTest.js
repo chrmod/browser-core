@@ -234,7 +234,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           // must have all the stats we're testing
           //chai.expect(actual_stats).to.include.keys(Object.keys(expected_stats));
           for (var stat_key in actual_stats) {
-            if (stat_key == 'paths') { continue; }
+            if (stat_key == 'paths' || stat_key == 'resp_ob') { continue; }
             // stat should be 0 unless otherwise specified
             var expected = 0;
             if (stat_key in expected_stats) {
@@ -290,7 +290,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_2': 1
               }
             }
@@ -305,7 +304,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_2': 1
               }
             }
@@ -320,7 +318,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_3': 1
               }
             }
@@ -335,7 +332,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_11': 1
               }
             }
@@ -349,19 +345,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               '/iframe.html': {
                 'c': 1,
                 'cookie_set': 1,
-                'resp_ob': 1,
                 'type_7': 1
               },
               '/test': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_11': 1
               },
               '/bower_components/jquery/dist/jquery.min.js': {
                 'c': 1,
-                'resp_ob': 1,
                 'type_2': 1,
                 'cookie_set': 1
               }
