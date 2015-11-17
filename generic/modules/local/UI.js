@@ -108,7 +108,8 @@ var UI = {
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-        var messageContainer = document.getElementById('cliqz-message-container');
+        var messageContainer = document.getElementById('cliqz-message-container'),
+            messageContainerTop = document.getElementById('cliqz-message-container-top');
 
         resultsBox.addEventListener('mouseup', resultClick);
 
@@ -122,7 +123,9 @@ var UI = {
         CLIQZ.ContextMenu && CLIQZ.ContextMenu.enableContextMenu(box);
 
         messageContainer.addEventListener('mouseup', messageClick);
+        messageContainerTop.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
+        gCliqzBox.messageContainerTop = messageContainerTop;
         resultsBox.addEventListener('scroll', resultScroll);
 
         box.addEventListener('mousemove', resultMove);
@@ -1162,7 +1165,8 @@ function enhanceResults(res){
             }
         });
     } else if (CLIQZ.UI.messageCenterMessage) {
-      updateMessageState("show", CLIQZ.UI.messageCenterMessage);
+      updateMessageState("show", CLIQZ.UI.messageCenterMessage,
+        CLIQZ.UI.messageCenterMessage['footer-message'].showOnTop);
     } else if (!CliqzUtils.requestMonitor.inHealth()) {
       var rand = getRandomForCurrentTime(4);
 
@@ -1247,10 +1251,12 @@ function getNotSupported(){
              });
   */
 
-function updateMessageState(state, messages) {
+function updateMessageState(state, messages, showOnTop) {
   if (state != "show" || !messages) { messages = {}; }
 
-  gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
+  var container = showOnTop ? gCliqzBox.messageContainerTop : gCliqzBox.messageContainer;
+
+  container.innerHTML = Object.keys(messages).map(function (tplName) {
     return CliqzHandlebars.tplCache[tplName](messages[tplName]);
   }).join("");
 }
