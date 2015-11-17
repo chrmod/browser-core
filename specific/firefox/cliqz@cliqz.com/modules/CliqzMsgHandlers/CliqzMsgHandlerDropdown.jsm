@@ -27,74 +27,69 @@ function CliqzMsgHandlerDropdown() {
 
 CliqzMsgHandlerDropdown.id = 'MESSAGE_HANDLER_DROPDOWN';
 
-CliqzMsgHandlerDropdown.prototype =
-Object.create(CliqzMsgHandler.prototype);
+CliqzMsgHandlerDropdown.prototype = Object.create(CliqzMsgHandler.prototype);
+CliqzMsgHandlerDropdown.prototype.constructor = CliqzMsgHandlerDropdown;
+CliqzMsgHandlerDropdown.prototype.constructor.parent = CliqzMsgHandler.prototype;
 
-Object.assign(CliqzMsgHandlerDropdown.prototype, {
+CliqzMsgHandlerDropdown.prototype._renderMessage = function (message, win, hide) {
+  // show in all open windows if win is not specified
+  if (win) {
+    // TODO: show immediately
+    win.CLIQZ.UI.messageCenterMessage =
+    hide ? null : this._convertMessage(message);
 
-  constructor: CliqzMsgHandlerDropdown,
-
-  parent: CliqzMsgHandler.prototype,
-
-  _renderMessage: function (message, win, hide) {
-    // show in all open windows if win is not specified
-    if (win) {
-      // TODO: show immediately
-      win.CLIQZ.UI.messageCenterMessage =
-      hide ? null : this._convertMessage(message);
-
-      // hide immediately
-      if (hide) {
-        if (win.CLIQZ.Core.popup.cliqzBox) {
-          var messageContainer = (message.location === 'top') ?
-          win.CLIQZ.Core.popup.cliqzBox.messageContainerTop :
-          win.CLIQZ.Core.popup.cliqzBox.messageContainer;
-          if (messageContainer) {
-            messageContainer.innerHTML = '';
-          }
+    // hide immediately
+    if (hide) {
+      if (win.CLIQZ.Core.popup.cliqzBox) {
+        var messageContainer = (message.location === 'top') ?
+        win.CLIQZ.Core.popup.cliqzBox.messageContainerTop :
+        win.CLIQZ.Core.popup.cliqzBox.messageContainer;
+        if (messageContainer) {
+          messageContainer.innerHTML = '';
         }
       }
-    } else {
-      this._windows.map(function (w) {
-        if (w) { this._renderMessage(message, w, hide); }
-      }.bind(this));
     }
-  },
+  } else {
+    this._windows.map(function (w) {
+      if (w) { this._renderMessage(message, w, hide); }
+    }.bind(this));
+  }
+};
 
-  _hideMessage: function (message) {
-    this._renderMessage(message, null, true);
-  },
+CliqzMsgHandlerDropdown.prototype._hideMessage = function (message) {
+  this._renderMessage(message, null, true);
+};
 
-  // converts message into format expected by UI
-  _convertMessage: function (message) {
-    var m = {
-      simple_message: message.text,
-      type: 'cqz-message-survey',
-      options: [],
-      showOnTop: message.location === 'top'
-    };
+// converts message into format expected by UI
+CliqzMsgHandlerDropdown.prototype._convertMessage = function (message) {
+  var m = {
+    simple_message: message.text,
+    type: 'cqz-message-survey',
+    options: [],
+    showOnTop: message.location === 'top'
+  };
 
-    if (message.options) {
-      for (var i = 0; i < message.options.length; i++) {
-        m.options.push ({
-          text: message.options[i].label,
-          state: message.options[i].style,
-          action: message.options[i].action
-        });
-      }
+  if (message.options) {
+    for (var i = 0; i < message.options.length; i++) {
+      m.options.push ({
+        text: message.options[i].label,
+        state: message.options[i].style,
+        action: message.options[i].action
+      });
     }
+  }
 
-    return {'footer-message': m};
-  },
+  return {'footer-message': m};
+};
 
-  _onClick: function (e) {
-    var action = e.getAttribute('state'),
-    message = this._messageQueue[0];
+CliqzMsgHandlerDropdown.prototype._onClick = function (e) {
+  var action = e.getAttribute('state'),
+  message = this._messageQueue[0];
 
-      // not thread-safe: if current message is removed while it is showing,
-      // the next message is used when invoking the callback
-      if (message && this._callbacks[message.id]) {
-        this._callbacks[message.id](message.id, action);
-      }
-    }
-  });
+  // not thread-safe: if current message is removed while it is showing,
+  // the next message is used when invoking the callback
+  if (message && this._callbacks[message.id]) {
+    this._callbacks[message.id](message.id, action);
+  }
+};
+

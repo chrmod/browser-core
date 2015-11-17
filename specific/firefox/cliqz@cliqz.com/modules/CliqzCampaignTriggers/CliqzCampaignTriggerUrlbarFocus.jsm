@@ -21,8 +21,5 @@ function CliqzCampaignTriggerUrlbarFocus() {
 CliqzCampaignTriggerUrlbarFocus.id = 'TRIGGER_URLBAR_FOCUS';
 
 CliqzCampaignTriggerUrlbarFocus.prototype = Object.create(CliqzCampaignTrigger.prototype);
-
-Object.assign(CliqzCampaignTriggerUrlbarFocus.prototype, {
-  constructor: CliqzCampaignTriggerUrlbarFocus,
-  parent: CliqzCampaignTrigger.prototype
-});
+CliqzCampaignTriggerUrlbarFocus.prototype.constructor = CliqzCampaignTriggerUrlbarFocus;
+CliqzCampaignTriggerUrlbarFocus.prototype.parent = CliqzCampaignTrigger.prototype;
