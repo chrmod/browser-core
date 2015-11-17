@@ -207,7 +207,7 @@ window.CLIQZ.Core = {
             CliqzLanguage.init(window);
             CliqzDemo.init(window);
             CliqzMsgCenter.init(window);
-            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
@@ -428,7 +428,7 @@ window.CLIQZ.Core = {
               c.unload && c.unload();
             })
 
-            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window) ){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
 
                 var numTabs = window.gBrowser.tabContainer.childNodes.length;
@@ -1006,7 +1006,7 @@ window.CLIQZ.Core = {
     changeHumanWebState: function(){
         Components.utils.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
-        if(CliqzUtils.getPref("humanWeb", false) && CliqzUtils.getPref('dnt', false)){
+        if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref('dnt', false)){
           CliqzHumanWeb.unloadAtBrowser();
         } else {
           CliqzHumanWeb.initAtBrowser();
