@@ -771,6 +771,55 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
         });
       });
     });
+
+    describe('isSourceWhitelisted', function() {
+
+      it('returns false for non whitelisted domain', function() {
+        chai.expect(CliqzAttrack.isSourceWhitelisted('example.com')).to.be.false;
+      });
+
+      describe('addSourceDomainToWhitelist', function() {
+
+        afterEach(function() {
+          CliqzAttrack.removeSourceDomainFromWhitelist('example.com');
+        });
+
+        it('adds a source domain to the whitelist', function() {
+          CliqzAttrack.addSourceDomainToWhitelist('example.com');
+          chai.expect(CliqzAttrack.isSourceWhitelisted('example.com')).to.be.true;
+        });
+
+        it('does not add any other domains to the whitelist', function() {
+          CliqzAttrack.addSourceDomainToWhitelist('example.com');
+          chai.expect(CliqzAttrack.isSourceWhitelisted('www.example.com')).to.be.false;
+        });
+
+      });
+
+      describe('removeSourceDomainFromWhitelist', function() {
+
+        afterEach(function() {
+          CliqzAttrack.removeSourceDomainFromWhitelist('example.com');
+          CliqzAttrack.removeSourceDomainFromWhitelist('www.example.com');
+        });
+
+        it('removes a domain from the whitelist', function() {
+          CliqzAttrack.addSourceDomainToWhitelist('example.com');
+          CliqzAttrack.removeSourceDomainFromWhitelist('example.com');
+          chai.expect(CliqzAttrack.isSourceWhitelisted('example.com')).to.be.false;
+        });
+
+        it('does not remove other domains', function() {
+          CliqzAttrack.addSourceDomainToWhitelist('example.com');
+          CliqzAttrack.addSourceDomainToWhitelist('www.example.com');
+          CliqzAttrack.removeSourceDomainFromWhitelist('example.com');
+
+          chai.expect(CliqzAttrack.isSourceWhitelisted('example.com')).to.be.false;
+          chai.expect(CliqzAttrack.isSourceWhitelisted('www.example.com')).to.be.true;
+        });
+      });
+    });
+
 }
 
 TESTS.AttrackTest.MIN_BROWSER_VERSION = 35;

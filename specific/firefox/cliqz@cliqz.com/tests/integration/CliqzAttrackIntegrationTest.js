@@ -128,6 +128,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     };
 
     beforeEach(function() {
+      this.timeout(5000);
       // clean preferences -> default everything to off, except Attrack module.
       CliqzUtils.setPref('attrackBlockCookieTracking', false);
       CliqzUtils.setPref('attrackRemoveQueryStringTracking', false);
@@ -207,7 +208,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     /** Asserts that the request metadata m contains a cookie value iff the request
         was to localhost */
     var onlyLocalhostCookie = function(m) {
-      if(m.host == 'localhost') {
+      if(m.host == 'localhost' || m.host == 'cliqztest.com') {
         chai.expect(m.headers).to.have.property('cookie');
         chai.expect(m.headers['cookie']).to.contain('uid=abcdefghijklmnop');
       } else {
@@ -233,7 +234,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           // must have all the stats we're testing
           //chai.expect(actual_stats).to.include.keys(Object.keys(expected_stats));
           for (var stat_key in actual_stats) {
-            if (stat_key == 'paths') { continue; }
+            if (stat_key == 'paths' || stat_key == 'resp_ob') { continue; }
             // stat should be 0 unless otherwise specified
             var expected = 0;
             if (stat_key in expected_stats) {
@@ -246,8 +247,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
     };
 
     /** Helper class for generating tp_event expectations. */
-    var tp_events_expectations = function(testpage) {
-      this.url = "http://localhost:" + server_port + "/" + testpage;
+    var tp_events_expectations = function(testpage, domainname = 'localhost') {
+      this.url = "http://" + domainname + ":" + server_port + "/" + testpage;
       this.tps = page_specs[testpage].base_tps();
     }
 
@@ -289,7 +290,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_2': 1
               }
             }
@@ -304,7 +304,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_2': 1
               }
             }
@@ -319,7 +318,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_3': 1
               }
             }
@@ -334,7 +332,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_11': 1
               }
             }
@@ -348,19 +345,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               '/iframe.html': {
                 'c': 1,
                 'cookie_set': 1,
-                'resp_ob': 1,
                 'type_7': 1
               },
               '/test': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'resp_ob': 1,
                 'type_11': 1
               },
               '/bower_components/jquery/dist/jquery.min.js': {
                 'c': 1,
-                'resp_ob': 1,
                 'type_2': 1,
                 'cookie_set': 1
               }
@@ -379,13 +373,38 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           before(function(done) {
             this.timeout(4000);
             // initial request to ensure cookies are set
-            var url = "http://localhost:" + server_port + "/" + testpage;
-            var t = gBrowser.addTab(url);
+            var tmp_tabs = ['localhost', 'cliqztest.com'].map(function(d) {
+              var url = "http://"+ d +":" + server_port + "/" + testpage;
+              return gBrowser.addTab(url);
+            });
             setTimeout(function() {
-              gBrowser.removeTab(t);
+              tmp_tabs.forEach(function(t) {
+                gBrowser.removeTab(t);
+              });
               done();
             }, 1500);
           });
+
+          var testAllowsAllCookies = function(done) {
+            this.timeout(5000);
+            openTestPage(testpage);
+
+            // with no cookie blocking, all pages setting cookies should also set them.
+            var tp_event_expectation = new tp_events_expectations(testpage);
+            tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+
+            expectNRequests(2).assertEach(hasCookie, function(e) {
+              if(e) {
+                done(e);
+              } else {
+                console.log(CliqzAttrack.tokenExtWhitelist);
+                try {
+                  test_tp_events(tp_event_expectation);
+                  done();
+                } catch(e) { done(e); }
+              }
+            });
+          };
 
           context('cookie blocking disabled', function() {
 
@@ -397,26 +416,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               chai.expect(CliqzAttrack.isCookieEnabled()).to.be.false;
             });
 
-            it('allows all cookies', function(done) {
-              this.timeout(5000);
-              openTestPage(testpage);
-
-              // with no cookie blocking, all pages setting cookies should also set them.
-              var tp_event_expectation = new tp_events_expectations(testpage);
-              tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
-
-              expectNRequests(2).assertEach(hasCookie, function(e) {
-                if(e) {
-                  done(e);
-                } else {
-                  console.log(CliqzAttrack.tokenExtWhitelist);
-                  try {
-                    test_tp_events(tp_event_expectation);
-                    done();
-                  } catch(e) { done(e); }
-                }
-              });
-            });
+            it('allows all cookies', testAllowsAllCookies);
           });
 
           context('cookie blocking enabled', function() {
@@ -429,12 +429,12 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
               chai.expect(CliqzAttrack.isCookieEnabled()).to.be.true;
             });
 
-            it('allows same-domain cookie and blocks third party domain cookie', function(done) {
-              this.timeout(5000);
-              openTestPage(testpage);
+            var test_domain = 'localhost',
+              testBlockTPCookies = function(done) {
+              openTestPage(testpage, test_domain);
 
               // cookie blocking will be done by the 'tp1' block.
-              var tp_event_expectation = new tp_events_expectations(testpage);
+              var tp_event_expectation = new tp_events_expectations(testpage, test_domain);
               tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
 
               expectNRequests(2).assertEach(onlyLocalhostCookie, function(e) {
@@ -448,6 +448,31 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                     done(e);
                   }
                 }
+              });
+            };
+
+            it('allows same-domain cookie and blocks third party domain cookie', function(done) {
+              this.timeout(5000);
+              test_domain = 'localhost';
+              testBlockTPCookies(done);
+            });
+
+            context('anti-tracking disabled for source domain', function() {
+
+              beforeEach(function() {
+                CliqzAttrack.addSourceDomainToWhitelist('localhost');
+              });
+
+              afterEach(function() {
+                CliqzAttrack.removeSourceDomainFromWhitelist('localhost');
+              });
+
+              it('allows all cookies on whitelisted site', testAllowsAllCookies);
+
+              it('blocks cookies on other domains', function(done) {
+                this.timeout(5000);
+                test_domain = 'cliqztest.com';
+                testBlockTPCookies(done);
               });
             });
           });
@@ -544,10 +569,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                 CliqzAttrack.obfuscateMethod = 'replace';
               });
 
-              it('blocks long tokens on tracker domain', function(done) {
-                this.timeout(5000);
+              var test_domain = "localhost",
+                testUIDisBlocked = function(done) {
 
-                var tp_event_expectation = new tp_events_expectations(testpage);
+                var tp_event_expectation = new tp_events_expectations(testpage, test_domain);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
                 tp_event_expectation.if('has_qs', 1).set('bad_tokens', 1).set('bad_qs', 1);
                 // with an img tag we fallback to redirect, otherwise we just rewrite the channel URI.
@@ -558,10 +583,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                   tp_event_expectation.if('has_qs', 1).set('tokens_blocked', 1);
                 }
 
-                openTestPage(testpage);
+                openTestPage(testpage, test_domain);
 
                 expectNRequests(2).assertEach(function(m) {
-                  if(m.host == 'localhost') {
+                  if(m.host == test_domain) {
                     chai.expect(m.qs).to.contain('uid=' + uid);
                   } else {
                     chai.expect(m.qs).to.not.contain('uid=' + uid);
@@ -579,6 +604,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                     }
                   }
                 });
+              };
+
+              it('blocks long tokens on tracker domain', function(done) {
+                this.timeout(5000);
+                testUIDisBlocked(done);
               });
 
               it('does not block if safekey', function(done) {
@@ -640,6 +670,48 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
                       done(e);
                     }
                   }
+                });
+              });
+
+              context('anti-tracking disabled for source domain', function() {
+
+                beforeEach(function() {
+                  CliqzAttrack.addSourceDomainToWhitelist('localhost');
+                });
+
+                afterEach(function() {
+                  CliqzAttrack.removeSourceDomainFromWhitelist('localhost');
+                });
+
+                it('allows all tokens on whitelisted site', function(done) {
+                  this.timeout(5000);
+                  openTestPage(testpage);
+
+                  var tp_event_expectation = new tp_events_expectations(testpage);
+                  tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('source_whitelisted', 1);
+
+                  expectNRequests(2).assertEach(function(m) {
+                    chai.expect(m.qs).to.contain('uid=' + uid);
+                    chai.expect(m.qs).to.contain('callback=func');
+                  }, function(e) {
+                    if(e) {
+                      done(e);
+                    } else {
+                      try {
+                        test_tp_events(tp_event_expectation);
+                        done();
+                      } catch(e) {
+                        done(e);
+                      }
+                    }
+                  });
+                });
+
+                it('still blocks tokens on other sites', function(done) {
+                  this.timeout(5000);
+                  test_domain = 'cliqztest.com';
+                  testUIDisBlocked(done)
                 });
               });
             });
