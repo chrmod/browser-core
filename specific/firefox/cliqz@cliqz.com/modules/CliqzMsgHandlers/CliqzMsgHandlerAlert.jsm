@@ -7,6 +7,9 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+
 var CliqzMsgHandlerAlert = function () {
   CliqzMsgHandler.call(this, CliqzMsgHandlerAlert.id);
 };
