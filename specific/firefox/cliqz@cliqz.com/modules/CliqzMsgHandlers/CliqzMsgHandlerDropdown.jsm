@@ -20,6 +20,8 @@ function _log(msg) {
 function CliqzMsgHandlerDropdown() {
   CliqzMsgHandler.call(this, CliqzMsgHandlerDropdown.id);
 
+
+
   CliqzEvents.sub('ui_message_click', this._onClick.bind(this));
 }
 
@@ -35,33 +37,33 @@ Object.assign(CliqzMsgHandlerDropdown.prototype, {
   parent: CliqzMsgHandler.prototype,
 
   _renderMessage: function (message, win, hide) {
-      // show in all open windows if win is not specified
-      if (win) {
-          // TODO: show immediately
-          win.CLIQZ.UI.messageCenterMessage =
-          hide ? null : this._convertMessage(message);
+    // show in all open windows if win is not specified
+    if (win) {
+      // TODO: show immediately
+      win.CLIQZ.UI.messageCenterMessage =
+      hide ? null : this._convertMessage(message);
 
-          // hide immediately
-          if (hide) {
-            if (win.CLIQZ.Core.popup.cliqzBox) {
-              var messageContainer = (message.location === 'top') ?
-              win.CLIQZ.Core.popup.cliqzBox.messageContainerTop :
-              win.CLIQZ.Core.popup.cliqzBox.messageContainer;
-              if (messageContainer) {
-                messageContainer.innerHTML = '';
-              }
-            }
+      // hide immediately
+      if (hide) {
+        if (win.CLIQZ.Core.popup.cliqzBox) {
+          var messageContainer = (message.location === 'top') ?
+          win.CLIQZ.Core.popup.cliqzBox.messageContainerTop :
+          win.CLIQZ.Core.popup.cliqzBox.messageContainer;
+          if (messageContainer) {
+            messageContainer.innerHTML = '';
           }
-        } else {
-          this._windows.map(function (w) {
-            if (w) { this._renderMessage(message, w, hide); }
-          }.bind(this));
         }
-      },
+      }
+    } else {
+      this._windows.map(function (w) {
+        if (w) { this._renderMessage(message, w, hide); }
+      }.bind(this));
+    }
+  },
 
-      _hideMessage: function (message) {
-        this._renderMessage(message, null, true);
-      },
+  _hideMessage: function (message) {
+    this._renderMessage(message, null, true);
+  },
 
   // converts message into format expected by UI
   _convertMessage: function (message) {
