@@ -380,10 +380,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
           before(function(done) {
             this.timeout(4000);
             // initial request to ensure cookies are set
-            var url = "http://localhost:" + server_port + "/" + testpage;
-            var t = gBrowser.addTab(url);
+            var tmp_tabs = ['localhost', 'cliqztest.com'].map(function(d) {
+              var url = "http://"+ d +":" + server_port + "/" + testpage;
+              return gBrowser.addTab(url);
+            });
             setTimeout(function() {
-              gBrowser.removeTab(t);
+              tmp_tabs.forEach(function(t) {
+                gBrowser.removeTab(t);
+              });
               done();
             }, 1500);
           });
