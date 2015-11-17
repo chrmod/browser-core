@@ -16,8 +16,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerAlert',
   'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerAlert.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerDropdownFooter',
-  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerDropdownFooter.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerDropdown',
+  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerDropdown.jsm');
 
 
 /* ************************************************************************* */
@@ -30,8 +30,8 @@ function _log(msg) {
 function CliqzMsgCenter() {
   this._messageHandlers = {};
 
-  this.registerMessageHandler(CliqzMsgHandlerDropdownFooter.id,
-    new CliqzMsgHandlerDropdownFooter());
+  this.registerMessageHandler(CliqzMsgHandlerDropdown.id,
+    new CliqzMsgHandlerDropdown());
   this.registerMessageHandler(CliqzMsgHandlerAlert.id,
     new CliqzMsgHandlerAlert());
 
