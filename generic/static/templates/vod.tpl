@@ -43,8 +43,8 @@
         </div>
     {{/with}}
     <div>
-        <div class="itunes_btn_container">
-            <img src="{{data.itunes.logo}}" url="{{ data.itunes.u }}" class="itunes_btn_img" onerror="this.style.display='none';"/>
+        <div class="itunes_btn_container" url="{{ data.itunes.u }}" extra="itunesWatchNow">
+            <img src="{{data.itunes.logo}}"  class="itunes_btn_img" onerror="this.style.display='none';"/>
         </div>
         {{>EZ-category}}
     </div>
