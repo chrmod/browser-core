@@ -1,7 +1,7 @@
-<div class="cqz-result-h1 cqz-rd cqz-result-padding">
+<div class="cqz-result-h1 cqz-rd cqz-vod cqz-result-padding">
     {{#with data}}
         <div class="cqz-rd-body">
-            <div class="cqz-result-title overflow" arrow-override=''><a extra="title" href="{{../url}}">{{n}}</a>
+            <div class="cqz-result-title overflow" arrow-override=''><a extra="title" href="{{../url}}">{{itunes.n}} ({{itunes.rY}})</a>
             </div>
             <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
 
@@ -17,7 +17,7 @@
                         {{#if (logic directors '&&' directors.t)}}
                             <div class="cqz-rd-info">{{local directors.t}}:
                                 {{#each directors.i}}
-                                     <a href="{{u}}" class="cqz-rd-link" extra="director">{{n}}, </a>
+                                     <a href="{{u}}" class="cqz-rd-link" extra="director">{{n}} </a>
                                 {{/each}}
                             </div>
                         {{/if}}
@@ -35,7 +35,7 @@
                         {{/if}}
 
                         <div class="cqz-multy-lines-ellipses">
-                            <p>{{des}}</p>
+                            <p>{{itunes.d}}</p>
                         </div>
                     </div>
                 </div>
@@ -43,8 +43,8 @@
         </div>
     {{/with}}
     <div>
-        <div style="float: left; margin-right: 10px">
-            <img src="{{data.itunes.logo}}" url="{{ data.itunes.ms.0.u }}" style="height: 30px" onerror="this.style.display='none';"/>
+        <div class="itunes_btn_container">
+            <img src="{{data.itunes.logo}}" url="{{ data.itunes.u }}" class="itunes_btn_img" onerror="this.style.display='none';"/>
         </div>
         {{>EZ-category}}
     </div>
