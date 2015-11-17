@@ -54,7 +54,7 @@ CliqzMsgHandler.prototype = {
             delete this._callbacks[message.id];
             this._hideMessage(message);
             if (this._messageQueue.length > 0) {
-                this._renderMessage(this._messageQueue[0]);
+              this._renderMessage(this._messageQueue[0]);
             }
         }
     },

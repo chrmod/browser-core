@@ -48,19 +48,19 @@ CliqzMsgCenter.prototype = {
 	},
 
   // TODO: add auto hide option
-	showMessage: function (message, handlerId, callback) {
-		var handler =
-			this._messageHandlers[handlerId];
-		if (handler) {
-			handler.enqueueMessage(message, callback);
-		} else {
-			_log('message handler not found: ' + handlerId);
-		}
-	},
+  showMessage: function (message, handlerId, callback) {
+    var handler =
+    this._messageHandlers[handlerId];
+    if (handler) {
+      handler.enqueueMessage(message, callback);
+    } else {
+      _log('message handler not found: ' + handlerId);
+    }
+  },
 
   hideMessage: function (message, handlerId) {
     var handler =
-      this._messageHandlers[handlerId];
+    this._messageHandlers[handlerId];
     if (handler) {
       handler.dequeueMessage(message);
     } else {

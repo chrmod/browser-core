@@ -18,15 +18,15 @@ function _log(msg) {
 }
 
 function CliqzMsgHandlerDropdown() {
-    CliqzMsgHandler.call(this, CliqzMsgHandlerDropdown.id);
+  CliqzMsgHandler.call(this, CliqzMsgHandlerDropdown.id);
 
-    CliqzEvents.sub('ui_message_click', this._onClick.bind(this));
+  CliqzEvents.sub('ui_message_click', this._onClick.bind(this));
 }
 
 CliqzMsgHandlerDropdown.id = 'MESSAGE_HANDLER_DROPDOWN';
 
 CliqzMsgHandlerDropdown.prototype =
-    Object.create(CliqzMsgHandler.prototype);
+Object.create(CliqzMsgHandler.prototype);
 
 Object.assign(CliqzMsgHandlerDropdown.prototype, {
 
@@ -39,60 +39,60 @@ Object.assign(CliqzMsgHandlerDropdown.prototype, {
       if (win) {
           // TODO: show immediately
           win.CLIQZ.UI.messageCenterMessage =
-              hide ? null : this._convertMessage(message);
+          hide ? null : this._convertMessage(message);
 
           // hide immediately
           if (hide) {
-              if (win.CLIQZ.Core.popup.cliqzBox) {
-                var messageContainer = (message.location === 'top') ?
-                  win.CLIQZ.Core.popup.cliqzBox.messageContainerTop :
-                  win.CLIQZ.Core.popup.cliqzBox.messageContainer;
-                if (messageContainer) {
-                  messageContainer.innerHTML = '';
-                }
+            if (win.CLIQZ.Core.popup.cliqzBox) {
+              var messageContainer = (message.location === 'top') ?
+              win.CLIQZ.Core.popup.cliqzBox.messageContainerTop :
+              win.CLIQZ.Core.popup.cliqzBox.messageContainer;
+              if (messageContainer) {
+                messageContainer.innerHTML = '';
               }
+            }
           }
-      } else {
+        } else {
           this._windows.map(function (w) {
-              if (w) { this._renderMessage(message, w, hide); }
+            if (w) { this._renderMessage(message, w, hide); }
           }.bind(this));
-      }
-  },
+        }
+      },
 
-  _hideMessage: function (message) {
-      this._renderMessage(message, null, true);
-  },
+      _hideMessage: function (message) {
+        this._renderMessage(message, null, true);
+      },
 
   // converts message into format expected by UI
   _convertMessage: function (message) {
-      var m = {
-          simple_message: message.text,
-          type: 'cqz-message-survey',
-          options: [],
-          showOnTop: message.location === 'top'
-      };
+    var m = {
+      simple_message: message.text,
+      type: 'cqz-message-survey',
+      options: [],
+      showOnTop: message.location === 'top'
+    };
 
-      if (message.options) {
-          for (var i = 0; i < message.options.length; i++) {
-              m.options.push ({
-                  text: message.options[i].label,
-                  state: message.options[i].style,
-                  action: message.options[i].action
-              });
-          }
+    if (message.options) {
+      for (var i = 0; i < message.options.length; i++) {
+        m.options.push ({
+          text: message.options[i].label,
+          state: message.options[i].style,
+          action: message.options[i].action
+        });
       }
+    }
 
-      return {'footer-message': m};
+    return {'footer-message': m};
   },
 
   _onClick: function (e) {
-      var action = e.getAttribute('state'),
-          message = this._messageQueue[0];
+    var action = e.getAttribute('state'),
+    message = this._messageQueue[0];
 
       // not thread-safe: if current message is removed while it is showing,
       // the next message is used when invoking the callback
       if (message && this._callbacks[message.id]) {
-          this._callbacks[message.id](message.id, action);
+        this._callbacks[message.id](message.id, action);
       }
-  }
-});
+    }
+  });
