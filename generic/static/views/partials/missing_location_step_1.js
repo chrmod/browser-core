@@ -89,10 +89,20 @@ export default {
         ev.preventDefault();
         CLIQZEnvironment.setLocationPermission(window, "yes");
         loadLocalResults(ev.target);
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-yes"
+        });
       },
       "cqz_location_once": function(ev) {
         ev.preventDefault();
         loadLocalResults(ev.target);
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-once-step-" + ev.target.getAttribute("location_dialogue_step")
+        });
       },
       "cqz_location_no": function(ev) {
         var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
@@ -103,10 +113,20 @@ export default {
             friendly_url: el.getAttribute("bm_url"),
             trans_str: messages[localType].trans_str
         });
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-no"
+        });
       },
       "cqz_location_never": function(ev) {
         CLIQZEnvironment.setLocationPermission(window, "no");
         displayMessageForNoPermission();
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-never"
+        });
       },
       "cqz_location_not_now": function(ev) {
         displayMessageForNoPermission();
