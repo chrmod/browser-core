@@ -6,7 +6,6 @@ var EXPORTED_SYMBOLS = ['Screenshot'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Downloads.jsm');
-Cu.import('resource://gre/modules/devtools/LayoutHelpers.jsm');
 Cu.import('resource://gre/modules/Task.jsm');
 Cu.import('resource://gre/modules/osfile.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
