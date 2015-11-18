@@ -18,7 +18,7 @@ var pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
 // DNS Filter for unblocking YT videos
 var YoutubeUnblocker = {
   canFilter: function(url) {
-    return url.indexOf("www.youtube.com") > -1;
+    return url.indexOf("https://www.youtube.com") > -1;
   },
   enable: function(proxies) {
     this.proxies = proxies;
