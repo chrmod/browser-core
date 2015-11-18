@@ -27,7 +27,7 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto.js');
 // var CryptoJS = this.CryptoJS;
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/jsencrypt.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
-
+// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/rsa-sign.js');
 
 /* Source mapping for routing keys, endpoints, rate-limit etc
 */
@@ -303,6 +303,27 @@ userPK.prototype.decrypt = function(msg){
 }
 
 /**
+ * Method to sign the str using userSK.
+ * @returns signature in hex format.
+ */
+userPK.prototype.sign = function(msg){
+	var _this = this;
+	var promise = new Promise(function(resolve, reject){
+		try{
+			var rsa = new CliqzSecureMessage.RSAKey();
+			rsa.readPrivateKeyFromPEMString(CliqzSecureMessage.uPK.privateKey);
+			var hSig = rsa.sign(msg,"sha256");
+			resolve(hSig);
+
+		}
+		catch(e){
+			reject(e);
+		}
+	})
+	return promise;
+}
+
+/**
  * Method to create object for message recieved..
  * Only excepts valid JSON messages with the following fields:
  * Type : Humanweb / Antitracking etc.
@@ -321,7 +342,9 @@ var messageContext = function (msg) {
  	this.action = this.jMessage.action;
  	this.interval = sourceMap[this.action]["interval"];
  	this.rateLimit = sourceMap[this.action]["ratelimit"];
-
+ 	this.mE = null;
+ 	this.mK = null;
+ 	this.mP = null;
 }
 
 /**
@@ -349,6 +372,8 @@ messageContext.prototype.aesEncrypt = function(){
 			var salt = CryptoJS.lib.WordArray.random(128/8);
 			var iv = CryptoJS.enc.Hex.parse(salt.toString());
 		    var eventID = ('' + iv).substring(0,5);
+		    // The AES key needs to replaced by some random value.
+		    // Any specific reasons why it can't be MD5 of the message ?
 		    var key = CryptoJS.MD5(_this.orgMessage);
 		    var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
 		    _this.log(eventID);
@@ -356,8 +381,10 @@ messageContext.prototype.aesEncrypt = function(){
 		    _this.aesKey = key;
 			_this.encryptedMessage = encrypted.toString();
 			_this.iv = encrypted.iv.toString(CryptoJS.enc.Hex);
-			_this.messageToSign = key + ";" + encrypted.iv + ";" + "instant;cPK;endPoint";
-			resolve(_this.aes);
+			// _this.messageToSign = key + ";" + encrypted.iv + ";" + "instant;cPK;endPoint";
+			_this.mE = encrypted.toString();
+			_this.mID = eventID;
+			resolve(_this.mE);
 		}
 		catch(e){
 			reject(e);
@@ -370,6 +397,7 @@ messageContext.prototype.aesEncrypt = function(){
 
 /**
  * Method to sign the AES encryptiong key with Aggregator Public key.
+ * Calculate mK = {AESKey;iv;endPoint}
  * @returns string of encrypted key.
  */
 messageContext.prototype.signKey = function(){
@@ -377,8 +405,10 @@ messageContext.prototype.signKey = function(){
 	var _this = this;
 	var promise = new Promise(function(resolve, reject){
 		try{
-			var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(_this.messageToSign);
+			var messageToSign = _this.key + ";" + _this.iv + ";endPoint";
+			var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(messageToSign);
 			_this.signedKey = signedKey;
+			_this.mK = signedKey;
 			resolve(signedKey);
 		}
 		catch(e){
@@ -386,6 +416,17 @@ messageContext.prototype.signKey = function(){
 		}
 	})
 	return promise;
+}
+
+/**
+ * Method to create MP
+ * Calculate mP = <mID, mK, mE>
+ * @returns string called mP.
+ */
+messageContext.prototype.getMP = function(){
+	var mP = this.mID + ";" + this.mK +";" + this.mE
+	this.mP = mP;
+	return mP
 }
 
 /**
@@ -404,6 +445,7 @@ messageContext.prototype.calculateRouteHash = function(msg){
 	CliqzUtils.log("Hash: " + hash,CliqzUtils.LOG_KEY);
 }
 
+
 messageContext.prototype.log =  function(msg){
 	if(CliqzSecureMessage.debug){
 		CliqzUtils.log(msg, "Message signing");
@@ -413,7 +455,7 @@ messageContext.prototype.log =  function(msg){
 
 
 // Set the context for blind signatures right.
-var blindSignContext = function (keySize) {
+var blindSignContext = function (msg) {
  	/*
  	Initialize it with the following:
  	1. Signer Public Key
@@ -421,7 +463,7 @@ var blindSignContext = function (keySize) {
  	3. Signer Public Modulous
  	*/
 
- 	this.keyObj = new JSEncrypt({default_key_size:keySize});
+ 	this.keyObj = new JSEncrypt();
  	this.signerEndPoint = "";
  	this.publicKeyPath = "chrome://cliqz/content/signer-pub-key.pub";
  	this.publicKey = "";
@@ -435,6 +477,7 @@ var blindSignContext = function (keySize) {
  	this.hashedMessage = "";
  	this.bm = "";
  	this.signedMessage = "";
+ 	this.msg = msg;
 
 }
 
@@ -446,6 +489,7 @@ blindSignContext.prototype.fetchSignerKey = function(){
 	.get()
 	.then(function(response){
 		var parseKey = _this.keyObj.parseKeyValues(response);
+		_this.publicKey = response;
 		_this.n = parseKey['mod'];
 		_this.log("Key parsed and loaded");
 	})
@@ -469,11 +513,13 @@ blindSignContext.prototype.log =  function(msg){
 
 }
 
-blindSignContext.prototype.hashMessage = function(str){
+blindSignContext.prototype.hashMessage = function(){
 	// Need sha256 digest the message.
+	if(!this.n) this.fetchSignerKey();
+	var msg = this.msg;
 	var _this = this;
 	return new Promise(function(resolve, reject){
-		var hashM = sha256_digest(str);
+		var hashM = sha256_digest(msg);
 		_this.log("Hash: " + hashM);
 		_this.hashedMessage = hashM;
 		resolve(hashM);
@@ -599,6 +645,7 @@ var CliqzSecureMessage = {
     cryptoJS: CryptoJS,
     uPK : new userPK(),
     routeTable : [],
+    RSAKey: "",
     fetchRouteTable: function(){
 		// This will fetch the route table from local file, will move it to webservice later.
 		_http("chrome://cliqz/content/route-hash-table.json")
@@ -672,6 +719,12 @@ var CliqzSecureMessage = {
         CliqzSecureMessage._telemetry_sending = [];
         CliqzSecureMessage._telemetry_req = null;
     },
+    init: function(window){
+    	// Doing it here, because this lib. uses navigator and window objects.
+    	// Better method appriciated.
+    	Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto-kjur.js', window);
+    	CliqzSecureMessage.RSAKey = window.RSAKey;
+    }
 }
 
 // CliqzSecureMessage.init();

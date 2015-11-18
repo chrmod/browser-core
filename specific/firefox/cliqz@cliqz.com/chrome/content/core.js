@@ -216,6 +216,7 @@ window.CLIQZ.Core = {
             CliqzMsgCenter.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
+                CliqzSecureMessage.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
 
