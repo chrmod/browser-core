@@ -92,6 +92,19 @@ var UI = {
             var ev = urlbarEvents[i];
             urlbar.addEventListener(ev, CLIQZ.UI['urlbar' + ev]);
         }
+
+        CliqzEvents.sub('msg_handler_dropdown_show_message', function (message) {
+          CLIQZ.UI.messageCenterMessage = message;
+        });
+        CliqzEvents.sub('msg_handler_dropdown_hide_message', function (message) {
+          CLIQZ.UI.messageCenterMessage = null;
+          // hide immediately
+          var container = message["footer-message"].showOnTop ?
+            gCliqzBox.messageContainerTop : gCliqzBox.messageContainer;
+          if (container) {
+            container.innerHTML = '';
+          }
+        });
     },
     unload: function(){
         for(var i in urlbarEvents){
@@ -1166,7 +1179,7 @@ function enhanceResults(res){
         });
     } else if (CLIQZ.UI.messageCenterMessage) {
       updateMessageState("show", CLIQZ.UI.messageCenterMessage,
-        CLIQZ.UI.messageCenterMessage['footer-message'].showOnTop);
+        CLIQZ.UI.messageCenterMessage["footer-message"].showOnTop);
     } else if (!CliqzUtils.requestMonitor.inHealth()) {
       var rand = getRandomForCurrentTime(4);
 

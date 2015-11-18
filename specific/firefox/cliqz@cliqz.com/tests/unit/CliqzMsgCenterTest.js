@@ -33,7 +33,6 @@ TESTS.CliqzmessageCenterTestUnit = function (CliqzMsgCenter, CliqzUtils) {
     beforeEach(function() {
       messageCenter = new CliqzMsgCenter();
       dropdownHandler = messageCenter._messageHandlers.MESSAGE_HANDLER_DROPDOWN;
-      dropdownHandler.registerWindow(CliqzUtils.getWindow());
     });
 
     context('general tests', function () {
@@ -136,7 +135,53 @@ context('dropdown handler tests', function () {
     });
   });
 
-  it('should hide message (mixed)', function() {
+  it('should hide multiple messages (one after another)', function() {
+    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
+    msg0.text = 'msg0';
+    msg1.text = 'msg1';
+    messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
+    messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg1.text);
+    messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    fillIn('some query');
+    return waitForResult().then(function() {
+      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
+      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg0.text);
+      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg1.text);
+      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
+      return Promise.resolve();
+    });
+  });
+
+it('should hide multiple messages (in batch)', function() {
+    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
+    msg0.text = 'msg0';
+    msg1.text = 'msg1';
+    messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
+    messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
+    messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg1.text);
+    messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    fillIn('some query');
+    return waitForResult().then(function() {
+      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
+      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg0.text);
+      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg1.text);
+      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
+      return Promise.resolve();
+    });
+  });
+
+  it('should hide message (mixed locations)', function() {
     chai.expect(ui.messageCenterMessage).to.not.be.ok;
     var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
     msg0.text = 'msg0';
@@ -151,6 +196,8 @@ context('dropdown handler tests', function () {
       chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
       chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.contain(msg1.text);
       messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+      chai.expect(ui.messageCenterMessage).to.not.be.ok;
+      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
       return Promise.resolve();
     });
   });
