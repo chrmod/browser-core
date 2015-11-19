@@ -885,9 +885,39 @@
       "message": "Bitte die Internet-Verbindung überprüfen"
     },
     "dataCollection": {
-        "message": "Um die Such- und Browser-Funktionen zu verbessern, übermittelt CLQZ for Firefox anonyme Daten an Cliqz. Deine Privatsphäre bleibt dabei geschützt."
+      "message": "CLIQZ for Firefox übermittelt anonyme Daten über Web-Suchen und Website-Besuche an Server von Cliqz um die Such- und Browser-Funktionen zu verbessern."
     },
     "learnMore": {
-        "message": "Mehr erfahren"
+      "message": "Mehr erfahren"
+    },
+    "humanWeb1": {
+      "message": "Human Web"
+    },
+    "humanWeb2": {
+      "message": "Datenschutzerklärung"
+    },
+    "humanWeb3": {
+      "message": "Human Web sammelt anonyme statistische Daten. Deine Privatsphäre wird nicht angetastet."
+    },
+    "humanWeb4": {
+      "message": "Einer für alle. Alle für einen. Gemeinsam für ein besseres Internet. "
+    },
+    "humanWeb5": {
+      "message": "CLIQZ basiert auf der Weisheit der Masse. Die Gemeinschaft der Nutzer trägt auf vollständig anonyme Weise statistische Daten zusammen. Und mit diesem Daten bewertet unsere Suchtechnologie die Relevanz und Sicherheit von Websites. Die selbst entwickelte Technologie, mithilfe der Nutzer das Internet zu indexieren, nennen wir Human Web. Als Teilnehmer am Human Web trägst du zu einem sichereren Web und zu besseren Suchergebnissen bei."
+    },
+    "humanWeb6": {
+      "message": "Die Human Web-Technologie berechnet statistische Web-Traffic-Daten, also z.B. URLs (Website-Adressen) und Verweildauern auf Websites, die von der Gesamtheit jener Nutzer besucht werden, die am Human Web teilnehmen. Dies geschieht völlig anonym, ohne Bezug zu personenbezogenen Daten. IP-Adressen werden automatisch aus den Human Web-Datensätzen gelöscht."
+    },
+    "humanWeb7": {
+      "message": "Getrennt von diesen Web-Traffic-Daten speichert CLIQZ, ebenfalls völlig anonym, was die Gesamtheit der Nutzer im Web sucht und was sie in die kombinierte Such- und Adresszeile oben im Browserfenster eingibt. Diese Eingaben und Website-Besuche werden jeweils ausschließlich als Einzelereignis ausgewertet. Eine Verkettung von Daten aus mehreren Eingaben sowie Besuchen und damit theoretisch mögliche Rückschlüsse auf Nutzer findet nicht statt. Human Web verknüpft auch niemals personenbezogene Daten (z.B. IP-Adresse oder Email-Adresse) mit irgendwelchen Ereignissen."
+    },
+    "humanWeb8": {
+      "message": "Die Teilnahme am Human Web ist optional"
+    },
+    "humanWeb9": {
+      "message": "Du kannst bestimmen, ob Human Web von dir die oben beschriebenen anonymen statistischen Daten zur Verbesserung von CLIQZ sammeln darf."
+    },
+    "humanWeb10": {
+      "message": "Ich nehme am Human Web teil"
     }
 }
