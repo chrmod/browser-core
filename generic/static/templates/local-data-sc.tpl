@@ -4,8 +4,8 @@
       {{#with data}}
         <div class="cqz-local-top-blk">
           {{#if map_img}}
-            <div class="cqz-image-round cqz-local-img-container" extra="map-image">
-              <img src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
+            <div class="cqz-image-round cqz-local-img-container" >
+              <img src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';" extra="map-image"/>
             </div>
           {{/if}}
 
