@@ -115,12 +115,28 @@ function sendM(m){
 		// After the message is SIGNED, we need to start the blind signature.
 		mc.getMP();
 		var uPK = CliqzSecureMessage.uPK.publicKeyB64;
-		var _bm1 = new blindSignContext(mc.mP);
-		var _bm2 = new blindSignContext(mc.mP + ";" + uPK);
-		var _bm3 = new blindSignContext(mc.routeHash + ";" + uPK);
 
+		// Messages to be blinded.
+		mc.m1 = mc.mP ;
+		mc.m2 = mc.mP + ";" + uPK;
+		mc.m3 = mc.routeHash + ";" + uPK;
+
+		var _bm1 = new blindSignContext(mc.m1);
+		var _bm2 = new blindSignContext(mc.m2);
+		var _bm3 = new blindSignContext(mc.m3);
+
+		mc.r1 = _bm1.getBlindingNonce();
+		mc.r2 = _bm2.getBlindingNonce();
+		mc.r3 = _bm3.getBlindingNonce();
+
+		// Get Unblinder - to unblind the message
+		mc.u1 = _bm1.getUnBlinder();
+		mc.u2 = _bm2.getUnBlinder();
+		mc.u3 = _bm3.getUnBlinder();
+
+		// Blind the message
 		mc.bm1 = _bm1.blindMessage();
-		mc.bm2 = _bm3.blindMessage();
+		mc.bm2 = _bm2.blindMessage();
 		mc.bm3 = _bm3.blindMessage();
 
 		// SIG(uPK;bm1;bm2;bm3)
@@ -147,6 +163,27 @@ function sendM(m){
 	})
 	.then(function(response){
 		CliqzUtils.log(response, "response");
+		var response = JSON.parse(response);
+		// Capture the response
+		var bs1 = response["bs1"];
+		var bs2 = response["bs2"];
+		var bs3 = response["bs3"];
+
+		// Unblind the message to get the signature.
+		mc.us1 = unBlindMessage(bs1, mc.u1);
+		mc.us2 = unBlindMessage(bs2, mc.u2);
+		mc.us3 = unBlindMessage(bs3, mc.u3);
+		CliqzUtils.log(mc.us2,"sss");
+
+		// Verify the signature matches after unblinding.
+		mc.vs1 = verifyBlindSignature(mc.us1, sha256_digest(mc.m1))
+		mc.vs2 = verifyBlindSignature(mc.us2, sha256_digest(mc.m2))
+		mc.vs3 = verifyBlindSignature(mc.us3, sha256_digest(mc.m3))
+		CliqzUtils.log(mc.vs1,"sss1");
+		CliqzUtils.log(mc.vs2,"sss1");
+		CliqzUtils.log(mc.vs3,"sss1");
+
+		// If all get verified then we can send the messages to backend via proxies.
 	})
 	.catch(function(err){
 		CliqzUtils.log("Error: " + err);
@@ -160,7 +197,6 @@ var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "pa
 */
 
 function getRouteHash(msg){
-	CliqzUtils.log("Msg recieved: " + msg,"XXXX");
 	var flastMsg = JSON.flatten(msg);
 	var keys = sourceMap[flastMsg.action]["keys"];
 	return msg[keys[0]];
@@ -315,6 +351,51 @@ function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
 	return payload;
 }
 
+function unBlindMessage(blindSignedMessage, unBlinder){
+	// Unblind the message before sending it for verification.
+	// s = u*(bs) mod n
+
+	CliqzUtils.log(blindSignedMessage,"XXX");
+	var _us = multMod(unBlinder, str2bigInt(blindSignedMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	var us = bigInt2str(_us,10, 0)
+	return us;
+
+}
+
+function verifyBlindSignature(signedMessage, hashedOriginalMessage){
+	// Verify the message to see, the signer is not the problem.
+	// m = s^e mod n
+
+	var message_signed = bigInt2str(powMod(str2bigInt(signedMessage,10,0), str2bigInt(CliqzSecureMessage.dsPK.e, 10), str2bigInt(CliqzSecureMessage.dsPK.n, 10)),10);
+	var original_message = bigInt2str(str2bigInt(hashedOriginalMessage,16),10);
+
+	if(original_message === message_signed.toLowerCase()){
+		return true;
+	}
+	else{
+		// Need to replace this with reject.
+		return false;
+	}
+	/*
+	var _this = this;
+	return new Promise(function(resolve, reject){
+		var message_signed = bigInt2str(powMod(str2bigInt(signedMessage,10,0), str2bigInt(CliqzSecureMessage.dsPK.e, 10), str2bigInt(CliqzSecureMessage.dsPK.n, 10)),10);
+		var original_message = bigInt2str(str2bigInt(_this.hashedMessage,16),10);
+		// var original_message = _this.hashedMessage;
+		_this.log("Org message:" + original_message);
+		_this.log("Sign message:" + message_signed);
+		if(original_message === message_signed.toLowerCase()){
+			resolve(true);
+		}
+		else{
+			// Need to replace this with reject.
+			resolve(false);
+		}
+
+	})
+	*/
+}
+
 /**
 Generate user Public-private key.
 This should be long-time key
@@ -395,7 +476,7 @@ Urh6hU90zpidn7kYTrIvkHkvEtVpALliIji/6XnGpNYIpw0CWTbqU/fMOt+ITcKg\
 rWMymdRofsl0g6+abRETWEg+8uu7pLlDVehM9sPZPhtOGd/Vl+05FDUhNsbszdOE\
 vUNtCY8pX4SI5pnA/FjWHOkCAwEAAQ==\
 -----END PUBLIC KEY-----"
-	this.endPoint = "http://192.168.2.110/sign";
+	this.endPoint = "http://192.168.178.29/sign";
 	this.loadKey = new JSEncrypt();
 	this.loadKey.setPublicKey(dsPubKey);
 	this.n = this.loadKey.parseKeyValues(dsPubKey)['mod'];
@@ -633,11 +714,10 @@ blindSignContext.prototype.getBlindingNonce = function(){
 blindSignContext.prototype.getBlinder = function(){
 	// Calculate blinder.
 	// b = r ^ e mod n
-	CliqzUtils.log(CliqzSecureMessage.dsPK.n,"XXXb");
 	var b = powMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.e, 10), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
-	var u = inverseMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	// var u = inverseMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.n, 10));
 	this.blinder = b;
-	this.unblinder = u;
+	// this.unblinder = u;
 	return b;
 	/*
 	var _this = this;
@@ -651,13 +731,20 @@ blindSignContext.prototype.getBlinder = function(){
 	*/
 }
 
+blindSignContext.prototype.getUnBlinder = function(){
+	// Calculate blinder.
+	// b = r ^ e mod n
+	var u = inverseMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	this.unblinder = u;
+	return u;
+}
+
 blindSignContext.prototype.blindMessage = function(){
 	// Blind the message before sending it for signing.
 	// bm = b*m mod n
 	var hashMessage = this.hashMessage();
-	var rnd = this.getBlindingNonce();
+	// var rnd = this.getBlindingNonce();
 	var blinder = this.getBlinder();
-	CliqzUtils.log(blinder,"XXXc");
 	var bm = multMod(blinder, str2bigInt(hashMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
 	this.bm = bigInt2str(bm, 10);
 	return this.bm;
@@ -677,14 +764,20 @@ blindSignContext.prototype.blindMessage = function(){
 blindSignContext.prototype.unBlindMessage = function(blindSignedMessage){
 	// Unblind the message before sending it for verification.
 	// s = u*(bs) mod n
-	var _this = this;
+
 	var bs = blindSignedMessage;
+	var us = multMod(this.unblinder, str2bigInt(bs, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	var us = bigInt2str(_us,10, 0)
+	this.signedMessage = us;
+	return us;
+	/*
 	return new Promise(function(resolve, reject){
 		var _us = multMod(_this.unblinder, str2bigInt(bs, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
 		var us = bigInt2str(_us,10, 0)
 		_this.signedMessage = us;
 		resolve(us);
 	})
+	*/
 
 }
 
