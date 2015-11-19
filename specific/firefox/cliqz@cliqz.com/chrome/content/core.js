@@ -252,7 +252,7 @@ window.CLIQZ.Core = {
                     3 - learn more
         */
         if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
-          CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
+          //CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
         }
     },
     showDataCollectionMessage: function(){
@@ -270,7 +270,7 @@ window.CLIQZ.Core = {
         callback: function(){
           // we only have the website localized in english end german
           var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
-              learnMoreUrl = 'https://cliqz.com/' + lang + 'privacy#humanweb';
+              learnMoreUrl = 'chrome://cliqz/content/humanweb.html';
 
           gBrowser.selectedTab  = gBrowser.addTab(learnMoreUrl);
           updateDataCollectionState(3);
