@@ -258,8 +258,12 @@ var CliqzAutocomplete = {
 
         if (results) {
             for(var i = 0; i < results.length; i++) {
-                var kind   = results[i].data && results[i].data.kind &&
-                             results[i].data.kind.slice(0),
+                if(results[i].data == null || results[i].data.kind == null){
+                  resultOrder.push('_'); //debug - it should not happen
+                  continue;
+                }
+
+                var kind   = results[i].data.kind.slice(0),
                     tokens = kind && kind.length > 0 ?
                              kind[0].split('|') : [],
                     params = tokens.length > 1 ?

@@ -944,15 +944,23 @@ var CliqzUtils = {
     }
   },
   version: CLIQZEnvironment.getVersion,
-  extensionRestart: function(){
+  extensionRestart: function(changes){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
-        var win = enumerator.getNext();
-        //win.CLIQZ.Core.restart(true);
-        if(win.CLIQZ && win.CLIQZ.Core){
-          win.CLIQZ.Core.unload(true);
-          win.CLIQZ.Core.init();
-        }
+      var win = enumerator.getNext();
+      if(win.CLIQZ && win.CLIQZ.Core){
+        win.CLIQZ.Core.unload(true);
+      }
+    }
+
+    changes && changes();
+
+    enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+      var win = enumerator.getNext();
+      if(win.CLIQZ && win.CLIQZ.Core){
+        win.CLIQZ.Core.init();
+      }
     }
   },
   isWindows: function(){

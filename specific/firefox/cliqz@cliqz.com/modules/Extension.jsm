@@ -97,7 +97,7 @@ var Extension = {
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
-            CliqzUtils.setPref('changeLogState', 1);
+          //CliqzUtils.setPref('changeLogState', 1);
         }
     },
     unload: function(version, uninstall){
