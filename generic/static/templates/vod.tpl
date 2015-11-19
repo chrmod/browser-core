@@ -9,15 +9,17 @@
                 {{#if i}}
                     <div class="cqz-rd-img_div cqz-image-round">
                         <img src="{{i}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
-                        <div class="cqz-ez-btns">
-                            <span
-                                class="cqz-ez-btn {{ ../../logo.buttonsClass }} movie_info_btn"
-                                url="{{ categories.0.url }}"
-                                extra="{{categories.0.title_key}}" arrow="false" arrow-if-visible='true'
-                            >
-                              {{local categories.0.title_key}}
-                            </span>
-                        </div>
+                        {{#if categories}}
+                            <div class="cqz-ez-btns">
+                                <span
+                                    class="cqz-ez-btn {{ ../../../logo.buttonsClass }} movie_info_btn"
+                                    url="{{ categories.0.url }}"
+                                    extra="{{categories.0.title_key}}" arrow="false" arrow-if-visible='true'
+                                >
+                                  {{local categories.0.title_key}}
+                                </span>
+                            </div>
+                        {{/if}}
                     </div>
                 {{/if}}
 
@@ -68,13 +70,15 @@
         </div>
         {{#unless i}}
             <div class="cqz-ez-btns layout_foot_node">
-                <span
-                    class="cqz-ez-btn {{ ../../logo.buttonsClass }} movie_info_btn"
-                    url="{{ categories.0.url }}"
-                    extra="{{categories.0.title_key}}" arrow="false" arrow-if-visible='true'
-                >
-                  {{local categories.0.title_key}}
-                </span>
+                {{#if categories}}
+                    <span
+                        class="cqz-ez-btn {{ ../../../logo.buttonsClass }} movie_info_btn"
+                        url="{{ categories.0.url }}"
+                        extra="{{categories.0.title_key}}" arrow="false" arrow-if-visible='true'
+                    >
+                      {{local categories.0.title_key}}
+                    </span>
+                {{/if}}
                 <span class="stream_txt">{{local "Stream_now"}}:</span>
                 <ul class="stream_btns">
                     {{#each w}}
