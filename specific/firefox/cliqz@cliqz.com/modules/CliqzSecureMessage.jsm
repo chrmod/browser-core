@@ -99,15 +99,33 @@ function *trkGen(trk) {
     }
 }
 
+/*
+
+*/
 function sendM(m){
     var mc = new CliqzSecureMessage.messageContext(m);
     mc.aesEncrypt()
 	.then(function(data){
+		// After the message is AES encrypted, we need to sign the AES key.
 		CliqzUtils.log("SigningAES-Key");
 		return mc.signKey()
 	})
 	.then(function(data){
 		CliqzUtils.log("Verified: " + data);
+		// After the message is SIGNED, we need to start the blind signature.
+		mc.getMP();
+		var uPK = CliqzSecureMessage.uPK.publicKeyB64;
+		var _bm1 = new blindSignContext(mc.mP);
+		var _bm2 = new blindSignContext(mc.mP + ";" + uPK);
+		var _bm3 = new blindSignContext(mc.routeHash + ";" + uPK);
+
+		mc.bm1 = _bm1.blindMessage();
+		mc.bm2 = _bm3.blindMessage();
+		mc.bm3 = _bm3.blindMessage();
+
+		// SIG(uPK;bm1;bm2;bm3)
+		return CliqzSecureMessage.uPK.sign(uPK + ";" + mc.bm1 + ";" + mc.bm2 + ";" + mc.bm3)
+		/*
 		CliqzUtils.setTimeout(function(){
 			CliqzUtils.log("hehehe;");
 			var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
@@ -116,8 +134,19 @@ function sendM(m){
 				sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
 			}
 		}, 5000)
+		*/
+	})
+	.then(function(data){
+			CliqzUtils.log(data, "Signed Message");
+			mc.sigendData = data;
+			var payload = createPayloadBlindSignature(CliqzSecureMessage.uPK.publicKeyB64, mc.bm1, mc.bm2, mc.bm3, mc.sigendData);
+			CliqzUtils.log(payload["uPK"]);
+			return CliqzSecureMessage.httpHandler(CliqzSecureMessage.dsPK.endPoint)
+		  		.post(JSON.stringify(payload))
 
-
+	})
+	.then(function(response){
+		CliqzUtils.log(response, "response");
 	})
 	.catch(function(err){
 		CliqzUtils.log("Error: " + err);
@@ -265,6 +294,28 @@ function _http(url){
 };
 
 /**
+ * Method to create payload to send for blind signature.
+ * The payload needs to consist of <uPK,
+ 									{mP}*r1, // BM1
+ 									{mP, uPK}*r2, // BM2
+ 									{DmC, uPK} * r3, // BM3
+ 									SIG(uPK;bm1;bm2;bm3)
+ 									>
+ * @returns string with payload created.
+ */
+
+function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
+	CliqzUtils.log(uPK, "AAAAA");
+	var payload = {};
+	payload["uPK"] = uPK;
+	payload["bm1"] = bm1;
+	payload["bm2"] = bm2;
+	payload["bm3"] = bm3;
+	payload["sig"] = sig;
+	return payload;
+}
+
+/**
 Generate user Public-private key.
 This should be long-time key
 Only generate if the key is not already generated and stored on the machine.
@@ -276,13 +327,15 @@ var userPK = function () {
 	if(!keySet) {
 		 // Using 2048 as 4096 is pretty compute intensive.
 		this.privateKey = this.keyGen.getPrivateKeyB64 ();
-		this.publiKey = this.keyGen.getPublicKeyB64();
+		this.publicKey = this.keyGen.getPublicKeyB64();
+		this.publicKeyB64 = this.keyGen.getPublicKeyB64();
 		CliqzUtils.setPref('userPKBeta', this.privateKey);
 	}
 	else{
 		this.keyGen.setPrivateKey(keySet);
 		this.privateKey = this.keyGen.getPrivateKeyB64();
-		this.publiKey = this.keyGen.getPublicKey();
+		this.publicKey = this.keyGen.getPublicKey();
+		this.publicKeyB64 = this.keyGen.getPublicKeyB64();
 	}
 
 }
@@ -322,6 +375,35 @@ userPK.prototype.sign = function(msg){
 	})
 	return promise;
 }
+
+/**
+Load Directory Service Public key.
+*/
+var directoryServicePK = function () {
+	// This certainly needs to find a better place.
+	var dsPubKey = "-----BEGIN PUBLIC KEY-----\
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA5IUb5B02se1hKWjWNN6D\
+dG4EQ8AiKtUAn3qdnQ1cJOeIqUjAu4FsaLJyndrYIOlfyEiJSeb4rJOmkUaVUoKF\
+7vmvfNug7IugiVrm4rgGMUIzXm5nHhZf+ntA803Rg5J+C0xt9IrIj4CBgcYxnQFQ\
+uhdFN7cWTmcoJqs74wUM4j1Q0gRGV+wp2WG+dp1n04uagRGIU7Ego06Xxk4wO6S4\
+Ceqk5tWHt7IzqNWRZO5JMaSulne6Otq47jf3PGIW1Ok8ze2PmgM/5ars/H7UWDFr\
+avbGMlYe3bhaTKusUoqgcKmPzsroE/tJMwh7cqPaXTfYdesOoTNfP2lsDC0fsW3X\
+HGwZaWcaoJWnOFboIWFInrrEKmTO/rugKIMnUuES6eEgJXPHLcemg45ZvvCG9gqq\
+7TsIFtyyhXxBJgcOnFPdV2DUa61Oe+Ew0wRv3dVH0wx+ar5RN8Bbg080GhP3wyZ+\
+yjqvlcypuq+Qzd3xWF61ZmFyzlUnjKESLB8PpvTnsTvMPNpCbF6I3AyQ79mi9SM6\
+Urh6hU90zpidn7kYTrIvkHkvEtVpALliIji/6XnGpNYIpw0CWTbqU/fMOt+ITcKg\
+rWMymdRofsl0g6+abRETWEg+8uu7pLlDVehM9sPZPhtOGd/Vl+05FDUhNsbszdOE\
+vUNtCY8pX4SI5pnA/FjWHOkCAwEAAQ==\
+-----END PUBLIC KEY-----"
+	this.endPoint = "http://192.168.2.110/sign";
+	this.loadKey = new JSEncrypt();
+	this.loadKey.setPublicKey(dsPubKey);
+	this.n = this.loadKey.parseKeyValues(dsPubKey)['mod'];
+	this.e = '' + this.loadKey.parseKeyValues(dsPubKey)['e']; // Needs to be string, else fails on blinding nonce.
+}
+
+
+
 
 /**
  * Method to create object for message recieved..
@@ -464,11 +546,6 @@ var blindSignContext = function (msg) {
  	*/
 
  	this.keyObj = new JSEncrypt();
- 	this.signerEndPoint = "";
- 	this.publicKeyPath = "chrome://cliqz/content/signer-pub-key.pub";
- 	this.publicKey = "";
- 	this.e = "65537";
- 	this.n = null;
  	this.randomNumber = null;
  	this.blindingNonce = null;
  	this.blinder = null;
@@ -481,6 +558,7 @@ var blindSignContext = function (msg) {
 
 }
 
+/*
 blindSignContext.prototype.fetchSignerKey = function(){
 	// This will fetch the Public key of the signer from local file.
 	var publicKeyPath = this.publicKeyPath;
@@ -495,6 +573,7 @@ blindSignContext.prototype.fetchSignerKey = function(){
 	})
 	.catch(_this.log("Error occurred while fetch signing key: "));
 }
+*/
 
 blindSignContext.prototype.exponent = function(){
 	// Return the public exponent
@@ -515,19 +594,28 @@ blindSignContext.prototype.log =  function(msg){
 
 blindSignContext.prototype.hashMessage = function(){
 	// Need sha256 digest the message.
-	if(!this.n) this.fetchSignerKey();
 	var msg = this.msg;
-	var _this = this;
+	this.hashedMessage = sha256_digest(msg);
+	return this.hashedMessage;
+
+	/*
+	// var _this = this;
 	return new Promise(function(resolve, reject){
 		var hashM = sha256_digest(msg);
 		_this.log("Hash: " + hashM);
 		_this.hashedMessage = hashM;
 		resolve(hashM);
 	});
+	*/
 }
 
 blindSignContext.prototype.getBlindingNonce = function(){
 	// Create a random value.
+
+	var randomNumber = randBigInt(this.keySize,1);
+	this.blindingNonce = randomNumber
+	return randomNumber;
+	/*
 	var _this = this;
 	var promise = new Promise(function(resolve, reject){
 		try{
@@ -539,11 +627,19 @@ blindSignContext.prototype.getBlindingNonce = function(){
 		}
 	});
 	return promise;
+	*/
 }
 
 blindSignContext.prototype.getBlinder = function(){
 	// Calculate blinder.
 	// b = r ^ e mod n
+	CliqzUtils.log(CliqzSecureMessage.dsPK.n,"XXXb");
+	var b = powMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.e, 10), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	var u = inverseMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	this.blinder = b;
+	this.unblinder = u;
+	return b;
+	/*
 	var _this = this;
 	return new Promise(function(resolve, reject){
 		var b = powMod(_this.blindingNonce, str2bigInt(_this.e, 10), str2bigInt(_this.n, 10));
@@ -552,11 +648,20 @@ blindSignContext.prototype.getBlinder = function(){
 		_this.unblinder = u;
 		resolve(b);
 	});
+	*/
 }
 
 blindSignContext.prototype.blindMessage = function(){
 	// Blind the message before sending it for signing.
 	// bm = b*m mod n
+	var hashMessage = this.hashMessage();
+	var rnd = this.getBlindingNonce();
+	var blinder = this.getBlinder();
+	CliqzUtils.log(blinder,"XXXc");
+	var bm = multMod(blinder, str2bigInt(hashMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+	this.bm = bigInt2str(bm, 10);
+	return this.bm;
+	/*
 	var _this = this;
 	return new Promise(function(resolve, reject){
 		// _this.log(_this.hashedMessage);
@@ -564,8 +669,10 @@ blindSignContext.prototype.blindMessage = function(){
 		_this.bm = bigInt2str(bm, 10);
 		resolve(bm);
 	})
+	*/
 
 }
+
 
 blindSignContext.prototype.unBlindMessage = function(blindSignedMessage){
 	// Unblind the message before sending it for verification.
@@ -573,7 +680,7 @@ blindSignContext.prototype.unBlindMessage = function(blindSignedMessage){
 	var _this = this;
 	var bs = blindSignedMessage;
 	return new Promise(function(resolve, reject){
-		var _us = multMod(_this.unblinder, str2bigInt(bs, 16), str2bigInt(_this.n, 10));
+		var _us = multMod(_this.unblinder, str2bigInt(bs, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
 		var us = bigInt2str(_us,10, 0)
 		_this.signedMessage = us;
 		resolve(us);
@@ -603,19 +710,6 @@ blindSignContext.prototype.verify = function(){
 
 }
 
-/**
- * Method to create payload to send for blind signature.
- * The payload needs to consist of <hash(eventID:encryptedData:SignedKey:rateLimit), userPK>
- * @returns string with payload created.
- */
-blindSignContext.prototype.createPayloadBlindSignature = function(){
-	var payload = {};
-	payload["uPK"] = "";
-	payload["encrypted"] = ""; // This needs to be replaces with encrypted.
-	payload["sm"] = this.signed;
-	payload["routeHash"] = this.routeHash;
-	return JSON.stringify(payload);
-}
 
 var secureEventLoggerContext = function () {
 
@@ -644,6 +738,7 @@ var CliqzSecureMessage = {
     secureLogger: new secureEventLoggerContext(),
     cryptoJS: CryptoJS,
     uPK : new userPK(),
+    dsPK : new directoryServicePK,
     routeTable : [],
     RSAKey: "",
     fetchRouteTable: function(){
