@@ -46,7 +46,6 @@ var CliqzHistoryManager = {
   },
   // Extract earliest and latest entry of Firefox history
   historyTimeFrame: function(callback) {
-    Cu.import('resource://gre/modules/PlacesUtils.jsm');
     var history = [];
     var min, max;
     this.PlacesInterestsStorage._execute(
