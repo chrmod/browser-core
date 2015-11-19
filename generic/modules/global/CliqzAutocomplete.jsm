@@ -19,14 +19,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
-  'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryCluster',
+  'chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
@@ -311,7 +308,7 @@ var CliqzAutocomplete = {
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
-                    CliqzHistoryPattern.addFirefoxHistory(result);
+                    CliqzHistoryCluster.addFirefoxHistory(result);
                 }
             },
             isHistoryReady: function() {
@@ -321,17 +318,17 @@ var CliqzAutocomplete = {
                 // abort if we already have results
                 if(this.mixedResults.matchCount > 0) return;
 
-                if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+                if (res.query == this.searchString) {
                     CliqzAutocomplete.lastPattern = res;
 
                     var latency = 0;
-                    if (CliqzHistoryPattern.latencies[res.query]) {
-                        latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
+                    if (CliqzHistoryCluster.latencies[res.query]) {
+                        latency = (new Date()).getTime() - CliqzHistoryCluster.latencies[res.query];
                     }
                     this.latency.patterns = latency;
 
                     // Create instant result
-                    CliqzHistoryPattern.createInstantResult(res, this.searchString, this.createInstantResultCallback);
+                    CliqzHistoryCluster.createInstantResult(res, this.searchString, this.createInstantResultCallback);
                 }
             },
             createInstantResultCallback:function(instant) {
@@ -566,7 +563,7 @@ var CliqzAutocomplete = {
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
                 this.createInstantResultCallback = this.createInstantResultCallback.bind(this);
 
-                CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
+                CliqzHistoryCluster.historyCallback = this.historyPatternCallback;
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
@@ -589,9 +586,6 @@ var CliqzAutocomplete = {
                     } else {
                         //CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
-                    // begin history pattern search
-                    CliqzHistoryPattern.detectPattern(searchString);
-
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {

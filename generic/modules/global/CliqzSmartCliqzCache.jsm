@@ -20,8 +20,6 @@ try {
 	Components.utils.import("resource://gre/modules/osfile.jsm");
 } catch(e) { }
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
@@ -275,7 +273,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		if (smartCliqz.data.domain) {
 			return smartCliqz.data.domain;
 		} else if (smartCliqz.data.trigger_urls && smartCliqz.data.trigger_urls.length > 0) {
-			return CliqzHistoryPattern.generalizeUrl(smartCliqz.data.trigger_urls[0]);
+			return CliqzUtils.generalizeUrl(smartCliqz.data.trigger_urls[0]);
 		} else {
 			return false;
 		}
@@ -436,7 +434,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	},
 	// extracts relevant information to base matching on
 	_preparseUrl: function (url, domain) {
-		url = CliqzHistoryPattern.generalizeUrl(url);
+		url = CliqzUtils.generalizeUrl(url);
 
 		// domain-specific preparations
 		if (domain) {
