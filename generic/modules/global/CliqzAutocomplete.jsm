@@ -394,13 +394,22 @@ var CliqzAutocomplete = {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
+                this.req = req;
                 // be sure this is not a delayed result
-                if(q != this.searchString) {
+                if(q.trim() != this.searchString) {
                     this.discardedResults += 1; // count results discarded from backend because they were out of date
                 } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
+                    //debugger;
                     var json = JSON.parse(req.response);
+
+                    var resLength = 0;
+                    if( json.result !== null ) {
+                        resLength = json.result.length;
+                    }
+                    CLIQZEnvironment.logScreen(resLength,"BM response");
+
                     results = json.result || [];
 
                     this.cliqzResultsExtra = []

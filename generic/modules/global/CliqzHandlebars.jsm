@@ -134,6 +134,14 @@ function registerHelpers(){
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
 
+
+    Handlebars.registerHelper('distance', function(meters) {
+        if(meters < 1000) {
+            return meters.toFixed(0) + " m";
+        }
+        return (meters/1000).toFixed(1) + " km";
+    });
+
     Handlebars.registerHelper('shopping_stars_width', function(rating) {
         return rating * 14;
     });
@@ -301,6 +309,10 @@ function registerHelpers(){
         return formatedDate;
     });
 
+
+
+    
+
     Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         lvalue = parseFloat(lvalue);
         rvalue = parseFloat(rvalue);
@@ -454,5 +466,9 @@ function registerHelpers(){
             "</span>";
 
         return new Handlebars.SafeString(result);
+    });
+
+    Handlebars.registerHelper('numberFormat', function (number) {
+        return number.toLocaleString('de-DE'); // localization is forced to german
     });
 }

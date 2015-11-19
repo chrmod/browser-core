@@ -602,6 +602,9 @@
     "Click anywhere to copy":{
         "message": "Click anywhere to copy"
     },
+    "Tap anywhere to copy":{
+        "message": "Tap anywhere to copy"
+    },
     "Copied":{
         "message": "Copied"
     },

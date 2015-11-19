@@ -1,3 +1,4 @@
+<!-- images_beta.tpl -->
 <div class='cqz-result-images cqz-result-images-{{ data.lines }}'>
      <div class='cqz-ez-title cqz-ez-images-title'>
         Images

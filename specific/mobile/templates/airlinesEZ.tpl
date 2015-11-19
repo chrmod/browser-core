@@ -1,3 +1,4 @@
+<!-- airlinesEZ.tpl -->
 <div class="cqz-result-h2 EZ-airlines-bigcontainer">
 {{#with data}}
 
@@ -29,3 +30,4 @@
 {{/with}}
     {{>logo}}
 </div>
+<!-- end airlinesEZ.tpl -->

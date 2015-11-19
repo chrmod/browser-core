@@ -85,6 +85,9 @@ var UI = {
         }
     },
     main: function(box) {
+
+        CliqzUtils.setUI(UI);
+
         gCliqzBox = box;
 
         //check if loading is done
@@ -96,7 +99,6 @@ var UI = {
         var messageContainer = document.getElementById('cliqz-message-container');
 
         resultsBox.addEventListener('mouseup', resultClick);
-
         resultsBox.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
@@ -152,7 +154,7 @@ var UI = {
           });
       }
 
-      var currentResults = CLIQZ.UI.results({
+      var currentResults = CLIQZ.UI.results({ ///xxxxxxxxxxxxxxxxxxxx
         q: q,
         results: data,
         isInstant: lastRes && lastRes.isInstant
@@ -179,6 +181,8 @@ var UI = {
       XULBrowserWindow.updateStatusField();
       CliqzUtils._queryLastDraw = Date.now();
     },
+
+    // results function
     results: function(res){
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
@@ -190,6 +194,13 @@ var UI = {
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
 
+        if (CliqzUtils.getPref("topSitesV2", false)) {
+          // being here means we have results, i.e., no topsites
+          // thus remove topsites style
+          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
+        }
+
+        // apply template
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
@@ -214,15 +225,18 @@ var UI = {
 
     loadAsyncResult: function(res, query) {
 
-
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
-          //var qt = query + ": " + new Date().getTime();
+          var query = r.text || r.query;
+          var qt = query + ": " + new Date().getTime();
           //CliqzUtils.log(qt, "QUERY TIMESTAMP");
-          //CliqzUtils.log(r,"LOADINGASYNC");
+          CliqzUtils.log(r,"LOADINGASYNC");
+          CLIQZEnvironment.logScreen(query,"loadAsyncResult");
           var loop_count = 0;
           var async_callback = function(req) {
+              CLIQZEnvironment.logScreen(query,"async_callback");
+              //CliqzUtils.log(r, "GOT SOME RESULTS");
               var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
@@ -241,8 +255,10 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
-                        //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        CLIQZEnvironment.logScreen(loop_count + " " + qt + ": " + query, "ASYNC NUMBER");
+                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CLIQZEnvironment.logScreen("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
@@ -288,11 +304,32 @@ var UI = {
 
       }
 
-    },
+    }, 
 
     lastInstantLength: 0,
     lastQuery: "",
-    redrawDropdown: function(newHTML, query) {
+    unhideImages: function(query) {
+      var html = document.getElementById("cliqz-results").innerHTML;
+      html = html.replace(/tempbackground-tempimage:tempurl/g,"background-image:url");
+      html = html.replace(/<tempimg\s/g, "<img ");
+      UI.redrawDropdown(html, query, true);
+    },
+    hideImages: function(html, query) {
+      if(this.hideImagesTimeOut) {
+        window.clearTimeout(this.hideImagesTimeOut);
+      }
+      this.hideImagesTimeOut = setTimeout(UI.unhideImages, 500, query);
+      html = html.replace(/background\s*-\s*image\s*:\s*url/g,"tempbackground-tempimage:tempurl");
+      html = html.replace(/<\s*img\s/g, "<tempimg ");
+      return html;
+    },
+    redrawDropdown: function(newHTML, query, showImages) {
+      console.log("drawing dropdown", showImages)
+      if(!showImages) {
+        newHTML = UI.hideImages(newHTML);
+      }
+
+
       var box = gCliqzBox.resultsBox;
 
       if(query && query.indexOf(UI.lastQuery) == -1) box.innerHTML = "";
@@ -377,7 +414,7 @@ var UI = {
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-        if(ev.keyCode != ESC && UI.popupClosed) {
+        if(ev.keyCode != ESC && UI.popupClosed && typeof gCliqzBox.resultsBox != "undefined") {
           gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
@@ -1233,11 +1270,23 @@ function getNotSupported(){
   */
 
 function updateMessageState(state, messages) {
-  if (state != "show" || !messages) { messages = {}; }
+  lg({type:"updateMessageState",state:state,messages:messages});
+  
+  if(gCliqzBox.messageContainer) {
 
-  gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
-    return CliqzHandlebars.tplCache[tplName](messages[tplName]);
-  }).join("");
+    if (state != "show" || !messages) { 
+      gCliqzBox.messageContainer.style.display = "none";
+      messages = {}; 
+    } else {
+      gCliqzBox.messageContainer.style.display = "block";
+    }
+
+    gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
+      return CliqzHandlebars.tplCache[tplName](messages[tplName]);
+    }).join("");
+
+  }
+
 }
 
 function getResultPosition(el){
@@ -1270,17 +1319,20 @@ function urlIndexInHistory(url, urlList) {
 }
 
     function messageClick(ev) {
+
         var el = ev.target;
         // Handle adult results
 
         while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container")) {
             var action = el.getAttribute('cliqz-action');
+
             /*********************************/
             /* BEGIN "Handle message clicks" */
 
             if (action === 'footer-message-action') {
                 // "Cliqz is not optimized for your country" message */
-                var state = ev.originalTarget.getAttribute('state');
+                
+                var state = ev.target.getAttribute("state"); 
 
                 switch (state) {
                     //not supported country
@@ -1359,6 +1411,7 @@ function urlIndexInHistory(url, urlList) {
                             state = 'yes'
                             adultMessage = 1;
                         } else {
+                            CLIQZEnvironment.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
                         updateMessageState("hide");
@@ -1470,7 +1523,7 @@ function resultClick(ev) {
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         url = el.getAttribute("href") || el.getAttribute('url');
-        if (url) {
+        if (url && url != "#") {
             el.setAttribute('url', url); //set the url in DOM - will be checked later (to be improved)
             logUIEvent(el, "result", {
                 action: "result_click",

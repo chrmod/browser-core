@@ -1,3 +1,5 @@
+<!-- commicEZ.tpl -->
+
 <div class='cqz-result-h1'>
 {{#with data}}
         <div style="height:20px">

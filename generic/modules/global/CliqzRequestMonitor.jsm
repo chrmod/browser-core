@@ -24,7 +24,7 @@ CliqzRequestMonitor.prototype = {
     return reqs;
   },
 
-  // checks status codes of all requests in the registery and compare the
+  // checks status codes of all requests in the registry and compare the
   // rate of successful ones to HEALTH LEVEL
   inHealth: function () {
     var reqs = this.requests(),
@@ -37,5 +37,6 @@ CliqzRequestMonitor.prototype = {
 
   addRequest: function (req) {
     this._requests.push(req);
-  }
+  },
+
 };

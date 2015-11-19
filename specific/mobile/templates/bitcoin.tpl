@@ -1,3 +1,4 @@
+<!-- bitcoin.tpl -->
 <div style='padding:5px 0;
             height: 70px;
             overflow: hidden;'>
