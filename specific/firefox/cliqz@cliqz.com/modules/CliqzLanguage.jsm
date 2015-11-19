@@ -131,7 +131,6 @@ var CliqzLanguage = {
                     var cliqzUrl = CliqzHistoryPattern.generalizeUrl(r.val);
 
                     if (cliqzUrl === googleUrl) {
-                        CliqzAutocomplete.afterQueryCount = 0;
                         CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
                         cliqzResultType = CliqzUtils.encodeResultType(r.style || r.type);
                         cliqzResultIndex = i;
