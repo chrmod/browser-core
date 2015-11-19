@@ -879,10 +879,10 @@
       "message": "Bitte die Internet-Verbindung überprüfen"
     },
     "dataCollection": {
-        "message": "CLIQZ for Firefox übermittelt anonyme Daten über Web-Suchen und Website-Besuche an Server von Cliqz um die Such- und Browser-Funktionen zu verbessern."
+      "message": "CLIQZ for Firefox übermittelt anonyme Daten über Web-Suchen und Website-Besuche an Server von Cliqz um die Such- und Browser-Funktionen zu verbessern."
     },
     "learnMore": {
-        "message": "Mehr erfahren"
+      "message": "Mehr erfahren"
     },
     "humanWeb1": {
       "message": "Human Web"

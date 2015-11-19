@@ -879,10 +879,10 @@
       "message": "Please check your connection."
     },
     "dataCollection": {
-        "message": "To improve the search and browsing experience, CLIQZ for Firefox sends data about web searches and website visits to Cliqz’s servers in a completely anonymous, privacy-safe way."
+      "message": "To improve the search and browsing experience, CLIQZ for Firefox sends data about web searches and website visits to Cliqz’s servers in a completely anonymous, privacy-safe way."
     },
     "learnMore": {
-        "message": "Learn More"
+      "message": "Learn More"
     },
     "humanWeb1": {
       "message": "Human Web"
