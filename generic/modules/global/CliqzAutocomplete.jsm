@@ -19,9 +19,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
-  'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
