@@ -96,7 +96,9 @@ var CliqzUtils = {
       'rd-h3-w-rating': 1,
       'ez-generic-2': 3,
       'cpgame_movie': 3,
-      'delivery-tracking': 2
+      'delivery-tracking': 2,
+      'vod': 3
+
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
