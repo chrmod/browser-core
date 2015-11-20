@@ -47,7 +47,6 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
@@ -66,8 +65,6 @@ var Extension = {
         }
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
-
-        CliqzClusterHistory.init();
     },
     load: function(upgrade, oldVersion, newVersion){
         AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
@@ -100,7 +97,7 @@ var Extension = {
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
-            CliqzUtils.setPref('changeLogState', 1);
+          //CliqzUtils.setPref('changeLogState', 1);
         }
     },
     unload: function(version, uninstall){
@@ -175,13 +172,12 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');

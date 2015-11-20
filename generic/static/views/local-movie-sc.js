@@ -1,7 +1,10 @@
-Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/local-cinema-sc.js', this);
+import localCinemaSC from 'local-cinema-sc';
 
-this.enhanceResults = function(data) {
-  data.ratingStars = data.movie;
-  data.emptyColumns = data.cinemas;
-  enhanceMovieSC(data);
-};
+export default {
+  enhanceMovieSC: localCinemaSC.enhanceMovieSC,
+  enhanceResults(data) {
+    data.ratingStars = data.movie;
+    data.emptyColumns = data.cinemas;
+    this.enhanceMovieSC(data);
+  },
+}

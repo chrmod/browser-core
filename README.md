@@ -11,7 +11,8 @@ Please use the configuration from [editorconfig](https://github.com/cliqz/naviga
 npm install -g bower
 npm install -g broccoli-cli
 
-npm install # to satify package.json
+npm install   # to satisfy package.json
+bower install # to satisfy bower.json
 ```
 
 ## Build
@@ -21,3 +22,6 @@ npm install # to satify package.json
 
 once having `build` folder present you need to install bower_component for your platform build, e.g.:
 `cd build/dev/firefox/cliqz@cliqz.com && bower install`
+
+## UI debugging
+http://localhost:4200/tool/
