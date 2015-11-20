@@ -246,7 +246,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			_this.store(smartCliqz);
 			delete _this._fetchLock[id];
 		}, function (reason) {
-			_this._log('fetchAndStore: error while fetching data: ' + reason);
+			_this._log('fetchAndStore: error while fetching data: ' +
+                 reason.type + ' ' + reason.message);
 			delete _this._fetchLock[id];
 		});
 	},
@@ -430,7 +431,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 _this._log('_prepareCustomData: done preparing for id ' + id);
                 _this._customDataCache.save(_this.CUSTOM_DATA_CACHE_FILE);
 			})
-		});
+		}, function (reason) {
+      _this._log('_prepareCustomData: error while fetching data: ' +
+                 reason.type + ' ' + reason.message);
+    });
 	},
 	// extracts relevant information to base matching on
 	_preparseUrl: function (url, domain) {
