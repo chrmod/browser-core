@@ -78,10 +78,10 @@ var UI = {
             urlbar.addEventListener(ev, CLIQZ.UI['urlbar' + ev]);
         }
 
-        CliqzEvents.sub('msg_handler_dropdown_show_message', function (message) {
+        CliqzEvents.sub('cliqz.msg_handler_dropdown.message_ready', function (message) {
           CLIQZ.UI.messageCenterMessage = message;
         });
-        CliqzEvents.sub('msg_handler_dropdown_hide_message', function (message) {
+        CliqzEvents.sub('cliqz.msg_handler_dropdown.message_revoked', function (message) {
           CLIQZ.UI.messageCenterMessage = null;
           // hide immediately
           var container = message["footer-message"].showOnTop ?
@@ -1390,7 +1390,7 @@ function urlIndexInHistory(url, urlList) {
                     default:
                         break;
                 }
-                CliqzEvents.pub('ui_message_click', ev.originalTarget);
+                CliqzEvents.pub('cliqz.ui.dropdown_message_click', ev.originalTarget);
                 CliqzUtils.telemetry({
                     type: 'setting',
                     setting: el.getAttribute('cliqz-telemetry'),

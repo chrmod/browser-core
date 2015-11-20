@@ -19,7 +19,7 @@ function _log(msg) {
 
 function CliqzMsgHandlerDropdown() {
   CliqzMsgHandler.call(this, CliqzMsgHandlerDropdown.id);
-  CliqzEvents.sub('ui_message_click', this._onClick.bind(this));
+  CliqzEvents.sub('cliqz.ui.dropdown_message_click', this._onClick.bind(this));
 }
 
 CliqzMsgHandlerDropdown.id = 'MESSAGE_HANDLER_DROPDOWN';
@@ -29,11 +29,11 @@ CliqzMsgHandlerDropdown.prototype.constructor = CliqzMsgHandlerDropdown;
 CliqzMsgHandlerDropdown.prototype.constructor.parent = CliqzMsgHandler.prototype;
 
 CliqzMsgHandlerDropdown.prototype._renderMessage = function (message) {
-  CliqzEvents.pub('msg_handler_dropdown_show_message', this._convertMessage(message));
+  CliqzEvents.pub('cliqz.msg_handler_dropdown.message_ready', this._convertMessage(message));
 };
 
 CliqzMsgHandlerDropdown.prototype._hideMessage = function (message) {
-  CliqzEvents.pub('msg_handler_dropdown_hide_message', this._convertMessage(message));
+  CliqzEvents.pub('cliqz.msg_handler_dropdown.message_revoked', this._convertMessage(message));
 };
 
 // converts message into format expected by UI

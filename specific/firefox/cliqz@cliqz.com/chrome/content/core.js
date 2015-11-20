@@ -229,8 +229,6 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
-
-            CliqzEvents.pub('core_window_added', window);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -442,7 +440,6 @@ window.CLIQZ.Core = {
                   currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
                 }
             }
-            CliqzEvents.pub('core_window_removed', window);
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
         }
@@ -555,7 +552,7 @@ window.CLIQZ.Core = {
             action: 'urlbar_' + ev
         };
 
-        CliqzEvents.pub('core_urlbar_' + ev);
+        CliqzEvents.pub('cliqz.core.urlbar_' + ev);
         CliqzUtils.telemetry(action);
     },
     urlbarGoClick: function(){

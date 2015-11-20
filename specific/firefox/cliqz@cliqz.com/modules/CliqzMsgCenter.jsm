@@ -35,8 +35,8 @@ function CliqzMsgCenter() {
   this.registerMessageHandler(CliqzMsgHandlerAlert.id,
     new CliqzMsgHandlerAlert());
 
-  CliqzEvents.sub('msg_center_show_message', this.showMessage.bind(this));
-  CliqzEvents.sub('msg_center_hide_message', this.hideMessage.bind(this));
+  CliqzEvents.sub('cliqz.msg_center.show_message', this.showMessage.bind(this));
+  CliqzEvents.sub('cliqz.msg_center.hide_message', this.hideMessage.bind(this));
 }
 
 // TODO: add destructor
