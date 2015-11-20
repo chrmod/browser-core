@@ -8,6 +8,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzUnblock'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -55,7 +56,7 @@ var YoutubeUnblocker = {
           CliqzUtils.log('Add blocked youtube page', 'unblock');
           CliqzUtils.telemetry({
             'type': 'unblock',
-            'action': 'yt_blocked',
+            'action': 'yt_blocked_message',
             'region': this.current_region
           });
         } else {
@@ -114,19 +115,69 @@ var YoutubeUnblocker = {
     }
   },
   shouldProxy: function(url) {
+    var self = this;
     if(this.current_region == '') return false;
 
     let vid = this.getVideoID(url);
-    if(vid && vid in this.blocked &&
+    if(vid && vid.length > 0) {
+      CliqzUtils.log(url, "xxx");
+      // check block cache
+      if(vid in this.blocked &&
         this.blocked[vid]['b'].indexOf(this.current_region) != -1) {
-      return this.blocked[vid]['a'];
+        return this.blocked[vid]['a'];
+      }
+      // lookup api
+      if (!this.video_lookup_cache.has(vid)) {
+        this.video_lookup_cache.add(vid);
+
+        CliqzUtils.httpGet(this.GET_VIDEO_INFO.replace('{video_id}', vid), function(req) {
+          if (req.response.indexOf('errorcode=150') > -1 ||
+              req.response.indexOf('not+available+in+your+country') > -1) {
+            // error code,
+            let allowed_regions = new Set(self.proxies.getAvailableRegions());
+            allowed_regions.delete(self.current_region);
+            self.blocked[vid] = {'b': [self.current_region], 'a': Array.from(allowed_regions)};
+            // try to refresh page
+            self.refreshPageForVideo(vid);
+            CliqzUtils.telemetry({
+              'type': 'unblock',
+              'action': 'yt_blocked_api',
+              'region': this.current_region
+            });
+          }
+        });
+      }
     }
     return false;
+  },
+  /** Adapted from getCDByURL on CliqzHumanWeb. Finds the tab(s) which have this video in them, and refreshes.
+   */
+  refreshPageForVideo: function(vid) {
+    var enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+      var win = enumerator.getNext();
+      var gBrowser = win.gBrowser;
+      if (gBrowser.tabContainer) {
+        var numTabs = gBrowser.tabContainer.childNodes.length;
+        for (var i=0; i<numTabs; i++) {
+          var currentTab = gBrowser.tabContainer.childNodes[i];
+          var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+          var cd = currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'];
+          var currURL=''+cd.location;
+
+          if(currURL.indexOf(vid) > -1 && currURL.indexOf('www.youtube.com') > -1) {
+            cd.defaultView.location.reload();
+          }
+        }
+      }
+    }
   },
   current_region: '', // current region for YT videos
   blocked: {}, // cache of seen blocked videos
   proxies: [],
-  last_success: null
+  video_lookup_cache: new Set(),
+  last_success: null,
+  GET_VIDEO_INFO: "http://www.youtube.com/get_video_info?video_id={video_id}&hl=en_US"
 }
 
 var CliqzUnblock = {
