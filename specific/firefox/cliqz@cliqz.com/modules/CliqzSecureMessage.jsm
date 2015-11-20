@@ -119,7 +119,7 @@ function sendM(m){
 		// Messages to be blinded.
 		mc.m1 = mc.mP ;
 		mc.m2 = mc.mP + ";" + uPK;
-		mc.m3 = mc.routeHash + ";" + uPK;
+		mc.m3 = mc.dmC + ";" + uPK;
 
 		var _bm1 = new blindSignContext(mc.m1);
 		var _bm2 = new blindSignContext(mc.m2);
@@ -179,11 +179,23 @@ function sendM(m){
 		mc.vs1 = verifyBlindSignature(mc.us1, sha256_digest(mc.m1))
 		mc.vs2 = verifyBlindSignature(mc.us2, sha256_digest(mc.m2))
 		mc.vs3 = verifyBlindSignature(mc.us3, sha256_digest(mc.m3))
-		CliqzUtils.log(mc.vs1,"sss1");
-		CliqzUtils.log(mc.vs2,"sss1");
-		CliqzUtils.log(mc.vs3,"sss1");
 
-		// If all get verified then we can send the messages to backend via proxies.
+		// SIG(uPK;mp;dmC;us1;us2;us3)
+		return CliqzSecureMessage.uPK.sign(CliqzSecureMessage.uPK.publicKeyB64 + ";" + mc.mP +";"+  mc.dmC + ";" + mc.us1 + ";" + mc.us2 + ";" + mc.us3);
+	})
+	.then(function(signedMessageProxy){
+		CliqzUtils.log(signedMessageProxy, "signedMessageProxy");
+		// Create the payload to be sent to proxy;
+		var payload = createPayloadProxy(CliqzSecureMessage.uPK.publicKeyB64, mc.mP, mc.dmC, mc.us1, mc.us2, mc.us3, signedMessageProxy);
+		CliqzUtils.log(payload, "payload");
+
+		// Send the message to proxy coordinator
+		return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
+		  						 .post(JSON.stringify(payload))
+
+	})
+	.then(function(response){
+		CliqzUtils.log(response, "response from proxy coordinator")
 	})
 	.catch(function(err){
 		CliqzUtils.log("Error: " + err);
@@ -341,12 +353,35 @@ function _http(url){
  */
 
 function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
-	CliqzUtils.log(uPK, "AAAAA");
 	var payload = {};
 	payload["uPK"] = uPK;
 	payload["bm1"] = bm1;
 	payload["bm2"] = bm2;
 	payload["bm3"] = bm3;
+	payload["sig"] = sig;
+	return payload;
+}
+
+/**
+ * Method to create payload to send to proxy.
+ * The payload needs to consist of <uPK,
+ 									dmC,
+ 									{H{mP}*r1}Dsk, // BlindSigned1
+ 									{H(mP, uPK)}Dsk, // BlindSigned2
+ 									{H(mP, dmC)}Dsk, // BlindSigned3
+ 									SIG(uPK;dmC;bs1;bs2;bs3)
+ 									>
+ * @returns string with payload created.
+ */
+
+function createPayloadProxy(uPK, mP, dmC, bs1, bs2, bs3, sig){
+	var payload = {};
+	payload["uPK"] = uPK;
+	payload["mP"] = mP;
+	payload["dmC"] = dmC;
+	payload["bs1"] = bs1;
+	payload["bs2"] = bs2;
+	payload["bs3"] = bs3;
 	payload["sig"] = sig;
 	return payload;
 }
@@ -476,7 +511,7 @@ Urh6hU90zpidn7kYTrIvkHkvEtVpALliIji/6XnGpNYIpw0CWTbqU/fMOt+ITcKg\
 rWMymdRofsl0g6+abRETWEg+8uu7pLlDVehM9sPZPhtOGd/Vl+05FDUhNsbszdOE\
 vUNtCY8pX4SI5pnA/FjWHOkCAwEAAQ==\
 -----END PUBLIC KEY-----"
-	this.endPoint = "http://192.168.178.29/sign";
+	this.endPoint = "http://192.168.2.110/sign";
 	this.loadKey = new JSEncrypt();
 	this.loadKey.setPublicKey(dsPubKey);
 	this.n = this.loadKey.parseKeyValues(dsPubKey)['mod'];
@@ -500,7 +535,7 @@ var messageContext = function (msg) {
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
- 	this.routeHash = "http://192.168.3.249/verify"; // Default : null;
+ 	this.routeHash = "http://192.168.2.110/verify"; // Default : null;
  	this.type = this.jMessage.type;
  	this.action = this.jMessage.action;
  	this.interval = sourceMap[this.action]["interval"];
@@ -508,6 +543,10 @@ var messageContext = function (msg) {
  	this.mE = null;
  	this.mK = null;
  	this.mP = null;
+ 	this.dm = null;
+ 	this.dmC = "dmca1234";
+ 	this.proxyCoordinator = "http://192.168.2.110/verify";
+ 	this.proxyValidators = null;
 }
 
 /**
