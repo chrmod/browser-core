@@ -19,8 +19,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryCluster',
+  'chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
@@ -206,7 +206,7 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             CliqzDemo.init(window);
-            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
@@ -253,7 +253,7 @@ window.CLIQZ.Core = {
                     3 - learn more
         */
         if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
-          CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
+          //CLIQZ.Core._dataCollectionTimer = setTimeout(CLIQZ.Core.showDataCollectionMessage, 1000);
         }
     },
     showDataCollectionMessage: function(){
@@ -271,7 +271,7 @@ window.CLIQZ.Core = {
         callback: function(){
           // we only have the website localized in english end german
           var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
-              learnMoreUrl = 'https://cliqz.com/' + lang + 'privacy#humanweb';
+              learnMoreUrl = 'chrome://cliqz/content/humanweb.html';
 
           gBrowser.selectedTab  = gBrowser.addTab(learnMoreUrl);
           updateDataCollectionState(3);
@@ -428,11 +428,8 @@ window.CLIQZ.Core = {
               c.unload && c.unload();
             })
 
-            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window) ){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
-
-                //Remove indi.event handlers
-                CliqzHumanWeb.unload();
 
                 var numTabs = window.gBrowser.tabContainer.childNodes.length;
                 for (var i=0; i<numTabs; i++) {
@@ -483,7 +480,7 @@ window.CLIQZ.Core = {
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
             delete window.CliqzHistory;
-            delete window.CliqzHistoryPattern;
+            delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzTour;
             delete window.CliqzAntiPhishing;
@@ -691,7 +688,7 @@ window.CLIQZ.Core = {
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
-          CliqzHistoryPattern.generalizeUrl(firstResult) != CliqzHistoryPattern.generalizeUrl(results[0].url)) {
+          CliqzUtils.generalizeUrl(firstResult) != CliqzUtils.generalizeUrl(results[0].url)) {
             var newResult = [];
             newResult.url = firstResult;
             newResult.title = firstTitle;
@@ -701,10 +698,10 @@ window.CLIQZ.Core = {
         if (!CliqzUtils.isUrl(results[0].url)) return;
 
         // Detect autocomplete
-        var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
+        var autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[0], true);
         if(!autocomplete.autocomplete && results.length > 1 &&
-          CliqzHistoryPattern.generalizeUrl(results[0].url) != CliqzHistoryPattern.generalizeUrl(urlBar.value)) {
-          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[1], true);
+          CliqzUtils.generalizeUrl(results[0].url) != CliqzUtils.generalizeUrl(urlBar.value)) {
+          autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[1], true);
           CLIQZ.UI.autocompleteEl = 1;
         } else {
           CLIQZ.UI.autocompleteEl = 0;
@@ -982,7 +979,7 @@ window.CLIQZ.Core = {
 
         return item
     },
-    createCheckBoxItem: function(doc, key, label, activeState){
+    createCheckBoxItem: function(doc, key, label, activeState, onChange){
       function optInOut(){
           return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
                            'url(chrome://cliqzres/content/skin/opt-in.svg)':
@@ -994,35 +991,63 @@ window.CLIQZ.Core = {
       btn.setAttribute('class', 'menuitem-iconic');
       btn.style.listStyleImage = optInOut();
       btn.addEventListener('command', function(event) {
-          CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
+          if(onChange){
+            onChange();
+          } else {
+            CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
+          }
+
           btn.style.listStyleImage = optInOut();
       }, false);
 
       return btn;
     },
+    //TODO: move inside HumanWeb
+    changeHumanWebState: function(){
+        Components.utils.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+
+        if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref('dnt', false)){
+          CliqzHumanWeb.unloadAtBrowser();
+        } else {
+          CliqzHumanWeb.initAtBrowser();
+        }
+
+        CliqzUtils.extensionRestart(function(){
+          CliqzUtils.setPref('dnt', !CliqzUtils.getPref('dnt', false));
+        });
+    },
+    //TODO: move inside HumanWeb
     createHumanMenu: function(win){
-        var doc = win.document,
-            menu = doc.createElement('menu'),
-            menuPopup = doc.createElement('menupopup');
+      var doc = win.document,
+          menu = doc.createElement('menu'),
+          menuPopup = doc.createElement('menupopup');
 
-        menu.setAttribute('label', 'Human Web');
 
-        var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
-        menuPopup.appendChild(safeSearchBtn);
+      menu.setAttribute('label', 'Human Web');
 
-        menuPopup.appendChild(
-            CLIQZ.Core.createSimpleBtn(
-                doc,
-                CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
-                function(){
-                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
-                    },
-                'safe_search_desc'
-            )
-        );
+      // HumanWeb checkbox
+      menuPopup.appendChild(
+        CLIQZ.Core.createCheckBoxItem(
+          doc,
+          'dnt',
+          CliqzUtils.getLocalizedString('btnSafeSearch'),
+          false,
+          CLIQZ.Core.changeHumanWebState)
+      );
 
-        menu.appendChild(menuPopup)
-        return menu
+      // HumanWeb learn more button
+      menuPopup.appendChild(
+        CLIQZ.Core.createSimpleBtn(
+          doc,
+          CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
+          function(){
+            CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
+          },
+          'safe_search_desc')
+      );
+
+      menu.appendChild(menuPopup)
+      return menu
     },
     createActivateButton: function(doc) {
       var button = doc.createElement('menuitem');
