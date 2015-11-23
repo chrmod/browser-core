@@ -24,6 +24,7 @@ var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
 // Import them in alphabetical order.
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/bigint.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto.js');
+Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/helperFunctions.js');
 // var CryptoJS = this.CryptoJS;
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/jsencrypt.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
@@ -34,7 +35,7 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 
 var sourceMap = {
 	"alive" :{				// Action which will identify the message type.
-		"keys":["action"],	// Keys to fetch to create route hash.
+		"keys":["action", "payload.t"],	// Keys to fetch to create route hash.
 		"ratelimit": 1,		// How many events are allowed in the defined interval.
 		"interval": 3600,	// Time window in which set of events are allowed.
 		"endpoint": {
@@ -46,45 +47,6 @@ var sourceMap = {
 }
 
 
-JSON.flatten = function (data) {
-    var result = {};
-
-    function recurse(cur, prop) {
-        if (Object(cur) !== cur) {
-            result[prop] = cur;
-        } else if (Array.isArray(cur)) {
-            for (var i = 0, l = cur.length; i < l; i++)
-            recurse(cur[i], prop + "[" + i + "]");
-            if (l == 0) result[prop] = [];
-        } else {
-            var isEmpty = true;
-            for (var p in cur) {
-                isEmpty = false;
-                recurse(cur[p], prop ? prop + "." + p : p);
-            }
-            if (isEmpty && prop) result[prop] = {};
-        }
-    }
-    recurse(data, "");
-    return result;
-};
-JSON.unflatten = function (data) {
-    "use strict";
-    if (Object(data) !== data || Array.isArray(data)) return data;
-    var regex = /\.?([^.\[\]]+)|\[(\d+)\]/g,
-        resultholder = {};
-    for (var p in data) {
-        var cur = resultholder,
-            prop = "",
-            m;
-        while (m = regex.exec(p)) {
-            cur = cur[prop] || (cur[prop] = (m[2] ? [] : {}));
-            prop = m[2] || m[1];
-        }
-        cur[prop] = data[p];
-    }
-    return resultholder[""] || resultholder;
-};
 
 /* Convert the trk into a generator and execute each message sequentially.
    when index reaches length of the trk,
@@ -209,8 +171,9 @@ var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "pa
 */
 
 function getRouteHash(msg){
-	var flastMsg = JSON.flatten(msg);
-	var keys = sourceMap[flastMsg.action]["keys"];
+	var flatMsg = JSON.flatten(msg);
+	var keys = sourceMap[flatMsg.action]["keys"];
+
 	return msg[keys[0]];
 
 }
@@ -544,9 +507,10 @@ var messageContext = function (msg) {
  	this.mK = null;
  	this.mP = null;
  	this.dm = null;
- 	this.dmC = "dmca1234";
+ 	this.dmC =  this.calculateRouteHash(msg);
  	this.proxyCoordinator = "http://192.168.2.110/verify";
- 	this.proxyValidators = null;
+ 	this.proxyValidators = ["http://192.168.2.110:81/verify"];
+ 	CliqzUtils.log(this);
 }
 
 /**
@@ -577,15 +541,17 @@ messageContext.prototype.aesEncrypt = function(){
 		    // The AES key needs to replaced by some random value.
 		    // Any specific reasons why it can't be MD5 of the message ?
 		    var key = CryptoJS.MD5(_this.orgMessage);
+		    CliqzUtils.log("Message Key: " + key,"XXX");
 		    var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
 		    _this.log(eventID);
 		    _this.eventID = eventID;
-		    _this.aesKey = key;
+		    _this.aesKey = '' + key;
 			_this.encryptedMessage = encrypted.toString();
 			_this.iv = encrypted.iv.toString(CryptoJS.enc.Hex);
 			// _this.messageToSign = key + ";" + encrypted.iv + ";" + "instant;cPK;endPoint";
 			_this.mE = encrypted.toString();
 			_this.mID = eventID;
+			_this.key = key;
 			resolve(_this.mE);
 		}
 		catch(e){
@@ -608,6 +574,7 @@ messageContext.prototype.signKey = function(){
 	var promise = new Promise(function(resolve, reject){
 		try{
 			var messageToSign = _this.key + ";" + _this.iv + ";endPoint";
+			CliqzUtils.log("Message to sign: " + messageToSign,"XXX");
 			var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(messageToSign);
 			_this.signedKey = signedKey;
 			_this.mK = signedKey;
@@ -639,12 +606,10 @@ messageContext.prototype.calculateRouteHash = function(msg){
 	var hash = "";
 	var _msg = msg || this.orgMessage;
 	var stringRouteHash = getRouteHash(this.jMessage);
-	var hashM = sha256_digest(stringRouteHash);
-	var hash = modInt(str2bigInt(hashM,16), 500);
-	this.routeHash = hashM;
-	this.proxyHash = hash;
-	this.rateLimit = 1; // One-hour, needs to be in seconds.
-	CliqzUtils.log("Hash: " + hash,CliqzUtils.LOG_KEY);
+	var hashM = CliqzSecureMessage.sha1(stringRouteHash).toString();
+	var dmC = hexToBinary(hashM)['result'].slice(0,13)
+	CliqzUtils.log("Hash: " + dmC,CliqzUtils.LOG_KEY);
+	return dmC;
 }
 
 
@@ -908,6 +873,7 @@ var CliqzSecureMessage = {
     telemetry_MAX_SIZE: 500,
     previousDataPost: null,
     pushMessage : [],
+    sha1:null,
     pushTelemetry: function() {
         // if(CliqzSecureMessage._telemetry_req) return;
 
@@ -951,6 +917,7 @@ var CliqzSecureMessage = {
     	// Better method appriciated.
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto-kjur.js', window);
     	CliqzSecureMessage.RSAKey = window.RSAKey;
+    	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
     }
 }
 
