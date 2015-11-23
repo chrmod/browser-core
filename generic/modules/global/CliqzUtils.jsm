@@ -638,6 +638,7 @@ var CliqzUtils = {
               encodeURIComponent(q) +
               CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
+              CliqzUtils.encodeLocale() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter() +
@@ -667,6 +668,10 @@ var CliqzUtils = {
       callback, //on error the callback still needs to be called
       2000
     );
+  },
+  encodeLocale: function() {
+    // send browser language to the back-end
+    return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
     //international result not supported
