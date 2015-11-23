@@ -172,6 +172,9 @@ CLIQZEnvironment = {
                   return;
               }
 
+              // limiting results to 3 results
+              r._results.splice(3);
+
               if(requestHolder != "cache") {
                 CLIQZEnvironment.enrichResults(r, 1);
               }
@@ -599,15 +602,15 @@ CLIQZEnvironment = {
                     label:   ''
                 });
             }
-            // this.searchHistoryCallback({results: res, query:data.query, ready:true});
-            this.searchHistoryCallback({results: [], query:data.query, ready:true}); // history is kicked out
+            this.searchHistoryCallback({results: res, query:data.query, ready:true});
         } catch (e) {
             Logger.log( "historySearch", "Error: " + e);
         }
     },
     historySearch: function(q, callback, searchParam, sessionStart){
       this.searchHistoryCallback = callback;
-      window.osBridge.searchHistory(q);
+      // window.osBridge.searchHistory(q);
+      CLIQZEnvironment.displayHistory({data:[], query:q});
     },
     getSearchEngines: function(){
         return ENGINES.map(function(e){
