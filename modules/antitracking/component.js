@@ -1,5 +1,9 @@
 (function () {
 
+function currentUrl() {
+  return window.top.getBrowser().selectedBrowser.contentWindow.location.href;
+}
+
 window.CLIQZ.COMPONENTS.push({
   name: "antitracking",
 
@@ -11,6 +15,10 @@ window.CLIQZ.COMPONENTS.push({
       actions: this.popupActions
     });
     this.popup.attach();
+
+    CliqzEvents.sub("core.location_change", function (ev) {
+      this.popup.setBadge("*");
+    }.bind(this));
   },
 
   unload() {
@@ -19,9 +27,8 @@ window.CLIQZ.COMPONENTS.push({
 
   popupActions: {
     getPopupData(args, cb) {
-      let url = window.top.getBrowser().selectedBrowser.contentWindow.location.href;
       cb({
-        url
+        url: currentUrl()
       });
     }
   }
