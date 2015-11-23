@@ -216,7 +216,7 @@ var CliqzHumanWeb = {
     httpCache401: {},
     queryCache: {},
     privateCache: {},
-    UrlsCache : {},
+    UrlsCache :false,
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
@@ -1169,7 +1169,7 @@ var CliqzHumanWeb = {
                     var tabID = CliqzHumanWeb.getTabID();
                     if(tabID){
                         var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
-                        var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
+                        var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s'];
                         CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
                         CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
                         if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
@@ -1732,12 +1732,46 @@ var CliqzHumanWeb = {
         }
         return null;
     },
+    contextFromEvent: null,
+    setContextFromEvent: function(ev) {
+        try {
+            var tar = ev.target;
+
+            var found = false;
+            var count = 0;
+            var def_html = null;
+
+            while(!found) {
+
+                var html = tar.innerHTML;
+
+                if (html.indexOf('http://')!=-1 || html.indexOf('https://')!=-1) {
+                    found = true;
+                    def_html = html;
+                    break;
+                }
+
+                tar = tar.parentNode;
+
+                count+=1;
+                if (count > 4) break;
+            }
+
+            if (found && def_html) {
+                CliqzHumanWeb.contextFromEvent = {'html': def_html, 'ts': (new Date()).getTime()};
+            }
+        }
+        catch(ee) {
+            CliqzHumanWeb.contextFromEvent = null;
+        }
+    },
     captureMouseClickPage: function(ev) {
 
         // if the target is a link of type hash it does not work, it will create a new page without referral
         //
 
         var targetURL = CliqzHumanWeb.getURLFromEvent(ev);
+        CliqzHumanWeb.setContextFromEvent(ev);
 
         if (targetURL!=null) {
 
@@ -2446,7 +2480,7 @@ var CliqzHumanWeb = {
                             }
                         });
 
-                        if(setPrivate){
+                       if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
                     }
@@ -3003,6 +3037,7 @@ var CliqzHumanWeb = {
         var result = CliqzHumanWeb.maskURL(url);
         return result;
     },
+    /*
     getTabID: function(){
         try{
             var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -3012,6 +3047,17 @@ var CliqzHumanWeb = {
             return win.__SSi + ":" + win.gBrowser.mCurrentTab._tPos;
         }
         catch(e){
+            return null;
+        }
+    },*/
+    getTabID: function(){
+        // @Konark: Please check if this is fine
+        try {
+            var windowID = CliqzUtils.getWindow().__SSi.split('window')[1];
+            var gBrowser = CliqzHumanWeb.windowsRef[parseInt(windowID)].gBrowser;
+            return CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
+        }
+        catch(e) {
             return null;
         }
     },

@@ -8,6 +8,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
+  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
@@ -15,7 +17,7 @@ function startup(aData, aReason) {
 
 function shutdown(aData, aReason) {
     CliqzHumanWeb.unload();
-
+    CliqzAttrack.unload();
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;
