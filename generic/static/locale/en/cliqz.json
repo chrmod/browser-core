@@ -17,6 +17,12 @@
     "from_lcase":{
         "message": "from"
     },
+    "Trailer":{
+        "message": "Watch trailer"
+    },
+    "Stream_now":{
+        "message": "Stream now"
+    },
     "Cast":{
         "message": "Cast"
     },

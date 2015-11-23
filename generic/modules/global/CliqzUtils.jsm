@@ -100,7 +100,9 @@ var CliqzUtils = {
       'ramadan': 3,
       'ez-generic-2': 3,
       'cpgame_movie': 3,
-      'delivery-tracking': 2
+      'delivery-tracking': 2,
+      'vod': 3
+
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
@@ -656,6 +658,7 @@ var CliqzUtils = {
               encodeURIComponent(q) +
               CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
+              CliqzUtils.encodeLocale() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter() +
@@ -685,6 +688,10 @@ var CliqzUtils = {
       callback, //on error the callback still needs to be called
       2000
     );
+  },
+  encodeLocale: function() {
+    // send browser language to the back-end
+    return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
     //international result not supported
