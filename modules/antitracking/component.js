@@ -118,6 +118,33 @@ function CliqzPopupButton(options) {
   }.bind(this);
 }
 
+CliqzPopupButton.prototype.setBadge = function (badgeText) {
+  var button = document.getElementById(this.tbb.id);
+
+  if ( badgeText ) {
+    button.setAttribute('badge', String(badgeText));
+  } else {
+    button.setAttribute('badge', '');
+  }
+
+
+  if ( button.classList.contains('badged-button') ) {
+    return;
+  }
+
+  button.classList.add('badged-button');
+
+  setTimeout(function () {
+    var badge = button.ownerDocument.getAnonymousElementByAttribute(
+      button,
+      'class',
+      'toolbarbutton-badge'
+    );
+
+    badge.style.cssText = 'background-color: #666; color: #fff;';
+  }, 250);
+};
+
 CliqzPopupButton.prototype.attach = function () {
   CustomizableUI.createWidget(this.tbb);
   this.setupCommunicationChannel();
