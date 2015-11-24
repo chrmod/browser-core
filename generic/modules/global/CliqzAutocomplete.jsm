@@ -396,12 +396,11 @@ var CliqzAutocomplete = {
             cliqzResultFetcher: function(req, q) {
                 this.req = req;
                 // be sure this is not a delayed result
-                if(q.trim() != this.searchString) {
+                if(q != this.searchString) {
                     this.discardedResults += 1; // count results discarded from backend because they were out of date
                 } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
-                    //debugger;
                     var json = JSON.parse(req.response);
 
                     var resLength = 0;

@@ -53,7 +53,7 @@ Storage.prototype.uncache = function(idx, list) {
 }
 Storage.prototype.cacheResult = function(key, obj) {
   var object = localStorage.removeHistory(obj)
-  localStorage.addToCacheList(key);
+  localStorage.addToCacheList(key.toLowerCase().trim());
   localStorage.setObject(key, object);
 };
 Storage.prototype.removeHistory = function(obj) {

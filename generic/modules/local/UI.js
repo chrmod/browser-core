@@ -86,7 +86,7 @@ var UI = {
     },
     main: function(box) {
 
-        CliqzUtils.setUI(UI);
+        // CliqzUtils.setUI(UI);
 
         gCliqzBox = box;
 
@@ -154,7 +154,7 @@ var UI = {
           });
       }
 
-      var currentResults = CLIQZ.UI.results({ ///xxxxxxxxxxxxxxxxxxxx
+      var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
         isInstant: lastRes && lastRes.isInstant
