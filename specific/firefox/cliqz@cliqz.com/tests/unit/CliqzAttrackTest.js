@@ -425,9 +425,9 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
             ];
 
         var hashes = ['04C2EAD03BAB7F5E-2E85855CF4C75134',
-            //'54f5095c96e53deed8f9c147cfb12870',
-            //'1AB62a15974a93a320e682g1445527405',
-            //'22163a4ff9030048002213fd4895c8edc3160ed6ab'
+            '54f5095c96e53deed8f9c147cfb12870',
+            '1AB62a15974a93a320e682g1445527405',
+            '22163a4ff9030048002213fd4895c8edc3160ed6ab'
             ]
 
         not_hash.forEach(function(str) {
