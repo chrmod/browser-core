@@ -16,7 +16,7 @@
 
  <div class="EZ-Cliqz-Footer">
         <div arrow="false" class="cqz-ez-btn cliqz-brands-button-1" url="{{Common_Questions.url}}" extra="common-questions">
-            {{local 'cliqz-common_questions'}}
+            {{local 'cliqz_common_questions'}}
          </div>
         <div arrow="false" class="cqz-ez-btn cliqz-brands-button-6" url="{{Give_Feedback.url}}" extra="give-feedback">
             {{local 'cliqz_give_feedback'}}
