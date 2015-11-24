@@ -1852,6 +1852,8 @@ var CliqzHumanWeb = {
         }
     },
     init: function(window) {
+        if(CliqzUtils.getPref("dnt", false)) return;
+
         refineFuncMappings = {
            "splitF":CliqzHumanWeb.refineSplitFunc,
            "parseU":CliqzHumanWeb.refineParseURIFunc,
@@ -1895,6 +1897,7 @@ var CliqzHumanWeb = {
 
     },
     initAtBrowser: function(){
+        if(CliqzUtils.getPref("dnt", false)) return;
         CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
     },
     state: {'v': {}, 'm': [], '_id': Math.floor( Math.random() * 1000 ) },
