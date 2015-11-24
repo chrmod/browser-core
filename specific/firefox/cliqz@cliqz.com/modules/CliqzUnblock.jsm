@@ -117,6 +117,12 @@ var YoutubeUnblocker = {
         return self.shouldProxy(url);
       }
     });
+    CliqzUtils.loadResource(this.CONFIG_URL, function(req) {
+      CliqzUtils.log(req.response);
+      self.conf = JSON.parse(req.response);
+    }, function(err) {
+      CliqzUtils.log(err);
+    });
   },
   updateProxyRule: function(vid) {
     let block_info = this.blocked[vid];
@@ -145,7 +151,7 @@ var YoutubeUnblocker = {
       if(!proxied) {
         // detect user locale from youtube logo
         try {
-          let locale = doc.defaultView.body.querySelector('#logo-container').querySelector('.content-region').textContent;
+          let locale = doc.defaultView.body.querySelector(this.conf.locale_element_selector).textContent;
           CliqzUtils.log("YT locale = " + locale, "unblock");
           this.current_region = locale;
         } catch(e) {
@@ -224,7 +230,7 @@ var YoutubeUnblocker = {
   isVideoBlocked: function(doc) {
     // check for block message
     try {
-      let msg = doc.defaultView.body.querySelector('#unavailable-message');
+      let msg = doc.defaultView.body.querySelector(this.conf.blocked_video_element);
       return msg.offsetParent != null
     } catch(e) {
       return false;
@@ -247,12 +253,10 @@ var YoutubeUnblocker = {
       if (!this.video_lookup_cache.has(vid)) {
         this.video_lookup_cache.add(vid);
 
-        CliqzUtils.httpGet(this.GET_VIDEO_INFO.replace('{video_id}', vid), function(req) {
-          if ((req.response.indexOf('errorcode=150') > -1 ||
-              req.response.indexOf('not+available+in+your+country') > -1)
-            && req.response.indexOf('restricted+from+playback+on+certain+sites') == -1) {
+        CliqzUtils.httpGet(this.conf.api_url.replace('{video_id}', vid), function(req) {
+          if (self.conf.api_check.not_blocked_if.every(function(test) { req.response.indexOf(test) == -1})
+            && self.conf.api_check.blocked_if.some(function(test) { req.response.indexOf(test) > -1})) {
             // error code,
-            CliqzUtils.log(req.response);
             let allowed_regions = new Set(self.proxy_manager.getAvailableRegions());
             allowed_regions.delete(self.current_region);
             self.blocked[vid] = {'b': [self.current_region], 'a': Array.from(allowed_regions)};
@@ -301,7 +305,7 @@ var YoutubeUnblocker = {
   video_lookup_cache: new Set(),
   proxied_videos: new Set(),
   last_success: null,
-  GET_VIDEO_INFO: "http://www.youtube.com/get_video_info?video_id={video_id}&hl=en_US"
+  CONFIG_URL: "chrome://cliqz/content/yt_unblock_config.json",
 }
 
 var ProxyManager = function(proxy_service) {
