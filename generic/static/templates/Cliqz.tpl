@@ -15,22 +15,22 @@
  {{/with}}
 
  <div class="EZ-Cliqz-Footer">
-        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-1" url="{{Common_Questions.url}}">
-            {{local 'cliqz_common_questions'}}
+        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-1" url="{{Common_Questions.url}}" extra="common-questions">
+            {{local 'cliqz-common_questions'}}
          </div>
-        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-6" url="{{Give_Feedback.url}}">
+        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-6" url="{{Give_Feedback.url}}" extra="give-feedback">
             {{local 'cliqz_give_feedback'}}
          </div>
-        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{About_Us.url}}">
+        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{About_Us.url}}" extra="about-us">
             {{local 'cliqz_about_us'}}
          </div>
-        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{Jobs.url}}">
+        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{Jobs.url}}" extra="jobs">
             {{local 'cliqz_jobs'}}
          </div>
-        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{Privacy.url}}">
+        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{Privacy.url}}" extra="privacy">
             {{local 'cliqz_privacy'}}
         </div>
-        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{Blog.url}}">
+        <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{Blog.url}}" extra="blog">
             {{local 'cliqz_blog'}}
         </div>
  </div>
