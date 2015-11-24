@@ -56,6 +56,9 @@ ProxyService.prototype = {
       return rule.id == id;
     });
     return index >=0 ? this.rules.splice(index, 1) : null;
+  },
+  clearRules: function() {
+    this.rules = [];
   }
 }
 
@@ -123,6 +126,12 @@ var YoutubeUnblocker = {
     }, function(err) {
       CliqzUtils.log(err);
     });
+  },
+  refresh: function() {
+    // reset internal caches
+    this.blocked = {};
+    this.video_lookup_cache = new Set();
+    this.proxied_videos = new Set();
   },
   updateProxyRule: function(vid) {
     let block_info = this.blocked[vid];
@@ -301,7 +310,6 @@ var YoutubeUnblocker = {
   },
   current_region: '', // current region for YT videos
   blocked: {}, // cache of seen blocked videos
-  proxies: [],
   video_lookup_cache: new Set(),
   proxied_videos: new Set(),
   last_success: null,
@@ -393,16 +401,32 @@ var CliqzUnblock = {
   proxy_service: null,
   unblockers: [YoutubeUnblocker],
   load_listeners: new Set(),
-  unblock_mode: CliqzUtils.getPref("unblockMode", "ask"),
+  PREF_ENABLED: "unblockEnabled",
+  PREF_MODE: "unblockMode",
+  unblock_mode: "ask",
   setMode: function(mode) {
+    if (["ask", "always", "never"].indexOf(mode) == -1) {
+      return;
+    }
+    var changed = mode != this.unblock_mode;
     this.unblock_mode = mode;
+    CliqzUtils.setPref(CliqzUnblock.PREF_MODE, mode);
+    // changing to 'ask' requires us to clear proxy rules
+    if (changed && mode == 'ask') {
+      this.proxy_service.clearRules();
+      this.unblockers.forEach(function(u) {
+        if ('refresh' in u) {
+          u.refresh();
+        }
+      });
+    }
   },
   isEnabled: function() {
-    return CliqzUtils.getPref("unblockEnabled", false);
+    return CliqzUtils.getPref(CliqzUnblock.PREF_ENABLED, false);
   },
   enable: function() {
     if (!CliqzUnblock.isEnabled()) {
-      CliqzUtils.setPref("unblockEnabled", true);
+      CliqzUtils.setPref(CliqzUnblock.PREF_ENABLED, true);
       CliqzUnblock.init();
       // TODO: initialise for all available windows
       CliqzUnblock.initWindow(CliqzUtils.getWindow());
@@ -410,11 +434,12 @@ var CliqzUnblock = {
   },
   disable: function() {
     if (CliqzUnblock.isEnabled()) {
-      CliqzUtils.setPref("unblockEnabled", false);
+      CliqzUtils.setPref(CliqzUnblock.PREF_ENABLED, false);
       CliqzUnblock.unload();
     }
   },
   init: function() {
+    CliqzUnblock.unblock_mode = CliqzUtils.getPref(CliqzUnblock.PREF_MODE, "ask");
 
     if (CliqzUnblock.isEnabled()) {
       CliqzUtils.log('init', 'unblock');
@@ -450,6 +475,7 @@ var CliqzUnblock = {
       CliqzUtils.log("InitWindow", "unblock");
       window.gBrowser.addEventListener("load", CliqzUnblock.pageObserver, true);
       CliqzUnblock.load_listeners.add(window);
+      window.CLIQZ.COMPONENTS.push(this.toolbar_menu);
     }
   },
   unloadWindow: function(window) {
@@ -471,9 +497,10 @@ var CliqzUnblock = {
   handleBlock: function(url, proxy_cb) {
     if (this.unblock_mode == "ask") {
       this.unblockPrompt(url, proxy_cb);
-    } else {
+    } else if (this.unblock_mode == "always") {
       proxy_cb();
     }
+    // else never
   },
   unblockPrompt: function(url, cb) {
     var gBrowser = CliqzUtils.getWindow().gBrowser,
@@ -490,7 +517,6 @@ var CliqzUnblock = {
         callback: function() {
           box.removeNotification(notification);
           CliqzUnblock.setMode('always');
-          CliqzUtils.setPref("unblockMode", "always");
           cb();
           CliqzUtils.telemetry({
             'type': 'unblock',
@@ -507,13 +533,13 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_once'
           });
-          CliqzUtils.setPref("unblockMode", "ask");
+          CliqzUtils.setMode("ask");
         }
       },
       {
         label: 'Never ask again',
         callback: function() {
-          CliqzUnblock.disable();
+          CliqzUtils.setMode("never");
           box.removeNotification(notification);
           CliqzUtils.telemetry({
             'type': 'unblock',
@@ -525,6 +551,55 @@ var CliqzUnblock = {
       notification = box.appendNotification(message, 'geo-blocking-prevented',
                       'chrome://browser/skin/Info.png',
                        priority, buttons);
+    }
+  },
+  toolbar_menu: {
+    button: function(win) {
+      var doc = win.document,
+        menu = doc.createElement('menu'),
+        menupopup = doc.createElement('menupopup');
+
+      menu.setAttribute('label', 'Unblock content');
+
+      var filter_levels = {
+          'always': {
+            name: CliqzUtils.getLocalizedString('always'),
+            selected: false
+          },
+          'ask': {
+            name: CliqzUtils.getLocalizedString('always_ask'),
+            selected: false
+          },
+          'never': {
+            name: CliqzUtils.getLocalizedString('never'),
+            selected: false
+          }
+      };
+      filter_levels[CliqzUtils.getPref(CliqzUnblock.PREF_MODE, 'ask')].selected = true;
+
+      for(var level in filter_levels) {
+        var item = doc.createElement('menuitem');
+        item.setAttribute('label', filter_levels[level].name);
+        item.setAttribute('class', 'menuitem-iconic');
+
+        if(filter_levels[level].selected){
+          item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+        }
+
+        item.filter_level = level;
+        item.addEventListener('command', function(event) {
+          CliqzUtils.log(this, "xxx");
+          CliqzUnblock.setMode(this.filter_level);
+          if (!CliqzUnblock.isEnabled() && CliqzUnblock.unblock_mode != "never") {
+            CliqzUnblock.enable();
+          }
+          CliqzUtils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
+        }, false);
+
+        menupopup.appendChild(item);
+      };
+      menu.appendChild(menupopup);
+      return menu;
     }
   }
 }
