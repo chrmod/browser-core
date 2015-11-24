@@ -13,8 +13,85 @@ Cu.import("resource://gre/modules/Services.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
-  .getService(Components.interfaces.nsIProtocolProxyService);
+/**
+  Wrapper for rule-based url proxying: implementation for Firefox
+ */
+var ProxyService = function() {
+  this.pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
+    .getService(Components.interfaces.nsIProtocolProxyService);
+  this.pps.registerFilter(this, 1);
+  this.rules = [];
+}
+
+ProxyService.prototype = {
+  /**
+    Disable all proxy rules provided by this instance
+   */
+  destroy: function() {
+    this.pps.unregisterFilter(this);
+  },
+  applyFilter: function(pps, url, default_proxy) {
+    let rule_match = this.rules.find(function(rule) {
+      return this.matches(url);
+    });
+    if (rule_match != undefined) {
+      CliqzUtils.telemetry({
+        'type': 'unblock',
+        'action': 'proxy',
+        'to_region': rule_match.proxy_region
+      });
+    }
+    return rule_match != undefined ? rule_match.proxy_to : default_proxy;
+  },
+  createProxy: function(type, host, port, failover_timeout, failover_proxy) {
+    return this.pps.newProxyInfo(type, host, port, null, failover_timeout || 0, failover_proxy || null);
+  },
+  addProxyRule: function(rule) {
+    return this.rules.push(rule);
+  },
+  removeProxyRule: function(id) {
+    let index = this.rules.findIndex(function(rule) {
+      return rule.id == id;
+    });
+    return index >=0 ? this.rules.splice(index, 1) : null;
+  }
+}
+
+var ProxyRule = function(proxy_to) {
+  this.proxy_to = proxy_to,
+  this.id = ""
+}
+ProxyRule.prototype = {
+  matches: function(url) { return false; }
+}
+
+/**
+  Enables filtered events on http requests, with associated urls
+ */
+var RequestListener = function() {
+  this.pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
+    .getService(Components.interfaces.nsIProtocolProxyService);
+  this.pps.registerFilter(this, 1);
+  this.subscribed = []
+}
+RequestListener.prototype = {
+  destroy: function() {
+    this.pps.unregisterFilter(this);
+  },
+  applyFilter: function(pps, url, default_proxy) {
+    this.subscribed.filter(function(m) {
+      if ('text' in m) {
+        return m.text in url;
+      }
+    }).forEach(function(m) {
+      m.callback(url);
+    });
+  },
+  subscribe: function(matcher) {
+    this.subscribed.push(matcher);
+  }
+}
+
 
 // DNS Filter for unblocking YT videos
 var YoutubeUnblocker = {
@@ -180,54 +257,90 @@ var YoutubeUnblocker = {
   GET_VIDEO_INFO: "http://www.youtube.com/get_video_info?video_id={video_id}&hl=en_US"
 }
 
-var CliqzUnblock = {
-  proxies: {
-    _p: {},
-    _ctrs: {},
-    _last: null,
-    _preferred_regions: ['IR', 'US', 'UK', 'DE'],
-    getAvailableRegions: function() {
-      return Object.keys(this._p);
-    },
-    getLastUsed: function() {
-      return this._last;
-    },
-    addProxy: function(region, proxy) {
-      if (!(region in this._p)) {
-        this._p[region] = [];
-        this._ctrs[region] = -1;
-      }
-      this._p[region].push(proxy);
-    },
-    getPreferredRegion: function(allowed_regions) {
-      for(let i=0; i<this._preferred_regions.length; i++) {
-        let reg = this._preferred_regions[i];
-        if(allowed_regions.indexOf(reg) > -1 && reg in this._p && this._p[reg].length > 0) {
-          return reg;
-        }
-      }
-      return allowed_regions[0];
-    },
-    getNextProxy: function(region) {
-      if(!(region in this._ctrs)) {
-        return null;
-      }
-      this._ctrs[region] = (this._ctrs[region] + 1) % this._p[region].length;
-      return this._p[region][this._ctrs[region]];
-    },
-    removeProxy: function(region, proxy) {
-      let ind = this._p[region].indexOf(proxy);
-      if (ind > -1) {
-        this._p[region].splice(ind, 1);
+var ProxyManager = function(proxy_service) {
+  this.proxy_service = proxy_service;
+  this._p = {};
+  this_ctrs = {};
+  this._last = null;
+  this._preferred_regions = ['IR', 'US', 'UK', 'DE'];
+  this._last_update = 0;
+  this._min_update_interval = 1000 * 60 * 10;
+  this.PROXY_UPDATE_URL = 'https://s3.amazonaws.com/sam-cliqz-test/unblock/proxies.json';
+}
+
+ProxyManager.prototype = {
+  getAvailableRegions: function() {
+    return Object.keys(this._p);
+  },
+  getLastUsed: function() {
+    return this._last;
+  },
+  addProxy: function(region, proxy) {
+    if (!(region in this._p)) {
+      this._p[region] = [];
+      this._ctrs[region] = -1;
+    }
+    this._p[region].push(proxy);
+  },
+  getPreferredRegion: function(allowed_regions) {
+    for(let i=0; i<this._preferred_regions.length; i++) {
+      let reg = this._preferred_regions[i];
+      if(allowed_regions.indexOf(reg) > -1 && reg in this._p && this._p[reg].length > 0) {
+        return reg;
       }
     }
+    return allowed_regions[0];
   },
+  getNextProxy: function(region) {
+    if(!(region in this._ctrs)) {
+      return null;
+    }
+    this._ctrs[region] = (this._ctrs[region] + 1) % this._p[region].length;
+    return this._p[region][this._ctrs[region]];
+  },
+  removeProxy: function(region, proxy) {
+    let ind = this._p[region].indexOf(proxy);
+    if (ind > -1) {
+      this._p[region].splice(ind, 1);
+    }
+  },
+  getProxyForRegions: function(allowed_regions) {
+    let region = CliqzUnblock.proxies.getPreferredRegion(allowed_regions);
+    return CliqzUnblock.proxies.getNextProxy(region);
+  },
+  updateProxyList: function() {
+    var now = (new Date()).getTime(),
+      self = this;
+    if (this._last_update < now - this._min_update_interval) {
+      CliqzUtils.httpGet(this.PROXY_UPDATE_URL,
+        function success(req) {
+          let proxies = JSON.parse(req.response);
+          CliqzUtils.log(proxies, "unblock");
+          // reset proxy list
+          self._p = {};
+          self._preferred_regions = proxies['regions'];
+          for (let region in proxies['proxies']) {
+            proxies['proxies'][region].forEach(function (proxy) {
+              CliqzUtils.log("Adding proxy: "+ proxy['type'] + "://" + proxy['host'] + ":" + proxy['port'], "unblock");
+              CliqzUnblock.proxies.addProxy(region, self.proxy_service.createProxy(proxy['type'], proxy['host'], proxy['port']));
+            });
+          }
+          self._last_update = now;
+        },
+        function error() {
+          CliqzUtils.log("Failed to load proxies", "unblock");
+        },
+        5000
+      );
+    }
+  },
+}
+
+var CliqzUnblock = {
+  proxy_manager: null,
+  proxy_service: null,
   unblockers: [YoutubeUnblocker],
-  filter_registered: false,
   load_listeners: new Set(),
-  proxy_timeout: {},
-  proxy_last_update: 0,
-  proxy_min_update_interval: 1000 * 60 * 10, // 10 mins
   isEnabled: function() {
     return CliqzUtils.getPref("unblockEnabled", false);
   },
@@ -252,19 +365,28 @@ var CliqzUnblock = {
 
       CliqzUnblock.updateProxyList();
 
-      pps.registerFilter(CliqzUnblock.proxyFilter, 1);
-      CliqzUnblock.filter_registered = true;
+      CliqzUnblock.proxy_service = new ProxyService();
+      CliqzUnblock.proxy_manager = new ProxyManager(CliqzUnblock.proxy_service);
+      CliqzUnblock.request_listener = new RequestListener();
+
       CliqzUnblock.unblockers.forEach(function(b) {
-        b.enable(CliqzUnblock.proxies);
+        b.init(CliqzUnblock.proxy_manager, CliqzUnblock.proxy_service, CliqzUnblock.request_listener);
       });
     }
 
   },
   unload: function() {
-    if (CliqzUnblock.filter_registered) {
-      pps.unregisterFilter(CliqzUnblock.proxyFilter);
-      CliqzUnblock.filter_registered = false;
+    if (CliqzUnblock.proxy_service != null) {
+      CliqzUnblock.proxy_service.destroy();
+      CliqzUnblock.proxy_service = null;
     }
+    if (CliqzUnblock.request_listener != null) {
+      CliqzUnblock.request_listener.destroy();
+      CliqzUnblock.request_listener = null;
+    }
+    CliqzUnblock.unblockers.forEach(function(b) {
+      ('unload' in b) && b.unload();
+    });
     CliqzUnblock.load_listeners.forEach(function(window) {
       CliqzUnblock.unloadWindow(window);
     });
@@ -280,31 +402,6 @@ var CliqzUnblock = {
     window.gBrowser.removeEventListener("load", CliqzUnblock.pageObserver, true);
     CliqzUnblock.load_listeners.delete(window);
   },
-  updateProxyList: function() {
-    var now = (new Date()).getTime();
-    if (CliqzUnblock.proxy_last_update < now - CliqzUnblock.proxy_min_update_interval) {
-      CliqzUtils.httpGet('https://s3.amazonaws.com/sam-cliqz-test/unblock/proxies.json',
-        function success(req) {
-          let proxies = JSON.parse(req.response);
-          CliqzUtils.log(proxies, "unblock");
-          // reset proxy list
-          CliqzUnblock.proxies._p = {};
-          CliqzUnblock.proxies._preferred_regions = proxies['regions'];
-          for (let region in proxies['proxies']) {
-            proxies['proxies'][region].forEach(function (proxy) {
-              CliqzUtils.log("Adding proxy: "+ proxy['type'] + "://" + proxy['host'] + ":" + proxy['port'], "unblock");
-              CliqzUnblock.proxies.addProxy(region, pps.newProxyInfo(proxy['type'], proxy['host'], proxy['port'], 0, 2000, null));
-            });
-          }
-          CliqzUnblock.proxy_last_update = now;
-        },
-        function error() {
-          CliqzUtils.log("Failed to load proxies", "unblock");
-        },
-        5000
-      );
-    }
-  },
   pageObserver: function(event) {
     var doc = event.originalTarget,
       url = doc.defaultView.location.href;
@@ -314,38 +411,6 @@ var CliqzUnblock = {
     }).forEach(function(b) {
       b.pageObserver(doc);
     });
-  },
-  proxyFilter: {
-    applyFilter: function(pps, url, default_proxy) {
-      var unblockers = CliqzUnblock.unblockers.filter(function(b) {
-        return b.canFilter(url.asciiSpec);
-      });
-      for(let i=0; i<unblockers.length; i++) {
-        let allowed_regions = unblockers[i].shouldProxy(url.asciiSpec);
-        if(allowed_regions != false && allowed_regions.length > 0) {
-          let region = CliqzUnblock.proxies.getPreferredRegion(allowed_regions);
-          let proxy = CliqzUnblock.proxies.getNextProxy(region);
-          if(proxy != null) {
-            CliqzUnblock.proxies._last = region;
-            CliqzUtils.log('proxy: ' + url.asciiSpec, 'unblock');
-            CliqzUtils.telemetry({
-              'type': 'unblock',
-              'action': 'proxy',
-              'to_region': region
-            });
-            return proxy;
-          } else {
-            CliqzUtils.telemetry({
-              'type': 'unblock',
-              'action': 'no_proxies_available',
-              'regions': allowed_regions
-            });
-            CliqzUnblock.updateProxyList();
-          }
-        }
-      }
-      return default_proxy;
-    }
   }
 }
 
