@@ -1061,27 +1061,21 @@ var CliqzAttrack = {
         return cookieVal;
     },
     probHashLogM: null,
-    probHashThreshold: 0.017,
-    probHashChars: {' ': 63, '.': 62, '1': 52, '0': 61, '3': 54, '2': 53, '5': 56, '4': 55, '7': 58, '6': 57, '9': 60, '8': 59, 'A': 0, 'C': 2, 'B': 1, 'E': 4, 'D': 3, 'G': 6, 'F': 5, 'I': 8, 'H': 7, 'K': 10, 'J': 9, 'M': 12, 'L': 11, 'O': 14, 'N': 13, 'Q': 16, 'P': 15, 'S': 18, 'R': 17, 'U': 20, 'T': 19, 'W': 22, 'V': 21, 'Y': 24, 'X': 23, 'Z': 25, 'a': 26, 'c': 28, 'b': 27, 'e': 30, 'd': 29, 'g': 32, 'f': 31, 'i': 34, 'h': 33, 'k': 36, 'j': 35, 'm': 38, 'l': 37, 'o': 40, 'n': 39, 'q': 42, 'p': 41, 's': 44, 'r': 43, 'u': 46, 't': 45, 'w': 48, 'v': 47, 'y': 50, 'x': 49, 'z': 51},
+    probHashThreshold: 0.0165,
+    probHashChars: {' ': 38, '-': 37, '.': 36, '1': 26, '0': 35, '3': 28, '2': 27, '5': 30, '4': 29, '7': 32, '6': 31, '9': 34, '8': 33, 'a': 0, 'c': 2, 'b': 1, 'e': 4, 'd': 3, 'g': 6, 'f': 5, 'i': 8, 'h': 7, 'k': 10, 'j': 9, 'm': 12, 'l': 11, 'o': 14, 'n': 13, 'q': 16, 'p': 15, 's': 18, 'r': 17, 'u': 20, 't': 19, 'w': 22, 'v': 21, 'y': 24, 'x': 23, 'z': 25},
     isHashProb: function(str) {
-
         var log_prob = 0.0;
         var trans_c = 0;
-        str = str.toLowerCase().replace(/[^a-z0-9\. ]/g,'');
-        CliqzUtils.log(str);
+        str = str.toLowerCase().replace(/[^a-z0-9\.\- ]/g,'');
         for(var i=0;i<str.length-1;i++) {
             var pos1 = CliqzAttrack.probHashChars[str[i]];
             var pos2 = CliqzAttrack.probHashChars[str[i+1]];
-                
-            if (pos1 && pos2) {
-                log_prob += CliqzAttrack.probHashLogM[pos1][pos2];
-                trans_c += 1;
-            }
-        }
 
+            log_prob += CliqzAttrack.probHashLogM[pos1][pos2];
+            trans_c += 1;
+        }
         if (trans_c > 0) return Math.exp(log_prob/trans_c);
         else return Math.exp(log_prob);
-
     },
     isHash: function(str) {
         var p = CliqzAttrack.isHashProb(str);
