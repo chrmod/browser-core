@@ -68,3 +68,8 @@ CliqzMsgCenter.prototype = {
     }
   }
 };
+
+var _instance = new CliqzMsgCenter();
+CliqzMsgCenter.getInstance = function () {
+  return _instance;
+};

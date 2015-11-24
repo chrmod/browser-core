@@ -250,4 +250,7 @@ CliqzCampaignManager.prototype = {
     }
 };
 
-
+var _instance = new CliqzCampaignManager();
+CliqzCampaignManager.getInstance = function () {
+  return _instance;
+};

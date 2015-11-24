@@ -1,6 +1,6 @@
 'use strict';
 
-TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils) {
+TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter, CliqzCampaignManager) {
 	describe('CliqzCampaignManager (integration)', function() {
     var response, messageCenter, campaignManager,
     core = CliqzUtils.getWindow().CLIQZ.Core,
@@ -49,8 +49,8 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils) {
           }
         }
       };
-      messageCenter = CliqzUtils.messageCenter;
-      campaignManager = CliqzUtils.campaignManager;
+      messageCenter = CliqzMsgCenter.getInstance();
+      campaignManager = CliqzCampaignManager.getInstance();
       campaignManager.updateCampaigns = function () { };
       campaignManager.deactivateCampaignUpdates();
       for (var c in campaignManager._campaigns) {
