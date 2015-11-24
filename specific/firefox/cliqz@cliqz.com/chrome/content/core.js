@@ -105,6 +105,14 @@ function isVersionHigherThan(version) {
   }
 }
 
+var locationListener = {
+  QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+
+  onLocationChange: function(aProgress, aRequest, aURI) {
+    CliqzEvents.pub("core.location_change", "");
+  }
+};
+
 window.CLIQZ.COMPONENTS = []; //plug and play components
 
 window.CLIQZ.Core = {
@@ -208,13 +216,6 @@ window.CLIQZ.Core = {
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
-        var locationListener = {
-          QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
-
-          onLocationChange: function(aProgress, aRequest, aURI) {
-            CliqzEvents.pub("core.location_change", "");
-          }
-        };
         gBrowser.addProgressListener(locationListener);
 
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
@@ -409,6 +410,8 @@ window.CLIQZ.Core = {
         gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
         gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        gBrowser.removeProgressListener(locationListener);
+
         document.getElementById('urlbar-go-button').setAttribute('onclick', CLIQZ.Core._urlbarGoButtonClick);
 
         CliqzRedirect.unload();
@@ -496,6 +499,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHandlebars;
             delete window.CliqzAntiPhishing;
             delete window.CliqzAttrack;
+            delete window.CliqzEvents;
         }
     },
     restart: function(soft){

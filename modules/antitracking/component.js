@@ -16,13 +16,32 @@ window.CLIQZ.COMPONENTS.push({
     });
     this.popup.attach();
 
+    this.listenToLocationChange();
+  },
+
+  listenToLocationChange() {
     CliqzEvents.sub("core.location_change", function (ev) {
-      this.popup.setBadge("*");
+      clearInterval(this.interval);
+
+      this.popup.setBadge("0");
+      var counter = 8;
+
+      this.interval = setInterval(function () {
+
+        var info = CliqzAttrack.getCurrentTabBlockingInfo();
+        this.popup.setBadge(info.cookies.blocked);
+
+        counter -= 1;
+        if (counter === 0) {
+          clearInterval(this.interval);
+        }
+      }.bind(this), 2000);
     }.bind(this));
   },
 
   unload() {
     this.popup.destroy();
+    clearInterval(this.interval);
   },
 
   popupActions: {
