@@ -1,4 +1,5 @@
 CLIQZEnvironment = {
+  test() {console.log(UI)},
   TEMPLATES_PATH: 'templates/',
   LOCALE_PATH: 'locale/',
 
