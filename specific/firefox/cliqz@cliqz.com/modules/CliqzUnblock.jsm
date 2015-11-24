@@ -486,7 +486,12 @@ var CliqzUnblock = {
         callback: function() {
           box.removeNotification(notification);
           CliqzUnblock.setMode('always');
+          CliqzUtils.setPref("unblockMode", "always");
           cb();
+          CliqzUtils.telemetry({
+            'type': 'unblock',
+            'action': 'allow_always'
+          });
         }
       },
       {
@@ -494,6 +499,11 @@ var CliqzUnblock = {
         callback: function() {
           box.removeNotification(notification);
           cb();
+          CliqzUtils.telemetry({
+            'type': 'unblock',
+            'action': 'allow_once'
+          });
+          CliqzUtils.setPref("unblockMode", "ask");
         }
       },
       {
@@ -501,6 +511,10 @@ var CliqzUnblock = {
         callback: function() {
           CliqzUnblock.disable();
           box.removeNotification(notification);
+          CliqzUtils.telemetry({
+            'type': 'unblock',
+            'action': 'allow_never'
+          });
         }
       }];
       let priority = box.PRIORITY_INFO_MEDIUM;
