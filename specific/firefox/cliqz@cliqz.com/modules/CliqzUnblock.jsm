@@ -126,6 +126,7 @@ var YoutubeUnblocker = {
       let region = this.proxy_manager.getPreferredRegion(block_info['a']);
       let proxy = this.proxy_manager.getNextProxy(region);
       if (proxy) {
+        this.proxied_videos.add(vid);
         this.proxy_service.addProxyRule(new RegexProxyRule(regex, proxy, region));
         this.blocked[vid]['p'] = region;
       }
@@ -136,8 +137,8 @@ var YoutubeUnblocker = {
   },
   pageObserver: function(doc) {
     var url = doc.defaultView.location.href,
-      proxied = (this.shouldProxy(url) != false),
-      vid = this.getVideoID(url);
+      vid = this.getVideoID(url),
+      proxied = this.proxied_videos.has(vid);
 
     if(vid != undefined) {
 
@@ -255,7 +256,6 @@ var YoutubeUnblocker = {
             let allowed_regions = new Set(self.proxy_manager.getAvailableRegions());
             allowed_regions.delete(self.current_region);
             self.blocked[vid] = {'b': [self.current_region], 'a': Array.from(allowed_regions)};
-            self.updateProxyRule(vid);
             CliqzUtils.telemetry({
               'type': 'unblock',
               'action': 'yt_blocked_api',
@@ -299,6 +299,7 @@ var YoutubeUnblocker = {
   blocked: {}, // cache of seen blocked videos
   proxies: [],
   video_lookup_cache: new Set(),
+  proxied_videos: new Set(),
   last_success: null,
   GET_VIDEO_INFO: "http://www.youtube.com/get_video_info?video_id={video_id}&hl=en_US"
 }
@@ -457,9 +458,9 @@ var CliqzUnblock = {
         url = doc.defaultView.location.href;
       // run page observers for unblockers which work on this domain
       CliqzUnblock.unblockers.filter(function(b) {
-        return b.canFilter(url);
+        return ('canFilter' in b) && b.canFilter(url);
       }).forEach(function(b) {
-        ('pageObserver') in b && b.pageObserver(doc);
+        ('pageObserver' in b) && b.pageObserver(doc);
       });
     } catch(e) {}
   },
