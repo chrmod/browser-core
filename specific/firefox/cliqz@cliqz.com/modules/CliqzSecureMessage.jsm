@@ -39,9 +39,23 @@ var sourceMap = {
 		"ratelimit": 1,		// How many events are allowed in the defined interval.
 		"interval": 3600,	// Time window in which set of events are allowed.
 		"endpoint": {
-			"protocol": "https",
+			"scheme": "https",
 			"method": "POST",
-			"service": "safe-browsing"
+			"endpoint": "safe-browsing.cliqz.com",
+			"path":"",
+			"port":""
+		}
+	},
+	"page" :{				// Action which will identify the message type.
+		"keys":["payload.url", "ts"],	// Keys to fetch to create route hash.
+		"ratelimit": 1,		// How many events are allowed in the defined interval.
+		"interval": 3600,	// Time window in which set of events are allowed.
+		"endpoint": {
+			"scheme": "https",
+			"method": "POST",
+			"endpoint": "safe-browsing.cliqz.com",
+			"path":"",
+			"port":""
 		}
 	}
 }
@@ -167,14 +181,27 @@ function sendM(m){
 
 var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'];
 
+/* This method will ensure that we have the same length for all the mesages
+*/
+function padMessage(msg){
+	var mxLen = "10000";
+	var str = msg + new Array((mxLen - msg.length) + 1).join("\n");
+	return str;
+}
 /* This method will return the string based on mapping of which keys to use to hash for routing.
 */
 
 function getRouteHash(msg){
+	// Make sure this is JSON.
 	var flatMsg = JSON.flatten(msg);
 	var keys = sourceMap[flatMsg.action]["keys"];
 
-	return msg[keys[0]];
+	var routeHashStr = "";
+	keys.forEach(function(key){
+		routeHashStr += flatMsg[key];
+	})
+	CliqzUtils.log(routeHashStr, "XXXXX");
+	return routeHashStr;
 
 }
 function fetchRouteTable(){
@@ -503,6 +530,7 @@ var messageContext = function (msg) {
  	this.action = this.jMessage.action;
  	this.interval = sourceMap[this.action]["interval"];
  	this.rateLimit = sourceMap[this.action]["ratelimit"];
+ 	this.endPoint = sourceMap[this.action]["endpoint"];
  	this.mE = null;
  	this.mK = null;
  	this.mP = null;
@@ -510,7 +538,6 @@ var messageContext = function (msg) {
  	this.dmC =  this.calculateRouteHash(msg);
  	this.proxyCoordinator = "http://192.168.2.110/verify";
  	this.proxyValidators = ["http://192.168.2.110:81/verify"];
- 	CliqzUtils.log(this);
 }
 
 /**
@@ -540,9 +567,14 @@ messageContext.prototype.aesEncrypt = function(){
 		    var eventID = ('' + iv).substring(0,5);
 		    // The AES key needs to replaced by some random value.
 		    // Any specific reasons why it can't be MD5 of the message ?
+		    var encryptionPaylod = {};
+		    encryptionPaylod['msg'] = _this.orgMessage;
+		    encryptionPaylod['endpoint'] = _this.endPoint;
+		    var msgEncrypt = padMessage(JSON.stringify(encryptionPaylod));
 		    var key = CryptoJS.MD5(_this.orgMessage);
 		    CliqzUtils.log("Message Key: " + key,"XXX");
-		    var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
+		    // var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
+		    var encrypted = CryptoJS.AES.encrypt(msgEncrypt, key, {iv:iv});
 		    _this.log(eventID);
 		    _this.eventID = eventID;
 		    _this.aesKey = '' + key;
