@@ -181,7 +181,7 @@ window.CLIQZ.Core = {
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
         var settings = {};
-        settings.onInstall = CLIQZ.Core.checkSession();
+        settings.onInstall = !CLIQZ.Core.checkSession();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -346,9 +346,10 @@ window.CLIQZ.Core = {
                     prefs.setCharPref('session', session);
                 }
             );
-            return true;
+            return false;
         }
-        return false;
+        // Session is set already
+        return true;
     },
     generateSession: function(source){
         CliqzUtils.setSupportInfo()
