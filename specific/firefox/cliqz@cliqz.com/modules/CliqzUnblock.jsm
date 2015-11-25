@@ -420,6 +420,12 @@ var CliqzUnblock = {
         }
       });
     }
+    if (changed) {
+      // update menu buttons
+      CliqzUnblock.load_listeners.forEach(function(window) {
+        CliqzUtils.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
+      });
+    }
   },
   isEnabled: function() {
     return CliqzUtils.getPref(CliqzUnblock.PREF_ENABLED, false);
