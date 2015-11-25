@@ -164,6 +164,7 @@ function sendM(m){
 		// Create the payload to be sent to proxy;
 		var payload = createPayloadProxy(CliqzSecureMessage.uPK.publicKeyB64, mc.mP, mc.dmC, mc.us1, mc.us2, mc.us3, signedMessageProxy);
 		CliqzUtils.log(payload, "payload");
+		CliqzUtils.log(mc.proxyCoordinator, "HTTP");
 
 		// Send the message to proxy coordinator
 		return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
@@ -172,6 +173,11 @@ function sendM(m){
 	})
 	.then(function(response){
 		CliqzUtils.log(response, "response from proxy coordinator")
+		var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
+		CliqzUtils.log("Midx: " + mIdx);
+		if(mIdx) {
+			sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
+		}
 	})
 	.catch(function(err){
 		CliqzUtils.log("Error: " + err);
@@ -501,7 +507,7 @@ Urh6hU90zpidn7kYTrIvkHkvEtVpALliIji/6XnGpNYIpw0CWTbqU/fMOt+ITcKg\
 rWMymdRofsl0g6+abRETWEg+8uu7pLlDVehM9sPZPhtOGd/Vl+05FDUhNsbszdOE\
 vUNtCY8pX4SI5pnA/FjWHOkCAwEAAQ==\
 -----END PUBLIC KEY-----"
-	this.endPoint = "http://192.168.2.110/sign";
+	this.endPoint = "http://192.168.178.29/sign";
 	this.loadKey = new JSEncrypt();
 	this.loadKey.setPublicKey(dsPubKey);
 	this.n = this.loadKey.parseKeyValues(dsPubKey)['mod'];
@@ -525,7 +531,7 @@ var messageContext = function (msg) {
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
- 	this.routeHash = "http://192.168.2.110/verify"; // Default : null;
+ 	this.routeHash = "http://54.157.18.130/verify"; // Default : null;
  	this.type = this.jMessage.type;
  	this.action = this.jMessage.action;
  	this.interval = sourceMap[this.action]["interval"];
@@ -536,8 +542,8 @@ var messageContext = function (msg) {
  	this.mP = null;
  	this.dm = null;
  	this.dmC =  this.calculateRouteHash(msg);
- 	this.proxyCoordinator = "http://192.168.2.110/verify";
- 	this.proxyValidators = ["http://192.168.2.110:81/verify"];
+ 	this.proxyCoordinator = "http://54.157.18.130/verify";
+ 	this.proxyValidators = ["http://54.157.18.130:81/verify"];
 }
 
 /**
