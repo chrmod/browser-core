@@ -1477,6 +1477,20 @@ var CliqzAttrack = {
             var url = requestContext.url;
 
             if (!url || url == '') return;
+
+            // Needed to collect data transferred for human-web
+
+            if(url == 'https://safe-browsing.cliqz.com/'){
+                var cl = aChannel.getRequestHeader("Content-Length");
+                if(cl && CliqzHumanWeb.actionStats){
+                    if(CliqzHumanWeb.actionStats["size"]){
+                        CliqzHumanWeb.actionStats["size"] += cl;
+                    }
+                    else{
+                        CliqzHumanWeb.actionStats["size"] = cl;
+                    }
+                }
+            }
             var url_parts = URLInfo.get(url);
 
             var cookie_data = requestContext.getCookieData();
