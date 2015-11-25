@@ -7,7 +7,7 @@
                 <p>{{static.description}}</p>
             </div>
 
-            <div class="ez-liga-genSM-gamestt-holder" url="{{live_url}}">
+            <div class="ez-liga-genSM-gamestt-holder" url="{{live_url}}" extra="single-game-box">
                 <div class="ez-liga-genSM-gamestt rotate90 {{#if score}} ez-liga-genSM-gamestt_live {{/if}}">
                     {{#if score}}LIVE{{else}}{{#if scored}}{{local 'LAST GAME'}}{{else}}{{local 'NEXT GAME'}}{{/if}}
                     {{/if}}

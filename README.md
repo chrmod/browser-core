@@ -22,3 +22,6 @@ bower install # to satisfy bower.json
 
 once having `build` folder present you need to install bower_component for your platform build, e.g.:
 `cd build/dev/firefox/cliqz@cliqz.com && bower install`
+
+## UI debugging
+http://localhost:4200/tool/
