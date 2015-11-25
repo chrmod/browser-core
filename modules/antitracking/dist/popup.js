@@ -10,6 +10,12 @@ function setBodyClass(options) {
   }
 }
 
+function localizeDocument() {
+  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
+    el.innerHTML = chrome.i18n.getMessage(el.dataset.i18n);
+  });
+}
+
 function populateDOM() {
   chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
     document.querySelector("#cookies-count").innerHTML = data.cookiesCount;
@@ -19,6 +25,8 @@ function populateDOM() {
     setBodyClass({
       enabled: data.enabled
     });
+
+    localizeDocument();
   });
 }
 

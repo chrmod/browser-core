@@ -1,4 +1,5 @@
 Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var messageCallbacks = Object.create(null);
 
@@ -20,5 +21,9 @@ var chrome = {
         id: messageId
       });
     }
+  },
+
+  i18n: {
+    getMessage: CliqzUtils.getLocalizedString
   }
 };
