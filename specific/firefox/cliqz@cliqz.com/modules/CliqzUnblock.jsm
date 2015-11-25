@@ -153,7 +153,8 @@ var YoutubeUnblocker = {
   pageObserver: function(doc) {
     var url = doc.defaultView.location.href,
       vid = this.getVideoID(url),
-      proxied = this.proxied_videos.has(vid);
+      proxied = this.proxied_videos.has(vid),
+      blocking_detected = vid in this.blocked;
 
     if(vid != undefined) {
 
@@ -170,7 +171,7 @@ var YoutubeUnblocker = {
 
       let isBlocked = this.isVideoBlocked(doc);
 
-      if (isBlocked) {
+      if (!blocking_detected && isBlocked) {
         let allowed_regions = [];
         if (!proxied) {
           // normal block, add blocked entry and reload page
@@ -263,8 +264,8 @@ var YoutubeUnblocker = {
         this.video_lookup_cache.add(vid);
 
         CliqzUtils.httpGet(this.conf.api_url.replace('{video_id}', vid), function(req) {
-          if (self.conf.api_check.not_blocked_if.every(function(test) { req.response.indexOf(test) == -1})
-            && self.conf.api_check.blocked_if.some(function(test) { req.response.indexOf(test) > -1})) {
+          if (self.conf.api_check.not_blocked_if.every(function(test) { return req.response.indexOf(test) == -1})
+            && self.conf.api_check.blocked_if.some(function(test) { return req.response.indexOf(test) > -1})) {
             // error code,
             let allowed_regions = new Set(self.proxy_manager.getAvailableRegions());
             allowed_regions.delete(self.current_region);
@@ -425,6 +426,11 @@ var CliqzUnblock = {
       CliqzUnblock.load_listeners.forEach(function(window) {
         CliqzUtils.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
       });
+      // send telemetry
+      CliqzUtils.telemetry({
+        'type': 'unblock',
+        'action': 'setting_' + mode
+      });
     }
   },
   isEnabled: function() {
@@ -481,12 +487,16 @@ var CliqzUnblock = {
       CliqzUtils.log("InitWindow", "unblock");
       window.gBrowser.addEventListener("load", CliqzUnblock.pageObserver, true);
       CliqzUnblock.load_listeners.add(window);
+      // add entry to toolbar menu
       window.CLIQZ.COMPONENTS.push(this.toolbar_menu);
+      // listen to tab changes (for notification bar)
+      window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzUnblock.tabSelectListener);
     }
   },
   unloadWindow: function(window) {
     window.gBrowser.removeEventListener("load", CliqzUnblock.pageObserver, true);
     CliqzUnblock.load_listeners.delete(window);
+    window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzUnblock.tabSelectListener);
   },
   pageObserver: function(event) {
     try {
@@ -508,11 +518,37 @@ var CliqzUnblock = {
     }
     // else never
   },
+  waiting_prompts: [],
+  tabSelectListener: function(event) {
+    // filter old entries - older than 5 minutes
+    var now = (new Date()).getTime();
+    CliqzUnblock.waiting_prompts = CliqzUnblock.waiting_prompts.filter(function(tuple) {
+      return tuple[2] > now - 300000;
+    });
+    // check if this tab should trigger a prompt
+    var url = CliqzUtils.getWindow().gBrowser.currentURI.spec,
+      ind = CliqzUnblock.waiting_prompts.findIndex(function(tuple) {
+        return tuple[0].indexOf(url) == 0;
+      });
+    if (ind >= 0) {
+      // if found, remove from waiting list and prompt
+      let tuple = CliqzUnblock.waiting_prompts.splice(ind, 1)[0];
+      CliqzUnblock.unblockPrompt(tuple[0], tuple[1]);
+    }
+  },
   unblockPrompt: function(url, cb) {
     var gBrowser = CliqzUtils.getWindow().gBrowser,
       message = 'Content blocked? CLIQZ can try to unblock this for you.',
       box = gBrowser.getNotificationBox(),
-      notification = box.getNotificationWithValue('geo-blocking-prevented');
+      notification = box.getNotificationWithValue('geo-blocking-prevented'),
+      on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0;
+
+    if (!on_active_tab) {
+      // wait until tab is activated
+      this.waiting_prompts.push([url, cb, (new Date()).getTime()]);
+      return;
+    }
+
     if (notification) {
        notification.label = message;
     } else {
@@ -539,7 +575,7 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_once'
           });
-          CliqzUtils.setMode("ask");
+          CliqzUnblock.setMode("ask");
         }
       },
       {
