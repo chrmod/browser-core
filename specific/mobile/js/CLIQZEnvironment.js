@@ -604,8 +604,8 @@ CLIQZEnvironment = {
           label:   ''
         });
       }
-      // this.searchHistoryCallback({results: res, query:data.query, ready:true});
-      this.searchHistoryCallback({results: [], query:data.query, ready:true}); // history is kicked out
+      this.searchHistoryCallback({results: res, query:data.query, ready:true});
+      // this.searchHistoryCallback({results: [], query:data.query, ready:true}); // history is kicked out
     } catch (e) {
       Logger.log( "historySearch", "Error: " + e);
     }

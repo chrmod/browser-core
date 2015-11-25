@@ -53,14 +53,15 @@ Storage.prototype.uncache = function(idx, list) {
   list.splice(idx, 1);
 }
 Storage.prototype.cacheResult = function(key, obj) {
-  var object = localStorage.removeHistory(obj)
-  localStorage.addToCacheList(key.toLowerCase().trim());
-  localStorage.setObject(key.toLowerCase().trim(), object);
+  key = key.toLowerCase().trim();
+  var object = localStorage.removeHistory(key.split(".")[1], obj)
+  localStorage.addToCacheList(key);
+  localStorage.setObject(key, object);
 };
-Storage.prototype.removeHistory = function(obj) {
+Storage.prototype.removeHistory = function(key, obj) {
   var object = JSON.parse(JSON.stringify(obj)); // deep copy
   object._results.forEach(function (res, index) {
-    if(res.comment === " (history generic)!") {
+    if(res.comment === key + " (history generic)!") {
       object._results.splice(index, 1);
     }
   });
