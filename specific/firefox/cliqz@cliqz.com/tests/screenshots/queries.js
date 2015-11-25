@@ -25,4 +25,12 @@ QUERIES.michel = [
   'Flug EY1', 'james bond spectre imdb',
   'www.mcdonalds.de', 'bundesliga',
   'fcbayern.de', 'Flug EY1'
-]
+];
+
+QUERIES.vod = [
+  'http://www.imdb.com/title/tt2555426/',
+  'http://www.imdb.com/title/tt1956620/',
+  'http://www.imdb.com/title/tt3341876/',
+  'http://www.imdb.com/title/tt0103247/',
+  'http://www.imdb.com/title/tt0120841/'
+];
