@@ -1,6 +1,6 @@
 TESTS.SmartCliqzTest = prepareScreenshotTest({
     emails: [
-        'dominik.s@cliqz.com', 'mds@cliqz.com', 'evgeny@cliqz.com', 'heeren@cliqz.com'
+        'dominik.s@cliqz.com', 'mds@cliqz.com', 'evgeny@cliqz.com', 'heeren@cliqz.com', 'lucian@cliqz.com'
     ],
     subject: '[testing] new news SmartCliqz screenshots',
     width: 1262,
