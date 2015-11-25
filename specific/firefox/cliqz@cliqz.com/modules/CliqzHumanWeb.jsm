@@ -3050,9 +3050,11 @@ var CliqzHumanWeb = {
     getTabID: function(){
         // @Konark: Please check if this is fine
         try {
-            var windowID = CliqzUtils.getWindow().__SSi.split('window')[1];
-            var gBrowser = CliqzHumanWeb.windowsRef[parseInt(windowID)].gBrowser;
-            return CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
+            var win = CliqzUtils.getWindow();
+            var windowID = win.__SSi.split('window')[1];
+            var gBrowser = win.gBrowser;
+            CliqzUtils.log(win.__SSi + ":" + gBrowser.mCurrentTab._tPos, "CHecking window tab");
+            return win.__SSi + ":" + gBrowser.mCurrentTab._tPos;
         }
         catch(e) {
             return null;
