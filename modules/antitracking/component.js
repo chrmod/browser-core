@@ -6,8 +6,8 @@ window.CLIQZ.COMPONENTS.push({
   button() { /* not used */ },
 
   init() {
-    if (CliqzUtils.x) {
-      this.popup = CliqzUtils.x;
+    if (CliqzUtils.__antitrackingButton) {
+      this.popup = CliqzUtils.__antitrackingButton;
     } else {
       this.popup = new CliqzPopupButton({
         name: this.name,
@@ -17,7 +17,7 @@ window.CLIQZ.COMPONENTS.push({
     }
 
     this.listenToLocationChange();
-    CliqzUtils.x = this.popup;
+    CliqzUtils.__antitrackingButton = this.popup;
   },
 
   listenToLocationChange()  {
@@ -111,12 +111,15 @@ function CliqzPopupButton(options) {
     var iframe = doc.createElement('iframe');
     iframe.setAttribute('type', 'content');
     iframe.setAttribute('src', modulePath('antitracking', 'popup.html'));
+    panel.appendChild(iframe);
 
     function toPx(pixels) {
       return pixels.toString() + 'px';
     }
 
     function onPopupReady() {
+      if (!iframe || !iframe.contentDocument) { return; }
+
       var body = iframe.contentDocument.body;
       var clientHeight = body.scrollHeight;
 
@@ -125,7 +128,6 @@ function CliqzPopupButton(options) {
     }
 
     iframe.addEventListener('load', onPopupReady, true);
-    panel.appendChild(iframe);
   }
 
   tbb.codePath = 'australis';
