@@ -332,7 +332,7 @@ window.CLIQZ.Core = {
 
         return stylesheet;
     },
-    checkSession: function(settings){
+    checkSession: function() {
         var prefs = CliqzUtils.cliqzPrefs;
         if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
@@ -348,6 +348,7 @@ window.CLIQZ.Core = {
             );
             return true;
         }
+        return false;
     },
     generateSession: function(source){
         CliqzUtils.setSupportInfo()
