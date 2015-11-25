@@ -7,23 +7,30 @@
 <body>
     <section class="cqz-antitracking-popup">
         <div class="cqz-antrc-head">
+            <p class="cqz-deactive-msg">CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich.</p>
             <p class="cqz-general-msg">
-                <span id="cookies-count"></span> cookies blocked
+                Auf DOMAIN wurden <br/>
+                <span id="cookies-count"></span> Cookies blockiert,
                 <br/>
-                <span id="requests-count"></span> unsafe requests
+                <span id="requests-count"></span> persönliche Informationen geschützt.
             </p>
         </div>
         <ul class="cqz-antrc-btns-holder">
             <li>
-                <a href="#" class="cqz-antrc-btn">White-List</a>
+                <a href="#" id="cqz-whitelist-btn" class="cqz-antrc-btn cqz-whitelist-btn">White-List</a>
             </li>
             <li>
-                <a href="#" id="cqz-attrack-enable" class="cqz-antrc-btn">Turn Off anti tracking</a>
+                <a href="#" id="cqz-antrc-power-btn" class="cqz-antrc-btn cqz-antrc-power-btn">
+                    <span class="cqz-turn-on">Turn On anti tracking</span>
+                    <span class="cqz-turn-off">Turn Off anti tracking</span>
+                </a>
             </li>
         </ul>
+        <!-- TO BE USED LATER
         <footer class="cqz-antrac-footer">
             <p>We are working hard to blab bla <a href="">asdasd</a>to blab bla <a href="">asdasd</a></p>
         </footer>
+        -->
     </section>
     <script src="popup.js"></script>
 </body>
