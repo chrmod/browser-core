@@ -6,31 +6,43 @@ window.CLIQZ.COMPONENTS.push({
   button() { /* not used */ },
 
   init() {
-    this.popup = new CliqzPopupButton({
-      name: this.name,
-      actions: this.popupActions
-    });
-    this.popup.attach();
+    if (CliqzUtils.__antitrackingButton) {
+      this.popup = CliqzUtils.__antitrackingButton;
+    } else {
+      this.popup = new CliqzPopupButton({
+        name: this.name,
+        actions: this.popupActions
+      });
+      this.popup.attach();
+    }
 
     this.listenToLocationChange();
+    CliqzUtils.__antitrackingButton = this.popup;
   },
 
-  listenToLocationChange() {
-    CliqzEvents.sub("core.location_change", function (ev) {
-      clearInterval(this.interval);
+  listenToLocationChange()  {
+    var win = window, popup = this.popup;
 
-      this.popup.setBadge();
+    function updateBadge() {
+      if (win !== CliqzUtils.getWindow()) { return; }
+
+      var info = CliqzAttrack.getCurrentTabBlockingInfo();
+      if (info.error) { info = { cookies: { blocked: 0 } }; }
+      popup.setBadge(win, info.cookies.blocked);
+    }
+
+    CliqzEvents.sub("core.location_change", function (ev) {
+      CliqzUtils.clearInterval(this.interval);
       var counter = 8;
 
-      this.interval = setInterval(function () {
+      updateBadge();
 
-        var info = CliqzAttrack.getCurrentTabBlockingInfo();
-        if(info.error) { return; } // anti tracking is turn off
-        this.popup.setBadge(info.cookies.blocked);
+      this.interval = CliqzUtils.setInterval(function () {
+        updateBadge();
 
         counter -= 1;
-        if (counter === 0) {
-          clearInterval(this.interval);
+        if (counter <= 0) {
+          CliqzUtils.clearInterval(this.interval);
         }
       }.bind(this), 2000);
     }.bind(this));
@@ -38,7 +50,7 @@ window.CLIQZ.COMPONENTS.push({
 
   unload() {
     this.popup.destroy();
-    clearInterval(this.interval);
+    CliqzUtils.clearInterval(this.interval);
   },
 
   popupActions: {
@@ -110,12 +122,15 @@ function CliqzPopupButton(options) {
     var iframe = doc.createElement('iframe');
     iframe.setAttribute('type', 'content');
     iframe.setAttribute('src', modulePath('antitracking', 'popup.html'));
+    panel.appendChild(iframe);
 
     function toPx(pixels) {
       return pixels.toString() + 'px';
     }
 
     function onPopupReady() {
+      if (!iframe || !iframe.contentDocument) { return; }
+
       var body = iframe.contentDocument.body;
       var clientHeight = body.scrollHeight;
 
@@ -124,7 +139,6 @@ function CliqzPopupButton(options) {
     }
 
     iframe.addEventListener('load', onPopupReady, true);
-    panel.appendChild(iframe);
   }
 
   tbb.codePath = 'australis';
@@ -176,8 +190,8 @@ function CliqzPopupButton(options) {
   }.bind(this);
 }
 
-CliqzPopupButton.prototype.setBadge = function (badgeText) {
-  var button = document.getElementById(this.tbb.id);
+CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
+  var button = win.document.getElementById(this.tbb.id);
 
   if ( badgeText ) {
     button.setAttribute('badge', String(badgeText));
@@ -208,7 +222,9 @@ CliqzPopupButton.prototype.attach = function () {
   this.setupCommunicationChannel();
 };
 
-CliqzPopupButton.prototype.destroy = function () {};
+CliqzPopupButton.prototype.destroy = function () {
+  CustomizableUI.destroyWidget(this.tbb.id);
+};
 
 CliqzPopupButton.prototype.setupCommunicationChannel = function () {
   Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');

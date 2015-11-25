@@ -19,9 +19,6 @@ function setBodyClass(options) {
   } else {
     document.body.classList.remove("cqz-domain-in-whitelist");
   }
-
-
-    console.log("==== whitelisted", whitelisted)
 }
 
 function populateDOM() {
@@ -29,7 +26,7 @@ function populateDOM() {
     document.querySelector("#cookies-count").innerHTML = data.cookiesCount;
     document.querySelector("#requests-count").innerHTML = data.requestsCount;
     hostname = data.url;
-    console.log("==== hostname", hostname)
+    document.querySelector("#url").innerHTML = data.url;
 
     setBodyClass({
       enabled: data.enabled,
