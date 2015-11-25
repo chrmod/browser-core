@@ -1,0 +1,184 @@
+html, body {
+    height: 100%;
+}
+
+div, span, a, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, main, menu, nav, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+
+@font-face {
+    font-family: "Lato";
+    src: url("fonts/Lato-Regular.ttf");
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: "Lato";
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section {
+    display: block;
+}
+
+nav ul {
+    list-style: none;
+}
+
+abbr {
+    border-bottom: 1px dotted;
+    cursor: help;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+input, select {
+    margin: 0;
+    font: inherit;
+    vertical-align: middle;
+    outline: 0;
+}
+
+textarea {
+    margin: 0;
+    font: inherit;
+    overflow-y: auto;
+    outline: 0;
+    resize: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+}
+
+ul, ol {
+    margin: 0 0 20px 20px;
+    padding: 0;
+
+
+}
+
+ul ul,
+ul ol,
+ol ol,
+ul ol {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 1;
+}
+
+:-moz-placeholder {
+    color: inherit;
+    opacity: 1;
+}
+
+::-moz-placeholder {
+    color: inherit;
+    opacity: 1;
+}
+
+.cqz-antitracking-popup {
+    height: 300px;
+    overflow: hidden;
+    padding: 20px;
+    border-radius: 0 0 6px 6px;
+    border: 1px solid green;
+    text-align: center;
+}
+
+.cqz-antitracking-popup .cqz-antrc-head {
+    padding: 35px 20px 35px 72px;
+    margin: -20px -20px 20px;
+    color: #fff;
+    font-size: 16px;
+    background: green url("cliqz-logo-white.svg") no-repeat 20px 50%;
+}
+
+.cqz-antitracking-popup .cqz-antrc-head p {
+    margin-bottom: 0;
+}
+
+ul.cqz-antrc-btns-holder {
+    list-style: none;
+    margin: 0 0 20px;
+}
+
+ul.cqz-antrc-btns-holder li {
+    display: inline-block;
+}
+
+a.cqz-antrc-btn {
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 5px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 3px;
+    background: #ccc;
+}
+
+a.cqz-antrc-btn:hover {
+    background: #999;
+}
+
+.cqz-antrac-footer {
+    color: #333;
+    font-size: 14px;
+}
+
+.cqz-antrac-footer p {
+    margin-bottom: 0;
+}
+
+.cqz-attrack-enabled  .cqz-antrc-btn {
+   background-color: red !important;
+}

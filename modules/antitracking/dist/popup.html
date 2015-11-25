@@ -1,21 +1,30 @@
+<!DOCTYPE html>
 <html>
 <head>
     <script src="../webextensions-shim.js"></script>
+    <link rel="stylesheet" href="popup.css">
 </head>
-<body style="margin: 0; padding: 0;">
-    <div style="height: 200px; background-color: yellow; overflow: hidden">
-Iframe height: <span id="height"></span>
-<p id="url"></p>
-    </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("height").innerHTML = document.body.offsetHeight
-        document.getElementById("height").innerHTML = document.body.scrollHeight
-        chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
-            document.getElementById("url").innerHTML = data.url;
-        });
-
-    });
-</script>
+<body>
+    <section class="cqz-antitracking-popup">
+        <div class="cqz-antrc-head">
+            <p class="cqz-general-msg">
+                <span id="cookies-count"></span> cookies blocked
+                <br/>
+                <span id="requests-count"></span> unsafe requests
+            </p>
+        </div>
+        <ul class="cqz-antrc-btns-holder">
+            <li>
+                <a href="#" class="cqz-antrc-btn">White-List</a>
+            </li>
+            <li>
+                <a href="#" id="cqz-attrack-enable" class="cqz-antrc-btn">Turn Off anti tracking</a>
+            </li>
+        </ul>
+        <footer class="cqz-antrac-footer">
+            <p>We are working hard to blab bla <a href="">asdasd</a>to blab bla <a href="">asdasd</a></p>
+        </footer>
+    </section>
+    <script src="popup.js"></script>
 </body>
 </html>

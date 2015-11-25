@@ -23,12 +23,13 @@ window.CLIQZ.COMPONENTS.push({
     CliqzEvents.sub("core.location_change", function (ev) {
       clearInterval(this.interval);
 
-      this.popup.setBadge("0");
+      this.popup.setBadge();
       var counter = 8;
 
       this.interval = setInterval(function () {
 
         var info = CliqzAttrack.getCurrentTabBlockingInfo();
+        if(info.error) { return; } // anti tracking is turn off
         this.popup.setBadge(info.cookies.blocked);
 
         counter -= 1;
@@ -46,9 +47,33 @@ window.CLIQZ.COMPONENTS.push({
 
   popupActions: {
     getPopupData(args, cb) {
+      var info = CliqzAttrack.getCurrentTabBlockingInfo();
+      if (info.error) {
+        info = {
+          cookies: {
+            blocked: 0
+          },
+          requests: {
+            unsafe: 0
+          }
+        };
+      }
+
       cb({
-        url: currentUrl()
+        url: currentUrl(),
+        cookiesCount: info.cookies.blocked,
+        requestsCount: info.requests.unsafe,
+        enabled: CliqzUtils.getPref("antiTrackTest"),
       });
+    },
+
+    toggleAttrack(args, cb) {
+      if ( CliqzUtils.getPref("antiTrackTest") ) {
+        CliqzAttrack.disableModule();
+      } else {
+        CliqzAttrack.enableModule();
+      }
+      cb();
     }
   }
 
