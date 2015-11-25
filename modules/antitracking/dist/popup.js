@@ -14,6 +14,7 @@ function populateDOM() {
   chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
     document.querySelector("#cookies-count").innerHTML = data.cookiesCount;
     document.querySelector("#requests-count").innerHTML = data.requestsCount;
+    document.querySelector("#url").innerHTML = data.url;
 
     setBodyClass({
       enabled: data.enabled
