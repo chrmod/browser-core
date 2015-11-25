@@ -1949,6 +1949,8 @@ var CliqzHumanWeb = {
         }
     },
     init: function(window) {
+        if(CliqzUtils.getPref("dnt", false)) return;
+
         refineFuncMappings = {
            "splitF":CliqzHumanWeb.refineSplitFunc,
            "parseU":CliqzHumanWeb.refineParseURIFunc,
@@ -2011,6 +2013,7 @@ var CliqzHumanWeb = {
 
     },
     initAtBrowser: function(){
+        if(CliqzUtils.getPref("dnt", false)) return;
         CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
     },
     state: {'v': {}, 'm': [], '_id': Math.floor( Math.random() * 1000 ) },
@@ -3140,9 +3143,9 @@ var CliqzHumanWeb = {
     getTabID: function(){
         // @Konark: Please check if this is fine
         try {
-            var windowID = CliqzUtils.getWindow().__SSi.split('window')[1];
-            var gBrowser = CliqzHumanWeb.windowsRef[parseInt(windowID)].gBrowser;
-            return CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
+            var win = CliqzUtils.getWindow();
+            var gBrowser = win.gBrowser;
+            return win.__SSi + ":" + gBrowser.mCurrentTab._tPos;
         }
         catch(e) {
             return null;
