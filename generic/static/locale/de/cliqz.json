@@ -17,6 +17,12 @@
     "from_lcase":{
         "message": "von"
     },
+    "Trailer":{
+        "message": "Trailer abspielen"
+    },
+    "Stream_now":{
+        "message": "Stream jetzt"
+    },
     "Cast":{
         "message": "Besetzung"
     },
