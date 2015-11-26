@@ -25,7 +25,7 @@ CLIQZEnvironment = {
   enrichResults: function(r, startIndex) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
-      if(index>0 || index < startIndex) {
+      if(index > 0 || index < startIndex) { // kicking out enriching cards after the first 1
         return;
       }
       CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
@@ -157,7 +157,7 @@ CLIQZEnvironment = {
     var response = JSON.parse(req.response);
 
     if(response.result) {
-      localStorage.cacheResult(response.q, {response: req.response, status: req.status});
+      localStorage.cacheResult(response.q, {response: req.response, status: req.status, cached: true});
     } else {
       console.log("results not cached !!!");
     }
@@ -176,11 +176,11 @@ CLIQZEnvironment = {
       return;
     }
 
-//     if( status != 200){
-//       trace();
-//       CliqzUtils.log("status="+status+", returning","status!=200");
-//       return;
-//     }
+    if( status != 200){
+      trace();
+      CliqzUtils.log("status="+status+", returning","status!=200");
+      return;
+    }
 
 
     CLIQZEnvironment.autoComplete(r._results[0].val);
@@ -188,7 +188,9 @@ CLIQZEnvironment = {
     // limiting results to 3 results
     r._results.splice(3);
 
-    if(requestHolder != "cache") {
+    if(requestHolder.req.cached) { // we need to update rich results for all
+      CLIQZEnvironment.enrichResults(r, 0);
+    } else { // we need to update rich header results starting from second result
       CLIQZEnvironment.enrichResults(r, 1);
     }
 
@@ -260,8 +262,6 @@ CLIQZEnvironment = {
         var cache = localStorage.getCachedResult(urlbar.value);
         if(cache) {
           (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler, cache);
-          // CLIQZEnvironment.enrichResults(cache, 0);
-          // CLIQZEnvironment.resultsHandler(cache, "cache");
           return;
         }
 
