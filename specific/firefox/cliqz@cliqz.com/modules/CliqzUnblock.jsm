@@ -8,71 +8,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzUnblock'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-/**
-  Wrapper for rule-based url proxying: implementation for Firefox
- */
-var ProxyService = function() {
-  this.pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
-    .getService(Components.interfaces.nsIProtocolProxyService);
-  this.pps.registerFilter(this, 999);
-  this.rules = [];
-}
-
-ProxyService.prototype = {
-  /**
-    Disable all proxy rules provided by this instance
-   */
-  destroy: function() {
-    this.pps.unregisterFilter(this);
-  },
-  applyFilter: function(pps, url, default_proxy) {
-    let rule_match = this.rules.find(function(rule) {
-      return rule.matches(url.asciiSpec);
-    });
-    if (rule_match != undefined) {
-      CliqzUtils.telemetry({
-        'type': 'unblock',
-        'action': 'proxy',
-        'to_region': rule_match.proxy_region
-      });
-      return rule_match.proxy_to;
-    }
-    return default_proxy;
-  },
-  createProxy: function(type, host, port, failover_timeout, failover_proxy) {
-    return this.pps.newProxyInfo(type, host, port, null, failover_timeout || 2000, failover_proxy || null);
-  },
-  addProxyRule: function(rule) {
-    this.removeProxyRule(rule.id);
-    return this.rules.push(rule);
-  },
-  removeProxyRule: function(id) {
-    let index = this.rules.findIndex(function(rule) {
-      return rule.id == id;
-    });
-    return index >=0 ? this.rules.splice(index, 1) : null;
-  },
-  clearRules: function() {
-    this.rules = [];
-  }
-}
-
-var RegexProxyRule = function(expr, proxy_to, region) {
-  this.expr = expr;
-  this.id = expr.toString();
-  this.proxy_to = proxy_to;
-  this.proxy_region = region || "";
-}
-RegexProxyRule.prototype = {
-  matches: function(url) {
-    return this.expr.test(url);
-  }
-}
+XPCOMUtils.defineLazyModuleGetter(this, 'ProxyUtils',
+  'chrome://cliqzmodules/content/ProxyUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'YoutubeUnblocker',
+  'chrome://cliqzmodules/content/YoutubeUnblocker.jsm');
 
 /**
   Enables filtered events on http requests, with associated urls
@@ -101,220 +43,6 @@ RequestListener.prototype = {
   subscribe: function(matcher) {
     this.subscribed.push(matcher);
   }
-}
-
-
-// DNS Filter for unblocking YT videos
-var YoutubeUnblocker = {
-  canFilter: function(url) {
-    return url.indexOf("https://www.youtube.com") > -1;
-  },
-  init: function(proxy_manager, proxy_service, request_listener) {
-    var self = this;
-    this.proxy_manager = proxy_manager;
-    this.proxy_service = proxy_service;
-    this.request_listener = request_listener;
-    this.request_listener.subscribe({
-      text: 'https://www.youtube.com/watch',
-      callback: function(url) {
-        return self.shouldProxy(url);
-      }
-    });
-    CliqzUtils.loadResource(this.CONFIG_URL, function(req) {
-      CliqzUtils.log(req.response);
-      self.conf = JSON.parse(req.response);
-    }, function(err) {
-      CliqzUtils.log(err);
-    });
-  },
-  refresh: function() {
-    // reset internal caches
-    this.blocked = {};
-    this.video_lookup_cache = new Set();
-    this.proxied_videos = new Set();
-  },
-  updateProxyRule: function(vid) {
-    let block_info = this.blocked[vid];
-    let regex = this.getURLRegex(vid);
-    // make a new rule
-    if (block_info['a'].length > 0) {
-      let region = this.proxy_manager.getPreferredRegion(block_info['a']);
-      let proxy = this.proxy_manager.getNextProxy(region);
-      if (proxy) {
-        this.proxied_videos.add(vid);
-        this.proxy_service.addProxyRule(new RegexProxyRule(regex, proxy, region));
-        this.blocked[vid]['p'] = region;
-      }
-    }
-  },
-  getURLRegex: function(vid) {
-    return new RegExp("^https://www.youtube.com/watch\\?.*v="+vid);
-  },
-  pageObserver: function(doc) {
-    var url = doc.defaultView.location.href,
-      vid = this.getVideoID(url),
-      proxied = this.proxied_videos.has(vid),
-      blocking_detected = vid in this.blocked;
-
-    if(vid != undefined) {
-
-      if(!proxied) {
-        // detect user locale from youtube logo
-        try {
-          let locale = doc.defaultView.body.querySelector(this.conf.locale_element_selector).textContent;
-          CliqzUtils.log("YT locale = " + locale, "unblock");
-          this.current_region = locale;
-        } catch(e) {
-          CliqzUtils.log("Locale exception: " + e.toString(), "unblock");
-        }
-      }
-
-      let isBlocked = this.isVideoBlocked(doc);
-
-      if (!blocking_detected && isBlocked) {
-        let allowed_regions = [];
-        if (!proxied) {
-          // normal block, add blocked entry and reload page
-          CliqzUtils.log("blocked video: "+ vid, "unblock");
-          // add blocked entry
-          allowed_regions = new Set(this.proxy_manager.getAvailableRegions());
-          allowed_regions.delete(this.current_region);
-          this.blocked[vid] = {'b': [this.current_region], 'a': Array.from(allowed_regions)}
-          CliqzUtils.log('Add blocked youtube page', 'unblock');
-          CliqzUtils.telemetry({
-            'type': 'unblock',
-            'action': 'yt_blocked_message',
-            'region': this.current_region
-          });
-        } else {
-          // proxy was also blocked, remove region from allow list
-          allowed_regions = new Set(this.blocked[vid]['a']);
-          allowed_regions.delete(this.blocked[vid]['p'] || '');
-          this.blocked[vid]['a'] = Array.from(allowed_regions);
-          CliqzUtils.telemetry({
-            'type': 'unblock',
-            'action': 'yt_blocked_2',
-            'region': this.blocked[vid]['p'] || '',
-            'remaining': allowed_regions.size
-          });
-        }
-
-        // reload if we have a useable proxy region
-        if(allowed_regions.size > 0) {
-          // tell unblock that we can unblock here
-          var self = this;
-          CliqzUnblock.handleBlock(url, function() {
-            CliqzUtils.telemetry({
-              'type': 'unblock',
-              'action': 'yt_retry',
-              'regions': Array.from(allowed_regions)
-            });
-            self.updateProxyRule(vid);
-            doc.defaultView.location.reload();
-          });
-        }
-      }
-
-      // If we proxied and now the video isn't blocked, we have been successful!
-      // We also cache the url to prevent multiple triggering of this signal, as this function
-      // is triggered multiple times for a single video load.
-      if (proxied && !isBlocked && url != this.last_success) {
-        CliqzUtils.telemetry({
-          'type': 'unblock',
-          'action': 'yt_success'
-        });
-        this.last_success = url;
-      }
-    }
-  },
-  getVideoID: function(url) {
-    let url_parts = CliqzUtils.getDetailsFromUrl(url),
-      query = getParametersQS(url_parts.query);
-    if(url_parts.path == '/watch' &&
-        'v' in query) {
-      return query['v'];
-    } else {
-      return undefined;
-    }
-  },
-  isVideoBlocked: function(doc) {
-    // check for block message
-    try {
-      let msg = doc.defaultView.body.querySelector(this.conf.blocked_video_element);
-      return msg.offsetParent != null
-    } catch(e) {
-      return false;
-    }
-  },
-  shouldProxy: function(url) {
-    if (url.indexOf("https://www.youtube.com/watch") == -1) {
-      return false;
-    }
-    var self = this;
-
-    var vid = this.getVideoID(url);
-    if(vid && vid.length > 0) {
-      // check block cache
-      if(vid in this.blocked &&
-        this.blocked[vid]['b'].indexOf(this.current_region) != -1) {
-        return this.blocked[vid]['a'];
-      }
-      // lookup api
-      if (!this.video_lookup_cache.has(vid)) {
-        this.video_lookup_cache.add(vid);
-
-        CliqzUtils.httpGet(this.conf.api_url.replace('{video_id}', vid), function(req) {
-          if (self.conf.api_check.not_blocked_if.every(function(test) { return req.response.indexOf(test) == -1})
-            && self.conf.api_check.blocked_if.some(function(test) { return req.response.indexOf(test) > -1})) {
-            // error code,
-            let allowed_regions = new Set(self.proxy_manager.getAvailableRegions());
-            allowed_regions.delete(self.current_region);
-            self.blocked[vid] = {'b': [self.current_region], 'a': Array.from(allowed_regions)};
-            CliqzUtils.telemetry({
-              'type': 'unblock',
-              'action': 'yt_blocked_api',
-              'region': self.current_region
-            });
-
-            CliqzUnblock.handleBlock(url, function() {
-              // try to refresh page
-              self.updateProxyRule(vid);
-              self.refreshPageForVideo(vid);
-            });
-          }
-        });
-      }
-    }
-    return false;
-  },
-  /** Adapted from getCDByURL on CliqzHumanWeb. Finds the tab(s) which have this video in them, and refreshes.
-   */
-  refreshPageForVideo: function(vid) {
-    var enumerator = Services.wm.getEnumerator('navigator:browser');
-    while (enumerator.hasMoreElements()) {
-      var win = enumerator.getNext();
-      var gBrowser = win.gBrowser;
-      if (gBrowser.tabContainer) {
-        var numTabs = gBrowser.tabContainer.childNodes.length;
-        for (var i=0; i<numTabs; i++) {
-          var currentTab = gBrowser.tabContainer.childNodes[i];
-          var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-          var cd = currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'];
-          var currURL=''+cd.location;
-
-          if(currURL.indexOf(vid) > -1 && currURL.indexOf('www.youtube.com') > -1) {
-            cd.defaultView.location.reload();
-          }
-        }
-      }
-    }
-  },
-  current_region: '', // current region for YT videos
-  blocked: {}, // cache of seen blocked videos
-  video_lookup_cache: new Set(),
-  proxied_videos: new Set(),
-  last_success: null,
-  CONFIG_URL: "chrome://cliqz/content/yt_unblock_config.json",
 }
 
 var ProxyManager = function(proxy_service) {
@@ -365,10 +93,6 @@ ProxyManager.prototype = {
       this._p[region].splice(ind, 1);
     }
   },
-  getProxyForRegions: function(allowed_regions) {
-    let region = CliqzUnblock.proxies.getPreferredRegion(allowed_regions);
-    return CliqzUnblock.proxies.getNextProxy(region);
-  },
   updateProxyList: function() {
     var now = (new Date()).getTime(),
       self = this;
@@ -396,6 +120,7 @@ ProxyManager.prototype = {
     }
   },
 }
+
 
 var CliqzUnblock = {
   proxy_manager: null,
@@ -456,12 +181,13 @@ var CliqzUnblock = {
     if (CliqzUnblock.isEnabled()) {
       CliqzUtils.log('init', 'unblock');
 
-      CliqzUnblock.proxy_service = new ProxyService();
+      CliqzUtils.log(ProxyUtils, "xxx");
+      CliqzUnblock.proxy_service = new ProxyUtils.Service();
       CliqzUnblock.proxy_manager = new ProxyManager(CliqzUnblock.proxy_service);
       CliqzUnblock.request_listener = new RequestListener();
 
       CliqzUnblock.unblockers.forEach(function(b) {
-        b.init(CliqzUnblock.proxy_manager, CliqzUnblock.proxy_service, CliqzUnblock.request_listener);
+        b.init(CliqzUnblock.proxy_manager, CliqzUnblock.proxy_service, CliqzUnblock.request_listener, CliqzUnblock.handleBlock);
       });
     }
 
@@ -511,9 +237,9 @@ var CliqzUnblock = {
     } catch(e) {}
   },
   handleBlock: function(url, proxy_cb) {
-    if (this.unblock_mode == "ask") {
-      this.unblockPrompt(url, proxy_cb);
-    } else if (this.unblock_mode == "always") {
+    if (CliqzUnblock.unblock_mode == "ask") {
+      CliqzUnblock.unblockPrompt(url, proxy_cb);
+    } else if (CliqzUnblock.unblock_mode == "always") {
       proxy_cb();
     }
     // else never
@@ -545,7 +271,7 @@ var CliqzUnblock = {
 
     if (!on_active_tab) {
       // wait until tab is activated
-      this.waiting_prompts.push([url, cb, (new Date()).getTime()]);
+      CliqzUnblock.waiting_prompts.push([url, cb, (new Date()).getTime()]);
       return;
     }
 
@@ -645,46 +371,3 @@ var CliqzUnblock = {
     }
   }
 }
-
-// -- getParametersQS function from CliqzAttrack, replace after attrack is merged into master
-
-var getParametersQS = function(qs) {
-  var res = {};
-  let state = 'key';
-  let k = '';
-  let v = '';
-
-  for(let i=0; i<qs.length; i++) {
-      let c = qs.charAt(i);
-      if(c == '=' && state == 'key' && k.length > 0) {
-          state = 'value';
-          continue;
-      } else if(c == '&' || c == ';') {
-          if(state == 'value') {
-              state = 'key';
-              res[k] = v;
-          } else if(state == 'key' && k.length > 0) {
-              // key with no value, set value=true
-              res[k] = true;
-          }
-          k = '';
-          v = '';
-          continue;
-      }
-      switch(state) {
-          case 'key':
-              k += c;
-              break;
-          case 'value':
-              v += c;
-              break;
-      }
-  }
-  if(state == 'value') {
-      state = 'key';
-      res[k] = v;
-  } else if(state == 'key' && k.length > 0) {
-      res[k] = true;
-  }
-  return res;
-};
