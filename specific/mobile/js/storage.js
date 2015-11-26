@@ -1,9 +1,12 @@
-
+var cachePrefix = "cache___";
 Storage.prototype.setObject = function(key, object) {
   localStorage.setItem(key, JSON.stringify(object));
 };
 Storage.prototype.getObject = function(key) {
   var o = localStorage.getItem(key); return o && JSON.parse(o)
+};
+Storage.prototype.getCachedResult = function(key) {
+  return localStorage.getObject(cachePrefix + key.toLowerCase().trim());
 };
 Storage.prototype.addToCacheList = function(key) {
   var ob = {key:key, timestamp:Date.now()};
@@ -28,12 +31,15 @@ Storage.prototype.addToCacheList = function(key) {
 }
 Storage.prototype.refreshCache = function() {
   var list = localStorage.getObject('cache_list');
+  if(!list) return;
+  var len = list.length;
   for(var i = 0; i < list.length; i++) {
     if(Date.now() - list[i].timestamp > 100 * 60 * 60 * 24) {
       localStorage.uncache(i, list);
     }
   }
   localStorage.setObject('cache_list', list);
+  console.log("refreshing cache, " + (len - list.length) + " results uncached");
 }
 Storage.prototype.clearCache = function() {
   var list = localStorage.getObject('cache_list');
@@ -53,10 +59,10 @@ Storage.prototype.uncache = function(idx, list) {
   list.splice(idx, 1);
 }
 Storage.prototype.cacheResult = function(key, obj) {
-  key = key.toLowerCase().trim();
-  var object = localStorage.removeHistory(key.split(".")[1], obj)
+  key = cachePrefix + key.toLowerCase().trim();
+  // var object = localStorage.removeHistory(key.split(".")[1], obj)
   localStorage.addToCacheList(key);
-  localStorage.setObject(key, object);
+  localStorage.setObject(key, obj);
 };
 Storage.prototype.removeHistory = function(key, obj) {
   var object = JSON.parse(JSON.stringify(obj)); // deep copy
@@ -67,3 +73,6 @@ Storage.prototype.removeHistory = function(key, obj) {
   });
   return object;
 };
+
+
+window.addEventListener('load', localStorage.refreshCache);

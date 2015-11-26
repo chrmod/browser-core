@@ -45,7 +45,7 @@ function trace() {
     throw new Error('myError');
   }
   catch(e) {
-    Logger.logScreen(JSON.stringify(e.stack),"TRACE");
+    CliqzUtils.log(JSON.stringify(e.stack),"TRACE");
   }
 }
 

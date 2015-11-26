@@ -232,10 +232,10 @@ var UI = {
           var qt = query + ": " + new Date().getTime();
           //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           CliqzUtils.log(r,"LOADINGASYNC");
-          CLIQZEnvironment.logScreen(query,"loadAsyncResult");
+          CliqzUtils.log(query,"loadAsyncResult");
           var loop_count = 0;
           var async_callback = function(req) {
-              CLIQZEnvironment.logScreen(query,"async_callback");
+              CliqzUtils.log(query,"async_callback");
               //CliqzUtils.log(r, "GOT SOME RESULTS");
               var resp = null;
               try {
@@ -256,9 +256,9 @@ var UI = {
                       setTimeout(function() {
                         loop_count += 1;
                         CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
-                        CLIQZEnvironment.logScreen(loop_count + " " + qt + ": " + query, "ASYNC NUMBER");
+                        CliqzUtils.log(loop_count + " " + qt + ": " + query, "ASYNC NUMBER");
                         CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
-                        CLIQZEnvironment.logScreen("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }

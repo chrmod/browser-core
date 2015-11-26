@@ -1,12 +1,10 @@
 CLIQZEnvironment = {
-  test() {console.log(UI)},
   TEMPLATES_PATH: 'templates/',
   LOCALE_PATH: 'locale/',
 
   storeQueryTimeout: null,
 
   log: Logger.log,
-  logScreen: Logger.logScreen,
   logCounter: Logger.logCounter,
 
   callRichHeader: function(searchString, url, callback) {
@@ -27,7 +25,7 @@ CLIQZEnvironment = {
   enrichResults: function(r, startIndex) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
-      if(index>0) {
+      if(index>0 || index < startIndex) {
         return;
       }
       CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
@@ -150,8 +148,14 @@ CLIQZEnvironment = {
       document.getElementById("currency-tpl").parentNode.removeAttribute("url");
     }
   },
-  cacheResults: function(results) {
-    localStorage.cacheResult("cache." + results._searchString, results);
+  cacheResults: function(req) {
+    var response = JSON.parse(req.response);
+
+    if(response.result) {
+      localStorage.cacheResult(response.q, {response: req.response, status: req.status});
+    } else {
+      console.log("results not cached !!!");
+    }
   },
   resultsHandler: function (r, requestHolder) {
 
@@ -161,21 +165,17 @@ CLIQZEnvironment = {
       status = requestHolder.req.status;
     }
 
-    Logger.logScreen(status,"XHR status");
+    CliqzUtils.log(status,"XHR status");
 
     if( urlbar.value != r._searchString  ){
-      Logger.logScreen("u='"+urlbar.value+"'' s='"+r._searchString+"', returning","urlbar!=search");
+      CliqzUtils.log("u='"+urlbar.value+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
     if( status != 200 && requestHolder != "cache"){
       trace();
-      Logger.logScreen("status="+status+", returning","status!=200");
+      CliqzUtils.log("status="+status+", returning","status!=200");
       return;
-    }
-
-    if(requestHolder != "cache") {
-      CLIQZEnvironment.enrichResults(r, 1);
     }
 
 
@@ -192,18 +192,6 @@ CLIQZEnvironment = {
     CLIQZEnvironment.storeQueryTimeout = setTimeout(function() { 
       CLIQZEnvironment.setCurrentQuery(r._searchString); 
     },2000);
-
-    if(!r._results[0].data.subType) {
-      console.log("SUBTYPE IS NOT THERE")
-    }
-    if(!r._results[0].data.subType ||
-      (r._results[0].data.subType && r._results[0].data.subType.indexOf("empty") == -1)) {
-      CLIQZEnvironment.cacheResults(r);
-    } else {
-      console.log("results not cached !!!");
-    }
-
-
 
     CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
     CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
@@ -265,10 +253,11 @@ CLIQZEnvironment = {
           logscreen.style.left = "-5000px";
           return;
         }
-        var cache = localStorage.getObject("cache." + urlbar.value.toLowerCase().trim());
+        var cache = localStorage.getCachedResult(urlbar.value);
         if(cache) {
-          CLIQZEnvironment.enrichResults(cache, 0);
-          CLIQZEnvironment.resultsHandler(cache, "cache");
+          (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler, cache);
+          // CLIQZEnvironment.enrichResults(cache, 0);
+          // CLIQZEnvironment.resultsHandler(cache, "cache");
           return;
         }
 
@@ -276,7 +265,7 @@ CLIQZEnvironment = {
 
 
       // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      Logger.logScreen(urlbar.value,"XHR");
+      CliqzUtils.log(urlbar.value,"XHR");
       (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler);
     }, 5); 
   },
@@ -375,7 +364,7 @@ CLIQZEnvironment = {
 
     table: function(args){ console.table(arguments) },
     getPref: function(pref, notFound){
-    //CLIQZEnvironment.table(arguments);
+    localStorage.setItem("showConsoleLogs", true);
     var mypref;
     if(mypref = localStorage.getItem(pref)) {
       return mypref;
@@ -520,16 +509,17 @@ CLIQZEnvironment = {
         if(isMixerUrl(url)){
           if(typeof CustomEvent != "undefined") {
             window.dispatchEvent(new CustomEvent("connected"));
+            CLIQZEnvironment.cacheResults(req);
           }
           lastSucceededUrl = url;
-          Logger.logScreen("status "+req.status,"onload");
+          CliqzUtils.log("status "+req.status,"onload");
         }
 
         callback && callback(req);
       } else {
         Logger.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
         if(isMixerUrl(url)){
-          Logger.logScreen("status "+re.status,"calling onerror");
+          CliqzUtils.log("status "+re.status,"calling onerror");
         }
         onerror && onerror();
       }
@@ -544,7 +534,7 @@ CLIQZEnvironment = {
 
       if(CLIQZEnvironment){
         if(isMixerUrl(url)){
-          Logger.logScreen("resendRequest(true)","onerror");
+          CliqzUtils.log("resendRequest(true)","onerror");
         }
         resendRequest(true);
         Logger.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
@@ -552,7 +542,7 @@ CLIQZEnvironment = {
       }
     }
     req.ontimeout = function(){
-      Logger.logScreen("BEFORE","ONTIMEOUT");
+      CliqzUtils.log("BEFORE","ONTIMEOUT");
       if(latestUrl != url || url == lastSucceededUrl || !isMixerUrl(url)) {
         return;
       }
@@ -561,7 +551,7 @@ CLIQZEnvironment = {
       }
 
       if(CLIQZEnvironment){ //might happen after disabling the extension
-        Logger.logScreen("RESENDING","ONTIMEOUT");
+        CliqzUtils.log("RESENDING","ONTIMEOUT");
         resendRequest(true);
         Logger.log( "resending: timeout for " + url, "CLIQZEnvironment.httpHandler");
         onerror && onerror();
@@ -590,7 +580,7 @@ CLIQZEnvironment = {
 
     return false;
   },
-  displayHistory: function(data){
+  processHistory: function(data) {
     try {
       var items = data.results;
       var res = [];
@@ -604,11 +594,14 @@ CLIQZEnvironment = {
           label:   ''
         });
       }
-      this.searchHistoryCallback({results: res, query:data.query, ready:true});
+      return {results: res, query:data.query, ready:true}
       // this.searchHistoryCallback({results: [], query:data.query, ready:true}); // history is kicked out
     } catch (e) {
       Logger.log( "historySearch", "Error: " + e);
     }
+  },
+  displayHistory: function(data){
+    this.searchHistoryCallback(CLIQZEnvironment.processHistory(data));
   },
   historySearch: function(q, callback, searchParam, sessionStart){
     this.searchHistoryCallback = callback;

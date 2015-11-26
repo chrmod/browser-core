@@ -1,12 +1,9 @@
 Logger = {
 
   logCounter: 0,
-  
-  log: function(msg, key){ 
-    console.log(msg,"[["+key+"]]") ;  
-  },
 
-  logScreen: function(msg,key){ 
+  log: function(msg,key){ 
+    console.log(msg,"[["+key+"]]");
     var logscreen = document.getElementById("logscreen"); 
     if(logscreen) {
       if(!key) {
