@@ -476,7 +476,7 @@ var CliqzAutocomplete = {
                     listener.onSearchResult(ctx, results);
                 })
             },
-            search: function(searchString, callback) {
+            search: function(searchString, callback, cachedResults) {
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastResult = null;
@@ -576,7 +576,10 @@ var CliqzAutocomplete = {
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
                     // start fetching results
-                    CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+                    if(!cachedResults)  
+                        CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+                    else
+                        this.cliqzResultFetcher(cachedResults, searchString);
 
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
