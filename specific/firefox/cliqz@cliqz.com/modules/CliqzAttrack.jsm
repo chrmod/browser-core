@@ -1483,11 +1483,11 @@ var CliqzAttrack = {
             if(url == 'https://safe-browsing.cliqz.com/'){
                 var cl = aChannel.getRequestHeader("Content-Length");
                 if(cl && CliqzHumanWeb.actionStats){
-                    if(CliqzHumanWeb.actionStats["size"]){
-                        CliqzHumanWeb.actionStats["size"] += cl;
+                    if(CliqzHumanWeb.actionStats["sz"]){
+                        CliqzHumanWeb.actionStats["sz"] +=  parseInt(cl);
                     }
                     else{
-                        CliqzHumanWeb.actionStats["size"] = cl;
+                        CliqzHumanWeb.actionStats["sz"] = parseInt(cl);
                     }
                 }
             }
