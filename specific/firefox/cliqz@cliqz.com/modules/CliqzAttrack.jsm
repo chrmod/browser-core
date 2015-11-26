@@ -2255,56 +2255,6 @@ var CliqzAttrack = {
 
     },
     counter: 0,
-    unload: function(window) {
-        // don't need to unload if disabled
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
-            return;
-        }
-        //Check is active usage, was sent
-
-        // force send tab telemetry data
-        CliqzAttrack.tp_events.commit(true, true);
-        CliqzAttrack.tp_events.push(true);
-
-        CliqzAttrack.saveState();
-        CliqzAttrack.saveTokens();
-        CliqzAttrack.saveLocalTokenStats();
-        // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
-        // CliqzAttrack.saveWhitelist();
-
-        // CliqzAttrack.saveHistStats();
-
-        CliqzAttrack.pushTelemetry();
-        CliqzUtils.clearTimeout(CliqzAttrack.pacemakerId);
-        CliqzUtils.clearTimeout(CliqzAttrack.trkTimer);
-
-        CliqzAttrack.saveTokenWhitelist();
-        CliqzAttrack.saveSafeKey();
-
-        if (window != null) {
-            window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
-            window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-            window.gBrowser.removeProgressListener(onUrlbarFocus);
-        }
-    },
-    unloadAtBrowser: function(){
-        try {
-            // Unload from any existing windows
-            var enumerator = Services.wm.getEnumerator('navigator:browser');
-            while (enumerator.hasMoreElements()) {
-                try{
-                    var win = enumerator.getNext();
-                    CliqzAttrack.unload(win);
-                }
-                catch(e){}
-            }
-            CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpmodObserver, 'http-on-modify-request');
-            CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpopenObserver, 'http-on-opening-request');
-            CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-cached-response');
-            CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-response');
-        } catch(e){
-        }
-    },
     pacemakerId: null,
     tpace: 10*1000,
     tmult: 1/10.0,
@@ -2313,19 +2263,14 @@ var CliqzAttrack = {
     alertRules: null,
     alertTemplate: null,
     alertAlreadyShown: {},
-    // load from the about:config settings
-    init: function(window) {
+    /** Global module initialisation.
+     */
+    init: function() {
         // disable for older browsers
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (!CliqzAttrack.isEnabled() || getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
-        // Load listerners:
-        if(CliqzUtils.getPref("antiTrackTest", false)){
-            window.gBrowser.addProgressListener(CliqzAttrack.listener);
-        }
-        else{
-            return;
-        }
+
         CliqzAttrack.initialiseAntiRefererTracking();
 
         // Replace getWindow functions with window object used in init.
@@ -2370,142 +2315,83 @@ var CliqzAttrack = {
 
         // @konarkm : Since we already have window, passing it.
         // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
-        CliqzAttrack.getPrivateValues(window);
         CliqzAttrack.checkInstalledAddons();
 
 
         // var win_id = CliqzUtils.getWindowID();
-        window.gBrowser.addProgressListener(CliqzAttrack.tab_listener);
-        window.CLIQZ.Core.urlbar.addEventListener('focus',onUrlbarFocus);
 
         if (CliqzAttrack.visitCache == null) {
             CliqzAttrack.visitCache = {};
         }
-        /*
-        else {
-            var util = CliqzUtils.getWindow().QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-            var win_id = util.outerWindowID;
-
-            if (CliqzAttrack.windowsMem[win_id] == null) {
-                CliqzAttrack.windowsMem[win_id] = window;
-                CliqzAttrack.windowsRef.push(window);
-            }
-        }
-        */
 
         if (CliqzAttrack.pacemakerId==null) {
             CliqzAttrack.pacemakerId = CliqzUtils.setInterval(CliqzAttrack.pacemaker, CliqzAttrack.tpace, null);
         }
 
-        /*
-        CliqzUtils.httpGet(CliqzAttrack.URL_ALERT_RULES,
-            function success(req){
-                CliqzAttrack.alertRules = JSON.parse(req.response);
-            },
-            function error() {
-                CliqzAttrack.alertRules = [];
-            });
+        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpmodObserver, "http-on-modify-request", false);
+        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpopenObserver, "http-on-opening-request", false);
+        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpResponseObserver, "http-on-examine-response", false);
+        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpResponseObserver, "http-on-examine-cached-response", false);
 
-        CliqzUtils.httpGet(CliqzAttrack.URL_ALERT_TEMPLATE,
-            function success(req){
-                CliqzAttrack.alertTemplate = req.response;
-            },
-            function error() {
-                CliqzAttrack.alertTemplate = null;
-            });
-        */
-
-        // FIXME:
-        // CliqzAttrack.URL_TOKEN_WHITELIST might become pretty large, now it's 10MB and it fails like a bitch
-        // with loadResource it seems to work, but this is going to be a problem in the future (at some point)
-
-        /*
-        CliqzUtils.httpGet(CliqzAttrack.URL_TOKEN_WHITELIST,
-            function success(req){
-                CliqzUtils.flot('SUCESS '+ req);
-                CliqzAttrack.tokenExtWhitelist = JSON.parse(req.response);
-            },
-            function error(ee) {
-                CliqzUtils.log('FAILURE ' + ee);
-                CliqzAttrack.tokenExtWhitelist = {};
-            });
-        */
-
-        //
-        // load history
-        //
-
-        /*
-        if (CliqzAttrack.cacheHist==null) {
-
-            CliqzAttrack.cacheHist = {};
-            CliqzAttrack.cacheHistDom = {};
-
-            if ( FileUtils.getFile("ProfD", ["cliqz.db"]).exists() ) {
-                var db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.db"]));
-                var sql = "SELECT url from visits";
-                var st = db.createAsyncStatement(sql);
-                st.executeAsync({
-                    handleResult: function(aResultSet) {
-                        var resultCount = 0;
-                        for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                            //this.onRow(st.row);
-                            var u = row.getResultByName("url");
-
-                            var curl = u.replace(/^https?:\/\//,'').replace(/^www\./,'');
-                            if (CliqzAttrack.cacheHist[curl]==null) CliqzAttrack.cacheHist[curl] = {};
-                            CliqzAttrack.cacheHist[curl]['h1'] = true;
-
-                            var curl = curl.split('/')[0];
-                            if (CliqzAttrack.cacheHistDom[curl]==null) CliqzAttrack.cacheHistDom[curl] = {};
-                            CliqzAttrack.cacheHistDom[curl]['h1'] = true;
-
-                        }
-                    },
-                    handleError: function(aError) {
-                        CliqzUtils.log("Error (" + aError.result + "):" + aError.message, CliqzAttrack.LOG_KEY);
-                    },
-                    handleCompletion: function(aReason) {
-                        // Always called when done
-                    }
-                });
-                st.finalize();
-            }
-
-            if ( FileUtils.getFile("ProfD", ["places.sqlite"]).exists() ) {
-
-                var db = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["places.sqlite"]));
-                var sql = "SELECT url from moz_places";
-                var st = db.createAsyncStatement(sql);
-                st.executeAsync({
-                    handleResult: function(aResultSet) {
-                        var resultCount = 0;
-                        for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                            //this.onRow(st.row);
-                            var u = row.getResultByName("url");
-
-                            var curl = u.replace(/^https?:\/\//,'').replace(/^www\./,'');
-                            if (CliqzAttrack.cacheHist[curl]==null) CliqzAttrack.cacheHist[curl] = {};
-                            CliqzAttrack.cacheHist[curl]['h2'] = true;
-
-                            var curl = curl.split('/')[0];
-                            if (CliqzAttrack.cacheHistDom[curl]==null) CliqzAttrack.cacheHistDom[curl] = {};
-                            CliqzAttrack.cacheHistDom[curl]['h2'] = true;
-
-                        }
-                    },
-                    handleError: function(aError) {
-                        CliqzUtils.log("Error (" + aError.result + "):" + aError.message, CliqzAttrack.LOG_KEY);
-                    },
-                    handleCompletion: function(aReason) {
-                        // Always called when done
-                    }
-                });
-                st.finalize();
-            }
+    },
+    /** Per-window module initialisation
+     */
+    initWindow: function(window) {
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION || !CliqzAttrack.isEnabled()) {
+            return;
         }
-        */
+        // Load listerners:
+        window.gBrowser.addProgressListener(CliqzAttrack.listener);
+        window.gBrowser.addProgressListener(CliqzAttrack.tab_listener);
+        window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
 
+        CliqzAttrack.getPrivateValues(window);
+    },
+    unload: function() {
+        // don't need to unload if disabled
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION || !CliqzAttrack.isEnabled()) {
+            return;
+        }
+        //Check is active usage, was sent
+
+        // force send tab telemetry data
+        CliqzAttrack.tp_events.commit(true, true);
+        CliqzAttrack.tp_events.push(true);
+
+        CliqzAttrack.saveState();
+        CliqzAttrack.saveTokens();
+        CliqzAttrack.saveLocalTokenStats();
+        // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
+        // CliqzAttrack.saveWhitelist();
+
+        // CliqzAttrack.saveHistStats();
+
+        CliqzAttrack.pushTelemetry();
+        CliqzUtils.clearTimeout(CliqzAttrack.pacemakerId);
+        CliqzUtils.clearTimeout(CliqzAttrack.trkTimer);
+
+        CliqzAttrack.saveTokenWhitelist();
+        CliqzAttrack.saveSafeKey();
+
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            try{
+                var win = enumerator.getNext();
+                CliqzAttrack.unloadWindow(win);
+            }
+            catch(e){}
+        }
+
+        CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpmodObserver, 'http-on-modify-request');
+        CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpopenObserver, 'http-on-opening-request');
+        CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-cached-response');
+        CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-response');
+
+    },
+    unloadWindow: function(window) {
+        window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
+        window.gBrowser.removeProgressListener(CliqzAttrack.listener);
+        window.gBrowser.removeProgressListener(onUrlbarFocus);
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
@@ -3257,16 +3143,6 @@ var CliqzAttrack = {
                 else callback(null);
             }
         });
-    },
-    initAtBrowser: function(){
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
-            return;
-        }
-        if (CliqzAttrack.debug) CliqzUtils.log("InitAtBrowser attrack");
-        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpmodObserver, "http-on-modify-request", false);
-        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpopenObserver, "http-on-opening-request", false);
-        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpResponseObserver, "http-on-examine-response", false);
-        CliqzAttrack.observerService.addObserver(CliqzAttrack.httpResponseObserver, "http-on-examine-cached-response", false);
     },
     // ****************************
     // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
@@ -4540,7 +4416,7 @@ var CliqzAttrack = {
                 if(!ref || !ref_parts || !ref_parts.hostname) return null;
                 if(source in this._old_tab_idx) {
                     var prev_graph = this._staged[this._old_tab_idx[source]];
-                    if(prev_graph.isReferredFrom(ref_parts)) {
+                    if(prev_graph && prev_graph.isReferredFrom(ref_parts)) {
                         if (CliqzAttrack.debug) CliqzUtils.log("Request for expired tab "+ ref_parts.hostname +" -> "+ url_parts.hostname +" ("+ prev_graph['hostname'] +")", 'tp_events');
                         return prev_graph.getTpUrl(url_parts.hostname, url_parts.path);
                     }
@@ -4796,19 +4672,30 @@ var CliqzAttrack = {
       CliqzAttrack.tracker_companies = rev_list;
     },
     /** Enables Attrack module with cookie, QS and referrer protection enabled.
-     *  Currently just sets preferences, full protection will be enabled after extension reload
+     *  if module_only is set to true, will not set preferences for cookie, QS and referrer protection (for selective loading in AB tests)
      */
-    enableModule: function() {
+    enableModule: function(module_only) {
+      if (CliqzAttrack.isEnabled()) {
+          return;
+      }
       CliqzUtils.setPref('antiTrackTest', true);
-      CliqzUtils.setPref('attrackBlockCookieTracking', true);
-      CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
-      CliqzUtils.setPref('attrackRefererTracking', true);
+      if (!module_only) {
+        CliqzUtils.setPref('attrackBlockCookieTracking', true);
+        CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+        CliqzUtils.setPref('attrackRefererTracking', true);
+      }
+      CliqzAttrack.init();
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext();
+          CliqzAttrack.initWindow(win);
+      }
     },
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
+      CliqzAttrack.unload();
       CliqzUtils.setPref('antiTrackTest', false);
-      CliqzAttrack.unloadAtBrowser();
     },
     disabled_sites: new Set(),
     isSourceWhitelisted: function(hostname) {

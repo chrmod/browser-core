@@ -19,17 +19,14 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
     beforeEach(function() {
         // make sure that module is loaded (default it is not initialised on extension startup)
         if(!module_enabled) {
-            CliqzUtils.setPref('antiTrackTest', true);
-            CliqzAttrack.unloadAtBrowser();
-            CliqzAttrack.initAtBrowser();
+            CliqzAttrack.enableModule();
         }
     });
 
     afterEach(function() {
         // revert module status
         if(!module_enabled) {
-            CliqzUtils.setPref('antiTrackTest', false);
-            CliqzAttrack.unloadAtBrowser();
+            CliqzAttrack.disableModule();
         }
     });
 

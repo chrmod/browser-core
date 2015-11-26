@@ -139,9 +139,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       // make sure that module is loaded (default it is not initialised on extension startup)
       if(!module_enabled) {
         CliqzUtils.setPref('antiTrackTest', true);
-        CliqzAttrack.unloadAtBrowser();
-        CliqzAttrack.initAtBrowser();
-        CliqzAttrack.init(window);
+        CliqzAttrack.enableModule();
       }
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
@@ -163,8 +161,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       });
       tabs = [];
       if(!module_enabled) {
-        CliqzUtils.setPref('antiTrackTest', false);
-        CliqzAttrack.unloadAtBrowser();
+        CliqzAttrack.disableModule();
       }
     });
 
