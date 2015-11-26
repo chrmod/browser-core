@@ -68,7 +68,6 @@ var CliqzUtils = {
   CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  NEW_TUTORIAL_URL:               'chrome://cliqz/content/onboarding/onboarding.html',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/support',

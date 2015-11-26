@@ -30,7 +30,6 @@ var TARGET = [
         'CliqzSearchHistory',
         'CliqzSmartCliqzCache',
         'CliqzSpellCheck',
-        'CliqzTour',
         'CliqzUtils',
         'Extension',
         'Filter',
