@@ -9,7 +9,7 @@
         <div class="cliqz-image-item"
              style='width:{{disp_width}}px; height:{{disp_height}}px;'
              type="image" url="{{ ref_url }}">
-                <img class="cliqz-image-clear" src="{{ thumb.url}}"
+                <img class="cliqz-image-clear" data-src="{{ thumb.url}}"
                      id="{{im_url}}"
                      width="{{disp_width}}"
                      height="{{disp_height}}"

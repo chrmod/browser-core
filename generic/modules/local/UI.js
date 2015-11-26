@@ -304,32 +304,11 @@ var UI = {
 
       }
 
-    }, 
+    },
 
     lastInstantLength: 0,
     lastQuery: "",
-    unhideImages: function(query) {
-      var html = document.getElementById("cliqz-results").innerHTML;
-      html = html.replace(/tempbackground-tempimage:tempurl/g,"background-image:url");
-      html = html.replace(/<tempimg\s/g, "<img ");
-      UI.redrawDropdown(html, query, true);
-    },
-    hideImages: function(html, query) {
-      if(this.hideImagesTimeOut) {
-        window.clearTimeout(this.hideImagesTimeOut);
-      }
-      this.hideImagesTimeOut = setTimeout(UI.unhideImages, 500, query);
-      html = html.replace(/background\s*-\s*image\s*:\s*url/g,"tempbackground-tempimage:tempurl");
-      html = html.replace(/<\s*img\s/g, "<tempimg ");
-      return html;
-    },
-    redrawDropdown: function(newHTML, query, showImages) {
-      console.log("drawing dropdown", showImages)
-      if(!showImages) {
-        newHTML = UI.hideImages(newHTML);
-      }
-
-
+    redrawDropdown: function(newHTML, query) {
       var box = gCliqzBox.resultsBox;
 
       if(query && query.indexOf(UI.lastQuery) == -1) box.innerHTML = "";

@@ -8,7 +8,7 @@
 </div>
 
 <div class='cliqz-bitcoin-logo'>
-    <img class='cliqz-bitcoin-logo' src="http://cdn.cliqz.com/extension/EZ/bitcoin/logo.png" />
+    <img class='cliqz-bitcoin-logo' data-src="http://cdn.cliqz.com/extension/EZ/bitcoin/logo.png" />
 </div>
 
 {{#each data.results}}

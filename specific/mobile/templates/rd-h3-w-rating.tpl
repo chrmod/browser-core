@@ -21,11 +21,11 @@ IT IS USED AS A PARTIAL template
     <h1 class="main__headline"><a href="{{../url}}">{{richData.name}}</a></h1>
     <div class="main__rating">
         {{#if richData.url_ratingimg}}
-            <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
+            <img data-src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
         {{/if}}
 
         {{#if richData.rating.img}}
-            <img src="{{richData.rating.img}}" class="cqz-rd-rateimg"/>
+            <img data-src="{{richData.rating.img}}" class="cqz-rd-rateimg"/>
         {{/if}}
     </div>
     <p class="main__content">{{richData.des}}</p>
