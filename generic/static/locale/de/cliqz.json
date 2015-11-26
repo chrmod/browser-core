@@ -919,5 +919,20 @@
     },
     "humanWeb10": {
       "message": "Ich nehme am Human Web teil"
+    },
+    "attrack-headline-deactivate": {
+      "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
+    },
+    "attrack-headline-no-site": {
+      "message": "=={}===no-site==={}=="
+    },
+    "attrack-btn-power-on": {
+      "message": "Turn On Anti Tracking"
+    },
+    "attrack-btn-power-off": {
+      "message": "Turn Off Anti Tracking"
+    },
+    "attrack-btn-white-list": {
+      "message": "White-List"
     }
 }

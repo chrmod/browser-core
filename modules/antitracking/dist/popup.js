@@ -23,7 +23,13 @@ function setBodyClass(options) {
 
 function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-    el.innerHTML = chrome.i18n.getMessage(el.dataset.i18n);
+    if(el.dataset.i18n.indexOf(',') != -1) {
+      var elArgs = el.dataset.i18n.split(",");
+      console.log(elArgs);
+      el.innerHTML = chrome.i18n.getMessage.apply(null, arguments);
+    }else {
+      el.innerHTML = chrome.i18n.getMessage(el.dataset.i18n);
+    }
   });
 }
 
