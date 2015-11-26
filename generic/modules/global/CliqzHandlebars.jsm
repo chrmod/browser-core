@@ -308,11 +308,7 @@ function registerHelpers(){
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
     });
-
-
-
     
-
     Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         lvalue = parseFloat(lvalue);
         rvalue = parseFloat(rvalue);
@@ -469,6 +465,6 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('numberFormat', function (number) {
-        return number.toLocaleString('de-DE'); // localization is forced to german
+        return number.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
     });
 }

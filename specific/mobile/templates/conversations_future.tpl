@@ -17,16 +17,16 @@
 	          			<li>
 	          				<a href="{{url}}">{{title}}</a><br />
 	          				{{time}}<br />
-	          				<img src="{{thumbnail}}" /><br />
+	          				<img data-src="{{thumbnail}}" /><br />
 	          				{{description}}<br />
 	          				<!--{{created_at}}<br />-->
-	          				<!--<img src="{{media}}" /><br />-->
+	          				<!--<img data-src="{{media}}" /><br />-->
 	          			</li>
-	          			
+
 
 	          		{{/each}}
           		</ul>
-          	</div>             
+          	</div>
           {{/each}}
     </p>
 

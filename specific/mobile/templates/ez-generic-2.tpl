@@ -23,7 +23,7 @@
           <div class="clz_zero_info_sec">
             {{#each (zeroclick_prep zeroInf)}}
               <div class="clz_zero_info" cliqz-action="copy_val">
-                <img src="{{img}}" class="cqz-zero-img clz_copy" onerror="this.style.display='none';"/>
+                <img data-src="{{img}}" class="cqz-zero-img clz_copy" onerror="this.style.display='none';"/>
                 <span extra="zeroclz" class="clz_copy">{{val}} </span>
               </div>
               {{/each}}

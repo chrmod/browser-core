@@ -77,18 +77,15 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
-  TEMPLATES: {'vod':1,'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
-      'generic': 1,
-      'conversations': 1,
-      "conversations_future": 1,
-       /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
+  TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+      'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'entity-portal': 3, 'topsites': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'flightStatusEZ-2': 2, 'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 
+      'ligaEZ1Game': 2,
       'ligaEZUpcomingGames': 3,
       'ligaEZTable': 3,
       'local-movie-sc':3,
@@ -96,16 +93,15 @@ var CliqzUtils = {
       'local-data-sc': 2,
       'recipe': 3,
       'rd-h3-w-rating': 1,
-      'ramadan': 3,
       'ez-generic-2': 3,
       'cpgame_movie': 3,
       'delivery-tracking': 2,
-      'vod': 3
-
+      'vod': 3,
+      'conversations': 1,
+      'conversations_future': 1
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
-  UI: null,
   init: function(win){
 
     if (win && win.navigator) {
@@ -130,10 +126,8 @@ var CliqzUtils = {
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
           function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
-            var retry;
-            if(retry = retryPattern.pop()){
-              CliqzUtils.setTimeout(getLogoDB, retry);
-            }
+            var retry = retryPattern.pop();
+            if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
           }
           , MINUTE/2);
       })();
@@ -148,21 +142,6 @@ var CliqzUtils = {
       NOTE: this function can't recognize numbers in the form such as: "1.2B", but it can for "1e4". See specification for isFinite()
        */
       return !isNaN(parseFloat(n)) && isFinite(n);
-  },
-
-  // get the target of an event
-  getTargetAttribute: function(ev,attributeName) {
-    var target,
-        attribute;
-
-    if(ev.hasOwnProperty("originalTarget")) {
-      target = ev.originalTarget;
-      attribute = target[attributeName];
-    } else if(ev.hasOwnProperty("target")) {
-      target = ev.target;
-      attribute = target.attributes[attributeName].nodeValue;
-    } 
-    return attribute;
   },
 
   //returns the type only if it is known
@@ -293,14 +272,8 @@ var CliqzUtils = {
   },
   getPrefs: CLIQZEnvironment.getPrefs,
   getPref: CLIQZEnvironment.getPref,
+  isPrefBool: CLIQZEnvironment.isPrefBool,
   setPref: CLIQZEnvironment.setPref,
-  setUI: function(UI) {
-    CliqzUtils.UI = UI;
-  },
-  getUI: function() {
-    return CliqzUtils.UI;
-  },
-  
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
@@ -667,7 +640,7 @@ var CliqzUtils = {
       callback && callback(res, q);
     });
 
-    // CliqzUtils.requestMonitor.addRequest(req);
+    CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -805,9 +778,8 @@ var CliqzUtils = {
   isPrivate: CLIQZEnvironment.isPrivate,
   trk: [],
   trkTimer: null,
-  sendsTelemetry: false,
   telemetry: function(msg, instantPush) {
-    if(!CliqzUtils || !CliqzUtils.sendsTelemetry) return; //might be called after the module gets unloaded
+    if(!CliqzUtils) return; //might be called after the module gets unloaded
     var current_window = CliqzUtils.getWindow();
     if(msg.type != 'environment' &&
        current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
@@ -1020,15 +992,15 @@ var CliqzUtils = {
   getAdultFilterState: function(){
     var data = {
       'conservative': {
-              name: CliqzUtils.getLocalizedString('adultConservative'),
+              name: CliqzUtils.getLocalizedString('always'),
               selected: false
       },
       'moderate': {
-              name: CliqzUtils.getLocalizedString('adultModerate'),
+              name: CliqzUtils.getLocalizedString('always_ask'),
               selected: false
       },
       'liberal': {
-          name: CliqzUtils.getLocalizedString('adultLiberal'),
+          name: CliqzUtils.getLocalizedString('never'),
           selected: false
       }
     };
@@ -1065,13 +1037,13 @@ var CliqzUtils = {
         })
       })
 
+
+
       return Result.cliqzExtra(
               {
                   data:
                   {
                       template:'noResult',
-                      searchString: urlbar.value,
-                      encodedSearchString: encodeURIComponent(urlbar.value),
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
                       // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
                       // we should take care of this specific case differently on alternative platforms

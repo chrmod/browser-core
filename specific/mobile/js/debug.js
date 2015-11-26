@@ -45,7 +45,7 @@ function trace() {
     throw new Error('myError');
   }
   catch(e) {
-    Logger.logScreen(JSON.stringify(e.stack),"TRACE");
+    CliqzUtils.log(JSON.stringify(e.stack),"TRACE");
   }
 }
 
@@ -61,9 +61,12 @@ CLIQZ.Core.popup.hidePopup = function() {}
 
 CLIQZ.UI.init(urlbar);
 
-CLIQZ.UI.main(resultsBox);
-
-CLIQZ.Core.popup.cliqzBox = resultsBox;
+function initResultBox () {
+  if(!CliqzHandlebars.tplCache.main) return setTimeout(initResultBox, 100);
+  CLIQZ.UI.main(resultsBox);
+  CLIQZ.Core.popup.cliqzBox = resultsBox;
+};
+initResultBox();
 
 CLIQZEnvironment.updateGeoLocation();
 
@@ -381,7 +384,7 @@ function updateFromValue(data) {
   var toInput = document.getElementById("toInput");
   var toAmount = document.getElementById("toAmount");
   var toValue = getNumValue(parseFloat(fromInput.value) * parseFloat(data.mConversionRate));
-  toAmount.innerText = toValue.toLocaleString('de-DE');
+  toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   toInput.value = toValue;
 }
 
@@ -391,7 +394,7 @@ function updateToValue(data) {
   var toAmount = document.getElementById("toAmount");
   var toValue = getNumValue(parseFloat(toInput.value));
   var fromValue = getNumValue(toValue / parseFloat(data.mConversionRate));
-  toAmount.innerText = toValue.toLocaleString('de-DE');
+  toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   fromInput.value = fromValue;
 }
 

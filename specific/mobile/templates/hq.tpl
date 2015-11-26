@@ -8,18 +8,18 @@
     {{#if data.richData.images.length}}
         <div class="__main__image __many">
           {{#if data.richData.map}}
-            <img url="{{data.richData.map.search_url}}" class="__main__image__many" 
-                src="{{data.richData.map.url}}" />
+            <img url="{{data.richData.map.search_url}}" class="__main__image__many"
+                data-src="{{data.richData.map.url}}" />
           {{/if}}
 
           {{#each data.richData.images}}
             {{#if (limit_images_shown @index 4)}}
-                <img class="__main__image__many" src="{{this}}"  onerror="this.style.display='none';"/>
+                <img class="__main__image__many" data-src="{{this}}"  onerror="this.style.display='none';"/>
             {{/if}}
           {{/each}}
         </div>
     {{/if}}
-    
+
     <h1 class="main__headline"><a href="{{url}}">{{ emphasis title text 2 true }}</a></h1>
     <p class="main__content">{{ emphasis data.description text 2 true }}</p>
 </div>

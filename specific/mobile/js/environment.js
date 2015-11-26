@@ -9,11 +9,11 @@ var lastSucceededUrl;
 var latestUrl;
 
 function resendRequest(forceResend) {
-  Logger.logScreen("incoming, isRequestFailed="+isRequestFailed,"resendRequest");
+  CliqzUtils.log("incoming, isRequestFailed="+isRequestFailed,"resendRequest");
   var shouldResend = forceResend || isRequestFailed;
   hideOfflineDiv();
   if(shouldResend) {
-    Logger.logScreen("RESENDING","resendRequest");
+    CliqzUtils.log("RESENDING","resendRequest");
     setTimeout(CLIQZEnvironment.search , 500);
     isRequestFailed = false;
   }

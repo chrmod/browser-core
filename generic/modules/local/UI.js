@@ -86,8 +86,6 @@ var UI = {
     },
     main: function(box) {
 
-        CliqzUtils.setUI(UI);
-
         gCliqzBox = box;
 
         //check if loading is done
@@ -154,7 +152,7 @@ var UI = {
           });
       }
 
-      var currentResults = CLIQZ.UI.results({ ///xxxxxxxxxxxxxxxxxxxx
+      var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
         isInstant: lastRes && lastRes.isInstant
@@ -194,12 +192,6 @@ var UI = {
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
 
-        if (CliqzUtils.getPref("topSitesV2", false)) {
-          // being here means we have results, i.e., no topsites
-          // thus remove topsites style
-          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
-        }
-
         // apply template
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
@@ -230,23 +222,18 @@ var UI = {
           var r = res[i];
           var query = r.text || r.query;
           var qt = query + ": " + new Date().getTime();
-          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           CliqzUtils.log(r,"LOADINGASYNC");
-          CLIQZEnvironment.logScreen(query,"loadAsyncResult");
+          CliqzUtils.log(query,"loadAsyncResult");
           var loop_count = 0;
           var async_callback = function(req) {
-              CLIQZEnvironment.logScreen(query,"async_callback");
-              //CliqzUtils.log(r, "GOT SOME RESULTS");
+              CliqzUtils.log(query,"async_callback");
               var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
-                //CliqzUtils.log(resp, "FINAL RESPONSE");
               }
               catch(err) {
                 res.splice(i,1);
               }
-              //CliqzUtils.log(r.text, "Here's the query");
-              //CliqzUtils.log(urlbar.value, "And the urlbar value");
               if (resp &&  urlbar.value == query) {
 
                 var kind = r.data.kind;
@@ -255,10 +242,6 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
-                        CLIQZEnvironment.logScreen(loop_count + " " + qt + ": " + query, "ASYNC NUMBER");
-                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
-                        CLIQZEnvironment.logScreen("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
@@ -304,32 +287,11 @@ var UI = {
 
       }
 
-    }, 
+    },
 
     lastInstantLength: 0,
     lastQuery: "",
-    unhideImages: function(query) {
-      var html = document.getElementById("cliqz-results").innerHTML;
-      html = html.replace(/tempbackground-tempimage:tempurl/g,"background-image:url");
-      html = html.replace(/<tempimg\s/g, "<img ");
-      UI.redrawDropdown(html, query, true);
-    },
-    hideImages: function(html, query) {
-      if(this.hideImagesTimeOut) {
-        window.clearTimeout(this.hideImagesTimeOut);
-      }
-      this.hideImagesTimeOut = setTimeout(UI.unhideImages, 500, query);
-      html = html.replace(/background\s*-\s*image\s*:\s*url/g,"tempbackground-tempimage:tempurl");
-      html = html.replace(/<\s*img\s/g, "<tempimg ");
-      return html;
-    },
-    redrawDropdown: function(newHTML, query, showImages) {
-      console.log("drawing dropdown", showImages)
-      if(!showImages) {
-        newHTML = UI.hideImages(newHTML);
-      }
-
-
+    redrawDropdown: function(newHTML, query) {
       var box = gCliqzBox.resultsBox;
 
       if(query && query.indexOf(UI.lastQuery) == -1) box.innerHTML = "";
@@ -414,7 +376,7 @@ var UI = {
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-        if(ev.keyCode != ESC && UI.popupClosed && typeof gCliqzBox.resultsBox != "undefined") {
+        if(ev.keyCode != ESC && UI.popupClosed) {
           gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
@@ -1270,23 +1232,11 @@ function getNotSupported(){
   */
 
 function updateMessageState(state, messages) {
-  lg({type:"updateMessageState",state:state,messages:messages});
-  
-  if(gCliqzBox.messageContainer) {
+  if (state != "show" || !messages) { messages = {}; }
 
-    if (state != "show" || !messages) { 
-      gCliqzBox.messageContainer.style.display = "none";
-      messages = {}; 
-    } else {
-      gCliqzBox.messageContainer.style.display = "block";
-    }
-
-    gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
-      return CliqzHandlebars.tplCache[tplName](messages[tplName]);
-    }).join("");
-
-  }
-
+  gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
+    return CliqzHandlebars.tplCache[tplName](messages[tplName]);
+  }).join("");
 }
 
 function getResultPosition(el){
