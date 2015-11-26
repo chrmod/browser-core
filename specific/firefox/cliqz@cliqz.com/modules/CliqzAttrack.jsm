@@ -4690,12 +4690,21 @@ var CliqzAttrack = {
           var win = enumerator.getNext();
           CliqzAttrack.initWindow(win);
       }
+      // telemetry
+      CliqzUtils.telemetry({
+        'type': 'attrack',
+        'action': 'enable_' + (module_only ? 'abtest' : 'manual')
+      });
     },
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
       CliqzAttrack.unload();
       CliqzUtils.setPref('antiTrackTest', false);
+      CliqzUtils.telemetry({
+        'type': 'attrack',
+        'action': 'disable'
+      });
     },
     disabled_sites: new Set(),
     isSourceWhitelisted: function(hostname) {
@@ -4703,8 +4712,22 @@ var CliqzAttrack = {
     },
     addSourceDomainToWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.add(domain);
+      CliqzUtils.telemetry({
+        'type': 'attrack',
+        'action': 'domain_whitelist_add'
+      });
+      // also send domain to humanweb
+      CliqzHumanWeb.telemetry({
+        'type': CliqzHumanWeb.msgType,
+        'action': 'attrack.whitelistDomain',
+        'payload': domain
+      });
     },
     removeSourceDomainFromWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.delete(domain);
+      CliqzUtils.telemetry({
+        'type': 'attrack',
+        'action': 'domain_whitelist_remove'
+      });
     }
 };
