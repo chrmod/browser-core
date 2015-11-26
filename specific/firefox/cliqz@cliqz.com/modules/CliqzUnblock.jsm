@@ -51,7 +51,7 @@ var ProxyManager = function(proxy_service) {
   this._ctrs = {};
   this._last = null;
   this._preferred_regions = ['IR', 'US', 'UK', 'DE'];
-  this.PROXY_UPDATE_URL = 'https://s3.amazonaws.com/sam-cliqz-test/unblock/proxies.json';
+  this.PROXY_UPDATE_URL = 'https://cdn.cliqz.com/unblock/proxies.json';
   //this.updateProxyList();
   CliqzUtils.createLazyResourceLoader({
     url: this.PROXY_UPDATE_URL,

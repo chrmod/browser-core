@@ -226,7 +226,7 @@ var YoutubeUnblocker = {
   video_lookup_cache: new Set(),
   proxied_videos: new Set(),
   last_success: null,
-  CONFIG_URL: "chrome://cliqz/content/yt_unblock_config.json",
+  CONFIG_URL: "https://cdn.cliqz.com/unblock/yt_unblock_config.json",
 }
 
 // -- getParametersQS function from CliqzAttrack, replace after attrack is merged into master
