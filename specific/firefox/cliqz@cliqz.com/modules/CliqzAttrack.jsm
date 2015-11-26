@@ -2333,6 +2333,8 @@ var CliqzAttrack = {
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpResponseObserver, "http-on-examine-response", false);
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpResponseObserver, "http-on-examine-cached-response", false);
 
+        CliqzAttrack.disabled_sites = new Set(JSON.parse(CliqzUtils.getPref(CliqzAttrack.DISABLED_SITES_PREF), "[]"));
+
     },
     /** Per-window module initialisation
      */
@@ -4707,6 +4709,11 @@ var CliqzAttrack = {
       });
     },
     disabled_sites: new Set(),
+    DISABLED_SITES_PREF: "attrackSourceDomainWhitelist",
+    saveSourceDomainWhitelist: function() {
+      CliqzUtils.setPref(CliqzAttrack.DISABLED_SITES_PREF,
+        JSON.stringify(Array.from(CliqzAttrack.disabled_sites)));
+    },
     isSourceWhitelisted: function(hostname) {
         return CliqzAttrack.disabled_sites.has(hostname);
     },
@@ -4722,6 +4729,7 @@ var CliqzAttrack = {
         'action': 'attrack.whitelistDomain',
         'payload': domain
       });
+      CliqzAttrack.saveSourceDomainWhitelist();
     },
     removeSourceDomainFromWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.delete(domain);
@@ -4729,5 +4737,6 @@ var CliqzAttrack = {
         'type': 'attrack',
         'action': 'domain_whitelist_remove'
       });
+      CliqzAttrack.saveSourceDomainWhitelist();
     }
 };
