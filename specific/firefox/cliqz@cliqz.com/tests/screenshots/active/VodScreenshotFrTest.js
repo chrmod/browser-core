@@ -21,5 +21,6 @@ TESTS.VodScreenshotFrTest = prepareScreenshotTest({
     upload: {
         dropdown_width: 502
     },
-    queries: QUERIES.vod
+    queries: QUERIES.vod,
+    test_groups: ['nightly']
 });

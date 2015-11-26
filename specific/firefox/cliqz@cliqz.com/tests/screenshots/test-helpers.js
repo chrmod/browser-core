@@ -56,8 +56,7 @@ function prepareScreenshotTest(cfg) {
     }
 
     function escapeQuery(query) {
-        return query.replace(/ /g, '_').
-                     replace(/:/g, '_');
+        return query.replace(/\/|:| /g, '_');
     }
 
     function defaultBefore() {
@@ -120,7 +119,8 @@ function prepareScreenshotTest(cfg) {
                     });
                 }).then(function () {
                     return Screenshot.exec({
-                        filename: 'dropdown-' + padNumber(i, 2) + '-' + escapeQuery(query)
+                        filename: (cfg.file_prefix !== undefined ?
+                          cfg.file_prefix : 'dropdown-' + padNumber(i, 2) + '-') + escapeQuery(query)
                     });
                 });
             });
