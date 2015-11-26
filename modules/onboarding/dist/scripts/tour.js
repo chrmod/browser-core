@@ -2,21 +2,9 @@
 /*
  * Interactive onboarding for new UI.
  *
- * 
+ *
  * author: Dominik Schmidt (cliqz)
  */
-
-var EXPORTED_SYMBOLS = ['CliqzTour'];
-
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
-  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 // TODO: destroy?
 var CliqzTour = {
@@ -33,7 +21,7 @@ var CliqzTour = {
     urlBar: null,
     win: null,
     tab: null,
-    browser: null, 
+    browser: null,
     contentDocument: null,
     visibleLabel: null,
 
@@ -45,7 +33,7 @@ var CliqzTour = {
     callout: null,
     // mouse cursor or lens
     cursor: null,
-    
+
     // stored results to inject into dropdown
     results: { },
     // cache of frequently used elements on onboarding page
@@ -63,26 +51,26 @@ var CliqzTour = {
 
     // all the action
     storyboard: [
-        { f: function () {            
+        { f: function () {
             // wait a bit, otherwise URL bar won't be cleared
         }, t: 100 },
         // clear URL bar and hide mouse cursor
-        { f: function () {            
+        { f: function () {
             CliqzTour.clearUrlBar();
             CliqzTour.clearDropdown();
             // TODO: use CSS "disabled" class for this
             CliqzTour.getPageElement("tour-btn").style.cursor = "none";
         }, t: 100 },
         // blur out current page
-        { f: function () {            
+        { f: function () {
             CliqzTour.getPageElement('main-page').style.transition = 'filter .5s ease-in-out';
-            CliqzTour.getPageElement('main-page').style.filter = 'blur(10px)'; 
+            CliqzTour.getPageElement('main-page').style.filter = 'blur(10px)';
         }, t: 400 },
         // position mouse cursor on button and show cancel button
         { f: function () {
             // var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
             // var x = buttonBounds.x + buttonBounds.width / 2;
-            // var y = buttonBounds.y + buttonBounds.height / 2;            
+            // var y = buttonBounds.y + buttonBounds.height / 2;
             var x = 500,
                 y = 50;
 
@@ -92,45 +80,45 @@ var CliqzTour = {
             CliqzTour.showCursor();
             // TODO: disable button
             CliqzTour.showPageElement('tour-btn-cancel');
-        }, t: 500 },        
-        // move mouse cursor to URL bar        
-        { f: function () {            
+        }, t: 500 },
+        // move mouse cursor to URL bar
+        { f: function () {
             CliqzTour.movePopupTo(CliqzTour.cursor, 30, 5, 1.5);
         }, t: 1500 },
         { f: function () {
             CliqzTour.performClick();
-        }, t: 1000 }, 
+        }, t: 1000 },
         // show "type here" callout
-        { f: function () {                        
+        { f: function () {
             CliqzTour.setCalloutMessage(
-                CliqzUtils.getLocalizedString("onCalloutTypeHere")); 
+                CliqzUtils.getLocalizedString("onCalloutTypeHere"));
             CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");
-        }, t: 3000 },        
+        }, t: 3000 },
         // start typing and move lens
-        { f: function () {            
+        { f: function () {
             // FIXME: this closes dropdown
             // CliqzTour.focusUrlBar();
             CliqzTour.openDropdown();
 
             CliqzTour.typeMessage(CliqzTour.searchQuery);
 
-            CliqzTour.hideCallout(); 
+            CliqzTour.hideCallout();
 
             CliqzTour.hideCursor();
-            CliqzTour.setCursorAppearance("lens");            
+            CliqzTour.setCursorAppearance("lens");
             CliqzTour.movePopupTo(CliqzTour.cursor, 10, CliqzTour.getPopupUrlBarCenterOffsetY());
             CliqzTour.showCursor();
 
             CliqzTour.telemetry("step_query_started");
-        }, t: 50 },     
+        }, t: 50 },
         // move lens
         { f: function () {
             CliqzTour.movePopupBy(CliqzTour.cursor,
-                CliqzTour.searchQuery.length * 6, 0, 
+                CliqzTour.searchQuery.length * 6, 0,
                 CliqzTour.searchQuery.length / CliqzTour.charsPerSecond);
         }, t: 1300 },
         // show intermediate results in dropdown
-        { f: function () {            
+        { f: function () {
             CliqzTour.win.CLIQZ.UI.results(CliqzTour.results.intermediate);
         }, t: 1100 },
         // show final results in dropdown
@@ -143,8 +131,8 @@ var CliqzTour = {
         { f: function () {
             CliqzTour.hideCursor();
             CliqzTour.setCalloutMessage(
-                CliqzUtils.getLocalizedString("onCalloutCliqzResults")); 
-            CliqzTour.showCallout(-5, 0, CliqzTour.win.CLIQZ.Core.popup, "end_before"); 
+                CliqzUtils.getLocalizedString("onCalloutCliqzResults"));
+            CliqzTour.showCallout(-5, 0, CliqzTour.win.CLIQZ.Core.popup, "end_before");
         }, t: 3500 },
         // show "click here" callout
         { f: function () {
@@ -165,37 +153,37 @@ var CliqzTour = {
                 x = 40; y = -40;
             } catch (e) { }
 
-            CliqzTour.showCallout(x, y, anchor, position);            
-        }, t: 3500 }, 
+            CliqzTour.showCallout(x, y, anchor, position);
+        }, t: 3500 },
         // reset mouse cursor position
         { f: function () {
             //CliqzTour.closePopup();
             CliqzTour.setCursorAppearance("cursor");
             CliqzTour.movePopupTo(CliqzTour.cursor, 30, 5);
-            CliqzTour.showCursor();                               
+            CliqzTour.showCursor();
         }, t: 250 },
         // move mouse cursor over first result
         { f: function () {
             CliqzTour.movePopupTo(CliqzTour.cursor, 190, 55, 1);
         }, t: 250 },
         // highlight first result
-        { f: function () {            
-            CliqzTour.win.CLIQZ.UI.simulateSelectFirstElement();    
+        { f: function () {
+            CliqzTour.win.CLIQZ.UI.simulateSelectFirstElement();
         }, t: 1500 },
         // "click"
         { f: function () {
             CliqzTour.performClick();
         }, t: 750 },
         // simulate loading (i.e., show white page)
-        { f: function () {                        
+        { f: function () {
             CliqzTour.urlBar.value = 'http://riversurfen.tumblr.com/';
             CliqzTour.getPageElement("landing-page-background").style.opacity = 1;
-            CliqzTour.getPageElement("landing-page-background").style.visibility = 'visible';            
+            CliqzTour.getPageElement("landing-page-background").style.visibility = 'visible';
             CliqzTour.hideCursor();
             CliqzTour.hideCallout();
         }, t: 0 },
         // close dropdown
-        { f: function () {            
+        { f: function () {
             CliqzTour.closeDropdown();
             CliqzTour.browser.focus();
         }, t: 750 },
@@ -212,26 +200,26 @@ var CliqzTour = {
             CliqzTour.getPageElement('landing-page-callout').style.opacity = 0;
             CliqzTour.getPageElement('landing-page-callout').style.visibility = 'visible';
 
-            CliqzUtils.setTimeout(function () {                
+            CliqzUtils.setTimeout(function () {
                 CliqzTour.getPageElement('landing-page-callout').style.transition = 'opacity 1s ease-in-out';
                 CliqzTour.getPageElement('landing-page-callout').style.opacity = 1;
             }, 25);
 
             // change main message (still hidden)
-            CliqzTour.setTextContent(CliqzTour.getPageElement('message-installed'), 
+            CliqzTour.setTextContent(CliqzTour.getPageElement('message-installed'),
                 CliqzUtils.getLocalizedString('onMsgDemoDone'));
         }, t: 4000 },
         // fade out landing page
         { f: function () {
             CliqzTour.getPageElement('main-page').style.transition = 'none';
-            CliqzTour.getPageElement('main-page').style.filter = 'none'; 
-            CliqzTour.setTextContent(CliqzTour.getPageElement('tour-btn'), 
+            CliqzTour.getPageElement('main-page').style.filter = 'none';
+            CliqzTour.setTextContent(CliqzTour.getPageElement('tour-btn'),
                 CliqzUtils.getLocalizedString('onButtonTryOutAgain'));
 
             CliqzTour.getPageElement("landing-page-background").style.transition = 'opacity 1.5s ease-in-out';
             CliqzTour.getPageElement("landing-page-background").style.opacity = 0;
 
-            CliqzTour.hidePageElement('tour-btn-cancel'); 
+            CliqzTour.hidePageElement('tour-btn-cancel');
 
             CliqzTour.showPageElement('tour-btn');
             CliqzTour.getPageElement("tour-btn").style.cursor = "auto";
@@ -243,8 +231,8 @@ var CliqzTour = {
             CliqzTour.getPageElement("landing-page-content").style.visibility = 'hidden';
             CliqzTour.getPageElement('landing-page-content').style.transition = 'none';
             CliqzTour.getPageElement('landing-page-content').style.filter = 'none';
-            CliqzTour.getPageElement("landing-page-background").style.visibility = 'hidden';   
-            CliqzTour.getPageElement('landing-page-callout').style.visibility = 'hidden';                                                                             
+            CliqzTour.getPageElement("landing-page-background").style.visibility = 'hidden';
+            CliqzTour.getPageElement('landing-page-callout').style.visibility = 'hidden';
         }, t: 1000 },
         // show "now you" callout
         { f: function () {
@@ -257,9 +245,9 @@ var CliqzTour = {
             CliqzTour.urlBar.setSelectionRange(0, CliqzTour.urlBar.mInputField.value.length);
 
             CliqzTour.clearDropdown();
-                        
+
             // clear URL bar on click and hide callout
-            CliqzTour.urlBar.addEventListener('click', CliqzTour.clearUrlBarListener); 
+            CliqzTour.urlBar.addEventListener('click', CliqzTour.clearUrlBarListener);
             CliqzTour.callout.addEventListener('click', CliqzTour.clearUrlBarListener);
 
             var keypressListener = function () {
@@ -270,7 +258,7 @@ var CliqzTour = {
         }, t: 0 },
         // open dropdown and clean up
         { f: function () {
-            // CliqzTour.openDropdown();    
+            // CliqzTour.openDropdown();
             CliqzTour.focusUrlBar();
 
             CliqzTour.isRunning = false;
@@ -301,11 +289,11 @@ var CliqzTour = {
 
         if (!CliqzTour.callout) {
             CliqzTour.callout = CliqzTour.createPopup("callout");
-            CliqzTour.cursor = CliqzTour.createPopup("cursor");            
+            CliqzTour.cursor = CliqzTour.createPopup("cursor");
         }
 
         CliqzTour.startCount = 0;
-        
+
         CliqzTour.callout.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
         CliqzTour.callout.addEventListener(
@@ -337,7 +325,7 @@ var CliqzTour = {
         CliqzTour.setTemplateContent(
             CliqzTour.callout.firstChild,
             'onboarding-callout',
-            { 
+            {
                 message: CliqzUtils.getLocalizedString("onCalloutIntro"),
                 options: [
                     { label: CliqzUtils.getLocalizedString("onCalloutIntroBtnStart"), action: 'onboarding-start', state: 'ok' },
@@ -351,15 +339,15 @@ var CliqzTour = {
         CliqzTour.clearUrlBar();
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
-    }, 
+    },
     start: function(source) {
-        if (!CliqzTour.isRunning) {                   
+        if (!CliqzTour.isRunning) {
             var scheduler = {
                 queue: [ ],
                 speedup: 1,
                 run: function () {
-                    let next = this.queue.shift();
-                    let self = this;
+                    var next = this.queue.shift();
+                    var self = this;
 
                     if (next) {
                         // CliqzTour.log('preparing storyboard item');
@@ -371,12 +359,12 @@ var CliqzTour = {
                                 try {
                                     next.f();
                                     // wait
-                                    // CliqzTour.log('scheduling next storyboard item');                                    
+                                    // CliqzTour.log('scheduling next storyboard item');
                                 } catch (e) {
-                                    CliqzTour.log('error running storyboard item: ' + e);                                    
+                                    CliqzTour.log('error running storyboard item: ' + e);
                                 }
-                                CliqzUtils.setTimeout(function() {                        
-                                    self.run(); 
+                                CliqzUtils.setTimeout(function() {
+                                    self.run();
                                 }, next.t / self.speedup);
                             }
                         }, 0);
@@ -385,15 +373,15 @@ var CliqzTour = {
                 push: function(f, t) {
                     this.queue.push({ f: f, t: t });
                 }
-            };                
-            
+            };
+
             scheduler.queue = CliqzTour.storyboard.slice(0);
             // for debugging... to not have to wait that long :)
             scheduler.speedup = 1;
 
             CliqzTour.isRunning = true;
-            scheduler.run();            
-            
+            scheduler.run();
+
             CliqzTour.telemetry("started", {
                 "source": source,
                 "start_count": CliqzTour.startCount
@@ -444,7 +432,7 @@ var CliqzTour = {
     },
     reset: function () {
         CliqzTour.getPageElement('main-page').style.transition = 'none';
-        CliqzTour.getPageElement('main-page').style.filter = 'none'; 
+        CliqzTour.getPageElement('main-page').style.filter = 'none';
 
         CliqzTour.getPageElement("landing-page-content").style.visibility = 'hidden';
         CliqzTour.getPageElement('landing-page-content').style.transition = 'none';
@@ -463,9 +451,9 @@ var CliqzTour = {
             CliqzTour.hideCursor();
             CliqzTour.clearDropdown();
             CliqzTour.clearUrlBar();
-        }, 0);        
+        }, 0);
     },
-    cancel: function (source) {   
+    cancel: function (source) {
         CliqzTour.telemetry("canceled", {
             "source": source
         });
@@ -499,11 +487,11 @@ var CliqzTour = {
             e.target.id != "tour-btn" &&
             !e.target.getAttribute('cliqz-action')) {
 
-            CliqzTour.cancel("callout");            
-        }        
+            CliqzTour.cancel("callout");
+        }
     },
     keyupListener: function (e) {
-        switch (e.key) { 
+        switch (e.key) {
             case "Escape":
             case "Tab":
                 if (CliqzTour.isInitialPhase) {
@@ -526,7 +514,7 @@ var CliqzTour = {
     popupHiddenListener: function (e) {
         // stop tour only if hiding was triggered by user, but
         // not if triggered programmatically via hidePopup()
-        if (CliqzTour.isRunning && 
+        if (CliqzTour.isRunning &&
             e.target.getAttribute("isHiding") != "true") {
             CliqzTour.telemetry("canceled", { "source": "interrupt" });
             CliqzTour.stop();
@@ -538,8 +526,8 @@ var CliqzTour = {
         if (CliqzTour.isInitialPhase && e.target.getAttribute("preventHiding") == "true") {
             if (CliqzTour.isMouseOverUrlBar) {
                 CliqzTour.clearUrlBar();
-                CliqzTour.focusUrlBar();    
-                CliqzTour.isInitialPhase = false;            
+                CliqzTour.focusUrlBar();
+                CliqzTour.isInitialPhase = false;
             } else {
                 e.preventDefault();
             }
@@ -559,7 +547,7 @@ var CliqzTour = {
                 case 'onboarding-cancel':
                     CliqzTour.log('popupClickListener');
                     CliqzTour.callout.setAttribute("preventHiding", false);
-                    CliqzTour.hideCallout(); 
+                    CliqzTour.hideCallout();
                     CliqzTour.showPageElement('tour-btn');
                     CliqzTour.isInitialPhase = false;
                     CliqzTour.focusUrlBar();
@@ -567,10 +555,10 @@ var CliqzTour = {
             }
         }
     },
-    urlBarMouseEnterListener: function (e) { 
+    urlBarMouseEnterListener: function (e) {
         CliqzTour.isMouseOverUrlBar = true;
     },
-    urlBarMouseLeaveListener:  function (e) {             
+    urlBarMouseLeaveListener:  function (e) {
         CliqzTour.isMouseOverUrlBar = false;
     },
     clearUrlBarListener: function () {
@@ -578,7 +566,7 @@ var CliqzTour = {
         CliqzTour.urlBar.removeEventListener('click', CliqzTour.clearUrlBarListener);
 
         CliqzTour.hideCallout();
-        CliqzTour.callout.removeEventListener('click', CliqzTour.clearUrlBarListener);        
+        CliqzTour.callout.removeEventListener('click', CliqzTour.clearUrlBarListener);
     },
     tabSwitchListener: function () {
         // TODO: detect if a tab switch was away from our tab
@@ -586,11 +574,11 @@ var CliqzTour = {
             CliqzTour.telemetry('tab_switched');
             CliqzTour.stop();
             CliqzTour.reset();
-        }  
+        }
     },
     tabCloseListener: function (e) {
-        if (e.target.visibleLabel == CliqzTour.visibleLabel) {         
-            CliqzTour.telemetry("tab_closed");    
+        if (e.target.visibleLabel == CliqzTour.visibleLabel) {
+            CliqzTour.telemetry("tab_closed");
         }
     },
     focusUrlBar: function () {
@@ -600,7 +588,7 @@ var CliqzTour = {
     /** **** DOM helpers **** **/
     getPageElement: function (id) {
         if (!CliqzTour.pageElements.hasOwnProperty(id)) {
-            CliqzTour.pageElements[id] = 
+            CliqzTour.pageElements[id] =
                 CliqzTour.contentDocument.getElementById(id);
         }
         return CliqzTour.pageElements[id];
@@ -627,7 +615,7 @@ var CliqzTour = {
 
         CliqzUtils.setTimeout(function () {
             element.style.transition = 'opacity ' + duration + 's ease-in-out';
-            element.style.opacity = 0;            
+            element.style.opacity = 0;
         }, 0);
 
         CliqzUtils.setTimeout(function () {
@@ -644,7 +632,7 @@ var CliqzTour = {
             CliqzUtils.setTimeout(function() {
                 CliqzTour.urlBar.value = text.substr(0, ++pos);
                 CliqzTour.typeMessage(text, pos);
-            }, (1000.0 / CliqzTour.charsPerSecond) + Math.random(250)); 
+            }, (1000.0 / CliqzTour.charsPerSecond) + Math.random(250));
         }
     },
     setTextContent: function (node, text) {
@@ -677,12 +665,12 @@ var CliqzTour = {
     // call only once
     createPopup: function (type) {
         var container = CliqzTour.win.document.createElement('panel'),
-            content = CliqzTour.win.document.createElement('div'),            
-            anchor = CliqzTour.win.CLIQZ.Core.popup.parentElement;    
+            content = CliqzTour.win.document.createElement('div'),
+            anchor = CliqzTour.win.CLIQZ.Core.popup.parentElement;
 
         // TODO: use IDs instead of classes
         container.className = 'onboarding-container';
-        
+
         switch (type) {
             case "callout":
                 content.className = "onboarding-callout";
@@ -699,10 +687,10 @@ var CliqzTour = {
         // FIXME: this popup shows on top of all windows even if FF is not in front anymore
         container.setAttribute("level", "top");
         container.setAttribute("position", "topleft topleft");
-                
-        container.appendChild(content);    
+
+        container.appendChild(content);
         anchor.appendChild(container);
-        
+
         return container;
     },
     showCursor: function () {
@@ -735,9 +723,9 @@ var CliqzTour = {
     hideCallout: function () {
         CliqzTour.hidePopup(CliqzTour.callout);
     },
-    hidePopup: function (popup) {   
+    hidePopup: function (popup) {
         // set flag to distinguish popup hiding because of
-        // user interaction vs. programatic closing in storyboard     
+        // user interaction vs. programatic closing in storyboard
         if (CliqzTour.isRunning) {
             popup.setAttribute("isHiding", true);
         }
@@ -745,8 +733,8 @@ var CliqzTour = {
         popup.hidePopup();
         // TODO: fade out
     },
-    movePopupTo: function (popup, x, y, t) {  
-        if (t) {      
+    movePopupTo: function (popup, x, y, t) {
+        if (t) {
             popup.style.transition = 'all ' + t + 's ease-in-out';
         } else {
             popup.style.transition = 'none';
@@ -768,18 +756,18 @@ var CliqzTour = {
                 break;
             case "cursor":
                 CliqzTour.cursor.firstChild.className = "onboarding-cursor";
-                break;            
+                break;
             default:
                 CliqzTour.cursor.firstChild.className = "onboarding-lens";
         }
     },
-    setCalloutMessage: function (message) {        
+    setCalloutMessage: function (message) {
         CliqzTour.setTextContent(CliqzTour.callout.firstChild, message);
     },
     getPopupUrlBarCenterOffsetY: function () {
         // TODO: calculate
         return -13;
-        // return (CliqzTour.urlBar.clientHeight - 
+        // return (CliqzTour.urlBar.clientHeight -
         //         CliqzTour.callout.clientHeight) / 2;
     },
     getPopupUrlBarOnTopOffsetY: function () {
@@ -789,10 +777,10 @@ var CliqzTour = {
     },
     performClick: function () {
         CliqzTour.cursor.firstChild.style.transition = 'background-size .25s ease-in-out';
-        CliqzTour.cursor.firstChild.style.backgroundSize = "12px"; 
+        CliqzTour.cursor.firstChild.style.backgroundSize = "12px";
 
         CliqzUtils.setTimeout(function () {
-            CliqzTour.cursor.firstChild.style.backgroundSize = "20px"; 
+            CliqzTour.cursor.firstChild.style.backgroundSize = "20px";
         }, 250);
     }
 
