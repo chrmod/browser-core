@@ -1020,7 +1020,7 @@ var CliqzUtils = {
         }
       },
       fetch: function(load_conf) {
-        CliqzUtils.log("Load "+ load_conf.url +"", "xxx");
+        CliqzUtils.log("Load "+ load_conf.url +"", "CliqzUtils");
         load_conf.retries++;
         CliqzUtils.loadResource(load_conf.url, function(req) {
           let value = req.response;
