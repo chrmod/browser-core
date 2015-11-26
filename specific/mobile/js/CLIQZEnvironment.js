@@ -163,7 +163,6 @@ CLIQZEnvironment = {
     }
   },
   resultsHandler: function (r, requestHolder) {
-
     var status;
 
     if(requestHolder && requestHolder.req) {
@@ -177,11 +176,11 @@ CLIQZEnvironment = {
       return;
     }
 
-    if( status != 200 && requestHolder != "cache"){
-      trace();
-      CliqzUtils.log("status="+status+", returning","status!=200");
-      return;
-    }
+//     if( status != 200){
+//       trace();
+//       CliqzUtils.log("status="+status+", returning","status!=200");
+//       return;
+//     }
 
 
     CLIQZEnvironment.autoComplete(r._results[0].val);
