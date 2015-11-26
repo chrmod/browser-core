@@ -4,7 +4,7 @@
         <div class="cqz-rd-body">
             {{#if i}}
                     <div class="cqz-rd-img_div cqz-image-round">
-                        <img src="{{i}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
+                        <img data-src="{{i}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
                     </div>
                 {{/if}}
 
@@ -29,7 +29,7 @@
                         {{/if}}
 
                         {{#if r}}
-                            <img src="{{r.img}}" class="cqz-rd-rateimg" onerror="this.style.display='none';"/>
+                            <img data-src="{{r.img}}" class="cqz-rd-rateimg" onerror="this.style.display='none';"/>
                             <div class="cqz-rd-rate">
                                 {{localizeNumbers r.val}}/{{r.scale}}
                                 {{#if r.nVote}} {{local 'from_lcase'}} {{localizeNumbers r.nVote}} {{local 'Votes'}}{{/if}}
@@ -38,7 +38,7 @@
 
                         <div class="cqz-multy-lines-ellipses">
                             <div style="float: right;margin-right: 10px;margin-top: 5px;">
-                                <img src="{{itunes.logo}}" url="{{ itunes.ms.0.u }}" style="height: 30px" onerror="this.style.display='none';"/>
+                                <img data-src="{{itunes.logo}}" url="{{ itunes.ms.0.u }}" style="height: 30px" onerror="this.style.display='none';"/>
                             </div>
                             <p>{{des}}</p>
                         </div>

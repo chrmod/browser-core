@@ -15,6 +15,6 @@
 
     <div class="message">{{message}}</div>
 
-    <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
+    <img class="cliqz-logo" data-src="{{cliqz_logo}}" url="https://cliqz.com" />
 </div>
 {{/with}}

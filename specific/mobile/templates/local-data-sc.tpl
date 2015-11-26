@@ -12,22 +12,22 @@
           <div class="cf local__head">
             {{#if map_img}}
             <div class="main__image"/>
-                <img src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
+                <img data-src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
             </div>
             {{/if}}
             <h1 class="main__headline"><a url="{{../url}}" extra="title">{{title}}</a></h1>
             <div class="main__meta">
               <div class="cqz-rd-snippet_hspacing">
-                <img src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
+                <img data-src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
               </div>
               <div>
                   {{distance distance}}
               </div>
             </div>
           </div>
-          
+
           <div class="main__content description">{{description}}</div>
-        
+
         <div class="cqz-local-des-blk local-sc-data-container">
           {{#unless no_location}}
 
@@ -45,7 +45,7 @@
                     <div class="phone_num" onclick="osBridge.browserAction('{{phonenumber}}','phoneNumber')">
                       <div class="icon" style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/phone-1.svg)">
                         Icon
-                      </div> 
+                      </div>
                       <span class="clz_copy">{{phonenumber}}</span>
                     </div>
                   {{/if}}
@@ -56,7 +56,7 @@
                   <div class="cqz-local-time">
                     <div class="icon" style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/clock.svg)">
                       Icon
-                    </div> 
+                    </div>
                     <p class="cqz-local-time-title" style="color: {{opening_status.color}}">
                       {{opening_status.stt_text}}
                     </p>

@@ -22,7 +22,7 @@
   <div class="cqz-ez-stock-trend">
     <span>{{ localizeNumbers data.message.LastTradePriceOnly }}</span>
     <span class="{{ data.message.Colour }}">
-      <img src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>
+      <img data-src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>
       {{ localizeNumbers  data.message.Change }} ({{ localizeNumbers data.message.PercentChange }}%)
     </span>
   </div>
