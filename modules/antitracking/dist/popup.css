@@ -1,5 +1,6 @@
 html, body {
     height: 100%;
+    background: #f9f9f9;
 }
 
 div, span, a, object, iframe,
@@ -126,21 +127,22 @@ p {
 }
 
 .cqz-antitracking-popup {
-    height: 300px;
+    height: 200px;
     overflow: hidden;
-    padding: 20px;
-    border-radius: 0 0 6px 6px;
-    border: 1px solid green;
+    padding: 0 5px 5px;
     text-align: center;
 }
 
 .cqz-antitracking-popup .cqz-antrc-head {
-    padding: 35px 20px 35px 72px;
-    margin: -20px -20px 20px;
+    padding: 25px 10px 25px 72px;
+    margin: 0 0 20px;
     color: #fff;
     font-size: 16px;
-    background: green url("cliqz-logo-white.svg") no-repeat 20px 50%;
+    text-align: left;
+    background: #49CC80 url("cliqz-logo-white.svg") no-repeat 15px 50%;
 }
+
+.cqz-antrc-head .cqz-deactive-msg { display: none; }
 
 .cqz-antitracking-popup .cqz-antrc-head p {
     margin-bottom: 0;
@@ -154,8 +156,9 @@ ul.cqz-antrc-btns-holder {
 ul.cqz-antrc-btns-holder li {
     display: inline-block;
 }
+/*======== Antitrac BTN ===========*/
 
-a.cqz-antrc-btn {
+.cqz-antrc-btn {
     display: inline-block;
     padding: 6px 10px;
     margin-bottom: 5px;
@@ -166,9 +169,15 @@ a.cqz-antrc-btn {
     background: #ccc;
 }
 
-a.cqz-antrc-btn:hover {
+.cqz-antrc-btn:hover {
     background: #999;
 }
+
+.cqz-antrc-power-btn  {
+    background: #49CC80
+}
+
+.cqz-antrc-btn .cqz-turn-on { display: none; }
 
 .cqz-antrac-footer {
     color: #333;
@@ -179,6 +188,25 @@ a.cqz-antrc-btn:hover {
     margin-bottom: 0;
 }
 
-.cqz-attrack-enabled  .cqz-antrc-btn {
-   background-color: red !important;
+/*========= Antitrack Enabled =======*/
+
+.cqz-attrack-enabled .cqz-antrc-power-btn { background-color: #FF5349; }
+
+
+/*========= Antitrack Disabled =======*/
+
+.cqz-attrack-disabled .cqz-antrc-head .cqz-deactive-msg { display: block; }
+.cqz-attrack-disabled .cqz-antrc-head .cqz-general-msg { display: none; }
+.cqz-attrack-disabled .cqz-antitracking-popup .cqz-antrc-head { background-color: #FF5349; }
+.cqz-attrack-disabled .cqz-antrc-btn .cqz-turn-on { display: block; }
+.cqz-attrack-disabled .cqz-whitelist-btn,
+.cqz-attrack-disabled .cqz-antrc-btn .cqz-turn-off { display: none; }
+
+
+/*========= Antitrack Disabled =======*/
+.cqz-domain-in-whitelist .cqz-whitelist-btn {
+    background: #666;
+}
+.cqz-domain-in-whitelist .cqz-whitelist-btn:hover {
+    background: #333;
 }

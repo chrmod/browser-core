@@ -72,6 +72,7 @@ window.CLIQZ.COMPONENTS.push({
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         enabled: CliqzUtils.getPref("antiTrackTest"),
+        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname)
       });
     },
 
@@ -80,6 +81,16 @@ window.CLIQZ.COMPONENTS.push({
         CliqzAttrack.disableModule();
       } else {
         CliqzAttrack.enableModule();
+      }
+      cb();
+    },
+
+    toggleWhiteList(args, cb) {
+      var hostname = args.hostname;
+      if (CliqzAttrack.isSourceWhitelisted(hostname)) {
+        CliqzAttrack.removeSourceDomainFromWhitelist(hostname);
+      } else {
+        CliqzAttrack.addSourceDomainToWhitelist(hostname);
       }
       cb();
     }
@@ -151,12 +162,12 @@ function CliqzPopupButton(options) {
   var style = [
     '#' + tbb.id + '.off {',
       'list-style-image: url(',
-        'chrome://cliqzres/content/skin/cliqz_btn.svg',
+        'chrome://cliqzres/content/skin/images/antitracking/anti-tracking-off.svg',
       ');',
     '}',
     '#' + tbb.id + ' {',
       'list-style-image: url(',
-        'chrome://cliqzres/content/skin/cliqz_btn.svg',
+        'chrome://cliqzres/content/skin/images/antitracking/anti-tracking-on.svg',
       ');',
     '}',
     '#' + tbb.viewId + ',',
