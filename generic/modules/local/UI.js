@@ -85,9 +85,6 @@ var UI = {
         }
     },
     main: function(box) {
-
-        // CliqzUtils.setUI(UI);
-
         gCliqzBox = box;
 
         //check if loading is done
@@ -193,12 +190,6 @@ var UI = {
         if (!query)
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
-
-        if (CliqzUtils.getPref("topSitesV2", false)) {
-          // being here means we have results, i.e., no topsites
-          // thus remove topsites style
-          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
-        }
 
         // apply template
         if(gCliqzBox.resultsBox) {
@@ -1249,23 +1240,11 @@ function getNotSupported(){
   */
 
 function updateMessageState(state, messages) {
-  lg({type:"updateMessageState",state:state,messages:messages});
-  
-  if(gCliqzBox.messageContainer) {
+  if (state != "show" || !messages) { messages = {}; }
 
-    if (state != "show" || !messages) { 
-      gCliqzBox.messageContainer.style.display = "none";
-      messages = {}; 
-    } else {
-      gCliqzBox.messageContainer.style.display = "block";
-    }
-
-    gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
-      return CliqzHandlebars.tplCache[tplName](messages[tplName]);
-    }).join("");
-
-  }
-
+  gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
+    return CliqzHandlebars.tplCache[tplName](messages[tplName]);
+  }).join("");
 }
 
 function getResultPosition(el){

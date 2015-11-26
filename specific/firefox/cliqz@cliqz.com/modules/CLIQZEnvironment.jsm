@@ -56,7 +56,6 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     };
 
 var CLIQZEnvironment = {
-    logScreen() {},
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
     cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),

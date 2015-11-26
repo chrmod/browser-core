@@ -257,14 +257,6 @@ CLIQZEnvironment = {
           logscreen.style.left = "-5000px";
           return;
         }
-        var cache = localStorage.getCachedResult(urlbar.value);
-        if(cache) {
-          (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler, cache);
-          // CLIQZEnvironment.enrichResults(cache, 0);
-          // CLIQZEnvironment.resultsHandler(cache, "cache");
-          return;
-        }
-
         CLIQZEnvironment.startProgressBar();
 
 
@@ -513,7 +505,6 @@ CLIQZEnvironment = {
         if(isMixerUrl(url)){
           if(typeof CustomEvent != "undefined") {
             window.dispatchEvent(new CustomEvent("connected"));
-            CLIQZEnvironment.cacheResults(req);
           }
           lastSucceededUrl = url;
           CliqzUtils.log("status "+req.status,"onload");
