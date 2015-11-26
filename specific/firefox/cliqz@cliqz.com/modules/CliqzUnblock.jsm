@@ -51,10 +51,15 @@ var ProxyManager = function(proxy_service) {
   this._ctrs = {};
   this._last = null;
   this._preferred_regions = ['IR', 'US', 'UK', 'DE'];
-  this._last_update = 0;
-  this._min_update_interval = 1000 * 60 * 10;
   this.PROXY_UPDATE_URL = 'https://s3.amazonaws.com/sam-cliqz-test/unblock/proxies.json';
-  this.updateProxyList();
+  //this.updateProxyList();
+  CliqzUtils.createLazyResourceLoader({
+    url: this.PROXY_UPDATE_URL,
+    pref: "unblock_proxies",
+    this: this,
+    updateFn: this.updateProxyList,
+    updateFreq: 1000 * 60 * 10
+  });
 }
 
 ProxyManager.prototype = {
@@ -93,30 +98,17 @@ ProxyManager.prototype = {
       this._p[region].splice(ind, 1);
     }
   },
-  updateProxyList: function() {
-    var now = (new Date()).getTime(),
-      self = this;
-    if (this._last_update < now - this._min_update_interval) {
-      CliqzUtils.httpGet(this.PROXY_UPDATE_URL,
-        function success(req) {
-          let proxies = JSON.parse(req.response);
-          CliqzUtils.log(proxies, "unblock");
-          // reset proxy list
-          self._p = {};
-          self._preferred_regions = proxies['regions'];
-          for (let region in proxies['proxies']) {
-            proxies['proxies'][region].forEach(function (proxy) {
-              CliqzUtils.log("Adding proxy: "+ proxy['type'] + "://" + proxy['host'] + ":" + proxy['port'], "unblock");
-              self.addProxy(region, self.proxy_service.createProxy(proxy['type'], proxy['host'], proxy['port']));
-            });
-          }
-          self._last_update = now;
-        },
-        function error() {
-          CliqzUtils.log("Failed to load proxies", "unblock");
-        },
-        5000
-      );
+  updateProxyList: function(resp) {
+    var self = this;
+    let proxies = JSON.parse(resp);
+    // reset proxy list
+    self._p = {};
+    self._preferred_regions = proxies['regions'];
+    for (let region in proxies['proxies']) {
+      proxies['proxies'][region].forEach(function (proxy) {
+        CliqzUtils.log("Adding proxy: "+ proxy['type'] + "://" + proxy['host'] + ":" + proxy['port'], "unblock");
+        self.addProxy(region, self.proxy_service.createProxy(proxy['type'], proxy['host'], proxy['port']));
+      });
     }
   },
 }
@@ -181,7 +173,6 @@ var CliqzUnblock = {
     if (CliqzUnblock.isEnabled()) {
       CliqzUtils.log('init', 'unblock');
 
-      CliqzUtils.log(ProxyUtils, "xxx");
       CliqzUnblock.proxy_service = new ProxyUtils.Service();
       CliqzUnblock.proxy_manager = new ProxyManager(CliqzUnblock.proxy_service);
       CliqzUnblock.request_listener = new RequestListener();

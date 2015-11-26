@@ -30,11 +30,13 @@ var YoutubeUnblocker = {
         return self.shouldProxy(url);
       }
     });
-    CliqzUtils.loadResource(this.CONFIG_URL, function(req) {
-      CliqzUtils.log(req.response);
-      self.conf = JSON.parse(req.response);
-    }, function(err) {
-      CliqzUtils.log(err);
+    CliqzUtils.createLazyResourceLoader({
+      url: this.CONFIG_URL,
+      pref: "unblock_yt_config",
+      this: self,
+      updateFn: function(val) {
+        this.conf = JSON.parse(val);
+      }
     });
   },
   refresh: function() {
