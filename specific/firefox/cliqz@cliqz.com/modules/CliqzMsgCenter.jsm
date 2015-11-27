@@ -35,8 +35,8 @@ function CliqzMsgCenter() {
   this.registerMessageHandler(CliqzMsgHandlerAlert.id,
     new CliqzMsgHandlerAlert());
 
-  CliqzEvents.sub('cliqz.msg_center.show_message', this.showMessage.bind(this));
-  CliqzEvents.sub('cliqz.msg_center.hide_message', this.hideMessage.bind(this));
+  CliqzEvents.sub('msg_center:show_message', this.showMessage.bind(this));
+  CliqzEvents.sub('msg_center:hide_message', this.hideMessage.bind(this));
 }
 
 // TODO: add destructor
@@ -49,8 +49,7 @@ CliqzMsgCenter.prototype = {
 
   // TODO: add auto hide option
   showMessage: function (message, handlerId, callback) {
-    var handler =
-    this._messageHandlers[handlerId];
+    var handler = this._messageHandlers[handlerId];
     if (handler) {
       handler.enqueueMessage(message, callback);
     } else {
@@ -69,7 +68,9 @@ CliqzMsgCenter.prototype = {
   }
 };
 
-var _instance = new CliqzMsgCenter();
 CliqzMsgCenter.getInstance = function () {
-  return _instance;
+  CliqzMsgCenter.getInstance.instance =
+    CliqzMsgCenter.getInstance.instance || new CliqzMsgCenter();
+  return CliqzMsgCenter.getInstance.instance;
 };
+CliqzMsgCenter.getInstance();

@@ -16,7 +16,6 @@ var CliqzMsgHandlerAlert = function () {
 CliqzMsgHandlerAlert.id = 'MESSAGE_HANDLER_ALERT';
 CliqzMsgHandlerAlert.prototype = Object.create(CliqzMsgHandler.prototype);
 CliqzMsgHandlerAlert.prototype.constructor = CliqzMsgHandlerAlert;
-CliqzMsgHandlerAlert.prototype.parent = CliqzMsgHandler.prototype;
 CliqzMsgHandlerAlert.prototype._renderMessage = function (message) {
     // TODO: wait for window to open
     CliqzUtils.getWindow().alert(message.text);

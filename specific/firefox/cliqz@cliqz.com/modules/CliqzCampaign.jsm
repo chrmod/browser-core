@@ -38,11 +38,17 @@ CliqzCampaign.prototype = {
   init: function () {
     this.state = 'idle';
     this.isEnabled = true;
-    this.counts = {trigger: 0, show: 0, confirm: 0,
-     postpone: 0, ignore: 0, discard: 0};
-   },
+    this.counts = {
+      trigger: 0,
+      show: 0,
+      confirm: 0,
+      postpone: 0,
+      ignore: 0,
+      discard: 0
+    };
+  },
 
-   update: function (data) {
+  update: function (data) {
     for (var key in data) {
       if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
         this[key] = data[key];
@@ -61,14 +67,8 @@ CliqzCampaign.prototype = {
   },
 
   load: function () {
-    try {
       this.update(JSON.parse(_getPref('campaigns.data.' + this.id, '{}')));
       _log('loaded campaign ' + this.id);
-      return true;
-    } catch (e) {
-      _log('error loading campaign ' + this.id);
-      return false;
-    }
   },
 
   delete: function () {

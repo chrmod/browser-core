@@ -92,15 +92,18 @@ CliqzCampaignManager.prototype = {
             var cIds = JSON.parse(_getPref('campaigns.ids', '[]'));
             cIds.forEach(function (cId) {
                 var campaign = new CliqzCampaign(cId);
-                if (campaign.load()) {
-                    this._campaigns[cId] = campaign;
-                    if (campaign.state === 'show') {
-                        CliqzEvents.pub('cliqz.msg_center.show_message', campaign.message,
-                            campaign.handlerId,
-                            this._onMessageAction.bind(this));
-                    }
-                } else {
-                    campaign.delete();
+                try {
+                  campaign.load();
+                  this._campaigns[cId] = campaign;
+                  if (campaign.state === 'show') {
+                      CliqzEvents.pub('msg_center:show_message',
+                        campaign.message,
+                        campaign.handlerId,
+                        this._onMessageAction.bind(this));
+                  }
+                } catch (e) {
+                  _log('error loading campaign ' + campaign.id);
+                  campaign.delete();
                 }
             }.bind(this));
         } catch (e) {
@@ -133,7 +136,7 @@ CliqzCampaignManager.prototype = {
     },
     removeCampaign: function (id) {
         var campaign = this._campaigns[id];
-        CliqzEvents.pub('cliqz.msg_center.hide_message', campaign.message, campaign.handlerId);
+        CliqzEvents.pub('msg_center:hide_message', campaign.message, campaign.handlerId);
         campaign.delete();
         delete this._campaigns[id];
         _telemetry(campaign, 'remove');
@@ -177,7 +180,7 @@ CliqzCampaignManager.prototype = {
                     campaign.setState('idle');
                 }
 
-                CliqzEvents.pub('cliqz.msg_center.hide_message', campaign.message, campaign.handlerId);
+                CliqzEvents.pub('msg_center:hide_message', campaign.message, campaign.handlerId);
             }
 
             if (campaign.counts.show === campaign.limits.show) {
@@ -212,7 +215,7 @@ CliqzCampaignManager.prototype = {
                     campaign.counts.trigger = 0;
                     // need ID in message to associate callback with campaign
                     campaign.message.id = campaign.id;
-                    CliqzEvents.pub('cliqz.msg_center.show_message', campaign.message,
+                    CliqzEvents.pub('msg_center:show_message', campaign.message,
                         campaign.handlerId, this._onMessageAction.bind(this));
                     CliqzUtils.httpGet(_getEndpoint('show', campaign));
                     _telemetry(campaign, 'show');
@@ -250,7 +253,9 @@ CliqzCampaignManager.prototype = {
     }
 };
 
-var _instance = new CliqzCampaignManager();
 CliqzCampaignManager.getInstance = function () {
-  return _instance;
+  CliqzCampaignManager.getInstance.instance =
+    CliqzCampaignManager.getInstance.instance || new CliqzCampaignManager();
+  return CliqzCampaignManager.getInstance.instance;
 };
+CliqzCampaignManager.getInstance();
