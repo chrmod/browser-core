@@ -12,7 +12,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaignTrigger',
 
 function CliqzCampaignTriggerUrlbarFocus() {
   CliqzCampaignTrigger.call(this, CliqzCampaignTriggerUrlbarFocus.id);
-  CliqzEvents.sub('core:urlbar_focus', this.notifyListeners());
+  CliqzEvents.sub('core:urlbar_focus', this.notifyListeners.bind(this));
 }
 
 CliqzCampaignTriggerUrlbarFocus.id = 'TRIGGER_URLBAR_FOCUS';
