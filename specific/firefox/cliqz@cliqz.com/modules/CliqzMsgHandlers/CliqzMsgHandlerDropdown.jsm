@@ -37,24 +37,19 @@ CliqzMsgHandlerDropdown.prototype._hideMessage = function (message) {
 
 // converts message into format expected by UI
 CliqzMsgHandlerDropdown.prototype._convertMessage = function (message) {
-  var m = {
-    simple_message: message.text,
-    type: 'cqz-message-survey',
-    options: [],
-    location: message.location
-  };
-
-  if (message.options) {
-    for (var i = 0; i < message.options.length; i++) {
-      m.options.push ({
-        text: message.options[i].label,
-        state: message.options[i].style,
-        action: message.options[i].action
-      });
-    }
-  }
-
-  return {'footer-message': m};
+  return {
+    'footer-message': {
+      simple_message: message.text,
+      type: 'cqz-message-survey',
+      location: message.location,
+      options: (message.options || []).map(function (el) {
+        return {
+          text: el.label,
+          state: el.style,
+          action: el.action
+        };
+      })
+  }};
 };
 
 CliqzMsgHandlerDropdown.prototype._onClick = function (action) {
