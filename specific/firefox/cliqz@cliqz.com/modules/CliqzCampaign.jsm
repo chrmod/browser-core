@@ -10,25 +10,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var PREF_PREFIX = 'msgs.';
-
-function _log(msg) {
-  CliqzUtils.log(msg, 'CliqzCampaign');
-}
-
-function _setPref(pref, val) {
-  CliqzUtils.setPref(PREF_PREFIX + pref, val);
-}
-
-function _getPref(pref, defaultVal) {
-  return CliqzUtils.getPref(PREF_PREFIX + pref, defaultVal);
-}
-
-function _clearPref(pref) {
-  CliqzUtils.cliqzPrefs.clearUserPref(PREF_PREFIX + pref);
-}
-
 function CliqzCampaign(id, data) {
+  this.PREF_PREFIX = 'msgs.';
+
   this.id = id;
   this.init();
   this.update(data);
@@ -57,21 +41,27 @@ CliqzCampaign.prototype = {
   },
 
   setState: function (newState) {
-    _log(this.id + ': ' + this.state + ' -> ' + newState);
+    this.log(this.id + ': ' + this.state + ' -> ' + newState);
     this.state = newState;
   },
 
   save: function () {
-    _setPref('campaigns.data.' + this.id, JSON.stringify(this));
-    _log('saved campaign ' + this.id);
+    CliqzUtils.setPref(
+      this.PREF_PREFIX + 'campaigns.data.' + this.id, JSON.stringify(this));
+    this.log('saved campaign ' + this.id);
   },
 
   load: function () {
-      this.update(JSON.parse(_getPref('campaigns.data.' + this.id, '{}')));
-      _log('loaded campaign ' + this.id);
+    this.update(JSON.parse(
+      CliqzUtils.getPref(this.PREF_PREFIX + 'campaigns.data.' + this.id, '{}')));
+    this.log('loaded campaign ' + this.id);
   },
 
   delete: function () {
-    _clearPref('campaigns.data.' + this.id);
+    CliqzUtils.cliqzPrefs.clearUserPref(this.PREF_PREFIX + this.id);
+  },
+
+  log: function (msg) {
+    CliqzUtils.log(msg, 'CliqzCampaign');
   }
 };
