@@ -5,7 +5,7 @@ var campaigns = {
     TEST001: {
       DEBUG_remaining_clicks: 10,
       DEBUG_remaining_shows: 48,
-      handlerId: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
+      handlerId: 'MESSAGE_HANDLER_DROPDOWN',
       limits: {
         confirm: -1,
         discard: -1,
@@ -48,7 +48,7 @@ TESTS.CliqzCampaignManagerTestUnit = function (CliqzCampaignManager) {
     var campaignManager;
 
     beforeEach(function() {
-      campaignManager = new CliqzCampaignManager();
+      campaignManager = new CliqzCampaignManager.getInstance();
       campaignManager.updateCampaigns = function () { };
       campaignManager.deactivateCampaignUpdates();
       for (var c in campaignManager._campaigns) {
