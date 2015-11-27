@@ -7,8 +7,7 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
-function CliqzMsgHandler (id) {
-  this.id = id;
+function CliqzMsgHandler () {
   this._messageQueue = [];
   // message id is key
   this._callbacks = {};

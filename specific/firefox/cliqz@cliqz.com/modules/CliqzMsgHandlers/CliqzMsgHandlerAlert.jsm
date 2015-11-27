@@ -11,9 +11,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var CliqzMsgHandlerAlert = function () {
-  CliqzMsgHandler.call(this, CliqzMsgHandlerAlert.id);
+  CliqzMsgHandler.call(this);
 };
-CliqzMsgHandlerAlert.id = 'MESSAGE_HANDLER_ALERT';
 CliqzMsgHandlerAlert.prototype = Object.create(CliqzMsgHandler.prototype);
 CliqzMsgHandlerAlert.prototype.constructor = CliqzMsgHandlerAlert;
 CliqzMsgHandlerAlert.prototype._renderMessage = function (message) {

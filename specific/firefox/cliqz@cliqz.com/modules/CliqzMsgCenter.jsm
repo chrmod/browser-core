@@ -30,9 +30,9 @@ function _log(msg) {
 function CliqzMsgCenter() {
   this._messageHandlers = {};
 
-  this.registerMessageHandler(CliqzMsgHandlerDropdown.id,
+  this.registerMessageHandler('MESSAGE_HANDLER_DROPDOWN',
     new CliqzMsgHandlerDropdown());
-  this.registerMessageHandler(CliqzMsgHandlerAlert.id,
+  this.registerMessageHandler('MESSAGE_HANDLER_ALERT',
     new CliqzMsgHandlerAlert());
 
   CliqzEvents.sub('msg_center:show_message', this.showMessage.bind(this));

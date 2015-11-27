@@ -18,11 +18,9 @@ function _log(msg) {
 }
 
 function CliqzMsgHandlerDropdown() {
-  CliqzMsgHandler.call(this, CliqzMsgHandlerDropdown.id);
+  CliqzMsgHandler.call(this);
   CliqzEvents.sub('ui:dropdown_message_click', this._onClick.bind(this));
 }
-
-CliqzMsgHandlerDropdown.id = 'MESSAGE_HANDLER_DROPDOWN';
 
 CliqzMsgHandlerDropdown.prototype = Object.create(CliqzMsgHandler.prototype);
 CliqzMsgHandlerDropdown.prototype.constructor = CliqzMsgHandlerDropdown;
