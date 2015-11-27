@@ -933,8 +933,6 @@ var CliqzUtils = {
         ret = CliqzUtils.locale['default'][key].message;
     }
 
-    CliqzUtils.log('========',ret);
-
     if(arguments.length>1){
       var i = 1, args = arguments;
       ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })

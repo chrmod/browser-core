@@ -920,11 +920,14 @@
     "humanWeb10": {
       "message": "Ich nehme am Human Web teil"
     },
+    "attrack-headline-general": {
+      "message": " Auf <strong> {} </strong>  wurden <br/> {} Cookies blockiert, <br/> {} persönliche Informationen geschützt."
+    },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
     },
     "attrack-headline-no-site": {
-      "message": "=={}===no-site==={}=="
+      "message": "No Site MSG"
     },
     "attrack-btn-power-on": {
       "message": "Turn On Anti Tracking"

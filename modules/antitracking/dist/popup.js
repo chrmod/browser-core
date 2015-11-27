@@ -4,6 +4,7 @@ var enableButton = document.querySelector("#cqz-antrc-power-btn"),
 
 function setBodyClass(options) {
   var enabled = options.enabled,
+      url = options.url,
       whitelisted = options.whitelisted;
 
   if (enabled) {
@@ -19,30 +20,38 @@ function setBodyClass(options) {
   } else {
     document.body.classList.remove("cqz-domain-in-whitelist");
   }
+
+  if(!url) {
+     document.body.classList.add("cqz-no-site");
+  } else {
+    document.body.classList.remove("cqz-no-site");
+  }
 }
 
 function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-    if(el.dataset.i18n.indexOf(',') != -1) {
-      var elArgs = el.dataset.i18n.split(",");
-      console.log(elArgs);
-      el.innerHTML = chrome.i18n.getMessage.apply(null, arguments);
-    }else {
-      el.innerHTML = chrome.i18n.getMessage(el.dataset.i18n);
-    }
+    var elArgs = el.dataset.i18n.split(",");
+    el.innerHTML = chrome.i18n.getMessage.apply(null, elArgs);
   });
 }
 
 function populateDOM() {
   chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
-    document.querySelector("#cookies-count").innerHTML = data.cookiesCount;
-    document.querySelector("#requests-count").innerHTML = data.requestsCount;
     hostname = data.url;
-    document.querySelector("#url").innerHTML = data.url;
+
+    var m = document.querySelector(".cqz-general-msg");
+    m.dataset.i18n = [
+      m.dataset.i18n,
+      data.url || ' ',
+      data.cookiesCount,
+      data.requestsCount
+    ].join(',');
+
 
     setBodyClass({
       enabled: data.enabled,
-      whitelisted: data.isWhitelisted
+      whitelisted: data.isWhitelisted,
+      url: data.url
     });
 
     localizeDocument();
