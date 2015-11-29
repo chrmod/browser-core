@@ -33,30 +33,35 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 /* Source mapping for routing keys, endpoints, rate-limit etc
 */
 
+
+var endPoints = {
+	"humanweb": {
+			"scheme": "https",
+			"method": "POST",
+			"endpoint": "safe-browsing.cliqz.com",
+			"path":"/",
+			"port":""
+		}
+}
+
 var sourceMap = {
 	"alive" :{				// Action which will identify the message type.
 		"keys":["action", "payload.t"],	// Keys to fetch to create route hash.
 		"ratelimit": 1,		// How many events are allowed in the defined interval.
 		"interval": 3600,	// Time window in which set of events are allowed.
-		"endpoint": {
-			"scheme": "https",
-			"method": "POST",
-			"endpoint": "safe-browsing.cliqz.com",
-			"path":"",
-			"port":""
-		}
+		"endpoint": endPoints["humanweb"]
 	},
 	"page" :{				// Action which will identify the message type.
 		"keys":["payload.url", "ts"],	// Keys to fetch to create route hash.
 		"ratelimit": 1,		// How many events are allowed in the defined interval.
 		"interval": 3600,	// Time window in which set of events are allowed.
-		"endpoint": {
-			"scheme": "https",
-			"method": "POST",
-			"endpoint": "safe-browsing.cliqz.com",
-			"path":"",
-			"port":""
-		}
+		"endpoint": endPoints["humanweb"]
+	},
+	"page" :{				// Action which will identify the message type.
+		"keys":["payload.url", "ts"],	// Keys to fetch to create route hash.
+		"ratelimit": 1,		// How many events are allowed in the defined interval.
+		"interval": 3600,	// Time window in which set of events are allowed.
+		"endpoint": endPoints["humanweb"]
 	}
 }
 
@@ -181,6 +186,11 @@ function sendM(m){
 	})
 	.catch(function(err){
 		CliqzUtils.log("Error: " + err);
+		var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
+		CliqzUtils.log("Midx: " + mIdx);
+		if(mIdx) {
+			sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
+		}
 	})
 
 }
@@ -212,12 +222,27 @@ function getRouteHash(msg){
 }
 function fetchRouteTable(){
 	// This will fetch the route table from local file, will move it to webservice later.
+    //Check health
+    CliqzUtils.httpGet("chrome://cliqz/content/route-hash-table.json",
+      function success(req){
+            try {
+                CliqzSecureMessage.routeTable = JSON.parse(req.response);
+            } catch(e){};
+      },
+      function error(res){
+        CliqzUtils.log('Error loading config. ', Cli.LOG_KEY)
+      }, 5000);
+    /*
 	_http("chrome://cliqz/content/route-hash-table.json")
 	.get()
-	.then(function(response){
+	.then(function(res){
 		CliqzUtils.log(respone, CliqzSecureMessage.LOG_KEY);
+		CliqzSecureMessage.routeHashTable = res.response;
 	})
-	.catch(_this.log("Error occurred while fetch signing key: "));
+	.catch(function(err){
+		CliqzUtils.log("Error while fetching route table: " + err, CliqzSecureMessage.LOG_KEY);
+	});
+	*/
 }
 
 function isJson(str) {
@@ -293,6 +318,7 @@ function _http(url){
     // Method that performs request
     req : function (method, url, data) {
 
+    	CliqzUtils.log("In the http call","XXXX");
       // Creating a promise
       var promise = new Promise( function (resolve, reject) {
 
@@ -301,22 +327,27 @@ function _http(url){
         var uri = url;
 
         client.open(method, uri, true);
-        client.overrideMimeType('application/json');
+        // client.overrideMimeType('application/json');
+        client.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         client.send(data);
 
         client.onload = function () {
-          if (this.status >= 200 && this.status < 300) {
+          var statusClass = parseInt(client.status / 100);
+          if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
             // Performs the function "resolve" when this.status is equal to 2xx
             resolve(this.response);
           } else {
             // Performs the function "reject" when this.status is different than 2xx
+            CliqzUtils.log("Error","XXXX");
             reject(this.statusText);
           }
         };
         client.onerror = function () {
+          CliqzUtils.log(this,"XXXX");
           reject(this.statusText);
         };
         client.ontimeout = function(){
+        	CliqzUtils.log("Error3","XXXX");
             reject(this.statusText);
         }
       });
@@ -531,7 +562,7 @@ var messageContext = function (msg) {
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
- 	this.routeHash = "http://54.157.18.130/verify"; // Default : null;
+ 	this.routeHash = "http://54.211.9.241/verify"; // Default : null;
  	this.type = this.jMessage.type;
  	this.action = this.jMessage.action;
  	this.interval = sourceMap[this.action]["interval"];
@@ -541,9 +572,9 @@ var messageContext = function (msg) {
  	this.mK = null;
  	this.mP = null;
  	this.dm = null;
- 	this.dmC =  this.calculateRouteHash(msg);
- 	this.proxyCoordinator = "http://54.157.18.130/verify";
- 	this.proxyValidators = ["http://54.157.18.130:81/verify"];
+ 	this.dmC =  this.calculateRouteHash(this.jMessage);
+ 	this.proxyCoordinator = "http://54.211.9.241/verify";
+ 	this.proxyValidators = ["http://54.211.9.241:81/verify"];
 }
 
 /**
@@ -642,8 +673,8 @@ messageContext.prototype.getMP = function(){
  */
 messageContext.prototype.calculateRouteHash = function(msg){
 	var hash = "";
-	var _msg = msg || this.orgMessage;
-	var stringRouteHash = getRouteHash(this.jMessage);
+	// var _msg = msg || this.orgMessage;
+	var stringRouteHash = getRouteHash(msg);
 	var hashM = CliqzSecureMessage.sha1(stringRouteHash).toString();
 	var dmC = hexToBinary(hashM)['result'].slice(0,13)
 	CliqzUtils.log("Hash: " + dmC,CliqzUtils.LOG_KEY);
@@ -847,18 +878,22 @@ blindSignContext.prototype.verify = function(){
 
 
 var secureEventLoggerContext = function () {
-
+	var publicKey = "-----BEGIN PUBLIC KEY-----\
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAh5HhcRAn6+6woXQXl/Nt\
+Z+fOooNglZct/HSpYuqkcmrPauHW7EuOSq5bvpBZRTDROjR/kUPomqVZIzqhdCFP\
+A8BwXSCz7hAel2Q157vtBvh9sngMMLXb5Fgzef5N4EuKO8pL5KrS+I9tfZac41vF\
+JSdpgAirZYhh+tdcQQ1z0Qv/Rw0zOXjfvddCz3gEv2gB9KsLMVnTS1J4YOOgfza2\
+adg9Ebz1z99DiF4vtCwn0IUwH/3ToTBwJLbMnC3Ol43yBNk8rgK2mkgCi614vOSD\
+3hnVmio+iW6+AUklM8VPl6l7hEK9cljJY+9UsMVmTrvaFbMPwS6AdZCXKTmNdaMJ\
+cy3zSOXu5zvzihoQLwAu9LM3l2eVk0Mw0K7JXOP20fc8BtzWCOLYVP32r4R0BNuh\
+TtvGqjHNZHPJN5OwaxkLpn2dujL9uDWGjRiOItKMVq/nOqmNGghrbf8IOaKT7VQh\
+qOU4cXRkB/uF1UjYETBavwUZAxx9Wd/cMcAGmKiDxighxxQ29jDufl+2WG065tmJ\
+z+zCxmgrPh6Zb3KFUxPTe6yksAhWJhmGShA9v20t84M5c6NpZXoUsFcVja6XxzHe\
+SB8dWq9Uu5QcZ83Gz/ronwdEjT2OGTtBgOFeTDqLYUgphC1gcUEHOCnTNXRMQOXq\
+GwBfZHp+Mq61QcMq2rNS7xECAwEAAQ==\
+-----END PUBLIC KEY-----"
  	this.keyObj = new JSEncrypt();
- 	this.publicKeyPath = "chrome://cliqz/content/secureLogger-pub-key.pub";
- 	var _this = this;
-	_http(this.publicKeyPath)
-	.get()
-	.then(function(response){
-		CliqzUtils.log("Secure event key loaded and parsed and loaded","SecureLogger");
-		var parseKey = _this.keyObj.setPublicKey(response);
-		CliqzUtils.log("Secure event key loaded and parsed and loaded","SecureLogger");
-	})
-	.catch(CliqzUtils.log("Error occurred while fetch signing key: ","SecureLogger"));
+ 	this.keyObj.setPublicKey(publicKey);
 
 }
 
@@ -874,18 +909,18 @@ var CliqzSecureMessage = {
     cryptoJS: CryptoJS,
     uPK : new userPK(),
     dsPK : new directoryServicePK,
-    routeTable : [],
+    routeTable : null,
     RSAKey: "",
     fetchRouteTable: function(){
 		// This will fetch the route table from local file, will move it to webservice later.
-		_http("chrome://cliqz/content/route-hash-table.json")
+		_http("chrome://cliqz/content/route-hash-table.js")
 		.get()
-		.then(function(response){
-			// CliqzUtils.log(response, CliqzSecureMessage.LOG_KEY);
-			CliqzSecureMessage.routeTable = JSON.parse(response);
+		.then(function(res){
+			CliqzUtils.log("In here", "XXXXX");
+			CliqzSecureMessage.routeTable = JSON.parse(res);
 			return;
 		})
-		// .catch(CliqzUtils.log("Error occurred while fetch signing key: ", CliqzSecureMessage.LOG_KEY));
+		.catch(function(err){CliqzUtils.log("Error occurred while getting route table" + err, CliqzSecureMessage.LOG_KEY)});
 	},
     // ****************************
     // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
@@ -912,6 +947,7 @@ var CliqzSecureMessage = {
     previousDataPost: null,
     pushMessage : [],
     sha1:null,
+    routeHashTable:null,
     pushTelemetry: function() {
         // if(CliqzSecureMessage._telemetry_req) return;
 
@@ -956,6 +992,11 @@ var CliqzSecureMessage = {
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto-kjur.js', window);
     	CliqzSecureMessage.RSAKey = window.RSAKey;
     	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
+
+    	// Get sourceMap
+    	// fetchRouteTable();
+    	CliqzSecureMessage.fetchRouteTable();
+
     }
 }
 
