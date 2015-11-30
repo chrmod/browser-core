@@ -76,7 +76,6 @@ var CliqzHistoryCluster = {
     CliqzHistoryCluster.firefoxHistory = [];
     CliqzHistoryCluster.firefoxHistory.res = res;
     CliqzHistoryCluster.firefoxHistory.query = query;
-
     CliqzHistoryCluster.historyCallback(res);
   },
   // Process patterns
@@ -554,7 +553,7 @@ var CliqzHistoryCluster = {
 
     } else if (searchString.length === 0) {
       // special case for user request of top sites from history
-      var instant = Result.generic('cliqz-pattern', ', null, ', null, searchString);
+      var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
       instant.data.title = CliqzUtils.getLocalizedString('history_results_cluster');
       instant.data.url = results[0].url;
       instant.comment += ' (history top sites)!';
@@ -609,7 +608,7 @@ var CliqzHistoryCluster = {
         }
       } else {
         // 3-up combined generic history entry
-        var instant = Result.generic('cliqz-pattern', ', null, ', null, searchString);
+        var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
         instant.data.title = '';
         instant.comment += ' (history generic)!';
         instant.data.template = 'pattern-h3';

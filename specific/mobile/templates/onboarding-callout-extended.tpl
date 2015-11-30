@@ -9,6 +9,6 @@
 		{{/each}}
 	</div>
 	<div class="btn-container-extended">
-		<img class="cliqz-logo" src="{{cliqz_logo}}" />
+		<img class="cliqz-logo" data-src="{{cliqz_logo}}" />
 	</div>
 </div>

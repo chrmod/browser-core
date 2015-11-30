@@ -94,6 +94,7 @@ var UI = {
         }
     },
     main: function(box) {
+
         gCliqzBox = box;
 
         //check if loading is done
@@ -106,7 +107,6 @@ var UI = {
             messageContainerTop = document.getElementById('cliqz-message-container-top');
 
         resultsBox.addEventListener('mouseup', resultClick);
-
         resultsBox.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
@@ -191,6 +191,8 @@ var UI = {
       XULBrowserWindow.updateStatusField();
       CliqzUtils._queryLastDraw = Date.now();
     },
+
+    // results function
     results: function(res){
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
@@ -202,6 +204,7 @@ var UI = {
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
 
+        // apply template
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
@@ -226,25 +229,23 @@ var UI = {
 
     loadAsyncResult: function(res, query) {
 
-
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
-          //var qt = query + ": " + new Date().getTime();
-          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
-          //CliqzUtils.log(r,"LOADINGASYNC");
+          var query = r.text || r.query;
+          var qt = query + ": " + new Date().getTime();
+          CliqzUtils.log(r,"LOADINGASYNC");
+          CliqzUtils.log(query,"loadAsyncResult");
           var loop_count = 0;
           var async_callback = function(req) {
+              CliqzUtils.log(query,"async_callback");
               var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
-                //CliqzUtils.log(resp, "FINAL RESPONSE");
               }
               catch(err) {
                 res.splice(i,1);
               }
-              //CliqzUtils.log(r.text, "Here's the query");
-              //CliqzUtils.log(urlbar.value, "And the urlbar value");
               if (resp &&  urlbar.value == query) {
 
                 var kind = r.data.kind;
@@ -253,8 +254,6 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
-                        //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
@@ -1284,17 +1283,20 @@ function urlIndexInHistory(url, urlList) {
 }
 
     function messageClick(ev) {
+
         var el = ev.target;
         // Handle adult results
 
         while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container")) {
             var action = el.getAttribute('cliqz-action');
+
             /*********************************/
             /* BEGIN "Handle message clicks" */
 
             if (action === 'footer-message-action') {
                 // "Cliqz is not optimized for your country" message */
-                var state = ev.originalTarget.getAttribute('state');
+                
+                var state = ev.target.getAttribute("state"); 
 
                 switch (state) {
                     //not supported country
@@ -1373,6 +1375,7 @@ function urlIndexInHistory(url, urlList) {
                             state = 'yes'
                             adultMessage = 1;
                         } else {
+                            CLIQZEnvironment.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
                         updateMessage('bottom', {});
@@ -1486,7 +1489,7 @@ function resultClick(ev) {
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         url = el.getAttribute("href") || el.getAttribute('url');
-        if (url) {
+        if (url && url != "#") {
             el.setAttribute('url', url); //set the url in DOM - will be checked later (to be improved)
             logUIEvent(el, "result", {
                 action: "result_click",

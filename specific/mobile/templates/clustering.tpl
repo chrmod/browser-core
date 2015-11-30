@@ -1,3 +1,4 @@
+<!-- clustering.tpl -->
 <div class='cliqz-inline-box-children cqz-result-h3'>
   <div class='cliqz-result-mid-box' style="width:{{ width }}px; margin-right: 32px">
     <div style='margin-bottom:7px;'>

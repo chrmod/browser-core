@@ -68,7 +68,6 @@ var CliqzUtils = {
   CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  NEW_TUTORIAL_URL:               'chrome://cliqz/content/onboarding/onboarding.html',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/support',
@@ -97,8 +96,9 @@ var CliqzUtils = {
       'ez-generic-2': 3,
       'cpgame_movie': 3,
       'delivery-tracking': 2,
-      'vod': 3
-
+      'vod': 3,
+      'conversations': 1,
+      'conversations_future': 1
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,

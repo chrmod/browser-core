@@ -1,4 +1,4 @@
-    
+<!-- news.tpl -->  
     <div class="meta">
         {{> logo}}
         <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>
