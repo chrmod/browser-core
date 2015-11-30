@@ -404,11 +404,7 @@ var CliqzAutocomplete = {
                     var results = [];
                     var json = JSON.parse(req.response);
 
-                    var resLength = 0;
-                    if( json.result !== null ) {
-                        resLength = json.result.length;
-                    }
-                    CliqzUtils.log(resLength,"BM response");
+                    CliqzUtils.log(json.result ? json.result.length : 0,"BM response");
 
                     results = json.result || [];
 

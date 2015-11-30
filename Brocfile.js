@@ -201,6 +201,7 @@ var tool = new MergeTrees([
 
 var mobile = new MergeTrees([
   mobileSpecific,
+  new Funnel(locales, { }),
   new Funnel(libsConcated, { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localMobile, { destDir: 'js' }),

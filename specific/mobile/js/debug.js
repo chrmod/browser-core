@@ -61,9 +61,12 @@ CLIQZ.Core.popup.hidePopup = function() {}
 
 CLIQZ.UI.init(urlbar);
 
-CLIQZ.UI.main(resultsBox);
-
-CLIQZ.Core.popup.cliqzBox = resultsBox;
+function initResultBox () {
+  if(!CliqzHandlebars.tplCache.main) return setTimeout(initResultBox, 100);
+  CLIQZ.UI.main(resultsBox);
+  CLIQZ.Core.popup.cliqzBox = resultsBox;
+};
+initResultBox();
 
 CLIQZEnvironment.updateGeoLocation();
 

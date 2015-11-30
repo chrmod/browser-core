@@ -308,11 +308,7 @@ function registerHelpers(){
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
     });
-
-
-
     
-
     Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         lvalue = parseFloat(lvalue);
         rvalue = parseFloat(rvalue);

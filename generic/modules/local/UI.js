@@ -85,6 +85,7 @@ var UI = {
         }
     },
     main: function(box) {
+
         gCliqzBox = box;
 
         //check if loading is done
@@ -221,23 +222,18 @@ var UI = {
           var r = res[i];
           var query = r.text || r.query;
           var qt = query + ": " + new Date().getTime();
-          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           CliqzUtils.log(r,"LOADINGASYNC");
           CliqzUtils.log(query,"loadAsyncResult");
           var loop_count = 0;
           var async_callback = function(req) {
               CliqzUtils.log(query,"async_callback");
-              //CliqzUtils.log(r, "GOT SOME RESULTS");
               var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
-                //CliqzUtils.log(resp, "FINAL RESPONSE");
               }
               catch(err) {
                 res.splice(i,1);
               }
-              //CliqzUtils.log(r.text, "Here's the query");
-              //CliqzUtils.log(urlbar.value, "And the urlbar value");
               if (resp &&  urlbar.value == query) {
 
                 var kind = r.data.kind;
@@ -246,10 +242,6 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
-                        CliqzUtils.log(loop_count + " " + qt + ": " + query, "ASYNC NUMBER");
-                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
-                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
@@ -384,7 +376,7 @@ var UI = {
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-        if(ev.keyCode != ESC && UI.popupClosed && typeof gCliqzBox.resultsBox != "undefined") {
+        if(ev.keyCode != ESC && UI.popupClosed) {
           gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
