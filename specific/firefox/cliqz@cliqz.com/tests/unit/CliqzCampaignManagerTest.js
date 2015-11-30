@@ -173,7 +173,7 @@ describe('triggerCampaign', function() {
   });
   it('should show but not end campaign', function() {
     campaignManager.addCampaign('TEST001', campaigns.campaigns.TEST001);
-    campaignManager._campaigns.TEST001.init();
+    campaignManager._campaigns.TEST001.reset();
     campaignManager._campaigns.TEST001.limits.trigger = 1;
     campaignManager._campaigns.TEST001.limits.confirm = 2;
     campaignManager._campaigns.TEST001.limits.show = -1;
@@ -190,7 +190,7 @@ describe('triggerCampaign', function() {
 describe('campaign actions', function() {
   it('should increment action counts', function() {
     campaignManager.addCampaign('TEST001', campaigns.campaigns.TEST001);
-    campaignManager._campaigns.TEST001.init();
+    campaignManager._campaigns.TEST001.reset();
     campaignManager._campaigns.TEST001.limits.confirm = 5;
     campaignManager._campaigns.TEST001.limits.discard = 5;
     campaignManager._campaigns.TEST001.limits.ignore = 5;

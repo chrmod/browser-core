@@ -14,12 +14,12 @@ function CliqzCampaign(id, data) {
   this.PREF_PREFIX = 'msgs.';
 
   this.id = id;
-  this.init();
+  this.reset();
   this.update(data);
 }
 
 CliqzCampaign.prototype = {
-  init: function () {
+  reset: function () {
     this.state = 'idle';
     this.isEnabled = true;
     this.counts = {
