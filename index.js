@@ -7,6 +7,8 @@ app.use("/views", express.static(__dirname + "/views"))
 app.use("/generic", express.static(__dirname + "/generic"))
 app.use("/mobile", express.static(__dirname + "/specific/mobile"))
 app.use("/ios", express.static(__dirname + "/build/dev/tool_iOS"))
+app.use("/androidkit", express.static(__dirname + "/build/dev/androidkit/navigation"))
+
 app.set("views", __dirname + "/views");
 app.set("view engine", "jade");
 
@@ -25,6 +27,11 @@ app.get("/ios",function(req,res) {
 app.get("/proxy",function(req,res){
     request(req.query.url).pipe(res)
 })
+
+app.get("/androidkit",function(req,res) {
+    res.render("index")
+})
+
 
 app.get("*",function(req,res){
     res.status(404).send()

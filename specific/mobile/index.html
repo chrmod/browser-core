@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>developer tool</title>
+      <link href="skin/css/style.css" rel="stylesheet" type="text/css">
+      <script src="js/storage.js"></script>
+      <script src="js/MockOS.js"></script>
+      <script src="js/osBridge.js"></script>
+      <script src="js/logger.js"></script>
+      <script src="js/test.js"></script>
+      <script src="js/CLIQZEnvironment.js"></script>
+      <script src="js/environment.js"></script>
+      <script src="js/libs.js"></script>
+      <script src="js/viewpager.js"></script>
+      <script src="js/CliqzDelayedImageLoader.js"></script>
+      <meta name="viewport" content="initial-scale=1.0001, user-scalable=no" />
+      <script src="js/global.js"></script>
+      <script src="js/local.js"></script>
+   </head>
+   <body>
+      <div style="width:0px;height:1px;background:darkblue" id="progress"></div>
+
+      <div id="reconnecting" class="reconnecting-layer">
+         <h3>Reconnecting</h3>
+         <div class="spinner">
+           <div class="bounce1"></div>
+           <div class="bounce2"></div>
+           <div class="bounce3"></div>
+         </div>
+      </div>
+      <div id="no-network-message">
+         No Network
+      </div>
+      <input id="urlbar">
+      <div id="results" style="-webkit-transform:translate3d(0px, 0px, 0px)">
+         <div id="cliqz-results" style="width: 501px;">
+            <div class="frame" style="width: 360px; left: 0px" id="conversations">
+               <div type="cliqz-results sources-m" arrow="false" idx="0" hasimage="">
+                 
+                  <div class="main">
+                     <h1 class="main__headline"></h1>
+                     <p class="main__content">
+                        <div id="recent"></div>
+                     </p>
+                  </div>
+               </div>
+            </div>
+            <!--<div class="frame" style="width: 360px; left: 360px">
+               <div class="ez" type="cliqz-results sources-m" kind="m|{&quot;i&quot;:1}" url="http://www.rtl.de/cms/sendungen/superstar.html" arrow="false" idx="1" hasimage="">
+                  <div class="meta">
+                     <div newtab="true" class="meta__logo image" style="
+                        background-image:url(https://cdn.cliqz.com/brands-database/database/1427124611539/logos/rtl/$.svg);
+                        background-image:d7011d;
+                        ">
+                        Rt
+                     </div>
+                     <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> www.rtl.de/cms/sendungen/superstar.html</h3>
+                  </div>
+                  <div class="main">
+                     <h1 class="main__headline"><a href="#">DSDS 2015 | Deutschland sucht den Superstar | 12. Staffel - RTL.de</a></h1>
+                     <p class="main__content">Deutschland sucht den Superstar 2015 - DSDS News und Videos von allen Shows und von allen Kandidaten - die 12. Staffel im DSDS Special bei RTL.de</p>
+                  </div>
+               </div>
+            </div>-->
+            
+            <div class="cqz-result-selected transition"></div>
+         </div>
+      </div>
+      <div id="cliqz-swiping-dots-new">
+            <!--
+                  <div id="showpastbutton" onclick="showPast()">PAST</div>
+                  <div id="showfuturebutton" onclick="showFuture()">FUTURE</div>
+            -->
+            <div id="cliqz-swiping-dots-new-inside">
+            
+            </div>
+          
+      </div>
+
+      <script src="js/debug.js"></script>
+      <table id="logscreen">
+         <tr>
+            <td>first</td>
+            <td></td>
+         </tr>
+      </table>
+   </body>
+</html>
+
