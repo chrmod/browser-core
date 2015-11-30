@@ -4020,18 +4020,10 @@ var CliqzAttrack = {
     extractKeyTokens: function(url_parts, refstr) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
-        var keyTokens = {};
-        var w = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']);
-        for (var k in w) {
-            var tok = w[k];
-            tok = dURIC(dURIC(tok));
-            if (tok.length >=8) keyTokens[k] = tok;
-        }
-        if (Object.keys(keyTokens).length > 0) {
-            var s = md5(url_parts.hostname).substr(0, 16);
-            refstr = md5(refstr).substr(0, 16);
-            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr);
-        }
+        var keyTokens = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']),
+          s = md5(url_parts.hostname).substr(0, 16);
+        refstr = md5(refstr).substr(0, 16);
+        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr);
     },
     extractHeaderTokens: function(url_parts, refstr, header) {
         // keys, value of query strings will be sent in md5
