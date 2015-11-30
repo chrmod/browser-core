@@ -20,8 +20,8 @@ function setBodyClass(options) {
   } else {
     document.body.classList.remove("cqz-domain-in-whitelist");
   }
-
-  if(!url) {
+  // If it is enabled and there is no site
+  if(!url && enabled) {
      document.body.classList.add("cqz-no-site");
   } else {
     document.body.classList.remove("cqz-no-site");
