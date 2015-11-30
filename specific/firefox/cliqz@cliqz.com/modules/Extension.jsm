@@ -95,9 +95,7 @@ var Extension = {
             CliqzHumanWeb.initAtBrowser();
         }
 
-        if(CliqzUtils.getPref("antiTrackTest", false)){
-            CliqzAttrack.initAtBrowser();
-        }
+        CliqzAttrack.init();
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
@@ -123,9 +121,7 @@ var Extension = {
             CliqzHumanWeb.unloadAtBrowser();
         }
 
-        if(CliqzUtils.getPref("antiTrackTest", false)){
-           CliqzAttrack.unloadAtBrowser();
-        }
+        CliqzAttrack.unload();
 
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
