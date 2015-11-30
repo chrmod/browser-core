@@ -152,14 +152,18 @@ function getQSMD5(qs, ps) {
         while (tok != dURIC(tok)) {
             tok = dURIC(tok);
         }
-        qsMD5[md5(key)] = md5(tok);
+        if (tok.length >= 8) {
+            qsMD5[md5(key)] = md5(tok);
+        }
     }
     for (var key in ps) {
         var tok = dURIC(qs[key]);
         while (tok != dURIC(tok)) {
             tok = dURIC(tok);
         }
-        qsMD5[md5(key)] = md5(tok);
+        if (tok.length >= 8) {
+            qsMD5[md5(key)] = md5(tok);
+        }
     }
     return qsMD5;
 }
