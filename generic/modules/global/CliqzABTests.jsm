@@ -281,8 +281,7 @@ var CliqzABTests = {
             case "1045_A":
                 break;
             case "1045_B":
-                CliqzUtils.setPref("antiTrackTest", true);
-                CliqzAttrack.initAtBrowser();
+                CliqzAttrack.enableModule(true);
                 break;
             case "1046_A":
             case "1047_A":
@@ -309,11 +308,16 @@ var CliqzABTests = {
                 CliqzUtils.setPref("attrackRefererTracking", true);
                 break;
             case "1051_B":
-                CliqzUtils.setPref("antiTrackTest", true);
-                CliqzAttrack.initAtBrowser();
+                CliqzAttrack.enableModule(true);
+                break;
+            case "1052_A":
+              CliqzUtils.setPref("attrackBlockCookieTracking", false);
                 break;
             case "1052_B":
                 CliqzUtils.setPref("attrackBlockCookieTracking", true);
+                break;
+            case "1053_A":
+                CliqzUtils.setPref("attrackRemoveQueryStringTracking", false);
                 break;
             case "1053_B":
                 CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
@@ -521,8 +525,7 @@ var CliqzABTests = {
                 break;
             case "1045_A":
             case "1045_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzAttrack.unloadAtBrowser();
+                CliqzAttrack.disableModule();
                 break;
             case "1046_A":
             case "1047_A":
@@ -546,8 +549,7 @@ var CliqzABTests = {
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
                 break;
             case "1051_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzAttrack.unloadAtBrowser();
+                CliqzAttrack.disableModule();
                 break;
             case "1052_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");

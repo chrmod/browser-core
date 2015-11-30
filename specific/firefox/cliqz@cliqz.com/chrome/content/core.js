@@ -270,7 +270,7 @@ window.CLIQZ.Core = {
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
         }
-        CliqzAttrack.init(window);
+        CliqzAttrack.initWindow(window);
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
@@ -458,7 +458,7 @@ window.CLIQZ.Core = {
 
         }
         // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        CliqzAttrack.unload(window);
+        CliqzAttrack.unloadWindow(window);
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
