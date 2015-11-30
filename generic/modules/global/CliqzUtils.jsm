@@ -1044,6 +1044,10 @@ var CliqzUtils = {
                   data:
                   {
                       template:'noResult',
+<<<<<<< HEAD
+=======
+                      searchString: urlbar.value,
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
                       // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
                       // we should take care of this specific case differently on alternative platforms

@@ -1,6 +1,10 @@
 CLIQZEnvironment = {
   TEMPLATES_PATH: 'templates/',
+<<<<<<< HEAD
   LOCALE_PATH: 'locale/',
+=======
+  LOCALE_PATH: '../generic/static/locale/',
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
 
   storeQueryTimeout: null,
 
@@ -25,7 +29,11 @@ CLIQZEnvironment = {
   enrichResults: function(r, startIndex) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
+<<<<<<< HEAD
       if(index > 0 || index < startIndex) { // kicking out enriching cards after the first 1
+=======
+      if(index>0 || index < startIndex) {
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
         return;
       }
       CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
@@ -157,7 +165,11 @@ CLIQZEnvironment = {
     var response = JSON.parse(req.response);
 
     if(response.result) {
+<<<<<<< HEAD
       localStorage.cacheResult(response.q, {response: req.response, status: req.status, cached: true});
+=======
+      localStorage.cacheResult(response.q, {response: req.response, status: req.status});
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
     } else {
       console.log("results not cached !!!");
     }
@@ -176,11 +188,19 @@ CLIQZEnvironment = {
       return;
     }
 
+<<<<<<< HEAD
     if( status != 200){
       trace();
       CliqzUtils.log("status="+status+", returning","status!=200");
       return;
     }
+=======
+//     if( status != 200){
+//       trace();
+//       CliqzUtils.log("status="+status+", returning","status!=200");
+//       return;
+//     }
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
 
 
     CLIQZEnvironment.autoComplete(r._results[0].val);
@@ -188,9 +208,13 @@ CLIQZEnvironment = {
     // limiting results to 3 results
     r._results.splice(3);
 
+<<<<<<< HEAD
     if(requestHolder.req.cached) { // we need to update rich results for all
       CLIQZEnvironment.enrichResults(r, 0);
     } else { // we need to update rich header results starting from second result
+=======
+    if(requestHolder != "cache") {
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
       CLIQZEnvironment.enrichResults(r, 1);
     }
 
@@ -259,12 +283,15 @@ CLIQZEnvironment = {
           logscreen.style.left = "-5000px";
           return;
         }
+<<<<<<< HEAD
         var cache = localStorage.getCachedResult(urlbar.value);
         if(cache) {
           (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler, cache);
           return;
         }
 
+=======
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
         CLIQZEnvironment.startProgressBar();
 
 
@@ -291,6 +318,7 @@ CLIQZEnvironment = {
       },
 
       onPageChange : function (page) {
+<<<<<<< HEAD
 
         dots.innerHTML = "";
         var myEl;
@@ -327,6 +355,43 @@ CLIQZEnvironment = {
           //console.log(resp);
           eval("myVal = {"+ resp + "}" ) ;
 
+=======
+
+        dots.innerHTML = "";
+        var myEl;
+
+        for(var i=0;i<CLIQZEnvironment.currentResultsCount;i++) {
+          myEl = document.createElement("span");
+          myEl.innerText = ".";
+          myEl.id = "dots-page-"+(i);
+          if( i==page ){
+            myEl.className = "active";
+          }
+
+          dots.appendChild(myEl);
+        }
+
+        CLIQZEnvironment.openLinksAllowed = true;
+        CLIQZEnvironment.currentPage = page;
+      }
+    });
+  },
+
+  getScript: function(pathToScript) {
+    var request , callback, resp ;
+
+    callback = function (r) {
+      return function () {
+        if ( this.readyState == 4 ) {
+          if (this.status != 200 ) {
+            resp="" ;
+          } 
+          else {
+            resp= this.responseText ;
+          }
+          //console.log(resp);
+          eval("myVal = {"+ resp + "}" ) ;
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
         }
       }
     }
@@ -458,6 +523,7 @@ CLIQZEnvironment = {
     //Logger.log(CLIQZEnvironment.USER_LNG,"Env->updateGeoLocation")
 
   },
+<<<<<<< HEAD
 
   setLocationPermission: function(window, newPerm) {
     // fake geo location
@@ -493,6 +559,43 @@ CLIQZEnvironment = {
         window.dispatchEvent(new CustomEvent("connected"));
       }
 
+=======
+
+  setLocationPermission: function(window, newPerm) {
+    // fake geo location
+    CLIQZEnvironment.USER_LAT = 48.155772899999995;
+    CLIQZEnvironment.USER_LNG = 11.615600899999999;
+    return;
+    if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+      CLIQZEnvironment.setPref('share_location',newPerm);
+      CLIQZEnvironment.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
+      CLIQZEnvironment.updateGeoLocation();
+    }
+  },
+  setInterval: function(){ return setInterval.apply(null, arguments) },
+  setTimeout: function(){ return setTimeout.apply(null, arguments) },
+  clearTimeout: function(){ clearTimeout.apply(null, arguments) },
+  tldExtractor: function(host){
+    //lucian: temp - FIX IT
+    return host.split('.').splice(-1)[0];
+  },
+  OS: 'android',
+  isPrivate: function(){ return false; },
+  isScrolling: false,
+  getWindow: function(){ return window; },
+  getDomNodeContent: function(el) {
+    return el.outerHTML;
+  },
+  httpHandler: function(method, url, callback, onerror, timeout, data, asynchronous) {
+
+    latestUrl = url;
+
+    if(!window.navigator.onLine && isMixerUrl(url)) {
+      if(typeof CustomEvent != "undefined") {
+        window.dispatchEvent(new CustomEvent("connected"));
+      }
+
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
       isRequestFailed = true;
       Logger.log( "request " + url + " will be deferred until the browser is online");
       return;
@@ -513,7 +616,10 @@ CLIQZEnvironment = {
         if(isMixerUrl(url)){
           if(typeof CustomEvent != "undefined") {
             window.dispatchEvent(new CustomEvent("connected"));
+<<<<<<< HEAD
             CLIQZEnvironment.cacheResults(req);
+=======
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
           }
           lastSucceededUrl = url;
           CliqzUtils.log("status "+req.status,"onload");

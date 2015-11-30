@@ -227,6 +227,10 @@ var UI = {
           var loop_count = 0;
           var async_callback = function(req) {
               CliqzUtils.log(query,"async_callback");
+<<<<<<< HEAD
+=======
+              //CliqzUtils.log(r, "GOT SOME RESULTS");
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
               var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
@@ -242,6 +246,13 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
+<<<<<<< HEAD
+=======
+                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        CliqzUtils.log(loop_count + " " + qt + ": " + query, "ASYNC NUMBER");
+                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+>>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
