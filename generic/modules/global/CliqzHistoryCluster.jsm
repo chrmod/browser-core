@@ -76,11 +76,6 @@ var CliqzHistoryCluster = {
     CliqzHistoryCluster.firefoxHistory = [];
     CliqzHistoryCluster.firefoxHistory.res = res;
     CliqzHistoryCluster.firefoxHistory.query = query;
-<<<<<<< HEAD
-=======
-
-
->>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
     CliqzHistoryCluster.historyCallback(res);
   },
   // Process patterns

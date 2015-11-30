@@ -394,10 +394,7 @@ var CliqzAutocomplete = {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
-<<<<<<< HEAD
                 this.req = req;
-=======
->>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
                 
                 // be sure this is not a delayed result
                 if(q != this.searchString) {
@@ -407,15 +404,7 @@ var CliqzAutocomplete = {
                     var results = [];
                     var json = JSON.parse(req.response);
 
-<<<<<<< HEAD
                     CliqzUtils.log(json.result ? json.result.length : 0,"BM response");
-=======
-                    var resLength = 0;
-                    if( json.result !== null ) {
-                        resLength = json.result.length;
-                    }
-                    CliqzUtils.log(resLength,"BM response");
->>>>>>> bafa84bf257cf03021d5ef4d92939c3aee7ea1c9
 
                     results = json.result || [];
 
