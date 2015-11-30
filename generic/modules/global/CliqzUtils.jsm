@@ -1069,7 +1069,7 @@ var CliqzUtils = {
                       text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
                       "search_engines": chosen,
                       //use local image in case of no internet connection
-                      "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
+                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
                   },
                   subType: JSON.stringify({empty:true})
               }

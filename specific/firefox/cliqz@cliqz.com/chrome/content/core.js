@@ -163,7 +163,7 @@ window.CLIQZ.Core = {
         }
         CliqzSpellCheck.initSpellCorrection();
 
-        this.addCSS(document,'chrome://cliqzres/content/styles/css/extension.css');
+        this.addCSS(document, 'chrome://cliqzres/content/styles/css/extension.css');
 
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
@@ -882,7 +882,7 @@ window.CLIQZ.Core = {
             item.setAttribute('class', 'menuitem-iconic');
             item.engineName = engine.name;
             if(engine.name == def){
-                item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+                item.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'checkmark.png)';
             }
             // TODO: Where is this listener removed?
             item.addEventListener('command', (function(event) {
@@ -911,7 +911,7 @@ window.CLIQZ.Core = {
           item.setAttribute('class', 'menuitem-iconic');
 
           if(filter_levels[level].selected){
-            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+            item.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'checkmark.png)';
           }
 
           item.filter_level = new String(level);
@@ -942,7 +942,7 @@ window.CLIQZ.Core = {
 
 
         if(filter_levels[level].selected){
-          item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          item.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'checkmark.png)';
 
         }
 
@@ -993,27 +993,27 @@ window.CLIQZ.Core = {
         return item
     },
     createCheckBoxItem: function(doc, key, label, activeState, onChange){
-      function optInOut(){
-          return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
-                           'url(chrome://cliqzres/content/skin/opt-in.svg)':
-                           'url(chrome://cliqzres/content/skin/opt-out.svg)';
-      }
+        function optInOut(){
+            return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
+               'url(' + CLIQZEnvironment.SKIN_PATH + 'opt-in.svg)':
+               'url(' + CLIQZEnvironment.SKIN_PATH + 'opt-out.svg)';
+        }
 
-      var btn = doc.createElement('menuitem');
-      btn.setAttribute('label', label || key);
-      btn.setAttribute('class', 'menuitem-iconic');
-      btn.style.listStyleImage = optInOut();
-      btn.addEventListener('command', function(event) {
-          if(onChange){
-            onChange();
-          } else {
-            CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
-          }
+        var btn = doc.createElement('menuitem');
+        btn.setAttribute('label', label || key);
+        btn.setAttribute('class', 'menuitem-iconic');
+        btn.style.listStyleImage = optInOut();
+        btn.addEventListener('command', function(event) {
+            if(onChange){
+                onChange();
+            } else {
+                CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
+            }
 
-          btn.style.listStyleImage = optInOut();
-      }, false);
+            btn.style.listStyleImage = optInOut();
+        }, false);
 
-      return btn;
+        return btn;
     },
     //TODO: move inside HumanWeb
     changeHumanWebState: function(){
