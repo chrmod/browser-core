@@ -394,7 +394,6 @@ var CliqzAutocomplete = {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
-                this.req = req;
                 
                 // be sure this is not a delayed result
                 if(q != this.searchString) {

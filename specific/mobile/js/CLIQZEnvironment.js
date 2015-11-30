@@ -165,9 +165,9 @@ CLIQZEnvironment = {
   resultsHandler: function (r, requestHolder) {
     var status;
 
-    if(requestHolder && requestHolder.req) {
-      status = requestHolder.req.status;
-    }
+//     if(requestHolder && requestHolder.req) {
+//       status = requestHolder.req.status;
+//     }
 
     CliqzUtils.log(status,"XHR status");
 
@@ -176,11 +176,11 @@ CLIQZEnvironment = {
       return;
     }
 
-    if( status != 200){
-      trace();
-      CliqzUtils.log("status="+status+", returning","status!=200");
-      return;
-    }
+//     if( status != 200){
+//       trace();
+//       CliqzUtils.log("status="+status+", returning","status!=200");
+//       return;
+//     }
 
 
     CLIQZEnvironment.autoComplete(r._results[0].val);
