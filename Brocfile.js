@@ -199,14 +199,14 @@ var tool = new MergeTrees([
   new Funnel(compiledViews, { include: ['index.html'] }),
 ]);
 
-var mobile = new MergeTrees([
+var mobile = new Funnel(new MergeTrees([
   mobileSpecific,
   new Funnel(locales, { }),
   new Funnel(libsConcated, { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localMobile, { destDir: 'js' }),
   new Funnel(mobileCss, { destDir: 'skin/css' }),
-]);
+]), { destDir: 'search' });
 
 var firefoxDebug = new MergeTrees([
   firefox,
@@ -221,7 +221,7 @@ module.exports = new MergeTrees([
   new Funnel(firefox,      { destDir: 'firefox'      }),
   new Funnel(firefoxDebug, { destDir: 'firefoxDebug' }),
   new Funnel(tool,         { destDir: 'tool'         }),
-  new Funnel(mobile,       { destDir: 'mobile'       }),
+  new Funnel(mobile,       { destDir: 'mobile' }),
   // debug view
   new Funnel(helpers,      { destDir: 'views' }),
   new Funnel(compiledCss,  { destDir: 'generic/static/styles/css' }),

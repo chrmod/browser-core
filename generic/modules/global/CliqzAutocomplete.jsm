@@ -571,9 +571,9 @@ var CliqzAutocomplete = {
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
-                    // start fetching results
+                    // start fetching results 
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-
+                    
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;

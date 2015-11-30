@@ -29,7 +29,7 @@ var MockOS = {
   },
   searchHistory: function(q) {
     console.log("--MOCK: action searchHistory is called with data", q);
-    var mockedHistory = [{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "score": 0},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "score": 0},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "score": 0},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "score": 0},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "score": 0}];
+    var mockedHistory = [{"title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "score": 0},{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "score": 0},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "score": 0},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "score": 0},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "score": 0},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "score": 0}];
     return {results:mockedHistory, query:q};
 
   },
