@@ -70,8 +70,6 @@ var Extension = {
 
         CliqzLoyalty.onExtensionStart();
 
-        CliqzClusterHistory.init();
-
         CliqzUnblock.init();
     },
     load: function(upgrade, oldVersion, newVersion){
