@@ -37,5 +37,4 @@
 
     {{>EZ-history}}
     {{>logo}}
-    {{>feedback}}
 </div>

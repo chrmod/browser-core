@@ -17,8 +17,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
@@ -126,12 +124,11 @@ var CliqzLanguage = {
 
             if (!isGoogleAd && isLastPopupOpen && googleUrlMatch) {
                 googleUrl =
-                    CliqzHistoryPattern.generalizeUrl(decodeURIComponent(googleUrlMatch[1]));
+                    CliqzUtils.generalizeUrl(decodeURIComponent(googleUrlMatch[1]));
                 isSameResult = cliqzResults && cliqzResults.some(function (r, i) {
-                    var cliqzUrl = CliqzHistoryPattern.generalizeUrl(r.val);
+                    var cliqzUrl = CliqzUtils.generalizeUrl(r.val);
 
                     if (cliqzUrl === googleUrl) {
-                        CliqzAutocomplete.afterQueryCount = 0;
                         CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
                         cliqzResultType = CliqzUtils.encodeResultType(r.style || r.type);
                         cliqzResultIndex = i;

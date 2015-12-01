@@ -1,7 +1,9 @@
+<!-- adult.tpl -->
+
 <div class="cqz-message-bar" cliqz-action="adult">
   <div class="cqz-message cqz-message-alert">
     {{local 'adultInfo'}}
-  </div>
+  </div> 
 
     <div class="cqz-message-yes-no">
         <span class="message">{{local 'adultAction'}}</span>
@@ -25,3 +27,4 @@
 
     <div class="cqz-dummy-100percent"></div>
 </div>
+<!-- end adult.tpl -->

@@ -12,6 +12,7 @@ var ENGINES,
     menuPositionY;
 
 CLIQZEnvironment = {
+    logScreen() {},
 	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/templates/' : '/generic/static/templates/',
     LOCALE_PATH: '/generic/static/locale/',
     log: function(msg, key){ console.log(key, msg) },

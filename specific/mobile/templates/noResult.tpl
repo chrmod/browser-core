@@ -1,18 +1,14 @@
+<!-- noResult.tpl -->
 {{#with data}}
-<div class="cqz-result-h1 ez-no-result nopadding">
-    <div class="h1">{{text_line1}}</div>
-    <div class="h2">{{text_line2}}</div>
-
-    <div class="logos" id="EZ-noResult-logos" >
-        {{#each search_engines}}
-            <div class="cliqz-brand-logo transition"
-                  style="{{style}}"
-                  title = "{{local 'searchUsing'}} {{name}}"
-                  engine="{{name}}"
-                  engineCode="{{code}}"
-                  cliqz-action="alternative-search-engine">{{ text }}</div>
-        {{/each}}
+<div url="http://www.google.com/#q={{encodedSearchString}}" class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+  <div class="ez">
+    <div id="googleThisAnim">
+      <ul class="cta">
+        <li>
+          <a href="" style="text-align: center; line-height: 1.25; padding: 6px 12px 12px"><i class="fa fa-search" style="font-size: 24px; margin: 6px 0"></i><br>Einfach hier tappen <br>für Google-Suche</a>
+        </li>
     </div>
-    <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
+  </div>
 </div>
 {{/with}}
+<!-- end noResult.tpl -->
