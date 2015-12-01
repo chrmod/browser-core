@@ -4,26 +4,30 @@ var MockOS = {
     var dataBack;
     switch (message.action) {
       case "searchHistory":
-      dataBack = MockOS.searchHistory(message.data);
-      break;
+        dataBack = MockOS.searchHistory(message.data);
+        break;
       case "isReady":
-      MockOS.isReady();
-      break;
+        MockOS.isReady();
+        break;
       case "openLink":
-      MockOS.openLink(message.data);
-      break;
+        MockOS.openLink(message.data);
+        break;
       case "browserAction":
-      MockOS.browserAction(message.data);
-      break;
+        MockOS.browserAction(message.data);
+        break;
       case "getTopSites":
-      MockOS.getTopSites();
-      break;
+        MockOS.getTopSites();
+        break;
       case "autocomplete":
-      MockOS.autocomplete(message.data);
-      break;
+        MockOS.autocomplete(message.data);
+        break;
       case "notifyQuery":
-      MockOS.notifyQuery(message.data);
-      break;
+        MockOS.notifyQuery(message.data);
+        break;
+      case "pushTelemetry":
+        MockOS.pushTelemetry(message.data);
+        break;
+
     }
     message.callBack && eval(message.callBack + "(" + JSON.stringify(dataBack) + ")");
   },
@@ -50,5 +54,8 @@ var MockOS = {
   },
   notifyQuery: function(data) {
     console.log("--MOCK: action notifyQuery is called with data", data);
+  },
+  pushTelemetry: function(data) {
+    console.log("--MOCK: action pushTelemetry is called with data", data);
   }
 }

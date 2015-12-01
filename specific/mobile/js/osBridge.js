@@ -92,6 +92,19 @@ var osBridge = {
       data: query
     }
     OS.postMessage(message);
+  },
+  /**
+    function: pushTelemetry
+    description: pushes telemetry to the OS
+    params: msg as object
+    message data: msg as object
+  */
+  pushTelemetry: function(msg) {
+    var message = {
+      action: "pushTelemetry",
+      data: msg
+    }
+    OS.postMessage(message);
   }
 };
 
