@@ -33,35 +33,31 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 /* Source mapping for routing keys, endpoints, rate-limit etc
 */
 
-
-var endPoints = {
-	"humanweb": {
-			"scheme": "https",
-			"method": "POST",
-			"endpoint": "safe-browsing.cliqz.com",
-			"path":"/",
-			"port":""
-		}
-}
-
 var sourceMap = {
-	"alive" :{				// Action which will identify the message type.
-		"keys":["action", "payload.t"],	// Keys to fetch to create route hash.
-		"ratelimit": 1,		// How many events are allowed in the defined interval.
-		"interval": 3600,	// Time window in which set of events are allowed.
-		"endpoint": endPoints["humanweb"]
+	"alive" :{
+		"keys":["action", "payload.t"],
+		"endpoint": "safe-browsing"
 	},
-	"page" :{				// Action which will identify the message type.
-		"keys":["payload.url", "ts"],	// Keys to fetch to create route hash.
-		"ratelimit": 1,		// How many events are allowed in the defined interval.
-		"interval": 3600,	// Time window in which set of events are allowed.
-		"endpoint": endPoints["humanweb"]
+	"page" :{
+		"keys":["payload.url", "ts"],
+		"endpoint": "safe-browsing"
 	},
-	"page" :{				// Action which will identify the message type.
-		"keys":["payload.url", "ts"],	// Keys to fetch to create route hash.
-		"ratelimit": 1,		// How many events are allowed in the defined interval.
-		"interval": 3600,	// Time window in which set of events are allowed.
-		"endpoint": endPoints["humanweb"]
+	"query" :{
+		"keys":["payload.q", "ts"],
+		"endpoint": "safe-browsing"
+	},
+	"extension-query" :{
+		"keys":["ts"],
+		"endpoint": "query"
+	},
+	"attrack.tokens" :{
+		"keys":["action","payload.ts","payload.data"],
+		"static" : ["data"],
+		"endpoint": "safe-browsing"
+	},
+	"attrack.tp_events" :{
+		"keys":["action","ts","payload.data.1.hostname"],
+		"endpoint": "safe-browsing"
 	}
 }
 
@@ -88,11 +84,9 @@ function sendM(m){
     mc.aesEncrypt()
 	.then(function(data){
 		// After the message is AES encrypted, we need to sign the AES key.
-		CliqzUtils.log("SigningAES-Key");
 		return mc.signKey()
 	})
 	.then(function(data){
-		CliqzUtils.log("Verified: " + data);
 		// After the message is SIGNED, we need to start the blind signature.
 		mc.getMP();
 		var uPK = CliqzSecureMessage.uPK.publicKeyB64;
@@ -100,7 +94,7 @@ function sendM(m){
 		// Messages to be blinded.
 		mc.m1 = mc.mP ;
 		mc.m2 = mc.mP + ";" + uPK;
-		mc.m3 = mc.dmC + ";" + uPK;
+		mc.m3 = mc.mP + ";" + mc.dmC; // + ";" + uPK;
 
 		var _bm1 = new blindSignContext(mc.m1);
 		var _bm2 = new blindSignContext(mc.m2);
@@ -134,7 +128,6 @@ function sendM(m){
 		*/
 	})
 	.then(function(data){
-			CliqzUtils.log(data, "Signed Message");
 			mc.sigendData = data;
 			var payload = createPayloadBlindSignature(CliqzSecureMessage.uPK.publicKeyB64, mc.bm1, mc.bm2, mc.bm3, mc.sigendData);
 			CliqzUtils.log(payload["uPK"]);
@@ -143,7 +136,6 @@ function sendM(m){
 
 	})
 	.then(function(response){
-		CliqzUtils.log(response, "response");
 		var response = JSON.parse(response);
 		// Capture the response
 		var bs1 = response["bs1"];
@@ -154,8 +146,6 @@ function sendM(m){
 		mc.us1 = unBlindMessage(bs1, mc.u1);
 		mc.us2 = unBlindMessage(bs2, mc.u2);
 		mc.us3 = unBlindMessage(bs3, mc.u3);
-		CliqzUtils.log(mc.us2,"sss");
-
 		// Verify the signature matches after unblinding.
 		mc.vs1 = verifyBlindSignature(mc.us1, sha256_digest(mc.m1))
 		mc.vs2 = verifyBlindSignature(mc.us2, sha256_digest(mc.m2))
@@ -168,8 +158,6 @@ function sendM(m){
 		CliqzUtils.log(signedMessageProxy, "signedMessageProxy");
 		// Create the payload to be sent to proxy;
 		var payload = createPayloadProxy(CliqzSecureMessage.uPK.publicKeyB64, mc.mP, mc.dmC, mc.us1, mc.us2, mc.us3, signedMessageProxy);
-		CliqzUtils.log(payload, "payload");
-		CliqzUtils.log(mc.proxyCoordinator, "HTTP");
 
 		// Send the message to proxy coordinator
 		return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
@@ -177,17 +165,13 @@ function sendM(m){
 
 	})
 	.then(function(response){
-		CliqzUtils.log(response, "response from proxy coordinator")
 		var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
-		CliqzUtils.log("Midx: " + mIdx);
 		if(mIdx) {
 			sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
 		}
 	})
 	.catch(function(err){
-		CliqzUtils.log("Error: " + err);
 		var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
-		CliqzUtils.log("Midx: " + mIdx);
 		if(mIdx) {
 			sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
 		}
@@ -195,8 +179,9 @@ function sendM(m){
 
 }
 
-var sample_message = ['{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}'];
-
+var sample_message = '{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}';
+var sample_message_tokens = '{"action":"attrack.tokens","type":"humanweb","ver":"1.6","payload":{"ver":"0.93","whitelist":"3431576100b20e0a15d4a4c141700f7f","ts":"2015111523","anti-duplicates":3109759,"safeKey":"6bc8710c90f5ac35fbb7ae4ce1660198","data":{"2e7285b81f0da788c9b5fb92e7fe987a":{"08c64a59bc61b81a":{"c":1,"kv":{"6144bb91c094de745cab7863f75f7ba6":{"c5d7165b0d540f62f089442e2df33786":1}}}}}},"ts":"20151116"}'
+var sample_message_tp = '{"action":"attrack.tp_events","type":"humanweb","ver":"1.6","payload":{"ver":"0.93","updateInTime":true,"observers":{"http-on-examine-merged-response":0,"http-on-examine-cached-response":1,"http-on-modify-request":1,"http-on-examine-response":1,"http-on-opening-request":1},"conf":{"qs":false,"cookie":false,"post":false,"fingerprint":false},"addons":false,"data":[{"c":1,"hostname":"4180eb52b6857bde","tps":{"www.adobe.com":{"paths":["046bf570ff40bd68"],"c":1,"bad_cookie_sent":1,"cookie_set":1,"type_3":1,"resp_ob":1},"mellon-rn.traviangames.com":{"paths":["483541e9c625e94e","e6029a482ff9c00f","00d74390a6e74734"],"c":5,"bad_cookie_sent":5,"cookie_set":5,"type_4":1,"type_2":3,"type_7":1,"resp_ob":5,"has_qs":4},"code.jquery.com":{"type_2":1,"c":1,"resp_ob":1,"paths":["a4c61b1bb989f654"]},"tracker.simplaex.net":{"paths":["8f6768fe1ffc3bb0"],"c":1,"bad_cookie_sent":1,"has_qs":1,"type_7":1,"resp_ob":1,"cookie_set":1},"cdnjs.cloudflare.com":{"paths":["be4136f4de5afcc6"],"c":1,"bad_cookie_sent":1,"cookie_set":1,"type_2":1,"resp_ob":1},"wwwimages.adobe.com":{"cookie_set":1,"bad_cookie_sent":1,"resp_ob":1,"paths":["58c8bf2e09ebbcad"]}},"t":1641625,"path":"50d3e5509ac52e81","ra":0}]},"ts":"20151116"}'
 /* This method will ensure that we have the same length for all the mesages
 */
 function padMessage(msg){
@@ -209,7 +194,10 @@ function padMessage(msg){
 
 function getRouteHash(msg){
 	// Make sure this is JSON.
-	var flatMsg = JSON.flatten(msg);
+	var static_fields = sourceMap[msg.action]["static"] || [];
+	var flatMsg = JSON.flatten(msg, static_fields );
+	CliqzUtils.log(flatMsg);
+	if(!flatMsg.action) return null;
 	var keys = sourceMap[flatMsg.action]["keys"];
 
 	var routeHashStr = "";
@@ -316,19 +304,18 @@ function _http(url){
   var core = {
 
     // Method that performs request
-    req : function (method, url, data) {
-
-    	CliqzUtils.log("In the http call","XXXX");
-      // Creating a promise
-      var promise = new Promise( function (resolve, reject) {
+    req : function (method, url, data, type) {
+	      // Creating a promise
+	      var promise = new Promise( function (resolve, reject) {
 
         // Instantiates the XMLHttpRequest
         var client = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         var uri = url;
 
         client.open(method, uri, true);
-        // client.overrideMimeType('application/json');
-        client.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        client.setRequestHeader("x-type", type ? type : "delayed");
+        client.overrideMimeType('application/json');
+        //client.setRequestHeader("Content-Type", "application/json;charset=utf-8");
         client.send(data);
 
         client.onload = function () {
@@ -338,16 +325,16 @@ function _http(url){
             resolve(this.response);
           } else {
             // Performs the function "reject" when this.status is different than 2xx
-            CliqzUtils.log("Error","XXXX");
+            CliqzUtils.log("Error","Other status code.");
             reject(this.statusText);
           }
         };
         client.onerror = function () {
-          CliqzUtils.log(this,"XXXX");
+          CliqzUtils.log(client.responseText,"error");
           reject(this.statusText);
         };
         client.ontimeout = function(){
-        	CliqzUtils.log("Error3","XXXX");
+        	CliqzUtils.log("Error3","timeout");
             reject(this.statusText);
         }
       });
@@ -362,8 +349,8 @@ function _http(url){
     'get' : function(args) {
       return core.req('GET', url, args);
     },
-    'post' : function(args) {
-      return core.req('POST', url, args);
+    'post' : function(args, type) {
+      return core.req('POST', url, args, type);
     }
   };
 };
@@ -416,8 +403,6 @@ function createPayloadProxy(uPK, mP, dmC, bs1, bs2, bs3, sig){
 function unBlindMessage(blindSignedMessage, unBlinder){
 	// Unblind the message before sending it for verification.
 	// s = u*(bs) mod n
-
-	CliqzUtils.log(blindSignedMessage,"XXX");
 	var _us = multMod(unBlinder, str2bigInt(blindSignedMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
 	var us = bigInt2str(_us,10, 0)
 	return us;
@@ -562,19 +547,19 @@ var messageContext = function (msg) {
  	this.sha256 = sha256_digest(this.orgMessage);
  	this.signed = null;
  	this.encrypted = null;
- 	this.routeHash = "http://54.211.9.241/verify"; // Default : null;
- 	this.type = this.jMessage.type;
- 	this.action = this.jMessage.action;
- 	this.interval = sourceMap[this.action]["interval"];
- 	this.rateLimit = sourceMap[this.action]["ratelimit"];
- 	this.endPoint = sourceMap[this.action]["endpoint"];
+ 	this.routeHash = "http://54.157.18.130/verify"; // Default : null;
+ 	this.type = this.jMessage.type || null;
+ 	this.action = this.jMessage.action || null;
+ 	this.interval = this.action ? sourceMap[this.action]["interval"] : null;
+ 	this.rateLimit = this.action ? sourceMap[this.action]["ratelimit"] : null;
+ 	this.endPoint = this.action ? sourceMap[this.action]["endpoint"] : null;
  	this.mE = null;
  	this.mK = null;
  	this.mP = null;
  	this.dm = null;
  	this.dmC =  this.calculateRouteHash(this.jMessage);
- 	this.proxyCoordinator = "http://54.211.9.241/verify";
- 	this.proxyValidators = ["http://54.211.9.241:81/verify"];
+ 	this.proxyCoordinator = this.getProxyIP(this.dmC);//"http://54.157.18.130/verify";
+ 	this.proxyValidators = ["http://54.157.18.130:81/verify"];
 }
 
 /**
@@ -612,6 +597,7 @@ messageContext.prototype.aesEncrypt = function(){
 		    CliqzUtils.log("Message Key: " + key,"XXX");
 		    // var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
 		    var encrypted = CryptoJS.AES.encrypt(msgEncrypt, key, {iv:iv});
+		    CliqzUtils.log("Encrypted Key: " + encrypted.toString(),"XXX");
 		    _this.log(eventID);
 		    _this.eventID = eventID;
 		    _this.aesKey = '' + key;
@@ -624,6 +610,36 @@ messageContext.prototype.aesEncrypt = function(){
 			resolve(_this.mE);
 		}
 		catch(e){
+			reject(e);
+		}
+	})
+
+	return promise;
+}
+
+/**
+ * Method to parse a message and decrypt with AES.
+ * @returns string of AES decrypted message.
+ */
+messageContext.prototype.aesDecrypt = function(msg){
+	var _this = this;
+	var promise = new Promise(function(resolve, reject){
+		try{
+			var encryptedMsg = msg.split(";")[1];
+			var key = _this.aesKey;
+			var iv = _this.iv;
+
+			var decrypted = CryptoJS.AES.decrypt(
+  				{ciphertext: CryptoJS.enc.Base64.parse(encryptedMsg) },
+  				CryptoJS.enc.Hex.parse(key),
+  				{ iv: CryptoJS.enc.Hex.parse(iv),format: JsonFormatter }
+			);
+
+			// CliqzUtils.log(JSON.parse(decrypted.toString(CryptoJS.enc.Utf8)));
+			resolve(decrypted.toString(CryptoJS.enc.Utf8));
+		}
+		catch(e){
+			CliqzUtils.log(e,"Error");
 			reject(e);
 		}
 	})
@@ -662,7 +678,7 @@ messageContext.prototype.signKey = function(){
  * @returns string called mP.
  */
 messageContext.prototype.getMP = function(){
-	var mP = this.mID + ";" + this.mK +";" + this.mE
+	var mP = this.mID + ";" + this.mK +";" + this.mE;
 	this.mP = mP;
 	return mP
 }
@@ -676,9 +692,25 @@ messageContext.prototype.calculateRouteHash = function(msg){
 	// var _msg = msg || this.orgMessage;
 	var stringRouteHash = getRouteHash(msg);
 	var hashM = CliqzSecureMessage.sha1(stringRouteHash).toString();
-	var dmC = hexToBinary(hashM)['result'].slice(0,13)
+	var dmC = hexToBinary(hashM)['result'].slice(0,13);
+	var routeHash = parseInt(dmC, 2);
+	CliqzUtils.log("RouteHash: " + routeHash);
+	CliqzUtils.log("ModRouteHash: " + routeHash % 4096);
+	CliqzUtils.log("Routetable: " + CliqzSecureMessage.routeTable[(routeHash % 4096)]);
 	CliqzUtils.log("Hash: " + dmC,CliqzUtils.LOG_KEY);
 	return dmC;
+}
+
+/**
+ * Method to get proxy IP based on route hash which will be used for routing purpose.
+ * @returns hash.
+ */
+messageContext.prototype.getProxyIP = function(routeHash){
+	var totalProxies = 4096;
+	var modRoute = routeHash % 4096;
+	var proxyIP = "http://" + CliqzSecureMessage.routeTable[modRoute] + "/verify";
+	CliqzUtils.log("Routetable: " + proxyIP);
+	return proxyIP;
 }
 
 
@@ -916,7 +948,6 @@ var CliqzSecureMessage = {
 		_http("chrome://cliqz/content/route-hash-table.js")
 		.get()
 		.then(function(res){
-			CliqzUtils.log("In here", "XXXXX");
 			CliqzSecureMessage.routeTable = JSON.parse(res);
 			return;
 		})

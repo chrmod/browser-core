@@ -30,6 +30,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRequestMonitor',
   'chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
+  'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
+
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -529,11 +532,34 @@ var CliqzUtils = {
               CliqzUtils.encodeFilter() +
               CliqzUtils.encodeLocation();
 
+
+    /*
     var req = CliqzUtils.httpGet(url, function (res) {
       callback && callback(res, q);
     });
+    */
 
-    CliqzUtils.requestMonitor.addRequest(req);
+
+
+    var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+    var mc = new CliqzSecureMessage.messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
+    mc.aesEncrypt()
+    .then(function(enxryptedQuery){
+      return mc.signKey();
+    })
+    .then(function(){
+      var data = {"mP":mc.getMP()}
+      return CliqzSecureMessage.httpHandler("http://54.157.18.130/verify")
+      .post(JSON.stringify(data), "instant")
+    })
+    .then(function(response){
+      return mc.aesDecrypt(JSON.parse(response)["data"]);
+    })
+    .then(function(res){
+      callback && callback({"response":res}, q);
+    })
+
+    // CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
