@@ -7,13 +7,13 @@ var osBridge = {
     description: requests search history from OS
     params: query as string
     message data: query as string
-    message callBack data: {results: [{url: as string, title: as string}], query: as string}
+    message callback data: {results: [{url: as string, title: as string}], query: as string}
   */
   searchHistory: function(query) {
     var message = {
       action: "searchHistory",
       data: query,
-      callBack: "CLIQZEnvironment.displayHistory"
+      callback: "CLIQZEnvironment.displayHistory"
     }
     OS.postMessage(message);
   },
@@ -112,7 +112,10 @@ var OS = {}
 if(window.webkit) {
   OS.postMessage = window.webkit.messageHandlers.jsBridge.postMessage.bind(window.webkit.messageHandlers.jsBridge);
 } else if(window.jsBridge) {
-  OS.postMessage = jsBridge.postMessage;
+    var nativePostMessage = jsBridge.postMessage.bind(jsBridge);
+    OS.postMessage = function(message) {
+      nativePostMessage(JSON.stringify(message));
+    }
 } else {
   OS.postMessage = MockOS.postMessage;
 }

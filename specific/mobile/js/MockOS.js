@@ -29,7 +29,7 @@ var MockOS = {
         break;
 
     }
-    message.callBack && eval(message.callBack + "(" + JSON.stringify(dataBack) + ")");
+    message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
   },
   searchHistory: function(q) {
     console.log("--MOCK: action searchHistory is called with data", q);
