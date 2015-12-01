@@ -3,12 +3,10 @@
 var EXPORTED_SYMBOLS = ['CliqzCampaignTriggerUrlbarFocus'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzCampaignTriggers/CliqzCampaignTrigger.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaignTrigger',
-  'chrome://cliqzmodules/content/CliqzCampaignTriggers/CliqzCampaignTrigger.jsm');
 
 function CliqzCampaignTriggerUrlbarFocus() {
   CliqzCampaignTrigger.call(this, CliqzCampaignTriggerUrlbarFocus.id);

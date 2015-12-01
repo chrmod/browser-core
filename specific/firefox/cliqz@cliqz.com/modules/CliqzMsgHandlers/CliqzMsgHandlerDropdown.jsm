@@ -3,19 +3,13 @@
 var EXPORTED_SYMBOLS = ['CliqzMsgHandlerDropdown'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
-  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-function _log(msg) {
-  CliqzUtils.log(msg, 'CliqzMsgHandlerDropdown');
-}
 
 function CliqzMsgHandlerDropdown() {
   CliqzMsgHandler.call(this);

@@ -4,9 +4,6 @@ var EXPORTED_SYMBOLS = ['CliqzMsgHandler'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
 function CliqzMsgHandler () {
   this._messageQueue = [];
   // message id is key

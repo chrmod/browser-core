@@ -84,7 +84,7 @@ var UI = {
         CliqzEvents.sub('msg_handler_dropdown:message_revoked', function (message) {
           CLIQZ.UI.messageCenterMessage = null;
           // hide immediately
-          updateMessage(message["footer-message"].location, {});
+          clearMessage(message["footer-message"].location);
         });
     },
     unload: function(){
@@ -953,7 +953,7 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
-    updateMessage('bottom', {});
+    clearMessage('bottom');
     var adult = false;
 
     for(var i=0; i<res.results.length; i++) {
@@ -1241,8 +1241,6 @@ function getNotSupported(){
   */
 
 function updateMessage(location, messages) {
-  messages = messages || {};
-
   var container = {
     top: gCliqzBox.messageContainerTop,
     bottom: gCliqzBox.messageContainer
@@ -1251,6 +1249,10 @@ function updateMessage(location, messages) {
   container.innerHTML = Object.keys(messages).map(function (tplName) {
     return CliqzHandlebars.tplCache[tplName](messages[tplName]);
   }).join('');
+}
+
+function clearMessage(location) {
+  updateMessage(location, {});
 }
 
 function getResultPosition(el){
@@ -1295,14 +1297,14 @@ function urlIndexInHistory(url, urlList) {
 
             if (action === 'footer-message-action') {
                 // "Cliqz is not optimized for your country" message */
-                
-                var state = ev.target.getAttribute("state"); 
+
+                var state = ev.target.getAttribute("state");
 
                 switch (state) {
                     //not supported country
                     case 'disable-cliqz':
                         CliqzUtils.setPref("cliqz_core_disabled", true);
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         var enumerator = Services.wm.getEnumerator('navigator:browser');
 
                         //remove cliqz from all windows
@@ -1313,7 +1315,7 @@ function urlIndexInHistory(url, urlList) {
                         CLIQZ.Core.refreshButtons();
                         break;
                     case 'keep-cliqz':
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         // Lets us know that the user has ignored the warning
                         CliqzUtils.setPref('ignored_location_warning', true);
                         break;
@@ -1325,7 +1327,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         urlbar.mInputField.setUserInput(s);
                         CliqzAutocomplete.spellCorr.override = true;
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         break;
                     case 'spellcorrect-keep':
                         var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
@@ -1339,24 +1341,24 @@ function urlIndexInHistory(url, urlList) {
                         }
 
                         CliqzAutocomplete.spellCorr['userConfirmed'] = true;
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         break;
 
                     //changelog
                     case 'update-show':
                         CLIQZEnvironment.openLink(window, CliqzUtils.CHANGELOG, true);
                     case 'update-dismiss':
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         CliqzUtils.setPref('changeLogState', 2);
                         break;
                     case 'dismiss':
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         var pref = ev.originalTarget.getAttribute("pref");
                         if (pref && pref != "null")
                             CliqzUtils.setPref(pref, false);
                         break;
                     case 'set':
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         var pref = ev.originalTarget.getAttribute("pref");
                         var prefVal = ev.originalTarget.getAttribute("prefVal");
                         if (pref && prefVal && pref != "null" && prefVal != "null")
@@ -1378,7 +1380,7 @@ function urlIndexInHistory(url, urlList) {
                             CLIQZEnvironment.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
-                        updateMessage('bottom', {});
+                        clearMessage('bottom');
                         UI.handleResults();
                         if (user_location != "de" && !ignored_location_warning)
                             updateMessage('bottom', {
