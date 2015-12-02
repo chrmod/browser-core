@@ -74,7 +74,7 @@ CLIQZEnvironment = {
     
     var historyCount = 0;
     for(var i = 0; i < r._results.length; i++) {
-      if(r._results[i].comment === " (history generic)!") {
+      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
         historyCount++;
       }
     }
