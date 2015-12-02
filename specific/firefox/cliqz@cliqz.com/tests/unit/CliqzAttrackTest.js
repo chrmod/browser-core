@@ -13,7 +13,8 @@ function waitIfNotReady(fn) {
     });
 }
 
-TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
+TESTS.AttrackTest = function (CliqzUtils) {
+    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     beforeEach(function() {

@@ -61,9 +61,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
-  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
@@ -72,38 +69,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
-
-if(window.CLIQZ === undefined)
-    Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
-else {
-    try{
-        //faulty uninstall of previous version
-        window.CLIQZ = window.CLIQZ || {};
-    } catch(e){}
-}
-
-function modulePath(moduleName, path) {
-  return "chrome://cliqz/content/"+moduleName+"/"+path;
-}
-
-function openTab(url) {
-  var win = CLIQZEnvironment.getWindow();
-  CLIQZEnvironment.openTabInWindow(win, url);
-}
-
-function isVersionHigherThan(version) {
-  try {
-    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-      .getService(Components.interfaces.nsIXULAppInfo);
-    var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-     .getService(Components.interfaces.nsIVersionComparator);
-
-    return versionChecker.compare(appInfo.version, version) >= 0;
-  } catch (e) {
-    CliqzUtils.log('error checking browser version: ' + e, "core.js");
-    return false;
-  }
-}
 
 var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
@@ -123,6 +88,7 @@ window.CLIQZ.Core = {
     urlbarEvents: ['focus', 'blur', 'keypress'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
+    modules: [],
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
 
@@ -142,7 +108,6 @@ window.CLIQZ.Core = {
             }
         }
         // end TEMP fix
-
         XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
             'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -221,8 +186,19 @@ window.CLIQZ.Core = {
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        /*
         CLIQZ.COMPONENTS.forEach(function(c){
           c.init && c.init(settings);
+        });
+        */
+        settings.window = window;
+        var mods = this.modules;
+        CLIQZ.modules.forEach(function (moduleName) {
+          CLIQZ.System.import(moduleName+"/window").then(function (Module) {
+            var mod = new Module.default(settings);
+            mod.init();
+            mods.push(mod);
+          }).catch(function (e) { console.log(e) });
         });
 
         var urlBarGo = document.getElementById('urlbar-go-button');
@@ -270,7 +246,6 @@ window.CLIQZ.Core = {
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
         }
-        CliqzAttrack.initWindow(window);
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
@@ -382,6 +357,12 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
+        this.modules.forEach(function (mod) {
+          try {
+            mod.unload();
+          } catch(e) {}
+        });
+
         clearTimeout(CLIQZ.Core._whoAmItimer);
         clearTimeout(CLIQZ.Core._dataCollectionTimer);
 
@@ -457,9 +438,6 @@ window.CLIQZ.Core = {
 
 
         }
-        // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        CliqzAttrack.unloadWindow(window);
-
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -498,7 +476,6 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzAntiPhishing;
-            delete window.CliqzAttrack;
             delete window.CliqzEvents;
         }
     },

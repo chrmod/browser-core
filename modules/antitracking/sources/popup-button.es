@@ -1,102 +1,4 @@
-(function () {
-
-window.CLIQZ.COMPONENTS.push({
-  name: "antitracking",
-
-  button() { /* not used */ },
-
-  init() {
-    if (CliqzUtils.__antitrackingButton) {
-      this.popup = CliqzUtils.__antitrackingButton;
-    } else {
-      this.popup = new CliqzPopupButton({
-        name: this.name,
-        actions: this.popupActions
-      });
-      this.popup.attach();
-    }
-
-    this.listenToLocationChange();
-    CliqzUtils.__antitrackingButton = this.popup;
-  },
-
-  listenToLocationChange()  {
-    var win = window, popup = this.popup;
-
-    function updateBadge() {
-      if (win !== CliqzUtils.getWindow()) { return; }
-
-      var info = CliqzAttrack.getCurrentTabBlockingInfo();
-      if (info.error) { info = { cookies: { blocked: 0 } }; }
-      popup.setBadge(win, info.cookies.blocked);
-    }
-
-    CliqzEvents.sub("core.location_change", function (ev) {
-      CliqzUtils.clearInterval(this.interval);
-      var counter = 8;
-
-      updateBadge();
-
-      this.interval = CliqzUtils.setInterval(function () {
-        updateBadge();
-
-        counter -= 1;
-        if (counter <= 0) {
-          CliqzUtils.clearInterval(this.interval);
-        }
-      }.bind(this), 2000);
-    }.bind(this));
-  },
-
-  unload() {
-    this.popup.destroy();
-    CliqzUtils.clearInterval(this.interval);
-  },
-
-  popupActions: {
-    getPopupData(args, cb) {
-      var info = CliqzAttrack.getCurrentTabBlockingInfo();
-      if (info.error) {
-        info = {
-          cookies: {
-            blocked: 0
-          },
-          requests: {
-            unsafe: 0
-          }
-        };
-      }
-
-      cb({
-        url: info.hostname,
-        cookiesCount: info.cookies.blocked,
-        requestsCount: info.requests.unsafe,
-        enabled: CliqzUtils.getPref("antiTrackTest"),
-        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname)
-      });
-    },
-
-    toggleAttrack(args, cb) {
-      if ( CliqzUtils.getPref("antiTrackTest") ) {
-        CliqzAttrack.disableModule();
-      } else {
-        CliqzAttrack.enableModule();
-      }
-      cb();
-    },
-
-    toggleWhiteList(args, cb) {
-      var hostname = args.hostname;
-      if (CliqzAttrack.isSourceWhitelisted(hostname)) {
-        CliqzAttrack.removeSourceDomainFromWhitelist(hostname);
-      } else {
-        CliqzAttrack.addSourceDomainToWhitelist(hostname);
-      }
-      cb();
-    }
-  }
-
-});
+export default CliqzPopupButton;
 
 // stolen mostly from: https://github.com/gorhill/uBlock/blob/master/platform/firefox/vapi-background.js#L2863
 function CliqzPopupButton(options) {
@@ -121,7 +23,7 @@ function CliqzPopupButton(options) {
 
     var iframe = doc.createElement('iframe');
     iframe.setAttribute('type', 'content');
-    iframe.setAttribute('src', modulePath('antitracking', 'popup.html'));
+    iframe.setAttribute('src', 'chrome://cliqz/content/antitracking/popup.html');
     panel.appendChild(iframe);
 
     function toPx(pixels) {
@@ -206,7 +108,7 @@ CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
 
   button.classList.add('badged-button');
 
-  setTimeout(function () {
+  CliqzUtils.setTimeout(function () {
     var badge = button.ownerDocument.getAnonymousElementByAttribute(
       button,
       'class',
@@ -218,12 +120,12 @@ CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
 };
 
 CliqzPopupButton.prototype.attach = function () {
-  CustomizableUI.createWidget(this.tbb);
+  this.CustomizableUI.createWidget(this.tbb);
   this.setupCommunicationChannel();
 };
 
 CliqzPopupButton.prototype.destroy = function () {
-  CustomizableUI.destroyWidget(this.tbb.id);
+  this.CustomizableUI.destroyWidget(this.tbb.id);
 };
 
 CliqzPopupButton.prototype.setupCommunicationChannel = function () {
@@ -251,5 +153,3 @@ CliqzPopupButton.prototype.setupCommunicationChannel = function () {
 
   CliqzEvents.sub(channelName+"-popup", popupMessageHandler);
 }
-
-}());
