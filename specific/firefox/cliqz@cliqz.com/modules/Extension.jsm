@@ -92,7 +92,6 @@ var Extension = {
             this.modules = JSON.parse(res.response).modules;
 
             this.modules.map(function (moduleName) {
-              dump("loading module: "+moduleName+"\n");
               return System.import(moduleName+"/background");
             }).forEach(function (modulePromise) {
               modulePromise.then(function (module) {
@@ -142,7 +141,9 @@ var Extension = {
             CliqzHumanWeb.unloadAtBrowser();
         }
 
+        try {
         CliqzAttrack.unload();
+        }catch(e) { /* please fix */ }
 
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -186,6 +187,13 @@ var Extension = {
         }
     },
     unloadModules: function(){
+        this.modules.forEach(function (moduleName) {
+          try {
+            System.get(moduleName+"/background").default.unload();
+          } catch(e) {
+          }
+        });
+
         //unload all cliqz modules
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');

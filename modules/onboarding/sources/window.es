@@ -10,7 +10,6 @@ export default class {
   get version() { return  "1.1"; }
 
   init() {
-    this.window.console.log("hey");
     var tutorialUrl, tutorialVersion;
     var showNewOnboarding = isVersionHigherThan("36.0");
 

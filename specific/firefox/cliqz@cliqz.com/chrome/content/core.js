@@ -91,6 +91,7 @@ window.CLIQZ.Core = {
     urlbarEvents: ['focus', 'blur', 'keypress'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
+    modules: [],
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
 
@@ -110,8 +111,6 @@ window.CLIQZ.Core = {
             }
         }
         // end TEMP fix
-        dump("xxxxxxxxxxxxxxxxxxx");
-
         XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
             'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -196,15 +195,12 @@ window.CLIQZ.Core = {
         });
         */
         settings.window = window;
-        console.log("sssssssssssssssssssssS");
-        dump("zzzzzzzzzzzzzzzz"+CLIQZ.modules);
-        CLIQZ.modules.map(function (moduleName) {
-          dump("loading mwindow: "+moduleName+'\n')
-          return CLIQZ.System.import(moduleName+"/window");
-        }).forEach(function (modulePromise) {
-          modulePromise.then(function (Module) {
+        var mods = this.modules;
+        CLIQZ.modules.forEach(function (moduleName) {
+          CLIQZ.System.import(moduleName+"/window").then(function (Module) {
             var mod = new Module.default(settings);
             mod.init();
+            mods.push(mod);
           }).catch(function (e) { console.log(e) });
         });
 
@@ -365,6 +361,12 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
+        this.modules.forEach(function (mod) {
+          try {
+            mod.unload();
+          } catch(e) {}
+        });
+
         clearTimeout(CLIQZ.Core._whoAmItimer);
         clearTimeout(CLIQZ.Core._dataCollectionTimer);
 
