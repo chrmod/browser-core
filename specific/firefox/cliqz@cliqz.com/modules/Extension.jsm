@@ -287,7 +287,7 @@ var Extension = {
 
       var button = win.document.createElement('toolbarbutton');
       button.setAttribute('id', btn_id);
-      button.setAttribute('tooltiptext', 'CLIQZ Star');
+      button.setAttribute('tooltiptext', 'CLIQZ for Glory');
       button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
       button.setAttribute('image', CliqzLoyalty.getBrowserIcon(false));
       button.addEventListener("command",
