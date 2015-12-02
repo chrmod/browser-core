@@ -62,6 +62,13 @@ CLIQZEnvironment = {
 
     }
   },
+  
+  crossTransform: function(element, x) {
+    var platforms = ['', '-webkit-', '-ms-'];
+    for(var i = 0; i < platforms.length; i++) {
+      element.style[platforms[i] + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
+    }
+  },
 
   renderResults: function(r, showGooglethis, validCount) {
     
@@ -77,7 +84,7 @@ CLIQZEnvironment = {
     if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
 
-    resultsBox.style['-webkit-transform'] = 'translate3d(0px, 0px, 0px)';
+    CLIQZEnvironment.crossTransform(resultsBox, 0);
 
 
     resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
@@ -147,7 +154,7 @@ CLIQZEnvironment = {
     var offset = 0;
     var w = window.innerWidth;
 
-    resultsBox.style['-webkit-transform'] = 'translate3d(' + Math.min((offset * w), (w * validCount)) + 'px, 0px, 0px)';              
+    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * validCount)));
 
     var googleAnim = document.getElementById("googleThisAnim");
     CLIQZEnvironment.numberPages = validCount;
@@ -277,7 +284,7 @@ CLIQZEnvironment = {
       onPageScroll : function (scrollInfo) {
         currentScrollInfo = scrollInfo;
         offset = -scrollInfo.totalOffset;
-        resultsBox.style['-webkit-transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';  
+        CLIQZEnvironment.crossTransform(resultsBox, (offset * w));
         CLIQZEnvironment.openLinksAllowed = false;
       },
 
