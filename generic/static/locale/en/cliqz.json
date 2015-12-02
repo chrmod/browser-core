@@ -921,21 +921,21 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general": {
-      "message": "Auf <b>{}</b> wurden <br/> {} Cookies blockiert, <br/> {} persönliche Informationen geschützt."
+      "message": "{} cookies blocked and, <br/> private data points protected on <strong> {} </strong>."
     },
     "attrack-headline-deactivate": {
-      "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
+      "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
     },
     "attrack-headline-no-site": {
-      "message": "No Site MSG"
+      "message": "This page does not contain any trackers."
     },
     "attrack-btn-power-on": {
-      "message": "Turn On Anti Tracking"
+      "message": "Activate"
     },
     "attrack-btn-power-off": {
-      "message": "Turn Off Anti Tracking"
+      "message": "Deactivate"
     },
     "attrack-btn-white-list": {
-      "message": "White-List"
+      "message": "Allow tracking for this site"
     }
 }

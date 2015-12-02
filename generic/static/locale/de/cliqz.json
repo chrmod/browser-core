@@ -927,15 +927,15 @@
       "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
     },
     "attrack-headline-no-site": {
-      "message": "No Site MSG"
+      "message": "Diese Seite enthält keine Tracker."
     },
     "attrack-btn-power-on": {
-      "message": "Turn On Anti Tracking"
+      "message": "Aktivieren"
     },
     "attrack-btn-power-off": {
-      "message": "Turn Off Anti Tracking"
+      "message": "Deaktivieren"
     },
     "attrack-btn-white-list": {
-      "message": "White-List"
+      "message": "Tracking für diese Seite zulassen"
     }
 }

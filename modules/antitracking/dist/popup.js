@@ -39,12 +39,19 @@ function populateDOM() {
   chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
     hostname = data.url;
 
-    var m = document.querySelector(".cqz-general-msg");
-    m.dataset.i18n = [
-      m.dataset.i18n,
+    var general_msg_trnsl = document.querySelector(".cqz-general-msg"),
+        whiteList_trnsl = document.querySelector("#cqz-whitelist-btn");
+
+    general_msg_trnsl.dataset.i18n = [
+      general_msg_trnsl.dataset.i18n,
       data.url || ' ',
       data.cookiesCount,
       data.requestsCount
+    ].join(',');
+
+    whiteList_trnsl.dataset.i18n = [
+      whiteList_trnsl.dataset.i18n,
+      data.url || ' ',
     ].join(',');
 
 
