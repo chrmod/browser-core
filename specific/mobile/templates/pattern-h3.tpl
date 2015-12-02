@@ -1,30 +1,29 @@
-<div class='cqz-result-h3 cqz-result-padding cqz-result-pattern cqz-3-history-results'>
-      <div class='cliqz-pattern'>
-        {{#each data.urls}}
-        <div class='cliqz-pattern-element overflow'
-             url='{{href}}' shortUrl='{{link}}'
-             domain='{{domain}}'
-             extra='{{extra}}'
-             arrow="false">
-            <div class='cliqz-pattern-element-title'>{{ emphasis title ../text 2 true }}</div>
-            <div class='cliqz-pattern-element-link'>{{ emphasis link ../text 2 true }}</div>
+<!-- pattern-h3 -->
+<div class="meta">
+    <h3 class="meta__url" style="margin-left: 0; color: #691109"><i class="fa fa-history history"></i> History results</h3>
+</div>
 
-            {{#with logo}}
-                <div
-                    newtab='true'
-                    class='cliqz-brand-logo
-                           cliqz-history-logo
-                           transition'
-                    {{#if add_logo_url}}
-                        url="{{logo_url}}"
-                    {{/if}}
-                    style="{{ style }};"
-                >
-                    {{ text }}
-                </div>
-            {{/with}}
-        </div>
+<div class='main'>
+    <ul class='cta cta__history'>
+        {{#each data.urls}}
+            <li url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' extra='{{extra}}' arrow="false">
+                 <a href="{{href}}">
+                     {{#with logo}}
+                         <div newtab='true' class='cta__logo'
+                             {{#if add_logo_url}}
+                                 url="{{logo_url}}"
+                             {{/if}}
+                             style="{{ style }};"
+                         >
+                             {{ text }}
+                         </div>
+                     {{/with}}
+                    <h3>{{ emphasis title ../text 2 true }}</h3>
+                    <span>{{ emphasis link ../text 2 true }}</span>
+                </a>
+                
+            </li>
         {{/each}}
-    </div>
+    </ul>
 
 </div>

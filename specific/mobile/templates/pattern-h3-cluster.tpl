@@ -1,3 +1,4 @@
+<!-- pattern-h3-cluster -->
 <div class='cqz-result-h3 cqz-result-padding cqz-result-pattern'>
       <div class='cqz-ez-title cliqz-pattern-title-h3 overflow' url='{{data.url}}' arrow='false'>
           {{ data.title }}
