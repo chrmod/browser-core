@@ -6,6 +6,10 @@ var jade = require('broccoli-jade');
 var fs = require('fs');
 var Babel = require('broccoli-babel-transpiler');
 var amdNameResolver = require('amd-name-resolver');
+var AssetRev = require('broccoli-asset-rev');
+
+// build environment
+var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 
 // input trees
 var bowerComponents = new Funnel('bower_components');
@@ -208,6 +212,13 @@ var mobile = new Funnel(new MergeTrees([
   new Funnel(localMobile, { destDir: 'js' }),
   new Funnel(mobileCss, { destDir: 'skin/css' }),
 ]), { destDir: 'search' });
+
+if (buildEnv === 'production') {
+  mobile = new AssetRev(mobile, {
+    extensions: ['js', 'css', 'ttf'],
+    replaceExtensions: ['html', 'css']
+  });
+}
 
 var firefoxDebug = new MergeTrees([
   firefox,
