@@ -54,6 +54,7 @@ fs.readdirSync("modules").forEach(function (name) {
       sourceMaps: 'inline',
       filterExtensions: ['es'],
       modules: 'system',
+      moduleRoot: name,
     });
 
     var module = new MergeTrees([

@@ -2,8 +2,6 @@
  * This module prevents user from 3rd party tracking
  */
 
-try{
-
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import("resource://gre/modules/Services.jsm");
@@ -4734,8 +4732,4 @@ var CliqzAttrack = {
     }
 };
 
-} catch(e) {
-
-    dump("\n\n Something is wrong: "+e.stack+"\n");
-}
 export default CliqzAttrack;
