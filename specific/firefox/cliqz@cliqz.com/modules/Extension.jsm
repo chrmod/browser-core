@@ -12,6 +12,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
+Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
+System.baseURL = 'chrome://cliqz/content/';
+
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
     firstRunPref = 'firstStartDone',
@@ -81,6 +84,15 @@ var Extension = {
 
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();
+
+        // Modules loading
+        try {
+          System.import("antitracking/background").then(function (module) {
+            module.default.init();
+          }).catch(function (e) { throw e; });
+        } catch(e) {
+          dump("\nerror: "+e+"\n");
+        }
 
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -243,10 +255,22 @@ var Extension = {
     cleanPossibleOldVersions: function(win){
         //
     },
+    setupCliqzGlobal: function (win) {
+      if(win.CLIQZ === undefined) {
+          Object.defineProperty( win, 'CLIQZ', {configurable:true, value:{}});
+      } else {
+          try{
+              //faulty uninstall of previous version
+              win.CLIQZ = win.CLIQZ || {};
+          } catch(e){}
+      }
+      win.CLIQZ.System = System;
+    },
     loadIntoWindow: function(win) {
         if (!win) return;
 
         if(CliqzUtils.shouldLoad(win)){
+            Extension.setupCliqzGlobal(win);
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
             Extension.addScript('ContextMenu', win);

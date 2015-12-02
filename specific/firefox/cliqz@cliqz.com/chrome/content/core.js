@@ -73,23 +73,18 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-if(window.CLIQZ === undefined)
-    Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
-else {
-    try{
-        //faulty uninstall of previous version
-        window.CLIQZ = window.CLIQZ || {};
-    } catch(e){}
-}
-
+/*
 function modulePath(moduleName, path) {
   return "chrome://cliqz/content/"+moduleName+"/"+path;
 }
+*/
 
+/*
 function openTab(url) {
   var win = CLIQZEnvironment.getWindow();
   CLIQZEnvironment.openTabInWindow(win, url);
 }
+*/
 
 function isVersionHigherThan(version) {
   try {
@@ -221,9 +216,16 @@ window.CLIQZ.Core = {
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        /*
         CLIQZ.COMPONENTS.forEach(function(c){
           c.init && c.init(settings);
         });
+        */
+        settings.window = window;
+        CLIQZ.System.import("antitracking/window").then(function (Module) {
+          var mod = new Module.default(settings);
+          mod.init();
+        }).catch(function (e) { dump(e) });
 
         var urlBarGo = document.getElementById('urlbar-go-button');
         CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
