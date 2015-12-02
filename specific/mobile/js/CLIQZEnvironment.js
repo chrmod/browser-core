@@ -65,9 +65,9 @@ CLIQZEnvironment = {
   
   crossTransform: function(element, x) {
     var platforms = ['', '-webkit-', '-ms-'];
-    for(var i = 0; i < platforms.length; i++) {
-      element.style[platforms[i] + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
-    }
+    platforms.forEach(function(platform) {
+      element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
+    });
   },
 
   renderResults: function(r, showGooglethis, validCount) {
