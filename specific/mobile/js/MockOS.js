@@ -4,32 +4,36 @@ var MockOS = {
     var dataBack;
     switch (message.action) {
       case "searchHistory":
-      dataBack = MockOS.searchHistory(message.data);
-      break;
+        dataBack = MockOS.searchHistory(message.data);
+        break;
       case "isReady":
-      MockOS.isReady();
-      break;
+        MockOS.isReady();
+        break;
       case "openLink":
-      MockOS.openLink(message.data);
-      break;
+        MockOS.openLink(message.data);
+        break;
       case "browserAction":
-      MockOS.browserAction(message.data);
-      break;
+        MockOS.browserAction(message.data);
+        break;
       case "getTopSites":
-      MockOS.getTopSites();
-      break;
+        MockOS.getTopSites();
+        break;
       case "autocomplete":
-      MockOS.autocomplete(message.data);
-      break;
+        MockOS.autocomplete(message.data);
+        break;
       case "notifyQuery":
-      MockOS.notifyQuery(message.data);
-      break;
+        MockOS.notifyQuery(message.data);
+        break;
+      case "pushTelemetry":
+        MockOS.pushTelemetry(message.data);
+        break;
+
     }
-    message.callBack && eval(message.callBack + "(" + JSON.stringify(dataBack) + ")");
+    message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
   },
   searchHistory: function(q) {
     console.log("--MOCK: action searchHistory is called with data", q);
-    var mockedHistory = [{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "score": 0},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "score": 0},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "score": 0},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "score": 0},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "score": 0}];
+    var mockedHistory = [{"title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "score": 0},{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "score": 0},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "score": 0},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "score": 0},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "score": 0},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "score": 0}];
     return {results:mockedHistory, query:q};
 
   },
@@ -50,5 +54,8 @@ var MockOS = {
   },
   notifyQuery: function(data) {
     console.log("--MOCK: action notifyQuery is called with data", data);
+  },
+  pushTelemetry: function(data) {
+    console.log("--MOCK: action pushTelemetry is called with data", data);
   }
 }

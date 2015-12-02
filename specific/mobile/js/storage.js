@@ -73,6 +73,29 @@ Storage.prototype.removeHistory = function(key, obj) {
   });
   return object;
 };
+Storage.prototype.updateRichHeaderData = function(res, index) {
+  var cache = localStorage.getCachedResult(res.q);
+  if(cache) {
+    var response = JSON.parse(cache.response);
+    if(response.extra && response.extra.results && response.extra.results[index]) {
+      response.extra.results[index] = res;
+      cache.response = JSON.stringify(response);
+      localStorage.cacheResult(res.q, cache);
+    }
+  }
+  console.log(cache);
+};
+Storage.prototype.getCacheTS = function(key) {
+  key = cachePrefix + key.trim().toLowerCase();
+  var list = localStorage.getObject('cache_list');
+  if(list) {
+    for(var i = list.length - 1; i >= 0; i--) {
+      if(list[i].key === key) {
+        return list[i].timestamp;
+      }
+    }
+  }
+};
 
 
 window.addEventListener('load', localStorage.refreshCache);

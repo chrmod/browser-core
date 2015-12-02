@@ -1,6 +1,8 @@
 CLIQZEnvironment = {
   TEMPLATES_PATH: 'templates/',
   LOCALE_PATH: 'locale/',
+  RESULTS_LIMIT: 3,
+  RICH_HEADER_CACHE_TIMEOUT: 15000,
 
   storeQueryTimeout: null,
 
@@ -25,11 +27,12 @@ CLIQZEnvironment = {
   enrichResults: function(r, startIndex) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
-      if(index>0 || index < startIndex) {
+      if(index > 0 || index < startIndex) { // kicking out enriching cards after the first 1
         return;
       }
       CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
         if(r.results && r.results[0] && r.results[0].data) {
+          localStorage.updateRichHeaderData(r.results[0], index);
           var template = r.results[0].data.superTemplate;
           if(!CliqzHandlebars.tplCache[template]) {
             template = r.results[0].data.template;
@@ -59,18 +62,35 @@ CLIQZEnvironment = {
 
     }
   },
+  
+  crossTransform: function(element, x) {
+    var platforms = ['', '-webkit-', '-ms-'];
+    platforms.forEach(function(platform) {
+      element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
+    });
+  },
 
   renderResults: function(r, showGooglethis, validCount) {
+    
+    var historyCount = 0;
+    for(var i = 0; i < r._results.length; i++) {
+      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
+        historyCount++;
+      }
+    }
+
+    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
+
     if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
 
-    resultsBox.style['-webkit-transform'] = 'translate3d(0px, 0px, 0px)';
+    CLIQZEnvironment.crossTransform(resultsBox, 0);
 
 
     resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
     item_container.style.width = resultsBox.style.width;
 
-        CLIQZEnvironment.stopProgressBar();
+    CLIQZEnvironment.stopProgressBar();
     CLIQZEnvironment.openLinksAllowed = true;
 
     CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src]');
@@ -134,7 +154,7 @@ CLIQZEnvironment = {
     var offset = 0;
     var w = window.innerWidth;
 
-    resultsBox.style['-webkit-transform'] = 'translate3d(' + Math.min((offset * w), (w * validCount)) + 'px, 0px, 0px)';              
+    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * validCount)));
 
     var googleAnim = document.getElementById("googleThisAnim");
     CLIQZEnvironment.numberPages = validCount;
@@ -156,39 +176,25 @@ CLIQZEnvironment = {
   cacheResults: function(req) {
     var response = JSON.parse(req.response);
 
-    if(response.result) {
-      localStorage.cacheResult(response.q, {response: req.response, status: req.status});
+    if(response.result && response.result.length > 0) {
+      localStorage.cacheResult(response.q, {response: req.response});
     } else {
       console.log("results not cached !!!");
     }
   },
   resultsHandler: function (r, requestHolder) {
-    var status;
-
-    if(requestHolder && requestHolder.req) {
-      status = requestHolder.req.status;
-    }
-
-    CliqzUtils.log(status,"XHR status");
 
     if( urlbar.value != r._searchString  ){
       CliqzUtils.log("u='"+urlbar.value+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
-//     if( status != 200){
-//       trace();
-//       CliqzUtils.log("status="+status+", returning","status!=200");
-//       return;
-//     }
-
-
     CLIQZEnvironment.autoComplete(r._results[0].val);
-
-    // limiting results to 3 results
-    r._results.splice(3);
-
-    if(requestHolder != "cache") {
+    
+    var cacheTS = localStorage.getCacheTS(r._searchString);
+    if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
+      CLIQZEnvironment.enrichResults(r, 0);
+    } else {
       CLIQZEnvironment.enrichResults(r, 1);
     }
 
@@ -278,7 +284,7 @@ CLIQZEnvironment = {
       onPageScroll : function (scrollInfo) {
         currentScrollInfo = scrollInfo;
         offset = -scrollInfo.totalOffset;
-        resultsBox.style['-webkit-transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';  
+        CLIQZEnvironment.crossTransform(resultsBox, (offset * w));
         CLIQZEnvironment.openLinksAllowed = false;
       },
 
@@ -476,17 +482,22 @@ CLIQZEnvironment = {
     return el.outerHTML;
   },
   httpHandler: function(method, url, callback, onerror, timeout, data, asynchronous) {
-
     latestUrl = url;
 
-    if(!window.navigator.onLine && isMixerUrl(url)) {
-      if(typeof CustomEvent != "undefined") {
-        window.dispatchEvent(new CustomEvent("connected"));
+    if(isMixerUrl(url)) {
+      var cache = localStorage.getCachedResult(urlbar.value);
+      if(cache) {
+        callback(cache, urlbar.value);
+        return;
       }
-
-      isRequestFailed = true;
-      Logger.log( "request " + url + " will be deferred until the browser is online");
-      return;
+      if(!window.navigator.onLine) {
+        if(typeof CustomEvent != "undefined") {
+          window.dispatchEvent(new CustomEvent("connected"));
+        }
+        isRequestFailed = true;
+        Logger.log( "request " + url + " will be deferred until the browser is online");
+        return;
+      }
     }
     var req = new XMLHttpRequest();
     if (asynchronous === undefined) {
@@ -505,6 +516,7 @@ CLIQZEnvironment = {
           if(typeof CustomEvent != "undefined") {
             window.dispatchEvent(new CustomEvent("connected"));
           }
+          CLIQZEnvironment.cacheResults(req);
           lastSucceededUrl = url;
           CliqzUtils.log("status "+req.status,"onload");
         }
