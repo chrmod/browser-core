@@ -73,33 +73,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-/*
-function modulePath(moduleName, path) {
-  return "chrome://cliqz/content/"+moduleName+"/"+path;
-}
-*/
-
-/*
-function openTab(url) {
-  var win = CLIQZEnvironment.getWindow();
-  CLIQZEnvironment.openTabInWindow(win, url);
-}
-*/
-
-function isVersionHigherThan(version) {
-  try {
-    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-      .getService(Components.interfaces.nsIXULAppInfo);
-    var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-     .getService(Components.interfaces.nsIVersionComparator);
-
-    return versionChecker.compare(appInfo.version, version) >= 0;
-  } catch (e) {
-    CliqzUtils.log('error checking browser version: ' + e, "core.js");
-    return false;
-  }
-}
-
 var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
@@ -137,6 +110,7 @@ window.CLIQZ.Core = {
             }
         }
         // end TEMP fix
+        dump("xxxxxxxxxxxxxxxxxxx");
 
         XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
             'chrome://cliqzmodules/content/CliqzHistory.jsm');
@@ -222,10 +196,17 @@ window.CLIQZ.Core = {
         });
         */
         settings.window = window;
-        CLIQZ.System.import("antitracking/window").then(function (Module) {
-          var mod = new Module.default(settings);
-          mod.init();
-        }).catch(function (e) { dump(e) });
+        console.log("sssssssssssssssssssssS");
+        dump("zzzzzzzzzzzzzzzz"+CLIQZ.modules);
+        CLIQZ.modules.map(function (moduleName) {
+          dump("loading mwindow: "+moduleName+'\n')
+          return CLIQZ.System.import(moduleName+"/window");
+        }).forEach(function (modulePromise) {
+          modulePromise.then(function (Module) {
+            var mod = new Module.default(settings);
+            mod.init();
+          }).catch(function (e) { console.log(e) });
+        });
 
         var urlBarGo = document.getElementById('urlbar-go-button');
         CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');

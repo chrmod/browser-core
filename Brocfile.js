@@ -198,6 +198,7 @@ var firefoxLibs = new MergeTrees([
 var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
     firefoxSpecific,
+    new Funnel(".", { include: ["cliqz.json"], destDir: "chrome/content" }),
     new Funnel(staticFiles, { destDir: 'chrome' }),
     new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
     new Funnel(global,      { destDir: 'modules' }),
