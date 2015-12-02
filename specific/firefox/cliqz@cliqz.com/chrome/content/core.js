@@ -61,9 +61,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
-  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
@@ -249,7 +246,6 @@ window.CLIQZ.Core = {
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
         }
-        CliqzAttrack.initWindow(window);
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
@@ -442,9 +438,6 @@ window.CLIQZ.Core = {
 
 
         }
-        // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        CliqzAttrack.unloadWindow(window);
-
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -483,7 +476,6 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzAntiPhishing;
-            delete window.CliqzAttrack;
             delete window.CliqzEvents;
         }
     },

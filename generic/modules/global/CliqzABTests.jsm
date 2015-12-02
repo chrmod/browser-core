@@ -11,17 +11,15 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
-  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
-
 var timer=null, ONE_HOUR = 60 * 60 * 1000;
 
 var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-    init: function(){
+    init: function(system){
         CliqzABTests.check();
+        this.System = system;
     },
     unload: function(){
         CliqzUtils.clearTimeout(timer);
@@ -281,7 +279,10 @@ var CliqzABTests = {
             case "1045_A":
                 break;
             case "1045_B":
+                this.System.import("antitracking/attrack").then(function (mod) {
+                var CliqzAttrack = mod.default;
                 CliqzAttrack.enableModule(true);
+                }).catch(function (e) {});
                 break;
             case "1046_A":
             case "1047_A":
@@ -308,7 +309,10 @@ var CliqzABTests = {
                 CliqzUtils.setPref("attrackRefererTracking", true);
                 break;
             case "1051_B":
+                this.System.import("antitracking/attrack").then(function (mod) {
+                var CliqzAttrack = mod.default;
                 CliqzAttrack.enableModule(true);
+                }).catch(function (e) {});
                 break;
             case "1052_A":
               CliqzUtils.setPref("attrackBlockCookieTracking", false);
@@ -525,7 +529,10 @@ var CliqzABTests = {
                 break;
             case "1045_A":
             case "1045_B":
-                CliqzAttrack.disableModule();
+                this.System.import("antitracking/attrack").then(function (mod) {
+                var CliqzAttrack = mod.default;
+                CliqzAttrack.disableModule(true);
+                }).catch(function (e) {});
                 break;
             case "1046_A":
             case "1047_A":
@@ -549,7 +556,10 @@ var CliqzABTests = {
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
                 break;
             case "1051_B":
-                CliqzAttrack.disableModule();
+                this.System.import("antitracking/attrack").then(function (mod) {
+                var CliqzAttrack = mod.default;
+                CliqzAttrack.disableModule(true);
+                }).catch(function (e) {});
                 break;
             case "1052_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");

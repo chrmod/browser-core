@@ -1,22 +1,15 @@
-'use strict';
 /*
  * This module prevents user from 3rd party tracking
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+try{
 
-var EXPORTED_SYMBOLS = ['CliqzAttrack'];
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/AddonManager.jsm");
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
-  'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
 var countReload = false;
 var nsIHttpChannel = Ci.nsIHttpChannel;
@@ -4740,3 +4733,9 @@ var CliqzAttrack = {
       CliqzAttrack.saveSourceDomainWhitelist();
     }
 };
+
+} catch(e) {
+
+    dump("\n\n Something is wrong: "+e.stack+"\n");
+}
+export default CliqzAttrack;

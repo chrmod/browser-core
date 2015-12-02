@@ -11,7 +11,8 @@ function getExtensionDirectory() {
   return JSON.parse(prefs.getCharPref('extensions.xpiState'))['app-profile']['cliqz@cliqz.com']['d'];
 }
 
-TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHumanWeb) {
+TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
+  var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
 
   describe('CliqzAttrack_integration', function() {
 

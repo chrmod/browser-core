@@ -1,4 +1,5 @@
 import background from 'antitracking/background';
+import CliqzAttrack from 'antitracking/attrack';
 
 export default class {
 
@@ -9,10 +10,12 @@ export default class {
   }
 
   init() {
+    CliqzAttrack.initWindow(this.window);
     this.listenToLocationChange();
   }
 
   unload() {
+    CliqzAttrack.unloadWindow(window);
     CliqzUtils.clearInterval(this.interval);
   }
 

@@ -1,7 +1,9 @@
 import CliqzPopupButton from 'antitracking/popup-button';
+import CliqzAttrack from 'antitracking/attrack';
 
 export default {
   init() {
+    CliqzAttrack.init();
     this.popup = new CliqzPopupButton({
       name: "antitracking",
       actions: this.popupActions
@@ -11,6 +13,9 @@ export default {
 
   unload() {
     this.popup.destroy();
+    try {
+    CliqzAttrack.unload();
+    } catch(e) { }
   },
 
   popupActions: {
