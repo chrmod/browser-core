@@ -16,7 +16,7 @@ function startup(aData, aReason) {
 
     try{
       Cu.import("chrome://cliqzmodules/content/CliqzFreshTab.jsm");
-      FreshTab.startup('chrome://cliqz/content/freshtab/freshtab.html')
+      CliqzFreshTab.startup('chrome://cliqz/content/freshtab/freshtab.html')
     } catch(e){}
 }
 
@@ -34,7 +34,7 @@ function shutdown(aData, aReason) {
     Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 
-    try{ FreshTab.shutdown(aData, aReason); } catch(e){}
+    try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 }
 
 function eventLog(ev){
