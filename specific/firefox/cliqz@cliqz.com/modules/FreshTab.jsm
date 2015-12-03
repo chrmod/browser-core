@@ -43,6 +43,11 @@ var FreshTab = {
     signalType: "home",
     initialized: false,
     startup: function(freshTabUrl){
+        // first start
+        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
+        }
+
         // exit if not in the test
         if(!CliqzUtils.getPref("freshTabAB", false)) return;
         if(!FF41_OR_ABOVE){
@@ -96,11 +101,6 @@ var FreshTab = {
           pref.clearUserPref(BAK_NEWTAB);
           pref.clearUserPref(BAK_STARTUP);
           pref.clearUserPref(FRESH_TAB_BACKUP_DONE);
-        }
-
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
         }
 
         FreshTab.updateState();
