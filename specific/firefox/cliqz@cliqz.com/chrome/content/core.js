@@ -70,8 +70,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'FreshTab',
-  'chrome://cliqzmodules/content/FreshTab.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzFreshTab',
+  'chrome://cliqzmodules/content/CliqzFreshTab.jsm');
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
