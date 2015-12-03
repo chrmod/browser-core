@@ -7,6 +7,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
     DEF_HOMEPAGE = "browser.startup.homepage",
@@ -40,7 +41,16 @@ var AboutURLFactory;
 
 var FreshTab = {
     signalType: "home",
+    initialized: false,
     startup: function(freshTabUrl){
+        // exit if not in the test
+        if(!CliqzUtils.getPref("freshTabAB", false)) return;
+        if(!FF41_OR_ABOVE){
+          CliqzABTests.disable("1056_B");
+          return;
+        }
+
+
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
             classDescription: CLIQZ_NEW_TAB,
@@ -75,7 +85,7 @@ var FreshTab = {
 
         // reset preferences in case of inconsistency
         if(pref.prefHasUserValue(OLD_FRESH_TAB) || //  old FreshTab settings
-           pref.getCharPref(BAK_HOMEPAGE) == CLIQZ_NEW_TAB  // inconsistency
+           (pref.prefHasUserValue(BAK_HOMEPAGE) && pref.getCharPref(BAK_HOMEPAGE) == CLIQZ_NEW_TAB)  // inconsistency
           ){
 
           pref.clearUserPref(OLD_FRESH_TAB);
@@ -100,15 +110,17 @@ var FreshTab = {
             initNewTab(enumerator.getNext())
         }
         Services.ww.registerNotification(initNewTab);
+
+        FreshTab.initialized = true;
     },
 
     shutdown: function(aData, aReason){
-        if(aReason == 2 /*APP_SHUTDOWN*/) return;
+        if(!FreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
         Services.ww.unregisterNotification(initNewTab);
 
-        deactivate()
+        deactivate();
     },
     toggleState: function(){
       pref.setBoolPref(FRESH_TAB_STATE, !pref.getBoolPref(FRESH_TAB_STATE));
