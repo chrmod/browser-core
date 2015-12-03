@@ -140,7 +140,7 @@ window.addEventListener('resize', function () {
       CLIQZEnvironment.vp.destroy();
     }
     
-    document.getElementById("results").style.transform ="translate3d(0px, 0px, 0px)"
+    CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
     CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0); 
     }, 50);

@@ -441,6 +441,7 @@ var CliqzUtils = {
               fragment: fragment,
               extra: extra,
               host: host,
+              cleanHost: cleanHost,
               ssl: ssl,
               port: port,
               friendly_url: friendly_url

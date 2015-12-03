@@ -1,16 +1,4 @@
 <!-- results.tpl -->
-
-	<div class="frame" style="width: {{ frameWidth }}px; left: 0px">
-       <div id="conversations" class="ez" type="cliqz-results sources-m" arrow="false" idx="0" hasimage="">
-         
-          <div class="main">
-             <h1 class="main__headline"></h1>
-             <p class="main__content">
-                <div id="recent"></div>
-             </p>
-          </div>
-       </div>
-    </div>
 {{#each results}} 
 	{{#unless invalid}}
 		<div class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
@@ -41,10 +29,9 @@
 			<div url="http://www.google.com/#q={{searchString}}" class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
 			  <div class="ez">
 			    <div id="googleThisAnim">
-			      <ul class="cta">
-			        <li>
-			          <a href="" style="text-align: center; line-height: 1.25; padding: 6px 12px 12px"><i class="fa fa-search" style="font-size: 24px; margin: 6px 0"></i><br>Einfach hier tappen <br>für Google-Suche</a>
-			        </li>
+				    <br>
+				    <img src="skin/img/icon-google.svg"><br><br>
+			       <a href="">Leider kein passendes Ergebnis gefunden? <br><br>Hier tappen und wir checken mal Google für dich...<br><br></a>
 			    </div>
 			  </div>
 			</div>

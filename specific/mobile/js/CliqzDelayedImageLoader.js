@@ -9,18 +9,18 @@ function CliqzDelayedImageLoader(selector) {
 
 CliqzDelayedImageLoader.prototype = {
 
-  start() {
+  start: function() {
     this.timeout = setTimeout(this.loadFirstBatch.bind(this), this.DELAY);
   },
 
-  stop() {
+  stop: function() {
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
     this.isRunning = false;
   },
 
-  loadFirstBatch() {
+  loadFirstBatch: function() {
     this.isRunning = true;
     // TODO: Move loading of images to constructor. But make sure that DOM exists when constructor is called.
     this.images = Array.prototype.slice.call(document.querySelectorAll(this.selector));
