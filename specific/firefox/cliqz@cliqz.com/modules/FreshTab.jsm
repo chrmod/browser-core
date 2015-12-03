@@ -7,6 +7,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
     DEF_HOMEPAGE = "browser.startup.homepage",
@@ -44,6 +45,11 @@ var FreshTab = {
     startup: function(freshTabUrl){
         // exit if not in the test
         if(!CliqzUtils.getPref("freshTabAB", false)) return;
+        if(!FF41_OR_ABOVE){
+          CliqzABTests.disable("1056_B");
+          return;
+        }
+
 
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
