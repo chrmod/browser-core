@@ -118,6 +118,7 @@ function search_mobile(e) {
 
 window.addEventListener('resize', function () {
   setTimeout(function () {
+    CLIQZEnvironment.setDimensions();
     var w = window.innerWidth;
     var frames = document.getElementsByClassName("frame");
     var i;
