@@ -40,7 +40,11 @@ var AboutURLFactory;
 
 var FreshTab = {
     signalType: "home",
+    initialized: false,
     startup: function(freshTabUrl){
+        // exit if not in the test
+        if(!CliqzUtils.getPref("freshTabAB", false)) return;
+
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
             classDescription: CLIQZ_NEW_TAB,
@@ -100,15 +104,17 @@ var FreshTab = {
             initNewTab(enumerator.getNext())
         }
         Services.ww.registerNotification(initNewTab);
+
+        FreshTab.initialized = true;
     },
 
     shutdown: function(aData, aReason){
-        if(aReason == 2 /*APP_SHUTDOWN*/) return;
+        if(!FreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
         Services.ww.unregisterNotification(initNewTab);
 
-        deactivate()
+        deactivate();
     },
     toggleState: function(){
       pref.setBoolPref(FRESH_TAB_STATE, !pref.getBoolPref(FRESH_TAB_STATE));
