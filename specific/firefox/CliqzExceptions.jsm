@@ -16,13 +16,12 @@ var TARGET = [
         //'CliqzAutocomplete', TODO
         'CliqzCalculator',
         'CliqzCategories',
-        'CliqzClusterHistory',
         'CliqzExceptions',
         //'CliqzHandlebars', TODO
         'CliqzHistory',
         'CliqzHistoryAnalysis',
         'CliqzHistoryManager',
-        'CliqzHistoryPattern',
+        'CliqzHistoryCluster',
         'CliqzHumanWeb',
         'CliqzImages',
         'CliqzLanguage',
@@ -31,7 +30,6 @@ var TARGET = [
         'CliqzSearchHistory',
         'CliqzSmartCliqzCache',
         'CliqzSpellCheck',
-        'CliqzTour',
         'CliqzUtils',
         'Extension',
         'Filter',

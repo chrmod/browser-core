@@ -68,7 +68,6 @@ var CliqzUtils = {
   CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  NEW_TUTORIAL_URL:               'chrome://cliqz/content/onboarding/onboarding.html',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/support',
@@ -96,7 +95,10 @@ var CliqzUtils = {
       'rd-h3-w-rating': 1,
       'ez-generic-2': 3,
       'cpgame_movie': 3,
-      'delivery-tracking': 2
+      'delivery-tracking': 2,
+      'vod': 3,
+      'conversations': 1,
+      'conversations_future': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -448,6 +450,7 @@ var CliqzUtils = {
               fragment: fragment,
               extra: extra,
               host: host,
+              cleanHost: cleanHost,
               ssl: ssl,
               port: port,
               friendly_url: friendly_url
@@ -526,6 +529,99 @@ var CliqzUtils = {
       return true;
     }
   },
+  // extract query term from search engine result page URLs
+  extractQueryFromUrl: function(url) {
+    // Google
+    if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
+      url = url.substring(url.lastIndexOf('q=') + 2).split('&')[0];
+    // Bing
+    } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
+      url = url.substring(url.indexOf('q=') + 2).split('&')[0];
+    // Yahoo
+    } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
+      url = url.substring(url.indexOf('p=') + 2).split('&')[0];
+    } else {
+      url = null;
+    }
+    var decoded = url ? decodeURIComponent(url.replace(/\+/g,' ')) : null;
+    if (decoded) return decoded;
+    else return url;
+  },
+  // Remove clutter (http, www) from urls
+  generalizeUrl: function(url, skipCorrection) {
+    if (!url) {
+      return '';
+    }
+    var val = url.toLowerCase();
+    var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
+      host = cleanParts[0],
+      pathLength = 0,
+      SYMBOLS = /,|\./g;
+    if (!skipCorrection) {
+      if (cleanParts.length > 1) {
+        pathLength = ('/' + cleanParts.slice(1).join('/')).length;
+      }
+      if (host.indexOf('www') === 0 && host.length > 4) {
+        // only fix symbols in host
+        if (SYMBOLS.test(host[3]) && host[4] != ' ')
+        // replace only issues in the host name, not ever in the path
+          val = val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
+          (pathLength ? val.substr(-pathLength) : '');
+      }
+    }
+    url = CliqzUtils.cleanUrlProtocol(val, true);
+    return url[url.length - 1] == '/' ? url.slice(0,-1) : url;
+  },
+  // Remove clutter from urls that prevents pattern detection, e.g. checksum
+  simplifyUrl: function(url) {
+    var q;
+    // Google redirect urls
+    if (url.search(/http(s?):\/\/www\.google\..*\/url\?.*url=.*/i) === 0) {
+      // Return target URL instead
+      url = url.substring(url.lastIndexOf('url=')).split('&')[0];
+      url = url.substr(4);
+      return decodeURIComponent(url);
+
+      // Remove clutter from Google searches
+    } else if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
+      q = url.substring(url.lastIndexOf('q=')).split('&')[0];
+      if (q != 'q=') {
+        // tbm defines category (images/news/...)
+        var param = url.indexOf('#') != -1 ? url.substr(url.indexOf('#')) : url.substr(url.indexOf('?'));
+        var tbm = param.indexOf('tbm=') != -1 ? ('&' + param.substring(param.lastIndexOf('tbm=')).split('&')[0]) : '';
+        var page = param.indexOf('start=') != -1 ? ('&' + param.substring(param.lastIndexOf('start=')).split('&')[0]) : '';
+        return 'https://www.google.com/search?' + q + tbm /*+ page*/;
+      } else {
+        return url;
+      }
+      // Bing
+    } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
+      q = url.substring(url.indexOf('q=')).split('&')[0];
+      if (q != 'q=') {
+        if (url.indexOf('search?') != -1)
+          return url.substr(0, url.indexOf('search?')) + 'search?' + q;
+        else
+          return url.substr(0, url.indexOf('/?')) + '/?' + q;
+      } else {
+        return url;
+      }
+      // Yahoo redirect
+    } else if (url.search(/http(s?):\/\/r.search\.yahoo\.com\/.*/i) === 0) {
+      url = url.substring(url.lastIndexOf('/RU=')).split('/RK=')[0];
+      url = url.substr(4);
+      return decodeURIComponent(url);
+      // Yahoo
+    } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
+      var p = url.substring(url.indexOf('p=')).split('&')[0];
+      if (p != 'p=' && url.indexOf(';') != -1) {
+        return url.substr(0, url.indexOf(';')) + '?' + p;
+      } else {
+        return url;
+      }
+    } else {
+      return url;
+    }
+  },
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
@@ -544,6 +640,7 @@ var CliqzUtils = {
               encodeURIComponent(q) +
               CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
+              CliqzUtils.encodeLocale() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter() +
@@ -573,6 +670,10 @@ var CliqzUtils = {
       callback, //on error the callback still needs to be called
       2000
     );
+  },
+  encodeLocale: function() {
+    // send browser language to the back-end
+    return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
     //international result not supported
@@ -860,15 +961,23 @@ var CliqzUtils = {
     }
   },
   version: CLIQZEnvironment.getVersion,
-  extensionRestart: function(){
+  extensionRestart: function(changes){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
-        var win = enumerator.getNext();
-        //win.CLIQZ.Core.restart(true);
-        if(win.CLIQZ && win.CLIQZ.Core){
-          win.CLIQZ.Core.unload(true);
-          win.CLIQZ.Core.init();
-        }
+      var win = enumerator.getNext();
+      if(win.CLIQZ && win.CLIQZ.Core){
+        win.CLIQZ.Core.unload(true);
+      }
+    }
+
+    changes && changes();
+
+    enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+      var win = enumerator.getNext();
+      if(win.CLIQZ && win.CLIQZ.Core){
+        win.CLIQZ.Core.init();
+      }
     }
   },
   isWindows: function(){

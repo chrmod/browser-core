@@ -154,8 +154,8 @@ CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(url, newTab){
-        window.location.href = url;
+    openLink: function(win, url, newTab){
+        win.location.href = url;
         return false;
     },
     _pendingHistoryQueries: {},  // Will hold query-callback pairs.

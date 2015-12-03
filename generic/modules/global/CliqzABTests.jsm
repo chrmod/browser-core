@@ -11,9 +11,6 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUnblock',
-  'chrome://cliqzmodules/content/CliqzUnblock.jsm');
-
 var timer=null, ONE_HOUR = 60 * 60 * 1000;
 
 var CliqzABTests = {
@@ -278,8 +275,11 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
-            case "1055_B":
-                CliqzUnblock.enable();
+            case "1056_A":
+                CliqzUtils.setPref("freshTabAB", false);
+                break;
+            case "1056_B":
+                CliqzUtils.setPref("freshTabAB", true);
                 break;
             default:
                 rule_executed = false;
@@ -482,9 +482,9 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
                 break;
-            case "1055_A":
-            case "1055_B":
-                CliqzUnblock.disable();
+            case "1056_A":
+            case "1056_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("freshTabAB");
                 break;
             default:
                 rule_executed = false;

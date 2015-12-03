@@ -47,14 +47,12 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzUnblock.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
@@ -68,12 +66,6 @@ var Extension = {
         }
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
-
-        CliqzLoyalty.onExtensionStart();
-
-        CliqzClusterHistory.init();
-
-        CliqzUnblock.init();
     },
     load: function(upgrade, oldVersion, newVersion){
         AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
@@ -106,7 +98,7 @@ var Extension = {
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
-            CliqzUtils.setPref('changeLogState', 1);
+          //CliqzUtils.setPref('changeLogState', 1);
         }
     },
     unload: function(version, uninstall){
@@ -136,14 +128,12 @@ var Extension = {
         }
 
         CliqzCategories.unload();
+        CliqzFreshTabNews.unload();
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
-        CliqzLoyalty.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
-
-        CliqzUnblock.unload();
     },
     restoreSearchBar: function(win){
         var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
@@ -184,29 +174,25 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
-        Cu.unload('chrome://cliqzmodules/content/CliqzLoyalty.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzUnblock.jsm');
         // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
         // Remove this observer here to correct bug in 0.5.57
@@ -262,7 +248,6 @@ var Extension = {
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
             Extension.addScript('ContextMenu', win);
-            Extension.addScript('users1st', win);
 
             Extension.addButtons(win);
 
@@ -285,25 +270,6 @@ var Extension = {
             CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
-    addCliqzStarButton: function(win, needPlaceHolder){
-      var btn_id = CliqzLoyalty.getBrowserButtonID();
-      if (needPlaceHolder)
-          ToolbarButtonManager.setDefaultPosition(btn_id, 'nav-bar', BTN_ID);
-
-      var button = win.document.createElement('toolbarbutton');
-      button.setAttribute('id', btn_id);
-      button.setAttribute('tooltiptext', 'CLIQZ for Glory');
-      button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-      button.setAttribute('image', CliqzLoyalty.getBrowserIcon(false));
-      button.addEventListener("command",
-          function(ev){
-              CLIQZEnvironment.openTabInWindow(win, 'about:cliqzloyalty');
-              CliqzLoyalty.onBrowserIconClick();
-          }
-          , false);
-
-      ToolbarButtonManager.restorePosition(win.document, button);
-    },
     addButtons: function(win){
         var doc = win.document;
         if (!CliqzUtils.PREFERRED_LANGUAGE) {
@@ -312,8 +278,7 @@ var Extension = {
           CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
           CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
         }
-        var firstRunPrefVal = CliqzUtils.getPref(firstRunPref, false);
-        if (!firstRunPrefVal) {
+        if (!CliqzUtils.getPref(firstRunPref, false)) {
             CliqzUtils.setPref(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
@@ -355,8 +320,6 @@ var Extension = {
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
-
-        Extension.addCliqzStarButton(win, firstRunPrefVal);
     },
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){

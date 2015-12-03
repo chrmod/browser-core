@@ -1,3 +1,4 @@
+<!-- pattern-h2 -->
 <div class='cqz-result-h2 cqz-result-padding cqz-result-pattern'>
       <div class='cqz-ez-title cliqz-pattern-title-h2 overflow' arrow='false' url='{{data.url}}'>
           {{ emphasis data.title text 2 true }}

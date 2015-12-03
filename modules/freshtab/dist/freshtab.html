@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <base target="_parent" />
+    <link href="css/styles.css" rel="stylesheet" media="screen" />
+    <link href="css/main.css" rel="stylesheet" media="screen" />
+
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/historySQL.js"></script>
+
+    <script id="topNews" type="text/x-handlebars-template">
+      <div class="heading">
+        <h2>{{local 'freshtab_top_news'}}</h2>
+      </div>
+      <div class="content">
+        <ul>
+        {{#each this}}
+        <li>
+          <a href="{{url}}" class="topNewsLink" data-index="{{@index}}">
+            <div class="title">{{short_title}}</div>
+            <div class="url">{{displayUrl}}</div>
+          </a>
+        </li>
+        {{/each}}
+        </ul>
+      </div>
+    </script>
+    <script id="yourNews" type="text/x-handlebars-template">
+      <div class="heading">
+        <h2>YOUR NEWS</h2>
+      </div>
+      <div class="content">
+        {{#each this}}
+        <div class="clearfix newsBlock">
+          <div class="news-logo" style="{{logo.style}}"></div>
+          <ul>
+          {{#each this}}
+            <li>
+              <a href="{{url}}" class="title" data-index="{{@index}}">{{title}}</a>
+            </li>
+          {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+    </script>
+    <script id="top" type="text/x-handlebars-template">
+    <ul class="clearfix">
+      {{#each this}}
+        <li>
+          <a class="historyLink" data-index="{{@index}}" href="{{url}}" title="{{title}}">
+            <div class="cliqz-brand-logo" style="{{logo.style}}">{{logo.text}}</div>
+            <div class="title">{{ displayTitle }}</div>
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+    </script>
+  </head>
+  <body id="freshTabPage">
+    <div id="container">
+
+      <div id="topVisited" class="center"></div>
+
+      <div class="wrap">
+        <div id="searchContainer" class="center">
+          <div id="search-icon"></div>
+          <input id="urlbar" autocomplete="off" tm-click="search-bar" />
+        </div>
+
+        <div id="newsContainer" class="clearfix">
+          <div class="newsBox" id="topNewsBox"></div>
+
+          <div class="newsBox" id="yourNewsBox"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+    <div id="learnMore">
+      <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>
+    </div>
+
+    <div id="firstTimeOnboarding" class="hidden">
+      <div class="options">
+        <a key="freshtab_learn_more" class="moreBtn cliqz-locale" href="https://cliqz.com/aboutus/blog/new-startpage">Learn more</a>
+        <a key="freshtab_back_to_old" class="revertBtn cliqz-locale" href="#">Go back to old page</a>
+      </div>
+    </div>
+
+  </body>
+</html>

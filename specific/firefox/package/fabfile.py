@@ -16,7 +16,7 @@ import jsstrip
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
-PATH_TO_S3_BUCKET = "s3://cdncliqz/update/browser/"
+PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
@@ -59,21 +59,6 @@ def package(beta='True', version=None):
     if version is None:
         version = get_version(beta)
 
-    # If we are not doing a beta release we need to checkout the latest stable tag
-    if not (beta == 'True'):
-        with hide('output'):
-            # Because the file install.rdf changes after generating from template
-            # we need to untrack it before we can do a stash-pop.
-            # local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
-            # Get the name of the current branch so we can get back on it
-            branch = local("git rev-parse --abbrev-ref HEAD", capture=True)
-            # If we have changes stash them before checkout
-            branch_dirty = local("git diff --shortstat", capture=True)
-            if branch_dirty:
-                local("git stash")
-            if checkout:
-                local("git checkout %s" % (version))
-
     # Generate temporary manifest
     install_manifest_path = "cliqz@cliqz.com/install.rdf"
     env = Environment(loader=FileSystemLoader('templates'))
@@ -102,14 +87,6 @@ def package(beta='True', version=None):
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
             local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
-
-    # If we checked out a earlier commit we need to go back to master/HEAD
-    if not (beta == 'True'):
-        with hide('output'):
-            if checkout:
-                local("git checkout %s" % branch)
-            if branch_dirty:
-                local("git stash pop")
 
     return output_file_name
 
@@ -166,8 +143,8 @@ def publish(beta='True', version=None):
         download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
         download_link_latest_html = "http://cdn2.cliqz.com/update/beta/%s" % output_file_name
     else:
-        download_link = "https://s3.amazonaws.com/cdncliqz/update/browser/%s" % output_file_name
-        download_link_latest_html = "http://cdn2.cliqz.com/update/browser/%s" % output_file_name
+        download_link = "https://s3.amazonaws.com/cdncliqz/update/%s" % output_file_name
+        download_link_latest_html = "http://cdn2.cliqz.com/update/%s" % output_file_name
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
@@ -221,7 +198,7 @@ def comment_cleaner(path=None):
 
     target = ['js', 'jsm', 'html']
     exclude_dirs = ['node_modules', 'bower_components']
-    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'Validations.js', 'freshtab.html']
+    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'Validations.js', 'humanweb.html', 'CliqzAntiPhishing.jsm', 'freshtab.html']
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
