@@ -28,7 +28,7 @@ var CliqzFreshTabNews = {
 	init: function(){
     CliqzUtils.clearTimeout(t0);
 
-    t0 = CliqzUtils.setTimeout(CliqzFreshTabNews.updateNews, 0);
+    t0 = CliqzUtils.setTimeout(CliqzFreshTabNews.updateNews, ONE_MINUTE);
 
 		log('init');
 	},
@@ -340,13 +340,13 @@ function createNewsList(history_data, number_to_get, callback){
           list_to_merge = val.res.results[0].articles;
         }
         mergeNews(list_to_merge, news_results, val.news_type, val.news_domain, val.limit);
+
+        var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
+        if (ls) ls.setItem("freshTab-news",JSON.stringify(news_results))
+
+        if(callback) callback();
       }
     });
-
-    var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
-    if (ls) ls.setItem("freshTab-news",JSON.stringify(news_results))
-
-    if(callback) callback();
   });
 }
 

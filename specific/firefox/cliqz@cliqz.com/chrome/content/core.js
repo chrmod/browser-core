@@ -64,8 +64,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'FreshTab',
-  'chrome://cliqzmodules/content/FreshTab.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzFreshTab',
+  'chrome://cliqzmodules/content/CliqzFreshTab.jsm');
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
@@ -845,14 +845,14 @@ window.CLIQZ.Core = {
       menupopup.appendChild(CLIQZ.Core.createHumanMenu(win));
 
       // FreshTab - TODO - move inside component
-      if(FreshTab.initialized){
+      if(CliqzFreshTab.initialized){
         menupopup.appendChild(
           CLIQZ.Core.createCheckBoxItem(
             doc,
             'freshTabState',
             CliqzUtils.getLocalizedString('btnFreshTab'),
             true,
-            FreshTab.toggleState)
+            CliqzFreshTab.toggleState)
         );
       }
     },

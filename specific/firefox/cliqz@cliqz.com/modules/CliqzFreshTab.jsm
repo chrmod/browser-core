@@ -1,6 +1,6 @@
 'use strict';
 
-var EXPORTED_SYMBOLS = ['FreshTab'];
+var EXPORTED_SYMBOLS = ['CliqzFreshTab'];
 
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
@@ -39,10 +39,15 @@ Cm.QueryInterface(Ci.nsIComponentRegistrar);
 function AboutURL() {}
 var AboutURLFactory;
 
-var FreshTab = {
+var CliqzFreshTab = {
     signalType: "home",
     initialized: false,
     startup: function(freshTabUrl){
+        // first start
+        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
+        }
+
         // exit if not in the test
         if(!CliqzUtils.getPref("freshTabAB", false)) return;
         if(!FF41_OR_ABOVE){
@@ -98,12 +103,7 @@ var FreshTab = {
           pref.clearUserPref(FRESH_TAB_BACKUP_DONE);
         }
 
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
-        }
-
-        FreshTab.updateState();
+        CliqzFreshTab.updateState();
 
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -111,11 +111,11 @@ var FreshTab = {
         }
         Services.ww.registerNotification(initNewTab);
 
-        FreshTab.initialized = true;
+        CliqzFreshTab.initialized = true;
     },
 
     shutdown: function(aData, aReason){
-        if(!FreshTab.initialized) return;
+        if(!CliqzFreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
         Services.ww.unregisterNotification(initNewTab);
@@ -124,7 +124,7 @@ var FreshTab = {
     },
     toggleState: function(){
       pref.setBoolPref(FRESH_TAB_STATE, !pref.getBoolPref(FRESH_TAB_STATE));
-      FreshTab.updateState();
+      CliqzFreshTab.updateState();
     },
     updateState: function(){
       if(isActive()){
