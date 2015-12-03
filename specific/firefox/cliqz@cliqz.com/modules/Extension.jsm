@@ -38,8 +38,12 @@ var Extension = {
     PREFS: {
         'session': ''
     },
+    modules: [],
     init: function(){
         Extension.unloadModules();
+
+        Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
+        System.baseURL = this.BASE_URI;
 
         // Cu.import('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
@@ -48,7 +52,6 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
@@ -81,6 +84,22 @@ var Extension = {
 
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();
+
+        // Modules loading
+        CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
+          try {
+            this.modules = JSON.parse(res.response).modules;
+
+            this.modules.map(function (moduleName) {
+              return System.import(moduleName+"/background");
+            }).forEach(function (modulePromise) {
+              modulePromise.then(function (module) {
+                module.default.init();
+              }).catch(function (e) { /* die silently */ });
+            });
+
+          } catch(e) { dump(e) }
+        }.bind(this));
 
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -128,7 +147,6 @@ var Extension = {
         }
 
         CliqzCategories.unload();
-        CliqzFreshTabNews.unload();
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
         Extension.unloadModules();
@@ -163,6 +181,13 @@ var Extension = {
         }
     },
     unloadModules: function(){
+        this.modules.forEach(function (moduleName) {
+          try {
+            System.get(moduleName+"/background").default.unload();
+          } catch(e) {
+          }
+        });
+
         //unload all cliqz modules
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
@@ -183,7 +208,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
@@ -241,10 +265,23 @@ var Extension = {
     cleanPossibleOldVersions: function(win){
         //
     },
+    setupCliqzGlobal: function (win) {
+      if(win.CLIQZ === undefined) {
+          Object.defineProperty( win, 'CLIQZ', {configurable:true, value:{}});
+      } else {
+          try{
+              //faulty uninstall of previous version
+              win.CLIQZ = win.CLIQZ || {};
+          } catch(e){}
+      }
+      win.CLIQZ.System = System;
+      win.CLIQZ.modules = this.modules;
+    },
     loadIntoWindow: function(win) {
         if (!win) return;
 
         if(CliqzUtils.shouldLoad(win)){
+            Extension.setupCliqzGlobal(win);
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
             Extension.addScript('ContextMenu', win);
