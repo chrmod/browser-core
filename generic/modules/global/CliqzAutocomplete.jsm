@@ -394,6 +394,7 @@ var CliqzAutocomplete = {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
+                
                 // be sure this is not a delayed result
                 if(q != this.searchString) {
                     this.discardedResults += 1; // count results discarded from backend because they were out of date
@@ -401,6 +402,9 @@ var CliqzAutocomplete = {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var json = JSON.parse(req.response);
+
+                    CliqzUtils.log(json.result ? json.result.length : 0,"BM response");
+
                     results = json.result || [];
 
                     this.cliqzResultsExtra = []
@@ -567,9 +571,9 @@ var CliqzAutocomplete = {
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
-                    // start fetching results
+                    // start fetching results 
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-
+                    
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;

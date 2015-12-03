@@ -1,3 +1,4 @@
+<!-- logo.tpl -->
 {{#with logo}}
 <div newtab='true' class="meta__logo {{#if backgroundImage}}image{{/if}}"
                 style="{{#if backgroundImage}}
@@ -9,3 +10,4 @@
                ">
        {{ text }}</div>
  {{/with}}
+ <!-- end logo.tpl -->

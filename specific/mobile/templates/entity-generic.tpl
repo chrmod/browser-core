@@ -1,4 +1,4 @@
-
+<!-- entity-generic -->
 <div class="meta">
     {{> logo}}
     <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
@@ -13,9 +13,9 @@
       </div>
           <!-- <div class="after" style="background-image: url({{icon}})"></div> -->
 
-        <ul class="cta" style="background-color: #1F69AD">
+        <ul class="cta">
           {{#each actions }}
-            <li extra="action-{{ @index }}" extra="action-{{ @index }}"><a href="#">{{ title }}</a></li>
+            <li extra="action-{{ @index }}" url="{{ url }}"><a>{{ title }}</a></li>
           {{/each}}
       </ul>
             {{!--
