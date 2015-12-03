@@ -472,7 +472,7 @@ var CliqzAutocomplete = {
                     listener.onSearchResult(ctx, results);
                 })
             },
-            search: function(searchString, callback) {
+            search: function(searchString, callback, cachedResults) {
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastResult = null;
@@ -573,7 +573,6 @@ var CliqzAutocomplete = {
                 if(searchString.trim().length){
                     // start fetching results 
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;

@@ -441,6 +441,7 @@ var CliqzUtils = {
               fragment: fragment,
               extra: extra,
               host: host,
+              cleanHost: cleanHost,
               ssl: ssl,
               port: port,
               friendly_url: friendly_url
@@ -1044,6 +1045,7 @@ var CliqzUtils = {
                   data:
                   {
                       template:'noResult',
+                      searchString: urlbar.value,
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
                       // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
                       // we should take care of this specific case differently on alternative platforms

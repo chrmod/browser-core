@@ -62,12 +62,27 @@ CLIQZEnvironment = {
 
     }
   },
+  
+  crossTransform: function(element, x) {
+    var platforms = ['', '-webkit-', '-ms-'];
+    platforms.forEach(function(platform) {
+      element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
+    });
+  },
+
+  setDimensions: function() {
+    CLIQZEnvironment.PEEK = 20,
+    CLIQZEnvironment.PADDING = 16,
+    CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
+  },
 
   renderResults: function(r, showGooglethis, validCount) {
-    
+
+    CLIQZEnvironment.setDimensions();
+        
     var historyCount = 0;
     for(var i = 0; i < r._results.length; i++) {
-      if(r._results[i].comment === " (history generic)!") {
+      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
         historyCount++;
       }
     }
@@ -77,10 +92,11 @@ CLIQZEnvironment = {
     if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
 
-    resultsBox.style['-webkit-transform'] = 'translate3d(0px, 0px, 0px)';
+    CLIQZEnvironment.crossTransform(resultsBox, 0);
 
 
     resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
+    resultsBox.style.marginLeft = CLIQZEnvironment.PEEK + 'px';
     item_container.style.width = resultsBox.style.width;
 
     CLIQZEnvironment.stopProgressBar();
@@ -89,14 +105,13 @@ CLIQZEnvironment = {
     CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src]');
     CLIQZEnvironment.imgLoader.start();
 
-
     return CLIQZ.UI.results({
       searchString: r._searchString,
-      frameWidth: window.innerWidth,
+      frameWidth: CLIQZEnvironment.CARD_WIDTH,
       results: r._results.map(function(r, idx){
         r.type = r.style;
-        r.left = (window.innerWidth * validCount);
-        r.frameWidth = window.innerWidth;
+        r.left = (CLIQZEnvironment.CARD_WIDTH * validCount);
+        r.frameWidth = CLIQZEnvironment.CARD_WIDTH;
         r.url = r.val || '';
         r.title = r.comment || '';
 
@@ -108,9 +123,9 @@ CLIQZEnvironment = {
           }),
       isInstant: false,
       googleThis: {
-        left: (window.innerWidth * validCount),
+        left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
-        frameWidth: window.innerWidth,
+        frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r._searchString
       }
     });
@@ -147,7 +162,7 @@ CLIQZEnvironment = {
     var offset = 0;
     var w = window.innerWidth;
 
-    resultsBox.style['-webkit-transform'] = 'translate3d(' + Math.min((offset * w), (w * validCount)) + 'px, 0px, 0px)';              
+    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * validCount)));
 
     var googleAnim = document.getElementById("googleThisAnim");
     CLIQZEnvironment.numberPages = validCount;
@@ -235,12 +250,6 @@ CLIQZEnvironment = {
         return;
       }
 
-      if(urlbar.value.toLowerCase().match("imdb")) {
-        CliqzUtils.setBackendToBeta();
-      } else {
-        CliqzUtils.setBackendToLive();
-      }
-
       if(urlbar.value.toLowerCase() == "testme") {
         initTest();
       }
@@ -256,6 +265,11 @@ CLIQZEnvironment = {
           logscreen.style.left = "-5000px";
           return;
         }
+        var cache = localStorage.getCachedResult(urlbar.value);
+        if(cache) {
+          (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler, cache);
+          return;
+        }
         CLIQZEnvironment.startProgressBar();
 
 
@@ -266,7 +280,6 @@ CLIQZEnvironment = {
   },
 
   initViewpager: function() {
-    var w = window.innerWidth;
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
@@ -277,7 +290,7 @@ CLIQZEnvironment = {
       onPageScroll : function (scrollInfo) {
         currentScrollInfo = scrollInfo;
         offset = -scrollInfo.totalOffset;
-        resultsBox.style['-webkit-transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';  
+        CLIQZEnvironment.crossTransform(resultsBox, (offset * CLIQZEnvironment.CARD_WIDTH));
         CLIQZEnvironment.openLinksAllowed = false;
       },
 
@@ -508,6 +521,7 @@ CLIQZEnvironment = {
         if(isMixerUrl(url)){
           if(typeof CustomEvent != "undefined") {
             window.dispatchEvent(new CustomEvent("connected"));
+            CLIQZEnvironment.cacheResults(req);
           }
           CLIQZEnvironment.cacheResults(req);
           lastSucceededUrl = url;

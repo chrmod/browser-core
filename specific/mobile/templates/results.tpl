@@ -1,16 +1,4 @@
 <!-- results.tpl -->
-
-	<div class="frame" style="width: {{ frameWidth }}px; left: 0px">
-       <div id="conversations" class="ez" type="cliqz-results sources-m" arrow="false" idx="0" hasimage="">
-         
-          <div class="main">
-             <h1 class="main__headline"></h1>
-             <p class="main__content">
-                <div id="recent"></div>
-             </p>
-          </div>
-       </div>
-    </div>
 {{#each results}} 
 	{{#unless invalid}}
 		<div class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>

@@ -275,6 +275,9 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
+            case "1056_B":
+                CliqzUtils.setPref("freshTabAB", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -475,6 +478,9 @@ var CliqzABTests = {
                break;
             case "1044_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
+                break;
+            case "1056_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("freshTabAB");
                 break;
             default:
                 rule_executed = false;

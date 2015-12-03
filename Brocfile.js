@@ -9,11 +9,7 @@ var amdNameResolver = require('amd-name-resolver');
 
 // input trees
 var bowerComponents = new Funnel('bower_components');
-var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
-  exclude: ['chrome/content/core.js', 'platform.js']
-});
-var firefoxCoreJs   = new Funnel('specific/firefox/cliqz@cliqz.com/chrome/content', { include: ['core.js'] });
-var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
+var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var exceptionsJsm   = new Funnel('specific/firefox', { include: ['CliqzExceptions.jsm'] });
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*'] });
@@ -45,32 +41,12 @@ var mobileCss = compileSass(
 );
 
 // attach subprojects
-var components = [];
-var modules = []
-
-fs.readdirSync("modules").forEach(function (name) {
+var modules = new MergeTrees(fs.readdirSync("modules").map(function (name) {
   var path = 'modules/'+name;
   if(fs.statSync(path).isDirectory()) {
-    var init = new Funnel(path, { include: ['component.js'], destDir: path });
-    var module = new MergeTrees([
-      new Funnel(path+'/dist', { destDir: name }),
-      new Funnel(firefoxPlatform, { destDir: name })
-    ]);
-    components.push(init);
-    modules.push(module);
+    return new Funnel(path+'/dist', { destDir: name });
   }
-});
-
-modules = new MergeTrees(modules);
-
-firefoxCoreJs = concat(new MergeTrees([firefoxCoreJs].concat(components)), {
-  outputFile: 'chrome/content/core.js',
-  inputFiles: [ '**/*.js'],
-  headerFiles: [ 'core.js' ],
-  sourceMapConfig: { enabled: true },
-});
-
-firefoxSpecific = new MergeTrees([firefoxSpecific, firefoxCoreJs]);
+}).filter(function (funnel) { return funnel; }));
 
 var babelOptions = {
   modules: "amdStrict",
