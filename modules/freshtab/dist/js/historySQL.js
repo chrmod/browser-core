@@ -35,7 +35,7 @@ $(document).ready(function() {
 
     $('.historyLink').on('click', function() {
       var action = {
-        type: FreshTab.signalType,
+        type: CliqzFreshTab.signalType,
         action: 'click',
         target_type: 'topsites',
         target_index: $(this).attr('data-index')

@@ -845,14 +845,14 @@ window.CLIQZ.Core = {
       menupopup.appendChild(CLIQZ.Core.createHumanMenu(win));
 
       // FreshTab - TODO - move inside component
-      if(FreshTab.initialized){
+      if(CliqzFreshTab.initialized){
         menupopup.appendChild(
           CLIQZ.Core.createCheckBoxItem(
             doc,
             'freshTabState',
             CliqzUtils.getLocalizedString('btnFreshTab'),
             true,
-            FreshTab.toggleState)
+            CliqzFreshTab.toggleState)
         );
       }
     },

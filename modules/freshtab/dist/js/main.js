@@ -21,7 +21,7 @@ $(document).ready(function() {
 
   function telemetrySignals() {
     var action = {
-      type: FreshTab.signalType,
+      type: CliqzFreshTab.signalType,
       action: 'display',
       tab_index: CliqzUtils.getWindow().gBrowser.tabContainer.selectedIndex
     };
@@ -30,7 +30,7 @@ $(document).ready(function() {
     $urlbar.attr("placeholder",urlbar.placeholder).on('keydown', function(){
       urlbar.focus();
       var action = {
-        type: FreshTab.signalType,
+        type: CliqzFreshTab.signalType,
         action: 'search_keystroke'
       };
       CliqzUtils.telemetry(action);
@@ -38,7 +38,7 @@ $(document).ready(function() {
 
     $urlbar.on('focus', function() {
       var action = {
-        type: FreshTab.signalType,
+        type: CliqzFreshTab.signalType,
         action: 'search_focus'
       };
       CliqzUtils.telemetry(action);
@@ -46,7 +46,7 @@ $(document).ready(function() {
 
     $urlbar.on('blur', function() {
       var action = {
-        type: FreshTab.signalType,
+        type: CliqzFreshTab.signalType,
         action: 'search_blur'
       };
       CliqzUtils.telemetry(action);
@@ -81,7 +81,7 @@ $(document).ready(function() {
       document.getElementById('topNewsBox').innerHTML = topNews(top_news);
       $('.topNewsLink').on('click', function() {
         var action = {
-          type: FreshTab.signalType,
+          type: CliqzFreshTab.signalType,
           action: 'click',
           target_type: 'topnews',
           target_index: $(this).attr('data-index')
@@ -128,7 +128,7 @@ $(document).ready(function() {
 
   $('.moreBtn').on('click', function(e) {
     var action = {
-        type: FreshTab.signalType,
+        type: CliqzFreshTab.signalType,
         action: 'click',
         target_type: 'onboarding_more'
       };
@@ -138,9 +138,9 @@ $(document).ready(function() {
 
   $('.revertBtn').on('click', function(e) {
     e.preventDefault();
-    FreshTab.toggleState();
+    CliqzFreshTab.toggleState();
     var action = {
-        type: FreshTab.signalType,
+        type: CliqzFreshTab.signalType,
         action: 'click',
         target_type: 'onboarding_revert'
       };
