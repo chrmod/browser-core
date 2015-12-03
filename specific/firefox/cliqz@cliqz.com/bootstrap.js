@@ -13,7 +13,7 @@ function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 
     try{
-      Cu.import("chrome://cliqzmodules/content/FreshTab.jsm");
+      Cu.import("chrome://cliqzmodules/content/CliqzFreshTab.jsm");
       FreshTab.startup('chrome://cliqz/content/freshtab/freshtab.html')
     } catch(e){}
 }
