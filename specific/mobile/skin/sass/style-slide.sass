@@ -125,6 +125,7 @@ body, html
   bottom: 0
   width: 100%
   overflow-x: auto
+  background-color: #eee
   /* box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2);
 
 .phoneui
@@ -641,6 +642,31 @@ a
         background-color: #baeb97
         position: relative
 
+.startingpoint
+  padding: 12px 24px
+  .meta
+    h3
+      padding: 24px 0 0
+  .meta__logo
+    width: 48px
+    height: 48px
+    line-height: 48px
+    border-radius: 50%
+    background-color: #000
+    float: left
+    color: #fff
+    text-align: center
+    position: absolute
+    top: -2px
+    left: -2px
+    border: 2px #fff solid
+    &.image
+      text-indent: -9999px
+      background-image: url("logos/twitter.svg")
+      background-size: 62%
+      background-position: center
+      background-repeat: no-repeat
+
 .list
   padding: 0 0 12px
   margin: 0
@@ -740,6 +766,21 @@ a
         left: 0
     &:last-child a
       border-bottom: 0
+
+#googleThisAnim
+  background-color: #eee
+  border-radius: 8px
+  padding: 8px 16px
+  width: 62%
+  margin: 24px auto 0
+  min-width: 150px
+  text-align: center
+  a
+    color: #999 !important
+    font-size: 14px
+    font-weight: 300
+  img
+    width: 48px
 
 @media only screen and (min-width: 375px)
   .cta li a
