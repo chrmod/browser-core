@@ -143,14 +143,18 @@ function getQSMD5(qs, ps) {
         while (tok != dURIC(tok)) {
             tok = dURIC(tok);
         }
-        qsMD5[md5(key)] = md5(tok);
+        if (tok.length >= 8) {
+            qsMD5[md5(key)] = md5(tok);
+        }
     }
     for (var key in ps) {
         var tok = dURIC(qs[key]);
         while (tok != dURIC(tok)) {
             tok = dURIC(tok);
         }
-        qsMD5[md5(key)] = md5(tok);
+        if (tok.length >= 8) {
+            qsMD5[md5(key)] = md5(tok);
+        }
     }
     return qsMD5;
 }
@@ -1474,11 +1478,11 @@ var CliqzAttrack = {
             if(url == 'https://safe-browsing.cliqz.com/'){
                 var cl = aChannel.getRequestHeader("Content-Length");
                 if(cl && CliqzHumanWeb.actionStats){
-                    if(CliqzHumanWeb.actionStats["size"]){
-                        CliqzHumanWeb.actionStats["size"] += cl;
+                    if(CliqzHumanWeb.actionStats["sz"]){
+                        CliqzHumanWeb.actionStats["sz"] +=  parseInt(cl);
                     }
                     else{
-                        CliqzHumanWeb.actionStats["size"] = cl;
+                        CliqzHumanWeb.actionStats["sz"] = parseInt(cl);
                     }
                 }
             }
@@ -3885,18 +3889,10 @@ var CliqzAttrack = {
     extractKeyTokens: function(url_parts, refstr) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
-        var keyTokens = {};
-        var w = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']);
-        for (var k in w) {
-            var tok = w[k];
-            tok = dURIC(dURIC(tok));
-            if (tok.length >=8) keyTokens[k] = tok;
-        }
-        if (Object.keys(keyTokens).length > 0) {
-            var s = md5(url_parts.hostname).substr(0, 16);
-            refstr = md5(refstr).substr(0, 16);
-            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr);
-        }
+        var keyTokens = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']),
+          s = md5(url_parts.hostname).substr(0, 16);
+        refstr = md5(refstr).substr(0, 16);
+        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr);
     },
     extractHeaderTokens: function(url_parts, refstr, header) {
         // keys, value of query strings will be sent in md5
