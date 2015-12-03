@@ -85,7 +85,7 @@ var FreshTab = {
 
         // reset preferences in case of inconsistency
         if(pref.prefHasUserValue(OLD_FRESH_TAB) || //  old FreshTab settings
-           pref.getCharPref(BAK_HOMEPAGE) == CLIQZ_NEW_TAB  // inconsistency
+           (pref.prefHasUserValue(BAK_HOMEPAGE) && pref.getCharPref(BAK_HOMEPAGE) == CLIQZ_NEW_TAB)  // inconsistency
           ){
 
           pref.clearUserPref(OLD_FRESH_TAB);
