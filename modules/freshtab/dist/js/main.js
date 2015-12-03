@@ -20,6 +20,13 @@ $(document).ready(function() {
       $urlbar           = $("#urlbar");
 
   function telemetrySignals() {
+    var action = {
+      type: FreshTab.signalType,
+      action: 'display',
+      tab_index: CliqzUtils.getWindow().gBrowser.tabContainer.selectedIndex
+    };
+    CliqzUtils.telemetry(action);
+
     $urlbar.attr("placeholder",urlbar.placeholder).on('keydown', function(){
       urlbar.focus();
       var action = {

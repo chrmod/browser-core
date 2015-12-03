@@ -181,12 +181,6 @@ function initNewTab(win){
         win.removeEventListener('load', loader, false);
         if (win.gInitialPages && win.gInitialPages.indexOf(CLIQZ_NEW_TAB)===-1) {
           win.gInitialPages.push(CLIQZ_NEW_TAB);
-          var action = {
-            type: FreshTab.signalType,
-            action: 'display',
-            tab_index: win.gBrowser.tabContainer.selectedIndex
-          };
-          CliqzUtils.telemetry(action);
         }
     }, false);
 }
