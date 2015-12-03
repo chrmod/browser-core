@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox",
     "express": "^4.12.3",
     "grunt": "^0.4.5",
     "grunt-concurrent": "^1.0.0",
