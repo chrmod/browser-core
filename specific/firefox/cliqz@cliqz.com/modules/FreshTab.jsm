@@ -44,7 +44,7 @@ var FreshTab = {
     initialized: false,
     startup: function(freshTabUrl){
         // exit if not in the test
-        if(!CliqzUtils.getPref("freshTabAB", false)) return;
+        // if(!CliqzUtils.getPref("freshTabAB", false)) return; // Always enabled for the browser
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
           return;
