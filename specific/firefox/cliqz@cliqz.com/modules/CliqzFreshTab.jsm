@@ -16,6 +16,7 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     BAK_HOMEPAGE = "extensions.cliqz.backup.homepage",
     BAK_NEWTAB = "extensions.cliqz.backup.newtab",
     BAK_STARTUP = "extensions.cliqz.backup.startup",
+    FRESH_TAB_AB = "extensions.cliqz.freshTabAB", // true = AB test active
     FRESH_TAB_STATE = "extensions.cliqz.freshTabState", // true = active
     FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
     OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
@@ -48,9 +49,8 @@ var CliqzFreshTab = {
           pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
         }
         var disable = false;
-        // exit if not in the test
-
-        // if(!CliqzUtils.getPref("freshTabAB", false)) disable = true; // Always enabled for the browser
+        // exit if not in the AB test
+        // if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true; // Always enabled for the browser
         // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
