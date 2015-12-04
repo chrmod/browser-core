@@ -155,6 +155,12 @@ $(document).ready(function() {
 
   CliqzUtils.localizeDoc(document);
 
+  $urlbar.on({
+    "contextmenu": function(e) {
+        // Stop the context menu
+        e.preventDefault();
+    }
+  });
 });
 
 

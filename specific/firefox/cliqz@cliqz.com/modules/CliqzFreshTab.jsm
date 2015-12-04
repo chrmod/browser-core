@@ -16,6 +16,7 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     BAK_HOMEPAGE = "extensions.cliqz.backup.homepage",
     BAK_NEWTAB = "extensions.cliqz.backup.newtab",
     BAK_STARTUP = "extensions.cliqz.backup.startup",
+    FRESH_TAB_AB = "extensions.cliqz.freshTabAB", // true = AB test active
     FRESH_TAB_STATE = "extensions.cliqz.freshTabState", // true = active
     FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
     OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
@@ -47,11 +48,26 @@ var CliqzFreshTab = {
         if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
           pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
         }
-
-        // exit if not in the test
-        if(!CliqzUtils.getPref("freshTabAB", false)) return;
+        var disable = false;
+        // exit if not in the AB test
+        if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true;
+        // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
+          disable = true;
+        }
+
+        if(disable){
+          //in case 'about:cliqz' remained set as default homepage - reset it
+          if(pref.getCharPref(DEF_HOMEPAGE) == CLIQZ_NEW_TAB){
+            //in case we did a backup - use it
+            if(pref.prefHasUserValue(BAK_HOMEPAGE)){
+              pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
+            } else {
+              //otherwise simply reset
+              pref.clearUserPref(DEF_HOMEPAGE);
+            }
+          }
           return;
         }
 
