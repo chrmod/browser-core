@@ -47,11 +47,26 @@ var CliqzFreshTab = {
         if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
           pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
         }
-
+        var disable = false;
         // exit if not in the test
-        if(!CliqzUtils.getPref("freshTabAB", false)) return;
+        if(!CliqzUtils.getPref("freshTabAB", false)) disable = true;
+        // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
+          disable = true;
+        }
+
+        if(disable){
+          //in case 'about:cliqz' remained set as default homepage - reset it
+          if(pref.getCharPref(DEF_HOMEPAGE) == CLIQZ_NEW_TAB){
+            //in case we did a backup - use it
+            if(pref.prefHasUserValue(BAK_HOMEPAGE)){
+              pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
+            } else {
+              //otherwise simply reset
+              pref.clearUserPref(DEF_HOMEPAGE);
+            }
+          }
           return;
         }
 
