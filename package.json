@@ -7,6 +7,9 @@
   },
   "author": "Cliqz GmbH",
   "license": "ISC",
+  "dependencies": {
+    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox"
+  },
   "devDependencies": {
     "jade": "^1.9.2",
     "amd-name-resolver": "0.0.2",
