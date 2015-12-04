@@ -15,9 +15,9 @@ var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
 var firefoxCoreJs   = new Funnel('specific/firefox/cliqz@cliqz.com/chrome/content', { include: ['core.js'] });
 var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
 var firefoxPackage  = new Funnel('specific/firefox/package');
-var exceptionsJsm   = new Funnel('specific/firefox', { include: ['CliqzExceptions.jsm'] });
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*'] });
 var cliqziumSpecific= new Funnel('specific/cliqzium');
+var webSpecific     = new Funnel('specific/web');
 var generic         = new Funnel('generic');
 var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*'] });
 var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*', 'views/**/*'] });
@@ -27,10 +27,10 @@ var templates       = new Funnel(generic, { srcDir: 'static/templates', destDir:
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local' });
-var ui              = new Funnel(local, { include: ['UI.js'] });
-var helpers         = new Funnel('views');
-var jadeViews       = new Funnel(helpers, { include: ['*.jade'] });
-var compiledViews   = jade(jadeViews);
+var ui              = new Funnel(local,   { include: ['UI.js'] });
+
+webSpecific = jade(webSpecific);
+
 var compiledCss     = compileSass(
   ['generic/static/styles/sass'],
   'extension.scss',
@@ -148,25 +148,6 @@ var localMobile = concat(local, {
   inputFiles: [ 'UI.js' ],
 });
 
-var extensionJsm = concat(firefoxSpecific, {
-  outputFile: 'Extension.jsm',
-  inputFiles: [
-    'modules/Extension.jsm',
-  ],
-  process: function (src,filepath) {
-    return src.split('\n')
-              .map(function (line){
-                if(line.indexOf('CliqzExceptions') !== -1) {
-                  return line.replace('// ', '');
-                } else {
-                  return line;
-                }
-              })
-              .join('\n')
-  }
-});
-
-
 var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
     firefoxSpecific,
@@ -181,49 +162,37 @@ var firefox = new MergeTrees([
 ]);
 
 var cliqzium = new MergeTrees([
-  new Funnel(locales, { }),
-  new Funnel(templates, { }),
-  new Funnel(compiledCss, { destDir: 'css' }),
-  new Funnel(globalConcated, { destDir: 'js' }),
-  new Funnel(localConcated, { destDir: 'js' }),
-  new Funnel(libsConcated, { destDir: 'js' }),
-  new Funnel(cliqziumSpecific, { }),
+  locales,
+  templates,
+  new Funnel(compiledCss,      { destDir: 'css' }),
+  new Funnel(globalConcated,   { destDir: 'js' }),
+  new Funnel(localConcated,    { destDir: 'js' }),
+  new Funnel(libsConcated,     { destDir: 'js' }),
+  cliqziumSpecific,
 ]);
 
-var tool = new MergeTrees([
-  new Funnel(staticFiles, { exclude: ['module'] }),
-  new Funnel(compiledCss, { destDir: 'styles/css' }),
+var web = new MergeTrees([
+  webSpecific,
+  new Funnel(staticFiles,    { exclude: ['module'] }),
+  new Funnel(compiledCss,    { destDir: 'styles/css' }),
   new Funnel(globalConcated, { destDir: 'js' }),
-  new Funnel(localConcated, { destDir: 'js' }),
-  new Funnel(libsConcated, { destDir: 'js' }),
-  new Funnel(compiledViews, { include: ['index.html'] }),
+  new Funnel(localConcated,  { destDir: 'js' }),
+  new Funnel(libsConcated,   { destDir: 'js' }),
 ]);
 
-var mobile = new Funnel(new MergeTrees([
+var mobile = new MergeTrees([
   mobileSpecific,
-  new Funnel(locales, { }),
-  new Funnel(libsConcated, { destDir: 'js' }),
+  locales,
+  new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
-  new Funnel(localMobile, { destDir: 'js' }),
-  new Funnel(mobileCss, { destDir: 'skin/css' }),
-]), { destDir: 'search' });
-
-var firefoxDebug = new MergeTrees([
-  firefox,
-  new Funnel(exceptionsJsm, { destDir: 'cliqz@cliqz.com/modules' }),
-  new Funnel(extensionJsm, { destDir: 'cliqz@cliqz.com/modules' }),
-], { overwrite: true });
-
+  new Funnel(localMobile,    { destDir: 'js' }),
+  new Funnel(mobileCss,      { destDir: 'skin/css' }),
+]);
 
 // Output trees
 module.exports = new MergeTrees([
-  new Funnel(cliqzium,     { destDir: 'cliqzium'     }),
-  new Funnel(firefox,      { destDir: 'firefox'      }),
-  new Funnel(firefoxDebug, { destDir: 'firefoxDebug' }),
-  new Funnel(tool,         { destDir: 'tool'         }),
-  new Funnel(mobile,       { destDir: 'mobile' }),
-  // debug view
-  new Funnel(helpers,      { destDir: 'views' }),
-  new Funnel(compiledCss,  { destDir: 'generic/static/styles/css' }),
-  new Funnel(staticFiles,  { destDir: 'generic/static' }),
+  new Funnel(cliqzium, { destDir: 'cliqzium'      }),
+  new Funnel(firefox,  { destDir: 'firefox'       }),
+  new Funnel(web,      { destDir: 'web'           }),
+  new Funnel(mobile,   { destDir: 'mobile/search' }),
 ]);
