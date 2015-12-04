@@ -1,3 +1,4 @@
+<!-- URL.tpl -->
 <div class='cliqz-result-url-box overflow'>
 	<span class='cliqz-result-url-host
 		{{#if urlDetails.ssl }}

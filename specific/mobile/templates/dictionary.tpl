@@ -1,3 +1,4 @@
+<!-- dictionary.tpl -->
 {{!--
 The dictionary template defines two snippet types:
 - translation (for multilingual dictionaries) (multilang property);

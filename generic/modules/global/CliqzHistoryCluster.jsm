@@ -76,7 +76,6 @@ var CliqzHistoryCluster = {
     CliqzHistoryCluster.firefoxHistory = [];
     CliqzHistoryCluster.firefoxHistory.res = res;
     CliqzHistoryCluster.firefoxHistory.query = query;
-
     CliqzHistoryCluster.historyCallback(res);
   },
   // Process patterns

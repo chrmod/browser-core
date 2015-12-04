@@ -1,3 +1,4 @@
+<!-- EZ-history.tpl -->
 {{#with data}}
 	<div class='cliqz-history-results cqz-3-history-results'>
         {{#each urls}}
@@ -13,3 +14,4 @@
         {{/each}}
     </div>
 {{/with}}
+<!-- end EZ-history.tpl -->

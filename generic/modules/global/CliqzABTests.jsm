@@ -318,6 +318,12 @@ var CliqzABTests = {
             case "1053_B":
                 CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
                 break;
+            case "1056_A":
+                CliqzUtils.setPref("freshTabAB", false);
+                break;
+            case "1056_B":
+                CliqzUtils.setPref("freshTabAB", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -554,6 +560,10 @@ var CliqzABTests = {
                 break;
             case "1053_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
+                break;
+            case "1056_A":
+            case "1056_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("freshTabAB");
                 break;
             default:
                 rule_executed = false;
