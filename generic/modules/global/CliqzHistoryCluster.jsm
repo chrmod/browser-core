@@ -11,6 +11,8 @@ Components.utils.import('resource://gre/modules/FileUtils.jsm');
 Components.utils.import('resource://gre/modules/NetUtil.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -21,7 +23,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
 var FF_DEF_FAVICON = 'chrome://mozapps/skin/places/defaultFavicon.png',
-    Q_DEF_FAVICON = 'chrome://cliqzres/content/skin/defaultFavicon.png';
+    Q_DEF_FAVICON = CLIQZEnvironment.SKIN_PATH + 'defaultFavicon.png';
 
 var CliqzHistoryCluster = {
   historyCallback: null,
