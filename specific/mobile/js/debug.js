@@ -39,6 +39,11 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     return formatedDate;
 });
 
+Handlebars.registerHelper('uriEncode', function(uriComponent) {
+    return encodeURIComponent(uriComponent);
+});
+
+
 
 function trace() {
   try {

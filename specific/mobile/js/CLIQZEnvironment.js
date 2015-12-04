@@ -78,6 +78,8 @@ CLIQZEnvironment = {
 
   renderResults: function(r, showGooglethis, validCount) {
 
+    r.encodedSearchString = encodeURIComponent(r._searchString);
+
     CLIQZEnvironment.setDimensions();
         
     var historyCount = 0;
@@ -126,7 +128,7 @@ CLIQZEnvironment = {
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
-        searchString: r._searchString
+        searchString: r.encodedSearchString
       }
     });
   },
