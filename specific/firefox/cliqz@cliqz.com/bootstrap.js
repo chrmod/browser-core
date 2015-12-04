@@ -23,6 +23,8 @@ function startup(aData, aReason) {
 function shutdown(aData, aReason) {
     CliqzHumanWeb.unload();
     CliqzAttrack.unload();
+    try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
+
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;
@@ -34,7 +36,6 @@ function shutdown(aData, aReason) {
     Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 
-    try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 }
 
 function eventLog(ev){
