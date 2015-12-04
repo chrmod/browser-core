@@ -15,13 +15,31 @@ npm install   # to satisfy package.json
 bower install # to satisfy bower.json
 ```
 
-## Build
+## Development
 
-`broccoli serve --output=build/dev`
+Use `fern.js`:
 
+To start build system for beta release:
+
+`./fern.sh serve`
+
+Release channel configuration file can be specified via optional argument:
+
+`./fern.sh serve ./configs/beta.json`
+
+## Packaging
+
+Build beta release with:
+
+`./fern.sh build`
+
+Other releases are build with respective configuration files with:
+
+`./fern.sh build ./config/beta.json`
 
 once having `build` folder present you need to install bower_component for your platform build, e.g.:
 `cd build/dev/firefox/cliqz@cliqz.com && bower install`
 
 ## UI debugging
+
 http://localhost:4200/tool/

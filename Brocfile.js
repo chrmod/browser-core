@@ -6,6 +6,7 @@ var jade = require('broccoli-jade');
 var fs = require('fs');
 var Babel = require('broccoli-babel-transpiler');
 var amdNameResolver = require('amd-name-resolver');
+var writeFile = require('broccoli-file-creator');
 
 // input trees
 var bowerComponents = new Funnel('bower_components');
@@ -30,6 +31,12 @@ var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local' });
 var ui              = new Funnel(local,   { include: ['UI.js'] });
 
+// Build configuration
+var configFilePath  = process.env['CLIQZ_CONFIG_PATH'];
+var cliqzConfig     = JSON.parse(fs.readFileSync(configFilePath));
+console.log(cliqzConfig);
+var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
+
 webSpecific = jade(webSpecific);
 
 var compiledCss     = compileSass(
@@ -49,7 +56,7 @@ var mobileCss = compileSass(
 var components = [];
 var modules = []
 
-fs.readdirSync("modules").forEach(function (name) {
+cliqzConfig.modules.forEach(function (name) {
   var path = 'modules/'+name;
   if(fs.statSync(path).isDirectory()) {
     var init = new Funnel(path, { include: ['component.js'], destDir: path });
@@ -167,9 +174,9 @@ var firefoxLibs = new MergeTrees([
 var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
     firefoxSpecific,
-    new Funnel('.', { include: ['cliqz.json'], destDir: 'chrome/content' }),
+    new Funnel(config,      { destDir: 'chrome/content'}),
     new Funnel(staticFiles, { destDir: 'chrome' }),
-    new Funnel(firefoxLibs,        { destDir: 'modules/extern' }),
+    new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
     new Funnel(global,      { destDir: 'modules' }),
     new Funnel(local,       { destDir: 'chrome/content'}),
     new Funnel(modules,     { destDir: 'chrome/content' }),

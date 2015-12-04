@@ -3,6 +3,7 @@
 *~
 *#
 tmp
+/dist
 
 # ignore invisible files
 .Trashes
