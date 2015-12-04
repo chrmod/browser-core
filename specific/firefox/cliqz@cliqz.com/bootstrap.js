@@ -22,8 +22,8 @@ function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 
     try{
-      Cu.import("chrome://cliqzmodules/content/FreshTab.jsm");
-      FreshTab.startup('chrome://cliqz/content/freshtab/freshtab.html')
+      Cu.import("chrome://cliqzmodules/content/CliqzFreshTab.jsm");
+      CliqzFreshTab.startup('chrome://cliqz/content/freshtab/freshtab.html')
     } catch(e){}
 }
 
@@ -33,6 +33,7 @@ function shutdown(aData, aReason) {
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
 
     CliqzHumanWeb.unload();
+    try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 
     if (aReason == APP_SHUTDOWN){
         CliqzLoyalty.unload();
@@ -47,7 +48,6 @@ function shutdown(aData, aReason) {
     Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 
-    try{ FreshTab.shutdown(aData, aReason); } catch(e){}
 }
 
 function eventLog(ev){
