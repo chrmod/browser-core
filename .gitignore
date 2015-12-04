@@ -19,6 +19,7 @@ build/
 node_modules
 bower_components
 cliqz@cliqz.com/modules/*_bck.jsm
+fresh-tab/dist
 
 *.scssc
 generic/static/styles/css/

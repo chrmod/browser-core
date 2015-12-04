@@ -311,7 +311,7 @@ function createNewsList(history_data, number_to_get, callback){
             'news_domain':parameters[3]});
         },
         reject,
-        1000
+        5000
       );
     }).catch(function () {
       log('Error fetching news. Check in CLIQZEnvironment code.');

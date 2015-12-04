@@ -100,6 +100,15 @@ var CliqzUtils = {
       'conversations': 1,
       'conversations_future': 1
   },
+  VERTICAL_TEMPLATES: {
+        'n': 'news'    ,
+        'p': 'people'  ,
+        'v': 'video'   ,
+        'h': 'hq'      ,
+        'r': 'recipe' ,
+        'g': 'cpgame_movie',
+        'o': 'cpgame_movie'
+    },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){

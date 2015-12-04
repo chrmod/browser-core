@@ -64,6 +64,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUnblock',
+  'chrome://cliqzmodules/content/CliqzUnblock.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -139,6 +142,11 @@ window.CLIQZ.Core = {
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/styles/css/extension.css');
+        if(CliqzUtils.isWindows()) {
+            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-win.css');
+        } else {
+            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-mac.css');
+        }
 
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
@@ -152,6 +160,12 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
 
         CLIQZ.Core.popup = popup;
+        // Change location of forward button
+        // TODO: do it with pure css
+        CLIQZ.Core.frwBtn = document.getElementById('forward-button');
+        CLIQZ.Core.urlbarContainer = document.getElementById('urlbar-container');
+        CLIQZ.Core.urlbarWrapper = document.getElementById('urlbar-wrapper');
+        CLIQZ.Core.urlbarContainer.insertBefore(CLIQZ.Core.frwBtn, CLIQZ.Core.urlbarWrapper);
 
         CLIQZ.UI.init(CLIQZ.Core.urlbar);
 
@@ -241,6 +255,8 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
+
+            CliqzUnblock.initWindow(window);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -429,6 +445,8 @@ window.CLIQZ.Core = {
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+            CliqzUnblock.unloadWindow(window);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -796,6 +814,7 @@ window.CLIQZ.Core = {
             } catch(e){}
         }
     },
+
     createQbutton: function(win, menupopup){
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);
