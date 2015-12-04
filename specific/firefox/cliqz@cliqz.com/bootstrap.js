@@ -11,6 +11,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
+
+    try{
+      Cu.import("chrome://cliqzmodules/content/CliqzFreshTab.jsm");
+      CliqzFreshTab.startup('chrome://cliqz/content/freshtab/freshtab.html')
+    } catch(e){}
 }
 
 function shutdown(aData, aReason) {
@@ -26,6 +31,8 @@ function shutdown(aData, aReason) {
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
     Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
+
+    try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 }
 
 function eventLog(ev){

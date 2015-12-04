@@ -1,5 +1,10 @@
+'use strict';
+
+var EXPORTED_SYMBOLS = ['CliqzFreshTabNews'];
+
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
 try {
@@ -369,5 +374,3 @@ function normalizeUrlBasedCount(topic_dict){
 
   return topic_dict;
 }
-
-export default CliqzFreshTabNews;

@@ -9,7 +9,6 @@ var amdNameResolver = require('amd-name-resolver');
 
 // input trees
 var bowerComponents = new Funnel('bower_components');
-var nodeModules    = new Funnel('node_modules');
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
   exclude: ['chrome/content/core.js', 'platform.js']
 });
@@ -53,22 +52,12 @@ fs.readdirSync("modules").forEach(function (name) {
   var path = 'modules/'+name;
   if(fs.statSync(path).isDirectory()) {
     var init = new Funnel(path, { include: ['component.js'], destDir: path });
-
-    var sources = Babel(new Funnel(path+'/sources'), {
-      sourceMaps: 'inline',
-      filterExtensions: ['es'],
-      modules: 'system',
-      moduleRoot: name,
-    });
-
     var module = new MergeTrees([
-      new Funnel(path+'/dist'),
-      sources,
-      new Funnel(firefoxPlatform),
+      new Funnel(path+'/dist', { destDir: name }),
+      new Funnel(firefoxPlatform, { destDir: name })
     ]);
-
     components.push(init);
-    modules.push(new Funnel(module, { destDir: name }));
+    modules.push(module);
   }
 });
 
@@ -177,17 +166,12 @@ var extensionJsm = concat(firefoxSpecific, {
   }
 });
 
-var firefoxLibs = new MergeTrees([
-  libs,
-  new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] })
-]);
 
 var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
     firefoxSpecific,
-    new Funnel('.', { include: ['cliqz.json'], destDir: 'chrome/content' }),
     new Funnel(staticFiles, { destDir: 'chrome' }),
-    new Funnel(firefoxLibs,        { destDir: 'modules/extern' }),
+    new Funnel(libs,        { destDir: 'modules/extern' }),
     new Funnel(global,      { destDir: 'modules' }),
     new Funnel(local,       { destDir: 'chrome/content'}),
     new Funnel(modules,     { destDir: 'chrome/content' }),
