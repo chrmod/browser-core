@@ -136,6 +136,7 @@
   width: 100%;
   box-sizing: border-box;
   margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 #freshTabPage #newsContainer .newsBox {
@@ -279,5 +280,39 @@
 @media (min-width: 768px) and (max-width: 990px) {
   #freshTabPage #topVisited li {
     width: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  #freshTabPage #container {
+    max-width: auto;
+    min-width: auto;
+  }
+
+  #freshTabPage #topVisited {
+    height: auto;
+  }
+
+  #freshTabPage #topVisited li {
+    margin-bottom: 10px;
+    width: 66px;
+  }
+
+  #freshTabPage #searchContainer {
+    margin: 75px 0px;
+  }
+
+  #freshTabPage .wrap {
+    width: auto;
+    padding: 20px;
+  }
+
+  #freshTabPage #topVisited {
+    margin-top: 20px;
+  }
+
+  #freshTabPage #newsContainer .onlyTopNews li{
+    float: none;
+    width: 100%;
   }
 }
