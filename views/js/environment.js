@@ -15,6 +15,7 @@ CLIQZEnvironment = {
     logScreen() {},
 	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/templates/' : '/generic/static/templates/',
     LOCALE_PATH: '/generic/static/locale/',
+    SKIN_PATH: '/generic/static/skin/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     isPrefBool: function(k, d){return typeof(db[k]) === 'boolean' ? true : false },
