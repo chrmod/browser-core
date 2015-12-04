@@ -281,6 +281,12 @@ var CliqzABTests = {
             case "1055_B":
                 CliqzUnblock.enable();
                 break;
+            case "1056_A":
+                CliqzUtils.setPref("freshTabAB", false);
+                break;
+            case "1056_B":
+                CliqzUtils.setPref("freshTabAB", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -485,6 +491,10 @@ var CliqzABTests = {
             case "1055_A":
             case "1055_B":
                 CliqzUnblock.disable();
+                break;
+            case "1056_A":
+            case "1056_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("freshTabAB");
                 break;
             default:
                 rule_executed = false;

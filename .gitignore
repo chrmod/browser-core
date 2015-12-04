@@ -23,4 +23,3 @@ fresh-tab/dist
 *.scssc
 generic/static/styles/css/
 npm.err
-dist/

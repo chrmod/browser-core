@@ -602,6 +602,9 @@
     "btnActivateCliqz": {
       "message": "Activate Cliqz"
     },
+    "btnFreshTab": {
+      "message": "Enable CLIQZ Start Page and New Tabs"
+    },
     "publish_date": {
         "message": "Publish date"
     },
@@ -919,5 +922,14 @@
     },
     "humanWeb10": {
       "message": "I participate in the Human Web"
+    },
+    "freshtab_learn_more": {
+      "message": "Learn more"
+    },
+    "freshtab_back_to_old": {
+      "message": "Go back to old start page"
+    },
+    "freshtab_top_news": {
+      "message": "Top News"
     }
 }
