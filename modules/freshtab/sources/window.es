@@ -6,7 +6,7 @@ export default class {
   unload() {}
 
   createButtonItem(win) {
-    if(FreshTab.initialized){
+    if ( CliqzUtils.getPref("freshTabButton", true) && FreshTab.initialized ){
       return win.CLIQZ.Core.createCheckBoxItem(
           win.document,
           'freshTabState',

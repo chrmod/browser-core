@@ -1,6 +1,6 @@
 {
   "prefs": {
-    "freshTabButton": true
+    "freshTabButton": false
   },
   "modules": [
     "onboarding",

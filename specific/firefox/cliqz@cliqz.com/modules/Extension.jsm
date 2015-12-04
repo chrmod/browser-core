@@ -87,8 +87,17 @@ var Extension = {
 
         // Modules loading
         CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
+          var config;
           try {
-            this.modules = JSON.parse(res.response).modules;
+            config = JSON.parse(res.response);
+          } catch(e) { dump(e); return; }
+
+          Object.keys(config.prefs).forEach(function (pref) {
+            CliqzUtils.setPref(pref, config.prefs[pref]);
+          });
+
+          try {
+            this.modules = config.modules;
 
             this.modules.map(function (moduleName) {
               return System.import(moduleName+"/background");
