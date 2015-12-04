@@ -1,8 +1,6 @@
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-Components.utils.import("chrome://cliqzmodules/content/CliqzHandlebars.jsm");
-
-var CliqzFreshTab = CliqzUtils.getWindow().CLIQZ.System.get("freshtab/main").default;
+Components.utils.import('chrome://cliqzmodules/content/CliqzFreshTab.jsm');
 
 $(document).ready(function() {
   var topVisited = CliqzHandlebars.compile($("#top").html());

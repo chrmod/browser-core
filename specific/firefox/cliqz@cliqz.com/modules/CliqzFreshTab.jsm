@@ -1,3 +1,7 @@
+'use strict';
+
+var EXPORTED_SYMBOLS = ['CliqzFreshTab'];
+
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -26,7 +30,7 @@ try{
 
   if(versionChecker.compare(appInfo.version, "41.0") >= 0){
     FF41_OR_ABOVE = true;
-    Cu.import("resource:///modules/NewTabURL.jsm");
+    XPCOMUtils.defineLazyModuleGetter(this, "NewTabURL", "resource:///modules/NewTabURL.jsm");
   }
 } catch(e){}
 
@@ -35,10 +39,15 @@ Cm.QueryInterface(Ci.nsIComponentRegistrar);
 function AboutURL() {}
 var AboutURLFactory;
 
-var FreshTab = {
+var CliqzFreshTab = {
     signalType: "home",
     initialized: false,
     startup: function(freshTabUrl){
+        // first start
+        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
+        }
+
         // exit if not in the test
         if(!CliqzUtils.getPref("freshTabAB", false)) return;
         if(!FF41_OR_ABOVE){
@@ -94,12 +103,7 @@ var FreshTab = {
           pref.clearUserPref(FRESH_TAB_BACKUP_DONE);
         }
 
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
-        }
-
-        FreshTab.updateState();
+        CliqzFreshTab.updateState();
 
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -107,11 +111,11 @@ var FreshTab = {
         }
         Services.ww.registerNotification(initNewTab);
 
-        FreshTab.initialized = true;
+        CliqzFreshTab.initialized = true;
     },
 
-    shutdown: function(){
-        if(!FreshTab.initialized) return;
+    shutdown: function(aData, aReason){
+        if(!CliqzFreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
         Services.ww.unregisterNotification(initNewTab);
@@ -120,7 +124,7 @@ var FreshTab = {
     },
     toggleState: function(){
       pref.setBoolPref(FRESH_TAB_STATE, !pref.getBoolPref(FRESH_TAB_STATE));
-      FreshTab.updateState();
+      CliqzFreshTab.updateState();
     },
     updateState: function(){
       if(isActive()){
@@ -143,7 +147,6 @@ function activate(){
     backupDone = false
   }
 
-  try {
   if(FF41_OR_ABOVE){
       // newtab.url needs to be changed in the browser itself in FF 41
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
@@ -154,7 +157,6 @@ function activate(){
       !backupDone && pref.setCharPref(BAK_NEWTAB, pref.getCharPref(DEF_NEWTAB));
       pref.setCharPref(DEF_NEWTAB, CLIQZ_NEW_TAB);
   }
-  } catch(e) { dump(e) }
   !backupDone && pref.setCharPref(BAK_HOMEPAGE, pref.getCharPref(DEF_HOMEPAGE));
   pref.setCharPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB);
 }
@@ -182,5 +184,3 @@ function initNewTab(win){
         }
     }, false);
 }
-
-export default FreshTab;

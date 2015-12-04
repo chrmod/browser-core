@@ -1,8 +1,8 @@
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzFreshTab.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import("resource://gre/modules/Services.jsm");
-
-var CliqzFreshTab = CliqzUtils.getWindow().CLIQZ.System.get("freshtab/main").default;
-var CliqzFreshTabNews = CliqzUtils.getWindow().CLIQZ.System.get("freshtab/news").default;
 
 CliqzFreshTabNews.init();
 Components.utils.import("chrome://cliqzmodules/content/CliqzHandlebars.jsm");
