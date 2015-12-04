@@ -1,6 +1,6 @@
 'use strict';
 
-var EXPORTED_SYMBOLS = ['FreshTab'];
+var EXPORTED_SYMBOLS = ['CliqzFreshTab'];
 
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
@@ -16,6 +16,7 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     BAK_HOMEPAGE = "extensions.cliqz.backup.homepage",
     BAK_NEWTAB = "extensions.cliqz.backup.newtab",
     BAK_STARTUP = "extensions.cliqz.backup.startup",
+    FRESH_TAB_AB = "extensions.cliqz.freshTabAB", // true = AB test active
     FRESH_TAB_STATE = "extensions.cliqz.freshTabState", // true = active
     FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
     OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
@@ -39,14 +40,34 @@ Cm.QueryInterface(Ci.nsIComponentRegistrar);
 function AboutURL() {}
 var AboutURLFactory;
 
-var FreshTab = {
+var CliqzFreshTab = {
     signalType: "home",
     initialized: false,
     startup: function(freshTabUrl){
-        // exit if not in the test
-        if(!CliqzUtils.getPref("freshTabAB", false)) return;
+        // first start
+        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
+        }
+        var disable = false;
+        // exit if not in the AB test
+        // if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true; // Always enabled for the browser
+        // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
+          disable = true;
+        }
+
+        if(disable){
+          //in case 'about:cliqz' remained set as default homepage - reset it
+          if(pref.getCharPref(DEF_HOMEPAGE) == CLIQZ_NEW_TAB){
+            //in case we did a backup - use it
+            if(pref.prefHasUserValue(BAK_HOMEPAGE)){
+              pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
+            } else {
+              //otherwise simply reset
+              pref.clearUserPref(DEF_HOMEPAGE);
+            }
+          }
           return;
         }
 
@@ -98,12 +119,7 @@ var FreshTab = {
           pref.clearUserPref(FRESH_TAB_BACKUP_DONE);
         }
 
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
-        }
-
-        FreshTab.updateState();
+        CliqzFreshTab.updateState();
 
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -111,11 +127,11 @@ var FreshTab = {
         }
         Services.ww.registerNotification(initNewTab);
 
-        FreshTab.initialized = true;
+        CliqzFreshTab.initialized = true;
     },
 
     shutdown: function(aData, aReason){
-        if(!FreshTab.initialized) return;
+        if(!CliqzFreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
         Services.ww.unregisterNotification(initNewTab);
@@ -124,7 +140,7 @@ var FreshTab = {
     },
     toggleState: function(){
       pref.setBoolPref(FRESH_TAB_STATE, !pref.getBoolPref(FRESH_TAB_STATE));
-      FreshTab.updateState();
+      CliqzFreshTab.updateState();
     },
     updateState: function(){
       if(isActive()){
