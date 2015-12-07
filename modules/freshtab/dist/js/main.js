@@ -157,8 +157,6 @@ $(document).ready(function() {
 
   $urlbar.on({
     "contextmenu": function(e) {
-        console.log("ctx menu button:", e.which);
-
         // Stop the context menu
         e.preventDefault();
     }
