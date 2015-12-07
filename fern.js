@@ -5,7 +5,7 @@
 const program = require('commander');
 const spaws = require('child_process').spawn;
 
-const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'dist';
+const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
 function setConfigPath(configPath) {
   configPath = configPath || './configs/beta.json';
