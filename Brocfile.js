@@ -159,7 +159,8 @@ var firefox = new MergeTrees([
 var cliqzium = new MergeTrees([
   new Funnel(locales, { }),
   new Funnel(templates, { }),
-  new Funnel(compiledCss, { destDir: 'css' }),
+  new Funnel(staticFiles, { srcDir: 'skin', destDir: 'skin' }),
+  new Funnel(compiledCss, { destDir: 'styles/css' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localConcated, { destDir: 'js' }),
   new Funnel(libsConcated, { destDir: 'js' }),
