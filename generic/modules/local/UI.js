@@ -1028,7 +1028,7 @@ function enhanceResults(res){
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
             if(r.logo.style.indexOf('background-image') == -1){
                 //add local cliqz image if there is no internet
-                r.logo.style += ";background-image:url(chrome://cliqzres/content/skin/img/cliqzLogo.svg)"
+                r.logo.style += ";background-image:url(" + CLIQZEnvironment.SKIN_PATH + "img/cliqzLogo.svg)";
             }
             r.logo.add_logo_url = true;
         }
