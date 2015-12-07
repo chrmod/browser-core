@@ -246,8 +246,6 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
-
-            CliqzUnblock.initWindow(window);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -436,8 +434,6 @@ window.CLIQZ.Core = {
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
-
-            CliqzUnblock.unloadWindow(window);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 

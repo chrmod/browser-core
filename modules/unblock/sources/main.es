@@ -1,16 +1,6 @@
-'use strict';
 /*
  * This module bypasses Youtube region blocks
  */
-
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-var EXPORTED_SYMBOLS = ['CliqzUnblock'];
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
   .getService(Components.interfaces.nsIProtocolProxyService);
@@ -340,3 +330,5 @@ var getParametersQS = function(qs) {
   }
   return res;
 };
+
+export default CliqzUnblock;

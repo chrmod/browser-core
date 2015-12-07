@@ -6,6 +6,7 @@ export default class {
 
   init() {
     var CLIQZ = this.window.CLIQZ,
+        document = this.window.document,
         themeUrl;
 
     if(CliqzUtils.isWindows()) {
@@ -14,7 +15,7 @@ export default class {
       themeUrl = 'chrome://cliqz/content/theme/theme-mac.css';
     }
 
-    CLIQZ.Core.addCSS(this.window.document, themeUrl);
+    CLIQZ.Core.addCSS(document, themeUrl);
 
     // Change location of forward button
     CLIQZ.Core.frwBtn = document.getElementById('forward-button');

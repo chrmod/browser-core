@@ -1,3 +1,8 @@
+Components.utils.import("chrome://cliqzmodules/content/CliqzUtils.jsm");
+Components.utils.import("chrome://cliqzmodules/content/CliqzHandlebars.jsm");
+
+CliqzLoyalty = CliqzUtils.getWindow().CLIQZ.System.get("loyalty/main").default;
+
 window.SCRIPTS = {};
 (function () {
   var PARTIALS = [
@@ -10,8 +15,6 @@ window.SCRIPTS = {};
     "views/status_info"
   ];
 
-  Components.utils.import("chrome://cliqzmodules/content/CliqzLoyalty.jsm");
-  Components.utils.import("chrome://cliqzmodules/content/CliqzHandlebars.jsm");
 
   function fetchPartial(name) {
     var partialPath = "chrome://cliqz/content/loyalty/partials/";

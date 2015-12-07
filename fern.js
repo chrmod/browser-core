@@ -3,7 +3,7 @@
 'use strict';
 
 const program = require('commander');
-const spaws = require('child_process').spawn;
+const spaws = require('cross-spawn');
 
 const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
