@@ -64,9 +64,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUnblock',
-  'chrome://cliqzmodules/content/CliqzUnblock.jsm');
-
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -142,12 +139,6 @@ window.CLIQZ.Core = {
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/styles/css/extension.css');
-        if(CliqzUtils.isWindows()) {
-            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-win.css');
-        } else {
-            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-mac.css');
-        }
-
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");

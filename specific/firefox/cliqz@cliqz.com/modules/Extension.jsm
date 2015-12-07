@@ -306,7 +306,6 @@ var Extension = {
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
             Extension.addScript('ContextMenu', win);
-            Extension.addScript('users1st', win);
 
             Extension.addButtons(win);
 

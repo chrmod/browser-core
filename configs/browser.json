@@ -4,6 +4,9 @@
   },
   "modules": [
     "onboarding",
-    "freshtab"
+    "freshtab",
+    "unblock",
+    "theme",
+    "users1st"
   ]
 }
