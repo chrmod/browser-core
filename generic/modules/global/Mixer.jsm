@@ -287,6 +287,11 @@ var Mixer = {
 // Consider taking some ideas from this function but not all.
         results = Filter.deduplicate(results, -1, 1, 1);
 
+        // Add custom results to the beginning of extra list if there are any
+        if(customResults && customResults.length > 0) {
+            cliqzExtra = customResults.concat(cliqzExtra);
+        }
+
         // limit to one entity zone
         cliqzExtra = cliqzExtra.slice(0, 1);
 
@@ -397,11 +402,6 @@ var Mixer = {
                 if(results[i].data && results[i].data.template == "entity-generic")
                     results[i].data.template = "ez-generic-2"
             }
-        }
-
-        // Add custom results to the beginning if there are any
-        if(customResults && customResults.length > 0) {
-            results = customResults.concat(results);
         }
 
         //allow maximum 3 BM results
