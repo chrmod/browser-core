@@ -164,7 +164,6 @@ function activate(){
     backupDone = false
   }
 
-  try {
   if(FF41_OR_ABOVE){
       // newtab.url needs to be changed in the browser itself in FF 41
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
@@ -175,7 +174,7 @@ function activate(){
       !backupDone && pref.setCharPref(BAK_NEWTAB, pref.getCharPref(DEF_NEWTAB));
       pref.setCharPref(DEF_NEWTAB, CLIQZ_NEW_TAB);
   }
-  } catch(e) { dump(e) }
+
   !backupDone && pref.setCharPref(BAK_HOMEPAGE, pref.getCharPref(DEF_HOMEPAGE));
   pref.setCharPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB);
 }

@@ -86,7 +86,7 @@ window.CLIQZ.Core = {
     urlbarEvents: ['focus', 'blur', 'keypress'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
-    modules: [],
+    windowModules: [],
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
 
@@ -194,12 +194,12 @@ window.CLIQZ.Core = {
         */
 
         settings.window = window;
-        var mods = this.modules;
+
         CLIQZ.modules.forEach(function (moduleName) {
           CLIQZ.System.import(moduleName+"/window").then(function (Module) {
             var mod = new Module.default(settings);
             mod.init();
-            mods.push(mod);
+            CLIQZ.Core.windowModules.push(mod);
           }).catch(function (e) { console.log(e) });
         });
 
@@ -360,11 +360,12 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
-        this.modules.forEach(function (mod) {
+        this.windowModules.forEach(function (mod) {
           try {
             mod.unload();
           } catch(e) {}
         });
+        this.windowModules = [];
 
         clearTimeout(CLIQZ.Core._whoAmItimer);
         clearTimeout(CLIQZ.Core._dataCollectionTimer);
@@ -838,7 +839,7 @@ window.CLIQZ.Core = {
           var btn = c.button && c.button(win);
           if(btn) menupopup.appendChild(btn);
         });
-        this.modules.forEach(function (mod) {
+        this.windowModules.forEach(function (mod) {
           var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
           if (buttonItem) { menupopup.appendChild(buttonItem); }
         });

@@ -1,5 +1,7 @@
 'use strict';
 
+Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
 /**-----------------------------------------------------------------------//

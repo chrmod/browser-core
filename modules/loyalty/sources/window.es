@@ -7,11 +7,8 @@ export default class {
     this.needPlaceHolder = CliqzUtils.getPref('firstStartDone', false);
   }
 
-  init() { }
-
-  unload() { }
-
-  createButtonItem(win) {
+  init() {
+    var win = this.window;
     var btn_id = CliqzLoyalty.getBrowserButtonID();
     if (this.needPlaceHolder)
         ToolbarButtonManager.setDefaultPosition(btn_id, 'nav-bar', BTN_ID);
@@ -30,4 +27,8 @@ export default class {
 
     ToolbarButtonManager.restorePosition(win.document, button);
   }
+
+  unload() { }
+
+  createButtonItem() { }
 }

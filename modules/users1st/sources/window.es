@@ -78,7 +78,7 @@ export default class {
         CliqzUtils.setPref(prefKey, this.filter_level);
         this.changeAdBlockState(this.initialState);
         this.state = this.initialState;
-        CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+        CliqzUtils.setTimeout(this.window.CLIQZ.Core.refreshButtons, 0);
       }.bind(this), false);
 
       menupopup.appendChild(item);
