@@ -44,10 +44,6 @@ var CliqzFreshTab = {
     signalType: "home",
     initialized: false,
     startup: function(freshTabUrl){
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
-        }
         var disable = false;
         // exit if not in the AB test
         if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true;
@@ -71,6 +67,10 @@ var CliqzFreshTab = {
           return;
         }
 
+        // first start
+        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+          pref.setBoolPref(FRESH_TAB_STATE,  false); //opt-in
+        }
 
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
