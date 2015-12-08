@@ -178,6 +178,8 @@ function activate(){
 }
 
 function deactivate(){
+  if(!pref.prefHasUserValue(FRESH_TAB_BACKUP_DONE)) return;
+
   pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
   if(FF41_OR_ABOVE){ // FF41+
       NewTabURL.reset();
