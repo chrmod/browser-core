@@ -68,7 +68,6 @@ CliqzHandlebars.PARTIALS = PARTIALS;
 
 compileTemplates();
 registerHelpers();
-
 function compileTemplates(){
     Object.keys(TEMPLATES).forEach(fetchTemplate);
     MESSAGE_TEMPLATES.forEach(fetchTemplate);
