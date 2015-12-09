@@ -170,11 +170,16 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 /*========== Tabs =======*/
 .tab-content {
-    border: none;
-    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: #F6F6F6;
+    background: #F6F6F6 !important;
 }
 
-.tabbrowser-tab[visuallyselected="true"] .tab-content,
+.tabbrowser-tab[visuallyselected="true"] .tab-content {
+    border-color: #99B3C9;
+    border-top: 2px solid #ABC8E2;
+    background: #fff !important;
+}
+
 #PersonalToolbar {
     background: #fff !important;
 }
@@ -185,7 +190,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 .tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
 .tabs-newtab-button:hover {
-    background: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 1) !important;
 }
 
 
@@ -210,14 +215,15 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 /*========== End Tabs =========*/
 
 
+/*=== Bookmarks */
 #PersonalToolbar {
     padding-top: 7px;
-    border-top: 1px solid #e0e0e0;
+    border-top: none;
 }
 
 #nav-bar {
     margin-top: 0 !important;
-    border-top-color: #fff !important;
+    border-top-color: #99B3C9 !important;
     background: #fff !important;
 }
 
