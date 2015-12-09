@@ -131,7 +131,6 @@ function sendM(m){
 	.then(function(data){
 			mc.sigendData = data;
 			var payload = createPayloadBlindSignature(CliqzSecureMessage.uPK.publicKeyB64, mc.bm1, mc.bm2, mc.bm3, mc.sigendData);
-			CliqzUtils.log(payload["uPK"]);
 			return CliqzSecureMessage.httpHandler(CliqzSecureMessage.dsPK.endPoint)
 		  		.post(JSON.stringify(payload))
 
@@ -178,7 +177,7 @@ function sendM(m){
 
 	})
 	.catch(function(err){
-		CliqzUtils.log("Error: " + mc.proxyCoordinator,"XXX");
+		CliqzUtils.log("Error: " + mc.proxyCoordinator,CliqzSecureMessage.LOG_KEY);
 		CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-error",1);
 		var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
 		if(mIdx) {
@@ -212,7 +211,6 @@ function getRouteHash(msg){
 	msg.action = msg.action.toLowerCase();
 	var static_fields = CliqzSecureMessage.sourceMap[msg.action]["static"] || [];
 	var flatMsg = JSON.flatten(msg, static_fields );
-	CliqzUtils.log(flatMsg);
 	if(!flatMsg.action) return null;
 	var keys = CliqzSecureMessage.sourceMap[flatMsg.action]["keys"];
 
@@ -328,7 +326,7 @@ function _http(url){
         client.onload = function () {
           var statusClass = parseInt(client.status / 100);
           var te = new Date().getTime();
-          CliqzUtils.log("Time taken: " + (te - ts),"XXXX");
+          CliqzUtils.log("Time taken: " + (te - ts),CliqzSecureMessage.LOG_KEY);
           CliqzSecureMessage.stats(uri, "latency", (te-ts));
           if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
             // Performs the function "resolve" when this.status is equal to 2xx
@@ -526,7 +524,7 @@ userPK.prototype.sign = function(msg){
  */
 var messageContext = function (msg) {
 	if(!msg) return;
-	CliqzUtils.log("Message Rec: " + JSON.stringify(msg),"XXXXX");
+	CliqzUtils.log("Message Rec: " + JSON.stringify(msg),CliqzSecureMessage.LOG_KEY);
  	this.orgMessage = isJson(msg) ? JSON.stringify(msg) : msg;
  	this.jMessage = isJson(msg) ? msg : JSON.parse(msg);
  	this.sha256 = sha256_digest(this.orgMessage);
@@ -621,7 +619,6 @@ messageContext.prototype.aesDecrypt = function(msg){
 			resolve(decrypted.toString(CryptoJS.enc.Utf8));
 		}
 		catch(e){
-			CliqzUtils.log(e,"Error");
 			reject(e);
 		}
 	})
@@ -641,7 +638,6 @@ messageContext.prototype.signKey = function(){
 	var promise = new Promise(function(resolve, reject){
 		try{
 			var messageToSign = _this.key + ";" + _this.iv + ";endPoint";
-			CliqzUtils.log("Message to sign: " + messageToSign,"XXX");
 			var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(messageToSign);
 			_this.signedKey = signedKey;
 			_this.mK = signedKey;
@@ -687,7 +683,6 @@ messageContext.prototype.getProxyIP = function(routeHash){
 	var totalProxies = 4096;
 	var modRoute = routeHash % totalProxies;
 	var proxyIP = createHttpUrl(CliqzSecureMessage.routeTable[modRoute]);
-	CliqzUtils.log("Routetable: " + proxyIP);
 	return proxyIP;
 }
 

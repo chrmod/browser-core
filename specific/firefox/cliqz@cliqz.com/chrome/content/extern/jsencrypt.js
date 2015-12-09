@@ -3900,7 +3900,6 @@ RSAKey.prototype.parseKey = function (pem) {
 
       modulus = sequence.sub[0].getHexStringValue();
       this.n = parseBigInt(modulus, 16);
-      CliqzUtils.log("N: " + parseBigInt('db1aab0a3b89d89663702fc1b55d3e8b', 16),"XXXX");
       public_exponent = sequence.sub[1].getHexStringValue();
       this.e = parseInt(public_exponent, 16);
 
@@ -3996,7 +3995,6 @@ RSAKey.prototype.parseKeyValues = function (pem) {
 
       modulus = sequence.sub[0].getHexStringValue();
       this.n = parseBigInt(modulus, 16);
-      CliqzUtils.log("N: " + this.n,"XXXX");
       res['e'] = this.e;
       res['mod'] = '' + this.n;
       res['n'] = modulus;
