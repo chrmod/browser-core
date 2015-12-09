@@ -5,11 +5,12 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 function startup(aData, aReason) {
     Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
-
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 }
 
 function shutdown(aData, aReason) {
+    Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+    Cu.import('chrome://cliqzmodules/content/Extension.jsm');
     CliqzHumanWeb.unload();
     try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 
