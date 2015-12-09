@@ -1,15 +1,8 @@
 'use strict';
-var EXPORTED_SYMBOLS = ['CliqzLoyalty'];
+
+Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import("resource://gre/modules/Services.jsm");
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
 
 /**-----------------------------------------------------------------------//
  //---------------------------- HELPER FUNCTIONS --------------------------//
@@ -1252,4 +1245,4 @@ var CliqzLoyalty = {
 
 
 
-
+export default CliqzLoyalty;

@@ -279,6 +279,7 @@ var CliqzUtils = {
       onerror && onerror();
     }
   },
+  openTabInWindow: CLIQZEnvironment.openTabInWindow,
   getPrefs: CLIQZEnvironment.getPrefs,
   getPref: CLIQZEnvironment.getPref,
   isPrefBool: CLIQZEnvironment.isPrefBool,

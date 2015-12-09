@@ -916,10 +916,16 @@
 }
 
 .cqz-results .cqz-rd-img_div {
+    overflow: hidden;
     float: left;
     margin-right: 20px;
     height: 100%;
-    max-width: 130px
+    max-width: 130px;
+
+    .cqz-rd-img {
+        max-width: none;
+        height: 100%;
+    }
 }
 
 .cqz-results .cqz-rd-recipe {
