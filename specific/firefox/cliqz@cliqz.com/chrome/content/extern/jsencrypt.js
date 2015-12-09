@@ -3999,6 +3999,7 @@ RSAKey.prototype.parseKeyValues = function (pem) {
       CliqzUtils.log("N: " + this.n,"XXXX");
       res['e'] = this.e;
       res['mod'] = '' + this.n;
+      res['n'] = modulus;
       public_exponent = sequence.sub[1].getHexStringValue();
       this.e = parseInt(public_exponent, 16);
 

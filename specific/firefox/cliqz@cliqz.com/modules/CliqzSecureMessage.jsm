@@ -191,12 +191,14 @@ function sendM(m){
 
 		// Send the message to proxy coordinator
 		// Try send the message to peer.
+		/*
 		var conn = CliqzSecureMessage.getConnection(mc.proxyCoordinator, {message: 'proxy', parentProxy: CliqzSecureMessage.peer.id});
 		conn.on("open", function(){
 			conn.send(JSON.stringify(payload));
 		})
-		// return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
-		//  						 .post(JSON.stringify(payload))
+		*/
+		return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
+		  						 .post(JSON.stringify(payload))
 
 	})
 	.then(function(response){
@@ -548,7 +550,7 @@ Urh6hU90zpidn7kYTrIvkHkvEtVpALliIji/6XnGpNYIpw0CWTbqU/fMOt+ITcKg\
 rWMymdRofsl0g6+abRETWEg+8uu7pLlDVehM9sPZPhtOGd/Vl+05FDUhNsbszdOE\
 vUNtCY8pX4SI5pnA/FjWHOkCAwEAAQ==\
 -----END PUBLIC KEY-----"
-	this.endPoint = "http://192.168.2.110/sign";
+	this.endPoint = "http://10.10.73.207/sign";
 	this.loadKey = new JSEncrypt();
 	this.loadKey.setPublicKey(dsPubKey);
 	this.n = this.loadKey.parseKeyValues(dsPubKey)['mod'];
@@ -1043,20 +1045,46 @@ var CliqzSecureMessage = {
     peerID:null,
     proxyID:null,
     proxyList:[],
-    PROXY_LIST_PROVIDER: "http://54.157.18.130:9000/peerjs/peers?q=1",
+    PROXY_LIST_PROVIDER: "http://54.157.18.130:9004?q=1",
     pacemaker: function() {
     	if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % 10 == 0) {
             if (CliqzSecureMessage.debug) {
                 CliqzUtils.log('Pacemaker: ' + CliqzSecureMessage.counter/CliqzSecureMessage.tmult , CliqzSecureMessage.LOG_KEY);
             }
-            if(!CliqzSecureMessage.peerStatus) {
-            	CliqzSecureMessage.peer.reconnect();
-            }
+
         }
 
-        if(!CliqzSecureMessage.wsconn){
-        	CliqzSecureMessage.getQueryConnection();
-        }
+        if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % 2 == 0) {
+            /*
+ 			if(!CliqzSecureMessage.proxypeer.open){
+            	CliqzSecureMessage.proxypeer.forceDisconnect();
+            	initPeer("proxypeer","peer");
+        	}
+			*/
+
+	        if( CliqzSecureMessage.peer.socket.disconnected){
+	        	CliqzSecureMessage.peer.forceDisconnect();
+	        	initPeer("peer","client");
+	    	}
+
+	    	if(CliqzSecureMessage.wsconn && !CliqzSecureMessage.wsconn.open){
+	    		CliqzSecureMessage.getQueryConnection();
+	    	}
+	    }
+
+        // Send heartbeat every minute, only for proxies.
+        if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 1 * 1) == 0) {
+	        if(CliqzSecureMessage.proxypeer && !CliqzSecureMessage.proxypeer.socket.disconnected){
+	        	CliqzUtils.log("Send health signal","XXXX");
+	        	CliqzSecureMessage.proxypeer.socket.send({"type":"HEALTH"});
+	        }
+	        else{
+	        	CliqzSecureMessage.proxypeer.forceDisconnect();
+            	initPeer("proxypeer","peer");
+	        }
+	    }
+
+
         //Fetch sourceMap
         if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 20 * 1) == 0) {
             if (CliqzSecureMessage.debug) {
@@ -1084,8 +1112,9 @@ var CliqzSecureMessage = {
           function success(res){
 			var proxyList = JSON.parse(res.response);
 			for(var i=0;i<proxyList.length;i++){
-				if(proxyList[i].length == 32 && CliqzSecureMessage.proxyList.indexOf(proxyList[i]) == -1) CliqzSecureMessage.proxyList.push(proxyList[i]);
-
+				if(proxyList[i].length == 32 && CliqzSecureMessage.proxyList.indexOf(proxyList[i]) == -1) {
+					CliqzSecureMessage.proxyList.push(proxyList[i]);
+				}
 			}
           },
           function error(res){
@@ -1123,6 +1152,8 @@ var CliqzSecureMessage = {
     peer:null,
     wsconn:null,
     peerStatus:true,
+    proxypeer:null,
+    WebSocket:null,
     pushTelemetry: function() {
         // if(CliqzSecureMessage._telemetry_req) return;
 
@@ -1164,11 +1195,18 @@ var CliqzSecureMessage = {
     init: function(window){
     	// Doing it here, because this lib. uses navigator and window objects.
     	// Better method appriciated.
+
+        if (CliqzSecureMessage.pacemakerId==null) {
+            CliqzSecureMessage.pacemakerId = CliqzUtils.setInterval(CliqzSecureMessage.pacemaker, CliqzSecureMessage.tpace, null);
+        }
+
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto-kjur.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/rsa-sign.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
     	CliqzSecureMessage.RSAKey = window.RSAKey;
     	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
+    	CliqzSecureMessage.Peer = window.Peer;
+    	CliqzSecureMessage.WebSocket = window.WebSocket;
 
     	// Get sourceMap
     	// fetchRouteTable();
@@ -1177,32 +1215,35 @@ var CliqzSecureMessage = {
     	fetchSourceMapping();
 
 
-    	if(!CliqzSecureMessage.peerID){
+    	if(!CliqzSecureMessage.proxypeer){
+    		initPeer("proxypeer", "proxy");
+    		/*
 	    	var peerID = CryptoJS.MD5(CliqzSecureMessage.uPK.publicKeyB64);
-			var peer = new window.Peer(peerID,{host: '54.157.18.130', port: 9000, path: '/'});
-			CliqzSecureMessage.peerID = peer.id;
-			peer.on("connection", connect);
-		}
+			CliqzSecureMessage.proxypeer = new window.Peer('' + peerID,{host: '54.157.18.130', port: 9000, path: '/'});
+			CliqzSecureMessage.proxypeer.on("open", function(){
+				CliqzSecureMessage.peerID = CliqzSecureMessage.proxypeer.id;
+				CliqzUtils.log(CliqzSecureMessage.peerID,"X1");
+				CliqzSecureMessage.proxypeer.on("connection", connect);
+				CliqzSecureMessage.proxypeer.on('disconnected', function() {
+					CliqzUtils.log("Disconnected: " ,"ERROR1");
+					// peer.reconnect();
+				});
 
-		if(!CliqzSecureMessage.peer){
-			var peerID = sha256_digest(CliqzSecureMessage.uPK.publicKeyB64);
-			CliqzSecureMessage.peer = new window.Peer(peerID,{host: '54.157.18.130', port: 9000, path: '/'});
-			CliqzSecureMessage.peer.on("connection", connect);
-			CliqzSecureMessage.peer.on('disconnected', function() {
-				CliqzSecureMessage.fetchProxyList();
-				CliqzSecureMessage.getQueryConnection();
+				CliqzSecureMessage.proxypeer.on('error', function(err) {
+					CliqzUtils.log("Error: " + err.type,"ERROR2");
+					if(err.type == 'network'){
+						CliqzUtils.log("Error: " + err,"ERROR3");
+						// peer.reconnect();
+					};
+				});
 			});
-
-			CliqzSecureMessage.peer.on('error', function(err) {
-				CliqzUtils.log("Error: " + err,"ERROR");
-				CliqzUtils.log("Error: " + err.type,"ERROR");
-				if(err.type == 'network'){
-					CliqzUtils.log("Error: " + err,"ERROR");
-				};
-			});
-		}
+			*/
+    	}
 
 
+    	if(!CliqzSecureMessage.peer){
+    		initPeer("peer", "client");
+    	}
 
 		/*
 		var requestedPeer = "peer2"
@@ -1221,9 +1262,6 @@ var CliqzSecureMessage = {
 		// CliqzUtils.log(peer.id,"SXSXSX");
 		// CliqzUtils.getWindow().console.log('aa',window.Peer({host: '54.157.18.130', port: 9000, path: '/'}));
 
-        if (CliqzSecureMessage.pacemakerId==null) {
-            CliqzSecureMessage.pacemakerId = CliqzUtils.setInterval(CliqzSecureMessage.pacemaker, CliqzSecureMessage.tpace, null);
-        }
 
     	/*
         var peer = new window.Peer({host: '54.157.18.130', port: 9000, path: '/'});
@@ -1257,27 +1295,34 @@ var CliqzSecureMessage = {
 				var id = CliqzSecureMessage.proxyList[0];
 			}
 		}
+		// if(CliqzSecureMessage.wsconn.open) CliqzSecureMessage.wsconn.close();
+
 		var conn = CliqzSecureMessage.getConnection(id, {message: 'query'});
 		conn.on("open", function(){
 			CliqzUtils.log("Peer connection open","XXXXXXX");
 			CliqzSecureMessage.wsconn = conn;
 		});
 		conn.on("close", function(){
-			CliqzUtils.log("Peer connection closed","XXXXXXX");
 			CliqzSecureMessage.fetchProxyList();
 			CliqzSecureMessage.getQueryConnection();
+			CliqzUtils.log("Peer connection closed","XXXXXXX");
 		})
 	},
 	getConnection: function(id, meta){
 		CliqzUtils.log("Trying to connect to: " + id,"XXX");
 		var requestedPeer = id;
 
-		var c = CliqzSecureMessage.peer.connect(requestedPeer, {
-		        label: 'query',
-		        metadata: meta,
-		      });
+		if(CliqzSecureMessage.peer.connections[requestedPeer] && CliqzSecureMessage.peer.connections[requestedPeer][0].open) {
+			return CliqzSecureMessage.peer.connections[requestedPeer][0]
+		}
+		else{
+			var c = CliqzSecureMessage.peer.connect(requestedPeer, {
+			        label: 'query',
+			        metadata: meta,
+			      });
 
-		return c;
+			return c;
+		}
 
 
 
@@ -1671,7 +1716,7 @@ function connect(c) {
     	}
     });
     c.on("error", function(err){
-    	CliqzUtils.log(err, "Error");
+    	CliqzUtils.log(err, "Error7");
     })
 
 }
@@ -1692,11 +1737,11 @@ function sendMessage(requestedPeer, data){
 						var _data  = JSON.parse(d);
 						if(_data.status){
 							CliqzSecureMessage.resp[requestedPeer] = _data.sig;
-							pConn.close();
+							// pConn.close();
 							resolve(true);
 						}
 						else{
-							pConn.close();
+							//pConn.close();
 							reject(false);
 						}
 					})
@@ -1708,5 +1753,46 @@ function sendMessage(requestedPeer, data){
 			}
 		})
 		return promise
+}
+
+function initPeer(peerName, t){
+			if(t == "client"){
+				var peerID = 'client-' + Math.floor((Math.random() * 1000) + 1);
+			}else{
+				var peerID = CryptoJS.MD5(CliqzSecureMessage.uPK.publicKeyB64);
+			}
+
+			CliqzUtils.log('' + peerID,"X");
+			CliqzSecureMessage[peerName] = new CliqzSecureMessage.Peer('' + peerID,{host: '54.157.18.130', port: 9000, path: '/'});
+
+			CliqzSecureMessage[peerName].on("open", function(){
+				CliqzUtils.log("Peer open","X");
+				if(t == "proxy") {
+					 // CliqzSecureMessage.proxypeer.socket.send({"type":"HEALTH"});
+				}else{
+					CliqzSecureMessage.getQueryConnection();
+				}
+
+				CliqzSecureMessage[peerName].on("connection", connect);
+
+				CliqzSecureMessage[peerName].on('disconnected', function() {
+					CliqzUtils.log("Disconnected: " ,"ERROR4");
+					// CliqzSecureMessage.peer.reconnect();
+				});
+
+				CliqzSecureMessage[peerName].on('error', function(err) {
+
+					CliqzUtils.log("Error: " + err.type,"ERROR5");
+					if(t == "client"){
+						if(err.type == 'peer-unavailable' || err.type == "unavailable-id" || err.type == "network"){
+							CliqzUtils.log("Error: " + err,"ERROR6");
+							// CliqzSecureMessage.fetchProxyList();
+							// CliqzSecureMessage.getQueryConnection();
+						};
+					}
+				});
+
+
+			});
 }
 

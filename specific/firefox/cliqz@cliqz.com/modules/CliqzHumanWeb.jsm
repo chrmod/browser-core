@@ -1889,6 +1889,7 @@ var CliqzHumanWeb = {
         }
     },
     init: function(window) {
+
         refineFuncMappings = {
            "splitF":CliqzHumanWeb.refineSplitFunc,
            "parseU":CliqzHumanWeb.refineParseURIFunc,
@@ -1902,6 +1903,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.state == null) {
             CliqzHumanWeb.state = {};
         }
+
         /*
         else {
 
@@ -2082,7 +2084,7 @@ var CliqzHumanWeb = {
         } else {
             CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
         }
-        if(msg.action == "query" || msg.action == "page") CliqzSecureMessage.telemetry(msg);
+        CliqzSecureMessage.telemetry(msg);
     },
     _telemetry_req: null,
     _telemetry_sending: [],
