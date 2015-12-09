@@ -3,8 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-var logscreen = document.getElementById("logscreen"); 
-
 document.getElementById("reconnecting").style.display = "none"; 
 
 CLIQZ.UI.init(urlbar);
@@ -98,27 +96,12 @@ CliqzUtils.requestMonitor.inHealth = function() { return true; }
 
 
 CLIQZEnvironment.renderRecentQueries();
- 
 
-
-CLIQZEnvironment.delayTimer = null;
-function doSearch(text) {
-//     clearTimeout(CLIQZEnvironment.delayTimer);
-//     CLIQZEnvironment.delayTimer = setTimeout(function() {
-//         CLIQZEnvironment.search(text);
-//     }, 200);
-  CLIQZEnvironment.search(text);
-}
-
-urlbar.addEventListener('keydown', function(e){
-  doSearch(urlbar.value);
-});
 
 //TODO: Should be refactored!!!!
 
 function search_mobile(e) {
-  urlbar.value = e;
-  doSearch(e);
+  CLIQZEnvironment.search(e);
 }
 
 window.addEventListener('resize', function () {

@@ -441,6 +441,10 @@ var CLIQZEnvironment = {
             'nsIAutoCompleteSearch');
 
         return function(q, callback, sessionStart){
+            // special case: user has deleted text from urlbar
+            if(q.length != 0 && urlbar().value.length == 0)
+              return;
+
             if(q.length == 0 && sessionStart){
                 NewTabUtils.links.populateCache(function(){
                     callback(null, getTopSites());
@@ -472,6 +476,9 @@ var CLIQZEnvironment = {
     })()
 
     // END from CliqzAutocomplete
+}
+function urlbar(){
+  return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 }
 
 function getTopSites(){
