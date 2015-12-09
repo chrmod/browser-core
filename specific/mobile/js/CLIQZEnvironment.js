@@ -255,19 +255,7 @@ CLIQZEnvironment = {
       if(urlbar.value.toLowerCase() == "testme") {
         initTest();
       }
-      var logscreen = document.getElementById("logscreen"); 
-
-      if(urlbar.value.toLowerCase() == "d.on") {
-        logscreen.style.left = "0px";
-          //document.getElementById("recentbutton").style.display = "block";
-          return;
-        }
-
-        if(urlbar.value.toLowerCase() == "d.off") {
-          logscreen.style.left = "-5000px";
-          return;
-        }
-        CLIQZEnvironment.startProgressBar();
+      CLIQZEnvironment.startProgressBar();
 
 
       // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

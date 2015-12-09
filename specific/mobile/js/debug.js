@@ -3,8 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-var logscreen = document.getElementById("logscreen"); 
-
 document.getElementById("reconnecting").style.display = "none"; 
 
 CLIQZ.UI.init(urlbar);
