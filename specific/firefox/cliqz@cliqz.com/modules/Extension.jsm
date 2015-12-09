@@ -257,7 +257,6 @@ var Extension = {
         if (!win) return;
 
         if(CliqzUtils.shouldLoad(win)){
-            win.Peer = Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', win)(6);
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
             Extension.addScript('ContextMenu', win);

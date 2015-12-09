@@ -532,46 +532,38 @@ var CliqzUtils = {
               CliqzUtils.encodeFilter() +
               CliqzUtils.encodeLocation();
 
-
-    /*
-    var req = CliqzUtils.httpGet(url, function (res) {
-      callback && callback(res, q);
-    });
-    */
-
-    if(!CliqzSecureMessage.wsconn) {
-      CliqzSecureMessage.wsconn = CliqzSecureMessage.peer.connect("a", {
-        label: 'chat',
-        serialization: 'none',
-        metadata: {message: 'hi i want to chat with you!'}
-      });
+    if(CliqzUtils.getPref("hpn")){
+      var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+      var mc = new CliqzSecureMessage.messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
+      var proxyIP = CliqzSecureMessage.queryProxyIP;
+      mc.aesEncrypt()
+      .then(function(enxryptedQuery){
+        return mc.signKey();
+      })
+      .then(function(){
+        var data = {"mP":mc.getMP()}
+        CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
+        return CliqzSecureMessage.httpHandler(proxyIP)
+        .post(JSON.stringify(data), "instant")
+      })
+      .then(function(response){
+        return mc.aesDecrypt(JSON.parse(response)["data"]);
+      })
+      .then(function(res){
+        CliqzSecureMessage.stats(proxyIP, "queries-recieved", 1);
+        callback && callback({"response":res}, q);
+      })
+      .catch(function(err){
+        CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
+      })
+    }else{
+          var req = CliqzUtils.httpGet(url, function (res) {
+            callback && callback(res, q);
+          });
+        CliqzUtils.requestMonitor.addRequest(req);
     }
 
-    /*
-    CliqzSecureMessage.wsconn.send(url);
-    CliqzSecureMessage.wsconn.on('data', function(data) {
-      CliqzUtils.log(data,"x");
-      callback && callback({"response":data}, q);
-    });
-    */
-    var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
-    var mc = new CliqzSecureMessage.messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
-    mc.aesEncrypt()
-    .then(function(enxryptedQuery){
-      return mc.signKey();
-    })
-    .then(function(){
-      var data = {"mP":mc.getMP()};
-      CliqzUtils.log(mc.getMP(),"DATA");
-      var key = mc.aesKey;
-      CliqzSecureMessage.eventID[mc.eventID] = {"key":key,"iv":mc.iv};
-      CliqzSecureMessage.wsconn.send(JSON.stringify(data));
-      CliqzSecureMessage.wsconn.on('data', function(data) {
-      var _data = CliqzSecureMessage.aesDecrypt(JSON.parse(data)["data"]);
-      callback && callback({"response":_data}, q);
-      });
-      // return mc.aesDecrypt(JSON.parse(data)["data"]);
-    })
+
 
     // CliqzUtils.requestMonitor.addRequest(req);
   },

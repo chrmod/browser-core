@@ -455,6 +455,7 @@ window.CLIQZ.Core = {
                 }
             }
 
+
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
 
@@ -462,6 +463,7 @@ window.CLIQZ.Core = {
         }
         // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
         CliqzAttrack.unload(window);
+        CliqzSecureMessage.unload();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -874,6 +876,7 @@ window.CLIQZ.Core = {
         menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
       }
       menupopup.appendChild(CLIQZ.Core.createHumanMenu(win));
+      menupopup.appendChild(CLIQZ.Core.createSecureChannelMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -1025,6 +1028,30 @@ window.CLIQZ.Core = {
         menu.setAttribute('label', 'Human Web');
 
         var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
+        menuPopup.appendChild(safeSearchBtn);
+
+        menuPopup.appendChild(
+            CLIQZ.Core.createSimpleBtn(
+                doc,
+                CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
+                function(){
+                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
+                    },
+                'safe_search_desc'
+            )
+        );
+
+        menu.appendChild(menuPopup)
+        return menu
+    },
+    createSecureChannelMenu: function(win){
+        var doc = win.document,
+            menu = doc.createElement('menu'),
+            menuPopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', 'Secure channel');
+
+        var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'hpn', CliqzUtils.getLocalizedString('btnSafeSearch'), true);
         menuPopup.appendChild(safeSearchBtn);
 
         menuPopup.appendChild(
