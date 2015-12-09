@@ -45,6 +45,6 @@ CliqzUtils.getLocalStorage = function(url) {
     return localStorage;
 }
 
-init();
 var topNews;
+window.addEventListener('load', init);
 
