@@ -11,17 +11,15 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUnblock',
-  'chrome://cliqzmodules/content/CliqzUnblock.jsm');
-
 var timer=null, ONE_HOUR = 60 * 60 * 1000;
 
 var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-    init: function(){
+    init: function(system){
         CliqzABTests.check();
+        this.System = system;
     },
     unload: function(){
         CliqzUtils.clearTimeout(timer);
@@ -279,7 +277,11 @@ var CliqzABTests = {
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
             case "1055_B":
-                CliqzUnblock.enable();
+                this.System.import("unblock/main").then(function (mod) {
+                  mod.default.enable();
+                }).catch(function (e) {
+                  rule_executed = false;
+                });
                 break;
             case "1056_A":
                 CliqzUtils.setPref("freshTabAB", false);
@@ -490,7 +492,11 @@ var CliqzABTests = {
                 break;
             case "1055_A":
             case "1055_B":
-                CliqzUnblock.disable();
+                this.System.import("unblock/main").then(function (mod) {
+                  mod.default.disable();
+                }).catch(function (e) {
+                  rule_executed = false;
+                });
                 break;
             case "1056_A":
             case "1056_B":

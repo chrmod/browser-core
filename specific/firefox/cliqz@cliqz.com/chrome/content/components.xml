@@ -5,21 +5,23 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup" >
+  <binding id="autocomplete-rich-result-popup-cliqz"
+        extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup" >
     <content ignorekeys="true" level="top" consumeoutsideclicks="false">
-      <div xmlns="http://www.w3.org/1999/xhtml" anonid="cliqz-html-container"></div>
+      <div xmlns="http://www.w3.org/1999/xhtml" anonid="cliqz-html-container" tooltip="aHTMLTooltip"></div>
     </content>
 
     <implementation >
         <constructor>
+          <![CDATA[
+            CLIQZ.UI.main(this.cliqzBox);
+          ]]>
+        </constructor>
+      <field name="cliqzBox" readonly="true">
         <![CDATA[
-                this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
-                this.setAttribute("onpopuphiding", "CLIQZ.UI.closeResults(event)");
-                CLIQZ.UI.main(this.cliqzBox);
-                // adds "title" attribute support
-                this.cliqzBox.setAttribute('tooltip', 'aHTMLTooltip');
-            ]]>
-      </constructor>
+          document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
+        ]]>
+      </field>
       <property name="selectedIndex"
                 onget="return -1;">
         <setter>

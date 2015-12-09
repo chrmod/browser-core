@@ -58,6 +58,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
 var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
+    SKIN_PATH: 'chrome://cliqzres/content/skin/',
     cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     init: function(){
@@ -422,7 +423,7 @@ var CLIQZEnvironment = {
           menuItem.addEventListener("command", menuItems[item].command, false);
           if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
             menuItem.setAttribute('class', 'menuitem-iconic');
-            menuItem.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.png)';
+            menuItem.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz.png)';
           }
           contextMenu.appendChild(menuItem);
       }
@@ -480,7 +481,7 @@ function getTopSites(){
         top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
         top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
         top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
-        top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
+        top.data.cliqz_logo = CLIQZEnvironment.SKIN_PATH + 'img/cliqz.svg';
         top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
         top.data.url = results[0].url;
         top.data.template = 'topsites';

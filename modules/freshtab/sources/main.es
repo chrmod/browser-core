@@ -40,10 +40,6 @@ var FreshTab = {
     signalType: "home",
     initialized: false,
     startup: function(freshTabUrl){
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
-        }
         var disable = false;
         // exit if not in the AB test
         // if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true; // Always enabled for the browser
@@ -67,7 +63,11 @@ var FreshTab = {
           return;
         }
 
-
+        // first start
+        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+          pref.setBoolPref(FRESH_TAB_STATE,  false); //opt-in
+        }
+        debugger;
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
             classDescription: CLIQZ_NEW_TAB,
@@ -180,6 +180,8 @@ function activate(){
 }
 
 function deactivate(){
+  if(!pref.prefHasUserValue(FRESH_TAB_BACKUP_DONE)) return;
+
   pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
   if(FF41_OR_ABOVE){ // FF41+
       NewTabURL.reset();

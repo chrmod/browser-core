@@ -13,8 +13,9 @@ var ENGINES,
 
 CLIQZEnvironment = {
     logScreen() {},
-	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/search/templates/' : './templates/',
+  	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/search/templates/' : './templates/',
     LOCALE_PATH: './locale/',
+    SKIN_PATH: '/generic/static/skin/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     isPrefBool: function(k, d){return typeof(db[k]) === 'boolean' ? true : false },

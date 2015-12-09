@@ -25,7 +25,7 @@ To start build system for beta release:
 
 Release channel configuration file can be specified via optional argument:
 
-`./fern.js serve ./configs/beta.json`
+`./fern.js serve ./configs/amo.json`
 
 ## Packaging
 
@@ -35,7 +35,7 @@ Build beta release with:
 
 Other releases are build with respective configuration files with:
 
-`./fern.js build ./config/beta.json`
+`./fern.js build ./configs/amo.json`
 
 once having `build` folder present you need to install bower_component for your platform build, e.g.:
 `cd build/dev/firefox/cliqz@cliqz.com && bower install`
