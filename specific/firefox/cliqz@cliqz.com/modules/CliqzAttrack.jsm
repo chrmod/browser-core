@@ -2952,7 +2952,9 @@ var CliqzAttrack = {
             } else {
                 if (CliqzAttrack.debug) CliqzUtils.log("CliqzAttrack.tokenExtWhitelist version up-to-date", "attrack");
             }
-            if ('obfuscateMethod' in versioncheck) CliqzAttrack.obfuscateMethod = versioncheck['obfuscateMethod'];
+            // To prevent accidental update of the config file which might enable scramble for AMO users which might not respect
+            // tracker.txt and they can be removed by the AB test but we will lose data collection
+            // if ('obfuscateMethod' in versioncheck) CliqzAttrack.obfuscateMethod = versioncheck['obfuscateMethod'];
             if ('replacement' in versioncheck) CliqzAttrack.replacement = versioncheck['replacement'];
         }, function() {
             // on error: just try and load anyway
