@@ -134,6 +134,7 @@ def run_test(args, test_relpath):
                 f.write(dyn_test_content)
             test_relpath = dyn_text_relpath
             is_dyn_test_active = True
+            log.info('Written temporary test file %s', dyn_test_abspath)
 
     if not is_dyn_test or (is_dyn_test and is_dyn_test_active):
         cmd = [
@@ -148,8 +149,8 @@ def run_test(args, test_relpath):
     else:
         log.info('Not running "%s"' % test_relpath)
 
-    if is_dyn_test and is_dyn_test_active:
-        os.remove(dyn_test_abspath)
+    # if is_dyn_test and is_dyn_test_active:
+    #     os.remove(dyn_test_abspath)
 
 
 def upload_test_results(args, config, uploader_path):
