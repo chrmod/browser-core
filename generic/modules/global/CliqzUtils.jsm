@@ -254,8 +254,8 @@ var CliqzUtils = {
       }
     }
   },
-  httpGet: function(url, callback, onerror, timeout){
-    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
+  httpGet: function(url, callback, onerror, timeout, _, sync){
+    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout, _, sync);
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);

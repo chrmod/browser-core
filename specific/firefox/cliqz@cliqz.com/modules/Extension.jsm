@@ -108,7 +108,7 @@ var Extension = {
             });
 
           } catch(e) { dump(e) }
-        }.bind(this));
+        }.bind(this), function () {}, undefined, undefined, true);
 
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
