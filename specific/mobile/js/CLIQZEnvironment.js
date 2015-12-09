@@ -53,7 +53,7 @@ CLIQZEnvironment = {
     if( val && val.length > 0){
       val = val.replace(/http([s]?):\/\/(www.)?/,"");
       val = val.toLowerCase();
-      var urlbarValue = urlbar.value.toLowerCase();
+      var urlbarValue = CliqzAutocomplete.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) == 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
@@ -194,8 +194,8 @@ CLIQZEnvironment = {
   },
   resultsHandler: function (r, requestHolder) {
 
-    if( urlbar.value != r._searchString  ){
-      CliqzUtils.log("u='"+urlbar.value+"'' s='"+r._searchString+"', returning","urlbar!=search");
+    if( CliqzAutocomplete.lastSearch != r._searchString  ){
+      CliqzUtils.log("u='"+CliqzAutocomplete.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
@@ -233,35 +233,33 @@ CLIQZEnvironment = {
   },
 
   search: function(e) {
-    setTimeout(function() {
-      if(document.getElementById('recentitems')) {
-        // document.getElementById('recentitems').style.display = "none";
-      }
+    if(document.getElementById('recentitems')) {
+      // document.getElementById('recentitems').style.display = "none";
+    }
 
-      item_container = document.getElementById('cliqz-results');
-      var currentScrollInfo = {
-        page: 0,
-        totalOffset: 0,
-        pageOffset: 0
-      }; 
+    item_container = document.getElementById('cliqz-results');
+    var currentScrollInfo = {
+      page: 0,
+      totalOffset: 0,
+      pageOffset: 0
+    }; 
 
-      if(urlbar.value == "") {
-        CLIQZ.UI.main(resultsBox);
-        CLIQZEnvironment.renderRecentQueries(true);
-        CLIQZEnvironment.stopProgressBar();
-        return;
-      }
+    if(e == "") {
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.renderRecentQueries(true);
+      CLIQZEnvironment.stopProgressBar();
+      return;
+    }
 
-      if(urlbar.value.toLowerCase() == "testme") {
-        initTest();
-      }
-      CLIQZEnvironment.startProgressBar();
+    if(e.toLowerCase() == "testme") {
+      initTest();
+    }
+    CLIQZEnvironment.startProgressBar();
 
 
-      // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      CliqzUtils.log(urlbar.value,"XHR");
-      (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler);
-    }, 5); 
+    // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    CliqzUtils.log(e,"XHR");
+    (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
   },
 
   initViewpager: function() {
@@ -476,9 +474,9 @@ CLIQZEnvironment = {
     latestUrl = url;
 
     if(isMixerUrl(url)) {
-      var cache = localStorage.getCachedResult(urlbar.value);
+      var cache = localStorage.getCachedResult(CliqzAutocomplete.lastSearch);
       if(cache) {
-        callback(cache, urlbar.value);
+        callback(cache, CliqzAutocomplete.lastSearch);
         return;
       }
       if(!window.navigator.onLine) {

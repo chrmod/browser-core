@@ -96,27 +96,12 @@ CliqzUtils.requestMonitor.inHealth = function() { return true; }
 
 
 CLIQZEnvironment.renderRecentQueries();
- 
 
-
-CLIQZEnvironment.delayTimer = null;
-function doSearch(text) {
-//     clearTimeout(CLIQZEnvironment.delayTimer);
-//     CLIQZEnvironment.delayTimer = setTimeout(function() {
-//         CLIQZEnvironment.search(text);
-//     }, 200);
-  CLIQZEnvironment.search(text);
-}
-
-urlbar.addEventListener('keydown', function(e){
-  doSearch(urlbar.value);
-});
 
 //TODO: Should be refactored!!!!
 
 function search_mobile(e) {
-  urlbar.value = e;
-  doSearch(e);
+  CLIQZEnvironment.search(e);
 }
 
 window.addEventListener('resize', function () {
