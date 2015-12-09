@@ -2,15 +2,11 @@
 
 # WARNING: not tested under Windows
 
+import argparse
 import os
 import sys
 from boto.s3.connection import S3Connection
 from fnmatch import fnmatch
-
-
-conn = S3Connection()
-bucket = conn.get_bucket('cdn.cliqz.com')
-prefix = 'mobile/extension'
 
 # 5 minutes
 cache_control_default = 'max-age=300'
@@ -57,11 +53,25 @@ def upload_file(file, keyname):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print 'usage: %s build-dir' % sys.argv[0]
-        sys.exit(1)
-    if not os.path.isdir(sys.argv[1]):
-        print '%s is not a directory' % sys.argv[1]
+    parser = argparse.ArgumentParser(description='Deployer for mobile')
+    parser.add_argument('-b', '--build-dir',
+                        dest='build_dir', help='directory containing build',
+                        required=True)
+    parser.add_argument('-k', '--key-prefix',
+                        dest='key_prefix', help='S3 key prefix',
+                        required=True)
+    parser.add_argument('--bucket',
+                        dest='bucket', help='S3 bucket',
+                        default='cdn.cliqz.com')
+
+    args = parser.parse_args()
+
+    conn = S3Connection()
+    bucket = conn.get_bucket(args.bucket)
+    prefix = args.key_prefix
+
+    if not os.path.isdir(args.build_dir):
+        print '%s is not a directory' % args.build_dir
         sys.exit(1)
 
-    upload_dir(sys.argv[1])
+    upload_dir(args.build_dir)
