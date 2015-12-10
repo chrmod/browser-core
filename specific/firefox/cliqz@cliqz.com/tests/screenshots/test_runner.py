@@ -1,3 +1,4 @@
+import ast
 import os
 import sys
 import argparse
@@ -8,7 +9,10 @@ import json
 import logging
 import logging.config
 import uuid
+import re
 import shutil
+from boto.exception import S3ResponseError
+from boto.s3.connection import S3Connection
 from boto.ses.connection import SESConnection
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
@@ -78,31 +82,89 @@ EMAIL_TEMPLATES = {
 }
 
 
+def prepare_dynamic_test(args, test_content):
+    match = re.search(r'.*queries_source:\s*s3://([^/]*)/(.*)\b.*',
+                      test_content)
+    if match and len(match.groups()) == 2:
+        bucket_name, key_name = match.groups()
+        log.debug('Loading queries from "%s/%s"' %
+                  (bucket_name, key_name))
+        try:
+            connection = S3Connection()
+            bucket = connection.get_bucket(bucket_name)
+            queries = set()
+            for key in bucket.list(key_name):
+                log.debug('Loading query file "%s"' % key.name)
+                try:
+                    queries.update(json.loads(key.get_contents_as_string()))
+                    log.debug('Number of queries: %d' % len(queries))
+                    bucket.delete_key(key)
+                except ValueError:
+                    log.info('Error decoding JSON queries')
+            if queries:
+                return re.sub(r'(.*queries:\s*)\[\](.*)',
+                              r'\1' + json.dumps(list(queries)) + r'\2',
+                              test_content)
+        except (S3ResponseError, IOError) as e:
+            log.error('Error loading queries: %s' % str(e))
+    else:
+        log.error('No source found')
+
+    return None
+
+
 def run_test(args, test_relpath):
     log.info('Running test %s', test_relpath)
 
-    cmd = [
-        args.browser_path,
-        '-chrome', CHROME_URL + '?test=' + test_relpath,
-        '-P', args.profile
-    ]
-    try:
-        subprocess.check_call(cmd)
-    except subprocess.CalledProcessError:
-        log.exception('Error running command %s:', cmd)
+    cur_dir_path = os.path.abspath(os.path.dirname(__file__))
+    tests_path = os.path.join(cur_dir_path, args.tests)
+    test_abspath = os.path.join(cur_dir_path, test_relpath)
+    dyn_test_abspath = os.path.join(tests_path, '_dyn_test')
+    dyn_text_relpath = os.path.relpath(dyn_test_abspath, cur_dir_path)
+
+    is_dyn_test = False
+    is_dyn_test_active = False
+    test_content = open(test_abspath).read()
+    if 'queries_source' in test_content:
+        log.debug('Found dynamic test "%s"' % test_relpath)
+        is_dyn_test = True
+        dyn_test_content = prepare_dynamic_test(args, test_content)
+        if dyn_test_content:
+            with open(dyn_test_abspath, 'w') as f:
+                f.write(dyn_test_content)
+            test_relpath = dyn_text_relpath
+            is_dyn_test_active = True
+            log.info('Written temporary test file %s', dyn_test_abspath)
+
+    if not is_dyn_test or (is_dyn_test and is_dyn_test_active):
+        cmd = [
+            args.browser_path,
+            '-chrome', CHROME_URL + '?test=' + test_relpath,
+            '-P', args.profile
+        ]
+        try:
+            subprocess.check_call(cmd)
+        except subprocess.CalledProcessError:
+            log.exception('Error running command %s:', cmd)
+    else:
+        log.info('Not running "%s"' % test_relpath)
+
+    # if is_dyn_test and is_dyn_test_active:
+    #     os.remove(dyn_test_abspath)
 
 
 def upload_test_results(args, config, uploader_path):
     upload_config = config.get('upload', {})
 
-    cmd = [str(arg) for arg in [
+    params = [
         'python',
         uploader_path,
         '-i', args.downloads_path,
         '-o', args.output_path,
         '-t', config['name'],
-        '--bucket', args.bucket,
-        '--key-prefix', args.key_prefix,
+        '-f', '*.png',
+        '--bucket', upload_config.get('bucket', args.bucket),
+        '--key-prefix', upload_config.get('key_prefix', args.key_prefix),
         '--dropdown-left', upload_config.get('dropdown_left', '32'),
         '--dropdown-top', upload_config.get('dropdown_top', '53'),
         '--dropdown-width', upload_config.get('dropdown_width', '502'),
@@ -112,7 +174,16 @@ def upload_test_results(args, config, uploader_path):
         '--mosaic-tiles', upload_config.get('mosaic_tiles', '100'),
         '--timestamp', args.timestamp,
         '--keep-files'
-    ]]
+    ]
+
+    if upload_config.get('flat_upload', False):
+        params.append('--flat-upload')
+    if upload_config.get('no_mosaic', False):
+        params.append('--no-mosaic')
+    if upload_config.get('public_read', False):
+        params.append('--public-read')
+
+    cmd = [str(arg) for arg in params]
 
     log.debug('Uploader command: %s', cmd)
     try:
@@ -151,7 +222,7 @@ def send_emails(args, config):
 
 def cleanup_after_test(args):
     for glob_expr in (
-        os.path.join(args.downloads_path, 'dropdown*.png'),
+        os.path.join(args.downloads_path, '*.png'),
         os.path.join(args.downloads_path, 'config.json'),
     ):
         for filename in glob.glob(glob_expr):
@@ -160,7 +231,21 @@ def cleanup_after_test(args):
 
     output_folder = os.path.join(args.output_path, args.timestamp)
     log.debug('Removing directory %s', output_folder)
-    shutil.rmtree(output_folder)
+    if os.path.exists(output_folder):
+        shutil.rmtree(output_folder)
+
+
+def get_test_groups(test_abspath):
+    test = open(test_abspath).read()
+    match = re.search(r'test_groups:\s*(\[[^\]]*\])', test)
+
+    groups = []
+    if match and len(match.groups()) == 1:
+        try:
+            groups = ast.literal_eval(match.group(1))
+        except SyntaxError:
+            log.error('Could not parse test groups for %s', test_abspath)
+    return groups
 
 
 def main(args):
@@ -185,6 +270,12 @@ def main(args):
     uploader_path = os.path.join(cur_dir_path, 'upload.py')
 
     for test_relpath in files_to_run:
+        test_groups = get_test_groups(os.path.join(cur_dir_path, test_relpath))
+        if args.test_group and args.test_group not in test_groups:
+            log.info('Skipping test %s because it is not in active test group',
+                     test_relpath)
+            continue
+
         run_test(args, test_relpath)
 
         config_path = os.path.join(args.downloads_path, 'config.json')
@@ -233,5 +324,8 @@ if __name__ == '__main__':
     parser.add_argument('--timestamp',
                         dest='timestamp', help='timestamp to use for uploading files',
                         default=default_ts)
+    parser.add_argument('--test-group',
+                        dest='test_group', help='includes only tests of this test group',
+                        default=None)
 
     sys.exit(main(parser.parse_args()))

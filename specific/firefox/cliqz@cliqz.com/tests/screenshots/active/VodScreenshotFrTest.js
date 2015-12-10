@@ -5,9 +5,9 @@ TESTS.VodScreenshotFrTest = prepareScreenshotTest({
         'harry@cliqz.com', 'thuy@cliqz.com',
         'roberto@cliqz.com', 'dominik.s@cliqz.com'
     ],
-    subject: '[testing] de VOD screenshots',
+    subject: '[testing] fr VOD screenshots',
     width: 600,
-    name: 'VodScreenshotTestDe',
+    name: 'VodScreenshotTestFr',
     extraBefore: [
         function() {
             backup = fakeLanguage(lang);
@@ -21,5 +21,6 @@ TESTS.VodScreenshotFrTest = prepareScreenshotTest({
     upload: {
         dropdown_width: 502
     },
-    queries: QUERIES.vod
+    queries: QUERIES.vod,
+    test_groups: ['nightly']
 });

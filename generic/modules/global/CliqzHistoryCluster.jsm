@@ -11,6 +11,8 @@ Components.utils.import('resource://gre/modules/FileUtils.jsm');
 Components.utils.import('resource://gre/modules/NetUtil.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -21,7 +23,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
 var FF_DEF_FAVICON = 'chrome://mozapps/skin/places/defaultFavicon.png',
-    Q_DEF_FAVICON = 'chrome://cliqzres/content/skin/defaultFavicon.png';
+    Q_DEF_FAVICON = CLIQZEnvironment.SKIN_PATH + 'defaultFavicon.png';
 
 var CliqzHistoryCluster = {
   historyCallback: null,
@@ -76,7 +78,6 @@ var CliqzHistoryCluster = {
     CliqzHistoryCluster.firefoxHistory = [];
     CliqzHistoryCluster.firefoxHistory.res = res;
     CliqzHistoryCluster.firefoxHistory.query = query;
-
     CliqzHistoryCluster.historyCallback(res);
   },
   // Process patterns
@@ -407,6 +408,8 @@ var CliqzHistoryCluster = {
   },
   // Autocomplete an urlbar value with the given patterns
   autocompleteTerm: function(urlbar, pattern, loose) {
+    var MAX_AUTOCOMPLETE_LENGTH = 80; // max length of autocomplete portion
+
     function matchQuery(queries) {
       var query = '';
       for (var key in queries) {
@@ -425,10 +428,7 @@ var CliqzHistoryCluster = {
     url = CliqzUtils.generalizeUrl(url, true);
     var input = CliqzUtils.generalizeUrl(urlbar);
     if (urlbar[urlbar.length - 1] == '/') input += '/';
-    var shortTitle = '';
-    if (pattern.title) {
-      shortTitle = pattern.title.split(' ')[0];
-    }
+
     var autocomplete = false,
       highlight = false,
       selectionStart = 0,
@@ -436,49 +436,14 @@ var CliqzHistoryCluster = {
     var queryMatch = matchQuery(pattern.query);
 
     // Url
-    if (url.indexOf(input) === 0 && url != input) {
+    if (url.indexOf(input) === 0 && url != input &&
+       (url.length - input.length) <= MAX_AUTOCOMPLETE_LENGTH) {
       autocomplete = true;
       highlight = true;
       urlbarCompleted = urlbar + url.substring(url.indexOf(input) + input.length);
       type = 'url';
     }
-    // Query
-    else if (queryMatch.length > 0 && queryMatch != input && urlbar.indexOf('www.') !== 0) {
-      autocomplete = true;
-      highlight = true;
-      urlbarCompleted = urlbar + queryMatch.substring(queryMatch.toLowerCase().indexOf(input) + input.length) + ' - ' + url;
-      type = 'query';
-    }
-    // Title
-    else if (shortTitle.toLowerCase().indexOf(input) === 0 && shortTitle.length >= input.length && urlbar.indexOf('www.') !== 0) {
-      autocomplete = true;
-      highlight = true;
-      urlbarCompleted = urlbar + shortTitle.substring(shortTitle.toLowerCase().indexOf(input) + input.length) + ' - ' + url;
-      type = 'title';
-    // Word autocompletion when filtering
-    } else if (input.trim().indexOf(' ') != -1 &&
-      input[input.length - 1] != ' ' && loose && urlbar.indexOf('www.') !== 0) {
-      var queryEnd = input.split(' ')[input.split(' ').length - 1].toLowerCase();
-      if (pattern.title && pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
-        var words = pattern.title.split(' ');
 
-        for (var key in words) {
-          if (words[key].toLowerCase().indexOf(queryEnd) === 0) {
-            var word = words[key];
-            break;
-          }
-        }
-      }
-      if (word) {
-        urlbarCompleted = urlbar + word.substr(word.toLowerCase().indexOf(queryEnd) + queryEnd.length) + ' - ' + url;
-        autocomplete = true;
-        highlight = true;
-        type = 'word';
-      } else {
-        autocomplete = false;
-        highlight = false;
-      }
-    }
     if (autocomplete) {
       selectionStart = urlbar.toLowerCase().lastIndexOf(input) + input.length;
     }
@@ -554,7 +519,7 @@ var CliqzHistoryCluster = {
 
     } else if (searchString.length === 0) {
       // special case for user request of top sites from history
-      var instant = Result.generic('cliqz-pattern', ', null, ', null, searchString);
+      var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
       instant.data.title = CliqzUtils.getLocalizedString('history_results_cluster');
       instant.data.url = results[0].url;
       instant.comment += ' (history top sites)!';
@@ -609,7 +574,7 @@ var CliqzHistoryCluster = {
         }
       } else {
         // 3-up combined generic history entry
-        var instant = Result.generic('cliqz-pattern', ', null, ', null, searchString);
+        var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
         instant.data.title = '';
         instant.comment += ' (history generic)!';
         instant.data.template = 'pattern-h3';

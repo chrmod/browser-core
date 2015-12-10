@@ -1,3 +1,4 @@
+<!-- qaa.tpl -->
 <div class='cliqz-inline-box-children cliqz-result-generic'>
 	<div class='cliqz-result-left-box'>
 		<div class='cliqz-result-type' ></div>

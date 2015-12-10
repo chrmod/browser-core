@@ -1,0 +1,9 @@
+{
+  "prefs": {
+    "freshTabButton": true
+  },
+  "modules": [
+    "onboarding",
+    "freshtab"
+  ]
+}

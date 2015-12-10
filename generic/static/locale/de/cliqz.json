@@ -59,12 +59,6 @@
     "MWL":{
         "message": "Islamishe Weltliga"
     },
-    "TillEndRamadan":{
-        "message": "Noch {} Tage bis zum Küçük Bayram"
-    },
-    "RamadanDes":{
-        "message": "Der Ramadan ist der Fastenmonat der Muslime und der neunte Monat des islamischen Mondkalenders."
-    },
     "CookingIntruct":{
         "message": "Zubereitungsschritte"
     },
@@ -145,6 +139,12 @@
     },
     "btnStats":{
         "message": "Stats"
+    },
+    "adblockbild":{
+        "message": "AdBlock Plus auf BILD.de deaktivieren"
+    },
+    "adblockbildWarning":{
+        "message": "Möchtest du, dass CLIQZ AdBlock Plus auf BILD.de deaktiviert? (Auf allen anderen Seiten bleibt AdBlock Plus aktiviert)"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -602,6 +602,9 @@
     "btnActivateCliqz": {
       "message": "Cliqz aktivieren"
     },
+    "btnFreshTab": {
+      "message": "CLIQZ Startseite und Neue Tabs aktivieren"
+    },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
     },
@@ -919,5 +922,14 @@
     },
     "humanWeb10": {
       "message": "Ich nehme am Human Web teil"
+    },
+    "freshtab_learn_more": {
+      "message": "Mehr erfahren"
+    },
+    "freshtab_back_to_old": {
+      "message": "Zurück zu alter Startseite"
+    },
+    "freshtab_top_news": {
+      "message": "Top Nachrichten"
     }
 }

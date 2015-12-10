@@ -10,7 +10,8 @@ var EXPORTED_SYMBOLS = ['CliqzExtOnboarding'];
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
+  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
@@ -431,7 +432,7 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutSameResultBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+            cliqz_logo: CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
         });
 
         CliqzExtOnboarding._calloutParsedContent["typed_url"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
@@ -444,7 +445,7 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutTypedUrlBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+            cliqz_logo: CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
         });
 
         CliqzExtOnboarding._calloutParsedContent["smart_cliqz"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
@@ -457,7 +458,7 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutSmartCliqzBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+            cliqz_logo: CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
         });
 
         CliqzExtOnboarding._log("_initCalloutContent: template parsed");
