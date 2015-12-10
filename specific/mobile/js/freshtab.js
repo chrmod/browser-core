@@ -58,7 +58,7 @@ var topSitesDone = function (list) {
         style: logo.style
       }
     });
-  document.body.innerHTML += topSites(list);
+    document.body.innerHTML = topSites(list) + document.body.innerHTML;
 }
 
 CliqzUtils.getLocalStorage = function(url) {

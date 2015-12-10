@@ -1,4 +1,7 @@
-window.addEventListener('disconnected', function() {document.getElementById("reconnecting").style.display = "block";});
+window.addEventListener('disconnected', function() {
+  var elem = document.getElementById("reconnecting");
+  elem && (elem.style.display = "block");
+});
 window.addEventListener('connected', function() {
   var elem = document.getElementById("reconnecting");
   elem && (elem.style.display = "none");
@@ -33,10 +36,10 @@ window.addEventListener('load', function() {
   var noNetworkDiv = document.getElementById("no-network-message");
   CliqzUtils.pingCliqzResults();
   function showOfflineDiv() {
-    noNetworkDiv.style.display = "block";
+    noNetworkDiv && (noNetworkDiv.style.display = "block");
   }
   hideOfflineDiv = function() {
-    noNetworkDiv.style.display = "none";
+    noNetworkDiv && (noNetworkDiv.style.display = "none");
   }
 
   window.addEventListener('online',  resendRequest);
