@@ -5,11 +5,13 @@
   "main": "Gruntfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy-mobile": "export CLIQZ_BUILD_ENV=production && broccoli build build/dev && python deploy-mobile.py build/dev/mobile/search"
+    "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && broccoli build build/dev && python specific/mobile/deploy-mobile.py -b build/dev/mobile/search -k mobile/extension",
+    "deploy-mobile-beta":    "export CLIQZ_BUILD_ENV=production && broccoli build build/dev && python specific/mobile/deploy-mobile.py -b build/dev/mobile/search -k mobile/beta"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "broccoli-uglify-sourcemap": "^1.1.0",
     "express": "^4.12.3",
     "grunt": "^0.4.5",
     "grunt-concurrent": "^1.0.0",
@@ -29,7 +31,7 @@
   },
   "devDependencies": {
     "amd-name-resolver": "0.0.2",
-    "broccoli": "cliqz-oss/broccoli#building-server",
+    "broccoli": "cliqz-oss/broccoli#firefox",
     "broccoli-asset-rev": "^2.3.0",
     "broccoli-babel-transpiler": "^5.4.5",
     "broccoli-funnel": "^0.2.10",
