@@ -5,7 +5,7 @@
         <!-- <h2>{{local 'freshtab_top_sites'}}</h2> -->
         <h2>Top Sites</h2>
     </div>
-    <div class="main">
+    <div class="main" style="margin-bottom: 20px;">
       <ul>
           {{#each this}}
               <div class="item">
@@ -16,7 +16,7 @@
                    url="{{url}}"
                    >{{ text }}
                   </div>
-                  <h1 class="main__headline" style="margin-bottom: 20px;">
+                  <h1 class="main__headline">
                       <a href="#" class="topSitesLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
                           {{title}}
                       </a>

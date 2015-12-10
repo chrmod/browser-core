@@ -5,7 +5,7 @@
         <!-- <h2>{{local 'freshtab_top_news'}}</h2> -->
         <h2>Top News</h2>
     </div>
-    <div class="main">
+    <div class="main" style="margin-bottom: 20px;">
       <ul>
           {{#each this}}
               <div class="item">
@@ -21,7 +21,6 @@
                           {{short_title}}
                       </a>
                   </h1>
-                  <p class="main__content">{{description}}</p>
               </div>
           {{/each}}
       </ul>
