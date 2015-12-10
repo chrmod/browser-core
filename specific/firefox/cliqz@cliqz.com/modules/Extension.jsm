@@ -314,7 +314,7 @@ var Extension = {
         button.setAttribute('label', 'CLIQZ');
         button.setAttribute('tooltiptext', 'CLIQZ');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.svg)';
+        button.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz_btn.svg)';
 
         var menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'cliqz_menupopup');
