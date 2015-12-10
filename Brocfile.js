@@ -7,6 +7,7 @@ var fs = require('fs');
 var Babel = require('broccoli-babel-transpiler');
 var amdNameResolver = require('amd-name-resolver');
 var AssetRev = require('broccoli-asset-rev');
+var uglify = require('broccoli-uglify-sourcemap');
 
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
@@ -20,7 +21,7 @@ var firefoxCoreJs   = new Funnel('specific/firefox/cliqz@cliqz.com/chrome/conten
 var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var exceptionsJsm   = new Funnel('specific/firefox', { include: ['CliqzExceptions.jsm'] });
-var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*'] });
+var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 var cliqziumSpecific= new Funnel('specific/cliqzium');
 var generic         = new Funnel('generic');
 var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*'] });
@@ -217,6 +218,18 @@ if (buildEnv === 'production') {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css', 'ttf'],
     replaceExtensions: ['html', 'css']
+  });
+  mobile = uglify(new Funnel(mobile), {
+    mangle: false,
+    compress: false,
+    output: {
+      indent_level: 2,
+      comments: false,
+      beautify: true
+    },
+    sourceMapConfig: {
+      enabled: false
+    }
   });
 }
 
