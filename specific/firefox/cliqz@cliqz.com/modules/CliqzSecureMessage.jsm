@@ -614,8 +614,6 @@ messageContext.prototype.aesDecrypt = function(msg){
   				CryptoJS.enc.Hex.parse(key),
   				{ iv: CryptoJS.enc.Hex.parse(iv),format: JsonFormatter }
 			);
-
-			CliqzUtils.log(decrypted);
 			resolve(decrypted.toString(CryptoJS.enc.Utf8));
 		}
 		catch(e){
@@ -904,14 +902,14 @@ var CliqzSecureMessage = {
     tpace: 250,
     resp: {},
     SOURCE_MAP_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/sourcemap.json?q=1",
-    LOOKUP_TABLE_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/lookuptable.json?q=1",
+    LOOKUP_TABLE_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/lookuptable?q=1",
     KEYS_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/signerKey?q=1",
     temporalUniquness:{},
     peerID:null,
     proxyID:null,
     proxyList: [ "54.157.18.130", "54.211.9.241", "54.145.178.227" ], // We should save the last list of proxyList on disk.
     proxyStats:{},
-    PROXY_LIST_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/listProxies",
+    PROXY_LIST_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/proxyList",
     signerKey: null,
     loggerKey: null,
     pacemaker: function() {
