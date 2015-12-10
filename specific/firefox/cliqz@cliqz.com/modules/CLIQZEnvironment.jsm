@@ -52,7 +52,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
         classDescription : 'Cliqz',
         contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
+        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
 var CLIQZEnvironment = {
@@ -117,10 +117,10 @@ var CLIQZEnvironment = {
             case 'string': CLIQZEnvironment.cliqzPrefs.setCharPref(pref, val); break;
           }
     },
-    httpHandler: function(method, url, callback, onerror, timeout, data){
+    httpHandler: function(method, url, callback, onerror, timeout, data, sync){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
-        req.open(method, url, true);
+        req.open(method, url, !sync);
         req.overrideMimeType('application/json');
         req.onload = function(){
             if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
