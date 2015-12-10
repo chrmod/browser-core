@@ -1,20 +1,29 @@
 <!-- topsites.tpl -->
 
-<div id="topSites">
+<div id="topSites" class="startingpoint">
     <div class="heading">
-        <h2>{{local 'freshtab_top_sites'}}</h2>
+        <!-- <h2>{{local 'freshtab_top_sites'}}</h2> -->
+        <h2>Top Sites</h2>
     </div>
-    <div class="content">
+    <div class="main">
       <ul>
           {{#each this}}
-              <li>
-                  <a href="#" class="topSitesLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
-                      <div class="title">{{title}}</div>
-                  </a>
-              </li>
+              <div class="item">
+                  <div class="meta__logo transition"
+                   style="{{style}}"
+                   show-status=""
+                   extra="{{extra}}"
+                   url="{{url}}"
+                   >{{ text }}
+                  </div>
+                  <h1 class="main__headline" style="margin-bottom: 20px;">
+                      <a href="#" class="topSitesLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
+                          {{title}}
+                      </a>
+                  </h1>
+              </div>
           {{/each}}
       </ul>
     </div>
 </div>
-
 <!-- end topsites.tpl -->
