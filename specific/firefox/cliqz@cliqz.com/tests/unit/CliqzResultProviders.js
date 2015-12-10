@@ -46,13 +46,13 @@ TESTS.CliqzResultProviders = function (CliqzResultProviders, CliqzUtils) {
     });
 
     describe('custom search - maps', function(){
-      xit('should return google maps result for wisen', function(){
+      it('should return google maps result for wisen', function(){
         var customQuery = CliqzResultProviders.customizeQuery('#gm wisen'),
           expected = {"updatedQ":"wisen","engineName":"Google Maps","queryURI":"https://maps.google.de/maps?q=wisen","code":2};
 
         chai.expect(customQuery).to.deep.equal(expected);
       });
-      xit('should return google maps result for wisen when shortcut is in the end', function(){
+      it('should return google maps result for wisen when shortcut is in the end', function(){
         var customQuery = CliqzResultProviders.customizeQuery('wisen #gm'),
           expected = {"updatedQ":"wisen","engineName":"Google Maps","queryURI":"https://maps.google.de/maps?q=wisen","code":2};
 
