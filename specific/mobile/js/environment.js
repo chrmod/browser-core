@@ -1,5 +1,8 @@
 window.addEventListener('disconnected', function() {document.getElementById("reconnecting").style.display = "block";});
-window.addEventListener('connected', function() {document.getElementById("reconnecting").style.display = "none";});
+window.addEventListener('connected', function() {
+  var elem = document.getElementById("reconnecting");
+  elem && (elem.style.display = "none");
+});
 
 var isRequestFailed = false;
 

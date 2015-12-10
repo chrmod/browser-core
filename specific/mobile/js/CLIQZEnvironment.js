@@ -474,7 +474,7 @@ CLIQZEnvironment = {
     latestUrl = url;
 
     if(isMixerUrl(url)) {
-      var cache = localStorage.getCachedResult(CliqzAutocomplete.lastSearch);
+      var cache = localStorage.getCachedResult && localStorage.getCachedResult(CliqzAutocomplete.lastSearch);
       if(cache) {
         callback(cache, CliqzAutocomplete.lastSearch);
         return;

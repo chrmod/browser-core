@@ -8,7 +8,7 @@
       <ul>
           {{#each this}}
               <li>
-                  <a href="{{url}}" class="topSitesLink" data-index="{{@index}}">
+                  <a href="#" class="topSitesLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
                       <div class="title">{{title}}</div>
                   </a>
               </li>
