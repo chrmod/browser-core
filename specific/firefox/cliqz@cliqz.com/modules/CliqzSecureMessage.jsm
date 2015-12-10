@@ -892,7 +892,7 @@ var CliqzSecureMessage = {
     keyPool:[],
     httpHandler:_http,
     secureLogger: null,
-    JSEncrypt, JSEncrypt,
+    JSEncrypt: JSEncrypt,
     cryptoJS: CryptoJS,
     uPK : new userPK(),
     dsPK : null,

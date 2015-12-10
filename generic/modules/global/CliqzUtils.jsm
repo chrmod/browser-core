@@ -15,6 +15,7 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
+Components.utils.import("resource://gre/modules/Promise.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
