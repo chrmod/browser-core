@@ -4615,7 +4615,7 @@ var CliqzAttrack = {
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};
         ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs', 'tokens_blocked', 'req_aborted'].forEach(function (k) {
-          result.trackers[dom][k] = (k in plain_data.tps[dom] ? plain_data.tps[dom][k] : 0);
+          result.trackers[dom][k] = plain_data.tps[dom][k] || 0;
         });
         result.cookies.allowed += result.trackers[dom]['cookie_set'] - result.trackers[dom]['cookie_blocked'];
         result.cookies.blocked += result.trackers[dom]['cookie_blocked'];
