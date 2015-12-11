@@ -4636,7 +4636,11 @@ var CliqzAttrack = {
       return result;
     },
     getCurrentTabBlockingInfo: function() {
-      return CliqzAttrack.getTabBlockingInfo(CliqzUtils.getWindow().gBrowser.selectedTab.linkedBrowser._loadContext.DOMWindowID);
+      try {
+        var tabId = CliqzUtils.getWindow().gBrowser.selectedTab.linkedBrowser._loadContext.DOMWindowID;
+      catch (e) {
+      }
+      return CliqzAttrack.getTabBlockingInfo(tabId);
     },
     tracker_companies: {},
     loadTrackerCompanies: function() {
