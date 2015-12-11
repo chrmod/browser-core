@@ -11,13 +11,9 @@ $(document).ready(function() {
   var urlbar  = CliqzUtils.getWindow().document.getElementById("urlbar"),
       $urlbar = $("#urlbar");
 
-  telemetry({
-    action: 'display',
-    tab_index: CliqzUtils.getWindow().gBrowser.tabContainer.selectedIndex
-  });
-
   var dialUps = History.getTopUrls(5).then(function(results){
     renderDialUps(results);
+    return results;
   }).catch(function(results){
     console.log('err', arguments);
   });
@@ -25,6 +21,7 @@ $(document).ready(function() {
   var news = xingNews.then(function(news){
     log("Start getting news");
     renderNews(news);
+    return news;
   }).catch(function(reason) {
     log("CliqzFreshTabNews.getNews exception: " + reason);
   });
@@ -57,7 +54,15 @@ $(document).ready(function() {
     e.preventDefault();
   });
 
-  Promise.all([news, dialUps]).then(function () {
+  Promise.all([dialUps, news]).then(function (values) {
+
+    telemetry({
+      action: 'display',
+      tab_index: CliqzUtils.getWindow().gBrowser.tabContainer.selectedIndex,
+      topsites: values[0].length,
+      topnews: values[1].top_h_news.length
+    });
+
     CliqzUtils.localizeDoc(document);
   })
 });
