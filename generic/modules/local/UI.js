@@ -5,25 +5,7 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
-  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
-  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
-
-
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
-//  'chrome://cliqzmodules/content/CliqzImages.jsm');
-
-(function(ctx) {
-
+export default function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = {
@@ -95,6 +77,15 @@ var UI = {
             var ev = urlbarEvents[i];
             urlbar.addEventListener(ev, CLIQZ.UI['urlbar' + ev]);
         }
+
+        CliqzEvents.sub('msg_handler_dropdown:message_ready', function (message) {
+          CLIQZ.UI.messageCenterMessage = message;
+        });
+        CliqzEvents.sub('msg_handler_dropdown:message_revoked', function (message) {
+          CLIQZ.UI.messageCenterMessage = null;
+          // hide immediately
+          clearMessage(message["footer-message"].location);
+        });
     },
     unload: function(){
         for(var i in urlbarEvents){
@@ -103,6 +94,7 @@ var UI = {
         }
     },
     main: function(box) {
+
         gCliqzBox = box;
 
         //check if loading is done
@@ -111,10 +103,10 @@ var UI = {
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-        var messageContainer = document.getElementById('cliqz-message-container');
+        var messageContainer = document.getElementById('cliqz-message-container'),
+            messageContainerTop = document.getElementById('cliqz-message-container-top');
 
         resultsBox.addEventListener('mouseup', resultClick);
-
         resultsBox.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
@@ -125,7 +117,9 @@ var UI = {
         CLIQZ.ContextMenu && CLIQZ.ContextMenu.enableContextMenu(box);
 
         messageContainer.addEventListener('mouseup', messageClick);
+        messageContainerTop.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
+        gCliqzBox.messageContainerTop = messageContainerTop;
         resultsBox.addEventListener('scroll', resultScroll);
 
         box.addEventListener('mousemove', resultMove);
@@ -135,13 +129,30 @@ var UI = {
         handlePopupHeight(box);
     },
     handleResults: function(){
+      // TODO: this is FF specific - move it to another place!
       var popup = urlbar.popup,
         data = [],
         ctrl = popup.mInput.controller,
         q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
-        lastRes = CliqzAutocomplete.lastResult;
+        lastRes = CliqzAutocomplete.lastResult,
+        width = Math.max(urlbar.clientWidth, 500);
 
-      //popup.style.height = "302px";
+
+      // the search component UI might not be initialized yet
+      if (!gCliqzBox)
+         return;
+
+      // try to recreate main container if it doesnt exist
+      if(!gCliqzBox.resultsBox){
+          var cliqzBox = CLIQZ.Core.popup.cliqzBox;
+          if(cliqzBox){
+              UI.main(cliqzBox);
+          }
+      }
+      // set the width
+      // simply setting the width on the popup element and allowing the content to be 100% doenst work
+      gCliqzBox.style.width = width + 1 + "px"
+      gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
       for(var i=0; i<popup._matchCount; i++) {
           data.push({
@@ -180,17 +191,9 @@ var UI = {
       XULBrowserWindow.updateStatusField();
       CliqzUtils._queryLastDraw = Date.now();
     },
-    results: function(res){
-        if (!gCliqzBox)
-            return;
 
-        //try to recreate main container if it doesnt exist
-        if(!gCliqzBox.resultsBox){
-            var cliqzBox = CLIQZ.Core.popup.cliqzBox;
-            if(cliqzBox){
-                UI.main(cliqzBox);
-            }
-        }
+    // results function
+    results: function(res){
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
@@ -200,15 +203,8 @@ var UI = {
         if (!query)
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
-        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
-        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
-        // Images-layout for Cliqz-Images-Search
-        //CliqzImages.process_images_result(res,
-        //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
-        //                                  urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
-        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
-
+        // apply template
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
@@ -216,12 +212,6 @@ var UI = {
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
-
-        var width = Math.max(urlbar.clientWidth,500)
-
-        // set the width
-        gCliqzBox.style.width = width + 1 + "px"
-        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){
@@ -239,25 +229,23 @@ var UI = {
 
     loadAsyncResult: function(res, query) {
 
-
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
-          //var qt = query + ": " + new Date().getTime();
-          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
-          //CliqzUtils.log(r,"LOADINGASYNC");
+          var query = r.text || r.query;
+          var qt = query + ": " + new Date().getTime();
+          CliqzUtils.log(r,"LOADINGASYNC");
+          CliqzUtils.log(query,"loadAsyncResult");
           var loop_count = 0;
           var async_callback = function(req) {
+              CliqzUtils.log(query,"async_callback");
               var resp = null;
               try {
                 resp = JSON.parse(req.response).results[0];
-                //CliqzUtils.log(resp, "FINAL RESPONSE");
               }
               catch(err) {
                 res.splice(i,1);
               }
-              //CliqzUtils.log(r.text, "Here's the query");
-              //CliqzUtils.log(urlbar.value, "And the urlbar value");
               if (resp &&  urlbar.value == query) {
 
                 var kind = r.data.kind;
@@ -266,8 +254,6 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
-                        //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
@@ -398,23 +384,7 @@ var UI = {
     keyDown: function(ev){
         var sel = getResultSelection(),
             //allArrowable should be cached
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
-
-        allArrowable = allArrowable.filter(function(el){
-            // dont consider hidden elements
-            if(el.offsetParent == null) return false;
-
-            if(!el.getAttribute('arrow-if-visible')) return true;
-
-            // check if the element is visible
-            //
-            // for now this check is enough but we might be forced to switch to a
-            // more generic approach - maybe using document.elementFromPoint(x, y)
-            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
-                return false
-            return true;
-        });
-
+            allArrowable = getAllArrowable();
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
@@ -504,6 +474,10 @@ var UI = {
                 return false;
         }
     },
+
+    selectResultByIndex: function (pos) {
+        setResultSelection(getAllArrowable()[pos], false, true);
+    },
     entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
         event.preventDefault();
@@ -516,8 +490,8 @@ var UI = {
         var index = 0;
         var target = $$('[arrow]', gCliqzBox)[0];
         while(target &&
-          CliqzHistoryPattern.generalizeUrl(target.getAttribute("url")) !=
-          CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
+          CliqzUtils.generalizeUrl(target.getAttribute("url")) !=
+          CliqzUtils.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
           target = $$('[arrow]', gCliqzBox)[++index];
         // Prevent page changing
         var offset = target ? target.offsetTop : 0;
@@ -979,7 +953,7 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
-    updateMessageState("hide");
+    clearMessage('bottom');
     var adult = false;
 
     for(var i=0; i<res.results.length; i++) {
@@ -1054,7 +1028,7 @@ function enhanceResults(res){
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
             if(r.logo.style.indexOf('background-image') == -1){
                 //add local cliqz image if there is no internet
-                r.logo.style += ";background-image:url(chrome://cliqzres/content/skin/img/cliqzLogo.svg)"
+                r.logo.style += ";background-image:url(" + CLIQZEnvironment.SKIN_PATH + "img/cliqzLogo.svg)";
             }
             r.logo.add_logo_url = true;
         }
@@ -1062,7 +1036,7 @@ function enhanceResults(res){
         if (r.type == 'cliqz-extra' && r.data && "__message__" in r.data) {
           var msg = r.data.__message__;
           if (CliqzUtils.getPref(msg.pref, true)) {
-            updateMessageState("show", {
+            updateMessage('bottom', {
               "footer-message": {
                 simple_message: CliqzUtils.getLocalizedString(msg.text),
                 telemetry: "rh_message-" + msg.pref || 'null',
@@ -1098,7 +1072,7 @@ function enhanceResults(res){
         }
 
         if (level == 'moderate' && adultMessage == 0) {
-            updateMessageState("show", {
+            updateMessage('bottom', {
                 "footer-message": {
                     type: 'cqz-message-alert',
                     simple_message: CliqzUtils.getLocalizedString('adultInfo'),
@@ -1125,12 +1099,12 @@ function enhanceResults(res){
         }
     }
     else if (notSupported()) {
-      updateMessageState("show", {
+      updateMessage('bottom', {
           "footer-message": getNotSupported()
        });
     }
     else if(CliqzUtils.getPref('changeLogState', 0) == 1){
-      updateMessageState("show", {
+      updateMessage('bottom', {
         "footer-message": {
           simple_message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
@@ -1165,7 +1139,7 @@ function enhanceResults(res){
         //cache searchTerms to check against when user keeps spellcorrect
         spelC.searchTerms = messages;
 
-        updateMessageState("show", {
+        updateMessage('bottom', {
             "footer-message": {
               simple_message: CliqzUtils.getLocalizedString('spell_correction'),
               messages: messages,
@@ -1184,14 +1158,15 @@ function enhanceResults(res){
             }
         });
     } else if (CLIQZ.UI.messageCenterMessage) {
-      updateMessageState("show", CLIQZ.UI.messageCenterMessage);
+      updateMessage(CLIQZ.UI.messageCenterMessage["footer-message"].location,
+        CLIQZ.UI.messageCenterMessage);
     } else if (!CliqzUtils.requestMonitor.inHealth()) {
       var rand = getRandomForCurrentTime(4);
 
       // Temporarily disabled while we re-evaluate the slow connection method
       CliqzUtils.log(CliqzUtils.getLocalizedString("slow_connection_header_"+rand) + " - " +
                      CliqzUtils.getLocalizedString("slow_connection_text_"+rand), "UI.js")
-      // updateMessageState("show", {
+      // updateMessage('bottom', {
       //   slow_connection: {
       //     header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
       //     text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
@@ -1241,25 +1216,21 @@ function getNotSupported(){
 }
 
  /*
-  * Updates the state of the messages box at the bottom of the suggestions popup.
-  * @param state the new state, One of ("show", "hide"). Default Vaule: "hide"
-  *
-  * @param messages the dictionary of messages that will be updated,
+  * Updates the state of the message box at the top or bottom of the dropdown.
+  * @param location, either 'top' or 'bottom'
+  * @param messages the dictionary of messages
   * specified by the name of the template, excluding the .tpl extension.
   * The name should be in MESSAGE_TEMPLATES, so the template can be automatically rendered.
   * In the dictionary, the key is the name of the template, and the value is the dictinary
-  * of template arguments. e.g:
-  * If state == "hide", then messages_list is ignored and all messages are hidden.
-  * If state == "show", the messages in messages_list will be displayed to the user, in the same order.
-  *
-  * example: updateMessageState("show", {
+  * of template arguments; {} to delete the currently shown messages
+  * example:
+  * updateMessage("top", {
                 "adult": {
                   "adultConfig": CliqzUtils.getAdultFilterState()
                 }
              });
   * You can also pass multiple messages at once, e.g:
-
-             updateMessageState("show", {
+             updateMessage("top", {
                 "adult": {
                     "adultConfig": CliqzUtils.getAdultFilterState()
                 },
@@ -1269,12 +1240,19 @@ function getNotSupported(){
              });
   */
 
-function updateMessageState(state, messages) {
-  if (state != "show" || !messages) { messages = {}; }
+function updateMessage(location, messages) {
+  var container = {
+    top: gCliqzBox.messageContainerTop,
+    bottom: gCliqzBox.messageContainer
+  }[location] || gCliqzBox.messageContainer;
 
-  gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
+  container.innerHTML = Object.keys(messages).map(function (tplName) {
     return CliqzHandlebars.tplCache[tplName](messages[tplName]);
-  }).join("");
+  }).join('');
+}
+
+function clearMessage(location) {
+  updateMessage(location, {});
 }
 
 function getResultPosition(el){
@@ -1289,7 +1267,7 @@ function getResultKind(el){
 function getResultOrChildAttr(el, attr){
   if(el == null) return '';
   if(el.className == IC) return el.getAttribute(attr) || '';
-  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement);
+  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
 function urlIndexInHistory(url, urlList) {
@@ -1307,23 +1285,26 @@ function urlIndexInHistory(url, urlList) {
 }
 
     function messageClick(ev) {
+
         var el = ev.target;
         // Handle adult results
 
         while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container")) {
             var action = el.getAttribute('cliqz-action');
+
             /*********************************/
             /* BEGIN "Handle message clicks" */
 
             if (action === 'footer-message-action') {
                 // "Cliqz is not optimized for your country" message */
-                var state = ev.originalTarget.getAttribute('state');
+
+                var state = ev.target.getAttribute("state");
 
                 switch (state) {
                     //not supported country
                     case 'disable-cliqz':
                         CliqzUtils.setPref("cliqz_core_disabled", true);
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         var enumerator = Services.wm.getEnumerator('navigator:browser');
 
                         //remove cliqz from all windows
@@ -1334,7 +1315,7 @@ function urlIndexInHistory(url, urlList) {
                         CLIQZ.Core.refreshButtons();
                         break;
                     case 'keep-cliqz':
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         // Lets us know that the user has ignored the warning
                         CliqzUtils.setPref('ignored_location_warning', true);
                         break;
@@ -1346,7 +1327,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         urlbar.mInputField.setUserInput(s);
                         CliqzAutocomplete.spellCorr.override = true;
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         break;
                     case 'spellcorrect-keep':
                         var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
@@ -1360,24 +1341,24 @@ function urlIndexInHistory(url, urlList) {
                         }
 
                         CliqzAutocomplete.spellCorr['userConfirmed'] = true;
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         break;
 
                     //changelog
                     case 'update-show':
                         CLIQZEnvironment.openLink(window, CliqzUtils.CHANGELOG, true);
                     case 'update-dismiss':
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         CliqzUtils.setPref('changeLogState', 2);
                         break;
                     case 'dismiss':
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         var pref = ev.originalTarget.getAttribute("pref");
                         if (pref && pref != "null")
                             CliqzUtils.setPref(pref, false);
                         break;
                     case 'set':
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         var pref = ev.originalTarget.getAttribute("pref");
                         var prefVal = ev.originalTarget.getAttribute("prefVal");
                         if (pref && prefVal && pref != "null" && prefVal != "null")
@@ -1396,18 +1377,21 @@ function urlIndexInHistory(url, urlList) {
                             state = 'yes'
                             adultMessage = 1;
                         } else {
+                            CLIQZEnvironment.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
-                        updateMessageState("hide");
+                        clearMessage('bottom');
                         UI.handleResults();
                         if (user_location != "de" && !ignored_location_warning)
-                            updateMessageState("show", {
+                            updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });
                         break;
                     default:
                         break;
                 }
+                CliqzEvents.pub('ui:dropdown_message_click',
+                  ev.originalTarget.getAttribute('state'));
                 CliqzUtils.telemetry({
                     type: 'setting',
                     setting: el.getAttribute('cliqz-telemetry'),
@@ -1507,7 +1491,7 @@ function resultClick(ev) {
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         url = el.getAttribute("href") || el.getAttribute('url');
-        if (url) {
+        if (url && url != "#") {
             el.setAttribute('url', url); //set the url in DOM - will be checked later (to be improved)
             logUIEvent(el, "result", {
                 action: "result_click",
@@ -1643,6 +1627,24 @@ function smooth_scroll_to(element, target, duration) {
     setTimeout(function(){ scroll_frame(); }, 0);
 }
 
+function getAllArrowable() {
+    return Array.prototype.slice.call($$('[arrow]', gCliqzBox)).filter(
+        function(el) {
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+    });
+}
+
 function selectNextResult(pos, allArrowable) {
     if (pos != allArrowable.length - 1) {
         var nextEl = allArrowable[pos + 1];
@@ -1759,8 +1761,8 @@ function onEnter(ev, item){
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
-    if(CliqzHistoryPattern.generalizeUrl(lastAuto)
-    == CliqzHistoryPattern.generalizeUrl(input))
+    if(CliqzUtils.generalizeUrl(lastAuto)
+    == CliqzUtils.generalizeUrl(input))
       input = lastAuto;
   }
 
@@ -1775,8 +1777,8 @@ function onEnter(ev, item){
 
   // Logging
   // Autocomplete
-  if (CliqzHistoryPattern.generalizeUrl(lastAuto)
-  == CliqzHistoryPattern.generalizeUrl(input) &&
+  if (CliqzUtils.generalizeUrl(lastAuto)
+  == CliqzUtils.generalizeUrl(input) &&
   urlbar.selectionStart !== 0 && urlbar.selectionStart !== urlbar.selectionEnd) {
     logUIEvent(UI.keyboardSelection, "autocomplete", {
       action: "result_enter",
@@ -2012,7 +2014,7 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    Services.scriptloader.loadSubScript('chrome://cliqzres/content/views/'+templateName+'.js', UI.VIEWS[templateName]);
+    UI.VIEWS[templateName] = require(templateName).default;
     if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
       Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
         UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
@@ -2023,4 +2025,4 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
 
 ctx.CLIQZ.UI = UI;
 
-})(this);
+};

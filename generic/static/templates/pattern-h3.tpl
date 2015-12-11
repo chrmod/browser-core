@@ -1,3 +1,4 @@
+<!-- pattern-h3 -->
 <div class='cqz-result-h3 cqz-result-padding cqz-result-pattern cqz-3-history-results'>
       <div class='cliqz-pattern'>
         {{#each data.urls}}
@@ -29,3 +30,4 @@
     </div>
 
 </div>
+<!-- end pattern-h3 -->

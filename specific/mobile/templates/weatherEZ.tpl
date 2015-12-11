@@ -1,26 +1,34 @@
+<!-- weatherEZ.tpl -->
 
 <div class="meta">
     {{> logo}}
+    {{#with data}}
     <h3 class="meta__url">
         <span>{{ returned_location }}</span></h3>
 </div>
 
-<div class="cqz-result-h2 ez-weather cqz-ez-black-title main weather">
-    {{#with data}}
+<div class="cqz-result-h2 ez-weather cqz-ez-black-title weather">
+    
 
-        <div class='EZ-weather-container'>
-            <div class='main__headline'>{{ todayWeekday }}</div>
+        <div class='EZ-weather-container weather__today'>
+            <div class='EZ-weather-date'>{{ todayWeekday }}</div>
+            <div class="EZ-weather-temp">{{todayTemp}}<br><span>{{todayMin}}</span></div>
             <div class="EZ-weather-img" style="background-image:url({{todayIcon}})"></div>
-            <div class="EZ-weather-temp">{{todayTemp}}<span>{{todayMin}}</span></div>
+            
         </div>
 
         {{#each forecast}}
-            <div class='EZ-weather-container'>
-                 <div class='EZ-weather-date'>{{ weekday }}</div>
-                 <div class="EZ-weather-img" style="background-image:url({{icon}})"></div>
-                 <div class="EZ-weather-temp">{{max}}<span>{{min}}</span>
-               </div>
-            </div>
+            {{#if (limit_images_shown @index 3)}}
+                <div class='EZ-weather-container'>
+                    <div class="EZ-weather-img" style="background-image:url({{icon}})"></div>
+                    <div class='EZ-weather-date'>{{ weekday }}</div>
+                    <div class="EZ-weather-temp">{{max}}<br><span>{{min}}</span>
+                   </div>
+                </div>
+            {{/if}}
+           
         {{/each}}
-    {{/with}}
+    
 </div>
+{{/with}}
+<!-- end weatherEZ.tpl -->

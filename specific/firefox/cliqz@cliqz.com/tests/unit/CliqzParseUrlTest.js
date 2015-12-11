@@ -1,28 +1,8 @@
 'use strict';
 
-function testParsedURL(actual, expected) {
-    // always present keys
-    ['protocol', 'username', 'password', 'hostname', 'port', 'path', 'query'].map(function(key) {
-        chai.expect(actual[key], key).equals(expected[key]);
-    });
-    // keys not always specified in testcases
-    ['parameters', 'fragment'].map(function(key) {
-        var expect = '';
-        if(key in expected) {
-            expect = expected[key];
-        }
-        chai.expect(actual[key], key).equals(expect);
-    });
-    // object keys
-    ['query_keys', 'parameter_keys', 'fragment_keys'].map(function(key) {
-        var expect = {};
-        if(key in expected) {
-            expect = expected[key];
-        }
-        chai.expect(actual[key], key).to.deep.equal(expect);
-    });
-};
-
+// Specs for URLs to test:
+// "url" specifies the input url
+// "url_parts" specifies the expected output values
 var plain_urls = [
 {
     "url": "https://cliqz.com",
@@ -339,16 +319,37 @@ var combined = [
 }
 ]
 
+var empty_parts = {
+    "protocol": "",
+    "username": "",
+    "password": "",
+    "hostname": "",
+    "port": 80,
+    "path": "",
+    "parameters": "",
+    "parameter_keys": {},
+    "query": "",
+    "query_keys": {},
+    "fragment": "",
+    "fragment_keys": {}
+}
+
+function fillInSpec(spec) {
+    Object.keys(empty_parts).forEach(function(k) {
+        spec[k] = spec[k] || empty_parts[k];
+    });
+    return spec;
+}
+
 function testSpecArray(testFn, name, spec) {
     describe(name, function() {
         spec.forEach(function(testcase) {
             var url_desc = testcase['url'];
             if(url_desc.length > 180) url_desc = url_desc.substring(0, 180) + '...';
             it(url_desc, function() {
-                testParsedURL(testFn(testcase['url']), testcase['url_parts']);
+                chai.expect(testFn(testcase['url'])).to.deep.equal(fillInSpec(testcase['url_parts']));
             });
         });
-
     });
 };
 

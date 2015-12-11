@@ -10,15 +10,14 @@ var EXPORTED_SYMBOLS = ['CliqzExtOnboarding'];
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
+  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
-  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 var prefs = { },
     // cache destination URL
@@ -176,7 +175,7 @@ var CliqzExtOnboarding = {
                             smartCliqzStepCounter = 0;
                             smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
 
-                            var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                            var url = CliqzUtils.generalizeUrl(aURI.spec);
                             if (smartCliqzLinks.indexOf(url) >= 0) {
                                 isSmartCliqzReady = false;
                                 CliqzExtOnboarding._log("first landing was SmartCliqz link, aborting");
@@ -206,7 +205,7 @@ var CliqzExtOnboarding = {
                                 CliqzExtOnboarding._log("took too long, aborting");
                                 isSmartCliqzReady = false;
                             } else {
-                                var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                                var url = CliqzUtils.generalizeUrl(aURI.spec);
                                 if (smartCliqzLinks.indexOf(url) >= 0) {
                                     CliqzExtOnboarding._log("url found " + url);
                                     var button = CliqzExtOnboarding._getDomElementForUrl(url);
@@ -323,7 +322,7 @@ var CliqzExtOnboarding = {
             var field = SMART_CLIQZ_LINK_FIELDS[i];
             for (var j in data[field]) {
                 var url = data[field][j].url;
-                links.push(CliqzHistoryPattern.generalizeUrl(url));
+                links.push(CliqzUtils.generalizeUrl(url));
             }
         }
         return links;
@@ -346,7 +345,7 @@ var CliqzExtOnboarding = {
             var smartCliqz = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[0];
             var buttons = CliqzExtOnboarding._getAllElementsWithAttribute(smartCliqz, "url");
             for (var i = 0; i < buttons.length; i++) {
-                if (CliqzHistoryPattern.generalizeUrl(buttons[i].getAttribute("url")) == url) {
+                if (CliqzUtils.generalizeUrl(buttons[i].getAttribute("url")) == url) {
                     CliqzExtOnboarding._log("found DOM element for " + url);
                     return buttons[i];
                 }
@@ -433,7 +432,7 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutSameResultBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+            cliqz_logo: CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
         });
 
         CliqzExtOnboarding._calloutParsedContent["typed_url"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
@@ -446,7 +445,7 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutTypedUrlBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+            cliqz_logo: CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
         });
 
         CliqzExtOnboarding._calloutParsedContent["smart_cliqz"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
@@ -459,7 +458,7 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutSmartCliqzBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+            cliqz_logo: CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
         });
 
         CliqzExtOnboarding._log("_initCalloutContent: template parsed");
@@ -574,8 +573,8 @@ var CliqzExtOnboarding = {
             currentAutocompleteUrlbar = "";
             currentAutocompleteMinSelectionStart = 0;
             if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {
-                if (CliqzHistoryPattern.generalizeUrl(CliqzUtils.getWindow().CLIQZ.Core.urlbar.value) !=
-                    CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocompleteUrlbar)) {
+                if (CliqzUtils.generalizeUrl(CliqzUtils.getWindow().CLIQZ.Core.urlbar.value) !=
+                    CliqzUtils.generalizeUrl(CliqzAutocomplete.lastAutocompleteUrlbar)) {
                     CliqzExtOnboarding._log("urlbar value has changed, no autocomplete");
                     return;
                 }

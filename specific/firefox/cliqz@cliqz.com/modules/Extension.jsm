@@ -48,8 +48,8 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAttrack.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
@@ -68,8 +68,6 @@ var Extension = {
         }
         CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
-
-        CliqzClusterHistory.init();
     },
     load: function(upgrade, oldVersion, newVersion){
         AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
@@ -105,7 +103,7 @@ var Extension = {
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
-            CliqzUtils.setPref('changeLogState', 1);
+          //CliqzUtils.setPref('changeLogState', 1);
         }
     },
     unload: function(version, uninstall){
@@ -139,6 +137,7 @@ var Extension = {
         }
 
         CliqzCategories.unload();
+        CliqzFreshTabNews.unload();
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
         Extension.unloadModules();
@@ -184,17 +183,17 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAttrack.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzFreshTabNews.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
@@ -202,7 +201,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
         // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
@@ -317,7 +315,7 @@ var Extension = {
         button.setAttribute('label', 'CLIQZ');
         button.setAttribute('tooltiptext', 'CLIQZ');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.svg)';
+        button.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz_btn.svg)';
 
         var menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'cliqz_menupopup');

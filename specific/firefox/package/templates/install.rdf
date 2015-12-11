@@ -14,7 +14,7 @@
 		{% if beta == 'True' %}
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
 		{% else %}
-		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/cross/latest.rdf</em:updateURL>
+		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
 		{% endif %}
 
 		<em:description>
@@ -24,8 +24,8 @@
 
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-				<em:minVersion>10.0</em:minVersion>
-				<em:maxVersion>41.*</em:maxVersion>
+				<em:minVersion>16.0</em:minVersion>
+				<em:maxVersion>43.*</em:maxVersion>
 
 			</Description>
 		</em:targetApplication>

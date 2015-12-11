@@ -20,48 +20,7 @@ var messages = {
       'no': 'show_local_results'
     }
   }
-},
-events = {
-  click: {
-      "cqz_location_yes": function(ev) {
-        ev.preventDefault();
-        CLIQZEnvironment.setLocationPermission(window, "yes");
-        loadLocalResults(ev.target);
-
-      },
-      "cqz_location_once": function(ev) {
-        ev.preventDefault();
-        loadLocalResults(ev.target);
-      },
-      "cqz_location_no": function(ev) {
-        var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
-            el = ev.target,
-            localType = el.getAttribute("local_sc_type") || "default";
-
-        container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
-            friendly_url: el.getAttribute("bm_url"),
-            trans_str: messages[localType].trans_str
-        });
-      },
-      "cqz_location_never": function(ev) {
-        CLIQZEnvironment.setLocationPermission(window, "no");
-        displayMessageForNoPermission();
-      },
-      "cqz_location_not_now": function(ev) {
-        displayMessageForNoPermission();
-      },
-      "cqz_location_yes_confirm": function(ev) {
-        CLIQZEnvironment.setLocationPermission(window, "yes");
-        var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-        if (container) container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-          "display_msg": "location-thank-you"
-        });
-      }
-  }
 };
-
-
-
 
 function loadLocalResults(el) {
   CLIQZ.Core.popup.cliqzBox.querySelector(".location_permission_prompt").classList.add("loading");
@@ -76,7 +35,6 @@ function loadLocalResults(el) {
       CliqzUtils.log("Unable to get user's location", "CliqzUtils.getGeo");
   });
 }
-
 
 function handleNewLocalResults(el) {
   return function(req) {
@@ -94,7 +52,7 @@ function handleNewLocalResults(el) {
       while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
         container = container.parentElement;
         if (!container || container.id == "cliqz-results") return;
-      }      
+      }
       CLIQZ.UI.enhanceResults(resp);
       r = resp.results[0];
       if (container) container.innerHTML = CliqzHandlebars.tplCache[r.data.template](r);
@@ -103,7 +61,6 @@ function handleNewLocalResults(el) {
     }
   };
 }
-
 
 function failedToLoadResults(el) {
   var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
@@ -124,3 +81,64 @@ function displayMessageForNoPermission() {
     "display_msg": "location-no"
   });
 }
+
+export default {
+  events: {
+    click: {
+      "cqz_location_yes": function(ev) {
+        ev.preventDefault();
+        CLIQZEnvironment.setLocationPermission(window, "yes");
+        loadLocalResults(ev.target);
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-yes"
+        });
+      },
+      "cqz_location_once": function(ev) {
+        ev.preventDefault();
+        loadLocalResults(ev.target);
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-once-step-" + ev.target.getAttribute("location_dialogue_step")
+        });
+      },
+      "cqz_location_no": function(ev) {
+        var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
+            el = ev.target,
+            localType = el.getAttribute("local_sc_type") || "default";
+
+        container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
+            friendly_url: el.getAttribute("bm_url"),
+            trans_str: messages[localType].trans_str
+        });
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-no"
+        });
+      },
+      "cqz_location_never": function(ev) {
+        CLIQZEnvironment.setLocationPermission(window, "no");
+        displayMessageForNoPermission();
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: "location-setting-dropdown",
+          value: "share-location-never"
+        });
+      },
+      "cqz_location_not_now": function(ev) {
+        displayMessageForNoPermission();
+      },
+      "cqz_location_yes_confirm": function(ev) {
+        CLIQZEnvironment.setLocationPermission(window, "yes");
+        var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
+        if (container) container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
+          "display_msg": "location-thank-you"
+        });
+      }
+    }
+  },
+
+};

@@ -1,6 +1,6 @@
 Components.utils.import('chrome://cliqztests/content/screenshots/Screenshot.jsm');
 Components.utils.import('chrome://cliqztests/content/screenshots/ConfigWriter.jsm');
-
+Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -16,6 +16,27 @@ function loadScript(url, element, callback) {
     script.onreadystatechange = callback;
     script.onload = callback;
     element.appendChild(script);
+}
+
+function fakeLanguage(lang) {
+  var backup = {
+    lang: CliqzLanguage.state,
+    locale: CliqzUtils.encodeLocale
+  };
+  CliqzLanguage.state = function () {
+    return [lang];
+  };
+  CliqzUtils.encodeLocale = function () {
+    return '&locale=' + lang;
+  };
+  console.log('fake language: ' + lang);
+  return backup;
+}
+
+function restoreLanguage(backup) {
+  CliqzLanguage.state = backup.lang;
+  CliqzUtils.encodeLocale = backup.locale;
+  console.log('restore language');
 }
 
 
@@ -203,9 +224,14 @@ loadScript(
 );
 
 // Prepare selected test
-loadScript(
-    'chrome://cliqztests/content/screenshots/' + getParameterByName('test'),
-    document.getElementsByTagName('head')[0]
+setTimeout(
+  function() {
+    loadScript(
+        'chrome://cliqztests/content/screenshots/' + getParameterByName('test'),
+        document.getElementsByTagName('head')[0]
+    );
+  },
+  250
 );
 
 // Give firefox some time to load the whole document
