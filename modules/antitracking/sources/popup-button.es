@@ -113,7 +113,11 @@ CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
       'toolbarbutton-badge'
     );
 
-    badge.style.cssText = 'background-color: #666; color: #fff;';
+    // when window is too small to display all icons, the anti-tracking badge
+    // may be hidden behind a '>>' button. In this case, badge will be null.
+    if(badge) {
+      badge.style.cssText = 'background-color: #666; color: #fff;';
+    }
   }, 250);
 };
 
