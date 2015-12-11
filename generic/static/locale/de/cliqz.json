@@ -915,7 +915,7 @@
       "message": "Ich nehme am Human Web teil"
     },
     "attrack-headline-general": {
-      "message": " Auf <strong> {} </strong>  wurden <br/> {} Cookies blockiert, <br/> {} persönliche Informationen geschützt."
+      "message": " Auf <strong>{}</strong>  wurden {}&nbsp;Cookies blockiert, {}&nbsp;persönliche Informationen geschützt."
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
