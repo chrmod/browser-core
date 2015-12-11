@@ -42,7 +42,8 @@ var FreshTab = {
     startup: function(freshTabUrl){
         var disable = false;
         // exit if not in the AB test
-        // if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true; // Always enabled for the browser
+        if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true;
+
         // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
