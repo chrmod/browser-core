@@ -8,5 +8,6 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
     upload: {
         dropdown_width: 900
     },
-    queries: ['bild', 'spiegel.de', 'spigel', 'speigel', 'su', 'sued', 'sz', 'bild', 'kicker', 'focu', 'flüchtlin', 'test', 'angela merkel', 'merkel']
+    queries: ['bild', 'spiegel.de', 'spigel', 'speigel', 'su', 'sued', 'sz', 'bild', 'kicker', 'focu', 'flüchtlin', 'test', 'angela merkel', 'merkel'],
+    test_groups: ['nightly']
 });

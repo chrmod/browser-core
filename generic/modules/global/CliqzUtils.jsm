@@ -254,8 +254,8 @@ var CliqzUtils = {
       }
     }
   },
-  httpGet: function(url, callback, onerror, timeout){
-    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
+  httpGet: function(url, callback, onerror, timeout, _, sync){
+    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout, _, sync);
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
@@ -279,6 +279,7 @@ var CliqzUtils = {
       onerror && onerror();
     }
   },
+  openTabInWindow: CLIQZEnvironment.openTabInWindow,
   getPrefs: CLIQZEnvironment.getPrefs,
   getPref: CLIQZEnvironment.getPref,
   isPrefBool: CLIQZEnvironment.isPrefBool,
@@ -999,6 +1000,24 @@ var CliqzUtils = {
     }
     return copy;
   },
+
+  /**
+   * Bind functions contexts to a specified object.
+   * @param {Object} from - An object, whose function properties will be processed.
+   * @param {Object} to - An object, which will be the context (this) of processed functions.
+   */
+  bindObjectFunctions: function(from, to) {
+    for (var funcName in from) {
+      var func = from[funcName];
+      if (!from.hasOwnProperty(funcName))
+        continue;
+      // Can't compare with prototype of object from a different module.
+      if (typeof func != "function")
+        continue;
+      from[funcName] = func.bind(to);
+    }
+  },
+
   getAdultFilterState: function(){
     var data = {
       'conservative': {
@@ -1060,7 +1079,7 @@ var CliqzUtils = {
                       text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
                       "search_engines": chosen,
                       //use local image in case of no internet connection
-                      "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
+                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
                   },
                   subType: JSON.stringify({empty:true})
               }
