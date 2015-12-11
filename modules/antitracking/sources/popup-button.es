@@ -102,11 +102,9 @@ CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
   }
 
 
-  if ( button.classList.contains('badged-button') ) {
-    return;
+  if ( !button.classList.contains('badged-button') ) {
+    button.classList.add('badged-button');
   }
-
-  button.classList.add('badged-button');
 
   CliqzUtils.setTimeout(function () {
     var badge = button.ownerDocument.getAnonymousElementByAttribute(

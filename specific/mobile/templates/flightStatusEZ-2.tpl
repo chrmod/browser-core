@@ -1,3 +1,4 @@
+<!-- flightStatusEZ -->
 <div class='cqz-result-h2'>
 
 {{#with data}}
@@ -5,14 +6,14 @@
         {{> logo}}
         <h3 class="meta__url">{{status_detail}}</h3>
     </div>
-    
+
     <div class="main">
         <h1 class="main__headline">{{flight_name}}</h1>
         <div class="flightStatusEZ-flightStatus" style="color:{{status_color}}">{{status}}</div>
     </div>
 
    <div class="flightStatusEZ-plane-position">
-       <img class="flightStatusEZ-plane-position-plane-img" src="{{plane_icon}}" />
+       <img class="flightStatusEZ-plane-position-plane-img" data-src="{{plane_icon}}" />
        <div class="flightStatusEZ-plane-position-bar">
            <div class="flightStatusEZ-plane-position-dot" style="left:{{plane_position}}%; background:{{status_color}}"></div>
        </div>

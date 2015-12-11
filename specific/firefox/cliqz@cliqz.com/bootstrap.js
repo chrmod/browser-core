@@ -2,18 +2,17 @@
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
-  'chrome://cliqzmodules/content/Extension.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
-  'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
-
 function startup(aData, aReason) {
+    Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+    Cu.import('chrome://cliqzmodules/content/Extension.jsm');
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 }
 
 function shutdown(aData, aReason) {
+    Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+    Cu.import('chrome://cliqzmodules/content/Extension.jsm');
     CliqzHumanWeb.unload();
+
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;

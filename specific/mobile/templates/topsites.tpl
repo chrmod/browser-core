@@ -1,3 +1,4 @@
+<!-- topsites.tpl -->
 <div class='cqz-result-h1 cqz-result-padding'>
   {{#with data}}
     <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
@@ -26,7 +27,7 @@
           {{lastQ}}
         </div>
       {{else}}
-        <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
+        <img class="cliqz-logo" data-src="{{cliqz_logo}}" url="https://cliqz.com" />
       {{/if}}
   </div>
   {{/with}}

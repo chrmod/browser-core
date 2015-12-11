@@ -52,12 +52,13 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
         classDescription : 'Cliqz',
         contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
+        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
 var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
+    SKIN_PATH: 'chrome://cliqzres/content/skin/',
     cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     init: function(){
@@ -116,10 +117,10 @@ var CLIQZEnvironment = {
             case 'string': CLIQZEnvironment.cliqzPrefs.setCharPref(pref, val); break;
           }
     },
-    httpHandler: function(method, url, callback, onerror, timeout, data){
+    httpHandler: function(method, url, callback, onerror, timeout, data, sync){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
-        req.open(method, url, true);
+        req.open(method, url, !sync);
         req.overrideMimeType('application/json');
         req.onload = function(){
             if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
@@ -422,7 +423,7 @@ var CLIQZEnvironment = {
           menuItem.addEventListener("command", menuItems[item].command, false);
           if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
             menuItem.setAttribute('class', 'menuitem-iconic');
-            menuItem.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.png)';
+            menuItem.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz.png)';
           }
           contextMenu.appendChild(menuItem);
       }
@@ -480,7 +481,7 @@ function getTopSites(){
         top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
         top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
         top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
-        top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
+        top.data.cliqz_logo = CLIQZEnvironment.SKIN_PATH + 'img/cliqz.svg';
         top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
         top.data.url = results[0].url;
         top.data.template = 'topsites';

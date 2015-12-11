@@ -4638,7 +4638,7 @@ var CliqzAttrack = {
     getCurrentTabBlockingInfo: function() {
       try {
         var tabId = CliqzUtils.getWindow().gBrowser.selectedTab.linkedBrowser._loadContext.DOMWindowID;
-      catch (e) {
+      } catch (e) {
       }
       return CliqzAttrack.getTabBlockingInfo(tabId);
     },

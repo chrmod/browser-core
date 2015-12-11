@@ -140,6 +140,12 @@
     "btnStats":{
         "message": "Stats"
     },
+    "adblockbild":{
+        "message": "AdBlock Plus auf BILD.de deaktivieren"
+    },
+    "adblockbildWarning":{
+        "message": "Möchtest du, dass CLIQZ AdBlock Plus auf BILD.de deaktiviert? (Auf allen anderen Seiten bleibt AdBlock Plus aktiviert)"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
@@ -596,6 +602,9 @@
     "btnActivateCliqz": {
       "message": "Cliqz aktivieren"
     },
+    "btnFreshTab": {
+      "message": "CLIQZ Startseite und Neue Tabs aktivieren"
+    },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
     },
@@ -931,5 +940,14 @@
     },
     "attrack-btn-white-list": {
       "message": "Tracking für diese Seite zulassen"
+    },
+    "freshtab_learn_more": {
+      "message": "Mehr erfahren"
+    },
+    "freshtab_back_to_old": {
+      "message": "Zurück zu alter Startseite"
+    },
+    "freshtab_top_news": {
+      "message": "Top Nachrichten"
     }
 }

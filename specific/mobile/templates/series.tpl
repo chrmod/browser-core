@@ -1,3 +1,4 @@
+<!-- series.tpl -->
 <div class='cliqz-inline-box-children cliqz-result-generic'>
   <div class='cliqz-result-mid-box' style="width:{{ width }}px; margin-right: 32px">
     <div>

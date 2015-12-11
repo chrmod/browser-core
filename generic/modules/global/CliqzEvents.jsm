@@ -2,6 +2,15 @@
 /*
  * This method implements the publish subscribe design pattern
  *
+ * Event naming scheme:
+ *    cliqz.module_name.event_name
+ *
+ *  single sender -> multiple potential recipients
+ *    for example: cliqz.core.urlbar_focus (inform others about urlbar focus)
+ *    module_name describes sender
+ *  multiple potential senders -> single recipient
+ *    for example: cliqz.msg_center.show_message (tell the message center to show a message)
+ *    module_name describes recipient (this is more like a RPC)
  */
 
 var EXPORTED_SYMBOLS = ['CliqzEvents'];

@@ -1,4 +1,5 @@
-  <ul class="cta" style="background-color: #1F69AD">
+<!-- EZ-category -->  
+  <ul class="cta">
     {{#each (logic data.categories '||' data.richData.categories)}}
       <li extra="cat-{{ @index }}"><a href="{{url}}">
          {{#if title_key}}

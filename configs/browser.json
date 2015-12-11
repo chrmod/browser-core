@@ -1,0 +1,14 @@
+{
+  "prefs": {
+    "freshTabButton": false
+  },
+  "modules": [
+    "onboarding",
+    "freshtab",
+    "unblock",
+    "theme",
+    "users1st",
+    "loyalty",
+    "antitracking"
+  ]
+}

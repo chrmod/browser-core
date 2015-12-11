@@ -87,8 +87,17 @@ var Extension = {
 
         // Modules loading
         CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
+          var config;
           try {
-            this.modules = JSON.parse(res.response).modules;
+            config = JSON.parse(res.response);
+          } catch(e) { dump(e); return; }
+
+          Object.keys(config.prefs).forEach(function (pref) {
+            CliqzUtils.setPref(pref, config.prefs[pref]);
+          });
+
+          try {
+            this.modules = config.modules;
 
             this.modules.map(function (moduleName) {
               return System.import(moduleName+"/background");
@@ -99,7 +108,7 @@ var Extension = {
             });
 
           } catch(e) { dump(e) }
-        }.bind(this));
+        }.bind(this), function () {}, undefined, undefined, true);
 
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -212,6 +221,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+        Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
@@ -316,7 +326,8 @@ var Extension = {
           CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
           CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
         }
-        if (!CliqzUtils.getPref(firstRunPref, false)) {
+        var firstRunPrefVal = CliqzUtils.getPref(firstRunPref, false);
+        if (!firstRunPrefVal) {
             CliqzUtils.setPref(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
@@ -343,7 +354,7 @@ var Extension = {
         button.setAttribute('label', 'CLIQZ');
         button.setAttribute('tooltiptext', 'CLIQZ');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.svg)';
+        button.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz_btn.svg)';
 
         var menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'cliqz_menupopup');

@@ -1,4 +1,24 @@
-<div class="cqz-result-h1 ez-news cqz-result-padding">
+<!-- entity-portal -->
+
+<div class="meta">
+    {{> logo}}
+    <h3 class="meta__url"><a href="{{url}}">{{ emphasis data.name text 2 true }}</a></h3>
+</div>
+
+<div class="main mulitple">
+{{#each data.news}}
+  <div class="item" url="{{ url }}" extra="entry-{{ @index }}" arrow="false">
+    <div class="main__image" style="background-image: url({{ thumbnail }});">
+        Image
+    </div>
+    <h1 class="main__headline"><a href="{{url}}">{{ title }}</a></h1>
+    <span class="main__multiple__time">{{ time }}</span>
+  </div>
+    
+{{/each}}
+</div>
+
+<!--<div class="cqz-result-h1 ez-news cqz-result-padding">
   <div class="cqz-ez-title" selectable=''><a href="{{url}}">{{ emphasis data.name text 2 true }}</a></div>
   <div class="entity-stories">
     {{#each data.news}}
@@ -13,8 +33,6 @@
         </div>
       </div>
     {{/each}}
-  </div>
+  </div>-->
   {{>EZ-category}}
-  {{>logo}}
-  {{>feedback}}
 </div>

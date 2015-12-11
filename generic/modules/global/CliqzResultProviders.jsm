@@ -84,7 +84,7 @@ var CliqzResultProviders = {
     if (CliqzUtils.isPrefBool(CliqzUtils.getPref(INIT_KEY))) {
       providersAddedState = 1;
     } else {
-      providersAddedState = CliqzUtils.getPref(INIT_KEY, 1);
+      providersAddedState = CliqzUtils.getPref(INIT_KEY, 0);
     }
 
     NonDefaultProviders.forEach(function (extern) {

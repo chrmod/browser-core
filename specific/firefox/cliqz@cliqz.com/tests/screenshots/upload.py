@@ -3,10 +3,12 @@ import datetime
 import glob
 import math
 import os
+import urllib
 import uuid
 import shutil
 import sys
 
+from boto.exception import S3ResponseError
 from boto.s3.connection import S3Connection
 from optparse import OptionParser
 from PIL import Image
@@ -54,6 +56,9 @@ def main(argv):
                            "to S3 bucket <OUTPUT_BUCKET> "
                            "[default: '%default']",
                       default="tests-dropdown-appearance")
+    parser.add_option("--public-read",
+                      action="store_true", dest="public_read",
+                      help="make files uploaded to S3 publicly readable")
     parser.add_option("--key-prefix", metavar="KEY_PREFIX",
                       action="store", dest="key_prefix",
                       help="folder in the --bucket to upload screenshots to "
@@ -117,6 +122,12 @@ def main(argv):
                            "using current time if not set"
                            "[default: '%default']",
                       default="")
+    parser.add_option("--flat-upload", metavar="FLAT_UPLOAD",
+                      action="store_true", dest="flat_upload",
+                      help="put all files into the same upload folder")
+    parser.add_option("--no-mosaic", metavar="NO_MOSAIC",
+                      action="store_true", dest="no_mosaic",
+                      help="do not create mosaic")
 
     (options, args) = parser.parse_args()
 
@@ -173,26 +184,35 @@ def main(argv):
     if os.path.exists(config_file_path):
         shutil.copy(config_file_path, output_folder)
 
-    n = 0
-    for i in range(0, len(mosaic_images), options.mosaic_tiles):
-        mosaic = make_mosaic(mosaic_images[i:min(i + options.mosaic_tiles,
-                                           len(mosaic_images))],
-                             options.mosaic_cols, options.mosaic_padding)
-        mosaic_filename = os.path.join(output_folder_mosaic,
-                                       "mosaic-" + ("%03d" % n) + ".png")
-        sys.stderr.write("saving mosaic to '%s'\n" % mosaic_filename)
-        mosaic.save(mosaic_filename)
-        n += 1
+    if not options.no_mosaic:
+        n = 0
+        for i in range(0, len(mosaic_images), options.mosaic_tiles):
+            mosaic = make_mosaic(mosaic_images[i:min(i + options.mosaic_tiles,
+                                               len(mosaic_images))],
+                                 options.mosaic_cols, options.mosaic_padding)
+            mosaic_filename = os.path.join(output_folder_mosaic,
+                                           "mosaic-" + ("%03d" % n) + ".png")
+            sys.stderr.write("saving mosaic to '%s'\n" % mosaic_filename)
+            mosaic.save(mosaic_filename)
+            n += 1
+    else:
+        sys.stderr.write("skipping mosaic creation\n")
 
-    key_prefix = output_folder_base
-    if options.key_prefix:
-        key_prefix = '/'.join([options.key_prefix, output_folder_base])
+    if options.flat_upload:
+        key_prefix = options.key_prefix
+        sys.stderr.write("using flat upload\n")
+    else:
+        if options.key_prefix:
+            key_prefix = '/'.join([options.key_prefix, output_folder_base])
+        else:
+            key_prefix = output_folder_base
+
     sys.stderr.write("uploading all files to 's3://%s/%s'\n" %
                      (options.output_bucket, key_prefix))
     upload_folder(output_folder,
                   options.output_bucket,
                   key_prefix,
-                  options.dry_run)
+                  options)
 
     if not options.keep_files:
         sys.stderr.write("deleting folder '%s'\n" % output_folder)
@@ -227,25 +247,36 @@ def make_mosaic(images, cols, padding=0):
     return out
 
 
-def upload_folder(input_folder, bucket, key_prefix, is_dryrun=False):
+def upload_folder(input_folder, bucket,
+                  key_prefix, options):
     key_prefix = key_prefix.replace("\\", "/")
     for root, dirs, files in os.walk(input_folder, topdown=False):
         for name in files:
             filename = os.path.join(root, name)
-            key = "/".join([key_prefix, root[len(input_folder) + 1:], name])
-            upload(filename, bucket, key, is_dryrun)
+            if options.flat_upload:
+                key = "/".join([key_prefix, name])
+            else:
+                key = "/".join([key_prefix,
+                               root[len(input_folder) + 1:],
+                               urllib.name])
+            upload(filename, bucket, key, options)
 
 
-def upload(filename, bucket, key, is_dryrun=False):
+def upload(filename, bucket, key, options):
     sys.stderr.write("uploading '%s' to 's3://%s/%s'\n" %
                      (filename, bucket, key))
-    if is_dryrun:
+    if options.dry_run:
         sys.stderr.write("skipped (dry run)\n")
     else:
-        conn = S3Connection()
-        bucket = conn.get_bucket(bucket)
-        key = bucket.new_key(key)
-        key.set_contents_from_filename(filename)
+        try:
+            conn = S3Connection()
+            bucket = conn.get_bucket(bucket)
+            key = bucket.new_key(key)
+            key.set_contents_from_filename(filename)
+            if options.public_read:
+                key.set_acl('public-read')
+        except S3ResponseError:
+            sys.stderr.write("error uploading %s\n" % key)
 
 
 if __name__ == '__main__':

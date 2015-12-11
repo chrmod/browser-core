@@ -26,7 +26,6 @@ export default class {
 
     if (!this.onInstall) { return; }
 
-    this.window.console.log(tutorialUrl);
     this._tutorialTimeout = CliqzUtils.setTimeout(function() {
       CliqzUtils.openTabInWindow(this.window, tutorialUrl, true);
     }.bind(this), 100);
