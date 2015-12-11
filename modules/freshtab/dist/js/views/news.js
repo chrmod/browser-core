@@ -5,13 +5,21 @@ function renderNews(news) {
       yourNews = CliqzHandlebars.compile($('#yourNews').html()),
       startEnter,
       elapsed,
-      extra;
+      onlyTopNews = true;
 
   if (hb_news) {
     for (var domain in hb_news) {
-      hb_news[domain].logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(hb_news[domain][0].url));
+      hb_news[domain] = hb_news[domain].map(function(r){
+        return {
+          title: r.title,
+          displayUrl: CliqzUtils.getDetailsFromUrl(r.url).domain || r.title,
+          logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url)),
+          url: r.url
+        }
+      });
     }
-    log('Personalized news', hb_news);
+    log("Personalized news", hb_news);
+    onlyTopNews = false;
     document.getElementById('yourNewsBox').innerHTML = yourNews(hb_news);
   } else {
     $('.newsBox').addClass('onlyTopNews');
@@ -22,42 +30,41 @@ function renderNews(news) {
       title: r.title,
       short_title: r.short_title,
       displayUrl: CliqzUtils.getDetailsFromUrl(r.url).domain || r.title,
-      url: r.url
+      url: r.url,
+      logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url)),
+      onlyTopNews: onlyTopNews
     };
   });
   document.getElementById('topNewsBox').innerHTML = topNews(top_news);
   Slider.init({
-    'totalNews': $('.onlyTopNews li').length
-  });
-  $('.topNewsLink').on('click', function(e) {
-    CliqzUtils.telemetry({
-      type: 'home',
-      action: 'click',
-      target_type: 'topnews',
-      extra: e.target.getAttribute('extra'),
-      target_index: $(this).attr('data-index')
-    });
+    totalNews: $("#topNewsBox li").length,
+    el: $("#topNewsBox li")
   });
 
-  $('.topNewsLink').on('mouseenter', '.title, .url', function(e) {
-    if( e.target.getAttribute('class') === 'title') {
-      extra = 'title';
-    } else {
-      extra = 'url';
-    }
+  $('.news').on('click', function(e) {
+      CliqzUtils.telemetry({
+        type: 'home',
+        action: 'click',
+        target_type: e.currentTarget.className.indexOf('topnews') > -1 ? 'topnews' : 'yournews',
+        extra: e.target.getAttribute('extra'),
+        target_index: $(this).attr('data-index')
+      });
+  });
+
+  $('.news').on('mouseenter', '.logo, .title, .url', function(e) {
     startEnter = new Date().getTime();
   });
 
-  $('.topNewsLink').on('mouseleave', '.title, .url', function(e) {
+  $('.news').on('mouseleave', '.logo, .title, .url', function(e) {
     elapsed = new Date().getTime() - startEnter;
     if(elapsed > 2000) {
       CliqzUtils.telemetry({
         type: 'home',
         action: 'hover',
-        target_type: 'topnews',
-        extra: extra,
+        target_type: e.delegateTarget.className.indexOf('topnews') > -1 ? 'topnews' : 'yournews',
+        extra: e.target.getAttribute('class'),
         hover_time: elapsed,
-        target_index: $(this).attr('data-index')
+        target_index: e.delegateTarget.getAttribute('data-index')
       });
     }
   });

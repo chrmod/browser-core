@@ -226,15 +226,19 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #newsContainer li .title {
   font-size: 18px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   color: #333333;
   overflow: hidden;
   max-height: 66px;
 }
+
 #freshTabPage #newsContainer li .title:hover {
   color: #506bb8;
 }
 
+#freshTabPage #newsContainer div.title {
+  text-decoration: underline;
+}
 
 #freshTabPage #newsContainer li .url {
   font-size: 14px;
@@ -243,9 +247,23 @@ a:hover, a:active, a:focus {
   white-space: nowrap;
   overflow: hidden;
   max-width: 320px;
+  /*text-decoration: underline;*/
+}
+
+#freshTabPage #newsContainer a.topnews {
+    display: block;
+}
+
+#freshTabPage #newsContainer .newsContent {
+  padding-left: 60px;
 }
 
 /***** Only top news *****/
+
+#freshTabPage #newsContainer .onlyTopNews .newsContent {
+  padding-left: 0px;
+}
+
 #freshTabPage #newsContainer .onlyTopNews li {
   float: left;
   width: 233px;
@@ -256,7 +274,7 @@ a:hover, a:active, a:focus {
   margin-right: 0px;
 }
 
-#freshTabPage .news-logo {
+#freshTabPage #newsContainer .logo {
   float: left;
   width: 40px;
   margin-right: 20px;
@@ -275,9 +293,6 @@ a:hover, a:active, a:focus {
 }
 
 #freshTabPage #yourNewsBox li {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
   max-width: 320px;
 }
 
@@ -506,5 +521,23 @@ a:hover, a:active, a:focus {
   #freshTabPage #newsContainer .onlyTopNews li{
     float: none;
     width: 100%;
+  }
+
+  #freshTabPage #newsContainer .newsBox {
+    float: none;
+    width: auto;
+    margin-left: 20px;
+  }
+
+  #freshTabPage #newsContainer #yourNewsBox {
+    margin-left: 20px;
+  }
+
+  #freshTabPage #yourNewsBox ul {
+    width: 80%;
+  }
+
+  #freshTabPage #yourNewsBox li {
+    max-width: 100%;
   }
 }

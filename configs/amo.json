@@ -2,6 +2,7 @@
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
+    "freshTabHistoryNews": false,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "04"

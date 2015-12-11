@@ -25,10 +25,15 @@
       <div class="content">
         <ul>
         {{#each this}}
-        <li>
-          <a href="{{url}}" class="topNewsLink" data-index="{{@index}}">
-            <div extra="title" class="title">{{short_title}}</div>
-            <span extra="url" class="url">{{displayUrl}}</span>
+        <li class="clearfix">
+          <a href="{{url}}" class="topnews news" data-index="{{@index}}">
+            {{#unless onlyTopNews }}
+              <div extra="logo" class="logo" style="{{logo.style}}"></div>
+            {{/unless}}
+            <div class="newsContent">
+              <div extra="title" class="title">{{short_title}}</div>
+              <div extra="url" class="url">{{displayUrl}}</div>
+            </div>
           </a>
         </li>
         {{/each}}
@@ -36,25 +41,21 @@
       </div>
     </script>
 
-    <!--<script id="slider-btns" type="text/x-handlebars-template">
-            {{#each this}}
-                 <div><a data-state="{{@index}}" href="#">{{@index}}</a></div>
-            {{/each}}
-        </div>
-    </script>-->
-
     <script id="yourNews" type="text/x-handlebars-template">
-      <div class="heading">
+      <div class="heading clearfix">
         <h2>YOUR NEWS</h2>
       </div>
       <div class="content">
         {{#each this}}
         <div class="clearfix newsBlock">
-          <div class="news-logo" style="{{logo.style}}"></div>
+          <div class="logo" style="{{this.[0].logo.style}}"></div>
           <ul>
           {{#each this}}
             <li>
-              <a href="{{url}}" class="title" data-index="{{@index}}">{{title}}</a>
+                <a href="{{url}}" class="title yournews news" data-index="{{@index}}">
+                    <div extra="title" class="title">{{title}}</div>
+                    <div extra="url" class="url">{{displayUrl}}</div>
+                </a>
             </li>
           {{/each}}
           </ul>

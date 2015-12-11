@@ -58,7 +58,6 @@ var Slider = (function($, window){
       }
     }
 
-    //console.log("Options", options)
     items = $(config.el);
     // start the rotation only if we have more than gridItems
     if (options.totalNews / config.gridItems > 1) {
