@@ -915,7 +915,7 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general": {
-      "message": "{} cookies blocked and, <br/> private data points protected on <strong> {} </strong>."
+      "message": "On <strong>{}</strong>, {}&nbsp;third-party cookies blocked and {}&nbsp;private data leaks prevented."
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
