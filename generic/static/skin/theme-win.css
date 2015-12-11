@@ -71,13 +71,6 @@
     background: transparent none repeat scroll 0% 0%;
 }
 
-#forward-button, #back-button {
-    margin-left: 0px !important;
-    border: 0px !important;
-    box-shadow: 0px 0px 0px 0px transparent !important;
-    border-radius: 0px;
-    background-color: transparent !important;
-}
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     -moz-margin-start: 0px;
@@ -247,3 +240,30 @@ notification[type="warning"] .messageText {
 notification[type="warning"] .notification-inner {
     border: none;
 }
+
+
+/* ======= Navigation Arrows Back Forth ======= */
+
+#forward-button, #back-button {
+    margin-left: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 0 0 transparent !important;
+    background-color: transparent !important;
+}
+
+#back-button {
+    -moz-image-region: rect(0, 54px, 18px, 36px);
+}
+
+#back-button .toolbarbutton-icon {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+@media (min-resolution: 1.1dppx) {
+    #back-button {
+        -moz-image-region: rect(0, 108px, 36px, 72px);
+    }
+}
+
