@@ -28,11 +28,11 @@ var CliqzEvents = CliqzEvents || {
 //     */
   pub: function (id) {
     var args = Array.prototype.slice.call(arguments, 1);
-    CliqzUtils.setTimeout(function () {
-      (CliqzEvents.cache[id] || []).forEach(function (ev) {
+    (CliqzEvents.cache[id] || []).forEach(function (ev) {
+      CliqzUtils.setTimeout(function () {
         ev.apply(null, args);
-      });
-    }, 0);
+      }, 0);
+    });
   },
 
   /* Subscribe to events of interest
