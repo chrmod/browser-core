@@ -1,4 +1,4 @@
-import ProxyUtils from 'unblock/proxy';
+import RegexProxyRule from 'unblock/regexp-proxy-rule';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
@@ -47,7 +47,7 @@ var YoutubeUnblocker = {
       let proxy = this.proxy_manager.getNextProxy(region);
       if (proxy) {
         this.proxied_videos.add(vid);
-        this.proxy_service.addProxyRule(new ProxyUtils.RegexProxyRule(regex, proxy, region));
+        this.proxy_service.addProxyRule(new RegexProxyRule(regex, proxy, region));
         this.blocked[vid]['p'] = region;
       }
     }
@@ -210,7 +210,6 @@ var YoutubeUnblocker = {
    */
   refreshPageForVideo: function(vid) {
     var enumerator = Services.wm.getEnumerator('navigator:browser');
-    CliqzUtils.log("refreshPageForVideo: "+ vid, "xxx");
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       var gBrowser = win.gBrowser;

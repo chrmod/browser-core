@@ -1,8 +1,8 @@
 /*
  * This module bypasses Youtube region blocks
  */
- import YoutubeUnblocker from 'unblock/youtube';
- import ProxyUtils from 'unblock/proxy';
+import YoutubeUnblocker from 'unblock/youtube';
+import ProxyService from 'unblock/proxy';
 
 /**
   Enables filtered events on http requests, with associated urls
@@ -145,7 +145,7 @@ var CliqzUnblock = {
     if (CliqzUnblock.isEnabled()) {
       CliqzUtils.log('init', 'unblock');
 
-      CliqzUnblock.proxy_service = new ProxyUtils.Service();
+      CliqzUnblock.proxy_service = new ProxyService();
       // reuse existing proxy manager if it exists
       if (CliqzUnblock.proxy_manager) {
         CliqzUnblock.proxy_manager.proxy_service = CliqzUnblock.proxy_service;
