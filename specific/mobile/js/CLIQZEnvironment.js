@@ -244,12 +244,14 @@ CLIQZEnvironment = {
       pageOffset: 0
     }; 
 
-    if(e == "") {
+    if(!e || e == "") {
       CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.renderRecentQueries(true);
+      CLIQZEnvironment.getNews();
       CLIQZEnvironment.stopProgressBar();
       return;
     }
+    var topnews = window.document.getElementById("topNews");
+    topnews && topnews.parentNode.removeChild(topnews);
 
     if(e.toLowerCase() == "testme") {
       initTest();
@@ -481,7 +483,7 @@ CLIQZEnvironment = {
       }
       if(!window.navigator.onLine) {
         if(typeof CustomEvent != "undefined") {
-          window.dispatchEvent(new CustomEvent("connected"));
+          window.dispatchEvent(new CustomEvent("disconnected", { "detail": "browser is offline" }));
         }
         isRequestFailed = true;
         Logger.log( "request " + url + " will be deferred until the browser is online");
@@ -630,6 +632,32 @@ CLIQZEnvironment = {
   },
   getEngineByAlias: function () {
     return ENGINES[0];
+  }, 
+  getNews: function() {
+    console.log("Start getting news");
+    return CliqzFreshTabNews.getNews().then(function(news) {
+
+      var top_news = news.top_h_news;
+
+      console.log('top news', top_news)
+      top_news = top_news.map(function(r){
+        var details = CliqzUtils.getDetailsFromUrl(r.url);
+        var logo = CliqzUtils.getLogoDetails(details);
+        return {
+          title: r.title,
+          description: r.description,
+          short_title: r.short_title,
+          displayUrl: details.domain || r.title,
+          url: r.url,
+          text: logo.text,
+          backgroundColor: logo.backgroundColor,
+          buttonsClass: logo.buttonsClass,
+          style: logo.style
+        }
+      });
+      var topNews = CliqzHandlebars.tplCache["topnews"];
+      document.body.innerHTML = topNews(top_news) + document.body.innerHTML;
+    });
   }
 
 }

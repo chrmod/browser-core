@@ -9,18 +9,15 @@ window.addEventListener('connected', function() {
 
 var isRequestFailed = false;
 
-var hideOfflineDiv;
-
 var lastSucceededUrl;
 var latestUrl;
 
 function resendRequest(forceResend) {
   CliqzUtils.log("incoming, isRequestFailed="+isRequestFailed,"resendRequest");
   var shouldResend = forceResend || isRequestFailed;
-  hideOfflineDiv();
   if(shouldResend) {
     CliqzUtils.log("RESENDING","resendRequest");
-    setTimeout(CLIQZEnvironment.search , 500);
+    setTimeout(CLIQZEnvironment.search , 500, CliqzAutocomplete.lastSearch);
     isRequestFailed = false;
   }
 }
@@ -33,17 +30,7 @@ function isMixerUrl(url) {
 }
 
 window.addEventListener('load', function() {
-  var noNetworkDiv = document.getElementById("no-network-message");
   CliqzUtils.pingCliqzResults();
-  function showOfflineDiv() {
-    noNetworkDiv && (noNetworkDiv.style.display = "block");
-  }
-  hideOfflineDiv = function() {
-    noNetworkDiv && (noNetworkDiv.style.display = "none");
-  }
-
-  window.addEventListener('online',  resendRequest);
-  window.addEventListener('offline', showOfflineDiv);
 });
 
 var db = {
