@@ -279,7 +279,6 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
-<<<<<<< HEAD
             case "1045_A":
                 break;
             case "1045_B":
@@ -533,7 +532,6 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
                 break;
-<<<<<<< HEAD
             case "1045_A":
             case "1045_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
