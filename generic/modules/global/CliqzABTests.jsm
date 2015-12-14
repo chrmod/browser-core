@@ -277,11 +277,7 @@ var CliqzABTests = {
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
             case "1055_B":
-                this.System.import("unblock/main").then(function (mod) {
-                  mod.default.enable();
-                }).catch(function (e) {
-                  rule_executed = false;
-                });
+                CliqzUtils.setPref("unblockMode", "ask");
                 break;
             case "1056_A":
                 CliqzUtils.setPref("freshTabAB", false);
@@ -492,11 +488,8 @@ var CliqzABTests = {
                 break;
             case "1055_A":
             case "1055_B":
-                this.System.import("unblock/main").then(function (mod) {
-                  mod.default.disable();
-                }).catch(function (e) {
-                  rule_executed = false;
-                });
+                CliqzUtils.setPref("unblockMode", "never");
+                CliqzUtils.cliqzPrefs.clearUserPref("unblockEnabled");
                 break;
             case "1056_A":
             case "1056_B":
