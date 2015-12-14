@@ -191,8 +191,6 @@ var CliqzUnblock = {
       CliqzUtils.log("InitWindow", "unblock");
       window.gBrowser.addEventListener("load", CliqzUnblock.pageObserver, true);
       CliqzUnblock.load_listeners.add(window);
-      // add entry to toolbar menu
-      window.CLIQZ.COMPONENTS.push(this.toolbar_menu);
       // listen to tab changes (for notification bar)
       window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzUnblock.tabSelectListener);
     }
@@ -297,55 +295,6 @@ var CliqzUnblock = {
       notification = box.appendNotification(message, 'geo-blocking-prevented',
                       'chrome://browser/skin/Info.png',
                        priority, buttons);
-    }
-  },
-  toolbar_menu: {
-    button: function(win) {
-      var doc = win.document,
-        menu = doc.createElement('menu'),
-        menupopup = doc.createElement('menupopup');
-
-      menu.setAttribute('label', 'Unblock content');
-
-      var filter_levels = {
-          'always': {
-            name: CliqzUtils.getLocalizedString('always'),
-            selected: false
-          },
-          'ask': {
-            name: CliqzUtils.getLocalizedString('always_ask'),
-            selected: false
-          },
-          'never': {
-            name: CliqzUtils.getLocalizedString('never'),
-            selected: false
-          }
-      };
-      filter_levels[CliqzUtils.getPref(CliqzUnblock.PREF_MODE, 'ask')].selected = true;
-
-      for(var level in filter_levels) {
-        var item = doc.createElement('menuitem');
-        item.setAttribute('label', filter_levels[level].name);
-        item.setAttribute('class', 'menuitem-iconic');
-
-        if(filter_levels[level].selected){
-          item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
-        }
-
-        item.filter_level = level;
-        item.addEventListener('command', function(event) {
-          CliqzUtils.log(this, "xxx");
-          CliqzUnblock.setMode(this.filter_level);
-          if (!CliqzUnblock.isEnabled() && CliqzUnblock.unblock_mode != "never") {
-            CliqzUnblock.enable();
-          }
-          CliqzUtils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
-        }, false);
-
-        menupopup.appendChild(item);
-      };
-      menu.appendChild(menupopup);
-      return menu;
     }
   }
 };
