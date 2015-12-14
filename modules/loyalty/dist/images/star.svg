@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>Star badge</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Results-usage-" sketch:type="MSArtboardGroup" transform="translate(-205.000000, -22.000000)">
+            <g id="Star-badge-+-Du-bist-derzeit-ein-" sketch:type="MSLayerGroup" transform="translate(205.000000, 15.000000)">
+                <g id="Star-badge" transform="translate(0.000000, 7.000000)" sketch:type="MSShapeGroup">
+                    <ellipse id="Oval-5" stroke="#FFFFFF" stroke-width="3" cx="20" cy="20" rx="20" ry="20"></ellipse>
+                    <path d="M20,35.2 C28.3947282,35.2 35.2,28.3947282 35.2,20 C35.2,11.6052718 28.3947282,4.8 20,4.8 C11.6052718,4.8 4.8,11.6052718 4.8,20 C4.8,28.3947282 11.6052718,35.2 20,35.2 Z M20.38,25.13 L14.7960401,28.0656614 L15.8624815,21.8478307 L11.3449631,17.4443386 L17.5880201,16.5371693 L20.38,10.88 L23.1719799,16.5371693 L29.4150369,17.4443386 L24.8975185,21.8478307 L25.9639599,28.0656614 L20.38,25.13 Z" id="Oval-5" fill="#FFFFFF"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -64,9 +64,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzFreshTab',
-  'chrome://cliqzmodules/content/CliqzFreshTab.jsm');
-
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -79,29 +76,6 @@ else {
     } catch(e){}
 }
 
-function modulePath(moduleName, path) {
-  return "chrome://cliqz/content/"+moduleName+"/"+path;
-}
-
-function openTab(url) {
-  var win = CLIQZEnvironment.getWindow();
-  CLIQZEnvironment.openTabInWindow(win, url);
-}
-
-function isVersionHigherThan(version) {
-  try {
-    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-      .getService(Components.interfaces.nsIXULAppInfo);
-    var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-     .getService(Components.interfaces.nsIVersionComparator);
-
-    return versionChecker.compare(appInfo.version, version) >= 0;
-  } catch (e) {
-    CliqzUtils.log('error checking browser version: ' + e, "core.js");
-    return false;
-  }
-}
-
 window.CLIQZ.COMPONENTS = []; //plug and play components
 
 window.CLIQZ.Core = {
@@ -112,6 +86,7 @@ window.CLIQZ.Core = {
     urlbarEvents: ['focus', 'blur', 'keypress'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
+    windowModules: [],
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
 
@@ -165,7 +140,6 @@ window.CLIQZ.Core = {
 
         this.addCSS(document, 'chrome://cliqzres/content/styles/css/extension.css');
 
-
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
         popup.setAttribute("type", 'autocomplete-richlistbox');
@@ -208,8 +182,20 @@ window.CLIQZ.Core = {
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
 
+        /*
         CLIQZ.COMPONENTS.forEach(function(c){
           c.init && c.init(settings);
+        });
+        */
+
+        settings.window = window;
+
+        CLIQZ.modules.forEach(function (moduleName) {
+          CLIQZ.System.import(moduleName+"/window").then(function (Module) {
+            var mod = new Module.default(settings);
+            mod.init();
+            CLIQZ.Core.windowModules.push(mod);
+          }).catch(function (e) { console.log(e) });
         });
 
         var urlBarGo = document.getElementById('urlbar-go-button');
@@ -364,6 +350,13 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
+        this.windowModules.forEach(function (mod) {
+          try {
+            mod.unload();
+          } catch(e) {}
+        });
+        this.windowModules = [];
+
         clearTimeout(this._whoAmItimer);
         clearTimeout(this._dataCollectionTimer);
 
@@ -470,6 +463,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzAntiPhishing;
+            delete window.CliqzEvents;
         }
     },
     restart: function(soft){
@@ -812,6 +806,7 @@ window.CLIQZ.Core = {
             } catch(e){}
         }
     },
+
     createQbutton: function(win, menupopup){
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);
@@ -848,23 +843,15 @@ window.CLIQZ.Core = {
           var btn = c.button && c.button(win);
           if(btn) menupopup.appendChild(btn);
         });
+        this.windowModules.forEach(function (mod) {
+          var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
+          if (buttonItem) { menupopup.appendChild(buttonItem); }
+        });
       }
       else {
         menupopup.appendChild(this.createActivateButton(doc));
       }
       menupopup.appendChild(this.createHumanMenu(win));
-
-      // FreshTab - TODO - move inside component
-      if(CliqzFreshTab.initialized){
-        menupopup.appendChild(
-          this.createCheckBoxItem(
-            doc,
-            'freshTabState',
-            CliqzUtils.getLocalizedString('btnFreshTab'),
-            true,
-            CliqzFreshTab.toggleState)
-        );
-      }
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),

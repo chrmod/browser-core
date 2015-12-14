@@ -2159,7 +2159,7 @@ var CliqzHumanWeb = {
 
         msg.ver = CliqzHumanWeb.VERSION;
         msg = CliqzHumanWeb.msgSanitize(msg);
-        CliqzHumanWeb.incrActionStats(msg.action);
+        if (msg) CliqzHumanWeb.incrActionStats(msg.action);
         if (msg) CliqzHumanWeb.trk.push(msg);
         CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
         if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
