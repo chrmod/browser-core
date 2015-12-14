@@ -106,16 +106,20 @@ var CliqzUnblock = {
   unblockers: [YoutubeUnblocker],
   load_listeners: new Set(),
   PREF_MODE: "unblockMode",
+  prev_mode: undefined,
   setMode: function(mode) {
     if (["ask", "always", "never"].indexOf(mode) == -1) {
       return;
     }
-    var prev_mode = this.getMode(),
-        changed = mode != prev_mode;
+    this.prev_mode = this.getMode();
     CliqzUtils.setPref(CliqzUnblock.PREF_MODE, mode);
+  },
+  onModeChanged: function() {
+    let mode = this.getMode();
+    let changed = mode != this.prev_mode;
 
     if (changed) {
-      if (prev_mode == "never") {
+      if (this.prev_mode == "never") {
         // never -> x: enable listeners
         this.init();
       } else if (mode == "never") {
@@ -129,10 +133,8 @@ var CliqzUnblock = {
           u.refresh && u.refresh();
         });
       }
-      CliqzUtils.telemetry({
-        'type': 'unblock',
-        'action': 'setting_' + mode
-      });
+      this.prev_mode = mode;
+      CliqzUtils.setTimeout(CliqzUtils.getWindow().CLIQZ.Core.refreshButtons, 0)
     }
   },
   getMode: function() {
@@ -142,6 +144,8 @@ var CliqzUnblock = {
     return this.getMode() != "never";
   },
   init: function() {
+    this.prev_mode = this.getMode();
+
     if (CliqzUnblock.isEnabled()) {
       CliqzUtils.log('init', 'unblock');
 
@@ -232,10 +236,7 @@ var CliqzUnblock = {
       message = 'Content blocked? CLIQZ can try to unblock this for you.',
       box = gBrowser.getNotificationBox(),
       notification = box.getNotificationWithValue('geo-blocking-prevented'),
-      on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0,
-      refreshButtons = function() {
-        CliqzUtils.setTimeout(CliqzUtils.getWindow().CLIQZ.Core.refreshButtons, 0);
-      };
+      on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0;
 
     if (!on_active_tab) {
       // wait until tab is activated
@@ -258,7 +259,6 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_always'
           });
-          refreshButtons();
         }
       },
       {
@@ -271,7 +271,6 @@ var CliqzUnblock = {
             'action': 'allow_once'
           });
           CliqzUnblock.setMode("ask");
-          refreshButtons();
         }
       },
       {
@@ -283,7 +282,6 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_never'
           });
-          refreshButtons();
         }
       }];
       let priority = box.PRIORITY_INFO_MEDIUM;

@@ -56,6 +56,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
@@ -128,6 +129,9 @@ var Extension = {
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
           //CliqzUtils.setPref('changeLogState', 1);
         }
+
+        Extension.cliqzPrefsObserver.register();
+
     },
     unload: function(version, uninstall){
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
@@ -161,6 +165,8 @@ var Extension = {
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
+
+        Extension.cliqzPrefsObserver.unregister();
     },
     restoreSearchBar: function(win){
         var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
@@ -440,6 +446,23 @@ var Extension = {
           urlBarPref.setBoolPref("unifiedcomplete", true);
           CliqzUtils.setPref('unifiedcomplete', false);
         }
+    },
+    cliqzPrefsObserver: {
+      register: function() {
+        var prefService = Components.classes["@mozilla.org/preferences-service;1"]
+                                    .getService(Components.interfaces.nsIPrefService);
+        this.branch = prefService.getBranch('extensions.cliqz.');
+        if (!("addObserver" in this.branch)) {
+          this.branch.QueryInterface(Components.interfaces.nsIPrefBranch2);
+        }
+        this.branch.addObserver("", this, false);
+      },
+      unregister: function() {
+        this.branch.removeObserver("", this);
+      },
+      observe: function(subject, topic, data) {
+        CliqzEvents.pub('prefchange', data);
+      }
     }
 };
 

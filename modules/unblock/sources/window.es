@@ -18,8 +18,6 @@ export default class {
       menu = doc.createElement('menu'),
       menupopup = doc.createElement('menupopup');
 
-    CliqzUtils.log("button", "Xxx");
-
     menu.setAttribute('label', 'Unblock content');
 
     var filter_levels = {
