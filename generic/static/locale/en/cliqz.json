@@ -140,6 +140,12 @@
     "btnStats":{
         "message": "Stats"
     },
+    "adblockbild":{
+        "message": "Deactivate AdBlock Plus on BILD.de"
+    },
+    "adblockbildWarning":{
+        "message": "Would you like CLIQZ to deactivate AdBlock Plus on BILD.de? (AdBlock Plus remains active on all other sites) "
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },

@@ -1,7 +1,7 @@
 'use strict';
 
 TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter, CliqzCampaignManager) {
-	describe('CliqzCampaignManager (integration)', function() {
+	describe('integration CliqzCampaignManager' , function() {
     var response, messageCenter, campaignManager,
     core = CliqzUtils.getWindow().CLIQZ.Core,
     ui = CliqzUtils.getWindow().CLIQZ.UI,
@@ -94,7 +94,7 @@ it('should hide message', function() {
 });
 
 context('URL tests', function () {
-  var url = 'https://cliqz.com';
+  var url = 'about:config';
 
   afterEach(function () {
     if (gBrowser.tabs.length > 1) {
