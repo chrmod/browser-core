@@ -36,7 +36,7 @@ export default class {
           selected: false
         }
     };
-    filter_levels[CliqzUnblock.unblock_mode].selected = true;
+    filter_levels[CliqzUnblock.getMode()].selected = true;
 
     for(var level in filter_levels) {
       var item = doc.createElement('menuitem');

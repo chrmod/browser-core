@@ -1,4 +1,4 @@
-import ProxyUtils from 'unblock/proxy'
+import ProxyUtils from 'unblock/proxy';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
