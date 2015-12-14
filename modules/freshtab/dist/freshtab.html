@@ -7,8 +7,13 @@
     <link href="css/main.css" rel="stylesheet" media="screen" />
 
     <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="platform.js"></script>
+    <script src="js/helpers/telemetry.js"></script>
+    <script src="js/models/history.js"></script>
+    <script src="js/views/dial-ups.js"></script>
+    <script src="js/views/news.js"></script>
+    <script src="js/views/onboarding.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/historySQL.js"></script>
 
     <script id="topNews" type="text/x-handlebars-template">
       <div class="heading">
@@ -27,6 +32,7 @@
         </ul>
       </div>
     </script>
+
     <script id="yourNews" type="text/x-handlebars-template">
       <div class="heading">
         <h2>YOUR NEWS</h2>
@@ -46,7 +52,8 @@
         {{/each}}
       </div>
     </script>
-    <script id="top" type="text/x-handlebars-template">
+
+    <script id="dial-ups" type="text/x-handlebars-template">
     <ul class="clearfix">
       {{#each this}}
         <li>
@@ -57,6 +64,19 @@
         </li>
       {{/each}}
     </ul>
+    </script>
+
+    <script id="partial-onboarding" type="text/x-handlebars-template">
+      <div id="learnMore">
+        <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>
+      </div>
+
+      <div id="firstTimeOnboarding" class="hidden">
+        <div class="options">
+          <a key="freshtab_learn_more" class="moreBtn cliqz-locale" href="https://cliqz.com/aboutus/blog/new-startpage">Learn more</a>
+          <a key="freshtab_back_to_old" class="revertBtn cliqz-locale" href="#">Go back to old page</a>
+        </div>
+      </div>
     </script>
   </head>
   <body id="freshTabPage">
@@ -81,16 +101,7 @@
       <br /><br /><br />
 
     </div>
-    <div id="learnMore">
-      <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>
-    </div>
-
-    <div id="firstTimeOnboarding" class="hidden">
-      <div class="options">
-        <a key="freshtab_learn_more" class="moreBtn cliqz-locale" href="https://cliqz.com/aboutus/blog/new-startpage">Learn more</a>
-        <a key="freshtab_back_to_old" class="revertBtn cliqz-locale" href="#">Go back to old page</a>
-      </div>
-    </div>
+    <div id="onboarding"></div>
 
   </body>
 </html>

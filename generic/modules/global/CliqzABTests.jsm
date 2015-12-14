@@ -20,8 +20,9 @@ var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-    init: function(){
+    init: function(system){
         CliqzABTests.check();
+        this.System = system;
     },
     unload: function(){
         CliqzUtils.clearTimeout(timer);
@@ -278,6 +279,7 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
+<<<<<<< HEAD
             case "1045_A":
                 break;
             case "1045_B":
@@ -317,6 +319,12 @@ var CliqzABTests = {
                 break;
             case "1053_B":
                 CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
+            case "1055_B":
+                this.System.import("unblock/main").then(function (mod) {
+                  mod.default.enable();
+                }).catch(function (e) {
+                  rule_executed = false;
+                });
                 break;
             case "1056_A":
                 CliqzUtils.setPref("freshTabAB", false);
@@ -525,6 +533,7 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
                 break;
+<<<<<<< HEAD
             case "1045_A":
             case "1045_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
@@ -560,6 +569,13 @@ var CliqzABTests = {
                 break;
             case "1053_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
+            case "1055_A":
+            case "1055_B":
+                this.System.import("unblock/main").then(function (mod) {
+                  mod.default.disable();
+                }).catch(function (e) {
+                  rule_executed = false;
+                });
                 break;
             case "1056_A":
             case "1056_B":

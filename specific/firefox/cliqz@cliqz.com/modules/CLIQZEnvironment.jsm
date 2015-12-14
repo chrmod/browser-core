@@ -52,7 +52,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
         classDescription : 'Cliqz',
         contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
+        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
 var CLIQZEnvironment = {
@@ -61,6 +61,7 @@ var CLIQZEnvironment = {
     SKIN_PATH: 'chrome://cliqzres/content/skin/',
     cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
+    LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
     init: function(){
         CLIQZEnvironment.loadSearch();
     },
@@ -117,10 +118,10 @@ var CLIQZEnvironment = {
             case 'string': CLIQZEnvironment.cliqzPrefs.setCharPref(pref, val); break;
           }
     },
-    httpHandler: function(method, url, callback, onerror, timeout, data){
+    httpHandler: function(method, url, callback, onerror, timeout, data, sync){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
-        req.open(method, url, true);
+        req.open(method, url, !sync);
         req.overrideMimeType('application/json');
         req.onload = function(){
             if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
@@ -369,7 +370,10 @@ var CLIQZEnvironment = {
         } else {
           var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
           geoService.getCurrentPosition(function (p) {
-            callback({ lat: p.coords.latitude, lng: p.coords.longitude});
+            callback({
+              lat: CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY),
+              lng: CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY)
+            });
           }, failCB);
         }
     },
@@ -384,16 +388,16 @@ var CLIQZEnvironment = {
       if (CLIQZEnvironment.getPref('share_location') == 'yes') {
         // Get current position
         geoService.getCurrentPosition(function(p) {
-          CLIQZEnvironment.USER_LAT = JSON.stringify(p.coords.latitude);
-          CLIQZEnvironment.USER_LNG =  JSON.stringify(p.coords.longitude);
+          CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
+          CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
         }, function(e) { CLIQZEnvironment.log(e, "Error updating geolocation"); });
 
         //Upate position if it changes
         GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
           // Make another check, to make sure that the user hasn't changed permissions meanwhile
           if (CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.getPref('share_location') == 'yes') {
-            CLIQZEnvironment.USER_LAT = p.coords.latitude;
-            CLIQZEnvironment.USER_LNG =  p.coords.longitude;
+            CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
+            CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
           }
         }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.log(e, "Error updating geolocation"); });
       } else {
