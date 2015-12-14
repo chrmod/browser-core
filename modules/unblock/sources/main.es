@@ -44,8 +44,7 @@ var ProxyManager = function(proxy_service) {
     url: this.PROXY_UPDATE_URL,
     pref: "unblock_proxies",
     this: this,
-    updateFn: this.updateProxyList,
-    updateFreq: 1000 * 60 * 10
+    updateFn: this.updateProxyList
   });
 }
 

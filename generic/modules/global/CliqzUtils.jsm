@@ -1132,13 +1132,13 @@ var CliqzUtils = {
         CliqzUtils._resource_loader.interval = CliqzUtils.setInterval(CliqzUtils._resource_loader.fetcher, 300000);
       }
 
+      load_conf.updateFn.call(load_conf.this, value);
       // expedited fetch for blank data
       if (first_pull) {
         CliqzUtils.setTimeout(function () {
           CliqzUtils._resource_loader.fetch(load_conf);
-        }, 10000 + Math.floor(Math.random() * 50000));
+        }, 0);
       }
-      load_conf.updateFn.call(load_conf.this, value);
       CliqzUtils._resource_loader.queue.push(load_conf);
       return load_conf;
     },
