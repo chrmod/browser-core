@@ -20,7 +20,7 @@ var YoutubeUnblocker = {
         return self.shouldProxy(url);
       }
     });
-    CliqzUtils.createLazyResourceLoader({
+    this._loader = CliqzUtils.createLazyResourceLoader({
       url: this.CONFIG_URL,
       pref: "unblock_yt_config",
       this: self,
@@ -28,6 +28,9 @@ var YoutubeUnblocker = {
         this.conf = JSON.parse(val);
       }
     });
+  },
+  unload: function() {
+    this._loader.cancel();
   },
   refresh: function() {
     // reset internal caches

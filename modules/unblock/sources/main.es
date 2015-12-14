@@ -146,7 +146,12 @@ var CliqzUnblock = {
       CliqzUtils.log('init', 'unblock');
 
       CliqzUnblock.proxy_service = new ProxyUtils.Service();
-      CliqzUnblock.proxy_manager = new ProxyManager(CliqzUnblock.proxy_service);
+      // reuse existing proxy manager if it exists
+      if (CliqzUnblock.proxy_manager) {
+        CliqzUnblock.proxy_manager.proxy_service = CliqzUnblock.proxy_service;
+      } else {
+        CliqzUnblock.proxy_manager = new ProxyManager(CliqzUnblock.proxy_service);
+      }
       CliqzUnblock.request_listener = new RequestListener();
 
       CliqzUnblock.unblockers.forEach(function(b) {

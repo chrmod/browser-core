@@ -1117,6 +1117,13 @@ var CliqzUtils = {
       load_conf.forceFetch = (function() {
         CliqzUtils._resource_loader.fetch(this);
       }).bind(load_conf);
+      load_conf.cancel = function() {
+        let ind = CliqzUtils._resource_loader.queue.indexOf(this);
+        if (ind >= 0) {
+          CliqzUtils._resource_loader.queue.splice(ind, 1);
+        }
+      }.bind(load_conf);
+
       let value = CliqzUtils.getPref(load_conf.pref, load_conf.defaultValue);
       let first_pull = load_conf.lastPull == 0;
 
