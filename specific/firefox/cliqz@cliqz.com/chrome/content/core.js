@@ -66,8 +66,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
+/*
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
   'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
+*/
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
@@ -229,7 +231,7 @@ window.CLIQZ.Core = {
             CliqzDemo.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
-                CliqzSecureMessage.init(window);
+                // CliqzSecureMessage.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
 
@@ -441,7 +443,7 @@ window.CLIQZ.Core = {
         }
         // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
         CliqzAttrack.unload(window);
-        CliqzSecureMessage.unload();
+        // CliqzSecureMessage.unload();
         this.reloadComponent(this.urlbar);
 
         window.removeEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);

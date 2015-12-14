@@ -41,7 +41,6 @@ var Extension = {
     modules: [],
     init: function(){
         Extension.unloadModules();
-
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
         System.baseURL = this.BASE_URI;
 
@@ -299,7 +298,6 @@ var Extension = {
     },
     loadIntoWindow: function(win) {
         if (!win) return;
-
         if(CliqzUtils.shouldLoad(win)){
             Extension.setupCliqzGlobal(win);
             Extension.addScript('core', win);

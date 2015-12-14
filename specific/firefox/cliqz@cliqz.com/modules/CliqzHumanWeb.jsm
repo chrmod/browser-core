@@ -22,9 +22,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
+/*
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
   'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
-
+*/
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
@@ -2171,7 +2172,7 @@ var CliqzHumanWeb = {
         } else {
             CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
         }
-        CliqzSecureMessage.telemetry(msg);
+        // CliqzSecureMessage.telemetry(msg);
     },
     _telemetry_req: null,
     _telemetry_sending: [],
@@ -2204,7 +2205,7 @@ var CliqzHumanWeb = {
             }
             CliqzHumanWeb.previousDataPost = data;
         }
-        // CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
+        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
     },
     pushTelemetryCallback: function(req){
         try {

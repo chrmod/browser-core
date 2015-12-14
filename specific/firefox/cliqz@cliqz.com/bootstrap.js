@@ -1,8 +1,6 @@
 'use strict';
 const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-<<<<<<< HEAD
 XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
   'chrome://cliqzmodules/content/Extension.jsm');
 
