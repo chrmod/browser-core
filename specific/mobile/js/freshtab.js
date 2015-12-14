@@ -23,3 +23,8 @@ var topSitesDone = function (list) {
 
 window.addEventListener('load', init);
 
+
+
+CliqzUtils.getLocalStorage = function(url) {
+    return localStorage;
+}
