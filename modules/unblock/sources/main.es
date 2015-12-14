@@ -121,7 +121,8 @@ var CliqzUnblock = {
       } else if (mode == "never") {
         // x -> never: disable listeners
         this.unload();
-      } else if (mode == "ask") {
+      }
+      if (mode == "ask") {
         // always -> ask: clear existing rules
         this.proxy_service.clearRules();
         this.unblockers.forEach(function(u) {

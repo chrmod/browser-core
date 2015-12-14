@@ -157,12 +157,24 @@ var YoutubeUnblocker = {
     }
     var self = this;
 
-    var vid = this.getVideoID(url);
+    var vid = this.getVideoID(url),
+      proxied = this.proxied_videos.has(vid);
     if(vid && vid.length > 0) {
       // check block cache
       if(vid in this.blocked &&
-        this.blocked[vid]['b'].indexOf(this.current_region) != -1) {
-        return this.blocked[vid]['a'];
+        this.blocked[vid]['a'].indexOf(this.current_region) == -1) {
+        if (proxied) {
+          // proxy rule already exists
+          return;
+        }
+        // blocking was detected, but no proxy rule yet, maybe we need permission?
+        CliqzUtils.setTimeout(function() {
+          self.on_block_cb(url, function() {
+            self.updateProxyRule(vid);
+            self.refreshPageForVideo(vid);
+          });
+        }, 100);
+        return;
       }
       // lookup api
       if (!this.video_lookup_cache.has(vid)) {
@@ -181,11 +193,13 @@ var YoutubeUnblocker = {
               'region': self.current_region
             });
 
-            self.on_block_cb(url, function() {
-              // try to refresh page
-              self.updateProxyRule(vid);
-              self.refreshPageForVideo(vid);
-            });
+            CliqzUtils.setTimeout(function() {
+              self.on_block_cb(url, function() {
+                // try to refresh page
+                self.updateProxyRule(vid);
+                self.refreshPageForVideo(vid);
+              });
+            }, 100);
           }
         });
       }
@@ -196,6 +210,7 @@ var YoutubeUnblocker = {
    */
   refreshPageForVideo: function(vid) {
     var enumerator = Services.wm.getEnumerator('navigator:browser');
+    CliqzUtils.log("refreshPageForVideo: "+ vid, "xxx");
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       var gBrowser = win.gBrowser;
