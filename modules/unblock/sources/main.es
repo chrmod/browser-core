@@ -232,7 +232,10 @@ var CliqzUnblock = {
       message = 'Content blocked? CLIQZ can try to unblock this for you.',
       box = gBrowser.getNotificationBox(),
       notification = box.getNotificationWithValue('geo-blocking-prevented'),
-      on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0;
+      on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0,
+      refreshButtons = function() {
+        CliqzUtils.setTimeout(CliqzUtils.getWindow().CLIQZ.Core.refreshButtons, 0);
+      };
 
     if (!on_active_tab) {
       // wait until tab is activated
@@ -255,6 +258,7 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_always'
           });
+          refreshButtons();
         }
       },
       {
@@ -267,6 +271,7 @@ var CliqzUnblock = {
             'action': 'allow_once'
           });
           CliqzUnblock.setMode("ask");
+          refreshButtons();
         }
       },
       {
@@ -278,6 +283,7 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_never'
           });
+          refreshButtons();
         }
       }];
       let priority = box.PRIORITY_INFO_MEDIUM;
