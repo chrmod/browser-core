@@ -1017,7 +1017,10 @@ var CliqzUtils = {
       from[funcName] = func.bind(to);
     }
   },
-
+  roundToDecimal: function(number, digits) {
+    var multiplier = Math.pow(10, digits);
+    return Math.round(number * multiplier) / multiplier;
+  },
   getAdultFilterState: function(){
     var data = {
       'conservative': {

@@ -3,7 +3,6 @@ import datetime
 import glob
 import math
 import os
-import urllib
 import uuid
 import shutil
 import sys
@@ -258,7 +257,7 @@ def upload_folder(input_folder, bucket,
             else:
                 key = "/".join([key_prefix,
                                root[len(input_folder) + 1:],
-                               urllib.name])
+                               name])
             upload(filename, bucket, key, options)
 
 
@@ -271,12 +270,12 @@ def upload(filename, bucket, key, options):
         try:
             conn = S3Connection()
             bucket = conn.get_bucket(bucket)
-            key = bucket.new_key(key)
+            key = bucket.new_key(key.decode('iso8859-1').encode('utf-8'))
             key.set_contents_from_filename(filename)
             if options.public_read:
                 key.set_acl('public-read')
-        except S3ResponseError:
-            sys.stderr.write("error uploading %s\n" % key)
+        except S3ResponseError, e:
+            sys.stderr.write("error uploading: %s\n", str(e))
 
 
 if __name__ == '__main__':
