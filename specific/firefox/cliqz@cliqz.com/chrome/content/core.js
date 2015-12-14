@@ -802,13 +802,14 @@ window.CLIQZ.Core = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                this.createQbutton(win, btn.children.cliqz_menupopup);
+                win.CLIQZ.Core.createQbutton(btn.children.cliqz_menupopup);
             } catch(e){}
         }
     },
 
-    createQbutton: function(win, menupopup){
-        var doc = win.document,
+    createQbutton: function(menupopup){
+        var win = window,
+            doc = win.document,
             lang = CliqzUtils.getLanguage(win);
 
         //clean it

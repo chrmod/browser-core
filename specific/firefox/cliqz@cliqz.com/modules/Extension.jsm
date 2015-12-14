@@ -376,10 +376,10 @@ var Extension = {
         //FF16+
         if(Services.search.init != null){
             Services.search.init(function(){
-                win.CLIQZ.Core.createQbutton(win, menupopup);
+                win.CLIQZ.Core.createQbutton(menupopup);
             });
         } else {
-            win.CLIQZ.Core.createQbutton(win, menupopup);
+            win.CLIQZ.Core.createQbutton(menupopup);
         }
     },
     unloadFromWindow: function(win){
