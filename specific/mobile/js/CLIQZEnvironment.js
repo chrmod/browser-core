@@ -13,7 +13,9 @@ CLIQZEnvironment = {
     var richHeaderUrl = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map";
     richHeaderUrl += "&q=" + searchString;
     richHeaderUrl += "&bmresult=" + url;
-    richHeaderUrl += "&loc=" + CLIQZEnvironment.USER_LAT + "," + CLIQZEnvironment.USER_LNG + ",U";
+    if(CLIQZEnvironment.location_enabled) {
+      richHeaderUrl += "&loc=" + CLIQZEnvironment.USER_LAT + "," + CLIQZEnvironment.USER_LNG + ",U";
+    }
     var request = new XMLHttpRequest();
     request.open('GET', encodeURI(richHeaderUrl), true);
     request.onreadystatechange = function () {
@@ -232,7 +234,16 @@ CLIQZEnvironment = {
     CLIQZEnvironment.setResultNavigation(r._results, showGooglethis, renderedResults.results.length);
   },
 
-  search: function(e) {
+  search: function(e, location_enabled, latitude, longitude) {
+    CLIQZEnvironment.location_enabled = location_enabled;
+    if(location_enabled) {
+      CLIQZEnvironment.USER_LAT = latitude;
+      CLIQZEnvironment.USER_LNG = longitude;
+    } else {
+      CLIQZEnvironment.USER_LAT = undefined;
+      CLIQZEnvironment.USER_LNG = undefined;
+    }
+    
     if(document.getElementById('recentitems')) {
       // document.getElementById('recentitems').style.display = "none";
     }
@@ -377,84 +388,6 @@ CLIQZEnvironment = {
   setPref: function(pref, val){
     //Logger.log("setPrefs",arguments);
     localStorage.setItem(pref,val);
-  },
-
-  getGeo: function(allowOnce, callback, failCB) { 
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-    /*
-    @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
-                                This is used when the user clicks on Share Location "Just once".
-                                */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
-      failCB("No permission to get user's location");
-      return;
-    }
-
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG) {
-      callback({
-        lat: CLIQZEnvironment.USER_LAT,
-        lng: CLIQZEnvironment.USER_LNG
-      });
-    } else {
-      navigator.geolocation.getCurrentPosition.getCurrentPosition(function (p) {
-        callback({ lat: p.coords.latitude, lng: p.coords.longitude});
-      }, failCB);
-    }
-  },
-  removeGeoLocationWatch: function() {
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-    GEOLOC_WATCH_ID && navigator.geolocation.clearWatch(GEOLOC_WATCH_ID);
-  },
-
-  updateGeoLocation: function() { 
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-
-    var geoService = navigator.geolocation;
-    CLIQZEnvironment.removeGeoLocationWatch();
-
-    if (CLIQZEnvironment.getPref('share_location') == 'yes') {
-      // Get current position
-      geoService.getCurrentPosition(function(p) {
-        CLIQZEnvironment.USER_LAT = JSON.stringify(p.coords.latitude);
-        CLIQZEnvironment.USER_LNG =  JSON.stringify(p.coords.longitude);
-      }, function(e) { Logger.log(e, "Error updating geolocation"); });
-
-      //Upate position if it changes
-      GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
-        // Make another check, to make sure that the user hasn't changed permissions meanwhile
-        if (CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.getPref('share_location') == 'yes') {
-          CLIQZEnvironment.USER_LAT = p.coords.latitude;
-          CLIQZEnvironment.USER_LNG =  p.coords.longitude;
-        }
-      }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && Logger.log(e, "Error updating geolocation"); });
-    } else {
-      CLIQZEnvironment.USER_LAT = null;
-      CLIQZEnvironment.USER_LNG = null;
-    }
-
-    //Logger.log(CLIQZEnvironment.USER_LNG,"Env->updateGeoLocation")
-
-  },
-
-  setLocationPermission: function(window, newPerm) {
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-    if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
-      CLIQZEnvironment.setPref('share_location',newPerm);
-      CLIQZEnvironment.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
-      CLIQZEnvironment.updateGeoLocation();
-    }
   },
   setInterval: function(){ return setInterval.apply(null, arguments) },
   setTimeout: function(){ return setTimeout.apply(null, arguments) },
@@ -614,7 +547,7 @@ CLIQZEnvironment = {
   },
   distance: function(lon1, lat1, lon2, lat2) {
     var R = 6371; // Radius of the earth in km
-    if(!lon2) { return 0 }
+    if(!lon2 || !lon1 || !lat2 || !lat1) { return 0 }
     var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
     var dLon = (lon2-lon1).toRad(); 
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
