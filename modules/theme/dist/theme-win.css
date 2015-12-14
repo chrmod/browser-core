@@ -27,6 +27,12 @@
 #tabbrowser-tabs {
     min-height: 27px;
 }
+
+.tab-background {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+}
+
 .tab-background-start,
 .tab-background-end {
     display: none;
@@ -45,7 +51,7 @@
 }
 
 .tabbrowser-tab {
-    margin: 0 2px;
+    margin: 0 2px 0 3px;
 }
 .tabbrowser-tab:not([pinned]) {
     max-width: 195px;
