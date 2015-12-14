@@ -17,7 +17,7 @@ function resendRequest(forceResend) {
   var shouldResend = forceResend || isRequestFailed;
   if(shouldResend) {
     CliqzUtils.log("RESENDING","resendRequest");
-    setTimeout(CLIQZEnvironment.search , 500, CliqzAutocomplete.lastSearch);
+    setTimeout(search_mobile, 500, CliqzAutocomplete.lastSearch, CLIQZEnvironment.location_enabled, CLIQZEnvironment.latitude, CLIQZEnvironment.longitude);
     isRequestFailed = false;
   }
 }
@@ -38,9 +38,6 @@ var db = {
 };
 
 var onAndroid = false;
-
-
-var GEOLOC_WATCH_ID;
 
 
 
