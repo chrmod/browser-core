@@ -48,6 +48,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     tab_id;
 
                 beforeEach(function(done) {
+                    CliqzAttrack.tp_events._active = {};
                     tabs.push(gBrowser.addTab("https://cliqz.com"));
                     // get tab id from tp_events (assumption that this is correct)
                     waitIfNotReady(function() {

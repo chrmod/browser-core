@@ -2388,7 +2388,7 @@ var CliqzAttrack = {
     unloadWindow: function(window) {
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
         window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        window.gBrowser.removeProgressListener(onUrlbarFocus);
+        window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
