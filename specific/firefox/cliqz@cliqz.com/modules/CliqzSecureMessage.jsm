@@ -315,6 +315,7 @@ function _http(url){
         var client = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         var uri = url;
         var ts = new Date().getTime();
+        CliqzSecureMessage.performance.mark("query-s");
 
         client.open(method, uri, true);
         client.setRequestHeader("x-type", type ? type : "delayed");
@@ -328,6 +329,10 @@ function _http(url){
           var te = new Date().getTime();
           CliqzUtils.log("Time taken: " + (te - ts),CliqzSecureMessage.LOG_KEY);
           CliqzSecureMessage.stats(uri, "latency", (te-ts));
+          CliqzSecureMessage.performance.mark("query-e");
+          CliqzSecureMessage.performance.measure("lat","query-s","query-e")
+          // CliqzUtils.log("Time taken2: " + CliqzSecureMessage.performance.getEntriesByName("lat"),CliqzSecureMessage.LOG_KEY);
+
           if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
             // Performs the function "resolve" when this.status is equal to 2xx
             resolve(this.response);
@@ -1048,6 +1053,7 @@ var CliqzSecureMessage = {
     routeHashTable:null,
     pacemakerId:null,
     queryProxyIP:null,
+    performance:null,
     pushTelemetry: function() {
         // if(CliqzSecureMessage._telemetry_req) return;
 
@@ -1089,7 +1095,8 @@ var CliqzSecureMessage = {
     init: function(window){
     	// Doing it here, because this lib. uses navigator and window objects.
     	// Better method appriciated.
-
+    	CliqzSecureMessage.performance = window.performance;
+    	CliqzUtils.log("XXXXXX: + " + CliqzSecureMessage.performance.now(),"XXXX");
         if (CliqzSecureMessage.pacemakerId==null) {
             CliqzSecureMessage.pacemakerId = CliqzUtils.setInterval(CliqzSecureMessage.pacemaker, CliqzSecureMessage.tpace, null);
         }
