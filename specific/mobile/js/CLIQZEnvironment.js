@@ -246,12 +246,12 @@ CLIQZEnvironment = {
 
     if(!e || e == "") {
       CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.getNews();
+      // CLIQZEnvironment.getNews();
       CLIQZEnvironment.stopProgressBar();
       return;
     }
-    var topnews = window.document.getElementById("topNews");
-    topnews && topnews.parentNode.removeChild(topnews);
+    // var topnews = window.document.getElementById("topNews");
+    // topnews && topnews.parentNode.removeChild(topnews);
 
     if(e.toLowerCase() == "testme") {
       initTest();

@@ -5,7 +5,7 @@ if(localStorage.length == 0) {
 //     start.setAttribute("id", "first-time");
 //     start.innerHTML = "Hello";
 //     window.document.body.appendChild(start);
-    CLIQZEnvironment.getNews();
+//     CLIQZEnvironment.getNews();
   });
   
 }
