@@ -2,19 +2,27 @@ import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
 
 export default {
-  init() {
+  init(settings) {
+    this.buttonEnabled = settings.antitrackingButton;
+
     CliqzAttrack.init();
-    this.popup = new CliqzPopupButton({
-      name: "antitracking",
-      actions: this.popupActions
-    });
-    this.popup.attach();
+
+    if ( this.buttonEnabled ) {
+      this.popup = new CliqzPopupButton({
+        name: "antitracking",
+        actions: this.popupActions
+      });
+      this.popup.attach();
+    }
   },
 
   unload() {
-    this.popup.destroy();
+    if ( this.popup ) {
+      this.popup.destroy();
+    }
+
     try {
-    CliqzAttrack.unload();
+      CliqzAttrack.unload();
     } catch(e) { }
   },
 

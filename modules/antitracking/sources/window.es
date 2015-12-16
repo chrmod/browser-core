@@ -20,21 +20,28 @@ function onLocationChange(ev) {
 
 export default class {
 
-  constructor(settings) {
-    this.window = settings.window;
+  constructor(config) {
+    this.window = config.window;
 
     this.popup = background.popup;
-    this.onLocationChange = onLocationChange.bind(this);
+
+    if ( this.popup ) {
+      this.onLocationChange = onLocationChange.bind(this);
+    }
   }
 
   init() {
     CliqzAttrack.initWindow(this.window);
-    CliqzEvents.sub("core.location_change", this.onLocationChange);
+    if ( this.popup ) {
+      CliqzEvents.sub("core.location_change", this.onLocationChange);
+    }
   }
 
   unload() {
-    CliqzEvents.un_sub("core.location_change", this.onLocationChange);
-    CliqzUtils.clearInterval(this.interval);
+    if ( this.popup ) {
+      CliqzEvents.un_sub("core.location_change", this.onLocationChange);
+      CliqzUtils.clearInterval(this.interval);
+    }
     CliqzAttrack.unloadWindow(window);
   }
 
