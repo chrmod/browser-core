@@ -247,11 +247,13 @@ CLIQZEnvironment = {
     if(!e || e == "") {
       CLIQZ.UI.main(resultsBox);
       CLIQZEnvironment.getNews();
+      osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
       CLIQZEnvironment.stopProgressBar();
       return;
     }
-    var topnews = window.document.getElementById("topNews");
-    topnews && topnews.parentNode.removeChild(topnews);
+    window.document.getElementById("freshstart").style.display = 'none';
+    window.document.getElementById("topNews").style.display = 'none';
+    window.document.getElementById("topSites").style.display = 'none';
 
     if(e.toLowerCase() == "testme") {
       initTest();
@@ -635,29 +637,53 @@ CLIQZEnvironment = {
   }, 
   getNews: function() {
     console.log("Start getting news");
-    return CliqzFreshTabNews.getNews().then(function(news) {
+    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+  },
+  displayTopNews: function(news) {
 
-      var top_news = news.top_h_news;
+    var top_news = news.top_h_news;
 
-      console.log('top news', top_news)
-      top_news = top_news.map(function(r){
-        var details = CliqzUtils.getDetailsFromUrl(r.url);
-        var logo = CliqzUtils.getLogoDetails(details);
-        return {
-          title: r.title,
-          description: r.description,
-          short_title: r.short_title,
-          displayUrl: details.domain || r.title,
-          url: r.url,
-          text: logo.text,
-          backgroundColor: logo.backgroundColor,
-          buttonsClass: logo.buttonsClass,
-          style: logo.style
-        }
-      });
-      var topNews = CliqzHandlebars.tplCache["topnews"];
-      document.body.innerHTML = topNews(top_news) + document.body.innerHTML;
+    console.log('top news', top_news)
+    top_news = top_news.map(function(r){
+      var details = CliqzUtils.getDetailsFromUrl(r.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      return {
+        title: r.title,
+        description: r.description,
+        short_title: r.short_title,
+        displayUrl: details.domain || r.title,
+        url: r.url,
+        text: logo.text,
+        backgroundColor: logo.backgroundColor,
+        buttonsClass: logo.buttonsClass,
+        style: logo.style
+      }
     });
+    if(!CliqzHandlebars.tplCache.topnews) return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
+    var topNews = CliqzHandlebars.tplCache["topnews"];
+    var div = window.document.getElementById('topNews');
+    div.style.display = 'block';
+    div.innerHTML = topNews(top_news);
+  },
+  displayTopSites: function (list) {
+    list = list.map(function(r){
+      var details = CliqzUtils.getDetailsFromUrl(r.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      return {
+        title: r.title,
+        displayUrl: details.domain || r.title,
+        url: r.url,
+        text: logo.text,
+        backgroundColor: logo.backgroundColor,
+        buttonsClass: logo.buttonsClass,
+        style: logo.style
+      }
+    });
+    if(!CliqzHandlebars.tplCache.topsites) return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
+    var topSites = CliqzHandlebars.tplCache["topsites"];
+    var div = window.document.getElementById('topSites');
+    div.style.display = 'block';
+    div.innerHTML = topSites(list);
   }
 
 }
