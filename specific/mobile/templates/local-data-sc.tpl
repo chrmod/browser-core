@@ -1,4 +1,4 @@
-<!-- local-data-sc.tpl -->
+{{debug}}<!-- local-data-sc.tpl -->
 {{#if data.big_rs_size}}
   <div class="cqz-result-h2 cqz-local cqz-result-padding cqz-local-result">
     <div class="cqz-zone-holder">
@@ -21,7 +21,9 @@
                 <img data-src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
               </div>
               <div>
-                  {{distance distance}}
+                  {{#unless no_location}}
+                      {{distance distance}}
+                  {{/unless}}
               </div>
             </div>
           </div>
@@ -71,8 +73,6 @@
               {{/if}}
 
             </div>
-          {{else}}
-            {{>partials/missing_location_step_1}}
           {{/unless}}
         </div>
       {{/with}}
