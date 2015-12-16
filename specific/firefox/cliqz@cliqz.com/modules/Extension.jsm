@@ -85,30 +85,17 @@ var Extension = {
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();
 
-        // Modules loading
+        // Load Config
         CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-          var config;
-          try {
-            config = JSON.parse(res.response);
-          } catch(e) { dump(e); return; }
-
-          Object.keys(config.prefs).forEach(function (pref) {
-            CliqzUtils.setPref(pref, config.prefs[pref]);
-          });
-
-          try {
-            this.modules = config.modules;
-
-            this.modules.map(function (moduleName) {
-              return System.import(moduleName+"/background");
-            }).forEach(function (modulePromise) {
-              modulePromise.then(function (module) {
-                module.default.init();
-              }).catch(function (e) { /* die silently */ });
-            });
-
-          } catch(e) { dump(e) }
+          this.config = JSON.parse(res.response);
         }.bind(this), function () {}, undefined, undefined, true);
+
+        // Load and initialize modules
+        this.config.modules.forEach(function (moduleName) {
+          return System.import(moduleName+"/background").then(function (module) {
+            module.default.init(this.config.settings);
+          }.bind(this)).catch(function (e) { /* die silently */ });
+        }.bind(this));
 
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -191,12 +178,14 @@ var Extension = {
         }
     },
     unloadModules: function(){
-        this.modules.forEach(function (moduleName) {
-          try {
-            System.get(moduleName+"/background").default.unload();
-          } catch(e) {
-          }
-        });
+        if(this.config) {
+          this.config.modules.forEach(function (moduleName) {
+            try {
+              System.get(moduleName+"/background").default.unload();
+            } catch(e) {
+            }
+          });
+        }
 
         //unload all cliqz modules
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
@@ -286,7 +275,7 @@ var Extension = {
           } catch(e){}
       }
       win.CLIQZ.System = System;
-      win.CLIQZ.modules = this.modules;
+      win.CLIQZ.config = this.config;
     },
     loadIntoWindow: function(win) {
         if (!win) return;

@@ -75,8 +75,6 @@ var locationListener = {
   }
 };
 
-window.CLIQZ.COMPONENTS = []; //plug and play components
-
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
@@ -157,8 +155,11 @@ window.CLIQZ.Core = {
         this.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        var settings = {};
-        settings.onInstall = !this.checkSession();
+        var windowModuleConfig = {
+          onInstall: !this.checkSession(),
+          settings: CLIQZ.config.settings,
+          window: window,
+        };
 
         this._autocompletesearch = this.urlbar.getAttribute('autocompletesearch');
         this.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -183,16 +184,9 @@ window.CLIQZ.Core = {
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
 
-        /*
-        CLIQZ.COMPONENTS.forEach(function(c){
-          c.init && c.init(settings);
-        });
-        */
-        settings.window = window;
-
-        CLIQZ.modules.forEach(function (moduleName) {
+        CLIQZ.config.modules.forEach(function (moduleName) {
           CLIQZ.System.import(moduleName+"/window").then(function (Module) {
-            var mod = new Module.default(settings);
+            var mod = new Module.default(windowModuleConfig);
             mod.init();
             CLIQZ.Core.windowModules.push(mod);
           }).catch(function (e) { console.log(e) });
@@ -407,9 +401,6 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
-            CLIQZ.COMPONENTS.forEach(function(c){
-              c.unload && c.unload();
-            })
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window) ){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -843,10 +834,6 @@ window.CLIQZ.Core = {
         menupopup.appendChild(this.createAdultFilterOptions(doc));
         menupopup.appendChild(this.createLocationPermOptions(win));
 
-        CLIQZ.COMPONENTS.forEach(function(c){
-          var btn = c.button && c.button(win);
-          if(btn) menupopup.appendChild(btn);
-        });
         this.windowModules.forEach(function (mod) {
           var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
           if (buttonItem) { menupopup.appendChild(buttonItem); }
