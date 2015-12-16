@@ -1,6 +1,7 @@
 /*
  * This module prevents user from 3rd party tracking
  */
+import TrackingTable from 'antitracking/local-tracking-table';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -4741,64 +4742,6 @@ var CliqzAttrack = {
         'action': 'domain_whitelist_remove'
       });
       CliqzAttrack.saveSourceDomainWhitelist();
-    },
-    tracking_table: {
-      create: function() {
-          var tracking_table = "create table if not exists 'attrack_tracking' (\
-                  'tp' VARCHAR(16) NOT NULL,\
-                  'fp' VARCHAR(16) NOT NULL,\
-                  'key' VARCHAR(32) NOT NULL,\
-                  'value' VARCHAR(32) NOT NULL,\
-                  'count' INTEGER DEFAULT 1,\
-                  'lastTime' INTEGER DEFAULT 0,\
-                  CONSTRAINT pkey PRIMARY KEY ('tp', 'fp', 'key', 'value')\
-              )";
-          (CliqzAttrack.dbConn.executeSimpleSQLAsync || CliqzAttrack.dbConn.executeSimpleSQL)(tracking_table);
-      },
-      loadTokens: function() {
-        var query = "INSERT OR IGNORE INTO 'attrack_tracking'\
-          ('tp', 'fp', 'key', 'value')\
-          VALUES\
-          (:tp, :fp, :key, :value);\
-          UPDATE 'attrack_tracking' SET\
-          'count' = 'count' + 1,\
-          'lastTime' = CAST(strftime('%s','now') AS INTEGER)\
-          WHERE 'tp' = :tp,\
-          'fp' = :fp,\
-          'key' = :key,\
-          'value' = :value ;",
-          stmt = CliqzAttrack.dbConn.createStatement(query),
-          params = stmt.newBindingParamsArray(),
-          count = 0;
-        for (var tp in CliqzAttrack.tokens) {
-          // skip header tokens
-          if (tp.length > 16) {
-            continue;
-          }
-          for (var fp in CliqzAttrack.tokens[tp]) {
-            for (var key in CliqzAttrack.tokens[tp][fp]['kv']) {
-              for (var token in CliqzAttrack.tokens[tp][fp]['kv'][key]) {
-                var bp = params.newBindingParams();
-                bp.bindByName("tp", tp);
-                bp.bindByName("fp", fp);
-                bp.bindByName("key", key);
-                bp.bindByName("value", token);
-                params.addParams(bp);
-                count++;
-              }
-            }
-          }
-        }
-        if (count > 0) {
-          CliqzUtils.log("Add "+ count +" tokens for hour", "attrack");
-          stmt.bindParameters(params);
-          stmt.executeAsync({
-            handleError: function(err) {
-              CliqzUtils.log(err, "xxx");
-            }
-          });
-        }
-      }
     },
     lookup: function(hash) {
       var matches = []
