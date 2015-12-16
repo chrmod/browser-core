@@ -11,7 +11,8 @@ function getExtensionDirectory() {
   return JSON.parse(prefs.getCharPref('extensions.xpiState'))['app-profile']['cliqz@cliqz.com']['d'];
 }
 
-TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHumanWeb) {
+TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
+  var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
 
   describe('CliqzAttrack_integration', function() {
 
@@ -139,9 +140,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       // make sure that module is loaded (default it is not initialised on extension startup)
       if(!module_enabled) {
         CliqzUtils.setPref('antiTrackTest', true);
-        CliqzAttrack.unloadAtBrowser();
-        CliqzAttrack.initAtBrowser();
-        CliqzAttrack.init(window);
+        CliqzAttrack.enableModule();
       }
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
@@ -163,8 +162,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzAttrack, CliqzUtils, CliqzHuma
       });
       tabs = [];
       if(!module_enabled) {
-        CliqzUtils.setPref('antiTrackTest', false);
-        CliqzAttrack.unloadAtBrowser();
+        CliqzAttrack.disableModule();
       }
     });
 

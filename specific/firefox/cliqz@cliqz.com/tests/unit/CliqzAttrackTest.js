@@ -13,23 +13,21 @@ function waitIfNotReady(fn) {
     });
 }
 
-TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
+TESTS.AttrackTest = function (CliqzUtils) {
+    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     beforeEach(function() {
         // make sure that module is loaded (default it is not initialised on extension startup)
         if(!module_enabled) {
-            CliqzUtils.setPref('antiTrackTest', true);
-            CliqzAttrack.unloadAtBrowser();
-            CliqzAttrack.initAtBrowser();
+            CliqzAttrack.enableModule();
         }
     });
 
     afterEach(function() {
         // revert module status
         if(!module_enabled) {
-            CliqzUtils.setPref('antiTrackTest', false);
-            CliqzAttrack.unloadAtBrowser();
+            CliqzAttrack.disableModule();
         }
     });
 
@@ -50,6 +48,7 @@ TESTS.AttrackTest = function (CliqzAttrack, CliqzUtils) {
                     tab_id;
 
                 beforeEach(function(done) {
+                    CliqzAttrack.tp_events._active = {};
                     tabs.push(gBrowser.addTab("https://cliqz.com"));
                     // get tab id from tp_events (assumption that this is correct)
                     waitIfNotReady(function() {

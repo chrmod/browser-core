@@ -1,3 +1,4 @@
+<!-- images_beta.tpl -->
 <div class='cqz-result-images cqz-result-images-{{ data.lines }}'>
      <div class='cqz-ez-title cqz-ez-images-title'>
         Images
@@ -8,7 +9,7 @@
         <div class="cliqz-image-item"
              style='width:{{disp_width}}px; height:{{disp_height}}px;'
              type="image" url="{{ ref_url }}">
-                <img class="cliqz-image-clear" src="{{ thumb.url}}"
+                <img class="cliqz-image-clear" data-src="{{ thumb.url}}"
                      id="{{im_url}}"
                      width="{{disp_width}}"
                      height="{{disp_height}}"

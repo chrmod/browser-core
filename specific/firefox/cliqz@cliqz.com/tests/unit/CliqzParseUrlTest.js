@@ -376,7 +376,8 @@ function fullTest(testFn) {
     testSpecArray(testFn, 'combined', combined);
 }
 
-TESTS.CliqzParseUrlTest = function (CliqzHumanWeb, CliqzAttrack, CliqzUtils) {
+TESTS.CliqzParseUrlTest = function (CliqzHumanWeb, CliqzUtils) {
+  var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
     describe('CliqzAttrack.parseURL', function() {
 
         var testFn = CliqzAttrack.parseURL;
