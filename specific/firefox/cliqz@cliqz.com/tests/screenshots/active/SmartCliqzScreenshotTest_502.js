@@ -13,5 +13,6 @@ TESTS.SmartCliqzTest = prepareScreenshotTest({
     queries: QUERIES.top.concat(
         QUERIES.smartcliqz).concat(
         QUERIES.thuy).concat(
-        QUERIES.michel)
+        QUERIES.michel),
+    test_groups: ['nightly']
 });

@@ -140,6 +140,12 @@
     "btnStats":{
         "message": "Stats"
     },
+    "adblockbild":{
+        "message": "Deactivate AdBlock Plus on BILD.de"
+    },
+    "adblockbildWarning":{
+        "message": "Would you like CLIQZ to deactivate AdBlock Plus on BILD.de? (AdBlock Plus remains active on all other sites) "
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
@@ -916,6 +922,24 @@
     },
     "humanWeb10": {
       "message": "I participate in the Human Web"
+    },
+    "attrack-headline-general": {
+      "message": "On <strong>{}</strong>, {}&nbsp;third-party cookies blocked and {}&nbsp;private data leaks prevented."
+    },
+    "attrack-headline-deactivate": {
+      "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
+    },
+    "attrack-headline-no-site": {
+      "message": "This page does not contain any trackers."
+    },
+    "attrack-btn-power-on": {
+      "message": "Activate"
+    },
+    "attrack-btn-power-off": {
+      "message": "Deactivate"
+    },
+    "attrack-btn-white-list": {
+      "message": "Allow tracking for this site"
     },
     "freshtab_learn_more": {
       "message": "Learn more"

@@ -100,6 +100,15 @@ var CliqzUtils = {
       'conversations': 1,
       'conversations_future': 1
   },
+  VERTICAL_TEMPLATES: {
+        'n': 'news'    ,
+        'p': 'people'  ,
+        'v': 'video'   ,
+        'h': 'hq'      ,
+        'r': 'recipe' ,
+        'g': 'cpgame_movie',
+        'o': 'cpgame_movie'
+    },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){
@@ -245,8 +254,8 @@ var CliqzUtils = {
       }
     }
   },
-  httpGet: function(url, callback, onerror, timeout){
-    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
+  httpGet: function(url, callback, onerror, timeout, _, sync){
+    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout, _, sync);
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
@@ -270,6 +279,7 @@ var CliqzUtils = {
       onerror && onerror();
     }
   },
+  openTabInWindow: CLIQZEnvironment.openTabInWindow,
   getPrefs: CLIQZEnvironment.getPrefs,
   getPref: CLIQZEnvironment.getPref,
   isPrefBool: CLIQZEnvironment.isPrefBool,
@@ -1007,7 +1017,10 @@ var CliqzUtils = {
       from[funcName] = func.bind(to);
     }
   },
-
+  roundToDecimal: function(number, digits) {
+    var multiplier = Math.pow(10, digits);
+    return Math.round(number * multiplier) / multiplier;
+  },
   getAdultFilterState: function(){
     var data = {
       'conservative': {
