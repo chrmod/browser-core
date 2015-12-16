@@ -139,7 +139,7 @@ var CliqzUnblock = {
   },
   unblockPrompt: function(url, cb) {
     var gBrowser = CliqzUtils.getWindow().gBrowser,
-      message = 'Content blocked? CLIQZ can try to unblock this for you.',
+      message = CliqzUtils.getLocalizedString("unblock_prompt"),
       box = gBrowser.getNotificationBox(),
       notification = box.getNotificationWithValue('geo-blocking-prevented'),
       on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0;
@@ -155,7 +155,7 @@ var CliqzUnblock = {
     } else {
       var notification;
       var buttons = [{
-        label: 'Great, thanks!',
+        label: CliqzUtils.getLocalizedString("unblock_always"),
         accessKey: 'B',
         callback: function() {
           box.removeNotification(notification);
@@ -168,7 +168,7 @@ var CliqzUnblock = {
         }
       },
       {
-        label: 'Just this once',
+        label: CliqzUtils.getLocalizedString("unblock_once"),
         callback: function() {
           box.removeNotification(notification);
           cb();
@@ -180,7 +180,7 @@ var CliqzUnblock = {
         }
       },
       {
-        label: 'Never ask again',
+        label: CliqzUtils.getLocalizedString("unblock_never"),
         callback: function() {
           CliqzUnblock.setMode("never");
           box.removeNotification(notification);

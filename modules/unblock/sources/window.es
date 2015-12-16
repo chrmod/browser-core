@@ -18,7 +18,7 @@ export default class {
       menu = doc.createElement('menu'),
       menupopup = doc.createElement('menupopup');
 
-    menu.setAttribute('label', 'Unblock content');
+    menu.setAttribute('label', CliqzUtils.getLocalizedString("unblock_menu_option"));
 
     var filter_levels = {
         'always': {
