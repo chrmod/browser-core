@@ -42,7 +42,7 @@ export default class {
       CliqzEvents.un_sub("core.location_change", this.onLocationChange);
       CliqzUtils.clearInterval(this.interval);
     }
-    CliqzAttrack.unloadWindow(window);
+    CliqzAttrack.unloadWindow(this.window);
   }
 
   updateBadge() {

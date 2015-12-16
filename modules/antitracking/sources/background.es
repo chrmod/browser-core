@@ -21,9 +21,7 @@ export default {
       this.popup.destroy();
     }
 
-    try {
-      CliqzAttrack.unload();
-    } catch(e) { }
+    CliqzAttrack.unload();
   },
 
   popupActions: {
