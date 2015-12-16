@@ -13,6 +13,6 @@
                   cliqz-action="alternative-search-engine">{{ text }}</div>
         {{/each}}
     </div>
-    <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
+    <div class="cliqz-logo" url="https://cliqz.com"></div>
 </div>
 {{/with}}

@@ -94,6 +94,7 @@ var ENGINES = [
 CLIQZEnvironment = {
     TEMPLATES_PATH: 'templates/',
     LOCALE_PATH: 'locale/',
+    SKIN_PATH: 'skin/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     isPrefBool: function(k, d){return typeof(db[k]) === 'boolean' ? true : false },

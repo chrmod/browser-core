@@ -140,6 +140,12 @@
     "btnStats":{
         "message": "Stats"
     },
+    "adblockbild":{
+        "message": "Deactivate AdBlock Plus on BILD.de"
+    },
+    "adblockbildWarning":{
+        "message": "Would you like CLIQZ to deactivate AdBlock Plus on BILD.de? (AdBlock Plus remains active on all other sites) "
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
@@ -596,6 +602,9 @@
     "btnActivateCliqz": {
       "message": "Activate Cliqz"
     },
+    "btnFreshTab": {
+      "message": "Enable CLIQZ Start Page and New Tabs"
+    },
     "publish_date": {
         "message": "Publish date"
     },
@@ -913,5 +922,14 @@
     },
     "humanWeb10": {
       "message": "I participate in the Human Web"
+    },
+    "freshtab_learn_more": {
+      "message": "Learn more"
+    },
+    "freshtab_back_to_old": {
+      "message": "Go back to old start page"
+    },
+    "freshtab_top_news": {
+      "message": "Top News"
     }
 }
