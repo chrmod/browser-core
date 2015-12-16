@@ -53,7 +53,7 @@ CLIQZEnvironment = {
     if( val && val.length > 0){
       val = val.replace(/http([s]?):\/\/(www.)?/,"");
       val = val.toLowerCase();
-      var urlbarValue = urlbar.value.toLowerCase();
+      var urlbarValue = CliqzAutocomplete.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) == 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
@@ -70,8 +70,18 @@ CLIQZEnvironment = {
     });
   },
 
+  setDimensions: function() {
+    CLIQZEnvironment.PEEK = 20,
+    CLIQZEnvironment.PADDING = 16,
+    CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
+  },
+
   renderResults: function(r, showGooglethis, validCount) {
-    
+
+    r.encodedSearchString = encodeURIComponent(r._searchString);
+
+    CLIQZEnvironment.setDimensions();
+        
     var historyCount = 0;
     for(var i = 0; i < r._results.length; i++) {
       if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
@@ -88,6 +98,7 @@ CLIQZEnvironment = {
 
 
     resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
+    resultsBox.style.marginLeft = CLIQZEnvironment.PEEK + 'px';
     item_container.style.width = resultsBox.style.width;
 
     CLIQZEnvironment.stopProgressBar();
@@ -96,14 +107,13 @@ CLIQZEnvironment = {
     CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src]');
     CLIQZEnvironment.imgLoader.start();
 
-
     return CLIQZ.UI.results({
       searchString: r._searchString,
-      frameWidth: window.innerWidth,
+      frameWidth: CLIQZEnvironment.CARD_WIDTH,
       results: r._results.map(function(r, idx){
         r.type = r.style;
-        r.left = (window.innerWidth * validCount);
-        r.frameWidth = window.innerWidth;
+        r.left = (CLIQZEnvironment.CARD_WIDTH * validCount);
+        r.frameWidth = CLIQZEnvironment.CARD_WIDTH;
         r.url = r.val || '';
         r.title = r.comment || '';
 
@@ -115,10 +125,10 @@ CLIQZEnvironment = {
           }),
       isInstant: false,
       googleThis: {
-        left: (window.innerWidth * validCount),
+        left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
-        frameWidth: window.innerWidth,
-        searchString: r._searchString
+        frameWidth: CLIQZEnvironment.CARD_WIDTH,
+        searchString: r.encodedSearchString
       }
     });
   },
@@ -184,8 +194,8 @@ CLIQZEnvironment = {
   },
   resultsHandler: function (r, requestHolder) {
 
-    if( urlbar.value != r._searchString  ){
-      CliqzUtils.log("u='"+urlbar.value+"'' s='"+r._searchString+"', returning","urlbar!=search");
+    if( CliqzAutocomplete.lastSearch != r._searchString  ){
+      CliqzUtils.log("u='"+CliqzAutocomplete.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
@@ -223,57 +233,36 @@ CLIQZEnvironment = {
   },
 
   search: function(e) {
-    setTimeout(function() {
-      if(document.getElementById('recentitems')) {
-        // document.getElementById('recentitems').style.display = "none";
-      }
+    if(document.getElementById('recentitems')) {
+      // document.getElementById('recentitems').style.display = "none";
+    }
 
-      item_container = document.getElementById('cliqz-results');
-      var currentScrollInfo = {
-        page: 0,
-        totalOffset: 0,
-        pageOffset: 0
-      }; 
+    item_container = document.getElementById('cliqz-results');
+    var currentScrollInfo = {
+      page: 0,
+      totalOffset: 0,
+      pageOffset: 0
+    }; 
 
-      if(urlbar.value == "") {
-        CLIQZ.UI.main(resultsBox);
-        CLIQZEnvironment.renderRecentQueries(true);
-        CLIQZEnvironment.stopProgressBar();
-        return;
-      }
+    if(e == "") {
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.renderRecentQueries(true);
+      CLIQZEnvironment.stopProgressBar();
+      return;
+    }
 
-      if(urlbar.value.toLowerCase().match("imdb")) {
-        CliqzUtils.setBackendToBeta();
-      } else {
-        CliqzUtils.setBackendToLive();
-      }
-
-      if(urlbar.value.toLowerCase() == "testme") {
-        initTest();
-      }
-      var logscreen = document.getElementById("logscreen"); 
-
-      if(urlbar.value.toLowerCase() == "d.on") {
-        logscreen.style.left = "0px";
-          //document.getElementById("recentbutton").style.display = "block";
-          return;
-        }
-
-        if(urlbar.value.toLowerCase() == "d.off") {
-          logscreen.style.left = "-5000px";
-          return;
-        }
-        CLIQZEnvironment.startProgressBar();
+    if(e.toLowerCase() == "testme") {
+      initTest();
+    }
+    CLIQZEnvironment.startProgressBar();
 
 
-      // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      CliqzUtils.log(urlbar.value,"XHR");
-      (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler);
-    }, 5); 
+    // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    CliqzUtils.log(e,"XHR");
+    (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
   },
 
   initViewpager: function() {
-    var w = window.innerWidth;
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
@@ -284,7 +273,7 @@ CLIQZEnvironment = {
       onPageScroll : function (scrollInfo) {
         currentScrollInfo = scrollInfo;
         offset = -scrollInfo.totalOffset;
-        CLIQZEnvironment.crossTransform(resultsBox, (offset * w));
+        CLIQZEnvironment.crossTransform(resultsBox, (offset * CLIQZEnvironment.CARD_WIDTH));
         CLIQZEnvironment.openLinksAllowed = false;
       },
 
@@ -485,9 +474,9 @@ CLIQZEnvironment = {
     latestUrl = url;
 
     if(isMixerUrl(url)) {
-      var cache = localStorage.getCachedResult(urlbar.value);
+      var cache = localStorage.getCachedResult(CliqzAutocomplete.lastSearch);
       if(cache) {
-        callback(cache, urlbar.value);
+        callback(cache, CliqzAutocomplete.lastSearch);
         return;
       }
       if(!window.navigator.onLine) {

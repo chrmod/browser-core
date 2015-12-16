@@ -3,8 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-var logscreen = document.getElementById("logscreen"); 
-
 document.getElementById("reconnecting").style.display = "none"; 
 
 CLIQZ.UI.init(urlbar);
@@ -39,6 +37,11 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     return formatedDate;
 });
 
+Handlebars.registerHelper('uriEncode', function(uriComponent) {
+    return encodeURIComponent(uriComponent);
+});
+
+
 
 function trace() {
   try {
@@ -72,16 +75,6 @@ CLIQZEnvironment.updateGeoLocation();
 
 setInterval("CLIQZEnvironment.updateGeoLocation();",5000);
 
-CliqzUtils.setBackendToBeta = function() {
-  CliqzUtils.RESULTS_PROVIDER = "http://mixer-beta.clyqz.com/api/v1/results?q=";
-  CliqzUtils.RICH_HEADER = "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map";
-}
-
-CliqzUtils.setBackendToLive = function() {
-  CliqzUtils.RESULTS_PROVIDER = "https://newbeta.cliqz.com/api/v1/results?q=";
-  CliqzUtils.RICH_HEADER = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map"
-}
-
 //CliqzUtils.RESULTS_PROVIDER = "http://mixer-beta.clyqz.com/api/v1/results?q=";
 //CliqzUtils.RICH_HEADER = "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map";
 
@@ -96,44 +89,30 @@ var debugcss = "background-color:#00aa00;display:block;"
 CLIQZEnvironment.openLinksAllowed = true;
 
 CliqzUtils.setPref("share_location","yes");
-CliqzUtils.setPref("adultContentFilter","liberal");
+CliqzUtils.setPref("adultContentFilter","moderate");
 
 
 CliqzUtils.requestMonitor.inHealth = function() { return true; }
 
 
 CLIQZEnvironment.renderRecentQueries();
- 
 
-
-CLIQZEnvironment.delayTimer = null;
-function doSearch(text) {
-//     clearTimeout(CLIQZEnvironment.delayTimer);
-//     CLIQZEnvironment.delayTimer = setTimeout(function() {
-//         CLIQZEnvironment.search(text);
-//     }, 200);
-  CLIQZEnvironment.search(text);
-}
-
-urlbar.addEventListener('keydown', function(e){
-  doSearch(urlbar.value);
-});
 
 //TODO: Should be refactored!!!!
 
 function search_mobile(e) {
-  urlbar.value = e;
-  doSearch(e);
+  CLIQZEnvironment.search(e);
 }
 
 window.addEventListener('resize', function () {
   setTimeout(function () {
+    CLIQZEnvironment.setDimensions();
     var w = window.innerWidth;
     var frames = document.getElementsByClassName("frame");
     var i;
     for(i=0;i<frames.length;i++) {
-      frames[i].style.left = (w*i) +"px";
-      frames[i].style.width = w+"px";
+      frames[i].style.left = (CLIQZEnvironment.CARD_WIDTH*i) +"px";
+      frames[i].style.width = CLIQZEnvironment.CARD_WIDTH+"px";
     }
     
     if(CLIQZEnvironment.vp) {

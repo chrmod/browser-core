@@ -1078,7 +1078,8 @@ var CliqzUtils = {
                       template:'noResult',
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
                       // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
-                      // we should take care of this specific case differently on alternative platforms
+                      // the following line is added for other platforms
+                      searchString: CliqzAutocomplete.lastSearch,
                       text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
                       "search_engines": chosen,
                       //use local image in case of no internet connection

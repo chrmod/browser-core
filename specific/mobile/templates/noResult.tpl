@@ -1,6 +1,6 @@
 <!-- noResult.tpl -->
 {{#with data}}
-<div url="http://www.google.com/#q={{encodedSearchString}}" class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+<div url="http://www.google.com/search?q={{uriEncode searchString}}" class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
   <div class="ez">
     <div id="googleThisAnim">
           <br>
