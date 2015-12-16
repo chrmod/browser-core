@@ -46,9 +46,16 @@ var YoutubeUnblocker = {
       let region = this.proxy_manager.getPreferredRegion(block_info['a']);
       let proxy = this.proxy_manager.getNextProxy(region);
       if (proxy) {
+        var rule = new RegexProxyRule(regex, proxy, region);
         this.proxied_videos.add(vid);
-        this.proxy_service.addProxyRule(new RegexProxyRule(regex, proxy, region));
+        this.proxy_service.addProxyRule(rule);
         this.blocked[vid]['p'] = region;
+        // revert rule after 1 minute
+        CliqzUtils.setTimeout(function() {
+          this.proxied_videos.delete(vid);
+          this.proxy_service.removeProxyRule(rule);
+          this.blocked[vid]['p'] = undefined;
+        }.bind(this), 60000);
       }
     }
   },

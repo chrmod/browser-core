@@ -40,10 +40,8 @@ export default class {
     return this.rules.push(rule);
   }
 
-  removeProxyRule(id) {
-    let index = this.rules.findIndex(function(rule) {
-      return rule.id == id;
-    });
+  removeProxyRule(rule) {
+    let index = this.rules.indexOf(rule);
     return index >=0 ? this.rules.splice(index, 1) : null;
   }
 
