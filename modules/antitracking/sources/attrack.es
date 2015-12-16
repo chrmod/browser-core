@@ -1945,6 +1945,7 @@ var CliqzAttrack = {
             subScriptLoader.loadSubScript("chrome://cliqzmodules/content/foat.js", aWin.document);
             */
             // Blacklist : Need to move it to webservice.
+            /*
             var canvasBlackList = ['amiunique.org','www.browserleaks.com'];
 
 
@@ -1980,7 +1981,7 @@ var CliqzAttrack = {
                 ,aProgress.DOMWindow.HTMLCanvasElement.prototype,
                 {defineAs:"toDataURL"}
             );
-
+            */
             // Introspect getImageData
 
             /*
@@ -2830,7 +2831,9 @@ var CliqzAttrack = {
             } else {
                 if (CliqzAttrack.debug) CliqzUtils.log("CliqzAttrack.tokenExtWhitelist version up-to-date", "attrack");
             }
-            if ('obfuscateMethod' in versioncheck) CliqzAttrack.obfuscateMethod = versioncheck['obfuscateMethod'];
+            // To prevent accidental update of the config file which might enable scramble for AMO users which might not respect
+            // tracker.txt and they can be removed by the AB test but we will lose data collection
+            // if ('obfuscateMethod' in versioncheck) CliqzAttrack.obfuscateMethod = versioncheck['obfuscateMethod'];
             if ('replacement' in versioncheck) CliqzAttrack.replacement = versioncheck['replacement'];
         }, function() {
             // on error: just try and load anyway
@@ -3382,6 +3385,7 @@ var CliqzAttrack = {
 
         }
     },
+    /*
     assessAlertRules: function(url, doc) {
 
         // here we have to eval if we should show the alert or not,
@@ -3417,6 +3421,8 @@ var CliqzAttrack = {
         }
 
     },
+    */
+    /*
     openListOfVisitsFromNotification: function(url) {
         CliqzUtils.openTabInWindow(CliqzUtils.getWindow(), CliqzAttrack.URL_ALERT_TEMPLATE_2);
         // FIXME: this is super hacky
@@ -3455,6 +3461,8 @@ var CliqzAttrack = {
         }, 500);
 
     },
+    */
+    /*
     insertAlertNotification: function(url, doc) {
         try {
             if (CliqzAttrack.debug) CliqzUtils.log("insertAlertNotification for " + url, CliqzAttrack.LOG_KEY);
@@ -3551,6 +3559,8 @@ var CliqzAttrack = {
 
 
     },
+    */
+    /*
     insertAlertHTML: function(url, doc) {
 
         var popUp = domParser.parseFromString(CliqzAttrack.alertTemplate, "text/html");
@@ -3635,6 +3645,7 @@ var CliqzAttrack = {
         els.innerHTML = "window.onbeforeunload = function () {}";
         doc.body.appendChild(els);
     },
+    */
     checkTokens: function(url_parts, source_url, cookievalue, stats, source_url_parts) {
         // bad tokens will still be returned in the same format
 
