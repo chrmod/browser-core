@@ -2247,6 +2247,11 @@ var CliqzAttrack = {
         if((CliqzAttrack.counter/CliqzAttrack.tmult) % (2 * 60) == 0) {
             CliqzAttrack.tp_events.commit();
             CliqzAttrack.tp_events.push();
+
+            CliqzAttrack.saveState();
+            CliqzAttrack.saveTokens();
+            CliqzAttrack.saveLocalTokenStats();
+            CliqzAttrack.saveSafeKey();
         }
 
     },
@@ -2383,7 +2388,9 @@ var CliqzAttrack = {
     unloadWindow: function(window) {
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
         window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
+        if (window.CLIQZ) {
+            window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
+        }
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
@@ -3091,6 +3098,7 @@ var CliqzAttrack = {
         var st = CliqzAttrack.dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
         st.params.id = id;
         st.params.data = data;
+        var t_start = (new Date()).getTime();
 
         st.executeAsync({
             handleError: function(aError) {
@@ -3102,6 +3110,8 @@ var CliqzAttrack = {
                 if(CliqzAttrack && CliqzAttrack.debug){
                     if (CliqzAttrack.debug) CliqzUtils.log("Insertion success", CliqzAttrack.LOG_KEY);
                 }
+                var t_end = (new Date()).getTime();
+                CliqzUtils.log("Save "+ id +" in "+ (t_end - t_start) +"ms, data length = "+ data.length, "xxx");
             }
         });
 
