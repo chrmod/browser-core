@@ -138,9 +138,13 @@ export function clear_persistent(value) {
 };
 
 export function get_value(key, default_value) {
-  return CliqzUtils.getPref("attrack." + key, default_value);
-}
+  let val = CliqzUtils.getPref("attrack." + key, default_value);
+  CliqzUtils.setPref("attrack." + key, val);
+  return val;
+};
 
 export function set_value(key, value) {
   CliqzUtils.setPref("attrack." + key, value);
-}
+};
+
+export { loadRecord, saveRecord };

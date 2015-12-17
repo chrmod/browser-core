@@ -2214,7 +2214,12 @@ var CliqzAttrack = {
 
         pacemaker.register(CliqzAttrack.saveState, two_mins);
         pacemaker.register(CliqzAttrack.saveLocalTokenStats, two_mins);
-        pacemaker.register(CliqzAttrack.saveSafeKey, two_mins);
+
+        // every hour
+        let hourly = 60 * 60 * 1000;
+        pacemaker.register(CliqzAttrack.pruneSafeKey, hourly);
+        pacemaker.register(CliqzAttrack.pruneTokenDomain, hourly);
+        pacemaker.register(CliqzAttrack.pruneRequestKeyValue, hourly);
 
     },
     counter: 0,
@@ -2253,15 +2258,29 @@ var CliqzAttrack = {
             }
          );
 
+        // load all caches:
+        // Large dynamic caches are loaded via the persist module, which will lazily propegate changes back
+        // to the browser's sqlite database.
+        // Large static caches (e.g. token whitelist) are loaded from sqlite
+        // Smaller caches (e.g. update timestamps) are kept in prefs
         persist.create_persistent("tokens", (v) => CliqzAttrack.tokens = v);
         persist.create_persistent("blocked", (v) => CliqzAttrack.blocked = v);
 
         if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
-        if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
-        if (CliqzAttrack.tokenDomain == null) CliqzAttrack.loadTokenDomain();
+
+        CliqzAttrack.safeKey = {};
+        persist.create_persistent("safeKey", (v) => CliqzAttrack.safeKey = v);
+        try {
+            CliqzAttrack.lastUpdate = JSON.parse(persist.get_value("lastUpdate"));
+        } catch(e) {
+            CliqzAttrack.lastUpdate = ['0', '0'];
+        }
+
+        persist.create_persistent("tokenDomain", (v) => CliqzAttrack.tokenDomain = v);
+        persist.create_persistent("requestKeyValue", (v) => CliqzAttrack.requestKeyValue = v);
+
         if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
         if (CliqzAttrack.blockReportList == null) CliqzAttrack.loadReportLists();
-        if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
         if (CliqzAttrack.wrongTokenLastSent==null || CliqzAttrack.loadedPage==null ||
             CliqzAttrack.localBlocked==null || CliqzAttrack.checkedToken==null || CliqzAttrack.blockedToken)
             CliqzAttrack.loadLocalTokenStats();
@@ -2405,9 +2424,10 @@ var CliqzAttrack = {
 
     },
     sendTokens: function() {
-        var payl;
+        var payl,
+            safeKeyExtVersion = persist.get_value("safeKeyExtVersion", "");
         if (CliqzAttrack.tokens) {
-            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
+            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
@@ -2418,7 +2438,6 @@ var CliqzAttrack = {
 
         // send also safe keys
         if (CliqzAttrack.safeKey) {
-            CliqzAttrack.saveSafeKey();
             // get only keys from local key
             var day = CliqzAttrack.getTime().substring(0, 8);
             var dts = {}, local = {}, localE = 0, s, k;
@@ -2437,12 +2456,12 @@ var CliqzAttrack = {
                     }
                 }
             }
-            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
+            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
         }
         // send block list
         if (CliqzAttrack.blocked) {
-            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
+            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
@@ -2580,7 +2599,7 @@ var CliqzAttrack = {
                                  dayHour.substring(6, 8),
                                  dayHour.substring(8, 10)));
     },
-    saveSafeKey: function() {
+    pruneSafeKey: function() {
         var day = CliqzAttrack.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
         var dayCutoff = CliqzAttrack.dateString(day);
@@ -2594,14 +2613,6 @@ var CliqzAttrack = {
                 delete CliqzAttrack.safeKey[s];
             }
         }
-        if (CliqzAttrack.safeKey)
-            CliqzAttrack.saveRecord('safeKey', JSON.stringify(CliqzAttrack.safeKey));
-        if (CliqzAttrack.safeKeyExtVersion)
-            CliqzAttrack.saveRecord('safeKeyExtVersion', CliqzAttrack.safeKeyExtVersion);
-        if (CliqzAttrack.lastUpdate)
-            CliqzAttrack.saveRecord('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
-        CliqzAttrack.saveRequestKeyValue();
-        CliqzAttrack.saveTokenDomain();
     },
     saveLocalTokenStats: function() {
         CliqzAttrack.cleanLocalBlocked();
@@ -2613,7 +2624,7 @@ var CliqzAttrack = {
         );
         CliqzAttrack.saveRecord('wrongTokenLastSent', CliqzAttrack.wrongTokenLastSent);
     },
-    saveTokenDomain: function() {
+    pruneTokenDomain: function() {
         var day = CliqzAttrack.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
         var dayCutoff = CliqzAttrack.dateString(day);
@@ -2628,10 +2639,8 @@ var CliqzAttrack = {
                 delete CliqzAttrack.tokenDomain[tok];
             }
         }
-        if (CliqzAttrack.tokenDomain)
-            CliqzAttrack.saveRecord('tokenDomain', JSON.stringify(CliqzAttrack.tokenDomain));
     },
-    saveRequestKeyValue: function() {
+    pruneRequestKeyValue: function() {
         var day = CliqzAttrack.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
         var dayCutoff  = CliqzAttrack.dateString(day);
@@ -2650,11 +2659,9 @@ var CliqzAttrack = {
                 delete CliqzAttrack.requestKeyValue[s];
             }
         }
-        if (!CliqzAttrack.requestKeyValue) return;
-        CliqzAttrack.saveRecord('requestKeyValue', JSON.stringify(CliqzAttrack.requestKeyValue));
     },
     saveTokenWhitelist: function() {
-        CliqzAttrack.saveRecord('tokenExtWhitelist', JSON.stringify(CliqzAttrack.tokenExtWhitelist));
+        persist.saveRecord('tokenExtWhitelist', JSON.stringify(CliqzAttrack.tokenExtWhitelist));
     },
     cleanLocalBlocked: function() {
         var delay = CliqzAttrack.localBlockExpire,
@@ -2757,19 +2764,18 @@ var CliqzAttrack = {
         CliqzAttrack._updated = {};
     },
     loadRemoteWhitelists: function() {
-        var today = CliqzAttrack.getTime().substring(0, 8);
+        var today = CliqzAttrack.getTime().substring(0, 8),
+            safeKeyExtVersion = persist.get_value('safeKeyExtVersion', '');
         CliqzUtils.httpGet(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK +"?"+ today, function(req) {
             // on load
             var versioncheck = JSON.parse(req.response);
             // new version available
-            if(versioncheck['safekey_version'] != CliqzAttrack.safeKeyExtVersion) {
-                if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.safeKey available ("+ CliqzAttrack.safeKeyExtVersion +" -> "+ versioncheck['safekey_version'] +")", "attrack");
+            if(versioncheck['safekey_version'] != safeKeyExtVersion) {
+                if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.safeKey available ("+ safeKeyExtVersion +" -> "+ versioncheck['safekey_version'] +")", "attrack");
                 if(versioncheck['force_clean'] == true) {
                     if (CliqzAttrack.debug) CliqzUtils.log("Force clean CliqzAttrack.safeKey", "attrack");
-                    CliqzAttrack.safeKey = {};
-                    CliqzAttrack.requestKeyValue = {};
-                    CliqzAttrack.saveSafeKey();
-                    CliqzAttrack.saveRequestKeyValue();
+                    persist.clear_persistent(CliqzAttrack.safeKey);
+                    persist.clear_persistent(CliqzAttrack.requestKeyValue);
                 }
                 CliqzAttrack.loadRemoteSafeKey();
             } else {
@@ -2823,6 +2829,7 @@ var CliqzAttrack = {
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
                 CliqzAttrack.checkWrongToken('token');
                 CliqzAttrack.lastUpdate[1] = CliqzAttrack.getTime();
+                persist.set_value('lastUpdate', CliqzAttrack.lastUpdate);
             },
             function() {},
             10000);
@@ -2833,14 +2840,15 @@ var CliqzAttrack = {
             CliqzAttrack.URL_SAFE_KEY +"?"+ today,
             function(req) {
                 var safeKey = JSON.parse(req.response),
-                    s, k;
+                    s, k,
+                    safeKeyExtVersion = md5(req.response);
                 for (s in safeKey) {
                     for (k in safeKey[s]) {
                         // r for remote keys
                         safeKey[s][k] = [safeKey[s][k], 'r'];
                     }
                 }
-                CliqzAttrack.safeKeyExtVersion = md5(req.response);
+                persist.set_value("safeKeyExtVersion", safeKeyExtVersion);
                 for (s in safeKey) {
                     if (!(s in CliqzAttrack.safeKey)) {
                         CliqzAttrack.safeKey[s] = safeKey[s];
@@ -2852,10 +2860,10 @@ var CliqzAttrack = {
                         }
                     }
                 }
-                CliqzAttrack.saveSafeKey();
-                if (CliqzAttrack.debug) CliqzUtils.log("Loaded new safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("Loaded new safekey version "+ safeKeyExtVersion, "attrack");
                 CliqzAttrack.checkWrongToken('safeKey');
                 CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
+                persist.set_value('lastUpdate', CliqzAttrack.lastUpdate);
             },
             function() {
                 // on error
@@ -2864,7 +2872,7 @@ var CliqzAttrack = {
     },
     loadTokenWhitelist: function() {
         CliqzAttrack.tokenExtWhitelist = {};
-        CliqzAttrack.loadRecord('tokenExtWhitelist', function(data) {
+        persist.loadRecord('tokenExtWhitelist', function(data) {
             if (data == null) return;
             try {
                 CliqzAttrack.tokenExtWhitelist = JSON.parse(data);
@@ -2898,92 +2906,6 @@ var CliqzAttrack = {
                 CliqzAttrack.wrongTokenLastSent = CliqzAttrack.getTime().slice(0, 8);
             } else
                 CliqzAttrack.wrongTokenLastSent = data;
-        });
-    },
-    loadTokenDomain: function() {
-        CliqzAttrack.tokenDomain = {};
-        CliqzAttrack.loadRecord('tokenDomain', function(data) {
-            if (data == null) {
-                CliqzAttrack.tokenDomain = {};
-            } else {
-                try {
-                    CliqzAttrack.tokenDomain = JSON.parse(data);
-                } catch(e) {
-                    CliqzAttrack.tokenDomain = {};
-                }
-            }
-        });
-    },
-    loadSafeKey: function() {
-        CliqzAttrack.safeKey = {}; // set empty value first, loading takes a while
-        CliqzAttrack.safeKeyExtVersion = null;
-        CliqzAttrack.lastUpdate = ['0', '0'];
-        CliqzAttrack.loadRecord('lastUpdate', function(data) {
-            if (data == null) {
-                CliqzAttrack.lastUpdate = ['0', '0'];
-            } else {
-                try {
-                    CliqzAttrack.lastUpdate = JSON.parse(data);
-                } catch (e) {
-                    CliqzAttrack.lastUpdate = ['0', '0'];
-                }
-            }
-        });
-        CliqzAttrack.loadRecord('safeKey', function(data) {
-            if (data == null) {
-                CliqzAttrack.safeKey = {};
-            } else {
-                try {
-                    CliqzAttrack.safeKey = JSON.parse(data);
-                } catch(e) {
-                    CliqzAttrack.safeKey = {};
-                }
-                // safeKey should be stored as md5, if not, clean the cache
-                for (var k in CliqzAttrack.safeKey) {
-                    if (k.length != 16) {
-                        if (CliqzAttrack.debug) CliqzUtils.log('Cleaning unhashed data', 'attrack');
-                        CliqzAttrack.safeKey = {};
-                        CliqzAttrack.saveSafeKey();
-                        break;
-                    }
-                    for (var kk in CliqzAttrack.safeKey[k]) {
-                        if (CliqzAttrack.safeKey[k][kk].length != 2) {
-                            if (CliqzAttrack.debug) CliqzUtils.log('Cleaning data without source', 'attrack');
-                            CliqzAttrack.safeKey = {};
-                            CliqzAttrack.saveSafeKey();
-                            break;
-                        }
-                    }
-                }
-            }
-        });
-        // load remote safeKey
-        CliqzAttrack.loadRecord('safeKeyExtVersion', function(data) {
-            if (data != null)
-                CliqzAttrack.safeKeyExtVersion = data;
-                if (CliqzAttrack.debug) CliqzUtils.log("Loaded existing safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
-            CliqzAttrack.loadRemoteWhitelists();
-        });
-    },
-    loadRequestKeyValue: function() {
-        CliqzAttrack.requestKeyValue = {};
-        CliqzAttrack.loadRecord('requestKeyValue', function(data) {
-            if (data == null) {
-                CliqzAttrack.requestKeyValue = {};
-            } else {
-                try {
-                    CliqzAttrack.requestKeyValue = JSON.parse(data);
-                } catch(e) {
-                    CliqzAttrack.requestKeyValue = {};
-                }
-                for (var k in CliqzAttrack.requestKeyValue) {
-                    if (k.length != 16) {
-                        CliqzAttrack.requestKeyValue = {};
-                        CliqzAttrack.saveRequestKeyValue();
-                        return;
-                    }
-                }
-            }
         });
     },
     saveRecord: function(id, data) {
