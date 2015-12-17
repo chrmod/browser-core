@@ -2,7 +2,7 @@
  * This module prevents user from 3rd party tracking
  */
 import pacemaker from 'antitracking/pacemaker';
-import {create_persistent, clear_persistent} from "antitracking/persistant-state";
+import {create_persistent, clear_persistent, get_value, set_value} from "antitracking/persistent-state";
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2256,8 +2256,6 @@ var CliqzAttrack = {
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
         create_persistent("tokens", (v) => CliqzAttrack.tokens = v);
         create_persistent("blocked", (v) => CliqzAttrack.blocked = v);
-        if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
-        if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
 
         if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
@@ -2410,7 +2408,7 @@ var CliqzAttrack = {
     sendTokens: function() {
         var payl;
         if (CliqzAttrack.tokens) {
-            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
+            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
@@ -2440,12 +2438,12 @@ var CliqzAttrack = {
                     }
                 }
             }
-            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
+            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
         }
         // send block list
         if (CliqzAttrack.blocked) {
-            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
+            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
@@ -2490,13 +2488,12 @@ var CliqzAttrack = {
         var timestamp = CliqzHumanWeb.getTime().slice(0,8);
         // day resolution,
 
-        if (timestamp != CliqzAttrack.stateLastSent) {
+        if (timestamp != get_value("stateLastSent", CliqzHumanWeb.getTime().slice(0,8))) {
 
             // it's not the same timestamp (day) of the last time that was sent
             // or the first install (defaults to current timestamp)
 
-            CliqzAttrack.stateLastSent = timestamp;
-            CliqzAttrack.saveStateLastSent();
+            set_value("stateLastSent", timestamp);
 
             // CliqzAttrack.sendState();
 
@@ -2508,16 +2505,18 @@ var CliqzAttrack = {
         var timestamp = CliqzHumanWeb.getTime().slice(0,10);
         // hour resolution,
 
-        if (timestamp != CliqzAttrack.tokensLastSent) {
+        if (timestamp != CliqzAttrack.tokensLastSent()) {
 
             // it's not the same timestamp (hour) of the last time that was sent
             // or the first install (defaults to current timestamp)
 
-            CliqzAttrack.tokensLastSent = timestamp;
-            CliqzAttrack.saveTokensLastSent();
+            set_value("tokensLastSent", timestamp);
 
             CliqzAttrack.sendTokens();
         }
+    },
+    tokensLastSent: function() {
+        return get_value("tokensLastSent", CliqzHumanWeb.getTime().slice(0,10));
     },
     applyWhitelistFixtures: function() {
         //CliqzAttrack.whitelist['mail.google.com'] = true;
@@ -2749,7 +2748,7 @@ var CliqzAttrack = {
                              'loadedPage': countLoadedPage
                             },
                     'ver': CliqzAttrack.VERSION,
-                    'ts': CliqzAttrack.tokensLastSent,
+                    'ts': CliqzAttrack.tokensLastSent(),
                     'anti-duplicates': Math.floor(Math.random() * 10000000),
                     'whitelist': CliqzAttrack.tokenWhitelistVersion,
                     'safeKey': CliqzAttrack.safeKeyExtVersion
@@ -2986,32 +2985,6 @@ var CliqzAttrack = {
                     }
                 }
             }
-        });
-    },
-    saveStateLastSent: function() {
-        CliqzAttrack.saveRecord('state_last_send', CliqzAttrack.stateLastSent);
-    },
-    loadStateLastSent: function() {
-        CliqzAttrack.loadRecord('state_last_send', function(data) {
-            if (data==null) {
-                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.stateLastSent", CliqzAttrack.LOG_KEY);
-                CliqzAttrack.stateLastSent = CliqzHumanWeb.getTime().slice(0,8);
-                CliqzAttrack.saveStateLastSent();
-            }
-            else CliqzAttrack.stateLastSent = data;
-        });
-    },
-    saveTokensLastSent: function() {
-        CliqzAttrack.saveRecord('tokens_last_send', CliqzAttrack.tokensLastSent);
-    },
-    loadTokensLastSent: function() {
-        CliqzAttrack.loadRecord('tokens_last_send', function(data) {
-            if (data==null) {
-                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.tokensLastSent", CliqzAttrack.LOG_KEY);
-                CliqzAttrack.tokensLastSent = CliqzHumanWeb.getTime().slice(0,10);
-                CliqzAttrack.saveTokensLastSent();
-            }
-            else CliqzAttrack.tokensLastSent = data;
         });
     },
     saveRecord: function(id, data) {

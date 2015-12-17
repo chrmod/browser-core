@@ -136,3 +136,11 @@ export function clear_persistent(value) {
     delete value[k];
   }
 };
+
+export function get_value(key, default_value) {
+  return CliqzUtils.getPref("attrack." + key, default_value);
+}
+
+export function set_value(key, value) {
+  CliqzUtils.setPref("attrack." + key, value);
+}
