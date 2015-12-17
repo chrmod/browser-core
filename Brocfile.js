@@ -216,6 +216,7 @@ var mobile = new MergeTrees([
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localMobile,    { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
+  new Funnel(modules,        { destDir: 'modules' }),
 ]);
 
 if (buildEnv === 'production') {
