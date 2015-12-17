@@ -13,7 +13,9 @@ CLIQZEnvironment = {
     var richHeaderUrl = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map";
     richHeaderUrl += "&q=" + searchString;
     richHeaderUrl += "&bmresult=" + url;
-    richHeaderUrl += "&loc=" + CLIQZEnvironment.USER_LAT + "," + CLIQZEnvironment.USER_LNG + ",U";
+    if(CLIQZEnvironment.location_enabled) {
+      richHeaderUrl += "&loc=" + CLIQZEnvironment.USER_LAT + "," + CLIQZEnvironment.USER_LNG + ",U";
+    }
     var request = new XMLHttpRequest();
     request.open('GET', encodeURI(richHeaderUrl), true);
     request.onreadystatechange = function () {
@@ -53,7 +55,7 @@ CLIQZEnvironment = {
     if( val && val.length > 0){
       val = val.replace(/http([s]?):\/\/(www.)?/,"");
       val = val.toLowerCase();
-      var urlbarValue = CliqzAutocomplete.lastSearch.toLowerCase();
+      var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) == 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
@@ -194,8 +196,8 @@ CLIQZEnvironment = {
   },
   resultsHandler: function (r, requestHolder) {
 
-    if( CliqzAutocomplete.lastSearch != r._searchString  ){
-      CliqzUtils.log("u='"+CliqzAutocomplete.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
+    if( CLIQZEnvironment.lastSearch != r._searchString  ){
+      CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
@@ -231,8 +233,17 @@ CLIQZEnvironment = {
 
     CLIQZEnvironment.setResultNavigation(r._results, showGooglethis, renderedResults.results.length);
   },
+  search: function(e, location_enabled, latitude, longitude) {
+    CLIQZEnvironment.lastSearch = e;
+    CLIQZEnvironment.location_enabled = location_enabled;
+    if(location_enabled) {
+      CLIQZEnvironment.USER_LAT = latitude;
+      CLIQZEnvironment.USER_LNG = longitude;
+    } else {
+      CLIQZEnvironment.USER_LAT = undefined;
+      CLIQZEnvironment.USER_LNG = undefined;
+    }
 
-  search: function(e) {
     if(document.getElementById('recentitems')) {
       // document.getElementById('recentitems').style.display = "none";
     }
@@ -244,12 +255,16 @@ CLIQZEnvironment = {
       pageOffset: 0
     }; 
 
-    if(e == "") {
+    if(!e || e == "") {
       CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.renderRecentQueries(true);
+      CLIQZEnvironment.getNews();
+      osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
       CLIQZEnvironment.stopProgressBar();
       return;
     }
+    window.document.getElementById("freshstart").style.display = 'none';
+    window.document.getElementById("topNews").style.display = 'none';
+    window.document.getElementById("topSites").style.display = 'none';
 
     if(e.toLowerCase() == "testme") {
       initTest();
@@ -378,84 +393,6 @@ CLIQZEnvironment = {
     //Logger.log("setPrefs",arguments);
     localStorage.setItem(pref,val);
   },
-
-  getGeo: function(allowOnce, callback, failCB) { 
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-    /*
-    @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
-                                This is used when the user clicks on Share Location "Just once".
-                                */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
-      failCB("No permission to get user's location");
-      return;
-    }
-
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG) {
-      callback({
-        lat: CLIQZEnvironment.USER_LAT,
-        lng: CLIQZEnvironment.USER_LNG
-      });
-    } else {
-      navigator.geolocation.getCurrentPosition.getCurrentPosition(function (p) {
-        callback({ lat: p.coords.latitude, lng: p.coords.longitude});
-      }, failCB);
-    }
-  },
-  removeGeoLocationWatch: function() {
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-    GEOLOC_WATCH_ID && navigator.geolocation.clearWatch(GEOLOC_WATCH_ID);
-  },
-
-  updateGeoLocation: function() { 
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-
-    var geoService = navigator.geolocation;
-    CLIQZEnvironment.removeGeoLocationWatch();
-
-    if (CLIQZEnvironment.getPref('share_location') == 'yes') {
-      // Get current position
-      geoService.getCurrentPosition(function(p) {
-        CLIQZEnvironment.USER_LAT = JSON.stringify(p.coords.latitude);
-        CLIQZEnvironment.USER_LNG =  JSON.stringify(p.coords.longitude);
-      }, function(e) { Logger.log(e, "Error updating geolocation"); });
-
-      //Upate position if it changes
-      GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
-        // Make another check, to make sure that the user hasn't changed permissions meanwhile
-        if (CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.getPref('share_location') == 'yes') {
-          CLIQZEnvironment.USER_LAT = p.coords.latitude;
-          CLIQZEnvironment.USER_LNG =  p.coords.longitude;
-        }
-      }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && Logger.log(e, "Error updating geolocation"); });
-    } else {
-      CLIQZEnvironment.USER_LAT = null;
-      CLIQZEnvironment.USER_LNG = null;
-    }
-
-    //Logger.log(CLIQZEnvironment.USER_LNG,"Env->updateGeoLocation")
-
-  },
-
-  setLocationPermission: function(window, newPerm) {
-    // fake geo location
-    CLIQZEnvironment.USER_LAT = 48.155772899999995;
-    CLIQZEnvironment.USER_LNG = 11.615600899999999;
-    return;
-    if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
-      CLIQZEnvironment.setPref('share_location',newPerm);
-      CLIQZEnvironment.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
-      CLIQZEnvironment.updateGeoLocation();
-    }
-  },
   setInterval: function(){ return setInterval.apply(null, arguments) },
   setTimeout: function(){ return setTimeout.apply(null, arguments) },
   clearTimeout: function(){ clearTimeout.apply(null, arguments) },
@@ -474,14 +411,14 @@ CLIQZEnvironment = {
     latestUrl = url;
 
     if(isMixerUrl(url)) {
-      var cache = localStorage.getCachedResult(CliqzAutocomplete.lastSearch);
+      var cache = localStorage.getCachedResult && localStorage.getCachedResult(CLIQZEnvironment.lastSearch);
       if(cache) {
-        callback(cache, CliqzAutocomplete.lastSearch);
+        callback(cache, CLIQZEnvironment.lastSearch);
         return;
       }
       if(!window.navigator.onLine) {
         if(typeof CustomEvent != "undefined") {
-          window.dispatchEvent(new CustomEvent("connected"));
+          window.dispatchEvent(new CustomEvent("disconnected", { "detail": "browser is offline" }));
         }
         isRequestFailed = true;
         Logger.log( "request " + url + " will be deferred until the browser is online");
@@ -614,7 +551,7 @@ CLIQZEnvironment = {
   },
   distance: function(lon1, lat1, lon2, lat2) {
     var R = 6371; // Radius of the earth in km
-    if(!lon2) { return 0 }
+    if(!lon2 || !lon1 || !lat2 || !lat1) { return 0 }
     var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
     var dLon = (lon2-lon1).toRad(); 
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -630,6 +567,61 @@ CLIQZEnvironment = {
   },
   getEngineByAlias: function () {
     return ENGINES[0];
+  }, 
+  getNews: function() {
+    console.log("Start getting news");
+    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+  },
+  displayTopNews: function(news) {
+
+    var top_news = news.top_h_news;
+
+    console.log('top news', top_news)
+    top_news = top_news.map(function(r){
+      var details = CliqzUtils.getDetailsFromUrl(r.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      return {
+        title: r.title,
+        description: r.description,
+        short_title: r.short_title,
+        displayUrl: details.domain || r.title,
+        url: r.url,
+        text: logo.text,
+        backgroundColor: logo.backgroundColor,
+        buttonsClass: logo.buttonsClass,
+        style: logo.style
+      }
+    });
+    if(!CliqzHandlebars.tplCache.topnews) return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
+    var topNews = CliqzHandlebars.tplCache["topnews"];
+    var div = window.document.getElementById('topNews');
+    div.style.display = 'block';
+    div.innerHTML = topNews(top_news);
+  },
+  displayTopSites: function (list) {
+    list = list.map(function(r){
+      var details = CliqzUtils.getDetailsFromUrl(r.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      return {
+        title: r.title,
+        displayUrl: details.domain || r.title,
+        url: r.url,
+        text: logo.text,
+        backgroundColor: logo.backgroundColor,
+        buttonsClass: logo.buttonsClass,
+        style: logo.style
+      }
+    });
+    if(!CliqzHandlebars.tplCache.topsites) return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
+    var topSites = CliqzHandlebars.tplCache["topsites"];
+    var div = window.document.getElementById('topSites');
+    div.style.display = 'block';
+    div.innerHTML = topSites(list);
+  }, init: function(state) {
+    if(state == -1) {
+      CLIQZEnvironment.getNews();
+      osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
+    }
   }
 
 }

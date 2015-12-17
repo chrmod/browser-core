@@ -98,7 +98,8 @@ var CliqzUtils = {
       'delivery-tracking': 2,
       'vod': 3,
       'conversations': 1,
-      'conversations_future': 1
+      'conversations_future': 1,
+      'topnews': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,

@@ -24,6 +24,7 @@ var osBridge = {
   isReady: function() {
     var message = {
       action: "isReady",
+      callback: "CLIQZEnvironment.init"
     }
     OS.postMessage(message);
   },
@@ -60,10 +61,15 @@ var osBridge = {
   /**
     function: getTopSites
     description: requests the top sites from the OS
+    params: callback as string (name of the callback)
+    params: limit as integer (max number of results)
+    message data: limit as integer
   */
-  getTopSites: function() {
+  getTopSites: function(callback, limit) {
     var message = {
-      action: "getTopSites"
+      action: "getTopSites",
+      data: limit,
+      callback: callback
     }
     OS.postMessage(message);
   },

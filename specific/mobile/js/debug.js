@@ -71,14 +71,10 @@ function initResultBox () {
 };
 initResultBox();
 
-CLIQZEnvironment.updateGeoLocation();
-
-setInterval("CLIQZEnvironment.updateGeoLocation();",5000);
-
 //CliqzUtils.RESULTS_PROVIDER = "http://mixer-beta.clyqz.com/api/v1/results?q=";
 //CliqzUtils.RICH_HEADER = "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map";
 
-if(onAndroid || location.port == 3001 || window.webkit) {
+if(onAndroid || location.port == 4200 || window.webkit) {
   document.getElementById("urlbar").style.display = "none";
 } else {
   
@@ -88,7 +84,6 @@ var debugcss = "background-color:#00aa00;display:block;"
 
 CLIQZEnvironment.openLinksAllowed = true;
 
-CliqzUtils.setPref("share_location","yes");
 CliqzUtils.setPref("adultContentFilter","moderate");
 
 
@@ -100,8 +95,8 @@ CLIQZEnvironment.renderRecentQueries();
 
 //TODO: Should be refactored!!!!
 
-function search_mobile(e) {
-  CLIQZEnvironment.search(e);
+function search_mobile(e, location_enabled, latitude, longitude) {
+  CLIQZEnvironment.search(e, location_enabled, latitude, longitude);
 }
 
 window.addEventListener('resize', function () {
@@ -388,135 +383,6 @@ function updateCurrencyTpl(data) {
 // end of currency converter code
 
 
-
-
-CLIQZ.UI.VIEWS["partials/missing_location_step_1"] = { 
-  messages: {
-    "movies": {
-      'trans_str': {
-        'message': 'movies_confirm_no',
-        'yes': 'yes',
-        'no': 'show_local_movies'
-      }
-    },
-    "cinemas": {
-      'trans_str': {
-        'message': 'cinemas_confirm_no',
-        'yes': 'yes',
-        'no': 'show_local_cinemas'
-      }
-    },
-    "default": {
-      'trans_str': {
-        'message': 'location_confirm_no',
-        'yes': 'yes',
-        'no': 'show_local_results'
-      }
-    }
-  },
-  events: {
-    click: {
-        "cqz_location_yes": function(ev) {
-          ev.preventDefault();
-          CLIQZEnvironment.setLocationPermission(window, "yes");
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].loadLocalResults(ev.target);
-
-        },
-        "cqz_location_once": function(ev) {
-          ev.preventDefault();
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].loadLocalResults(ev.target);
-        },
-        "cqz_location_no": function(ev) {
-          var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
-              el = ev.target,
-              localType = el.getAttribute("local_sc_type") || "default";
-
-          container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
-              friendly_url: el.getAttribute("bm_url"),
-              trans_str: messages[localType].trans_str
-          });
-        },
-        "cqz_location_never": function(ev) {
-          CLIQZEnvironment.setLocationPermission(window, "no");
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].displayMessageForNoPermission();
-        },
-        "cqz_location_not_now": function(ev) {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].displayMessageForNoPermission();
-        },
-        "cqz_location_yes_confirm": function(ev) {
-          CLIQZEnvironment.setLocationPermission(window, "yes");
-          var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-          if (container) container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-            "display_msg": "location-thank-you"
-          });
-        }
-    }
-  },
-  loadLocalResults:function(el) {
-      CLIQZ.Core.popup.cliqzBox.querySelector(".location_permission_prompt").classList.add("loading");
-      CLIQZEnvironment.getGeo(true, function (loc) {
-          CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-              "&q=" + CLIQZ.Core.urlbar.value +
-              CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
-              "&bmresult=" + el.getAttribute("bm_url"),
-              CLIQZ.UI.VIEWS["partials/missing_location_step_1"].handleNewLocalResults(el));
-      }, function () {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].failedToLoadResults(el);
-          CliqzUtils.log("Unable to get user's location", "CliqzUtils.getGeo");
-      });
-  },
-
-
-  handleNewLocalResults:function(el) {
-      return function(req) {
-        //CliqzUtils.log(req, "RESPONSE FROM RH");
-        var resp,
-            container = el,
-            r;
-
-        try {
-          resp = JSON.parse(req.response);
-          CliqzUtils.log(resp, "RH RESPONSE");
-        } catch (ex) {
-        }
-        if (resp && resp.results && resp.results.length > 0) {
-          while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
-            container = container.parentElement;
-            if (!container || container.id == "cliqz-results") return;
-          }      
-          CLIQZ.UI.enhanceResults(resp);
-          r = resp.results[0];
-          if (container) container.innerHTML = CliqzHandlebars.tplCache[r.data.template](r);
-        } else {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].failedToLoadResults(el);
-        }
-      };
-    },
-
-
-  failedToLoadResults:function(el) {
-    var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-    if (el.id === "cqz_location_yes") {
-        container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-          "display_msg": "location-sorry"
-        });
-    } else if (el.id == "cqz_location_once") {
-        container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-          "display_msg": "location-permission-ask"
-        });
-    }
-  },
-
-  displayMessageForNoPermission:function() {
-    var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-    if (container) container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-      "display_msg": "location-no"
-    });
-  }
-
-}
-
-
 function compareTimestamps(a, b) {
   return a.timestamp - b.timestamp;
 }
@@ -594,4 +460,8 @@ function openFuture(el) {
 
    el.getElementsByTagName("ul")[0].style.display = "block";
   //console.log(el)
+}
+
+CliqzUtils.getLocalStorage = function(url) {
+    return localStorage;
 }
