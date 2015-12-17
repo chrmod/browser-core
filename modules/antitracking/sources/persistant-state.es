@@ -78,20 +78,20 @@ class PersistanceHandler {
 
     // propegate proxy down object leaves
     for (let k in this.target) {
-      this.target[k] = this.proxyBranch(this.target, k);
+      this.target[k] = this.proxyBranch(this.target[k]);
     }
 
     // trap for set operations
     this.set = function(target, property, value, receiver) {
       CliqzUtils.log("set "+ this.name, LOG_KEY);
       // propegate proxy down object tree
-      target[property] = this.proxyBranch(target, property);
+      target[property] = this.proxyBranch(value);
       this.dirty = true;
       return true;
     };
     // trap for delete operations
     this.deleteProperty = function(target, property) {
-      CliqzUtils.log("delete"+ this.name, LOG_KEY);
+      CliqzUtils.log("delete "+ this.name, LOG_KEY);
       delete target[property];
       this.dirty = true;
       return true;
@@ -105,14 +105,14 @@ class PersistanceHandler {
     }
   }
 
-  proxyBranch(object, branch) {
-    if (typeof object[branch] === 'object') {
-      for (let k in object[branch]) {
-        object[branch][k] = this.proxyBranch(object[branch], k);
+  proxyBranch(obj) {
+    if (typeof obj === 'object') {
+      for (let k in obj) {
+        obj[k] = this.proxyBranch(obj[k]);
       }
-      return new Proxy(object[branch], this);
+      return new Proxy(obj, this);
     } else {
-      return object[branch];
+      return obj;
     }
   }
 };

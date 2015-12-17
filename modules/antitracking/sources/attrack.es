@@ -2,6 +2,7 @@
  * This module prevents user from 3rd party tracking
  */
 import pacemaker from 'antitracking/pacemaker';
+import create_persistant from "antitracking/persistant-state";
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2212,7 +2213,6 @@ var CliqzAttrack = {
         }, two_mins);
 
         pacemaker.register(CliqzAttrack.saveState, two_mins);
-        pacemaker.register(CliqzAttrack.saveTokens, two_mins);
         pacemaker.register(CliqzAttrack.saveLocalTokenStats, two_mins);
         pacemaker.register(CliqzAttrack.saveSafeKey, two_mins);
 
@@ -2254,7 +2254,7 @@ var CliqzAttrack = {
          );
 
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
-        if (CliqzAttrack.tokens==null) CliqzAttrack.loadTokens();
+        create_persistant("tokens", (v) => CliqzAttrack.tokens = v);
         if (CliqzAttrack.blocked==null) CliqzAttrack.loadBlocked();
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
@@ -2415,8 +2415,10 @@ var CliqzAttrack = {
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
             // reset the state
-            CliqzAttrack.tokens = {};
-            CliqzAttrack.saveTokens();
+            // delete without assignment to preserve persistance layer
+            for (let k in CliqzAttrack.tokens) {
+                delete CliqzAttrack.tokens[k];
+            }
         }
 
         // send also safe keys
@@ -2558,10 +2560,6 @@ var CliqzAttrack = {
                 }
             }
         });
-    },
-    saveTokens: function() {
-        if (CliqzAttrack.tokens)
-            CliqzAttrack.saveRecord('tokens', JSON.stringify(CliqzAttrack.tokens));
     },
     saveBlocked: function() {
         if (CliqzAttrack.blocked)
@@ -2993,21 +2991,6 @@ var CliqzAttrack = {
                         CliqzAttrack.saveRequestKeyValue();
                         return;
                     }
-                }
-            }
-        });
-    },
-    loadTokens: function() {
-        CliqzAttrack.loadRecord('tokens', function(data) {
-            if (data==null) {
-                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.tokens", CliqzAttrack.LOG_KEY);
-                CliqzAttrack.tokens = {};
-            }
-            else {
-                try {
-                    CliqzAttrack.tokens = JSON.parse(data);
-                } catch(ee) {
-                    CliqzAttrack.tokens = {};
                 }
             }
         });
@@ -3915,6 +3898,7 @@ var CliqzAttrack = {
     },
     saveKeyTokens: function(s, keyTokens, r) {
         // anything here should already be hash
+        if (Object.keys(keyTokens).length == 0) return;
         if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {};
         if (CliqzAttrack.tokens[s][r] == null) CliqzAttrack.tokens[s][r] = {'c': 0, 'kv': {}};
         CliqzAttrack.tokens[s][r]['c'] =  (CliqzAttrack.tokens[s][r]['c'] || 0) + 1;
