@@ -256,12 +256,14 @@ CLIQZEnvironment = {
     }; 
 
     if(!e || e == "") {
+      resultsBox.style.display = 'none';
       CLIQZ.UI.main(resultsBox);
       CLIQZEnvironment.getNews();
       osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
       CLIQZEnvironment.stopProgressBar();
       return;
     }
+    resultsBox.style.display = 'block';
     window.document.getElementById("freshstart").style.display = 'none';
     window.document.getElementById("topNews").style.display = 'none';
     window.document.getElementById("topSites").style.display = 'none';
