@@ -1,8 +1,16 @@
 function init() {
-  if(!CliqzHandlebars.tplCache.topnews) return setTimeout(init, 100);
-  topSites = CliqzHandlebars.tplCache["topsites"];
-  CLIQZEnvironment.getNews();
-  osBridge.getTopSites("topSitesDone", 5);
+  System.baseURL = "modules/"
+  CLIQZ.System = System;
+  System.import("freshtab/news").then(function (module) {
+    CliqzFreshTabNews = module.default;
+  }).catch(function () {
+    console.log("error", arguments)
+  }).then(function () {
+    if(!CliqzHandlebars.tplCache.topnews) return setTimeout(init, 100);
+    topSites = CliqzHandlebars.tplCache["topsites"];
+    CLIQZEnvironment.getNews();
+    osBridge.getTopSites("topSitesDone", 5);
+  });
 };
 var topSitesDone = function (list) {
   list = list.map(function(r){
