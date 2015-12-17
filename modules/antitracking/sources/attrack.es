@@ -2,7 +2,7 @@
  * This module prevents user from 3rd party tracking
  */
 import pacemaker from 'antitracking/pacemaker';
-import {create_persistant, clear_persistant} from "antitracking/persistant-state";
+import {create_persistent, clear_persistent} from "antitracking/persistant-state";
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2254,8 +2254,8 @@ var CliqzAttrack = {
          );
 
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
-        create_persistant("tokens", (v) => CliqzAttrack.tokens = v);
-        create_persistant("blocked", (v) => CliqzAttrack.blocked = v);
+        create_persistent("tokens", (v) => CliqzAttrack.tokens = v);
+        create_persistent("blocked", (v) => CliqzAttrack.blocked = v);
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
 
@@ -2416,7 +2416,7 @@ var CliqzAttrack = {
 
             // reset the state
             // delete without assignment to preserve persistance layer
-            clear_persistant(CliqzAttrack.tokens);
+            clear_persistent(CliqzAttrack.tokens);
         }
 
         // send also safe keys
@@ -2450,7 +2450,7 @@ var CliqzAttrack = {
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
             // reset the state
-            clear_persistant(CliqzAttrack.blocked);
+            clear_persistent(CliqzAttrack.blocked);
         }
     },
     /*

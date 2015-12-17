@@ -68,7 +68,7 @@ function saveRecord(id, data) {
   });
 };
 
-class PersistanceHandler {
+class PersistenceHandler {
   constructor(name, target, dirty) {
     this.name = name;
     this.target = target;
@@ -117,7 +117,7 @@ class PersistanceHandler {
   }
 };
 
-export function create_persistant(name, setter) {
+export function create_persistent(name, setter) {
   loadRecord(name, function(value) {
     var obj = {},
         dirty = false;
@@ -127,11 +127,11 @@ export function create_persistant(name, setter) {
       obj = {};
       dirty = true;
     }
-    setter(new Proxy(obj, new PersistanceHandler(name, obj, dirty)));
+    setter(new Proxy(obj, new PersistenceHandler(name, obj, dirty)));
   });
 };
 
-export function clear_persistant(value) {
+export function clear_persistent(value) {
   for (let k in value) {
     delete value[k];
   }
