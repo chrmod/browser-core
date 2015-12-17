@@ -593,7 +593,7 @@ var CliqzAttrack = {
     URL_SAFE_KEY: 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json',
     URL_SAFE_KEY_VERSIONCHECK: 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
     URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
-    URL_BLOCK_REPROT_LIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
+    URL_BLOCK_REPORT_LIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
     URL_TRACKER_COMPANIES: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
     debug: false,
     msgType:'attrack',
@@ -1810,44 +1810,6 @@ var CliqzAttrack = {
         CliqzAttrack.cookieTraffic['cblocked'] += 1;
         CliqzAttrack.cookieTraffic['blocked'].unshift(req_metadata);
     },
-    SQL: function(sql, onRow, callback, parameters) {
-        var st = CliqzAttrack.dbConn.createAsyncStatement(sql);
-
-        for(var key in parameters) {
-            st.params[key] = parameters[key];
-        }
-
-        CliqzAttrack._SQL(CliqzAttrack.dbConn, st, onRow, callback);
-    },
-    _SQL: function(dbConn, statement, onRow, callback) {
-        statement.executeAsync({
-        onRow: onRow,
-          callback: callback,
-          handleResult: function(aResultSet) {
-            var resultCount = 0;
-            for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-              resultCount++;
-              if (this.onRow) {
-                this.onRow(statement.row);
-              }
-            }
-            if (this.callback) {
-              this.callback(resultCount);
-            }
-          },
-
-          handleError: function(aError) {
-            CliqzUtils.log("Error (" + aError.result + "):" + aError.message, CliqzAttrack.LOG_KEY);
-            if (this.callback) {
-              this.callback(0);
-            }
-          },
-          handleCompletion: function(aReason) {
-            // Always called when done
-          }
-        });
-        statement.finalize();
-    },
     findOauth: function(url, url_parts) {
         try {
             var value = null;
@@ -2153,13 +2115,16 @@ var CliqzAttrack = {
         pacemaker.register(CliqzAttrack.sendStateIfNeeded);
         pacemaker.register(CliqzAttrack.sendTokensIfNeeded);
 
+        // every 2 mins
+        let two_mins = 2 * 60 * 1000;
+
         pacemaker.register(function clean_visitCache(curr_time) {
             var keys = Object.keys(CliqzAttrack.visitCache);
             for(var i=0;i<keys.length;i++) {
                 var diff = curr_time - (CliqzAttrack.visitCache[keys[i]] || 0);
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.visitCache[keys[i]];
             }
-        });
+        }, two_mins);
 
         pacemaker.register(function clean_reloadWhiteList(curr_time) {
             var keys = Object.keys(CliqzAttrack.reloadWhiteList);
@@ -2169,7 +2134,7 @@ var CliqzAttrack = {
                     delete CliqzAttrack.reloadWhiteList[keys[i]];
                 }
             }
-        });
+        }, two_mins);
 
         pacemaker.register(function clean_trackReload(curr_time) {
             var keys = Object.keys(CliqzAttrack.trackReload);
@@ -2179,7 +2144,7 @@ var CliqzAttrack = {
                     delete CliqzAttrack.trackReload[keys[i]];
                 }
             }
-        });
+        }, two_mins);
 
         pacemaker.register(function clean_blockedCache(curr_time) {
             var keys = Object.keys(CliqzAttrack.blockedCache);
@@ -2187,7 +2152,7 @@ var CliqzAttrack = {
                 var diff = curr_time - (CliqzAttrack.blockedCache[keys[i]] || 0);
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.blockedCache[keys[i]];
             }
-        });
+        }, two_mins);
 
         pacemaker.register(function prune_traffic() {
             CliqzAttrack.cookieTraffic['blocked'].splice(200);
@@ -2205,15 +2170,13 @@ var CliqzAttrack = {
             }
         });
 
-        // every 2 mins
-        let two_mins = 2 * 60 * 1000;
+
         pacemaker.register(function tp_event_commit() {
             CliqzAttrack.tp_events.commit();
             CliqzAttrack.tp_events.push();
         }, two_mins);
 
         pacemaker.register(CliqzAttrack.saveState, two_mins);
-        pacemaker.register(CliqzAttrack.saveLocalTokenStats, two_mins);
 
         // every hour
         let hourly = 60 * 60 * 1000;
@@ -2243,7 +2206,6 @@ var CliqzAttrack = {
         // Replace getWindow functions with window object used in init.
 
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
-        CliqzAttrack.initDB();
         CliqzUtils.httpGet(
             'chrome://cliqz/content/prob.json',
             function success(req) {
@@ -2281,9 +2243,10 @@ var CliqzAttrack = {
 
         if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
         if (CliqzAttrack.blockReportList == null) CliqzAttrack.loadReportLists();
-        if (CliqzAttrack.wrongTokenLastSent==null || CliqzAttrack.loadedPage==null ||
-            CliqzAttrack.localBlocked==null || CliqzAttrack.checkedToken==null || CliqzAttrack.blockedToken)
-            CliqzAttrack.loadLocalTokenStats();
+
+        ['localBlocked', 'checkedToken', 'loadedPage', 'blockedToken'].forEach(function(name) {
+            persist.create_persistent(name, (v) => CliqzAttrack[name] = v);
+        });
 
         if (Object.keys(CliqzAttrack.tracker_companies).length == 0) {
             CliqzAttrack.loadTrackerCompanies();
@@ -2342,7 +2305,6 @@ var CliqzAttrack = {
         // CliqzAttrack.saveHistStats();
 
         CliqzAttrack.pushTelemetry();
-        CliqzUtils.clearTimeout(CliqzAttrack.pacemakerId);
         CliqzUtils.clearTimeout(CliqzAttrack.trkTimer);
 
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -2614,16 +2576,6 @@ var CliqzAttrack = {
             }
         }
     },
-    saveLocalTokenStats: function() {
-        CliqzAttrack.cleanLocalBlocked();
-        ['localBlocked', 'checkedToken', 'loadedPage', 'blockedToken'].forEach(
-            function(x) {
-                if (CliqzAttrack[x])
-                    CliqzAttrack.saveRecord(x, JSON.stringify(CliqzAttrack[x]));
-            }
-        );
-        CliqzAttrack.saveRecord('wrongTokenLastSent', CliqzAttrack.wrongTokenLastSent);
-    },
     pruneTokenDomain: function() {
         var day = CliqzAttrack.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
@@ -2711,8 +2663,9 @@ var CliqzAttrack = {
     checkWrongToken: function(key) {
         CliqzAttrack.cleanLocalBlocked();
         // send max one time a day
-        var day = CliqzAttrack.getTime().slice(0, 8);
-        if (CliqzAttrack.wrongTokenLastSent == day) return;  // max one signal per day
+        var day = CliqzAttrack.getTime().slice(0, 8),
+            wrongTokenLastSent = persist.get_value('wrongTokenLastSent', CliqzAttrack.getTime().slice(0, 8));
+        if (wrongTokenLastSent == day) return;  // max one signal per day
         CliqzAttrack._updated[key] = true;
         if (!('safeKey' in CliqzAttrack._updated) || (!('token' in CliqzAttrack._updated))) return;  // wait until both lists are updated
         var countLoadedPage = 0,
@@ -2760,7 +2713,7 @@ var CliqzAttrack = {
                     'safeKey': CliqzAttrack.safeKeyExtVersion
                    };
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.FP', 'payload': payl});
-        CliqzAttrack.wrongTokenLastSent = day;
+        persist.set_value("wrongTokenLastSent", day);
         CliqzAttrack._updated = {};
     },
     loadRemoteWhitelists: function() {
@@ -2809,12 +2762,12 @@ var CliqzAttrack = {
         });
     },
     loadReportLists: function() {
-        CliqzAttrack.blcokReportList = {};
-        CliqzUtils.loadResource(CliqzAttrack.URL_BLOCK_REPROT_LIST, function(req) {
+        CliqzAttrack.blockReportList = {};
+        CliqzUtils.loadResource(CliqzAttrack.URL_BLOCK_REPORT_LIST, function(req) {
             try {
                 CliqzAttrack.blockReportList = JSON.parse(req.response);
             } catch(e) {
-                CliqzAttrack.blcokReportList = {};
+                CliqzAttrack.blockReportList = {};
             }
         });
     },
@@ -2898,71 +2851,6 @@ var CliqzAttrack = {
             if (!CliqzAttrack[name]) CliqzAttrack[name] = {};
         });
     },
-    loadLocalTokenStats: function() {
-        var _localDataList = ['localBlocked', 'checkedToken', 'loadedPage', 'blockedToken'];
-        _localDataList.forEach(CliqzAttrack.loadRecordSameName);
-        CliqzAttrack.loadRecord('wrongTokenLastSent', function(data) {
-            if (data == null) {
-                CliqzAttrack.wrongTokenLastSent = CliqzAttrack.getTime().slice(0, 8);
-            } else
-                CliqzAttrack.wrongTokenLastSent = data;
-        });
-    },
-    saveRecord: function(id, data) {
-        if(!(CliqzAttrack.dbConn)) return;
-        var st = CliqzAttrack.dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
-        st.params.id = id;
-        st.params.data = data;
-        var t_start = (new Date()).getTime();
-
-        st.executeAsync({
-            handleError: function(aError) {
-                if(CliqzAttrack && CliqzAttrack.debug){
-                    if (CliqzAttrack.debug) CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
-                }
-            },
-            handleCompletion: function(aReason) {
-                if(CliqzAttrack && CliqzAttrack.debug){
-                    if (CliqzAttrack.debug) CliqzUtils.log("Insertion success", CliqzAttrack.LOG_KEY);
-                }
-                var t_end = (new Date()).getTime();
-                CliqzUtils.log("Save "+ id +" in "+ (t_end - t_start) +"ms, data length = "+ data.length, "xxx");
-            }
-        });
-
-    },
-    loadRecord: function(id, callback) {
-        var stmt = CliqzAttrack.dbConn.createAsyncStatement("SELECT id, data FROM attrack WHERE id = :id;");
-        stmt.params.id = id;
-
-        var fres = null;
-        var res = [];
-        stmt.executeAsync({
-            handleResult: function(aResultSet) {
-                if(!(CliqzAttrack)) return;
-                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                    if (row.getResultByName("id")==id) {
-                        res.push(row.getResultByName("data"));
-                    }
-                    else {
-                        if (CliqzAttrack.debug) CliqzUtils.log("There are more than one record", CliqzAttrack.LOG_KEY);
-                        callback(null);
-                    }
-                    break;
-                }
-            },
-            handleError: function(aError) {
-                if(!(CliqzAttrack)) return;
-                if (CliqzAttrack.debug) CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
-                callback(null);
-            },
-            handleCompletion: function(aReason) {
-                if(!(CliqzAttrack)) return;
-                if (res.length == 1) callback(res[0]);
-                else callback(null);
-            }
-        });
-    },
     // ****************************
     // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
     // ****************************
@@ -3028,77 +2916,6 @@ var CliqzAttrack = {
 
         CliqzAttrack._telemetry_sending = [];
         CliqzAttrack._telemetry_req = null;
-    },
-    // ************************ Database ***********************
-    // Stolen from modules/CliqzHistory
-    // *********************************************************
-    initDB: function() {
-        /*
-        // to do a migration
-        if ( FileUtils.getFile("ProfD", ["cliqz.dbattack"]).exists() ) {
-            if (CliqzAttrack.olddbConn==null) {
-                 CliqzAttrack.olddbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbattack"]));
-            }
-            CliqzAttrack.removeTable();
-        }
-        */
-
-        if ( FileUtils.getFile("ProfD", ["cliqz.dbattrack"]).exists() ) {
-            if (CliqzAttrack.dbConn==null) {
-                CliqzAttrack.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbattrack"]))
-            }
-            CliqzAttrack.createTable();
-        }
-        else {
-            CliqzAttrack.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbattrack"]));
-            CliqzAttrack.createTable();
-        }
-
-    },
-    dbConn: null,
-    outOfABTest: function() {
-        (CliqzAttrack.dbConn.executeSimpleSQLAsync || CliqzAttrack.dbConn.executeSimpleSQL)('DROP TABLE attrack;');
-    },
-    removeTable: function(reason) {
-        try{
-            (CliqzAttrack.olddbConn.executeSimpleSQLAsync || CliqzAttrack.olddbConn.executeSimpleSQL)('DROP TABLE attrack;');
-        }catch(ee){};
-    },
-    createTable: function(){
-
-            var attrack_table = "create table if not exists attrack(\
-                id VARCHAR(24) PRIMARY KEY NOT NULL,\
-                data VARCHAR(1000000) \
-            )";
-
-            (CliqzAttrack.dbConn.executeSimpleSQLAsync || CliqzAttrack.dbConn.executeSimpleSQL)(attrack_table);
-    },
-    escapeSQL: function(str) {
-        return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function(char) {
-        switch (char) {
-            case "'":
-            return "''";
-            default:
-            return char;
-              /*case "\0":
-                  return "\\0";
-              case "\x08":
-                  return "\\b";
-              case "\x09":
-                  return "\\t";
-              case "\x1a":
-                  return "\\z";
-              case "\n":
-                  return "\\n";
-              case "\r":
-                  return "\\r";
-              case "\"":
-              case "'":
-              case "\\":
-              case "%":
-                  return "\\"+char; */
-          }
-        });
     },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
