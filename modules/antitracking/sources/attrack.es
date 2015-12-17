@@ -2,7 +2,7 @@
  * This module prevents user from 3rd party tracking
  */
 import pacemaker from 'antitracking/pacemaker';
-import {create_persistent, clear_persistent, get_value, set_value} from "antitracking/persistent-state";
+import * as persist from "antitracking/persistent-state";
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2253,9 +2253,8 @@ var CliqzAttrack = {
             }
          );
 
-        // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
-        create_persistent("tokens", (v) => CliqzAttrack.tokens = v);
-        create_persistent("blocked", (v) => CliqzAttrack.blocked = v);
+        persist.create_persistent("tokens", (v) => CliqzAttrack.tokens = v);
+        persist.create_persistent("blocked", (v) => CliqzAttrack.blocked = v);
 
         if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
@@ -2414,7 +2413,7 @@ var CliqzAttrack = {
 
             // reset the state
             // delete without assignment to preserve persistance layer
-            clear_persistent(CliqzAttrack.tokens);
+            persist.clear_persistent(CliqzAttrack.tokens);
         }
 
         // send also safe keys
@@ -2448,7 +2447,7 @@ var CliqzAttrack = {
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
             // reset the state
-            clear_persistent(CliqzAttrack.blocked);
+            persist.clear_persistent(CliqzAttrack.blocked);
         }
     },
     /*
@@ -2488,12 +2487,12 @@ var CliqzAttrack = {
         var timestamp = CliqzHumanWeb.getTime().slice(0,8);
         // day resolution,
 
-        if (timestamp != get_value("stateLastSent", CliqzHumanWeb.getTime().slice(0,8))) {
+        if (timestamp != persist.get_value("stateLastSent", CliqzHumanWeb.getTime().slice(0,8))) {
 
             // it's not the same timestamp (day) of the last time that was sent
             // or the first install (defaults to current timestamp)
 
-            set_value("stateLastSent", timestamp);
+            persist.set_value("stateLastSent", timestamp);
 
             // CliqzAttrack.sendState();
 
@@ -2510,13 +2509,13 @@ var CliqzAttrack = {
             // it's not the same timestamp (hour) of the last time that was sent
             // or the first install (defaults to current timestamp)
 
-            set_value("tokensLastSent", timestamp);
+            persist.set_value("tokensLastSent", timestamp);
 
             CliqzAttrack.sendTokens();
         }
     },
     tokensLastSent: function() {
-        return get_value("tokensLastSent", CliqzHumanWeb.getTime().slice(0,10));
+        return persist.get_value("tokensLastSent", CliqzHumanWeb.getTime().slice(0,10));
     },
     applyWhitelistFixtures: function() {
         //CliqzAttrack.whitelist['mail.google.com'] = true;
