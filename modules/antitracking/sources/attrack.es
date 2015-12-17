@@ -2,7 +2,7 @@
  * This module prevents user from 3rd party tracking
  */
 import pacemaker from 'antitracking/pacemaker';
-import create_persistant from "antitracking/persistant-state";
+import {create_persistant, clear_persistant} from "antitracking/persistant-state";
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2255,7 +2255,7 @@ var CliqzAttrack = {
 
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
         create_persistant("tokens", (v) => CliqzAttrack.tokens = v);
-        if (CliqzAttrack.blocked==null) CliqzAttrack.loadBlocked();
+        create_persistant("blocked", (v) => CliqzAttrack.blocked = v);
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
 
@@ -2416,9 +2416,7 @@ var CliqzAttrack = {
 
             // reset the state
             // delete without assignment to preserve persistance layer
-            for (let k in CliqzAttrack.tokens) {
-                delete CliqzAttrack.tokens[k];
-            }
+            clear_persistant(CliqzAttrack.tokens);
         }
 
         // send also safe keys
@@ -2452,8 +2450,7 @@ var CliqzAttrack = {
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
             // reset the state
-            CliqzAttrack.blocked = {};
-            CliqzAttrack.saveBlocked();
+            clear_persistant(CliqzAttrack.blocked);
         }
     },
     /*
@@ -2560,10 +2557,6 @@ var CliqzAttrack = {
                 }
             }
         });
-    },
-    saveBlocked: function() {
-        if (CliqzAttrack.blocked)
-            CliqzAttrack.saveRecord('blocked', JSON.stringify(CliqzAttrack.blocked));
     },
     loadQSStats: function() {
         CliqzAttrack.loadRecord('QSStats', function(data) {
@@ -2991,21 +2984,6 @@ var CliqzAttrack = {
                         CliqzAttrack.saveRequestKeyValue();
                         return;
                     }
-                }
-            }
-        });
-    },
-    loadBlocked: function() {
-        CliqzAttrack.loadRecord('blocked', function(data) {
-            if (data==null) {
-                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.blocked", CliqzAttrack.LOG_KEY);
-                CliqzAttrack.blocked = {};
-            }
-            else {
-                try {
-                    CliqzAttrack.blocked = JSON.parse(data);
-                } catch(ee) {
-                    CliqzAttrack.blocked = {};
                 }
             }
         });

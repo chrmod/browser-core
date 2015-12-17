@@ -117,7 +117,7 @@ class PersistanceHandler {
   }
 };
 
-export default function(name, setter) {
+export function create_persistant(name, setter) {
   loadRecord(name, function(value) {
     var obj = {},
         dirty = false;
@@ -129,4 +129,10 @@ export default function(name, setter) {
     }
     setter(new Proxy(obj, new PersistanceHandler(name, obj, dirty)));
   });
-}
+};
+
+export function clear_persistant(value) {
+  for (let k in value) {
+    delete value[k];
+  }
+};
