@@ -26,7 +26,7 @@ function isMixerUrl(url) {
   if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0) {
     return true;
   }
-  return url.indexOf(CliqzUtils.RICH_HEADER) == 0;
+  return false;
 }
 
 window.addEventListener('load', function() {
@@ -270,16 +270,8 @@ Services = {
             doc.removeEventListener(domContentLoaded, listener)
             loaded = 1
 
-            if(typeof(jsBridge) != "undefined") {
-              osBridge.isReady();
-            }
-            console.log("isReady");
-          });
-        } else {
-          if(typeof(jsBridge) != "undefined") {
             osBridge.isReady();
-          }
-          console.log("isReady");
+          });
         }
       }());
 

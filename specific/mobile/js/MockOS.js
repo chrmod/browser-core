@@ -7,7 +7,7 @@ var MockOS = {
         dataBack = MockOS.searchHistory(message.data);
         break;
       case "isReady":
-        MockOS.isReady();
+        dataBack = MockOS.isReady();
         break;
       case "openLink":
         MockOS.openLink(message.data);
@@ -39,6 +39,7 @@ var MockOS = {
   },
   isReady: function() {
     console.log("--MOCK: action isReady is called");
+    return -1;
   },
   openLink: function(id) {
     console.log("--MOCK: action openLink is called with data", id);
