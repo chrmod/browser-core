@@ -1,6 +1,7 @@
 /*
  * This module prevents user from 3rd party tracking
  */
+import pacemaker from 'antitracking/pacemaker';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2145,35 +2146,21 @@ var CliqzAttrack = {
             }
         }
     },
-    pacemaker: function() {
-        // every CliqzAttrack.tpace (10 sec now)
-        //
-        // var activeURL = CliqzHumanWeb.currentURL();
+    initPacemaker: function() {
 
-        if (!CliqzAttrack) return;
+        // run every time
+        pacemaker.register(CliqzAttrack.sendStateIfNeeded);
+        pacemaker.register(CliqzAttrack.sendTokensIfNeeded);
 
-        CliqzAttrack.counter += 1;
-
-        if (CliqzAttrack.counter > 1) {
-        // avoid doing anything in the first 2 min,
-        // @konarkm : These are called every 10 secs, do we need such a low threshold ? Or can it be min or 2 ?
-            CliqzAttrack.sendStateIfNeeded();
-            CliqzAttrack.sendTokensIfNeeded();
-            // CliqzAttrack.sendHistStatsIfNeeded();
-        }
-
-        var curr_time = (new Date()).getTime();
-
-        // clean all the caches,
-
-        if (true) {
+        pacemaker.register(function clean_visitCache(curr_time) {
             var keys = Object.keys(CliqzAttrack.visitCache);
             for(var i=0;i<keys.length;i++) {
                 var diff = curr_time - (CliqzAttrack.visitCache[keys[i]] || 0);
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.visitCache[keys[i]];
             }
+        });
 
-
+        pacemaker.register(function clean_reloadWhiteList(curr_time) {
             var keys = Object.keys(CliqzAttrack.reloadWhiteList);
             for(var i=0;i<keys.length;i++) {
                 var diff = curr_time - (CliqzAttrack.reloadWhiteList[keys[i]] || 0);
@@ -2181,7 +2168,9 @@ var CliqzAttrack = {
                     delete CliqzAttrack.reloadWhiteList[keys[i]];
                 }
             }
+        });
 
+        pacemaker.register(function clean_trackReload(curr_time) {
             var keys = Object.keys(CliqzAttrack.trackReload);
             for(var i=0;i<keys.length;i++) {
                 var diff = curr_time - (CliqzAttrack.trackReload[keys[i]] || 0);
@@ -2189,74 +2178,46 @@ var CliqzAttrack = {
                     delete CliqzAttrack.trackReload[keys[i]];
                 }
             }
-            // @konarkm : Does not look like reloadCache is being populated anywhere.
-            // Commenting it out.
-            /*
-            var keys = Object.keys(CliqzAttrack.reloadCache);
-            for(var i=0;i<keys.length;i++) {
-                var diff = curr_time - (CliqzAttrack.reloadCache[keys[i]] || 0);
-                if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.reloadCache[keys[i]];
-            }
-            */
+        });
 
+        pacemaker.register(function clean_blockedCache(curr_time) {
             var keys = Object.keys(CliqzAttrack.blockedCache);
             for(var i=0;i<keys.length;i++) {
                 var diff = curr_time - (CliqzAttrack.blockedCache[keys[i]] || 0);
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.blockedCache[keys[i]];
             }
-        }
+        });
 
-        if (true) {
+        pacemaker.register(function prune_traffic() {
             CliqzAttrack.cookieTraffic['blocked'].splice(200);
             CliqzAttrack.cookieTraffic['sent'].splice(200);
 
             CliqzAttrack.QSTraffic['blocked'].splice(200);
             CliqzAttrack.QSTraffic['aborted'].splice(200);
-        }
+        });
 
-        if ((curr_time - CliqzAttrack.bootupTime) > CliqzAttrack.timeBootup) {
-            CliqzAttrack.bootingUp = false;
-        }
+        var bootup_task = pacemaker.register(function bootup_check(curr_time) {
+            if ((curr_time - CliqzAttrack.bootupTime) > CliqzAttrack.timeBootup) {
+                CliqzUtils.log("bootup end");
+                CliqzAttrack.bootingUp = false;
+                pacemaker.deregister(bootup_task);
+            }
+        });
 
-
-        // @konarkm : Not sure if this is used anywhere other then UI, in this version.
-        // Commenting it out looks safe. Else this is called every 10 seconds and loops over all the windows.
-        // This anyways is not an efficient manner. We should be able to do the same from to_event or other stat caches.
-        /*
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext()
-            try{
-                var btn = win.document.getElementById('cliqz-anti-tracking-label');
-                if (btn) {
-                    var b = (CliqzAttrack.cookieTraffic['cblocked'] || 0);
-                    var a = b + (CliqzAttrack.cookieTraffic['csent'] || 0);
-                    btn.setAttribute('label', 'Anti-tracking [Blocked ' + b + ' of ' + a + ']');
-                }
-            } catch(e){}
-        }
-        */
-
-        // @konarkm : Since no UI, in this version.
-        // Commenting looks safe.
-        /*
-        CliqzAttrack.renderCookieTraffic();
-        CliqzAttrack.renderQSTraffic();
-        */
-
-        if((CliqzAttrack.counter/CliqzAttrack.tmult) % (2 * 60) == 0) {
+        // every 2 mins
+        let two_mins = 2 * 60 * 1000;
+        pacemaker.register(function tp_event_commit() {
             CliqzAttrack.tp_events.commit();
             CliqzAttrack.tp_events.push();
+        }, two_mins);
 
-            CliqzAttrack.saveState();
-            CliqzAttrack.saveTokens();
-            CliqzAttrack.saveLocalTokenStats();
-            CliqzAttrack.saveSafeKey();
-        }
+        pacemaker.register(CliqzAttrack.saveState, two_mins);
+        pacemaker.register(CliqzAttrack.saveTokens, two_mins);
+        pacemaker.register(CliqzAttrack.saveLocalTokenStats, two_mins);
+        pacemaker.register(CliqzAttrack.saveSafeKey, two_mins);
 
     },
     counter: 0,
-    pacemakerId: null,
     tpace: 10*1000,
     tmult: 1/10.0,
     windowsRef: [],
@@ -2325,9 +2286,7 @@ var CliqzAttrack = {
             CliqzAttrack.visitCache = {};
         }
 
-        if (CliqzAttrack.pacemakerId==null) {
-            CliqzAttrack.pacemakerId = CliqzUtils.setInterval(CliqzAttrack.pacemaker, CliqzAttrack.tpace, null);
-        }
+        CliqzAttrack.initPacemaker();
 
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpmodObserver, "http-on-modify-request", false);
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpopenObserver, "http-on-opening-request", false);
@@ -2384,6 +2343,7 @@ var CliqzAttrack = {
         CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-cached-response');
         CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-response');
 
+        pacemaker.destroy();
     },
     unloadWindow: function(window) {
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
