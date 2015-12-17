@@ -882,7 +882,6 @@ window.CLIQZ.Core = {
             CliqzFreshTab.toggleState)
         );
       }
-      menupopup.appendChild(CLIQZ.Core.createSecureChannelMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -1079,30 +1078,6 @@ window.CLIQZ.Core = {
 
       menu.appendChild(menuPopup)
       return menu
-    },
-    createSecureChannelMenu: function(win){
-        var doc = win.document,
-            menu = doc.createElement('menu'),
-            menuPopup = doc.createElement('menupopup');
-
-        menu.setAttribute('label', 'Secure channel');
-
-        var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'hpn', CliqzUtils.getLocalizedString('btnSafeSearch'), true);
-        menuPopup.appendChild(safeSearchBtn);
-
-        menuPopup.appendChild(
-            CLIQZ.Core.createSimpleBtn(
-                doc,
-                CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
-                function(){
-                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
-                    },
-                'safe_search_desc'
-            )
-        );
-
-        menu.appendChild(menuPopup)
-        return menu
     },
     createActivateButton: function(doc) {
       var button = doc.createElement('menuitem');
