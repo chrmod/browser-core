@@ -1894,7 +1894,7 @@ var CliqzHumanWeb = {
                 if(cd){
                     cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
                     cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
-                    cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage), true;
+                    cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage, true);
                     cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
                     cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
                 }
@@ -2103,32 +2103,24 @@ var CliqzHumanWeb = {
     },
     unload: function() {
         //Check is active usage, was sent
-        CliqzUtils.log("In Unloading humanweb","XXXX");
-        try{
-            try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){CliqzUtils.log("Error unload3: " + e,"XXX");};
-            // Save action stats
-            CliqzHumanWeb.saveActionStats();
-            if(activeUsageTrk){
-                var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
-                if(tDiff && tDiff > 3600){
-                    CliqzHumanWeb.checkActiveUsage();
-                }
-                else{
-                    CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
-                }
+        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){CliqzUtils.log("Error unload3: " + e,"XXX");};
+        // Save action stats
+        CliqzHumanWeb.saveActionStats();
+        if(activeUsageTrk){
+            var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
+            if(tDiff && tDiff > 3600){
+                CliqzHumanWeb.checkActiveUsage();
             }
-            // send all the data
-            // CliqzHumanWeb.pushTelemetry();
-            CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
-            CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
-            CliqzUtils.log("Unloading humanweb","XXXX");
+            else{
+                CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
+            }
         }
-        catch(e){
-            CliqzUtils.log("Error unload2: " + e,"XXX");
-        }
+        // send all the data
+        CliqzHumanWeb.pushTelemetry();
+        CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
+        CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
     },
     unloadAtBrowser: function(){
-        CliqzHumanWeb.pushTelemetry();
         try {
             CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
         } catch(e){}
