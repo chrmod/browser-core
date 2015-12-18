@@ -2,7 +2,7 @@
  * This module prevents user from 3rd party tracking
  */
 import pacemaker from 'antitracking/pacemaker';
-import * as persist from "antitracking/persistent-state";
+import * as persist from 'antitracking/persistent-state';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -2814,6 +2814,7 @@ var CliqzAttrack = {
                     }
                 }
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new safekey version "+ safeKeyExtVersion, "attrack");
+                CliqzAttrack.pruneSafeKey();
                 CliqzAttrack.checkWrongToken('safeKey');
                 CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
                 persist.set_value('lastUpdate', CliqzAttrack.lastUpdate);

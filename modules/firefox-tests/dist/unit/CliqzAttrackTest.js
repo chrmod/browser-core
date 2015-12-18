@@ -14,7 +14,8 @@ function waitIfNotReady(fn) {
 }
 
 TESTS.AttrackTest = function (CliqzUtils) {
-    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
+    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default,
+        persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state");
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     beforeEach(function() {
@@ -542,8 +543,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
         beforeEach(function() {
           // mock safekey URL
           CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
-          CliqzAttrack.safeKeyExtVersion = null;
-          CliqzAttrack.safeKey = {};
+          persist.set_value("safeKeyExtVersion", "");
+          persist.clear_persistent(CliqzAttrack.safeKey);
         });
 
         afterEach(function() {
@@ -554,10 +555,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
         it('loads remote safekeys', function(done) {
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(Object.keys(CliqzAttrack.safeKey)).to.have.length(1);
               chai.expect(CliqzAttrack.safeKey).to.have.property("f528764d624db129");
               chai.expect(CliqzAttrack.safeKey["f528764d624db129"]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
@@ -579,10 +580,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(Object.keys(CliqzAttrack.safeKey)).to.have.length(2);
               chai.expect(CliqzAttrack.safeKey).to.have.keys(domain1_hash, domain2_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
@@ -605,10 +606,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql(["20200101", 'r']);
               done();
@@ -625,10 +626,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql([day, 'l']);
               done();
@@ -652,10 +653,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.not.have.property(key_hash);
               done();
             } catch(e) { done(e); }
@@ -672,8 +673,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         beforeEach(function() {
           // setup clean state
-          CliqzAttrack.safeKeyExtVersion = null;
-          CliqzAttrack.safeKey = {};
+          persist.set_value("safeKeyExtVersion", "");
+          persist.clear_persistent(CliqzAttrack.safeKey);
           CliqzAttrack.tokenWhitelistVersion = null;
           CliqzAttrack.tokenExtWhitelist = {};
           CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
@@ -696,7 +697,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('does not update if versions match', function(done) {
-          CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+          persist.set_value("safeKeyExtVersion", mock_safekey_hash);
           CliqzAttrack.tokenWhitelistVersion = mock_token_hash;
           CliqzAttrack.loadRemoteWhitelists();
           setTimeout(function() {
@@ -726,7 +727,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('updates safekeys only if needed', function(done) {
-          CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+          persist.set_value("safeKeyExtVersion", mock_safekey_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
           waitFor(function() {
@@ -756,7 +757,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           it('only clears when safekey update is required', function(done) {
             CliqzAttrack.safeKey['a'] = {'b': ['20150101', 'l']};
-            CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+            persist.set_value("safeKeyExtVersion", mock_safekey_hash);
             CliqzAttrack.loadRemoteWhitelists();
             waitFor(function() {
               return calledLoadRemoteTokenWhitelist == 1;
