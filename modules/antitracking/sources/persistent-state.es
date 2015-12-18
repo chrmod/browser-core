@@ -50,8 +50,6 @@ function loadRecord(id, callback) {
     From CliqzAttrack.saveRecord
  */
 function saveRecord(id, data) {
-  CliqzUtils.log(id, "xxx");
-  CliqzUtils.log(data, "xxx");
   var st = dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
   st.params.id = id;
   st.params.data = data;

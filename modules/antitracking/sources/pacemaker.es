@@ -28,8 +28,11 @@ class Pacemaker {
         CliqzUtils.setTimeout(function() {
           let task_name = task.fn.name || "<anon>";
           try {
-            CliqzUtils.log("run task: "+ task_name, "pacemaker");
-            task.fn(now);
+            // if task constraint is set, test it before running
+            if (!task.when || task.when(task)) {
+              CliqzUtils.log("run task: "+ task_name, "pacemaker");
+              task.fn(now);
+            }
             task.last = now;
           } catch(e) {
             CliqzUtils.log("Error executing task "+ task_name +": "+ e, "pacemaker");
@@ -44,12 +47,12 @@ class Pacemaker {
         @param frequency minimum interval between calls, in ms.
         @returns task object, which can be used with deregister to stop this task.
    */
-  register(fn, frequency) {
-    var freq = frequency || 0;
+  register(fn, frequency, constraint) {
     var task = {
       fn: fn,
-      freq: freq,
-      last: 0
+      freq: frequency || 0,
+      last: 0,
+      when: constraint
     };
     this._tasks.add(task);
     return task;

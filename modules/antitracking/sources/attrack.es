@@ -2110,14 +2110,28 @@ var CliqzAttrack = {
         }
     },
     initPacemaker: function() {
-
-        // run every time
-        pacemaker.register(CliqzAttrack.sendStateIfNeeded);
-        pacemaker.register(CliqzAttrack.sendTokensIfNeeded);
-
-        // every 2 mins
         let two_mins = 2 * 60 * 1000;
 
+        // create a constraint which returns true when the time changes at the specified fidelity
+        function timeChangeConstraint(name, fidelity) {
+            if (fidelity == "day") fidelity = 8;
+            else if(fidelity == "hour") fidelity = 10;
+            return function (task) {
+                var timestamp = CliqzHumanWeb.getTime().slice(0, fidelity),
+                    lastHour = persist.get_value(name + "lastRun") || timestamp;
+                CliqzUtils.log("name: " + timestamp +" - "+ lastHour, "xxx");
+                persist.set_value(name +"lastRun", timestamp);
+                return timestamp != lastHour
+            }
+        }
+
+        // check for new whitelists every 3 hours
+        pacemaker.register(CliqzAttrack.loadRemoteWhitelists, 3 * 60 * 60 * 1000);
+
+        // send tokens whenever hour changes
+        pacemaker.register(CliqzAttrack.sendTokens, two_mins, timeChangeConstraint("tokens", "hour"));
+
+        // every 2 mins
         pacemaker.register(function clean_visitCache(curr_time) {
             var keys = Object.keys(CliqzAttrack.visitCache);
             for(var i=0;i<keys.length;i++) {
@@ -2170,13 +2184,10 @@ var CliqzAttrack = {
             }
         });
 
-
         pacemaker.register(function tp_event_commit() {
             CliqzAttrack.tp_events.commit();
             CliqzAttrack.tp_events.push();
         }, two_mins);
-
-        pacemaker.register(CliqzAttrack.saveState, two_mins);
 
         // every hour
         let hourly = 60 * 60 * 1000;
