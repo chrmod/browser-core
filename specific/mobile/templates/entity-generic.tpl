@@ -11,7 +11,7 @@
         <div class="main">
           <h1 class="main__headline"><a href="{{../url}}">{{ emphasis name ../text 2 true }}</a></h1>
       </div>
-          <!-- <div class="after" style="background-image: url({{icon}})"></div> -->
+          <!-- <div class="after" data-style="background-image: url({{icon}})"></div> -->
 
         <ul class="cta">
           {{#each actions }}

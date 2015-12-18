@@ -10,7 +10,7 @@
 <div class="cqz-result-h1 cqz-result-padding ez-video main">
         <div class="item">
             {{#if image.src}}
-                <div class="main__image video" style="background-image: url({{ image.src }});">
+                <div class="main__image video" data-style="background-image: url({{ image.src }});">
                     {{#if (sec_to_duration duration)}}<span> {{ sec_to_duration duration}}</span>{{/if}}
                     <div class="playbutton">
                         <i class="fa fa-play"></i>
