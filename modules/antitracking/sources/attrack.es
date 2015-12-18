@@ -4,6 +4,7 @@
 import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
 import TempSet from 'antitracking/temp-set.es';
+import MapCache from 'antitracking/fixed-size-cache';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -50,46 +51,7 @@ function shuffle(s) {
     return a.join("");
 };
 
-var LRUMapCache = function(item_ctor, size) {
-    this._cache_limit = size;
-    this._cache = {};
-    this._lru = [];
-    this._item_ctor = item_ctor;
-    this._hit_ctr = 0;
-    this._miss_ctr = 0;
-    this._keysize_limit = 1000;
-}
-
-LRUMapCache.prototype = {
-    get: function(key) {
-        if (key in this._cache) {
-            // cache hit, remove key from lru list
-            let ind = this._lru.indexOf(key);
-            if (ind != -1) {
-                this._lru.splice(ind, 1);
-            }
-            this._hit_ctr++;
-        } else {
-            // cache miss, generate value for key
-            if (key.length > this._keysize_limit) {
-                // if key is large, don't cache
-                return this._item_ctor(key);
-            }
-            this._cache[key] = this._item_ctor(key);
-            // prune cache - take from tail of list until short enough
-            while (this._lru.length > this._cache_limit) {
-                let lru = this._lru.pop();
-                delete this._cache[lru];
-            }
-            this._miss_ctr++;
-        }
-        // add key to head of list
-        this._lru.unshift(key);
-        return this._cache[key];
-    }
-}
-
-var md5Cache = new LRUMapCache(CliqzHumanWeb._md5, 1000);
+var md5Cache = new MapCache(CliqzHumanWeb._md5, 1000);
 
 var md5 = function(s) {
     return md5Cache.get(s);
@@ -534,7 +496,7 @@ var URLInfo = function(url) {
     return this;
 }
 
-URLInfo._cache = new LRUMapCache(function(url) { return new URLInfo(url) }, 100);
+URLInfo._cache = new MapCache(function(url) { return new URLInfo(url) }, 100);
 
 /** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
 URLInfo.get = function(url) {
