@@ -19,11 +19,11 @@ bower install # to satisfy bower.json
 
 Use `fern.js`:
 
-To start build system for beta release:
+To start build system:
 
 `./fern.js serve`
 
-Release channel configuration file can be specified via optional argument:
+Release channel configuration file can be specified via optional argument (default is ./config/jenkins.json`):
 
 `./fern.js serve ./configs/amo.json`
 
