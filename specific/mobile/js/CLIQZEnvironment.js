@@ -592,13 +592,17 @@ CLIQZEnvironment = {
         style: logo.style
       }
     });
-    if(!CliqzHandlebars.tplCache.topnews) return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
+    if(!CliqzHandlebars.tplCache.topnews) {
+      return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
+    }
     var topNews = CliqzHandlebars.tplCache["topnews"];
     var div = window.document.getElementById('topNews');
     div.innerHTML = topNews(top_news);
   },
   displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites) return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
+    if(!CliqzHandlebars.tplCache.topsites) {
+      return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
+    }
     list = list.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
