@@ -8,9 +8,12 @@ export default class {
   constructor(settings) {
     this.window = settings.window;
     this.gBrowser = this.window.gBrowser;
+    //if adblock is not present - return
+    if(this.window.CLIQZ.Core.genericPrefs.getPrefType(adBlockKey) == 0) return;
     this.initialState = this.adBlockActive();
     this.state = true;
     this.warningDissmissed = false;
+
 
     this.userListener = {
       QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
