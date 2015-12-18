@@ -16,7 +16,7 @@
                >{{ text }}
               </div>
               <h1 class="main__headline">
-                  <a href="#" class="topNewsLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
+                  <a class="topNewsLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
                       {{short_title}}
                   </a>
               </h1>
