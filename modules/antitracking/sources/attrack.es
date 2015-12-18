@@ -3,6 +3,7 @@
  */
 import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
+import TempSet from 'antitracking/temp-set.es';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -47,36 +48,6 @@ function shuffle(s) {
         a[j] = tmp;
     }
     return a.join("");
-};
-
-var CachedSet = function() {
-    this._items = new Set();
-    this._timeouts = new Set();
-};
-
-CachedSet.prototype = {
-    contains: function(item) {
-        return this._items.has(item);
-    },
-    add: function(item, ttl) {
-        var _this = this;
-        this._items.add(item);
-        var timeout = CliqzUtils.setTimeout(function() {
-            _this.delete(item);
-            _this._timeouts.delete(timeout);
-        }, ttl);
-        _this._timeouts.add(timeout);
-    },
-    delete: function(item) {
-        this._items.delete(item);
-    },
-    clear: function() {
-        for (let t of this._timeouts) {
-            CliqzUtils.clearTimeout(t);
-        }
-        this._timeouts.clear();
-        this._items.clear();
-    }
 };
 
 var LRUMapCache = function(item_ctor, size) {
@@ -682,7 +653,7 @@ var CliqzAttrack = {
     requestKeyValue: null,
     // removeTracking: CliqzUtils.getPref('attrackRemoveTracking', false),
     // removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
-    recentlyModified: new CachedSet(),
+    recentlyModified: new TempSet(),
     favicons: {
         // A simple capacity limited set, with least recently used items removed when
         // capcity is full.
