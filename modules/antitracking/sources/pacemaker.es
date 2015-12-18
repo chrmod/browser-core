@@ -61,5 +61,5 @@ class Pacemaker {
 }
 
 // export singleton pacemaker
-var pm = new Pacemaker(60000, 120000);
+var pm = new Pacemaker(30000, 10000);
 export default pm;

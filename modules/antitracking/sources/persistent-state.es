@@ -83,7 +83,6 @@ class PersistenceHandler {
 
     // trap for set operations
     this.set = function(target, property, value, receiver) {
-      CliqzUtils.log("set "+ this.name, LOG_KEY);
       // propegate proxy down object tree
       target[property] = this.proxyBranch(value);
       this.dirty = true;
@@ -91,7 +90,6 @@ class PersistenceHandler {
     };
     // trap for delete operations
     this.deleteProperty = function(target, property) {
-      CliqzUtils.log("delete "+ this.name, LOG_KEY);
       delete target[property];
       this.dirty = true;
       return true;
