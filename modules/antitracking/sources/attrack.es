@@ -2356,9 +2356,6 @@ var CliqzAttrack = {
         CliqzAttrack.tp_events.commit(true, true);
         CliqzAttrack.tp_events.push(true);
 
-        CliqzAttrack.saveState();
-        CliqzAttrack.saveTokens();
-        CliqzAttrack.saveLocalTokenStats();
         // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
         // CliqzAttrack.saveWhitelist();
 
@@ -2367,9 +2364,6 @@ var CliqzAttrack = {
         CliqzAttrack.pushTelemetry();
         CliqzUtils.clearTimeout(CliqzAttrack.pacemakerId);
         CliqzUtils.clearTimeout(CliqzAttrack.trkTimer);
-
-        CliqzAttrack.saveTokenWhitelist();
-        CliqzAttrack.saveSafeKey();
 
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {

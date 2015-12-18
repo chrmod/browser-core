@@ -7,6 +7,10 @@ Please use the configuration from [editorconfig](https://github.com/cliqz/naviga
 
 ## Requirements
 
+Node version required: is >= 4.x
+
+(use `nvm` https://github.com/creationix/nvm to manage multiple node versions)
+
 ```bash
 npm install -g bower
 npm install -g broccoli-cli
@@ -19,26 +23,31 @@ bower install # to satisfy bower.json
 
 Use `fern.js`:
 
-To start build system for beta release:
+To start build system:
 
 `./fern.js serve`
 
-Release channel configuration file can be specified via optional argument:
+Release channel configuration file can be specified via optional argument (default is ./config/jenkins.json`):
 
 `./fern.js serve ./configs/amo.json`
 
 ## Packaging
 
-Build beta release with:
+All release channels configurations files are stored in `./configs` folder. Choose your channel and build it with:
 
-`./fern.js build`
+`./fern.js build ./configs/<CHANNEL_NAME>.json`
 
-Other releases are build with respective configuration files with:
+Examples:
 
-`./fern.js build ./configs/amo.json`
+* `./fern.js build ./configs/amo.json`
+* `./fern.js build ./configs/browser.json`
 
-once having `build` folder present you need to install bower_component for your platform build, e.g.:
-`cd build/dev/firefox/cliqz@cliqz.com && bower install`
+## Testing
+
+you need to build extension with `./fern.js serve ./configs/jenkins.json` configuration file in order to run tests. 
+
+Then open this URL to start tests `chrome://cliqz/content/firefox-tests/index.html`
+
 
 ## UI debugging
 
