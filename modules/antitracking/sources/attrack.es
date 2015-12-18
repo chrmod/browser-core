@@ -2234,6 +2234,9 @@ var CliqzAttrack = {
         persist.create_persistent("safeKey", (v) => CliqzAttrack.safeKey = v);
         try {
             CliqzAttrack.lastUpdate = JSON.parse(persist.get_value("lastUpdate"));
+            if (CliqzAttrack.lastUpdate.length != 2) {
+                throw "invalid lastUpdate value";
+            }
         } catch(e) {
             CliqzAttrack.lastUpdate = ['0', '0'];
         }
@@ -2782,7 +2785,7 @@ var CliqzAttrack = {
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
                 CliqzAttrack.checkWrongToken('token');
                 CliqzAttrack.lastUpdate[1] = CliqzAttrack.getTime();
-                persist.set_value('lastUpdate', CliqzAttrack.lastUpdate);
+                persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
             },
             function() {},
             10000);
@@ -2817,7 +2820,7 @@ var CliqzAttrack = {
                 CliqzAttrack.pruneSafeKey();
                 CliqzAttrack.checkWrongToken('safeKey');
                 CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
-                persist.set_value('lastUpdate', CliqzAttrack.lastUpdate);
+                persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
             },
             function() {
                 // on error
