@@ -35,7 +35,7 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
 var proxyCounter = 0;
 var localTemporalUniq = null;
 CliqzUtils.setPref('hpn', CliqzUtils.getPref('hpn', true));
-
+var hpnState = "extensions.cliqz.hpn";// true = active
 /*
 Function to create http url
 */
@@ -246,7 +246,6 @@ function _http(url){
         var client = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         var uri = url;
         var ts = new Date().getTime();
-        CliqzSecureMessage.performance.mark("query-s");
 
         client.open(method, uri, true);
         client.setRequestHeader("x-type", type ? type : "delayed");
@@ -671,6 +670,8 @@ var CliqzSecureMessage = {
     PROXY_LIST_PROVIDER: "http://securebrowsingtest-419796688.us-east-1.elb.amazonaws.com/proxyList",
     signerKey: null,
     loggerKey: null,
+    messageContext: messageContext,
+    getRouteHash: getRouteHash,
     pacemaker: function() {
     	if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % 10 == 0) {
             if (CliqzSecureMessage.debug) {
@@ -849,8 +850,6 @@ var CliqzSecureMessage = {
         CliqzSecureMessage._telemetry_req = null;
     },
     initAtWindow: function(window){
-    	CliqzSecureMessage.performance = window.performance;
-    	CliqzUtils.log("XXXXXX: + " + CliqzSecureMessage.performance.now(),"XXXX");
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto-kjur.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/rsa-sign.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
@@ -963,9 +962,6 @@ var CliqzSecureMessage = {
 		CliqzSecureMessage.telemetry(msg);
 		CliqzSecureMessage.proxyStats = {};
 		return;
-	},
-	tGen:function (trk){
-		return trkGen(trk);
 	}
 }
 
