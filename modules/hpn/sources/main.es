@@ -238,7 +238,6 @@ function _http(url){
 
     // Method that performs request
     req : function (method, url, data, type) {
-    	CliqzUtils.log("URL: " + url,"XXX");
 	      // Creating a promise
 	      var promise = new Promise( function (resolve, reject) {
 
@@ -641,7 +640,7 @@ blindSignContext.prototype.verify = function(){
 var CliqzSecureMessage = {
     VERSION: '0.1',
     LOG_KEY: 'securemessage',
-    debug: true,
+    debug: false,
     blindSign: blindSignContext,
     counter: 0,
     // messageContext: messageContext,
