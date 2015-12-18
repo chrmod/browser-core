@@ -26,7 +26,7 @@
 {{#if googleThis }}
 	{{#with googleThis }}
 		{{#if show }}
-			<div url="http://www.google.com/search?q={{searchString}}" class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+			<div url="http://www.google.com/search?q={{searchString}}" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
 			  <div class="ez">
 			    <div id="googleThisAnim">
 				    <br>
