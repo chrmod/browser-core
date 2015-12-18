@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "freshTabButton": false,
+    "antitrackingButton": true
+  },
+  "modules": [
+    "onboarding",
+    "freshtab",
+    "unblock",
+    "theme",
+    "users1st",
+    "loyalty",
+    "firefox-tests",
+    "antitracking"
+  ]
+}

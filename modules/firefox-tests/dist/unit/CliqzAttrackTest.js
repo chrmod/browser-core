@@ -1,6 +1,6 @@
 "use strict";
 
-Components.utils.import("chrome://cliqz_bower_components/content/httpd/index.js");
+Components.utils.import("chrome://cliqz/content/bower_components/httpd/index.js");
 
 function waitIfNotReady(fn) {
     var first = true;
@@ -676,7 +676,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           CliqzAttrack.safeKey = {};
           CliqzAttrack.tokenWhitelistVersion = null;
           CliqzAttrack.tokenExtWhitelist = {};
-          CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqztests/content/mockdata/versioncheck.json";
+          CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
           // mock update functions
           calledLoadRemoteTokenWhitelist = 0;
           calledLoadRemoteSafeKey = 0;
@@ -737,7 +737,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         describe("force_clean", function() {
 
           beforeEach(function() {
-            CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqztests/content/mockdata/versioncheck_clean.json";
+            CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck_clean.json";
           });
 
           it('clears safekeys before loading new remote list', function(done) {
