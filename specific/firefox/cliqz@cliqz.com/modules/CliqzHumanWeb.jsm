@@ -1890,12 +1890,29 @@ var CliqzHumanWeb = {
                 }
 
                 // they need to be loaded upon each onlocation, not only the first time
-                currwin.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
-                currwin.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
-                currwin.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
-                currwin.addEventListener("scroll", CliqzHumanWeb.captureScrollPage);
-                currwin.addEventListener("copy", CliqzHumanWeb.captureCopyPage);
-
+                var cd = CliqzHumanWeb.getCDByURL(activeURL);
+                if(cd){
+                    cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
+                    cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
+                    cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage), true;
+                    cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
+                    cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
+                }
+                /*
+                We might need this, to add listeners.
+                else{
+                    currwin.addEventListener('load', function loader() {
+                        CliqzUtils.log("CD failed: ",CliqzHumanWeb.LOG_KEY);
+                        currwin.removeEventListener('load', loader, false);
+                        var cd = CliqzHumanWeb.getCDByURL(activeURL);
+                        cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
+                        cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
+                        cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage), true;
+                        cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
+                        cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
+                    }, false);
+                }
+                */
             }
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
@@ -2086,24 +2103,32 @@ var CliqzHumanWeb = {
     },
     unload: function() {
         //Check is active usage, was sent
-        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
-        // Save action stats
-        CliqzHumanWeb.saveActionStats();
-        if(activeUsageTrk){
-            var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
-            if(tDiff && tDiff > 3600){
-                CliqzHumanWeb.checkActiveUsage();
+        CliqzUtils.log("In Unloading humanweb","XXXX");
+        try{
+            try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){CliqzUtils.log("Error unload3: " + e,"XXX");};
+            // Save action stats
+            CliqzHumanWeb.saveActionStats();
+            if(activeUsageTrk){
+                var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
+                if(tDiff && tDiff > 3600){
+                    CliqzHumanWeb.checkActiveUsage();
+                }
+                else{
+                    CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
+                }
             }
-            else{
-                CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
-            }
+            // send all the data
+            // CliqzHumanWeb.pushTelemetry();
+            CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
+            CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+            CliqzUtils.log("Unloading humanweb","XXXX");
         }
-        // send all the data
-        CliqzHumanWeb.pushTelemetry();
-        CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
-        CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+        catch(e){
+            CliqzUtils.log("Error unload2: " + e,"XXX");
+        }
     },
     unloadAtBrowser: function(){
+        CliqzHumanWeb.pushTelemetry();
         try {
             CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
         } catch(e){}
