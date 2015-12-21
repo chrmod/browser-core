@@ -936,10 +936,10 @@
       "message": "Unblock YouTube Videos"
     },
     "unblock_prompt": {
-      "message": "YouTube video blocked? CLIQZ can try to unblock YouTube videos for you."
+      "message": "Would you like CLIQZ to try to unblock Youtube Videos?"
     },
     "unblock_always": {
-      "message": "Yes please!"
+      "message": "Yes, always"
     },
     "unblock_once": {
       "message": "Just this once"

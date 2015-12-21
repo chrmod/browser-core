@@ -936,15 +936,15 @@
       "message": "Unblock content"
     },
     "unblock_prompt": {
-      "message": "Content blocked? CLIQZ can try to unblock this for you."
+      "message": "Soll CLIQZ versuchen, blockierte Youtube-Videos zu öffnen?"
     },
     "unblock_always": {
-      "message": "Immer"
+      "message": "Ja, immer"
     },
     "unblock_once": {
-      "message": "Nur einmal"
+      "message": "Nur dieses Mal"
     },
     "unblock_never": {
-      "message": "Nie"
+      "message": "Nein, niemals"
     }
 }
