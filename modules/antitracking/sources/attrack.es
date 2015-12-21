@@ -2275,11 +2275,11 @@ var CliqzAttrack = {
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
         CliqzAttrack.initDB();
         CliqzUtils.httpGet(
-            'chrome://cliqz/content/prob.json',
+            'chrome://cliqz/content/antitracking/prob.json',
             function success(req) {
                 CliqzAttrack.probHashLogM = JSON.parse(req.response);
             });
-        CliqzUtils.httpGet('chrome://cliqz/content/blacklist.json',
+        CliqzUtils.httpGet('chrome://cliqz/content/antitracking/blacklist.json',
             function success(req){
                 CliqzAttrack.blacklist = JSON.parse(req.response).tpdomains;
             },
