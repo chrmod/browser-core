@@ -205,9 +205,9 @@ CLIQZEnvironment = {
 
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
-      CLIQZEnvironment.enrichResults(r, 0);
+      CLIQZEnvironment.enrichResults(r, historyCount);
     } else {
-      CLIQZEnvironment.enrichResults(r, 1);
+      CLIQZEnvironment.enrichResults(r, historyCount + 1);
     }
 
     clearTimeout(CLIQZEnvironment.storeQueryTimeout);
@@ -299,6 +299,7 @@ CLIQZEnvironment = {
 
         dots.innerHTML = "";
         var myEl;
+        page = Math.abs(page);
 
         for(var i=0;i<CLIQZEnvironment.currentResultsCount;i++) {
           myEl = document.createElement("span");
