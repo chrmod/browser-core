@@ -619,11 +619,9 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
-  }, init: function(state) {
-    if(state == -1) {
-      CLIQZEnvironment.getNews();
-      osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
-    }
+  }, init: function() {
+    CLIQZEnvironment.getNews();
+    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
   }
 
 }

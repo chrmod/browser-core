@@ -23,8 +23,7 @@ var osBridge = {
   */
   isReady: function() {
     var message = {
-      action: "isReady",
-      callback: "CLIQZEnvironment.init"
+      action: "isReady"
     }
     OS.postMessage(message);
   },
