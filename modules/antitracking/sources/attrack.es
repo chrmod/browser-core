@@ -1100,7 +1100,7 @@ var CliqzAttrack = {
             var url_parts = URLInfo.get(url);
 
             if (requestContext.getContentPolicyType() == 6) {
-                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext)
+                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID());
                 return;
             }
 
@@ -1415,17 +1415,17 @@ var CliqzAttrack = {
 
             // full page
             if (requestContext.getContentPolicyType() == 6) {
-                if (requestContext.channel.responseStatus == 303 || requestContext.channel.responseStatus == 302) {
+                if ([300, 301, 302, 303, 307].indexOf(requestContext.channel.responseStatus) >= 0) {
                     // redirect, update location for tab
                     // if no redirect location set, stage the tab id so we don't get false data
                     let redirect_url = requestContext.getResponseHeader("Location");
-                    CliqzUtils.log(redirect_url, "yyy");
-                    CliqzUtils.log(dURIC(redirect_url), "yyy");
-                    CliqzUtils.log(URLInfo.get(dURIC(redirect_url)), "yyy");
-                    CliqzAttrack.tp_events.stage(requestContext.getOuterWindowID(), true);
-                    if (redirect_url) {
-                        CliqzAttrack.tp_events.onFullPage(URLInfo.get(dURIC(redirect_url)), requestContext);
+                    let redirect_url_parts = URLInfo.get(redirect_url);
+                    // if redirect is relative, use source domain
+                    if (!redirect_url_parts.hostname) {
+                        redirect_url_parts.hostname = url_parts.hostname;
+                        redirect_url_parts.path = redirect_url;
                     }
+                    CliqzAttrack.tp_events.onRedirect(URLInfo.get(redirect_url), requestContext.getOuterWindowID());
                 }
                 return;
             }
@@ -4411,16 +4411,26 @@ var CliqzAttrack = {
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
         //  or returns null if the url is malformed or null.
-        onFullPage: function(url, requestContext) {
-            let source = requestContext.getOuterWindowID();
+        onFullPage: function(url, tab_id) {
             // previous request finished. Move to staged
-            this.stage(source);
+            this.stage(tab_id);
             // create new page load entry for tab
-            if(url && url.hostname && source > 0 && !this.ignore.has(url.hostname)) {
-                this._active[source] = new CliqzAttrack.tp_events.PageLoadData(url);
-                return this._active[source];
+            if(url && url.hostname && tab_id > 0 && !this.ignore.has(url.hostname)) {
+                this._active[tab_id] = new CliqzAttrack.tp_events.PageLoadData(url);
+                return this._active[tab_id];
             } else {
                 return null;
+            }
+        },
+        onRedirect: function(url_parts, tab_id) {
+            if(tab_id in this._active) {
+                let prev = this._active[tab_id];
+                this._active[tab_id] = new CliqzAttrack.tp_events.PageLoadData(url_parts);
+                this._active[tab_id].redirects = prev.redirects;
+                this._active[tab_id].redirects.push(prev.hostname);
+                CliqzUtils.log(this._active[tab_id], "xxx1");
+            } else {
+                this.onFullPage(url_parts, tab_id);
             }
         },
         // Get a stats object for the request to url, referred from ref, on tab source.
@@ -4460,10 +4470,9 @@ var CliqzAttrack = {
             return page_graph.getTpUrl(url_parts.hostname, url_parts.path);
         },
         // Move the PageLoadData object for windowID to the staging area.
-        stage: function(windowID, redirect) {
+        stage: function(windowID) {
             if(windowID in this._active) {
                 this._active[windowID]['e'] = (new Date()).getTime();
-                this._active[windowID]['redirect'] = redirect || false;
                 // push object to staging and save its id
                 this._old_tab_idx[windowID] = this._staged.push(this._active[windowID]) - 1;
                 delete this._active[windowID];
@@ -4534,6 +4543,7 @@ var CliqzAttrack = {
             this.s = (new Date()).getTime();
             this.e = null;
             this.tps = {};
+            this.redirects = [];
 
             // Get a stat counter object for the given third party host and path in
             // this page load.
