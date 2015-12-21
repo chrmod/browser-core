@@ -123,17 +123,6 @@ if(window.webkit) {
     }
 } else {
   OS.postMessage = MockOS.postMessage;
-  if(location.href.indexOf("freshtab.html") >= 0) {
-    setTimeout(function(){initFreshtab()}, 1000);
-  } else {
-    setTimeout(function(){initSearch({
-      "t": 123131231231312, // long, millis
-      "q": "praha sehenswürdigkeiten", // string, last query
-      "card": 1, // int, index of displayed card
-      "title": "", // string, optional, webpage title
-      "url": "", // string, optional, last visited webpage
-    })}, 1000);
-  }
 }
 
 // spread the code to the generic and environment parts

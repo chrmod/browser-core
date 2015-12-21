@@ -1,5 +1,14 @@
-System.baseURL = "modules/"
-CLIQZ.System = System;
+function init() {
+  System.baseURL = "modules/"
+  CLIQZ.System = System;
+  System.import("freshtab/news").then(function (module) {
+    CliqzFreshTabNews = module.default;
+    osBridge.isReady();
+    CLIQZEnvironment.initHomepage();
+  }).catch(function () {
+    console.log("error", arguments)
+  });
+};
 
 /**
   Parameter format
@@ -13,47 +22,27 @@ CLIQZ.System = System;
     "url": "http://pippopollina.com", // string, optional, last visited webpage
   }
 */
-function initSearch(cfg) {
-  System.import("freshtab/news").then(function (module) {
-    CliqzFreshTabNews = module.default;
-    osBridge.isReady();
-    if(cfg.t < 1000 * 60 * 30) {
-      if(cfg.q === "") {
-        CLIQZEnvironment.init();
-      }
-      return;
-    }
-    CLIQZEnvironment.init();
-    var start = document.getElementById("freshstart");
-    if(cfg.url && cfg.url.length > 0) {
-      var elem = document.createElement('a');
-      elem.setAttribute('onclick', 'osBridge.openLink("' + cfg.url + '")');
-      elem.innerHTML = cfg.title;
-      start.removeChild(start.firstChild);
-      start.appendChild(elem);
-    } 
-    else if(cfg.q && cfg.q.length > 0) {
-      var location_enabled = !!cfg.lat && !!cfg.lon;
-      var elem = document.createElement('a');
-      elem.setAttribute('onclick', 'search_mobile("' + cfg.q + '", ' + location_enabled + ', ' + cfg.lat + ', ' + cfg.lon + ')');
-      elem.innerHTML = cfg.q;
-      start.removeChild(start.firstChild);
-      start.appendChild(elem);
-    }
-  }).catch(function () {
-    console.log("error", arguments)
-  });
-};
-
-function initFreshtab() {
-  System.import("freshtab/news").then(function (module) {
-    CliqzFreshTabNews = module.default;
-    CLIQZEnvironment.init();
-  }).catch(function () {
-    console.log("error", arguments)
-  });
-};
+function resume(cfg) {
+  var start = document.getElementById("freshstart");
+  if(cfg.url && cfg.url.length > 0) {
+    var elem = document.createElement('a');
+    elem.setAttribute('onclick', 'osBridge.openLink("' + cfg.url + '")');
+    elem.innerHTML = cfg.title;
+    start.removeChild(start.firstChild);
+    start.appendChild(elem);
+  } 
+  else if(cfg.q && cfg.q.length > 0) {
+    var location_enabled = !!cfg.lat && !!cfg.lon;
+    var elem = document.createElement('a');
+    elem.setAttribute('onclick', 'search_mobile("' + cfg.q + '", ' + location_enabled + ', ' + cfg.lat + ', ' + cfg.lon + ')');
+    elem.innerHTML = cfg.q;
+    start.removeChild(start.firstChild);
+    start.appendChild(elem);
+  }
+}
 
 CliqzUtils.getLocalStorage = function(url) {
     return localStorage;
 }
+
+window.addEventListener('load', init);

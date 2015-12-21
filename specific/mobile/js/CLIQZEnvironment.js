@@ -263,7 +263,7 @@ CLIQZEnvironment = {
       resultsBox.style.display = 'none';
       window.document.getElementById("startingpoint").style.display = 'block';
       CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.init(-1);
+      CLIQZEnvironment.initHomepage();
       CLIQZEnvironment.stopProgressBar();
       return;
     }
@@ -644,7 +644,7 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
-  }, init: function() {
+  }, initHomepage: function() {
     CLIQZEnvironment.getNews();
     osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
   }
