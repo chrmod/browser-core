@@ -4059,46 +4059,52 @@ var CliqzAttrack = {
         if (v.length >= 2) {
 
             o['protocol'] = v[0];
-            var s = v.slice(1, v.length).join('://');
-            v = s.split('/');
-            // empty hostname is invalid
-            if(v[0] == '') return null;
-
-            var oh = CliqzHumanWeb.parseHostname(v[0]);
-            o['hostname'] = oh['hostname'];
-            o['port'] = oh['port'];
-            o['username'] = oh['username'];
-            o['password'] = oh['password'];
+            o['hostname'] = '';
+            o['port'] = '';
+            o['username'] = '';
+            o['password'] = '';
             o['path'] = '/';
             o['query'] = '';
             o['parameters'] = '';
             o['fragment'] = '';
+            o['host'] = '';
+            var s = v.slice(1, v.length).join('://');
 
-            if (v.length>1) {
-                let path = v.splice(1, v.length).join('/');
-
-                // forward parse the path, a single character at a time
-                let state = 'path';
-                for(let i=0; i<path.length; i++) {
-                    let c = path.charAt(i);
-                    // check for special characters which can change parser state
-                    if(c == '#' && ['path', 'query', 'parameters'].indexOf(state) >= 0) {
-                        // begin fragment
-                        state = 'fragment';
-                        continue;
-                    } else if(c == '?' && ['path', 'parameters'].indexOf(state) >= 0) {
-                        // begin query string
-                        state = 'query';
-                        continue;
-                    } else if(c == ';' && state == 'path') {
-                        // begin parameter string
-                        state = 'parameters';
-                        continue;
-                    }
-
-                    // add character to key based on state
-                    o[state] += c;
+            let state = 'host';
+            for(let i=0; i<s.length; i++) {
+                let c = s.charAt(i);
+                // check for special characters which can change parser state
+                if(c == '#' && ['host', 'path', 'query', 'parameters'].indexOf(state) >= 0) {
+                    // begin fragment
+                    state = 'fragment';
+                    continue;
+                } else if(c == '?' && ['host', 'path', 'parameters'].indexOf(state) >= 0) {
+                    // begin query string
+                    state = 'query';
+                    continue;
+                } else if(c == ';' && ['host', 'path'].indexOf(state) >= 0) {
+                    // begin parameter string
+                    state = 'parameters';
+                    continue;
+                } else if(c == '/' && state == 'host') {
+                    // from host we could go into any next state
+                    state = 'path';
+                    continue;
                 }
+
+                // add character to key based on state
+                o[state] += c;
+            }
+
+            if (o['host'] == '') return null;
+
+            var oh = CliqzHumanWeb.parseHostname(o['host']);
+            ['hostname', 'port', 'username', 'password'].forEach(function(k) {
+                o[k] = oh[k];
+            });
+            delete o['host'];
+
+            if (state != 'path') {
                 o['query_keys'] = CliqzAttrack.getParametersQS(o['query']);
                 o['parameter_keys'] = CliqzAttrack.getParametersQS(o['parameters']);
                 o['fragment_keys'] = CliqzAttrack.getParametersQS(o['fragment']);
