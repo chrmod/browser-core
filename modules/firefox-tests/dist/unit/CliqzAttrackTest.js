@@ -90,6 +90,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 CliqzAttrack._last_push = (new Date()).getTime();
             });
 
+            afterEach(function() {
+                tabs.forEach(function(t) {
+                    gBrowser.removeTab(t);
+                });
+                tabs = [];
+            });
+
             it('should initially have no active tabs', function() {
                 chai.expect(CliqzAttrack.tp_events._active).to.be.empty;
             });
@@ -102,13 +109,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 beforeEach(function() {
                     tabs.push(gBrowser.addTab("https://cliqz.com"));
                     tabs.push(gBrowser.addTab("https://cliqz.com/privacy#saferWeb"));
-                });
-
-                afterEach(function() {
-                    tabs.forEach(function(t) {
-                        gBrowser.removeTab(t);
-                    });
-                    tabs = [];
                 });
 
                 it('should add tabs to _active', function(done) {
@@ -182,6 +182,68 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     });
 
                 });
+            });
+
+            describe('redirects', function() {
+
+              var server, server_port, hit_target = false, proxy_type = null;
+
+              before(function() {
+                server = new HttpServer();
+                server.registerPathHandler('/303', function(request, response) {
+                  response.setStatusLine(request.httpVersion, 303, 'Redirect');
+                  response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
+                  response.write("<html><body></body></html>");
+                });
+                server.registerPathHandler('/target', function(request, response) {
+                  hit_target = true;
+                  response.write("<html><body></body></html>");
+                });
+                server_port = 60508;
+                server.identity.add("http", "cliqztest.com", server_port);
+                server.identity.add("http", "cliqztest.de", server_port);
+
+                server.start(server_port);
+
+                prefs.setCharPref('network.proxy.autoconfig_url', 'chrome://cliqz/content/firefox-tests/proxy.pac');
+                if(prefs.prefHasUserValue('network.proxy.type')) {
+                  proxy_type = prefs.getIntPref('network.proxy.type');
+                }
+                prefs.setIntPref('network.proxy.type', 2);
+              });
+
+              after(function() {
+                server.stop(function() {});
+                // reset user prefs
+                if(proxy_type == null) {
+                  prefs.clearUserPref('network.proxy.type');
+                } else {
+                  prefs.setIntPref('network.proxy.type', proxy_type);
+                }
+              });
+
+              describe('303', function() {
+                beforeEach(function() {
+                  hit_target = false;
+                  tabs.push(gBrowser.addTab("http://localhost:"+ server_port +"/303"));
+                });
+
+                it('uses host of last redirect', function(done) {
+                  this.timeout(60000);
+                  waitIfNotReady(function() {
+                      return hit_target;
+                    }).then(function() {
+                      console.log(CliqzAttrack.tp_events._active);
+                      chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
+                      var tabid = Object.keys(CliqzAttrack.tp_events._active)[0];
+                      chai.expect(CliqzAttrack.tp_events._active[tabid].hostname).to.equal("cliqztest.de");
+                      // check original was staged with redirect flag
+                      chai.expect(CliqzAttrack.tp_events._staged).to.have.length(1);
+                      chai.expect(CliqzAttrack.tp_events._staged[0].hostname).to.equal("localhost");
+                      chai.expect(CliqzAttrack.tp_events._staged[0].redirect).to.be.true;
+                    }).then(done, done);
+                });
+              });
             });
         });
 
