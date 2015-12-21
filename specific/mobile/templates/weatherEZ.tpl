@@ -30,5 +30,10 @@
         {{/each}}
     
 </div>
+
+<div class="poweredby">
+    More details at <a href="http://www.weatherunderground.com">weatherunderground.com</a>
+</div>
+
 {{/with}}
 <!-- end weatherEZ.tpl -->
