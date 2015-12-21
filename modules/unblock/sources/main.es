@@ -190,9 +190,9 @@ var CliqzUnblock = {
           });
         }
       }];
-      let priority = box.PRIORITY_INFO_MEDIUM;
+      let priority = box.PRIORITY_WARNING_MEDIUM;
       notification = box.appendNotification(message, 'geo-blocking-prevented',
-                      'chrome://browser/skin/Info.png',
+                      'chrome://cliqzres/content/skin/cliqz_btn.png',
                        priority, buttons);
     }
   }
