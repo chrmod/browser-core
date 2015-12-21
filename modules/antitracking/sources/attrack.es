@@ -4586,7 +4586,10 @@ var CliqzAttrack = {
                         c: this.c,
                         t: this.e - this.s,
                         ra: this.ra || 0,
-                        tps: {}
+                        tps: {},
+                        redirects: this.redirects.filter(function(hostname) {
+                            return !CliqzAttrack.sameGeneralDomain(hostname, self.hostname);
+                        })
                     };
                 if(!obj.hostname) return obj;
 
