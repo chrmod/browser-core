@@ -64,7 +64,7 @@ CLIQZEnvironment = {
 
     }
   },
-  
+
   crossTransform: function(element, x) {
     var platforms = ['', '-webkit-', '-ms-'];
     platforms.forEach(function(platform) {
@@ -170,7 +170,7 @@ CLIQZEnvironment = {
       CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
     })(validCount);
 
-    // CLIQZEnvironment.vp.goToIndex(1,0); 
+    // CLIQZEnvironment.vp.goToIndex(1,0);
 
     if(document.getElementById("currency-tpl")) {
       document.getElementById("currency-tpl").parentNode.removeAttribute("url");
@@ -202,7 +202,7 @@ CLIQZEnvironment = {
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
 
     CLIQZEnvironment.autoComplete(r._results[0].val);
-    
+
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
       CLIQZEnvironment.enrichResults(r, 0);
@@ -211,8 +211,8 @@ CLIQZEnvironment = {
     }
 
     clearTimeout(CLIQZEnvironment.storeQueryTimeout);
-    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() { 
-      CLIQZEnvironment.setCurrentQuery(r._searchString); 
+    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
+      CLIQZEnvironment.setCurrentQuery(r._searchString);
     },2000);
 
     CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
@@ -222,7 +222,7 @@ CLIQZEnvironment = {
     var showGooglethis = 1;
     var validCount = 0;
 
-    if(r._results[0].data.template == "noResult") { 
+    if(r._results[0].data.template == "noResult") {
       showGooglethis = 0;
     }
 
@@ -253,7 +253,7 @@ CLIQZEnvironment = {
       page: 0,
       totalOffset: 0,
       pageOffset: 0
-    }; 
+    };
 
     if(!e || e == "") {
       resultsBox.style.display = 'none';
@@ -278,6 +278,9 @@ CLIQZEnvironment = {
   },
 
   initViewpager: function() {
+    CLIQZEnvironment.initViewpager.views = {};
+    CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
+
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
@@ -308,6 +311,23 @@ CLIQZEnvironment = {
           dots.appendChild(myEl);
         }
 
+        CLIQZEnvironment.initViewpager.views[page] =
+          (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
+
+        CliqzUtils.telemetry({
+          type: "activity",
+          action: "swipe",
+          swipe_direction:
+            page === CLIQZEnvironment.currentPage ? 'none' :
+                     (page > CLIQZEnvironment.currentPage ? 'right' : 'left'),
+          current_position: page,
+          views: CLIQZEnvironment.initViewpager.views[page],
+          prev_position: CLIQZEnvironment.currentPage,
+          prev_display_time: Date.now() - CLIQZEnvironment.initViewpager.pageShowTs
+        });
+
+        CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
+
         CLIQZEnvironment.openLinksAllowed = true;
         CLIQZEnvironment.currentPage = page;
       }
@@ -322,7 +342,7 @@ CLIQZEnvironment = {
         if ( this.readyState == 4 ) {
           if (this.status != 200 ) {
             resp="" ;
-          } 
+          }
           else {
             resp= this.responseText ;
           }
@@ -341,7 +361,7 @@ CLIQZEnvironment = {
         return myVal;
     },
 
-    setRecent: function(msg, key){ 
+    setRecent: function(msg, key){
       console.log(msg,"[["+key+"]]") ;
     },
 
@@ -349,7 +369,7 @@ CLIQZEnvironment = {
       if(CLIQZEnvironment.interval) {
         clearInterval(CLIQZEnvironment.interval);
       }
-      var multiplier = parseInt(Math.ceil(window.innerWidth/100)), 
+      var multiplier = parseInt(Math.ceil(window.innerWidth/100)),
       progress = document.getElementById("progress"),
       i = 0;
       CLIQZEnvironment.interval = setInterval(function() {
@@ -378,7 +398,7 @@ CLIQZEnvironment = {
     }
   },
   getPrefs: function(){
-    var myPrefs = [], 
+    var myPrefs = [],
     myPref = {};
     for(var i=0, len=localStorage.length; i<len; i++) {
       myPref = {};
@@ -489,7 +509,7 @@ CLIQZEnvironment = {
         onerror && onerror();
       }
     }
-    
+
     if(callback){
       if(timeout){
         req.timeout = parseInt(timeout)
@@ -503,7 +523,7 @@ CLIQZEnvironment = {
   },
   openLink: function(window, url, newTab){
     Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
-    if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  { 
+    if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
       }
@@ -553,11 +573,11 @@ CLIQZEnvironment = {
     var R = 6371; // Radius of the earth in km
     if(!lon2 || !lon1 || !lat2 || !lat1) { return 0 }
     var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
-    var dLon = (lon2-lon1).toRad(); 
+    var dLon = (lon2-lon1).toRad();
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c; // Distance in km
     return d;
   },
@@ -567,7 +587,7 @@ CLIQZEnvironment = {
   },
   getEngineByAlias: function () {
     return ENGINES[0];
-  }, 
+  },
   getNews: function() {
     console.log("Start getting news");
     return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
@@ -632,7 +652,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   if(!recentItems[0] || (recentItems[0] && recentItems[0].query != query) )  {
     recentItems.unshift({query:query,timestamp:(new Date()).getTime()});
     recentItems = recentItems.slice(0,60);
-    localStorage.setItem("recentQueries",JSON.stringify(recentItems));  
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
     CLIQZEnvironment.renderRecentQueries(true);
   }
 
@@ -643,7 +663,7 @@ CLIQZEnvironment.getRecentQueries = function(query) {
   if(localStorage.getItem("recentQueries") == null) {
     localStorage.setItem("recentQueries","[]");
   }
-  return JSON.parse(localStorage.getItem("recentQueries")); 
+  return JSON.parse(localStorage.getItem("recentQueries"));
 }
 
 CLIQZEnvironment.renderRecentQueries = function(scroll) {
@@ -674,6 +694,6 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 
   if(scroll) {
     document.getElementById("conversations").scrollTop = 5000
-  } 
+  }
 
 }

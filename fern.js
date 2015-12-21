@@ -8,7 +8,7 @@ const spaws = require('cross-spawn');
 const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
 function setConfigPath(configPath) {
-  configPath = configPath || './configs/amo.json';
+  configPath = configPath || './configs/jenkins.json';
   process.env['CLIQZ_CONFIG_PATH'] = configPath;
 }
 
