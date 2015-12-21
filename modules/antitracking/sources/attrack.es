@@ -593,6 +593,7 @@ var CliqzAttrack = {
     URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
     URL_BLOCK_REPROT_LIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
     URL_TRACKER_COMPANIES: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
+    ENABLE_PREF: 'antiTrackTest',
     debug: false,
     msgType:'attrack',
     trackExamplesThreshold: 0,
@@ -2098,7 +2099,7 @@ var CliqzAttrack = {
         return CliqzUtils.getPref('attrackAlertEnabled', false);
     },
     isEnabled: function() {
-        return CliqzUtils.getPref('antiTrackTest', false);
+        return CliqzUtils.getPref(CliqzAttrack.ENABLE_PREF, false);
     },
     isCookieEnabled: function(source_hostname) {
         if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
@@ -2263,7 +2264,7 @@ var CliqzAttrack = {
      */
     init: function() {
         // disable for older browsers
-        if (!CliqzAttrack.isEnabled() || getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
 
@@ -2335,7 +2336,7 @@ var CliqzAttrack = {
     /** Per-window module initialisation
      */
     initWindow: function(window) {
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION || !CliqzAttrack.isEnabled()) {
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         // Load listerners:
@@ -2347,7 +2348,7 @@ var CliqzAttrack = {
     },
     unload: function() {
         // don't need to unload if disabled
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION || !CliqzAttrack.isEnabled()) {
+        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         //Check is active usage, was sent
@@ -4676,17 +4677,11 @@ var CliqzAttrack = {
       if (CliqzAttrack.isEnabled()) {
           return;
       }
-      CliqzUtils.setPref('antiTrackTest', true);
+      CliqzUtils.setPref(CliqzAttrack.ENABLE_PREF, true);
       if (!module_only) {
         CliqzUtils.setPref('attrackBlockCookieTracking', true);
         CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
         CliqzUtils.setPref('attrackRefererTracking', true);
-      }
-      CliqzAttrack.init();
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext();
-          CliqzAttrack.initWindow(win);
       }
       // telemetry
       CliqzUtils.telemetry({
@@ -4697,8 +4692,7 @@ var CliqzAttrack = {
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
-      CliqzAttrack.unload();
-      CliqzUtils.setPref('antiTrackTest', false);
+      CliqzUtils.setPref(CliqzAttrack.ENABLE_PREF, false);
       CliqzUtils.telemetry({
         'type': 'attrack',
         'action': 'disable'

@@ -13,6 +13,8 @@ function getExtensionDirectory() {
 
 TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
   var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
+  // make sure that module is loaded (default it is not initialised on extension startup)
+  CliqzUtils.setPref('antiTrackTest', true);
 
   describe('CliqzAttrack_integration', function() {
 
@@ -137,11 +139,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       CliqzUtils.setPref('attrackCanvasFingerprintTracking', false);
       CliqzUtils.setPref('attrackRefererTracking', false);
       CliqzAttrack.initialiseAntiRefererTracking();
-      // make sure that module is loaded (default it is not initialised on extension startup)
-      if(!module_enabled) {
-        CliqzUtils.setPref('antiTrackTest', true);
-        CliqzAttrack.enableModule();
-      }
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
       CliqzAttrack.tp_events._staged = [];
@@ -161,9 +158,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
           gBrowser.removeTab(t);
       });
       tabs = [];
-      if(!module_enabled) {
-        CliqzAttrack.disableModule();
-      }
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected

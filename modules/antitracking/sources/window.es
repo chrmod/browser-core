@@ -18,6 +18,17 @@ function onLocationChange(ev) {
   }.bind(this), 2000);
 }
 
+function onPrefChange(pref) {
+  if (pref == CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() != this.enabled) {
+    if (CliqzAttrack.isEnabled()) {
+      CliqzAttrack.initWindow(this.window);
+    } else {
+      CliqzAttrack.unloadWindow(this.window);
+    }
+    this.enabled = CliqzAttrack.isEnabled();
+  }
+};
+
 export default class {
 
   constructor(config) {
@@ -28,13 +39,16 @@ export default class {
     if ( this.popup ) {
       this.onLocationChange = onLocationChange.bind(this);
     }
+    this.onPrefChange = onPrefChange.bind(this);
+    this.enabled = false;
   }
 
   init() {
-    CliqzAttrack.initWindow(this.window);
     if ( this.popup ) {
       CliqzEvents.sub("core.location_change", this.onLocationChange);
     }
+    this.onPrefChange(CliqzAttrack.ENABLE_PREF);
+    CliqzEvents.sub("prefchange", this.onPrefChange);
   }
 
   unload() {
@@ -42,7 +56,10 @@ export default class {
       CliqzEvents.un_sub("core.location_change", this.onLocationChange);
       CliqzUtils.clearInterval(this.interval);
     }
-    CliqzAttrack.unloadWindow(this.window);
+    if (CliqzAttrack.isEnabled()) {
+      CliqzAttrack.unloadWindow(this.window);
+    }
+    CliqzEvents.un_sub("prefchange", this.onPrefChange);
   }
 
   updateBadge() {
