@@ -1,7 +1,9 @@
+import dbConn from 'antitracking/sqlite';
+
 /** Sqlite table for collecting tracking information locally.
  */
 export default class {
-  constructor(dbConn) {
+  constructor() {
     this.dbConn = dbConn;
     let tracking_table = "create table if not exists 'attrack_tracking' (\
             'tp' VARCHAR(16) NOT NULL,\
@@ -92,6 +94,7 @@ export default class {
   cleanTable() {
     var cutoff = (new Date()).getTime() - (1000 * 60 * 60 * 24 * 7); // 7 days ago
     var query = "DELETE FROM attrack_tracking WHERE lastTime < " + cutoff;
-    stmt.executeSimpleSQL(query);
+    this.dbConn.executeSimpleSQL(query);
   }
+
 };

@@ -52,7 +52,6 @@ var getBrowserMajorVersion = function() {
 };
 
 var CliqzAttrack = {
-    md5Cache: md5Cache,
     VERSION: '0.93',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
@@ -1199,6 +1198,33 @@ var CliqzAttrack = {
         pacemaker.register(CliqzAttrack.pruneTokenDomain, hourly);
         pacemaker.register(CliqzAttrack.pruneRequestKeyValue, hourly);
 
+        // send tracking occurances whenever day changes
+        pacemaker.register(function sendTrackingDetections() {
+            CliqzAttrack.local_tracking.getTrackingOccurances(function(results) {
+                if (results.length > 0) {
+                    CliqzAttrack.local_tracking.getTableSize(function(table_size) {
+                        var payl = {
+                            'ver': CliqzAttrack.VERSION,
+                            'ts': CliqzAttrack.getTime().substring(0, 8),
+                            'data': {
+                                'lt': results.map(function(tup) {
+                                    return {'tp': tup[0], 'k': tup[1], 'v': tup[2], 'n': tup[3]};
+                                }),
+                                'c': table_size
+                            }
+                        };
+                        CliqzUtils.log(payl, "xxx");
+                        CliqzHumanWeb.telemetry({
+                            'type': CliqzHumanWeb.msgType,
+                            'action': 'attrack.tracked',
+                            'payload': payl
+                        });
+                    });
+                }
+                CliqzAttrack.local_tracking.cleanTable();
+            });
+        }, hourly, timeChangeConstraint("local_tracking", "day"));
+
     },
     /** Global module initialisation.
      */
@@ -1280,6 +1306,8 @@ var CliqzAttrack = {
         } catch(e) {
             CliqzAttrack.disabled_sites = new Set();
         }
+
+        CliqzAttrack.local_tracking = new TrackingTable();
 
     },
     /** Per-window module initialisation
@@ -1373,6 +1401,7 @@ var CliqzAttrack = {
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
+            CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             // reset the state
             // delete without assignment to preserve persistance layer
             persist.clear_persistent(CliqzAttrack.tokens);
@@ -2323,15 +2352,6 @@ var CliqzAttrack = {
         'action': 'domain_whitelist_remove'
       });
       CliqzAttrack.saveSourceDomainWhitelist();
-    },
-    lookup: function(hash) {
-      var matches = []
-      for (var i in CliqzAttrack.md5Cache._cache) {
-        if(CliqzAttrack.md5Cache._cache[i] == hash) {
-          matches.push(i);
-        }
-      }
-      return matches;
     }
 };
 
