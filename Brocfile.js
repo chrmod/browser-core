@@ -33,6 +33,7 @@ var ui              = new Funnel(local,   { include: ['UI.js'] });
 // Build configuration
 var configFilePath  = process.env['CLIQZ_CONFIG_PATH'];
 var cliqzConfig     = JSON.parse(fs.readFileSync(configFilePath));
+console.log('Configuration file:', configFilePath);
 console.log(cliqzConfig);
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
@@ -54,11 +55,17 @@ var mobileCss = compileSass(
 // attach subprojects
 var components = [];
 var modules = []
+var requiredBowerComponents = new Set();
 
 cliqzConfig.modules.forEach(function (name) {
   var path = 'modules/'+name;
   if(fs.statSync(path).isDirectory()) {
     var init = new Funnel(path, { include: ['component.js'], destDir: path });
+
+    try {
+      var conf = fs.readFileSync('modules/'+name+'/bower_components.json');
+      JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
+    } catch(e) { }
 
     var sources = Babel(new Funnel(path+'/sources'), {
       sourceMaps: 'inline',
@@ -108,7 +115,7 @@ var uiConcated = concat(uiTree, {
 local = MergeTrees([
   new Funnel(local, { exclude: ['UI.js'] }),
   uiConcated
-])
+]);
 
 var globalConcated = concat(global, {
   outputFile: 'global.js',
@@ -156,16 +163,16 @@ var localMobile = concat(local, {
   inputFiles: [ 'UI.js' ],
 });
 
-var firefoxLibs = new MergeTrees([
-  libs,
-  new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] })
+var bowerTree = new MergeTrees([
+  new Funnel(bowerComponents, { include: Array.from(requiredBowerComponents) })
 ]);
 
 var firefoxLibs = new MergeTrees([
   libs,
-  new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] })
+  new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] }),
 ]);
 
+//  first level trees
 var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
     firefoxSpecific,
@@ -174,6 +181,7 @@ var firefox = new MergeTrees([
     new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
     new Funnel(global,      { destDir: 'modules' }),
     new Funnel(local,       { destDir: 'chrome/content'}),
+    new Funnel(bowerTree,   { destDir: 'chrome/content/bower_components' }),
     new Funnel(modules,     { destDir: 'chrome/content' }),
     new Funnel(compiledCss, { destDir: 'chrome/styles/css' }),
   ], { overwrite: true } ), { destDir: 'cliqz@cliqz.com' }),
@@ -208,7 +216,7 @@ var mobile = new MergeTrees([
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
 ]);
 
-// Output trees
+// Output
 module.exports = new MergeTrees([
   new Funnel(cliqzium, { destDir: 'cliqzium'      }),
   new Funnel(firefox,  { destDir: 'firefox'       }),

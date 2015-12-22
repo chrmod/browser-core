@@ -1,6 +1,6 @@
 "use strict";
 
-Components.utils.import("chrome://cliqz_bower_components/content/httpd/index.js");
+Components.utils.import("chrome://cliqz/content/bower_components/httpd/index.js");
 
 function waitIfNotReady(fn) {
     var first = true;
@@ -14,22 +14,12 @@ function waitIfNotReady(fn) {
 }
 
 TESTS.AttrackTest = function (CliqzUtils) {
-    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
+    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default,
+        persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state");
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
-    beforeEach(function() {
-        // make sure that module is loaded (default it is not initialised on extension startup)
-        if(!module_enabled) {
-            CliqzAttrack.enableModule();
-        }
-    });
-
-    afterEach(function() {
-        // revert module status
-        if(!module_enabled) {
-            CliqzAttrack.disableModule();
-        }
-    });
+    // make sure that module is loaded (default it is not initialised on extension startup)
+    CliqzUtils.setPref('antiTrackTest', true);
 
     describe('CliqzAttrack.tab_listener', function() {
 
@@ -89,6 +79,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.tp_events', function() {
 
+        var urlInfo = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/url').URLInfo;
+
         describe('Integration', function() {
             var win = CliqzUtils.getWindow(),
                 gBrowser = win.gBrowser,
@@ -99,6 +91,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 CliqzAttrack.tp_events._staged = [];
                 // prevent data push during the test
                 CliqzAttrack._last_push = (new Date()).getTime();
+            });
+
+            afterEach(function() {
+                tabs.forEach(function(t) {
+                    gBrowser.removeTab(t);
+                });
+                tabs = [];
             });
 
             it('should initially have no active tabs', function() {
@@ -113,13 +112,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 beforeEach(function() {
                     tabs.push(gBrowser.addTab("https://cliqz.com"));
                     tabs.push(gBrowser.addTab("https://cliqz.com/privacy#saferWeb"));
-                });
-
-                afterEach(function() {
-                    tabs.forEach(function(t) {
-                        gBrowser.removeTab(t);
-                    });
-                    tabs = [];
                 });
 
                 it('should add tabs to _active', function(done) {
@@ -194,14 +186,89 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 });
             });
+
+            describe('redirects', function() {
+
+              var server, server_port, hit_target = false, proxy_type = null;
+
+              before(function() {
+                server = new HttpServer();
+                // 302 redirect case
+                server.registerPathHandler('/302', function(request, response) {
+                  response.setStatusLine(request.httpVersion, 302, 'Redirect');
+                  response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
+                  response.write("<html><body></body></html>");
+                });
+                // 303 redirect case
+                server.registerPathHandler('/303', function(request, response) {
+                  response.setStatusLine(request.httpVersion, 303, 'Redirect');
+                  response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
+                  response.write("<html><body></body></html>");
+                });
+                // js redirect case
+                server.registerPathHandler('/js', function(request, response) {
+                  response.write("<html><body><script>window.location=\"http://cliqztest.de:"+ server_port +"/target\"</script></body></html>")
+                });
+                server.registerPathHandler('/target', function(request, response) {
+                  hit_target = true;
+                  response.write("<html><body></body></html>");
+                });
+                server_port = 60508;
+                server.identity.add("http", "cliqztest.com", server_port);
+                server.identity.add("http", "cliqztest.de", server_port);
+
+                server.start(server_port);
+
+                prefs.setCharPref('network.proxy.autoconfig_url', 'chrome://cliqz/content/firefox-tests/proxy.pac');
+                if(prefs.prefHasUserValue('network.proxy.type')) {
+                  proxy_type = prefs.getIntPref('network.proxy.type');
+                }
+                prefs.setIntPref('network.proxy.type', 2);
+              });
+
+              after(function() {
+                server.stop(function() {});
+                // reset user prefs
+                if(proxy_type == null) {
+                  prefs.clearUserPref('network.proxy.type');
+                } else {
+                  prefs.setIntPref('network.proxy.type', proxy_type);
+                }
+              });
+
+              ['302', '303', 'js'].forEach(function(kind) {
+                describe(kind, function() {
+                  beforeEach(function() {
+                    hit_target = false;
+                    tabs.push(gBrowser.addTab("http://localhost:"+ server_port +"/"+ kind));
+                  });
+
+                  it('gets host at end of redirect chain', function(done) {
+                    this.timeout(2000);
+                    waitIfNotReady(function() {
+                        return hit_target;
+                      }).then(function() {
+                        console.log(CliqzAttrack.tp_events._active);
+                        chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
+                        var tabid = Object.keys(CliqzAttrack.tp_events._active)[0];
+                        chai.expect(CliqzAttrack.tp_events._active[tabid].hostname).to.equal("cliqztest.de");
+                        if (kind != 'js') {
+                          // check original is in redirect chain
+                          chai.expect(CliqzAttrack.tp_events._active[tabid].redirects).to.have.length(1);
+                          chai.expect(CliqzAttrack.tp_events._active[tabid].redirects[0]).to.equal("localhost");
+                        }
+                      }).then(done, done);
+                  });
+              });
+              });
+
+            });
         });
 
         describe('onFullPage', function() {
 
-            var mock_request_context = {
-                getOuterWindowID: function() { return 5; }
-            }
-            var url_parts = CliqzAttrack.urlInfo.get("https://cliqz.com");
+            var url_parts = urlInfo.get("https://cliqz.com"),
+                mock_tab_id = 43;
 
             beforeEach(function() {
                 CliqzAttrack.tp_events.commit(true);
@@ -211,17 +278,17 @@ TESTS.AttrackTest = function (CliqzUtils) {
             });
 
             it("adds a tab to _active with request context's tab ID", function() {
-                var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, mock_request_context);
+                var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, mock_tab_id);
 
                 chai.expect(page_load).is.not.null;
                 chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
-                chai.expect(CliqzAttrack.tp_events._active).to.have.property(5);
-                chai.expect(CliqzAttrack.tp_events._active[5].url).to.equal(url_parts.toString());
+                chai.expect(CliqzAttrack.tp_events._active).to.have.property(mock_tab_id);
+                chai.expect(CliqzAttrack.tp_events._active[mock_tab_id].url).to.equal(url_parts.toString());
             });
 
             it("does not add a tab to _active if the url is malformed", function() {
-                [null, undefined, 'http://cliqz.com', CliqzAttrack.urlInfo.get("/home/cliqz"), CliqzAttrack.urlInfo.get("about:config")].forEach(function(url) {
-                    var page_load = CliqzAttrack.tp_events.onFullPage(url, mock_request_context);
+                [null, undefined, 'http://cliqz.com', urlInfo.get("/home/cliqz"), urlInfo.get("about:config")].forEach(function(url) {
+                    var page_load = CliqzAttrack.tp_events.onFullPage(url, mock_tab_id);
 
                     chai.expect(page_load).is.null;
                     chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(0);
@@ -230,10 +297,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
             it("does not add a tab to _active if the tab ID <= 0", function() {
                 [null, undefined, 0, -1].forEach(function(id) {
-                    var request_context = {
-                        getOuterWindowID: function() { return id; }
-                    }
-                    var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, request_context);
+                    var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, id);
 
                     chai.expect(page_load).is.null;
                     chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(0);
@@ -245,12 +309,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
         describe('get', function() {
 
             var src_url = "https://cliqz.com",
-                src_url_parts = CliqzAttrack.urlInfo.get(src_url),
+                src_url_parts = urlInfo.get(src_url),
                 url = "https://example.com/beacon",
-                url_parts = CliqzAttrack.urlInfo.get(url),
-                mock_request_context = {
-                    getOuterWindowID: function() { return 5; }
-                };
+                url_parts = urlInfo.get(url),
+                mock_tab_id = 34;
 
             var testInvalidTabIds = function() {
                 [undefined, null, 0, -1, 552].forEach(function(tab_id) {
@@ -270,14 +332,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 var page_load;
 
                 beforeEach(function() {
-                    page_load = CliqzAttrack.tp_events.onFullPage(src_url_parts, mock_request_context);
+                    page_load = CliqzAttrack.tp_events.onFullPage(src_url_parts, mock_tab_id);
                 });
 
                 it('returns a stats object for the specified page load and third party', function() {
-                    var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
 
                     chai.expect(req).to.not.be.null;
-                    chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
                     chai.expect(req['c']).to.equal(0);
                     chai.expect(page_load.tps).to.have.property(url_parts.hostname);
                     chai.expect(page_load.tps[url_parts.hostname]).to.have.property(url_parts.path);
@@ -288,22 +349,21 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 it('returns null if third party referrer is not related to the page load', function() {
                     var alt_url = "https://www.w3.org/",
-                        alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
+                        alt_url_parts = urlInfo.get(alt_url);
 
-                    var req = CliqzAttrack.tp_events.get(url, url_parts, alt_url, alt_url_parts, 5);
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, alt_url, alt_url_parts, mock_tab_id);
 
                     chai.expect(req).to.be.null;
                 });
 
                 it('third party referrer relation is transative', function() {
                     var alt_url = "https://www.w3.org/",
-                        alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
+                        alt_url_parts = urlInfo.get(alt_url);
 
-                    CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
-                    var req = CliqzAttrack.tp_events.get(alt_url, alt_url_parts, url, url_parts, 5);
+                    CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
+                    var req = CliqzAttrack.tp_events.get(alt_url, alt_url_parts, url, url_parts, mock_tab_id);
 
                     chai.expect(req).to.not.be.null;
-                    chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
                     chai.expect(req['c']).to.equal(0);
                     chai.expect(page_load.tps).to.have.property(url_parts.hostname);
                     chai.expect(page_load.tps).to.have.property(alt_url_parts.hostname);
@@ -313,7 +373,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             });
 
             it('returns null if onFullPage has not been called for the referrer', function() {
-                var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+                var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
 
                 chai.expect(req).to.be.null;
                 chai.expect(CliqzAttrack.tp_events._active).to.be.empty;
@@ -326,10 +386,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
             var page_load,
                 url = 'https://cliqz.com/privacy#saferWeb',
-                url_parts = CliqzAttrack.urlInfo.get(url);
+                url_parts = urlInfo.get(url);
 
             beforeEach(function() {
-                page_load = new CliqzAttrack.tp_events.PageLoadData(url_parts);
+                page_load = CliqzAttrack.tp_events.onFullPage(url_parts, 1);
             });
 
             it('should have initial attributes from source url', function() {
@@ -348,7 +408,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 });
 
                 it('should create a stat entry for the given page load', function() {
-                    chai.expect(tp_url).to.include.keys(CliqzAttrack.tp_events._stats);
                     chai.expect(page_load.tps).to.have.property('hostname');
                     chai.expect(page_load.tps['hostname']).to.have.property('/');
                     chai.expect(page_load.tps['hostname']['/']).to.equal(tp_url);
@@ -412,6 +471,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.isHash', function() {
 
+        var isHash = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/hash').isHash;
         var not_hash = ['',
             'Firefox',
             'some words',
@@ -431,13 +491,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         not_hash.forEach(function(str) {
           it("'" + str + "' is not a hash", function() {
-            chai.expect(CliqzAttrack.isHash(str)).to.be.false;
+            chai.expect(isHash(str)).to.be.false;
           })
         });
 
         hashes.forEach(function(str) {
           it("'" + str + "' is a hash", function() {
-            chai.expect(CliqzAttrack.isHash(str)).to.be.true;
+            chai.expect(isHash(str)).to.be.true;
           })
         });
 
@@ -445,6 +505,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.getGeneralDomain', function() {
 
+        var getGeneralDomain = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/domain').getGeneralDomain;
         var spec = {
           'cliqz.com': ['cliqz.com', 'www.cliqz.com', 'a.b.cliqz.com'],
           'example.co.uk': ['example.co.uk', 'test.example.co.uk'],
@@ -456,7 +517,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             spec[general_domain].forEach(function(sub_domain) {
                 var gen = general_domain;
                 it(sub_domain +' has general domain '+ gen, function() {
-                    chai.expect(CliqzAttrack.getGeneralDomain(sub_domain)).to.eql(gen);
+                    chai.expect(getGeneralDomain(sub_domain)).to.eql(gen);
                 });
             });
         }
@@ -542,8 +603,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
         beforeEach(function() {
           // mock safekey URL
           CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
-          CliqzAttrack.safeKeyExtVersion = null;
-          CliqzAttrack.safeKey = {};
+          persist.set_value("safeKeyExtVersion", "");
+          persist.clear_persistent(CliqzAttrack.safeKey);
         });
 
         afterEach(function() {
@@ -554,10 +615,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
         it('loads remote safekeys', function(done) {
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(Object.keys(CliqzAttrack.safeKey)).to.have.length(1);
               chai.expect(CliqzAttrack.safeKey).to.have.property("f528764d624db129");
               chai.expect(CliqzAttrack.safeKey["f528764d624db129"]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
@@ -579,10 +640,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(Object.keys(CliqzAttrack.safeKey)).to.have.length(2);
               chai.expect(CliqzAttrack.safeKey).to.have.keys(domain1_hash, domain2_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
@@ -605,10 +666,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql(["20200101", 'r']);
               done();
@@ -625,10 +686,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql([day, 'l']);
               done();
@@ -652,10 +713,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           CliqzAttrack.loadRemoteSafeKey();
           waitFor(function() {
-            return CliqzAttrack.safeKeyExtVersion != null
+            return persist.get_value("safeKeyExtVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
+              chai.expect(persist.get_value("safeKeyExtVersion")).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.not.have.property(key_hash);
               done();
             } catch(e) { done(e); }
@@ -672,11 +733,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         beforeEach(function() {
           // setup clean state
-          CliqzAttrack.safeKeyExtVersion = null;
-          CliqzAttrack.safeKey = {};
+          persist.set_value("safeKeyExtVersion", "");
+          persist.clear_persistent(CliqzAttrack.safeKey);
           CliqzAttrack.tokenWhitelistVersion = null;
           CliqzAttrack.tokenExtWhitelist = {};
-          CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqztests/content/mockdata/versioncheck.json";
+          CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
           // mock update functions
           calledLoadRemoteTokenWhitelist = 0;
           calledLoadRemoteSafeKey = 0;
@@ -696,7 +757,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('does not update if versions match', function(done) {
-          CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+          persist.set_value("safeKeyExtVersion", mock_safekey_hash);
           CliqzAttrack.tokenWhitelistVersion = mock_token_hash;
           CliqzAttrack.loadRemoteWhitelists();
           setTimeout(function() {
@@ -726,7 +787,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('updates safekeys only if needed', function(done) {
-          CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+          persist.set_value("safeKeyExtVersion", mock_safekey_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
           waitFor(function() {
@@ -737,7 +798,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         describe("force_clean", function() {
 
           beforeEach(function() {
-            CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqztests/content/mockdata/versioncheck_clean.json";
+            CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck_clean.json";
           });
 
           it('clears safekeys before loading new remote list', function(done) {
@@ -756,7 +817,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
           it('only clears when safekey update is required', function(done) {
             CliqzAttrack.safeKey['a'] = {'b': ['20150101', 'l']};
-            CliqzAttrack.safeKeyExtVersion = mock_safekey_hash;
+            persist.set_value("safeKeyExtVersion", mock_safekey_hash);
             CliqzAttrack.loadRemoteWhitelists();
             waitFor(function() {
               return calledLoadRemoteTokenWhitelist == 1;

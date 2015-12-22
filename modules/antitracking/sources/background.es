@@ -1,21 +1,50 @@
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
 
+Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+
 export default {
-  init() {
-    CliqzAttrack.init();
-    this.popup = new CliqzPopupButton({
-      name: "antitracking",
-      actions: this.popupActions
-    });
-    this.popup.attach();
+
+  init(settings) {
+    this.buttonEnabled = settings.antitrackingButton;
+    this.enabled = false;
+
+    if ( this.buttonEnabled ) {
+      this.popup = new CliqzPopupButton({
+        name: "antitracking",
+        actions: this.popupActions
+      });
+      this.popup.attach();
+    }
+
+    this.onPrefChange = function(pref) {
+      if (pref == CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() != this.enabled) {
+        if (CliqzAttrack.isEnabled()) {
+          // now enabled, initialise module
+          CliqzAttrack.init();
+        } else {
+          // disabled, unload module
+          CliqzAttrack.unload();
+        }
+        this.enabled = CliqzAttrack.isEnabled();
+      }
+    }.bind(this);
+
+    this.onPrefChange(CliqzAttrack.ENABLE_PREF);
+    CliqzEvents.sub("prefchange", this.onPrefChange);
   },
 
   unload() {
-    this.popup.destroy();
-    try {
-    CliqzAttrack.unload();
-    } catch(e) { }
+    if ( this.popup ) {
+      this.popup.destroy();
+    }
+
+    CliqzEvents.un_sub("prefchange", this.onPrefChange);
+
+    if (CliqzAttrack.isEnabled()) {
+      CliqzAttrack.unload();
+      this.enabled = false;
+    }
   },
 
   popupActions: {

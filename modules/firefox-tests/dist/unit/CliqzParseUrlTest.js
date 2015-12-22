@@ -194,6 +194,25 @@ var query_strings = [
         "password": "",
         "port": 80
     }
+},
+{
+    "url": "http://www.adidas.de?cm_mmc=AdieSEM_Google-_-Adidas-Brand-B-Exact-_-Brand-adidas-X-General-_-adidas&cm_mmca1=DE&cm_mmca2=e&gclid=Cj0KEQiA496zBRDoi5OY3p2xmaUBEiQArLNnKyRcv0vcTG0u8qPDyE-mwvW_CMkrZ4SGYODRzSZ54mAaAlBc8P8HAQ&gclsrc=aw.ds",
+    "url_parts": {
+        "username": "",
+        "protocol": "http",
+        "hostname": "www.adidas.de",
+        "path": "/",
+        "query": "cm_mmc=AdieSEM_Google-_-Adidas-Brand-B-Exact-_-Brand-adidas-X-General-_-adidas&cm_mmca1=DE&cm_mmca2=e&gclid=Cj0KEQiA496zBRDoi5OY3p2xmaUBEiQArLNnKyRcv0vcTG0u8qPDyE-mwvW_CMkrZ4SGYODRzSZ54mAaAlBc8P8HAQ&gclsrc=aw.ds",
+        "query_keys": {
+          "cm_mmc": "AdieSEM_Google-_-Adidas-Brand-B-Exact-_-Brand-adidas-X-General-_-adidas",
+          "cm_mmca1": "DE",
+          "cm_mmca2": "e",
+          "gclid": "Cj0KEQiA496zBRDoi5OY3p2xmaUBEiQArLNnKyRcv0vcTG0u8qPDyE-mwvW_CMkrZ4SGYODRzSZ54mAaAlBc8P8HAQ",
+          "gclsrc": "aw.ds"
+        },
+        "password": "",
+        "port": 80
+    }
 }
 ];
 
@@ -377,10 +396,10 @@ function fullTest(testFn) {
 }
 
 TESTS.CliqzParseUrlTest = function (CliqzHumanWeb, CliqzUtils) {
-  var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
+  var parseURL = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/url").parseURL;
     describe('CliqzAttrack.parseURL', function() {
 
-        var testFn = CliqzAttrack.parseURL;
+        var testFn = parseURL;
         fullTest(testFn);
 
     });

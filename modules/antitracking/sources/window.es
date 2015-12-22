@@ -18,24 +18,48 @@ function onLocationChange(ev) {
   }.bind(this), 2000);
 }
 
+function onPrefChange(pref) {
+  if (pref == CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() != this.enabled) {
+    if (CliqzAttrack.isEnabled()) {
+      CliqzAttrack.initWindow(this.window);
+    } else {
+      CliqzAttrack.unloadWindow(this.window);
+    }
+    this.enabled = CliqzAttrack.isEnabled();
+  }
+};
+
 export default class {
 
-  constructor(settings) {
-    this.window = settings.window;
+  constructor(config) {
+    this.window = config.window;
 
     this.popup = background.popup;
-    this.onLocationChange = onLocationChange.bind(this);
+
+    if ( this.popup ) {
+      this.onLocationChange = onLocationChange.bind(this);
+    }
+    this.onPrefChange = onPrefChange.bind(this);
+    this.enabled = false;
   }
 
   init() {
-    CliqzAttrack.initWindow(this.window);
-    CliqzEvents.sub("core.location_change", this.onLocationChange);
+    if ( this.popup ) {
+      CliqzEvents.sub("core.location_change", this.onLocationChange);
+    }
+    this.onPrefChange(CliqzAttrack.ENABLE_PREF);
+    CliqzEvents.sub("prefchange", this.onPrefChange);
   }
 
   unload() {
-    CliqzEvents.un_sub("core.location_change", this.onLocationChange);
-    CliqzUtils.clearInterval(this.interval);
-    CliqzAttrack.unloadWindow(window);
+    if ( this.popup ) {
+      CliqzEvents.un_sub("core.location_change", this.onLocationChange);
+      CliqzUtils.clearInterval(this.interval);
+    }
+    if (CliqzAttrack.isEnabled()) {
+      CliqzAttrack.unloadWindow(this.window);
+    }
+    CliqzEvents.un_sub("prefchange", this.onPrefChange);
   }
 
   updateBadge() {

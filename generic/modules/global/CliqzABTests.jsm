@@ -279,10 +279,7 @@ var CliqzABTests = {
             case "1045_A":
                 break;
             case "1045_B":
-                this.System.import("antitracking/attrack").then(function (mod) {
-                var CliqzAttrack = mod.default;
-                CliqzAttrack.enableModule(true);
-                }).catch(function (e) {});
+                CliqzUtils.setPref("antiTrackTest", true);
                 break;
             case "1046_B":
                 CliqzUtils.setPref("attrackBlockCookieTracking", true);
@@ -300,10 +297,7 @@ var CliqzABTests = {
                 CliqzUtils.setPref("attrackRefererTracking", true);
                 break;
             case "1051_B":
-                this.System.import("antitracking/attrack").then(function (mod) {
-                var CliqzAttrack = mod.default;
-                CliqzAttrack.enableModule(true);
-                }).catch(function (e) {});
+                CliqzUtils.setPref("antiTrackTest", true);
                 break;
             case "1052_A":
                 CliqzUtils.setPref("attrackBlockCookieTracking", false);
@@ -533,10 +527,7 @@ var CliqzABTests = {
                 break;
             case "1045_A":
             case "1045_B":
-                this.System.import("antitracking/attrack").then(function (mod) {
-                var CliqzAttrack = mod.default;
-                CliqzAttrack.disableModule(true);
-                }).catch(function (e) {});
+                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
                 break;
             case "1046_A":
             case "1047_A":
@@ -560,10 +551,7 @@ var CliqzABTests = {
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
                 break;
             case "1051_B":
-                this.System.import("antitracking/attrack").then(function (mod) {
-                var CliqzAttrack = mod.default;
-                CliqzAttrack.disableModule(true);
-                }).catch(function (e) {});
+                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
                 break;
             case "1052_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
