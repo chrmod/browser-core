@@ -5,7 +5,8 @@ import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
 import TempSet from 'antitracking/temp-set';
 import MapCache from 'antitracking/fixed-size-cache';
-import HeaderInfoVisitor from 'antitracking/header-info-visitor'
+import HeaderInfoVisitor from 'antitracking/header-info-visitor';
+import HttpRequestContext from 'antitracking/http-request-context';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -195,122 +196,6 @@ var randomImage = (function(){
 
 var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
         .getService(Components.interfaces.mozIAsyncFavicons);
-
-function HttpRequestContext(subject) {
-    this.subject = subject;
-    this.channel = subject.QueryInterface(nsIHttpChannel);
-    this.loadInfo = this.channel.loadInfo;
-    this.url = ''+ this.channel.URI.spec;
-    this.method = this.channel.requestMethod;
-    this._parsedURL = undefined;
-    this._legacy_source = undefined;
-
-    // tab tracking
-    if(this.getContentPolicyType() == 6) {
-        // fullpage - add tracked tab
-        let tab_id = this.getOuterWindowID();
-        HttpRequestContext._tabs[tab_id] = this.url;
-    }
-}
-
-HttpRequestContext._tabs = {};
-// clean up tab cache every minute
-HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
-    for (let t in HttpRequestContext._tabs) {
-        if(!CliqzAttrack.tab_listener.isWindowActive(t)) {
-            delete HttpRequestContext._tabs[t];
-        }
-    }
-}, 60000);
-
-HttpRequestContext.prototype = {
-
-    getInnerWindowID: function() {
-        return this.loadInfo ? this.loadInfo.innerWindowID : 0;
-    },
-    getOuterWindowID: function() {
-        if (this.loadInfo == null || this.loadInfo.outerWindowID === undefined) {
-            return this._legacyGetWindowId();
-        } else {
-            return this.loadInfo.outerWindowID;
-        }
-    },
-    getParentWindowID: function() {
-        if (this.loadInfo == null || this.loadInfo.parentOuterWindowID === undefined) {
-            return this.getOuterWindowID();
-        } else {
-            return this.loadInfo.parentOuterWindowID;
-        }
-    },
-    getLoadingDocument: function() {
-        let parentWindow = this.getParentWindowID();
-        if (parentWindow in HttpRequestContext._tabs) {
-            return HttpRequestContext._tabs[parentWindow];
-        } else if (this.loadInfo != null) {
-            return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument ? this.loadInfo.loadingDocument.location.href : ""
-        } else {
-            return this._legacyGetSource().url;
-        }
-    },
-    getContentPolicyType: function() {
-        return this.loadInfo ? this.loadInfo.contentPolicyType : this._legacyGetContentPolicyType();
-    },
-    getCookieData: function() {
-        let cookie_data = null;
-        try {
-            cookie_data = this.channel.getRequestHeader("Cookie");
-        } catch(ee) {}
-        return cookie_data;
-    },
-    getReferrer: function() {
-        var refstr = null,
-            referrer = '';
-        try {
-            refstr = this.channel.getRequestHeader("Referer");
-            referrer = dURIC(refstr);
-        } catch(ee) {}
-        return referrer;
-    },
-    getOriginWindowID: function() {
-        // in most cases this is the same as the outerWindowID.
-        // however for frames, it is the parentWindowId
-        let parentWindow = this.getParentWindowID();
-        if (this.getContentPolicyType() != 6 && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
-            return parentWindow;
-        } else {
-            return this.getOuterWindowID();
-        }
-    },
-    _legacyGetSource: function() {
-        if (this._legacy_source === undefined) {
-            this._legacy_source = CliqzAttrack.getRefToSource(this.subject, this.getReferrer());
-        }
-        return this._legacy_source;
-    },
-    _legacyGetWindowId: function() {
-        // Firefox <=38 fallback for tab ID.
-        let source = this._legacyGetSource();
-        return source.tab;
-    },
-    _legacyGetContentPolicyType: function() {
-        // try to get policy get page load type
-        let load_type = CliqzAttrack.getPageLoadType(this.channel);
-
-        if (load_type == "fullpage") {
-            return 6;
-        } else if (load_type == "frame") {
-            return 7;
-        }
-
-        // XHR is easy
-        if (CliqzAttrack.isXHRRequest(this.channel)) {
-            return 11;
-        }
-
-        // other types
-        return 1;
-    }
-}
 
 /**
     URLInfo class: holds a parsed URL.
