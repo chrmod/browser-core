@@ -10,6 +10,7 @@ import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
 import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
+import { isHash } from 'antitracking/hash';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -337,27 +338,6 @@ var CliqzAttrack = {
             }
         }
         return cookieVal;
-    },
-    probHashLogM: null,
-    probHashThreshold: 0.0165,
-    probHashChars: {' ': 38, '-': 37, '.': 36, '1': 26, '0': 35, '3': 28, '2': 27, '5': 30, '4': 29, '7': 32, '6': 31, '9': 34, '8': 33, 'a': 0, 'c': 2, 'b': 1, 'e': 4, 'd': 3, 'g': 6, 'f': 5, 'i': 8, 'h': 7, 'k': 10, 'j': 9, 'm': 12, 'l': 11, 'o': 14, 'n': 13, 'q': 16, 'p': 15, 's': 18, 'r': 17, 'u': 20, 't': 19, 'w': 22, 'v': 21, 'y': 24, 'x': 23, 'z': 25},
-    isHashProb: function(str) {
-        var log_prob = 0.0;
-        var trans_c = 0;
-        str = str.toLowerCase().replace(/[^a-z0-9\.\- ]/g,'');
-        for(var i=0;i<str.length-1;i++) {
-            var pos1 = CliqzAttrack.probHashChars[str[i]];
-            var pos2 = CliqzAttrack.probHashChars[str[i+1]];
-
-            log_prob += CliqzAttrack.probHashLogM[pos1][pos2];
-            trans_c += 1;
-        }
-        if (trans_c > 0) return Math.exp(log_prob/trans_c);
-        else return Math.exp(log_prob);
-    },
-    isHash: function(str) {
-        var p = CliqzAttrack.isHashProb(str);
-        return (p < CliqzAttrack.probHashThreshold);
     },
     httpopenObserver: {
         observe : function(subject, topic, data) {
@@ -1321,11 +1301,6 @@ var CliqzAttrack = {
         // Replace getWindow functions with window object used in init.
 
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
-        CliqzUtils.httpGet(
-            'chrome://cliqz/content/antitracking/prob.json',
-            function success(req) {
-                CliqzAttrack.probHashLogM = JSON.parse(req.response);
-            });
         CliqzUtils.httpGet('chrome://cliqz/content/antitracking/blacklist.json',
             function success(req){
                 CliqzAttrack.blacklist = JSON.parse(req.response).tpdomains;
@@ -1850,7 +1825,7 @@ var CliqzAttrack = {
 
         var _countCheck = function(tok) {
             // for token length < 12 and may be not a hash, we let it pass
-            if (tok.length < 12 && !CliqzAttrack.isHash(tok))
+            if (tok.length < 12 && !isHash(tok))
                 return 0;
             // update tokenDomain
             tok = md5(tok);
