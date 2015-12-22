@@ -1,4 +1,5 @@
 import md5 from 'antitracking/md5';
+import MapCache from 'antitracking/fixed-size-cache';
 
 function parseURL(url) {
     /*  Parse a URL string into a set of sub-components, namely:
@@ -197,10 +198,37 @@ function getQSMD5(qs, ps) {
     return qsMD5;
 };
 
+/**
+    URLInfo class: holds a parsed URL.
+*/
+var URLInfo = function(url) {
+    this.url_str = url;
+    // map parsed url parts onto URL object
+    let url_parts = parseURL(url);
+    for(let k in url_parts) {
+        this[k] = url_parts[k];
+    }
+    return this;
+}
+
+URLInfo._cache = new MapCache(function(url) { return new URLInfo(url) }, 100);
+
+/** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
+URLInfo.get = function(url) {
+    return URLInfo._cache.get(url);
+}
+
+URLInfo.prototype = {
+    toString: function() {
+        return this.url_str;
+    }
+}
+
 export {
   parseURL,
   getParametersQS,
   dURIC,
   getHeaderMD5,
-  getQSMD5
+  getQSMD5,
+  URLInfo
 };

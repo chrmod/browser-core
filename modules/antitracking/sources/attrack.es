@@ -4,12 +4,11 @@
 import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
 import TempSet from 'antitracking/temp-set';
-import MapCache from 'antitracking/fixed-size-cache';
 import HeaderInfoVisitor from 'antitracking/header-info-visitor';
 import { HttpRequestContext, getRefToSource } from 'antitracking/http-request-context';
 import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
-import { parseURL, dURIC, getHeaderMD5, getQSMD5 } from 'antitracking/url';
+import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -147,32 +146,6 @@ var randomImage = (function(){
 
 var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
         .getService(Components.interfaces.mozIAsyncFavicons);
-
-/**
-    URLInfo class: holds a parsed URL.
-*/
-var URLInfo = function(url) {
-    this.url_str = url;
-    // map parsed url parts onto URL object
-    let url_parts = parseURL(url);
-    for(let k in url_parts) {
-        this[k] = url_parts[k];
-    }
-    return this;
-}
-
-URLInfo._cache = new MapCache(function(url) { return new URLInfo(url) }, 100);
-
-/** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
-URLInfo.get = function(url) {
-    return URLInfo._cache.get(url);
-}
-
-URLInfo.prototype = {
-    toString: function() {
-        return this.url_str;
-    }
-}
 
 var getBrowserMajorVersion = function() {
     var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
