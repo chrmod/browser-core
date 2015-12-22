@@ -59,20 +59,30 @@ HttpRequestContext.prototype = {
     return this.loadInfo ? this.loadInfo.contentPolicyType : this._legacyGetContentPolicyType();
   },
   getCookieData: function() {
-    let cookie_data = null;
-    try {
-      cookie_data = this.channel.getRequestHeader("Cookie");
-    } catch(ee) {}
-    return cookie_data;
+    return this.getRequestHeader("Cookie");
   },
   getReferrer: function() {
     var refstr = null,
         referrer = '';
     try {
-      refstr = this.channel.getRequestHeader("Referer");
+      refstr = this.getRequestHeader("Referer");
       referrer = dURIC(refstr);
     } catch(ee) {}
     return referrer;
+  },
+  getRequestHeader: function(header) {
+    let header_value = null;
+    try {
+      header_value = this.channel.getRequestHeader(header);
+    } catch(ee) {}
+    return header_value;
+  },
+  getResponseHeader: function(header) {
+    let header_value = null;
+    try {
+      header_value = this.channel.getResponseHeader(header);
+    } catch(ee) {}
+    return header_value;
   },
   getOriginWindowID: function() {
     // in most cases this is the same as the outerWindowID.
