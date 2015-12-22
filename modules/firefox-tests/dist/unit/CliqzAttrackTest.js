@@ -264,7 +264,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         describe('onFullPage', function() {
 
-            var url_parts = CliqzAttrack.urlInfo.get("https://cliqz.com");
+            var url_parts = CliqzAttrack.urlInfo.get("https://cliqz.com"),
+                mock_tab_id = 43;
 
             beforeEach(function() {
                 CliqzAttrack.tp_events.commit(true);
@@ -274,17 +275,17 @@ TESTS.AttrackTest = function (CliqzUtils) {
             });
 
             it("adds a tab to _active with request context's tab ID", function() {
-                var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, 5);
+                var page_load = CliqzAttrack.tp_events.onFullPage(url_parts, mock_tab_id);
 
                 chai.expect(page_load).is.not.null;
                 chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
-                chai.expect(CliqzAttrack.tp_events._active).to.have.property(5);
-                chai.expect(CliqzAttrack.tp_events._active[5].url).to.equal(url_parts.toString());
+                chai.expect(CliqzAttrack.tp_events._active).to.have.property(mock_tab_id);
+                chai.expect(CliqzAttrack.tp_events._active[mock_tab_id].url).to.equal(url_parts.toString());
             });
 
             it("does not add a tab to _active if the url is malformed", function() {
                 [null, undefined, 'http://cliqz.com', CliqzAttrack.urlInfo.get("/home/cliqz"), CliqzAttrack.urlInfo.get("about:config")].forEach(function(url) {
-                    var page_load = CliqzAttrack.tp_events.onFullPage(url, 5);
+                    var page_load = CliqzAttrack.tp_events.onFullPage(url, mock_tab_id);
 
                     chai.expect(page_load).is.null;
                     chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(0);
@@ -307,7 +308,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
             var src_url = "https://cliqz.com",
                 src_url_parts = CliqzAttrack.urlInfo.get(src_url),
                 url = "https://example.com/beacon",
-                url_parts = CliqzAttrack.urlInfo.get(url);
+                url_parts = CliqzAttrack.urlInfo.get(url),
+                mock_tab_id = 34;
 
             var testInvalidTabIds = function() {
                 [undefined, null, 0, -1, 552].forEach(function(tab_id) {
@@ -327,11 +329,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 var page_load;
 
                 beforeEach(function() {
-                    page_load = CliqzAttrack.tp_events.onFullPage(src_url_parts, 5);
+                    page_load = CliqzAttrack.tp_events.onFullPage(src_url_parts, mock_tab_id);
                 });
 
                 it('returns a stats object for the specified page load and third party', function() {
-                    var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
 
                     chai.expect(req).to.not.be.null;
                     chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
@@ -347,7 +349,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     var alt_url = "https://www.w3.org/",
                         alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
 
-                    var req = CliqzAttrack.tp_events.get(url, url_parts, alt_url, alt_url_parts, 5);
+                    var req = CliqzAttrack.tp_events.get(url, url_parts, alt_url, alt_url_parts, mock_tab_id);
 
                     chai.expect(req).to.be.null;
                 });
@@ -356,8 +358,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     var alt_url = "https://www.w3.org/",
                         alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
 
-                    CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
-                    var req = CliqzAttrack.tp_events.get(alt_url, alt_url_parts, url, url_parts, 5);
+                    CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
+                    var req = CliqzAttrack.tp_events.get(alt_url, alt_url_parts, url, url_parts, mock_tab_id);
 
                     chai.expect(req).to.not.be.null;
                     chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
@@ -370,7 +372,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             });
 
             it('returns null if onFullPage has not been called for the referrer', function() {
-                var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, 5);
+                var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
 
                 chai.expect(req).to.be.null;
                 chai.expect(CliqzAttrack.tp_events._active).to.be.empty;
