@@ -492,20 +492,30 @@ HttpRequestContext.prototype = {
         return this.loadInfo ? this.loadInfo.contentPolicyType : this._legacyGetContentPolicyType();
     },
     getCookieData: function() {
-        let cookie_data = null;
-        try {
-            cookie_data = this.channel.getRequestHeader("Cookie");
-        } catch(ee) {}
-        return cookie_data;
+        return this.getRequestHeader("Cookie");
     },
     getReferrer: function() {
         var refstr = null,
             referrer = '';
         try {
-            refstr = this.channel.getRequestHeader("Referer");
+            refstr = this.getRequestHeader("Referer");
             referrer = dURIC(refstr);
         } catch(ee) {}
         return referrer;
+    },
+    getRequestHeader: function(header) {
+        let header_value = null;
+        try {
+            header_value = this.channel.getRequestHeader(header);
+        } catch(ee) {}
+        return header_value;
+    },
+    getResponseHeader: function(header) {
+        let header_value = null;
+        try {
+            header_value = this.channel.getResponseHeader(header);
+        } catch(ee) {}
+        return header_value;
     },
     getOriginWindowID: function() {
         // in most cases this is the same as the outerWindowID.
@@ -1090,7 +1100,7 @@ var CliqzAttrack = {
             var url_parts = URLInfo.get(url);
 
             if (requestContext.getContentPolicyType() == 6) {
-                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext)
+                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID());
                 return;
             }
 
@@ -1402,6 +1412,23 @@ var CliqzAttrack = {
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
+
+            // full page
+            if (requestContext.getContentPolicyType() == 6) {
+                if ([300, 301, 302, 303, 307].indexOf(requestContext.channel.responseStatus) >= 0) {
+                    // redirect, update location for tab
+                    // if no redirect location set, stage the tab id so we don't get false data
+                    let redirect_url = requestContext.getResponseHeader("Location");
+                    let redirect_url_parts = URLInfo.get(redirect_url);
+                    // if redirect is relative, use source domain
+                    if (!redirect_url_parts.hostname) {
+                        redirect_url_parts.hostname = url_parts.hostname;
+                        redirect_url_parts.path = redirect_url;
+                    }
+                    CliqzAttrack.tp_events.onRedirect(redirect_url_parts, requestContext.getOuterWindowID());
+                }
+                return;
+            }
 
             var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
             if (source_url == '' || source_url.indexOf('about:')==0) return;
@@ -4059,46 +4086,52 @@ var CliqzAttrack = {
         if (v.length >= 2) {
 
             o['protocol'] = v[0];
-            var s = v.slice(1, v.length).join('://');
-            v = s.split('/');
-            // empty hostname is invalid
-            if(v[0] == '') return null;
-
-            var oh = CliqzHumanWeb.parseHostname(v[0]);
-            o['hostname'] = oh['hostname'];
-            o['port'] = oh['port'];
-            o['username'] = oh['username'];
-            o['password'] = oh['password'];
+            o['hostname'] = '';
+            o['port'] = '';
+            o['username'] = '';
+            o['password'] = '';
             o['path'] = '/';
             o['query'] = '';
             o['parameters'] = '';
             o['fragment'] = '';
+            o['host'] = '';
+            var s = v.slice(1, v.length).join('://');
 
-            if (v.length>1) {
-                let path = v.splice(1, v.length).join('/');
-
-                // forward parse the path, a single character at a time
-                let state = 'path';
-                for(let i=0; i<path.length; i++) {
-                    let c = path.charAt(i);
-                    // check for special characters which can change parser state
-                    if(c == '#' && ['path', 'query', 'parameters'].indexOf(state) >= 0) {
-                        // begin fragment
-                        state = 'fragment';
-                        continue;
-                    } else if(c == '?' && ['path', 'parameters'].indexOf(state) >= 0) {
-                        // begin query string
-                        state = 'query';
-                        continue;
-                    } else if(c == ';' && state == 'path') {
-                        // begin parameter string
-                        state = 'parameters';
-                        continue;
-                    }
-
-                    // add character to key based on state
-                    o[state] += c;
+            let state = 'host';
+            for(let i=0; i<s.length; i++) {
+                let c = s.charAt(i);
+                // check for special characters which can change parser state
+                if(c == '#' && ['host', 'path', 'query', 'parameters'].indexOf(state) >= 0) {
+                    // begin fragment
+                    state = 'fragment';
+                    continue;
+                } else if(c == '?' && ['host', 'path', 'parameters'].indexOf(state) >= 0) {
+                    // begin query string
+                    state = 'query';
+                    continue;
+                } else if(c == ';' && ['host', 'path'].indexOf(state) >= 0) {
+                    // begin parameter string
+                    state = 'parameters';
+                    continue;
+                } else if(c == '/' && state == 'host') {
+                    // from host we could go into any next state
+                    state = 'path';
+                    continue;
                 }
+
+                // add character to key based on state
+                o[state] += c;
+            }
+
+            if (o['host'] == '') return null;
+
+            var oh = CliqzHumanWeb.parseHostname(o['host']);
+            ['hostname', 'port', 'username', 'password'].forEach(function(k) {
+                o[k] = oh[k];
+            });
+            delete o['host'];
+
+            if (state != 'path') {
                 o['query_keys'] = CliqzAttrack.getParametersQS(o['query']);
                 o['parameter_keys'] = CliqzAttrack.getParametersQS(o['parameters']);
                 o['fragment_keys'] = CliqzAttrack.getParametersQS(o['fragment']);
@@ -4378,16 +4411,25 @@ var CliqzAttrack = {
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
         //  or returns null if the url is malformed or null.
-        onFullPage: function(url, requestContext) {
-            let source = requestContext.getOuterWindowID();
+        onFullPage: function(url, tab_id) {
             // previous request finished. Move to staged
-            this.stage(source);
+            this.stage(tab_id);
             // create new page load entry for tab
-            if(url && url.hostname && source > 0 && !this.ignore.has(url.hostname)) {
-                this._active[source] = new CliqzAttrack.tp_events.PageLoadData(url);
-                return this._active[source];
+            if(url && url.hostname && tab_id > 0 && !this.ignore.has(url.hostname)) {
+                this._active[tab_id] = new CliqzAttrack.tp_events.PageLoadData(url);
+                return this._active[tab_id];
             } else {
                 return null;
+            }
+        },
+        onRedirect: function(url_parts, tab_id) {
+            if(tab_id in this._active) {
+                let prev = this._active[tab_id];
+                this._active[tab_id] = new CliqzAttrack.tp_events.PageLoadData(url_parts);
+                this._active[tab_id].redirects = prev.redirects;
+                this._active[tab_id].redirects.push(prev.hostname);
+            } else {
+                this.onFullPage(url_parts, tab_id);
             }
         },
         // Get a stats object for the request to url, referred from ref, on tab source.
@@ -4500,6 +4542,7 @@ var CliqzAttrack = {
             this.s = (new Date()).getTime();
             this.e = null;
             this.tps = {};
+            this.redirects = [];
 
             // Get a stat counter object for the given third party host and path in
             // this page load.
@@ -4542,7 +4585,10 @@ var CliqzAttrack = {
                         c: this.c,
                         t: this.e - this.s,
                         ra: this.ra || 0,
-                        tps: {}
+                        tps: {},
+                        redirects: this.redirects.filter(function(hostname) {
+                            return !CliqzAttrack.sameGeneralDomain(hostname, self.hostname);
+                        })
                     };
                 if(!obj.hostname) return obj;
 
