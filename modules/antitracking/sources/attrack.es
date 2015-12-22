@@ -23,17 +23,6 @@ var countReload = false;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefBranch);
-var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
-        .createInstance(Components.interfaces.nsIDOMSerializer);
-var domParser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-        .createInstance(Components.interfaces.nsIDOMParser);
-//CliqzUtils.setPref('showDebugLogs', true);
-//CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
-//CliqzUtils.setPref('showConsoleLogs', true);
-
-
-// CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
-// CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
 
 function shuffle(s) {
     var a = s.split(""),
@@ -48,88 +37,9 @@ function shuffle(s) {
     return a.join("");
 };
 
-function parseCalleeStack(callee){
-    var returnData = {};
-    callee = callee.stack.trim().split("\n");
-    callee.shift(); // This removes CliqzHumanWeb call from the stack.
-    var externalCallee = callee[0].replace(/(:[0-9]+){1,2}$/, "");
-    externalCallee = externalCallee.split("@")[1];
-    var externalCallHost = CliqzHumanWeb.parseURL(externalCallee)['hostname'];
-    returnData['externalCallHost'] = externalCallHost;
-    returnData['url'] = externalCallee;
-    return returnData;
-}
-
 function onUrlbarFocus(){
     countReload = true;
 }
-
-
-function checkFingerPrinting(source_url, tpObj){
-    // Based on the source, check if the protection for that source is on.
-    // If the protection is not on then return.
-    // if(source == 'cookie' && !CliqzAttrack.isCookieEnabled()) return;
-    // if(source == 'qs' && !CliqzAttrack.isQSEnabled()) return;
-    var tps = tpObj.tps;
-    var tp_domains = [];
-    Object.keys(tps).forEach(function(e){
-        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(getGeneralDomain(e)) > -1){
-            if(tps[e]['cv_to_dataURL_blocked']){
-                tp_domains.push(e + ":cvf");
-            }
-        }
-    })
-    if(tp_domains.length > 0) {
-        var payload_data = {"u":source_url,'tp_domains': tp_domains};
-        var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
-        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter};
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListCanvas', 'payload': payl});
-        CliqzAttrack.blockingFailed[source_url] = 1;
-    }
-
-}
-
-function checkBlackList(source_url, tpObj){
-    var tps = tpObj.tps;
-    var tp_domains = [];
-    Object.keys(tps).forEach(function(e){
-        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(getGeneralDomain(e)) > -1){
-
-
-            // Verify if we should add the condition for bad_tokens.
-            if(CliqzAttrack.isQSEnabled() && tps[e]['has_qs'] && tps[e]['bad_tokens'] && !(tps[e]['tokens_blocked'] || tps[e]['req_aborted'] || tps[e]['post_altered'])){
-                tp_domains.push(e + ":qsG");
-            }
-
-            var s = md5(getGeneralDomain(e)).substring(0, 16);
-            if(CliqzAttrack.isQSEnabled() && tps[e]['has_qs'] && (!(s in CliqzAttrack.tokenExtWhitelist))){
-                tp_domains.push(e + ":notInExtWhiteList");
-            }
-
-            if(CliqzAttrack.isCookieEnabled() && tps[e]['cookie_set'] && !(tps[e]['cookie_blocked']) && !(tps[e]['cookie_allow_userinit']) && !(tps[e]['cookie_allow_visitcache']) && !(tps[e]['cookie_allow_oauth'])){
-                tp_domains.push(e + ":cookie");
-            }
-
-
-        }
-    })
-    if(tp_domains.length > 0 && !(CliqzAttrack.blockingFailed[source_url])) {
-        var payload_data = {"u":source_url,'tp_domains': tp_domains};
-        var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
-        var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter};
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListFail', 'payload': payl});
-        CliqzAttrack.blockingFailed[source_url] = 1;
-    }
-}
-
-var randomImage = (function(){
-    var length = Math.floor(20 + Math.random() * 100);
-    var bytes = "";
-    for (var i = 0; i < length; i += 1){
-        bytes += String.fromCharCode(Math.floor(Math.random() * 256));
-    }
-    return bytes;
-}());
 
 var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
         .getService(Components.interfaces.mozIAsyncFavicons);
