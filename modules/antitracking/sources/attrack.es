@@ -4428,7 +4428,6 @@ var CliqzAttrack = {
                 this._active[tab_id] = new CliqzAttrack.tp_events.PageLoadData(url_parts);
                 this._active[tab_id].redirects = prev.redirects;
                 this._active[tab_id].redirects.push(prev.hostname);
-                CliqzUtils.log(this._active[tab_id], "xxx1");
             } else {
                 this.onFullPage(url_parts, tab_id);
             }
