@@ -9,11 +9,11 @@ var osBridge = {
     message data: query as string
     message callback data: {results: [{url: as string, title: as string}], query: as string}
   */
-  searchHistory: function(query) {
+  searchHistory: function(query, callback) {
     var message = {
       action: "searchHistory",
       data: query,
-      callback: "CLIQZEnvironment.displayHistory"
+      callback: callback
     }
     OS.postMessage(message);
   },
