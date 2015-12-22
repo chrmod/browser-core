@@ -215,6 +215,7 @@ URLInfo._cache = new MapCache(function(url) { return new URLInfo(url) }, 100);
 
 /** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
 URLInfo.get = function(url) {
+    if (!url) return "";
     return URLInfo._cache.get(url);
 }
 
