@@ -9,6 +9,7 @@ import HeaderInfoVisitor from 'antitracking/header-info-visitor';
 import { HttpRequestContext, getRefToSource } from 'antitracking/http-request-context';
 import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
+import { parseURL, dURIC, getHeaderMD5, getQSMD5 } from 'antitracking/url';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -33,15 +34,6 @@ var domParser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
 // CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
 // CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
 
-function dURIC(s) {
-    // avoide error from decodeURIComponent('%2')
-    try {
-        return decodeURIComponent(s);
-    } catch(e) {
-        return s;
-    }
-}
-
 function shuffle(s) {
     var a = s.split(""),
         n = a.length;
@@ -54,43 +46,6 @@ function shuffle(s) {
     }
     return a.join("");
 };
-
-function getHeaderMD5(headers) {
-    var qsMD5 = {};
-    for (var key in headers) {
-        var tok = dURIC(headers[key]);
-        while (tok != dURIC(tok)) {
-            tok = dURIC(tok);
-        }
-        qsMD5[md5(key)] = md5(tok);
-    }
-    return qsMD5;
-}
-
-function getQSMD5(qs, ps) {
-    if(typeof qs == 'string') qs = CliqzAttrack.getParametersQS(qs);
-    if(ps === undefined) ps = {};
-    var qsMD5 = {};
-    for (var key in qs) {
-        var tok = dURIC(qs[key]);
-        while (tok != dURIC(tok)) {
-            tok = dURIC(tok);
-        }
-        if (tok.length >= 8) {
-            qsMD5[md5(key)] = md5(tok);
-        }
-    }
-    for (var key in ps) {
-        var tok = dURIC(qs[key]);
-        while (tok != dURIC(tok)) {
-            tok = dURIC(tok);
-        }
-        if (tok.length >= 8) {
-            qsMD5[md5(key)] = md5(tok);
-        }
-    }
-    return qsMD5;
-}
 
 function parseCalleeStack(callee){
     var returnData = {};
@@ -199,7 +154,7 @@ var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"
 var URLInfo = function(url) {
     this.url_str = url;
     // map parsed url parts onto URL object
-    let url_parts = CliqzAttrack.parseURL(url);
+    let url_parts = parseURL(url);
     for(let k in url_parts) {
         this[k] = url_parts[k];
     }
@@ -1479,8 +1434,8 @@ var CliqzAttrack = {
                 // find 3rd party form
                 var faction = forms[i].action;
                 if (faction.indexOf('http') != 0) return;
-                if (CliqzAttrack.sameGeneralDomain(CliqzAttrack.parseURL(dom.URL).hostname,
-                                                   CliqzAttrack.parseURL(faction).hostname))
+                if (CliqzAttrack.sameGeneralDomain(parseURL(dom.URL).hostname,
+                                                   parseURL(faction).hostname))
                     return;
                 CliqzUtils.log(forms[i].action, 'at-post');
                 var inputs = forms[i].querySelectorAll('input');
@@ -3288,155 +3243,6 @@ var CliqzAttrack = {
                     .getService(Components.interfaces.nsIWindowWatcher);
         try{var win = ww.openWindow(null, "chrome://cliqz/content/canvas-traffic",
                                     "canvas-traffic", null, null);}catch(ee){CliqzUtils.log(ee,'canvas-traffic');}
-    },
-    parseURL: function(url) {
-        /*  Parse a URL string into a set of sub-components, namely:
-            - protocol
-            - username
-            - password
-            - hostname
-            - port
-            - path
-            - parameters (semicolon separated key-values before the query string)
-            - query (? followed by & separated key-values)
-            - fragment (after the #)
-            Given a valid string url, this function returns an object with the above
-            keys, each with the value of that component, or empty string if it does not
-            appear in the url.
-
-            Additionally, any key-value pairs found in the parameters, query and fragment
-            components are extracted into objects in 'parameter_keys', query_keys' and
-            'fragment_keys' respectively.
-         */
-        var o = {};
-
-        var v = url.split('://');
-        if (v.length >= 2) {
-
-            o['protocol'] = v[0];
-            o['hostname'] = '';
-            o['port'] = '';
-            o['username'] = '';
-            o['password'] = '';
-            o['path'] = '/';
-            o['query'] = '';
-            o['parameters'] = '';
-            o['fragment'] = '';
-            o['host'] = '';
-            var s = v.slice(1, v.length).join('://');
-
-            let state = 'host';
-            for(let i=0; i<s.length; i++) {
-                let c = s.charAt(i);
-                // check for special characters which can change parser state
-                if(c == '#' && ['host', 'path', 'query', 'parameters'].indexOf(state) >= 0) {
-                    // begin fragment
-                    state = 'fragment';
-                    continue;
-                } else if(c == '?' && ['host', 'path', 'parameters'].indexOf(state) >= 0) {
-                    // begin query string
-                    state = 'query';
-                    continue;
-                } else if(c == ';' && ['host', 'path'].indexOf(state) >= 0) {
-                    // begin parameter string
-                    state = 'parameters';
-                    continue;
-                } else if(c == '/' && state == 'host') {
-                    // from host we could go into any next state
-                    state = 'path';
-                    continue;
-                }
-
-                // add character to key based on state
-                o[state] += c;
-            }
-
-            if (o['host'] == '') return null;
-
-            var oh = CliqzHumanWeb.parseHostname(o['host']);
-            ['hostname', 'port', 'username', 'password'].forEach(function(k) {
-                o[k] = oh[k];
-            });
-            delete o['host'];
-
-            if (state != 'path') {
-                o['query_keys'] = CliqzAttrack.getParametersQS(o['query']);
-                o['parameter_keys'] = CliqzAttrack.getParametersQS(o['parameters']);
-                o['fragment_keys'] = CliqzAttrack.getParametersQS(o['fragment']);
-            } else {
-                o['query_keys'] = {};
-                o['parameter_keys'] = {};
-                o['fragment_keys'] = {};
-            }
-        } else {
-            return null;
-        }
-        return o;
-    },
-    getParametersQS: function(qs) {
-        var res = {},
-            _blacklist = {};
-        let state = 'key';
-        let k = '';
-        let v = '';
-        var _reviewQS = function(k, v) {
-            if (v.indexOf('=') > -1) {
-                var items = v.split('=');
-                k = k + '_' + items[0];
-                v = items.splice(1).join('=');
-            }
-            return [k, v];
-        };
-        var _updateQS = function(k, v) {
-            if (k in res || k in _blacklist) {
-                _blacklist[k] = true;
-                var kv = _reviewQS(k, v);
-                res[kv[0]] = kv[1];
-                // also the old one
-                if (k in res) {
-                    v = res[k];
-                    kv = _reviewQS(k, v);
-                    res[kv[0]] = kv[1];
-                    delete res[k];
-                }
-            } else {
-                res[k] = v;
-            }
-        };
-        for(let i=0; i<qs.length; i++) {
-            let c = qs.charAt(i);
-            if(c == '=' && state == 'key' && k.length > 0) {
-                state = 'value';
-                continue;
-            } else if(c == '&' || c == ';') {
-                if(state == 'value') {
-                    state = 'key';
-                    // in case the same key already exists
-                    _updateQS(k, v);
-                } else if(state == 'key' && k.length > 0) {
-                    // key with no value, set value=true
-                    res[k] = true;
-                }
-                k = '';
-                v = '';
-                continue;
-            }
-            switch(state) {
-                case 'key':
-                    k += c;
-                    break;
-                case 'value':
-                    v += c;
-                    break;
-            }
-        }
-        if(state == 'value') {
-            state = 'key';
-            _updateQS(k, v);
-        } else if(state == 'key' && k.length > 0) {
-            res[k] = true;
-        }
-        return res;
     },
     // Listens for requests initiated in tabs.
     // Allows us to track tab windowIDs to urls.
