@@ -6,7 +6,7 @@ import * as persist from 'antitracking/persistent-state';
 import TempSet from 'antitracking/temp-set';
 import MapCache from 'antitracking/fixed-size-cache';
 import HeaderInfoVisitor from 'antitracking/header-info-visitor';
-import HttpRequestContext from 'antitracking/http-request-context';
+import { HttpRequestContext, getRefToSource } from 'antitracking/http-request-context';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -463,68 +463,6 @@ var CliqzAttrack = {
       }
       return null;
     },
-    isXHRRequest: function(channel) {
-        // detect if the request on a given channel was an XHR request.
-        // Source: http://stackoverflow.com/questions/22659863/identify-xhr-ajax-response-while-listening-to-http-response-in-firefox-addon
-        // Returns: True iff this request was an XHR request, false otherwise
-        var isXHR;
-        try {
-            var callbacks = channel.notificationCallbacks;
-            var xhr = callbacks ? callbacks.getInterface(Ci.nsIXMLHttpRequest) : null;
-            isXHR = !!xhr;
-        } catch (e) {
-            isXHR = false;
-        }
-        return isXHR;
-    },
-    getPageLoadType: function(channel) {
-        /* return type of page load from channel load flags.
-            returns "fullpage" for initial document loads,
-                "frame" for framed elements,
-                or null otherwise.
-         */
-        if (channel.loadFlags & Ci.nsIHttpChannel.LOAD_INITIAL_DOCUMENT_URI) {
-            return "fullpage";
-        } else if (channel.loadFlags & Ci.nsIHttpChannel.LOAD_DOCUMENT_URI) {
-            return "frame";
-        } else {
-            return null;
-        }
-    },
-    getRefToSource: function(subject, refstr){
-        // Source url is the origin of request, which helps to differentiate between first-party and third-party calls.
-
-        var source = {};
-        source.url = '';
-        source.tab = -1;
-        source.lc = null;
-        var source_url = '';
-        var source_tab = -1;
-
-        try {
-            var lc = CliqzAttrack.getLoadContext(subject);
-            if(lc != null) {
-               source_url =''+lc.topWindow.document.documentURI;
-               var util = lc.topWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
-               source_tab = util.outerWindowID;
-            }
-        } catch(ex) {
-        }
-
-        if(!source_url && refstr != '') source_url = refstr;
-
-        if(source_tab == -1) {
-            var source_tabs = CliqzAttrack.tab_listener.getTabsForURL(source_url);
-            if(source_tabs.length > 0) {
-                source_tab = source_tabs[0];
-            }
-        }
-        source.url = source_url;
-        source.tab = source_tab;
-        source.lc = lc;
-        // CliqzUtils.log(source_url, "no_ref");
-        return source;
-    },
     getGeneralDomain: function(dom) {
         var v1 = dom.split('.').reverse();
         var pos = 0;
@@ -808,7 +746,7 @@ var CliqzAttrack = {
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname']);
                 try{
-                    let source = CliqzAttrack.getRefToSource(subject, referrer);
+                    let source = getRefToSource(subject, referrer);
                     if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
                         var doc = source.lc.topWindow.document;
                         if (doc.URL == source_url) {
@@ -1069,9 +1007,7 @@ var CliqzAttrack = {
                 return;
             }
 
-            var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
             if (source_url == '' || source_url.indexOf('about:')==0) return;
-            if(page_load_type == 'fullpage') return;
 
             if (source_url != null) {
                 source_url_parts = URLInfo.get(source_url);

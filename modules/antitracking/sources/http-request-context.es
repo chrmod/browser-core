@@ -1,3 +1,10 @@
+// TODO dependency on CliqzAttrack.tab_listener
+import CliqzAttrack from 'antitracking/attrack';
+
+// An abstraction layer for extracting contextual information
+// from the HttpChannel on various Firefox versions.
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+var nsIHttpChannel = Ci.nsIHttpChannel;
 
 function HttpRequestContext(subject) {
   this.subject = subject;
@@ -211,4 +218,4 @@ function getLoadContext( aRequest ) {
   }
 }
 
-export default HttpRequestContext;
+export { HttpRequestContext, getRefToSource };
