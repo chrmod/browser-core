@@ -1,9 +1,11 @@
 {
   "settings": {
-    "freshTabButton": true
+    "freshTabButton": true,
+    "antitrackingButton": false
   },
   "modules": [
     "onboarding",
-    "freshtab"
+    "freshtab",
+    "antitracking"
   ]
 }
