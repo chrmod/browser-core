@@ -1425,7 +1425,7 @@ var CliqzAttrack = {
                         redirect_url_parts.hostname = url_parts.hostname;
                         redirect_url_parts.path = redirect_url;
                     }
-                    CliqzAttrack.tp_events.onRedirect(URLInfo.get(redirect_url), requestContext.getOuterWindowID());
+                    CliqzAttrack.tp_events.onRedirect(redirect_url_parts, requestContext.getOuterWindowID());
                 }
                 return;
             }
