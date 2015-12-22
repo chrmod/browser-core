@@ -3,7 +3,7 @@
  */
 import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
-import TempSet from 'antitracking/temp-set.es';
+import TempSet from 'antitracking/temp-set';
 import MapCache from 'antitracking/fixed-size-cache';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
