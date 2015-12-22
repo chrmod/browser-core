@@ -91,10 +91,12 @@ var osBridge = {
     params: query as string
     message data: query as string
   */
-  notifyQuery: function(query) {
+  notifyQuery: function(query, locationEnabled, lat, lon) {
     var message = {
       action: "notifyQuery",
-      data: query
+      data: { 
+        "q": query,
+      }
     }
     OS.postMessage(message);
   },
