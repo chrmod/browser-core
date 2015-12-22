@@ -55,7 +55,7 @@ var osBridge = {
         type: type
       }
     }
-    OS.postMessage(JSON.stringify(message));
+    OS.postMessage(message);
   },
   /**
     function: getTopSites
