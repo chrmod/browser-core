@@ -79,6 +79,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.tp_events', function() {
 
+        var urlInfo = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/url').URLInfo;
+
         describe('Integration', function() {
             var win = CliqzUtils.getWindow(),
                 gBrowser = win.gBrowser,
@@ -265,7 +267,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         describe('onFullPage', function() {
 
-            var url_parts = CliqzAttrack.urlInfo.get("https://cliqz.com"),
+            var url_parts = urlInfo.get("https://cliqz.com"),
                 mock_tab_id = 43;
 
             beforeEach(function() {
@@ -285,7 +287,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             });
 
             it("does not add a tab to _active if the url is malformed", function() {
-                [null, undefined, 'http://cliqz.com', CliqzAttrack.urlInfo.get("/home/cliqz"), CliqzAttrack.urlInfo.get("about:config")].forEach(function(url) {
+                [null, undefined, 'http://cliqz.com', urlInfo.get("/home/cliqz"), urlInfo.get("about:config")].forEach(function(url) {
                     var page_load = CliqzAttrack.tp_events.onFullPage(url, mock_tab_id);
 
                     chai.expect(page_load).is.null;
@@ -307,9 +309,9 @@ TESTS.AttrackTest = function (CliqzUtils) {
         describe('get', function() {
 
             var src_url = "https://cliqz.com",
-                src_url_parts = CliqzAttrack.urlInfo.get(src_url),
+                src_url_parts = urlInfo.get(src_url),
                 url = "https://example.com/beacon",
-                url_parts = CliqzAttrack.urlInfo.get(url),
+                url_parts = urlInfo.get(url),
                 mock_tab_id = 34;
 
             var testInvalidTabIds = function() {
@@ -337,7 +339,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     var req = CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
 
                     chai.expect(req).to.not.be.null;
-                    chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
                     chai.expect(req['c']).to.equal(0);
                     chai.expect(page_load.tps).to.have.property(url_parts.hostname);
                     chai.expect(page_load.tps[url_parts.hostname]).to.have.property(url_parts.path);
@@ -348,7 +349,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 it('returns null if third party referrer is not related to the page load', function() {
                     var alt_url = "https://www.w3.org/",
-                        alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
+                        alt_url_parts = urlInfo.get(alt_url);
 
                     var req = CliqzAttrack.tp_events.get(url, url_parts, alt_url, alt_url_parts, mock_tab_id);
 
@@ -357,13 +358,12 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 it('third party referrer relation is transative', function() {
                     var alt_url = "https://www.w3.org/",
-                        alt_url_parts = CliqzAttrack.urlInfo.get(alt_url);
+                        alt_url_parts = urlInfo.get(alt_url);
 
                     CliqzAttrack.tp_events.get(url, url_parts, src_url, src_url_parts, mock_tab_id);
                     var req = CliqzAttrack.tp_events.get(alt_url, alt_url_parts, url, url_parts, mock_tab_id);
 
                     chai.expect(req).to.not.be.null;
-                    chai.expect(req).to.include.keys(CliqzAttrack.tp_events._stats);
                     chai.expect(req['c']).to.equal(0);
                     chai.expect(page_load.tps).to.have.property(url_parts.hostname);
                     chai.expect(page_load.tps).to.have.property(alt_url_parts.hostname);
@@ -386,10 +386,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
             var page_load,
                 url = 'https://cliqz.com/privacy#saferWeb',
-                url_parts = CliqzAttrack.urlInfo.get(url);
+                url_parts = urlInfo.get(url);
 
             beforeEach(function() {
-                page_load = new CliqzAttrack.tp_events.PageLoadData(url_parts);
+                page_load = CliqzAttrack.tp_events.onFullPage(url_parts, 1);
             });
 
             it('should have initial attributes from source url', function() {
@@ -408,7 +408,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 });
 
                 it('should create a stat entry for the given page load', function() {
-                    chai.expect(tp_url).to.include.keys(CliqzAttrack.tp_events._stats);
                     chai.expect(page_load.tps).to.have.property('hostname');
                     chai.expect(page_load.tps['hostname']).to.have.property('/');
                     chai.expect(page_load.tps['hostname']['/']).to.equal(tp_url);
@@ -472,6 +471,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.isHash', function() {
 
+        var isHash = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/hash').isHash;
         var not_hash = ['',
             'Firefox',
             'some words',
@@ -491,13 +491,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         not_hash.forEach(function(str) {
           it("'" + str + "' is not a hash", function() {
-            chai.expect(CliqzAttrack.isHash(str)).to.be.false;
+            chai.expect(isHash(str)).to.be.false;
           })
         });
 
         hashes.forEach(function(str) {
           it("'" + str + "' is a hash", function() {
-            chai.expect(CliqzAttrack.isHash(str)).to.be.true;
+            chai.expect(isHash(str)).to.be.true;
           })
         });
 
@@ -505,6 +505,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.getGeneralDomain', function() {
 
+        var getGeneralDomain = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/domain').getGeneralDomain;
         var spec = {
           'cliqz.com': ['cliqz.com', 'www.cliqz.com', 'a.b.cliqz.com'],
           'example.co.uk': ['example.co.uk', 'test.example.co.uk'],
@@ -516,7 +517,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             spec[general_domain].forEach(function(sub_domain) {
                 var gen = general_domain;
                 it(sub_domain +' has general domain '+ gen, function() {
-                    chai.expect(CliqzAttrack.getGeneralDomain(sub_domain)).to.eql(gen);
+                    chai.expect(getGeneralDomain(sub_domain)).to.eql(gen);
                 });
             });
         }
