@@ -201,6 +201,7 @@ var CLIQZEnvironment = {
         return eTLDService.getPublicSuffixFromHost(host);
     },
     isPrivate: function(window) {
+        // Throwing error "Window is undefined when there is no window open."
         if(window.cliqzIsPrivate === undefined){
             try {
                 // Firefox 20+

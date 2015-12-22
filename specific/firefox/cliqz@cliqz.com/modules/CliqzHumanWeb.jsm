@@ -35,6 +35,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBloomFilter',
+  'chrome://cliqzmodules/content/CliqzBloomFilter.jsm');
+
 /*
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
   'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
@@ -42,9 +46,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
-
-
 var refineFuncMappings ;
+
+/*
+Configuration for Bloomfilter
+*/
+
+var bloomFilterSize = 500001;
+var falsePositive = 0.01;
+var bloomFilterNHashes = 7;
 
 function md5cycle(x, k) {
     var a = x[0], b = x[1], c = x[2], d = x[3];
@@ -291,6 +301,9 @@ var CliqzHumanWeb = {
     pageStatusCountSent: null, // Used for sending a signal only once a user, to track count of pages marked as private.
     actionStats: null,
     actionStatsLastSent: null,
+    bloomFilter: null,
+    BloomFilter: CliqzBloomFilter.BloomFilter,
+    bf:null,
     _md5: function(str) {
         return md5(str);
     },
@@ -2011,6 +2024,9 @@ var CliqzHumanWeb = {
                 }
                 */
             }
+            if(!CliqzHumanWeb.bloomfilter){
+                CliqzHumanWeb.loadBloomFilter();
+            }
         }
 
         //Load patterns config
@@ -2103,7 +2119,7 @@ var CliqzHumanWeb = {
     },
     unload: function() {
         //Check is active usage, was sent
-        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){CliqzUtils.log("Error unload3: " + e,"XXX");};
+        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
         // Save action stats
         CliqzHumanWeb.saveActionStats();
         if(activeUsageTrk){
@@ -2413,7 +2429,7 @@ var CliqzHumanWeb = {
 
         CliqzHumanWeb.loadContentExtraction();
         CliqzHumanWeb.fetchAndStoreConfig();
-        CliqzHumanWeb.sendpageStatusCount();
+        // CliqzHumanWeb.sendpageStatusCount();
 
         if (CliqzHumanWeb.actionStats==null) CliqzHumanWeb.loadActionStats();
         if (CliqzHumanWeb.actionStatsLastSent==null) CliqzHumanWeb.loadActionStatsLastSent();
@@ -2432,6 +2448,10 @@ var CliqzHumanWeb = {
         }
         */
 
+        // Load bloom filter
+        if(!CliqzHumanWeb.bloomfilter){
+            CliqzHumanWeb.loadBloomFilter();
+        }
     },
     initAtBrowser: function(){
         if(CliqzUtils.getPref("dnt", false)) return;
@@ -2471,7 +2491,9 @@ var CliqzHumanWeb = {
             delete msg.payload.tend;
             delete msg.payload.tin;
 
-            //Check for fields which have urls like ref.
+            // Check for fields which have urls like ref.
+            // Check is they are suspicious.
+            // Check if they are marked private.
             if(msg.payload.ref){
                 if(CliqzHumanWeb.isSuspiciousURL(msg.payload['ref'])){
                     msg.payload['ref'] = null;
@@ -2479,6 +2501,15 @@ var CliqzHumanWeb = {
                 else{
                     msg.payload['ref'] = CliqzHumanWeb.maskURL(msg.payload['ref']);
                 }
+
+                // Check if ref. exists in bloom filter, then turn ref to null.
+                CliqzHumanWeb.getPageFromHashTable(msg.payload.ref, function(_res) {
+                    if (_res) {
+                        if(_res['private'] == 1 ){
+                            msg.payload['ref'] = null;
+                        }
+                    }
+                })
             }
 
             // Check for title.
@@ -2779,6 +2810,21 @@ var CliqzHumanWeb = {
         });
     },
     getPageFromHashTable: function(url, callback) {
+        var hash = (md5(url)).substring(0,16);
+        var r = null;
+        if(CliqzHumanWeb.bloomFilter){
+            if(CliqzHumanWeb.debug) CliqzUtils.log("Checking bloom filter","XXX");
+            var sta = CliqzHumanWeb.bloomFilter.testSingle(hash);
+            if(CliqzHumanWeb.debug) CliqzUtils.log("In bloom filter ????? " + sta,"XXX1");
+            if(sta) {
+                r = {"hash": hash, "private": 1}
+            }
+            else{
+                r = {"hash": hash, "private": 0}
+            }
+        }
+        callback(r);
+        /*
         var res = [];
         var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashusafe WHERE hash = :hash");
         st.params.hash = (md5(url)).substring(0,16);
@@ -2807,6 +2853,7 @@ var CliqzHumanWeb = {
                 }
             }
         });
+        */
     },
     getCanUrlFromHashTable: function(canUrl, callback) {
         var res = [];
@@ -3136,6 +3183,10 @@ var CliqzHumanWeb = {
         });
     },
     setAsPrivate: function(url) {
+        if(CliqzHumanWeb.bloomFilter){
+            if(CliqzUtils.debug) CliqzUtils.log("Added to bloomfilter","XXX");
+            CliqzHumanWeb.bloomFilter.addSingle((md5(url)).substring(0,16));
+        }
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
         //while (st.executeStep()) {};
@@ -3152,7 +3203,8 @@ var CliqzHumanWeb = {
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
-
+        CliqzHumanWeb.dumpBloomFilter();
+        /*
 
         //Add has in the hashusafe table
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
@@ -3172,6 +3224,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CliqzHumanWeb.LOG_KEY);
         }
+        */
     },
     setAsPublic: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url")
@@ -3191,6 +3244,7 @@ var CliqzHumanWeb = {
             delete CliqzHumanWeb.state['v'][url];
         }
 
+        /*
         //Add has in the hashusafe table
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
@@ -3209,6 +3263,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
         }
+        */
 
     },
     listOfUnchecked: function(cap, sec_old, fixed_url, callback) {
@@ -3248,6 +3303,7 @@ var CliqzHumanWeb = {
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
+        CliqzUtils.log("In process unchecks: " + listOfUncheckedUrls,CliqzHumanWeb.LOG_KEY);
         var url_pagedocPair = {};
         if(listOfUncheckedUrls.length > 1){
             // Notify is the list of unchecked urls recieved is more than one
@@ -3295,7 +3351,6 @@ var CliqzHumanWeb = {
     },
     // to invoke in console: CliqzHumanWeb.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
     forceDoubleFetch: function(url) {
-        // Notify when force double fetch is triggered.
         // Generate a telemetry signal.
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
@@ -4163,5 +4218,26 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.sendActionStats();
         }
     },
+    dumpBloomFilter: function(){
+        var bf = [].slice.call(CliqzHumanWeb.bloomFilter.buckets);
+        if(bf){
+            CliqzHumanWeb.saveRecord('bf', bf.join("|"));
+        }
+
+    },
+    loadBloomFilter: function(){
+        CliqzHumanWeb.loadRecord('bf', function(data) {
+            if (data==null) {
+                if (CliqzHumanWeb.debug) CliqzUtils.log("There was no data on CliqzHumanWeb.bf", CliqzHumanWeb.LOG_KEY);
+                CliqzHumanWeb.bloomFilter = new CliqzBloomFilter.BloomFilter(Array(bloomFilterSize).join('0'),bloomFilterNHashes);
+            }
+            else {
+                var _data = data.split("|").map(Number);
+                CliqzHumanWeb.bloomFilter = new CliqzBloomFilter.BloomFilter(_data,bloomFilterNHashes);
+            }
+
+        });
+
+    }
 
 };
