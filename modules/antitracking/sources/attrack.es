@@ -98,7 +98,7 @@ LRUMapCache.prototype = {
             this._hit_ctr++;
         } else {
             // cache miss, generate value for key
-            if (key.length > this._keysize_limit) {
+            if (!key || key.length > this._keysize_limit) {
                 // if key is large, don't cache
                 return this._item_ctor(key);
             }
@@ -119,6 +119,7 @@ LRUMapCache.prototype = {
 var md5Cache = new LRUMapCache(CliqzHumanWeb._md5, 1000);
 
 var md5 = function(s) {
+    if (!s) return "";
     return md5Cache.get(s);
 }
 
