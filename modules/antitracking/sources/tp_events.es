@@ -1,5 +1,6 @@
 import CliqzAttrack from 'antitracking/attrack';
 import md5 from 'antitracking/md5';
+import { sameGeneralDomain } from 'antitracking/domain';
 
 // Class to hold a page load and third party urls loaded by this page.
 function PageLoadData(url) {
@@ -38,7 +39,7 @@ function PageLoadData(url) {
     // from the original page load url).
     this.isReferredFrom = function(ref_parts) {
         if(!ref_parts) return false;
-        if(CliqzAttrack.sameGeneralDomain(ref_parts.hostname, this.hostname)) {
+        if(sameGeneralDomain(ref_parts.hostname, this.hostname)) {
             return true;
         }
         // not a direct referral, but could be via a third party
@@ -62,7 +63,7 @@ function PageLoadData(url) {
                 ra: this.ra || 0,
                 tps: {},
                 redirects: this.redirects.filter(function(hostname) {
-                    return !CliqzAttrack.sameGeneralDomain(hostname, self.hostname);
+                    return !sameGeneralDomain(hostname, self.hostname);
                 })
             };
         if(!obj.hostname) return obj;
@@ -71,7 +72,7 @@ function PageLoadData(url) {
             var tp_domain_data = this.tps[tp_domain],
                 tp_paths = Object.keys(tp_domain_data);
             // skip same general domain
-            if(CliqzAttrack.sameGeneralDomain(self.hostname, tp_domain)) {
+            if(sameGeneralDomain(self.hostname, tp_domain)) {
                 continue;
             }
             if(tp_paths.length > 0) {

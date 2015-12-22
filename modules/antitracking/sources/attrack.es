@@ -9,6 +9,7 @@ import { HttpRequestContext, getRefToSource } from 'antitracking/http-request-co
 import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
 import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
+import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -71,7 +72,7 @@ function checkFingerPrinting(source_url, tpObj){
     var tps = tpObj.tps;
     var tp_domains = [];
     Object.keys(tps).forEach(function(e){
-        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(CliqzAttrack.getGeneralDomain(e)) > -1){
+        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(getGeneralDomain(e)) > -1){
             if(tps[e]['cv_to_dataURL_blocked']){
                 tp_domains.push(e + ":cvf");
             }
@@ -84,21 +85,6 @@ function checkFingerPrinting(source_url, tpObj){
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blackListCanvas', 'payload': payl});
         CliqzAttrack.blockingFailed[source_url] = 1;
     }
-    /*
-    CliqzUtils.log("Checking QS protection: " + source_url, "XOXOX");
-    var tpRequestGeneralDomain = CliqzAttrack.getGeneralDomain(tp_request_hostname);
-    if(CliqzAttrack.blacklist.indexOf(tpRequestGeneralDomain) > -1){
-        CliqzUtils.log("Protection failed for the url: " + source_url, "XOXOX");
-        if(CliqzAttrack.blockingFailed[source_url]){
-            var tp_domains = CliqzAttrack.blockingFailed[source_url].tp_domains;
-        }
-        else{
-            var tp_domains = [];
-            tp_domains.push(tpRequestGeneralDomain);
-            CliqzAttrack.blockingFailed[source_url]= tp_domains;
-        }
-    }
-    */
 
 }
 
@@ -106,7 +92,7 @@ function checkBlackList(source_url, tpObj){
     var tps = tpObj.tps;
     var tp_domains = [];
     Object.keys(tps).forEach(function(e){
-        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(CliqzAttrack.getGeneralDomain(e)) > -1){
+        if(CliqzAttrack.blacklist.indexOf(e) > -1 || CliqzAttrack.blacklist.indexOf(getGeneralDomain(e)) > -1){
 
 
             // Verify if we should add the condition for bad_tokens.
@@ -114,7 +100,7 @@ function checkBlackList(source_url, tpObj){
                 tp_domains.push(e + ":qsG");
             }
 
-            var s = md5(CliqzAttrack.getGeneralDomain(e)).substring(0, 16);
+            var s = md5(getGeneralDomain(e)).substring(0, 16);
             if(CliqzAttrack.isQSEnabled() && tps[e]['has_qs'] && (!(s in CliqzAttrack.tokenExtWhitelist))){
                 tp_domains.push(e + ":notInExtWhiteList");
             }
@@ -229,7 +215,6 @@ var CliqzAttrack = {
         }
         return _ts;
     },
-    TLDs: {"gw": "cc", "gu": "cc", "gt": "cc", "gs": "cc", "gr": "cc", "gq": "cc", "gp": "cc", "dance": "na", "tienda": "na", "gy": "cc", "gg": "cc", "gf": "cc", "ge": "cc", "gd": "cc", "gb": "cc", "ga": "cc", "edu": "na", "gn": "cc", "gm": "cc", "gl": "cc", "\u516c\u53f8": "na", "gi": "cc", "gh": "cc", "tz": "cc", "zone": "na", "tv": "cc", "tw": "cc", "tt": "cc", "immobilien": "na", "tr": "cc", "tp": "cc", "tn": "cc", "to": "cc", "tl": "cc", "bike": "na", "tj": "cc", "tk": "cc", "th": "cc", "tf": "cc", "tg": "cc", "td": "cc", "tc": "cc", "coop": "na", "\u043e\u043d\u043b\u0430\u0439\u043d": "na", "cool": "na", "ro": "cc", "vu": "cc", "democrat": "na", "guitars": "na", "qpon": "na", "\u0441\u0440\u0431": "cc", "zm": "cc", "tel": "na", "futbol": "na", "za": "cc", "\u0628\u0627\u0632\u0627\u0631": "na", "\u0440\u0444": "cc", "zw": "cc", "blue": "na", "mu": "cc", "\u0e44\u0e17\u0e22": "cc", "asia": "na", "marketing": "na", "\u6d4b\u8bd5": "na", "international": "na", "net": "na", "\u65b0\u52a0\u5761": "cc", "okinawa": "na", "\u0baa\u0bb0\u0bbf\u0b9f\u0bcd\u0b9a\u0bc8": "na", "\u05d8\u05e2\u05e1\u05d8": "na", "\uc0bc\uc131": "na", "sexy": "na", "institute": "na", "\u53f0\u7063": "cc", "pics": "na", "\u516c\u76ca": "na", "\u673a\u6784": "na", "social": "na", "domains": "na", "\u9999\u6e2f": "cc", "\u96c6\u56e2": "na", "limo": "na", "\u043c\u043e\u043d": "cc", "tools": "na", "nagoya": "na", "properties": "na", "camera": "na", "today": "na", "club": "na", "company": "na", "glass": "na", "berlin": "na", "me": "cc", "md": "cc", "mg": "cc", "mf": "cc", "ma": "cc", "mc": "cc", "tokyo": "na", "mm": "cc", "ml": "cc", "mo": "cc", "mn": "cc", "mh": "cc", "mk": "cc", "cat": "na", "reviews": "na", "mt": "cc", "mw": "cc", "mv": "cc", "mq": "cc", "mp": "cc", "ms": "cc", "mr": "cc", "cab": "na", "my": "cc", "mx": "cc", "mz": "cc", "\u0b87\u0bb2\u0b99\u0bcd\u0b95\u0bc8": "cc", "wang": "na", "estate": "na", "clothing": "na", "monash": "na", "guru": "na", "technology": "na", "travel": "na", "\u30c6\u30b9\u30c8": "na", "pink": "na", "fr": "cc", "\ud14c\uc2a4\ud2b8": "na", "farm": "na", "lighting": "na", "fi": "cc", "fj": "cc", "fk": "cc", "fm": "cc", "fo": "cc", "sz": "cc", "kaufen": "na", "sx": "cc", "ss": "cc", "sr": "cc", "sv": "cc", "su": "cc", "st": "cc", "sk": "cc", "sj": "cc", "si": "cc", "sh": "cc", "so": "cc", "sn": "cc", "sm": "cc", "sl": "cc", "sc": "cc", "sb": "cc", "rentals": "na", "sg": "cc", "se": "cc", "sd": "cc", "\u7ec4\u7ec7\u673a\u6784": "na", "shoes": "na", "\u4e2d\u570b": "cc", "industries": "na", "lb": "cc", "lc": "cc", "la": "cc", "lk": "cc", "li": "cc", "lv": "cc", "lt": "cc", "lu": "cc", "lr": "cc", "ls": "cc", "holiday": "na", "ly": "cc", "coffee": "na", "ceo": "na", "\u5728\u7ebf": "na", "ye": "cc", "\u0625\u062e\u062a\u0628\u0627\u0631": "na", "ninja": "na", "yt": "cc", "name": "na", "moda": "na", "eh": "cc", "\u0628\u06be\u0627\u0631\u062a": "cc", "ee": "cc", "house": "na", "eg": "cc", "ec": "cc", "vote": "na", "eu": "cc", "et": "cc", "es": "cc", "er": "cc", "ru": "cc", "rw": "cc", "\u0aad\u0abe\u0ab0\u0aa4": "cc", "rs": "cc", "boutique": "na", "re": "cc", "\u0633\u0648\u0631\u064a\u0629": "cc", "gov": "na", "\u043e\u0440\u0433": "na", "red": "na", "foundation": "na", "pub": "na", "vacations": "na", "org": "na", "training": "na", "recipes": "na", "\u0438\u0441\u043f\u044b\u0442\u0430\u043d\u0438\u0435": "na", "\u4e2d\u6587\u7f51": "na", "support": "na", "onl": "na", "\u4e2d\u4fe1": "na", "voto": "na", "florist": "na", "\u0dbd\u0d82\u0d9a\u0dcf": "cc", "\u049b\u0430\u0437": "cc", "management": "na", "\u0645\u0635\u0631": "cc", "\u0622\u0632\u0645\u0627\u06cc\u0634\u06cc": "na", "kiwi": "na", "academy": "na", "sy": "cc", "cards": "na", "\u0938\u0902\u0917\u0920\u0928": "na", "pro": "na", "kred": "na", "sa": "cc", "mil": "na", "\u6211\u7231\u4f60": "na", "agency": "na", "\u307f\u3093\u306a": "na", "equipment": "na", "mango": "na", "luxury": "na", "villas": "na", "\u653f\u52a1": "na", "singles": "na", "systems": "na", "plumbing": "na", "\u03b4\u03bf\u03ba\u03b9\u03bc\u03ae": "na", "\u062a\u0648\u0646\u0633": "cc", "\u067e\u0627\u06a9\u0633\u062a\u0627\u0646": "cc", "gallery": "na", "kg": "cc", "ke": "cc", "\u09ac\u09be\u0982\u09b2\u09be": "cc", "ki": "cc", "kh": "cc", "kn": "cc", "km": "cc", "kr": "cc", "kp": "cc", "kw": "cc", "link": "na", "ky": "cc", "voting": "na", "cruises": "na", "\u0639\u0645\u0627\u0646": "cc", "cheap": "na", "solutions": "na", "\u6e2c\u8a66": "na", "neustar": "na", "partners": "na", "\u0b87\u0ba8\u0bcd\u0ba4\u0bbf\u0baf\u0bbe": "cc", "menu": "na", "arpa": "na", "flights": "na", "rich": "na", "do": "cc", "dm": "cc", "dj": "cc", "dk": "cc", "photography": "na", "de": "cc", "watch": "na", "dz": "cc", "supplies": "na", "report": "na", "tips": "na", "\u10d2\u10d4": "cc", "bar": "na", "qa": "cc", "shiksha": "na", "\u0443\u043a\u0440": "cc", "vision": "na", "wiki": "na", "\u0642\u0637\u0631": "cc", "\ud55c\uad6d": "cc", "computer": "na", "best": "na", "voyage": "na", "expert": "na", "diamonds": "na", "email": "na", "wf": "cc", "jobs": "na", "bargains": "na", "\u79fb\u52a8": "na", "jp": "cc", "jm": "cc", "jo": "cc", "ws": "cc", "je": "cc", "kitchen": "na", "\u0a2d\u0a3e\u0a30\u0a24": "cc", "\u0627\u06cc\u0631\u0627\u0646": "cc", "ua": "cc", "buzz": "na", "com": "na", "uno": "na", "ck": "cc", "ci": "cc", "ch": "cc", "co": "cc", "cn": "cc", "cm": "cc", "cl": "cc", "cc": "cc", "ca": "cc", "cg": "cc", "cf": "cc", "community": "na", "cd": "cc", "cz": "cc", "cy": "cc", "cx": "cc", "cr": "cc", "cw": "cc", "cv": "cc", "cu": "cc", "pr": "cc", "ps": "cc", "pw": "cc", "pt": "cc", "holdings": "na", "wien": "na", "py": "cc", "ai": "cc", "pa": "cc", "pf": "cc", "pg": "cc", "pe": "cc", "pk": "cc", "ph": "cc", "pn": "cc", "pl": "cc", "pm": "cc", "\u53f0\u6e7e": "cc", "aero": "na", "catering": "na", "photos": "na", "\u092a\u0930\u0940\u0915\u094d\u0937\u093e": "na", "graphics": "na", "\u0641\u0644\u0633\u0637\u064a\u0646": "cc", "\u09ad\u09be\u09b0\u09a4": "cc", "ventures": "na", "va": "cc", "vc": "cc", "ve": "cc", "vg": "cc", "iq": "cc", "vi": "cc", "is": "cc", "ir": "cc", "it": "cc", "vn": "cc", "im": "cc", "il": "cc", "io": "cc", "in": "cc", "ie": "cc", "id": "cc", "tattoo": "na", "education": "na", "parts": "na", "events": "na", "\u0c2d\u0c3e\u0c30\u0c24\u0c4d": "cc", "cleaning": "na", "kim": "na", "contractors": "na", "mobi": "na", "center": "na", "photo": "na", "nf": "cc", "\u0645\u0644\u064a\u0633\u064a\u0627": "cc", "wed": "na", "supply": "na", "\u7f51\u7edc": "na", "\u0441\u0430\u0439\u0442": "na", "careers": "na", "build": "na", "\u0627\u0644\u0627\u0631\u062f\u0646": "cc", "bid": "na", "biz": "na", "\u0627\u0644\u0633\u0639\u0648\u062f\u064a\u0629": "cc", "gift": "na", "\u0434\u0435\u0442\u0438": "na", "works": "na", "\u6e38\u620f": "na", "tm": "cc", "exposed": "na", "productions": "na", "koeln": "na", "dating": "na", "christmas": "na", "bd": "cc", "be": "cc", "bf": "cc", "bg": "cc", "ba": "cc", "bb": "cc", "bl": "cc", "bm": "cc", "bn": "cc", "bo": "cc", "bh": "cc", "bi": "cc", "bj": "cc", "bt": "cc", "bv": "cc", "bw": "cc", "bq": "cc", "br": "cc", "bs": "cc", "post": "na", "by": "cc", "bz": "cc", "om": "cc", "ruhr": "na", "\u0627\u0645\u0627\u0631\u0627\u062a": "cc", "repair": "na", "xyz": "na", "\u0634\u0628\u0643\u0629": "na", "viajes": "na", "museum": "na", "fish": "na", "\u0627\u0644\u062c\u0632\u0627\u0626\u0631": "cc", "hr": "cc", "ht": "cc", "hu": "cc", "hk": "cc", "construction": "na", "hn": "cc", "solar": "na", "hm": "cc", "info": "na", "\u0b9a\u0bbf\u0b99\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0bc2\u0bb0\u0bcd": "cc", "uy": "cc", "uz": "cc", "us": "cc", "um": "cc", "uk": "cc", "ug": "cc", "builders": "na", "ac": "cc", "camp": "na", "ae": "cc", "ad": "cc", "ag": "cc", "af": "cc", "int": "na", "am": "cc", "al": "cc", "ao": "cc", "an": "cc", "aq": "cc", "as": "cc", "ar": "cc", "au": "cc", "at": "cc", "aw": "cc", "ax": "cc", "az": "cc", "ni": "cc", "codes": "na", "nl": "cc", "no": "cc", "na": "cc", "nc": "cc", "ne": "cc", "actor": "na", "ng": "cc", "\u092d\u093e\u0930\u0924": "cc", "nz": "cc", "\u0633\u0648\u062f\u0627\u0646": "cc", "np": "cc", "nr": "cc", "nu": "cc", "xxx": "na", "\u4e16\u754c": "na", "kz": "cc", "enterprises": "na", "land": "na", "\u0627\u0644\u0645\u063a\u0631\u0628": "cc", "\u4e2d\u56fd": "cc", "directory": "na"},
     tokens: null,
     tokenExtWhitelist: null,
     tokenWhitelistVersion: null,
@@ -266,59 +251,6 @@ var CliqzAttrack = {
                 }
             }
         }
-    },
-    getGeneralDomain: function(dom) {
-        var v1 = dom.split('.').reverse();
-        var pos = 0;
-        for(var i=0; i < v1.length; i++) {
-            if (CliqzAttrack.TLDs[v1[i]]) pos = i+1;
-            else {
-                if (i>0) break;
-                else if(v1.length == 4) {
-                    // check for ip
-                    let is_ip = v1.map(function(s) {
-                        return parseInt(s);
-                    }).every(function(d) {
-                        return d >= 0 && d < 256;
-                    });
-                    if (is_ip) {
-                        return dom;
-                    }
-                    continue;
-                }
-            }
-        }
-        return v1.slice(0, pos+1).reverse().join('.');
-    },
-    sameGeneralDomain: function(dom1, dom2) {
-
-        if (dom1 === undefined || dom2 === undefined) return false;
-        if (dom1==dom2) return true;
-
-        var v1 = dom1.split('.').reverse();
-        var v2 = dom2.split('.').reverse();
-
-        var same = true;
-
-        var pos = 0;
-        for(var i=0; i < Math.min(v1.length, v2.length); i++) {
-            if (CliqzAttrack.TLDs[v1[i]] && CliqzAttrack.TLDs[v2[i]]) {
-                pos = i+1;
-            }
-            else {
-                if (i>0) break;
-            }
-        }
-        if ((pos == 0) || (pos > Math.min(v1.length, v2.length))) return false;
-        for(var i=0; i < (pos + 1); i++) {
-            if (v1[i]!=v2[i]) {
-                same=false;
-                break;
-            }
-        }
-
-        return same;
-
     },
     obfuscate: function(s, method, replacement) {
         switch(method) {
@@ -502,7 +434,7 @@ var CliqzAttrack = {
 
                 // same general domain && ref is clearly in the tab
                 // var valid_ref = CliqzAttrack.isTabURL(source_url);
-                same_gd = CliqzAttrack.sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
+                same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) return;
 
 
@@ -773,7 +705,7 @@ var CliqzAttrack = {
                 source_url_parts = URLInfo.get(source_url);
                 // extract and save tokens
                 //var valid_ref = CliqzAttrack.isTabURL(source_url);
-                same_gd = CliqzAttrack.sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
+                same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) return;
                 CliqzAttrack.extractHeaderTokens(url_parts, source_url_parts['hostname'], headers);
                 try{
@@ -949,7 +881,7 @@ var CliqzAttrack = {
 
             var same_gd = false;
             if (url_parts.hostname!='' && source_url_parts && source_url_parts.hostname!='') {
-                same_gd = CliqzAttrack.sameGeneralDomain(url_parts.hostname, source_url_parts.hostname);
+                same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname);
                 // if (CliqzAttrack.debug) CliqzUtils.log(">>>Checking same gd: "  + url_parts.hostname + " : " + source_url_parts.hostname + " : " + same_gd, CliqzAttrack.LOG_KEY);
             }
 
@@ -970,14 +902,14 @@ var CliqzAttrack = {
                 }
             }
 
-            var host = CliqzAttrack.getGeneralDomain(url_parts.hostname);
+            var host = getGeneralDomain(url_parts.hostname);
             var diff = curr_time - (CliqzAttrack.visitCache[host] || 0);
 
             // This is order to only allow visited sources from browser. Else some redirect calls
             // Getting leaked.
             var s_host = '';
             if(source_url && source_url_parts.hostname){
-                s_host = CliqzAttrack.getGeneralDomain(source_url_parts.hostname);
+                s_host = getGeneralDomain(source_url_parts.hostname);
             }
 
             // check visitcache to see if this domain is temporarily allowed.
@@ -1005,7 +937,7 @@ var CliqzAttrack = {
 
                         // the url is in pu
                         if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                            var host = CliqzAttrack.getGeneralDomain(url_parts.hostname);
+                            var host = getGeneralDomain(url_parts.hostname);
                             //var host = url_parts.hostname;
                             if (host=='google.com') {
                                 if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url_parts.hostname + ' (CONTEXT EVENT)', CliqzAttrack.LOG_KEY);
@@ -1036,7 +968,7 @@ var CliqzAttrack = {
                             if (CliqzHumanWeb.contextFromEvent && CliqzHumanWeb.contextFromEvent && CliqzHumanWeb.contextFromEvent.html.indexOf(pu)!=-1) {
 
                                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH and click " + url, CliqzAttrack.LOG_KEY);
-                                var host = CliqzAttrack.getGeneralDomain(url_parts.hostname);
+                                var host = getGeneralDomain(url_parts.hostname);
                                 //var host = url_parts.hostname;
                                 //if (host=='google.com') {
                                 //    if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url + ' (CONTEXT OAUTH)', CliqzAttrack.LOG_KEY);
@@ -1089,7 +1021,6 @@ var CliqzAttrack = {
                     else {
                         // was not enabled, therefore the cookie gets sent
                         // cookie_sent
-                        // CliqzUtils.log(CliqzAttrack.getGeneralDomain(), "XOXOX");
                         if (req_log) req_log.bad_cookie_sent++;
                     }
 
@@ -1145,7 +1076,7 @@ var CliqzAttrack = {
     allowCookie: function(channel, url, req_metadata, reason) {
         CliqzAttrack.cookieTraffic['csent'] += 1;
         CliqzAttrack.cookieTraffic['sent'].unshift(req_metadata);
-        if (CliqzAttrack.getGeneralDomain(req_metadata['dst']) in CliqzAttrack.blacklist) CliqzUtils.log("This was blocked by other extensions: ","XOXOX");
+        if (getGeneralDomain(req_metadata['dst']) in CliqzAttrack.blacklist) CliqzUtils.log("This was blocked by other extensions: ","XOXOX");
         if (CliqzAttrack.debug) CliqzUtils.log("ALLOWING because of " + reason + " " + req_metadata['dst'] + ' %% ' + url, CliqzAttrack.LOG_KEY);
     },
     blockCookie: function(channel, url, req_metadata, reason) {
@@ -1231,7 +1162,7 @@ var CliqzAttrack = {
                 var url_parts = CliqzHumanWeb.parseURL(activeURL);
 
                 if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                    var host = CliqzAttrack.getGeneralDomain(url_parts.hostname);
+                    var host = getGeneralDomain(url_parts.hostname);
                     //var host = url_parts.hostname;
                     if (host=='google.com') {
                         if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url_parts.hostname + ' (LOCATION CHANGE)', CliqzAttrack.LOG_KEY);
@@ -1895,7 +1826,7 @@ var CliqzAttrack = {
     checkTokens: function(url_parts, source_url, cookievalue, stats, source_url_parts) {
         // bad tokens will still be returned in the same format
 
-        var s = CliqzAttrack.getGeneralDomain(url_parts.hostname);
+        var s = getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
         // If it's a rare 3rd party, we don't do the rest
         if (!(s in CliqzAttrack.tokenExtWhitelist)) return [];
@@ -2092,7 +2023,7 @@ var CliqzAttrack = {
         var today = CliqzAttrack.dateString(day);
         // save appeared tokens with field name
         // mark field name as "safe" if different values appears
-        var s = CliqzAttrack.getGeneralDomain(url_parts.hostname);
+        var s = getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
         var w = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']);
         for (var key in w) {
@@ -2391,7 +2322,7 @@ var CliqzAttrack = {
           companies: {}
         },
         trackers = Object.keys(tab_data.tps).filter(function(domain) {
-          return md5(CliqzAttrack.getGeneralDomain(domain)).substring(0, 16) in CliqzAttrack.tokenExtWhitelist;
+          return md5(getGeneralDomain(domain)).substring(0, 16) in CliqzAttrack.tokenExtWhitelist;
         }),
         plain_data = tab_data.asPlainObject();
 
@@ -2405,7 +2336,7 @@ var CliqzAttrack = {
         result.requests.safe += result.trackers[dom]['c'] - result.trackers[dom]['bad_qs'];
         result.requests.unsafe += result.trackers[dom]['bad_qs'];
 
-        let tld = CliqzAttrack.getGeneralDomain(dom),
+        let tld = getGeneralDomain(dom),
           company = tld;
         if (tld in CliqzAttrack.tracker_companies) {
           company = CliqzAttrack.tracker_companies[tld];
