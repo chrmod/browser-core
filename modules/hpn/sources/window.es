@@ -14,7 +14,6 @@ export default class {
   }
 
   unload() {
-    CliqzSecureMessage.unload();
   }
 
 	createButtonItem(win){

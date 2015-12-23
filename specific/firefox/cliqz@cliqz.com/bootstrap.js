@@ -7,9 +7,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
-  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
-
 function startup(aData, aReason) {
     Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
@@ -20,7 +17,6 @@ function shutdown(aData, aReason) {
     Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
     CliqzHumanWeb.unload();
-    CliqzAttrack.unload();
     try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 
     if (aReason == APP_SHUTDOWN){

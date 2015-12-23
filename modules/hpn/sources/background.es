@@ -6,6 +6,7 @@ export default {
   },
 
   unload() {
+		CliqzSecureMessage.unload();
   }
 
 };
