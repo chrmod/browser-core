@@ -14,6 +14,7 @@ export default class {
   }
 
   createButtonItem(win) {
+    if (!CliqzUnblock.ui_enabled) return;
     var doc = win.document,
       menu = doc.createElement('menu'),
       menupopup = doc.createElement('menupopup');

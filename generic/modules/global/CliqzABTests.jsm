@@ -312,7 +312,7 @@ var CliqzABTests = {
                 CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
                 break;
             case "1055_B":
-                CliqzUtils.setPref("unblockMode", "ask");
+                CliqzUtils.setPref("unblockMode", "always");
                 break;
             case "1056_A":
                 CliqzUtils.setPref("freshTabAB", false);

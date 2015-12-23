@@ -13,6 +13,7 @@ var CliqzUnblock = {
   load_listeners: new Set(),
   PREF_MODE: "unblockMode",
   prev_mode: undefined,
+  ui_enabled: false,
   setMode: function(mode) {
     if (["ask", "always", "never"].indexOf(mode) == -1) {
       return;
@@ -49,7 +50,8 @@ var CliqzUnblock = {
   isEnabled: function() {
     return this.getMode() != "never";
   },
-  init: function() {
+  init: function(ui_enabled) {
+    this.ui_enabled = ui_enabled === true;
     this.prev_mode = this.getMode();
 
     if (CliqzUnblock.isEnabled()) {
@@ -112,7 +114,7 @@ var CliqzUnblock = {
   },
   handleBlock: function(url, proxy_cb) {
     let mode = CliqzUnblock.getMode();
-    if (mode == "ask") {
+    if (mode == "ask" && CliqzUnblock.ui_enabled) {
       CliqzUnblock.unblockPrompt(url, proxy_cb);
     } else if (mode == "always") {
       proxy_cb();

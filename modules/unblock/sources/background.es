@@ -4,8 +4,8 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 export default {
 
-  init() {
-    CliqzUnblock.init();
+  init(settings) {
+    CliqzUnblock.init(settings.unblockUI);
     this.onPrefChange = function(pref) {
       if(pref == CliqzUnblock.PREF_MODE) {
         CliqzUnblock.onModeChanged();
