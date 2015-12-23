@@ -26,10 +26,10 @@ CLIQZEnvironment = {
     request.send();
   },
 
-  enrichResults: function(r, startIndex) {
+  enrichResults: function(r, startIndex, historyCount) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
-      if(index > 0 || index < startIndex) { // kicking out enriching cards after the first 1
+      if(index > historyCount || index < historyCount + startIndex) { // kicking out enriching cards after the first 1
         return;
       }
       CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
@@ -185,6 +185,15 @@ CLIQZEnvironment = {
       console.log("results not cached !!!");
     }
   },
+  putHistoryFirst: function(r) {
+    for(var i = 0; i < r._results.length; i++) {
+      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
+        r._results.unshift(r._results.splice(i, 1)[0]);
+        return 1;
+      }
+    }
+    return 0;
+  },
   resultsHandler: function (r, requestHolder) {
 
     if( CLIQZEnvironment.lastSearch != r._searchString  ){
@@ -192,12 +201,7 @@ CLIQZEnvironment = {
       return;
     }
 
-    var historyCount = 0;
-    for(var i = 0; i < r._results.length; i++) {
-      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
-        historyCount++;
-      }
-    }
+    var historyCount = CLIQZEnvironment.putHistoryFirst(r);
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
 
@@ -205,9 +209,9 @@ CLIQZEnvironment = {
 
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
-      CLIQZEnvironment.enrichResults(r, 0);
+      CLIQZEnvironment.enrichResults(r, 0, historyCount);
     } else {
-      CLIQZEnvironment.enrichResults(r, 1);
+      CLIQZEnvironment.enrichResults(r, 1, historyCount);
     }
 
     clearTimeout(CLIQZEnvironment.storeQueryTimeout);
@@ -259,7 +263,7 @@ CLIQZEnvironment = {
       resultsBox.style.display = 'none';
       window.document.getElementById("startingpoint").style.display = 'block';
       CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.init(-1);
+      CLIQZEnvironment.initHomepage();
       CLIQZEnvironment.stopProgressBar();
       return;
     }
@@ -299,6 +303,7 @@ CLIQZEnvironment = {
 
         dots.innerHTML = "";
         var myEl;
+        page = Math.abs(page);
 
         for(var i=0;i<CLIQZEnvironment.currentResultsCount;i++) {
           myEl = document.createElement("span");
@@ -557,7 +562,7 @@ CLIQZEnvironment = {
   },
   historySearch: function(q, callback, searchParam, sessionStart){
     this.searchHistoryCallback = callback;
-    window.osBridge.searchHistory(q);
+    window.osBridge.searchHistory(q, "CLIQZEnvironment.displayHistory");
   },
   getSearchEngines: function(){
     return ENGINES.map(function(e){
@@ -639,11 +644,9 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
-  }, init: function(state) {
-    if(state == -1) {
-      CLIQZEnvironment.getNews();
-      osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
-    }
+  }, initHomepage: function() {
+    CLIQZEnvironment.getNews();
+    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
   }
 
 }

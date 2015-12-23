@@ -44,7 +44,7 @@
                     </div>
                   {{/if}}
                   {{#if phonenumber}}
-                    <div class="phone_num" onclick="osBridge.browserAction('{{phonenumber}}','phoneNumber')">
+                    <div class="phone_num" cliqz-action="stop-click-event-propagation" onclick="osBridge.browserAction('{{phonenumber}}','phoneNumber')">
                       <div class="icon" style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/phone-1.svg)">
                         Icon
                       </div>

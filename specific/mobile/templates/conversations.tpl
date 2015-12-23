@@ -6,16 +6,15 @@
 				<!-- <a extra="title">THE PAST</a> -->
 			</h1>
 		</div>
-
     <p class="main__content">
 		 {{#each data}}
 		 	{{#if url}}
-		 		<div class="link" onclick="jsBridge.openLink('{{url}}')">
+		 		<div class="link" onclick="osBridge.openLink('{{url}}')">
               		{{title}}
               		<span class="time">{{conversationsTime timestamp}}</span>
               	</div>
 		 	{{else}}
-		 		<div class="queries" onclick="search_mobile('{{query}}');osBridge.notifyQuery('{{query}}');">
+		 		<div class="queries" onclick="osBridge.notifyQuery('{{query}}');">
               		{{query}}
               		<span class="time">{{conversationsTime timestamp}}</span>
               	</div>

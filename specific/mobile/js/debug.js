@@ -461,7 +461,3 @@ function openFuture(el) {
    el.getElementsByTagName("ul")[0].style.display = "block";
   //console.log(el)
 }
-
-CliqzUtils.getLocalStorage = function(url) {
-    return localStorage;
-}
