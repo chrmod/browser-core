@@ -15,7 +15,6 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
-Components.utils.import("resource://gre/modules/Promise.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -31,10 +30,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRequestMonitor',
   'chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
 
-/*
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
-  'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
-*/
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -651,39 +646,6 @@ var CliqzUtils = {
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter() +
               CliqzUtils.encodeLocation();
-
-    /*
-    if(CliqzUtils.getPref("hpn")){
-      var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
-      var mc = new CliqzSecureMessage.messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
-      var proxyIP = CliqzSecureMessage.queryProxyIP;
-      mc.aesEncrypt()
-      .then(function(enxryptedQuery){
-        return mc.signKey();
-      })
-      .then(function(){
-        var data = {"mP":mc.getMP()}
-        CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
-        return CliqzSecureMessage.httpHandler(proxyIP)
-        .post(JSON.stringify(data), "instant")
-      })
-      .then(function(response){
-        return mc.aesDecrypt(JSON.parse(response)["data"]);
-      })
-      .then(function(res){
-        CliqzSecureMessage.stats(proxyIP, "queries-recieved", 1);
-        callback && callback({"response":res}, q);
-      })
-      .catch(function(err){
-        CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
-      })
-    }else{
-          var req = CliqzUtils.httpGet(url, function (res) {
-            callback && callback(res, q);
-          });
-        CliqzUtils.requestMonitor.addRequest(req);
-    }
-    */
 
     var req = CliqzUtils.httpGet(url, function (res) {
             callback && callback(res, q);
