@@ -39,11 +39,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBloomFilter',
   'chrome://cliqzmodules/content/CliqzBloomFilter.jsm');
 
-/*
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
-  'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
-*/
-
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 var refineFuncMappings ;
@@ -2692,7 +2687,6 @@ var CliqzHumanWeb = {
         } else {
             CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
         }
-        // CliqzSecureMessage.telemetry(msg);
     },
     _telemetry_req: null,
     _telemetry_sending: [],

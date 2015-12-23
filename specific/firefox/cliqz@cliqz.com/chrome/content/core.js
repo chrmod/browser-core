@@ -61,13 +61,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
-  'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
-/*
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSecureMessage',
-  'chrome://cliqzmodules/content/CliqzSecureMessage.jsm');
-*/
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
@@ -228,7 +221,6 @@ window.CLIQZ.Core = {
             CliqzDemo.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
-                // CliqzSecureMessage.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
 

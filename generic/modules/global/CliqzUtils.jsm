@@ -648,8 +648,9 @@ var CliqzUtils = {
               CliqzUtils.encodeLocation();
 
     var req = CliqzUtils.httpGet(url, function (res) {
-            callback && callback(res, q);
-          });
+      callback && callback(res, q);
+    });
+
     CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration

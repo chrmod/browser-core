@@ -276,7 +276,6 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
-            case "1055_A":
             case "1055_B":
                 this.System.import("unblock/main").then(function (mod) {
                   mod.default.enable();
@@ -491,6 +490,7 @@ var CliqzABTests = {
             case "1044_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
                 break;
+            case "1055_A":
             case "1055_B":
                 this.System.import("unblock/main").then(function (mod) {
                   mod.default.disable();
