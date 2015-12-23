@@ -67,16 +67,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-if(window.CLIQZ === undefined)
-    Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
-else {
-    try{
-        //faulty uninstall of previous version
-        window.CLIQZ = window.CLIQZ || {};
-    } catch(e){}
-}
+var locationListener = {
+  QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
-window.CLIQZ.COMPONENTS = []; //plug and play components
+  onLocationChange: function(aProgress, aRequest, aURI) {
+    CliqzEvents.pub("core.location_change", "");
+  }
+};
 
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
@@ -106,7 +103,6 @@ window.CLIQZ.Core = {
             }
         }
         // end TEMP fix
-
         XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
             'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -136,6 +132,7 @@ window.CLIQZ.Core = {
             !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
             CliqzCategories.assessNewsTopsites();
         }
+
         CliqzSpellCheck.initSpellCorrection();
 
         this.addCSS(document, 'chrome://cliqzres/content/styles/css/extension.css');
@@ -158,8 +155,11 @@ window.CLIQZ.Core = {
         this.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        var settings = {};
-        settings.onInstall = !this.checkSession();
+        var windowModuleConfig = {
+          onInstall: !this.checkSession(),
+          settings: CLIQZ.config.settings,
+          window: window,
+        };
 
         this._autocompletesearch = this.urlbar.getAttribute('autocompletesearch');
         this.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -179,20 +179,14 @@ window.CLIQZ.Core = {
         this.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", this.tabChange, false);
 
+        gBrowser.addProgressListener(locationListener);
+
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
 
-        /*
-        CLIQZ.COMPONENTS.forEach(function(c){
-          c.init && c.init(settings);
-        });
-        */
-
-        settings.window = window;
-
-        CLIQZ.modules.forEach(function (moduleName) {
+        CLIQZ.config.modules.forEach(function (moduleName) {
           CLIQZ.System.import(moduleName+"/window").then(function (Module) {
-            var mod = new Module.default(settings);
+            var mod = new Module.default(windowModuleConfig);
             mod.init();
             CLIQZ.Core.windowModules.push(mod);
           }).catch(function (e) { console.log(e) });
@@ -385,6 +379,8 @@ window.CLIQZ.Core = {
         gBrowser.tabContainer.removeEventListener("TabSelect", this.tabChange, false);
         gBrowser.tabContainer.removeEventListener("TabClose", this.tabRemoved, false);
 
+        gBrowser.removeProgressListener(locationListener);
+
         document.getElementById('urlbar-go-button').setAttribute('onclick', this._urlbarGoButtonClick);
 
         CliqzRedirect.unload();
@@ -405,9 +401,6 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
-            CLIQZ.COMPONENTS.forEach(function(c){
-              c.unload && c.unload();
-            })
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.getPref("dnt", false) && !CliqzUtils.isPrivate(window) ){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -425,6 +418,8 @@ window.CLIQZ.Core = {
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+
         }
         this.reloadComponent(this.urlbar);
 
@@ -840,10 +835,6 @@ window.CLIQZ.Core = {
         menupopup.appendChild(this.createAdultFilterOptions(doc));
         menupopup.appendChild(this.createLocationPermOptions(win));
 
-        CLIQZ.COMPONENTS.forEach(function(c){
-          var btn = c.button && c.button(win);
-          if(btn) menupopup.appendChild(btn);
-        });
         this.windowModules.forEach(function (mod) {
           var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
           if (buttonItem) { menupopup.appendChild(buttonItem); }

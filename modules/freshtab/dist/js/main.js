@@ -59,8 +59,8 @@ $(document).ready(function() {
     telemetry({
       action: 'display',
       tab_index: CliqzUtils.getWindow().gBrowser.tabContainer.selectedIndex,
-      topsites: values[0].length,
-      topnews: values[1].top_h_news.length
+      topsites: values[0] && values[0].length || 0,
+      topnews: values[1] && values[1].top_h_news.length || 0
     });
 
     CliqzUtils.localizeDoc(document);
