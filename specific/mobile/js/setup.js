@@ -22,8 +22,13 @@ function init() {
     "url": "http://pippopollina.com", // string, optional, last visited webpage
   }
 */
-function resume(cfg) {
+function resetState(cfg) {
   var start = document.getElementById("freshstart");
+  var resultsBox = document.getElementById("results");
+  if(resultsBox) {
+    resultsBox.style.display = 'none';
+  }
+  window.document.getElementById("startingpoint").style.display = 'block';
   if(cfg.url && cfg.url.length > 0) {
     var elem = document.createElement('a');
     elem.setAttribute('onclick', 'osBridge.openLink("' + cfg.url + '")');
@@ -34,7 +39,7 @@ function resume(cfg) {
   else if(cfg.q && cfg.q.length > 0) {
     var location_enabled = !!cfg.lat && !!cfg.lon;
     var elem = document.createElement('a');
-    elem.setAttribute('onclick', 'search_mobile("' + cfg.q + '", ' + location_enabled + ', ' + cfg.lat + ', ' + cfg.lon + ')');
+    elem.setAttribute('onclick', 'osBridge.notifyQuery("' + cfg.q + '", ' + location_enabled + ', ' + cfg.lat + ', ' + cfg.lon + ')');
     elem.innerHTML = cfg.q;
     start.removeChild(start.firstChild);
     start.appendChild(elem);

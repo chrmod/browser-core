@@ -9,11 +9,11 @@ var osBridge = {
     message data: query as string
     message callback data: {results: [{url: as string, title: as string}], query: as string}
   */
-  searchHistory: function(query) {
+  searchHistory: function(query, callback) {
     var message = {
       action: "searchHistory",
       data: query,
-      callback: "CLIQZEnvironment.displayHistory"
+      callback: callback
     }
     OS.postMessage(message);
   },
@@ -55,7 +55,7 @@ var osBridge = {
         type: type
       }
     }
-    OS.postMessage(JSON.stringify(message));
+    OS.postMessage(message);
   },
   /**
     function: getTopSites
@@ -91,10 +91,12 @@ var osBridge = {
     params: query as string
     message data: query as string
   */
-  notifyQuery: function(query) {
+  notifyQuery: function(query, locationEnabled, lat, lon) {
     var message = {
       action: "notifyQuery",
-      data: query
+      data: { 
+        "q": query,
+      }
     }
     OS.postMessage(message);
   },

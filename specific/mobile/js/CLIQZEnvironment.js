@@ -562,7 +562,7 @@ CLIQZEnvironment = {
   },
   historySearch: function(q, callback, searchParam, sessionStart){
     this.searchHistoryCallback = callback;
-    window.osBridge.searchHistory(q);
+    window.osBridge.searchHistory(q, "CLIQZEnvironment.displayHistory");
   },
   getSearchEngines: function(){
     return ENGINES.map(function(e){
