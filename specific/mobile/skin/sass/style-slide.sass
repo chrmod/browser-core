@@ -3,6 +3,12 @@
   content: ""
   display: table
 
+.clearfix
+  &:after 
+    content: ""
+    display: table
+    clear: both
+
 @font-face
   font-family: "lato"
   font-style: normal
@@ -1161,4 +1167,60 @@ a
       &.bold
         font-weight: 700
         color: #333
+
+.history
+  padding: 0 1rem
+  .question
+    @extend .clearfix
+    padding: 1rem 0 0.1rem
+    .framer
+      background-color: lighten(#1F69AD, 40%)
+      max-width: 64%
+      float: right
+      font-size: 1rem
+      line-height: 1.25rem
+      padding: 0.5rem 1.25rem
+      border-radius: 0.25rem
+      p
+        margin: 0
+        padding: 0
+    .meta
+      float: right
+      text-align: right
+      display: inline-block
+      padding: 0.5rem 1.25rem
+      font-size: 0.62rem
+      line-height: 1.25rem
+      color: #aaa
+  
+  .answer
+    @extend .clearfix
+    padding: 0.1rem 0
+    .framer
+      background-color: lighten(#55B146, 30%)
+      max-width: 64%
+      float: left
+      font-size: 1rem
+      line-height: 1.25rem
+      padding: 0.5rem 1.25rem
+      border-radius: 0.25rem
+      p
+        margin: 0
+        padding: 0
+    .meta
+      float: left
+      text-align: left
+      display: inline-block
+      padding: 0.5rem 1.25rem
+      font-size: 0.62rem
+      line-height: 1.25rem
+      color: #ccc
+    &.followup
+      .framer
+        background-color: lighten(#55B146, 40%)
+        font-size: 0.8rem
+        line-height: 1rem
+        color: rgba(0,0,0,0.38)
+      .meta
+        line-height: 1rem
 
