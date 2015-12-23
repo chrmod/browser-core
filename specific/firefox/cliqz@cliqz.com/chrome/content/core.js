@@ -429,7 +429,6 @@ window.CLIQZ.Core = {
 
 
         }
-        CliqzHumanWeb.unload();
         this.reloadComponent(this.urlbar);
 
         window.removeEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
