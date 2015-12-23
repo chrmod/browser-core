@@ -1,5 +1,47 @@
-@font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
+@font-face { font-family: "Lato"; src: url("chrome://cliqzres/content/skin/fonts/Lato-Regular.ttf"); }
 
+:-moz-any(#back-button,
+#forward-button,
+#home-button,
+#print-button,
+#downloads-button,
+#bookmarks-menu-button,
+#new-tab-button,
+#new-window-button,
+#fullscreen-button,
+#sync-button,
+#feed-button,
+#tabview-button,
+#social-share-button,
+#open-file-button,
+#find-button,
+#developer-button,
+#preferences-button,
+#privatebrowsing-button,
+#save-page-button,
+#add-ons-button,
+#history-panelmenu,
+#nav-bar-overflow-button,
+#PanelUI-menu-button,
+#characterencoding-button,
+#email-link-button,
+#sidebar-button,
+#zoom-out-button,
+#zoom-reset-button,
+#zoom-in-button,
+#cut-button,
+#copy-button,
+#paste-button,
+#e10s-button,
+#panic-button,
+#web-apps-button,
+#webide-button,
+#loop-button,
+#pocket-button,
+#restore-button),
+#bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+    list-style-image: url("./images/browser/win/Toolbar.png");
+}
 
 #main-window {
     font-family: "Lato";
@@ -27,6 +69,12 @@
 #tabbrowser-tabs {
     min-height: 27px;
 }
+
+.tab-background {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+}
+
 .tab-background-start,
 .tab-background-end {
     display: none;
@@ -45,7 +93,7 @@
 }
 
 .tabbrowser-tab {
-    margin: 0 2px;
+    margin: 0 2px 0 3px;
 }
 .tabbrowser-tab:not([pinned]) {
     max-width: 195px;
@@ -71,13 +119,6 @@
     background: transparent none repeat scroll 0% 0%;
 }
 
-#forward-button, #back-button {
-    margin-left: 0px !important;
-    border: 0px !important;
-    box-shadow: 0px 0px 0px 0px transparent !important;
-    border-radius: 0px;
-    background-color: transparent !important;
-}
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     -moz-margin-start: 0px;
@@ -246,4 +287,66 @@ notification[type="warning"] .messageText {
 
 notification[type="warning"] .notification-inner {
     border: none;
+}
+
+
+/* ======= Navigation Arrows Back Forth ======= */
+
+#forward-button, #back-button {
+    margin-left: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 0 0 transparent !important;
+    background-color: transparent !important;
+}
+
+#back-button .toolbarbutton-icon {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+@media (min-resolution: 1.1dppx) {
+    :-moz-any(#back-button,
+    #forward-button,
+    #home-button,
+    #print-button,
+    #downloads-button,
+    #bookmarks-menu-button,
+    #new-tab-button,
+    #new-window-button,
+    #fullscreen-button,
+    #sync-button,
+    #feed-button,
+    #tabview-button,
+    #social-share-button,
+    #open-file-button,
+    #find-button,
+    #developer-button,
+    #preferences-button,
+    #privatebrowsing-button,
+    #save-page-button,
+    #add-ons-button,
+    #history-panelmenu,
+    #nav-bar-overflow-button,
+    #PanelUI-menu-button,
+    #characterencoding-button,
+    #email-link-button,
+    #sidebar-button,
+    #zoom-out-button,
+    #zoom-reset-button,
+    #zoom-in-button,
+    #cut-button,
+    #copy-button,
+    #paste-button,
+    #e10s-button,
+    #panic-button,
+    #web-apps-button,
+    #webide-button,
+    #loop-button,
+    #pocket-button,
+    #restore-button),
+    #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+        list-style-image: url("./images/browser/win/Toolbar@2x.png");
+    }
 }
