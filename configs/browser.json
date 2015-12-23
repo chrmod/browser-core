@@ -1,6 +1,7 @@
 {
-  "prefs": {
-    "freshTabButton": false
+  "settings": {
+    "freshTabButton": false,
+    "antitrackingButton": false
   },
   "modules": [
     "onboarding",
@@ -8,6 +9,7 @@
     "unblock",
     "theme",
     "users1st",
-    "loyalty"
+    "loyalty",
+    "antitracking"
   ]
 }

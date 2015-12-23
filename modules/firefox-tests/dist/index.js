@@ -37,7 +37,8 @@ function getParameterByName(name) {
 var CliqzUtils = loadModule("CliqzUtils"),
     chrome = CliqzUtils.getWindow(),
     telemetry,
-    getCliqzResults;
+    getCliqzResults,
+    browserMajorVersion = parseInt(getBrowserVersion().split('.')[0]);
 
 mocha.setup('bdd');
 
@@ -49,6 +50,9 @@ Object.keys(window.TESTS).forEach(function (testName) {
       moduleNames = getFunctionArguments(testFunction),
       modules = moduleNames.map(loadModule);
 
+  if ('MIN_BROWSER_VERSION' in testFunction && browserMajorVersion < testFunction.MIN_BROWSER_VERSION) {
+    return; // skip tests
+  }
   testFunction.apply(null, modules);
 });
 
