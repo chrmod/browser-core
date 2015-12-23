@@ -5,8 +5,8 @@
   "main": "",
   "scripts": {
     "build": "echo '11'",
-    "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && export CLIQZ_CONFIG_PATH=./configs/mobile.json && broccoli build build && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
-    "deploy-mobile-beta":    "export CLIQZ_BUILD_ENV=production && export CLIQZ_CONFIG_PATH=./configs/mobile.json && broccoli build build && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta"
+    "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && export CLIQZ_CONFIG_PATH=./configs/mobile.json && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
+    "deploy-mobile-beta":    "export CLIQZ_BUILD_ENV=production && export CLIQZ_CONFIG_PATH=./configs/mobile.json && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta"
   },
   "author": "Cliqz GmbH",
   "license": "ISC",
