@@ -855,17 +855,6 @@ window.CLIQZ.Core = {
         menupopup.appendChild(this.createActivateButton(doc));
       }
       menupopup.appendChild(this.createHumanMenu(win));
-      // FreshTab - TODO - move inside component
-      if(CliqzFreshTab.initialized){
-        menupopup.appendChild(
-          this.createCheckBoxItem(
-            doc,
-            'freshTabState',
-            CliqzUtils.getLocalizedString('btnFreshTab'),
-            true,
-            CliqzFreshTab.toggleState)
-        );
-      }
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),

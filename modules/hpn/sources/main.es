@@ -21,12 +21,12 @@ var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
 
 
 // Import them in alphabetical order.
-Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/bigint.js');
-Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto.js');
-Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/helperFunctions.js');
+Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/bigint.js');
+Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto.js');
+Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/helperFunctions.js');
 // var CryptoJS = this.CryptoJS;
-Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/jsencrypt.js');
-Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/sha256.js');
+Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/jsencrypt.js');
+Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/sha256.js');
 // Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/rsa-sign.js');
 
 
@@ -849,10 +849,10 @@ var CliqzSecureMessage = {
         CliqzSecureMessage._telemetry_req = null;
     },
     initAtWindow: function(window){
-    	Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/crypto-kjur.js', window);
-    	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/rsa-sign.js', window);
+    	Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto-kjur.js', window);
+    	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/rsa-sign.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
-    	CliqzSecureMessage.RSAKey = window.RSAKey;
+    	// CliqzSecureMessage.RSAKey = window.RSAKey;
     	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
 
     },
