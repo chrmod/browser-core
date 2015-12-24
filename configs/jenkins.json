@@ -1,6 +1,7 @@
 {
-  "prefs": {
-    "freshTabButton": false
+  "settings": {
+    "freshTabButton": false,
+    "antitrackingButton": true
   },
   "modules": [
     "onboarding",
@@ -10,6 +11,7 @@
     "users1st",
     "loyalty",
     "firefox-tests",
-    "hpn"
+    "hpn",
+    "antitracking"
   ]
 }
