@@ -27,6 +27,9 @@ var MockOS = {
       case "pushTelemetry":
         MockOS.pushTelemetry(message.data);
         break;
+      case "copyResult":
+        MockOS.copyResult(message.data);
+        break;
 
     }
     message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
@@ -59,5 +62,8 @@ var MockOS = {
   },
   pushTelemetry: function(data) {
     console.log("--MOCK: action pushTelemetry is called with data", data);
+  },
+  copyResult: function(data) {
+    console.log("--MOCK: action copyResult is called with data", data);
   }
 }

@@ -593,6 +593,9 @@ CLIQZEnvironment = {
   getEngineByAlias: function () {
     return ENGINES[0];
   },
+  copyResult: function(val) {
+    osBridge.copyResult(val);
+  },
   getNews: function() {
     console.log("Start getting news");
     return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);

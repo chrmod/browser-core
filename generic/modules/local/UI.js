@@ -1459,9 +1459,7 @@ function resultScroll(ev) {
 }
 
 function copyResult(val) {
-    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                               .getService(Components.interfaces.nsIClipboardHelper);
-    gClipboardHelper.copyString(val);
+    CLIQZEnvironment.copyResult(val);
 }
 
 function resultClick(ev) {
