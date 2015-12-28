@@ -1,4 +1,5 @@
 import RegexProxyRule from 'unblock/regexp-proxy-rule';
+import createLazyResourceLoader from 'unblock/resource-loader';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
@@ -20,7 +21,7 @@ var YoutubeUnblocker = {
         return self.shouldProxy(url);
       }
     });
-    this._loader = CliqzUtils.createLazyResourceLoader({
+    this._loader = createLazyResourceLoader({
       url: this.CONFIG_URL,
       pref: "unblock_yt_config",
       this: self,
