@@ -12,9 +12,8 @@ var writeFile = require('broccoli-file-creator');
 var bowerComponents = new Funnel('bower_components');
 var nodeModules    = new Funnel('node_modules');
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
-  exclude: ['chrome/content/core.js', 'platform.js']
+  exclude: ['platform.js']
 });
-var firefoxCoreJs   = new Funnel('specific/firefox/cliqz@cliqz.com/chrome/content', { include: ['core.js'] });
 var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*'] });
@@ -87,15 +86,6 @@ cliqzConfig.modules.forEach(function (name) {
 });
 
 modules = new MergeTrees(modules);
-
-firefoxCoreJs = concat(new MergeTrees([firefoxCoreJs].concat(components)), {
-  outputFile: 'chrome/content/core.js',
-  inputFiles: [ '**/*.js'],
-  headerFiles: [ 'core.js' ],
-  sourceMapConfig: { enabled: true },
-});
-
-firefoxSpecific = new MergeTrees([firefoxSpecific, firefoxCoreJs]);
 
 var babelOptions = {
   modules: "amdStrict",

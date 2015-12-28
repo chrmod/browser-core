@@ -12,7 +12,6 @@ function shutdown(aData, aReason) {
     Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
     CliqzHumanWeb.unload();
-    try{ CliqzFreshTab.shutdown(aData, aReason); } catch(e){}
 
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
