@@ -23,6 +23,9 @@ function renderNews(news) {
     }
   });
   document.getElementById('topNewsBox').innerHTML = topNews(top_news);
+  Slider.init({
+    "totalNews": $(".onlyTopNews li").length
+  });
   $('.topNewsLink').on('click', function() {
     CliqzUtils.telemetry({
       type: 'home',
