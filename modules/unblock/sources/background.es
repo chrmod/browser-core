@@ -1,7 +1,5 @@
 import CliqzUnblock from 'unblock/main';
 
-Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
-
 export default {
 
   init(settings) {
