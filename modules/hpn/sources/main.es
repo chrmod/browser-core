@@ -35,7 +35,6 @@ Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/conte
 var proxyCounter = 0;
 var localTemporalUniq = null;
 CliqzUtils.setPref('hpn', CliqzUtils.getPref('hpn', true));
-var hpnState = "extensions.cliqz.hpn";// true = active
 /*
 Function to create http url
 */
