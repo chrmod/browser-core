@@ -241,10 +241,10 @@ function dfTelemetry(action, reason){
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.8',
+    VERSION: '1.9',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
