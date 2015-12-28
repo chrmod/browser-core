@@ -1,12 +1,10 @@
 <!-- calculator.tpl -->
-{{debug}}
-
 
 {{#if data.is_calculus}}
     <div class="meta">
         {{> logo}} 
         <h3 class="meta__url">
-          {{timeOrCalculator data.ez_type}}
+          {{timeOrCalculator data.ez_type}} {{data.location}}
         </h3>
     </div>
     <div class='cqz-result-h3 ez-calculator' {{#if support_copy_ans}} cliqz-action='copy-calc-answer' {{/if}}>
