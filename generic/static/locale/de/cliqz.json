@@ -1,4 +1,10 @@
 {
+    "calculator": {
+        "message": "Rechner" 
+    },
+    "time": {
+        "message": "Zeit" 
+    },
     "open": {
         "message": "Geöffnet"
     },

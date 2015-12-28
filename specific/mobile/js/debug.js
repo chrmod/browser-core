@@ -41,6 +41,14 @@ Handlebars.registerHelper('uriEncode', function(uriComponent) {
     return encodeURIComponent(uriComponent);
 });
 
+Handlebars.helpers.timeOrCalculator = function(ezType) {
+    if(ezType=="time") {
+      return Handlebars.helpers.local("time");
+    } else {
+      return Handlebars.helpers.local("calculator");
+    }
+}
+
 
 
 function trace() {

@@ -1,4 +1,10 @@
 {
+    "calculator": {
+        "message": "Calculator" 
+    },
+    "time": {
+        "message": "Time" 
+    },
     "open": {
         "message": "Open"
     },
