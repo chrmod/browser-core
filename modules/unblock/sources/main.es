@@ -6,7 +6,7 @@ import ProxyService from 'unblock/proxy';
 import RequestListener from 'unblock/request-listener'
 import ProxyManager from 'unblock/proxy-manager'
 
-var CliqzUnblock = {
+export default {
   proxy_manager: null,
   proxy_service: null,
   unblockers: [YoutubeUnblocker],
@@ -19,7 +19,7 @@ var CliqzUnblock = {
       return;
     }
     this.prev_mode = this.getMode();
-    CliqzUtils.setPref(CliqzUnblock.PREF_MODE, mode);
+    CliqzUtils.setPref(this.PREF_MODE, mode);
   },
   onModeChanged: function() {
     let mode = this.getMode();
@@ -45,7 +45,7 @@ var CliqzUnblock = {
     }
   },
   getMode: function() {
-    return CliqzUtils.getPref(CliqzUnblock.PREF_MODE, "never");
+    return CliqzUtils.getPref(this.PREF_MODE, "never");
   },
   isEnabled: function() {
     return this.getMode() != "never";
@@ -54,57 +54,59 @@ var CliqzUnblock = {
     this.ui_enabled = this.ui_enabled || (ui_enabled === true);
     this.prev_mode = this.getMode();
 
-    if (CliqzUnblock.isEnabled()) {
+    if (this.isEnabled()) {
       CliqzUtils.log('init', 'unblock');
 
-      CliqzUnblock.proxy_service = new ProxyService();
+      this.proxy_service = new ProxyService();
       // reuse existing proxy manager if it exists
-      if (CliqzUnblock.proxy_manager) {
-        CliqzUnblock.proxy_manager.proxy_service = CliqzUnblock.proxy_service;
+      if (this.proxy_manager) {
+        this.proxy_manager.proxy_service = this.proxy_service;
       } else {
-        CliqzUnblock.proxy_manager = new ProxyManager(CliqzUnblock.proxy_service);
+        this.proxy_manager = new ProxyManager(this.proxy_service);
       }
-      CliqzUnblock.request_listener = new RequestListener();
+      this.request_listener = new RequestListener();
 
-      CliqzUnblock.unblockers.forEach(function(b) {
-        b.init(CliqzUnblock.proxy_manager, CliqzUnblock.proxy_service, CliqzUnblock.request_listener, CliqzUnblock.handleBlock);
-      });
+      this.unblockers.forEach(function(b) {
+        b.init(this.proxy_manager, this.proxy_service, this.request_listener, this.handleBlock.bind(this));
+      }.bind(this));
     }
   },
   unload: function() {
-    if (CliqzUnblock.proxy_service != null) {
-      CliqzUnblock.proxy_service.destroy();
-      CliqzUnblock.proxy_service = null;
+    if (this.proxy_service != null) {
+      this.proxy_service.destroy();
+      this.proxy_service = null;
     }
-    if (CliqzUnblock.request_listener != null) {
-      CliqzUnblock.request_listener.destroy();
-      CliqzUnblock.request_listener = null;
+    if (this.request_listener != null) {
+      this.request_listener.destroy();
+      this.request_listener = null;
     }
-    CliqzUnblock.unblockers.forEach(function(b) {
+    this.unblockers.forEach(function(b) {
       b.unload && b.unload();
     });
   },
   initWindow: function(window) {
-    if (!(window in CliqzUnblock.load_listeners)) {
+    if (!(window in this.load_listeners)) {
       CliqzUtils.log("InitWindow", "unblock");
-      window.gBrowser.addEventListener("load", CliqzUnblock.pageObserver, true);
-      CliqzUnblock.load_listeners.add(window);
+      this.boundPageObserver = this.pageObserver.bind(this);
+      window.gBrowser.addEventListener("load", this.boundPageObserver, true);
+      this.load_listeners.add(window);
       // listen to tab changes (for notification bar)
-      window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzUnblock.tabSelectListener);
+      this.boundTabSelectListener = this.tabSelectListener.bind(this);
+      window.gBrowser.tabContainer.addEventListener("TabSelect", this.boundTabSelectListener);
     }
   },
   unloadWindow: function(window) {
-    window.gBrowser.removeEventListener("load", CliqzUnblock.pageObserver, true);
-    CliqzUnblock.load_listeners.delete(window);
-    window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzUnblock.tabSelectListener);
+    window.gBrowser.removeEventListener("load", this.boundPageObserver, true);
+    this.load_listeners.delete(window);
+    window.gBrowser.tabContainer.removeEventListener("TabSelect", this.boundTabSelectListener);
   },
   pageObserver: function(event) {
-    if (CliqzUnblock.isEnabled()) {
+    if (this.isEnabled()) {
       try {
         var doc = event.originalTarget,
           url = doc.defaultView.location.href;
         // run page observers for unblockers which work on this domain
-        CliqzUnblock.unblockers.filter(function(b) {
+        this.unblockers.filter(function(b) {
           return b.canFilter && b.canFilter(url);
         }).forEach(function(b) {
           b.pageObserver && b.pageObserver(doc);
@@ -113,9 +115,9 @@ var CliqzUnblock = {
     }
   },
   handleBlock: function(url, proxy_cb) {
-    let mode = CliqzUnblock.getMode();
-    if (mode == "ask" && CliqzUnblock.ui_enabled) {
-      CliqzUnblock.unblockPrompt(url, proxy_cb);
+    let mode = this.getMode();
+    if (mode == "ask" && this.ui_enabled) {
+      this.unblockPrompt(url, proxy_cb);
     } else if (mode == "always") {
       proxy_cb();
     }
@@ -125,18 +127,18 @@ var CliqzUnblock = {
   tabSelectListener: function(event) {
     // filter old entries - older than 5 minutes
     var now = (new Date()).getTime();
-    CliqzUnblock.waiting_prompts = CliqzUnblock.waiting_prompts.filter(function(tuple) {
+    this.waiting_prompts = this.waiting_prompts.filter(function(tuple) {
       return tuple[2] > now - 300000;
     });
     // check if this tab should trigger a prompt
     var url = CliqzUtils.getWindow().gBrowser.currentURI.spec,
-      ind = CliqzUnblock.waiting_prompts.findIndex(function(tuple) {
+      ind = this.waiting_prompts.findIndex(function(tuple) {
         return tuple[0].indexOf(url) == 0;
       });
     if (ind >= 0) {
       // if found, remove from waiting list and prompt
-      let tuple = CliqzUnblock.waiting_prompts.splice(ind, 1)[0];
-      CliqzUnblock.unblockPrompt(tuple[0], tuple[1]);
+      let tuple = this.waiting_prompts.splice(ind, 1)[0];
+      this.unblockPrompt(tuple[0], tuple[1]);
     }
   },
   unblockPrompt: function(url, cb) {
@@ -148,7 +150,7 @@ var CliqzUnblock = {
 
     if (!on_active_tab) {
       // wait until tab is activated
-      CliqzUnblock.waiting_prompts.push([url, cb, (new Date()).getTime()]);
+      this.waiting_prompts.push([url, cb, (new Date()).getTime()]);
       return;
     }
 
@@ -161,13 +163,13 @@ var CliqzUnblock = {
         accessKey: 'B',
         callback: function() {
           box.removeNotification(notification);
-          CliqzUnblock.setMode('always');
+          this.setMode('always');
           cb();
           CliqzUtils.telemetry({
             'type': 'unblock',
             'action': 'allow_always'
           });
-        }
+        }.bind(this)
       },
       {
         label: CliqzUtils.getLocalizedString("unblock_once"),
@@ -178,19 +180,19 @@ var CliqzUnblock = {
             'type': 'unblock',
             'action': 'allow_once'
           });
-          CliqzUnblock.setMode("ask");
-        }
+          this.setMode("ask");
+        }.bind(this)
       },
       {
         label: CliqzUtils.getLocalizedString("unblock_never"),
         callback: function() {
-          CliqzUnblock.setMode("never");
+          this.setMode("never");
           box.removeNotification(notification);
           CliqzUtils.telemetry({
             'type': 'unblock',
             'action': 'allow_never'
           });
-        }
+        }.bind(this)
       }];
       let priority = box.PRIORITY_WARNING_MEDIUM;
       notification = box.appendNotification(message, 'geo-blocking-prevented',
@@ -199,5 +201,3 @@ var CliqzUnblock = {
     }
   }
 };
-
-export default CliqzUnblock;
