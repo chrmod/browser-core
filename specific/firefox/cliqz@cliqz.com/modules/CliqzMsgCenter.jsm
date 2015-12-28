@@ -29,19 +29,24 @@ function _log(msg) {
 
 function CliqzMsgCenter() {
   this._messageHandlers = {};
+  this.showMessage = this.showMessage.bind(this);
+  this.hideMessage = this.hideMessage.bind(this);
 
   this.registerMessageHandler('MESSAGE_HANDLER_DROPDOWN',
     new CliqzMsgHandlerDropdown());
   this.registerMessageHandler('MESSAGE_HANDLER_ALERT',
     new CliqzMsgHandlerAlert());
 
-  CliqzEvents.sub('msg_center:show_message', this.showMessage.bind(this));
-  CliqzEvents.sub('msg_center:hide_message', this.hideMessage.bind(this));
+  CliqzEvents.sub('msg_center:show_message', this.showMessage);
+  CliqzEvents.sub('msg_center:hide_message', this.hideMessage);
 }
 
-// TODO: add destructor
-
 CliqzMsgCenter.prototype = {
+
+  unload() {
+    CliqzEvents.un_sub('msg_center:show_message', this.showMessage);
+    CliqzEvents.un_sub('msg_center:hide_message', this.hideMessage);
+  },
 
 	registerMessageHandler: function (id, handler) {
 		this._messageHandlers[id] = handler;

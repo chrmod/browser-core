@@ -2,6 +2,8 @@
 
 TESTS.CliqzmessageCenterTestUnit = function (CliqzMsgCenter, CliqzUtils) {
   describe('CliqzMsgCenter (unit)', function() {
+    this.timeout(4000);
+
     var messageCenter, dropdownHandler,
     getMessage = function (id, location) {
       return {
@@ -33,6 +35,11 @@ TESTS.CliqzmessageCenterTestUnit = function (CliqzMsgCenter, CliqzUtils) {
     beforeEach(function() {
       messageCenter = new CliqzMsgCenter();
       dropdownHandler = messageCenter._messageHandlers.MESSAGE_HANDLER_DROPDOWN;
+    });
+
+    afterEach(function (done) {
+      messageCenter.unload();
+      setTimeout(done, 100);
     });
 
     context('general tests', function () {
@@ -79,29 +86,34 @@ context('dropdown handler tests', function () {
     chai.expect(ui.messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'bottom');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(dropdownHandler._messageQueue).to.have.length(1);
-    chai.expect(ui.messageCenterMessage).to.be.ok;
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.contain(msg.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg.text);
-      messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-      return Promise.resolve();
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage) &&
+             dropdownHandler._messageQueue.length === 1;
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.contain(msg.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg.text);
+        messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
+        return Promise.resolve();
+      });
     });
   });
-
   it('should show message (top)', function() {
     chai.expect(ui.messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'top');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(dropdownHandler._messageQueue).to.have.length(1);
-    chai.expect(ui.messageCenterMessage).to.be.ok;
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.contain(msg.text);
-      messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-      return Promise.resolve();
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage) &&
+             dropdownHandler._messageQueue.length === 1;
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.contain(msg.text);
+        messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
+        return Promise.resolve();
+      });
     });
   });
 
@@ -109,14 +121,20 @@ context('dropdown handler tests', function () {
     chai.expect(ui.messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'bottom');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.be.ok;
-    messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg.text);
-      return Promise.resolve();
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage);
+    }).then(function () {
+      messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return !Boolean(ui.messageCenterMessage);
+      });
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg.text);
+        return Promise.resolve();
+      });
     });
   });
 
@@ -124,14 +142,20 @@ context('dropdown handler tests', function () {
     chai.expect(ui.messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'top');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.be.ok;
-    messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg.text);
-      return Promise.resolve();
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage);
+    }).then(function () {
+      messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return !Boolean(ui.messageCenterMessage);
+      });
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg.text);
+        return Promise.resolve();
+      });
     });
   });
 
@@ -141,43 +165,76 @@ context('dropdown handler tests', function () {
     msg0.text = 'msg0';
     msg1.text = 'msg1';
     messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
-    messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
-    messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg1.text);
-    messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg0.text);
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg1.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
-      return Promise.resolve();
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage) &&
+        ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
+    }).then(function () {
+      messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return !Boolean(ui.messageCenterMessage);
+      });
+    }).then(function () {
+      messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return Boolean(ui.messageCenterMessage) &&
+          ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
+      });
+    }).then(function () {
+      messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return !Boolean(ui.messageCenterMessage);
+      });
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg0.text);
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg1.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
+        return Promise.resolve();
+      });
     });
   });
 
-it('should hide multiple messages (in batch)', function() {
+  it('should hide multiple messages (in batch)', function() {
     chai.expect(ui.messageCenterMessage).to.not.be.ok;
     var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
     msg0.text = 'msg0';
     msg1.text = 'msg1';
     messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
-    messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
-    messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg1.text);
-    messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg0.text);
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg1.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
-      return Promise.resolve();
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage) &&
+        ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
+    }).then(function () {
+      messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+      // After some time nothing should change
+      return new Promise(function (res) {
+        setTimeout(function () {
+          chai.expect(ui.messageCenterMessage['footer-message'].simple_message)
+              .to.contain(msg0.text);
+          res();
+        }, 100);
+      })
+    }).then(function () {
+      messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return Boolean(ui.messageCenterMessage) &&
+          ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
+      });
+    }).then(function () {
+      messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return !Boolean(ui.messageCenterMessage);
+      });
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg0.text);
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg1.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
+        return Promise.resolve();
+      });
     });
   });
 
@@ -188,17 +245,27 @@ it('should hide multiple messages (in batch)', function() {
     msg1.text = 'msg1';
     messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
     messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg0.text);
-    messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
-    chai.expect(ui.messageCenterMessage['footer-message'].simple_message).to.contain(msg1.text);
-    fillIn('some query');
-    return waitForResult().then(function() {
-      chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.contain(msg1.text);
+    return waitFor(function () {
+      return Boolean(ui.messageCenterMessage) &&
+             ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
+    }).then(function () {
+      messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
+      return waitFor(function () {
+        return ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
+      });
+    }).then(function () {
+      fillIn('some query');
+      return waitForResult().then(function() {
+        chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.not.contain(msg0.text);
+        chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.contain(msg1.text);
+        return Promise.resolve();
+      });
+    }).then(function () {
       messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
-      chai.expect(ui.messageCenterMessage).to.not.be.ok;
-      chai.expect(core.popup.cliqzBox.messageContainerTop.innerHTML).to.not.contain(msg1.text);
-      return Promise.resolve();
+      return waitFor(function () {
+        return !Boolean(ui.messageCenterMessage) &&
+               core.popup.cliqzBox.messageContainerTop.innerHTML.indexOf(msg1.text) === -1;
+      });
     });
   });
 });

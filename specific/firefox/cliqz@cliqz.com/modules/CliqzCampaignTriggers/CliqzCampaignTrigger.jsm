@@ -1,5 +1,9 @@
 'use strict';
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+
 var EXPORTED_SYMBOLS = ['CliqzCampaignTrigger'];
 
 function CliqzCampaignTrigger(id) {
@@ -13,7 +17,9 @@ CliqzCampaignTrigger.prototype = {
   },
   notifyListeners: function () {
     this._listeners.forEach(function (listener) {
-      listener(this.id);
+      CliqzUtils.setTimeout(function () {
+        listener(this.id);
+      }.bind(this), 0);
     }.bind(this));
   }
 };
