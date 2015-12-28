@@ -51,7 +51,7 @@ var CliqzUnblock = {
     return this.getMode() != "never";
   },
   init: function(ui_enabled) {
-    this.ui_enabled = ui_enabled === true;
+    this.ui_enabled = this.ui_enabled || (ui_enabled === true);
     this.prev_mode = this.getMode();
 
     if (CliqzUnblock.isEnabled()) {
