@@ -81,3 +81,6 @@
     <p>{{numberFormat (math data.multiplyer '*' 1000)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 10)}} {{data.toCurrency}}</p>-->
     </div>
   </div>
+<div class="poweredby">
+    More details at <a href="http://www.xe.com">XE.com</a>
+</div>

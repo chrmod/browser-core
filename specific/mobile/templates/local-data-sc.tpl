@@ -28,7 +28,7 @@
             </div>
           </div>
 
-          <div class="main__content description">{{description}}</div>
+          
 
         <div class="cqz-local-des-blk local-sc-data-container">
           {{#unless no_location}}
@@ -74,6 +74,7 @@
 
             </div>
           {{/unless}}
+          <div class="main__content description">{{description}}</div>
         </div>
       {{/with}}
     </div>

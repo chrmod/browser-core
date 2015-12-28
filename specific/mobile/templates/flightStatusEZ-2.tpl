@@ -19,7 +19,7 @@
        </div>
    </div>
 
-    <div class="flightStatusEZ-depart-arrival">
+    <div class="flightStatusEZ-depart-arrival cf">
          <div class="flightStatusEZ-depart">
           <div class="flightStatusEZ-depart-arrival-name"> {{depart_arrive.0.location_name}} </div>
           <div style="color: {{depart_arrive.0.time_color}}">{{depart_arrive.0.estimate_actual_time}}</div>
@@ -39,4 +39,8 @@
 
 {{/with}}
 
+</div>
+
+<div class="poweredby">
+    More details at <a href="http://www.flightstats.com">Flightstats</a>
 </div>
