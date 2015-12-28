@@ -67,7 +67,6 @@ var FreshTab = {
         if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
           pref.setBoolPref(FRESH_TAB_STATE,  false); //opt-in
         }
-        debugger;
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
             classDescription: CLIQZ_NEW_TAB,
