@@ -9,5 +9,8 @@
     "afterEach",
     "beforeEach",
     "waitForResult"
-  ]
+  ],
+
+  // to allow expressions like chai.expect(false).to.be.false
+  "expr": true
 }

@@ -36,7 +36,7 @@ var CliqzFreshTabNews = {
     CliqzUtils.clearTimeout(t0);
     var now = Date.now();
 
-    if (parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + 30 * ONE_MINUTE < now){
+    if (parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + 30 * ONE_MINUTE < now || !getNewsFromLS()){
       CliqzUtils.setPref('freshTabNewsTime', '' + now);
       var bBasedNewsRequirement = [];
 
