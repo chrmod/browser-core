@@ -6,22 +6,42 @@
 				<!-- <a extra="title">THE PAST</a> -->
 			</h1>
 		</div>
-    <p class="main__content">
+    <div class="main__content history">
 		 {{#each data}}
 		 	{{#if url}}
-		 		<div class="link" onclick="osBridge.openLink('{{url}}')">
+		 		
+		 		<div class="answer" onclick="osBridge.openLink('{{url}}')">
+		 			<div class="framer">
+		 				<p>{{title}}</p>
+		 			</div>
+		 			<div class="meta">
+		 				{{conversationsTime timestamp}}
+		 			</div>
+		 		</div>
+		 		
+		 		<!--<div class="link" onclick="osBridge.openLink('{{url}}')">
               		{{title}}
               		<span class="time">{{conversationsTime timestamp}}</span>
-              	</div>
+              	</div>-->
 		 	{{else}}
-		 		<div class="queries" onclick="osBridge.notifyQuery('{{query}}');">
+		 	
+		 		<div class="question" onclick="osBridge.notifyQuery('{{query}}');">
+		 			<div class="framer">
+		 				<p>{{query}}</p>
+		 			</div>
+		 			<div class="meta">
+		 				{{conversationsTime timestamp}}
+		 			</div>
+		 		</div>
+		 		
+		 		<!--<div class="queries" onclick="osBridge.notifyQuery('{{query}}');">
               		{{query}}
               		<span class="time">{{conversationsTime timestamp}}</span>
-              	</div>
+              	</div>-->
             {{/if}}
               
           {{/each}}
-    </p>
+    </div>
 
 
 

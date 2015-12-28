@@ -11,20 +11,19 @@
   </div>
 
   <div class="cqz-ez-search-app-box">
-    <ul class="cta">
+    <ul class="cta-list">
     {{#each data.links}}
       <li
         class="cqz-ez-search-app transition"
-        style="background-color: {{this.background_color_icon}};background-image: url({{this.icon_url}})"
+        style="background-color: {{this.background_color_icon}};"
         url="{{this.url}}"
         extra="link-{{this.logg_as}}"
-        >
-            <a style="background-color: #fff">{{this.text}}</a>
+        ><span class="cta__logo image" style="background-image: url({{this.icon_url}})">Icon</span>
+            <a>{{this.text}}</a>
       </li>
     {{/each}}
   </ul>
   </div>
   {{>EZ-history}}
-  {{>logo}}
 </div>
 <!-- end entity-search-1.tpl -->

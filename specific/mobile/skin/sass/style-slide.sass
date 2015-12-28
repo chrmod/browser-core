@@ -3,6 +3,12 @@
   content: ""
   display: table
 
+.clearfix
+  &:after 
+    content: ""
+    display: table
+    clear: both
+
 @font-face
   font-family: "lato"
   font-style: normal
@@ -807,6 +813,46 @@ a
     &:last-child a
       border-bottom: 0
 
+.cta-list
+  margin: 0
+  padding: 16px 0 0
+  li
+    list-style-type: none
+    margin: 0 0 2px
+    display: block
+    color: #666
+    padding: 12px 16px
+    font-size: 14px
+    line-height: 25.6px
+    border: 1px rgba(0, 0, 0, 0.2) solid
+    border-radius: 4px
+    background-color: rgba(0, 0, 0, 0.1)
+    position: relative
+    .cta__logo
+      width: 32px
+      height: 32px
+      line-height: 32px
+      border-radius: 4px
+      background-color: rgba(0,0,0,0.38)
+      margin-right: 8px
+      position: absolute
+      top: 8px
+      left: 8px
+      color: #fff
+      text-align: center
+      &.image
+        text-indent: -9999px
+        background-image: url("logos/twitter.svg")
+        background-size: 62%
+        background-position: center
+        background-repeat: no-repeat
+    a
+      font-size: 16px
+      line-height: 19.2px
+      padding: 0 0 0 16px
+      font-weight: 700
+      color: rgba(0, 0, 0, 0.62)
+
 #googleThisAnim
   background-color: #eee
   border-radius: 8px
@@ -1087,3 +1133,94 @@ a
   .currency__swap td
     padding: 2px 0 24px
     border-bottom: 1px #eee solid
+
+.poweredby
+  border-top: 1px #eee solid
+  margin-top: 32px
+  padding: 16px 0 0
+  font-size: 12px
+  color: #999
+  text-align: center
+
+.ez-liga-tableHeader
+  table
+    margin: 0
+    padding: 0
+    width: 100%
+    max-width: 100%
+    th
+      text-align: left
+      font-weight: 300
+      font-size: 12px
+      color: #999
+    td
+      font-size: 16px
+      padding: 0
+      margin: 0
+      color: #333
+      font-weight: 700
+      &.small
+        font-size: 12px
+        font-weight: 400
+        color: #666
+        text-align: right
+      &.bold
+        font-weight: 700
+        color: #333
+
+.history
+  padding: 0 1rem
+  .question
+    @extend .clearfix
+    padding: 1rem 0 0.1rem
+    .framer
+      background-color: lighten(#1F69AD, 40%)
+      max-width: 64%
+      float: right
+      font-size: 1rem
+      line-height: 1.25rem
+      padding: 0.5rem 1.25rem
+      border-radius: 0.25rem
+      p
+        margin: 0
+        padding: 0
+    .meta
+      float: right
+      text-align: right
+      display: inline-block
+      padding: 0.5rem 1.25rem
+      font-size: 0.62rem
+      line-height: 1.25rem
+      color: #aaa
+  
+  .answer
+    @extend .clearfix
+    padding: 0.1rem 0
+    .framer
+      background-color: lighten(#55B146, 30%)
+      max-width: 64%
+      float: left
+      font-size: 1rem
+      line-height: 1.25rem
+      padding: 0.5rem 1.25rem
+      border-radius: 0.25rem
+      p
+        margin: 0
+        padding: 0
+    .meta
+      float: left
+      text-align: left
+      display: inline-block
+      padding: 0.5rem 1.25rem
+      font-size: 0.62rem
+      line-height: 1.25rem
+      color: #ccc
+    &.followup
+      .framer
+        background-color: lighten(#55B146, 40%)
+        font-size: 0.8rem
+        line-height: 1rem
+        color: rgba(0,0,0,0.38)
+      .meta
+        line-height: 1rem
+

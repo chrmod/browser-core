@@ -40,3 +40,7 @@
 {{/with}}
 
 </div>
+
+<div class="poweredby">
+    More details at <a href="http://www.flightstats.com">Flightstats</a>
+</div>
