@@ -126,11 +126,13 @@ var Result = {
         ret.style = CliqzUtils.combineSources(ret.style, second.style);
         ret.data.kind = (ret.data.kind || []).concat(second.data.kind || []);
 
-        // copy over description and title, if needed
+        // copy over description, title and url list, if needed
         if(second.data.description && !ret.data.description)
             ret.data.description = second.data.description;
-        if(second.data.title) // title
+        if(second.data.title && !ret.data.title) // title
             ret.data.title = second.data.title;
+        if(second.data.urls && !ret.data.urls) // history url list
+            ret.data.urls = second.data.urls;
 
         return ret;
     },
