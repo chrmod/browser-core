@@ -1129,14 +1129,14 @@ var CliqzHumanWeb = {
             // right now, let's set is a private to avoid any risk
             //
             // SPT - r1 => X is null;
-            dfTelemetry('hw.telemetry.doublefetch.mp',"r1");
+            // dfTelemetry('hw.telemetry.doublefetch.mp',"r1");
             isok = false
         }
 
         if (page_doc && page_doc['x'] && page_doc['x']['iall'] == false) {
                 // the url is marked as noindex
                 // SPT - r2 => noindex;
-                dfTelemetry('hw.telemetry.doublefetch.mp',"r2");
+                // dfTelemetry('hw.telemetry.doublefetch.mp',"r2");
                 isok = false;
         }
 
@@ -1151,7 +1151,7 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.dropLongURL(page_doc['x']['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
                     // SPT - r3 => canonical is long.;
-                    dfTelemetry('hw.telemetry.doublefetch.mp',"r3");
+                    // dfTelemetry('hw.telemetry.doublefetch.mp',"r3");
                     isok = false;
                 }
                 else {
@@ -2953,7 +2953,7 @@ var CliqzHumanWeb = {
         }
         else {
             o['hostname'] = v[0];
-            o['port'] = "80";
+            o['port'] = 80;
         }
 
         return o;
