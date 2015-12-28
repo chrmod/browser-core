@@ -542,6 +542,10 @@ var CliqzHistoryCluster = {
       // override with any titles we have saved
       promises.push(CliqzHistoryCluster._getTitle(instant));
 
+      // get description in case we need it
+      //(if this cluster is converted back to simple history)
+      promises.push(CliqzHistoryCluster._getDescription(instant));
+
       instant.data.url = results[0].url;
       instant.comment += ' (history domain cluster)!';
       instant.data.template = 'pattern-h2';
