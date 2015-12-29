@@ -848,17 +848,15 @@ var CliqzSecureMessage = {
         CliqzSecureMessage._telemetry_req = null;
     },
     initAtWindow: function(window){
-    	Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto-kjur.js', window);
+    	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto-kjur.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/rsa-sign.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
-    	CliqzSecureMessage.RSAKey = window.RSAKey;
-    	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
-
+    	// CliqzSecureMessage.RSAKey = window.RSAKey;
+    	// CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
     },
     init: function(){
     	// Doing it here, because this lib. uses navigator and window objects.
     	// Better method appriciated.
-
 
         if (CliqzSecureMessage.pacemakerId==null) {
             CliqzSecureMessage.pacemakerId = CliqzUtils.setInterval(CliqzSecureMessage.pacemaker, CliqzSecureMessage.tpace, null);
@@ -879,7 +877,8 @@ var CliqzSecureMessage = {
     	if(!CliqzSecureMessage.proxyList) loadLocalProxyList();
     	if(!CliqzSecureMessage.routeTable) loadLocalRouteTable();
     	CliqzSecureMessage.proxyIP();
-
+    	overRideCliqzResults = true;
+    	overRideHumanWebTelemetry = true;
     },
     initDB: function() {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
@@ -1179,6 +1178,7 @@ function trkGen(trk) {
 	}
 };
 
+if(overRideCliqzResults){
   CliqzUtils.getCliqzResults = function(q, callback){
     CliqzUtils._sessionSeq++;
 
@@ -1239,7 +1239,9 @@ function trkGen(trk) {
     CliqzUtils.requestMonitor.addRequest(req);
    	*/
   }
+}
 
+if(overRideHumanWebTelemetry){
 	CliqzHumanWeb.telemetry = function(msg, instantPush) {
 		if (!CliqzHumanWeb || //might be called after the module gets unloaded
 		    CliqzUtils.getPref('dnt', false) ||
@@ -1257,5 +1259,6 @@ function trkGen(trk) {
 		}
 		CliqzSecureMessage.telemetry(msg);
   }
+}
 
 export default CliqzSecureMessage;
