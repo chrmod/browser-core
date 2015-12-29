@@ -279,7 +279,7 @@ function createNewsList(history_data, number_to_get, callback){
     }
   }
 
-  var NEWS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=top-news.cliqz.com', //url humanly made list of top news
+  var NEWS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
       top_news_url = NEWS_PROVIDER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(),
       general_news_url = '' + number_to_get, // url best of twitter
       topic_news_url = '', // news by domain and topik
@@ -296,7 +296,7 @@ function createNewsList(history_data, number_to_get, callback){
     news_urls.push([url, history_data[i][1], 'hb_news', domain]);
   }
 
-  news_urls.push([top_news_url, 3, 'top_h_news', '']);
+  news_urls.push([top_news_url, 99, 'top_h_news', '']);
   if (number_to_get > 0) { news_urls.push([general_news_url, number_to_get, 'top_gen_news', '']); }
   log(news_urls);
   //call news backend
