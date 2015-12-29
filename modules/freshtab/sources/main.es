@@ -18,6 +18,7 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
     OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
     pref = Services.prefs,
+    HAS_BUTTON = true,
     FF41_OR_ABOVE = false;
 
 try{
@@ -40,8 +41,11 @@ var AboutURLFactory;
 var FreshTab = {
     signalType: "home",
     initialized: false,
-    startup: function(abTest){
+
+    startup: function(abTest, hasButton){
         var disable = false;
+
+        HAS_BUTTON = hasButton;
 
         // exit if not in the AB test
         if(abTest && (!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false)) disable = true;
@@ -67,7 +71,7 @@ var FreshTab = {
         }
 
         // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+        if(HAS_BUTTON && !pref.prefHasUserValue(FRESH_TAB_STATE)){
           pref.setBoolPref(FRESH_TAB_STATE,  false); //opt-in
         }
         AboutURL.prototype = {
@@ -143,7 +147,8 @@ var FreshTab = {
 }
 
 function isActive(){
-  return pref.getBoolPref(FRESH_TAB_STATE);
+  //always active if the user doesn't have the activator button
+  return !HAS_BUTTON || pref.getBoolPref(FRESH_TAB_STATE);
 }
 
 function activate(){
