@@ -2,6 +2,7 @@ import CliqzSecureMessage from 'hpn/main';
 
 export default {
 	init() {
+		/*
 		let appShell = Cc['@mozilla.org/appshell/appShellService;1']
 		.getService(Ci.nsIAppShellService);
 
@@ -27,7 +28,8 @@ export default {
 		if ( isReady() ) {
 			CliqzSecureMessage.init();
 		}
-
+		*/
+		CliqzSecureMessage.init();
 	},
 
 	unload() {

@@ -10,6 +10,7 @@ export default class {
   }
 
   init() {
+  	CliqzSecureMessage.initAtWindow();
   }
 
   unload() {

@@ -849,11 +849,13 @@ var CliqzSecureMessage = {
         CliqzSecureMessage._telemetry_req = null;
       },
       initAtWindow: function(window){
-    	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto-kjur.js', window);
+    	Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto-kjur.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/rsa-sign.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
-    	// CliqzSecureMessage.RSAKey = window.RSAKey;
-    	// CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
+    	CliqzSecureMessage.RSAKey = window.RSAKey;
+    	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
+    	overRideCliqzResults();
+    	overRideHumanWebTelemetry();
     },
     init: function(){
     	// Doing it here, because this lib. uses navigator and window objects.
@@ -878,8 +880,8 @@ var CliqzSecureMessage = {
     	if(!CliqzSecureMessage.proxyList) loadLocalProxyList();
     	if(!CliqzSecureMessage.routeTable) loadLocalRouteTable();
     	// CliqzSecureMessage.proxyIP();
-    	overRideCliqzResults();
-    	overRideHumanWebTelemetry();
+    	// overRideCliqzResults();
+    	// overRideHumanWebTelemetry();
     },
     initDB: function() {
     	if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
