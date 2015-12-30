@@ -1,11 +1,11 @@
 {
   "settings": {
     "freshTabButton": false,
+    "freshTabABtest" : false,
     "antitrackingButton": true,
     "unblockUI": true
   },
   "modules": [
-    "onboarding",
     "freshtab",
     "unblock",
     "theme",

@@ -204,7 +204,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
-        Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
+        Cu.unload('chrome://cliqzmodules/content/UrlCompare.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
