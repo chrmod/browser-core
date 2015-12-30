@@ -4,7 +4,6 @@
     "antitrackingButton": true
   },
   "modules": [
-    "onboarding",
     "freshtab",
     "unblock",
     "theme",
