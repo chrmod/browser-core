@@ -1,6 +1,7 @@
 {
   "settings": {
     "freshTabButton": false,
+    "freshTabABtest" : false,
     "antitrackingButton": false
   },
   "modules": [

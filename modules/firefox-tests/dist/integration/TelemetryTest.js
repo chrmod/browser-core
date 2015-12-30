@@ -15,7 +15,6 @@ TESTS.TelemetryTest = function (CliqzUtils) {
         chai.expect(signal.version).to.exist;
         chai.expect(signal.prefs.session).to.exist;
         chai.expect(signal.prefs.config_location).to.exist;
-        chai.expect(signal.prefs.ABTests).to.exist;
       });
     });
   });
