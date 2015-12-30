@@ -280,8 +280,26 @@ var CliqzUtils = {
     }
   },
   openTabInWindow: CLIQZEnvironment.openTabInWindow,
+  /**
+   * Get a value from preferences db
+   * @param {string}  pref - preference identifier
+   * @param {*=}      defautlValue - returned value in case pref is not defined
+   * @param {string=} prefix - prefix for pref
+   */
   getPref: CLIQZEnvironment.getPref,
+  /**
+   * Set a value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {*=}      defautlValue - returned value in case pref is not defined
+   * @param {string=} prefix - prefix for pref
+   */
   setPref: CLIQZEnvironment.setPref,
+  /**
+   * Check if there is a value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {string=} prefix - prefix for pref
+   */
+  hasPref: CLIQZEnvironment.hasPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))

@@ -308,17 +308,16 @@ window.CLIQZ.Core = {
         this.elem.push(stylesheet);
     },
     checkSession: function() {
-        var prefs = CliqzUtils.cliqzPrefs;
-        if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
+        if (!CliqzUtils.getPref('session')) {
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                 (function success(req){
                     var source = JSON.parse(req.response).shortName;
                     var session = this.generateSession(source);
-                    prefs.setCharPref('session', session);
+                    CliqzUtils.setPref('session', session);
                 }).bind(this),
                 (function error(){
                     var session = this.generateSession();
-                    prefs.setCharPref('session', session);
+                    CliqzUtils.setPref('session', session);
                 }).bind(this)
             );
             return false;

@@ -23,9 +23,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 var GEOLOC_WATCH_ID;
 
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
-    PREF_STRING = 32,
-    PREF_INT    = 64,
-    PREF_BOOL   = 128,
     // references to all the timers to avoid garbage collection before firing
     // automatically removed when fired
     _timers = [],
@@ -78,12 +75,6 @@ var CLIQZEnvironment = {
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
     },
-    /**
-     * Get a value from preferences db
-     * @param {string}  pref - preference identifier
-     * @param {*=}      defautlValue - returned value in case pref is not defined
-     * @param {string=} prefix - prefix for pref
-     */
     getPref: function(pref, defaultValue, prefix) {
         prefix = prefix || 'extensions.cliqz.';
         pref = prefix + pref;
@@ -92,21 +83,15 @@ var CLIQZEnvironment = {
 
         try {
             switch(prefs.getPrefType(pref)) {
-                case PREF_BOOL:   return prefs.getBoolPref(pref);
-                case PREF_STRING: return prefs.getCharPref(pref);
-                case PREF_INT:    return prefs.getIntPref(pref);
-                default:          return defaultValue;
+                case 128: return prefs.getBoolPref(pref);
+                case 32:  return prefs.getCharPref(pref);
+                case 64:  return prefs.getIntPref(pref);
+                default:  return defaultValue;
             }
         } catch(e) {
             return defaultValue;
         }
     },
-    /**
-     * Set a value in preferences db
-     * @param {string}  pref - preference identifier
-     * @param {*=}      defautlValue - returned value in case pref is not defined
-     * @param {string=} prefix - prefix for pref
-     */
     setPref: function(pref, value, prefix){
         prefix = prefix || 'extensions.cliqz.';
         pref = prefix + pref;
@@ -118,6 +103,12 @@ var CLIQZEnvironment = {
             case 'number':  prefs.setIntPref(pref, value); break;
             case 'string':  prefs.setCharPref(pref, value); break;
         }
+    },
+    hasPref: function (pref, prefix) {
+        prefix = prefix || 'extensions.cliqz.';
+        pref = prefix + pref;
+
+        return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
     },
     getCliqzPrefs: function(){
         return CLIQZEnvironment.cliqzPrefs

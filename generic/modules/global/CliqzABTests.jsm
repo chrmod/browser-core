@@ -26,7 +26,7 @@ var CliqzABTests = {
     },
     // Accessors to list of tests this user is current in
     getCurrent: function() {
-        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
+        if(CliqzUtils.hasPref(CliqzABTests.PREF))
             return JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
         return undefined;
     },
@@ -36,7 +36,7 @@ var CliqzABTests = {
 
     // Accessors to list of tests in override list
     getOverride: function() {
-        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF_OVERRIDE)) {
+        if(CliqzUtils.hasPref(CliqzABTests.PREF_OVERRIDE)) {
             var ABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE));
             return ABtests;
         }
@@ -61,7 +61,7 @@ var CliqzABTests = {
             function(response){
                 try{
                     var prevABtests = {};
-                    if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
+                    if(CliqzUtils.hasPref(CliqzABTests.PREF))
                         prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
                     var respABtests = JSON.parse(response.responseText);
@@ -366,7 +366,7 @@ var CliqzABTests = {
                 // disable clustering + series
                 var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                                   .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-                if(CliqzUtils.cliqzPrefs.prefHasUserValue("old_maxRichResults")){
+                if(CliqzUtils.hasPref("old_maxRichResults")){
                     urlbarPrefs.setIntPref("maxRichResults", CliqzUtils.getPref("old_maxRichResults"));
                     CliqzUtils.cliqzPrefs.clearUserPref("old_maxRichResults");
                 }
@@ -591,7 +591,7 @@ var CliqzABTests = {
         // Disable an AB test but do not remove it from list of active AB tests,
         // this is intended to be used by the extension itself when it experiences
         // an error associated with this AB test.
-        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF)) {
+        if(CliqzUtils.hasPref(CliqzABTests.PREF)) {
              var curABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
             if(curABtests[abtest] && CliqzABTests.leave(abtest, true)) {
