@@ -8,8 +8,9 @@ export default class {
   constructor(settings) {
     this.window = settings.window;
     this.gBrowser = this.window.gBrowser;
-    //if adblock is not present - return
-    if(this.window.CLIQZ.Core.genericPrefs.getPrefType(adBlockKey) == 0) return;
+
+    if(!this.window.CLIQZ.Core.genericPrefs.prefHasUserValue(adBlockKey)) { return; }
+
     this.initialState = this.adBlockActive();
     this.state = true;
     this.warningDissmissed = false;
@@ -28,7 +29,7 @@ export default class {
   }
 
   init() {
-    if(!this.initialState) { return; }
+    if(!this.initialState || !this.window.CLIQZ.Core.genericPrefs.prefHasUserValue(adBlockKey)) { return; }
 
     this.gBrowser.tabContainer.addEventListener("TabSelect", this.userTabSelect, false);
     this.gBrowser.addTabsProgressListener(this.userListener);
