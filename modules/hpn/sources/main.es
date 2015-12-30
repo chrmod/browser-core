@@ -34,7 +34,7 @@ Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/conte
 */
 var proxyCounter = 0;
 var localTemporalUniq = null;
-CliqzUtils.setPref('hpn', CliqzUtils.getPref('hpn', true));
+CliqzUtils.setPref('hpn', CliqzUtils.getPref('hpn', false));
 
 /*
 Function to create http url
@@ -1203,7 +1203,7 @@ function overRideCliqzResults(){
     CliqzUtils.encodeLocation();
 
 
-    if(CliqzUtils.getPref("hpn")){
+    if(CliqzUtils.getPref('hpn', false)){
     	var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
     	var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
     	var proxyIP = CliqzSecureMessage.queryProxyIP;
