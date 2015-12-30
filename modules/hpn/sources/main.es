@@ -916,7 +916,6 @@ var CliqzSecureMessage = {
     	return decrypted.toString(CryptoJS.enc.Utf8);
     },
     proxyIP: function (){
-    	debugger;
     	if(proxyCounter >= CliqzSecureMessage.proxyList.length) proxyCounter = 0;
     	var url = createHttpUrl(CliqzSecureMessage.proxyList[proxyCounter]);
       CliqzSecureMessage.queryProxyIP = url;//"http://54.145.178.227/verify" ; //url;
