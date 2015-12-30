@@ -60,6 +60,7 @@ var CLIQZEnvironment = {
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
     SKIN_PATH: 'chrome://cliqzres/content/skin/',
     cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
+    prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
     init: function(){
@@ -77,46 +78,54 @@ var CLIQZEnvironment = {
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
     },
-    getPref: function(pref, notFound){
+    /**
+     * Get a value from preferences db
+     * @param {string}  pref - preference identifier
+     * @param {*=}      defautlValue - returned value in case pref is not defined
+     * @param {string=} prefix - prefix for pref
+     */
+    getPref: function(pref, defaultValue, prefix) {
+        prefix = prefix || 'extensions.cliqz.';
+        pref = prefix + pref;
+
+        var prefs = CLIQZEnvironment.prefs;
+
         try {
-            var prefs = CLIQZEnvironment.cliqzPrefs;
             switch(prefs.getPrefType(pref)) {
-                case PREF_BOOL: return prefs.getBoolPref(pref);
+                case PREF_BOOL:   return prefs.getBoolPref(pref);
                 case PREF_STRING: return prefs.getCharPref(pref);
-                case PREF_INT: return prefs.getIntPref(pref);
-                default: return notFound;
+                case PREF_INT:    return prefs.getIntPref(pref);
+                default:          return defaultValue;
             }
         } catch(e) {
-          return notFound;
+            return defaultValue;
         }
     },
-    getPrefs: function(){
-        var prefs = {},
-            cqz = CLIQZEnvironment.cliqzPrefs.getChildList('');
-        for(var i=0; i<cqz.length; i++){
-            var pref = cqz[i];
-            prefs[pref] = CLIQZEnvironment.getPref(pref);
-        }
-        return prefs;
-    },
-    isPrefBool: function(pref, notFound) {
-        try {
-            var prefs = CLIQZEnvironment.cliqzPrefs;
-            if(prefs.getPrefType(pref) === PREF_BOOL) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch(e) {
-            return notFound;
+    /**
+     * Set a value in preferences db
+     * @param {string}  pref - preference identifier
+     * @param {*=}      defautlValue - returned value in case pref is not defined
+     * @param {string=} prefix - prefix for pref
+     */
+    setPref: function(pref, value, prefix){
+        prefix = prefix || 'extensions.cliqz.';
+        pref = prefix + pref;
+
+        var prefs = CLIQZEnvironment.prefs;
+
+        switch (typeof value) {
+            case 'boolean': prefs.setBoolPref(pref, value); break;
+            case 'number':  prefs.setIntPref(pref, value); break;
+            case 'string':  prefs.setCharPref(pref, value); break;
         }
     },
-    setPref: function(pref, val){
-        switch (typeof val) {
-            case 'boolean': CLIQZEnvironment.cliqzPrefs.setBoolPref(pref, val); break;
-            case 'number': CLIQZEnvironment.cliqzPrefs.setIntPref(pref, val); break;
-            case 'string': CLIQZEnvironment.cliqzPrefs.setCharPref(pref, val); break;
-          }
+    getCliqzPrefs: function(){
+        return CLIQZEnvironment.cliqzPrefs
+                               .getChildList('')
+                               .reduce(function (prev, curr) {
+                                 prev[curr] = CliqzUtils.getPref(curr);
+                                 return prev;
+                               }, {});
     },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();

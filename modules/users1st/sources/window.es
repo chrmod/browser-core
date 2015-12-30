@@ -89,13 +89,12 @@ export default class {
   }
 
   adBlockActive() {
-    return this.window.CLIQZ.Core.genericPrefs.getBoolPref(adBlockKey);
+    return CliqzUtils.getPref(adBlockKey, false, '');
   }
 
   changeAdBlockState(val) {
-    return this.window.CLIQZ.Core.genericPrefs.setBoolPref(adBlockKey, val);
+    return CliqzUtils.setPref(adBlockKey, val, '');
   }
-
 
   checkUrl(_url){
     var url = _url.split("://")[1],
