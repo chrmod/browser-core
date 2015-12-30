@@ -65,7 +65,7 @@ TESTS.HPNTest = function (CliqzUtils) {
 	describe("HPN-RSA signing", function () {
 		it("RSA signature", function () {
 			var rsa = new CliqzSecureMessage.RSAKey();
-			rsa.readPrivateKeyFromPEMString(CliqzSecureMessage.uPK.privateKey);
+			rsa.readPrivateKeyFromPEMString(pk);
 			var hSig = rsa.sign(sample_message,"sha256");
 			expect(hSig).to.equal("2be67d16d64c93f55af6db28dd83f48ff92761e459e61dab161f475aea010208b3a8437e8acec0f15d463f762e64e00033cbcab1b6017d541b88dbb1258c98cfe9c70436caf6d62effa8edc9f5a54d17e77724ae2864a34a0c6b0877f00f2fa8e5d583b02bafa8f72eadf16b2edd844fdca9440aa93ec6dd88d280831becdeb363ca69ecf4e6d82bdd9a18de3034b3bdc23c557847503924c45dcb3e8ed4d164725068109109fd5ffc3727e41c73e246e9017f497603d6261ffcd0c939857f11b9a2e49bf34e9ab31aaa1d82ba420a8d09517a97c98b176bebeb3b8c97f5bfe148258b268eb95b3916c328584f9b7975a0265198a919e89e507ddb6c9e51f025");
 		});
