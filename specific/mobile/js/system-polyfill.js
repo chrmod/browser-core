@@ -3,7 +3,8 @@
 'use strict';
 
 var headEl = document.getElementsByTagName('head')[0],
-    ie = /MSIE/.test(navigator.userAgent);
+    ie = /MSIE/.test(navigator.userAgent),
+    assetMap;
 
 /*
   normalizeName() is inspired by Ember's loader:
@@ -73,24 +74,50 @@ function createScriptNode(src, callback) {
     headEl.appendChild(node);
 }
 
+function loadAssetMap(){
+  return new Promise(function(resolve, reject) {
+    if(assetMap){
+      resolve();
+      return;
+    }
+
+    var req = new XMLHttpRequest();
+    req.open('GET', 'assets/assetMap.json?r=' + Math.random(), false);
+    req.overrideMimeType('application/json');
+    req.onload = function(){
+      assetMap = JSON.parse(req.response).assets;
+      resolve();
+    }
+
+    req.send();
+  });
+}
+
+function resolveSrc(src){
+  return assetMap[src] || src;
+}
+
 function load(name) {
     return new Promise(function(resolve, reject) {
-        createScriptNode((System.baseURL || '/') + name + '.js', function(err) {
-            if (anonymousEntry) {
-                System.register(name, anonymousEntry[0], anonymousEntry[1]);
-                anonymousEntry = undefined;
-            }
-            var mod = internalRegistry[name];
-            if (!mod) {
-                reject(new Error('Error loading module ' + name));
-                return;
-            }
-            Promise.all(mod.deps.map(function (dep) {
-                if (externalRegistry[dep] || internalRegistry[dep]) {
-                    return Promise.resolve();
+        loadAssetMap().then(function () {
+            var src = resolveSrc((System.baseURL || '/') + name + '.js');
+            createScriptNode(src, function(err) {
+                if (anonymousEntry) {
+                    System.register(name, anonymousEntry[0], anonymousEntry[1]);
+                    anonymousEntry = undefined;
                 }
-                return load(dep);
-            })).then(resolve, reject);
+                var mod = internalRegistry[name];
+                if (!mod) {
+                    reject(new Error('Error loading module ' + name));
+                    return;
+                }
+                Promise.all(mod.deps.map(function (dep) {
+                    if (externalRegistry[dep] || internalRegistry[dep]) {
+                        return Promise.resolve();
+                    }
+                    return load(dep);
+                })).then(resolve, reject);
+            });
         });
     });
 }
