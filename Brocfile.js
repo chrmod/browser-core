@@ -235,7 +235,8 @@ var mobile = new MergeTrees([
 if (buildEnv === 'production') {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css', 'ttf'],
-    replaceExtensions: ['html', 'css']
+    replaceExtensions: ['html', 'css', 'js'],
+    generateAssetMap: true
   });
   // uglify breaks if 'modules' is included in MergeTrees
   // mobile = uglify(new Funnel(mobile), {
