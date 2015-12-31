@@ -5,6 +5,7 @@
     "antitrackingButton": false
   },
   "modules": [
+    "static",
     "onboarding",
     "freshtab",
     "unblock",

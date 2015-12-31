@@ -26,7 +26,7 @@ time, mark, audio, video {
 
 @font-face {
     font-family: "Lato";
-    src: url("fonts/Lato-Regular.ttf");
+    src: url("../static/skin/fonts/Lato-Regular.ttf");
 }
 
 body {

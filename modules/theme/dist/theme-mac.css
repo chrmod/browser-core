@@ -1,4 +1,4 @@
-@font-face { font-family: "Lato"; src: url("chrome://cliqzres/content/skin/fonts/Lato-Regular.ttf"); }
+@font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
 :-moz-any(#back-button,
 #forward-button,

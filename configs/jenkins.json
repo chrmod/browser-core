@@ -5,6 +5,7 @@
     "antitrackingButton": true
   },
   "modules": [
+    "static",
     "freshtab",
     "unblock",
     "theme",

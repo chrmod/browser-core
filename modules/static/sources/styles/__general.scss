@@ -4,7 +4,7 @@
 }
 
 #PopupAutoCompleteRichResultCliqz {
-    -moz-binding: url("../../content/components.xml#autocomplete-rich-result-popup-cliqz");
+    -moz-binding: url("../../components.xml#autocomplete-rich-result-popup-cliqz");
     min-height: 350px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }

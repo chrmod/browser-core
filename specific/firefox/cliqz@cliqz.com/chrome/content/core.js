@@ -135,7 +135,7 @@ window.CLIQZ.Core = {
 
         CliqzSpellCheck.initSpellCorrection();
 
-        this.addCSS(document, 'chrome://cliqzres/content/styles/css/extension.css');
+        this.addCSS(document, 'chrome://cliqz/content/static/styles/styles.css');
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
