@@ -141,6 +141,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       CliqzAttrack.initialiseAntiRefererTracking();
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
+      CliqzAttrack.tp_events._active = {};
       CliqzAttrack.tp_events._staged = [];
       // clean up attrack caches
       CliqzAttrack.requestKeyValue = {};
