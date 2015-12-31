@@ -56,7 +56,6 @@ var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
     SKIN_PATH: 'chrome://cliqzres/content/skin/',
-    cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
     prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
@@ -110,13 +109,21 @@ var CLIQZEnvironment = {
 
         return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
     },
+    clearPref: function (pref, prefix) {
+        prefix = prefix || 'extensions.cliqz.';
+        pref = prefix + pref;
+
+        CLIQZEnvironment.prefs.clearUserPref(pref);
+    },
     getCliqzPrefs: function(){
-        return CLIQZEnvironment.cliqzPrefs
-                               .getChildList('')
-                               .reduce(function (prev, curr) {
-                                 prev[curr] = CliqzUtils.getPref(curr);
-                                 return prev;
-                               }, {});
+        return Cc['@mozilla.org/preferences-service;1']
+                 .getService(Ci.nsIPrefService)
+                 .getBranch('extensions.cliqz.')
+                 .getChildList('')
+                 .reduce(function (prev, curr) {
+                   prev[curr] = CliqzUtils.getPref(curr);
+                   return prev;
+                 }, {});
     },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();

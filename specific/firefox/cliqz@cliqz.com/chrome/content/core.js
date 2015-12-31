@@ -308,7 +308,7 @@ window.CLIQZ.Core = {
         this.elem.push(stylesheet);
     },
     checkSession: function() {
-        if (!CliqzUtils.getPref('session')) {
+        if (!CliqzUtils.hasPref('session')) {
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                 (function success(req){
                     var source = JSON.parse(req.response).shortName;

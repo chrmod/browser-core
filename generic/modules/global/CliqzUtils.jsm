@@ -110,7 +110,6 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
-  cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){
 
     if (win && win.navigator) {
@@ -300,6 +299,12 @@ var CliqzUtils = {
    * @param {string=} prefix - prefix for pref
    */
   hasPref: CLIQZEnvironment.hasPref,
+  /**
+   * Clear value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {string=} prefix - prefix for pref
+   */
+  clearPref: CLIQZEnvironment.clearPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
