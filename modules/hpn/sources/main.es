@@ -1182,68 +1182,44 @@ function trkGen(trk) {
 };
 
 function overRideCliqzResults(){
-	CliqzUtils.getCliqzResults = function(q, callback){
-		CliqzUtils._sessionSeq++;
-
-    // if the user sees the results more than 500ms we consider that he starts a new query
-    if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
-    	CliqzUtils._queryCount++;
+  if(!CLIQZEnvironment._httpHandler) CLIQZEnvironment._httpHandler = CLIQZEnvironment.httpHandler;
+  CLIQZEnvironment.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
+    if(url.indexOf(CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) > -1) {
+      if(CliqzUtils.getPref('hpn', false)){
+        var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+        var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
+        var proxyIP = CliqzSecureMessage.queryProxyIP;
+        mc.aesEncrypt()
+        .then(function(enxryptedQuery){
+          return mc.signKey();
+        })
+        .then(function(){
+          var data = {"mP":mc.getMP()}
+          CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
+          return _http(proxyIP)
+          .post(JSON.stringify(data), "instant")
+        })
+        .then(function(response){
+          return mc.aesDecrypt(JSON.parse(response)["data"]);
+        })
+        .then(function(res){
+          CliqzSecureMessage.stats(proxyIP, "queries-recieved", 1);
+          callback && callback({"response":res});
+        })
+        .catch(function(err){
+          CliqzUtils.log("Error query chain: " + err,CliqzSecureMessage.LOG_KEY);
+          CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
+        })
+        return null;
+      }
+      else{
+        return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
+      }
     }
-    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
-    CliqzUtils._queryLastLength = q.length;
-
-    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
-    encodeURIComponent(q) +
-    CliqzUtils.encodeSessionParams() +
-    CliqzLanguage.stateToQueryString() +
-    CliqzUtils.encodeLocale() +
-    CliqzUtils.encodeResultOrder() +
-    CliqzUtils.encodeCountry() +
-    CliqzUtils.encodeFilter() +
-    CliqzUtils.encodeLocation();
-
-
-    if(CliqzUtils.getPref('hpn', false)){
-    	var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
-    	var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
-    	var proxyIP = CliqzSecureMessage.queryProxyIP;
-    	mc.aesEncrypt()
-    	.then(function(enxryptedQuery){
-    		return mc.signKey();
-    	})
-    	.then(function(){
-    		var data = {"mP":mc.getMP()}
-    		CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
-    		return _http(proxyIP)
-    		.post(JSON.stringify(data), "instant")
-    	})
-    	.then(function(response){
-    		return mc.aesDecrypt(JSON.parse(response)["data"]);
-    	})
-    	.then(function(res){
-    		CliqzSecureMessage.stats(proxyIP, "queries-recieved", 1);
-    		callback && callback({"response":res}, q);
-    	})
-    	.catch(function(err){
-    		CliqzUtils.log("Error query chain: " + err,CliqzSecureMessage.LOG_KEY);
-    		CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
-    	})
-    }else{
-    	var req = CliqzUtils.httpGet(url, function (res) {
-    		callback && callback(res, q);
-    	});
-    	CliqzUtils.requestMonitor.addRequest(req);
+    else{
+      return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
     }
-
-    /*
-    var req = CliqzUtils.httpGet(url, function (res) {
-            callback && callback(res, q);
-          });
-    CliqzUtils.requestMonitor.addRequest(req);
-    */
   }
-  return;
-}
 
 function overRideHumanWebTelemetry(){
 	CliqzHumanWeb.telemetry = function(msg, instantPush) {
