@@ -232,10 +232,11 @@ var mobile = new MergeTrees([
   new Funnel(modules,        { destDir: 'modules' })
 ]);
 
-if (buildEnv === 'production') {
+// if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css', 'ttf'],
-    replaceExtensions: ['html', 'css']
+    replaceExtensions: ['html', 'css', 'js'],
+    generateAssetMap: true
   });
   // uglify breaks if 'modules' is included in MergeTrees
   // mobile = uglify(new Funnel(mobile), {
@@ -250,7 +251,7 @@ if (buildEnv === 'production') {
   //     enabled: false
   //   }
   // });
-}
+//}
 
 // Output
 module.exports = new MergeTrees([
