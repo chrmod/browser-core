@@ -14,15 +14,14 @@ function getExtensionDirectory() {
 TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
   var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
   // make sure that module is loaded (default it is not initialised on extension startup)
-  CliqzUtils.setPref('antiTrackTest', true);
 
+  var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
   describe('CliqzAttrack_integration', function() {
 
     var server = null,
       server_port = -1,
       echoed = [],
       md5 = CliqzHumanWeb._md5,
-      module_enabled = CliqzUtils.getPref('antiTrackTest', false),
       window = CliqzUtils.getWindow();
 
     /** Collects metadata from the request and pushes it into the
@@ -72,6 +71,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       proxy_type = null;
 
     before(function(done) {
+      // make sure that module is loaded (default it is not initialised on extension startup)
+      CliqzUtils.setPref('antiTrackTest', true);
+
       // set up HTTP server.
       server = new HttpServer();
       server_port = 60508;
@@ -103,6 +105,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
     });
 
     after(function() {
+      CliqzUtils.setPref('antiTrackTest', module_enabled);
       // shutdown server
       server.stop(function() {});
 

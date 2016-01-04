@@ -17,8 +17,15 @@ TESTS.AttrackTest = function (CliqzUtils) {
     var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
-    // make sure that module is loaded (default it is not initialised on extension startup)
-    CliqzUtils.setPref('antiTrackTest', true);
+
+    before(function() {
+      // make sure that module is loaded (default it is not initialised on extension startup)
+      CliqzUtils.setPref('antiTrackTest', true);
+    });
+
+    after(function() {
+      CliqzUtils.setPref('antiTrackTest', module_enabled);
+    });
 
     describe('CliqzAttrack.tab_listener', function() {
 
