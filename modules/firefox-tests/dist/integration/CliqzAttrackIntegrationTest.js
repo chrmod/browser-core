@@ -63,6 +63,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
         // send actual gif file
         server._handler._writeFileResponse(request, imgFile, response, 0, imgFile.fileSize);
       } else {
+        response.setHeader('Content-Type', 'application/json;charset=utf-8');
         response.write('{}');
       }
     }
