@@ -1220,6 +1220,7 @@ function overRideCliqzResults(){
       return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
     }
   }
+}
 
 function overRideHumanWebTelemetry(){
 	CliqzHumanWeb.telemetry = function(msg, instantPush) {

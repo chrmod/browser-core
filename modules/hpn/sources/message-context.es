@@ -1,12 +1,12 @@
 /**
- * Method to create object for message recieved+
- * Only excepts valid JSON messages with the following fields:
- * Type : Humanweb / Antitracking etc.
- * Actions : Valid actions like Page, query etc.
- * @returns string with payload created.
- */
+* Method to create object for message recieved+
+* Only excepts valid JSON messages with the following fields:
+* Type : Humanweb / Antitracking etc.
+* Actions : Valid actions like Page, query etc.
+* @returns string with payload created.
+*/
 
- import CliqzSecureMessage from 'hpn/main';
+import CliqzSecureMessage from 'hpn/main';
 
 function isJson(str) {
 // If can be parsed that means it's a str.
