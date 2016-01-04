@@ -85,7 +85,7 @@ var Extension = {
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();
 
-        // Load Config
+        // Load Config - Synchronous!
         CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
           this.config = JSON.parse(res.response);
         }.bind(this), function () {}, undefined, undefined, true);

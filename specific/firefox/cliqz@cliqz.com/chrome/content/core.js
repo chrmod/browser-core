@@ -256,8 +256,9 @@ window.CLIQZ.Core = {
                     2 - ignored
                     3 - learn more
         */
-        if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
-          //this._dataCollectionTimer = setTimeout(this.showDataCollectionMessage, 1000);
+        if(CLIQZ.config.settings.showDataCollectionMessage &&
+           CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
+          this._dataCollectionTimer = setTimeout(this.showDataCollectionMessage, 1000);
         }
     },
     showDataCollectionMessage: function(){
