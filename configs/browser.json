@@ -7,6 +7,8 @@
   },
   "modules": [
     "static",
+    "core",
+    "context-menu",
     "onboarding",
     "freshtab",
     "unblock",
