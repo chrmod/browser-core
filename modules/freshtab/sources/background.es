@@ -3,7 +3,7 @@ import News from 'freshtab/news';
 
 export default {
   init(settings) {
-    FreshTab.startup(settings.freshTabABtest, settings.freshTabButton);
+    FreshTab.startup(settings.freshTabABtest, settings.freshTabButton, settings.cliqzOnboarding);
   },
 
   unload() {
