@@ -51,7 +51,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                         return Object.keys(CliqzAttrack.tp_events._active).length > 0;
                     }).then(function() {
                         tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
-                        done();
+                        setTimeout(done, 1000);
                     });
                 });
 
@@ -134,7 +134,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                         // md5('/')
                         chai.expect(page_load.path).to.equal('6666cd76f96956469e7be39d750cc7d9'.substring(0, 16));
                         chai.expect(page_load.tps).to.be.empty;
-                        done();
+                        setTimeout(done, 1000);
                     });
 
                 });
@@ -597,8 +597,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
               chai.expect(Object.keys(CliqzAttrack.tokenExtWhitelist)).to.have.length(1);
               chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property("f528764d624db129");
               chai.expect(CliqzAttrack.tokenExtWhitelist["f528764d624db129"]).to.have.property("7269d282a42ce53e58c7b3f66ca19bac");
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           });
         });
       });
@@ -628,8 +628,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
               chai.expect(CliqzAttrack.safeKey).to.have.property("f528764d624db129");
               chai.expect(CliqzAttrack.safeKey["f528764d624db129"]).to.have.property("924a8ceeac17f54d3be3f8cdf1c04eb2");
               chai.expect(CliqzAttrack.safeKey["f528764d624db129"]["924a8ceeac17f54d3be3f8cdf1c04eb2"]).to.eql(["20200101", 'r']);
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           });
         });
 
@@ -657,8 +657,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql([today, 'l']);
               chai.expect(CliqzAttrack.safeKey[domain2_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain2_hash][key_hash]).to.eql([today, 'l']);
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           });
         });
 
@@ -677,8 +677,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
               chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql(["20200101", 'r']);
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           });
         });
 
@@ -697,8 +697,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
               chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.have.property(key_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash][key_hash]).to.eql([day, 'l']);
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           });
         });
 
@@ -723,8 +723,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
             try {
               chai.expect(CliqzAttrack.safeKeyExtVersion).to.equal(mock_safekey_hash);
               chai.expect(CliqzAttrack.safeKey[domain1_hash]).to.not.have.property(key_hash);
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           });
         });
       });
@@ -769,8 +769,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
             try {
               chai.expect(calledLoadRemoteTokenWhitelist).to.equal(0);
               chai.expect(calledLoadRemoteSafeKey).to.equal(0);
-              done();
-            } catch(e) { done(e); }
+              setTimeout(done, 1000);
+            } catch(e) { setTimeout(done, 1000, e); }
           }, 500);
         });
 
@@ -815,8 +815,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
               try {
                 chai.expect(CliqzAttrack.safeKey).to.eql({});
                 chai.expect(CliqzAttrack.requestKeyValue).to.eql({});
-                done();
-              } catch(e) { done(e); }
+                setTimeout(done, 1000);
+              } catch(e) { setTimeout(done, 1000, e); }
             });
           });
 
@@ -829,8 +829,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
             }).then(function() {
               try {
                 chai.expect(CliqzAttrack.safeKey).to.not.eql({});
-                done();
-              } catch(e) { done(e); }
+                setTimeout(done, 1000);
+              } catch(e) { setTimeout(done, 1000, e); }
             });
           });
         });
