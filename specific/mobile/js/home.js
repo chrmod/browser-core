@@ -1,6 +1,6 @@
 console.log("localStorage", localStorage);
 if(localStorage.length == 0) {
   window.addEventListener('load', function() {
-    window.document.getElementById('freshstart').innerHTML = 'HELLO';
+    window.document.getElementById('freshstart').innerHTML = 'Willkommen beim CLIQZ-Browser!';
   });
 }
