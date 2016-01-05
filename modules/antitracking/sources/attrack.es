@@ -2475,7 +2475,11 @@ var CliqzAttrack = {
     },
     sendTokens: function() {
         var payl;
-        if (CliqzAttrack.tokens) {
+        // @konarkm
+        // CliqzAttrack.tokens is {}, hence this "if"condition is always true.
+        // This results in generating empty payload. IMO we should not be sending empty payload.
+        // {"type":"humanweb","action":"attrack.tokens","payload":{"data":{},"ver":"0.93","ts":"2015122414","anti-duplicates":3520543,"whitelist":"3666433f517b29cc991e30207c348d8a","safeKey":"bc05eee1ce91e5bf9f7a71b09ac8a0e3"},"ver":"1.8","ts":"20151224","anti-duplicates":9178902}
+        if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
             payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
@@ -2486,7 +2490,11 @@ var CliqzAttrack = {
         }
 
         // send also safe keys
-        if (CliqzAttrack.safeKey) {
+        // @konarkm
+        // CliqzAttrack.safekey is {}, hence this "if"condition is always true.
+        // This results in generating empty payload. IMO we should not be sending empty payload.
+        // {"type":"humanweb","action":"attrack.blocked","payload":{"data":{},"ver":"0.93","ts":"2015122414","anti-duplicates":3759544,"whitelist":"3666433f517b29cc991e30207c348d8a","safeKey":"bc05eee1ce91e5bf9f7a71b09ac8a0e3"},"ver":"1.8","ts":"20151224","anti-duplicates":6817199}
+        if (CliqzAttrack.safeKey && Object.keys(CliqzAttrack.safeKey).length > 0) {
             CliqzAttrack.saveSafeKey();
             // get only keys from local key
             var day = CliqzAttrack.getTime().substring(0, 8);
@@ -2506,11 +2514,18 @@ var CliqzAttrack = {
                     }
                 }
             }
-            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
+            if(Object.keys(dts).length > 0) {
+                payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': CliqzAttrack.safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
+                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
+            }
         }
+
         // send block list
-        if (CliqzAttrack.blocked) {
+        // @konarkm
+        // CliqzAttrack.blocked is {}, hence this "if"condition is always true.
+        // This results in generating empty payload. IMO we should not be sending empty payload.
+        // {"type":"humanweb","action":"attrack.blocked","payload":{"data":{},"ver":"0.93","ts":"2015122414","anti-duplicates":3759544,"whitelist":"3666433f517b29cc991e30207c348d8a","safeKey":"bc05eee1ce91e5bf9f7a71b09ac8a0e3"},"ver":"1.8","ts":"20151224","anti-duplicates":6817199}
+        if (CliqzAttrack.blocked && Object.keys(CliqzAttrack.blocked).length > 0) {
             payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': CliqzAttrack.safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});

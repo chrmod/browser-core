@@ -1,7 +1,9 @@
 {
   "settings": {
     "freshTabButton": false,
-    "antitrackingButton": true
+    "freshTabABtest" : false,
+    "antitrackingButton": true,
+    "showDataCollectionMessage": true
   },
   "modules": [
     "freshtab",

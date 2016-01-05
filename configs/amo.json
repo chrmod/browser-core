@@ -1,7 +1,9 @@
 {
   "settings": {
     "freshTabButton": true,
-    "antitrackingButton": false
+    "freshTabABtest" : true,
+    "antitrackingButton": false,
+    "showDataCollectionMessage": true
   },
   "modules": [
     "onboarding",
