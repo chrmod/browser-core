@@ -234,7 +234,7 @@ var mobile = new MergeTrees([
 
 // if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
-    extensions: ['js', 'css', 'ttf'],
+    extensions: ['js', 'css'],
     replaceExtensions: ['html', 'css', 'js'],
     generateAssetMap: true
   });
