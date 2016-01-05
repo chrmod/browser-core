@@ -158,8 +158,6 @@ function sendM(m){
     	else{
     		return;
     	}
-
-
     })
     .catch(function(err){
     	CliqzUtils.log("Error promise failed: " + err,CliqzSecureMessage.LOG_KEY);
@@ -265,7 +263,7 @@ function _http(url){
           } else {
             // Performs the function "reject" when this.status is different than 2xx
             CliqzUtils.log("Error _http: " + client.status,"Other status code.");
-            reject(this.statusText);
+            resolve(this.statusText);
           }
         };
         client.onerror = function () {
@@ -851,7 +849,7 @@ var CliqzSecureMessage = {
     	CliqzSecureMessage.RSAKey = window.RSAKey;
     	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
     	overRideCliqzResults();
-    	overRideHumanWebTelemetry();
+    	// overRideHumanWebTelemetry();
     },
     init: function(){
     	// Doing it here, because this lib. uses navigator and window objects.
@@ -1180,63 +1178,46 @@ function trkGen(trk) {
 function overRideCliqzResults(){
   if(!CLIQZEnvironment._httpHandler) CLIQZEnvironment._httpHandler = CLIQZEnvironment.httpHandler;
   CLIQZEnvironment.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
-    if(url.indexOf(CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) > -1) {
-      if(CliqzUtils.getPref('hpn', false)){
-        var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
-        var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
-        var proxyIP = CliqzSecureMessage.queryProxyIP;
-        mc.aesEncrypt()
-        .then(function(enxryptedQuery){
-          return mc.signKey();
+    if(url.indexOf(CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) > -1 && CliqzUtils.getPref('hpn', false)) {
+      var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+      var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
+      var proxyIP = CliqzSecureMessage.queryProxyIP;
+      mc.aesEncrypt()
+      .then(function(enxryptedQuery){
+        return mc.signKey();
+      })
+      .then(function(){
+        var data = {"mP":mc.getMP()}
+        CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
+        return _http(proxyIP)
+        .post(JSON.stringify(data), "instant")
+      })
+      .then(function(response){
+        return mc.aesDecrypt(JSON.parse(response)["data"]);
+      })
+      .then(function(res){
+        CliqzSecureMessage.stats(proxyIP, "queries-recieved", 1);
+        callback && callback({"response":res});
+      })
+      .catch(function(err){
+        CliqzUtils.log("Error query chain: " + err,CliqzSecureMessage.LOG_KEY);
+        CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
+      })
+      return null;
+    }
+    else if(url == CliqzUtils.SAFE_BROWSING && CliqzUtils.getPref('hpn', false)){
+      var batch = JSON.parse(data);
+      if(batch.length > 0){
+        batch.forEach(function(eachMsg){
+          CliqzSecureMessage.telemetry(eachMsg);
         })
-        .then(function(){
-          var data = {"mP":mc.getMP()}
-          CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
-          return _http(proxyIP)
-          .post(JSON.stringify(data), "instant")
-        })
-        .then(function(response){
-          return mc.aesDecrypt(JSON.parse(response)["data"]);
-        })
-        .then(function(res){
-          CliqzSecureMessage.stats(proxyIP, "queries-recieved", 1);
-          callback && callback({"response":res});
-        })
-        .catch(function(err){
-          CliqzUtils.log("Error query chain: " + err,CliqzSecureMessage.LOG_KEY);
-          CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
-        })
-        return null;
       }
-      else{
-        return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
-      }
+      callback && callback({"response":'{"success":true}'});
     }
     else{
       return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
     }
   }
-}
-
-function overRideHumanWebTelemetry(){
-	CliqzHumanWeb.telemetry = function(msg, instantPush) {
-		if (!CliqzHumanWeb || //might be called after the module gets unloaded
-			CliqzUtils.getPref('dnt', false) ||
-			CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
-
-			msg.ver = CliqzHumanWeb.VERSION;
-		msg = CliqzHumanWeb.msgSanitize(msg);
-		if (msg) CliqzHumanWeb.incrActionStats(msg.action);
-		if (msg) CliqzHumanWeb.trk.push(msg);
-		CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
-		if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
-			CliqzHumanWeb.pushTelemetry();
-		} else {
-			CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
-		}
-		CliqzSecureMessage.telemetry(msg);
-	}
-	return;
 }
 
 export default CliqzSecureMessage;
