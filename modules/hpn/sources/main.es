@@ -2,22 +2,22 @@
 /*
  * This module is use for sending the events for purpose of human-web, anti-tracking via a secure channel.
  * This solves purpose like anti-duplicates, rate-limiting etc.
- */
+*/
 
- import messageContext from "hpn/message-context";
+import messageContext from "hpn/message-context";
 
- const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-
- Cu.import("resource://gre/modules/Services.jsm");
- Cu.import("resource://gre/modules/FileUtils.jsm");
- Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 
+Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
- var nsIHttpChannel = Ci.nsIHttpChannel;
- var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
- .getService(Components.interfaces.nsIPrefBranch);
+
+
+var nsIHttpChannel = Ci.nsIHttpChannel;
+var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
+.getService(Components.interfaces.nsIPrefBranch);
 
 
 // Import them in alphabetical order.
@@ -172,8 +172,7 @@ function sendM(m){
     		return;
     	}
     })
-
-  }
+}
 
 /*
 var sample_message = '{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}';
@@ -306,9 +305,9 @@ function _http(url){
  									SIG(uPK;bm1;bm2;bm3)
  									>
  * @returns string with payload created.
- */
+*/
 
- function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
+function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
  	var payload = {};
  	payload["uPK"] = uPK;
  	payload["bm1"] = bm1;
@@ -330,25 +329,24 @@ function _http(url){
  * @returns string with payload created.
  */
 
- function createPayloadProxy(uPK, mP, dmC, bs1, bs2, bs3, sig){
- 	var payload = {};
- 	payload["uPK"] = uPK;
- 	payload["mP"] = mP;
- 	payload["dmC"] = dmC;
- 	payload["bs1"] = bs1;
- 	payload["bs2"] = bs2;
- 	payload["bs3"] = bs3;
- 	payload["sig"] = sig;
- 	return payload;
- }
+function createPayloadProxy(uPK, mP, dmC, bs1, bs2, bs3, sig){
+	var payload = {};
+	payload["uPK"] = uPK;
+	payload["mP"] = mP;
+	payload["dmC"] = dmC;
+	payload["bs1"] = bs1;
+	payload["bs2"] = bs2;
+	payload["bs3"] = bs3;
+	payload["sig"] = sig;
+	return payload;
+}
 
- function unBlindMessage(blindSignedMessage, unBlinder){
-	// Unblind the message before sending it for verification.
-	// s = u*(bs) mod n
-	var _us = multMod(unBlinder, str2bigInt(blindSignedMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
-	var us = bigInt2str(_us,10, 0)
-	return us;
-
+function unBlindMessage(blindSignedMessage, unBlinder){
+  // Unblind the message before sending it for verification.
+  // s = u*(bs) mod n
+  var _us = multMod(unBlinder, str2bigInt(blindSignedMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
+  var us = bigInt2str(_us,10, 0)
+  return us;
 }
 
 function verifyBlindSignature(signedMessage, hashedOriginalMessage){
@@ -407,44 +405,42 @@ var userPK = function () {
 			this.publicKey = this.keyGen.getPublicKey();
 			this.publicKeyB64 = this.keyGen.getPublicKeyB64();
 		}
-
-	}
+}
 
 /**
  * Method to encrypt messages using long live public key.
- */
- userPK.prototype.encrypt = function(msg){
- 	return this.keyGen.encrypt(msg);
-
- }
+*/
+userPK.prototype.encrypt = function(msg){
+  return this.keyGen.encrypt(msg);
+}
 
 /**
- * Method to decrypt messages using long live public key.
- */
- userPK.prototype.decrypt = function(msg){
- 	return this.keyGen.decrypt(msg);
- }
+* Method to decrypt messages using long live public key.
+*/
+userPK.prototype.decrypt = function(msg){
+	return this.keyGen.decrypt(msg);
+}
 
 /**
  * Method to sign the str using userSK.
  * @returns signature in hex format.
  */
- userPK.prototype.sign = function(msg){
- 	var _this = this;
- 	var promise = new Promise(function(resolve, reject){
- 		try{
- 			var rsa = new CliqzSecureMessage.RSAKey();
- 			rsa.readPrivateKeyFromPEMString(CliqzSecureMessage.uPK.privateKey);
- 			var hSig = rsa.sign(msg,"sha256");
- 			resolve(hSig);
+userPK.prototype.sign = function(msg){
+	var _this = this;
+	var promise = new Promise(function(resolve, reject){
+		try{
+			var rsa = new CliqzSecureMessage.RSAKey();
+			rsa.readPrivateKeyFromPEMString(CliqzSecureMessage.uPK.privateKey);
+			var hSig = rsa.sign(msg,"sha256");
+			resolve(hSig);
 
- 		}
- 		catch(e){
- 			reject(e);
- 		}
- 	})
- 	return promise;
- }
+		}
+		catch(e){
+			reject(e);
+		}
+	})
+	return promise;
+}
 
 
 
@@ -470,7 +466,7 @@ var blindSignContext = function (msg) {
  	this.signedMessage = "";
  	this.msg = msg;
 
- }
+}
 
 /*
 blindSignContext.prototype.fetchSignerKey = function(){
@@ -732,55 +728,55 @@ var CliqzSecureMessage = {
 
           CliqzSecureMessage.counter += 1;
         },
-        fetchRouteTable: function(){
-		// This will fetch the route table from webservice.
-		CliqzUtils.httpGet(CliqzSecureMessage.LOOKUP_TABLE_PROVIDER,
-			function success(res){
-				try{
-					var routeTable = JSON.parse(res.response);
-					CliqzSecureMessage.routeTable= routeTable;
-				}
-				catch(e){
-					if (CliqzSecureMessage.debug) CliqzUtils.log("Could load content from route table", CliqzSecureMessage.LOG_KEY);
-				}
-			},
-			function error(res){
-				CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY)
-			});
-	},
-	fetchProxyList: function(){
-		// This will fetch the alive proxies from the webservice.
-		CliqzUtils.httpGet(CliqzSecureMessage.PROXY_LIST_PROVIDER,
-			function success(res){
-				try{
-					var proxyList = JSON.parse(res.response);
-					CliqzSecureMessage.proxyList = proxyList;
-				}
-				catch(e){
-					if (CliqzSecureMessage.debug) CliqzUtils.log("Could load content from proxy list", CliqzSecureMessage.LOG_KEY);
-				}
-			},
-			function error(res){
-				CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY)
-			});
-	},
-	fetchSecureKeys: function(){
-		// This will fetch the route table from local file, will move it to webservice later.
-		CliqzUtils.httpGet(CliqzSecureMessage.KEYS_PROVIDER,
-			function success(res){
-				try{
-					var keys = JSON.parse(res.response);
-					CliqzSecureMessage.signerKey = keys["signer"];
-					CliqzSecureMessage.loggerKey = keys["securelogger"];
-				}
-				catch(e){
-					if (CliqzSecureMessage.debug) CliqzUtils.log("Could load signer and secure logger keys", CliqzSecureMessage.LOG_KEY);
-				}
-			},
-			function error(res){
-				CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY)
-			});
-	},
+    fetchRouteTable: function(){
+  		// This will fetch the route table from webservice.
+  		CliqzUtils.httpGet(CliqzSecureMessage.LOOKUP_TABLE_PROVIDER,
+  			function success(res){
+  				try{
+  					var routeTable = JSON.parse(res.response);
+  					CliqzSecureMessage.routeTable= routeTable;
+  				}
+  				catch(e){
+  					if (CliqzSecureMessage.debug) CliqzUtils.log("Could load content from route table", CliqzSecureMessage.LOG_KEY);
+  				}
+  			},
+  			function error(res){
+  				CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY)
+  			});
+  	},
+  	fetchProxyList: function(){
+  		// This will fetch the alive proxies from the webservice.
+  		CliqzUtils.httpGet(CliqzSecureMessage.PROXY_LIST_PROVIDER,
+  			function success(res){
+  				try{
+  					var proxyList = JSON.parse(res.response);
+  					CliqzSecureMessage.proxyList = proxyList;
+  				}
+  				catch(e){
+  					if (CliqzSecureMessage.debug) CliqzUtils.log("Could load content from proxy list", CliqzSecureMessage.LOG_KEY);
+  				}
+  			},
+  			function error(res){
+  				CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY)
+  			});
+  	},
+  	fetchSecureKeys: function(){
+  		// This will fetch the route table from local file, will move it to webservice later.
+  		CliqzUtils.httpGet(CliqzSecureMessage.KEYS_PROVIDER,
+  			function success(res){
+  				try{
+  					var keys = JSON.parse(res.response);
+  					CliqzSecureMessage.signerKey = keys["signer"];
+  					CliqzSecureMessage.loggerKey = keys["securelogger"];
+  				}
+  				catch(e){
+  					if (CliqzSecureMessage.debug) CliqzUtils.log("Could load signer and secure logger keys", CliqzSecureMessage.LOG_KEY);
+  				}
+  			},
+  			function error(res){
+  				CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY)
+  			});
+  	},
     // ****************************
     // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
     // ****************************
@@ -798,57 +794,57 @@ var CliqzSecureMessage = {
         } else {
         	CliqzSecureMessage.trkTimer = CliqzUtils.setTimeout(CliqzSecureMessage.pushTelemetry, 60000);
         }
-      },
-      _telemetry_req: null,
-      _telemetry_sending: [],
-      _telemetry_start: undefined,
-      telemetry_MAX_SIZE: 500,
-      previousDataPost: null,
-      pushMessage : [],
-      sha1:null,
-      routeHashTable:null,
-      pacemakerId:null,
-      queryProxyIP:null,
-      performance:null,
-      pushTelemetry: function() {
-        // if(CliqzSecureMessage._telemetry_req) return;
+    },
+    _telemetry_req: null,
+    _telemetry_sending: [],
+    _telemetry_start: undefined,
+    telemetry_MAX_SIZE: 500,
+    previousDataPost: null,
+    pushMessage : [],
+    sha1:null,
+    routeHashTable:null,
+    pacemakerId:null,
+    queryProxyIP:null,
+    performance:null,
+    pushTelemetry: function() {
+      // if(CliqzSecureMessage._telemetry_req) return;
 
-        // put current data aside in case of failure
-        // Changing the slice and empty array function to splice.
+      // put current data aside in case of failure
+      // Changing the slice and empty array function to splice.
 
-        //CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.slice(0);
-        //CliqzSecureMessage.trk = [];
+      //CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.slice(0);
+      //CliqzSecureMessage.trk = [];
 
-        // Check if track has duplicate messages.
-        // Generate a telemetry signal, with base64 endocing of data and respective count.
+      // Check if track has duplicate messages.
+      // Generate a telemetry signal, with base64 endocing of data and respective count.
 
-        CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
-        CliqzSecureMessage._telemetry_start = (new Date()).getTime();
-        CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
-        sendM(CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]]);
+      CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
+      CliqzSecureMessage._telemetry_start = (new Date()).getTime();
+      CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
+      sendM(CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]]);
 
-      },
-      pushTelemetryCallback: function(req){
-      	try {
-      		var response = JSON.parse(req.response);
-      		CliqzSecureMessage._telemetry_sending = [];
-      		CliqzSecureMessage._telemetry_req = null;
-      	} catch(e){}
-      },
-      pushTelemetryError: function(req){
-        // pushTelemetry failed, put data back in queue to be sent again later
-        CliqzSecureMessage.trk = CliqzSecureMessage._telemetry_sending.concat(CliqzSecureMessage.trk);
+    },
+    pushTelemetryCallback: function(req){
+    	try {
+    		var response = JSON.parse(req.response);
+    		CliqzSecureMessage._telemetry_sending = [];
+    		CliqzSecureMessage._telemetry_req = null;
+    	} catch(e){}
+    },
+    pushTelemetryError: function(req){
+      // pushTelemetry failed, put data back in queue to be sent again later
+      CliqzSecureMessage.trk = CliqzSecureMessage._telemetry_sending.concat(CliqzSecureMessage.trk);
 
-        // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-        var slice_pos = CliqzSecureMessage.trk.length - CliqzSecureMessage.telemetry_MAX_SIZE + 100;
-        if(slice_pos > 0){
-        	CliqzSecureMessage.trk = CliqzSecureMessage.trk.slice(slice_pos);
-        }
+      // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
+      var slice_pos = CliqzSecureMessage.trk.length - CliqzSecureMessage.telemetry_MAX_SIZE + 100;
+      if(slice_pos > 0){
+      	CliqzSecureMessage.trk = CliqzSecureMessage.trk.slice(slice_pos);
+      }
 
-        CliqzSecureMessage._telemetry_sending = [];
-        CliqzSecureMessage._telemetry_req = null;
-      },
-      initAtWindow: function(window){
+      CliqzSecureMessage._telemetry_sending = [];
+      CliqzSecureMessage._telemetry_req = null;
+    },
+    initAtWindow: function(window){
     	Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/crypto-kjur.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/rsa-sign.js', window);
     	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
