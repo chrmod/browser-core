@@ -1,9 +1,14 @@
 {
-  "prefs": {
-    "freshTabButton": true
+  "settings": {
+    "freshTabButton": true,
+    "freshTabABtest" : true,
+    "antitrackingButton": false,
+    "showDataCollectionMessage": true
   },
   "modules": [
+    "static",
     "onboarding",
-    "freshtab"
+    "freshtab",
+    "antitracking"
   ]
 }

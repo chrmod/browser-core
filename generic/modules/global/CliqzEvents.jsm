@@ -29,7 +29,9 @@ var CliqzEvents = CliqzEvents || {
   pub: function (id) {
     var args = Array.prototype.slice.call(arguments, 1);
     (CliqzEvents.cache[id] || []).forEach(function (ev) {
-      ev.apply(null, args);
+      CliqzUtils.setTimeout(function () {
+        ev.apply(null, args);
+      }, 0);
     });
   },
 
@@ -55,5 +57,11 @@ var CliqzEvents = CliqzEvents || {
         CliqzEvents.cache[id].splice(index);
       }
     }
+  },
+
+  nextId: function nextId() {
+    nextId.id = nextId.id || 0;
+    nextId.id += 1;
+    return nextId.id;
   }
 };

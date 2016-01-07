@@ -1,14 +1,18 @@
 {
-  "prefs": {
-    "freshTabButton": false
+  "settings": {
+    "freshTabButton": false,
+    "freshTabABtest" : false,
+    "antitrackingButton": true,
+    "showDataCollectionMessage": true
   },
   "modules": [
-    "onboarding",
+    "static",
     "freshtab",
     "unblock",
     "theme",
     "users1st",
     "loyalty",
-    "firefox-tests"
+    "firefox-tests",
+    "antitracking"
   ]
 }

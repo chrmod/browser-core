@@ -112,7 +112,6 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
-  cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){
 
     if (win && win.navigator) {
@@ -282,10 +281,32 @@ var CliqzUtils = {
     }
   },
   openTabInWindow: CLIQZEnvironment.openTabInWindow,
-  getPrefs: CLIQZEnvironment.getPrefs,
+  /**
+   * Get a value from preferences db
+   * @param {string}  pref - preference identifier
+   * @param {*=}      defautlValue - returned value in case pref is not defined
+   * @param {string=} prefix - prefix for pref
+   */
   getPref: CLIQZEnvironment.getPref,
-  isPrefBool: CLIQZEnvironment.isPrefBool,
+  /**
+   * Set a value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {*=}      defautlValue - returned value in case pref is not defined
+   * @param {string=} prefix - prefix for pref
+   */
   setPref: CLIQZEnvironment.setPref,
+  /**
+   * Check if there is a value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {string=} prefix - prefix for pref
+   */
+  hasPref: CLIQZEnvironment.hasPref,
+  /**
+   * Clear value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {string=} prefix - prefix for pref
+   */
+  clearPref: CLIQZEnvironment.clearPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))

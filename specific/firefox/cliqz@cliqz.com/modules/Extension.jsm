@@ -35,9 +35,6 @@ function newMajorVersion(oldV, newV){
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
-    PREFS: {
-        'session': ''
-    },
     modules: [],
     init: function(){
         Extension.unloadModules();
@@ -56,6 +53,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
@@ -85,30 +83,17 @@ var Extension = {
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();
 
-        // Modules loading
+        // Load Config - Synchronous!
         CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-          var config;
-          try {
-            config = JSON.parse(res.response);
-          } catch(e) { dump(e); return; }
-
-          Object.keys(config.prefs).forEach(function (pref) {
-            CliqzUtils.setPref(pref, config.prefs[pref]);
-          });
-
-          try {
-            this.modules = config.modules;
-
-            this.modules.map(function (moduleName) {
-              return System.import(moduleName+"/background");
-            }).forEach(function (modulePromise) {
-              modulePromise.then(function (module) {
-                module.default.init();
-              }).catch(function (e) { /* die silently */ });
-            });
-
-          } catch(e) { dump(e) }
+          this.config = JSON.parse(res.response);
         }.bind(this), function () {}, undefined, undefined, true);
+
+        // Load and initialize modules
+        this.config.modules.forEach(function (moduleName) {
+          return System.import(moduleName+"/background").then(function (module) {
+            module.default.init(this.config.settings);
+          }.bind(this)).catch(function (e) { /* die silently */ });
+        }.bind(this));
 
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -128,6 +113,9 @@ var Extension = {
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
           //CliqzUtils.setPref('changeLogState', 1);
         }
+
+        Extension.cliqzPrefsObserver.register();
+
     },
     unload: function(version, uninstall){
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
@@ -148,6 +136,7 @@ var Extension = {
             CliqzHumanWeb.unloadAtBrowser();
         }
 
+
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -161,6 +150,8 @@ var Extension = {
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
+
+        Extension.cliqzPrefsObserver.unregister();
     },
     restoreSearchBar: function(win){
         var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
@@ -190,12 +181,14 @@ var Extension = {
         }
     },
     unloadModules: function(){
-        this.modules.forEach(function (moduleName) {
-          try {
-            System.get(moduleName+"/background").default.unload();
-          } catch(e) {
-          }
-        });
+        if(this.config) {
+          this.config.modules.forEach(function (moduleName) {
+            try {
+              System.get(moduleName+"/background").default.unload();
+            } catch(e) {
+            }
+          });
+        }
 
         //unload all cliqz modules
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
@@ -208,7 +201,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
-        Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
+        Cu.unload('chrome://cliqzmodules/content/UrlCompare.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
@@ -243,31 +236,14 @@ var Extension = {
         CliqzUtils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        var branch = CliqzUtils.cliqzPrefs;
-
         //basic solution for having consistent preferences between updates
-        this.cleanPrefs(branch);
-
-        for (let [key, val] in new Iterator(Extension.PREFS)) {
-            if(!branch.prefHasUserValue(key)){
-                switch (typeof val) {
-                    case 'boolean':
-                    branch.setBoolPref(key, val);
-                    break;
-                case 'number':
-                    branch.setIntPref(key, val);
-                    break;
-                case 'string':
-                    branch.setCharPref(key, val);
-                    break;
-                }
-            }
-        }
-    },
-    cleanPrefs: function(prefs){
         //0.5.02 - 0.5.04
-        prefs.clearUserPref('analysis');
-        prefs.clearUserPref('news-toggle-trending');
+        CliqzUtils.clearPref('analysis');
+        CliqzUtils.clearPref('news-toggle-trending');
+
+        if(!CliqzUtils.hasPref('session')) {
+          CliqzUtils.setPref('session', '');
+        }
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
@@ -285,7 +261,7 @@ var Extension = {
           } catch(e){}
       }
       win.CLIQZ.System = System;
-      win.CLIQZ.modules = this.modules;
+      win.CLIQZ.config = this.config;
     },
     loadIntoWindow: function(win) {
         if (!win) return;
@@ -408,9 +384,8 @@ var Extension = {
     setOurOwnPrefs: function() {
         var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
-        if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+        if (!CliqzUtils.hasPref("maxRichResultsBackup")) {
+            CliqzUtils.setPref("maxRichResultsBackup",
                 urlBarPref.getIntPref("maxRichResults"));
             urlBarPref.setIntPref("maxRichResults", 30);
         }
@@ -424,14 +399,13 @@ var Extension = {
     /** Reset changed prefs on uninstall */
     resetOriginalPrefs: function() {
         var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+        var cliqzBackup = CliqzUtils.getPref("maxRichResultsBackup");
         if (cliqzBackup) {
             CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
             urlBarPref.setIntPref("maxRichResults",
-                CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
-            // deleteBranch does not work for some reason :(
-            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
-            CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+                CliqzUtils.getPref("maxRichResultsBackup"));
+
+            CliqzUtils.clearPref("maxRichResultsBackup", 0);
         } else {
             CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
         }
@@ -440,6 +414,24 @@ var Extension = {
           urlBarPref.setBoolPref("unifiedcomplete", true);
           CliqzUtils.setPref('unifiedcomplete', false);
         }
+    },
+    cliqzPrefsObserver: {
+      register: function() {
+        var prefService = Components.classes["@mozilla.org/preferences-service;1"]
+                                    .getService(Components.interfaces.nsIPrefService);
+        this.branch = prefService.getBranch('extensions.cliqz.');
+        if (!("addObserver" in this.branch)) {
+          this.branch.QueryInterface(Components.interfaces.nsIPrefBranch2);
+        }
+        this.branch.addObserver("", this, false);
+      },
+      unregister: function() {
+        this.branch.removeObserver("", this);
+      },
+      observe: function(subject, topic, data) {
+        CliqzUtils.log(data, 'prefchange');
+        CliqzEvents.pub('prefchange', data);
+      }
     }
 };
 

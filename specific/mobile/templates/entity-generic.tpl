@@ -15,13 +15,6 @@
           <!-- <div class="after" style="background-image: url({{icon}})"></div> -->
 
         <ul class="cta">
-            {{#each actions }}
-                <li extra="action-{{ @index }}" url="{{ url }}"><a>{{ title }}</a></li>
-            {{/each}}
-
-            <li>&nbsp;</li>
-
-
             {{#each links }}
                 <li class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
                      url="{{ url }}"
@@ -38,6 +31,13 @@
                     </a>
                 </li>
             {{/each}}
+
+            <li>&nbsp;</li>
+
+            {{#each actions }}
+                <li extra="action-{{ @index }}" url="{{ url }}"><a>{{ title }}</a></li>
+            {{/each}}
+            
         </ul>
         </div>
     {{/with}}
