@@ -189,7 +189,7 @@ PrefListener.prototype.observe = function (subject, topic, data) {
 };
 
 /**
- * @param {boolean=} trigger if true triggers the registered function
+ * @param trigger if true triggers the registered function
  *   on registration, that is, when this method is called.
  */
 PrefListener.prototype.register = function (trigger) {
@@ -344,25 +344,25 @@ var CliqzStatsGlobal = {
 var ICONS = {
   iconsStatus: {
     "noNotify": {
-      "MEMBER": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-member.svg", color: "#ABC8E2"},
-      "BUDDY": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-buddy.svg", color: "#5EA3F9"},
-      "HERO": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-hero.svg", color: "#733090"},
-      "LEGEND": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-legend.svg", color: "#FFC802"}
+      "MEMBER": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-member.svg", color: "#ABC8E2"},
+      "BUDDY": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-buddy.svg", color: "#5EA3F9"},
+      "HERO": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-hero.svg", color: "#733090"},
+      "LEGEND": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-legend.svg", color: "#FFC802"}
     }
   },
 
   iconsBrowser: {
     "noNotify": {
-      "MEMBER": "chrome://cliqzres/content/content/loyalty/images/browser_icons/member-browser.svg",
-      "BUDDY": "chrome://cliqzres/content/content/loyalty/images/browser_icons/buddy-browser.svg",
-      "HERO": "chrome://cliqzres/content/content/loyalty/images/browser_icons/hero-browser.svg",
-      "LEGEND": "chrome://cliqzres/content/content/loyalty/images/browser_icons/legend-browser.svg"
+      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-browser.svg",
+      "BUDDY": "chrome://cliqz/content/loyalty/images/browser_icons/buddy-browser.svg",
+      "HERO": "chrome://cliqz/content/loyalty/images/browser_icons/hero-browser.svg",
+      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-browser.svg"
     },
     'notify': {
-      "MEMBER": "chrome://cliqzres/content/content/loyalty/images/browser_icons/member-notification.svg",
-      "BUDDY": "chrome://cliqzres/content/content/loyalty/images/browser_icons/buddy-notification.svg",
-      "HERO": "chrome://cliqzres/content/content/loyalty/images/browser_icons/hero-notification.svg",
-      "LEGEND": "chrome://cliqzres/content/content/loyalty/images/browser_icons/legend-notification.svg"
+      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-notification.svg",
+      "BUDDY": "chrome://cliqz/content/loyalty/images/browser_icons/buddy-notification.svg",
+      "HERO": "chrome://cliqz/content/loyalty/images/browser_icons/hero-notification.svg",
+      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-notification.svg"
     }
   },
 
@@ -390,7 +390,7 @@ var CliqzLLogic = {
     // NOTE: call this after CliqzStats.cliqzUsageCached is initialized
     // Call this before running fetching  back-end data
 
-    CliqzUtils.loadResource('chrome://cliqzres/content/content/loyalty/content/extensionSpecific.json',
+    CliqzUtils.loadResource('chrome://cliqz/content/loyalty/content/extensionSpecific.json',
       function (req) {
         if (CliqzUtils) {
           var data = JSON.parse(req.response);
@@ -616,7 +616,7 @@ var CliqzLLogic = {
       /**
        * @para: trigger_by: see update()
        */
-      var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
+      var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
       var changed = CliqzLLogic.badges.isBadgesUpdated(awards, CliqzLLogic.badges.curBadges);
       //if (changed) {
       //  CliqzUtils.log({"current": CliqzLLogic.badges.curBadges, "new": awards}, "HI CLIQZT, badges changed")
@@ -795,7 +795,7 @@ var CliqzStats = {
     CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
 
     // to avoid access to often to the db, we cache certain info here
-    var userDB = CliqzStats.get();
+    var userDB = CliqzStats.getStat();
     CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
   },
 
@@ -812,7 +812,7 @@ var CliqzStats = {
     CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
 
     // to avoid access to often to the db, we cache certain info here
-    var userDB = CliqzStats.get();
+    var userDB = CliqzStats.getStat();
     CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
   },
 
@@ -832,7 +832,7 @@ var CliqzStats = {
     };
   },
 
-  get: function (term) {
+  getStat: function (term) {
     // @para: term 0,1,2... where 0 is the first term the user start using loyalty. Leave term = null for default: current term
     var t = term === undefined ? CliqzStats.curDBTerm : term, s;
     if (t === CliqzStats.curDBTerm && CliqzStats.cliqzDBCurTermCached)
@@ -1157,7 +1157,7 @@ var CliqzLoyalty = {
   },
 
   getAllStatCurrentTerm: function () {
-    return CliqzLoyalty.prepareDataForUI(CliqzStats.get());
+    return CliqzLoyalty.prepareDataForUI(CliqzStats.getStat());
   },
 
   getAllStat: function () {
@@ -1165,7 +1165,7 @@ var CliqzLoyalty = {
   },
 
   getBadgesInfo: function () {
-    return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
+    return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
 //        return CliqzStatsGlobal.CliqzBadges;
   },
 
@@ -1179,7 +1179,7 @@ var CliqzLoyalty = {
      */
     var stt = null;
     if (CliqzLoyalty.hasJoined()) {
-      var user_stat = CliqzStats.get(),
+      var user_stat = CliqzStats.getStat(),
         point = CliqzLLogic.calPoint(user_stat.resultsCliqz.total);
       stt = CliqzLLogic.memStatus.calStatus(point);
     }

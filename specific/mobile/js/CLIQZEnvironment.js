@@ -62,7 +62,7 @@ CLIQZEnvironment = {
 
     }
   },
-  
+
   crossTransform: function(element, x) {
     var platforms = ['', '-webkit-', '-ms-'];
     platforms.forEach(function(platform) {
@@ -71,7 +71,7 @@ CLIQZEnvironment = {
   },
 
   renderResults: function(r, showGooglethis, validCount) {
-    
+
     var historyCount = 0;
     for(var i = 0; i < r._results.length; i++) {
       if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
@@ -167,7 +167,7 @@ CLIQZEnvironment = {
       CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
     })(validCount);
 
-    // CLIQZEnvironment.vp.goToIndex(1,0); 
+    // CLIQZEnvironment.vp.goToIndex(1,0);
 
     if(document.getElementById("currency-tpl")) {
       document.getElementById("currency-tpl").parentNode.removeAttribute("url");
@@ -190,7 +190,7 @@ CLIQZEnvironment = {
     }
 
     CLIQZEnvironment.autoComplete(r._results[0].val);
-    
+
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
       CLIQZEnvironment.enrichResults(r, 0);
@@ -199,8 +199,8 @@ CLIQZEnvironment = {
     }
 
     clearTimeout(CLIQZEnvironment.storeQueryTimeout);
-    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() { 
-      CLIQZEnvironment.setCurrentQuery(r._searchString); 
+    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
+      CLIQZEnvironment.setCurrentQuery(r._searchString);
     },2000);
 
     CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
@@ -210,7 +210,7 @@ CLIQZEnvironment = {
     var showGooglethis = 1;
     var validCount = 0;
 
-    if(r._results[0].data.template == "noResult") { 
+    if(r._results[0].data.template == "noResult") {
       showGooglethis = 0;
     }
 
@@ -233,7 +233,7 @@ CLIQZEnvironment = {
         page: 0,
         totalOffset: 0,
         pageOffset: 0
-      }; 
+      };
 
       if(urlbar.value == "") {
         CLIQZ.UI.main(resultsBox);
@@ -251,7 +251,7 @@ CLIQZEnvironment = {
       if(urlbar.value.toLowerCase() == "testme") {
         initTest();
       }
-      var logscreen = document.getElementById("logscreen"); 
+      var logscreen = document.getElementById("logscreen");
 
       if(urlbar.value.toLowerCase() == "d.on") {
         logscreen.style.left = "0px";
@@ -269,7 +269,7 @@ CLIQZEnvironment = {
       // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       CliqzUtils.log(urlbar.value,"XHR");
       (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler);
-    }, 5); 
+    }, 5);
   },
 
   initViewpager: function() {
@@ -318,7 +318,7 @@ CLIQZEnvironment = {
         if ( this.readyState == 4 ) {
           if (this.status != 200 ) {
             resp="" ;
-          } 
+          }
           else {
             resp= this.responseText ;
           }
@@ -337,7 +337,7 @@ CLIQZEnvironment = {
         return myVal;
     },
 
-    setRecent: function(msg, key){ 
+    setRecent: function(msg, key){
       console.log(msg,"[["+key+"]]") ;
     },
 
@@ -345,7 +345,7 @@ CLIQZEnvironment = {
       if(CLIQZEnvironment.interval) {
         clearInterval(CLIQZEnvironment.interval);
       }
-      var multiplier = parseInt(Math.ceil(window.innerWidth/100)), 
+      var multiplier = parseInt(Math.ceil(window.innerWidth/100)),
       progress = document.getElementById("progress"),
       i = 0;
       CLIQZEnvironment.interval = setInterval(function() {
@@ -373,24 +373,12 @@ CLIQZEnvironment = {
       return notFound;
     }
   },
-  getPrefs: function(){
-    var myPrefs = [], 
-    myPref = {};
-    for(var i=0, len=localStorage.length; i<len; i++) {
-      myPref = {};
-      var key = localStorage.key(i);
-      var value = localStorage[key];
-      myPref[key] = value;
-      myPrefs.push(myPref)
-    }
-    return myPrefs;
-  },
   setPref: function(pref, val){
     //Logger.log("setPrefs",arguments);
     localStorage.setItem(pref,val);
   },
 
-  getGeo: function(allowOnce, callback, failCB) { 
+  getGeo: function(allowOnce, callback, failCB) {
     // fake geo location
     CLIQZEnvironment.USER_LAT = 48.155772899999995;
     CLIQZEnvironment.USER_LNG = 11.615600899999999;
@@ -423,7 +411,7 @@ CLIQZEnvironment = {
     GEOLOC_WATCH_ID && navigator.geolocation.clearWatch(GEOLOC_WATCH_ID);
   },
 
-  updateGeoLocation: function() { 
+  updateGeoLocation: function() {
     // fake geo location
     CLIQZEnvironment.USER_LAT = 48.155772899999995;
     CLIQZEnvironment.USER_LNG = 11.615600899999999;
@@ -563,7 +551,7 @@ CLIQZEnvironment = {
         onerror && onerror();
       }
     }
-    
+
     if(callback){
       if(timeout){
         req.timeout = parseInt(timeout)
@@ -577,7 +565,7 @@ CLIQZEnvironment = {
   },
   openLink: function(window, url, newTab){
     Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
-    if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  { 
+    if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
       }
@@ -627,11 +615,11 @@ CLIQZEnvironment = {
     var R = 6371; // Radius of the earth in km
     if(!lon2) { return 0 }
     var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
-    var dLon = (lon2-lon1).toRad(); 
+    var dLon = (lon2-lon1).toRad();
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c; // Distance in km
     return d;
   },
@@ -651,7 +639,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   if(!recentItems[0] || (recentItems[0] && recentItems[0].query != query) )  {
     recentItems.unshift({query:query,timestamp:(new Date()).getTime()});
     recentItems = recentItems.slice(0,60);
-    localStorage.setItem("recentQueries",JSON.stringify(recentItems));  
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
     CLIQZEnvironment.renderRecentQueries(true);
   }
 
@@ -662,7 +650,7 @@ CLIQZEnvironment.getRecentQueries = function(query) {
   if(localStorage.getItem("recentQueries") == null) {
     localStorage.setItem("recentQueries","[]");
   }
-  return JSON.parse(localStorage.getItem("recentQueries")); 
+  return JSON.parse(localStorage.getItem("recentQueries"));
 }
 
 CLIQZEnvironment.renderRecentQueries = function(scroll) {
@@ -693,6 +681,6 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 
   if(scroll) {
     document.getElementById("conversations").scrollTop = 5000
-  } 
+  }
 
 }

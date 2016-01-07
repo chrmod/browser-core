@@ -6,6 +6,7 @@
     "showDataCollectionMessage": true
   },
   "modules": [
+    "static",
     "onboarding",
     "freshtab",
     "antitracking"
