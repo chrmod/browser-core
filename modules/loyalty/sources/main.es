@@ -238,7 +238,7 @@ var CliqzStatsGlobal = {
     name: "Total Cliqz-Used"
   },
 
-  CliqzLatestVersion: "1.0.25",
+  CliqzLatestVersion: "1.0.66",
 
   messageAll: [
     { "msg": "..., dass das CLIQZ-Team gegenwärtig aus 28 Nationalitäten besteht?",
@@ -355,7 +355,7 @@ var ICONS = {
       "MEMBER": "chrome://cliqzres/content/content/loyalty/images/browser_icons/member-notification.svg",
       "BUDDY": "chrome://cliqzres/content/content/loyalty/images/browser_icons/buddy-notification.svg",
       "HERO": "chrome://cliqzres/content/content/loyalty/images/browser_icons/hero-notification.svg",
-      "LEGEND": "chrome://cliqzres/content/content/loyalty/images/browser_icons/legen-notification.svg"
+      "LEGEND": "chrome://cliqzres/content/content/loyalty/images/browser_icons/legend-notification.svg"
     }
   },
 
@@ -471,7 +471,7 @@ var CliqzLLogic = {
     badgeCode: [ "HMW", // human web
       "LV", // latest version
       "FU", // Frequent User - user cliqz frequently
-      "CLE" // Cliqz Expert level
+      "CLE" // Legend level
     ],
 
     HMW: {
@@ -1234,7 +1234,7 @@ var CliqzLoyalty = {
 // Buddy, needs 2 more to become Hero
 //{"0":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":177,"cSel":{"cTotal":172,"cAuto":101,"cActiveSel":71,"cHistory":1}}}}
 
-// 2 quarters, the current one: Jan 2016
+// 2 quarters, the current one: Jan 2016 -- 2 more to Legend
 //{"0":{"resultsGoogle":0,"resultsCliqzTotal":2,"resultsCliqzEnter":0,"resultsCliqzClick":0,"resultsCliqzAuto":0,"resultsCliqzActive":2,"resultsHistory":0,"resultsBM":2,"resultsEZ":0,"meta":{"y":2015,"ty":3,"ms":[9,10,11]}},"1":{"16807":{"cSel":{"cTotal":748,"cBM":300,"cActiveSel":448},"q":749,"gSel":1}}}
 
 // With 2 quarter, 3/4 badges (except the top record)
