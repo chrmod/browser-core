@@ -606,7 +606,7 @@ CLIQZEnvironment = {
 
     var top_news = news.top_h_news;
 
-    console.log('top news', top_news)
+    console.log('%crendering top news', 'color:green', top_news)
     top_news = top_news.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
