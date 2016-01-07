@@ -9,6 +9,8 @@ CLIQZEnvironment = {
   log: Logger.log,
   logCounter: Logger.logCounter,
 
+  _currentQuery: '',
+
   callRichHeader: function(searchString, url, callback) {
     var richHeaderUrl = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map";
     richHeaderUrl += "&q=" + searchString;
@@ -215,9 +217,10 @@ CLIQZEnvironment = {
     } else {
       CLIQZEnvironment.enrichResults(r, 1, historyCount);
     }
-
+    CLIQZEnvironment._currentQuery = r._searchString;
     clearTimeout(CLIQZEnvironment.storeQueryTimeout);
     CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
+
       CLIQZEnvironment.setCurrentQuery(r._searchString);
     },2000);
 
@@ -602,6 +605,7 @@ CLIQZEnvironment = {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
       }
+      CLIQZEnvironment.setCurrentQuery(CLIQZEnvironment._currentQuery);
       osBridge.openLink(url);
     }
 
