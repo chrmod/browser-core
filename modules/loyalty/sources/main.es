@@ -30,6 +30,9 @@ if (!String.format) {
 var CORE = {
   loyaltyDntPrefs: Components.classes['@mozilla.org/preferences-service;1']
     .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.'),
+  versionChecker: Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+      .getService(Components.interfaces.nsIVersionComparator),
+
   PREF_STRING: 32,
   PREF_INT: 64,
   PREF_BOOL: 128,
@@ -92,6 +95,10 @@ var CORE = {
       }
     },
     []);
+  },
+
+  isExtensionLatestVersion: function (currentVersion, latestVersion) {
+    return CORE.versionChecker.compare(currentVersion, latestVersion)
   }
 };
 
@@ -484,7 +491,7 @@ var CliqzLLogic = {
     },
     LV: {
       isAchieved: function (data) {
-        return data.version.current >= data.version.latest;
+        return CORE.isExtensionLatestVersion(data.version.current, data.version.latest) >= 0;
       },
       img: 'images/Early adopter_icn.svg',
       name: "Latest CLIQZ",
