@@ -21,7 +21,7 @@
                   </a>
               </h1>
               <div class="meta">
-                http://www.spiegel.de
+                {{url}}
               </div>
           </div>
       {{/each}}
