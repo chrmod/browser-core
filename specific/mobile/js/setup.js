@@ -1,14 +1,28 @@
 function init() {
   System.baseURL = "modules/"
   CLIQZ.System = System;
+
   System.import("freshtab/news").then(function (module) {
     CliqzFreshTabNews = module.default;
     osBridge.isReady();
-    CLIQZEnvironment.initHomepage();
+    tryInit();
   }).catch(function () {
     console.log("error", arguments)
   });
 };
+
+osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
+
+var tries=20;
+
+function tryInit(){
+  //ugly hack to wait for logos
+
+  if(tries-- == 0 || CliqzUtils.BRANDS_DATABASE.palette.length > 1)
+    CLIQZEnvironment.initHomepage();
+
+  else setTimeout(tryInit, 100)
+}
 
 /**
   Parameter format

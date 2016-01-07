@@ -2,6 +2,10 @@
 {{#each results}} 
 	{{#unless invalid}}
 		<div class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+			<div class="share">
+				Teilen
+			  </div>
+
 			<div class="ez" 
 				type='{{ type }}'
 				kind='{{ kind_printer data.kind }}'
