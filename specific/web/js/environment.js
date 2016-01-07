@@ -13,9 +13,9 @@ var ENGINES,
 
 CLIQZEnvironment = {
     logScreen() {},
-  	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/search/templates/' : './templates/',
-    LOCALE_PATH: './locale/',
-    SKIN_PATH: '/generic/static/skin/',
+  	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/search/templates/' : './static/templates/',
+    LOCALE_PATH: './static/locale/',
+    SKIN_PATH: './static/skin/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     setPref: function(k,v){db[k] = v},

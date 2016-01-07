@@ -3576,10 +3576,10 @@ var CliqzAttrack = {
 
                 let priority = box.PRIORITY_WARNING_MEDIUM;
                 box.appendNotification(message, 'anti-tracking',
-                                       'chrome://cliqzres/content/skin/cliqz_btn.png',
+                                       'chrome://cliqz/content/static/skin/cliqz_btn.png',
                                         priority, buttons, function(ev) {
                                             if (continuation) {
-                                                box.appendNotification(continuation, 'anti-tracking', 'chrome://cliqzres/content/skin/cliqz_btn.png', priority, null, null);
+                                                box.appendNotification(continuation, 'anti-tracking', 'chrome://cliqz/content/static/skin/cliqz_btn.png', priority, null, null);
                                                 CliqzUtils.setTimeout(function() {
                                                     try {
                                                         if (box) box.removeAllNotifications();

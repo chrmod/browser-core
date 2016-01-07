@@ -53,9 +53,9 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     };
 
 var CLIQZEnvironment = {
-    LOCALE_PATH: 'chrome://cliqzres/content/locale/',
-    TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
-    SKIN_PATH: 'chrome://cliqzres/content/skin/',
+    LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
+    TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
+    SKIN_PATH: 'chrome://cliqz/content/static/skin/',
     prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
