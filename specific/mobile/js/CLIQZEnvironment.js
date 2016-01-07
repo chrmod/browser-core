@@ -124,6 +124,8 @@ CLIQZEnvironment = {
         searchString: r.encodedSearchString
       }
     });
+
+
   },
 
   setResultNavigation: function(results, showGooglethis, validCount) {
@@ -234,6 +236,9 @@ CLIQZEnvironment = {
     renderedResults = CLIQZEnvironment.renderResults(r, showGooglethis, validCount, historyCount);
 
     // CLIQZEnvironment.renderRecentQueries(true);
+
+    CLIQZEnvironment.initializeSharing();
+
 
     CLIQZEnvironment.setResultNavigation(r._results, showGooglethis, renderedResults.results.length);
   },
@@ -701,4 +706,88 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
     document.getElementById("conversations").scrollTop = 5000
   }
 
+}
+
+
+
+// SHARING IS CARING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+CLIQZEnvironment.shareContent = function() {
+    
+    var template = `<!DOCTYPE html>
+                        <html style="background-color: #eee;">
+                           <head>
+                              <title>###TITLE###</title>
+                              <style type="text/css">###STYLE###</style>
+                           </head>
+                           <body>
+                              <div id="results">
+
+                                 <div id="cliqz-results">
+                                        <div class="frame" style="width: 244px">
+                                            ###CONTENT###
+                                        </div>
+                                 </div>
+                              </div>
+                           </body>
+                        </html>`;
+
+    
+    // clean up html / replace links
+    var replaceUrlByOnclick = function (fullMatch,match) {
+      return 'onClick="location.href=\'' + match + '\'"';
+    }
+    var readyHtml = this.parentNode.innerHTML.replace( /url="(.*?)"/g, replaceUrlByOnclick );
+    var readyHtml = readyHtml.replace(this.outerHTML,"");
+    var title = '';
+    try {
+      var title = this.parentNode.getElementsByClassName("main__headline")[0].firstChild.innerText;
+    } catch(e) {
+      console.log("You cannot share this");
+      return;
+    }
+    
+    // css rules inline
+    var cssRules, innerStyles = "";
+    for(var j=0; j<document.styleSheets.length;j++) {
+        cssRules = document.styleSheets[j].cssRules;
+        for(var i=0; i<cssRules.length;i++) {
+            innerStyles += cssRules[i].cssText + "\n";
+        }
+    }
+
+    // replace template
+    readyHtml = template.replace('###CONTENT###',readyHtml);
+    readyHtml = readyHtml.replace('###STYLE###',innerStyles); 
+    readyHtml = readyHtml.replace('###TITLE###',"CLIQZ Card:" + title);
+    readyHtml = readyHtml.replace(location.href,"http://cdn.cliqz.com/mobile/beta/");
+
+
+
+    // debugging iframe
+    document.getElementById("testingshare").style.display = "block";
+    document.getElementById("testingshare").srcdoc = readyHtml; 
+    
+
+    // sending data
+    var http = new XMLHttpRequest();
+    var url = "http://rh-staging.clyqz.com/share_card";
+    var params = "id=card" + (new Date()).getTime() + Math.ceil(1000*Math.random()) + "&content=" + encodeURIComponent(readyHtml);
+    http.open("POST", url, true);
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+            // goes to OS
+            console.log("%c=== THIS GOES TO THE OS === " + http.responseText, 'background: #222; color: #bada55' );
+        }
+    }
+    http.send(params);
+}
+
+
+CLIQZEnvironment.initializeSharing = function() {
+  var shareButtons = document.getElementsByClassName("share");
+  for(var i=0;i<shareButtons.length;i++) {
+       shareButtons[i].addEventListener("click",CLIQZEnvironment.shareContent);
+  }
 }
