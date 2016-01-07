@@ -6,7 +6,9 @@ function key(line){
 TESTS.Validations = function (CliqzUtils, CLIQZEnvironment) {
   // translations files should have exactly the same keys on exactly the same lines
   describe('LocaleValidation_DE_EN', function(){
-   it('should be symetric', function () {
+    this.retries(1);
+
+    it('should be symetric', function () {
       var de = null, en = null;
       CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + 'de/cliqz.json',
         function(req){

@@ -2,6 +2,8 @@
 
 TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter, CliqzCampaignManager) {
 	describe('integration CliqzCampaignManager' , function() {
+    this.retries(1);
+
     var response, messageCenter, campaignManager,
     core = CliqzUtils.getWindow().CLIQZ.Core,
     ui = CliqzUtils.getWindow().CLIQZ.UI,
