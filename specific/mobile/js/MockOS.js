@@ -46,7 +46,38 @@ var MockOS = {
   },
   getTopSites: function(limit) {
     console.log("--MOCK: action getTopSites is called");
-    return [{"title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "timestamp": Date.now()},{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "timestamp": Date.now() - 10000},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "timestamp": Date.now() - 20000},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "timestamp": Date.now() - 30000},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "timestamp": Date.now() - 40000},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "timestamp": Date.now() - 50000}];
+    return [
+     {
+        "title":"Paris: Mann mit Bombenattrappe vor Polizeirevier erschossen - SPIEGEL ONLINE",
+        "url":"http://www.spiegel.de/panorama/paris-polizei-erschiesst-messerangreifer-vor-polizeistation-a-1070907.html",
+        "timestamp":Date.now()
+     },
+     {
+        "title":"Gut vormerken!: Geldkalender 2016: Diese Fristen dürfen Sie dieses Jahr auf keinen Fall verpassen - FOCUS Online",
+        "url":"http://www.focus.de/finanzen/recht/gut-vormerken-geldkalender-2016-diese-fristen-duerfen-sie-dieses-jahr-auf-keinen-fall-verpassen_id_5195580.html",
+        "timestamp":Date.now() - 10000
+     },
+     {
+        "title":"Das Gamma- Mysterium entschlüsselt - c't Digitale Fotografie 01/2016 direkt im heise shop",
+        "url":"https://shop.heise.de/katalog/das-gamma-mysterium-entschlusselt",
+        "timestamp":Date.now() - 20000
+     },
+     {
+        "title":"CEO (Begriffsklärung) – Wikipedia",
+        "url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)",
+        "timestamp":Date.now() - 30000
+     },
+     {
+        "title":"WebSockets over a 3G connection - Stack Overflow",
+        "url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection",
+        "timestamp":Date.now() - 40000
+     },
+     {
+        "title":"Dein idealer Smartphone-Tarif von netzclub",
+        "url":"https://www.netzclub.net/",
+        "timestamp":Date.now() - 50000
+     }
+  ];
   },
   browserAction: function(data) {
     console.log("--MOCK: action browserAction is called with data", data);
