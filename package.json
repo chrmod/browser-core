@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "amd-name-resolver": "0.0.2",
-    "broccoli": "cliqz-oss/broccoli#firefox",
+    "broccoli": "cliqz-oss/broccoli#building-server",
     "broccoli-asset-rev": "^2.3.0",
     "broccoli-babel-transpiler": "^5.4.5",
     "broccoli-file-creator": "^1.0.1",

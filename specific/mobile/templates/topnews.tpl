@@ -2,7 +2,7 @@
 
 <div class="heading">
     <!-- <h2>{{local 'freshtab_top_news'}}</h2> -->
-    <h2><span>Top News</span></h2>
+    <h2><span>Empfohlene News</span></h2>
 </div>
 <div class="main" style="margin-bottom: 20px;">
   <ul>
@@ -20,6 +20,9 @@
                       {{short_title}}
                   </a>
               </h1>
+              <div class="meta">
+                http://www.spiegel.de
+              </div>
           </div>
       {{/each}}
   </ul>
