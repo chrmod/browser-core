@@ -494,7 +494,7 @@ var CliqzLLogic = {
       isAchieved: function (data) {
         return data.freqCliqzUse.current >= data.freqCliqzUse.threshold;
       },
-      img: 'images/Loyal_icn.svg',
+      img: 'images/Winning Team.svg',
       name: "Loyal Friend",
       des: ["", ""]
     },
@@ -542,7 +542,7 @@ var CliqzLLogic = {
         hmw: hmw,
         version: {current: CliqzUtils.extensionVersion || "1.0.25", latest: CliqzStatsGlobal.CliqzLatestVersion},
         freqCliqzUse: {current: freqCliqzUse, threshold: 80}, // todo: define threshold from the backend
-        totalCliqzUse: {current: user_stat.resultsCliqz.resultsCliqzTotal, Legend: CliqzStatsGlobal.getLegendBenchMark()}
+        totalCliqzUse: {current: user_stat.resultsCliqz.total, Legend: CliqzStatsGlobal.getLegendBenchMark()}
       }
     },
 
@@ -1234,15 +1234,14 @@ var CliqzLoyalty = {
 // Buddy, needs 2 more to become Hero
 //{"0":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":177,"cSel":{"cTotal":172,"cAuto":101,"cActiveSel":71,"cHistory":1}}}}
 
-//{"0":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":179,"cSel":{"cTotal":174,"cAuto":101,"cActiveSel":73,"cHistory":2,"cBM":1}},"16666":{"gSel":3,"q":3}}}
+// 2 quarters, the current one: Jan 2016
+//{"0":{"resultsGoogle":0,"resultsCliqzTotal":2,"resultsCliqzEnter":0,"resultsCliqzClick":0,"resultsCliqzAuto":0,"resultsCliqzActive":2,"resultsHistory":0,"resultsBM":2,"resultsEZ":0,"meta":{"y":2015,"ty":3,"ms":[9,10,11]}},"1":{"16807":{"cSel":{"cTotal":748,"cBM":300,"cActiveSel":448},"q":749,"gSel":1}}}
 
 // With 2 quarter, 3/4 badges (except the top record)
 //{"0":{"resultsGoogle":15,"resultsCliqzTotal":76,"resultsCliqzEnter":0,"resultsCliqzClick":18,"resultsCliqzAuto":5,"resultsCliqzActive":71,"resultsHistory":15,"resultsBM":5,"resultsEZ":15,"meta":{"y":2015,"ty":2,"ms":[6,7,8]}},"1":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":179,"cSel":{"cTotal":174,"cAuto":101,"cActiveSel":73,"cHistory":2,"cBM":1}},"16665":{"cSel":{"cTotal":2,"cEZ":1,"cActiveSel":2,"cBM":1},"q":4,"gSel":2},"16666":{"gSel":3,"q":3}}}
 
 // with 2 quarters, no CliqzLoyalty badge
 //{"0":{"resultsGoogle":15,"resultsCliqzTotal":76,"resultsCliqzEnter":0,"resultsCliqzClick":18,"resultsCliqzAuto":5,"resultsCliqzActive":71,"resultsHistory":15,"resultsBM":5,"resultsEZ":15,"meta":{"y":2015,"ty":2,"ms":[6,7,8]}},"1":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":179,"cSel":{"cTotal":174,"cAuto":101,"cActiveSel":73,"cHistory":2,"cBM":1}},"16665":{"cSel":{"cTotal":2,"cEZ":1,"cActiveSel":2,"cBM":1},"q":4,"gSel":2},"16666":{"gSel":3,"q":3},"16672":{"cSel":{"cTotal":17,"cBM":17,"cActiveSel":17},"q":36,"gSel":123}}}
-
-
 
 
 export default CliqzLoyalty;
