@@ -7,6 +7,17 @@
 */
 
 import CliqzSecureMessage from 'hpn/main';
+import JsonFormatter, { createHttpUrl, getRouteHash } from "hpn/utils";
+import secureEventLoggerContext from "hpn/secure-logger";
+
+
+/* This method will ensure that we have the same length for all the mesages
+*/
+function padMessage(msg){
+	var mxLen = "14000";
+	var str = msg + new Array((mxLen - msg.length) + 1).join("\n");
+	return str;
+}
 
 function isJson(str) {
 // If can be parsed that means it's a str.
@@ -19,82 +30,6 @@ function isJson(str) {
   }
   return false;
 }
-
-/* This method will ensure that we have the same length for all the mesages
-*/
-function padMessage(msg){
-	var mxLen = "14000";
-	var str = msg + new Array((mxLen - msg.length) + 1).join("\n");
-	return str;
-}
-
-/* This method will return the string based on mapping of which keys to use to hash for routing.
-*/
-
-function getRouteHash(msg){
-	// Make sure this is JSON.
-	msg.action = msg.action.toLowerCase();
-	var static_fields = CliqzSecureMessage.sourceMap[msg.action]["static"] || [];
-	var flatMsg = JSON.flatten(msg, static_fields );
-	if(!flatMsg.action) return null;
-	var keys = CliqzSecureMessage.sourceMap[flatMsg.action]["keys"];
-
-	var routeHashStr = "";
-	keys.forEach(function(key){
-		routeHashStr += flatMsg[key];
-	})
-	return routeHashStr;
-
-}
-
-/*
-Function to create http url
-*/
-
-function createHttpUrl(host){
-	return "http://" + host + "/verify";
-}
-
-var JsonFormatter = {
-    stringify: function (cipherParams) {
-        // create json object with ciphertext
-        var jsonObj = {
-            ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64)
-        };
-
-        // optionally add iv and salt
-        if (cipherParams.iv) {
-            jsonObj.iv = cipherParams.iv.toString();
-        }
-        if (cipherParams.salt) {
-            jsonObj.s = cipherParams.salt.toString();
-        }
-
-        // stringify json object
-        return JSON.stringify(jsonObj);
-    },
-
-    parse: function (jsonStr) {
-        // parse json string
-        var jsonObj = JSON.parse(jsonStr);
-
-        // extract ciphertext from json object, and create cipher params object
-        var cipherParams = CryptoJS.lib.CipherParams.create({
-            ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
-        });
-
-        // optionally extract iv and salt
-        if (jsonObj.iv) {
-            cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv)
-        }
-        if (jsonObj.s) {
-            cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s)
-        }
-
-        return cipherParams;
-    }
-};
-
 
 export default class {
 	constructor(msg) {
@@ -118,6 +53,7 @@ export default class {
 	 	this.dmC =  this.calculateRouteHash(this.jMessage);
 	 	this.proxyCoordinator = this.getProxyIP(this.dmC);//"http://54.157.18.130/verify";
 	 	this.proxyValidators = null;//["http://54.157.18.130:81/verify"];
+	 	CliqzSecureMessage.secureLogger = new secureEventLoggerContext();
 	}
 
 	/**
