@@ -640,6 +640,8 @@ var CliqzLLogic = {
 
       if (triggerBy === "hw" || latestSttInfo["is_new"] || msgUpdate || badgesUpdate) {
         CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], true));
+        CliqzUtils.log(" HI THUY. UPDATING ICONS", [triggerBy, latestSttInfo, msgUpdate, badgesUpdate]);
+        CliqzUtils.log(" HI THUY. UPDATING ICONS", latestSttInfo);
         CliqzLLogic.notify.isNotify = true;
         isNotify = true;
         if (latestSttInfo["is_new"]) {
@@ -1061,7 +1063,7 @@ AboutURL.prototype = {
     },
 
     getURIFlags: function(uri) { return Ci.nsIAboutModule.ALLOW_SCRIPT; }
-}
+};
 
 var AboutURLFactory = XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID);
 
