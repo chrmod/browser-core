@@ -18,7 +18,6 @@ CLIQZEnvironment = {
     SKIN_PATH: '/generic/static/skin/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
-    isPrefBool: function(k, d){return typeof(db[k]) === 'boolean' ? true : false },
     setPref: function(k,v){db[k] = v},
     setInterval: function(){ return setInterval.apply(null, arguments) },
     setTimeout: function(){ return setTimeout.apply(null, arguments) },
