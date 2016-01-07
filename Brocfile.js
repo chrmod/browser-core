@@ -17,24 +17,19 @@ var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 var bowerComponents = new Funnel('bower_components');
 var nodeModules    = new Funnel('node_modules');
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
-  exclude: ['chrome/content/core.js', 'platform.js']
+  exclude: ['platform.js']
 });
-var firefoxCoreJs   = new Funnel('specific/firefox/cliqz@cliqz.com/chrome/content', { include: ['core.js'] });
 var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 var cliqziumSpecific= new Funnel('specific/cliqzium');
 var webSpecific     = new Funnel('specific/web');
 var generic         = new Funnel('generic');
-var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*'] });
-var staticFiles     = new Funnel(generic, { srcDir: 'static', exclude: ['styles/sass/**/*', 'styles/css/**/*', 'views/**/*'] });
-var staticViews     = new Funnel(generic, { srcDir: 'static/views' });
-var locales         = new Funnel(generic, { srcDir: 'static/locale', destDir: 'locale' });
-var templates       = new Funnel(generic, { srcDir: 'static/templates', destDir: 'templates'});
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
-var local           = new Funnel(generic, { srcDir: 'modules/local' });
+var local           = new Funnel(generic, { srcDir: 'modules/local', exclude: ['views/**/*'] });
 var ui              = new Funnel(local,   { include: ['UI.js'] });
+var staticViews     = new Funnel(generic, { srcDir: 'modules/local/views' });
 
 // Build configuration
 var configFilePath  = process.env['CLIQZ_CONFIG_PATH'];
@@ -45,12 +40,6 @@ var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
 webSpecific = jade(webSpecific);
 
-var compiledCss     = compileSass(
-  ['generic/static/styles/sass'],
-  'extension.scss',
-  'extension.css',
-  { sourceMap: true }
-);
 var mobileCss = compileSass(
   ['specific/mobile/skin/sass'],
   'style.sass',
@@ -73,18 +62,39 @@ cliqzConfig.modules.forEach(function (name) {
       JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
     } catch(e) { }
 
-    var sources = Babel(new Funnel(path+'/sources'), {
+    var sources = new Funnel(path+'/sources', { exclude: ['styles/**/*'] });
+
+    sources = Babel(sources, {
       sourceMaps: 'inline',
       filterExtensions: ['es'],
       modules: 'system',
       moduleRoot: name,
     });
 
-    var module = new MergeTrees([
+    var outputTree = [
       new Funnel(path+'/dist'),
       sources,
       new Funnel(firefoxPlatform),
-    ]);
+    ];
+
+    var hasStyles = false;
+    try {
+      fs.statSync(path+"/sources/styles"); // throws if not found
+      hasStyles = true;
+    } catch (e) { }
+
+    if (hasStyles) {
+      var compiledCss = compileSass(
+        [path+'/sources/styles'],
+        'styles.scss',
+        'styles.css',
+        { sourceMap: true }
+      );
+
+      outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
+    }
+
+    var module = new MergeTrees(outputTree);
 
     components.push(init);
     modules.push(new Funnel(module, { destDir: name }));
@@ -92,15 +102,6 @@ cliqzConfig.modules.forEach(function (name) {
 });
 
 modules = new MergeTrees(modules);
-
-firefoxCoreJs = concat(new MergeTrees([firefoxCoreJs].concat(components)), {
-  outputFile: 'chrome/content/core.js',
-  inputFiles: [ '**/*.js'],
-  headerFiles: [ 'core.js' ],
-  sourceMapConfig: { enabled: true },
-});
-
-firefoxSpecific = new MergeTrees([firefoxSpecific, firefoxCoreJs]);
 
 var babelOptions = {
   modules: "amdStrict",
@@ -192,21 +193,16 @@ var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
     firefoxSpecific,
     new Funnel(config,      { destDir: 'chrome/content'}),
-    new Funnel(staticFiles, { destDir: 'chrome' }),
     new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
     new Funnel(global,      { destDir: 'modules' }),
     new Funnel(local,       { destDir: 'chrome/content'}),
     new Funnel(bowerTree,   { destDir: 'chrome/content/bower_components' }),
     new Funnel(modules,     { destDir: 'chrome/content' }),
-    new Funnel(compiledCss, { destDir: 'chrome/styles/css' }),
   ], { overwrite: true } ), { destDir: 'cliqz@cliqz.com' }),
   firefoxPackage,
 ]);
 
 var cliqzium = new MergeTrees([
-  locales,
-  templates,
-  new Funnel(compiledCss,      { destDir: 'css' }),
   new Funnel(globalConcated,   { destDir: 'js' }),
   new Funnel(localConcated,    { destDir: 'js' }),
   new Funnel(libsConcated,     { destDir: 'js' }),
@@ -215,8 +211,7 @@ var cliqzium = new MergeTrees([
 
 var web = new MergeTrees([
   webSpecific,
-  new Funnel(staticFiles,    { exclude: ['module'] }),
-  new Funnel(compiledCss,    { destDir: 'styles/css' }),
+  modules,
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localConcated,  { destDir: 'js' }),
   new Funnel(libsConcated,   { destDir: 'js' }),
@@ -224,7 +219,6 @@ var web = new MergeTrees([
 
 var mobile = new MergeTrees([
   mobileSpecific,
-  locales,
   new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localMobile,    { destDir: 'js' }),

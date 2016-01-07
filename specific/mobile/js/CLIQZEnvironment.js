@@ -402,21 +402,86 @@ CLIQZEnvironment = {
       return notFound;
     }
   },
-  getPrefs: function(){
-    var myPrefs = [],
-    myPref = {};
-    for(var i=0, len=localStorage.length; i<len; i++) {
-      myPref = {};
-      var key = localStorage.key(i);
-      var value = localStorage[key];
-      myPref[key] = value;
-      myPrefs.push(myPref)
-    }
-    return myPrefs;
-  },
   setPref: function(pref, val){
     //Logger.log("setPrefs",arguments);
     localStorage.setItem(pref,val);
+  },
+  getGeo: function(allowOnce, callback, failCB) {
+    // fake geo location
+    CLIQZEnvironment.USER_LAT = 48.155772899999995;
+    CLIQZEnvironment.USER_LNG = 11.615600899999999;
+    return;
+    /*
+    @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
+                                This is used when the user clicks on Share Location "Just once".
+                                */
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+      failCB("No permission to get user's location");
+      return;
+    }
+
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG) {
+      callback({
+        lat: CLIQZEnvironment.USER_LAT,
+        lng: CLIQZEnvironment.USER_LNG
+      });
+    } else {
+      navigator.geolocation.getCurrentPosition.getCurrentPosition(function (p) {
+        callback({ lat: p.coords.latitude, lng: p.coords.longitude});
+      }, failCB);
+    }
+  },
+  removeGeoLocationWatch: function() {
+    // fake geo location
+    CLIQZEnvironment.USER_LAT = 48.155772899999995;
+    CLIQZEnvironment.USER_LNG = 11.615600899999999;
+    return;
+    GEOLOC_WATCH_ID && navigator.geolocation.clearWatch(GEOLOC_WATCH_ID);
+  },
+
+  updateGeoLocation: function() {
+    // fake geo location
+    CLIQZEnvironment.USER_LAT = 48.155772899999995;
+    CLIQZEnvironment.USER_LNG = 11.615600899999999;
+    return;
+
+    var geoService = navigator.geolocation;
+    CLIQZEnvironment.removeGeoLocationWatch();
+
+    if (CLIQZEnvironment.getPref('share_location') == 'yes') {
+      // Get current position
+      geoService.getCurrentPosition(function(p) {
+        CLIQZEnvironment.USER_LAT = JSON.stringify(p.coords.latitude);
+        CLIQZEnvironment.USER_LNG =  JSON.stringify(p.coords.longitude);
+      }, function(e) { Logger.log(e, "Error updating geolocation"); });
+
+      //Upate position if it changes
+      GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
+        // Make another check, to make sure that the user hasn't changed permissions meanwhile
+        if (CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.getPref('share_location') == 'yes') {
+          CLIQZEnvironment.USER_LAT = p.coords.latitude;
+          CLIQZEnvironment.USER_LNG =  p.coords.longitude;
+        }
+      }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && Logger.log(e, "Error updating geolocation"); });
+    } else {
+      CLIQZEnvironment.USER_LAT = null;
+      CLIQZEnvironment.USER_LNG = null;
+    }
+
+    //Logger.log(CLIQZEnvironment.USER_LNG,"Env->updateGeoLocation")
+
+  },
+
+  setLocationPermission: function(window, newPerm) {
+    // fake geo location
+    CLIQZEnvironment.USER_LAT = 48.155772899999995;
+    CLIQZEnvironment.USER_LNG = 11.615600899999999;
+    return;
+    if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+      CLIQZEnvironment.setPref('share_location',newPerm);
+      CLIQZEnvironment.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
+      CLIQZEnvironment.updateGeoLocation();
+    }
   },
   setInterval: function(){ return setInterval.apply(null, arguments) },
   setTimeout: function(){ return setTimeout.apply(null, arguments) },

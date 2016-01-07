@@ -436,14 +436,20 @@ var CliqzAutocomplete = {
             },
             // mixes backend results, entity zones, history and custom results
             mixResults: function(only_instant) {
+
+                // set first history entry as autocompleted if it was
+                if(this.instant.length > 0 &&
+                   CliqzAutocomplete.lastAutocompleteType && !only_instant) {
+                  this.instant[0].autocompleted = true;
+                }
+
                 var results = Mixer.mix(
                             this.searchString,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
                             this.customResults,
-                            only_instant,
-                            CliqzAutocomplete.lastAutocompleteType ? true : false
+                            only_instant
                     );
                 CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;

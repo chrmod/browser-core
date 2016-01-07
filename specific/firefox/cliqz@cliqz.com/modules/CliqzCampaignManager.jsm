@@ -234,7 +234,7 @@ CliqzCampaignManager.prototype = {
 
   getEndpoint: function (endpoint, campaign) {
     return this.CAMPAIGN_SERVER + (endpoint ? endpoint : '') + '?session=' +
-        encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session')) +
+        encodeURIComponent(CliqzUtils.getPref('session')) +
         '&lang=' + encodeURIComponent(CliqzUtils.currLocale) +
         (campaign ? '&campaign=' + campaign.id : '');
   }

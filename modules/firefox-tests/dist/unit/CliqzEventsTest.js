@@ -28,7 +28,9 @@ TESTS.CliqzEventsTest = function (CliqzEvents) {
     describe("Test publish event", function () {
       it("Handler is called", function () {
         CliqzEvents.pub(eventID, dummyArg);
-        expect(handlerCalled).to.equal(dummyArg);
+        return waitFor(function () {
+          return handlerCalled === dummyArg;
+        });
       });
     });
   });

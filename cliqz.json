@@ -1,0 +1,6 @@
+{
+  "modules": [
+    "onboarding",
+    "antitracking"
+  ]
+}

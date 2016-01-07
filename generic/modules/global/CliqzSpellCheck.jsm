@@ -46,7 +46,7 @@ var CliqzSpellCheck = {
     initSpellCorrection: function() {
         if (CliqzUtils.getPref("config_location", "") == "de" && CliqzUtils.getPref("localSpellCheck", true) && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
             CliqzUtils.log('loading dict', 'spellcorr');
-            CliqzUtils.loadResource('chrome://cliqzres/content/content/spell_check.list', CliqzSpellCheck.loadRecords);
+            CliqzUtils.loadResource('chrome://cliqz/content/spell_check.list', CliqzSpellCheck.loadRecords);
         }
     }
 }
