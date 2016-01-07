@@ -89,7 +89,7 @@ function patch(module, ctx){
 
                             var data = {
                                     local_time: (new Date()).getTime(),
-                                    session: CliqzUtils.cliqzPrefs.getCharPref('session'),
+                                    session: CliqzUtils.getPref('session'),
                                     short_message: e.message,
                                     stack: e.stack,
                                     fName: e.fileName,
