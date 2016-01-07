@@ -58,7 +58,7 @@ CliqzCampaign.prototype = {
   },
 
   delete: function () {
-    CliqzUtils.cliqzPrefs.clearUserPref(this.PREF_PREFIX + this.id);
+    CliqzUtils.clearPref(this.PREF_PREFIX + this.id);
   },
 
   log: function (msg) {
