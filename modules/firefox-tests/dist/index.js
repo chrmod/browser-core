@@ -40,7 +40,7 @@ var CliqzUtils = loadModule("CliqzUtils"),
     getCliqzResults,
     browserMajorVersion = parseInt(getBrowserVersion().split('.')[0]);
 
-mocha.setup('bdd');
+mocha.setup({ ui: 'bdd', timeout: 3000 });
 
 injectTestHelpers(CliqzUtils);
 
@@ -68,7 +68,7 @@ beforeEach(function () {
   CliqzUtils.telemetry = function () {};
 });
 
-afterEach(function () {
+afterEach(function (done) {
   CliqzUtils.telemetry = telemetry;
   CliqzUtils.getCliqzResults = getCliqzResults;
 
@@ -77,6 +77,8 @@ afterEach(function () {
 
   // clean waitFor side effects
   clearIntervals();
+
+  setTimeout(done, 1000)
 });
 
 window.focus();
