@@ -404,6 +404,7 @@ var CliqzLLogic = {
 
     var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     if (notify_meta) {
+      //CliqzUtils.log(notify_meta, "Hi THUY - notifymeta on init is: ");
       CliqzLLogic.notify.isNotify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
       CliqzLLogic.notify.notifyMsg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
       CliqzLLogic.badges.curBadges = notify_meta[NOTIFY_BADGES];
@@ -617,6 +618,9 @@ var CliqzLLogic = {
        */
       var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
       var changed = CliqzLLogic.badges.isBadgesUpdated(awards, CliqzLLogic.badges.curBadges);
+      //if (changed) {
+        //CliqzUtils.log({"current": CliqzLLogic.badges.curBadges, "new": awards}, "HI THUY, badges changed")
+      //}
       CliqzLLogic.badges.curBadges = awards;
       return changed;
     },
@@ -640,8 +644,8 @@ var CliqzLLogic = {
 
       if (triggerBy === "hw" || latestSttInfo["is_new"] || msgUpdate || badgesUpdate) {
         CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], true));
-        CliqzUtils.log(" HI THUY. UPDATING ICONS", [triggerBy, latestSttInfo, msgUpdate, badgesUpdate]);
-        CliqzUtils.log(" HI THUY. UPDATING ICONS", latestSttInfo);
+        //CliqzUtils.log(" HI THUY. UPDATING ICONS", [triggerBy, latestSttInfo, msgUpdate, badgesUpdate]);
+        //CliqzUtils.log(latestSttInfo, " HI THUY. UPDATING ICONS");
         CliqzLLogic.notify.isNotify = true;
         isNotify = true;
         if (latestSttInfo["is_new"]) {
