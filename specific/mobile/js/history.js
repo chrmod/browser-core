@@ -56,7 +56,7 @@ function displayData(data) {
       height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
   }
 
-  document.body.scrollTop = height + 500;
+  document.body.scrollTop = height + 100;
 }
 
 function testActiveWebViewOnIos() {
@@ -77,10 +77,6 @@ function append(title, timestamp, styleClass) {
   document.body.appendChild(div);
 }
 
-window.addEventListener('load', function() {
-  osBridge.searchHistory("", "showHistory")
-});
-
 Handlebars.registerHelper('conversationsTime', function(time) {
     var d = new Date(time);
     var hours = d.getHours();
@@ -90,3 +86,5 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     var formatedDate = hours + ':' + minutes;
     return formatedDate;
 });
+
+osBridge.searchHistory("", "showHistory")
