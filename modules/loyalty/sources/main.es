@@ -28,7 +28,6 @@ if (!String.format) {
  */
 
 var CORE = {
-  loyaltyDntPrefs: null,
   versionChecker: null,
   appInfo: null,
   prefBranch: "extensions.cliqzLoyalty.",
@@ -36,15 +35,6 @@ var CORE = {
   PREF_STRING: 32,
   PREF_INT: 64,
   PREF_BOOL: 128,
-
-  assureLoyaltyDntPrefs: function() {
-    try {
-      CORE.loyaltyDntPrefs = CORE.loyaltyDntPrefs || Components.classes['@mozilla.org/preferences-service;1']
-          .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.');
-    } catch (e) {
-      CliqzUtils.log(e, "EXCEPTION initiating CORE.loyaltyDntPrefs");
-    }
-  },
 
   assureVersionChecker: function() {
     try {
@@ -55,60 +45,12 @@ var CORE = {
     }
   },
 
-  getExtensionVersion: function() {
-    try {
-      CORE.appInfo = CORE.appInfo || Components.classes["@mozilla.org/xre/app-info;1"]
-        .getService(Components.interfaces.nsIXULAppInfo);
-      return CORE.appInfo.version
-    } catch (e) {
-      return null;
-    }
-  },
-
-  getPref_bck: function (pref, notFound) {
-    CORE.assureLoyaltyDntPrefs();
-    try {
-      switch (CORE.loyaltyDntPrefs.getPrefType(pref)) {
-        case CORE.PREF_BOOL:
-          return CORE.loyaltyDntPrefs.getBoolPref(pref);
-        case CORE.PREF_STRING:
-          return CORE.loyaltyDntPrefs.getCharPref(pref);
-        case CORE.PREF_INT:
-          return CORE.loyaltyDntPrefs.getIntPref(pref);
-        default:
-          return notFound;
-      }
-    } catch (e) {
-      CliqzUtils.log(e, "EXCEPTION getting pref for Loyalty");
-      return notFound;
-    }
-  },
-
   getPref: function (pref, notFound) {
     return CliqzUtils.getPref(pref, notFound, CORE.prefBranch);
   },
 
-  setPref_bck: function (pref, val) {
-    CORE.assureLoyaltyDntPrefs();
-    try {
-      switch (typeof val) {
-        case 'boolean':
-          CORE.loyaltyDntPrefs.setBoolPref(pref, val);
-          break;
-        case 'number':
-          CORE.loyaltyDntPrefs.setIntPref(pref, val);
-          break;
-        case 'string':
-          CORE.loyaltyDntPrefs.setCharPref(pref, val);
-          break;
-      }
-    } catch (e) {
-      CliqzUtils.log(e, "EXCEPTION setting pref for Loyalty");
-    }
-  },
-
   setPref: function (pref, val) {
-    CliqzUtils.getPref(pref, val, CORE.prefBranch);
+    CliqzUtils.setPref(pref, val, CORE.prefBranch);
   },
 
   iterateWindows: function(func, arg) {
@@ -605,7 +547,7 @@ var CliqzLLogic = {
       freqCliqzUse = Math.round(100 * user_stat.resultsCliqz.total / totalSearch);
       return {
         hmw: hmw,
-        version: {current: CliqzUtils.extensionVersion || CORE.getExtensionVersion() || "1.0.63",
+        version: {current: CliqzUtils.extensionVersion || "1.0.25",
           latest: CliqzStatsGlobal.CliqzLatestVersion},
         freqCliqzUse: {current: freqCliqzUse, threshold: 80}, // todo: define threshold from the backend
         totalCliqzUse: {current: user_stat.resultsCliqz.total, Legend: CliqzStatsGlobal.getLegendBenchMark()}
