@@ -1,5 +1,7 @@
 <!-- conversations.tpl -->
-
+<div id="search">
+	<input id="search_input" type="text" placeholder="Suche" />
+</div>
 <div class="main">
 		<div class='cqz-result-title overflow' arrow-override=''>
 			<h1 class="main__headline">

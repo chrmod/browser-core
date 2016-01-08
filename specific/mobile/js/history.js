@@ -1,6 +1,7 @@
 'use strict';
 
 function showHistory(history) {
+  console.log(JSON.stringify(history));
   var data = [];
   history = history.results;
   var queries = [];
@@ -38,6 +39,7 @@ function showHistory(history) {
     qi++;
   }
   displayData(data);
+
 }
 
 function displayData(data) {
@@ -57,6 +59,10 @@ function displayData(data) {
   }
 
   document.body.scrollTop = height + 100;
+
+  document.getElementById("search_input").addEventListener("keyup", function() {
+      filterHistory(this.value);
+  })
 }
 
 function testActiveWebViewOnIos() {
@@ -86,5 +92,16 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     var formatedDate = hours + ':' + minutes;
     return formatedDate;
 });
+
+function filterHistory(value) {
+    var framers = document.getElementsByClassName("framer");
+    for(var i=0;i<framers.length;i++) {
+        if(framers[i].childNodes[1].firstChild.textContent.toLowerCase().match(value.toLowerCase())) {
+            framers[i].parentNode.style.display = "block";
+        } else {
+            framers[i].parentNode.style.display = "none";
+        }
+    }
+}
 
 osBridge.searchHistory("", "showHistory")
