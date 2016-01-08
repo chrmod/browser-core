@@ -39,11 +39,9 @@
 	
 
 </div>
-
+<div style="clear:both;"></div>
 <div id="search">
-	<input id="search_input" type="text" placeholder="Einträge filtern nach..." />
+	<input id="search_input" type="text" placeholder="Filtern nach..." />
 </div>
-
-<div style="clear:both;height:50px">&nbsp;</div>
 
 <!-- end conversations.tpl -->
