@@ -21,7 +21,7 @@
 				</div>
 				<br />
 				<br />
-				<div class="share">
+				<div class="share" style="display:none">
 					Teilen
 				</div>
 		</div>
