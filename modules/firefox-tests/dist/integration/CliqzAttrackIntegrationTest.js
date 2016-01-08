@@ -17,6 +17,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
   var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
   describe('CliqzAttrack_integration', function() {
+    this.retries(3);
 
     var server = null,
       server_port = -1,

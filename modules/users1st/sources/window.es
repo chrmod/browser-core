@@ -1,3 +1,5 @@
+import { utils } from 'core/cliqz';
+
 const adBlockKey = 'extensions.adblockplus.enabled',
       prefKey = 'adBlockBild', // 0 - ask, 1 - enable, 2 - disable
       BLOCK = false,
@@ -9,7 +11,7 @@ export default class {
     this.window = settings.window;
     this.gBrowser = this.window.gBrowser;
 
-    if(!this.window.CLIQZ.Core.genericPrefs.prefHasUserValue(adBlockKey)) { return; }
+    if(!utils.hasPref(adBlockKey, '')) { return; }
 
     this.initialState = this.adBlockActive();
     this.state = true;
@@ -29,7 +31,7 @@ export default class {
   }
 
   init() {
-    if(!this.initialState || !this.window.CLIQZ.Core.genericPrefs.prefHasUserValue(adBlockKey)) { return; }
+    if(!this.initialState || !utils.hasPref(adBlockKey, '')) { return; }
 
     this.gBrowser.tabContainer.addEventListener("TabSelect", this.userTabSelect, false);
     this.gBrowser.addTabsProgressListener(this.userListener);

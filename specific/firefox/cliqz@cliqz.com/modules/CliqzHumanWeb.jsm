@@ -240,6 +240,15 @@ function dfTelemetry(action, reason){
     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': action, 'payload': payl});
 }
 
+function _log(msg){
+    try{
+        if(CliqzHumanWeb.debug) {
+            CliqzUtils.log(msg, CliqzHumanWeb.LOG_KEY);
+        }
+    }
+    catch(e){CliqzUtils.log(e, CliqzHumanWeb.LOG_KEY)};
+}
+
 var CliqzHumanWeb = {
     VERSION: '1.9',
     WAIT_TIME: 2000,
@@ -297,7 +306,6 @@ var CliqzHumanWeb = {
     actionStats: null,
     actionStatsLastSent: null,
     bloomFilter: null,
-    BloomFilter: CliqzBloomFilter.BloomFilter,
     bf:null,
     _md5: function(str) {
         return md5(str);
@@ -402,7 +410,7 @@ var CliqzHumanWeb = {
 
             if (pos_hash_char > -1) {
                 if (CliqzHumanWeb.checkIfSearchURL(aURI)!=true && (aURI.length - pos_hash_char) >= 10) {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("Dropped because of # in url: " + decodeURIComponent(aURI)  , CliqzHumanWeb.LOG_KEY);
+                    _log("Dropped because of # in url: " + decodeURIComponent(aURI));
                     return true;
                 }
             }
@@ -411,13 +419,13 @@ var CliqzHumanWeb = {
                 return true;
             }
 
-            if (CliqzHumanWeb.debug) CliqzUtils.log("Sanitize: URL is ok: " + aURI  , CliqzHumanWeb.LOG_KEY);
+            _log("Sanitize: URL is ok: " + aURI);
 
             return false;
 
         } catch(ee) {
             // if there were any exception, we return true for safety
-            if (CliqzHumanWeb.debug) CliqzUtils.log("Exception in isSuspiciousURL: " + ee, CliqzHumanWeb.LOG_KEY);
+            _log("Exception in isSuspiciousURL: " + ee);
             return true;
         }
 
@@ -553,7 +561,7 @@ var CliqzHumanWeb = {
 
         } catch(ee) {
             // if there were any exception, we return true for safety
-            if (CliqzHumanWeb.debug) CliqzUtils.log("Exception in dropLongURL: " + ee, CliqzHumanWeb.LOG_KEY);
+            _log("Exception in dropLongURL: " + ee);
             return true;
         }
 
@@ -578,7 +586,6 @@ var CliqzHumanWeb = {
       }
     },
     getHeaders: function(strData) {
-      //CliqzUtils.log("In get headers:",CliqzHumanWeb.LOG_KEY);
       var o = {};
       o['status'] = strData.split(" ")[1];
 
@@ -624,7 +631,7 @@ var CliqzHumanWeb = {
 
 
 
-              } catch(ee){if (CliqzHumanWeb && CliqzHumanWeb.debug)  CliqzUtils.log('observeActivity: ' + ee, CliqzHumanWeb.LOG_KEY)};
+              } catch(ee){if (CliqzHumanWeb)  _log('observeActivity: ' + ee)};
         }
     },
     // Extract earliest and latest entry of Firefox history
@@ -644,12 +651,12 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                     callback(null);
                 }
                 else {
@@ -689,7 +696,7 @@ var CliqzHumanWeb = {
           },
 
           handleError: function(aError) {
-            CliqzUtils.log("Error (" + aError.result + "):" + aError.message, CliqzHumanWeb.LOG_KEY);
+            _log("Error (" + aError.result + "):" + aError.message);
             if (this.callback) {
               this.callback(0);
             }
@@ -836,7 +843,7 @@ var CliqzHumanWeb = {
 
             if (req.status != 200 && req.status != 0 /* local files */){
                 error_message = 'status not valid: ' + req.status;
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
+                _log("Error on doublefetch: " + error_message);
                 req.onerror();
             }
             else {
@@ -845,8 +852,8 @@ var CliqzHumanWeb = {
                 if (req.responseURL != url) {
                     if (decodeURI(decodeURI(req.responseURL)) != decodeURI(decodeURI(url))) {
                         error_message = 'dangerous redirect';
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("DANGER: " + url + ' ' + req.responseURL , CliqzHumanWeb.LOG_KEY);
+                        _log("Error on doublefetch: " + error_message);
+                        _log("DANGER: " + url + ' ' + req.responseURL);
                         req.onerror();
                         return;
                     }
@@ -869,7 +876,7 @@ var CliqzHumanWeb = {
         }
         req.ontimeout = function() {
             error_message = 'timeout';
-            if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
+            _log("Error on doublefetch: " + error_message);
             req.onerror();
         }
 
@@ -907,21 +914,19 @@ var CliqzHumanWeb = {
         // the page after.
 
 
-        if (CliqzHumanWeb.debug) {
-            CliqzUtils.log("xbef: " + JSON.stringify(struct_bef), CliqzHumanWeb.LOG_KEY);
-            CliqzUtils.log("xaft: " + JSON.stringify(struct_aft), CliqzHumanWeb.LOG_KEY);
-        }
+        _log("xbef: " + JSON.stringify(struct_bef));
+        _log("xaft: " + JSON.stringify(struct_aft));
 
         // if any of the titles is null (false), then decline (discard)
 
         if (!(struct_bef['t'] && struct_aft['t'])) {
-            if (CliqzHumanWeb.debug) CliqzUtils.log("fovalidDoubleFetch: found an empty title", CliqzHumanWeb.LOG_KEY);
+            _log("fovalidDoubleFetch: found an empty title");
             return false;
         }
 
         // if any of the two struct has a iall to false decline
         if (!(struct_bef['iall'] && struct_aft['iall'])) {
-            if (CliqzHumanWeb.debug) CliqzUtils.log("fovalidDoubleFetch: found a noindex", CliqzHumanWeb.LOG_KEY);
+            _log("fovalidDoubleFetch: found a noindex");
             return false;
         }
 
@@ -948,7 +953,7 @@ var CliqzHumanWeb = {
             if ((struct_bef['lh'] || 0) > 10*1024) {
                 var ratio_lh = (struct_bef['lh'] || 0) / ((struct_bef['lh'] || 0) + (struct_aft['lh'] || 0));
                 if (ratio_lh < 0.10 || ratio_lh > 0.90) {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("fovalidDoubleFetch: lh is not balanced", CliqzHumanWeb.LOG_KEY);
+                    _log("fovalidDoubleFetch: lh is not balanced");
                     length_html_ok = false;
                 }
             }
@@ -958,7 +963,7 @@ var CliqzHumanWeb = {
             if ((struct_bef['lh'] || 0) > 30) {
                 var ratio_nl = (struct_bef['nl'] || 0) / ((struct_bef['nl'] || 0) + (struct_aft['nl'] || 0));
                 if (ratio_nl < 0.10 || ratio_nl > 0.90) {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("fovalidDoubleFetch: nl is not balanced", CliqzHumanWeb.LOG_KEY);
+                    _log("fovalidDoubleFetch: nl is not balanced");
                     length_text_ok = false;
                 }
             }
@@ -971,13 +976,13 @@ var CliqzHumanWeb = {
         if (struct_aft['canonical_url']==null || struct_aft['canonical_url']=='') {
             // if had no password inputs before and it has after, decline
             if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] > 0)) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail nip", CliqzHumanWeb.LOG_KEY);
+                _log("validDoubleFetch: fail nip");
                 return false;
             }
 
             // if had no forms before and it has after, decline
             if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] > 0)) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CliqzHumanWeb.LOG_KEY);
+                _log("validDoubleFetch: fail text nf");
                 return false;
             }
         }
@@ -998,7 +1003,7 @@ var CliqzHumanWeb = {
                 // the longest titles is 4 tokens long, the, we are a bit flexible on title differences
                 if (jc >= 0.5) return true;
                 else {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("short title fail title overlap", CliqzHumanWeb.LOG_KEY);
+                    _log("short title fail title overlap");
                     return false;
                 }
             }
@@ -1017,12 +1022,12 @@ var CliqzHumanWeb = {
                         jc = CliqzHumanWeb.auxIntersection(vtt1,vtt2).length / CliqzHumanWeb.auxUnion(vtt1,vtt2).length;
                         // we are more demanding on the title overlap now
                         if (jc <= 0.80) {
-                            if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail title overlap after ascii", CliqzHumanWeb.LOG_KEY);
+                            _log("validDoubleFetch: fail title overlap after ascii");
                             return false;
                         }
                     }
                     else {
-                      if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail title overlap", CliqzHumanWeb.LOG_KEY);
+                      _log("validDoubleFetch: fail title overlap");
                       return false;
                     }
                 }
@@ -1033,13 +1038,13 @@ var CliqzHumanWeb = {
 
                 // if had no password inputs before and it has after, decline
                 if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] > 0)) {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail nip", CliqzHumanWeb.LOG_KEY);
+                    _log("validDoubleFetch: fail nip");
                     return false;
                 }
 
                 // if had no forms before and it has after, decline
                 if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] > 0)) {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CliqzHumanWeb.LOG_KEY);
+                    _log("validDoubleFetch: fail text nf");
                     return false;
                 }
 
@@ -1051,7 +1056,7 @@ var CliqzHumanWeb = {
             return true;
         }
 
-        if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: default option", CliqzHumanWeb.LOG_KEY);
+        _log("validDoubleFetch: default option");
 
         return false;
 
@@ -1097,21 +1102,21 @@ var CliqzHumanWeb = {
     },
     fetchReferral: function(referral_url, callback) {
 
-        CliqzUtils.log("PPP in fetchReferral: " + referral_url, CliqzHumanWeb.LOG_KEY);
+        _log("PPP in fetchReferral: " + referral_url);
 
         if (referral_url && referral_url!='') {
             if (CliqzHumanWeb.docCache[referral_url]==null) {
                 CliqzHumanWeb.auxGetPageData(referral_url, null, null, function(referral_url) {
-                    CliqzUtils.log("PPP in fetchReferral success auxGetPageData: " + referral_url, CliqzHumanWeb.LOG_KEY);
+                    _log("PPP in fetchReferral success auxGetPageData: " + referral_url);
                     callback();
                 },
                 function(referral_url) {
-                    CliqzUtils.log("PPP in fetchReferral failure auxGetPageData: " + referral_url, CliqzHumanWeb.LOG_KEY);
+                    _log("PPP in fetchReferral failure auxGetPageData: " + referral_url);
                     callback();
                 });
             }
             else {
-                CliqzUtils.log("PPP in fetchReferral already in docCache: " + referral_url, CliqzHumanWeb.LOG_KEY);
+                _log("PPP in fetchReferral already in docCache: " + referral_url);
                 callback();
             }
         }
@@ -1145,6 +1150,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.isSuspiciousURL(url) == true) isok = false;
 
         if (CliqzHumanWeb.dropLongURL(url)) {
+            _log("The url: " + url + " is long");
 
             if (page_doc && page_doc['x'] && page_doc['x']['canonical_url']) {
                 // the url is to be drop, but it has a canonical URL so it should be public
@@ -1152,6 +1158,7 @@ var CliqzHumanWeb = {
                     // wops, the canonical is also bad, therefore mark as private
                     // SPT - r3 => canonical is long.;
                     // dfTelemetry('hw.telemetry.doublefetch.mp',"r3");
+                    _log("The canonical url: " + page_doc['x']['canonical_url'] + " is also long");
                     isok = false;
                 }
                 else {
@@ -1171,13 +1178,13 @@ var CliqzHumanWeb = {
         }
 
         if (isok) {
-            if (CliqzHumanWeb.debug) CliqzUtils.log("going to double-fetch: " + url, CliqzHumanWeb.LOG_KEY);
+            _log("going to double-fetch: " + url);
 
             CliqzHumanWeb.auxGetPageData(url, page_doc, url, function(url, page_doc, original_url, data) {
 
                 // data contains the public data of the url double-fetch,
 
-                if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
+                _log("success on doubleFetch, need further validation" + url);
 
                 if (CliqzHumanWeb.validDoubleFetch(page_doc['x'], data, {'structure_strict': false})) {
 
@@ -1190,22 +1197,22 @@ var CliqzHumanWeb = {
 
                         if (page_doc['ref'] && page_doc['ref']!='') {
                             // the page has a referral
-                            if (CliqzHumanWeb.debug) CliqzUtils.log("PPP: page has a referral, " + url + " < " + page_doc['ref'], CliqzHumanWeb.LOG_KEY);
+                            _log("PPP: page has a referral, " + url + " < " + page_doc['ref']);
                             var hasurl = CliqzHumanWeb.hasURL(page_doc['ref'], url);
-                            if (CliqzHumanWeb.debug) CliqzUtils.log("PPP: page has a referral, " + url + " < " + page_doc['ref'] + ">>>> " + hasurl, CliqzHumanWeb.LOG_KEY);
+                            _log("PPP: page has a referral, " + url + " < " + page_doc['ref'] + ">>>> " + hasurl);
 
                             // overwrite strict value because the link exists on a public fetchable page
                             if (hasurl) strict_value = false;
                         }
                         else {
                             // page has no referral
-                            if (CliqzHumanWeb.debug) CliqzUtils.log("PPP: page has NO referral, " + url, CliqzHumanWeb.LOG_KEY);
+                            _log("PPP: page has NO referral, " + url);
 
                             // we do not know the origin of the page, run the dropLongURL strict version, if
                             // there is no canonical or if there is canonical and is the same as the url,
                         }
 
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("strict URL:" + url + " > " + strict_value, CliqzHumanWeb.LOG_KEY);
+                        _log("strict URL:" + url + " > " + strict_value);
 
                         if (CliqzHumanWeb.validDoubleFetch(page_doc['x'], data, {'structure_strict': strict_value})) {
 
@@ -1214,13 +1221,13 @@ var CliqzHumanWeb = {
                             if (CliqzHumanWeb.dropLongURL(url, {'strict': strict_value})) {
                                 if (page_doc && page_doc['x'] && page_doc['x']['canonical_url']) {
                                     if (CliqzHumanWeb.dropLongURL(page_doc['x']['canonical_url'], {'strict': strict_value})) {
-                                        if (CliqzHumanWeb.debug) CliqzUtils.log("doubleFetch failed on dropLongURL strict=true:" + url, CliqzHumanWeb.LOG_KEY);
+                                        _log("doubleFetch failed on dropLongURL strict=true:" + url);
                                         CliqzHumanWeb.setAsPrivate(url);
                                         return;
                                     }
                                 }
                                 else {
-                                    if (CliqzHumanWeb.debug) CliqzUtils.log("doubleFetch failed on dropLongURL strict=true:" + url, CliqzHumanWeb.LOG_KEY);
+                                    _log("doubleFetch failed on dropLongURL strict=true:" + url);
                                     CliqzHumanWeb.setAsPrivate(url);
                                     return;
                                 }
@@ -1229,14 +1236,14 @@ var CliqzHumanWeb = {
                         else {
                             // the strict version of validDoubleFetch fails for a page with no referral,
                             // since we do not know the origin mark as private
-                            if (CliqzHumanWeb.debug) CliqzUtils.log("doubleFetch failed on structure_strict=true: " + url, CliqzHumanWeb.LOG_KEY);
+                            _log("doubleFetch failed on structure_strict=true: " + url);
                             CliqzHumanWeb.setAsPrivate(url);
                             return;
                         }
 
 
 
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation", CliqzHumanWeb.LOG_KEY);
+                        _log("success on doubleFetch, need further validation");
 
                         //
                         // we need to modify the 'x' field of page_doc to substitute any structural information about
@@ -1292,11 +1299,11 @@ var CliqzHumanWeb = {
                             // because it would be cleaner hence safer
                             //
 
-                            if (CliqzHumanWeb.debug) CliqzUtils.log("going to clean_url double-fetch: " + clean_url, CliqzHumanWeb.LOG_KEY);
+                            _log("going to clean_url double-fetch: " + clean_url);
 
                             CliqzHumanWeb.auxGetPageData(clean_url, page_doc, first_url_double_fetched, function(url, page_doc, original_url, data) {
 
-                                if (CliqzHumanWeb.debug) CliqzUtils.log("success on clean_url doubleFetch, need further validation", CliqzHumanWeb.LOG_KEY);
+                                _log("success on clean_url doubleFetch, need further validation");
 
                                 if (CliqzHumanWeb.validDoubleFetch(page_doc['x'], data, {'structure_strict': false})) {
                                     // if it the second double fetch is valid, that means that the clean_url is (url parameter) is
@@ -1316,14 +1323,14 @@ var CliqzHumanWeb = {
                                     // should mark it as private just to be sure,
 
                                     if (CliqzHumanWeb.debug) {
-                                        CliqzUtils.log("checking clean_url, page_doc: " + JSON.stringify(page_doc), CliqzHumanWeb.LOG_KEY);
-                                        CliqzUtils.log("checking clean_url, data: " + JSON.stringify(data), CliqzHumanWeb.LOG_KEY);
+                                        _log("checking clean_url, page_doc: " + JSON.stringify(page_doc));
+                                        _log("checking clean_url, data: " + JSON.stringify(data));
                                     }
 
 
                                     if (page_doc['x']['nip'] < data['nip']) {
                                         // the page with url_clean have more input password fields or more forms, this is dangerous,
-                                        if (CliqzHumanWeb.debug) CliqzUtils.log("failure on checking the password and forms for clean_url: " + original_url, + " set as private", CliqzHumanWeb.LOG_KEY);
+                                        _log("failure on checking the password and forms for clean_url: " + original_url + " set as private");
                                         CliqzHumanWeb.setAsPrivate(original_url);
                                     }
                                     else {
@@ -1334,7 +1341,7 @@ var CliqzHumanWeb = {
                                 }
                             },
                             function(url, page_doc, original_url, error_message) {
-                                if (CliqzHumanWeb.debug) CliqzUtils.log("failure on clean_url doubleFetch! " + "structure did not match", CliqzHumanWeb.LOG_KEY);
+                                _log("failure on clean_url doubleFetch! " + "structure did not match");
                                 // there was a failure, the clean_url does not go to the same place, therefore it's better
                                 // not to replace
 
@@ -1350,18 +1357,18 @@ var CliqzHumanWeb = {
                     });
                 }
                 else {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match", CliqzHumanWeb.LOG_KEY);
+                    _log("failure on doubleFetch! " + "structure did not match");
                     CliqzHumanWeb.setAsPrivate(url);
                 }
             },
             function(url, page_doc, original_url, error_message) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + error_message, CliqzHumanWeb.LOG_KEY);
+                _log("failure on doubleFetch! " + error_message);
                 CliqzHumanWeb.setAsPrivate(url);
             });
 
         }
         else {
-            if (CliqzHumanWeb.debug) CliqzUtils.log("doubleFetch refused to process this url: " + url, CliqzHumanWeb.LOG_KEY);
+            _log("doubleFetch refused to process this url: " + url);
             CliqzHumanWeb.setAsPrivate(url);
         }
 
@@ -1378,7 +1385,7 @@ var CliqzHumanWeb = {
                 if (!cd) {
                     // fetch the content of the source_url,
                     //
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("hasURL no CD!!! ", CliqzHumanWeb.LOG_KEY);
+                    _log("hasURL no CD!!! ");
                     return false;
                 }
             }
@@ -1424,7 +1431,7 @@ var CliqzHumanWeb = {
             return found;
 
         } catch(ee) {
-            if (CliqzHumanWeb.debug) CliqzUtils.log("Error on hasURL: " + ee, CliqzHumanWeb.LOG_KEY);
+            _log("Error on hasURL: " + ee);
             return false;
         }
     },
@@ -1551,7 +1558,7 @@ var CliqzHumanWeb = {
 
 
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
-        //CliqzUtils.log("Testing" + x.ctry, CliqzHumanWeb.LOG_KEY);
+        //_log("Testing" + x.ctry);
         return x;
     },
     getCDByURL: function(url) {
@@ -1574,7 +1581,7 @@ var CliqzHumanWeb = {
                     var currURL=''+cd.location;
 
                     if (CliqzHumanWeb.debug) {
-                        CliqzUtils.log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL, CliqzHumanWeb.LOG_KEY);
+                        _log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL);
                     }
 
                     if (currURL==''+url) {
@@ -1752,7 +1759,7 @@ var CliqzHumanWeb = {
                                 catch(ee) {
                                     // silent fail
                                     if (CliqzHumanWeb.debug) {
-                                        CliqzUtils.log('Exception: ' + ee, CliqzHumanWeb.LOG_KEY);
+                                        _log('Exception: ' + ee);
                                     }
                                 }
                             }
@@ -1843,7 +1850,7 @@ var CliqzHumanWeb = {
                             var cd = CliqzHumanWeb.getCDByURL(currURL);
                             if (cd==null) {
                                 if (CliqzHumanWeb.debug) {
-                                    CliqzUtils.log("CANNOT GET THE CONTENT OF : " + currURL, CliqzHumanWeb.LOG_KEY);
+                                    _log("CANNOT GET THE CONTENT OF : " + currURL);
                                 }
                                 return;
                             }
@@ -1884,7 +1891,7 @@ var CliqzHumanWeb = {
 
                         } catch(ee) {
                             if (CliqzHumanWeb.debug) {
-                                CliqzUtils.log("Error fetching title and length of page: " + ee, CliqzHumanWeb.LOG_KEY);
+                                _log("Error fetching title and length of page: " + ee);
                             }
                         }
 
@@ -1910,7 +1917,7 @@ var CliqzHumanWeb = {
                 We might need this, to add listeners.
                 else{
                     currwin.addEventListener('load', function loader() {
-                        CliqzUtils.log("CD failed: ",CliqzHumanWeb.LOG_KEY);
+                        _log("CD failed: ");
                         currwin.removeEventListener('load', loader, false);
                         var cd = CliqzHumanWeb.getCDByURL(activeURL);
                         cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
@@ -1984,8 +1991,8 @@ var CliqzHumanWeb = {
                             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                             delete CliqzHumanWeb.state['v'][url];
                             delete CliqzHumanWeb.queryCache[url];
-                            //CliqzUtils.log("Deleted: moved to dead pages after 20 mts.",CliqzHumanWeb.LOG_KEY);
-                            //CliqzUtils.log("Deleted: moved to dead pages after 20 mts: " + CliqzHumanWeb.state['m'].length,CliqzHumanWeb.LOG_KEY);
+                            //_log("Deleted: moved to dead pages after 20 mts.");
+                            //_log("Deleted: moved to dead pages after 20 mts: " + CliqzHumanWeb.state['m'].length);
 
                         }
                     }
@@ -1995,7 +2002,7 @@ var CliqzHumanWeb = {
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % 10 == 0) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id, CliqzHumanWeb.LOG_KEY);
+                _log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
             }
             CliqzHumanWeb.cleanHttpCache();
             CliqzHumanWeb.cleanDocCache();
@@ -2019,7 +2026,7 @@ var CliqzHumanWeb = {
                 }
                 */
             }
-            if(!CliqzHumanWeb.bloomfilter){
+            if(!CliqzHumanWeb.bloomFilter){
                 CliqzHumanWeb.loadBloomFilter();
             }
         }
@@ -2027,7 +2034,7 @@ var CliqzHumanWeb = {
         //Load patterns config
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 24) == 0) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Load pattern config', CliqzHumanWeb.LOG_KEY);
+                _log('Load pattern config');
             }
             CliqzHumanWeb.loadContentExtraction();
         }
@@ -2035,21 +2042,21 @@ var CliqzHumanWeb = {
         //Load ts config
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Load ts config', CliqzHumanWeb.LOG_KEY);
+                _log('Load ts config');
             }
             CliqzHumanWeb.fetchAndStoreConfig();
         }
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Check if alive', CliqzHumanWeb.LOG_KEY);
+                _log('Check if alive');
             }
             CliqzHumanWeb.checkActiveUsage();
         }
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Save actions stats', CliqzHumanWeb.LOG_KEY);
+                _log('Save actions stats');
             }
             CliqzHumanWeb.saveActionStats();
             CliqzHumanWeb.sendActionStatsIfNeeded();
@@ -2070,7 +2077,7 @@ var CliqzHumanWeb = {
                     try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
                     var doc = {'q': query, 'sources': CliqzHumanWeb.userTransitions['search'][query]['data'],'ctry': location};
                     if (CliqzHumanWeb.debug) {
-                        CliqzUtils.log(JSON.stringify(doc,undefined,2), CliqzHumanWeb.LOG_KEY);
+                        _log(JSON.stringify(doc,undefined,2));
                     }
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'userTransition.search', 'payload': doc});
                 }
@@ -2158,7 +2165,7 @@ var CliqzHumanWeb = {
     captureKeyPress: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypress']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypresspage']|0)) > 1 * CliqzHumanWeb.tmult)) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureKeyPressAll', CliqzHumanWeb.LOG_KEY);
+                _log('captureKeyPressAll');
             }
             CliqzHumanWeb.lastEv['keypress'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
@@ -2167,7 +2174,7 @@ var CliqzHumanWeb = {
     captureMouseMove: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemove']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemovepage']|0)) > 1 * CliqzHumanWeb.tmult)) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureMouseMoveAll', CliqzHumanWeb.LOG_KEY);
+                _log('captureMouseMoveAll');
             }
             CliqzHumanWeb.lastEv['mousemove'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
@@ -2176,7 +2183,7 @@ var CliqzHumanWeb = {
     captureMouseClick: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclick']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclickpage']|0)) > 1 * CliqzHumanWeb.tmult)) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureMouseClickAll', CliqzHumanWeb.LOG_KEY);
+                _log('captureMouseClickAll');
             }
             CliqzHumanWeb.lastEv['mouseclick'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
@@ -2185,7 +2192,7 @@ var CliqzHumanWeb = {
     captureKeyPressPage: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypresspage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
-                //CliqzUtils.log('captureKeyPressPage', CliqzHumanWeb.LOG_KEY);
+                //_log('captureKeyPressPage');
             }
             CliqzHumanWeb.lastEv['keypresspage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -2198,7 +2205,7 @@ var CliqzHumanWeb = {
     captureMouseMovePage: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemovepage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureMouseMovePage', CliqzHumanWeb.LOG_KEY);
+                _log('captureMouseMovePage');
             }
             CliqzHumanWeb.lastEv['mousemovepage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -2221,7 +2228,7 @@ var CliqzHumanWeb = {
         }
         catch(ee) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Error in getURLFromEvent: ' + ee, CliqzHumanWeb.LOG_KEY);
+                _log('Error in getURLFromEvent: ' + ee);
             }
         }
         return null;
@@ -2273,7 +2280,7 @@ var CliqzHumanWeb = {
             if (embURL!=null) targetURL = embURL;
             var activeURL = CliqzHumanWeb.currentURL();
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureMouseClickPage>> ' + CliqzHumanWeb.counter + ' ' + targetURL  + ' : ' + " active: " + activeURL + " " + (CliqzHumanWeb.state['v'][activeURL]!=null) + " " + ev.target + ' :: ' + ev.target.value  + ' >>' + JSON.stringify(CliqzHumanWeb.lastEv), CliqzHumanWeb.LOG_KEY);
+                _log('captureMouseClickPage>> ' + CliqzHumanWeb.counter + ' ' + targetURL  + ' : ' + " active: " + activeURL + " " + (CliqzHumanWeb.state['v'][activeURL]!=null) + " " + ev.target + ' :: ' + ev.target.value  + ' >>' + JSON.stringify(CliqzHumanWeb.lastEv));
             }
 
             //var activeURL = CliqzHumanWeb.currentURL();
@@ -2311,7 +2318,7 @@ var CliqzHumanWeb = {
 
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclickpage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureMouseClickPage', CliqzHumanWeb.LOG_KEY);
+                _log('captureMouseClickPage');
             }
             CliqzHumanWeb.lastEv['mouseclickpage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -2324,7 +2331,7 @@ var CliqzHumanWeb = {
     captureScrollPage: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['scrollpage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureScrollPage ', CliqzHumanWeb.LOG_KEY);
+                _log('captureScrollPage ');
             }
 
             CliqzHumanWeb.lastEv['scrollpage'] = CliqzHumanWeb.counter;
@@ -2338,7 +2345,7 @@ var CliqzHumanWeb = {
     captureCopyPage: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['copypage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('captureCopyPage', CliqzHumanWeb.LOG_KEY);
+                _log('captureCopyPage');
             }
             CliqzHumanWeb.lastEv['copypage'] = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -2389,7 +2396,7 @@ var CliqzHumanWeb = {
         };
 
 
-        if (CliqzHumanWeb.debug) CliqzUtils.log("Init function called:", CliqzHumanWeb.LOG_KEY)
+        _log("Init function called:")
         CliqzHumanWeb.initDB();
 
         if (CliqzHumanWeb.state == null) {
@@ -2432,19 +2439,18 @@ var CliqzHumanWeb = {
         /*
         var status = CliqzHumanWeb.loadpageStatusCount();
         if(!status){
-            CliqzUtils.log("Need to send", "XXX");
             CliqzHumanWeb.getPageStatusCount(function(res){
                 CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'hw.telemetry.statuscount', 'payload':res[0]});
                 CliqzHumanWeb.saveRecord('pageStatusCountSent', JSON.stringify(res[0]));
             })
         }
         else{
-            CliqzUtils.log("No Need to send", "XXX");
+            _log("No Need to send");
         }
         */
 
         // Load bloom filter
-        if(!CliqzHumanWeb.bloomfilter){
+        if(!CliqzHumanWeb.bloomFilter){
             CliqzHumanWeb.loadBloomFilter();
         }
     },
@@ -2474,11 +2480,11 @@ var CliqzHumanWeb = {
         if (msg.action == 'page') {
             if(msg.payload.tend  && msg.payload.tin){
                 var duration = msg.payload.tend - msg.payload.tin;
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CliqzHumanWeb.LOG_KEY);
+                _log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration );
             }
             else{
                 var duration = null;
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CliqzHumanWeb.LOG_KEY);
+                _log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration );
             }
 
             msg.payload['dur'] = duration;
@@ -2510,12 +2516,12 @@ var CliqzHumanWeb = {
             // Check for title.
             if(msg.payload.x.t){
                 if(CliqzHumanWeb.isSuspiciousTitle(msg.payload.x.t)){
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("Suspicious Title: " + msg.payload['title'], CliqzHumanWeb.LOG_KEY);
+                    _log("Suspicious Title: " + msg.payload['title']);
                     return null;
                 }
             }
             else{
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Missing Title: " + msg.payload['title'], CliqzHumanWeb.LOG_KEY);
+                _log("Missing Title: " + msg.payload['title']);
                 return null;
             }
 
@@ -2528,7 +2534,7 @@ var CliqzHumanWeb = {
                     msg.payload.url = canonical_url;
                 }
                 else {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("Suspicious url with no/bad canonical: " + msg.payload.url, CliqzHumanWeb.LOG_KEY);
+                    _log("Suspicious url with no/bad canonical: " + msg.payload.url);
                     return null;
                 }
             }
@@ -2569,10 +2575,10 @@ var CliqzHumanWeb = {
             // Check for canonical seen or not.
             if(msg.payload['x']['canonical_url']) {
                 if(msg.payload['url'] == msg.payload['x']['canonical_url']){
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("Canoncial is same: ",CliqzHumanWeb.LOG_KEY);
+                    _log("Canoncial is same: ");
                     // canonicalSeen = CliqzHumanWeb.canoincalUrlSeen(msg.payload['x']['canonical_url']);
                     if(msg.payload['csb'] && msg.payload['ft']) {
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("Canoncial seen before: ",CliqzHumanWeb.LOG_KEY);
+                        _log("Canoncial seen before: ");
                         delete msg.payload.csb;
                         delete msg.payload.ft;
                     }
@@ -2704,7 +2710,7 @@ var CliqzHumanWeb = {
 
         // Check if track has duplicate messages.
         // Generate a telemetry signal, with base64 endocing of data and respective count.
-        CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
+        // CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
 
         CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
         CliqzHumanWeb._telemetry_start = (new Date()).getTime();
@@ -2719,6 +2725,7 @@ var CliqzHumanWeb = {
             }
             CliqzHumanWeb.previousDataPost = data;
         }
+
         CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
     },
     pushTelemetryCallback: function(req){
@@ -2784,12 +2791,12 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                     callback(null);
                 }
                 else {
@@ -2807,9 +2814,7 @@ var CliqzHumanWeb = {
         var hash = (md5(url)).substring(0,16);
         var r = null;
         if(CliqzHumanWeb.bloomFilter){
-            if(CliqzHumanWeb.debug) CliqzUtils.log("Checking bloom filter","XXX");
             var sta = CliqzHumanWeb.bloomFilter.testSingle(hash);
-            if(CliqzHumanWeb.debug) CliqzUtils.log("In bloom filter ????? " + sta,"XXX1");
             if(sta) {
                 r = {"hash": hash, "private": 1}
             }
@@ -2829,12 +2834,12 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                     callback(null);
                 }
                 else {
@@ -2860,12 +2865,12 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                     callback(null);
                 }
                 else {
@@ -2895,12 +2900,12 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                     callback(true);
                 }
                 else {
@@ -3051,11 +3056,11 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                 }
                 else {
                     if (res.length == 0 && !privateHash ){
@@ -3104,11 +3109,11 @@ var CliqzHumanWeb = {
                         //while (st.executeStep()) {};
                         st.executeAsync({
                             handleError: function(aError) {
-                                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                _log("SQL error: " + aError.message);
                             },
                             handleCompletion: function(aReason) {
                                 if(CliqzHumanWeb.debug){
-                                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                    _log("Insertion success");
                                 }
                             }
                         });
@@ -3135,11 +3140,11 @@ var CliqzHumanWeb = {
                                 //while (st.executeStep()) {};
                                 st.executeAsync({
                                     handleError: function(aError) {
-                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                        _log("SQL error: " + aError.message);
                                     },
                                     handleCompletion: function(aReason) {
                                         if(CliqzHumanWeb.debug){
-                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                            _log("Insertion success");
                                         }
                                     }
                                 });
@@ -3160,11 +3165,11 @@ var CliqzHumanWeb = {
                                 //while (st.executeStep()) {};
                                 st.executeAsync({
                                     handleError: function(aError) {
-                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                        _log("SQL error: " + aError.message);
                                     },
                                     handleCompletion: function(aReason) {
                                         if(CliqzHumanWeb.debug){
-                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                            _log("Insertion success");
                                         }
                                     }
                                 });
@@ -3178,7 +3183,6 @@ var CliqzHumanWeb = {
     },
     setAsPrivate: function(url) {
         if(CliqzHumanWeb.bloomFilter){
-            if(CliqzUtils.debug) CliqzUtils.log("Added to bloomfilter","XXX");
             CliqzHumanWeb.bloomFilter.addSingle((md5(url)).substring(0,16));
         }
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
@@ -3186,11 +3190,11 @@ var CliqzHumanWeb = {
         //while (st.executeStep()) {};
         st.executeAsync({
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
             },
             handleCompletion: function(aReason) {
                 if(CliqzHumanWeb.debug){
-                    CliqzUtils.log("Delete success", CliqzHumanWeb.LOG_KEY);
+                    _log("Delete success");
                  }
             }
         });
@@ -3207,16 +3211,16 @@ var CliqzHumanWeb = {
         //while (hash_st.executeStep()) {};
         hash_st.executeAsync({
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
             },
             handleCompletion: function(aReason) {
                 if(CliqzHumanWeb.debug){
-                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                    _log("Insertion success");
                 }
             }
         });
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CliqzHumanWeb.LOG_KEY);
+            _log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16));
         }
         */
     },
@@ -3226,11 +3230,11 @@ var CliqzHumanWeb = {
         //while (st.executeStep()) {};
         st.executeAsync({
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
             },
             handleCompletion: function(aReason) {
                 if(CliqzHumanWeb.debug){
-                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                    _log("Insertion success");
                 }
             }
         });
@@ -3246,16 +3250,16 @@ var CliqzHumanWeb = {
         //while (hash_st.executeStep()) {};
         hash_st.executeAsync({
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
             },
             handleCompletion: function(aReason) {
                 if(CliqzHumanWeb.debug){
-                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                    _log("Insertion success");
                 }
             }
         });
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
+            _log('MD5: ' + url + md5(url));
         }
         */
 
@@ -3284,20 +3288,20 @@ var CliqzHumanWeb = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    _log("SQL canceled or aborted");
                 }
                 else {
+                    _log("Got the result: " + res[0]);
                     callback(res.splice(0,cap), null);
                 }
             }
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
-        CliqzUtils.log("In process unchecks: " + listOfUncheckedUrls,CliqzHumanWeb.LOG_KEY);
         var url_pagedocPair = {};
         if(listOfUncheckedUrls.length > 1){
             // Notify is the list of unchecked urls recieved is more than one
@@ -3326,11 +3330,11 @@ var CliqzHumanWeb = {
                     //while (st.executeStep()) {};
                     st.executeAsync({
                         handleError: function(aError) {
-                            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                            _log("SQL error: " + aError.message);
                         },
                         handleCompletion: function(aReason) {
                             if(CliqzHumanWeb.debug){
-                                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                _log("Insertion success");
                             }
                         }
                     });
@@ -3338,6 +3342,7 @@ var CliqzHumanWeb = {
                     CliqzHumanWeb.setAsPrivate(url);
                 }
                 else {
+                    _log("Going for double fetch: " + url);
                     CliqzHumanWeb.doubleFetch(url, url_pagedocPair[url]);
                 }
             });
@@ -3360,7 +3365,7 @@ var CliqzHumanWeb = {
         var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
                     .getService(Components.interfaces.nsIWindowWatcher);
         try{var win = ww.openWindow(null, "chrome://cliqzmodules/content/debugInterface",
-                        "debugInterface", null, null);}catch(ee){CliqzUtils.log(ee,'debugInterface')}
+                        "debugInterface", null, null);}catch(ee){_log(ee)}
     },
     loadContentExtraction: function(){
         //Check health
@@ -3379,7 +3384,7 @@ var CliqzHumanWeb = {
             })
           },
           function error(res){
-            CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
+            _log('Error loading config. ')
             });
     },
     checkForEmail: function(str) {
@@ -3430,7 +3435,7 @@ var CliqzHumanWeb = {
                 } catch(e){};
           },
           function error(res){
-            CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
+            _log('Error loading config. ')
           }, 5000);
     },
     checkURL: function(cd){
@@ -3445,7 +3450,7 @@ var CliqzHumanWeb = {
                 //Do not want to continue after search engines...
                 if(CliqzHumanWeb.searchEngines.indexOf(''+i) != -1 ){return;}
                 if (CliqzHumanWeb.debug) {
-                    CliqzUtils.log('Continue further after search engines ', CliqzHumanWeb.LOG_KEY);
+                    _log('Continue further after search engines ');
                 }
             }
       }
@@ -3462,7 +3467,7 @@ var CliqzHumanWeb = {
                 }
                 else{
                     if (CliqzHumanWeb.debug) {
-                        CliqzUtils.log('Not search engine ' + i + CliqzHumanWeb.searchEngines, CliqzHumanWeb.LOG_KEY);
+                        _log('Not search engine ' + i + CliqzHumanWeb.searchEngines);
                     }
                     return -1;
                 }
@@ -3478,14 +3483,14 @@ var CliqzHumanWeb = {
 
         rules = CliqzHumanWeb.extractRules[ind];
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log('rules' + rules + ind, CliqzHumanWeb.LOG_KEY);
+            _log('rules' + rules + ind);
         }
         var urlArray = [];
         var titleArray = [];
         for(key in rules){
             var _keys = Object.keys(rules[key]);
             if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('keys' + _keys, CliqzHumanWeb.LOG_KEY);
+                _log('keys' + _keys);
             }
             var innerDict = {};
             _keys.forEach(function(each_key){
@@ -3651,7 +3656,7 @@ var CliqzHumanWeb = {
     },
     sendMessage: function(payloadRules, payload){
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log("sendMessage" , CliqzHumanWeb.LOG_KEY);
+            _log("sendMessage" );
         }
         var c = true;
         var e = "";
@@ -3771,7 +3776,7 @@ var CliqzHumanWeb = {
     aggregateMetrics:function (metricsBefore, metricsAfter){
         var aggregates =    {"cp": 0,"mm": 0,"kp": 0,"sc": 0,"md": 0};
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log("aggregates: " + JSON.stringify(metricsBefore) + JSON.stringify(metricsAfter), CliqzHumanWeb.LOG_KEY);
+            _log("aggregates: " + JSON.stringify(metricsBefore) + JSON.stringify(metricsAfter));
         }
 
         var _keys = Object.keys(aggregates);
@@ -3779,7 +3784,7 @@ var CliqzHumanWeb = {
              aggregates[_keys[i]] = metricsBefore[_keys[i]] + metricsAfter[_keys[i]];
         }
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log("aggregates: " + JSON.stringify(aggregates), CliqzHumanWeb.LOG_KEY);
+            _log("aggregates: " + JSON.stringify(aggregates));
         }
 
 
@@ -3820,7 +3825,7 @@ var CliqzHumanWeb = {
         // h[i] = k : there are k bins (letter) with i balls (repetitions) on it,
         // h[2] = 1 : there is one letter that is repeated twice
 
-        // CliqzUtils.log("aggregates: "+h);
+        // _log("aggregates: "+h);
 
         if (h[1] == s)  {
             // recursion stop condition
@@ -3889,7 +3894,7 @@ var CliqzHumanWeb = {
 
         h = h.slice(0, max_freq+1);
 
-        // CliqzUtils.log("pre aggregates: "+h);
+        // _log("pre aggregates: "+h);
 
         var cache = {};
         var prob_conf = CliqzHumanWeb.auxProbString(h, p, s, cache);
@@ -4009,7 +4014,7 @@ var CliqzHumanWeb = {
     })
 
     if (Object.keys(duplicates).length > 0) {
-        if (CliqzHumanWeb.debug) CliqzUtils.log("duplicate: " + JSON.stringify(duplicates), CliqzHumanWeb.LOG_KEY);
+        _log("duplicate: " + JSON.stringify(duplicates));
         // If count greater than one, then add and post
         var notificationMsg = {};
         notificationMsg['reason'] = "duplicate elements in trk";
@@ -4022,11 +4027,11 @@ var CliqzHumanWeb = {
     try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
     if(payload && typeof(payload) == 'object'){
         payload['ctry'] = location;
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
+        // CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
 
     }
     else{
-        if (CliqzHumanWeb.debug) CliqzUtils.log("Not a valid object, not sent to notification", CliqzHumanWeb.LOG_KEY);
+        _log("Not a valid object, not sent to notification");
     }
   },
   insertCanUrl: function(canUrl){
@@ -4036,16 +4041,16 @@ var CliqzHumanWeb = {
     //while (hash_st.executeStep()) {};
     hash_st.executeAsync({
         handleError: function(aError) {
-            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            _log("SQL error: " + aError.message);
         },
         handleCompletion: function(aReason) {
             if(CliqzHumanWeb.debug){
-                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                _log("Insertion success");
             }
         }
     });
     if (CliqzHumanWeb.debug) {
-        CliqzUtils.log('MD5: ' + canUrl + md5(canUrl), CliqzHumanWeb.LOG_KEY);
+        _log('MD5: ' + canUrl + md5(canUrl));
     }
   },
   getPageStatusCount: function(callback) {
@@ -4058,12 +4063,12 @@ var CliqzHumanWeb = {
             }
         },
         handleError: function(aError) {
-            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            _log("SQL error: " + aError.message);
             callback(true);
         },
         handleCompletion: function(aReason) {
             if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                _log("SQL canceled or aborted");
                 callback(null);
             }
             else {
@@ -4086,12 +4091,12 @@ var CliqzHumanWeb = {
         st.executeAsync({
             handleError: function(aError) {
                 if(CliqzHumanWeb && CliqzHumanWeb.debug){
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                    _log("SQL error: " + aError.message);
                 }
             },
             handleCompletion: function(aReason) {
                 if(CliqzHumanWeb && CliqzHumanWeb.debug){
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                    _log("Insertion success");
                 }
             }
         });
@@ -4111,7 +4116,7 @@ var CliqzHumanWeb = {
                         res.push(row.getResultByName("data"));
                     }
                     else {
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("There are more than one record", CliqzHumanWeb.LOG_KEY);
+                        _log("There are more than one record");
                         callback(null);
                     }
                     break;
@@ -4119,7 +4124,7 @@ var CliqzHumanWeb = {
             },
             handleError: function(aError) {
                 if(!(CliqzHumanWeb)) return;
-                if (CliqzHumanWeb.debug) CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                _log("SQL error: " + aError.message);
                 callback(null);
             },
             handleCompletion: function(aReason) {
@@ -4132,7 +4137,7 @@ var CliqzHumanWeb = {
     sendpageStatusCount: function() {
         CliqzHumanWeb.loadRecord('pageStatusCountSent', function(data) {
             if (data==null) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Count of pages marked as Public / Private not sent yet.", CliqzHumanWeb.LOG_KEY);
+                _log("Count of pages marked as Public / Private not sent yet.");
                 CliqzHumanWeb.getPageStatusCount(function(res){
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'hw.telemetry.statuscount', 'payload':res[0]});
                     CliqzHumanWeb.saveRecord('pageStatusCountSent', JSON.stringify(res[0]));
@@ -4140,7 +4145,7 @@ var CliqzHumanWeb = {
                 return false;
             }
             else {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Count of pages marked as Public / Private already sent.", CliqzHumanWeb.LOG_KEY);
+                _log("Count of pages marked as Public / Private already sent.");
                 return true;
             }
         });
@@ -4148,7 +4153,7 @@ var CliqzHumanWeb = {
     loadActionStats: function() {
         CliqzHumanWeb.loadRecord('actionStats', function(data) {
             if (data==null) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("There was no data on action stats", CliqzHumanWeb.LOG_KEY);
+                _log("There was no data on action stats");
                 CliqzHumanWeb.actionStats = {};
             }
             else {
@@ -4163,7 +4168,7 @@ var CliqzHumanWeb = {
     loadActionStatsLastSent: function() {
         CliqzHumanWeb.loadRecord('actionStats_last_send', function(data) {
             if (data==null) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("There was no data on CliqzHumanWeb.actionstats", CliqzHumanWeb.LOG_KEY);
+                _log("There was no data on CliqzHumanWeb.actionstats");
                 CliqzHumanWeb.actionStatsLastSent = CliqzHumanWeb.getTime().slice(0,8);
                 CliqzHumanWeb.saveActionStatsLastSent();
             }
@@ -4172,6 +4177,7 @@ var CliqzHumanWeb = {
     },
     incrActionStats: function(action) {
         // anything here should already be hash
+        if(!CliqzHumanWeb.actionStats) return;
         if (CliqzHumanWeb.actionStats[action] == null) CliqzHumanWeb.actionStats[action] = 0;
         if (CliqzHumanWeb.actionStats['total'] == null) CliqzHumanWeb.actionStats['total'] = 0;
         CliqzHumanWeb.actionStats[action]++;
@@ -4179,13 +4185,13 @@ var CliqzHumanWeb = {
 
     },
     saveActionStats: function() {
-        if (CliqzHumanWeb.actionStats) {
+        if (CliqzHumanWeb.actionStats && Object.keys(CliqzHumanWeb.actionStats).length > 0) {
             CliqzHumanWeb.saveRecord('actionStats', JSON.stringify(CliqzHumanWeb.actionStats));
         }
     },
     sendActionStats: function() {
         var payl;
-        if (CliqzHumanWeb.actionStats) {
+        if (CliqzHumanWeb.actionStats && Object.keys(CliqzHumanWeb.actionStats).length > 0) {
             payl = {'data': CliqzHumanWeb.actionStats};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'hw.telemetry.actionstats', 'payload': payl});
@@ -4222,7 +4228,7 @@ var CliqzHumanWeb = {
     loadBloomFilter: function(){
         CliqzHumanWeb.loadRecord('bf', function(data) {
             if (data==null) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("There was no data on CliqzHumanWeb.bf", CliqzHumanWeb.LOG_KEY);
+                _log("There was no data on CliqzHumanWeb.bf");
                 CliqzHumanWeb.bloomFilter = new CliqzBloomFilter.BloomFilter(Array(bloomFilterSize).join('0'),bloomFilterNHashes);
             }
             else {

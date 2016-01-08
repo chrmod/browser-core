@@ -68,7 +68,7 @@ beforeEach(function () {
   CliqzUtils.telemetry = function () {};
 });
 
-afterEach(function (done) {
+afterEach(function () {
   CliqzUtils.telemetry = telemetry;
   CliqzUtils.getCliqzResults = getCliqzResults;
 
@@ -77,8 +77,6 @@ afterEach(function (done) {
 
   // clean waitFor side effects
   clearIntervals();
-
-  setTimeout(done, 1000)
 });
 
 window.focus();
