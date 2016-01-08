@@ -224,8 +224,8 @@ CLIQZEnvironment = {
       CLIQZEnvironment.setCurrentQuery(r._searchString);
     },2000);
 
-    CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
-    CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
+    //CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
+    //CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
 
 
     var showGooglethis = 1;
@@ -234,7 +234,6 @@ CLIQZEnvironment = {
     if(r._results[0].data.template == "noResult") {
       showGooglethis = 0;
     }
-
 
     renderedResults = CLIQZEnvironment.renderResults(r, showGooglethis, validCount, historyCount);
 
@@ -285,7 +284,7 @@ CLIQZEnvironment = {
 
 
     // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CliqzUtils.log(e,"XHR");
+    //CliqzUtils.log(e,"XHR");
     (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
   },
 
@@ -600,7 +599,7 @@ CLIQZEnvironment = {
     return req;
   },
   openLink: function(window, url, newTab){
-    Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
+    //Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
     if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
@@ -668,7 +667,7 @@ CLIQZEnvironment = {
     return ENGINES[0];
   },
   getNews: function() {
-    console.log("Start getting news");
+    //console.log("Start getting news");
     return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
   },
   displayTopNews: function(news) {
