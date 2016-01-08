@@ -3,7 +3,8 @@
     "freshTabButton": false,
     "freshTabABtest" : false,
     "antitrackingButton": true,
-    "showDataCollectionMessage": true
+    "showDataCollectionMessage": true,
+    "cliqzOnboarding": false
   },
   "modules": [
     "static",
