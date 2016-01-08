@@ -31,6 +31,7 @@ var CORE = {
   loyaltyDntPrefs: null,
   versionChecker: null,
   appInfo: null,
+  prefBranch: "cliqzLoyalty",
 
   PREF_STRING: 32,
   PREF_INT: 64,
@@ -64,7 +65,7 @@ var CORE = {
     }
   },
 
-  getPref: function (pref, notFound) {
+  getPref_bck: function (pref, notFound) {
     CORE.assureLoyaltyDntPrefs();
     try {
       switch (CORE.loyaltyDntPrefs.getPrefType(pref)) {
@@ -83,7 +84,11 @@ var CORE = {
     }
   },
 
-  setPref: function (pref, val) {
+  getPref: function (pref, notFound) {
+    return CliqzUtils.getPref(pref, notFound, CORE.prefBranch);
+  },
+
+  setPref_bck: function (pref, val) {
     CORE.assureLoyaltyDntPrefs();
     try {
       switch (typeof val) {
@@ -100,6 +105,10 @@ var CORE = {
     } catch (e) {
       CliqzUtils.log(e, "EXCEPTION setting pref for Loyalty");
     }
+  },
+
+  setPref: function (pref, val) {
+    CliqzUtils.getPref(pref, val, CORE.prefBranch);
   },
 
   iterateWindows: function(func, arg) {
@@ -175,7 +184,7 @@ function buildNotifyInfo(isNotify, notifyMsg) {
   var info = {};
   info[NOTIFY_FLAG] = isNotify;
   if (notifyMsg === null) {
-    var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+    var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
     info[NOTIFY_FLAG_MSG] = tmp[NOTIFY_INFO][NOTIFY_FLAG_MSG] || "";
   }
   else
@@ -447,7 +456,7 @@ var CliqzLLogic = {
 
     CliqzLLogic.currentStatus = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
 
-    var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+    var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
     if (notify_meta) {
       CliqzLLogic.notify.isNotify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
       CliqzLLogic.notify.notifyMsg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
@@ -652,7 +661,7 @@ var CliqzLLogic = {
     },
 
     checkUpdateMsg: function () {
-      var notifyMeta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)),
+      var notifyMeta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}')),
         msgIDListCur = notifyMeta[NOTIFY_NORM_MSG] || [],
         newMsg = false;
       CliqzStatsGlobal.messageAll.forEach(function (msgObj) {
@@ -704,12 +713,12 @@ var CliqzLLogic = {
     updateOnOpenProgramPage: function () {  // turn off browser icon notification
       var latestStt = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
       CliqzLLogic.notify.isNotify = false;
-      updateNotifyPref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)), buildNotifyInfo(false, CliqzLLogic.notify.notifyMsg));
+      updateNotifyPref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}')), buildNotifyInfo(false, CliqzLLogic.notify.notifyMsg));
       CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], false));
     },
 
     getNotifyInfo: function () {
-      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
       return {
         "isNotify": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG],
         "notifyMsg": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG]
@@ -750,7 +759,7 @@ var CliqzTERM = {
      @para m: month, 0,1,...11
      @para update: = true (default): update the pref if it's a new term
      */
-    var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false)),
+    var meta = JSON.parse(CORE.getPref(META_KEY, '{}')),
       t = CliqzTERM.calTermOfYear(time_.m);
     return t > meta[CUR_TERM_Y] || (!t && meta[CUR_TERM_Y]);
   },
@@ -787,7 +796,7 @@ var CliqzTERM = {
 
 var dbWrapper = function (func, callBack) {
   return function () {
-    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false)),
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}')),
       day = CliqzUtils.getDay();
 
     // call the original method
@@ -876,7 +885,7 @@ var CliqzStats = {
     if (t === CliqzStats.curDBTerm && CliqzStats.cliqzDBCurTermCached)
       s = CliqzStats.cliqzDBCurTermCached;
     else {
-      var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
+      var db = JSON.parse(CORE.getPref(STATS_KEY, '{}'));
       s = computeTerm(db, t);
       if (t === CliqzStats.curDBTerm)
         CliqzStats.cliqzDBCurTermCached = s;
@@ -886,7 +895,7 @@ var CliqzStats = {
 
   getAllTerms: function () {
 //    getAllTerms: dbWrapper(function(db){
-    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}'));
     var s = computeTerm(db, -1);
     var data = CliqzStats.formatTermDataForExternal(s["current"] || {});
     data["previous"] = {};
@@ -898,7 +907,7 @@ var CliqzStats = {
   },
 
   countTerm: function () {
-    return Object.keys(JSON.parse(CORE.getPref(STATS_KEY, '{}', false))).length;
+    return Object.keys(JSON.parse(CORE.getPref(STATS_KEY, '{}'))).length;
   },
 
   /*
@@ -948,7 +957,7 @@ var CliqzStats = {
    * Re-organizing the db when starting a new term
    */
   prepNewTerm: dbWrapper(function (db, day, time_) {
-    var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false));
+    var meta = JSON.parse(CORE.getPref(META_KEY, '{}'));
 
     if (CliqzStats.curDBTerm >= 0) {
       db[CliqzStats.curDBTerm] = computeTerm(db, CliqzStats.curDBTerm);
@@ -1250,7 +1259,7 @@ var CliqzLoyalty = {
   },
 
   hasJoined: function () {
-    return CORE.getPref('participateLoyalty') === true
+    return CORE.getPref('participateLoyalty', false) === true
   },
 
   getBrowserButtonID: function () {
@@ -1265,7 +1274,7 @@ var CliqzLoyalty = {
 
     var status = CliqzLoyalty.getMemStatus();
     if (status) {
-      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
       is_notifier = (tmp[NOTIFY_INFO] || {} )[NOTIFY_FLAG] || false;
     }
 
