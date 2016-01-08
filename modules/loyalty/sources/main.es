@@ -55,7 +55,6 @@ var CORE = {
   },
 
   getExtensionVersion: function() {
-    CliqzUtils.log("Hi CLIQZT -- getting extension version using CORE");
     try {
       CORE.appInfo = CORE.appInfo || Components.classes["@mozilla.org/xre/app-info;1"]
         .getService(Components.interfaces.nsIXULAppInfo);
@@ -123,6 +122,10 @@ var CORE = {
   },
 
   unload: function () {
+    CORE.loyaltyDntPrefs = null;
+    CORE.versionChecker = null;
+    CORE.appInfo = null;
+
     CORE.iterateWindows(function(win){
       var btn;
       if (btn = win.document.getElementById(ICONS.BTN_ID)) {
@@ -153,7 +156,7 @@ var META_KEY = "loyalty_m",
   NOTIFY_NORM_MSG = "nms",
   NOTIFY_INFO = "nf",
   NOTIFY_FLAG = "fl",// if notify flag is on, use notify icon for the browser
-  NOTIFY_FLAG_MSG = "fms",// notify message, "" means no msg. Only set to "" when user close this msg or when unload Loyalty
+  NOTIFY_FLAG_MSG = "fms",// notify message, "" means no msg. Only set to "" when user close this msg or when close the browser
   NOTIFY_BADGES = "b",
   ALERT_THRESHOLD_UPDATE_FAIL = 2;
 
@@ -262,8 +265,9 @@ var CLIQZ_OBSERVER = {
     CLIQZ_OBSERVER.clzListener.register(false);
     CLIQZ_OBSERVER.initSucceed = true;
   },
-  unload: function () {
+  onExtensionDisable: function () {
     if (CLIQZ_OBSERVER.initSucceed && CLIQZ_OBSERVER.clzListener) {
+      CLIQZ_OBSERVER.initSucceed = false;
       CLIQZ_OBSERVER.clzListener.unregister();
     }
   }
@@ -278,6 +282,7 @@ var CliqzStatsGlobal = {
   LOYALTY_DATA_PROVIDER: "http://newbeta.cliqz.com/api/v1/rich-header?path=/cl",
   // ------------ DEFAULT values from the backend -------------//
   MemberSystem: {"MEMBER": 0, "Buddy": 100, "Hero": 250, "LEGEND": 750},
+
   CliqzUsage: {  // user Cliqz Usage stat for comparison
     metric: [
       {"val": 10000, "name": "Rekordmarke", "img": "images/cup.svg"}
@@ -444,7 +449,6 @@ var CliqzLLogic = {
 
     var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     if (notify_meta) {
-      CliqzUtils.log(notify_meta, "Hi CLIQZT - notifymeta on init is: ");
       CliqzLLogic.notify.isNotify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
       CliqzLLogic.notify.notifyMsg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
       CliqzLLogic.badges.curBadges = notify_meta[NOTIFY_BADGES];
@@ -536,17 +540,7 @@ var CliqzLLogic = {
     },
     LV: {
       isAchieved: function (data) {
-        var achieved = CORE.isExtensionLatestVersion(data.version.current, data.version.latest) >= 0;
-        if (!achieved) {
-          CliqzUtils.log(
-            {
-              "CORE": CORE.isExtensionLatestVersion,
-              "current": data.version.current,
-              "latest": data.version.latest
-            },
-            "Hi CLIQZT, not get latest version")
-        }
-        return achieved;
+        return CORE.isExtensionLatestVersion(data.version.current, data.version.latest) >= 0;
       },
       img: 'images/Early adopter_icn.svg',
       name: "Latest CLIQZ",
@@ -673,9 +667,6 @@ var CliqzLLogic = {
        */
       var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
       var changed = CliqzLLogic.badges.isBadgesUpdated(awards, CliqzLLogic.badges.curBadges);
-      if (changed) {
-        CliqzUtils.log({"current": CliqzLLogic.badges.curBadges, "new": awards}, "HI CLIQZT, badges changed")
-      }
       CliqzLLogic.badges.curBadges = awards;
       return changed;
     },
@@ -699,8 +690,6 @@ var CliqzLLogic = {
 
       if (triggerBy === "hw" || latestSttInfo["is_new"] || msgUpdate || badgesUpdate) {
         CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], true));
-        CliqzUtils.log(" HI CLIQZT. UPDATING ICONS", [triggerBy, latestSttInfo, msgUpdate, badgesUpdate]);
-        CliqzUtils.log(latestSttInfo, " HI CLIQZT. UPDATING ICONS");
         CliqzLLogic.notify.isNotify = true;
         isNotify = true;
         if (latestSttInfo["is_new"]) {
@@ -837,7 +826,6 @@ var CliqzStats = {
   initMin: function () {
     CliqzStats.migrateDataV0();
     CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
-
     // to avoid access to often to the db, we cache certain info here
     var userDB = CliqzStats.getStat();
     CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
@@ -851,13 +839,13 @@ var CliqzStats = {
     CliqzEvents.sub('result_enter', CliqzStats.cliqzSelectedResults);
 
     CliqzStats.initMin();
+  },
 
-    CliqzStats.migrateDataV0();
-    CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
-
-    // to avoid access to often to the db, we cache certain info here
-    var userDB = CliqzStats.getStat();
-    CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
+  onExtensionDisable: function() {
+    CliqzStats.curDBTerm = -1;  // index of the current term in the user db array
+    CliqzStats.maxStoreTerm = 20;
+    CliqzStats.cliqzUsageCached = 0;
+    CliqzStats.cliqzDBCurTermCached = null;
   },
 
   formatTermDataForExternal: function (s) {
@@ -876,8 +864,14 @@ var CliqzStats = {
     };
   },
 
+  assureCurDBTerm: function () {
+    CliqzStats.curDBTerm = CliqzStats.curDBTerm >=0 ? CliqzStats.curDBTerm : CliqzStats.countTerm() - 1;
+  },
+
   getStat: function (term) {
     // @para: term 0,1,2... where 0 is the first term the user start using loyalty. Leave term = null for default: current term
+    CliqzStats.assureCurDBTerm();
+
     var t = term === undefined ? CliqzStats.curDBTerm : term, s;
     if (t === CliqzStats.curDBTerm && CliqzStats.cliqzDBCurTermCached)
       s = CliqzStats.cliqzDBCurTermCached;
@@ -904,16 +898,15 @@ var CliqzStats = {
   },
 
   countTerm: function () {
-    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
-    return Object.keys(db).length;
+    return Object.keys(JSON.parse(CORE.getPref(STATS_KEY, '{}', false))).length;
   },
-//    countTerm: dbWrapper(function(db){return Object.keys(db).length; }),
 
   /*
    * Increment google selected results + total queries
    */
   googleSelectedResults: dbWrapper(function (db, day) {
     CliqzStats.cliqzDBCurTermCached = null;
+    CliqzStats.assureCurDBTerm();
     var t = CliqzStats.curDBTerm;
     db[t][day] = db[t][day] || {};
     db[t][day][G_SELECTED] = (db[t][day][G_SELECTED] || 0) + 1;
@@ -929,6 +922,7 @@ var CliqzStats = {
    */
   cliqzSelectedResults: dbWrapper(function (db, day, signal, meta) {  // todo: rethink on how to organize all this encodeResultType, VERTICAL_ENCODINGS, etc
     CliqzStats.cliqzDBCurTermCached = null;
+    CliqzStats.assureCurDBTerm();
     var t = CliqzStats.curDBTerm;
     db[t][day] = db[t][day] || {};
 
@@ -968,7 +962,6 @@ var CliqzStats = {
     // cleaning up db if it contains too many terms
     var termsID = Object.keys(db);
     if (termsID.length > CliqzStats.maxStoreTerm) {
-
       var lowBound = CliqzStats.curDBTerm - CliqzStats.maxStoreTerm + 1;
       termsID.forEach(function (id) {
         if (parseInt(id) < lowBound)
@@ -1036,6 +1029,7 @@ function computeTerm(db, termIdx) {
    */
   var c = db[termIdx] || {};
   var summary = {};
+  CliqzStats.assureCurDBTerm();
   if (termIdx === CliqzStats.curDBTerm) {
     summary = {
       resultsGoogle: 0,
@@ -1155,10 +1149,13 @@ var CliqzLoyalty = {
   unload: function () {
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 
+    CliqzStats.onExtensionDisable();
+    CliqzUtils.log({"cliqzDBCurTermCached": CliqzStats.cliqzDBCurTermCached}, "Hi CLIQZT  - on unload");
+
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
     if (CLIQZ_OBSERVER.initSucceed) {
-      CLIQZ_OBSERVER.unload();
+      CLIQZ_OBSERVER.onExtensionDisable();
     }
     CORE.unload();
   },
@@ -1201,6 +1198,7 @@ var CliqzLoyalty = {
   },
 
   getAllStatCurrentTerm: function () {
+    CliqzUtils.log("HI CLIQZT ------ STEP getAllStatCurrentTerm");
     return CliqzLoyalty.prepareDataForUI(CliqzStats.getStat());
   },
 
@@ -1209,6 +1207,7 @@ var CliqzLoyalty = {
   },
 
   getBadgesInfo: function () {
+    CliqzUtils.log("HI CLIQZT ------ STEP getBadgesInfo");
     return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
 //        return CliqzStatsGlobal.CliqzBadges;
   },
@@ -1223,6 +1222,7 @@ var CliqzLoyalty = {
      */
     var stt = null;
     if (CliqzLoyalty.hasJoined()) {
+      CliqzUtils.log("HI CLIQZT ------ STEP getMemStatus");
       var user_stat = CliqzStats.getStat(),
         point = CliqzLLogic.calPoint(user_stat.resultsCliqz.total);
       stt = CliqzLLogic.memStatus.calStatus(point);

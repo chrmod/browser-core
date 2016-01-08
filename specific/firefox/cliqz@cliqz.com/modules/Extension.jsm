@@ -89,33 +89,36 @@ var Extension = {
         }.bind(this), function () {}, undefined, undefined, true);
 
         // Load and initialize modules
-        this.config.modules.forEach(function (moduleName) {
+        var modulePromises = this.config.modules.map(function (moduleName) {
           return System.import(moduleName+"/background").then(function (module) {
             module.default.init(this.config.settings);
           }.bind(this)).catch(function (e) { /* die silently */ });
         }.bind(this));
 
-        // Load into any existing windows
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
-            Extension.loadIntoWindow(win);
-        }
-        // Load into all new windows
-        Services.ww.registerNotification(Extension.windowWatcher);
+        return Promise.all(modulePromises).then(function () {
 
-        if(CliqzUtils.getPref("humanWeb", false)){
-            CliqzHumanWeb.initAtBrowser();
-        }
+          // Load into any existing windows
+          var enumerator = Services.wm.getEnumerator('navigator:browser');
+          while (enumerator.hasMoreElements()) {
+              var win = enumerator.getNext();
+              Extension.loadIntoWindow(win);
+          }
+          // Load into all new windows
+          Services.ww.registerNotification(Extension.windowWatcher);
 
-        // open changelog on update
+          if(CliqzUtils.getPref("humanWeb", false)){
+              CliqzHumanWeb.initAtBrowser();
+          }
 
-        if(upgrade && newMajorVersion(oldVersion, newVersion)){
-          //CliqzUtils.setPref('changeLogState', 1);
-        }
+          // open changelog on update
 
-        Extension.cliqzPrefsObserver.register();
+          if(upgrade && newMajorVersion(oldVersion, newVersion)){
+            //CliqzUtils.setPref('changeLogState', 1);
+          }
 
+          Extension.cliqzPrefsObserver.register();
+
+        });
     },
     unload: function(version, uninstall){
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
