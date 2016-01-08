@@ -31,7 +31,7 @@ var CORE = {
   loyaltyDntPrefs: null,
   versionChecker: null,
   appInfo: null,
-  prefBranch: "cliqzLoyalty",
+  prefBranch: "extensions.cliqzLoyalty.",
 
   PREF_STRING: 32,
   PREF_INT: 64,
@@ -1159,7 +1159,6 @@ var CliqzLoyalty = {
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 
     CliqzStats.onExtensionDisable();
-    CliqzUtils.log({"cliqzDBCurTermCached": CliqzStats.cliqzDBCurTermCached}, "Hi CLIQZT  - on unload");
 
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
@@ -1207,7 +1206,6 @@ var CliqzLoyalty = {
   },
 
   getAllStatCurrentTerm: function () {
-    CliqzUtils.log("HI CLIQZT ------ STEP getAllStatCurrentTerm");
     return CliqzLoyalty.prepareDataForUI(CliqzStats.getStat());
   },
 
@@ -1216,7 +1214,6 @@ var CliqzLoyalty = {
   },
 
   getBadgesInfo: function () {
-    CliqzUtils.log("HI CLIQZT ------ STEP getBadgesInfo");
     return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
 //        return CliqzStatsGlobal.CliqzBadges;
   },
@@ -1231,7 +1228,6 @@ var CliqzLoyalty = {
      */
     var stt = null;
     if (CliqzLoyalty.hasJoined()) {
-      CliqzUtils.log("HI CLIQZT ------ STEP getMemStatus");
       var user_stat = CliqzStats.getStat(),
         point = CliqzLLogic.calPoint(user_stat.resultsCliqz.total);
       stt = CliqzLLogic.memStatus.calStatus(point);
