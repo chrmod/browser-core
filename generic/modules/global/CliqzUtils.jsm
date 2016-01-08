@@ -114,6 +114,7 @@ var CliqzUtils = {
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   init: function(win){
 
+    
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -129,18 +130,20 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      var brandsDataUrl = "https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
+      var brandsDataUrl = "js/brands-database.json",
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
+
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
-          function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
+          function(req){ 
+            BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
             var retry = retryPattern.pop();
             if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
           }
           , MINUTE/2);
-      })();
+      })(); 
     }
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
