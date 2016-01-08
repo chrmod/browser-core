@@ -1,13 +1,16 @@
 'use strict';
 
 function showHistory(history) {
-  console.log(JSON.stringify(history));
   var data = [];
   history = history.results;
   var queries = [];
   var q = localStorage.getItem("recentQueries");
   if(q) {
     queries = JSON.parse(q);
+  }
+
+  for(var i=0;i<history.length;i++) {
+    history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
 
   history.reverse();
@@ -21,6 +24,7 @@ function showHistory(history) {
     if(history[hi].timestamp <= queries[qi].timestamp) {
 //       append(history[hi].title, history[hi].url, "link");
       data.push(history[hi]);
+
       hi++;
     } else {
 //       append(queries[qi].query, ((Date.now() - queries[qi].timestamp) / 1000).toFixed(0) + " seconds ago", "queries");
@@ -38,6 +42,7 @@ function showHistory(history) {
     data.push(queries[qi]);
     qi++;
   }
+ 
   displayData(data);
 
 }

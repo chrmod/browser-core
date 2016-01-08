@@ -15,16 +15,13 @@
 		 		<div class="answer" onclick="osBridge.openLink('{{url}}')">
 		 			<div class="framer">
 		 				<p>{{title}}</p>
+		 				<p>{{domain}}</p>
 		 			</div>
 		 			<div class="meta">
 		 				{{conversationsTime timestamp}}
 		 			</div>
 		 		</div>
 		 		
-		 		<!--<div class="link" onclick="osBridge.openLink('{{url}}')">
-              		{{title}}
-              		<span class="time">{{conversationsTime timestamp}}</span>
-              	</div>-->
 		 	{{else}}
 		 	
 		 		<div class="question" onclick="osBridge.notifyQuery('{{query}}');">
@@ -36,10 +33,6 @@
 		 			</div>
 		 		</div>
 		 		
-		 		<!--<div class="queries" onclick="osBridge.notifyQuery('{{query}}');">
-              		{{query}}
-              		<span class="time">{{conversationsTime timestamp}}</span>
-              	</div>-->
             {{/if}}
               
           {{/each}}
