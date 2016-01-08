@@ -71,48 +71,40 @@ var Extension = {
       CliqzUtils.extensionVersion = newVersion;
 
       Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
-          CliqzUtils.setSupportInfo()
+        CliqzUtils.setSupportInfo()
       },1000);
 
-        // Ensure prefs are set to our custom values
-        Extension.setOurOwnPrefs();
+      // Ensure prefs are set to our custom values
+      Extension.setOurOwnPrefs();
 
-        // Load Config - Synchronous!
-        CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-          this.config = JSON.parse(res.response);
-        }.bind(this), function () {}, undefined, undefined, true);
+      // Load Config - Synchronous!
+      CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
+        this.config = JSON.parse(res.response);
+      }.bind(this), function () {}, undefined, undefined, true);
 
-        // Load and initialize modules
-        var modulePromises = this.config.modules.map(function (moduleName) {
-          return System.import(moduleName+"/background").then(function (module) {
-            module.default.init(this.config.settings);
-          }.bind(this)).catch(function (e) { /* die silently */ });
-        }.bind(this));
+      // Load and initialize modules
+      var modulePromises = this.config.modules.map(function (moduleName) {
+        return System.import(moduleName+"/background").then(function (module) {
+          module.default.init(this.config.settings);
+        }.bind(this)).catch(function (e) { /* die silently */ });
+      }.bind(this));
 
-        return Promise.all(modulePromises).then(function () {
+      return Promise.all(modulePromises).then(function () {
+        // Load into any existing windows
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext();
+          Extension.loadIntoWindow(win);
+        }
+        // Load into all new windows
+        Services.ww.registerNotification(Extension.windowWatcher);
 
-          // Load into any existing windows
-          var enumerator = Services.wm.getEnumerator('navigator:browser');
-          while (enumerator.hasMoreElements()) {
-              var win = enumerator.getNext();
-              Extension.loadIntoWindow(win);
-          }
-          // Load into all new windows
-          Services.ww.registerNotification(Extension.windowWatcher);
+        if(CliqzUtils.getPref("humanWeb", false)){
+          CliqzHumanWeb.initAtBrowser();
+        }
 
-          if(CliqzUtils.getPref("humanWeb", false)){
-              CliqzHumanWeb.initAtBrowser();
-          }
-
-          // open changelog on update
-
-          if(upgrade && newMajorVersion(oldVersion, newVersion)){
-            //CliqzUtils.setPref('changeLogState', 1);
-          }
-
-          Extension.cliqzPrefsObserver.register();
-
-        });
+        Extension.cliqzPrefsObserver.register();
+      });
     },
     unload: function(version, uninstall){
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
