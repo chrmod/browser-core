@@ -1,9 +1,9 @@
 <!-- EZ-category -->  
-{{debug}}
 
   <ul class="cta">
     <li>
-      <a href="http://{{data.domain}}" style="background-color: #ff0000">
+      <a  href="http://{{data.domain}}" 
+          style="background-color:#efefef;color:#000;font-weight:bold">
         {{data.friendly_url}}
       </a>
     </li>
