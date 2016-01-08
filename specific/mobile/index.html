@@ -3,24 +3,7 @@
    <head>
       <title>developer tool</title>
       <link href="skin/css/style.css" rel="stylesheet" type="text/css">
-      <script src="js/system-polyfill.js"></script>
-      <script src="js/home.js"></script>
-      <script src="js/storage.js"></script>
-      <script src="js/MockOS.js"></script>
-      <script src="js/osBridge.js"></script>
-      <script src="js/logger.js"></script>
-      <script src="js/test.js"></script>
-      <script src="js/CLIQZEnvironment.js"></script>
-      <script src="js/environment.js"></script>
-      <script src="js/libs.js"></script>
-      <script src="js/viewpager.js"></script>
-      <script src="js/CliqzDelayedImageLoader.js"></script>
-      <meta name="viewport" content="initial-scale=1.0001, user-scalable=no" />
-      <script src="js/global.js"></script>
-      <script src="js/local.js"></script>
-      <script src="js/mobileTelemetry.js"></script>
-      <script src="js/setup.js"></script>
-
+      
       <style>
             .share {
                 position: absolute;
@@ -57,10 +40,10 @@
       </style>
 
    </head>
-   <body>
-      <div style="width:0px;height:1px;background:darkblue" id="progress"></div>
+   <body style="background-color: #fff;">
+      <div style="width:0px;height:1px;background:darkblue" id="progress" style="display:none"></div>
 
-      <div id="reconnecting" class="reconnecting-layer">
+      <div id="reconnecting" class="reconnecting-layer" style="display:none">
          <h3>Reconnecting</h3>
          <div class="spinner">
            <div class="bounce1"></div>
@@ -68,7 +51,7 @@
            <div class="bounce3"></div>
          </div>
       </div>
-      <input id="urlbar">
+      <input id="urlbar" style="display:none">
 
       <!-- Starting Stuff -->
       <div id="startingpoint">
@@ -98,6 +81,30 @@
             </div>
           
       </div>
+
+
+
+
+
+
+      <script src="js/system-polyfill.js"></script>
+      <script src="js/home.js"></script>
+      <script src="js/storage.js"></script>
+      <script src="js/MockOS.js"></script>
+      <script src="js/osBridge.js"></script>
+      <script src="js/logger.js"></script>
+      <script src="js/test.js"></script>
+      <script src="js/CLIQZEnvironment.js"></script>
+      <script src="js/environment.js"></script>
+      <script src="js/libs.js"></script>
+      <script src="js/viewpager.js"></script>
+      <script src="js/CliqzDelayedImageLoader.js"></script>
+      <meta name="viewport" content="initial-scale=1.0001, user-scalable=no" />
+      <script src="js/global.js"></script>
+      <script src="js/local.js"></script>
+      <script src="js/mobileTelemetry.js"></script>
+      <script src="js/setup.js"></script>
+
 
       <script src="js/debug.js"></script>
 
