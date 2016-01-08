@@ -38,6 +38,7 @@ function tryInit(){
 */
 function resetState(cfg) {
   var start = document.getElementById("freshstart");
+  start.style.display = "block";
   var resultsBox = document.getElementById("results");
   if(resultsBox) {
     resultsBox.style.display = 'none';
