@@ -28,16 +28,45 @@ if (!String.format) {
  */
 
 var CORE = {
-  loyaltyDntPrefs: Components.classes['@mozilla.org/preferences-service;1']
-    .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.'),
-  versionChecker: Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-      .getService(Components.interfaces.nsIVersionComparator),
+  loyaltyDntPrefs: null,
+  versionChecker: null,
+  appInfo: null,
 
   PREF_STRING: 32,
   PREF_INT: 64,
   PREF_BOOL: 128,
 
+  assureLoyaltyDntPrefs: function() {
+    try {
+      CORE.loyaltyDntPrefs = CORE.loyaltyDntPrefs || Components.classes['@mozilla.org/preferences-service;1']
+          .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.');
+    } catch (e) {
+      CliqzUtils.log(e, "EXCEPTION initiating CORE.loyaltyDntPrefs");
+    }
+  },
+
+  assureVersionChecker: function() {
+    try {
+      CORE.versionChecker = CORE.versionChecker || Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+          .getService(Components.interfaces.nsIVersionComparator);
+    } catch (e) {
+      CliqzUtils.log(e, "EXCEPTION initiating CORE.versionChecker");
+    }
+  },
+
+  getExtensionVersion: function() {
+    CliqzUtils.log("Hi CLIQZT -- getting extension version using CORE");
+    try {
+      CORE.appInfo = CORE.appInfo || Components.classes["@mozilla.org/xre/app-info;1"]
+        .getService(Components.interfaces.nsIXULAppInfo);
+      return CORE.appInfo.version
+    } catch (e) {
+      return null;
+    }
+  },
+
   getPref: function (pref, notFound) {
+    CORE.assureLoyaltyDntPrefs();
     try {
       switch (CORE.loyaltyDntPrefs.getPrefType(pref)) {
         case CORE.PREF_BOOL:
@@ -50,21 +79,27 @@ var CORE = {
           return notFound;
       }
     } catch (e) {
+      CliqzUtils.log(e, "EXCEPTION getting pref for Loyalty");
       return notFound;
     }
   },
 
   setPref: function (pref, val) {
-    switch (typeof val) {
-      case 'boolean':
-        CORE.loyaltyDntPrefs.setBoolPref(pref, val);
-        break;
-      case 'number':
-        CORE.loyaltyDntPrefs.setIntPref(pref, val);
-        break;
-      case 'string':
-        CORE.loyaltyDntPrefs.setCharPref(pref, val);
-        break;
+    CORE.assureLoyaltyDntPrefs();
+    try {
+      switch (typeof val) {
+        case 'boolean':
+          CORE.loyaltyDntPrefs.setBoolPref(pref, val);
+          break;
+        case 'number':
+          CORE.loyaltyDntPrefs.setIntPref(pref, val);
+          break;
+        case 'string':
+          CORE.loyaltyDntPrefs.setCharPref(pref, val);
+          break;
+      }
+    } catch (e) {
+      CliqzUtils.log(e, "EXCEPTION setting pref for Loyalty");
     }
   },
 
@@ -98,7 +133,12 @@ var CORE = {
   },
 
   isExtensionLatestVersion: function (currentVersion, latestVersion) {
-    return CORE.versionChecker.compare(currentVersion, latestVersion)
+    CORE.assureVersionChecker();
+    try {
+      return CORE.versionChecker.compare(currentVersion, latestVersion)
+    } catch (e) {
+      return 2;
+    }
   }
 };
 
@@ -404,10 +444,14 @@ var CliqzLLogic = {
 
     var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
     if (notify_meta) {
-      //CliqzUtils.log(notify_meta, "Hi CLIQZT - notifymeta on init is: ");
+      CliqzUtils.log(notify_meta, "Hi CLIQZT - notifymeta on init is: ");
       CliqzLLogic.notify.isNotify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
       CliqzLLogic.notify.notifyMsg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
       CliqzLLogic.badges.curBadges = notify_meta[NOTIFY_BADGES];
+
+      if (CliqzLLogic.notify.notifyMsg && !CliqzLLogic.notify.isNotify)
+        updateNotifyPref(null, buildNotifyInfo(false, ""));
+      CliqzLLogic.notify.notifyMsg = "";
     }
   },
 
@@ -492,7 +536,17 @@ var CliqzLLogic = {
     },
     LV: {
       isAchieved: function (data) {
-        return CORE.isExtensionLatestVersion(data.version.current, data.version.latest) >= 0;
+        var achieved = CORE.isExtensionLatestVersion(data.version.current, data.version.latest) >= 0;
+        if (!achieved) {
+          CliqzUtils.log(
+            {
+              "CORE": CORE.isExtensionLatestVersion,
+              "current": data.version.current,
+              "latest": data.version.latest
+            },
+            "Hi CLIQZT, not get latest version")
+        }
+        return achieved;
       },
       img: 'images/Early adopter_icn.svg',
       name: "Latest CLIQZ",
@@ -548,7 +602,8 @@ var CliqzLLogic = {
       freqCliqzUse = Math.round(100 * user_stat.resultsCliqz.total / totalSearch);
       return {
         hmw: hmw,
-        version: {current: CliqzUtils.extensionVersion || "1.0.25", latest: CliqzStatsGlobal.CliqzLatestVersion},
+        version: {current: CliqzUtils.extensionVersion || CORE.getExtensionVersion() || "1.0.63",
+          latest: CliqzStatsGlobal.CliqzLatestVersion},
         freqCliqzUse: {current: freqCliqzUse, threshold: 80}, // todo: define threshold from the backend
         totalCliqzUse: {current: user_stat.resultsCliqz.total, Legend: CliqzStatsGlobal.getLegendBenchMark()}
       }
@@ -618,9 +673,9 @@ var CliqzLLogic = {
        */
       var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
       var changed = CliqzLLogic.badges.isBadgesUpdated(awards, CliqzLLogic.badges.curBadges);
-      //if (changed) {
-      //  CliqzUtils.log({"current": CliqzLLogic.badges.curBadges, "new": awards}, "HI CLIQZT, badges changed")
-      //}
+      if (changed) {
+        CliqzUtils.log({"current": CliqzLLogic.badges.curBadges, "new": awards}, "HI CLIQZT, badges changed")
+      }
       CliqzLLogic.badges.curBadges = awards;
       return changed;
     },
@@ -644,8 +699,8 @@ var CliqzLLogic = {
 
       if (triggerBy === "hw" || latestSttInfo["is_new"] || msgUpdate || badgesUpdate) {
         CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], true));
-        //CliqzUtils.log(" HI CLIQZT. UPDATING ICONS", [triggerBy, latestSttInfo, msgUpdate, badgesUpdate]);
-        //CliqzUtils.log(latestSttInfo, " HI CLIQZT. UPDATING ICONS");
+        CliqzUtils.log(" HI CLIQZT. UPDATING ICONS", [triggerBy, latestSttInfo, msgUpdate, badgesUpdate]);
+        CliqzUtils.log(latestSttInfo, " HI CLIQZT. UPDATING ICONS");
         CliqzLLogic.notify.isNotify = true;
         isNotify = true;
         if (latestSttInfo["is_new"]) {
@@ -657,7 +712,7 @@ var CliqzLLogic = {
       updateNotifyPref(null, buildNotifyInfo(isNotify, notifyMsg));
     },
 
-    updateOnOpenProgramPage: function () {  // turn off notification
+    updateOnOpenProgramPage: function () {  // turn off browser icon notification
       var latestStt = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
       CliqzLLogic.notify.isNotify = false;
       updateNotifyPref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)), buildNotifyInfo(false, CliqzLLogic.notify.notifyMsg));
@@ -670,13 +725,6 @@ var CliqzLLogic = {
         "isNotify": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG],
         "notifyMsg": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG]
       }
-    },
-
-    onUnload: function () {
-      // reset notify msg to empty
-      if (CliqzLLogic.notify.notifyMsg && !CliqzLLogic.notify.isNotify)
-        updateNotifyPref(null, buildNotifyInfo(false, ""));
-      CliqzLLogic.notify.notifyMsg = "";
     }
   },
 
@@ -687,10 +735,6 @@ var CliqzLLogic = {
 
   calPoint: function (nCliqzUse) {
     return nCliqzUse || 0;
-  },
-
-  onUnload: function () {
-    CliqzLLogic.notify.onUnload();
   }
 };
 
@@ -1107,10 +1151,10 @@ var CliqzLoyalty = {
     CliqzStatsGlobal.cron();
   },
 
+  // only called when disable the extension
   unload: function () {
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 
-    CliqzLLogic.onUnload();
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
     if (CLIQZ_OBSERVER.initSucceed) {
