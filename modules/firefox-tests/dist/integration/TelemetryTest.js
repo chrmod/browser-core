@@ -1,6 +1,8 @@
 TESTS.TelemetryTest = function (CliqzUtils) {
   describe('Telemetry', function(){
-   it('should send environment signal', function () {
+    this.retries(1);
+
+    it('should send environment signal', function () {
       var signal = null;
       CliqzUtils.telemetry = function(data){
         signal = data;
