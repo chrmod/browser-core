@@ -1,28 +1,31 @@
 <!--<div id="cliqz-results">-->
    <div class="cqz-result-h1 ez-liga cqz-result-padding">
      {{#with data}}
-     <div class="cqz-ez-title" selectable=''><a href="{{../url}}">{{leagueName}}</a></div>
+     
+     <div class="meta">
+         <h3 class="meta__url no-indent">
+           <span><a href="{{../url}}">{{leagueName}}</a></span>
+         </h3>
+     </div>
+     <br>
       <div class="ez-liga-tableHeader">
           <table>
             <thead>
-                {{#each info_list}}
-                 <th>{{this}}</th> 
-                {{/each}}
+                 <th></th>
+                 <th>Mannschaft</th>
+                 <th class="small">SP</th> 
+                 <th class="small">TD</th> 
+                 <th class="small bold">PKT</th> 
             </thead> 
           
             <tbody> 
                 {{#ranking}} 
                 <tr> 
-                    <td>{{rank}}</td>
+                    <td>{{rank}}.</td>
                     <td>{{club}}</td>
-                    <td>{{SP}}</td> 
-                    <td>{{S}}</td> 
-                    <td>{{U}}</td> 
-                    <td>{{N}}</td> 
-                    <td>{{T}}</td> 
-                    <td>{{GT}}</td> 
-                    <td>{{TD}}</td> 
-                    <td>{{PKT}}</td> 
+                    <td class="small">{{SP}}</td> 
+                    <td class="small">{{TD}}</td> 
+                    <td class="small bold">{{PKT}}</td> 
                 </tr> 
                 {{/ranking}} 
             </tbody> 
@@ -30,9 +33,11 @@
       </div>
 
 
-      <div class="cqz-ez-btn ez-liga-button" url="{{url}}">{{local 'GoToTable'}}</div>
-      <div class="ez-liga-sponsor">{{local 'KickerSponsor'}}</div>
-
+      <div class="poweredby" url="{{url}}">{{local 'GoToTable'}}</div>
+    
+    <div class="poweredby">
+        <a href="http://www.kicker.de">{{local 'KickerSponsor'}}</a>
+    </div>
 
      {{/with}}
        {{>logo}}

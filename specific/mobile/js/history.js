@@ -45,7 +45,18 @@ function displayData(data) {
     return setTimeout(displayData, 100, data);
   }
   document.body.innerHTML = CliqzHandlebars.tplCache["conversations"]({data: data});
-  document.body.scrollTop = 5000
+
+  var B = document.body,
+      H = document.documentElement,
+      height
+
+  if (typeof document.height !== 'undefined') {
+      height = document.height // For webkit browsers
+  } else {
+      height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
+  }
+
+  document.body.scrollTop = height + 100;
 }
 
 function testActiveWebViewOnIos() {
@@ -66,10 +77,6 @@ function append(title, timestamp, styleClass) {
   document.body.appendChild(div);
 }
 
-window.addEventListener('load', function() {
-  osBridge.searchHistory("", "showHistory")
-});
-
 Handlebars.registerHelper('conversationsTime', function(time) {
     var d = new Date(time);
     var hours = d.getHours();
@@ -79,3 +86,5 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     var formatedDate = hours + ':' + minutes;
     return formatedDate;
 });
+
+osBridge.searchHistory("", "showHistory")

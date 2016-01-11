@@ -81,7 +81,7 @@ var CliqzResultProviders = {
     var providersAddedState,
         maxState = -1;
 
-    if (CliqzUtils.isPrefBool(CliqzUtils.getPref(INIT_KEY))) {
+    if (typeof CliqzUtils.getPref(INIT_KEY) === "boolean") {
       providersAddedState = 1;
     } else {
       providersAddedState = CliqzUtils.getPref(INIT_KEY, 0);

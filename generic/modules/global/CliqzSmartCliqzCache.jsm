@@ -171,6 +171,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
   },
   CUSTOM_DATA_CACHE_FOLDER: 'cliqz',
   CUSTOM_DATA_CACHE_FILE: 'smartcliqz-custom-data-cache.json',
+  TRIGGER_URLS_CACHE_FILE: 'cliqz/smartcliqz-trigger-urls-cache.json',
   // maximum number of items (e.g., categories or links) to keep
   MAX_ITEMS: 5,
 
@@ -200,9 +201,82 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
       this._log('init: unable to create cache folder:' + e);
     }
 
+    CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
+
+    // run every 24h at most
+    var ts = CliqzUtils.getPref('smart-cliqz-last-clean-ts'),
+        delay = 0;
+    if (ts) {
+      var lastRun = new Date(Number(ts));
+      delay = Math.max(0, 86400000 - (Date.now() - lastRun));
+    }
+    CliqzUtils.log('scheduled SmartCliqz trigger URL cleaning in ' +
+                   (delay / 1000 / 60) + ' min');
+    CliqzUtils.setTimeout(CliqzSmartCliqzCache.cleanTriggerUrls, delay + 5000);
+
     this._isInitialized = true;
     this._log('init: initialized');
   },
+
+  // clean trigger URLs that are no longer valid
+  cleanTriggerUrls: function() {
+    var deleteIfWithoutTriggerUrl = function(id, cachedUrl) {
+      if (!CliqzSmartCliqzCache) {
+        return;
+      }
+      try {
+        CliqzSmartCliqzCache._fetchSmartCliqz(id).then(function(smartCliqz) {
+          if (smartCliqz.data && smartCliqz.data.trigger_urls) {
+            var found = false;
+            for (var i = 0; i < smartCliqz.data.trigger_urls.length; i++) {
+              if (cachedUrl == smartCliqz.data.trigger_urls[i]) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              CliqzUtils.log('SmartCliqz trigger URL cache: deleting ' +
+                             cachedUrl);
+              CliqzSmartCliqzCache.triggerUrls.delete(cachedUrl);
+              CliqzSmartCliqzCache.triggerUrls.save(
+                CliqzSmartCliqzCache.TRIGGER_URLS_CACHE_FILE);
+            }
+          }
+        }).catch(function(e) {
+          if (e.type && e.type === 'ID_NOT_FOUND') {
+            CliqzUtils.log('ID ' + id + ' not found on server: ' +
+                           'removing SmartCliqz from cache');
+            CliqzSmartCliqzCache.triggerUrls.delete(cachedUrl);
+            CliqzSmartCliqzCache.triggerUrls.save(
+              CliqzSmartCliqzCache.TRIGGER_URLS_CACHE_FILE);
+          } else {
+            CliqzUtils.log('error fetching SmartCliqz: ' + e);
+          }
+        });
+      } catch (e) {
+        CliqzUtils.log('error during cleaning trigger URLs: ' + e);
+      }
+    };
+
+    CliqzUtils.log('cleaning SmartCliqz trigger URLs...');
+    var delay = 1;
+    for (var cachedUrl in CliqzSmartCliqzCache.triggerUrls._cache) {
+      var id = CliqzSmartCliqzCache.triggerUrls.retrieve(cachedUrl);
+      if (id) {
+        CliqzUtils.setTimeout(
+          deleteIfWithoutTriggerUrl.bind(null, id, cachedUrl),
+          (delay++) * 1000);
+      }
+    }
+    CliqzUtils.setTimeout(function() {
+      CliqzUtils.log('done cleaning SmartCliqz trigger URLs');
+      CliqzUtils.setPref('smart-cliqz-last-clean-ts', Date.now().toString());
+      // next cleaning in 24h
+      CliqzUtils.setTimeout(CliqzSmartCliqzCache.cleanTriggerUrls, 86400000);
+    }, delay * 1000);
+  },
+
+
 
   // stores SmartCliqz if newer than chached version
   store: function (smartCliqz) {
@@ -616,5 +690,3 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
     CliqzUtils.log(msg, 'SmartCliqzCache');
   }
 }
-
-CliqzSmartCliqzCache.init();

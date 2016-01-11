@@ -3,6 +3,90 @@
    <head>
       <title>developer tool</title>
       <link href="skin/css/style.css" rel="stylesheet" type="text/css">
+      
+      <style>
+            .share {
+                position: absolute;
+                right: 0;
+                top: 25px;
+                z-index: 1000;
+                background: #D2E0EC;
+                padding: 5px;
+            }
+
+            div#freshstart a, .share {
+                display: block;
+                color: #163D4C;
+                padding: 0 8px;
+                font-size: 14px;
+                line-height: 38.6px;
+                border: 1px rgba(0, 0, 0, 0.2) solid;
+                border-radius: 4px;
+                background-color: rgb(226, 239, 255);
+                position: relative;
+                top: 15px;
+                font-weight: bold;
+                text-align:center;
+            }
+
+            .share {
+                width: 36px;
+                left: 195px;
+                line-height: 23px;
+                display: none;
+            }
+
+
+      </style>
+
+   </head>
+   <body style="background-color: #fff;">
+      <div style="width:0px;height:1px;background:darkblue" id="progress" style="display:none"></div>
+
+      <div id="reconnecting" class="reconnecting-layer" style="display:none">
+         <h3>Reconnecting</h3>
+         <div class="spinner">
+           <div class="bounce1"></div>
+           <div class="bounce2"></div>
+           <div class="bounce3"></div>
+         </div>
+      </div>
+      <input id="urlbar" style="display:none">
+
+      <!-- Starting Stuff -->
+      <div id="startingpoint">
+          <div id="freshstart">            
+          </div>
+          <div id="topSites">            
+          </div>
+          <div id="topNews">            
+          </div>
+      </div>
+      <!-- End Starting Stuff -->
+      
+      <div id="results">
+
+         <div id="cliqz-results">
+
+            <div class="cqz-result-selected transition"></div>
+         </div>
+      </div>
+      <div id="cliqz-swiping-dots-new" style="display:none">
+            <!--
+                  <div id="showpastbutton" onclick="showPast()">PAST</div>
+                  <div id="showfuturebutton" onclick="showFuture()">FUTURE</div>
+            -->
+            <div id="cliqz-swiping-dots-new-inside" style="display:none">
+            
+            </div>
+          
+      </div>
+
+
+
+
+
+
       <script src="js/system-polyfill.js"></script>
       <script src="js/home.js"></script>
       <script src="js/storage.js"></script>
@@ -20,49 +104,12 @@
       <script src="js/local.js"></script>
       <script src="js/mobileTelemetry.js"></script>
       <script src="js/setup.js"></script>
-   </head>
-   <body>
-      <div style="width:0px;height:1px;background:darkblue" id="progress"></div>
 
-      <div id="reconnecting" class="reconnecting-layer">
-         <h3>Reconnecting</h3>
-         <div class="spinner">
-           <div class="bounce1"></div>
-           <div class="bounce2"></div>
-           <div class="bounce3"></div>
-         </div>
-      </div>
-      <input id="urlbar">
-      
-      <!-- Starting Stuff -->
-      <div id="startingpoint">
-          <div id="freshstart">            
-          </div>
-          <div id="topSites">            
-          </div>
-          <div id="topNews">            
-          </div>
-      </div>
-      <!-- End Starting Stuff -->
-      
-      <div id="results">
-
-         <div id="cliqz-results">
-            <div class="cqz-result-selected transition"></div>
-         </div>
-      </div>
-      <div id="cliqz-swiping-dots-new">
-            <!--
-                  <div id="showpastbutton" onclick="showPast()">PAST</div>
-                  <div id="showfuturebutton" onclick="showFuture()">FUTURE</div>
-            -->
-            <div id="cliqz-swiping-dots-new-inside">
-            
-            </div>
-          
-      </div>
 
       <script src="js/debug.js"></script>
+
+      <iframe width="250" height="600" id="testingshare" style="display:none;position:absolute;top:500px"></iframe>
+      
    </body>
 </html>
 

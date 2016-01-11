@@ -412,8 +412,13 @@ var UI = {
 
                 return true;
             case KeyEvent.DOM_VK_HOME:
-                // set the caret at the beginning of the text box
-                (ev.originalTarget || ev.srcElement).setSelectionRange(0, 0);
+                if (ev.shiftKey) {
+                  // do nothing
+                } else {
+                  // set the caret at the beginning of the text box
+                  urlbar.selectionEnd = 0;
+                }
+                (ev.originalTarget || ev.srcElement).setSelectionRange(0, urlbar.selectionEnd);
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;

@@ -1,8 +1,11 @@
 <!-- calculator.tpl -->
+
 {{#if data.is_calculus}}
     <div class="meta">
-        {{> logo}}
-        <h3 class="meta__url">Calculator</h3>
+        {{> logo}} 
+        <h3 class="meta__url">
+          {{timeOrCalculator data.ez_type}} {{data.location}}
+        </h3>
     </div>
     <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
     {{#with data}}
@@ -23,4 +26,4 @@
         </div>
     {{/with}}
     </div>
-{{/if}}
+{{/if}} 

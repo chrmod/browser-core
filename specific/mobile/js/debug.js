@@ -16,13 +16,11 @@ CLIQZ.Core = {
 
 
 Handlebars.registerHelper("debug", function(optionalValue) {
-  console.log("Current Context");
-  console.log("====================");
+  console.log("Debug Current Context");
   console.log(this);
  
   if (optionalValue) {
-    console.log("Value"); 
-    console.log("====================");
+    console.log("Debug Value"); 
     console.log(optionalValue);
   }
 });
@@ -40,6 +38,14 @@ Handlebars.registerHelper('conversationsTime', function(time) {
 Handlebars.registerHelper('uriEncode', function(uriComponent) {
     return encodeURIComponent(uriComponent);
 });
+
+Handlebars.helpers.timeOrCalculator = function(ezType) {
+    if(ezType=="time") {
+      return Handlebars.helpers.local("time");
+    } else {
+      return Handlebars.helpers.local("calculator");
+    }
+}
 
 
 
@@ -461,3 +467,23 @@ function openFuture(el) {
    el.getElementsByTagName("ul")[0].style.display = "block";
   //console.log(el)
 }
+
+Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
+    var fn = options.fn,
+        inverse = options.inverse,
+        ret = "",
+        _context = [];
+        $.each(context, function (index, object) {
+            var _object = $.extend({}, object);
+            _context.push(_object);
+        });
+    if ( _context && _context.length > 0 ) {
+        for ( var i = 0, j = _context.length; i < j; i++ ) {
+            _context[i]["parentContext"] = options.hash.parent;
+            ret = ret + fn(_context[i]);
+        }
+    } else {
+        ret = inverse(this);
+    }
+    return ret;
+});

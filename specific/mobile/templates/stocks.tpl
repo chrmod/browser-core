@@ -48,3 +48,7 @@
 
   <div class="cqz-disclaimer cqz-ez-stock-disclaimer">{{ local 'no_legal_disclaimer' }}</div>
 </div>
+
+<div class="poweredby">
+    More details at <a href="http://finance.yahoo.com">Yahoo finance</a>
+</div>

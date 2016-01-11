@@ -6,6 +6,7 @@ Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
+    CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/freshtab/freshtab.html",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
@@ -17,6 +18,7 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
     OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
     pref = Services.prefs,
+    HAS_BUTTON = true,
     FF41_OR_ABOVE = false;
 
 try{
@@ -39,10 +41,15 @@ var AboutURLFactory;
 var FreshTab = {
     signalType: "home",
     initialized: false,
-    startup: function(freshTabUrl){
+
+    startup: function(abTest, hasButton){
         var disable = false;
+
+        HAS_BUTTON = hasButton;
+
         // exit if not in the AB test
-        // if(!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false) disable = true; // Always enabled for the browser
+        if(abTest && (!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false)) disable = true;
+
         // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
@@ -64,10 +71,9 @@ var FreshTab = {
         }
 
         // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
+        if(HAS_BUTTON && !pref.prefHasUserValue(FRESH_TAB_STATE)){
           pref.setBoolPref(FRESH_TAB_STATE,  false); //opt-in
         }
-        debugger;
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
             classDescription: CLIQZ_NEW_TAB,
@@ -78,7 +84,7 @@ var FreshTab = {
                 var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
                 var html =  ["data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
                             "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
-                            "</head><body><iframe src=\"" + freshTabUrl + "\"></iframe></body></html>"].join('')
+                            "</head><body><iframe src=\"" + CLIQZ_NEW_TAB_URL + "\"></iframe></body></html>"].join('')
 
                 var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
                 var channel = ioService.newChannel(html, null, null);
@@ -115,19 +121,7 @@ var FreshTab = {
           pref.clearUserPref(FRESH_TAB_BACKUP_DONE);
         }
 
-        // first start
-        if(!pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  true); //opt-out
-        }
-
         FreshTab.updateState();
-
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            initNewTab(enumerator.getNext())
-        }
-        Services.ww.registerNotification(initNewTab);
-
         FreshTab.initialized = true;
     },
 
@@ -153,7 +147,8 @@ var FreshTab = {
 }
 
 function isActive(){
-  return pref.getBoolPref(FRESH_TAB_STATE);
+  //always active if the user doesn't have the activator button
+  return !HAS_BUTTON || pref.getBoolPref(FRESH_TAB_STATE);
 }
 
 function activate(){
@@ -190,19 +185,6 @@ function deactivate(){
   else {//FF40 and older
       pref.setCharPref(DEF_NEWTAB, pref.getCharPref(BAK_NEWTAB));
   }
-}
-
-function initNewTab(win){
-    if (win.gInitialPages && win.gInitialPages.indexOf(CLIQZ_NEW_TAB)===-1)
-        win.gInitialPages.push(CLIQZ_NEW_TAB);
-
-    win.addEventListener('load', function loader() {
-
-        win.removeEventListener('load', loader, false);
-        if (win.gInitialPages && win.gInitialPages.indexOf(CLIQZ_NEW_TAB)===-1) {
-          win.gInitialPages.push(CLIQZ_NEW_TAB);
-        }
-    }, false);
 }
 
 export default FreshTab;
