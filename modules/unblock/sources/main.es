@@ -201,7 +201,7 @@ export default {
       }];
       let priority = box.PRIORITY_WARNING_MEDIUM;
       notification = box.appendNotification(message, 'geo-blocking-prevented',
-                      'chrome://cliqzres/content/skin/cliqz_btn.png',
+                      'chrome://cliqz/content/static/skin/cliqz_btn.png',
                        priority, buttons);
     }
   }

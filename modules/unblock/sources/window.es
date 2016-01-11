@@ -43,7 +43,7 @@ export default class {
       item.setAttribute('class', 'menuitem-iconic');
 
       if(filter_levels[level].selected){
-        item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+        item.style.listStyleImage = 'url(chrome://cliqz/content/static/skin/checkmark.png)';
       }
 
       item.filter_level = level;
