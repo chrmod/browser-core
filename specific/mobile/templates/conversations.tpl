@@ -13,7 +13,7 @@
 		 		<div class="answer" onclick="osBridge.openLink('{{url}}')">
 		 			<div class="framer">
 		 				<p>{{title}}</p>
-		 				<p>{{domain}}</p>
+		 				<p class="url">{{domain}}</p>
 		 			</div>
 		 			<div class="meta">
 		 				{{conversationsTime timestamp}}
