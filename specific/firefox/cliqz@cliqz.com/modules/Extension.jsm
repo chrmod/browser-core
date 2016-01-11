@@ -10,7 +10,6 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
@@ -69,16 +68,14 @@ var Extension = {
         this.telemetry = CliqzUtils.telemetry;
     },
     load: function(upgrade, oldVersion, newVersion){
-        AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
-            CliqzUtils.extensionVersion = addon.version
+      CliqzUtils.extensionVersion = newVersion;
 
-            if (upgrade) CliqzUtils.setSupportInfo()
-            else {
-                Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
-                    CliqzUtils.setSupportInfo()
-                },1000)
-            }
-        });
+      if (upgrade) CliqzUtils.setSupportInfo();
+      else {
+          Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
+              CliqzUtils.setSupportInfo()
+          },1000)
+      }
 
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();

@@ -40,9 +40,7 @@ var CORE = {
     try {
       CORE.versionChecker = CORE.versionChecker || Components.classes["@mozilla.org/xpcom/version-comparator;1"]
           .getService(Components.interfaces.nsIVersionComparator);
-    } catch (e) {
-      CliqzUtils.log(e, "EXCEPTION initiating CORE.versionChecker");
-    }
+    } catch (e) {}
   },
 
   getPref: function (pref, notFound) {
