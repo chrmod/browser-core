@@ -70,6 +70,12 @@ export default {
       this.unblockers.forEach(function(b) {
         b.init(this.proxy_manager, this.proxy_service, this.request_listener, this.handleBlock.bind(this));
       }.bind(this));
+
+      this.boundPageObserver = this.pageObserver.bind(this);
+      CliqzEvents.sub("window.load", this.boundPageObserver);
+
+      this.boundTabSelectListener = this.tabSelectListener.bind(this);
+      CliqzEvents.sub("tab.select", this.boundTabSelectListener);
     }
   },
   unload: function() {
@@ -84,22 +90,9 @@ export default {
     this.unblockers.forEach(function(b) {
       b.unload && b.unload();
     });
-  },
-  initWindow: function(window) {
-    if (!(window in this.load_listeners)) {
-      CliqzUtils.log("InitWindow", "unblock");
-      this.boundPageObserver = this.pageObserver.bind(this);
-      window.gBrowser.addEventListener("load", this.boundPageObserver, true);
-      this.load_listeners.add(window);
-      // listen to tab changes (for notification bar)
-      this.boundTabSelectListener = this.tabSelectListener.bind(this);
-      window.gBrowser.tabContainer.addEventListener("TabSelect", this.boundTabSelectListener);
-    }
-  },
-  unloadWindow: function(window) {
-    window.gBrowser.removeEventListener("load", this.boundPageObserver, true);
-    this.load_listeners.delete(window);
-    window.gBrowser.tabContainer.removeEventListener("TabSelect", this.boundTabSelectListener);
+
+    CliqzEvents.un_sub("window.load", this.boundPageObserver);
+    CliqzEvents.un_sub("tab.select", this.boundTabSelectListener);
   },
   pageObserver: function(event) {
     if (this.isEnabled()) {

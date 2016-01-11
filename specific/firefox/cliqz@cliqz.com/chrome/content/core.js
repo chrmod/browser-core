@@ -84,6 +84,7 @@ window.CLIQZ.Core = {
     _messageOFF: true, // no message shown
     _updateAvailable: false,
     windowModules: [],
+    listenerUnloaders: [],
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
         var listners = window.gBrowser.mTabsProgressListeners;
@@ -232,6 +233,10 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
             window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
+
+            // CliqzEvents listeners
+            this.listenerUnloaders.push(registerCliqzEventListener(window.gBrowser, "load", "window.load"));
+            this.listenerUnloaders.push(registerCliqzEventListener(window.gBrowser.tabContainer, "TabSelect", "tab.select"))
         }
 
         window.addEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
@@ -415,8 +420,9 @@ window.CLIQZ.Core = {
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
-
-
+            this.listenerUnloaders.forEach(function(unloader) {
+              unloader();
+            });
         }
         this.reloadComponent(this.urlbar);
 
@@ -1079,6 +1085,23 @@ window.CLIQZ.Core = {
         return data;
     }
 };
+
+/** Adds a listener to eventTarget for events of type eventType, and republishes them
+ *  through CliqzEvents with id eventPubName.
+ *  returns a function which, when called, removes this event listener.
+ */
+function registerCliqzEventListener(eventTarget, eventType, eventPubName) {
+  var eventRebroadcast = function(...args) {
+    CliqzEvents.pub(eventPubName, ...args);
+  };
+
+  CliqzUtils.log("Rebroadcasting "+ eventType +" as "+ eventPubName, "CliqzEvents");
+  eventTarget.addEventListener(eventType, eventRebroadcast);
+
+  return function() {
+    eventTarget.removeEventListener(eventType, eventRebroadcast);
+  };
+}
 
 // Bind Core event handler functions to proper object.
 CliqzUtils.bindObjectFunctions(CLIQZ.Core.popupEventHandlers, CLIQZ.Core);

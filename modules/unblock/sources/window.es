@@ -6,11 +6,9 @@ export default class {
   }
 
   init() {
-    CliqzUnblock.initWindow(this.window);
   }
 
   unload() {
-    CliqzUnblock.unloadWindow(this.window);
   }
 
   createButtonItem(win) {
