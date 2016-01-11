@@ -292,7 +292,9 @@ var Extension = {
       if (!win.document || win.document.readyState !== "complete") {
         win.addEventListener('load', function loader() {
           win.removeEventListener('load', loader, false);
-          load();
+          if (win.location.href == 'chrome://browser/content/browser.xul') {
+            load();
+          }
         }, false);
       } else {
         load();
