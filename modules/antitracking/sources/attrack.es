@@ -645,6 +645,10 @@ var CliqzAttrack = {
                         req_log.bad_headers++;
                     }
                 }
+
+                // is cached?
+                let cached = topic === 'http-on-examine-cached-response';
+                CliqzAttrack.tp_events.incrementStat(req_log, cached ? 'cached' : 'not_cached');
             }
         }
     },
