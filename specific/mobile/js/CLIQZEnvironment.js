@@ -784,23 +784,22 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 
 CLIQZEnvironment.shareContent = function() {
     
-    var template = `<!DOCTYPE html>
-                        <html style="background-color: #eee;">
-                           <head>
-                              <title>###TITLE###</title>
-                              <style type="text/css">###STYLE###</style>
-                           </head>
-                           <body>
-                              <div id="results">
-
-                                 <div id="cliqz-results">
-                                        <div class="frame" style="width: 244px">
-                                            ###CONTENT###
-                                        </div>
-                                 </div>
-                              </div>
-                           </body>
-                        </html>`;
+    var template = '<!DOCTYPE html>' +
+                   '     <html style="background-color: #eee;">' +
+                   '       <head>' +
+                   '           <title>###TITLE###</title>' +
+                   '          <style type="text/css">###STYLE###</style>' +
+                   '       </head>' +
+                   '       <body>' +
+                   '          <div id="results">' +
+                   '            <div id="cliqz-results">' +
+                   '                    <div class="frame" style="width: 244px">' +
+                   '                        ###CONTENT###' +
+                   '                     </div>' +
+                   '             </div>' +
+                   '          </div>' +
+                   '       </body>' +
+                   '    </html>';
 
     
     // clean up html / replace links
