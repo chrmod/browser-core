@@ -72,10 +72,10 @@ export default {
       }.bind(this));
 
       this.boundPageObserver = this.pageObserver.bind(this);
-      CliqzEvents.sub("window.load", this.boundPageObserver);
+      CliqzEvents.sub("core:page_load", this.boundPageObserver);
 
       this.boundTabSelectListener = this.tabSelectListener.bind(this);
-      CliqzEvents.sub("tab.select", this.boundTabSelectListener);
+      CliqzEvents.sub("core:tab_select", this.boundTabSelectListener);
     }
   },
   unload: function() {
@@ -91,8 +91,8 @@ export default {
       b.unload && b.unload();
     });
 
-    CliqzEvents.un_sub("window.load", this.boundPageObserver);
-    CliqzEvents.un_sub("tab.select", this.boundTabSelectListener);
+    CliqzEvents.un_sub("core:page_load", this.boundPageObserver);
+    CliqzEvents.un_sub("core:tab_select", this.boundTabSelectListener);
   },
   pageObserver: function(event) {
     if (this.isEnabled()) {
