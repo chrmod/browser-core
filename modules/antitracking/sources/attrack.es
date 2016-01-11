@@ -489,19 +489,17 @@ var CliqzAttrack = {
                         }
                         if (rule == 'block') {
                             subject.cancel(Components.results.NS_BINDING_ABORTED);
-                            if (req_log) req_log.req_aborted++;
+                            tp_events.incrementStat(req_log, 'token_blocked_' + rule);
                         } else {
                             var tmp_url = aChannel.URI.spec;
                             for (var i = 0; i < badTokens.length; i++)
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             try {
                                 aChannel.URI.spec = tmp_url;
-                                if (req_log) {
-                                    req_log.tokens_blocked++;
-                                }
+                                tp_events.incrementStat(req_log, 'token_blocked_' + rule);
                             } catch(error) {
                                 aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
-                                if (req_log) req_log.tokens_blocked++;
+                                tp_events.incrementStat(req_log, 'token_red_' + rule);
                             }
                         }
                         CliqzAttrack.recentlyModified.add(source_tab + url, 30000);

@@ -4,12 +4,7 @@ TrackerTXT: caching rules for tracker.txt
 
 import MapCache from 'antitracking/fixed-size-cache';
 
-var trackerTxtActions = {
-    'placeholder': true,
-    'block': true,
-    'empty': true,
-    'random': true
-};
+var trackerTxtActions = new Set(['placeholder', 'block', 'empty', 'random']);
 
 var defaultTrackerTxtRule = 'same';
 
@@ -21,7 +16,7 @@ var trackerRuleParser = function(str, rules) {
         function(element, index, array) {
             var siteRule = element.split(':').map(function(x) {return x.trim();});
             if (siteRule.length == 2 &&
-                (siteRule[1] in trackerTxtActions))
+                trackerTxtActions.has(siteRule[1]))
                 rules[siteRule[0]] = siteRule[1];
         }
     );
