@@ -11,6 +11,7 @@ import md5 from 'antitracking/md5';
 import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 import { isHash } from 'antitracking/hash';
+import { TrackerTXT, sleep, defaultTrackerTxtRule } from 'antitracking/tracker-txt';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -100,7 +101,7 @@ var CliqzAttrack = {
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     obfuscateMethod: 'same',
-    replacement: '',
+    placeHolder: '',
     blockReportList: null,
     observerService: Components.classes["@mozilla.org/observer-service;1"]
                                 .getService(Components.interfaces.nsIObserverService),
@@ -164,15 +165,19 @@ var CliqzAttrack = {
         }
     },
     obfuscate: function(s, method, replacement) {
+        // used when action != 'block'
+        // default is a placeholder
         switch(method) {
         case 'replace':
             return replacement;
-        case 'shuffle':
+        case 'random':
             return shuffle(s);
         case 'same':
             return s;
+        case 'placeHolder':
+            return CliqzAttrack.placeHolder;
         default:
-            return shuffle(s);
+            return CliqzAttrack.placeHolder;
         }
     },
     parseQuery: function(qstr) {
@@ -263,6 +268,10 @@ var CliqzAttrack = {
 
             if (requestContext.getContentPolicyType() == 6) {
                 CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID());
+                if (CliqzAttrack.isTrackerTxtEnabled()) {
+                    var host_url = url_parts.protocol + '://' + url_parts.hostname;
+                    TrackerTXT.get(host_url).update();
+                }
                 return;
             }
 
@@ -466,29 +475,34 @@ var CliqzAttrack = {
                     // };
 
                     if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
-                        var tmp_url = aChannel.URI.spec;
-
-                        for (var i = 0; i < badTokens.length; i++)
-                            tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], CliqzAttrack.obfuscateMethod, CliqzAttrack.replacement));
-                        try {
-                            aChannel.URI.spec = tmp_url;
-                            if (req_log) {
-                                req_log.tokens_blocked++;
+                        // determin action based on tracker.txt
+                        var rule = defaultTrackerTxtRule,
+                            _sourcehost = source_url_parts.protocol + '://' + source_url_parts.hostname,
+                            _trackerGD = CliqzAttrack.getGeneralDomain(url_parts.hostname),
+                            _trackerTxt = TrackerTXT.get(_sourcehost);
+                        if (CliqzAttrack.isTrackerTxtEnabled()) {
+                            if (_trackerTxt.last_update === null)
+                                // The first update is not ready yet
+                                sleep(300);
+                            if (_trackerGD in _trackerTxt.rules)
+                                rule = _trackerTxt.rules[_trackerGD];
+                        }
+                        if (rule == 'block') {
+                            subject.cancel(Components.results.NS_BINDING_ABORTED);
+                            tp_events.incrementStat(req_log, 'token_blocked_' + rule);
+                        } else {
+                            var tmp_url = aChannel.URI.spec;
+                            for (var i = 0; i < badTokens.length; i++)
+                                tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
+                            try {
+                                aChannel.URI.spec = tmp_url;
+                                tp_events.incrementStat(req_log, 'token_blocked_' + rule);
+                            } catch(error) {
+                                aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
+                                tp_events.incrementStat(req_log, 'token_red_' + rule);
                             }
-                        } catch(error) {
-                            // var ts = Date.now();
-                            // var blockedItem = {
-                            // 'ts': ts,
-                            // 'dst': url_parts.hostname,
-                            // 'src': source_url_parts.hostname
-                        // };
-                            // CliqzUtils.log("Cancelling request: " + tmp_url,"XXXXX");
-                            // subject.cancel(Components.results.NS_BINDING_ABORTED);
-                            aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
-                            if (req_log) req_log.req_aborted++;
                         }
                         CliqzAttrack.recentlyModified.add(source_tab + url, 30000);
-
                     }
                 }
                 else{
@@ -1087,6 +1101,9 @@ var CliqzAttrack = {
     isReferrerEnabled: function() {
         return CliqzUtils.getPref('attrackRefererTracking', false);
     },
+    isTrackerTxtEnabled: function() {
+        return CliqzUtils.getPref('trackerTxt', false);
+    },
     initialiseAntiRefererTracking: function() {
         if (CliqzUtils.getPref('attrackRefererTracking', false)) {
             // check that the user has not already set values here
@@ -1601,7 +1618,7 @@ var CliqzAttrack = {
             // To prevent accidental update of the config file which might enable scramble for AMO users which might not respect
             // tracker.txt and they can be removed by the AB test but we will lose data collection
             // if ('obfuscateMethod' in versioncheck) CliqzAttrack.obfuscateMethod = versioncheck['obfuscateMethod'];
-            if ('replacement' in versioncheck) CliqzAttrack.replacement = versioncheck['replacement'];
+            if ('placeHolder' in versioncheck) CliqzAttrack.placeHolder = versioncheck['placeHolder'];
         }, function() {
             // on error: just try and load anyway
             if (CliqzAttrack.debug) CliqzUtils.log("error checking token list versions", "attrack");
