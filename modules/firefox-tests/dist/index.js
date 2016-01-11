@@ -40,7 +40,7 @@ var CliqzUtils = loadModule("CliqzUtils"),
     getCliqzResults,
     browserMajorVersion = parseInt(getBrowserVersion().split('.')[0]);
 
-mocha.setup('bdd');
+mocha.setup({ ui: 'bdd', timeout: 3000 });
 
 injectTestHelpers(CliqzUtils);
 

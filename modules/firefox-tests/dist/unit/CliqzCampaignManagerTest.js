@@ -117,8 +117,8 @@ describe('updateCampaigns', function() {
 
 describe('saveCampaigns', function() {
   it('should save campaigns', function() {
-    CliqzUtils.cliqzPrefs.clearUserPref('msgs.campaigns.ids');
-    CliqzUtils.cliqzPrefs.clearUserPref('msgs.campaigns.data.TEST001');
+    CliqzUtils.clearPref('msgs.campaigns.ids');
+    CliqzUtils.clearPref('msgs.campaigns.data.TEST001');
     chai.expect(CliqzUtils.getPref('msgs.campaigns.ids', '')).to.equal('');
     chai.expect(CliqzUtils.getPref('msgs.campaigns.data.TEST001', '')).to.equal('');
 

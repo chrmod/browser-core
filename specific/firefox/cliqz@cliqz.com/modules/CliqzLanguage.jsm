@@ -18,16 +18,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
+// we keep a different preferences namespace than cliqz so that it does not get
+// removed after a re-install or sent during a logging signal
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
     LOG_KEY: 'CliqzLanguage',
     currentState: {},
-    // we keep a different namespace than cliqz so that it does not get
-    // removed after a re-install or sent during a logging signal
-    cliqzLangPrefs: Components.classes['@mozilla.org/preferences-service;1']
-        .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz-lang.'),
-
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
@@ -154,8 +151,9 @@ var CliqzLanguage = {
 
         CliqzLanguage.window = window;
 
-        if(CliqzLanguage.cliqzLangPrefs.prefHasUserValue('data')) {
-            CliqzLanguage.currentState = JSON.parse(CliqzLanguage.cliqzLangPrefs.getCharPref('data'));
+        if(CliqzUtils.hasPref('data','extensions.cliqz-lang.')) {
+            CliqzLanguage.currentState = JSON.parse(
+              CliqzUtils.getPref('data', {}, 'extensions.cliqz-lang.'));
 
             // for the case that the user changes his userAgent.locale
             var ll = CliqzLanguage.getLocale();
@@ -274,6 +272,8 @@ var CliqzLanguage = {
     // Save the current state to preferences,
     saveCurrentState: function() {
         CliqzUtils.log("Going to save languages: " + JSON.stringify(CliqzLanguage.currentState), CliqzLanguage.LOG_KEY);
-        CliqzLanguage.cliqzLangPrefs.setCharPref('data', JSON.stringify(CliqzLanguage.currentState || {}));
+        CliqzUtils.setPref('data',
+                           JSON.stringify(CliqzLanguage.currentState || {}),
+                           'extensions.cliqz-lang.');
     },
 };

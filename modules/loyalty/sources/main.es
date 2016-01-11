@@ -337,25 +337,25 @@ var CliqzStatsGlobal = {
 var ICONS = {
   iconsStatus: {
     "noNotify": {
-      "MEMBER": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-member.svg", color: "#ABC8E2"},
-      "BUDDY": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-buddy.svg", color: "#5EA3F9"},
-      "HERO": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-hero.svg", color: "#733090"},
-      "LEGEND": {url: "chrome://cliqzres/content/content/loyalty/images/Medals/trophy-legend.svg", color: "#FFC802"}
+      "MEMBER": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-member.svg", color: "#ABC8E2"},
+      "BUDDY": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-buddy.svg", color: "#5EA3F9"},
+      "HERO": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-hero.svg", color: "#733090"},
+      "LEGEND": {url: "chrome://cliqz/content/loyalty/images/Medals/trophy-legend.svg", color: "#FFC802"}
     }
   },
 
   iconsBrowser: {
     "noNotify": {
-      "MEMBER": "chrome://cliqzres/content/content/loyalty/images/browser_icons/member-browser.svg",
-      "BUDDY": "chrome://cliqzres/content/content/loyalty/images/browser_icons/buddy-browser.svg",
-      "HERO": "chrome://cliqzres/content/content/loyalty/images/browser_icons/hero-browser.svg",
-      "LEGEND": "chrome://cliqzres/content/content/loyalty/images/browser_icons/legend-browser.svg"
+      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-browser.svg",
+      "BUDDY": "chrome://cliqz/content/loyalty/images/browser_icons/buddy-browser.svg",
+      "HERO": "chrome://cliqz/content/loyalty/images/browser_icons/hero-browser.svg",
+      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-browser.svg"
     },
     'notify': {
-      "MEMBER": "chrome://cliqzres/content/content/loyalty/images/browser_icons/member-notification.svg",
-      "BUDDY": "chrome://cliqzres/content/content/loyalty/images/browser_icons/buddy-notification.svg",
-      "HERO": "chrome://cliqzres/content/content/loyalty/images/browser_icons/hero-notification.svg",
-      "LEGEND": "chrome://cliqzres/content/content/loyalty/images/browser_icons/legen-notification.svg"
+      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-notification.svg",
+      "BUDDY": "chrome://cliqz/content/loyalty/images/browser_icons/buddy-notification.svg",
+      "HERO": "chrome://cliqz/content/loyalty/images/browser_icons/hero-notification.svg",
+      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legen-notification.svg"
     }
   },
 
@@ -383,7 +383,7 @@ var CliqzLLogic = {
     // NOTE: call this after CliqzStats.cliqzUsageCached is initialized
     // Call this before running fetching  back-end data
 
-    CliqzUtils.loadResource('chrome://cliqzres/content/content/loyalty/content/extensionSpecific.json',
+    CliqzUtils.loadResource('chrome://cliqz/content/loyalty/content/extensionSpecific.json',
       function (req) {
         if (CliqzUtils) {
           var data = JSON.parse(req.response);

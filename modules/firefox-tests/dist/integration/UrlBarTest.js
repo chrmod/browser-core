@@ -1,6 +1,7 @@
 TESTS.UrlBarTest = function (CliqzUtils) {
 
     describe('UrlBar integration', function () {
+        this.retries(1);
 
         afterEach(function () {
             fillIn("");

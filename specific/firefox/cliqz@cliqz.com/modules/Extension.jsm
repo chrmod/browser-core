@@ -35,9 +35,6 @@ function newMajorVersion(oldV, newV){
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
-    PREFS: {
-        'session': ''
-    },
     modules: [],
     init: function(){
         Extension.unloadModules();
@@ -86,7 +83,7 @@ var Extension = {
         // Ensure prefs are set to our custom values
         Extension.setOurOwnPrefs();
 
-        // Load Config
+        // Load Config - Synchronous!
         CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
           this.config = JSON.parse(res.response);
         }.bind(this), function () {}, undefined, undefined, true);
@@ -239,31 +236,14 @@ var Extension = {
         CliqzUtils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        var branch = CliqzUtils.cliqzPrefs;
-
         //basic solution for having consistent preferences between updates
-        this.cleanPrefs(branch);
-
-        for (let [key, val] in new Iterator(Extension.PREFS)) {
-            if(!branch.prefHasUserValue(key)){
-                switch (typeof val) {
-                    case 'boolean':
-                    branch.setBoolPref(key, val);
-                    break;
-                case 'number':
-                    branch.setIntPref(key, val);
-                    break;
-                case 'string':
-                    branch.setCharPref(key, val);
-                    break;
-                }
-            }
-        }
-    },
-    cleanPrefs: function(prefs){
         //0.5.02 - 0.5.04
-        prefs.clearUserPref('analysis');
-        prefs.clearUserPref('news-toggle-trending');
+        CliqzUtils.clearPref('analysis');
+        CliqzUtils.clearPref('news-toggle-trending');
+
+        if(!CliqzUtils.hasPref('session')) {
+          CliqzUtils.setPref('session', '');
+        }
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
@@ -404,9 +384,8 @@ var Extension = {
     setOurOwnPrefs: function() {
         var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
-        if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+        if (!CliqzUtils.hasPref("maxRichResultsBackup")) {
+            CliqzUtils.setPref("maxRichResultsBackup",
                 urlBarPref.getIntPref("maxRichResults"));
             urlBarPref.setIntPref("maxRichResults", 30);
         }
@@ -420,14 +399,13 @@ var Extension = {
     /** Reset changed prefs on uninstall */
     resetOriginalPrefs: function() {
         var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+        var cliqzBackup = CliqzUtils.getPref("maxRichResultsBackup");
         if (cliqzBackup) {
             CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
             urlBarPref.setIntPref("maxRichResults",
-                CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
-            // deleteBranch does not work for some reason :(
-            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
-            CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+                CliqzUtils.getPref("maxRichResultsBackup"));
+
+            CliqzUtils.clearPref("maxRichResultsBackup", 0);
         } else {
             CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
         }

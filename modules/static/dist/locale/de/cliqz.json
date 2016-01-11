@@ -964,5 +964,35 @@
     },
     "unblock_never": {
       "message": "Nein, niemals"
+    },
+    "cliqz-onboarding-title": {
+      "message": "Woohoo! CLIQZ has successfully installed."
+    },
+    "cliqz-onboarding-search-simple": {
+      "message": "Suchen direkt im Browser. Einfach in die Browser-Zeile tippen und schon siehst du"
+    },
+    "cliqz-onboarding-suggestions": {
+      "message": "Website-Vorschläge"
+    },
+    "cliqz-onboarding-start-fresh": {
+      "message": "Startseite: Wenn du den Browser oder einen neuen Tab öffnest, siehst du deine Lieblingsseiten und Nachrichten."
+    },
+    "cliqz-onboarding-surf-safe": {
+      "message": "Für CLIQZ bist du anonym – auf unseren Servern werden keinerlei Daten über dich gespeichert."
+    },
+    "cliqz-onboarding-privacy": {
+      "message": "Mehr Privatsphäre."
+    },
+    "cliqz-onboarding-learn-more": {
+      "message": "Mehr über CLIQZ erfahren"
+    },
+    "cliqz-onboarding-full-tour": {
+      "message": "Demo ansehen"
+    },
+    "cliqz-onboarding-or": {
+      "message": "oder"
+    },
+    "cliqz-onboarding-cool-thanks": {
+      "message": "OK, verstanden!"
     }
 }

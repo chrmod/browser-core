@@ -1,7 +1,7 @@
 /* common */
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato-Regular.ttf");
+  src: url("../../static/skin/fonts/Lato-Regular.ttf");
 }
 
 * {
@@ -11,6 +11,10 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 1.2
+}
+
+a:hover, a:active, a:focus {
+  outline: 0;
 }
 
 .clearfix:after {
@@ -46,7 +50,7 @@
   left: 10px;
   width: 18px;
   height: 18px;
-  background: url("chrome://cliqz/content/freshtab/images/cliqz_icon.svg") no-repeat;
+  background: url("../images/cliqz_icon.svg") no-repeat;
 }
 
 
@@ -281,7 +285,7 @@
     right: 25px;
     width: 24px;
     height: 24px;
-    background: url("chrome://cliqz/content/freshtab/images/question-mark.svg");
+    background: url("../images/question-mark.svg");
     cursor: pointer;
     z-index: 2;
 }
@@ -315,6 +319,119 @@
 
 #freshTabPage #firstTimeOnboarding .moreBtn {
     margin-right: 20px;
+}
+
+/******** CLIQZ Onboarding *********/
+#optinContainer {
+  display: none;
+}
+
+.optinBackground {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
+  opacity: 0.75;
+  background-color: #ABC8E2;
+  z-index: 1004
+}
+
+.optinContent {
+  position: absolute;
+  background-color: #ffffff;
+  z-index: 1005;
+  text-align: center;
+  left: 50%;
+  top: 50%;
+  border-radius: 2px;
+  width: 600px;
+  height: 475px;
+  margin-left: -300px;
+  margin-top: -237px;
+}
+
+.optinContent .title {
+  background-color: #56EAC6;
+  height: 55px;
+  color: #ffffff;
+  padding-top: 37px;
+  font-size: 26px;
+}
+
+#freshTabPage .optinContent a {
+  color: #5EA3F9;
+  font-size: 18px;
+
+}
+
+.optinContent ul {
+  padding: 40px 55px 10px;
+}
+
+.optinContent li {
+  list-style: none;
+  position: relative;
+  line-height: 1.4;
+  padding: 0px 0 30px;
+  font-size: 18px;
+}
+
+.optinContent li div{
+  margin-left: 60px;
+  text-align: left;
+  font-size: 18px;
+}
+
+.optinContent .surfSafe .icon {
+  background-image: url("../images/anti-tracking.svg");
+
+}
+
+.optinContent .searchSimple .icon {
+  background-image: url("../images/search.svg");
+}
+
+.optinContent .startFresh .icon {
+  background-image: url("../images/freshtab.svg");
+}
+
+.optinContent .icon {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 40px;
+  height: 40px;
+  top: 0px;
+  left: 0px;
+}
+
+.optinContent .cqz-optin-btn {
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 26px;
+  margin: 0 7px 4px 0;
+  padding: 0 9px;
+  text-decoration: none;
+  background-color: #FF5349;
+}
+
+.optinContent .footer {
+  background-color: #FAFAFA;
+  position: absolute;
+  bottom: 0px;
+  text-align: center;
+  padding: 10px 0px;
+  width: 100%;
+}
+
+#freshTabPage .optinContent .footer a {
+  color: #999999;
+  font-size: 14px;
+  text-decoration: underline;
 }
 
 .visible {

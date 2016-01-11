@@ -84,9 +84,6 @@ window.CLIQZ.Core = {
     _messageOFF: true, // no message shown
     _updateAvailable: false,
     windowModules: [],
-    genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefBranch),
-
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
         var listners = window.gBrowser.mTabsProgressListeners;
@@ -135,7 +132,7 @@ window.CLIQZ.Core = {
 
         CliqzSpellCheck.initSpellCorrection();
 
-        this.addCSS(document, 'chrome://cliqzres/content/styles/css/extension.css');
+        this.addCSS(document, 'chrome://cliqz/content/static/styles/styles.css');
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
@@ -256,8 +253,9 @@ window.CLIQZ.Core = {
                     2 - ignored
                     3 - learn more
         */
-        if(CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
-          //this._dataCollectionTimer = setTimeout(this.showDataCollectionMessage, 1000);
+        if(CLIQZ.config.settings.showDataCollectionMessage &&
+           CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
+          this._dataCollectionTimer = setTimeout(this.showDataCollectionMessage, 1000);
         }
     },
     showDataCollectionMessage: function(){
@@ -311,17 +309,16 @@ window.CLIQZ.Core = {
         this.elem.push(stylesheet);
     },
     checkSession: function() {
-        var prefs = CliqzUtils.cliqzPrefs;
-        if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
+        if (!CliqzUtils.hasPref('session')) {
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                 (function success(req){
                     var source = JSON.parse(req.response).shortName;
                     var session = this.generateSession(source);
-                    prefs.setCharPref('session', session);
+                    CliqzUtils.setPref('session', session);
                 }).bind(this),
                 (function error(){
                     var session = this.generateSession();
-                    prefs.setCharPref('session', session);
+                    CliqzUtils.setPref('session', session);
                 }).bind(this)
             );
             return false;
@@ -409,11 +406,11 @@ window.CLIQZ.Core = {
                 for (var i=0; i<numTabs; i++) {
                   var currentTab = gBrowser.tabContainer.childNodes[i];
                   var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                  currentBrowser.contentDocument.removeEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
-                  currentBrowser.contentDocument.removeEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
-                  currentBrowser.contentDocument.removeEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
-                  currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage);
-                  currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
+                  currentBrowser.contentDocument.removeEventListener("keypress", CliqzHumanWeb.captureKeyPressPage,true);
+                  currentBrowser.contentDocument.removeEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage,true);
+                  currentBrowser.contentDocument.removeEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage,true);
+                  currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage,true);
+                  currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage,true);
                 }
             }
             // antiphishing listener
@@ -648,7 +645,7 @@ window.CLIQZ.Core = {
                 history_days: history.days,
                 history_urls: history.size,
                 startup: startup? true: false,
-                prefs: CliqzUtils.getPrefs(),
+                prefs: CLIQZEnvironment.getCliqzPrefs(),
                 defaultSearchEngine: defaultSearchEngine,
                 private_window: CliqzUtils.isPrivate(window)
             };
@@ -720,7 +717,7 @@ window.CLIQZ.Core = {
 
         // No autocomplete
         if(!autocomplete.autocomplete ||
-           !this.genericPrefs.getBoolPref("browser.urlbar.autoFill") || // user has disabled autocomplete
+           !CliqzUtils.getPref("browser.urlbar.autoFill", false, '') || // user has disabled autocomplete
            (autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)) || // types other than 'url' are experimental
            (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
             CLIQZ.UI.clearAutocomplete();

@@ -3,9 +3,14 @@
     "freshTabButton": false,
     "freshTabABtest" : false,
     "antitrackingButton": true,
-    "unblockUI": true
+    "unblockUI": true,
+    "showDataCollectionMessage": true,
+    "cliqzOnboarding": false
   },
   "modules": [
+    "static",
+    "core",
+    "context-menu",
     "freshtab",
     "unblock",
     "theme",

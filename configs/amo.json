@@ -2,9 +2,12 @@
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
-    "antitrackingButton": false
+    "antitrackingButton": false,
+    "showDataCollectionMessage": true,
+    "cliqzOnboarding": false
   },
   "modules": [
+    "static",
     "onboarding",
     "freshtab",
     "antitracking"

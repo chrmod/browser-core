@@ -11,6 +11,7 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
   }
 
   describe('SmartCliqz', function(){
+    this.retries(1);
 
   	it('should display spiegel smart cliqz', function () {
       return mockSmartCliqz('spiegel').then(function () {

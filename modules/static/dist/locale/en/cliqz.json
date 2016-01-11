@@ -964,5 +964,35 @@
     },
     "unblock_never": {
       "message": "No, never"
+    },
+    "cliqz-onboarding-title": {
+      "message": "Woohoo! CLIQZ has successfully installed."
+    },
+    "cliqz-onboarding-search-simple": {
+      "message": "Search effortlessly. Simply start typing in the address bar and instantly get"
+    },
+    "cliqz-onboarding-suggestions": {
+      "message": "website suggestions."
+    },
+    "cliqz-onboarding-start-fresh": {
+      "message": "Start fresh. We populate your homescreen with your favorite sites - plus news we think will interest you."
+    },
+    "cliqz-onboarding-surf-safe": {
+      "message": "We don’t collect any data about you on our servers."
+    },
+    "cliqz-onboarding-privacy": {
+      "message": "Protect your privacy."
+    },
+    "cliqz-onboarding-learn-more": {
+      "message": "Learn more about CLIQZ"
+    },
+    "cliqz-onboarding-full-tour": {
+      "message": "take the full tour"
+    },
+    "cliqz-onboarding-or": {
+      "message": "or"
+    },
+    "cliqz-onboarding-cool-thanks": {
+      "message": "Cool, thanks!"
     }
 }
