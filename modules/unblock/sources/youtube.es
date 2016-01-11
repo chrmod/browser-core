@@ -4,7 +4,13 @@ import createLazyResourceLoader from 'unblock/resource-loader';
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 // DNS Filter for unblocking YT videos
-var YoutubeUnblocker = {
+export default {
+  current_region: '', // current region for YT videos
+  blocked: {}, // cache of seen blocked videos
+  video_lookup_cache: new Set(),
+  proxied_videos: new Set(),
+  last_success: null,
+  CONFIG_URL: "https://cdn.cliqz.com/unblock/yt_unblock_config.json",
   canFilter: function(url) {
     return url.indexOf("https://www.youtube.com") > -1;
   },
@@ -235,13 +241,7 @@ var YoutubeUnblocker = {
         }
       }
     }
-  },
-  current_region: '', // current region for YT videos
-  blocked: {}, // cache of seen blocked videos
-  video_lookup_cache: new Set(),
-  proxied_videos: new Set(),
-  last_success: null,
-  CONFIG_URL: "https://cdn.cliqz.com/unblock/yt_unblock_config.json",
+  }
 }
 
 // -- getParametersQS function from CliqzAttrack, replace after attrack is merged into master
@@ -286,5 +286,3 @@ var getParametersQS = function(qs) {
   }
   return res;
 };
-
-export default YoutubeUnblocker;

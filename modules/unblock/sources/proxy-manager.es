@@ -7,7 +7,7 @@ export default class {
   constructor(proxy_service) {
     this.proxy_service = proxy_service;
     this._p = {};
-    this._ctrs = {};
+    this._region_counters = {};
     this._last = null;
     this._preferred_regions = ['IR', 'US', 'UK', 'DE'];
     this.PROXY_UPDATE_URL = 'https://cdn.cliqz.com/unblock/proxies.json';
@@ -30,8 +30,9 @@ export default class {
   addProxy(region, proxy) {
     if (!(region in this._p)) {
       this._p[region] = [];
-      this._ctrs[region] = -1;
+      this._region_counters[region] = -1;
     }
+    CliqzUtils.log("Adding proxy: "+ proxy['type'] + "://" + proxy['host'] + ":" + proxy['port'], "unblock");
     this._p[region].push(proxy);
   }
 
@@ -42,11 +43,11 @@ export default class {
   }
 
   getNextProxy(region) {
-    if(!(region in this._ctrs)) {
+    if(!(region in this._region_counters)) {
       return null;
     }
-    this._ctrs[region] = (this._ctrs[region] + 1) % this._p[region].length;
-    return this._p[region][this._ctrs[region]];
+    this._region_counters[region] = (this._region_counters[region] + 1) % this._p[region].length;
+    return this._p[region][this._region_counters[region]];
   }
 
   removeProxy(region, proxy) {
@@ -64,8 +65,7 @@ export default class {
     self._preferred_regions = proxies['regions'];
     for (let region in proxies['proxies']) {
       proxies['proxies'][region].forEach(function (proxy) {
-        CliqzUtils.log("Adding proxy: "+ proxy['type'] + "://" + proxy['host'] + ":" + proxy['port'], "unblock");
-        self.addProxy(region, self.proxy_service.createProxy(proxy['type'], proxy['host'], proxy['port']));
+        self.addProxy(region, self.proxy_service.createProxy(proxy));
       });
     }
   }

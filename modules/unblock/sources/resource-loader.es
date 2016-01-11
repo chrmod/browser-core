@@ -26,9 +26,7 @@ function _fetch(load_conf) {
     CliqzUtils.setPref(load_conf.pref +"_lastUpdate", ""+ now);
     load_conf.lastPull = now;
     load_conf.retries = 0;
-  }, function(err) {
-    CliqzUtils.log(err);
-  });
+  }, CliqzUtils.log);
 };
 
 export default function(args) {

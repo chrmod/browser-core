@@ -16,6 +16,8 @@ export default class {
     this.pps.unregisterFilter(this);
   }
 
+  /** Firefox proxy API entry point - called on new http(s) connection.
+   */
   applyFilter(pps, url, default_proxy) {
     let rule_match = this.rules.find(function(rule) {
       return rule.matches(url.asciiSpec);
@@ -31,7 +33,11 @@ export default class {
     return default_proxy;
   }
 
-  createProxy(type, host, port, failover_timeout, failover_proxy) {
+  createProxy({ host,
+                type = 'http',
+                port = 3128,
+                failover_timeout = 2000,
+                failover_proxy = null }) {
     return this.pps.newProxyInfo(type, host, port, null, failover_timeout || 2000, failover_proxy || null);
   }
 
