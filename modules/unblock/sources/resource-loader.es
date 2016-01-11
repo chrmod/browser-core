@@ -4,7 +4,7 @@ var _queue = [];
 
 function _fetcher() {
   // find first load due
-  var now = (new Date()).getTime();
+  var now = Date.now();
   let ind = _queue.findIndex(function(c) {
     return c.lastPull + c.updateFreq < now && c.retries < 3;
   });
