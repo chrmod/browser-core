@@ -1064,54 +1064,7 @@ var CliqzUtils = {
 
     return data;
   },
-  getNoResults: function() {
-      var se = [// default
-              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
-              {"name": "Google", "base_url": "https://www.google.de"},
-              {"name": "Google Images", "base_url": "https://images.google.de/"},
-              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
-          ],
-          chosen = new Array();
-
-      var engines = CliqzResultProviders.getSearchEngines(),
-          defaultName = engines[0].name;
-
-      se.forEach(function(def){
-        engines.forEach(function(e){
-          if(def.name == e.name){
-              var url = def.base_url || e.base_url;
-
-              def.code = e.code;
-              def.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
-              def.text = e.prefix.slice(1);
-
-              chosen.push(def)
-          }
-          if(e.default) defaultName = e.name;
-        })
-      })
-
-
-
-      return Result.cliqzExtra(
-              {
-                  data:
-                  {
-                      template:'noResult',
-                      text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
-                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
-                      // the following line is added for other platforms
-                      searchString: CliqzAutocomplete.lastSearch,
-                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
-                      "search_engines": chosen,
-                      //use local image in case of no internet connection
-                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
-                  },
-                  subType: JSON.stringify({empty:true})
-              }
-          )
-    }
+  getNoResults: CLIQZEnvironment.getNoResults
 };
 
 CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);

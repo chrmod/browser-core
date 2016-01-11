@@ -42,6 +42,7 @@ var MockOS = {
   },
   isReady: function() {
     console.log("--MOCK: action isReady is called");
+    setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
     return -1;
   },
   openLink: function(id) {

@@ -83,6 +83,7 @@ CLIQZEnvironment = {
   renderResults: function(r, showGooglethis, validCount, historyCount) {
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
+    var engine = CLIQZEnvironment.getDefaultSearchEngine();
 
     CLIQZEnvironment.setDimensions();
 
@@ -123,7 +124,9 @@ CLIQZEnvironment = {
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
-        searchString: r.encodedSearchString
+        searchString: r.encodedSearchString,
+        searchEngineName: engine.name,
+        searchEngineUrl: engine.url
       }
     });
 
@@ -719,9 +722,32 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
-  }, initHomepage: function() {
+  }, 
+  initHomepage: function() {
     CLIQZEnvironment.getNews();
     osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
+  },
+  setDefaultSearchEngine: function(engine) {
+    localStorage.setObject("defaultSearchEngine", engine);
+  },
+  getDefaultSearchEngine: function() {
+    return localStorage.getObject("defaultSearchEngine");
+  },
+  getNoResults: function() {
+    var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    
+    return Result.cliqzExtra(
+      {
+        data:
+          {
+            template:'noResult',
+            searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
+            searchEngineName: engine.name,
+            searchEngineUrl: engine.url
+          },
+        subType: JSON.stringify({empty:true})
+      }
+    )
   }
 
 }

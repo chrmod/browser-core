@@ -388,6 +388,9 @@ function updateCurrencyTpl(data) {
 
 // end of currency converter code
 
+function setDefaultSearchEngine(engine) {
+  CLIQZEnvironment.setDefaultSearchEngine(engine);
+}
 
 function compareTimestamps(a, b) {
   return a.timestamp - b.timestamp;
