@@ -738,7 +738,7 @@ CLIQZEnvironment = {
     localStorage.setObject("defaultSearchEngine", engine);
   },
   getDefaultSearchEngine: function() {
-    return localStorage.getObject("defaultSearchEngine");
+    return localStorage.getObject("defaultSearchEngine") || {name:"Google", url: "http://www.google.com/search?q="};
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
