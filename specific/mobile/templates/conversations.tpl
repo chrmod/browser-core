@@ -40,7 +40,7 @@
 
 </div>
 <div style="clear:both;"></div>
-<div id="search">
+<div id="search" style="display:none">
 	<input id="search_input" type="text" placeholder="Filtern nach..." />
 </div>
 
