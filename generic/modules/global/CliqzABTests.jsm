@@ -324,6 +324,10 @@ var CliqzABTests = {
             case "1056_B":
                 CliqzUtils.setPref("freshTabAB", true);
                 break;
+            case "1057_A":
+            case "1057_B":
+                CliqzUtils.setPref("trackerTxt", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -571,6 +575,9 @@ var CliqzABTests = {
             case "1056_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("freshTabAB");
                 break;
+            case "1057_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("trackerTxt");
+                break;            
             default:
                 rule_executed = false;
         }
