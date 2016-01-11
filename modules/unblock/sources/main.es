@@ -6,6 +6,11 @@ import ProxyService from 'unblock/proxy';
 import RequestListener from 'unblock/request-listener'
 import ProxyManager from 'unblock/proxy-manager'
 
+const MODE_ASK = "ask";
+const MODE_ALWAYS = "always";
+const MODE_NEVER = "never";
+const MODES = [MODE_ASK, MODE_ALWAYS, MODE_NEVER];
+
 export default {
   proxy_manager: null,
   proxy_service: null,
@@ -15,7 +20,7 @@ export default {
   prev_mode: undefined,
   ui_enabled: false,
   setMode: function(mode) {
-    if (["ask", "always", "never"].indexOf(mode) == -1) {
+    if (MODES.indexOf(mode) == -1) {
       return;
     }
     this.prev_mode = this.getMode();
@@ -26,14 +31,14 @@ export default {
     let changed = mode != this.prev_mode;
 
     if (changed) {
-      if (this.prev_mode == "never") {
+      if (this.prev_mode == MODE_NEVER) {
         // never -> x: enable listeners
         this.init();
-      } else if (mode == "never") {
+      } else if (mode == MODE_NEVER) {
         // x -> never: disable listeners
         this.unload();
       }
-      if (mode == "ask") {
+      if (mode == MODE_ASK) {
         // always -> ask: clear existing rules
         this.proxy_service.clearRules();
         this.unblockers.forEach(function(u) {
@@ -45,10 +50,10 @@ export default {
     }
   },
   getMode: function() {
-    return CliqzUtils.getPref(this.PREF_MODE, "never");
+    return CliqzUtils.getPref(this.PREF_MODE, MODE_NEVER);
   },
   isEnabled: function() {
-    return this.getMode() != "never";
+    return this.getMode() != MODE_NEVER;
   },
   init: function(ui_enabled) {
     this.ui_enabled = this.ui_enabled || (ui_enabled === true);
@@ -116,9 +121,9 @@ export default {
   },
   handleBlock: function(url, proxy_cb) {
     let mode = this.getMode();
-    if (mode == "ask" && this.ui_enabled) {
+    if (mode == MODE_ASK && this.ui_enabled) {
       this.unblockPrompt(url, proxy_cb);
-    } else if (mode == "always") {
+    } else if (mode == MODE_ALWAYS) {
       proxy_cb();
     }
     // else never
@@ -163,7 +168,7 @@ export default {
         accessKey: 'B',
         callback: function() {
           box.removeNotification(notification);
-          this.setMode('always');
+          this.setMode(MODE_ALWAYS);
           cb();
           CliqzUtils.telemetry({
             'type': 'unblock',
@@ -180,13 +185,13 @@ export default {
             'type': 'unblock',
             'action': 'allow_once'
           });
-          this.setMode("ask");
+          this.setMode(MODE_ASK);
         }.bind(this)
       },
       {
         label: CliqzUtils.getLocalizedString("unblock_never"),
         callback: function() {
-          this.setMode("never");
+          this.setMode(MODE_NEVER);
           box.removeNotification(notification);
           CliqzUtils.telemetry({
             'type': 'unblock',
