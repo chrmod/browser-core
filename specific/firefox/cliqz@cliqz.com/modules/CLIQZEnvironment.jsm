@@ -140,19 +140,19 @@ var CLIQZEnvironment = {
             if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
                 callback && callback(req);
             } else {
-                CLIQZEnvironment.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.onerror = function(){
             if(CLIQZEnvironment){
-                CLIQZEnvironment.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.ontimeout = function(){
             if(CLIQZEnvironment){ //might happen after disabling the extension
-                CLIQZEnvironment.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
@@ -400,7 +400,7 @@ var CLIQZEnvironment = {
         geoService.getCurrentPosition(function(p) {
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
-        }, function(e) { CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
         //Upate position if it changes
         GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
@@ -409,7 +409,7 @@ var CLIQZEnvironment = {
             CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
             CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
           }
-        }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CLIQZEnvironment.USER_LAT = null;
         CLIQZEnvironment.USER_LNG = null;
