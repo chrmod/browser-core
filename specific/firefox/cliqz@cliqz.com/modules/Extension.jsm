@@ -264,34 +264,39 @@ var Extension = {
       win.CLIQZ.config = this.config;
     },
     loadIntoWindow: function(win) {
-        if (!win) return;
+      if (!win) return;
 
-        if(CliqzUtils.shouldLoad(win)){
-            Extension.setupCliqzGlobal(win);
-            Extension.addScript('core', win);
-            Extension.addScript('UI', win);
-            Extension.addScript('ContextMenu', win);
+      function load() {
+        Extension.setupCliqzGlobal(win);
+        Extension.addScript('core', win);
+        Extension.addScript('UI', win);
+        Extension.addScript('ContextMenu', win);
 
-            Extension.addButtons(win);
+        Extension.addButtons(win);
 
-            // CliqzExceptions.attach(win); //enabled in debug builds
-
-            try {
-                if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
-                  win.CLIQZ.Core.init();
-                  CliqzUtils.log('Initialized', 'CORE');
-                }
-                // Always set urlbar and start whoAmI
-                // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
-                win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
-                win.CLIQZ.Core.whoAmI(true); //startup
-                CliqzABTests.check();
-
-            } catch(e) {Cu.reportError(e); }
+        try {
+          if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+            win.CLIQZ.Core.init();
+            CliqzUtils.log('Initialized', 'CORE');
+          }
+          // Always set urlbar and start whoAmI
+          // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
+          win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
+          win.CLIQZ.Core.whoAmI(true); //startup
+          CliqzABTests.check();
+        } catch(e) {
+          Cu.reportError(e);
         }
-        else {
-            CliqzUtils.log('private window -> halt', 'CORE');
-        }
+      }
+
+      if (!win.document || win.document.readyState !== "complete") {
+        win.addEventListener('load', function loader() {
+          win.removeEventListener('load', loader, false);
+          load();
+        }, false);
+      } else {
+        load();
+      }
     },
     addButtons: function(win){
         var doc = win.document;
@@ -372,12 +377,8 @@ var Extension = {
         }catch(e){ Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
-        if (topic == 'domwindowopened') {
-            win.addEventListener('load', function loader() {
-                win.removeEventListener('load', loader, false);
-                if (win.location.href == 'chrome://browser/content/browser.xul')
-                    Extension.loadIntoWindow(win, true);
-            }, false);
+        if (topic === 'domwindowopened') {
+          Extension.loadIntoWindow(win, true);
         }
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */
