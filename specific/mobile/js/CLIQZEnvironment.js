@@ -53,7 +53,8 @@ CLIQZEnvironment = {
     );
   },
 
-  autoComplete: function (val) {
+  autoComplete: function (val,searchString) {
+
     if( val && val.length > 0){
       val = val.replace(/http([s]?):\/\/(www.)?/,"");
       val = val.toLowerCase();
@@ -62,8 +63,14 @@ CLIQZEnvironment = {
       if( val.indexOf(urlbarValue) == 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
         osBridge.autocomplete(val);
+      } else {
+        var ls = JSON.parse(localStorage.recentQueries);
+        for( var i in ls ) {
+          if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) == 0 ) {
+            osBridge.autocomplete(ls[i].query.toLowerCase());
+          }
+        }
       }
-
     }
   },
 
@@ -208,7 +215,7 @@ CLIQZEnvironment = {
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
 
-    CLIQZEnvironment.autoComplete(r._results[0].val);
+    CLIQZEnvironment.autoComplete(r._results[0].val,r._searchString);
 
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
