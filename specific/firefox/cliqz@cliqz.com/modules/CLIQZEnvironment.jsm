@@ -201,6 +201,10 @@ var CLIQZEnvironment = {
             win.openUILink(url);
         }
     },
+    copyResult: function(val) {
+        var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+        gClipboardHelper.copyString(val);
+    },
     tldExtractor: function(host){
         var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
                                     .getService(Ci.nsIEffectiveTLDService);

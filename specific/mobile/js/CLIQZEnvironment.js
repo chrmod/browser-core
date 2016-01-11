@@ -43,7 +43,7 @@ CLIQZEnvironment = {
           }
           if( CliqzHandlebars.tplCache[template] ) {
             CLIQZ.UI.enhanceResults(r);
-            if(document.getElementById("ez-" + index)) {
+            if(document.getElementById("ez-" + index) && r.results[0] && r.results[0].data.template != "noResult") {
               document.getElementById("ez-" + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -199,7 +199,6 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r, requestHolder) {
-
     if( CLIQZEnvironment.lastSearch != r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
@@ -665,6 +664,9 @@ CLIQZEnvironment = {
   },
   getEngineByAlias: function () {
     return ENGINES[0];
+  },
+  copyResult: function(val) {
+    osBridge.copyResult(val);
   },
   getNews: function() {
     //console.log("Start getting news");

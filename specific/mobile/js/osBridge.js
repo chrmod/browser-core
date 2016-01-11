@@ -112,6 +112,19 @@ var osBridge = {
       data: msg
     }
     OS.postMessage(message);
+  },
+  /**
+    function: copyResult
+    description: sends a result for the OS to be copied to clipboard
+    params: value as string
+    message data: msg as object
+  */
+  copyResult: function(val) {
+    var message = {
+      action: "copyResult",
+      data: val
+    }
+    OS.postMessage(message);
   }
 };
 
