@@ -37,7 +37,6 @@ var CliqzFreshTabNews = {
     var now = Date.now();
 
     if (parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + 30 * ONE_MINUTE < now || !getNewsFromLS()){
-      CliqzUtils.setPref('freshTabNewsTime', '' + now);
       var bBasedNewsRequirement = [];
 
       if (hBasedNews) {
@@ -314,7 +313,7 @@ function createNewsList(history_data, number_to_get, callback){
         5000
       );
     }).catch(function () {
-      log('Error fetching news. Check in CLIQZEnvironment code.');
+      log('Error fetching news. Check CLIQZEnvironment.httpHandler errors.');
       return {};
     });
   });
@@ -325,7 +324,7 @@ function createNewsList(history_data, number_to_get, callback){
     var list_to_merge = [];
     //iterate over results
     vals.forEach(function(val){
-      if (val != {}){
+      if (isNotEmpty(val)){
 
         if (val.news_type == 'hb_news'){
           list_to_merge = val.res.data.news;
@@ -336,15 +335,29 @@ function createNewsList(history_data, number_to_get, callback){
         }
         mergeNews(list_to_merge, news_results, val.news_type, val.news_domain, val.limit);
 
-        var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
-        if (ls) ls.setItem("freshTab-news",JSON.stringify(news_results))
-
-        if(callback) callback();
       }
     });
+    updateFreshTabNewsCache(news_results);
+    if(callback) callback();
   });
 }
 
+function isNotEmpty(ob){
+  for(var i in ob){ return true;}
+  return false;
+}
+
+function updateFreshTabNewsCache(news_results) {
+  if (isNotEmpty(news_results)) {
+    var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
+    if (ls) ls.setItem("freshTab-news", JSON.stringify(news_results));
+
+    CliqzUtils.setPref('freshTabNewsTime', '' + Date.now());
+    log("FreshTab news cache is updated");
+  }else{
+    log("Fetched news list is empty, FreshTab news cache is not updated");
+  }
+}
 
 function normalizeUrlBasedCount(topic_dict){
 
