@@ -68,7 +68,7 @@ export default class {
     var info = CliqzAttrack.getCurrentTabBlockingInfo(), count;
 
     try {
-      count = info.cookies.blocked;
+      count = info.cookies.blocked + info.requests.unsafe;
     } catch(e) {
       count = 0;
     }
