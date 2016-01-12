@@ -460,7 +460,7 @@ var CliqzAttrack = {
                     if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
                         // determin action based on tracker.txt
                         var rule = defaultTrackerTxtRule,
-                            _trackerGD = CliqzAttrack.getGeneralDomain(url_parts.hostname),
+                            _trackerGD = getGeneralDomain(url_parts.hostname),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
                         if (CliqzAttrack.isTrackerTxtEnabled()) {
                             if (_trackerTxt.last_update === null)
@@ -1288,8 +1288,8 @@ var CliqzAttrack = {
         // update bloom filter
         if (CliqzAttrack.isBloomFilterEnabled())
             CliqzAttrack.bloomFilter.checkUpdate(function() {
-                CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
-                CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
+                CliqzAttrack.lastUpdate[0] = datetime.getTime();
+                CliqzAttrack.lastUpdate[0] = datetime.getTime();
             });
 
     },
@@ -1406,7 +1406,7 @@ var CliqzAttrack = {
         var data = {};
         data[s] = {};
         data[s][key] = today;
-        var payl = CliqzAttrack.generatePayload(data, CliqzAttrack.getTime(), true, true);
+        var payl = CliqzAttrack.generatePayload(data, datetime.getTime(), true, true);
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
     },
     sendInstantTokens: function(s, r, k, tok) {
@@ -1932,8 +1932,8 @@ var CliqzAttrack = {
         return badHeaders;
     },
     examineTokens: function(url_parts, callback) {
-        var day = CliqzAttrack.newUTCDate();
-        var today = CliqzAttrack.dateString(day);
+        var day = datetime.newUTCDate();
+        var today = datetime.dateString(day);
         // save appeared tokens with field name
         // mark field name as "safe" if different values appears
         var s = getGeneralDomain(url_parts.hostname);
