@@ -5,11 +5,20 @@ export default class {
     this.onInstall = settings.onInstall;
     this.window = settings.window;
     this._tutorialTimeout = null;
+    this.cliqzOnboarding = settings.settings.cliqzOnboarding;
   }
 
   get version() { return  "1.1"; }
 
   init() {
+    if(this.cliqzOnboarding || !this.onInstall){
+      return;
+    } else {
+      fullTour();
+    }
+  }
+
+  fullTour() {
     var tutorialUrl, tutorialVersion;
     var showNewOnboarding = isVersionHigherThan("36.0");
 
@@ -23,8 +32,6 @@ export default class {
 
     CliqzUtils.setPref('onboarding_versionShown', tutorialVersion);
     CliqzUtils.setPref('onboarding_finishedWatching', false);
-
-    if (!this.onInstall) { return; }
 
     this._tutorialTimeout = CliqzUtils.setTimeout(function() {
       CliqzUtils.openTabInWindow(this.window, tutorialUrl, true);

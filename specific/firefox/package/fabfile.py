@@ -80,6 +80,9 @@ def package(beta='True', version=None):
             local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
+    #creates a copy to the current build in case we need to upload it to S3
+    local("cp %s latest.xpi" % output_file_name)
+
     return output_file_name
 
 
@@ -153,6 +156,10 @@ def publish(beta='True', version=None):
         f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
                                             path_to_s3))
+
+    #replace latest.xpi when everything is done
+    local("s3cmd --acl-public put latest.xpi %s" % path_to_s3)
+
     local("rm  %s" % latest_html_file_name)
 
 

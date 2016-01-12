@@ -3,10 +3,13 @@
     "freshTabButton": false,
     "freshTabABtest" : false,
     "antitrackingButton": false,
-    "showDataCollectionMessage": false
+    "showDataCollectionMessage": false,
+    "cliqzOnboarding": true
   },
   "modules": [
     "static",
+    "core",
+    "context-menu",
     "onboarding",
     "freshtab",
     "unblock",

@@ -21,4 +21,3 @@ bower_components
 *.scssc
 generic/static/styles/css/
 npm.err
-dist/

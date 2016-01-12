@@ -20,6 +20,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+function prefixPref(pref, prefix) {
+    if ( !(typeof prefix === 'string') ) {
+      prefix = 'extensions.cliqz.';
+    }
+    return prefix + pref;
+}
+
 var GEOLOC_WATCH_ID;
 
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
@@ -75,8 +82,7 @@ var CLIQZEnvironment = {
         );
     },
     getPref: function(pref, defaultValue, prefix) {
-        prefix = prefix || 'extensions.cliqz.';
-        pref = prefix + pref;
+        pref = prefixPref(pref, prefix);
 
         var prefs = CLIQZEnvironment.prefs;
 
@@ -92,8 +98,7 @@ var CLIQZEnvironment = {
         }
     },
     setPref: function(pref, value, prefix){
-        prefix = prefix || 'extensions.cliqz.';
-        pref = prefix + pref;
+        pref = prefixPref(pref, prefix);
 
         var prefs = CLIQZEnvironment.prefs;
 
@@ -104,14 +109,12 @@ var CLIQZEnvironment = {
         }
     },
     hasPref: function (pref, prefix) {
-        prefix = prefix || 'extensions.cliqz.';
-        pref = prefix + pref;
+        pref = prefixPref(pref, prefix);
 
         return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
     },
     clearPref: function (pref, prefix) {
-        prefix = prefix || 'extensions.cliqz.';
-        pref = prefix + pref;
+        pref = prefixPref(pref, prefix);
 
         CLIQZEnvironment.prefs.clearUserPref(pref);
     },
@@ -137,19 +140,19 @@ var CLIQZEnvironment = {
             if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
                 callback && callback(req);
             } else {
-                CLIQZEnvironment.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.onerror = function(){
             if(CLIQZEnvironment){
-                CLIQZEnvironment.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.ontimeout = function(){
             if(CLIQZEnvironment){ //might happen after disabling the extension
-                CLIQZEnvironment.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
@@ -401,7 +404,7 @@ var CLIQZEnvironment = {
         geoService.getCurrentPosition(function(p) {
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
-        }, function(e) { CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
         //Upate position if it changes
         GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
@@ -410,7 +413,7 @@ var CLIQZEnvironment = {
             CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
             CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
           }
-        }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CLIQZEnvironment.USER_LAT = null;
         CLIQZEnvironment.USER_LNG = null;
@@ -489,7 +492,7 @@ var CLIQZEnvironment = {
             }
         }
     })(),
-  getNoResults: function() {
+    getNoResults: function() {
       var se = [// default
               {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
               {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
@@ -526,6 +529,7 @@ var CLIQZEnvironment = {
                       template:'noResult',
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
                       // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
+                      // we should take care of this specific case differently on alternative platforms
                       text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
                       "search_engines": chosen,
                       //use local image in case of no internet connection
@@ -534,7 +538,7 @@ var CLIQZEnvironment = {
                   subType: JSON.stringify({empty:true})
               }
           )
-    }
+    },
 
     // END from CliqzAutocomplete
 }

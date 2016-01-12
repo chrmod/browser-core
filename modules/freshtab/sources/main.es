@@ -10,14 +10,13 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
-    BAK_HOMEPAGE = "extensions.cliqz.backup.homepage",
-    BAK_NEWTAB = "extensions.cliqz.backup.newtab",
-    BAK_STARTUP = "extensions.cliqz.backup.startup",
-    FRESH_TAB_AB = "extensions.cliqz.freshTabAB", // true = AB test active
-    FRESH_TAB_STATE = "extensions.cliqz.freshTabState", // true = active
-    FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
-    OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
-    pref = Services.prefs,
+    BAK_HOMEPAGE = "backup.homepage",
+    BAK_NEWTAB = "backup.newtab",
+    BAK_STARTUP = "backup.startup",
+    FRESH_TAB_AB = "freshTabAB", // true = AB test active
+    FRESH_TAB_STATE = "freshTabState", // true = active
+    FRESH_TAB_BACKUP_DONE = "freshTabBackupDone", // true = active
+    OLD_FRESH_TAB = "freshtabdone",
     HAS_BUTTON = true,
     FF41_OR_ABOVE = false;
 
@@ -41,14 +40,20 @@ var AboutURLFactory;
 var FreshTab = {
     signalType: "home",
     initialized: false,
+    cliqzOnboarding: 0,
 
-    startup: function(abTest, hasButton){
+    startup: function(abTest, hasButton, cliqzOnboarding){
         var disable = false;
+
+        //show cliqz onboarding on 1st installation of browser
+        if(cliqzOnboarding && !CliqzUtils.hasPref('session')) {
+          FreshTab.cliqzOnboarding = 1;
+        }
 
         HAS_BUTTON = hasButton;
 
         // exit if not in the AB test
-        if(abTest && (!pref.prefHasUserValue(FRESH_TAB_AB) || pref.getBoolPref(FRESH_TAB_AB) == false)) disable = true;
+        if(abTest && (!CliqzUtils.hasPref(FRESH_TAB_AB) || CliqzUtils.getPref(FRESH_TAB_AB) == false)) disable = true;
 
         // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
@@ -58,21 +63,21 @@ var FreshTab = {
 
         if(disable){
           //in case 'about:cliqz' remained set as default homepage - reset it
-          if(pref.getCharPref(DEF_HOMEPAGE) == CLIQZ_NEW_TAB){
+          if(CliqzUtils.getPref(DEF_HOMEPAGE, null, '') == CLIQZ_NEW_TAB){
             //in case we did a backup - use it
-            if(pref.prefHasUserValue(BAK_HOMEPAGE)){
-              pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
+            if(CliqzUtils.hasPref(BAK_HOMEPAGE)){
+              CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE), '');
             } else {
               //otherwise simply reset
-              pref.clearUserPref(DEF_HOMEPAGE);
+              CliqzUtils.clearPref(DEF_HOMEPAGE, '');
             }
           }
           return;
         }
 
         // first start
-        if(HAS_BUTTON && !pref.prefHasUserValue(FRESH_TAB_STATE)){
-          pref.setBoolPref(FRESH_TAB_STATE,  false); //opt-in
+        if(HAS_BUTTON && !CliqzUtils.hasPref(FRESH_TAB_STATE)){
+          CliqzUtils.setPref(FRESH_TAB_STATE,  false); //opt-in
         }
         AboutURL.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
@@ -84,7 +89,7 @@ var FreshTab = {
                 var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
                 var html =  ["data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">",
                             "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>",
-                            "</head><body><iframe src=\"" + CLIQZ_NEW_TAB_URL + "\"></iframe></body></html>"].join('')
+                            "</head><body><iframe src=\"" + CLIQZ_NEW_TAB_URL + "?cliqzOnboarding=" + FreshTab.cliqzOnboarding + "\"></iframe></body></html>"].join('')
 
                 var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);
                 var channel = ioService.newChannel(html, null, null);
@@ -107,18 +112,18 @@ var FreshTab = {
         );
 
         // reset preferences in case of inconsistency
-        if(pref.prefHasUserValue(OLD_FRESH_TAB) || //  old FreshTab settings
-           (pref.prefHasUserValue(BAK_HOMEPAGE) && pref.getCharPref(BAK_HOMEPAGE) == CLIQZ_NEW_TAB)  // inconsistency
+        if(CliqzUtils.hasPref(OLD_FRESH_TAB) || //  old FreshTab settings
+           (CliqzUtils.hasPref(BAK_HOMEPAGE) && CliqzUtils.getPref(BAK_HOMEPAGE) == CLIQZ_NEW_TAB)  // inconsistency
           ){
 
-          pref.clearUserPref(OLD_FRESH_TAB);
-          pref.clearUserPref(DEF_HOMEPAGE);
-          pref.clearUserPref(DEF_NEWTAB);
-          pref.clearUserPref(DEF_STARTUP);
-          pref.clearUserPref(BAK_HOMEPAGE);
-          pref.clearUserPref(BAK_NEWTAB);
-          pref.clearUserPref(BAK_STARTUP);
-          pref.clearUserPref(FRESH_TAB_BACKUP_DONE);
+          CliqzUtils.clearPref(OLD_FRESH_TAB);
+          CliqzUtils.clearPref(DEF_HOMEPAGE, '');
+          CliqzUtils.clearPref(DEF_NEWTAB, '');
+          CliqzUtils.clearPref(DEF_STARTUP, '');
+          CliqzUtils.clearPref(BAK_HOMEPAGE);
+          CliqzUtils.clearPref(BAK_NEWTAB);
+          CliqzUtils.clearPref(BAK_STARTUP);
+          CliqzUtils.clearPref(FRESH_TAB_BACKUP_DONE);
         }
 
         FreshTab.updateState();
@@ -134,7 +139,7 @@ var FreshTab = {
         deactivate();
     },
     toggleState: function(){
-      pref.setBoolPref(FRESH_TAB_STATE, !pref.getBoolPref(FRESH_TAB_STATE));
+      CliqzUtils.setPref(FRESH_TAB_STATE, !CliqzUtils.getPref(FRESH_TAB_STATE));
       FreshTab.updateState();
     },
     updateState: function(){
@@ -143,47 +148,47 @@ var FreshTab = {
       } else {
         deactivate();
       }
-  }
+    }
 }
 
 function isActive(){
   //always active if the user doesn't have the activator button
-  return !HAS_BUTTON || pref.getBoolPref(FRESH_TAB_STATE);
+  return !HAS_BUTTON || CliqzUtils.getPref(FRESH_TAB_STATE);
 }
 
 function activate(){
   // save the backup state only once
   var backupDone = true;
-  if(!pref.prefHasUserValue(FRESH_TAB_BACKUP_DONE)){
-    pref.setBoolPref(FRESH_TAB_BACKUP_DONE, true);
+  if(!CliqzUtils.hasPref(FRESH_TAB_BACKUP_DONE)){
+    CliqzUtils.setPref(FRESH_TAB_BACKUP_DONE, true);
     backupDone = false
   }
 
   if(FF41_OR_ABOVE){
       // newtab.url needs to be changed in the browser itself in FF 41
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
-      !backupDone && pref.setIntPref(BAK_STARTUP, pref.getIntPref(DEF_STARTUP));
-      pref.setIntPref(DEF_STARTUP, "1"); // set the startup page to be the homepage
+      !backupDone && CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
+      CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
       NewTabURL.override(CLIQZ_NEW_TAB);
   } else { //FF 40 or older
-      !backupDone && pref.setCharPref(BAK_NEWTAB, pref.getCharPref(DEF_NEWTAB));
-      pref.setCharPref(DEF_NEWTAB, CLIQZ_NEW_TAB);
+      !backupDone && CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
+      CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB, '');
   }
 
-  !backupDone && pref.setCharPref(BAK_HOMEPAGE, pref.getCharPref(DEF_HOMEPAGE));
-  pref.setCharPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB);
+  !backupDone && CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE, null, ''));
+  CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB, '');
 }
 
 function deactivate(){
-  if(!pref.prefHasUserValue(FRESH_TAB_BACKUP_DONE)) return;
+  if(!CliqzUtils.hasPref(FRESH_TAB_BACKUP_DONE)) return;
 
-  pref.setCharPref(DEF_HOMEPAGE, pref.getCharPref(BAK_HOMEPAGE));
+  CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE), '');
   if(FF41_OR_ABOVE){ // FF41+
       NewTabURL.reset();
-      pref.setIntPref(DEF_STARTUP, pref.getIntPref(BAK_STARTUP)); // set the startup page to be the homepage
+      CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), ''); // set the startup page to be the homepage
   }
   else {//FF40 and older
-      pref.setCharPref(DEF_NEWTAB, pref.getCharPref(BAK_NEWTAB));
+      CLiqzUtils.setPref(DEF_NEWTAB, CliqzUtils.getPref(BAK_NEWTAB), '');
   }
 }
 
