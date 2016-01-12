@@ -1,7 +1,6 @@
 /*
  * This module bypasses Youtube region blocks
  */
-import YoutubeUnblocker from 'unblock/youtube';
 import ProxyService from 'unblock/proxy';
 import RequestListener from 'unblock/request-listener'
 import ProxyManager from 'unblock/proxy-manager'
@@ -14,7 +13,7 @@ const MODES = [MODE_ASK, MODE_ALWAYS, MODE_NEVER];
 export default {
   proxy_manager: null,
   proxy_service: null,
-  unblockers: [YoutubeUnblocker],
+  unblockers: [],
   load_listeners: new Set(),
   PREF_MODE: "unblockMode",
   prev_mode: undefined,

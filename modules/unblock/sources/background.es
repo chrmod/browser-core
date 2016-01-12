@@ -1,8 +1,10 @@
 import CliqzUnblock from 'unblock/main';
+import YoutubeUnblocker from 'unblock/youtube';
 
 export default {
 
   init(settings) {
+    this.loadPlugins();
     CliqzUnblock.init(settings.unblockUI);
     this.onPrefChange = this.onPrefChange.bind(this);
     CliqzEvents.sub("prefchange", this.onPrefChange);
@@ -11,6 +13,12 @@ export default {
   unload() {
     CliqzEvents.un_sub("prefchange:"+ CliqzUnblock.PREF_MODE, this.onPrefChange);
     CliqzUnblock.unload();
+  },
+
+  loadPlugins() {
+    if (CliqzUtils.getPref('unblock.plugin.youtube', true)) {
+      CliqzUnblock.unblockers.push(YoutubeUnblocker);
+    }
   },
 
   onPrefChange(pref) {
