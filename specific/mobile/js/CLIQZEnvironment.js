@@ -328,17 +328,19 @@ CLIQZEnvironment = {
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
 
-        CliqzUtils.telemetry({
-          type: "activity",
-          action: "swipe",
-          swipe_direction:
-            page === CLIQZEnvironment.currentPage ? 'none' :
-                     (page > CLIQZEnvironment.currentPage ? 'right' : 'left'),
-          current_position: page,
-          views: CLIQZEnvironment.initViewpager.views[page],
-          prev_position: CLIQZEnvironment.currentPage,
-          prev_display_time: Date.now() - CLIQZEnvironment.initViewpager.pageShowTs
-        });
+        if(page != CLIQZEnvironment.currentPage) {
+          CliqzUtils.telemetry({
+            type: "activity",
+            action: "swipe",
+            swipe_direction:
+              page === CLIQZEnvironment.currentPage ? 'none' :
+                       (page > CLIQZEnvironment.currentPage ? 'right' : 'left'),
+            current_position: page,
+            views: CLIQZEnvironment.initViewpager.views[page],
+            prev_position: CLIQZEnvironment.currentPage,
+            prev_display_time: Date.now() - CLIQZEnvironment.initViewpager.pageShowTs
+          });
+        }
 
         CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
