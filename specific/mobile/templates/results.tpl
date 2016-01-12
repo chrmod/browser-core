@@ -19,7 +19,7 @@
 				</div>
 				<br />
 				<br />
-				<div class="share" style="display:none">
+				<div class="share">
 					Teilen
 				</div>
 		</div>
