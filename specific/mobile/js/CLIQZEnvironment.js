@@ -1,8 +1,10 @@
 CLIQZEnvironment = {
   TEMPLATES_PATH: 'templates/',
-  LOCALE_PATH: 'locale/',
+  LOCALE_PATH: 'modules/static/locale/',
   RESULTS_LIMIT: 3,
   RICH_HEADER_CACHE_TIMEOUT: 15000,
+  PEEK: 20,
+  PADDING: 16,
 
   storeQueryTimeout: null,
 
@@ -82,8 +84,6 @@ CLIQZEnvironment = {
   },
 
   setDimensions: function() {
-    CLIQZEnvironment.PEEK = 20,
-    CLIQZEnvironment.PADDING = 16,
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
 
@@ -128,11 +128,11 @@ CLIQZEnvironment = {
           }),
       isInstant: false,
       googleThis: {
+        msg: CliqzUtils.getLocalizedString('mobile_more_results', engine.name),
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
-        searchEngineName: engine.name,
         searchEngineUrl: engine.url
       }
     });
@@ -729,7 +729,7 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
-  }, 
+  },
   initHomepage: function() {
     CLIQZEnvironment.getNews();
     osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
@@ -742,14 +742,15 @@ CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    
+
     return Result.cliqzExtra(
       {
         data:
           {
             template:'noResult',
+            title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
+            action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
-            searchEngineName: engine.name,
             searchEngineUrl: engine.url
           },
         subType: JSON.stringify({empty:true})
@@ -816,7 +817,7 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 // SHARING IS CARING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 CLIQZEnvironment.shareContent = function() {
-    
+
     var template = '<!DOCTYPE html>' +
                    '     <html style="background-color: #eee;">' +
                    '       <head>' +
@@ -834,7 +835,7 @@ CLIQZEnvironment.shareContent = function() {
                    '       </body>' +
                    '    </html>';
 
-    
+
     // clean up html / replace links
     var replaceUrlByOnclick = function (fullMatch,match) {
       return 'onClick="location.href=\'' + match + '\'"';
@@ -848,7 +849,7 @@ CLIQZEnvironment.shareContent = function() {
       console.log("You cannot share this");
       return;
     }
-    
+
     // css rules inline
     var cssRules, innerStyles = "";
     for(var j=0; j<document.styleSheets.length;j++) {
@@ -860,7 +861,7 @@ CLIQZEnvironment.shareContent = function() {
 
     // replace template
     readyHtml = template.replace('###CONTENT###',readyHtml);
-    readyHtml = readyHtml.replace('###STYLE###',innerStyles); 
+    readyHtml = readyHtml.replace('###STYLE###',innerStyles);
     readyHtml = readyHtml.replace('###TITLE###',"CLIQZ Card:" + title);
     readyHtml = readyHtml.replace(location.href,"http://cdn.cliqz.com/mobile/beta/");
 
@@ -868,8 +869,8 @@ CLIQZEnvironment.shareContent = function() {
 
     // debugging iframe
     document.getElementById("testingshare").style.display = "block";
-    document.getElementById("testingshare").srcdoc = readyHtml; 
-    
+    document.getElementById("testingshare").srcdoc = readyHtml;
+
 
     // sending data
     var http = new XMLHttpRequest();

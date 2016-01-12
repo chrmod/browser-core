@@ -1,9 +1,9 @@
 {
     "calculator": {
-        "message": "Calculator" 
+        "message": "Calculator"
     },
     "time": {
-        "message": "Time" 
+        "message": "Time"
     },
     "open": {
         "message": "Open"
@@ -955,5 +955,17 @@
     },
     "freshtab_top_news": {
       "message": "Top News"
+    },
+    "mobile_no_result_title": {
+      "message": "We don't have great results this time."
+    },
+    "mobile_no_result_action": {
+      "message": "Tap here and we check {} for you..."
+    },
+    "mobile_more_results_title": {
+      "message": "No result you liked?"
+    },
+    "mobile_more_results_action": {
+      "message": "Tap here and we check {} for you..."
     }
 }
