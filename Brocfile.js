@@ -149,7 +149,7 @@ var globalConcated = concat(global, {
     return "// start module " + modulename + "\n"
            + "(function(ctx,Q,E){\n"
            + src
-           + "ctx[EXPORTED_SYMBOLS[0]] = " + modulename + ";\n"
+           + "; ctx[EXPORTED_SYMBOLS[0]] = " + modulename + ";\n"
            + "})(this, CLIQZ,CLIQZEnvironment);\n"
            + "// end module " + modulename + "\n\n"
   }

@@ -153,8 +153,10 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('local', function() {
-        return CliqzUtils.getLocalizedString.apply(null, arguments);
+    Handlebars.registerHelper('local', function(key) {
+        var args = Array.prototype.slice.call(arguments);
+        var name = args.shift();
+        return CliqzUtils.getLocalizedString.apply(null, [name, args]);
     });
 
     Handlebars.registerHelper('views_helper', function(val) {

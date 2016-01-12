@@ -10,7 +10,6 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
@@ -69,53 +68,43 @@ var Extension = {
         this.telemetry = CliqzUtils.telemetry;
     },
     load: function(upgrade, oldVersion, newVersion){
-        AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
-            CliqzUtils.extensionVersion = addon.version
+      CliqzUtils.extensionVersion = newVersion;
 
-            if (upgrade) CliqzUtils.setSupportInfo()
-            else {
-                Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
-                    CliqzUtils.setSupportInfo()
-                },1000)
-            }
-        });
+      Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
+        CliqzUtils.setSupportInfo()
+      },1000);
 
-        // Ensure prefs are set to our custom values
-        Extension.setOurOwnPrefs();
+      // Ensure prefs are set to our custom values
+      Extension.setOurOwnPrefs();
 
-        // Load Config - Synchronous!
-        CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-          this.config = JSON.parse(res.response);
-        }.bind(this), function () {}, undefined, undefined, true);
+      // Load Config - Synchronous!
+      CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
+        this.config = JSON.parse(res.response);
+      }.bind(this), function () {}, undefined, undefined, true);
 
-        // Load and initialize modules
-        this.config.modules.forEach(function (moduleName) {
-          return System.import(moduleName+"/background").then(function (module) {
-            module.default.init(this.config.settings);
-          }.bind(this)).catch(function (e) { /* die silently */ });
-        }.bind(this));
+      // Load and initialize modules
+      var modulePromises = this.config.modules.map(function (moduleName) {
+        return System.import(moduleName+"/background").then(function (module) {
+          module.default.init(this.config.settings);
+        }.bind(this)).catch(function (e) { /* die silently */ });
+      }.bind(this));
 
+      return Promise.all(modulePromises).then(function () {
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
-            Extension.loadIntoWindow(win);
+          var win = enumerator.getNext();
+          Extension.loadIntoWindow(win);
         }
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
         if(CliqzUtils.getPref("humanWeb", false)){
-            CliqzHumanWeb.initAtBrowser();
-        }
-
-        // open changelog on update
-
-        if(upgrade && newMajorVersion(oldVersion, newVersion)){
-          //CliqzUtils.setPref('changeLogState', 1);
+          CliqzHumanWeb.initAtBrowser();
         }
 
         Extension.cliqzPrefsObserver.register();
-
+      });
     },
     unload: function(version, uninstall){
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
@@ -264,34 +253,41 @@ var Extension = {
       win.CLIQZ.config = this.config;
     },
     loadIntoWindow: function(win) {
-        if (!win) return;
+      if (!win) return;
 
-        if(CliqzUtils.shouldLoad(win)){
-            Extension.setupCliqzGlobal(win);
-            Extension.addScript('core', win);
-            Extension.addScript('UI', win);
-            Extension.addScript('ContextMenu', win);
+      function load() {
+        Extension.setupCliqzGlobal(win);
+        Extension.addScript('core', win);
+        Extension.addScript('UI', win);
+        Extension.addScript('ContextMenu', win);
 
-            Extension.addButtons(win);
+        Extension.addButtons(win);
 
-            // CliqzExceptions.attach(win); //enabled in debug builds
-
-            try {
-                if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
-                  win.CLIQZ.Core.init();
-                  CliqzUtils.log('Initialized', 'CORE');
-                }
-                // Always set urlbar and start whoAmI
-                // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
-                win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
-                win.CLIQZ.Core.whoAmI(true); //startup
-                CliqzABTests.check();
-
-            } catch(e) {Cu.reportError(e); }
+        try {
+          if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+            win.CLIQZ.Core.init();
+            CliqzUtils.log('Initialized', 'CORE');
+          }
+          // Always set urlbar and start whoAmI
+          // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
+          win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
+          win.CLIQZ.Core.whoAmI(true); //startup
+          CliqzABTests.check();
+        } catch(e) {
+          Cu.reportError(e);
         }
-        else {
-            CliqzUtils.log('private window -> halt', 'CORE');
-        }
+      }
+
+      if (!win.document || win.document.readyState !== "complete") {
+        win.addEventListener('load', function loader() {
+          win.removeEventListener('load', loader, false);
+          if (win.location.href == 'chrome://browser/content/browser.xul') {
+            load();
+          }
+        }, false);
+      } else {
+        load();
+      }
     },
     addButtons: function(win){
         var doc = win.document;
@@ -372,12 +368,8 @@ var Extension = {
         }catch(e){ Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
-        if (topic == 'domwindowopened') {
-            win.addEventListener('load', function loader() {
-                win.removeEventListener('load', loader, false);
-                if (win.location.href == 'chrome://browser/content/browser.xul')
-                    Extension.loadIntoWindow(win, true);
-            }, false);
+        if (topic === 'domwindowopened') {
+          Extension.loadIntoWindow(win, true);
         }
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */
