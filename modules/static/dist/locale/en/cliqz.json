@@ -960,12 +960,12 @@
       "message": "We don't have great results this time."
     },
     "mobile_no_result_action": {
-      "message": "Tap here and we check {} for you..."
+      "message": "Tap here for results from {}..."
     },
     "mobile_more_results_title": {
       "message": "No result you liked?"
     },
     "mobile_more_results_action": {
-      "message": "Tap here and we check {} for you..."
+      "message": "Tap here for results from {}..."
     }
 }
