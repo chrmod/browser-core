@@ -729,6 +729,11 @@ CLIQZEnvironment = {
   },
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject("defaultSearchEngine", engine);
+    var engineDiv = document.getElementById("defaultEngine");
+    if(engineDiv && CliqzAutocomplete.lastSearch) {
+      engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
+      document.getElementById("engineName").innerHTML = engine.name;
+    }
   },
   getDefaultSearchEngine: function() {
     return localStorage.getObject("defaultSearchEngine") || {name:"Google", url: "http://www.google.com/search?q="};
