@@ -240,10 +240,6 @@ var Extension = {
         //0.5.02 - 0.5.04
         CliqzUtils.clearPref('analysis');
         CliqzUtils.clearPref('news-toggle-trending');
-
-        if(!CliqzUtils.hasPref('session')) {
-          CliqzUtils.setPref('session', '');
-        }
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
