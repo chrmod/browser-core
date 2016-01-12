@@ -10,13 +10,13 @@ var CLIQZ_NEW_TAB = "about:cliqz",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
-    BAK_HOMEPAGE = "extensions.cliqz.backup.homepage",
-    BAK_NEWTAB = "extensions.cliqz.backup.newtab",
-    BAK_STARTUP = "extensions.cliqz.backup.startup",
-    FRESH_TAB_AB = "extensions.cliqz.freshTabAB", // true = AB test active
-    FRESH_TAB_STATE = "extensions.cliqz.freshTabState", // true = active
-    FRESH_TAB_BACKUP_DONE = "extensions.cliqz.freshTabBackupDone", // true = active
-    OLD_FRESH_TAB = "extensions.cliqz.freshtabdone",
+    BAK_HOMEPAGE = "backup.homepage",
+    BAK_NEWTAB = "backup.newtab",
+    BAK_STARTUP = "backup.startup",
+    FRESH_TAB_AB = "freshTabAB", // true = AB test active
+    FRESH_TAB_STATE = "freshTabState", // true = active
+    FRESH_TAB_BACKUP_DONE = "freshTabBackupDone", // true = active
+    OLD_FRESH_TAB = "freshtabdone",
     HAS_BUTTON = true,
     FF41_OR_ABOVE = false;
 
@@ -63,13 +63,13 @@ var FreshTab = {
 
         if(disable){
           //in case 'about:cliqz' remained set as default homepage - reset it
-          if(CliqzUtils.getPref(DEF_HOMEPAGE) == CLIQZ_NEW_TAB){
+          if(CliqzUtils.getPref(DEF_HOMEPAGE, null, '') == CLIQZ_NEW_TAB){
             //in case we did a backup - use it
             if(CliqzUtils.hasPref(BAK_HOMEPAGE)){
-              CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE));
+              CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE), '');
             } else {
               //otherwise simply reset
-              CliqzUtils.clearPref(DEF_HOMEPAGE);
+              CliqzUtils.clearPref(DEF_HOMEPAGE, '');
             }
           }
           return;
@@ -117,9 +117,9 @@ var FreshTab = {
           ){
 
           CliqzUtils.clearPref(OLD_FRESH_TAB);
-          CliqzUtils.clearPref(DEF_HOMEPAGE);
-          CliqzUtils.clearPref(DEF_NEWTAB);
-          CliqzUtils.clearPref(DEF_STARTUP);
+          CliqzUtils.clearPref(DEF_HOMEPAGE, '');
+          CliqzUtils.clearPref(DEF_NEWTAB, '');
+          CliqzUtils.clearPref(DEF_STARTUP, '');
           CliqzUtils.clearPref(BAK_HOMEPAGE);
           CliqzUtils.clearPref(BAK_NEWTAB);
           CliqzUtils.clearPref(BAK_STARTUP);
@@ -167,28 +167,28 @@ function activate(){
   if(FF41_OR_ABOVE){
       // newtab.url needs to be changed in the browser itself in FF 41
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
-      !backupDone && CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP));
-      CliqzUtils.setPref(DEF_STARTUP, "1"); // set the startup page to be the homepage
+      !backupDone && CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
+      CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
       NewTabURL.override(CLIQZ_NEW_TAB);
   } else { //FF 40 or older
-      !backupDone && CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB));
-      CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB);
+      !backupDone && CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
+      CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB, '');
   }
 
-  !backupDone && CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE));
-  CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB);
+  !backupDone && CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE, null, ''));
+  CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB, '');
 }
 
 function deactivate(){
   if(!CliqzUtils.hasPref(FRESH_TAB_BACKUP_DONE)) return;
 
-  CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE));
+  CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE), '');
   if(FF41_OR_ABOVE){ // FF41+
       NewTabURL.reset();
-      CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP)); // set the startup page to be the homepage
+      CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), ''); // set the startup page to be the homepage
   }
   else {//FF40 and older
-      CLiqzUtils.setPref(DEF_NEWTAB, CliqzUtils.getPref(BAK_NEWTAB));
+      CLiqzUtils.setPref(DEF_NEWTAB, CliqzUtils.getPref(BAK_NEWTAB), '');
   }
 }
 
