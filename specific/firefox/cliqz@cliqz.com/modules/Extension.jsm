@@ -87,15 +87,14 @@ var Extension = {
       Extension.modulesLoadedPromise = Promise.all(
         Extension.config.modules.map(function (moduleName) {
           return new Promise(function (resolve, reject) {
-            var timeout = CliqzUtils.setTimeout(function () {
-              CliqzUtils.log("Timeout on loading module: "+moduleName, "Extension");
-              resolve();
-            }, 100);
-
             Extension.System.import(moduleName+"/background")
-                     .then(function (module) { module.default.init(Extension.config.settings); })
+                     .then(function (module) {
+                        CliqzUtils.setTimeout(function(){
+                          module.default.init(Extension.config.settings);
+                        }, 0);
+                      })
                      .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); })
-                     .then(function () { CliqzUtils.clearTimeout(timeout); resolve(); });
+                     .then(function () { resolve(); });
           });
         })
       ).then(function () {
