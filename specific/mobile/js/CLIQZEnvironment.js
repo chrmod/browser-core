@@ -128,7 +128,8 @@ CLIQZEnvironment = {
           }),
       isInstant: false,
       googleThis: {
-        msg: CliqzUtils.getLocalizedString('mobile_more_results', engine.name),
+        title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
+        action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
