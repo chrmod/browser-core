@@ -1198,28 +1198,30 @@ var CliqzAttrack = {
 
         // send tracking occurances whenever day changes
         pacemaker.register(function sendTrackingDetections() {
-            CliqzAttrack.local_tracking.getTrackingOccurances(function(results) {
-                if (results.length > 0) {
-                    CliqzAttrack.local_tracking.getTableSize(function(table_size) {
-                        var payl = {
-                            'ver': CliqzAttrack.VERSION,
-                            'ts': CliqzAttrack.getTime().substring(0, 8),
-                            'data': {
-                                'lt': results.map(function(tup) {
-                                    return {'tp': tup[0], 'k': tup[1], 'v': tup[2], 'n': tup[3]};
-                                }),
-                                'c': table_size
-                            }
-                        };
-                        CliqzHumanWeb.telemetry({
-                            'type': CliqzHumanWeb.msgType,
-                            'action': 'attrack.tracked',
-                            'payload': payl
+            if (CliqzAttrack.local_tracking.isEnabled()) {
+                CliqzAttrack.local_tracking.getTrackingOccurances(function(results) {
+                    if (results.length > 0) {
+                        CliqzAttrack.local_tracking.getTableSize(function(table_size) {
+                            var payl = {
+                                'ver': CliqzAttrack.VERSION,
+                                'ts': CliqzAttrack.getTime().substring(0, 8),
+                                'data': {
+                                    'lt': results.map(function(tup) {
+                                        return {'tp': tup[0], 'k': tup[1], 'v': tup[2], 'n': tup[3]};
+                                    }),
+                                    'c': table_size
+                                }
+                            };
+                            CliqzHumanWeb.telemetry({
+                                'type': CliqzHumanWeb.msgType,
+                                'action': 'attrack.tracked',
+                                'payload': payl
+                            });
                         });
-                    });
-                }
-                CliqzAttrack.local_tracking.cleanTable();
-            });
+                    }
+                    CliqzAttrack.local_tracking.cleanTable();
+                });
+            }
         }, hourly, timeChangeConstraint("local_tracking", "day"));
 
     },
@@ -1398,7 +1400,9 @@ var CliqzAttrack = {
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
-            CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
+            if (CliqzAttrack.local_tracking.isEnabled()) {
+                CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
+            }
             // reset the state
             // delete without assignment to preserve persistance layer
             persist.clear_persistent(CliqzAttrack.tokens);

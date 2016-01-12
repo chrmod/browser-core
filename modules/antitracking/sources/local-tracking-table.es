@@ -97,4 +97,8 @@ export default class {
     this.dbConn.executeSimpleSQL(query);
   }
 
+  isEnabled() {
+    return CliqzUtils.getPref('attrack.local_tracking', false);
+  }
+
 };
