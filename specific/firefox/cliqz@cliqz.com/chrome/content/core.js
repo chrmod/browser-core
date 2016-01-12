@@ -794,7 +794,7 @@ window.CLIQZ.Core = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                this.createQbutton(win, btn.children.cliqz_menupopup);
+                CLIQZ.Core.createQbutton(win, btn.children.cliqz_menupopup);
             } catch(e){}
         }
     },
@@ -862,7 +862,7 @@ window.CLIQZ.Core = {
             // TODO: Where is this listener removed?
             item.addEventListener('command', (function(event) {
                 CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CliqzUtils.setTimeout(this.refreshButtons, 0);
+                CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
             }).bind(this), false);
 
             menupopup.appendChild(item);
@@ -892,7 +892,7 @@ window.CLIQZ.Core = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            CliqzUtils.setTimeout(this.refreshButtons, 0);
+            CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
@@ -1047,7 +1047,7 @@ window.CLIQZ.Core = {
             win.this.init();
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
-        this.refreshButtons();
+        CLIQZ.Core.refreshButtons();
 
         CliqzUtils.telemetry({
           type: 'setting',

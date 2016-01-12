@@ -43,7 +43,6 @@ var FreshTab = {
     cliqzOnboarding: 0,
 
     startup: function(abTest, hasButton, cliqzOnboarding){
-      debugger;
         var disable = false;
 
         //show cliqz onboarding on 1st installation of browser
