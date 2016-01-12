@@ -79,6 +79,7 @@ export default {
     }
   },
   unload: function() {
+    // module might not have been enabled, in which case things might be null
     if (this.proxy_service != null) {
       this.proxy_service.destroy();
       this.proxy_service = null;

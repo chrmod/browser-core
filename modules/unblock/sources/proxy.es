@@ -38,7 +38,7 @@ export default class {
                 port = 3128,
                 failover_timeout = 2000,
                 failover_proxy = null }) {
-    return this.pps.newProxyInfo(type, host, port, null, failover_timeout || 2000, failover_proxy || null);
+    return this.pps.newProxyInfo(type, host, port, null, failover_timeout, failover_proxy);
   }
 
   addProxyRule(rule) {

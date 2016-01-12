@@ -14,8 +14,7 @@ export default class {
     createLazyResourceLoader({
       url: this.PROXY_UPDATE_URL,
       pref: "unblock_proxies",
-      this: this,
-      updateFn: this.updateProxyList
+      updateFn: this.updateProxyList.bind(this)
     });
   }
 

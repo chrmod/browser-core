@@ -21,7 +21,7 @@ function _fetch(load_conf) {
   CliqzUtils.loadResource(load_conf.url, function(req) {
     let value = req.response;
     let now = (new Date()).getTime();
-    load_conf.updateFn.call(load_conf.this, value);
+    load_conf.updateFn.call(null, value);
     CliqzUtils.setPref(load_conf.pref, value);
     CliqzUtils.setPref(load_conf.pref +"_lastUpdate", ""+ now);
     load_conf.lastPull = now;
@@ -51,7 +51,6 @@ export default function(args) {
     updateFn: args.updateFn,
     updateFreq: args.updateFreq || 86400000,
     defaultValue: args.defaultValue || "{}",
-    this: args.this || undefined,
     lastPull: parseInt(CliqzUtils.getPref(args.pref +"_lastUpdate", "0")),
     retries: 0
   }
@@ -73,7 +72,7 @@ export default function(args) {
     _interval = CliqzUtils.setInterval(_fetcher, 300000);
   }
 
-  load_conf.updateFn.call(load_conf.this, value);
+  load_conf.updateFn.call(null, value);
   // expedited fetch for blank data
   if (first_pull) {
     CliqzUtils.setTimeout(function () {

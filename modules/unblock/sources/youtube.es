@@ -30,9 +30,8 @@ export default {
     this._loader = createLazyResourceLoader({
       url: this.CONFIG_URL,
       pref: "unblock_yt_config",
-      this: self,
       updateFn: function(val) {
-        this.conf = JSON.parse(val);
+        self.conf = JSON.parse(val);
       }
     });
   },
