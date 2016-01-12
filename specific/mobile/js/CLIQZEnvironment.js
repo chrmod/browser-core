@@ -821,12 +821,15 @@ CLIQZEnvironment.shareContent = function() {
                    '     <html style="background-color: #eee;">' +
                    '       <head>' +
                    '           <title>###TITLE###</title>' +
+                   '           <meta charset="utf-8">' +
+                   '           <meta name="viewport" content="initial-scale=1.0001, user-scalable=no">' +
                    '          <style type="text/css">###STYLE###</style>' +
+                   '          <style type="text/css">#results {width:100%;max-width:600px;}</style>' +
                    '       </head>' +
                    '       <body>' +
                    '          <div id="results">' +
                    '            <div id="cliqz-results">' +
-                   '                    <div class="frame" style="width: 244px">' +
+                   '                    <div class="frame">' +
                    '                        ###CONTENT###' +
                    '                     </div>' +
                    '             </div>' +
@@ -843,9 +846,10 @@ CLIQZEnvironment.shareContent = function() {
     var readyHtml = readyHtml.replace(this.outerHTML,"");
     var title = '';
     try {
-      var title = this.parentNode.getElementsByClassName("main__headline")[0].firstChild.innerText;
+      var title = this.parentNode.getElementsByClassName("main__headline")[0].getElementsByTagName("a")[0].innerText
     } catch(e) {
       console.log("You cannot share this");
+      title = '';
       return;
     }
     
