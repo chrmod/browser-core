@@ -994,13 +994,16 @@ var CliqzUtils = {
 
     changes && changes();
 
+    var corePromises = [];
     enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       if(win.CLIQZ && win.CLIQZ.Core){
-        win.CLIQZ.Core.init();
+        corePromises.push(win.CLIQZ.Core.init());
       }
     }
+
+    return Promise.all(corePromises);
   },
   isWindows: function(){
     return CLIQZEnvironment.OS.indexOf("win") === 0;
