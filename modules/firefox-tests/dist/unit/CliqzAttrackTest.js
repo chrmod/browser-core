@@ -15,7 +15,8 @@ function waitIfNotReady(fn) {
 
 TESTS.AttrackTest = function (CliqzUtils) {
     var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default,
-        persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state");
+        persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state"),
+        AttrackBloomFilter = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/bloom-filter").AttrackBloomFilter;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
@@ -534,8 +535,14 @@ TESTS.AttrackTest = function (CliqzUtils) {
         mock_safekey_string = "{\"f528764d624db129\": {\"924a8ceeac17f54d3be3f8cdf1c04eb2\": \"20200101\"}}\n",
         mock_safekey_url = "/safekey.json",
         mock_safekey_hash = "3e82cf3535f01bfb960e826f1ad8ec2d",
+        mock_bloom_filter_major = "{\"bkt\": [1, 2, 3, 4, 5], \"k\": 5}",
+        mock_bloom_filter_minor = "{\"bkt\": [1, 0, 0, 0, 0], \"k\": 5}",
+        mock_bloom_filter_config = '{"major": "0", "minor": "1"}',
+        server_port = -1,
         server,
-        server_port = -1;
+        mock_bloom_filter_config_url,
+        mock_bloom_filter_base_url;
+        
 
       before(function() {
         // serve fake whitelists
@@ -546,10 +553,21 @@ TESTS.AttrackTest = function (CliqzUtils) {
         server.registerPathHandler('/safekey.json', function(request, response) {
           response.write(mock_safekey_string);
         });
+        server.registerPathHandler('/bloom_filter/0/0.gz', function(request, response) {
+          response.write(mock_bloom_filter_major);
+        });
+        server.registerPathHandler('/bloom_filter/0/1.gz', function(request, response) {
+          response.write(mock_bloom_filter_minor);
+        });
+        server.registerPathHandler('/bloom_filter/config', function(request, response) {
+          response.write(mock_bloom_filter_config);
+        });
         server.start(-1);
-        server_port = server.identity.primaryPort
+        server_port = server.identity.primaryPort;
         mock_token_url = "http://localhost:" + server_port + "/token_whitelist.json";
         mock_safekey_url = "http://localhost:" + server_port + "/safekey.json";
+        mock_bloom_filter_config_url = 'http://localhost:' + server_port + '/bloom_filter/config',
+        mock_bloom_filter_base_url = 'http://localhost:' + server_port + '/bloom_filter/';
       });
 
       after(function() {
@@ -830,6 +848,27 @@ TESTS.AttrackTest = function (CliqzUtils) {
           });
         });
       });
+      describe('loadBloomFilter', function() {
+        var bloomFilter;
+
+        beforeEach(function() {
+          bloomFilter = new AttrackBloomFilter();
+          bloomFilter.configURL = mock_bloom_filter_config_url;
+          bloomFilter.baseURL = mock_bloom_filter_base_url;
+        });
+
+        it ('bloom filter first time update', function(done) {  
+          bloomFilter.checkUpdate();
+          waitFor(function() {
+            return bloomFilter.bloomFilter != null && bloomFilter.version != null;
+          }).then(function() {
+            try {
+              chai.expect(bloomFilter.version.major).to.equal('0');
+              chai.expect(bloomFilter.bloomFilter.k).to.equal(5);
+              done();
+          } catch(e) { done(e); }
+        });
+      });
     });
 
     describe('isSourceWhitelisted', function() {
@@ -879,7 +918,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
       });
     });
-
+  });
 }
 
 TESTS.AttrackTest.MIN_BROWSER_VERSION = 35;

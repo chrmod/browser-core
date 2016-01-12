@@ -13,7 +13,8 @@ function getExtensionDirectory() {
 
 TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
   var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default,
-      persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state");
+      persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state"),
+      BloomFilter = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/bloom-filter").BloomFilter;
   // make sure that module is loaded (default it is not initialised on extension startup)
   CliqzUtils.setPref('antiTrackTest', true);
 
@@ -131,6 +132,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       tabs.push(gBrowser.addTab(url));
     };
 
+    var baseURL;
+
     beforeEach(function() {
       this.timeout(5000);
       // clean preferences -> default everything to off, except Attrack module.
@@ -146,6 +149,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       // clean up attrack caches
       persist.clear_persistent(CliqzAttrack.requestKeyValue);
       CliqzAttrack.tokenExtWhitelist = {};
+      CliqzAttrack.bloomFilter.bloomFilter = new BloomFilter('0000000000000000000', 5);
+      baseURL = CliqzAttrack.bloomFilter.baseURL;
+      CliqzAttrack.bloomFilter.baseURL = null;
       persist.clear_persistent(CliqzAttrack.safeKey);
       persist.clear_persistent(CliqzAttrack.tokenDomain);
       CliqzAttrack.recentlyModified.clear();
@@ -159,6 +165,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
           gBrowser.removeTab(t);
       });
       tabs = [];
+      CliqzAttrack.bloomFilter.baseURL = baseURL;
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -515,12 +522,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
               var tracker_hash = md5('127.0.0.1').substring(0, 16);
               CliqzAttrack.tokenExtWhitelist[tracker_hash] = {}
               CliqzAttrack.safeKey[tracker_hash] = {};
+              CliqzAttrack.bloomFilter.bloomFilter.addSingle(tracker_hash);
               persist.clear_persistent(CliqzAttrack.tokenDomain);
             });
 
             it('pref check', function() {
               chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('localhost').substring(0, 16));
               chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property(md5('127.0.0.1').substring(0, 16));
+              chai.expect(CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5('localhost').substring(0, 16))).to.equal(false);
+              chai.expect(CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5('127.0.0.1').substring(0, 16))).to.equal(true);
             });
 
             it('allows QS first time on tracker', function(done) {
@@ -636,7 +646,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                 });
               });
 
-              it('does not block if whitelisted token', function(done) {
+              var allowWhiteListedToken = function(done) {
                 this.timeout(5000);
 
                 var tok = md5(uid),
@@ -644,6 +654,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                   day = CliqzAttrack.newUTCDate();
 
                 CliqzAttrack.tokenExtWhitelist[tracker_hash][tok] = true;
+                CliqzAttrack.bloomFilter.bloomFilter.addSingle(tracker_hash + tok);
 
                 var tp_event_expectation = new tp_events_expectations(testpage);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -665,7 +676,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                     }
                   }
                 });
-              });
+              }
+
+              it('does not block if whitelisted token', allowWhiteListedToken);
+
+              CliqzUtils.setPref('attrackBloomFilter', true);
+              it('does not block if whitelisted token (with bloom filter)', allowWhiteListedToken);
+              CliqzUtils.setPref('attrackBloomFilter', false);
 
               context('anti-tracking disabled for source domain', function() {
 
