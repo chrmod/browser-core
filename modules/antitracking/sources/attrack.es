@@ -457,7 +457,7 @@ var CliqzAttrack = {
                     if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
                         // determin action based on tracker.txt
                         var rule = defaultTrackerTxtRule,
-                            _trackerGD = CliqzAttrack.getGeneralDomain(url_parts.hostname),
+                            _trackerGD = getGeneralDomain(url_parts.hostname),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
                         if (CliqzAttrack.isTrackerTxtEnabled()) {
                             if (_trackerTxt.last_update === null)
@@ -1252,8 +1252,8 @@ var CliqzAttrack = {
         // to the browser's sqlite database.
         // Large static caches (e.g. token whitelist) are loaded from sqlite
         // Smaller caches (e.g. update timestamps) are kept in prefs
-        persist.create_persistent("tokens", (v) => CliqzAttrack.tokens = v);
-        persist.create_persistent("blocked", (v) => CliqzAttrack.blocked = v);
+        this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
+        this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
         if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
 
@@ -1268,8 +1268,8 @@ var CliqzAttrack = {
             CliqzAttrack.lastUpdate = ['0', '0'];
         }
 
-        persist.create_persistent("tokenDomain", (v) => CliqzAttrack.tokenDomain = v);
-        persist.create_persistent("requestKeyValue", (v) => CliqzAttrack.requestKeyValue = v);
+        this._tokenDomain = new persist.AutoPersistentObject("tokenDomain", (v) => CliqzAttrack.tokenDomain = v, 300000);
+        this._requestKeyValue = new persist.AutoPersistentObject("requestKeyValue", (v) => CliqzAttrack.requestKeyValue = v, 60000);
 
         if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
         if (CliqzAttrack.blockReportList == null) CliqzAttrack.loadReportLists();
@@ -1404,8 +1404,7 @@ var CliqzAttrack = {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
             // reset the state
-            // delete without assignment to preserve persistance layer
-            persist.clear_persistent(CliqzAttrack.tokens);
+            this._tokens.clear();
         }
 
         // send also safe keys
@@ -1438,7 +1437,7 @@ var CliqzAttrack = {
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
             // reset the state
-            persist.clear_persistent(CliqzAttrack.blocked);
+            this._blocked.clear();
         }
     },
     pruneSafeKey: function() {
@@ -1471,6 +1470,8 @@ var CliqzAttrack = {
                 delete CliqzAttrack.tokenDomain[tok];
             }
         }
+        CliqzAttrack._tokenDomain.setDirty();
+        CliqzAttrack._tokenDomain.save();
     },
     pruneRequestKeyValue: function() {
         var day = datetime.newUTCDate();
@@ -1491,6 +1492,8 @@ var CliqzAttrack = {
                 delete CliqzAttrack.requestKeyValue[s];
             }
         }
+        CliqzAttrack._requestKeyValue.setDirty();
+        CliqzAttrack._requestKeyValue.save();
     },
     saveTokenWhitelist: function() {
         persist.saveRecord('tokenExtWhitelist', JSON.stringify(CliqzAttrack.tokenExtWhitelist));
@@ -1608,7 +1611,7 @@ var CliqzAttrack = {
                 if(versioncheck['force_clean'] == true) {
                     if (CliqzAttrack.debug) CliqzUtils.log("Force clean CliqzAttrack.safeKey", "attrack");
                     persist.clear_persistent(CliqzAttrack.safeKey);
-                    persist.clear_persistent(CliqzAttrack.requestKeyValue);
+                    CliqzAttrack._requestKeyValue.clear();
                 }
                 CliqzAttrack.loadRemoteSafeKey();
             } else {
@@ -1764,6 +1767,7 @@ var CliqzAttrack = {
             if (CliqzAttrack.tokenDomain[tok] === undefined)
                 CliqzAttrack.tokenDomain[tok] = {};
             CliqzAttrack.tokenDomain[tok][sourceD] = today;
+            CliqzAttrack._tokenDomain.setDirty()
             return Object.keys(CliqzAttrack.tokenDomain[tok]).length;
         };
 
@@ -1797,6 +1801,7 @@ var CliqzAttrack = {
                 if (!(v in CliqzAttrack.blocked[s][k])) CliqzAttrack.blocked[s][k][v] = {};
                 if (!(prefix in CliqzAttrack.blocked[s][k][v])) CliqzAttrack.blocked[s][k][v][prefix] = 0;
                 CliqzAttrack.blocked[s][k][v][prefix]++;
+                CliqzAttrack._blocked.setDirty();
             }
             // local logging of blocked tokens
             var hour = datetime.getTime(),
@@ -1951,6 +1956,7 @@ var CliqzAttrack = {
                 // keep the last seen token
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};
             }
+            CliqzAttrack._requestKeyValue.setDirty();
         }
     },
     extractKeyTokens: function(url_parts, refstr) {
@@ -2017,6 +2023,7 @@ var CliqzAttrack = {
             if (CliqzAttrack.tokens[s][r]['kv'][k][tok] == null) CliqzAttrack.tokens[s][r]['kv'][k][tok] = 0;
             CliqzAttrack.tokens[s][r]['kv'][k][tok] += 1;
         }
+        this._tokens.setDirty();
     },
     storeDomData: function(dom) {
         // cookies

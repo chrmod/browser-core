@@ -69,7 +69,7 @@ class PersistenceHandler {
     this.target = target;
     this.dirty = dirty || false;
     // write dirty pages every minute
-    pacemaker.register(this.persistState.bind(this), 60000);
+    pacemaker.register(this.persistState.bind(this), 60000, this.isDirty.bind(this));
 
     // propegate proxy down object leaves
     for (let k in this.target) {
@@ -108,6 +108,10 @@ class PersistenceHandler {
       return obj;
     }
   }
+
+  isDirty() {
+    return this.dirty;
+  }
 };
 
 export function create_persistent(name, setter) {
@@ -141,3 +145,59 @@ export function set_value(key, value) {
 };
 
 export { loadRecord, saveRecord };
+
+export class PersistentObject {
+
+  constructor(name, setter) {
+    this.name = name;
+    this.value = {};
+    this.dirty = false;
+    this.setter = setter;
+    this.setter(this.value);
+    this.load();
+  }
+
+  load() {
+    loadRecord(this.name, function(value) {
+      try {
+        this.value = JSON.parse(value || '{}');
+      } catch(e) {
+        this.value = {};
+        this.dirty = true;
+      }
+      this.setter(this.value);
+    }.bind(this));
+  }
+
+  save() {
+    if (this.dirty) {
+      saveRecord(this.name, JSON.stringify(this.value));
+      this.dirty = false;
+    }
+  }
+
+  setDirty() {
+    this.dirty = true;
+  }
+
+  isDirty() {
+    return this.dirty;
+  }
+
+  clear() {
+    this.value = {};
+    this.dirty = true;
+    this.save();
+    this.setter(this.value);
+  }
+
+};
+
+export class AutoPersistentObject extends PersistentObject {
+
+  constructor(name, setter, saveInterval) {
+    super(name, setter);
+    pacemaker.register(this.save.bind(this), saveInterval, this.isDirty.bind(this));
+  }
+
+};
