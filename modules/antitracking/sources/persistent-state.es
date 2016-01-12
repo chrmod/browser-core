@@ -1,12 +1,9 @@
 import pacemaker from "antitracking/pacemaker";
-
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/FileUtils.jsm");
+import dbConn from 'antitracking/sqlite';
 
 const LOG_KEY = "attrack-persist";
 
 // connect to sqlite database and create attrack table
-var dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbattrack"]));
 var attrack_table = "create table if not exists attrack(\
     id VARCHAR(24) PRIMARY KEY NOT NULL,\
     data VARCHAR(1000000) \

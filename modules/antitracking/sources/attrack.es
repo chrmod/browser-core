@@ -13,6 +13,7 @@ import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 import { isHash } from 'antitracking/hash';
 import { TrackerTXT, sleep, defaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import * as datetime from 'antitracking/time';
+import TrackingTable from 'antitracking/local-tracking-table';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -636,6 +637,10 @@ var CliqzAttrack = {
                         req_log.bad_headers++;
                     }
                 }
+
+                // is cached?
+                let cached = topic === 'http-on-examine-cached-response';
+                CliqzAttrack.tp_events.incrementStat(req_log, cached ? 'cached' : 'not_cached');
             }
         }
     },
@@ -1191,6 +1196,32 @@ var CliqzAttrack = {
         pacemaker.register(CliqzAttrack.pruneTokenDomain, hourly);
         pacemaker.register(CliqzAttrack.pruneRequestKeyValue, hourly);
 
+        // send tracking occurances whenever day changes
+        pacemaker.register(function sendTrackingDetections() {
+            CliqzAttrack.local_tracking.getTrackingOccurances(function(results) {
+                if (results.length > 0) {
+                    CliqzAttrack.local_tracking.getTableSize(function(table_size) {
+                        var payl = {
+                            'ver': CliqzAttrack.VERSION,
+                            'ts': CliqzAttrack.getTime().substring(0, 8),
+                            'data': {
+                                'lt': results.map(function(tup) {
+                                    return {'tp': tup[0], 'k': tup[1], 'v': tup[2], 'n': tup[3]};
+                                }),
+                                'c': table_size
+                            }
+                        };
+                        CliqzHumanWeb.telemetry({
+                            'type': CliqzHumanWeb.msgType,
+                            'action': 'attrack.tracked',
+                            'payload': payl
+                        });
+                    });
+                }
+                CliqzAttrack.local_tracking.cleanTable();
+            });
+        }, hourly, timeChangeConstraint("local_tracking", "day"));
+
     },
     /** Global module initialisation.
      */
@@ -1272,6 +1303,8 @@ var CliqzAttrack = {
         } catch(e) {
             CliqzAttrack.disabled_sites = new Set();
         }
+
+        CliqzAttrack.local_tracking = new TrackingTable();
 
     },
     /** Per-window module initialisation
@@ -1360,11 +1393,12 @@ var CliqzAttrack = {
     sendTokens: function() {
         var payl,
             safeKeyExtVersion = persist.get_value("safeKeyExtVersion", "");
-        if (CliqzAttrack.tokens) {
-            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
+        if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
+            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzHumanWeb.getTime().slice(0, 10), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
+            CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             // reset the state
             // delete without assignment to preserve persistance layer
             persist.clear_persistent(CliqzAttrack.tokens);
@@ -1390,21 +1424,18 @@ var CliqzAttrack = {
                     }
                 }
             }
-            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
+            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzHumanWeb.getTime().slice(0, 10), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
         }
         // send block list
         if (CliqzAttrack.blocked) {
-            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent(), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
+            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzHumanWeb.getTime().slice(0, 10), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
 
             // reset the state
             persist.clear_persistent(CliqzAttrack.blocked);
         }
-    },
-    tokensLastSent: function() {
-        return persist.get_value("tokensLastSent", CliqzHumanWeb.getTime().slice(0,10));
     },
     pruneSafeKey: function() {
         var day = datetime.newUTCDate();
@@ -1552,7 +1583,7 @@ var CliqzAttrack = {
                              'loadedPage': countLoadedPage
                             },
                     'ver': CliqzAttrack.VERSION,
-                    'ts': CliqzAttrack.tokensLastSent(),
+                    'ts': CliqzHumanWeb.getTime().slice(0, 10),
                     'anti-duplicates': Math.floor(Math.random() * 10000000),
                     'whitelist': CliqzAttrack.tokenWhitelistVersion,
                     'safeKey': CliqzAttrack.safeKeyExtVersion
