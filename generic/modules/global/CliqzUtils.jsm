@@ -953,25 +953,37 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
-  //  gets a key and a dynamic of parameters
-  //  eg: getLocalizedString('sentence', 'John', 'biggest', 'fotball')
-  //  if the localized sentence is = '{} is the {} {} player' the output will be 'John is the biggest football player'
-  getLocalizedString: function(key){
-    var ret = key;
+  getLocalizedString: function(key, substitutions){
+    var str = key,
+        localMessages;
 
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
-        ret = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
-    } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
-        ret = CliqzUtils.locale['default'][key].message;
+        str = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+        localMessages = CliqzUtils.locale[CliqzUtils.currLocale];
+    } else if (CliqzUtils.locale.default && CliqzUtils.locale.default[key]) {
+        str = CliqzUtils.locale.default[key].message;
+        localMessages = CliqzUtils.locale.default;
     }
 
-    if(arguments.length>1){
-      var i = 1, args = arguments;
-      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
+    if (!substitutions) {
+      substitutions = [];
+    }
+    if (!Array.isArray(substitutions)) {
+      substitutions = [substitutions];
     }
 
-    return ret;
+    function replacer(matched, index, dollarSigns) {
+      if (index) {
+        index = parseInt(index, 10) - 1;
+        return index in substitutions ? substitutions[index] : "";
+      } else {
+        // For any series of contiguous `$`s, the first is dropped, and
+        // the rest remain in the output string.
+        return dollarSigns;
+      }
+    }
+    return str.replace(/\$(?:([1-9]\d*)|(\$+))/g, replacer);
   },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
