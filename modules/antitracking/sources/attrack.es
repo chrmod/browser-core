@@ -13,6 +13,7 @@ import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 import { isHash } from 'antitracking/hash';
 import { TrackerTXT, sleep, defaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { AttrackBloomFilter, bloomFilter } from 'antitracking/bloom-filter';
+import * as datetime from 'antitracking/time';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -72,7 +73,7 @@ var CliqzAttrack = {
     timeAfterLink: 5*1000,
     timeActive: 20*1000,
     timeBootup: 10*1000,
-    bootupTime: (new Date()).getTime(),
+    bootupTime: Date.now(),
     bootingUp: true,
     localBlocked: null,
     checkedToken: null,
@@ -108,27 +109,6 @@ var CliqzAttrack = {
     observerService: Components.classes["@mozilla.org/observer-service;1"]
                                 .getService(Components.interfaces.nsIObserverService),
     tp_events: tp_events,
-    getTime:function() {
-        var ts = CliqzUtils.getPref('config_ts', null);
-        if(!ts){
-            var d = null;
-            var m = null;
-            var y = null;
-            var h = null;
-            var hr = null;
-            var _ts = null;
-            d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
-            m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
-            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
-            y = new Date().getFullYear();
-            _ts = y + "" + m + "" + d + "" + h;
-        }
-        else{
-            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
-            _ts = ts + "" + h;
-        }
-        return _ts;
-    },
     tokens: null,
     tokenExtWhitelist: null,
     tokenWhitelistVersion: null,
@@ -273,8 +253,7 @@ var CliqzAttrack = {
             if (requestContext.getContentPolicyType() == 6) {
                 CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID());
                 if (CliqzAttrack.isTrackerTxtEnabled()) {
-                    var host_url = url_parts.protocol + '://' + url_parts.hostname;
-                    TrackerTXT.get(host_url).update();
+                    TrackerTXT.get(url_parts).update();
                 }
                 return;
             }
@@ -481,9 +460,8 @@ var CliqzAttrack = {
                     if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
                         // determin action based on tracker.txt
                         var rule = defaultTrackerTxtRule,
-                            _sourcehost = source_url_parts.protocol + '://' + source_url_parts.hostname,
                             _trackerGD = CliqzAttrack.getGeneralDomain(url_parts.hostname),
-                            _trackerTxt = TrackerTXT.get(_sourcehost);
+                            _trackerTxt = TrackerTXT.get(source_url_parts);
                         if (CliqzAttrack.isTrackerTxtEnabled()) {
                             if (_trackerTxt.last_update === null)
                                 // The first update is not ready yet
@@ -713,7 +691,7 @@ var CliqzAttrack = {
             }
 
             // Gather more info for further checks
-            var curr_time = (new Date()).getTime();
+            var curr_time = Date.now();
             if ((curr_time - CliqzAttrack.bootupTime) > CliqzAttrack.timeBootup) CliqzAttrack.bootingUp = false;
 
             // check if fill context oauth, this needs to be done before accepting or requesting the cookies.
@@ -1062,11 +1040,10 @@ var CliqzAttrack = {
 
             // New location, means a page loaded on the top window, visible tab
             var activeURL = CliqzHumanWeb.currentURL();
-            var curr_time = (new Date()).getTime();
+            var curr_time = Date.now();
 
             if ((activeURL.indexOf('about:')!=0) && (activeURL.indexOf('chrome:')!=0)) {
 
-                var curr_time = (new Date()).getTime();
                 var url_parts = CliqzHumanWeb.parseURL(activeURL);
 
                 if (url_parts && url_parts.hostname && url_parts.hostname!='') {
@@ -1458,17 +1435,10 @@ var CliqzAttrack = {
     tokensLastSent: function() {
         return persist.get_value("tokensLastSent", CliqzHumanWeb.getTime().slice(0,10));
     },
-    newUTCDate: function() {
-        var dayHour = CliqzAttrack.getTime();
-        return new Date(Date.UTC(dayHour.substring(0, 4),
-                                 parseInt(dayHour.substring(4, 6)) - 1,
-                                 dayHour.substring(6, 8),
-                                 dayHour.substring(8, 10)));
-    },
     pruneSafeKey: function() {
-        var day = CliqzAttrack.newUTCDate();
+        var day = datetime.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
-        var dayCutoff = CliqzAttrack.dateString(day);
+        var dayCutoff = datetime.dateString(day);
         for (var s in CliqzAttrack.safeKey) {
             for (var key in CliqzAttrack.safeKey[s]) {
                 if (CliqzAttrack.safeKey[s][key][0] < dayCutoff) {
@@ -1481,9 +1451,9 @@ var CliqzAttrack = {
         }
     },
     pruneTokenDomain: function() {
-        var day = CliqzAttrack.newUTCDate();
+        var day = datetime.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
-        var dayCutoff = CliqzAttrack.dateString(day);
+        var dayCutoff = datetime.dateString(day);
         CliqzUtils.log(dayCutoff);
         for (var tok in CliqzAttrack.tokenDomain) {
             for (var s in CliqzAttrack.tokenDomain[tok]) {
@@ -1497,9 +1467,9 @@ var CliqzAttrack = {
         }
     },
     pruneRequestKeyValue: function() {
-        var day = CliqzAttrack.newUTCDate();
+        var day = datetime.newUTCDate();
         day.setDate(day.getDate() - CliqzAttrack.safeKeyExpire);
-        var dayCutoff  = CliqzAttrack.dateString(day);
+        var dayCutoff  = datetime.dateString(day);
         for (var s in CliqzAttrack.requestKeyValue) {
             for (var key in CliqzAttrack.requestKeyValue[s]) {
                 for (var tok in CliqzAttrack.requestKeyValue[s][key]) {
@@ -1521,9 +1491,9 @@ var CliqzAttrack = {
     },
     cleanLocalBlocked: function() {
         var delay = CliqzAttrack.localBlockExpire,
-            hour = CliqzAttrack.newUTCDate();
+            hour = datetime.newUTCDate();
         hour.setHours(hour.getHours() - delay);
-        var hourCutoff = CliqzAttrack.hourString(hour);
+        var hourCutoff = datetime.hourString(hour);
         // localBlocked
         for (var source in CliqzAttrack.localBlocked) {
             for (var s in CliqzAttrack.localBlocked[source]) {
@@ -1556,9 +1526,9 @@ var CliqzAttrack = {
     lastUpdate: ['0', '0'],
     updatedInTime: function() {
         var delay = CliqzAttrack.updateExpire,
-            hour = CliqzAttrack.newUTCDate();
+            hour = datetime.newUTCDate();
         hour.setHours(hour.getHours() - delay);
-        var hourCutoff = CliqzAttrack.hourString(hour);
+        var hourCutoff = datetime.hourString(hour);
         if (CliqzAttrack.lastUpdate[0] > hourCutoff &&
             CliqzAttrack.lastUpdate[1] > hourCutoff)
             return true;
@@ -1567,8 +1537,8 @@ var CliqzAttrack = {
     checkWrongToken: function(key) {
         CliqzAttrack.cleanLocalBlocked();
         // send max one time a day
-        var day = CliqzAttrack.getTime().slice(0, 8),
-            wrongTokenLastSent = persist.get_value('wrongTokenLastSent', CliqzAttrack.getTime().slice(0, 8));
+        var day = datetime.getTime().slice(0, 8),
+            wrongTokenLastSent = persist.get_value('wrongTokenLastSent', datetime.getTime().slice(0, 8));
         if (wrongTokenLastSent == day) return;  // max one signal per day
         CliqzAttrack._updated[key] = true;
         if (!('safeKey' in CliqzAttrack._updated) || (!('token' in CliqzAttrack._updated))) return;  // wait until both lists are updated
@@ -1630,7 +1600,7 @@ var CliqzAttrack = {
         CliqzAttrack._updated = {};
     },
     loadRemoteWhitelists: function() {
-        var today = CliqzAttrack.getTime().substring(0, 8),
+        var today = datetime.getTime().substring(0, 8),
             safeKeyExtVersion = persist.get_value('safeKeyExtVersion', '');
         CliqzUtils.httpGet(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK +"?"+ today, function(req) {
             // on load
@@ -1685,7 +1655,7 @@ var CliqzAttrack = {
         });
     },
     loadRemoteTokenWhitelist: function() {
-        var today = CliqzAttrack.getTime().substring(0, 8);
+        var today = datetime.getTime().substring(0, 8);
         CliqzUtils.httpGet(
             CliqzAttrack.URL_TOKEN_WHITELIST +"?"+ today,
             function(req){
@@ -1694,14 +1664,14 @@ var CliqzAttrack = {
                 CliqzAttrack.saveTokenWhitelist();
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
                 CliqzAttrack.checkWrongToken('token');
-                CliqzAttrack.lastUpdate[1] = CliqzAttrack.getTime();
+                CliqzAttrack.lastUpdate[1] = datetime.getTime();
                 persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
             },
             function() {},
             10000);
     },
     loadRemoteSafeKey: function() {
-        var today = CliqzAttrack.getTime().substring(0, 8);
+        var today = datetime.getTime().substring(0, 8);
         CliqzUtils.httpGet(
             CliqzAttrack.URL_SAFE_KEY +"?"+ today,
             function(req) {
@@ -1729,7 +1699,7 @@ var CliqzAttrack = {
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new safekey version "+ safeKeyExtVersion, "attrack");
                 CliqzAttrack.pruneSafeKey();
                 CliqzAttrack.checkWrongToken('safeKey');
-                CliqzAttrack.lastUpdate[0] = CliqzAttrack.getTime();
+                CliqzAttrack.lastUpdate[0] = datetime.getTime();
                 persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
             },
             function() {
@@ -1773,7 +1743,7 @@ var CliqzAttrack = {
             CliqzAttrack.isBloomFilterEnabled() && (!(bloomFilter.bloomFilter.testSingle(s)))) return [];
 
         var sourceD = md5(source_url_parts.hostname).substr(0, 16);
-        var today = CliqzAttrack.getTime().substr(0, 8);
+        var today = datetime.getTime().substr(0, 8);
 
         if (url_parts['query'].length == 0 && url_parts['parameters'].length == 0) return [];
         var w = url_parts['query_keys'],
@@ -1833,7 +1803,7 @@ var CliqzAttrack = {
                 CliqzAttrack.blocked[s][k][v][prefix]++;
             }
             // local logging of blocked tokens
-            var hour = CliqzAttrack.getTime(),
+            var hour = datetime.getTime(),
                 source = md5(source_url);
 
             if (!(source in CliqzAttrack.localBlocked)) CliqzAttrack.localBlocked[source] = {};
@@ -1845,7 +1815,7 @@ var CliqzAttrack = {
         };
 
         var _checkTokens = function(key, val) {
-            var hour = CliqzAttrack.getTime();
+            var hour = datetime.getTime();
             if (!(hour in CliqzAttrack.checkedToken)) CliqzAttrack.checkedToken[hour] = 0;
             CliqzAttrack.checkedToken[hour]++;
             var tok = dURIC(val);
@@ -1936,7 +1906,7 @@ var CliqzAttrack = {
             _checkTokens(key, p[key]);
         }
         // update blockedToken
-        var hour = CliqzAttrack.getTime();
+        var hour = datetime.getTime();
         if (!(hour in CliqzAttrack.blockedToken)) CliqzAttrack.blockedToken[hour] = 0;
         CliqzAttrack.blockedToken[hour] += badTokens.length;
         return badTokens;
@@ -2119,16 +2089,6 @@ var CliqzAttrack = {
         }
         return false;
     },
-    hourString: function(date) {
-        var hour = date.getUTCHours().toString();
-        return CliqzAttrack.dateString(date) + (hour[1]?hour:'0'+hour[0]);
-    },
-    dateString: function(date) {
-        var yyyy = date.getFullYear().toString();
-        var mm = (date.getMonth()+1).toString(); // getMonth() is zero-based
-        var dd  = date.getDate().toString();
-        return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
-    },
     // Listens for requests initiated in tabs.
     // Allows us to track tab windowIDs to urls.
     tab_listener: {
@@ -2152,7 +2112,7 @@ var CliqzAttrack = {
             if(this.wplFlag['STATE_START'] & aFlag && this.wplFlag['STATE_IS_DOCUMENT'] & aFlag) {
                 var win = aWebProgress.DOMWindow;
                 if(aRequest) {
-                    var hour = CliqzAttrack.getTime();
+                    var hour = datetime.getTime();
                     if (!(hour in CliqzAttrack.loadedPage)) CliqzAttrack.loadedPage[hour] = 0;
                     CliqzAttrack.loadedPage[hour]++;
                     try {
