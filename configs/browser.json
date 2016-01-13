@@ -3,6 +3,7 @@
     "freshTabButton": false,
     "freshTabABtest" : false,
     "antitrackingButton": false,
+    "unblockUI": false,
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true
   },

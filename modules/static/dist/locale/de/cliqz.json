@@ -953,6 +953,21 @@
     "freshtab_top_news": {
       "message": "Top Nachrichten"
     },
+    "unblock_menu_option": {
+      "message": "Unblock content"
+    },
+    "unblock_prompt": {
+      "message": "Soll CLIQZ versuchen, blockierte Youtube-Videos zu öffnen?"
+    },
+    "unblock_always": {
+      "message": "Ja, immer"
+    },
+    "unblock_once": {
+      "message": "Nur dieses Mal"
+    },
+    "unblock_never": {
+      "message": "Nein, niemals"
+    },
     "cliqz-onboarding-title": {
       "message": "Woohoo! CLIQZ has successfully installed."
     },
