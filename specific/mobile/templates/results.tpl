@@ -1,7 +1,7 @@
 <!-- results.tpl -->
 {{#each results}}
 	{{#unless invalid}}
-		<div class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+		<div class="frame" {{#if ../frameWidth }} style="width: {{ ../frameWidth }}px; left: {{ left }}px" {{/if}}>
 			<div class="ez"
 				type='{{ type }}'
 				kind='{{ kind_printer data.kind }}'
@@ -27,8 +27,9 @@
 {{/each}}
 
 {{#if googleThis }}
-	{{#with googleThis }}
-		{{#if show }}
+	{{#showSearch results}}
+		{{#with googleThis }}
+			<!-- googlethis -->
 			<div id="defaultEngine" url="{{searchEngineUrl}}{{searchString}}" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
 			  <div class="ez">
 			    <div id="googleThisAnim">
@@ -39,8 +40,9 @@
 			    </div>
 			  </div>
 			</div>
-		{{/if}}
-	{{/with}}
+			<!-- end googlethis -->
+		{{/with}}
+	{{/showSearch}}
 {{/if}}
 
 <div class='cqz-result-selected transition'></div>

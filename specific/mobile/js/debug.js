@@ -48,6 +48,15 @@ Handlebars.helpers.timeOrCalculator = function(ezType) {
 }
 
 
+Handlebars.registerHelper('showSearch', function(results, options) { // if equal
+  if(results[0].data.template !== "noResult") {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
+
 
 function trace() {
   try {
