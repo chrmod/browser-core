@@ -3,9 +3,9 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-var logscreen = document.getElementById("logscreen"); 
+var logscreen = document.getElementById("logscreen");
 
-document.getElementById("reconnecting").style.display = "none"; 
+document.getElementById("reconnecting").style.display = "none";
 
 CLIQZ.UI.init(urlbar);
 var item_container, currentQuery;
@@ -21,9 +21,9 @@ Handlebars.registerHelper("debug", function(optionalValue) {
   console.log("Current Context");
   console.log("====================");
   console.log(this);
- 
+
   if (optionalValue) {
-    console.log("Value"); 
+    console.log("Value");
     console.log("====================");
     console.log(optionalValue);
   }
@@ -88,7 +88,7 @@ CliqzUtils.setBackendToLive = function() {
 if(onAndroid || location.port == 3001 || window.webkit) {
   document.getElementById("urlbar").style.display = "none";
 } else {
-  
+
 }
 
 var debugcss = "background-color:#00aa00;display:block;"
@@ -103,7 +103,7 @@ CliqzUtils.requestMonitor.inHealth = function() { return true; }
 
 
 CLIQZEnvironment.renderRecentQueries();
- 
+
 
 
 CLIQZEnvironment.delayTimer = null;
@@ -135,14 +135,14 @@ window.addEventListener('resize', function () {
       frames[i].style.left = (w*i) +"px";
       frames[i].style.width = w+"px";
     }
-    
+
     if(CLIQZEnvironment.vp) {
       CLIQZEnvironment.vp.destroy();
     }
-    
+
     CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
     CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0); 
+    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
     }, 50);
 });
 
@@ -274,7 +274,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
     //
     //
 
-    
+
     for(var i in data.cinemas) {
       data.cinemas[i].cinema.distance = CLIQZEnvironment.distance(
                         data.cinemas[i].cinema.lon,
@@ -310,7 +310,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
 
 
 CLIQZ.UI.VIEWS["local-movie-sc"] = {
-  
+
   enhanceMovieSC: CLIQZ.UI.VIEWS["local-cinema-sc"].enhanceMovieSC,
 
   enhanceResults: function(data) {
@@ -324,7 +324,7 @@ CLIQZ.UI.VIEWS["local-movie-sc"] = {
 
 
 CLIQZ.UI.VIEWS["stocks"] = {
-  
+
   enhanceResults: function(data) {
     var myTime = new Date(data.message.last_update * 1000);
       data.message.time_string = myTime.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
@@ -332,7 +332,7 @@ CLIQZ.UI.VIEWS["stocks"] = {
 }
 
 
-CLIQZ.UI.VIEWS["weatherEZ"] = { 
+CLIQZ.UI.VIEWS["weatherEZ"] = {
   enhanceResults: function(data) {
     if (data.forecast_url) {
       data.btns = [
@@ -352,7 +352,7 @@ CLIQZ.UI.VIEWS["weatherAlert"] = CLIQZ.UI.VIEWS["weatherEZ"];
 
 
 CLIQZ.UI.VIEWS["currency"] = {
-  
+
   enhanceResults: function(data) {
       console.log(data);
   }
@@ -367,15 +367,15 @@ function switchCurrency(data) {
   var fromValue = getNumValue(parseFloat(fromInput.value));
   data.toAmount.main = getNumValue(fromValue * convRate);
   data.fromAmount = fromValue;
-  
+
   var temp = data.fromCurrency;
   data.fromCurrency = data.toCurrency;
   data.toCurrency = temp;
-  
+
   temp = data.formSymbol;
   data.formSymbol = data.toSymbol;
   data.toSymbol = temp;
-  
+
   updateCurrencyTpl(data);
 }
 
@@ -411,7 +411,7 @@ function updateCurrencyTpl(data) {
 
 
 
-CLIQZ.UI.VIEWS["partials/missing_location_step_1"] = { 
+CLIQZ.UI.VIEWS["partials/missing_location_1"] = {
   messages: {
     "movies": {
       'trans_str': {
@@ -440,29 +440,29 @@ CLIQZ.UI.VIEWS["partials/missing_location_step_1"] = {
         "cqz_location_yes": function(ev) {
           ev.preventDefault();
           CLIQZEnvironment.setLocationPermission(window, "yes");
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].loadLocalResults(ev.target);
+          CLIQZ.UI.VIEWS["partials/missing_location_1"].loadLocalResults(ev.target);
 
         },
         "cqz_location_once": function(ev) {
           ev.preventDefault();
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].loadLocalResults(ev.target);
+          CLIQZ.UI.VIEWS["partials/missing_location_1"].loadLocalResults(ev.target);
         },
         "cqz_location_no": function(ev) {
           var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
               el = ev.target,
               localType = el.getAttribute("local_sc_type") || "default";
 
-          container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
+          container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_2"]({
               friendly_url: el.getAttribute("bm_url"),
               trans_str: messages[localType].trans_str
           });
         },
         "cqz_location_never": function(ev) {
           CLIQZEnvironment.setLocationPermission(window, "no");
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].displayMessageForNoPermission();
+          CLIQZ.UI.VIEWS["partials/missing_location_1"].displayMessageForNoPermission();
         },
         "cqz_location_not_now": function(ev) {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].displayMessageForNoPermission();
+          CLIQZ.UI.VIEWS["partials/missing_location_1"].displayMessageForNoPermission();
         },
         "cqz_location_yes_confirm": function(ev) {
           CLIQZEnvironment.setLocationPermission(window, "yes");
@@ -480,9 +480,9 @@ CLIQZ.UI.VIEWS["partials/missing_location_step_1"] = {
               "&q=" + CLIQZ.Core.urlbar.value +
               CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
               "&bmresult=" + el.getAttribute("bm_url"),
-              CLIQZ.UI.VIEWS["partials/missing_location_step_1"].handleNewLocalResults(el));
+              CLIQZ.UI.VIEWS["partials/missing_location_1"].handleNewLocalResults(el));
       }, function () {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].failedToLoadResults(el);
+          CLIQZ.UI.VIEWS["partials/missing_location_1"].failedToLoadResults(el);
           CliqzUtils.log("Unable to get user's location", "CliqzUtils.getGeo");
       });
   },
@@ -504,12 +504,12 @@ CLIQZ.UI.VIEWS["partials/missing_location_step_1"] = {
           while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
             container = container.parentElement;
             if (!container || container.id == "cliqz-results") return;
-          }      
+          }
           CLIQZ.UI.enhanceResults(resp);
           r = resp.results[0];
           if (container) container.innerHTML = CliqzHandlebars.tplCache[r.data.template](r);
         } else {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].failedToLoadResults(el);
+          CLIQZ.UI.VIEWS["partials/missing_location_1"].failedToLoadResults(el);
         }
       };
     },
@@ -573,7 +573,7 @@ function showPast() {
 
 //    CLIQZEnvironment.httpHandler(
 //      "GET",
-//      "http://news-test-swimlane.clyqz.com/articles?q=news&extra_domains="+domains+"&num_results_per_domain=3&num_domains=100", 
+//      "http://news-test-swimlane.clyqz.com/articles?q=news&extra_domains="+domains+"&num_results_per_domain=3&num_domains=100",
 //      function(result) { // success
 //      var res = JSON.parse(result.responseText), current;
 //      for(var i in res.data.news) {
@@ -585,13 +585,13 @@ function showPast() {
 //      console.log("newsData",newsDataAll);
 
 //      conversationsEl.innerHTML = CliqzHandlebars.tplCache.conversations_future({data:newsDataAll});
-      
+
 //      CLIQZEnvironment.stopProgressBar();
 
-//      }, 
+//      },
 //      function() { // error
 //      console.warn(arguments)
-//      }, 
+//      },
 //      5000);
 
 //      if( typeof CLIQZEnvironment.vp !== "undefined" ) {
