@@ -98,6 +98,22 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     return formatedDate;
 });
 
+
+Handlebars.registerHelper('conversationsDate', function(time) {
+    var d = new Date(time);
+    
+    var days = d.getDate();
+    days = days > 9 ? days : '0' + days
+
+    var months = d.getMonth()+1;
+    months = months > 9 ? months : '0' + months
+
+    var year = d.getFullYear();
+    
+    var formatedDate = days + '.' + months + '.' + year;
+    return formatedDate;
+});
+
 function filterHistory(value) {
     var framers = document.getElementsByClassName("framer");
     for(var i=0;i<framers.length;i++) {
