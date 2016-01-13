@@ -1,7 +1,7 @@
 <!-- local-movie-sc.tpl -->
 
 <div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-movie-result">
-  
+
     <div class="meta">
         {{> logo}}
         {{#with data}}
@@ -9,7 +9,7 @@
     </div>
     <div class="main">
         <div class="item">
-          <div class="main__image" style="background-image: url({{movie.poster_img}});">
+          <div class="main__image" data-style="background-image: url({{movie.poster_img}});">
               Image
           </div>
           <h1 class="main__headline"><a href="{{url}}">{{ emphasis title text 2 true }}</a></h1>
@@ -20,7 +20,7 @@
               {{/each}}
             </span>
           </div>
-          
+
           {{#if movie.trailer_url}}
             <ul class="cta">
             <li
@@ -31,7 +31,7 @@
                {{local 'cqz_watch_trailer'}}</a>
             </li></ul>
           {{/if}}
-          
+
           <div class="cinema-showtimes-container local-sc-data-container" id="cinema-showtimes-container">
             {{#if no_location }}
               {{#ifpref 'share_location' 'no'}}
@@ -43,12 +43,12 @@
               {{>partials/timetable-cinema}}
             {{/if}}
           </div>
-          
+
           <p class="main__content description">{{description}}</p>
-          
-          
+
+
         </div>
-        
+
       </div>
     </div>
 {{/with}}

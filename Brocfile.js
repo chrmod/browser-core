@@ -226,13 +226,14 @@ var mobile = new MergeTrees([
   new Funnel(modules,        { destDir: 'modules' })
 ]);
 
-// if (buildEnv === 'production' ) {
+if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css'],
     replaceExtensions: ['html', 'css', 'js'],
     generateAssetMap: true
   });
-  // uglify breaks if 'modules' is included in MergeTrees
+  // uglify breaks for cliqz-oss/broccoli#building-server:
+  // "The .read/.rebuild API is no longer supported of Broccoli 1.0"
   // mobile = uglify(new Funnel(mobile), {
   //   mangle: false,
   //   compress: false,
@@ -245,7 +246,7 @@ var mobile = new MergeTrees([
   //     enabled: false
   //   }
   // });
-//}
+}
 
 // Output
 module.exports = new MergeTrees([
