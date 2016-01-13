@@ -84,6 +84,7 @@ window.CLIQZ.Core = {
     _messageOFF: true, // no message shown
     _updateAvailable: false,
     windowModules: [],
+    eventListeners: [],
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
         var listners = window.gBrowser.mTabsProgressListeners;
@@ -233,6 +234,10 @@ window.CLIQZ.Core = {
               window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
               window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
+
+              // CliqzEvents listeners
+              this.propagateEvents("core:page_load", window.gBrowser, "load");
+              this.propagateEvents("core:tab_select", window.gBrowser.tabContainer, "TabSelect");
           }
 
           window.addEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
@@ -417,8 +422,9 @@ window.CLIQZ.Core = {
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
-
-
+            this.eventListeners.forEach(function(listener) {
+              listener.target.removeEventListener(listener.type, listener.func);
+            });
         }
         this.reloadComponent(this.urlbar);
 
@@ -801,8 +807,9 @@ window.CLIQZ.Core = {
         }
     },
 
-    createQbutton: function(win, menupopup){
-        var doc = win.document,
+    createQbutton: function(menupopup){
+        var win = window,
+            doc = win.document,
             lang = CliqzUtils.getLanguage(win);
 
         //clean it
@@ -1078,6 +1085,22 @@ window.CLIQZ.Core = {
         data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
 
         return data;
+    },
+    /** Adds a listener to eventTarget for events of type eventType, and republishes them
+     *  through CliqzEvents with id eventPubName.
+     *  Listeners registered through this function are automatically unsubscribed when core.js
+     *  is unloaded.
+     */
+    propagateEvents: function(eventPubName, eventTarget, eventType) {
+      var publishEvent = function() {
+        // call CliqzEvents.pub with arguments [eventPubName, ...arguments].
+        // this causes clients listening to eventPubName get mirrored arguments from the original event
+        CliqzEvents.pub.bind(CliqzEvents, eventPubName).apply(CliqzEvents, arguments);
+      };
+
+      CliqzUtils.log("Propagating "+ eventType +" events to CliqzEvents as "+ eventPubName, "CliqzEvents");
+      this.eventListeners.push({ target: eventTarget, type: eventType, func: publishEvent });
+      eventTarget.addEventListener(eventType, publishEvent);
     }
 };
 
