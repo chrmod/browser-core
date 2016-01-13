@@ -3,6 +3,7 @@
     "freshTabButton": false
   },
   "modules": [
-    "freshtab"
+    "freshtab",
+    "static"
   ]
 }

@@ -304,26 +304,28 @@ a
     -moz-flex: 1 1 auto
     -ms-flex: 1 1 auto
     flex: 1 1 auto
-    border: 1px #eee solid
     border-radius: 4px
     margin-top: 8px
     .main__headline
-      padding: 8px 8px 20px 72px
+      padding: 0 8px 16px 72px
       font-size: 12px
       line-height: 16px
+      min-height: 64px
       margin: 0
+      span
+        display: block
+        font-size: 0.75rem
+        line-height: 16px
+        color: rgba(0,0,0,0.38)
     .main__image
       position: absolute
       top: 0
       left: 0
       width: 64px
-      bottom: 0
+      height: 48px
       margin: 0
-      height: auto
-      border-top-left-radius: 4px
-      border-bottom-left-radius: 4px
-      border-top-right-radius: 0
-      border-bottom-right-radius: 0
+      background-position: top
+      border-radius: 4px
     .main__multiple__time
       position: absolute
       bottom: 0
@@ -1156,6 +1158,10 @@ a
         margin: 0
         padding: 0
         overflow: hidden
+        &.url
+          font-size: 0.75rem
+          line-height: 1rem
+          color: rgba(0,0,0,0.25)
     .meta
       float: left
       text-align: left
@@ -1172,4 +1178,39 @@ a
         color: rgba(0,0,0,0.38)
       .meta
         line-height: 1rem
+
+#freshstart
+  a
+    font-size: 14px
+    line-height: 17px
+    padding: 0
+    color: #506bb8 !important
+    box-sizing: border-box
+    margin: 0
+    max-height: 36px
+    font-weight: 300
+    overflow: hidden
+    text-overflow: ellipsis
+    -webkit-line-clamp: 2
+    -webkit-box-orient: vertical
+    display: block
+
+#search
+  padding: 0
+  margin-top: 2.5rem
+  z-index: 999
+  input
+    width: 100%
+    border: 0
+    background-color: rgba(254, 149, 49, 0.28)
+    padding: 0.4rem 0.8rem
+    font-size: 1rem
+    color: #000
+    outline: none
+  input::-webkit-input-placeholder
+    color: #FE9531
+
+.share
+  display: none
+    
 

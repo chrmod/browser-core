@@ -9,6 +9,10 @@ function showHistory(history) {
     queries = JSON.parse(q);
   }
 
+  for(var i=0;i<history.length;i++) {
+    history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  }
+
   history.reverse();
   queries.reverse();
   var hi = 0;
@@ -20,6 +24,7 @@ function showHistory(history) {
     if(history[hi].timestamp <= queries[qi].timestamp) {
 //       append(history[hi].title, history[hi].url, "link");
       data.push(history[hi]);
+
       hi++;
     } else {
 //       append(queries[qi].query, ((Date.now() - queries[qi].timestamp) / 1000).toFixed(0) + " seconds ago", "queries");
@@ -37,7 +42,9 @@ function showHistory(history) {
     data.push(queries[qi]);
     qi++;
   }
+ 
   displayData(data);
+
 }
 
 function displayData(data) {
@@ -57,6 +64,10 @@ function displayData(data) {
   }
 
   document.body.scrollTop = height + 100;
+
+  document.getElementById("search_input").addEventListener("keyup", function() {
+      filterHistory(this.value);
+  })
 }
 
 function testActiveWebViewOnIos() {
@@ -86,5 +97,16 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     var formatedDate = hours + ':' + minutes;
     return formatedDate;
 });
+
+function filterHistory(value) {
+    var framers = document.getElementsByClassName("framer");
+    for(var i=0;i<framers.length;i++) {
+        if(framers[i].childNodes[1].firstChild.textContent.toLowerCase().match(value.toLowerCase())) {
+            framers[i].parentNode.style.display = "block";
+        } else {
+            framers[i].parentNode.style.display = "none";
+        }
+    }
+}
 
 osBridge.searchHistory("", "showHistory")

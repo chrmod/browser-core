@@ -1,8 +1,10 @@
 CLIQZEnvironment = {
   TEMPLATES_PATH: 'templates/',
-  LOCALE_PATH: 'locale/',
+  LOCALE_PATH: 'modules/static/locale/',
   RESULTS_LIMIT: 3,
   RICH_HEADER_CACHE_TIMEOUT: 15000,
+  PEEK: 20,
+  PADDING: 16,
 
   storeQueryTimeout: null,
 
@@ -53,7 +55,8 @@ CLIQZEnvironment = {
     );
   },
 
-  autoComplete: function (val) {
+  autoComplete: function (val,searchString) {
+
     if( val && val.length > 0){
       val = val.replace(/http([s]?):\/\/(www.)?/,"");
       val = val.toLowerCase();
@@ -62,8 +65,14 @@ CLIQZEnvironment = {
       if( val.indexOf(urlbarValue) == 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
         osBridge.autocomplete(val);
+      } else {
+        var ls = JSON.parse(localStorage.recentQueries);
+        for( var i in ls ) {
+          if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) == 0 ) {
+            osBridge.autocomplete(ls[i].query.toLowerCase());
+          }
+        }
       }
-
     }
   },
 
@@ -75,8 +84,6 @@ CLIQZEnvironment = {
   },
 
   setDimensions: function() {
-    CLIQZEnvironment.PEEK = 20,
-    CLIQZEnvironment.PADDING = 16,
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
 
@@ -121,11 +128,12 @@ CLIQZEnvironment = {
           }),
       isInstant: false,
       googleThis: {
+        title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
+        action: CliqzUtils.getLocalizedString('mobile_more_results_action', '<span id="engineName">' + engine.name + '</span>'),
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
-        searchEngineName: engine.name,
         searchEngineUrl: engine.url
       }
     });
@@ -211,7 +219,7 @@ CLIQZEnvironment = {
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
 
-    CLIQZEnvironment.autoComplete(r._results[0].val);
+    CLIQZEnvironment.autoComplete(r._results[0].val,r._searchString);
 
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
@@ -724,7 +732,7 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
-  }, 
+  },
   initHomepage: function() {
     CLIQZEnvironment.getNews();
     osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
@@ -742,14 +750,15 @@ CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    
+
     return Result.cliqzExtra(
       {
         data:
           {
             template:'noResult',
+            title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
+            action: CliqzUtils.getLocalizedString('mobile_no_result_action', '<span id="engineName">' + engine.name + '</span>'),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
-            searchEngineName: engine.name,
             searchEngineUrl: engine.url
           },
         subType: JSON.stringify({empty:true})
@@ -816,26 +825,28 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 // SHARING IS CARING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 CLIQZEnvironment.shareContent = function() {
-    
-    var template = `<!DOCTYPE html>
-                        <html style="background-color: #eee;">
-                           <head>
-                              <title>###TITLE###</title>
-                              <style type="text/css">###STYLE###</style>
-                           </head>
-                           <body>
-                              <div id="results">
 
-                                 <div id="cliqz-results">
-                                        <div class="frame" style="width: 244px">
-                                            ###CONTENT###
-                                        </div>
-                                 </div>
-                              </div>
-                           </body>
-                        </html>`;
+    var template = '<!DOCTYPE html>' +
+                   '     <html style="background-color: #eee;">' +
+                   '       <head>' +
+                   '           <title>###TITLE###</title>' +
+                   '           <meta charset="utf-8">' +
+                   '           <meta name="viewport" content="initial-scale=1.0001, user-scalable=no">' +
+                   '          <style type="text/css">###STYLE###</style>' +
+                   '          <style type="text/css">#results {width:100%;max-width:600px;}</style>' +
+                   '       </head>' +
+                   '       <body>' +
+                   '          <div id="results">' +
+                   '            <div id="cliqz-results">' +
+                   '                    <div class="frame">' +
+                   '                        ###CONTENT###' +
+                   '                     </div>' +
+                   '             </div>' +
+                   '          </div>' +
+                   '       </body>' +
+                   '    </html>';
 
-    
+
     // clean up html / replace links
     var replaceUrlByOnclick = function (fullMatch,match) {
       return 'onClick="location.href=\'' + match + '\'"';
@@ -844,12 +855,13 @@ CLIQZEnvironment.shareContent = function() {
     var readyHtml = readyHtml.replace(this.outerHTML,"");
     var title = '';
     try {
-      var title = this.parentNode.getElementsByClassName("main__headline")[0].firstChild.innerText;
+      var title = this.parentNode.getElementsByClassName("main__headline")[0].getElementsByTagName("a")[0].innerText
     } catch(e) {
       console.log("You cannot share this");
+      title = '';
       return;
     }
-    
+
     // css rules inline
     var cssRules, innerStyles = "";
     for(var j=0; j<document.styleSheets.length;j++) {
@@ -861,7 +873,7 @@ CLIQZEnvironment.shareContent = function() {
 
     // replace template
     readyHtml = template.replace('###CONTENT###',readyHtml);
-    readyHtml = readyHtml.replace('###STYLE###',innerStyles); 
+    readyHtml = readyHtml.replace('###STYLE###',innerStyles);
     readyHtml = readyHtml.replace('###TITLE###',"CLIQZ Card:" + title);
     readyHtml = readyHtml.replace(location.href,"http://cdn.cliqz.com/mobile/beta/");
 
@@ -869,8 +881,8 @@ CLIQZEnvironment.shareContent = function() {
 
     // debugging iframe
     document.getElementById("testingshare").style.display = "block";
-    document.getElementById("testingshare").srcdoc = readyHtml; 
-    
+    document.getElementById("testingshare").srcdoc = readyHtml;
+
 
     // sending data
     var http = new XMLHttpRequest();

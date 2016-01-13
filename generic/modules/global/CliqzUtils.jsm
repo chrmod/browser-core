@@ -114,6 +114,7 @@ var CliqzUtils = {
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   init: function(win){
 
+
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -129,12 +130,14 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      var brandsDataUrl = "https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
+      var brandsDataUrl = "js/brands-database.json",
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
+
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
-          function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
+          function(req){
+            BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
             var retry = retryPattern.pop();
             if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
@@ -955,25 +958,37 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
-  //  gets a key and a dynamic of parameters
-  //  eg: getLocalizedString('sentence', 'John', 'biggest', 'fotball')
-  //  if the localized sentence is = '{} is the {} {} player' the output will be 'John is the biggest football player'
-  getLocalizedString: function(key){
-    var ret = key;
+  getLocalizedString: function(key, substitutions){
+    var str = key,
+        localMessages;
 
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
-        ret = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
-    } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
-        ret = CliqzUtils.locale['default'][key].message;
+        str = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+        localMessages = CliqzUtils.locale[CliqzUtils.currLocale];
+    } else if (CliqzUtils.locale.default && CliqzUtils.locale.default[key]) {
+        str = CliqzUtils.locale.default[key].message;
+        localMessages = CliqzUtils.locale.default;
     }
 
-    if(arguments.length>1){
-      var i = 1, args = arguments;
-      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
+    if (!substitutions) {
+      substitutions = [];
+    }
+    if (!Array.isArray(substitutions)) {
+      substitutions = [substitutions];
     }
 
-    return ret;
+    function replacer(matched, index, dollarSigns) {
+      if (index) {
+        index = parseInt(index, 10) - 1;
+        return index in substitutions ? substitutions[index] : "";
+      } else {
+        // For any series of contiguous `$`s, the first is dropped, and
+        // the rest remain in the output string.
+        return dollarSigns;
+      }
+    }
+    return str.replace(/\$(?:([1-9]\d*)|(\$+))/g, replacer);
   },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
@@ -996,13 +1011,16 @@ var CliqzUtils = {
 
     changes && changes();
 
+    var corePromises = [];
     enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       if(win.CLIQZ && win.CLIQZ.Core){
-        win.CLIQZ.Core.init();
+        corePromises.push(win.CLIQZ.Core.init());
       }
     }
+
+    return Promise.all(corePromises);
   },
   isWindows: function(){
     return CLIQZEnvironment.OS.indexOf("win") === 0;
@@ -1064,7 +1082,13 @@ var CliqzUtils = {
 
     return data;
   },
-  getNoResults: CLIQZEnvironment.getNoResults
+  getNoResults: CLIQZEnvironment.getNoResults,
+  getParameterByName: function(name, location) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
 };
 
 CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);

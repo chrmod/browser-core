@@ -57,18 +57,18 @@ Object.keys(window.TESTS).forEach(function (testName) {
 });
 
 beforeEach(function () {
-  CliqzUtils.extensionRestart()
+  return CliqzUtils.extensionRestart().then(function () {
+    chrome.gBrowser.removeAllTabsBut(chrome.gBrowser.selectedTab);
 
-  chrome.gBrowser.removeAllTabsBut(chrome.gBrowser.selectedTab);
+    getCliqzResults = CliqzUtils.getCliqzResults;
 
-  getCliqzResults = CliqzUtils.getCliqzResults;
-
-  /* Turn off telemetry during tests */
-  telemetry = CliqzUtils.telemetry;
-  CliqzUtils.telemetry = function () {};
+    /* Turn off telemetry during tests */
+    telemetry = CliqzUtils.telemetry;
+    CliqzUtils.telemetry = function () {};
+  });
 });
 
-afterEach(function (done) {
+afterEach(function () {
   CliqzUtils.telemetry = telemetry;
   CliqzUtils.getCliqzResults = getCliqzResults;
 
@@ -77,8 +77,6 @@ afterEach(function (done) {
 
   // clean waitFor side effects
   clearIntervals();
-
-  setTimeout(done, 1000)
 });
 
 window.focus();
