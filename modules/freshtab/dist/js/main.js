@@ -1,4 +1,5 @@
 var CliqzFreshTabNews = CliqzUtils.getWindow().CLIQZ.System.get("freshtab/news").default;
+var CliqzFreshTab = CliqzUtils.getWindow().CLIQZ.System.get("freshtab/main").default;
 var xingNews = CliqzFreshTabNews.getNews();
 CliqzFreshTabNews.init();
 
@@ -14,7 +15,8 @@ $(document).ready(function() {
 
   document.getElementById('cliqzOnboarding').innerHTML = cliqzOnboarding();
 
-  if(CliqzUtils.getParameterByName('cliqzOnboarding', location) === "1") {
+  if(CliqzUtils.getParameterByName('cliqzOnboarding', location) === "1" && !CliqzUtils.hasPref('browserOnboarding')) {
+    CliqzUtils.setPref('browserOnboarding', true);
     $('#optinContainer').css('display', 'block');
     telemetry({
       type: "onboarding",
@@ -25,6 +27,7 @@ $(document).ready(function() {
   }
 
   $('.cqz-optin-btn').on('click', function() {
+    CliqzFreshTab.cliqzOnboarding = false;
     $('#optinContainer').css('display', 'none');
     telemetry({
       type: "onboarding",
