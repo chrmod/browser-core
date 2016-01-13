@@ -793,7 +793,7 @@ window.CLIQZ.Core = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                CLIQZ.Core.createQbutton(win, btn.children.cliqz_menupopup);
+                win.CLIQZ.Core.createQbutton(btn.children.cliqz_menupopup);
             } catch(e){}
         }
     },
