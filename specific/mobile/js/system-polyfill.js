@@ -277,8 +277,13 @@ function loadAssetMap(){
     req.open('GET', 'assets/assetMap.json?r=' + Math.random(), false);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      assetMap = JSON.parse(req.response).assets;
-      resolve();
+        if(req.status === 200) {
+          assetMap = JSON.parse(req.response).assets;
+        } else if (req.status === 404) {
+          // no asset rewrite during development, thus not asset map
+          assetMap = {};
+        }
+        resolve();
     }
 
     req.send();
