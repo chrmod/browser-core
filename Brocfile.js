@@ -230,22 +230,22 @@ if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css'],
     replaceExtensions: ['html', 'css', 'js'],
-    generateAssetMap: false
+    generateAssetMap: true
   });
   // uglify breaks for cliqz-oss/broccoli#building-server:
   // "The .read/.rebuild API is no longer supported of Broccoli 1.0"
-  mobile = uglify(new Funnel(mobile), {
-    mangle: false,
-    compress: false,
-    output: {
-      indent_level: 2,
-      comments: false,
-      beautify: true
-    },
-    sourceMapConfig: {
-      enabled: false
-    }
-  });
+  // mobile = uglify(new Funnel(mobile), {
+  //   mangle: false,
+  //   compress: false,
+  //   output: {
+  //     indent_level: 2,
+  //     comments: false,
+  //     beautify: true
+  //   },
+  //   sourceMapConfig: {
+  //     enabled: false
+  //   }
+  // });
 }
 
 // Output
