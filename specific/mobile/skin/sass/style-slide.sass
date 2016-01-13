@@ -1122,10 +1122,10 @@ a
   .question
     @extend .clearfix
     padding: 1rem 0 0.1rem
+    margin: 0
+    border: 0
     .framer
       background-color: lighten(#1F69AD, 40%)
-      max-width: 64%
-      float: right
       font-size: 1rem
       line-height: 1.25rem
       padding: 0.5rem 1.25rem
@@ -1135,21 +1135,21 @@ a
         padding: 0
         overflow: hidden
     .meta
-      float: right
       text-align: right
-      display: inline-block
-      padding: 0.5rem 1.25rem
+      padding: 0.05rem 0.5rem 0 0
       font-size: 0.62rem
-      line-height: 1.25rem
-      color: #aaa
+      line-height: 0.9rem
+      div
+        text-align: right
+        color: #ccc
+        &.date
+          color: #ddd
   
   .answer
     @extend .clearfix
     padding: 0.1rem 0
     .framer
       background-color: lighten(#55B146, 30%)
-      max-width: 64%
-      float: left
       font-size: 1rem
       line-height: 1.25rem
       padding: 0.5rem 1.25rem
@@ -1163,13 +1163,15 @@ a
           line-height: 1rem
           color: rgba(0,0,0,0.25)
     .meta
-      float: left
       text-align: left
-      display: inline-block
-      padding: 0.5rem 1.25rem
-      font-size: 0.62rem
-      line-height: 1.25rem
-      color: #ccc
+      padding: 0.1rem 0 0 0.5rem
+      div
+        text-align: left
+        font-size: 0.62rem
+        line-height: 0.9rem
+        color: #ccc
+        &.date
+          color: #ddd
     &.followup
       .framer
         background-color: lighten(#55B146, 40%)

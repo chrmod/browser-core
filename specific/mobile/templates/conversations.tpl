@@ -10,26 +10,31 @@
 		 {{#each data}}
 		 	{{#if url}}
 		 		
-		 		<div class="answer" onclick="osBridge.openLink('{{url}}')">
-		 			<div class="framer">
-		 				<p>{{title}}</p>
-		 				<p class="url">{{domain}}</p>
-		 			</div>
-		 			<div class="meta">
-		 				{{conversationsTime timestamp}}
-		 			</div>
-		 		</div>
+		 		<table cellspacing="0" cellpadding="0" class="answer" onclick="osBridge.openLink('{{url}}')">
+		 			<tr>
+		 				<td class="framer">
+		 					<p class="url">{{domain}}</p>
+		 				</td>
+		 				<td class="meta">
+		 					<div>{{conversationsTime timestamp}}</div>
+		 					<div class="date">19.12.1977</div>
+		 				</td>
+		 			 </tr>
+		 		</table>
 		 		
 		 	{{else}}
 		 	
-		 		<div class="question" onclick="osBridge.notifyQuery('{{query}}');">
-		 			<div class="framer">
-		 				<p>{{query}}</p>
-		 			</div>
-		 			<div class="meta">
-		 				{{conversationsTime timestamp}}
-		 			</div>
-		 		</div>
+		 		<table cellspacing="0" cellpadding="0" class="question" onclick="osBridge.notifyQuery('{{query}}');">
+			 		<tr>
+					 	<td class="meta">
+						 	<div>{{conversationsTime timestamp}}</div>
+						 	<div class="date">19.12.1977</div>
+					 	</td>
+					 	<td class="framer">
+					 		<p>{{query}}</p>
+					 	</td>
+					 </tr>
+		 		</table>
 		 		
             {{/if}}
               
