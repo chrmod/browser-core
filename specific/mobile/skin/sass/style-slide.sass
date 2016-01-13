@@ -464,7 +464,6 @@ a
       height: 80px
       border-radius: 2px
       text-indent: -9999px
-      margin-top: 0.5rem
       border-right: 1px #fff solid
       &:last-child
         border-right: 0px
@@ -729,12 +728,13 @@ a
       left: 12px
       color: #fff
       text-align: center
+      background-size: 62%
+      background-position: center
+      background-repeat: no-repeat
       &.image
         text-indent: -9999px
         background-image: url("logos/twitter.svg")
-        background-size: 62%
-        background-position: center
-        background-repeat: no-repeat
+        
     h3
       font-size: 14px
       line-height: 16px
@@ -745,11 +745,11 @@ a
       color: rgba(0, 0, 0, 0.62)
     span
       font-size: 12px
-      line-height: 12px
+      line-height: 14px
       color: #aaa
       display: block
       padding-left: 46px
-      max-height: 12px
+      max-height: 14px
       text-overflow: ellipsis
       overflow: hidden
   &.cta__history li
@@ -759,6 +759,8 @@ a
       background-color: transparent
       border: 0
       border-bottom: 1px #eee solid
+      h3
+        max-height: 30px
       .cta__logo
         left: 0
     &:last-child a
