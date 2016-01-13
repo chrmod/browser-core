@@ -971,6 +971,21 @@
     "mobile_more_results_action": {
       "message": "Tap here for results from $1..."
     },
+    "unblock_menu_option": {
+      "message": "Unblock YouTube Videos"
+    },
+    "unblock_prompt": {
+      "message": "Would you like CLIQZ to try to unblock Youtube Videos?"
+    },
+    "unblock_always": {
+      "message": "Yes, always"
+    },
+    "unblock_once": {
+      "message": "Just this once"
+    },
+    "unblock_never": {
+      "message": "No, never"
+    },
     "cliqz-onboarding-title": {
       "message": "Woohoo! CLIQZ has successfully installed."
     },

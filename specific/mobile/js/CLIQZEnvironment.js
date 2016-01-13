@@ -827,9 +827,6 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 }
 
 
-
-// SHARING IS CARING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 CLIQZEnvironment.shareContent = function() {
 
     var template = '<!DOCTYPE html>' +

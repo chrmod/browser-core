@@ -130,7 +130,7 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      var brandsDataUrl = "js/brands-database.json",
+       var brandsDataUrl = "https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
