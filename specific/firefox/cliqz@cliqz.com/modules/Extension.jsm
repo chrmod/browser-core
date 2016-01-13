@@ -39,7 +39,8 @@ var Extension = {
         Extension.unloadModules();
 
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
-        System.baseURL = this.BASE_URI;
+        Extension.System = System;
+        Extension.System.baseURL = this.BASE_URI;
 
         // Cu.import('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
@@ -83,28 +84,39 @@ var Extension = {
       }.bind(this), function () {}, undefined, undefined, true);
 
       // Load and initialize modules
-      var modulePromises = this.config.modules.map(function (moduleName) {
-        return System.import(moduleName+"/background").then(function (module) {
-          module.default.init(this.config.settings);
-        }.bind(this)).catch(function (e) { /* die silently */ });
-      }.bind(this));
+      Extension.modulesLoadedPromise = Promise.all(
+        Extension.config.modules.map(function (moduleName) {
+          return new Promise(function (resolve, reject) {
+            var timeout = CliqzUtils.setTimeout(function () {
+              CliqzUtils.log("Timeout on loading module: "+moduleName, "Extension");
+              resolve();
+            }, 100);
 
-      return Promise.all(modulePromises).then(function () {
-        // Load into any existing windows
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext();
-          Extension.loadIntoWindow(win);
-        }
-        // Load into all new windows
-        Services.ww.registerNotification(Extension.windowWatcher);
-
+            Extension.System.import(moduleName+"/background")
+                     .then(function (module) { module.default.init(Extension.config.settings); })
+                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); })
+                     .then(function () { CliqzUtils.clearTimeout(timeout); resolve(); });
+          });
+        })
+      ).then(function () {
         if(CliqzUtils.getPref("humanWeb", false)){
           CliqzHumanWeb.initAtBrowser();
         }
 
         Extension.cliqzPrefsObserver.register();
+      }).catch(function (e) {
+        CliqzUtils.log("some modules failed to load - " + e, "Extension");
       });
+
+      // Load into currently open windows
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+        var win = enumerator.getNext();
+        Extension.loadIntoWindow(win);
+      }
+
+      // Load into all new windows
+      Services.ww.registerNotification(Extension.windowWatcher);
     },
     unload: function(version, uninstall){
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
@@ -173,7 +185,7 @@ var Extension = {
         if(this.config) {
           this.config.modules.forEach(function (moduleName) {
             try {
-              System.get(moduleName+"/background").default.unload();
+              Extension.System.get(moduleName+"/background").default.unload();
             } catch(e) {
             }
           });
@@ -249,33 +261,35 @@ var Extension = {
               win.CLIQZ = win.CLIQZ || {};
           } catch(e){}
       }
-      win.CLIQZ.System = System;
+      win.CLIQZ.System = Extension.System;
       win.CLIQZ.config = this.config;
     },
     loadIntoWindow: function(win) {
       if (!win) return;
 
       function load() {
-        Extension.setupCliqzGlobal(win);
-        Extension.addScript('core', win);
-        Extension.addScript('UI', win);
-        Extension.addScript('ContextMenu', win);
+        Extension.modulesLoadedPromise.then(function () {
+          Extension.setupCliqzGlobal(win);
+          Extension.addScript('core', win);
+          Extension.addScript('UI', win);
+          Extension.addScript('ContextMenu', win);
 
-        Extension.addButtons(win);
+          Extension.addButtons(win);
 
-        try {
-          if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
-            win.CLIQZ.Core.init();
-            CliqzUtils.log('Initialized', 'CORE');
+          try {
+            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+              win.CLIQZ.Core.init();
+              CliqzUtils.log('Initialized', 'CORE');
+            }
+            // Always set urlbar and start whoAmI
+            // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
+            win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
+            win.CLIQZ.Core.whoAmI(true); //startup
+            CliqzABTests.check();
+          } catch(e) {
+            Cu.reportError(e);
           }
-          // Always set urlbar and start whoAmI
-          // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
-          win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
-          win.CLIQZ.Core.whoAmI(true); //startup
-          CliqzABTests.check();
-        } catch(e) {
-          Cu.reportError(e);
-        }
+        });
       }
 
       if (!win.document || win.document.readyState !== "complete") {
