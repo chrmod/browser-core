@@ -87,7 +87,9 @@ CLIQZEnvironment = {
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
 
-  renderResults: function(r, showGooglethis, validCount, historyCount) {
+  renderResults: function(r, historyCount) {
+
+    var validCount = 0;
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
@@ -96,21 +98,8 @@ CLIQZEnvironment = {
 
     if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
-
-    CLIQZEnvironment.crossTransform(resultsBox, 0);
-
-
-    resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
-    resultsBox.style.marginLeft = CLIQZEnvironment.PEEK + 'px';
-    item_container.style.width = resultsBox.style.width;
-
-    CLIQZEnvironment.stopProgressBar();
-    CLIQZEnvironment.openLinksAllowed = true;
-
-    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style]');
-    CLIQZEnvironment.imgLoader.start();
-
-    return CLIQZ.UI.results({
+    
+    var renderedResults = CLIQZ.UI.results({
       searchString: r._searchString,
       frameWidth: CLIQZEnvironment.CARD_WIDTH,
       results: r._results.map(function(r, idx){
@@ -131,17 +120,41 @@ CLIQZEnvironment = {
         title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
         action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
-        show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
         searchEngineUrl: engine.url
       }
     });
 
+    var showGooglethis = 1;
+    if(renderedResults.results[0].data.template == "noResult") {
+      showGooglethis = 0;
+    }
+
+    CLIQZEnvironment.crossTransform(resultsBox, 0);
+
+    resultsBox.style.width = (window.innerWidth * (renderedResults.results.length + showGooglethis)) + 'px';
+    resultsBox.style.marginLeft = CLIQZEnvironment.PEEK + 'px';
+    item_container.style.width = resultsBox.style.width;
+
+    CLIQZEnvironment.stopProgressBar();
+    CLIQZEnvironment.openLinksAllowed = true;
+
+    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style]');
+    CLIQZEnvironment.imgLoader.start();
+
+    return renderedResults;
 
   },
 
-  setResultNavigation: function(results, showGooglethis, validCount) {
+  setResultNavigation: function(results) {
+
+    
+    var showGooglethis = 1;
+    if(results[0].data.template == "noResult") {
+      showGooglethis = 0;
+    }
+    
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     var currentResultsCount = CLIQZEnvironment.currentResultsCount =  results.length+showGooglethis;
     if(dots) {
@@ -168,14 +181,13 @@ CLIQZEnvironment = {
       setTimeout(nextTest,2000);
     }
 
-    validCount += showGooglethis;
     var offset = 0;
     var w = window.innerWidth;
 
-    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * validCount)));
+    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * currentResultsCount)));
 
     var googleAnim = document.getElementById("googleThisAnim");
-    CLIQZEnvironment.numberPages = validCount;
+    CLIQZEnvironment.numberPages = currentResultsCount;
     (function (numberPages) {
 
       if( typeof CLIQZEnvironment.vp !== "undefined" ) {
@@ -183,7 +195,7 @@ CLIQZEnvironment = {
       }
       CLIQZEnvironment.currentPage = 0;
       CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
-    })(validCount);
+    })(currentResultsCount);
 
     // CLIQZEnvironment.vp.goToIndex(1,0);
 
@@ -237,22 +249,14 @@ CLIQZEnvironment = {
     //CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
     //CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
 
-
-    var showGooglethis = 1;
-    var validCount = 0;
-
-    if(r._results[0].data.template == "noResult") {
-      showGooglethis = 0;
-    }
-
-    renderedResults = CLIQZEnvironment.renderResults(r, showGooglethis, validCount, historyCount);
+    renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
     // CLIQZEnvironment.renderRecentQueries(true);
 
     CLIQZEnvironment.initializeSharing();
 
 
-    CLIQZEnvironment.setResultNavigation(r._results, showGooglethis, renderedResults.results.length);
+    CLIQZEnvironment.setResultNavigation(renderedResults.results);
   },
   search: function(e, location_enabled, latitude, longitude) {
     CLIQZEnvironment.lastSearch = e;
@@ -336,17 +340,18 @@ CLIQZEnvironment = {
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
 
-        CliqzUtils.telemetry({
-          type: "activity",
-          action: "swipe",
-          swipe_direction:
-            page === CLIQZEnvironment.currentPage ? 'none' :
-                     (page > CLIQZEnvironment.currentPage ? 'right' : 'left'),
-          current_position: page,
-          views: CLIQZEnvironment.initViewpager.views[page],
-          prev_position: CLIQZEnvironment.currentPage,
-          prev_display_time: Date.now() - CLIQZEnvironment.initViewpager.pageShowTs
-        });
+        if(page !== CLIQZEnvironment.currentPage) {
+          CliqzUtils.telemetry({
+            type: "activity",
+            action: "swipe",
+            swipe_direction:
+              page > CLIQZEnvironment.currentPage ? 'right' : 'left',
+            current_position: page,
+            views: CLIQZEnvironment.initViewpager.views[page],
+            prev_position: CLIQZEnvironment.currentPage,
+            prev_display_time: Date.now() - CLIQZEnvironment.initViewpager.pageShowTs
+          });
+        }
 
         CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
@@ -737,6 +742,14 @@ CLIQZEnvironment = {
   },
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject("defaultSearchEngine", engine);
+    var engineDiv = document.getElementById("defaultEngine");
+    if(engineDiv && CliqzAutocomplete.lastSearch) {
+      engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
+      var moreResults = document.getElementById("moreResults")
+      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_result_action', engine.name));
+      var noResults = document.getElementById("noResults")
+      noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
+    }
   },
   getDefaultSearchEngine: function() {
     return localStorage.getObject("defaultSearchEngine") || {name:"Google", url: "http://www.google.com/search?q="};
@@ -813,9 +826,6 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
 
 }
 
-
-
-// SHARING IS CARING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 CLIQZEnvironment.shareContent = function() {
 
