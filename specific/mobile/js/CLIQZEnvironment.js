@@ -98,7 +98,7 @@ CLIQZEnvironment = {
 
     if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
-    
+
     var renderedResults = CLIQZ.UI.results({
       searchString: r._searchString,
       frameWidth: CLIQZEnvironment.CARD_WIDTH,
@@ -148,12 +148,12 @@ CLIQZEnvironment = {
 
   setResultNavigation: function(results) {
 
-    
+
     var showGooglethis = 1;
     if(results[0].data.template == "noResult") {
       showGooglethis = 0;
     }
-    
+
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     var currentResultsCount = CLIQZEnvironment.currentResultsCount =  results.length+showGooglethis;
     if(dots) {
@@ -734,6 +734,11 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
+  },
+  addEventListenerToElements(elementSelector, eventType, listener) {
+    Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
+      element.addEventListener(eventType, listener);
+    });
   },
   initHomepage: function() {
     CLIQZEnvironment.getNews();
