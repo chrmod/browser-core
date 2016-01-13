@@ -92,7 +92,7 @@ CLIQZEnvironment = {
     var validCount = 0;
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
-    var engine = CLIQZEnvironment.getDefaultSearchEngine();    
+    var engine = CLIQZEnvironment.getDefaultSearchEngine();
 
     CLIQZEnvironment.setDimensions();
 
@@ -140,7 +140,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.stopProgressBar();
     CLIQZEnvironment.openLinksAllowed = true;
 
-    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src]');
+    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style]');
     CLIQZEnvironment.imgLoader.start();
 
     return renderedResults;
@@ -340,13 +340,12 @@ CLIQZEnvironment = {
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
 
-        if(page != CLIQZEnvironment.currentPage) {
+        if(page !== CLIQZEnvironment.currentPage) {
           CliqzUtils.telemetry({
             type: "activity",
             action: "swipe",
             swipe_direction:
-              page === CLIQZEnvironment.currentPage ? 'none' :
-                       (page > CLIQZEnvironment.currentPage ? 'right' : 'left'),
+              page > CLIQZEnvironment.currentPage ? 'right' : 'left',
             current_position: page,
             views: CLIQZEnvironment.initViewpager.views[page],
             prev_position: CLIQZEnvironment.currentPage,
