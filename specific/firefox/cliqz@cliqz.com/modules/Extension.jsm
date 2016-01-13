@@ -87,15 +87,9 @@ var Extension = {
       Extension.modulesLoadedPromise = Promise.all(
         Extension.config.modules.map(function (moduleName) {
           return new Promise(function (resolve, reject) {
-            var timeout = CliqzUtils.setTimeout(function () {
-              CliqzUtils.log("Timeout on loading module: "+moduleName, "Extension");
-              resolve();
-            }, 100);
-
             Extension.System.import(moduleName+"/background")
-                     .then(function (module) { module.default.init(Extension.config.settings); })
-                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); })
-                     .then(function () { CliqzUtils.clearTimeout(timeout); resolve(); });
+                     .then(function (module) { module.default.init(Extension.config.settings); resolve(); })
+                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); resolve(); })
           });
         })
       ).then(function () {
@@ -241,10 +235,6 @@ var Extension = {
         //0.5.02 - 0.5.04
         CliqzUtils.clearPref('analysis');
         CliqzUtils.clearPref('news-toggle-trending');
-
-        if(!CliqzUtils.hasPref('session')) {
-          CliqzUtils.setPref('session', '');
-        }
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);

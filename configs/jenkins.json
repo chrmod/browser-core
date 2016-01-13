@@ -9,7 +9,6 @@
   "modules": [
     "static",
     "core",
-    "context-menu",
     "freshtab",
     "unblock",
     "theme",
