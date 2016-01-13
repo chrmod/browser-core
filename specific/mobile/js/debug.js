@@ -204,7 +204,7 @@ CLIQZ.UI.VIEWS["local-data-sc"] = {
 
       data.opening_status = {
         color: openingColors[open_stt],
-        stt_text: CliqzUtils.getLocalizedString(open_stt),
+        stt_text: open_stt && CliqzUtils.getLocalizedString(open_stt),
         time_info_til: CliqzUtils.getLocalizedString("open_hour"),
         time_info_str: timeInfos.join(", ")
       };
