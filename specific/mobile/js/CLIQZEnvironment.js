@@ -129,7 +129,7 @@ CLIQZEnvironment = {
       isInstant: false,
       googleThis: {
         title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
-        action: CliqzUtils.getLocalizedString('mobile_more_results_action', '<span id="engineName">' + engine.name + '</span>'),
+        action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         show: showGooglethis,
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
@@ -742,7 +742,10 @@ CLIQZEnvironment = {
     var engineDiv = document.getElementById("defaultEngine");
     if(engineDiv && CliqzAutocomplete.lastSearch) {
       engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
-      document.getElementById("engineName").innerHTML = engine.name;
+      var moreResults = document.getElementById("moreResults")
+      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_result_action', engine.name));
+      var noResults = document.getElementById("noResults")
+      noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
     }
   },
   getDefaultSearchEngine: function() {
@@ -757,7 +760,7 @@ CLIQZEnvironment = {
           {
             template:'noResult',
             title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
-            action: CliqzUtils.getLocalizedString('mobile_no_result_action', '<span id="engineName">' + engine.name + '</span>'),
+            action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
             searchEngineUrl: engine.url
           },

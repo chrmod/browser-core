@@ -6,7 +6,7 @@
           <br>
           <img src="skin/img/icon-google.svg"><br><br>
           <div>{{ title }}</div><br><br>
-          <div>{{ action }}</div>
+          <div id="noResults">{{ action }}</div>
         </div>
       </div>
     </div>

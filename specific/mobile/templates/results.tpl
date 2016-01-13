@@ -35,7 +35,7 @@
 				    <br>
 				    <img src="skin/img/icon-google.svg"><br><br>
 			        <div>{{ title }}</div><br><br>
-          			<div>{{ action }}</div>
+          			<div id="moreResults">{{ action }}</div>
 			    </div>
 			  </div>
 			</div>
