@@ -88,13 +88,8 @@ var Extension = {
         Extension.config.modules.map(function (moduleName) {
           return new Promise(function (resolve, reject) {
             Extension.System.import(moduleName+"/background")
-                     .then(function (module) {
-                        CliqzUtils.setTimeout(function(){
-                          module.default.init(Extension.config.settings);
-                        }, 0);
-                      })
-                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); })
-                     .then(function () { resolve(); });
+                     .then(function (module) { module.default.init(Extension.config.settings); resolve(); })
+                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); resolve(); })
           });
         })
       ).then(function () {
