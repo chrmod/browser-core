@@ -66,7 +66,7 @@ CLIQZEnvironment = {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
         osBridge.autocomplete(val);
       } else {
-        var ls = JSON.parse(localStorage.recentQueries);
+        var ls = JSON.parse(localStorage.recentQueries || '[]');
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) == 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
