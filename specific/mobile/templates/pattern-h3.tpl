@@ -1,6 +1,6 @@
 <!-- pattern-h3 -->
 <div class="meta">
-    <h3 class="meta__url" style="margin-left: 0; color: #691109"><i class="fa fa-history history"></i> History results</h3>
+    <h3 class="meta__url" style="margin-left: 0; color: #691109">History results</h3>
 </div>
 
 <div class='main'>

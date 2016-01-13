@@ -13,6 +13,7 @@
 		 		<table cellspacing="0" cellpadding="0" class="answer" onclick="osBridge.openLink('{{url}}')">
 		 			<tr>
 		 				<td class="framer">
+		 					<p>{{title}}</p>
 		 					<p class="url">{{domain}}</p>
 		 				</td>
 		 				<td class="meta">
