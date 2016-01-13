@@ -34,26 +34,6 @@ body, html
     right: 16px
     bottom: 16px
 
-@media only screen and (min-width: 568px) and (min-height: 320px) and (orientation: landscape)
-  .wrapper
-    bottom: 193px !important
-
-@media only screen and (min-width: 375px)
-  .wrapper
-    bottom: 258px
-
-@media only screen and (min-width: 375px) and (min-width: 667px) and (min-height: 375px) and (orientation: landscape)
-  .wrapper
-    bottom: 194px !important
-
-@media only screen and (min-width: 414px)
-  .wrapper
-    bottom: 271px
-
-@media only screen and (min-width: 414px) and (min-width: 736px) and (min-height: 414px) and (orientation: landscape)
-  .wrapper
-    bottom: 194px
-
 .frame
   position: absolute
   top: 0
@@ -337,16 +317,6 @@ a
       line-height: 16px
       padding: 0 8px
       color: #666
-
-@media only screen and (min-width: 375px)
-  .main.mulitple .item .main__headline
-    font-size: 16px
-    line-height: 19.2px
-
-@media only screen and (min-width: 414px)
-  .main.mulitple .item .main__headline
-    font-size: 16px
-    line-height: 20.8px
 
 .weather
   &::after
@@ -711,7 +681,7 @@ a
       color: #666
       padding: 4px 8px 4px
       font-size: 14px
-      line-height: 25.6px
+      line-height: 21px
       border: 1px rgba(0, 0, 0, 0.2) solid
       border-radius: 4px
       background-color: rgba(0, 0, 0, 0.1)
@@ -728,12 +698,13 @@ a
       left: 12px
       color: #fff
       text-align: center
+      background-size: 62%
+      background-position: center
+      background-repeat: no-repeat
       &.image
         text-indent: -9999px
         background-image: url("logos/twitter.svg")
-        background-size: 62%
-        background-position: center
-        background-repeat: no-repeat
+        
     h3
       font-size: 14px
       line-height: 16px
@@ -744,11 +715,11 @@ a
       color: rgba(0, 0, 0, 0.62)
     span
       font-size: 12px
-      line-height: 12px
+      line-height: 14px
       color: #aaa
       display: block
       padding-left: 46px
-      max-height: 12px
+      max-height: 14px
       text-overflow: ellipsis
       overflow: hidden
   &.cta__history li
@@ -758,6 +729,8 @@ a
       background-color: transparent
       border: 0
       border-bottom: 1px #eee solid
+      h3
+        max-height: 30px
       .cta__logo
         left: 0
     &:last-child a
@@ -816,16 +789,6 @@ a
     font-weight: 300
   img
     width: 48px
-
-@media only screen and (min-width: 375px)
-  .cta li a
-    font-size: 16px
-    line-height: 28.8px
-
-@media only screen and (min-width: 414px)
-  .cta li a
-    font-size: 19.2px
-    line-height: 32px
 
 .video
   .picture
@@ -1118,14 +1081,14 @@ a
         color: #333
 
 .history
-  padding: 0 1rem
+  padding: 0 1rem 1rem
   .question
     @extend .clearfix
     padding: 1rem 0 0.1rem
+    margin: 0
+    border: 0
     .framer
       background-color: lighten(#1F69AD, 40%)
-      max-width: 64%
-      float: right
       font-size: 1rem
       line-height: 1.25rem
       padding: 0.5rem 1.25rem
@@ -1134,22 +1097,23 @@ a
         margin: 0
         padding: 0
         overflow: hidden
+        font-weight: 400
     .meta
-      float: right
       text-align: right
-      display: inline-block
-      padding: 0.5rem 1.25rem
+      padding: 0.05rem 0.5rem 0 0
       font-size: 0.62rem
-      line-height: 1.25rem
-      color: #aaa
+      line-height: 0.9rem
+      div
+        text-align: right
+        color: #ccc
+        &.date
+          color: #ddd
   
   .answer
     @extend .clearfix
     padding: 0.1rem 0
     .framer
       background-color: lighten(#55B146, 30%)
-      max-width: 64%
-      float: left
       font-size: 1rem
       line-height: 1.25rem
       padding: 0.5rem 1.25rem
@@ -1158,18 +1122,21 @@ a
         margin: 0
         padding: 0
         overflow: hidden
+        font-weight: 400
         &.url
           font-size: 0.75rem
           line-height: 1rem
           color: rgba(0,0,0,0.25)
     .meta
-      float: left
       text-align: left
-      display: inline-block
-      padding: 0.5rem 1.25rem
-      font-size: 0.62rem
-      line-height: 1.25rem
-      color: #ccc
+      padding: 0.1rem 0 0 0.5rem
+      div
+        text-align: left
+        font-size: 0.62rem
+        line-height: 0.9rem
+        color: #ccc
+        &.date
+          color: #ddd
     &.followup
       .framer
         background-color: lighten(#55B146, 40%)
