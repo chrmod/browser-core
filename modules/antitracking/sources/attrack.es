@@ -550,7 +550,8 @@ var CliqzAttrack = {
         observe: function(subject, topic, data) {
             // For headers only, AFAIK the etags (if-none-match) becomes available only in the response
             // So let's at least do the counting
-            if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
+            if (!CliqzAttrack.isBloomFilterEnabled() && (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) ||
+                CliqzAttrack.isBloomFilterEnabled() && CliqzAttrack.bloomFilter.bloomFilter == null){
                 return;
             }
             var aChannel = subject.QueryInterface(nsIHttpChannel);
@@ -2278,7 +2279,10 @@ var CliqzAttrack = {
           companies: {}
         },
         trackers = Object.keys(tab_data.tps).filter(function(domain) {
-          return md5(getGeneralDomain(domain)).substring(0, 16) in CliqzAttrack.tokenExtWhitelist;
+          if (!CliqzAttrack.isBloomFilterEnabled())
+            return md5(getGeneralDomain(domain)).substring(0, 16) in CliqzAttrack.tokenExtWhitelist;
+          else
+            return CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5(getGeneralDomain(domain)).substring(0, 16));
         }),
         plain_data = tab_data.asPlainObject();
 
