@@ -17,32 +17,46 @@ function showHistory(history) {
   queries.reverse();
   var hi = 0;
   var qi = 0;
+  var date = "";
   while(true) {
     if(hi >= history.length || qi >= queries.length) {
       break;
     }
+
     if(history[hi].timestamp <= queries[qi].timestamp) {
-//       append(history[hi].title, history[hi].url, "link");
+      if(getDateFromTimestamp(history[hi].timestamp) !== date) {
+        data.push({date: getDateFromTimestamp(history[hi].timestamp)});
+        date = getDateFromTimestamp(history[hi].timestamp);
+      }
       data.push(history[hi]);
 
       hi++;
     } else {
-//       append(queries[qi].query, ((Date.now() - queries[qi].timestamp) / 1000).toFixed(0) + " seconds ago", "queries");
+      if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
+        data.push({date: getDateFromTimestamp(queries[qi].timestamp)}); 
+        date = getDateFromTimestamp(history[hi].timestamp);     
+      }
       data.push(queries[qi]);
       qi++;
     }
   }
   while(hi < history.length) {
-//     append(history[hi].title, history[hi].url, "link");
+    if(getDateFromTimestamp(history[hi].timestamp) !== date) {
+      data.push({date: getDateFromTimestamp(history[hi].timestamp)});
+      date = getDateFromTimestamp(history[hi].timestamp);
+    }
     data.push(history[hi]);
     hi++;
   }
   while(qi < queries.length) {
-    // append(queries[qi].query, ((Date.now() - queries[qi].timestamp) / 1000).toFixed(0) + " seconds ago", "queries");
+    if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
+      data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
+      date = getDateFromTimestamp(history[hi].timestamp);
+    }
     data.push(queries[qi]);
     qi++;
   }
- 
+ console.log("data", data);
   displayData(data);
 
 }
@@ -98,8 +112,7 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     return formatedDate;
 });
 
-
-Handlebars.registerHelper('conversationsDate', function(time) {
+function getDateFromTimestamp(time) {
     var d = new Date(time);
     
     var days = d.getDate();
@@ -112,7 +125,9 @@ Handlebars.registerHelper('conversationsDate', function(time) {
     
     var formatedDate = days + '.' + months + '.' + year;
     return formatedDate;
-});
+}
+
+Handlebars.registerHelper('conversationsDate', getDateFromTimestamp);
 
 function filterHistory(value) {
     var framers = document.getElementsByClassName("framer");
