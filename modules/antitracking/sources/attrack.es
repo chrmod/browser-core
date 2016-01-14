@@ -12,6 +12,7 @@ import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/u
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 import { isHash } from 'antitracking/hash';
 import { TrackerTXT, sleep, defaultTrackerTxtRule } from 'antitracking/tracker-txt';
+import { AttrackBloomFilter, bloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import TrackingTable from 'antitracking/local-tracking-table';
 
@@ -92,6 +93,7 @@ var CliqzAttrack = {
         "BetterPrivacy": true,
         "NoScript": true
     },
+    bloomFilter: bloomFilter,
     blacklist:[],
     blockingFailed:{},
     trackReload:{},
@@ -237,7 +239,9 @@ var CliqzAttrack = {
     },
     httpopenObserver: {
         observe : function(subject, topic, data) {
-            if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
+            if ((CliqzAttrack.isBloomFilterEnabled() && CliqzAttrack.bloomFilter === null) ||
+                (!(CliqzAttrack.isBloomFilterEnabled()) &&
+                 (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null))) {
                 return;
             }
 
@@ -256,7 +260,7 @@ var CliqzAttrack = {
             }
 
             // find the ok tokens fields
-            CliqzAttrack.examineTokens(url_parts);
+            CliqzAttrack.examineTokens(url_parts, CliqzAttrack.sendInstantSafeKey);
 
             // youtube
             if (url.indexOf("mime=video") > -1 || url.indexOf("mime=audio") > -1) return;
@@ -1086,6 +1090,9 @@ var CliqzAttrack = {
     isTrackerTxtEnabled: function() {
         return CliqzUtils.getPref('trackerTxt', false);
     },
+    isBloomFilterEnabled: function() {
+        return CliqzUtils.getPref('attrackBloomFilter', false);
+    },
     initialiseAntiRefererTracking: function() {
         if (CliqzUtils.getPref('attrackRefererTracking', false)) {
             // check that the user has not already set values here
@@ -1129,8 +1136,12 @@ var CliqzAttrack = {
             }
         }
 
-        // check for new whitelists every 3 hours
-        pacemaker.register(CliqzAttrack.loadRemoteWhitelists, 3 * 60 * 60 * 1000);
+        if (!CliqzAttrack.isBloomFilterEnabled())
+            // check for new whitelists every 3 hours
+            pacemaker.register(CliqzAttrack.loadRemoteWhitelists, 3 * 60 * 60 * 1000);
+        else
+            // check for new bloom filter every 10 minutes
+            pacemaker.register(CliqzAttrack.updateBloomFilter, 10 * 60 * 1000);
 
         // send tokens whenever hour changes
         pacemaker.register(CliqzAttrack.sendTokens, two_mins, timeChangeConstraint("tokens", "hour"));
@@ -1255,7 +1266,8 @@ var CliqzAttrack = {
         this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
         this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
-        if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
+        if (!CliqzAttrack.isBloomFilterEnabled())
+            if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
 
         CliqzAttrack.safeKey = {};
         persist.create_persistent("safeKey", (v) => CliqzAttrack.safeKey = v);
@@ -1307,6 +1319,14 @@ var CliqzAttrack = {
         }
 
         CliqzAttrack.local_tracking = new TrackingTable();
+
+        // update bloom filter
+        if (CliqzAttrack.isBloomFilterEnabled()) {
+            CliqzAttrack.bloomFilter.checkUpdate(function() {
+                CliqzAttrack.lastUpdate[0] = datetime.getTime();
+                CliqzAttrack.lastUpdate[0] = datetime.getTime();
+            });
+        }
 
     },
     /** Per-window module initialisation
@@ -1392,50 +1412,65 @@ var CliqzAttrack = {
                 CliqzAttrack.obsCounter[x] = counter;
             });
     },
+    attachVersion: function(payl) {
+        if (CliqzAttrack.isBloomFilterEnabled()) {
+            if (CliqzAttrack.bloomFilter != null)
+                payl['bloomFilterversion'] = CliqzAttrack.bloomFilter.version;
+            else
+                payl['bloomFilterversion'] = null;
+        } else {
+            payl['whitelist'] = CliqzAttrack.tokenWhitelistVersion;
+            payl['safeKey'] = CliqzAttrack.safeKeyExtVersion;
+        }
+        return payl;
+    },
+    generatePayload: function(data, ts, instant, attachVersion) {
+        var payl = {
+            'data': data,
+            'ver': CliqzAttrack.VERSION,
+            'ts': ts,
+            'anti-duplicates': Math.floor(Math.random() * 10000000)
+        };
+        if (instant)
+            payl['instant'] = true;
+        if (attachVersion)
+            payl = CliqzAttrack.attachVersion(payl);
+        return payl;
+    },
+    sendInstantSafeKey: function(s, key, today) {
+        // once there is a new safe key, send it back
+        var data = {};
+        data[s] = {};
+        data[s][key] = today;
+        var payl = CliqzAttrack.generatePayload(data, datetime.getTime(), true, true);
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
+    },
+    sendInstantTokens: function(s, r, k, tok) {
+        // If this is the first apperance of this token within an hour,
+        // We will send it immediately
+        var data = {};
+        data[s] = {};
+        data[s][r] = {'kv': {}};
+        data[s][r]['kv'][k] = {};
+        data[s][r]['kv'][k][tok] = 1;
+        var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+    },
     sendTokens: function() {
-        var payl,
-            safeKeyExtVersion = persist.get_value("safeKeyExtVersion", "");
-        if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
-            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzHumanWeb.getTime().slice(0, 10), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
-
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+        if (CliqzAttrack.tokens) {
 
             if (CliqzAttrack.local_tracking.isEnabled()) {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
             // reset the state
             this._tokens.clear();
+            persist.clear_persistent(CliqzAttrack.tokens);
         }
 
-        // send also safe keys
-        if (CliqzAttrack.safeKey) {
-            // get only keys from local key
-            var day = datetime.getTime().substring(0, 8);
-            var dts = {}, local = {}, localE = 0, s, k;
-            for (s in CliqzAttrack.safeKey) {
-                for (k in CliqzAttrack.safeKey[s]) {
-                    if (CliqzAttrack.safeKey[s][k][1] == 'l') {
-                        if (!local[s]) {
-                            local[s] = {};
-                            localE ++;
-                        }
-                        local[s] = CliqzAttrack.safeKey[s][k];
-                        if (CliqzAttrack.safeKey[s][k][0] == day) {
-                            if (!dts[s]) dts[s] = {};
-                            dts[s][k] = CliqzAttrack.safeKey[s][k][0];
-                        }
-                    }
-                }
-            }
-            payl = {'data': dts, 'ver': CliqzAttrack.VERSION, 'ts': CliqzHumanWeb.getTime().slice(0, 10), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'safeKey': safeKeyExtVersion, 'localElement': localE, 'localSize':JSON.stringify(local).length, 'whitelist': CliqzAttrack.tokenWhitelistVersion};
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
-        }
         // send block list
         if (CliqzAttrack.blocked) {
-            payl = {'data': CliqzAttrack.blocked, 'ver': CliqzAttrack.VERSION, 'ts': CliqzHumanWeb.getTime().slice(0, 10), 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion, 'safeKey': safeKeyExtVersion};
-
+            var payl = CliqzAttrack.generatePayload(CliqzAttrack.blocked, datetime.getHourTimestamp(), false, true);
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
-
             // reset the state
             this._blocked.clear();
         }
@@ -1562,16 +1597,29 @@ var CliqzAttrack = {
             for (var s in CliqzAttrack.localBlocked[source]) {
                 for (var k in CliqzAttrack.localBlocked[source][s]) {
                     for (var v in CliqzAttrack.localBlocked[source][s][k]) {
-                        if (!(s in CliqzAttrack.tokenExtWhitelist) ||
-                            (s in CliqzAttrack.safeKey && k in CliqzAttrack.safeKey[s]) ||
-                            (s in CliqzAttrack.tokenExtWhitelist && v in CliqzAttrack.tokenExtWhitelist[s])) {
-                            for (var h in CliqzAttrack.localBlocked[source][s][k][v]) {
-                                countWrongToken += CliqzAttrack.localBlocked[source][s][k][v][h];
-                                CliqzAttrack.localBlocked[source][s][k][v][h] = 0;
+                        if (!CliqzAttrack.isBloomFilterEnabled()) {
+                            if (!(s in CliqzAttrack.tokenExtWhitelist) ||
+                                (s in CliqzAttrack.safeKey && k in CliqzAttrack.safeKey[s]) ||
+                                (s in CliqzAttrack.tokenExtWhitelist && v in CliqzAttrack.tokenExtWhitelist[s])) {
+                                for (var h in CliqzAttrack.localBlocked[source][s][k][v]) {
+                                    countWrongToken += CliqzAttrack.localBlocked[source][s][k][v][h];
+                                    CliqzAttrack.localBlocked[source][s][k][v][h] = 0;
+                                }
                             }
+                            else
+                                _wrongSource = false;
+                        } else {
+                            if (!(bloomFilter.bloomFilter.test(s)) ||
+                                (s in CliqzAttrack.safeKey && k in CliqzAttrack.safeKey[s]) ||
+                                (bloomFilter.bloomFilter.test(s) && (bloomFilter.bloomFilter.test(s + k) || bloomFilter.bloomFilter.test(s + v)))) {
+                                for (var h in CliqzAttrack.localBlocked[source][s][k][v]) {
+                                    countWrongToken += CliqzAttrack.localBlocked[source][s][k][v][h];
+                                    CliqzAttrack.localBlocked[source][s][k][v][h] = 0;
+                                }
+                            }
+                            else
+                                _wrongSource = false;
                         }
-                        else
-                            _wrongSource = false;
                     }
                 }
             }
@@ -1583,18 +1631,14 @@ var CliqzAttrack = {
         for (var h in CliqzAttrack.blockedToken) countBlockedToken += CliqzAttrack.blockedToken[h];
         for (var h in CliqzAttrack.loadedPage) countLoadedPage += CliqzAttrack.loadedPage[h];
 
-        var payl = {'data': {'wrongToken': countWrongPage,
-                             'checkedToken': countCheckedToken,
-                             'blockedToken': countBlockedToken,
-                             'wrongPage': countWrongPage,
-                             'loadedPage': countLoadedPage
-                            },
-                    'ver': CliqzAttrack.VERSION,
-                    'ts': CliqzHumanWeb.getTime().slice(0, 10),
-                    'anti-duplicates': Math.floor(Math.random() * 10000000),
-                    'whitelist': CliqzAttrack.tokenWhitelistVersion,
-                    'safeKey': CliqzAttrack.safeKeyExtVersion
-                   };
+        var data = {
+            'wrongToken': countWrongPage,
+            'checkedToken': countCheckedToken,
+            'blockedToken': countBlockedToken,
+            'wrongPage': countWrongPage,
+            'loadedPage': countLoadedPage
+        };
+        var payl = CliqzAttrack.generatePayload(data, wrongTokenLastSent, false, true);
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.FP', 'payload': payl});
         persist.set_value("wrongTokenLastSent", day);
         CliqzAttrack._updated = {};
@@ -1739,7 +1783,8 @@ var CliqzAttrack = {
         var s = getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
         // If it's a rare 3rd party, we don't do the rest
-        if (!(s in CliqzAttrack.tokenExtWhitelist)) return [];
+        if (!CliqzAttrack.isBloomFilterEnabled() && !(s in CliqzAttrack.tokenExtWhitelist) ||
+            CliqzAttrack.isBloomFilterEnabled() && (!(bloomFilter.bloomFilter.testSingle(s)))) return [];
 
         var sourceD = md5(source_url_parts.hostname).substr(0, 16);
         var today = datetime.getTime().substr(0, 8);
@@ -1883,14 +1928,16 @@ var CliqzAttrack = {
 
 
             // Good keys.
-            if (CliqzAttrack.safeKey[s] &&
-                CliqzAttrack.safeKey[s][md5(key)]) {
+            if (!CliqzAttrack.isBloomFilterEnabled() &&  CliqzAttrack.safeKey[s] && CliqzAttrack.safeKey[s][md5(key)] ||
+                CliqzAttrack.isBloomFilterEnabled() && CliqzAttrack.safeKey[s] &&
+                (CliqzAttrack.safeKey[s][md5(key)] || bloomFilter.bloomFilter.testSingle(s + md5(key)))) {
                 stats['safekey']++;
                 return;
             }
 
             if (source_url.indexOf(tok) == -1) {
-                if(!(md5(tok) in CliqzAttrack.tokenExtWhitelist[s])) {
+                if((!CliqzAttrack.isBloomFilterEnabled()) && (!(md5(tok) in CliqzAttrack.tokenExtWhitelist[s])) ||
+                   CliqzAttrack.isBloomFilterEnabled() && (!(bloomFilter.bloomFilter.testSingle(s + md5(tok))))) {
                     var cc = _countCheck(tok);
                     _incrStats(cc, 'qs', tok, key, val);
                 } else
@@ -1930,7 +1977,7 @@ var CliqzAttrack = {
         }
         return badHeaders;
     },
-    examineTokens: function(url_parts) {
+    examineTokens: function(url_parts, callback) {
         var day = datetime.newUTCDate();
         var today = datetime.dateString(day);
         // save appeared tokens with field name
@@ -1952,6 +1999,9 @@ var CliqzAttrack = {
             if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > 2) {
                 if (CliqzAttrack.safeKey[s] == null)
                     CliqzAttrack.safeKey[s] = {};
+                if (!(key in CliqzAttrack.safeKey[s]) ||
+                    CliqzAttrack.safeKey[s][key][0] != today)
+                    callback(s, key, today);
                 CliqzAttrack.safeKey[s][key] = [today, 'l'];
                 // keep the last seen token
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};
@@ -1963,9 +2013,9 @@ var CliqzAttrack = {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
         var keyTokens = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']),
-          s = md5(url_parts.hostname).substr(0, 16);
+            s = md5(url_parts.hostname).substr(0, 16);
         refstr = md5(refstr).substr(0, 16);
-        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr);
+        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.sendInstantTokens);
     },
     extractHeaderTokens: function(url_parts, refstr, header) {
         // keys, value of query strings will be sent in md5
@@ -1980,7 +2030,7 @@ var CliqzAttrack = {
         if (Object.keys(keyTokens).length > 0) {
             var s = md5(url_parts.hostname + url_parts.path);
             refstr = md5(refstr).substr(0, 16);
-            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr);
+            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.sendInstantTokens);
         }
     },
     checkPostReq: function(body, badTokens, cookies) {
@@ -2011,7 +2061,7 @@ var CliqzAttrack = {
         }
         return body;
     },
-    saveKeyTokens: function(s, keyTokens, r) {
+    saveKeyTokens: function(s, keyTokens, r, callback) {
         // anything here should already be hash
         if (Object.keys(keyTokens).length == 0) return;
         if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {};
@@ -2020,7 +2070,11 @@ var CliqzAttrack = {
         for (var k in keyTokens) {
             var tok = keyTokens[k];
             if (CliqzAttrack.tokens[s][r]['kv'][k] == null) CliqzAttrack.tokens[s][r]['kv'][k] = {};
-            if (CliqzAttrack.tokens[s][r]['kv'][k][tok] == null) CliqzAttrack.tokens[s][r]['kv'][k][tok] = 0;
+            if (CliqzAttrack.tokens[s][r]['kv'][k][tok] == null) {
+                CliqzAttrack.tokens[s][r]['kv'][k][tok] = 0;
+                // TODO: replace count with checksum
+                callback(s, r, k, tok);
+            }
             CliqzAttrack.tokens[s][r]['kv'][k][tok] += 1;
         }
         this._tokens.setDirty();
