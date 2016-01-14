@@ -9,6 +9,11 @@ function showHistory(history) {
     queries = JSON.parse(q);
   }
 
+  if(history.length == 0 && queries.length == 0) {
+    showNoData();
+    return;
+  }
+
   for(var i=0;i<history.length;i++) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
@@ -56,7 +61,6 @@ function showHistory(history) {
     data.push(queries[qi]);
     qi++;
   }
-  console.log("data", data);
   displayData(data);
 }
 
@@ -155,6 +159,14 @@ function filterHistory(value) {
             framers[i].parentNode.style.display = "none";
         }
     }
+}
+
+function showNoData() {
+  if(document.body) {
+    document.body.innerHTML = "You haven't searched anything yet";
+  } else {
+    setTimeout(showNoData, 100);
+  }
 }
 
 osBridge.searchHistory("", "showHistory")
