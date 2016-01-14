@@ -75,10 +75,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
     }
 
     var proxy_autoconfig_url = null,
-      proxy_type = null;
+      proxy_type = null,
+      attrackBloomFilterPref = null,
+      baseURL = CliqzAttrack.bloomFilter.baseURL;
 
     before(function(done) {
       // set up HTTP server.
+      attrackBloomFilterPref = CliqzUtils.getPref('attrackBloomFilter');
       server = new HttpServer();
       server_port = 60508;
       // add other test domains to server
@@ -123,6 +126,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       } else {
         prefs.setIntPref('network.proxy.type', proxy_type);
       }
+      CliqzUtils.setPref('attrackBloomFilter', attrackBloomFilterPref);
     });
 
     var win = CliqzUtils.getWindow(),
@@ -135,8 +139,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       echoed = [];
       tabs.push(gBrowser.addTab(url));
     };
-
-    var baseURL;
 
     beforeEach(function() {
       this.timeout(5000);
@@ -154,9 +156,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       // clean up attrack caches
       CliqzAttrack.requestKeyValue = {};
       CliqzAttrack.tokenExtWhitelist = {};
-      CliqzAttrack.bloomFilter.bloomFilter = new BloomFilter('0000000000000000000', 5);
-      baseURL = CliqzAttrack.bloomFilter.baseURL;
       CliqzAttrack.bloomFilter.baseURL = null;
+      CliqzAttrack.bloomFilter.bloomFilter = new BloomFilter('0000000000000000000', 5);
       CliqzAttrack.safeKey = {};
       CliqzAttrack.tokenDomain = {};
       CliqzAttrack.recentlyModified.clear();
@@ -487,8 +488,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
         });
 
-        context('QS blocking enabled', function() {
-
+        var QSBlocking = function() {
           var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
 
           beforeEach(function() {
@@ -686,10 +686,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
               it('does not block if whitelisted token', allowWhiteListedToken);
 
-              CliqzUtils.setPref('attrackBloomFilter', true);
-              it('does not block if whitelisted token (with bloom filter)', allowWhiteListedToken);
-              CliqzUtils.setPref('attrackBloomFilter', false);
-
               context('anti-tracking disabled for source domain', function() {
 
                 beforeEach(function() {
@@ -766,7 +762,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
               });
             });
           }); // tp on tracker list
-        }); // context : QS enabled
+        };
+        CliqzUtils.setPref('attrackBloomFilter', false);
+        context('QS blocking enabled (w/o bloom filter)', QSBlocking);
+        CliqzUtils.setPref('attrackBloomFilter', true);
+        context('QS blocking enabled (with bloom filter)', QSBlocking);
       }); // describe testpage
     }); // for each page
 
