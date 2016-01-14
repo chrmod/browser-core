@@ -93,12 +93,11 @@ function displayData(data) {
       target_ts: parseInt(this.dataset.timestamp)
     });
   });
-  var queryCount = data.filter(function (item) { return !item.url; }).length;
   CliqzUtils.telemetry({
     type: "history",
     action: "show",
-    query_count: queryCount,
-    url_count: data.length - queryCount
+    query_count: data.filter(function (item) { return item.query; }).length,
+    url_count: data.filter(function (item) { return item.url; }).length
   });
 }
 
