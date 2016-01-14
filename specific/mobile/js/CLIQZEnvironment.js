@@ -239,11 +239,11 @@ CLIQZEnvironment = {
       CLIQZEnvironment.enrichResults(r, 1, historyCount);
     }
     CLIQZEnvironment._currentQuery = r._searchString;
-    clearTimeout(CLIQZEnvironment.storeQueryTimeout);
-    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
+    // clearTimeout(CLIQZEnvironment.storeQueryTimeout);
+    // CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
 
-      CLIQZEnvironment.setCurrentQuery(r._searchString);
-    },2000);
+    CLIQZEnvironment.setCurrentQuery(r._searchString);
+    // },2000);
 
     //CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
     //CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
@@ -618,7 +618,7 @@ CLIQZEnvironment = {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
       }
-      CLIQZEnvironment.setCurrentQuery(CLIQZEnvironment._currentQuery);
+      // CLIQZEnvironment.setCurrentQuery(CLIQZEnvironment._currentQuery);
       osBridge.openLink(url);
     }
 
@@ -802,13 +802,18 @@ CLIQZEnvironment = {
 CLIQZEnvironment.setCurrentQuery = function(query) {
   CLIQZEnvironment._currentQuery = query;
   var recentItems = CLIQZEnvironment.getRecentQueries();
-  if(!recentItems[0] || (recentItems[0] && recentItems[0].query != query) )  {
-    recentItems.unshift({query:query,timestamp:(new Date()).getTime()});
+  if(!recentItems[0]) {
+    recentItems = [{query:query,timestamp:Date.now()}];
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+  } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2
+            && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+    recentItems[0] = {query:query,timestamp:Date.now()};
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+  } else {
+    recentItems.unshift({query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
-    CLIQZEnvironment.renderRecentQueries(true);
   }
-
 }
 
 
@@ -915,7 +920,7 @@ CLIQZEnvironment.shareContent = function() {
     // sending data
     var http = new XMLHttpRequest();
     var url = "http://rh-staging.clyqz.com/share_card";
-    var params = "id=card" + (new Date()).getTime() + Math.ceil(1000*Math.random()) + "&content=" + encodeURIComponent(readyHtml);
+    var params = "id=card" + Date.now() + Math.ceil(1000*Math.random()) + "&content=" + encodeURIComponent(readyHtml);
     http.open("POST", url, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.onreadystatechange = function() {
