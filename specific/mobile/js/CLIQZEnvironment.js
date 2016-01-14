@@ -751,11 +751,6 @@ CLIQZEnvironment = {
       });
     });
   },
-  addEventListenerToElements(elementSelector, eventType, listener) {
-    Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
-      element.addEventListener(eventType, listener);
-    });
-  },
   addEventListenerToElements: function (elementSelector, eventType, listener) {
     Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
       element.addEventListener(eventType, listener);
