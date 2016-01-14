@@ -33,8 +33,8 @@ function showHistory(history) {
       hi++;
     } else {
       if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
-        data.push({date: getDateFromTimestamp(queries[qi].timestamp)}); 
-        date = getDateFromTimestamp(history[hi].timestamp);     
+        data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
+        date = getDateFromTimestamp(queries[qi].timestamp);
       }
       data.push(queries[qi]);
       qi++;
@@ -51,14 +51,12 @@ function showHistory(history) {
   while(qi < queries.length) {
     if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
       data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
-      date = getDateFromTimestamp(history[hi].timestamp);
+      date = getDateFromTimestamp(queries[qi].timestamp);
     }
     data.push(queries[qi]);
     qi++;
   }
- console.log("data", data);
   displayData(data);
-
 }
 
 function displayData(data) {
@@ -81,7 +79,28 @@ function displayData(data) {
 
   document.getElementById("search_input").addEventListener("keyup", function() {
       filterHistory(this.value);
-  })
+  });
+
+  CLIQZEnvironment.addEventListenerToElements(".question, .answer", "click", function () {
+    var targeType = this.className === "question" ? "query" : "url";
+    CliqzUtils.telemetry({
+      type: "history",
+      action: "click",
+      target_type: targeType,
+      target_index: parseInt(this.dataset.index),
+      target_length: this.querySelector("." + targeType).textContent.length,
+      target_ts: parseInt(this.dataset.timestamp)
+    });
+  });
+  var queryCount = data.filter(function (item) { return item.query; }).length,
+      urlCount = data.filter(function (item) { return item.url; }).length;
+  CliqzUtils.telemetry({
+    type: "history",
+    action: "show",
+    active_day_count: data.length - queryCount - urlCount,
+    query_count: queryCount,
+    url_count: urlCount
+  });
 }
 
 function testActiveWebViewOnIos() {
@@ -114,7 +133,7 @@ Handlebars.registerHelper('conversationsTime', function(time) {
 
 function getDateFromTimestamp(time) {
     var d = new Date(time);
-    
+
     var days = d.getDate();
     days = days > 9 ? days : '0' + days
 
@@ -122,7 +141,7 @@ function getDateFromTimestamp(time) {
     months = months > 9 ? months : '0' + months
 
     var year = d.getFullYear();
-    
+
     var formatedDate = days + '.' + months + '.' + year;
     return formatedDate;
 }
