@@ -9,6 +9,14 @@ var trackerTxtActions = new Set(['placeholder', 'block', 'empty', 'random']);
 
 var defaultTrackerTxtRule = 'same';
 
+export function getDefaultTrackerTxtRule() {
+    return defaultTrackerTxtRule;
+};
+
+export function setDefaultTrackerTxtRule(rule) {
+    defaultTrackerTxtRule = rule;
+};
+
 var trackerRuleParser = function(str, rules) {
     /* Tracker format:
      one rule per line: "tracker: action"
@@ -67,6 +75,5 @@ TrackerTXT.prototype = {
 
 export {
     TrackerTXT,
-    sleep,
-    defaultTrackerTxtRule
+    sleep
 };

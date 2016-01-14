@@ -14,9 +14,11 @@ function waitIfNotReady(fn) {
 }
 
 TESTS.AttrackTest = function (CliqzUtils) {
-    var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default,
-        persist = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/persistent-state"),
-        AttrackBloomFilter = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/bloom-filter").AttrackBloomFilter;
+    var System = CliqzUtils.getWindow().CLIQZ.System,
+        CliqzAttrack = System.get("antitracking/attrack").default,
+        persist = System.get("antitracking/persistent-state"),
+        AttrackBloomFilter = System.get("antitracking/bloom-filter").AttrackBloomFilter,
+        datetime = System.get("antitracking/time");
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
@@ -191,6 +193,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             describe('redirects', function() {
 
               var server, server_port, hit_target = false, proxy_type = null;
+              var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
               before(function() {
                 server = new HttpServer();
@@ -542,7 +545,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         server,
         mock_bloom_filter_config_url,
         mock_bloom_filter_base_url;
-        
+
 
       before(function() {
         // serve fake whitelists
@@ -650,7 +653,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           var domain1_hash = "f528764d624db129",
             domain2_hash = "9776604f86ca9f6a",
             key_hash = "4a8a08f09d37b73795649038408b5f33",
-            today = CliqzAttrack.getTime().substring(0, 8);
+            today = datetime.getTime().substring(0, 8);
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
           CliqzAttrack.safeKey[domain2_hash] = {};
@@ -678,7 +681,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         it('replaces local key with remote if remote is more recent', function(done) {
           var domain1_hash = "f528764d624db129",
             key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
-            today = CliqzAttrack.getTime().substring(0, 8);
+            today = datetime.getTime().substring(0, 8);
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
 
@@ -857,7 +860,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           bloomFilter.baseURL = mock_bloom_filter_base_url;
         });
 
-        it ('bloom filter first time update', function(done) {  
+        it ('bloom filter first time update', function(done) {
           bloomFilter.checkUpdate();
           waitFor(function() {
             return bloomFilter.bloomFilter != null && bloomFilter.version != null;

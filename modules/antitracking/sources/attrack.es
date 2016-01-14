@@ -11,7 +11,7 @@ import md5 from 'antitracking/md5';
 import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 import { isHash } from 'antitracking/hash';
-import { TrackerTXT, sleep, defaultTrackerTxtRule } from 'antitracking/tracker-txt';
+import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { AttrackBloomFilter, bloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import TrackingTable from 'antitracking/local-tracking-table';
@@ -104,7 +104,6 @@ var CliqzAttrack = {
     localBlockExpire: 24,
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
-    obfuscateMethod: 'same',
     placeHolder: '',
     blockReportList: null,
     observerService: Components.classes["@mozilla.org/observer-service;1"]
@@ -147,6 +146,7 @@ var CliqzAttrack = {
             }
         }
     },
+    replacement: "",
     obfuscate: function(s, method, replacement) {
         // used when action != 'block'
         // default is a placeholder
@@ -460,7 +460,7 @@ var CliqzAttrack = {
 
                     if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
                         // determin action based on tracker.txt
-                        var rule = defaultTrackerTxtRule,
+                        var rule = getDefaultTrackerTxtRule(),
                             _trackerGD = getGeneralDomain(url_parts.hostname),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
                         if (CliqzAttrack.isTrackerTxtEnabled()) {
