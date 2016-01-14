@@ -713,6 +713,14 @@ CLIQZEnvironment = {
     var topNews = CliqzHandlebars.tplCache["topnews"];
     var div = window.document.getElementById('topNews');
     div.innerHTML = topNews(top_news);
+    CLIQZEnvironment.addEventListenerToElements(".topNewsLink", "click", function () {
+      CliqzUtils.telemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'topnews',
+        target_index: this.dataset.index
+      });
+    });
   },
   displayTopSites: function (list) {
     if(!CliqzHandlebars.tplCache.topsites) {
@@ -734,6 +742,19 @@ CLIQZEnvironment = {
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
+    CLIQZEnvironment.addEventListenerToElements(".topSitesLink", "click", function () {
+      CliqzUtils.telemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'topsites',
+        target_index: this.dataset.index
+      });
+    });
+  },
+  addEventListenerToElements(elementSelector, eventType, listener) {
+    Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
+      element.addEventListener(eventType, listener);
+    });
   },
   addEventListenerToElements(elementSelector, eventType, listener) {
     Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {

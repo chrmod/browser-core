@@ -959,6 +959,9 @@
     "freshtab_top_news": {
       "message": "Top News"
     },
+    "freshtab_top_sites": {
+      "message": "Top Sites"
+    },
     "mobile_no_result_title": {
       "message": "We don't have great results this time."
     },
