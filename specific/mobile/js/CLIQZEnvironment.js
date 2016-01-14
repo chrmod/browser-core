@@ -735,7 +735,7 @@ CLIQZEnvironment = {
     var div = window.document.getElementById('topSites');
     div.innerHTML = topSites(list);
   },
-  addEventListenerToElements(elementSelector, eventType, listener) {
+  addEventListenerToElements: function (elementSelector, eventType, listener) {
     Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
       element.addEventListener(eventType, listener);
     });
