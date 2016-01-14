@@ -1,9 +1,16 @@
 {
   "settings": {
     "freshTabButton": false,
-    "antitrackingButton": false
+    "freshTabABtest" : false,
+    "antitrackingButton": false,
+    "unblockUI": false,
+    "showDataCollectionMessage": false,
+    "cliqzOnboarding": true
   },
   "modules": [
+    "static",
+    "core",
+    "context-menu",
     "onboarding",
     "freshtab",
     "unblock",

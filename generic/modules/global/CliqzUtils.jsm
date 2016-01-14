@@ -110,7 +110,6 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
-  cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){
 
     if (win && win.navigator) {
@@ -280,10 +279,32 @@ var CliqzUtils = {
     }
   },
   openTabInWindow: CLIQZEnvironment.openTabInWindow,
-  getPrefs: CLIQZEnvironment.getPrefs,
+  /**
+   * Get a value from preferences db
+   * @param {string}  pref - preference identifier
+   * @param {*=}      defautlValue - returned value in case pref is not defined
+   * @param {string=} prefix - prefix for pref
+   */
   getPref: CLIQZEnvironment.getPref,
-  isPrefBool: CLIQZEnvironment.isPrefBool,
+  /**
+   * Set a value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {*=}      defautlValue - returned value in case pref is not defined
+   * @param {string=} prefix - prefix for pref
+   */
   setPref: CLIQZEnvironment.setPref,
+  /**
+   * Check if there is a value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {string=} prefix - prefix for pref
+   */
+  hasPref: CLIQZEnvironment.hasPref,
+  /**
+   * Clear value in preferences db
+   * @param {string}  pref - preference identifier
+   * @param {string=} prefix - prefix for pref
+   */
+  clearPref: CLIQZEnvironment.clearPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
@@ -932,25 +953,37 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
-  //  gets a key and a dynamic of parameters
-  //  eg: getLocalizedString('sentence', 'John', 'biggest', 'fotball')
-  //  if the localized sentence is = '{} is the {} {} player' the output will be 'John is the biggest football player'
-  getLocalizedString: function(key){
-    var ret = key;
+  getLocalizedString: function(key, substitutions){
+    var str = key,
+        localMessages;
 
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
-        ret = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
-    } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
-        ret = CliqzUtils.locale['default'][key].message;
+        str = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+        localMessages = CliqzUtils.locale[CliqzUtils.currLocale];
+    } else if (CliqzUtils.locale.default && CliqzUtils.locale.default[key]) {
+        str = CliqzUtils.locale.default[key].message;
+        localMessages = CliqzUtils.locale.default;
     }
 
-    if(arguments.length>1){
-      var i = 1, args = arguments;
-      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
+    if (!substitutions) {
+      substitutions = [];
+    }
+    if (!Array.isArray(substitutions)) {
+      substitutions = [substitutions];
     }
 
-    return ret;
+    function replacer(matched, index, dollarSigns) {
+      if (index) {
+        index = parseInt(index, 10) - 1;
+        return index in substitutions ? substitutions[index] : "";
+      } else {
+        // For any series of contiguous `$`s, the first is dropped, and
+        // the rest remain in the output string.
+        return dollarSigns;
+      }
+    }
+    return str.replace(/\$(?:([1-9]\d*)|(\$+))/g, replacer);
   },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
@@ -973,13 +1006,16 @@ var CliqzUtils = {
 
     changes && changes();
 
+    var corePromises = [];
     enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       if(win.CLIQZ && win.CLIQZ.Core){
-        win.CLIQZ.Core.init();
+        corePromises.push(win.CLIQZ.Core.init());
       }
     }
+
+    return Promise.all(corePromises);
   },
   isWindows: function(){
     return CLIQZEnvironment.OS.indexOf("win") === 0;
@@ -1087,6 +1123,12 @@ var CliqzUtils = {
                   subType: JSON.stringify({empty:true})
               }
           )
+    },
+    getParameterByName: function(name, location) {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
 };
 

@@ -1,6 +1,8 @@
 TESTS.TelemetryTest = function (CliqzUtils) {
   describe('Telemetry', function(){
-   it('should send environment signal', function () {
+    this.retries(1);
+
+    it('should send environment signal', function () {
       var signal = null;
       CliqzUtils.telemetry = function(data){
         signal = data;
@@ -15,7 +17,6 @@ TESTS.TelemetryTest = function (CliqzUtils) {
         chai.expect(signal.version).to.exist;
         chai.expect(signal.prefs.session).to.exist;
         chai.expect(signal.prefs.config_location).to.exist;
-        chai.expect(signal.prefs.ABTests).to.exist;
       });
     });
   });

@@ -30,8 +30,9 @@ function setBodyClass(options) {
 
 function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-    var elArgs = el.dataset.i18n.split(",");
-    el.innerHTML = chrome.i18n.getMessage.apply(null, elArgs);
+    var elArgs = el.dataset.i18n.split(","),
+        key = elArgs.shift();
+    el.innerHTML = chrome.i18n.getMessage(key, elArgs);
   });
 }
 
@@ -43,9 +44,8 @@ function populateDOM() {
 
     general_msg_trnsl.dataset.i18n = [
       general_msg_trnsl.dataset.i18n,
-      data.url || ' ',
-      data.cookiesCount,
-      data.requestsCount
+      data.cookiesCount + data.requestsCount,
+      data.url || ' '
     ].join(',');
 
 

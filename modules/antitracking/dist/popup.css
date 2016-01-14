@@ -26,13 +26,13 @@ time, mark, audio, video {
 
 @font-face {
     font-family: "Lato";
-    src: url("fonts/Lato-Regular.ttf");
+    src: url("../static/skin/fonts/Lato-Regular.ttf");
 }
 
 body {
-    padding: 0;
     margin: 0;
     font-family: "Lato";
+    padding: 0 5px 5px;
 }
 
 article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section {
@@ -87,8 +87,6 @@ img {
 ul, ol {
     margin: 0 0 20px 20px;
     padding: 0;
-
-
 }
 
 ul ul,
@@ -126,10 +124,25 @@ p {
     opacity: 1;
 }
 
+footer {
+    font-size: 14px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+footer .learn-more {
+    float: right;
+}
+
+.learn-more, .learn-more:hover, .learn-more:visited {
+    color: #aaa;
+}
+
 .cqz-antitracking-popup {
+    position: relative;
     height: 200px;
     overflow: hidden;
-    padding: 0 5px 5px;
     text-align: center;
 }
 
@@ -179,15 +192,6 @@ ul.cqz-antrc-btns-holder li {
 }
 
 .cqz-antrc-btn .cqz-turn-on { display: none; }
-
-.cqz-antrac-footer {
-    color: #333;
-    font-size: 14px;
-}
-
-.cqz-antrac-footer p {
-    margin-bottom: 0;
-}
 
 /*========= Antitrack Enabled =======*/
 

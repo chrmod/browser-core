@@ -27,7 +27,7 @@
         "message": "Besetzung"
     },
     "Movie_Length":{
-        "message": "{} Minuten"
+        "message": "$1 Minuten"
     },
     "Creator":{
         "message": "Regie"
@@ -72,7 +72,7 @@
         "message": "Portionen"
     },
     "CookTime":{
-        "message": "Gesamtzeit: {} Minuten"
+        "message": "Gesamtzeit: $1 Minuten"
     },
     "KickerSponsor":{
         "message": "powered by kicker online"
@@ -102,7 +102,7 @@
         "message": "Gate"
     },
     "openInNewTab":{
-        "message": "{} (in neuem Tab öffnen)"
+        "message": "$1 (in neuem Tab öffnen)"
     },
     "whatIsCliqz":{
         "message": "Was ist CLIQZ?"
@@ -153,13 +153,13 @@
         "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "noResultMessage":{
-        "message": "Versuche es mit ,Enter' bei {} oder per Klick auf:"
+        "message": "Versuche es mit ,Enter' bei $1 oder per Klick auf:"
     },
     "noResults": {
         "message":"Keine Ergebnisse"
     },
     "numResults": {
-        "message":"Top {} Ergebnisse"
+        "message":"Top $1 Ergebnisse"
     },
     "moreResults":{
         "message":"mehr ..."
@@ -192,31 +192,31 @@
         "message":"vor einer Minute"
     },
     "agoXMinutes":{
-        "message":"vor {} Minuten"
+        "message":"vor $1 Minuten"
     },
     "ago1Hour":{
         "message":"vor einer Stunde"
     },
     "agoXHours":{
-        "message":"vor {} Stunden"
+        "message":"vor $1 Stunden"
     },
     "agoYesterday":{
         "message":"gestern"
     },
     "agoXDays":{
-        "message":"vor {} Tagen"
+        "message":"vor $1 Tagen"
     },
     "ago1Month":{
         "message":"vor einem Monat"
     },
     "agoXMonths":{
-        "message":"vor {} Monaten"
+        "message":"vor $1 Monaten"
     },
     "ago1year":{
         "message":"vor einem Jahr"
     },
     "agoXYears":{
-        "message":"vor {} Jahren"
+        "message":"vor $1 Jahren"
     },
     "onCalloutSameResult":{
         "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
@@ -291,7 +291,7 @@
         "message":"Danke, dass Du CLIQZ installiert hast!"
     },
     "onMsgExplanation":{
-        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durch's Web."
+        "message":"CLIQZ verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durch's Web."
     },
     "offRes_Cliqz":{
         "message":"CLIQZ"
@@ -318,7 +318,7 @@
         "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
     },
     "Sitemap_Summary": {
-        "message":"Meine {} Seiten"
+        "message":"Meine $1 Seiten"
     },
     "Sitemap_Youtube_Popular": {
         "message":"Beliebte auf YouTube"
@@ -501,13 +501,13 @@
       "message":"Việt Nam - Vietnam"
     },
     "statsText": {
-        "message": "In den letzten <b>7 Tagen</b> hast Du <b>{} Suchen</b> gestartet.<br/><br/>Bei <b>{}</b> dieser Suchen hat <b>cliqz</b> Dich zu Deinem Ziel geführt.<br/><br/>Dabei musstest Du im Schnitt <b>unter lediglich {} Vorschlägen aussuchen,</b> statt auf langenSuchmaschinen-Ergebnisseiten unter im Schnitt {} Vorschlägen das richtige Ergebnis zu suchen.<br/><br/>Zusätzlich hat cliqz Dir damit <b>{} Werbeplatzierungen erspart</b>(eine Suchmaschine zeigt im Schnitt 7 gekaufte Links auf ihnen Suchergebnis-Seiten an).<br/><br/>Und weil Du auf einer Suchmaschinen-Ergebnisseite im Schnitt 3,5 Sekunden verbringst,hat cliqz Dir zusätzlich <b>{} Minuten Deiner wertvollen Zeit gespart.</b>"
+        "message": "In den letzten <b>7 Tagen</b> hast Du <b>$1 Suchen</b> gestartet.<br/><br/>Bei <b>$2</b> dieser Suchen hat <b>cliqz</b> Dich zu Deinem Ziel geführt.<br/><br/>Dabei musstest Du im Schnitt <b>unter lediglich $3 Vorschlägen aussuchen,</b> statt auf langenSuchmaschinen-Ergebnisseiten unter im Schnitt $4 Vorschlägen das richtige Ergebnis zu suchen.<br/><br/>Zusätzlich hat cliqz Dir damit <b>$5 Werbeplatzierungen erspart</b>(eine Suchmaschine zeigt im Schnitt 7 gekaufte Links auf ihnen Suchergebnis-Seiten an).<br/><br/>Und weil Du auf einer Suchmaschinen-Ergebnisseite im Schnitt 3,5 Sekunden verbringst,hat cliqz Dir zusätzlich <b>$6 Minuten Deiner wertvollen Zeit gespart.</b>"
     },
     "statsShareMsg": {
-        "message": "@cliqz saved me {} minutes over the last 7 days"
+        "message": "@cliqz saved me $1 minutes over the last 7 days"
     },
     "statsShareAction": {
-        "message": "Diese Statistik auf {} posten"
+        "message": "Diese Statistik auf $1 posten"
     },
     "spell_correction": {
       "message":"Meintest Du wirklich"
@@ -924,7 +924,7 @@
       "message": "Ich nehme am Human Web teil"
     },
     "attrack-headline-general": {
-      "message": " Auf <strong>{}</strong>  wurden {}&nbsp;Cookies blockiert, {}&nbsp;persönliche Informationen geschützt."
+      "message": "CLIQZ Anti Tracking hat auf <strong>$2</strong> $1 Tracker blockiert"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
@@ -933,13 +933,16 @@
       "message": "Diese Seite enthält keine Tracker."
     },
     "attrack-btn-power-on": {
-      "message": "Aktivieren"
+      "message": "Anti Tracking aktivieren"
     },
     "attrack-btn-power-off": {
-      "message": "Deaktivieren"
+      "message": "Anti Tracking abschalten"
     },
     "attrack-btn-white-list": {
       "message": "Tracking für diese Seite zulassen"
+    },
+    "attrack-learn-more": {
+      "message": "Mehr erfahren"
     },
     "freshtab_learn_more": {
       "message": "Mehr erfahren"
@@ -949,5 +952,50 @@
     },
     "freshtab_top_news": {
       "message": "Top Nachrichten"
+    },
+    "unblock_menu_option": {
+      "message": "Unblock content"
+    },
+    "unblock_prompt": {
+      "message": "Soll CLIQZ versuchen, blockierte Youtube-Videos zu öffnen?"
+    },
+    "unblock_always": {
+      "message": "Ja, immer"
+    },
+    "unblock_once": {
+      "message": "Nur dieses Mal"
+    },
+    "unblock_never": {
+      "message": "Nein, niemals"
+    },
+    "cliqz-onboarding-title": {
+      "message": "Woohoo! CLIQZ has successfully installed."
+    },
+    "cliqz-onboarding-search-simple": {
+      "message": "Suchen direkt im Browser. Einfach in die Browser-Zeile tippen und schon siehst du"
+    },
+    "cliqz-onboarding-suggestions": {
+      "message": "Website-Vorschläge"
+    },
+    "cliqz-onboarding-start-fresh": {
+      "message": "Startseite: Wenn du den Browser oder einen neuen Tab öffnest, siehst du deine Lieblingsseiten und Nachrichten."
+    },
+    "cliqz-onboarding-surf-safe": {
+      "message": "Für CLIQZ bist du anonym – auf unseren Servern werden keinerlei Daten über dich gespeichert."
+    },
+    "cliqz-onboarding-privacy": {
+      "message": "Mehr Privatsphäre."
+    },
+    "cliqz-onboarding-learn-more": {
+      "message": "Mehr über CLIQZ erfahren"
+    },
+    "cliqz-onboarding-full-tour": {
+      "message": "Demo ansehen"
+    },
+    "cliqz-onboarding-or": {
+      "message": "oder"
+    },
+    "cliqz-onboarding-cool-thanks": {
+      "message": "OK, verstanden!"
     }
 }

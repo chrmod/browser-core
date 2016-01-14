@@ -1116,7 +1116,7 @@ var CliqzAttrack = {
                 genericPrefs.clearUserPref('network.http.referer.XOriginPolicy');
                 genericPrefs.clearUserPref('network.http.referer.trimmingPolicy');
                 genericPrefs.clearUserPref('network.http.sendRefererHeader');
-                CliqzUtils.cliqzPrefs.clearUserPref('attrackRefererPreferences');
+                CliqzUtils.clearPref('attrackRefererPreferences');
             }
         }
     },
@@ -1457,18 +1457,16 @@ var CliqzAttrack = {
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
     },
     sendTokens: function() {
-        if (CliqzAttrack.tokens) {
-
+        if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
             if (CliqzAttrack.local_tracking.isEnabled()) {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
             // reset the state
             this._tokens.clear();
-            persist.clear_persistent(CliqzAttrack.tokens);
         }
 
         // send block list
-        if (CliqzAttrack.blocked) {
+        if (CliqzAttrack.blocked && Object.keys(CliqzAttrack.blocked).length > 0) {
             var payl = CliqzAttrack.generatePayload(CliqzAttrack.blocked, datetime.getHourTimestamp(), false, true);
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
             // reset the state

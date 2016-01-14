@@ -4,7 +4,7 @@
 }
 
 #PopupAutoCompleteRichResultCliqz {
-    -moz-binding: url("../../content/components.xml#autocomplete-rich-result-popup-cliqz");
+    -moz-binding: url("../../components.xml#autocomplete-rich-result-popup-cliqz");
     min-height: 350px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }
@@ -200,7 +200,7 @@
 
 .cqz-results .cqz-result-url-ssl {
     padding-left: 13px;
-    background: url(../../skin/lock_light.png) no-repeat 2px 5px;
+    background: url(../skin/lock_light.png) no-repeat 2px 3px;
 }
 
 .cqz-results .cqz-result-path {

@@ -1,7 +1,7 @@
 /* common */
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato-Regular.ttf");
+  src: url("../../static/skin/fonts/Lato-Regular.ttf");
 }
 
 * {
@@ -11,6 +11,10 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 1.2
+}
+
+a:hover, a:active, a:focus {
+  outline: 0;
 }
 
 .clearfix:after {
@@ -46,7 +50,7 @@
   left: 10px;
   width: 18px;
   height: 18px;
-  background: url("chrome://cliqz/content/freshtab/images/cliqz_icon.svg") no-repeat;
+  background: url("../images/cliqz_icon.svg") no-repeat;
 }
 
 
@@ -95,9 +99,19 @@
   text-align: center;
   margin: 0px auto;
   display: inline-block;
-  margin-right: 10px;
-  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0), 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+  margin-right: 5px;
+  margin-left: 5px;
+  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0), 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+}
+
+#freshTabPage #topVisited li:hover {
+  width: 168px;
+  height: 104px;
+  margin-right: 4px;
+  margin-left: 4px;
+  margin-top: -2px;
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0), 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
 }
 
 #freshTabPage #topVisited .title {
@@ -107,10 +121,11 @@
   overflow: hidden;
   max-width: 170px;
 }
-
+/*
 #freshTabPage #topVisited li:last-child {
   margin-right: 0px;
 }
+*/
 
 #freshTabPage .cliqz-brand-logo {
     width: 2.25em;
@@ -131,12 +146,54 @@
     font-size: 24px;
 }
 
+
 /* news container */
 #freshTabPage #newsContainer {
   width: 100%;
   box-sizing: border-box;
   margin-top: 40px;
   margin-bottom: 40px;
+}
+
+#freshTabPage #newsContainer .heading {
+  border-bottom: 1px solid #d8d8d8;
+  padding-bottom: 6px;
+  margin-bottom: 20px;
+
+}
+
+#freshTabPage #newsContainer .heading h2 {
+    float: left;
+    color: #999999;
+    font-size: 18px;
+    text-transform: uppercase;
+    margin-right: 15px;
+}
+
+#freshTabPage #newsContainer #sliderBtns {
+  float: left;
+  margin-top: 8px;
+}
+
+#freshTabPage #newsContainer #sliderBtns div {
+    float: left;
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    text-align: center;
+    margin-right: 5px;
+    background-color: #cccccc;
+}
+
+#freshTabPage #newsContainer #sliderBtns div.active {
+  background-color: #999999
+}
+
+#freshTabPage #newsContainer #sliderBtns a {
+   overflow:hidden;
+    text-indent:100%;
+    white-space:nowrap;
+    display: block
 }
 
 #freshTabPage #newsContainer .newsBox {
@@ -154,15 +211,6 @@
   margin-left: 24px;
 }
 
-#freshTabPage #newsContainer h2 {
-  border-bottom: 1px solid #d8d8d8;
-  color: #999999;
-  padding-bottom: 6px;
-  margin-bottom: 20px;
-  font-size: 18px;
-  text-transform: uppercase;
-}
-
 #freshTabPage #newsContainer li {
   list-style: none;
   margin-bottom: 20px;
@@ -175,6 +223,10 @@
   overflow: hidden;
   max-height: 66px;
 }
+#freshTabPage #newsContainer li .title:hover {
+  color: #506bb8;
+}
+
 
 #freshTabPage #newsContainer li .url {
   font-size: 14px;
@@ -192,7 +244,7 @@
   margin-right: 40px;
 }
 
-#freshTabPage #newsContainer .onlyTopNews li:last-child {
+#freshTabPage #newsContainer .onlyTopNews li:nth-last-child(3n+1) {
   margin-right: 0px;
 }
 
@@ -233,7 +285,7 @@
     right: 25px;
     width: 24px;
     height: 24px;
-    background: url("chrome://cliqz/content/freshtab/images/question-mark.svg");
+    background: url("../images/question-mark.svg");
     cursor: pointer;
     z-index: 2;
 }
@@ -269,6 +321,119 @@
     margin-right: 20px;
 }
 
+/******** CLIQZ Onboarding *********/
+#optinContainer {
+  display: none;
+}
+
+.optinBackground {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
+  opacity: 0.75;
+  background-color: #ABC8E2;
+  z-index: 1004
+}
+
+.optinContent {
+  position: absolute;
+  background-color: #ffffff;
+  z-index: 1005;
+  text-align: center;
+  left: 50%;
+  top: 50%;
+  border-radius: 2px;
+  width: 600px;
+  height: 475px;
+  margin-left: -300px;
+  margin-top: -237px;
+}
+
+.optinContent .title {
+  background-color: #56EAC6;
+  height: 55px;
+  color: #ffffff;
+  padding-top: 37px;
+  font-size: 26px;
+}
+
+#freshTabPage .optinContent a {
+  color: #5EA3F9;
+  font-size: 18px;
+
+}
+
+.optinContent ul {
+  padding: 40px 55px 10px;
+}
+
+.optinContent li {
+  list-style: none;
+  position: relative;
+  line-height: 1.4;
+  padding: 0px 0 30px;
+  font-size: 18px;
+}
+
+.optinContent li div{
+  margin-left: 60px;
+  text-align: left;
+  font-size: 18px;
+}
+
+.optinContent .surfSafe .icon {
+  background-image: url("../images/anti-tracking.svg");
+
+}
+
+.optinContent .searchSimple .icon {
+  background-image: url("../images/search.svg");
+}
+
+.optinContent .startFresh .icon {
+  background-image: url("../images/freshtab.svg");
+}
+
+.optinContent .icon {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 40px;
+  height: 40px;
+  top: 0px;
+  left: 0px;
+}
+
+.optinContent .cqz-optin-btn {
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 26px;
+  margin: 0 7px 4px 0;
+  padding: 0 9px;
+  text-decoration: none;
+  background-color: #FF5349;
+}
+
+.optinContent .footer {
+  background-color: #FAFAFA;
+  position: absolute;
+  bottom: 0px;
+  text-align: center;
+  padding: 10px 0px;
+  width: 100%;
+}
+
+#freshTabPage .optinContent .footer a {
+  color: #999999;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
 .visible {
   display: block;
 }
@@ -280,6 +445,9 @@
 @media (min-width: 768px) and (max-width: 990px) {
   #freshTabPage #topVisited li {
     width: 150px;
+  }
+  #freshTabPage #topVisited li:hover {
+    width: 152px;
   }
 }
 
@@ -296,6 +464,10 @@
   #freshTabPage #topVisited li {
     margin-bottom: 10px;
     width: 66px;
+  }
+
+  #freshTabPage #topVisited li:hover {
+    width: 68px;
   }
 
   #freshTabPage #searchContainer {

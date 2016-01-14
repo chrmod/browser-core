@@ -20,12 +20,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+function prefixPref(pref, prefix) {
+    if ( !(typeof prefix === 'string') ) {
+      prefix = 'extensions.cliqz.';
+    }
+    return prefix + pref;
+}
+
 var GEOLOC_WATCH_ID;
 
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
-    PREF_STRING = 32,
-    PREF_INT    = 64,
-    PREF_BOOL   = 128,
     // references to all the timers to avoid garbage collection before firing
     // automatically removed when fired
     _timers = [],
@@ -56,10 +60,10 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     };
 
 var CLIQZEnvironment = {
-    LOCALE_PATH: 'chrome://cliqzres/content/locale/',
-    TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
-    SKIN_PATH: 'chrome://cliqzres/content/skin/',
-    cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
+    LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
+    TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
+    SKIN_PATH: 'chrome://cliqz/content/static/skin/',
+    prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
     init: function(){
@@ -77,46 +81,52 @@ var CLIQZEnvironment = {
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
     },
-    getPref: function(pref, notFound){
+    getPref: function(pref, defaultValue, prefix) {
+        pref = prefixPref(pref, prefix);
+
+        var prefs = CLIQZEnvironment.prefs;
+
         try {
-            var prefs = CLIQZEnvironment.cliqzPrefs;
             switch(prefs.getPrefType(pref)) {
-                case PREF_BOOL: return prefs.getBoolPref(pref);
-                case PREF_STRING: return prefs.getCharPref(pref);
-                case PREF_INT: return prefs.getIntPref(pref);
-                default: return notFound;
+                case 128: return prefs.getBoolPref(pref);
+                case 32:  return prefs.getCharPref(pref);
+                case 64:  return prefs.getIntPref(pref);
+                default:  return defaultValue;
             }
         } catch(e) {
-          return notFound;
+            return defaultValue;
         }
     },
-    getPrefs: function(){
-        var prefs = {},
-            cqz = CLIQZEnvironment.cliqzPrefs.getChildList('');
-        for(var i=0; i<cqz.length; i++){
-            var pref = cqz[i];
-            prefs[pref] = CLIQZEnvironment.getPref(pref);
-        }
-        return prefs;
-    },
-    isPrefBool: function(pref, notFound) {
-        try {
-            var prefs = CLIQZEnvironment.cliqzPrefs;
-            if(prefs.getPrefType(pref) === PREF_BOOL) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch(e) {
-            return notFound;
+    setPref: function(pref, value, prefix){
+        pref = prefixPref(pref, prefix);
+
+        var prefs = CLIQZEnvironment.prefs;
+
+        switch (typeof value) {
+            case 'boolean': prefs.setBoolPref(pref, value); break;
+            case 'number':  prefs.setIntPref(pref, value); break;
+            case 'string':  prefs.setCharPref(pref, value); break;
         }
     },
-    setPref: function(pref, val){
-        switch (typeof val) {
-            case 'boolean': CLIQZEnvironment.cliqzPrefs.setBoolPref(pref, val); break;
-            case 'number': CLIQZEnvironment.cliqzPrefs.setIntPref(pref, val); break;
-            case 'string': CLIQZEnvironment.cliqzPrefs.setCharPref(pref, val); break;
-          }
+    hasPref: function (pref, prefix) {
+        pref = prefixPref(pref, prefix);
+
+        return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
+    },
+    clearPref: function (pref, prefix) {
+        pref = prefixPref(pref, prefix);
+
+        CLIQZEnvironment.prefs.clearUserPref(pref);
+    },
+    getCliqzPrefs: function(){
+        return Cc['@mozilla.org/preferences-service;1']
+                 .getService(Ci.nsIPrefService)
+                 .getBranch('extensions.cliqz.')
+                 .getChildList('')
+                 .reduce(function (prev, curr) {
+                   prev[curr] = CliqzUtils.getPref(curr);
+                   return prev;
+                 }, {});
     },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
@@ -130,19 +140,19 @@ var CLIQZEnvironment = {
             if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
                 callback && callback(req);
             } else {
-                CLIQZEnvironment.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.onerror = function(){
             if(CLIQZEnvironment){
-                CLIQZEnvironment.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.ontimeout = function(){
             if(CLIQZEnvironment){ //might happen after disabling the extension
-                CLIQZEnvironment.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
@@ -390,7 +400,7 @@ var CLIQZEnvironment = {
         geoService.getCurrentPosition(function(p) {
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
-        }, function(e) { CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
         //Upate position if it changes
         GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
@@ -399,7 +409,7 @@ var CLIQZEnvironment = {
             CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
             CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
           }
-        }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CLIQZEnvironment.USER_LAT = null;
         CLIQZEnvironment.USER_LNG = null;

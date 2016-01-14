@@ -1,3 +1,5 @@
+import { utils } from 'core/cliqz';
+
 const adBlockKey = 'extensions.adblockplus.enabled',
       prefKey = 'adBlockBild', // 0 - ask, 1 - enable, 2 - disable
       BLOCK = false,
@@ -8,6 +10,9 @@ export default class {
   constructor(settings) {
     this.window = settings.window;
     this.gBrowser = this.window.gBrowser;
+
+    if(!utils.hasPref(adBlockKey, '')) { return; }
+
     this.initialState = this.adBlockActive();
     this.state = true;
     this.warningDissmissed = false;
@@ -25,7 +30,7 @@ export default class {
   }
 
   init() {
-    if(!this.initialState) { return; }
+    if(!this.initialState || !utils.hasPref(adBlockKey, '')) { return; }
 
     this.gBrowser.tabContainer.addEventListener("TabSelect", this.userTabSelect, false);
     this.gBrowser.addTabsProgressListener(this.userListener);
@@ -70,7 +75,7 @@ export default class {
       item.setAttribute('class', 'menuitem-iconic');
 
       if(filter_levels[level].selected){
-        item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+        item.style.listStyleImage = 'url(chrome://cliqz/content/static/skin/checkmark.png)';
       }
 
       item.filter_level = parseInt(level);
@@ -89,13 +94,12 @@ export default class {
   }
 
   adBlockActive() {
-    return this.window.CLIQZ.Core.genericPrefs.getBoolPref(adBlockKey);
+    return CliqzUtils.getPref(adBlockKey, false, '');
   }
 
   changeAdBlockState(val) {
-    return this.window.CLIQZ.Core.genericPrefs.setBoolPref(adBlockKey, val);
+    return CliqzUtils.setPref(adBlockKey, val, '');
   }
-
 
   checkUrl(_url){
     var url = _url.split("://")[1],

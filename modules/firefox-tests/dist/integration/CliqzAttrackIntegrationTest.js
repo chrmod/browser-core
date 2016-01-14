@@ -22,6 +22,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
   CliqzUtils.setPref('antiTrackTest', true);
 
   describe('CliqzAttrack_integration', function() {
+    this.retries(3);
 
     var server = null,
       server_port = -1,
@@ -148,6 +149,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       CliqzAttrack.initialiseAntiRefererTracking();
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
+      CliqzAttrack.tp_events._active = {};
       CliqzAttrack.tp_events._staged = [];
       // clean up attrack caches
       CliqzAttrack.requestKeyValue = {};

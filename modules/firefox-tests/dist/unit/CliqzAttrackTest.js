@@ -119,7 +119,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 it('should add tabs to _active', function(done) {
 
-                    this.timeout(2000);
+                    this.timeout(3000);
 
                     waitIfNotReady(function() {
                         return Object.keys(CliqzAttrack.tp_events._active).length > 0;
@@ -248,7 +248,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                   });
 
                   it('gets host at end of redirect chain', function(done) {
-                    this.timeout(2000);
+                    this.timeout(3000);
                     waitIfNotReady(function() {
                         return hit_target;
                       }).then(function() {
