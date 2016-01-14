@@ -39,7 +39,7 @@ function showHistory(history) {
     } else {
       if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
         data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
-        date = getDateFromTimestamp(history[hi].timestamp);
+        date = getDateFromTimestamp(queries[qi].timestamp);
       }
       data.push(queries[qi]);
       qi++;
@@ -56,7 +56,7 @@ function showHistory(history) {
   while(qi < queries.length) {
     if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
       data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
-      date = getDateFromTimestamp(history[hi].timestamp);
+      date = getDateFromTimestamp(queries[qi].timestamp);
     }
     data.push(queries[qi]);
     qi++;
@@ -97,11 +97,14 @@ function displayData(data) {
       target_ts: parseInt(this.dataset.timestamp)
     });
   });
+  var queryCount = data.filter(function (item) { return item.query; }).length,
+      urlCount = data.filter(function (item) { return item.url; }).length;
   CliqzUtils.telemetry({
     type: "history",
     action: "show",
-    query_count: data.filter(function (item) { return item.query; }).length,
-    url_count: data.filter(function (item) { return item.url; }).length
+    active_day_count: data.length - queryCount - urlCount,
+    query_count: queryCount,
+    url_count: urlCount
   });
 }
 
