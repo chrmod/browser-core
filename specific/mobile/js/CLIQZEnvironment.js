@@ -105,7 +105,6 @@ CLIQZEnvironment = {
       results: r._results.map(function(r, idx){
         r.type = r.style;
         r.left = (CLIQZEnvironment.CARD_WIDTH * validCount);
-        r.frameWidth = CLIQZEnvironment.CARD_WIDTH;
         r.url = r.val || '';
         r.title = r.comment || '';
 

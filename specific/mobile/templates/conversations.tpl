@@ -24,19 +24,24 @@
 		 		</table>
 		 		
 		 	{{else}}
+		 		{{#if query}}
 		 	
-		 		<table cellspacing="0" cellpadding="0" class="question" onclick="osBridge.notifyQuery('{{query}}');">
-			 		<tr>
-					 	<td class="meta">
-						 	<div>{{conversationsTime timestamp}}</div>
-						 	<div class="date">{{conversationsDate timestamp}}</div>
-					 	</td>
-					 	<td class="framer">
-					 		<p>{{query}}</p>
-					 	</td>
-					 </tr>
-		 		</table>
-		 		
+					<table cellspacing="0" cellpadding="0" class="question" onclick="osBridge.notifyQuery('{{query}}');">
+						<tr>
+							<td class="meta">
+								<div>{{conversationsTime timestamp}}</div>
+								<div class="date">{{conversationsDate timestamp}}</div>
+							</td>
+							<td class="framer">
+								<p>{{query}}</p>
+							</td>
+						 </tr>
+					</table>
+		 	
+				{{else}}
+					<h2><span>{{../date}}</span></h2>
+
+				{{/if}}
             {{/if}}
               
           {{/each}}

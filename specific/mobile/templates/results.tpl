@@ -1,7 +1,7 @@
 <!-- results.tpl -->
 {{#each results}}
 	{{#unless invalid}}
-		<div class="frame" {{#if ../frameWidth }} style="width: {{ ../frameWidth }}px; left: {{ left }}px" {{/if}}>
+		<div class="frame" {{#if ../../frameWidth }} style="width: {{ ../../../frameWidth }}px; left: {{ left }}px" {{/if}}>
 			<div class="ez"
 				type='{{ type }}'
 				kind='{{ kind_printer data.kind }}'
