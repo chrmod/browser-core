@@ -57,7 +57,7 @@ HttpRequestContext.prototype = {
     if (parentWindow in HttpRequestContext._tabs) {
       return HttpRequestContext._tabs[parentWindow];
     } else if (this.loadInfo != null) {
-      return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument ? this.loadInfo.loadingDocument.location.href : ""
+      return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument && this.loadInfo.loadingDocument.location ? this.loadInfo.loadingDocument.location.href : ""
     } else {
       return this._legacyGetSource().url;
     }
