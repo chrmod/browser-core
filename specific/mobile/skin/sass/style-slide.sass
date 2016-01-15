@@ -64,11 +64,8 @@ body, html
 
 .ez, .rr
   padding: 16px 16px 16px
-  top: 32px
-  left: 16px
-  right: 0px
+  margin: 32px 16px 32px 16px
   background-color: #fff
-  position: absolute
   overflow: auto
   border-radius: 4px
 
@@ -1096,18 +1093,34 @@ a
       p
         margin: 0
         padding: 0
+        font-size: 1rem
+        line-height: 1.25rem
         overflow: hidden
         font-weight: 400
+        white-space: nowrap
+        overflow: hidden
+        height: 1.25rem
+        text-overflow: ellipsis
+        max-width: 13rem
     .meta
       text-align: right
       padding: 0.05rem 0.5rem 0 0
       font-size: 0.62rem
       line-height: 0.9rem
+      width: 100%
       div
         text-align: right
         color: #ccc
         &.date
           color: #ddd
+  .nohistoryyet
+    padding: 2rem
+    p
+      text-align: center
+      color: #999
+      font-size: 1rem
+      line-height: 1.5rem
+      padding: 0 0 1.5rem
   h2
     padding: 24px 0 12px
     text-align: center

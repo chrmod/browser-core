@@ -19,7 +19,7 @@
                     </td>
                     <td class="meta">
                         <div>{{conversationsTime timestamp}}</div>
-                        <div class="date">{{conversationsDate timestamp}}</div>
+                        <!--<div class="date">{{conversationsDate timestamp}}</div>-->
                     </td>
                 </tr>
             </table>
@@ -33,7 +33,7 @@
                     <tr>
                         <td class="meta">
                             <div>{{conversationsTime timestamp}}</div>
-                            <div class="date">{{conversationsDate timestamp}}</div>
+                            <!--<div class="date">{{conversationsDate timestamp}}</div>-->
                         </td>
                         <td class="framer">
                             <p class="query">{{query}}</p>
@@ -49,6 +49,12 @@
 
             {{/if}}
         {{/each}}
+        
+        <div class="nohistoryyet">
+			<p>Bisher hast du noch nach nichts gesucht und keine Seiten besucht. </p>
+			<p>Sobald du das getan hast werde ich alles für dich bereit halten, falls du wieder zurück willst.</p>
+		</div>
+        
     </div>
 </div>
 

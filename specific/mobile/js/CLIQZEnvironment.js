@@ -242,6 +242,28 @@ CLIQZEnvironment = {
     CLIQZEnvironment.initializeSharing();
 
 
+    // set height
+    var ezs = document.getElementsByClassName("ez");
+
+    var B = document.body,
+          H = document.documentElement,
+          height
+
+    if (typeof document.height !== 'undefined') {
+      height = document.height // For webkit browsers
+    } else {
+      height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
+    }
+
+    for(var i=0;i<ezs.length;i++) {
+        ezs[i].style.height = height-60 + 'px';
+    }
+
+    // end set height
+
+
+
+
     CLIQZEnvironment.setResultNavigation(renderedResults.results);
   },
   search: function(e, location_enabled, latitude, longitude) {
