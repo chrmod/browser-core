@@ -49,23 +49,26 @@
     @extend .cqz-ellipsis;
 }
 
-/* last search */
+/* ====== Last Search ====== the gray container in the search bar*/
+
 .cliqz-urlbar-Last-search-container {
     overflow: hidden;
     max-width: 220px;
+    margin: -2px 3px -1px 0;
 }
 
 .cliqz-urlbar-Last-search {
     overflow: hidden;
     max-width: 200px;
     padding: 2px 6px;
-    margin: 0 3px 0 0;
-    color: white;
-    border-radius: 1px;
+    color: #fff;
     text-overflow: ellipsis;
+    border-radius: 1px;
     background-size: 14px 10px;
     background-color: grey;
 }
+
+/* ====== End Last Search ====== */
 
 .border-box,
 .border-box-all,
