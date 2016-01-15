@@ -166,7 +166,7 @@ function filterHistory(value) {
 
 function showNoData() {
   if(document.body) {
-    document.body.innerHTML = "You haven't searched anything yet";
+    document.body.innerHTML = "Du hast noch keine Suchen: schau' später nochmal vorbei";
   } else {
     setTimeout(showNoData, 100);
   }
