@@ -48,6 +48,9 @@ class Pacemaker {
         @returns task object, which can be used with deregister to stop this task.
    */
   register(fn, frequency, constraint) {
+    if (!fn) {
+      throw "fn cannot be undefined";
+    }
     var task = {
       fn: fn,
       freq: frequency || 0,

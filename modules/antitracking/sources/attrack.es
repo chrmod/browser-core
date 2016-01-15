@@ -111,9 +111,7 @@ var CliqzAttrack = {
     tp_events: tp_events,
     tokens: null,
     tokenExtWhitelist: null,
-    tokenWhitelistVersion: null,
     safeKey: null,
-    safeKeyExtVersion: null,
     requestKeyValue: null,
     recentlyModified: new TempSet(),
     favicons: {
@@ -1267,11 +1265,12 @@ var CliqzAttrack = {
         this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
         this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
-        if (!CliqzAttrack.isBloomFilterEnabled())
-            if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
+        // whitelist is loaded even if we're using bloom filter at the moment, as it is still used in some places.
+        // we need to tidy this!
+        CliqzAttrack.tokenExtWhitelist = {};
+        this._tokenWhitelist = new persist.PersistentObject("tokenExtWhitelist", (v) => CliqzAttrack.tokenExtWhitelist = v);
 
-        CliqzAttrack.safeKey = {};
-        persist.create_persistent("safeKey", (v) => CliqzAttrack.safeKey = v);
+        this._safekey = new persist.AutoPersistentObject("safeKey", (v) => CliqzAttrack.safeKey = v, 300000);
         try {
             CliqzAttrack.lastUpdate = JSON.parse(persist.get_value("lastUpdate"));
             if (CliqzAttrack.lastUpdate.length != 2) {
@@ -1354,14 +1353,6 @@ var CliqzAttrack = {
         CliqzAttrack.tp_events.commit(true, true);
         CliqzAttrack.tp_events.push(true);
 
-        // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
-        // CliqzAttrack.saveWhitelist();
-
-        // CliqzAttrack.saveHistStats();
-
-        CliqzAttrack.pushTelemetry();
-        CliqzUtils.clearTimeout(CliqzAttrack.trkTimer);
-
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             try{
@@ -1420,8 +1411,8 @@ var CliqzAttrack = {
             else
                 payl['bloomFilterversion'] = null;
         } else {
-            payl['whitelist'] = CliqzAttrack.tokenWhitelistVersion;
-            payl['safeKey'] = CliqzAttrack.safeKeyExtVersion;
+            payl['whitelist'] = persist.get_value('tokenWhitelistVersion', '');
+            payl['safeKey'] = persist.get_value('safeKeyExtVersion', '');
         }
         return payl;
     },
@@ -1488,6 +1479,7 @@ var CliqzAttrack = {
                 delete CliqzAttrack.safeKey[s];
             }
         }
+        CliqzAttrack._safekey.setDirty();
     },
     pruneTokenDomain: function() {
         var day = datetime.newUTCDate();
@@ -1528,9 +1520,6 @@ var CliqzAttrack = {
         }
         CliqzAttrack._requestKeyValue.setDirty();
         CliqzAttrack._requestKeyValue.save();
-    },
-    saveTokenWhitelist: function() {
-        persist.saveRecord('tokenExtWhitelist', JSON.stringify(CliqzAttrack.tokenExtWhitelist));
     },
     cleanLocalBlocked: function() {
         var delay = CliqzAttrack.localBlockExpire,
@@ -1644,7 +1633,8 @@ var CliqzAttrack = {
     },
     loadRemoteWhitelists: function() {
         var today = datetime.getTime().substring(0, 8),
-            safeKeyExtVersion = persist.get_value('safeKeyExtVersion', '');
+            safeKeyExtVersion = persist.get_value('safeKeyExtVersion', ''),
+            tokenWhitelistVersion = persist.get_value('tokenWhitelistVersion', '');
         CliqzUtils.httpGet(CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK +"?"+ today, function(req) {
             // on load
             var versioncheck = JSON.parse(req.response);
@@ -1653,15 +1643,15 @@ var CliqzAttrack = {
                 if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.safeKey available ("+ safeKeyExtVersion +" -> "+ versioncheck['safekey_version'] +")", "attrack");
                 if(versioncheck['force_clean'] == true) {
                     if (CliqzAttrack.debug) CliqzUtils.log("Force clean CliqzAttrack.safeKey", "attrack");
-                    persist.clear_persistent(CliqzAttrack.safeKey);
+                    CliqzAttrack._safekey.clear();
                     CliqzAttrack._requestKeyValue.clear();
                 }
                 CliqzAttrack.loadRemoteSafeKey();
             } else {
                 if (CliqzAttrack.debug) CliqzUtils.log("CliqzAttrack.safeKey version up-to-date", "attrack");
             }
-            if(versioncheck['token_whitelist_version'] != CliqzAttrack.tokenWhitelistVersion) {
-                if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.tokenExtWhitelist available ("+ CliqzAttrack.tokenWhitelistVersion +" -> "+ versioncheck['token_whitelist_version'] +")", "attrack");
+            if(versioncheck['token_whitelist_version'] != tokenWhitelistVersion) {
+                if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.tokenExtWhitelist available ("+ tokenWhitelistVersion +" -> "+ versioncheck['token_whitelist_version'] +")", "attrack");
                 CliqzAttrack.loadRemoteTokenWhitelist();
             } else {
                 if (CliqzAttrack.debug) CliqzUtils.log("CliqzAttrack.tokenExtWhitelist version up-to-date", "attrack");
@@ -1702,10 +1692,13 @@ var CliqzAttrack = {
         CliqzUtils.httpGet(
             CliqzAttrack.URL_TOKEN_WHITELIST +"?"+ today,
             function(req){
-                CliqzAttrack.tokenExtWhitelist = JSON.parse(req.response);
-                CliqzAttrack.tokenWhitelistVersion = md5(req.response);
-                CliqzAttrack.saveTokenWhitelist();
-                if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
+                var tokenExtWhitelist = JSON.parse(req.response),
+                    tokenWhitelistVersion = md5(req.response);
+                CliqzAttrack._tokenWhitelist.value = tokenExtWhitelist;
+                CliqzAttrack._tokenWhitelist.setDirty();
+                CliqzAttrack._tokenWhitelist.save();
+                persist.set_value('tokenWhitelistVersion', tokenWhitelistVersion);
+                if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ tokenWhitelistVersion, "attrack");
                 CliqzAttrack.checkWrongToken('token');
                 CliqzAttrack.lastUpdate[1] = datetime.getTime();
                 persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
@@ -1744,26 +1737,13 @@ var CliqzAttrack = {
                 CliqzAttrack.checkWrongToken('safeKey');
                 CliqzAttrack.lastUpdate[0] = datetime.getTime();
                 persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
+                CliqzAttrack._safekey.setDirty();
+                CliqzAttrack._safekey.save();
             },
             function() {
                 // on error
             }, 10000
         );
-    },
-    loadTokenWhitelist: function() {
-        CliqzAttrack.tokenExtWhitelist = {};
-        persist.loadRecord('tokenExtWhitelist', function(data) {
-            if (data == null) return;
-            try {
-                CliqzAttrack.tokenExtWhitelist = JSON.parse(data);
-                CliqzAttrack.tokenWhitelistVersion = md5(data);
-                if (CliqzAttrack.debug) CliqzUtils.log("Loaded existing token whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
-            } catch(e) {
-                CliqzAttrack.tokenExtWhitelist = {};
-                CliqzAttrack.tokenWhitelistVersion = null;
-                if (CliqzAttrack.debug) CliqzUtils.log("Error parsing new whitelist "+ e, "attrack");
-            }
-        });
     },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
@@ -1961,6 +1941,7 @@ var CliqzAttrack = {
         var s = url_parts.hostname + url_parts.path;
         s = md5(s);
         var badHeaders = {};
+        if (!(s in CliqzAttrack.tokenExtWhitelist)) return badHeaders;
         stats['cookie'] = 0;
         for (var key in headers) {
             var tok = headers[key];
@@ -1969,7 +1950,6 @@ var CliqzAttrack = {
                 stats['cookie']++;
                 continue;
             }
-            if (!(s in CliqzAttrack.tokenExtWhitelist)) continue;
 
             if (!md5(tok) in CliqzAttrack.tokenExtWhitelist[s])
                 badHeaders[key] = tok;
@@ -2002,6 +1982,7 @@ var CliqzAttrack = {
                     CliqzAttrack.safeKey[s][key][0] != today)
                     callback(s, key, today);
                 CliqzAttrack.safeKey[s][key] = [today, 'l'];
+                CliqzAttrack._safekey.setDirty();
                 // keep the last seen token
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};
             }
