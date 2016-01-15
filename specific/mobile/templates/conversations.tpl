@@ -49,6 +49,12 @@
 
             {{/if}}
         {{/each}}
+        
+        <div class="nohistoryyet">
+			<p>Bisher hast du noch nach nichts gesucht und keine Seiten besucht. </p>
+			<p>Sobald du das getan hast werde ich alles für dich bereit halten, falls du wieder zurück willst.</p>
+		</div>
+        
     </div>
 </div>
 
