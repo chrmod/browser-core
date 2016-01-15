@@ -8,6 +8,7 @@
     </div>
     <div class="main__content history">
         {{#each data}}
+
             {{#if url}}
 
             <table cellspacing="0" cellpadding="0" class="answer" onclick="osBridge.openLink('{{url}}')"
@@ -49,11 +50,12 @@
 
             {{/if}}
         {{/each}}
-        
-        <div class="nohistoryyet">
-			<p>Bisher hast du noch nach nichts gesucht und keine Seiten besucht. </p>
-			<p>Sobald du das getan hast werde ich alles für dich bereit halten, falls du wieder zurück willst.</p>
-		</div>
+        {{#unless data}}
+			<div class="nohistoryyet">
+				<p>Bisher hast du noch nach nichts gesucht und keine Seiten besucht. </p>
+				<p>Sobald du das getan hast werde ich alles für dich bereit halten, falls du wieder zurück willst.</p>
+			</div>
+		{{/unless}}
         
     </div>
 </div>

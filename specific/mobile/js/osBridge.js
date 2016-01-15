@@ -117,12 +117,25 @@ var osBridge = {
     function: copyResult
     description: sends a result for the OS to be copied to clipboard
     params: value as string
-    message data: msg as object
+    message data: val as string
   */
   copyResult: function(val) {
     var message = {
       action: "copyResult",
       data: val
+    }
+    OS.postMessage(message);
+  },
+  /**
+    function: removeHistory
+    description: removes history records from native history
+    params: ids as list
+    message data: ids as list
+  */
+  removeHistory: function(ids) {
+    var message = {
+      action: "removeHistory",
+      data: ids
     }
     OS.postMessage(message);
   }

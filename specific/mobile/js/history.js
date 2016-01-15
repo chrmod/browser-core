@@ -9,11 +9,6 @@ function showHistory(history) {
     queries = JSON.parse(q);
   }
 
-  if(history.length == 0 && queries.length == 0) {
-    showNoData();
-    return;
-  }
-
   for(var i=0;i<history.length;i++) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
@@ -164,12 +159,55 @@ function filterHistory(value) {
     }
 }
 
-function showNoData() {
-  if(document.body) {
-    document.body.innerHTML = "Du hast noch keine Suchen: schau' später nochmal vorbei";
-  } else {
-    setTimeout(showNoData, 100);
+var selectedQueries = [];
+var selectedHistory = [];
+
+function removeSelectedQueries() {
+  var queries = localStorage.getItem("recentQueries");
+  if(!queries || selectedQueries.length === 0) {
+    return;
   }
+  queries = JSON.parse(queries);
+
+  var index = 0;
+  queries = queries.filter(function(query) {
+    return index >= selectedQueries.length || selectedQueries[index] !== query.id || (index++ && false);
+  })
+  localStorage.setItem("recentQueries", JSON.stringify(queries));
+  selectedQueries = [];
+  osBridge.searchHistory("", "showHistory")
+}
+
+function removeSelectedHistory() {
+  osBridge.removeHistory(selectedHistory);
+  selectedHistory = [];
+  osBridge.searchHistory("", "showHistory")
+}
+
+function selectQuery(id) {
+  for(var i = 0; i < selectedQueries.length; i++) {
+    if(selectedQueries[i] === id) {
+      selectedQueries.splice(i, 1);
+      return;
+    } else if(selectedQueries[i] < id) {
+      selectedQueries.splice(i, 0, id);
+      return;
+    } 
+  }
+  selectedQueries.push(id);
+}
+
+function selectHistory(id) {
+  for(var i = 0; i < selectedHistory.length; i++) {
+    if(selectedHistory[i] === id) {
+      selectedHistory.splice(i, 1);
+      return;
+    } else if(selectedHistory[i] < id) {
+      selectedHistory.splice(i, 0, id);
+      return;
+    } 
+  }
+  selectedHistory.push(id);
 }
 
 osBridge.searchHistory("", "showHistory")

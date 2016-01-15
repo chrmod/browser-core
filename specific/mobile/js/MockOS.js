@@ -30,13 +30,15 @@ var MockOS = {
       case "copyResult":
         MockOS.copyResult(message.data);
         break;
+      case "removeHistory":
+        MockOS.removeHistory(message.data);
+        break;
 
     }
     message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
   },
   searchHistory: function(q) {
     console.log("--MOCK: action searchHistory is called with data", q);
-    var mockedHistory = [{"title":"SPIEGEL MOCK","url":"http://www.spiegel.de/", "timestamp": Date.now()},{"title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "timestamp": Date.now()},{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "timestamp": Date.now() - 10000},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "timestamp": Date.now() - 20000},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "timestamp": Date.now() - 30000},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "timestamp": Date.now() - 121240000},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "timestamp": Date.now() - 1222250000}];
     return {results:mockedHistory, query:q};
 
   },
@@ -50,7 +52,7 @@ var MockOS = {
   },
   getTopSites: function(limit) {
     console.log("--MOCK: action getTopSites is called");
-    return [{"title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "timestamp": Date.now()},{"title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "timestamp": Date.now() - 10000},{"title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "timestamp": Date.now() - 20000},{"title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "timestamp": Date.now() - 30000},{"title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "timestamp": Date.now() - 40000},{"title":"Dein idealer Smartphone-Tarif von netzclub","url":"https://www.netzclub.net/", "timestamp": Date.now() - 50000}];
+    mockedHistory;
   },
   browserAction: function(data) {
     console.log("--MOCK: action browserAction is called with data", data);
@@ -66,5 +68,18 @@ var MockOS = {
   },
   copyResult: function(data) {
     console.log("--MOCK: action copyResult is called with data", data);
+  },
+  removeHistory: function(data) {
+    console.log("--MOCK: action removeHistory is called with data", data);
+    if(data.length == 0 || mockedHistory.length === 0) {
+      return;
+    }
+
+    var index = 0;
+    mockedHistory = mockedHistory.filter(function(record) {
+      return index >= data.length || data[index] !== record.id || (index++ && false);
+    });
   }
 }
+
+var mockedHistory = [{"id": 7, "title":"SPIEGEL MOCK","url":"http://www.spiegel.de/", "timestamp": Date.now()},{"id": 6, "title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "timestamp": Date.now()},{"id": 5, "title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "timestamp": Date.now() - 10000},{"id": 4, "title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "timestamp": Date.now() - 20000},{"id": 3, "title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "timestamp": Date.now() - 30000},{"id": 2, "title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "timestamp": Date.now() - 121240000},{"id": 1, "title":"Dein idealer Smartphone-Tarif von netzclub", "url":"https://www.netzclub.net/", "timestamp": Date.now() - 1222250000}];
