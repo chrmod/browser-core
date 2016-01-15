@@ -572,6 +572,7 @@ var CliqzABTests = {
             case "1058_A":
             case "1058_B":
                 CliqzUtils.clearPref("unblockMode");
+                break;
             default:
                 rule_executed = false;
         }
