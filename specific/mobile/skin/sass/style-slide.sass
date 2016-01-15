@@ -1108,6 +1108,28 @@ a
         color: #ccc
         &.date
           color: #ddd
+  h2
+    padding: 24px 0 12px
+    text-align: center
+    position: relative
+    font-size: 12px
+    font-weight: 300
+    color: #999
+    &:after
+      position: absolute
+      content: ""
+      top: 32px
+      left: 0
+      right: 0
+      border-top: 1px #eee solid
+      z-index: 1
+  span
+    display: inline
+    background-color: #fff
+    padding: 0 8px
+    color: #999
+    z-index: 99
+    position: relative
   
   .answer
     @extend .clearfix
