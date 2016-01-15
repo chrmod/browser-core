@@ -276,17 +276,23 @@ function loadAssetMap(){
     var req = new XMLHttpRequest();
     req.open('GET', 'assets/assetMap.json?r=' + Math.random(), false);
     req.overrideMimeType('application/json');
-    req.onload = function(){
+    req.onload = function () {
         if(req.status === 200) {
           assetMap = JSON.parse(req.response).assets;
         } else if (req.status === 404) {
           // no asset rewrite during development, thus not asset map
           assetMap = {};
+          console.log('failed loading assetMap: 404');
         }
         resolve();
     }
-
-    req.send();
+    try {
+      req.send();
+    } catch (e) {
+      assetMap = {};
+      resolve();
+      console.log('failed loading assetMap ' + e);
+    }
   });
 }
 
