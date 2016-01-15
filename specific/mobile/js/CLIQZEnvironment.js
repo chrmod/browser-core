@@ -242,7 +242,9 @@ CLIQZEnvironment = {
     CLIQZEnvironment.initializeSharing();
 
 
-    // set height
+    /* set height
+
+    TODO
     var ezs = document.getElementsByClassName("ez");
 
     var B = document.body,
@@ -259,7 +261,9 @@ CLIQZEnvironment = {
         ezs[i].style.height = height-60 + 'px';
     }
 
-    // end set height
+    end set height
+
+    */
 
 
 
