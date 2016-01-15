@@ -1,4 +1,4 @@
-<!-- currency.tpl --> 
+<!-- currency.tpl -->
 <div id="currency-tpl" class='cqz-result-h3 currency' >
   <div class="meta">
       {{> logo}}
@@ -82,5 +82,5 @@
     </div>
   </div>
 <div class="poweredby">
-    More details at <a href="http://www.xe.com">XE.com</a>
+    Mehr auf <a href="http://www.xe.com">XE.com</a>
 </div>
