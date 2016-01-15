@@ -55,7 +55,7 @@ var getBrowserMajorVersion = function() {
 };
 
 var CliqzAttrack = {
-    VERSION: '0.94',
+    VERSION: '0.95',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
     URL_TOKEN_WHITELIST: 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
