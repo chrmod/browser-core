@@ -19,7 +19,7 @@
                     </td>
                     <td class="meta">
                         <div>{{conversationsTime timestamp}}</div>
-                        <div class="date">{{conversationsDate timestamp}}</div>
+                        <!--<div class="date">{{conversationsDate timestamp}}</div>-->
                     </td>
                 </tr>
             </table>
@@ -33,7 +33,7 @@
                     <tr>
                         <td class="meta">
                             <div>{{conversationsTime timestamp}}</div>
-                            <div class="date">{{conversationsDate timestamp}}</div>
+                            <!--<div class="date">{{conversationsDate timestamp}}</div>-->
                         </td>
                         <td class="framer">
                             <p class="query">{{query}}</p>
