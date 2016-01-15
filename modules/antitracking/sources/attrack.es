@@ -1322,13 +1322,8 @@ var CliqzAttrack = {
         CliqzAttrack.local_tracking = new TrackingTable();
 
         // update bloom filter
-        if (CliqzAttrack.isBloomFilterEnabled()) {
-            CliqzAttrack.bloomFilter.checkUpdate(function() {
-                CliqzAttrack.lastUpdate[0] = datetime.getTime();
-                CliqzAttrack.lastUpdate[0] = datetime.getTime();
-            });
-        }
-
+        if (CliqzAttrack.isBloomFilterEnabled())
+            CliqzAttrack.updateBloomFilter();
     },
     /** Per-window module initialisation
      */
@@ -1765,6 +1760,12 @@ var CliqzAttrack = {
             }
         });
     },
+    updateBloomFilter: function() {
+        CliqzAttrack.bloomFilter.checkUpdate(function() {
+            CliqzAttrack.lastUpdate[0] = datetime.getTime();
+            CliqzAttrack.lastUpdate[0] = datetime.getTime();
+        });
+    },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
         var keys = Object.keys(CliqzAttrack.whitelist);
@@ -1969,9 +1970,11 @@ var CliqzAttrack = {
                 stats['cookie']++;
                 continue;
             }
-            if (!(s in CliqzAttrack.tokenExtWhitelist)) continue;
+            if (!CliqzAttrack.isBloomFilterEnabled() && !(s in CliqzAttrack.tokenExtWhitelist) ||
+                CliqzAttrack.isBloomFilterEnabled() && !CliqzAttrack.bloomFilter.bloomFilter.testSingle(s)) continue;
 
-            if (!md5(tok) in CliqzAttrack.tokenExtWhitelist[s])
+            if (!CliqzAttrack.isBloomFilterEnabled() && !(md5(tok) in CliqzAttrack.tokenExtWhitelist[s]) ||
+                CliqzAttrack.isBloomFilterEnabled() && !CliqzAttrack.bloomFilter.bloomFilter.testSingle(s + md5(tok)))
                 badHeaders[key] = tok;
         }
         return badHeaders;

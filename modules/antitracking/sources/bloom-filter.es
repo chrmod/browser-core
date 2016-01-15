@@ -118,7 +118,7 @@ AttrackBloomFilter.prototype.checkUpdate = function(callback) {
     var self = this;
     CliqzUtils.httpGet(self.configURL, function(req) {
         var version = JSON.parse(req.response);
-        if (self.version === null || this.bloomFilter === null) {  // load the first time
+        if (self.version === null || self.bloomFilter === null) {  // load the first time
             self.version = {'major': null, 'minor': null};
             self.remoteUpdate(version.major, 0, callback);
             return;  // load the major version and update later
