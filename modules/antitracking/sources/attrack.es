@@ -1321,13 +1321,8 @@ var CliqzAttrack = {
         CliqzAttrack.local_tracking = new TrackingTable();
 
         // update bloom filter
-        if (CliqzAttrack.isBloomFilterEnabled()) {
-            CliqzAttrack.bloomFilter.checkUpdate(function() {
-                CliqzAttrack.lastUpdate[0] = datetime.getTime();
-                CliqzAttrack.lastUpdate[0] = datetime.getTime();
-            });
-        }
-
+        if (CliqzAttrack.isBloomFilterEnabled())
+            CliqzAttrack.updateBloomFilter();
     },
     /** Per-window module initialisation
      */
@@ -1745,6 +1740,12 @@ var CliqzAttrack = {
             }, 10000
         );
     },
+    updateBloomFilter: function() {
+        CliqzAttrack.bloomFilter.checkUpdate(function() {
+            CliqzAttrack.lastUpdate[0] = datetime.getTime();
+            CliqzAttrack.lastUpdate[0] = datetime.getTime();
+        });
+    },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
         var keys = Object.keys(CliqzAttrack.whitelist);
@@ -1941,7 +1942,6 @@ var CliqzAttrack = {
         var s = url_parts.hostname + url_parts.path;
         s = md5(s);
         var badHeaders = {};
-        if (!(s in CliqzAttrack.tokenExtWhitelist)) return badHeaders;
         stats['cookie'] = 0;
         for (var key in headers) {
             var tok = headers[key];
@@ -1950,8 +1950,11 @@ var CliqzAttrack = {
                 stats['cookie']++;
                 continue;
             }
+            if (!CliqzAttrack.isBloomFilterEnabled() && !(s in CliqzAttrack.tokenExtWhitelist) ||
+                CliqzAttrack.isBloomFilterEnabled() && !CliqzAttrack.bloomFilter.bloomFilter.testSingle(s)) continue;
 
-            if (!md5(tok) in CliqzAttrack.tokenExtWhitelist[s])
+            if (!CliqzAttrack.isBloomFilterEnabled() && !(md5(tok) in CliqzAttrack.tokenExtWhitelist[s]) ||
+                CliqzAttrack.isBloomFilterEnabled() && !CliqzAttrack.bloomFilter.bloomFilter.testSingle(s + md5(tok)))
                 badHeaders[key] = tok;
         }
         return badHeaders;
