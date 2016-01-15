@@ -9,6 +9,11 @@ function showHistory(history) {
     queries = JSON.parse(q);
   }
 
+  if(history.length == 0 && queries.length == 0) {
+    showNoData();
+    return;
+  }
+
   for(var i=0;i<history.length;i++) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
@@ -157,6 +162,14 @@ function filterHistory(value) {
             framers[i].parentNode.style.display = "none";
         }
     }
+}
+
+function showNoData() {
+  if(document.body) {
+    document.body.innerHTML = "Du hast noch keine Suchen: schau' später nochmal vorbei";
+  } else {
+    setTimeout(showNoData, 100);
+  }
 }
 
 osBridge.searchHistory("", "showHistory")

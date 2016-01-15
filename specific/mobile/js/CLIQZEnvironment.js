@@ -11,8 +11,6 @@ CLIQZEnvironment = {
   log: Logger.log,
   logCounter: Logger.logCounter,
 
-  _currentQuery: '',
-
   callRichHeader: function(searchString, url, callback) {
     var richHeaderUrl = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map";
     richHeaderUrl += "&q=" + searchString;
@@ -159,9 +157,6 @@ CLIQZEnvironment = {
     if(dots) {
       dots.innerHTML = "";
       var myEl;
-      // myEl.innerText = "H";
-      // myEl.id = "dots-page-"+0;
-      // dots.appendChild(myEl);
 
       for(var i=0;i<currentResultsCount;i++) {
         myEl = document.createElement("span");
@@ -238,19 +233,11 @@ CLIQZEnvironment = {
     } else {
       CLIQZEnvironment.enrichResults(r, 1, historyCount);
     }
-    CLIQZEnvironment._currentQuery = r._searchString;
-    clearTimeout(CLIQZEnvironment.storeQueryTimeout);
-    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
-
-      CLIQZEnvironment.setCurrentQuery(r._searchString);
-    },2000);
-
-    //CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
-    //CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
-
+    
+    CLIQZEnvironment.setCurrentQuery(r._searchString);
+    
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
-    // CLIQZEnvironment.renderRecentQueries(true);
 
     CLIQZEnvironment.initializeSharing();
 
@@ -489,7 +476,6 @@ CLIQZEnvironment = {
       CLIQZEnvironment.USER_LNG = null;
     }
 
-    //Logger.log(CLIQZEnvironment.USER_LNG,"Env->updateGeoLocation")
 
   },
 
@@ -618,7 +604,6 @@ CLIQZEnvironment = {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
       }
-      CLIQZEnvironment.setCurrentQuery(CLIQZEnvironment._currentQuery);
       osBridge.openLink(url);
     }
 
@@ -639,7 +624,6 @@ CLIQZEnvironment = {
         });
       }
       return {results: res, query:data.query, ready:true}
-      // this.searchHistoryCallback({results: [], query:data.query, ready:true}); // history is kicked out
     } catch (e) {
       Logger.log( "historySearch", "Error: " + e);
     }
@@ -795,15 +779,19 @@ CLIQZEnvironment = {
 }
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
-  CLIQZEnvironment._currentQuery = query;
   var recentItems = CLIQZEnvironment.getRecentQueries();
-  if(!recentItems[0] || (recentItems[0] && recentItems[0].query != query) )  {
-    recentItems.unshift({query:query,timestamp:(new Date()).getTime()});
+  if(!recentItems[0]) {
+    recentItems = [{query:query,timestamp:Date.now()}];
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+  } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2
+            && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+    recentItems[0] = {query:query,timestamp:Date.now()};
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+  } else {
+    recentItems.unshift({query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
-    CLIQZEnvironment.renderRecentQueries(true);
   }
-
 }
 
 
@@ -910,7 +898,7 @@ CLIQZEnvironment.shareContent = function() {
     // sending data
     var http = new XMLHttpRequest();
     var url = "http://rh-staging.clyqz.com/share_card";
-    var params = "id=card" + (new Date()).getTime() + Math.ceil(1000*Math.random()) + "&content=" + encodeURIComponent(readyHtml);
+    var params = "id=card" + Date.now() + Math.ceil(1000*Math.random()) + "&content=" + encodeURIComponent(readyHtml);
     http.open("POST", url, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.onreadystatechange = function() {
