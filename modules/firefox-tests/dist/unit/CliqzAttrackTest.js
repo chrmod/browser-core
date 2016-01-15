@@ -595,7 +595,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         beforeEach(function() {
           // mock token whitelist URL
           CliqzAttrack.URL_TOKEN_WHITELIST = mock_token_url;
-          CliqzAttrack.tokenWhitelistVersion = null;
+          persist.set_value("tokenWhitelistVersion", "");
         });
 
         afterEach(function() {
@@ -606,10 +606,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
         it('loads remote token list', function(done) {
           CliqzAttrack.loadRemoteTokenWhitelist();
           waitFor(function() {
-            return CliqzAttrack.tokenWhitelistVersion != null
+            return persist.get_value("tokenWhitelistVersion", "").length > 0;
           }).then(function() {
             try {
-              chai.expect(CliqzAttrack.tokenWhitelistVersion).to.equal(mock_token_hash);
+              chai.expect(persist.get_value("tokenWhitelistVersion")).to.equal(mock_token_hash);
               chai.expect(Object.keys(CliqzAttrack.tokenExtWhitelist)).to.have.length(1);
               chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property("f528764d624db129");
               chai.expect(CliqzAttrack.tokenExtWhitelist["f528764d624db129"]).to.have.property("7269d282a42ce53e58c7b3f66ca19bac");
@@ -625,7 +625,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           // mock safekey URL
           CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
           persist.set_value("safeKeyExtVersion", "");
-          persist.clear_persistent(CliqzAttrack.safeKey);
+          CliqzAttrack.safeKey = {};
         });
 
         afterEach(function() {
@@ -756,7 +756,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           // setup clean state
           persist.set_value("safeKeyExtVersion", "");
           persist.clear_persistent(CliqzAttrack.safeKey);
-          CliqzAttrack.tokenWhitelistVersion = null;
+          persist.set_value("tokenWhitelistVersion", "");
           CliqzAttrack.tokenExtWhitelist = {};
           CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
           // mock update functions
@@ -779,7 +779,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
         it('does not update if versions match', function(done) {
           persist.set_value("safeKeyExtVersion", mock_safekey_hash);
-          CliqzAttrack.tokenWhitelistVersion = mock_token_hash;
+          persist.set_value("tokenWhitelistVersion", mock_token_hash);
           CliqzAttrack.loadRemoteWhitelists();
           setTimeout(function() {
             try {
@@ -799,7 +799,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('updates tokens only if needed', function(done) {
-          CliqzAttrack.tokenWhitelistVersion = mock_token_hash;
+          persist.set_value("tokenWhitelistVersion", mock_token_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
           waitFor(function() {

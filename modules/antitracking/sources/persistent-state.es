@@ -169,6 +169,13 @@ export class PersistentObject {
     }.bind(this));
   }
 
+  setValue(v) {
+    this.value = v;
+    this.dirty = true;
+    this.setter(v);
+    this.save();
+  }
+
   save() {
     if (this.dirty) {
       saveRecord(this.name, JSON.stringify(this.value));

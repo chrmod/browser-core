@@ -763,10 +763,23 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
             });
           }); // tp on tracker list
         };
-        CliqzUtils.setPref('attrackBloomFilter', false);
-        context('QS blocking enabled (w/o bloom filter)', QSBlocking);
-        CliqzUtils.setPref('attrackBloomFilter', true);
-        context('QS blocking enabled (with bloom filter)', QSBlocking);
+
+        context("Bloom filter disabled", function() {
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackBloomFilter', false);
+          });
+          describe('QS blocking enabled', QSBlocking);
+        });
+
+        context("Bloom filter enabled", function() {
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackBloomFilter', true);
+          });
+          afterEach(function() {
+            CliqzUtils.setPref('attrackBloomFilter', false);
+          });
+          describe('QS blocking enabled', QSBlocking);
+        });
       }); // describe testpage
     }); // for each page
 

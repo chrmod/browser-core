@@ -1689,9 +1689,7 @@ var CliqzAttrack = {
             function(req){
                 var tokenExtWhitelist = JSON.parse(req.response),
                     tokenWhitelistVersion = md5(req.response);
-                CliqzAttrack._tokenWhitelist.value = tokenExtWhitelist;
-                CliqzAttrack._tokenWhitelist.setDirty();
-                CliqzAttrack._tokenWhitelist.save();
+                CliqzAttrack._tokenWhitelist.setValue(tokenExtWhitelist);
                 persist.set_value('tokenWhitelistVersion', tokenWhitelistVersion);
                 if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ tokenWhitelistVersion, "attrack");
                 CliqzAttrack.checkWrongToken('token');
