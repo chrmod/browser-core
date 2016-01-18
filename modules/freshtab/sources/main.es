@@ -162,17 +162,20 @@ function isActive(){
 
 function activate(){
   // save the backup state only once
-  var backupDone = true;
+  var firstStart = false;
   if(!CliqzUtils.hasPref(FRESH_TAB_BACKUP_DONE)){
     CliqzUtils.setPref(FRESH_TAB_BACKUP_DONE, true);
-    backupDone = false
+    firstStart = true
   }
 
   if(FF41_OR_ABOVE){
       // newtab.url needs to be changed in the browser itself in FF 41
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
-      !backupDone && CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
-      CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
+      if(firstStart){
+        CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
+        CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
+      }
+
       if(versionChecker.compare(appInfo.version, "44.0") < 0){
         NewTabURL.override(CLIQZ_NEW_TAB);
       } else {
@@ -180,12 +183,14 @@ function activate(){
         aboutNewTabService.newTabURL = CLIQZ_NEW_TAB;
       }
   } else { //FF 40 or older
-      !backupDone && CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
+      if(firstStart) CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
       CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB, '');
   }
 
-  !backupDone && CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE, null, ''));
-  CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB, '');
+  if(firstStart){
+    CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE, null, ''));
+    CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB, '');
+  }
 }
 
 function deactivate(){
