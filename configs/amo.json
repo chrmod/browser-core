@@ -4,7 +4,8 @@
     "freshTabABtest" : true,
     "antitrackingButton": false,
     "showDataCollectionMessage": true,
-    "cliqzOnboarding": false
+    "cliqzOnboarding": false,
+    "channel": "04"
   },
   "modules": [
     "static",

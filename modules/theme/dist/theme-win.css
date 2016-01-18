@@ -217,7 +217,12 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     height: auto !important;
     padding: 5px 0px 5px 6px !important;
 }
-#forward-button > .toolbarbutton-icon { margin: 0; }
+#forward-button > .toolbarbutton-icon {
+    margin: 0;
+    border: none !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+}
 
 #PersonalToolbar { padding-left: 8px; }
 
@@ -303,6 +308,7 @@ notification[type="warning"] .notification-inner {
 #back-button .toolbarbutton-icon {
     border-radius: 0 !important;
     box-shadow: none !important;
+    border: none !important;
 }
 
 

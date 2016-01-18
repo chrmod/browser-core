@@ -72,7 +72,7 @@
 
             </div>
           {{else}}
-            {{>partials/missing_location_step_1}}
+            {{>partials/missing_location_1}}
           {{/unless}}
         </div>
       {{/with}}
