@@ -746,6 +746,12 @@
     "cMenuFeedback": {
       "message": "Feedback for CLIQZ"
     },
+    "cMenuRemoveFromHistory": {
+      "message": "Remove from History"
+    },
+    "cMenuRemoveFromBookmarksAndHistory": {
+      "message": "Remove from Bookmarks and History"
+    },
     "myQuery": {
         "message": "query"
     },

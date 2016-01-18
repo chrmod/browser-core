@@ -681,10 +681,12 @@ var CLIQZEnvironment = {
       var doc = CliqzUtils.getWindow().document,
           contextMenu = doc.createElement('menupopup');
       box.appendChild(contextMenu);
+      contextMenu.setAttribute('id', "dropdownContextMenu");
 
       for(var item = 0; item < menuItems.length; item++) {
           var menuItem = doc.createElement('menuitem');
           menuItem.setAttribute('label', menuItems[item].label);
+          menuItem.setAttribute('functionality', menuItems[item].functionality);
           menuItem.addEventListener("command", menuItems[item].command, false);
           if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
             menuItem.setAttribute('class', 'menuitem-iconic');
@@ -693,6 +695,21 @@ var CLIQZEnvironment = {
           contextMenu.appendChild(menuItem);
       }
       return contextMenu
+    },
+    /**
+     * Construct a uri from a url
+     * @param {string}  aUrl - url
+     * @param {string}  aOriginCharset - optional character set for the URI
+     * @param {nsIURI}  aBaseURI - base URI for the spec
+     */
+    makeUri: function(aUrl, aOriginCharset, aBaseURI) {
+      var uri;
+      try {
+        uri = Services.io.newURI(aUrl, aOriginCharset, aBaseURI);
+      } catch(e) {
+        uri = null
+      }
+      return uri;
     },
     // lazy init
     // callback called multiple times

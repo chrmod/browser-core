@@ -658,6 +658,7 @@ var UI = {
     closeResults: closeResults,
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
+    getElementByAttr: getElementByAttr,
     enhanceResults: enhanceResults
 };
 
@@ -1294,6 +1295,16 @@ function getResultOrChildAttr(el, attr){
   if(el == null) return '';
   if(el.className == IC) return el.getAttribute(attr) || '';
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
+}
+
+function getElementByAttr(el, attr, val) {
+  if (el && el.getAttribute(attr) === val) {
+    return el;
+  }
+  if (el === null) return null;
+  if (el.className === IC) return null;
+
+  return getElementByAttr(el.parentNode, attr, val);
 }
 
 function urlIndexInHistory(url, urlList) {
