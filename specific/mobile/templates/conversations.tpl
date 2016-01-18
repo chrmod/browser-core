@@ -11,8 +11,8 @@
 
             {{#if url}}
 
-            <table cellspacing="0" cellpadding="0" class="answer" onclick="osBridge.openLink('{{url}}')"
-                   data-timestamp={{ timestamp }} data-index="{{@index}}">
+            <table cellspacing="0" cellpadding="0" class="answer" data="{{url}}"
+                   data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
                 <tr>
                     <td class="framer">
                         <p>{{title}}</p>
@@ -29,8 +29,8 @@
 
                 {{#if query}}
 
-                <table cellspacing="0" cellpadding="0" class="question" onclick="osBridge.notifyQuery('{{query}}');"
-                       data-timestamp={{ timestamp }} data-index="{{@index}}">
+                <table cellspacing="0" cellpadding="0" class="question" data="{{query}}"
+                       data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
                     <tr>
                         <td class="meta">
                             <div>{{conversationsTime timestamp}}</div>
@@ -50,6 +50,17 @@
 
             {{/if}}
         {{/each}}
+        <div id="control" style="display:none;">
+			<table>
+				<td onclick="removeSelected()">
+					remove
+				</td>
+				<td onclick="endEditMode()">
+					back
+				</td>
+
+			</table>
+        </div>
         {{#unless data}}
 			<div class="nohistoryyet">
 				<p>Bisher hast du noch nach nichts gesucht und keine Seiten besucht. </p>
