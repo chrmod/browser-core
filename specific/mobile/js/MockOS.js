@@ -52,7 +52,7 @@ var MockOS = {
   },
   getTopSites: function(limit) {
     console.log("--MOCK: action getTopSites is called");
-    mockedHistory;
+    return mockedHistory;
   },
   browserAction: function(data) {
     console.log("--MOCK: action browserAction is called with data", data);
