@@ -101,24 +101,51 @@ function displayData(data) {
     query_count: queryCount,
     url_count: urlCount
   });
+
+  
+  var clickTimer = null;
+  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'mousedown', function () {
+    clickTimer = setTimeout(lunchEditMode, 100, this);
+  });
+
+  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'mouseup', function () {
+    var type = this.getAttribute('class');
+    var clickAction = type.indexOf('question') >= 0 ? osBridge.notifyQuery : osBridge.openLink;
+
+    if(editMode) {
+      selectItem(this);
+    } else {
+      clickAction(this.getAttribute('data'));
+    }
+    clearTimeout(clickTimer);
+  });
 }
 
-function testActiveWebViewOnIos() {
-  document.body.innerHTML += "Test Succeeded";
+var editMode = false;
+
+function lunchEditMode(element) {
+  if(editMode) {
+    endEditMode();
+    lunchEditMode(element);
+  } else {
+    var div = document.getElementById('control');
+    div.style.display = 'block';
+    editMode = true;
+    selectedQueries = [];
+    selectedHistory = [];
+    selectItem(element);
+  }
 }
 
-function append(title, timestamp, styleClass) {
-  var div = document.createElement('div');
-  div.setAttribute('class', styleClass);
-  var head = document.createElement('p');
-  head.setAttribute('class', 'text-big');
-  head.innerHTML = title;
-  var p = document.createElement('p');
-  p.setAttribute('class', 'time');
-  p.innerHTML = timestamp;
-  div.appendChild(head);
-  div.appendChild(p);
-  document.body.appendChild(div);
+function endEditMode() {
+  var framers = [].slice.call(document.getElementsByClassName('framer'));
+  framers.forEach(function(item) {item.setAttribute('class', 'framer')});
+  
+  var div = document.getElementById('control');
+  div.style.display = 'none';
+  editMode = false;
+  selectedQueries = [];
+  selectedHistory = [];
 }
 
 Handlebars.registerHelper('conversationsTime', function(time) {
@@ -184,6 +211,12 @@ function removeSelectedHistory() {
   osBridge.searchHistory("", "showHistory")
 }
 
+function removeSelected() {
+  removeSelectedQueries();
+  removeSelectedHistory();
+  endEditMode();
+}
+
 function selectQuery(id) {
   for(var i = 0; i < selectedQueries.length; i++) {
     if(selectedQueries[i] === id) {
@@ -208,6 +241,20 @@ function selectHistory(id) {
     } 
   }
   selectedHistory.push(id);
+}
+
+function selectItem(item) {
+  var selectAction = item.getAttribute('class').indexOf('question') >= 0 ? selectQuery : selectHistory;
+  selectAction(parseInt(item.getAttribute('data-id')));
+  var framer = item.getElementsByClassName('framer')[0];
+  if(framer.getAttribute('class').indexOf('selected') >= 0) {
+    framer.setAttribute('class', 'framer');
+  } else {
+    framer.setAttribute('class', 'framer selected');
+  }
+  if(selectedQueries.length + selectedHistory.length == 0) {
+    endEditMode();
+  }
 }
 
 osBridge.searchHistory("", "showHistory")
