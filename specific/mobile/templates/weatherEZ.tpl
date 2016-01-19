@@ -32,7 +32,7 @@
 </div>
 
 <div class="poweredby">
-    More details at <a href="http://www.weatherunderground.com">weatherunderground.com</a>
+    Mehr auf <a href="http://www.weatherunderground.com">weatherunderground.com</a>
 </div>
 
 {{/with}}
