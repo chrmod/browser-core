@@ -42,7 +42,6 @@
         </div>
     {{/with}}
 
-    {{>EZ-history}}
 </div>
 
 

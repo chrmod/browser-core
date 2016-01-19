@@ -810,7 +810,10 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2
-            && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+            && Date.now() - recentItems[0].timestamp < 5 * 1000
+            && query.length > 2
+            && !query.match(/http[s]{0,1}:/)
+            ) {
     recentItems[0] = {id: recentItems[0].id, query:query,timestamp:Date.now()};
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   } else {
