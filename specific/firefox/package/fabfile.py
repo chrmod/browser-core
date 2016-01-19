@@ -78,6 +78,11 @@ def package(beta='True', version=None, sign='False', amo='False'):
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
+
+            if amo == 'True':
+                # remove files which migth cause problems on AMO
+                local("rm chrome/content/abtests.html")
+
             local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
