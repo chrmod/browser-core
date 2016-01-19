@@ -39,9 +39,11 @@ var CliqzFreshTabNews = {
 	},
   updateNews: function(callback){
     CliqzUtils.clearTimeout(t0);
-
-    if (CliqzFreshTabNews._isStale() || !getNewsFromLS()){
+    if (CliqzFreshTabNews._isStale() || CliqzUtils.getPref('freshTabByPassCache') || !getNewsFromLS()){
       var bBasedNewsRequirement = [];
+      if (bypassCache) {
+        log("Bypassing cache");
+      }
 
       if (hBasedNews) {
         getHbasedNewsList().then(function(bBasedNewsRequirement){
@@ -58,7 +60,7 @@ var CliqzFreshTabNews = {
     return new Promise(function (resolve, reject)  {
       var cache = getNewsFromLS();
 
-      if (cache && !CliqzFreshTabNews._isStale()) {
+      if (cache && !CliqzFreshTabNews._isStale() && CliqzUtils.getPref('freshTabByPassCache', false) === false) {
         log("Reading from Local Storage", cache)
         resolve(cache);
       } else {
