@@ -7,9 +7,10 @@ try {
 } catch(e) { }
 
 var ONE_MINUTE = 60 * 1000,
-    ONE_DAY = 24 * 60 * 60 * 1000,
+    ONE_DAY = 24 * 60 * ONE_MINUTE,
     ONE_MONTH = 30 * ONE_DAY,
-    SEND_INTERVAL = 20 * 60 * 1000, //20 minutes
+    SEND_INTERVAL = 20 * ONE_MINUTE,
+    CACHE_INTERVAL = 30 * ONE_MINUTE,
     t0, // timers
     news_domains = {},
     hBasedNews = false,
@@ -20,6 +21,10 @@ function log(s){
 }
 
 var CliqzFreshTabNews = {
+  _isStale: function() {
+    var now = Date.now();
+    return parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + CACHE_INTERVAL < now;
+  },
 	init: function(){
     CliqzUtils.clearTimeout(t0);
 
@@ -34,9 +39,8 @@ var CliqzFreshTabNews = {
 	},
   updateNews: function(callback){
     CliqzUtils.clearTimeout(t0);
-    var now = Date.now();
 
-    if (parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + 30 * ONE_MINUTE < now || !getNewsFromLS()){
+    if (CliqzFreshTabNews._isStale() || !getNewsFromLS()){
       var bBasedNewsRequirement = [];
 
       if (hBasedNews) {
@@ -53,7 +57,8 @@ var CliqzFreshTabNews = {
   getNews: function (){
     return new Promise(function (resolve, reject)  {
       var cache = getNewsFromLS();
-      if (cache) {
+
+      if (cache && !CliqzFreshTabNews._isStale()) {
         log("Reading from Local Storage", cache)
         resolve(cache);
       } else {
