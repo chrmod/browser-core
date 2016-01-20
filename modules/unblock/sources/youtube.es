@@ -188,7 +188,7 @@ export default {
             self.updateProxyRule(vid);
             self.refreshPageForVideo(vid);
           });
-        }, 100);
+        }, 1000);
         return;
       }
       // lookup api
