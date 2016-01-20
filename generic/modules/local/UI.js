@@ -1464,9 +1464,7 @@ function resultScroll(ev) {
 }
 
 function copyResult(val) {
-    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                               .getService(Components.interfaces.nsIClipboardHelper);
-    gClipboardHelper.copyString(val);
+    CLIQZEnvironment.copyResult(val);
 }
 
 function resultClick(ev) {
@@ -1478,7 +1476,7 @@ function resultClick(ev) {
 
     var coordinate = null;
     if (UI.urlbar_box)
-        coordinate = [ev.clientX - (UI.urlbar_box.left || UI.urlbar_box.x), ev.clientY - UI.urlbar_box.bottom, CLIQZ.Core.popup.width];
+        coordinate = [ev.clientX - (UI.urlbar_box.left || UI.urlbar_box.x || 0), ev.clientY - UI.urlbar_box.bottom, CLIQZ.Core.popup.width || window.innerWidth];
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");

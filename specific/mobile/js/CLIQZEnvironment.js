@@ -1,8 +1,10 @@
 CLIQZEnvironment = {
   TEMPLATES_PATH: 'templates/',
-  LOCALE_PATH: 'locale/',
+  LOCALE_PATH: 'modules/static/locale/',
   RESULTS_LIMIT: 3,
   RICH_HEADER_CACHE_TIMEOUT: 15000,
+  PEEK: 20,
+  PADDING: 16,
 
   storeQueryTimeout: null,
 
@@ -13,7 +15,9 @@ CLIQZEnvironment = {
     var richHeaderUrl = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map";
     richHeaderUrl += "&q=" + searchString;
     richHeaderUrl += "&bmresult=" + url;
-    richHeaderUrl += "&loc=" + CLIQZEnvironment.USER_LAT + "," + CLIQZEnvironment.USER_LNG + ",U";
+    if(CLIQZEnvironment.location_enabled) {
+      richHeaderUrl += "&loc=" + CLIQZEnvironment.USER_LAT + "," + CLIQZEnvironment.USER_LNG + ",U";
+    }
     var request = new XMLHttpRequest();
     request.open('GET', encodeURI(richHeaderUrl), true);
     request.onreadystatechange = function () {
@@ -24,10 +28,10 @@ CLIQZEnvironment = {
     request.send();
   },
 
-  enrichResults: function(r, startIndex) {
+  enrichResults: function(r, startIndex, historyCount) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
-      if(index > 0 || index < startIndex) { // kicking out enriching cards after the first 1
+      if(index > historyCount || index < historyCount + startIndex) { // kicking out enriching cards after the first 1
         return;
       }
       CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
@@ -39,7 +43,7 @@ CLIQZEnvironment = {
           }
           if( CliqzHandlebars.tplCache[template] ) {
             CLIQZ.UI.enhanceResults(r);
-            if(document.getElementById("ez-" + index)) {
+            if(document.getElementById("ez-" + index) && r.results[0] && r.results[0].data.template != "noResult") {
               document.getElementById("ez-" + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -49,17 +53,24 @@ CLIQZEnvironment = {
     );
   },
 
-  autoComplete: function (val) {
+  autoComplete: function (val,searchString) {
+
     if( val && val.length > 0){
       val = val.replace(/http([s]?):\/\/(www.)?/,"");
       val = val.toLowerCase();
-      var urlbarValue = urlbar.value.toLowerCase();
+      var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) == 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
         osBridge.autocomplete(val);
+      } else {
+        var ls = JSON.parse(localStorage.recentQueries || '[]');
+        for( var i in ls ) {
+          if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) == 0 ) {
+            osBridge.autocomplete(ls[i].query.toLowerCase());
+          }
+        }
       }
-
     }
   },
 
@@ -70,40 +81,28 @@ CLIQZEnvironment = {
     });
   },
 
-  renderResults: function(r, showGooglethis, validCount) {
+  setDimensions: function() {
+    CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
+  },
 
-    var historyCount = 0;
-    for(var i = 0; i < r._results.length; i++) {
-      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
-        historyCount++;
-      }
-    }
+  renderResults: function(r, historyCount) {
 
-    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
+    var validCount = 0;
+
+    r.encodedSearchString = encodeURIComponent(r._searchString);
+    var engine = CLIQZEnvironment.getDefaultSearchEngine();
+
+    CLIQZEnvironment.setDimensions();
 
     if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
 
-    CLIQZEnvironment.crossTransform(resultsBox, 0);
-
-
-    resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
-    item_container.style.width = resultsBox.style.width;
-
-    CLIQZEnvironment.stopProgressBar();
-    CLIQZEnvironment.openLinksAllowed = true;
-
-    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src]');
-    CLIQZEnvironment.imgLoader.start();
-
-
-    return CLIQZ.UI.results({
+    var renderedResults = CLIQZ.UI.results({
       searchString: r._searchString,
-      frameWidth: window.innerWidth,
+      frameWidth: CLIQZEnvironment.CARD_WIDTH,
       results: r._results.map(function(r, idx){
         r.type = r.style;
-        r.left = (window.innerWidth * validCount);
-        r.frameWidth = window.innerWidth;
+        r.left = (CLIQZEnvironment.CARD_WIDTH * validCount);
         r.url = r.val || '';
         r.title = r.comment || '';
 
@@ -115,23 +114,49 @@ CLIQZEnvironment = {
           }),
       isInstant: false,
       googleThis: {
-        left: (window.innerWidth * validCount),
-        show: showGooglethis,
-        frameWidth: window.innerWidth,
-        searchString: r._searchString
+        title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
+        action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
+        left: (CLIQZEnvironment.CARD_WIDTH * validCount),
+        frameWidth: CLIQZEnvironment.CARD_WIDTH,
+        searchString: r.encodedSearchString,
+        searchEngineUrl: engine.url
       }
     });
+
+    var showGooglethis = 1;
+    if(renderedResults.results[0].data.template == "noResult") {
+      showGooglethis = 0;
+    }
+
+    CLIQZEnvironment.crossTransform(resultsBox, 0);
+
+    resultsBox.style.width = (window.innerWidth * (renderedResults.results.length + showGooglethis)) + 'px';
+    resultsBox.style.marginLeft = CLIQZEnvironment.PEEK + 'px';
+    item_container.style.width = resultsBox.style.width;
+
+    CLIQZEnvironment.stopProgressBar();
+    CLIQZEnvironment.openLinksAllowed = true;
+
+    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style]');
+    CLIQZEnvironment.imgLoader.start();
+
+    return renderedResults;
+
   },
 
-  setResultNavigation: function(results, showGooglethis, validCount) {
+  setResultNavigation: function(results) {
+
+
+    var showGooglethis = 1;
+    if(results[0].data.template == "noResult") {
+      showGooglethis = 0;
+    }
+
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     var currentResultsCount = CLIQZEnvironment.currentResultsCount =  results.length+showGooglethis;
     if(dots) {
       dots.innerHTML = "";
       var myEl;
-      // myEl.innerText = "H";
-      // myEl.id = "dots-page-"+0;
-      // dots.appendChild(myEl);
 
       for(var i=0;i<currentResultsCount;i++) {
         myEl = document.createElement("span");
@@ -150,14 +175,13 @@ CLIQZEnvironment = {
       setTimeout(nextTest,2000);
     }
 
-    validCount += showGooglethis;
     var offset = 0;
     var w = window.innerWidth;
 
-    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * validCount)));
+    CLIQZEnvironment.crossTransform(resultsBox, Math.min((offset * w), (w * currentResultsCount)));
 
     var googleAnim = document.getElementById("googleThisAnim");
-    CLIQZEnvironment.numberPages = validCount;
+    CLIQZEnvironment.numberPages = currentResultsCount;
     (function (numberPages) {
 
       if( typeof CLIQZEnvironment.vp !== "undefined" ) {
@@ -165,7 +189,7 @@ CLIQZEnvironment = {
       }
       CLIQZEnvironment.currentPage = 0;
       CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
-    })(validCount);
+    })(currentResultsCount);
 
     // CLIQZEnvironment.vp.goToIndex(1,0);
 
@@ -182,98 +206,118 @@ CLIQZEnvironment = {
       console.log("results not cached !!!");
     }
   },
+  putHistoryFirst: function(r) {
+    for(var i = 0; i < r._results.length; i++) {
+      if(r._results[i].style === "cliqz-pattern" || r._results[i].style === "favicon") {
+        r._results.unshift(r._results.splice(i, 1)[0]);
+        return 1;
+      }
+    }
+    return 0;
+  },
   resultsHandler: function (r, requestHolder) {
-
-    if( urlbar.value != r._searchString  ){
-      CliqzUtils.log("u='"+urlbar.value+"'' s='"+r._searchString+"', returning","urlbar!=search");
+    if( CLIQZEnvironment.lastSearch != r._searchString  ){
+      CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
-    CLIQZEnvironment.autoComplete(r._results[0].val);
+    var historyCount = CLIQZEnvironment.putHistoryFirst(r);
+
+    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
+
+    CLIQZEnvironment.autoComplete(r._results[0].val,r._searchString);
 
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
-      CLIQZEnvironment.enrichResults(r, 0);
+      CLIQZEnvironment.enrichResults(r, 0, historyCount);
     } else {
-      CLIQZEnvironment.enrichResults(r, 1);
+      CLIQZEnvironment.enrichResults(r, 1, historyCount);
+    }
+    
+    CLIQZEnvironment.setCurrentQuery(r._searchString);
+    
+    renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
+
+
+    CLIQZEnvironment.initializeSharing();
+
+
+    /* set height
+
+    TODO
+    var ezs = document.getElementsByClassName("ez");
+
+    var B = document.body,
+          H = document.documentElement,
+          height
+
+    if (typeof document.height !== 'undefined') {
+      height = document.height // For webkit browsers
+    } else {
+      height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
     }
 
-    clearTimeout(CLIQZEnvironment.storeQueryTimeout);
-    CLIQZEnvironment.storeQueryTimeout = setTimeout(function() {
-      CLIQZEnvironment.setCurrentQuery(r._searchString);
-    },2000);
-
-    CliqzUtils.log("-------------rendering "+r._searchString, "QUERY");
-    CliqzUtils.log(arguments,"ARGUMENTS OF REMOTE CALL");
-
-
-    var showGooglethis = 1;
-    var validCount = 0;
-
-    if(r._results[0].data.template == "noResult") {
-      showGooglethis = 0;
+    for(var i=0;i<ezs.length;i++) {
+        ezs[i].style.height = height-60 + 'px';
     }
 
+    end set height
 
-    renderedResults = CLIQZEnvironment.renderResults(r, showGooglethis, validCount);
+    */
 
-    // CLIQZEnvironment.renderRecentQueries(true);
 
-    CLIQZEnvironment.setResultNavigation(r._results, showGooglethis, renderedResults.results.length);
+
+
+    CLIQZEnvironment.setResultNavigation(renderedResults.results);
   },
+  search: function(e, location_enabled, latitude, longitude) {
+    CLIQZEnvironment.lastSearch = e;
+    CLIQZEnvironment.location_enabled = location_enabled;
+    if(location_enabled) {
+      CLIQZEnvironment.USER_LAT = latitude;
+      CLIQZEnvironment.USER_LNG = longitude;
+    } else {
+      CLIQZEnvironment.USER_LAT = undefined;
+      CLIQZEnvironment.USER_LNG = undefined;
+    }
 
-  search: function(e) {
-    setTimeout(function() {
-      if(document.getElementById('recentitems')) {
-        // document.getElementById('recentitems').style.display = "none";
-      }
+    if(document.getElementById('recentitems')) {
+      // document.getElementById('recentitems').style.display = "none";
+    }
 
-      item_container = document.getElementById('cliqz-results');
-      var currentScrollInfo = {
-        page: 0,
-        totalOffset: 0,
-        pageOffset: 0
-      };
+    item_container = document.getElementById('cliqz-results');
+    var currentScrollInfo = {
+      page: 0,
+      totalOffset: 0,
+      pageOffset: 0
+    };
 
-      if(urlbar.value == "") {
-        CLIQZ.UI.main(resultsBox);
-        CLIQZEnvironment.renderRecentQueries(true);
-        CLIQZEnvironment.stopProgressBar();
-        return;
-      }
+    if(!e || e == "") {
+      resultsBox.style.display = 'none';
+      window.document.getElementById("startingpoint").style.display = 'block';
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.initHomepage();
+      CLIQZEnvironment.stopProgressBar();
+      return;
+    }
+    resultsBox.style.display = 'block';
+    window.document.getElementById("startingpoint").style.display = 'none';
 
-      if(urlbar.value.toLowerCase().match("imdb")) {
-        CliqzUtils.setBackendToBeta();
-      } else {
-        CliqzUtils.setBackendToLive();
-      }
-
-      if(urlbar.value.toLowerCase() == "testme") {
-        initTest();
-      }
-      var logscreen = document.getElementById("logscreen");
-
-      if(urlbar.value.toLowerCase() == "d.on") {
-        logscreen.style.left = "0px";
-          //document.getElementById("recentbutton").style.display = "block";
-          return;
-        }
-
-        if(urlbar.value.toLowerCase() == "d.off") {
-          logscreen.style.left = "-5000px";
-          return;
-        }
-        CLIQZEnvironment.startProgressBar();
+    if(e.toLowerCase() == "testme") {
+      initTest();
+    }
+    CLIQZEnvironment.startProgressBar();
 
 
-      // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      CliqzUtils.log(urlbar.value,"XHR");
-      (new CliqzAutocomplete.CliqzResults()).search(urlbar.value, CLIQZEnvironment.resultsHandler);
-    }, 5);
+    // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //CliqzUtils.log(e,"XHR");
+    (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
   },
 
   initViewpager: function() {
-    var w = window.innerWidth;
+    CLIQZEnvironment.initViewpager.views = {};
+    CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
+
     var dots = document.getElementById("cliqz-swiping-dots-new-inside");
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
@@ -284,7 +328,7 @@ CLIQZEnvironment = {
       onPageScroll : function (scrollInfo) {
         currentScrollInfo = scrollInfo;
         offset = -scrollInfo.totalOffset;
-        CLIQZEnvironment.crossTransform(resultsBox, (offset * w));
+        CLIQZEnvironment.crossTransform(resultsBox, (offset * CLIQZEnvironment.CARD_WIDTH));
         CLIQZEnvironment.openLinksAllowed = false;
       },
 
@@ -292,6 +336,7 @@ CLIQZEnvironment = {
 
         dots.innerHTML = "";
         var myEl;
+        page = Math.abs(page);
 
         for(var i=0;i<CLIQZEnvironment.currentResultsCount;i++) {
           myEl = document.createElement("span");
@@ -303,6 +348,24 @@ CLIQZEnvironment = {
 
           dots.appendChild(myEl);
         }
+
+        CLIQZEnvironment.initViewpager.views[page] =
+          (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
+
+        if(page !== CLIQZEnvironment.currentPage) {
+          CliqzUtils.telemetry({
+            type: "activity",
+            action: "swipe",
+            swipe_direction:
+              page > CLIQZEnvironment.currentPage ? 'right' : 'left',
+            current_position: page,
+            views: CLIQZEnvironment.initViewpager.views[page],
+            prev_position: CLIQZEnvironment.currentPage,
+            prev_display_time: Date.now() - CLIQZEnvironment.initViewpager.pageShowTs
+          });
+        }
+
+        CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
         CLIQZEnvironment.openLinksAllowed = true;
         CLIQZEnvironment.currentPage = page;
@@ -377,7 +440,6 @@ CLIQZEnvironment = {
     //Logger.log("setPrefs",arguments);
     localStorage.setItem(pref,val);
   },
-
   getGeo: function(allowOnce, callback, failCB) {
     // fake geo location
     CLIQZEnvironment.USER_LAT = 48.155772899999995;
@@ -440,7 +502,6 @@ CLIQZEnvironment = {
       CLIQZEnvironment.USER_LNG = null;
     }
 
-    //Logger.log(CLIQZEnvironment.USER_LNG,"Env->updateGeoLocation")
 
   },
 
@@ -473,14 +534,14 @@ CLIQZEnvironment = {
     latestUrl = url;
 
     if(isMixerUrl(url)) {
-      var cache = localStorage.getCachedResult(urlbar.value);
+      var cache = localStorage.getCachedResult && localStorage.getCachedResult(CLIQZEnvironment.lastSearch);
       if(cache) {
-        callback(cache, urlbar.value);
+        callback(cache, CLIQZEnvironment.lastSearch);
         return;
       }
       if(!window.navigator.onLine) {
         if(typeof CustomEvent != "undefined") {
-          window.dispatchEvent(new CustomEvent("connected"));
+          window.dispatchEvent(new CustomEvent("disconnected", { "detail": "browser is offline" }));
         }
         isRequestFailed = true;
         Logger.log( "request " + url + " will be deferred until the browser is online");
@@ -564,7 +625,7 @@ CLIQZEnvironment = {
     return req;
   },
   openLink: function(window, url, newTab){
-    Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
+    //Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
     if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  {
       if( url.indexOf("http") == -1 ) {
         url = "http://" + url;
@@ -589,7 +650,6 @@ CLIQZEnvironment = {
         });
       }
       return {results: res, query:data.query, ready:true}
-      // this.searchHistoryCallback({results: [], query:data.query, ready:true}); // history is kicked out
     } catch (e) {
       Logger.log( "historySearch", "Error: " + e);
     }
@@ -599,7 +659,7 @@ CLIQZEnvironment = {
   },
   historySearch: function(q, callback, searchParam, sessionStart){
     this.searchHistoryCallback = callback;
-    window.osBridge.searchHistory(q);
+    window.osBridge.searchHistory(q, "CLIQZEnvironment.displayHistory");
   },
   getSearchEngines: function(){
     return ENGINES.map(function(e){
@@ -613,7 +673,7 @@ CLIQZEnvironment = {
   },
   distance: function(lon1, lat1, lon2, lat2) {
     var R = 6371; // Radius of the earth in km
-    if(!lon2) { return 0 }
+    if(!lon2 || !lon1 || !lat2 || !lat1) { return 0 }
     var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
     var dLon = (lon2-lon1).toRad();
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -629,20 +689,138 @@ CLIQZEnvironment = {
   },
   getEngineByAlias: function () {
     return ENGINES[0];
+  },
+  copyResult: function(val) {
+    osBridge.copyResult(val);
+  },
+  getNews: function() {
+    //console.log("Start getting news");
+    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+  },
+  displayTopNews: function(news) {
+
+    var top_news = news.top_h_news;
+
+    console.log('%crendering top news', 'color:green', top_news)
+    top_news = top_news.map(function(r){
+      var details = CliqzUtils.getDetailsFromUrl(r.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      return {
+        title: r.title,
+        description: r.description,
+        short_title: r.short_title,
+        displayUrl: details.domain || r.title,
+        url: r.url,
+        text: logo.text,
+        backgroundColor: logo.backgroundColor,
+        buttonsClass: logo.buttonsClass,
+        style: logo.style
+      }
+    });
+    if(!CliqzHandlebars.tplCache.topnews) {
+      return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
+    }
+    var topNews = CliqzHandlebars.tplCache["topnews"];
+    var div = window.document.getElementById('topNews');
+    div.innerHTML = topNews(top_news);
+    CLIQZEnvironment.addEventListenerToElements(".topNewsLink", "click", function () {
+      CliqzUtils.telemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'topnews',
+        target_index: this.dataset.index
+      });
+    });
+  },
+  displayTopSites: function (list) {
+    if(!CliqzHandlebars.tplCache.topsites) {
+      return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
+    }
+    list = list.map(function(r){
+      var details = CliqzUtils.getDetailsFromUrl(r.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      return {
+        title: r.title,
+        displayUrl: details.domain || r.title,
+        url: r.url,
+        text: logo.text,
+        backgroundColor: logo.backgroundColor,
+        buttonsClass: logo.buttonsClass,
+        style: logo.style
+      }
+    });
+    var topSites = CliqzHandlebars.tplCache["topsites"];
+    var div = window.document.getElementById('topSites');
+    div.innerHTML = topSites(list);
+    CLIQZEnvironment.addEventListenerToElements(".topSitesLink", "click", function () {
+      CliqzUtils.telemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'topsites',
+        target_index: this.dataset.index
+      });
+    });
+  },
+  addEventListenerToElements: function (elementSelector, eventType, listener) {
+    Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
+      element.addEventListener(eventType, listener);
+    });
+  },
+  initHomepage: function() {
+    CLIQZEnvironment.getNews();
+    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
+  },
+  setDefaultSearchEngine: function(engine) {
+    localStorage.setObject("defaultSearchEngine", engine);
+    var engineDiv = document.getElementById("defaultEngine");
+    if(engineDiv && CliqzAutocomplete.lastSearch) {
+      engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
+      var moreResults = document.getElementById("moreResults")
+      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_result_action', engine.name));
+      var noResults = document.getElementById("noResults")
+      noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
+    }
+  },
+  getDefaultSearchEngine: function() {
+    return localStorage.getObject("defaultSearchEngine") || {name:"Google", url: "http://www.google.com/search?q="};
+  },
+  getNoResults: function() {
+    var engine = CLIQZEnvironment.getDefaultSearchEngine();
+
+    return Result.cliqzExtra(
+      {
+        data:
+          {
+            template:'noResult',
+            title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
+            action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
+            searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
+            searchEngineUrl: engine.url
+          },
+        subType: JSON.stringify({empty:true})
+      }
+    )
   }
 
 }
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
-  CLIQZEnvironment._currentQuery = query;
   var recentItems = CLIQZEnvironment.getRecentQueries();
-  if(!recentItems[0] || (recentItems[0] && recentItems[0].query != query) )  {
-    recentItems.unshift({query:query,timestamp:(new Date()).getTime()});
+  if(!recentItems[0]) {
+    recentItems = [{id: 1, query:query, timestamp:Date.now()}];
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+  } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2
+            && Date.now() - recentItems[0].timestamp < 5 * 1000
+            && query.length > 2
+            && !query.match(/http[s]{0,1}:/)
+            ) {
+    recentItems[0] = {id: recentItems[0].id, query:query,timestamp:Date.now()};
+    localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+  } else {
+    recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
-    CLIQZEnvironment.renderRecentQueries(true);
   }
-
 }
 
 
@@ -683,4 +861,88 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
     document.getElementById("conversations").scrollTop = 5000
   }
 
+}
+
+
+CLIQZEnvironment.shareContent = function() {
+
+    var template = '<!DOCTYPE html>' +
+                   '     <html style="background-color: #eee;">' +
+                   '       <head>' +
+                   '           <title>###TITLE###</title>' +
+                   '           <meta charset="utf-8">' +
+                   '           <meta name="viewport" content="initial-scale=1.0001, user-scalable=no">' +
+                   '          <style type="text/css">###STYLE###</style>' +
+                   '          <style type="text/css">#results {width:100%;max-width:600px;}</style>' +
+                   '       </head>' +
+                   '       <body>' +
+                   '          <div id="results">' +
+                   '            <div id="cliqz-results">' +
+                   '                    <div class="frame">' +
+                   '                        ###CONTENT###' +
+                   '                     </div>' +
+                   '             </div>' +
+                   '          </div>' +
+                   '       </body>' +
+                   '    </html>';
+
+
+    // clean up html / replace links
+    var replaceUrlByOnclick = function (fullMatch,match) {
+      return 'onClick="location.href=\'' + match + '\'"';
+    }
+    var readyHtml = this.parentNode.innerHTML.replace( /url="(.*?)"/g, replaceUrlByOnclick );
+    var readyHtml = readyHtml.replace(this.outerHTML,"");
+    var title = '';
+    try {
+      var title = this.parentNode.getElementsByClassName("main__headline")[0].getElementsByTagName("a")[0].innerText
+    } catch(e) {
+      console.log("You cannot share this");
+      title = '';
+      return;
+    }
+
+    // css rules inline
+    var cssRules, innerStyles = "";
+    for(var j=0; j<document.styleSheets.length;j++) {
+        cssRules = document.styleSheets[j].cssRules;
+        for(var i=0; i<cssRules.length;i++) {
+            innerStyles += cssRules[i].cssText + "\n";
+        }
+    }
+
+    // replace template
+    readyHtml = template.replace('###CONTENT###',readyHtml);
+    readyHtml = readyHtml.replace('###STYLE###',innerStyles);
+    readyHtml = readyHtml.replace('###TITLE###',"CLIQZ Card:" + title);
+    readyHtml = readyHtml.replace(location.href,"http://cdn.cliqz.com/mobile/beta/");
+
+
+
+    // debugging iframe
+    document.getElementById("testingshare").style.display = "block";
+    document.getElementById("testingshare").srcdoc = readyHtml;
+
+
+    // sending data
+    var http = new XMLHttpRequest();
+    var url = "http://rh-staging.clyqz.com/share_card";
+    var params = "id=card" + Date.now() + Math.ceil(1000*Math.random()) + "&content=" + encodeURIComponent(readyHtml);
+    http.open("POST", url, true);
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+            // goes to OS
+            console.log("%c=== THIS GOES TO THE OS === " + http.responseText, 'background: #222; color: #bada55' );
+        }
+    }
+    http.send(params);
+}
+
+
+CLIQZEnvironment.initializeSharing = function() {
+  var shareButtons = document.getElementsByClassName("share");
+  for(var i=0;i<shareButtons.length;i++) {
+       shareButtons[i].addEventListener("click",CLIQZEnvironment.shareContent);
+  }
 }

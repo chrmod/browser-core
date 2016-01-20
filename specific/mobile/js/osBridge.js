@@ -9,11 +9,11 @@ var osBridge = {
     message data: query as string
     message callback data: {results: [{url: as string, title: as string}], query: as string}
   */
-  searchHistory: function(query) {
+  searchHistory: function(query, callback) {
     var message = {
       action: "searchHistory",
       data: query,
-      callback: "CLIQZEnvironment.displayHistory"
+      callback: callback
     }
     OS.postMessage(message);
   },
@@ -23,7 +23,7 @@ var osBridge = {
   */
   isReady: function() {
     var message = {
-      action: "isReady",
+      action: "isReady"
     }
     OS.postMessage(message);
   },
@@ -55,15 +55,20 @@ var osBridge = {
         type: type
       }
     }
-    OS.postMessage(JSON.stringify(message));
+    OS.postMessage(message);
   },
   /**
     function: getTopSites
     description: requests the top sites from the OS
+    params: callback as string (name of the callback)
+    params: limit as integer (max number of results)
+    message data: limit as integer
   */
-  getTopSites: function() {
+  getTopSites: function(callback, limit) {
     var message = {
-      action: "getTopSites"
+      action: "getTopSites",
+      data: limit,
+      callback: callback
     }
     OS.postMessage(message);
   },
@@ -86,10 +91,12 @@ var osBridge = {
     params: query as string
     message data: query as string
   */
-  notifyQuery: function(query) {
+  notifyQuery: function(query, locationEnabled, lat, lon) {
     var message = {
       action: "notifyQuery",
-      data: query
+      data: { 
+        "q": query,
+      }
     }
     OS.postMessage(message);
   },
@@ -103,6 +110,32 @@ var osBridge = {
     var message = {
       action: "pushTelemetry",
       data: msg
+    }
+    OS.postMessage(message);
+  },
+  /**
+    function: copyResult
+    description: sends a result for the OS to be copied to clipboard
+    params: value as string
+    message data: val as string
+  */
+  copyResult: function(val) {
+    var message = {
+      action: "copyResult",
+      data: val
+    }
+    OS.postMessage(message);
+  },
+  /**
+    function: removeHistory
+    description: removes history records from native history
+    params: ids as list
+    message data: ids as list
+  */
+  removeHistory: function(ids) {
+    var message = {
+      action: "removeHistory",
+      data: ids
     }
     OS.postMessage(message);
   }
