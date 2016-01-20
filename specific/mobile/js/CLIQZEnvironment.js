@@ -776,7 +776,7 @@ CLIQZEnvironment = {
     if(engineDiv && CliqzAutocomplete.lastSearch) {
       engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
       var moreResults = document.getElementById("moreResults")
-      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_result_action', engine.name));
+      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
       var noResults = document.getElementById("noResults")
       noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
     }
