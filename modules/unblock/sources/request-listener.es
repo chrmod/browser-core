@@ -5,7 +5,7 @@ export default class {
   constructor() {
     this.pps = Components.classes["@mozilla.org/network/protocol-proxy-service;1"]
       .getService(Components.interfaces.nsIProtocolProxyService);
-    this.pps.registerFilter(this, 1);
+    this.pps.registerFilter(this, 0);
     this.subscribed = []
   }
 

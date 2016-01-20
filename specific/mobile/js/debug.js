@@ -18,7 +18,7 @@ CLIQZ.Core = {
 Handlebars.registerHelper("debug", function(optionalValue) {
   console.log("Debug Current Context");
   console.log(this);
- 
+
   if (optionalValue) {
     console.log("Debug Value"); 
     console.log(optionalValue);
@@ -92,7 +92,7 @@ initResultBox();
 if(onAndroid || location.port == 4200 || window.webkit) {
   document.getElementById("urlbar").style.display = "none";
 } else {
-  
+
 }
 
 var debugcss = "background-color:#00aa00;display:block;"
@@ -124,14 +124,14 @@ window.addEventListener('resize', function () {
       frames[i].style.left = (CLIQZEnvironment.CARD_WIDTH*i) +"px";
       frames[i].style.width = CLIQZEnvironment.CARD_WIDTH+"px";
     }
-    
+
     if(CLIQZEnvironment.vp) {
       CLIQZEnvironment.vp.destroy();
     }
-    
+
     CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
     CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0); 
+    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
     }, 50);
 });
 
@@ -263,7 +263,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
     //
     //
 
-    
+
     for(var i in data.cinemas) {
       data.cinemas[i].cinema.distance = CLIQZEnvironment.distance(
                         data.cinemas[i].cinema.lon,
@@ -299,7 +299,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
 
 
 CLIQZ.UI.VIEWS["local-movie-sc"] = {
-  
+
   enhanceMovieSC: CLIQZ.UI.VIEWS["local-cinema-sc"].enhanceMovieSC,
 
   enhanceResults: function(data) {
@@ -313,7 +313,7 @@ CLIQZ.UI.VIEWS["local-movie-sc"] = {
 
 
 CLIQZ.UI.VIEWS["stocks"] = {
-  
+
   enhanceResults: function(data) {
     var myTime = new Date(data.message.last_update * 1000);
       data.message.time_string = myTime.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
@@ -321,7 +321,7 @@ CLIQZ.UI.VIEWS["stocks"] = {
 }
 
 
-CLIQZ.UI.VIEWS["weatherEZ"] = { 
+CLIQZ.UI.VIEWS["weatherEZ"] = {
   enhanceResults: function(data) {
     if (data.forecast_url) {
       data.btns = [
@@ -341,7 +341,7 @@ CLIQZ.UI.VIEWS["weatherAlert"] = CLIQZ.UI.VIEWS["weatherEZ"];
 
 
 CLIQZ.UI.VIEWS["currency"] = {
-  
+
   enhanceResults: function(data) {
       console.log(data);
   }
@@ -356,15 +356,15 @@ function switchCurrency(data) {
   var fromValue = getNumValue(parseFloat(fromInput.value));
   data.toAmount.main = getNumValue(fromValue * convRate);
   data.fromAmount = fromValue;
-  
+
   var temp = data.fromCurrency;
   data.fromCurrency = data.toCurrency;
   data.toCurrency = temp;
-  
+
   temp = data.formSymbol;
   data.formSymbol = data.toSymbol;
   data.toSymbol = temp;
-  
+
   updateCurrencyTpl(data);
 }
 
@@ -436,7 +436,7 @@ function showPast() {
 
 //    CLIQZEnvironment.httpHandler(
 //      "GET",
-//      "http://news-test-swimlane.clyqz.com/articles?q=news&extra_domains="+domains+"&num_results_per_domain=3&num_domains=100", 
+//      "http://news-test-swimlane.clyqz.com/articles?q=news&extra_domains="+domains+"&num_results_per_domain=3&num_domains=100",
 //      function(result) { // success
 //      var res = JSON.parse(result.responseText), current;
 //      for(var i in res.data.news) {
@@ -448,13 +448,13 @@ function showPast() {
 //      console.log("newsData",newsDataAll);
 
 //      conversationsEl.innerHTML = CliqzHandlebars.tplCache.conversations_future({data:newsDataAll});
-      
+
 //      CLIQZEnvironment.stopProgressBar();
 
-//      }, 
+//      },
 //      function() { // error
 //      console.warn(arguments)
-//      }, 
+//      },
 //      5000);
 
 //      if( typeof CLIQZEnvironment.vp !== "undefined" ) {
