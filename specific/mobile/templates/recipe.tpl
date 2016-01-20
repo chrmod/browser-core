@@ -2,17 +2,17 @@
 
 {{#if (recipe_rd_template data.richData)}}
 <div class="cqz-result-h1 cqz-rd cqz-result-padding recipe">
-  
+
   <div class="meta">
       {{> logo}}
       {{#with data}}
       <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{../urlDetails.friendly_url}}</h3>
   </div>
-  
+
   <div class="main">
     <div class="item">
       {{#if richData.image}}
-      <div class="main__image" style="background-image: url({{richData.image}});">
+      <div class="main__image" data-style="background-image: url({{richData.image}});">
           Image
       </div>
       {{/if}}
@@ -31,8 +31,8 @@
           <p>{{richData.des}}</p>
       </div>
     </div>
-    
-  
+
+
     <!--<div class="cqz-rd-body">
         <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{richData.name}}</a></div>
         <div class="cqz-rd-h3-snippet">

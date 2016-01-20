@@ -4,15 +4,15 @@
         {{> logo}}
         <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
     </div>
-    
+
     <div class="main people">
-        
+
         {{#if image.src}}
-            <div class="main__image" style="background-image: url({{ image.src }}); margin-top: 0px">
+            <div class="main__image" data-style="background-image: url({{ image.src }}); margin-top: 0px">
                 Image
             </div>
         {{/if}}
-        
+
         <h1 class="main__headline">
             <a extra="title" href="{{../url}}">{{ data.richData.full_name }}</a>
         </h1>
@@ -25,9 +25,9 @@
             </p>
 
         {{/with}}
-        
+
     </div>
-    
+
 {{else}}
     {{partial 'generic'}}
 {{/if}}

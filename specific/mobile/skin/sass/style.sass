@@ -1,4 +1,73 @@
-@import 'style-slide';
+@import 'style-slide'
+
+// @font-face
+//   font-family: "lato"
+//   font-style: normal
+//   font-weight: 200
+//   src: url("/mobile/skin/fonts/Lato-Thin.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: italic
+//   font-weight: 200
+//   src: url("/mobile/skin/fonts/Lato-ThinItalic.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: normal
+//   font-weight: 300
+//   src: url("/mobile/skin/fonts/Lato-Medium.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: italic
+//   font-weight: 300
+//   src: url("/mobile/skin/fonts/Lato-MediumItalic.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: normal
+//   font-weight: 400
+//   src: url("/mobile/skin/fonts/Lato-Regular.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: italic
+//   font-weight: 400
+//   src: url("/mobile/skin/fonts/Lato-Italic.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: normal
+//   font-weight: 500
+//   src: url("/mobile/skin/fonts/Lato-Semibold.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: italic
+//   font-weight: 500
+//   src: url("/mobile/skin/fonts/Lato-SemiboldItalic.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: normal
+//   font-weight: 700
+//   src: url("/mobile/skin/fonts/Lato-Bold.ttf") format("truetype")
+// 
+// 
+// @font-face
+//   font-family: "lato"
+//   font-style: italic
+//   font-weight: 700
+//   src: url("/mobile/skin/fonts/Lato-BoldItalic.ttf") format("truetype")
 
 .frame .ez
   /* -webkit-box-shadow: inset 0px -0px 31px -13px rgba(8,16,26,1);
@@ -11,6 +80,12 @@
 *
   margin: 0
   padding: 0
+
+html
+  background-color: #EEEEEE
+
+body
+  background-color: #FFFFFF
 
 input#urlbar
   display: n
@@ -35,6 +110,8 @@ input#urlbar
   top: -17px
   bottom: 0
   margin: 0px auto
+#results::-webkit-scrollbar
+  display: none 
   /*border: 1px solid gray;
   /* background: #eee;
 
@@ -137,18 +214,6 @@ div
     top: 100px
     color: red
 
-table#logscreen
-  position: absolute
-  top: 150px
-  background: #fff
-  border: 1px solid #000
-  z-index: 10000
-  width: 100%
-  /* -webkit-transform: translate3d(0,0,0);
-  left: -5000px
-  td
-    font: 10px verdana
-
 .spinner
   margin: 18px auto 0
   width: 70px
@@ -235,7 +300,6 @@ li.cqz-ez-search-app.transition
     display: none
   .meta__url
     margin: 0 0 0 2px
-    padding: 0
     font-weight: 400
     color: #999
     font-size: 12px
@@ -243,12 +307,6 @@ li.cqz-ez-search-app.transition
     white-space: nowrap
     overflow: hidden
     position: relative
-
-.cta li a
-  line-height: 30.6px !important
-  background-color: rgba(0, 0, 0, 0.01) !important
-  &:hover
-    background-color: rgba(0, 0, 0, 0.1) !important
 
 .meta .meta__url
   margin: 0 0 0 0px !important
@@ -336,8 +394,9 @@ img.__main__image__many
   float: left
 
 .__main__image.__many
-  width: 2000px
+  width: 100%
   height: 55px
+  margin-top: 0.75rem
   overflow: hidden
 
 .queries

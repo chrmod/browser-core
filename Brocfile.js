@@ -6,7 +6,12 @@ var jade = require('broccoli-jade');
 var fs = require('fs');
 var Babel = require('broccoli-babel-transpiler');
 var amdNameResolver = require('amd-name-resolver');
+var AssetRev = require('broccoli-asset-rev');
+var uglify = require('broccoli-uglify-sourcemap');
 var writeFile = require('broccoli-file-creator');
+
+// build environment
+var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 
 // input trees
 var bowerComponents = new Funnel('bower_components');
@@ -16,7 +21,7 @@ var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
 });
 var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
 var firefoxPackage  = new Funnel('specific/firefox/package');
-var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*'] });
+var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 var cliqziumSpecific= new Funnel('specific/cliqzium');
 var webSpecific     = new Funnel('specific/web');
 var generic         = new Funnel('generic');
@@ -218,7 +223,30 @@ var mobile = new MergeTrees([
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(localMobile,    { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
+  new Funnel(modules,        { destDir: 'modules' })
 ]);
+
+if (buildEnv === 'production' ) {
+  mobile = new AssetRev(mobile, {
+    extensions: ['js', 'css'],
+    replaceExtensions: ['html', 'css', 'js'],
+    generateAssetMap: true
+  });
+  // uglify breaks for cliqz-oss/broccoli#building-server:
+  // "The .read/.rebuild API is no longer supported of Broccoli 1.0"
+  // mobile = uglify(new Funnel(mobile), {
+  //   mangle: false,
+  //   compress: false,
+  //   output: {
+  //     indent_level: 2,
+  //     comments: false,
+  //     beautify: true
+  //   },
+  //   sourceMapConfig: {
+  //     enabled: false
+  //   }
+  // });
+}
 
 // Output
 module.exports = new MergeTrees([

@@ -1,4 +1,10 @@
 {
+    "calculator": {
+        "message": "Calculator"
+    },
+    "time": {
+        "message": "Time"
+    },
     "open": {
         "message": "Open"
     },
@@ -952,6 +958,21 @@
     },
     "freshtab_top_news": {
       "message": "Top News"
+    },
+    "freshtab_top_sites": {
+      "message": "Top Sites"
+    },
+    "mobile_no_result_title": {
+      "message": "We don't have great results this time."
+    },
+    "mobile_no_result_action": {
+      "message": "Tap here for results from $1..."
+    },
+    "mobile_more_results_title": {
+      "message": "No result you liked?"
+    },
+    "mobile_more_results_action": {
+      "message": "Tap here for results from $1..."
     },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"
