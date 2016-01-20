@@ -109,7 +109,7 @@ export default {
             el = ev.target,
             localType = el.getAttribute("local_sc_type") || "default";
 
-        container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
+        container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_2"]({
             friendly_url: el.getAttribute("bm_url"),
             trans_str: messages[localType].trans_str
         });

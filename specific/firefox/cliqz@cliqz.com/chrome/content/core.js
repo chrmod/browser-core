@@ -317,17 +317,8 @@ window.CLIQZ.Core = {
     },
     checkSession: function() {
         if (!CliqzUtils.hasPref('session')) {
-            CliqzUtils.httpGet('chrome://cliqz/content/source.json',
-                (function success(req){
-                    var source = JSON.parse(req.response).shortName;
-                    var session = this.generateSession(source);
-                    CliqzUtils.setPref('session', session);
-                }).bind(this),
-                (function error(){
-                    var session = this.generateSession();
-                    CliqzUtils.setPref('session', session);
-                }).bind(this)
-            );
+            var source = CLIQZ.config.settings.channel;
+            CliqzUtils.setPref('session', CLIQZ.Core.generateSession(source));
             return false;
         }
         // Session is set already
@@ -802,7 +793,7 @@ window.CLIQZ.Core = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                CLIQZ.Core.createQbutton(win, btn.children.cliqz_menupopup);
+                win.CLIQZ.Core.createQbutton(btn.children.cliqz_menupopup);
             } catch(e){}
         }
     },
@@ -817,15 +808,11 @@ window.CLIQZ.Core = {
           menupopup.removeChild(menupopup.lastChild);
 
         function feedback_FAQ(){
-            CliqzUtils.httpGet('chrome://cliqz/content/source.json',
-                function success(req){
-                    var source = JSON.parse(req.response).shortName;
-                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion + '-' + source);
-                },
-                function error(){
-                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + CliqzUtils.extensionVersion);
-                }
-            );
+          var feeedbackUrl = 'https://cliqz.com/' + lang + '/feedback/',
+              feedbackParams =  CliqzUtils.extensionVersion + '-' + CLIQZ.config.settings.channel;
+
+          //TODO - use the original channel instead of the current one (it will be changed at update)
+          CLIQZEnvironment.openTabInWindow(win, feeedbackUrl + feedbackParams);
         }
 
         //feedback and FAQ
