@@ -324,6 +324,12 @@ var CliqzABTests = {
             case "1057_B":
                 CliqzUtils.setPref("trackerTxt", true);
                 break;
+            case "1058_A":
+                CliqzUtils.setPref("unblockMode", "never");
+                break;
+            case "1058_B":
+                CliqzUtils.setPref("unblockMode", "always");
+                break;
             default:
                 rule_executed = false;
         }
@@ -561,7 +567,6 @@ var CliqzABTests = {
                 break;
             case "1055_A":
             case "1055_B":
-                CliqzUtils.setPref("unblockMode", "never");
                 CliqzUtils.cliqzPrefs.clearUserPref("unblockEnabled");
                 break;
             case "1056_A":
@@ -570,7 +575,11 @@ var CliqzABTests = {
                 break;
             case "1057_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("trackerTxt");
-                break;            
+                break;
+            case "1058_A":
+            case "1058_B":
+                CliqzUtils.clearPref("unblockMode");
+                break;
             default:
                 rule_executed = false;
         }

@@ -3,8 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-var logscreen = document.getElementById("logscreen"); 
-
 document.getElementById("reconnecting").style.display = "none"; 
 
 CLIQZ.UI.init(urlbar);
@@ -18,13 +16,11 @@ CLIQZ.Core = {
 
 
 Handlebars.registerHelper("debug", function(optionalValue) {
-  console.log("Current Context");
-  console.log("====================");
+  console.log("Debug Current Context");
   console.log(this);
- 
+
   if (optionalValue) {
-    console.log("Value"); 
-    console.log("====================");
+    console.log("Debug Value"); 
     console.log(optionalValue);
   }
 });
@@ -38,6 +34,28 @@ Handlebars.registerHelper('conversationsTime', function(time) {
     var formatedDate = hours + ':' + minutes;
     return formatedDate;
 });
+
+Handlebars.registerHelper('uriEncode', function(uriComponent) {
+    return encodeURIComponent(uriComponent);
+});
+
+Handlebars.helpers.timeOrCalculator = function(ezType) {
+    if(ezType=="time") {
+      return Handlebars.helpers.local("time");
+    } else {
+      return Handlebars.helpers.local("calculator");
+    }
+}
+
+
+Handlebars.registerHelper('showSearch', function(results, options) { // if equal
+  if(results[0].data.template !== "noResult") {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
 
 
 function trace() {
@@ -68,81 +86,52 @@ function initResultBox () {
 };
 initResultBox();
 
-CLIQZEnvironment.updateGeoLocation();
-
-setInterval("CLIQZEnvironment.updateGeoLocation();",5000);
-
-CliqzUtils.setBackendToBeta = function() {
-  CliqzUtils.RESULTS_PROVIDER = "http://mixer-beta.clyqz.com/api/v1/results?q=";
-  CliqzUtils.RICH_HEADER = "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map";
-}
-
-CliqzUtils.setBackendToLive = function() {
-  CliqzUtils.RESULTS_PROVIDER = "https://newbeta.cliqz.com/api/v1/results?q=";
-  CliqzUtils.RICH_HEADER = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map"
-}
-
 //CliqzUtils.RESULTS_PROVIDER = "http://mixer-beta.clyqz.com/api/v1/results?q=";
 //CliqzUtils.RICH_HEADER = "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map";
 
-if(onAndroid || location.port == 3001 || window.webkit) {
+if(onAndroid || location.port == 4200 || window.webkit) {
   document.getElementById("urlbar").style.display = "none";
 } else {
-  
+
 }
 
 var debugcss = "background-color:#00aa00;display:block;"
 
 CLIQZEnvironment.openLinksAllowed = true;
 
-CliqzUtils.setPref("share_location","yes");
-CliqzUtils.setPref("adultContentFilter","liberal");
+CliqzUtils.setPref("adultContentFilter","moderate");
 
 
 CliqzUtils.requestMonitor.inHealth = function() { return true; }
 
 
 CLIQZEnvironment.renderRecentQueries();
- 
 
-
-CLIQZEnvironment.delayTimer = null;
-function doSearch(text) {
-//     clearTimeout(CLIQZEnvironment.delayTimer);
-//     CLIQZEnvironment.delayTimer = setTimeout(function() {
-//         CLIQZEnvironment.search(text);
-//     }, 200);
-  CLIQZEnvironment.search(text);
-}
-
-urlbar.addEventListener('keydown', function(e){
-  doSearch(urlbar.value);
-});
 
 //TODO: Should be refactored!!!!
 
-function search_mobile(e) {
-  urlbar.value = e;
-  doSearch(e);
+function search_mobile(e, location_enabled, latitude, longitude) {
+  CLIQZEnvironment.search(e, location_enabled, latitude, longitude);
 }
 
 window.addEventListener('resize', function () {
   setTimeout(function () {
+    CLIQZEnvironment.setDimensions();
     var w = window.innerWidth;
     var frames = document.getElementsByClassName("frame");
     var i;
     for(i=0;i<frames.length;i++) {
-      frames[i].style.left = (w*i) +"px";
-      frames[i].style.width = w+"px";
+      frames[i].style.left = (CLIQZEnvironment.CARD_WIDTH*i) +"px";
+      frames[i].style.width = CLIQZEnvironment.CARD_WIDTH+"px";
     }
-    
+
     if(CLIQZEnvironment.vp) {
       CLIQZEnvironment.vp.destroy();
     }
-    
+
     CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
     CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0); 
+    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
     }, 50);
 });
 
@@ -215,7 +204,7 @@ CLIQZ.UI.VIEWS["local-data-sc"] = {
 
       data.opening_status = {
         color: openingColors[open_stt],
-        stt_text: CliqzUtils.getLocalizedString(open_stt),
+        stt_text: open_stt && CliqzUtils.getLocalizedString(open_stt),
         time_info_til: CliqzUtils.getLocalizedString("open_hour"),
         time_info_str: timeInfos.join(", ")
       };
@@ -274,7 +263,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
     //
     //
 
-    
+
     for(var i in data.cinemas) {
       data.cinemas[i].cinema.distance = CLIQZEnvironment.distance(
                         data.cinemas[i].cinema.lon,
@@ -310,7 +299,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
 
 
 CLIQZ.UI.VIEWS["local-movie-sc"] = {
-  
+
   enhanceMovieSC: CLIQZ.UI.VIEWS["local-cinema-sc"].enhanceMovieSC,
 
   enhanceResults: function(data) {
@@ -324,7 +313,7 @@ CLIQZ.UI.VIEWS["local-movie-sc"] = {
 
 
 CLIQZ.UI.VIEWS["stocks"] = {
-  
+
   enhanceResults: function(data) {
     var myTime = new Date(data.message.last_update * 1000);
       data.message.time_string = myTime.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
@@ -332,7 +321,7 @@ CLIQZ.UI.VIEWS["stocks"] = {
 }
 
 
-CLIQZ.UI.VIEWS["weatherEZ"] = { 
+CLIQZ.UI.VIEWS["weatherEZ"] = {
   enhanceResults: function(data) {
     if (data.forecast_url) {
       data.btns = [
@@ -352,7 +341,7 @@ CLIQZ.UI.VIEWS["weatherAlert"] = CLIQZ.UI.VIEWS["weatherEZ"];
 
 
 CLIQZ.UI.VIEWS["currency"] = {
-  
+
   enhanceResults: function(data) {
       console.log(data);
   }
@@ -367,15 +356,15 @@ function switchCurrency(data) {
   var fromValue = getNumValue(parseFloat(fromInput.value));
   data.toAmount.main = getNumValue(fromValue * convRate);
   data.fromAmount = fromValue;
-  
+
   var temp = data.fromCurrency;
   data.fromCurrency = data.toCurrency;
   data.toCurrency = temp;
-  
+
   temp = data.formSymbol;
   data.formSymbol = data.toSymbol;
   data.toSymbol = temp;
-  
+
   updateCurrencyTpl(data);
 }
 
@@ -408,135 +397,9 @@ function updateCurrencyTpl(data) {
 
 // end of currency converter code
 
-
-
-
-CLIQZ.UI.VIEWS["partials/missing_location_step_1"] = { 
-  messages: {
-    "movies": {
-      'trans_str': {
-        'message': 'movies_confirm_no',
-        'yes': 'yes',
-        'no': 'show_local_movies'
-      }
-    },
-    "cinemas": {
-      'trans_str': {
-        'message': 'cinemas_confirm_no',
-        'yes': 'yes',
-        'no': 'show_local_cinemas'
-      }
-    },
-    "default": {
-      'trans_str': {
-        'message': 'location_confirm_no',
-        'yes': 'yes',
-        'no': 'show_local_results'
-      }
-    }
-  },
-  events: {
-    click: {
-        "cqz_location_yes": function(ev) {
-          ev.preventDefault();
-          CLIQZEnvironment.setLocationPermission(window, "yes");
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].loadLocalResults(ev.target);
-
-        },
-        "cqz_location_once": function(ev) {
-          ev.preventDefault();
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].loadLocalResults(ev.target);
-        },
-        "cqz_location_no": function(ev) {
-          var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container"),
-              el = ev.target,
-              localType = el.getAttribute("local_sc_type") || "default";
-
-          container.innerHTML = CliqzHandlebars.tplCache["partials/missing_location_step_2"]({
-              friendly_url: el.getAttribute("bm_url"),
-              trans_str: messages[localType].trans_str
-          });
-        },
-        "cqz_location_never": function(ev) {
-          CLIQZEnvironment.setLocationPermission(window, "no");
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].displayMessageForNoPermission();
-        },
-        "cqz_location_not_now": function(ev) {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].displayMessageForNoPermission();
-        },
-        "cqz_location_yes_confirm": function(ev) {
-          CLIQZEnvironment.setLocationPermission(window, "yes");
-          var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-          if (container) container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-            "display_msg": "location-thank-you"
-          });
-        }
-    }
-  },
-  loadLocalResults:function(el) {
-      CLIQZ.Core.popup.cliqzBox.querySelector(".location_permission_prompt").classList.add("loading");
-      CLIQZEnvironment.getGeo(true, function (loc) {
-          CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-              "&q=" + CLIQZ.Core.urlbar.value +
-              CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
-              "&bmresult=" + el.getAttribute("bm_url"),
-              CLIQZ.UI.VIEWS["partials/missing_location_step_1"].handleNewLocalResults(el));
-      }, function () {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].failedToLoadResults(el);
-          CliqzUtils.log("Unable to get user's location", "CliqzUtils.getGeo");
-      });
-  },
-
-
-  handleNewLocalResults:function(el) {
-      return function(req) {
-        //CliqzUtils.log(req, "RESPONSE FROM RH");
-        var resp,
-            container = el,
-            r;
-
-        try {
-          resp = JSON.parse(req.response);
-          CliqzUtils.log(resp, "RH RESPONSE");
-        } catch (ex) {
-        }
-        if (resp && resp.results && resp.results.length > 0) {
-          while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
-            container = container.parentElement;
-            if (!container || container.id == "cliqz-results") return;
-          }      
-          CLIQZ.UI.enhanceResults(resp);
-          r = resp.results[0];
-          if (container) container.innerHTML = CliqzHandlebars.tplCache[r.data.template](r);
-        } else {
-          CLIQZ.UI.VIEWS["partials/missing_location_step_1"].failedToLoadResults(el);
-        }
-      };
-    },
-
-
-  failedToLoadResults:function(el) {
-    var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-    if (el.id === "cqz_location_yes") {
-        container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-          "display_msg": "location-sorry"
-        });
-    } else if (el.id == "cqz_location_once") {
-        container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-          "display_msg": "location-permission-ask"
-        });
-    }
-  },
-
-  displayMessageForNoPermission:function() {
-    var container = CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-    if (container) container.innerHTML = CliqzHandlebars.tplCache["partials/no-locale-data"]({
-      "display_msg": "location-no"
-    });
-  }
-
+function setDefaultSearchEngine(engine) {
+  CLIQZEnvironment.setDefaultSearchEngine(engine);
 }
-
 
 function compareTimestamps(a, b) {
   return a.timestamp - b.timestamp;
@@ -573,7 +436,7 @@ function showPast() {
 
 //    CLIQZEnvironment.httpHandler(
 //      "GET",
-//      "http://news-test-swimlane.clyqz.com/articles?q=news&extra_domains="+domains+"&num_results_per_domain=3&num_domains=100", 
+//      "http://news-test-swimlane.clyqz.com/articles?q=news&extra_domains="+domains+"&num_results_per_domain=3&num_domains=100",
 //      function(result) { // success
 //      var res = JSON.parse(result.responseText), current;
 //      for(var i in res.data.news) {
@@ -585,13 +448,13 @@ function showPast() {
 //      console.log("newsData",newsDataAll);
 
 //      conversationsEl.innerHTML = CliqzHandlebars.tplCache.conversations_future({data:newsDataAll});
-      
+
 //      CLIQZEnvironment.stopProgressBar();
 
-//      }, 
+//      },
 //      function() { // error
 //      console.warn(arguments)
-//      }, 
+//      },
 //      5000);
 
 //      if( typeof CLIQZEnvironment.vp !== "undefined" ) {
@@ -616,3 +479,23 @@ function openFuture(el) {
    el.getElementsByTagName("ul")[0].style.display = "block";
   //console.log(el)
 }
+
+Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
+    var fn = options.fn,
+        inverse = options.inverse,
+        ret = "",
+        _context = [];
+        $.each(context, function (index, object) {
+            var _object = $.extend({}, object);
+            _context.push(_object);
+        });
+    if ( _context && _context.length > 0 ) {
+        for ( var i = 0, j = _context.length; i < j; i++ ) {
+            _context[i]["parentContext"] = options.hash.parent;
+            ret = ret + fn(_context[i]);
+        }
+    } else {
+        ret = inverse(this);
+    }
+    return ret;
+});

@@ -7,9 +7,10 @@ try {
 } catch(e) { }
 
 var ONE_MINUTE = 60 * 1000,
-    ONE_DAY = 24 * 60 * 60 * 1000,
+    ONE_DAY = 24 * 60 * ONE_MINUTE,
     ONE_MONTH = 30 * ONE_DAY,
-    SEND_INTERVAL = 20 * 60 * 1000, //20 minutes
+    SEND_INTERVAL = 20 * ONE_MINUTE,
+    CACHE_INTERVAL = 30 * ONE_MINUTE,
     t0, // timers
     news_domains = {},
     hBasedNews = false,
@@ -20,6 +21,10 @@ function log(s){
 }
 
 var CliqzFreshTabNews = {
+  _isStale: function() {
+    var now = Date.now();
+    return parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + CACHE_INTERVAL < now;
+  },
 	init: function(){
     CliqzUtils.clearTimeout(t0);
 
@@ -34,11 +39,11 @@ var CliqzFreshTabNews = {
 	},
   updateNews: function(callback){
     CliqzUtils.clearTimeout(t0);
-    var now = Date.now();
-
-    if (parseInt(CliqzUtils.getPref('freshTabNewsTime', '0')) + 30 * ONE_MINUTE < now || !getNewsFromLS()){
-      CliqzUtils.setPref('freshTabNewsTime', '' + now);
+    if (CliqzFreshTabNews._isStale() || CliqzUtils.getPref('freshTabByPassCache') || !getNewsFromLS()){
       var bBasedNewsRequirement = [];
+      if (bypassCache) {
+        log("Bypassing cache");
+      }
 
       if (hBasedNews) {
         getHbasedNewsList().then(function(bBasedNewsRequirement){
@@ -54,7 +59,8 @@ var CliqzFreshTabNews = {
   getNews: function (){
     return new Promise(function (resolve, reject)  {
       var cache = getNewsFromLS();
-      if (cache) {
+
+      if (cache && !CliqzFreshTabNews._isStale() && CliqzUtils.getPref('freshTabByPassCache', false) === false) {
         log("Reading from Local Storage", cache)
         resolve(cache);
       } else {
@@ -314,7 +320,7 @@ function createNewsList(history_data, number_to_get, callback){
         5000
       );
     }).catch(function () {
-      log('Error fetching news. Check in CLIQZEnvironment code.');
+      log('Error fetching news. Check CLIQZEnvironment.httpHandler errors.');
       return {};
     });
   });
@@ -325,7 +331,7 @@ function createNewsList(history_data, number_to_get, callback){
     var list_to_merge = [];
     //iterate over results
     vals.forEach(function(val){
-      if (val != {}){
+      if (isNotEmpty(val)){
 
         if (val.news_type == 'hb_news'){
           list_to_merge = val.res.data.news;
@@ -336,15 +342,29 @@ function createNewsList(history_data, number_to_get, callback){
         }
         mergeNews(list_to_merge, news_results, val.news_type, val.news_domain, val.limit);
 
-        var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
-        if (ls) ls.setItem("freshTab-news",JSON.stringify(news_results))
-
-        if(callback) callback();
       }
     });
+    updateFreshTabNewsCache(news_results);
+    if(callback) callback();
   });
 }
 
+function isNotEmpty(ob){
+  for(var i in ob){ return true;}
+  return false;
+}
+
+function updateFreshTabNewsCache(news_results) {
+  if (isNotEmpty(news_results)) {
+    var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
+    if (ls) ls.setItem("freshTab-news", JSON.stringify(news_results));
+
+    CliqzUtils.setPref('freshTabNewsTime', '' + Date.now());
+    log("FreshTab news cache is updated");
+  }else{
+    log("Fetched news list is empty, FreshTab news cache is not updated");
+  }
+}
 
 function normalizeUrlBasedCount(topic_dict){
 

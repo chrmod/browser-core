@@ -353,10 +353,10 @@ var ICONS = {
       "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-browser.svg"
     },
     'notify': {
-      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-notification.svg",
+      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-notif.svg",
       "BUDDY": "chrome://cliqz/content/loyalty/images/browser_icons/buddy-notification.svg",
       "HERO": "chrome://cliqz/content/loyalty/images/browser_icons/hero-notification.svg",
-      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-notification.svg"
+      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-notif.svg"
     }
   },
 

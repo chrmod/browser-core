@@ -1,7 +1,7 @@
-<!-- topsites.tpl -->
+<!-- topnews.tpl -->
 
 <div class="heading">
-    <h2><span>{{ local 'freshtab_top_sites' }}</span></h2>
+    <h2><span>{{ local 'freshtab_top_news' }}</span></h2>
 </div>
 <div class="main" style="margin-bottom: 20px;">
   <ul>
@@ -15,8 +15,8 @@
                >{{ text }}
               </div>
               <h1 class="main__headline">
-                  <a class="topSitesLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
-                      {{ title }}
+                  <a class="topNewsLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
+                      {{ short_title }}
                   </a>
               </h1>
               <div class="meta">
@@ -26,4 +26,5 @@
       {{/each}}
   </ul>
 </div>
-<!-- end topsites.tpl -->
+
+<!-- end topnews.tpl -->
