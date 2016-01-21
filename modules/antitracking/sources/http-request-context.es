@@ -25,13 +25,24 @@ function HttpRequestContext(subject) {
 
 HttpRequestContext._tabs = {};
 // clean up tab cache every minute
-HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
-  for (let t in HttpRequestContext._tabs) {
-    if(!CliqzAttrack.tab_listener.isWindowActive(t)) {
-      delete HttpRequestContext._tabs[t];
-    }
+HttpRequestContext._cleaner = null;
+
+HttpRequestContext.initCleaner = function() {
+  if (!HttpRequestContext._cleaner) {
+    HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
+      for (let t in HttpRequestContext._tabs) {
+        if(!CliqzAttrack.tab_listener.isWindowActive(t)) {
+          delete HttpRequestContext._tabs[t];
+        }
+      }
+    }, 60000);
   }
-}, 60000);
+};
+
+HttpRequestContext.unloadCleaner = function() {
+  CliqzUtils.clearInterval(HttpRequestContext._cleaner);
+  HttpRequestContext._cleaner = null;
+};
 
 HttpRequestContext.prototype = {
 

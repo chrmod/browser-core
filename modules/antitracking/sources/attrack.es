@@ -1323,6 +1323,8 @@ var CliqzAttrack = {
         // update bloom filter
         if (CliqzAttrack.isBloomFilterEnabled())
             CliqzAttrack.updateBloomFilter();
+
+        HttpRequestContext.initCleaner();
     },
     /** Per-window module initialisation
      */
@@ -1363,6 +1365,7 @@ var CliqzAttrack = {
         CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-response');
 
         pacemaker.destroy();
+        HttpRequestContext.unloadCleaner();
     },
     unloadWindow: function(window) {
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
