@@ -1,6 +1,4 @@
 <!-- entity-news-1 -->
-{{debug}}
-
   <div class="meta">
       {{> logo}}
       <h3 class="meta__url">
@@ -15,12 +13,18 @@
       </div>
       <h1 class="main__headline">
         <a href="{{url}}">{{ title }}</a>
-        <span>{{time}}</span>
+        <span>
+          {{time}}
+          {{#if tweet_count}}
+            <span class="tweet_count">
+              <img src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{tweet_count}}
+            </span>
+          {{/if}}
+        </span>  
       </h1>
-
     </div>
 
-      {{!--<p class="main__content">{{ emphasis data.description text 2 true }}</p> --}}
+    {{!--<p class="main__content">{{ emphasis data.description text 2 true }}</p> --}}
 
   {{/each}}
   </div>
