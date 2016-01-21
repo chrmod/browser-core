@@ -338,6 +338,12 @@ var CliqzABTests = {
             case "1059_B":
                 CliqzUtils.setPref("attrack.local_tracking", true);
                 break;
+            case "1060_A":
+                CliqzUtils.setPref("attrackBloomFilter", false);
+                break;
+            case "1060_B":
+                CliqzUtils.setPref("attrackBloomFilter", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -591,6 +597,10 @@ var CliqzABTests = {
             case "1059_A":
             case "1059_B":
                 CliqzUtils.clearPref("attrack.local_tracking");
+                break;
+            case "1060_A":
+            case "1060_B":
+                CliqzUtils.clearPref("attrackBloomFilter");
                 break;
             default:
                 rule_executed = false;
