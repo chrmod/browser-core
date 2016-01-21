@@ -5,7 +5,8 @@
     "antitrackingButton": true,
     "unblockUI": true,
     "showDataCollectionMessage": true,
-    "cliqzOnboarding": false
+    "cliqzOnboarding": false,
+    "channel": "99"
   },
   "modules": [
     "static",

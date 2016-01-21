@@ -28,7 +28,11 @@ try{
 
   if(versionChecker.compare(appInfo.version, "41.0") >= 0){
     FF41_OR_ABOVE = true;
-    Cu.import("resource:///modules/NewTabURL.jsm");
+    if(versionChecker.compare(appInfo.version, "44.0") < 0){
+      Cu.import("resource:///modules/NewTabURL.jsm");
+    } else {
+      const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
+    }
   }
 } catch(e){}
 
@@ -158,25 +162,35 @@ function isActive(){
 
 function activate(){
   // save the backup state only once
-  var backupDone = true;
+  var firstStart = false;
   if(!CliqzUtils.hasPref(FRESH_TAB_BACKUP_DONE)){
     CliqzUtils.setPref(FRESH_TAB_BACKUP_DONE, true);
-    backupDone = false
+    firstStart = true
   }
 
   if(FF41_OR_ABOVE){
       // newtab.url needs to be changed in the browser itself in FF 41
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
-      !backupDone && CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
-      CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
-      NewTabURL.override(CLIQZ_NEW_TAB);
+      if(firstStart){
+        CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
+        CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
+      }
+
+      if(versionChecker.compare(appInfo.version, "44.0") < 0){
+        NewTabURL.override(CLIQZ_NEW_TAB);
+      } else {
+        const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
+        aboutNewTabService.newTabURL = CLIQZ_NEW_TAB;
+      }
   } else { //FF 40 or older
-      !backupDone && CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
+      if(firstStart) CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
       CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB, '');
   }
 
-  !backupDone && CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE, null, ''));
-  CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB, '');
+  if(firstStart){
+    CliqzUtils.setPref(BAK_HOMEPAGE, CliqzUtils.getPref(DEF_HOMEPAGE, null, ''));
+    CliqzUtils.setPref(DEF_HOMEPAGE, CLIQZ_NEW_TAB, '');
+  }
 }
 
 function deactivate(){
@@ -184,7 +198,14 @@ function deactivate(){
 
   CliqzUtils.setPref(DEF_HOMEPAGE, CliqzUtils.getPref(BAK_HOMEPAGE), '');
   if(FF41_OR_ABOVE){ // FF41+
-      NewTabURL.reset();
+      if(versionChecker.compare(appInfo.version, "44.0") < 0){
+        NewTabURL.reset();
+      } else {
+        const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
+        aboutNewTabService.resetNewTabURL();
+        CliqzUtils.getWindow().document.getElementById('urlbar').inputField.value = '';
+
+      }
       CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), ''); // set the startup page to be the homepage
   }
   else {//FF40 and older

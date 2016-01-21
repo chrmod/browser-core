@@ -23,7 +23,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       'onboarding-callout',
       'onboarding-callout-extended',
       'slow_connection',
-      'partials/missing_location_step_2',
+      'partials/missing_location_2',
       'partials/no-locale-data'
     ],
     PARTIALS = [
@@ -33,7 +33,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'EZ-history',
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
-        'partials/missing_location_step_1',
+        'partials/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie'
     ],

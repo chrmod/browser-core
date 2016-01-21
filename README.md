@@ -52,3 +52,11 @@ Then open this URL to start tests `chrome://cliqz/content/firefox-tests/index.ht
 ## UI debugging
 
 http://localhost:4200/tool/
+
+## Firefox extension versioning
+
+* <= 1.0.X  -> extension built for Firefox and distributed via our own update channe (unsigned)
+* 1.1.X     -> extension on/for AMO (signed by Firefox)
+* 1.2.X     -> extension build for the CLIQZ browser (signed by CLIQZ)
+* X.X.X.1bX -> beta version
+

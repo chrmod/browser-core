@@ -320,6 +320,12 @@ var CliqzABTests = {
             case "1056_B":
                 CliqzUtils.setPref("freshTabAB", true);
                 break;
+            case "1058_A":
+                CliqzUtils.setPref("unblockMode", "never");
+                break;
+            case "1058_B":
+                CliqzUtils.setPref("unblockMode", "always");
+                break;
             default:
                 rule_executed = false;
         }
@@ -557,12 +563,15 @@ var CliqzABTests = {
                 break;
             case "1055_A":
             case "1055_B":
-                CliqzUtils.setPref("unblockMode", "never");
                 CliqzUtils.cliqzPrefs.clearUserPref("unblockEnabled");
                 break;
             case "1056_A":
             case "1056_B":
                 CliqzUtils.clearPref("freshTabAB");
+                break;
+            case "1058_A":
+            case "1058_B":
+                CliqzUtils.clearPref("unblockMode");
                 break;
             default:
                 rule_executed = false;
