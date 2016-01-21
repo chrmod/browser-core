@@ -110,6 +110,7 @@ var CliqzAttrack = {
                                 .getService(Components.interfaces.nsIObserverService),
     tp_events: tp_events,
     tokens: null,
+    instantTokenCache: {},
     tokenExtWhitelist: null,
     safeKey: null,
     requestKeyValue: null,
@@ -1131,8 +1132,8 @@ var CliqzAttrack = {
                     lastHour = persist.get_value(name + "lastRun") || timestamp;
                 CliqzUtils.log("name: " + timestamp +" - "+ lastHour, "xxx");
                 persist.set_value(name +"lastRun", timestamp);
-                return timestamp != lastHour
-            }
+                return timestamp != lastHour;
+            };
         }
 
         if (!CliqzAttrack.isBloomFilterEnabled())
@@ -1142,7 +1143,9 @@ var CliqzAttrack = {
             // check for new bloom filter every 10 minutes
             pacemaker.register(CliqzAttrack.updateBloomFilter, 10 * 60 * 1000);
 
-        // send tokens whenever hour changes
+        // send instant cache tokens whenever hour changes
+        // clear instant token every hour
+        pacemaker.register(CliqzAttrack.sendInstantTokens, 5 * 60 * 1000);
         pacemaker.register(CliqzAttrack.sendTokens, two_mins, timeChangeConstraint("tokens", "hour"));
 
         // every 2 mins
@@ -1432,16 +1435,23 @@ var CliqzAttrack = {
         var payl = CliqzAttrack.generatePayload(data, datetime.getTime(), true, true);
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
     },
-    sendInstantTokens: function(s, r, k, tok) {
+    cacheInstantTokens: function(s, r, k, tok) {
         // If this is the first apperance of this token within an hour,
-        // We will send it immediately
-        var data = {};
-        data[s] = {};
-        data[s][r] = {'kv': {}};
-        data[s][r]['kv'][k] = {};
-        data[s][r]['kv'][k][tok] = 1;
-        var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+        // We will cache it and send every five minutes
+        if (!(s in CliqzAttrack.instantTokenCache))
+            CliqzAttrack.instantTokenCache[s] = {};
+        if (!(r in CliqzAttrack.instantTokenCache[s]))
+            CliqzAttrack.instantTokenCache[s][r] = {'kv' : {}};
+        if (!(k in CliqzAttrack.instantTokenCache[s][r]['kv']))
+            CliqzAttrack.instantTokenCache[s][r]['kv'][k] = {};
+        CliqzAttrack.instantTokenCache[s][r]['kv'][k][tok] = 1;
+    },
+    sendInstantTokens: function(){
+        if (Object.keys(CliqzAttrack.instantTokenCache) > 0) {
+            var payl = CliqzAttrack.generatePayload(CliqzAttrack.instantTokenCache, datetime.getHourTimestamp(), true, true);
+            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+            CliqzAttrack.instantTokenCache = {};
+        }
     },
     sendTokens: function() {
         if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
@@ -1996,7 +2006,7 @@ var CliqzAttrack = {
         var keyTokens = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']),
             s = md5(url_parts.hostname).substr(0, 16);
         refstr = md5(refstr).substr(0, 16);
-        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.sendInstantTokens);
+        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.cacheInstantTokens);
     },
     extractHeaderTokens: function(url_parts, refstr, header) {
         // keys, value of query strings will be sent in md5
@@ -2011,7 +2021,7 @@ var CliqzAttrack = {
         if (Object.keys(keyTokens).length > 0) {
             var s = md5(url_parts.hostname + url_parts.path);
             refstr = md5(refstr).substr(0, 16);
-            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.sendInstantTokens);
+            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.cacheInstantTokens);
         }
     },
     checkPostReq: function(body, badTokens, cookies) {
