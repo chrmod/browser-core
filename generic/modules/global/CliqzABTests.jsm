@@ -344,6 +344,12 @@ var CliqzABTests = {
             case "1060_B":
                 CliqzUtils.setPref("attrackBloomFilter", true);
                 break;
+            case "1061_A":
+                CliqzUtils.setPref("attrackUI", false);
+                break;
+            case "1061_B":
+                CliqzUtils.setPref("attrackUI", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -601,6 +607,10 @@ var CliqzABTests = {
             case "1060_A":
             case "1060_B":
                 CliqzUtils.clearPref("attrackBloomFilter");
+                break;
+            case "1061_A":
+            case "1061_B":
+                CliqzUtils.clearPref("attrackUI");
                 break;
             default:
                 rule_executed = false;
