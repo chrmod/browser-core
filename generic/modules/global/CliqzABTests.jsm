@@ -321,6 +321,8 @@ var CliqzABTests = {
                 CliqzUtils.setPref("freshTabAB", true);
                 break;
             case "1057_A":
+                CliqzUtils.setPref("trackerTxt", false);
+                break;
             case "1057_B":
                 CliqzUtils.setPref("trackerTxt", true);
                 break;
@@ -329,6 +331,12 @@ var CliqzABTests = {
                 break;
             case "1058_B":
                 CliqzUtils.setPref("unblockMode", "always");
+                break;
+            case "1059_A":
+                CliqzUtils.setPref("attrack.local_tracking", false);
+                break;
+            case "1059_B":
+                CliqzUtils.setPref("attrack.local_tracking", true);
                 break;
             default:
                 rule_executed = false;
@@ -579,6 +587,10 @@ var CliqzABTests = {
             case "1058_A":
             case "1058_B":
                 CliqzUtils.clearPref("unblockMode");
+                break;
+            case "1059_A":
+            case "1059_B":
+                CliqzUtils.clearPref("attrack.local_tracking");
                 break;
             default:
                 rule_executed = false;
