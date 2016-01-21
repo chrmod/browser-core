@@ -187,7 +187,7 @@ function getQSMD5(qs, ps) {
         }
     }
     for (var key in ps) {
-        var tok = dURIC(qs[key]);
+        var tok = dURIC(ps[key]);
         while (tok != dURIC(tok)) {
             tok = dURIC(tok);
         }
