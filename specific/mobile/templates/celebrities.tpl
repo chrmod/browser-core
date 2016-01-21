@@ -21,7 +21,7 @@
 		<span class='cqz-celeb-social-box'>
 			 {{#each social}}
 				<img
-					src='{{img}}'
+					data-src='{{img}}'
 					url='{{url}}'
 					show-status='true'
 					class='cqz-celeb-social'
