@@ -188,7 +188,7 @@ export default {
             self.updateProxyRule(vid);
             self.refreshPageForVideo(vid);
           });
-        }, 1000);
+        }, 100);
         return;
       }
       // lookup api
@@ -226,8 +226,10 @@ export default {
   },
   /** Adapted from getCDByURL on CliqzHumanWeb. Finds the tab(s) which have this video in them, and refreshes.
    */
-  refreshPageForVideo: function(vid) {
-    var enumerator = Services.wm.getEnumerator('navigator:browser');
+  refreshPageForVideo: function(vid, retry_count) {
+    var enumerator = Services.wm.getEnumerator('navigator:browser'),
+        found = false,
+    retry_count = retry_count || 2;
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       var gBrowser = win.gBrowser;
@@ -241,9 +243,15 @@ export default {
 
           if(currURL.indexOf(vid) > -1 && currURL.indexOf('www.youtube.com') > -1) {
             cd.defaultView.location.reload();
+            found = true;
           }
         }
       }
+    }
+    if (!found && retry_count > 0) {
+      CliqzUtils.setTimeout(function() {
+        this.refreshPageForVideo(vid, retry_count-1);
+      }.bind(this), 400);
     }
   }
 }
