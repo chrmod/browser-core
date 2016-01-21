@@ -1,5 +1,5 @@
 import RegexProxyRule from 'unblock/regexp-proxy-rule';
-import createLazyResourceLoader from 'unblock/resource-loader';
+import ResourceLoader from 'unblock/resource-loader';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
@@ -28,16 +28,20 @@ export default {
         return self.shouldProxy(url);
       }
     });
-    this._loader = createLazyResourceLoader({
+
+    this._loader = new ResourceLoader({
       url: this.CONFIG_URL,
       pref: "unblock_yt_config",
       updateFn: function(val) {
         self.conf = JSON.parse(val);
       }
     });
+    CliqzUtils.setTimeout(this._loader.start.bind(this._loader), 100);
   },
   unload: function() {
-    this._loader.cancel();
+    if (this._loader) {
+      this._loader.stop();
+    }
   },
   refresh: function() {
     // reset internal caches
