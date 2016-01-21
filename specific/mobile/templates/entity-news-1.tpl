@@ -4,7 +4,6 @@
   <div class="meta">
       {{> logo}}
       <h3 class="meta__url">
-          <!-- <span>{{ data.news.0.time }}</span>&nbsp;&nbsp;·&nbsp;&nbsp; -->
           <a href="{{url}}">{{ emphasis data.name text 2 true }}</a></h3>
   </div>
 
