@@ -11,7 +11,7 @@
   <div class="main mulitple">
   {{#each data.news}}
     <div class="item">
-      <div class="main__image" data-style="background-image: url({{ thumbnail }});">
+      <div class="main__image" data-style="background-image: url({{#if thumbnail}}{{ thumbnail }}{{else}}http://cdn.cliqz.com/extension/EZ/news/no-image-mobile.png{{/if}});">
           Image
       </div>
       <h1 class="main__headline">
