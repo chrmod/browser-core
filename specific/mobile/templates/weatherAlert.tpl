@@ -12,8 +12,8 @@
 
         {{#with alert}}
             <div class="alert" style="background-color:{{alert-color}};padding:5px">
-                <div class="header" style="font-size:14px">{{des}}</div>
-                <div class="info" style="font-size:10px"">{{time}}</div>
+                <div class="header">{{des}}</div>
+                <div class="info">{{time}}</div>
             </div>
         {{/with}}
 
@@ -37,5 +37,10 @@
         {{/each}}
 
 </div>
+
+<div class="poweredby">
+    Mehr auf <a href="http://www.weatherunderground.com">weatherunderground.com</a>
+</div>
+
 {{/with}}
 <!-- end weatherAlert.tpl -->
