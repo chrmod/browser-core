@@ -18,9 +18,11 @@ function isHashProb(str) {
     else return Math.exp(log_prob);
 };
 
-CliqzUtils.httpGet('chrome://cliqz/content/antitracking/prob.json', function success(req) {
+export function init () {
+  CliqzUtils.httpGet('chrome://cliqz/content/antitracking/prob.json', function success (req) {
     probHashLogM = JSON.parse(req.response);
-});
+  });
+}
 
 export function isHash(str) {
     var p = isHashProb(str);

@@ -10,7 +10,7 @@ import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
 import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
-import { isHash } from 'antitracking/hash';
+import * as hash from 'antitracking/hash';
 import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { AttrackBloomFilter, bloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
@@ -1260,6 +1260,8 @@ var CliqzAttrack = {
             }
          );
 
+         hash.init();
+
         // load all caches:
         // Large dynamic caches are loaded via the persist module, which will lazily propegate changes back
         // to the browser's sqlite database.
@@ -1797,7 +1799,7 @@ var CliqzAttrack = {
 
         var _countCheck = function(tok) {
             // for token length < 12 and may be not a hash, we let it pass
-            if (tok.length < 12 && !isHash(tok))
+            if (tok.length < 12 && !hash.isHash(tok))
                 return 0;
             // update tokenDomain
             tok = md5(tok);
