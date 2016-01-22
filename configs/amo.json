@@ -2,8 +2,9 @@
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
-    "antitrackingButton": false,
-    "showDataCollectionMessage": true
+    "showDataCollectionMessage": true,
+    "cliqzOnboarding": false,
+    "channel": "04"
   },
   "modules": [
     "static",

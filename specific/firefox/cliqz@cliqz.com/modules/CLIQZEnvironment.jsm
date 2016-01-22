@@ -140,19 +140,19 @@ var CLIQZEnvironment = {
             if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
                 callback && callback(req);
             } else {
-                CLIQZEnvironment.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.onerror = function(){
             if(CLIQZEnvironment){
-                CLIQZEnvironment.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.ontimeout = function(){
             if(CLIQZEnvironment){ //might happen after disabling the extension
-                CLIQZEnvironment.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
@@ -203,6 +203,10 @@ var CLIQZEnvironment = {
             win.CLIQZ.Core.urlbar.value = url;
             win.openUILink(url);
         }
+    },
+    copyResult: function(val) {
+        var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+        gClipboardHelper.copyString(val);
     },
     tldExtractor: function(host){
         var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
@@ -401,7 +405,7 @@ var CLIQZEnvironment = {
         geoService.getCurrentPosition(function(p) {
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
-        }, function(e) { CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
         //Upate position if it changes
         GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
@@ -410,7 +414,7 @@ var CLIQZEnvironment = {
             CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
             CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
           }
-        }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CLIQZEnvironment.USER_LAT = null;
         CLIQZEnvironment.USER_LNG = null;
@@ -456,6 +460,10 @@ var CLIQZEnvironment = {
             'nsIAutoCompleteSearch');
 
         return function(q, callback, sessionStart){
+            // special case: user has deleted text from urlbar
+            if(q.length != 0 && urlbar().value.length == 0)
+              return;
+
             if(q.length == 0 && sessionStart){
                 NewTabUtils.links.populateCache(function(){
                     callback(null, getTopSites());
@@ -484,9 +492,59 @@ var CLIQZEnvironment = {
                 });
             }
         }
-    })()
+    })(),
+    getNoResults: function() {
+      var se = [// default
+              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
+              {"name": "Google", "base_url": "https://www.google.de"},
+              {"name": "Google Images", "base_url": "https://images.google.de/"},
+              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
+          ],
+          chosen = new Array();
+
+      var engines = CliqzResultProviders.getSearchEngines(),
+          defaultName = engines[0].name;
+
+      se.forEach(function(def){
+        engines.forEach(function(e){
+          if(def.name == e.name){
+              var url = def.base_url || e.base_url;
+
+              def.code = e.code;
+              def.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+              def.text = e.prefix.slice(1);
+
+              chosen.push(def)
+          }
+          if(e.default) defaultName = e.name;
+        })
+      })
+
+
+
+      return Result.cliqzExtra(
+              {
+                  data:
+                  {
+                      template:'noResult',
+                      text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
+                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
+                      // we should take care of this specific case differently on alternative platforms
+                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
+                      "search_engines": chosen,
+                      //use local image in case of no internet connection
+                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
+                  },
+                  subType: JSON.stringify({empty:true})
+              }
+          )
+    },
 
     // END from CliqzAutocomplete
+}
+function urlbar(){
+  return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 }
 
 function getTopSites(){

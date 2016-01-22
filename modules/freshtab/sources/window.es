@@ -5,8 +5,10 @@ const CLIQZ_NEW_TAB = "about:cliqz";
 export default class {
 
   constructor(config) {
+    this.onInstall = config.onInstall;
     this.buttonEnabled = config.settings.freshTabButton;
     this.window = config.window;
+    this.cliqzOnboarding = config.settings.cliqzOnboarding;
   }
 
   init() {

@@ -81,7 +81,7 @@ export default class {
 
       item.filter_level = parseInt(level);
       item.addEventListener('command', function(event) {
-        CliqzUtils.setPref(prefKey, this.filter_level);
+        CliqzUtils.setPref(prefKey, event.target.filter_level);
         this.changeAdBlockState(this.initialState);
         this.state = this.initialState;
         CliqzUtils.setTimeout(this.window.CLIQZ.Core.refreshButtons, 0);

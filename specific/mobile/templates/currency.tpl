@@ -1,4 +1,4 @@
-<!-- currency.tpl --> 
+<!-- currency.tpl -->
 <div id="currency-tpl" class='cqz-result-h3 currency' >
   <div class="meta">
       {{> logo}}
@@ -81,3 +81,6 @@
     <p>{{numberFormat (math data.multiplyer '*' 1000)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 10)}} {{data.toCurrency}}</p>-->
     </div>
   </div>
+<div class="poweredby">
+    Mehr auf <a href="http://www.xe.com">XE.com</a>
+</div>

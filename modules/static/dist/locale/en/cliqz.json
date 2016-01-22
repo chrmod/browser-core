@@ -1,4 +1,10 @@
 {
+    "calculator": {
+        "message": "Calculator"
+    },
+    "time": {
+        "message": "Time"
+    },
     "open": {
         "message": "Open"
     },
@@ -27,7 +33,7 @@
         "message": "Cast"
     },
     "Movie_Length":{
-        "message": "{} minutes"
+        "message": "$1 minutes"
     },
     "Creator":{
         "message": "Creator"
@@ -72,7 +78,7 @@
         "message": "Serves"
     },
     "CookTime":{
-        "message": "Total time: {} minutes"
+        "message": "Total time: $1 minutes"
     },
     "KickerSponsor":{
         "message": "powered by kicker online"
@@ -102,7 +108,7 @@
         "message": "Gate"
     },
     "openInNewTab":{
-        "message": "{} (open in new tab)"
+        "message": "$1 (open in new tab)"
     },
     "whatIsCliqz":{
         "message": "What is CLIQZ?"
@@ -153,13 +159,13 @@
         "message": "We don't have great results this time."
     },
     "noResultMessage":{
-        "message":"press enter to search on {}, or try one of these:"
+        "message":"press enter to search on $1, or try one of these:"
     },
     "noResults": {
         "message":"No results"
     },
     "numResults": {
-        "message":"Top {} Results"
+        "message":"Top $1 Results"
     },
     "moreResults":{
         "message":"more ..."
@@ -192,31 +198,31 @@
         "message":"one minute ago"
     },
     "agoXMinutes":{
-        "message":"{} minutes ago"
+        "message":"$1 minutes ago"
     },
     "ago1Hour":{
         "message":"one hour ago"
     },
     "agoXHours":{
-        "message":"{} hours ago"
+        "message":"$1 hours ago"
     },
     "agoYesterday":{
         "message":"yesterday"
     },
     "agoXDays":{
-        "message":"{} days ago"
+        "message":"$1 days ago"
     },
     "ago1Month":{
         "message":"one month ago"
     },
     "agoXMonths":{
-        "message":"{} months ago"
+        "message":"$1 months ago"
     },
     "ago1year":{
         "message":"one year ago"
     },
     "agoXYears":{
-        "message":"{} years ago"
+        "message":"$1 years ago"
     },
     "onCalloutSameResult":{
         "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
@@ -318,7 +324,7 @@
         "message":"Insert your search query in the address bar – receive results instantly"
     },
     "Sitemap_Summary": {
-        "message":"My sitemap for {}"
+        "message":"My sitemap for $1"
     },
     "Sitemap_Youtube_Popular": {
         "message":"Popular on YouTube"
@@ -501,13 +507,13 @@
       "message":"Việt Nam - Vietnam"
     },
     "statsText": {
-        "message": "You've initiated <b>{} searches</b> in the past <b>7 days</b>.<br/><br/><b>cliqz</b> answered <b>{}</b> of these successfully.<br/><br/><b>cliqz pre-selects an average of {} results</b> - that's versus the {} you'd receive with a typical search engine.<br/><br/>We've <b>spared you from viewing {} ads</b> (on average, search results contain 7 'sponsored' links). <br/><br/>Best of all, since you'd spend an average of 3.5 seconds (per search) reading a results page, we've <b>saved you {} full minutes of your precious time!</b>"
+        "message": "You've initiated <b>$1 searches</b> in the past <b>7 days</b>.<br/><br/><b>cliqz</b> answered <b>$2</b> of these successfully.<br/><br/><b>cliqz pre-selects an average of $3 results</b> - that's versus the $4 you'd receive with a typical search engine.<br/><br/>We've <b>spared you from viewing $5 ads</b> (on average, search results contain 7 'sponsored' links). <br/><br/>Best of all, since you'd spend an average of 3.5 seconds (per search) reading a results page, we've <b>saved you $6 full minutes of your precious time!</b>"
     },
     "statsShareMsg": {
-        "message": "@cliqz saved me {} minutes over the last 7 days"
+        "message": "@cliqz saved me $1 minutes over the last 7 days"
     },
     "statsShareAction": {
-        "message": "Share this statistic on  {}"
+        "message": "Share this statistic on  $1"
     },
     "spell_correction": {
       "message":"Did you really mean"
@@ -924,7 +930,7 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general": {
-      "message": "On <strong>{}</strong>, {}&nbsp;third-party cookies blocked and {}&nbsp;private data leaks prevented."
+      "message": "CLIQZ Anti Tracking blocked $1&nbsp;trackers on <strong>$2</strong>"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
@@ -933,13 +939,16 @@
       "message": "This page does not contain any trackers."
     },
     "attrack-btn-power-on": {
-      "message": "Activate"
+      "message": "Activate Anti Tracking"
     },
     "attrack-btn-power-off": {
-      "message": "Deactivate"
+      "message": "Deactivate Anti Tracking"
     },
     "attrack-btn-white-list": {
       "message": "Allow tracking for this site"
+    },
+    "attrack-learn-more": {
+      "message": "Learn more"
     },
     "freshtab_learn_more": {
       "message": "Learn more"
@@ -949,5 +958,65 @@
     },
     "freshtab_top_news": {
       "message": "Top News"
+    },
+    "freshtab_top_sites": {
+      "message": "Top Sites"
+    },
+    "mobile_no_result_title": {
+      "message": "We don't have great results this time."
+    },
+    "mobile_no_result_action": {
+      "message": "Tap here for results from $1..."
+    },
+    "mobile_more_results_title": {
+      "message": "No result you liked?"
+    },
+    "mobile_more_results_action": {
+      "message": "Tap here for results from $1..."
+    },
+    "unblock_menu_option": {
+      "message": "Unblock YouTube Videos"
+    },
+    "unblock_prompt": {
+      "message": "Would you like CLIQZ to try to unblock Youtube Videos?"
+    },
+    "unblock_always": {
+      "message": "Yes, always"
+    },
+    "unblock_once": {
+      "message": "Just this once"
+    },
+    "unblock_never": {
+      "message": "No, never"
+    },
+    "cliqz-onboarding-title": {
+      "message": "Woohoo! CLIQZ has successfully installed."
+    },
+    "cliqz-onboarding-search-simple": {
+      "message": "Search effortlessly. Simply start typing in the address bar and instantly get"
+    },
+    "cliqz-onboarding-suggestions": {
+      "message": "website suggestions."
+    },
+    "cliqz-onboarding-start-fresh": {
+      "message": "Start fresh. We populate your homescreen with your favorite sites - plus news we think will interest you."
+    },
+    "cliqz-onboarding-surf-safe": {
+      "message": "We don’t collect any data about you on our servers."
+    },
+    "cliqz-onboarding-privacy": {
+      "message": "Protect your privacy."
+    },
+    "cliqz-onboarding-learn-more": {
+      "message": "Learn more about CLIQZ"
+    },
+    "cliqz-onboarding-full-tour": {
+      "message": "take the full tour"
+    },
+    "cliqz-onboarding-or": {
+      "message": "or"
+    },
+    "cliqz-onboarding-cool-thanks": {
+      "message": "Cool, thanks!"
     }
 }

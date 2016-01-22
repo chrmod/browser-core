@@ -17,13 +17,14 @@ program.version('0.0.1');
 program.command('build [file]')
 
        .action(configPath => {
+          var buildStart = Date.now();
           setConfigPath(configPath);
 
           console.log("Starting build");
           let child = spaws('broccoli', ['build', OUTPUT_PATH]);
           child.stderr.on('data', data => console.log(data.toString()));
           child.stdout.on('data', data => console.log(data.toString()));
-          child.on('close', code => console.log(code === 0 ? 'done' : ''));
+          child.on('close', code => console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : ''));
        });
 
 program.command('serve [file]')

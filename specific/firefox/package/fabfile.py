@@ -45,7 +45,7 @@ def get_version(beta='True'):
 
 
 @task
-def package(beta='True', version=None):
+def package(beta='True', version=None, sign='False'):
     """Package the extension as a .xpi file."""
 
     checkout = True # Checkout the tag if we are not doing a beta package
@@ -79,6 +79,14 @@ def package(beta='True', version=None):
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
             local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
+
+    if sign == 'True':
+        local("mv %s UNSIGNED_%s" % (output_file_name, output_file_name))
+        # signs the XPI with the CLIQZ certificate
+        local("python ../../../xpi-sign/xpisign.py -k /Volumes/Transcend/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
+
+    # creates a copy to the current build in case we need to upload it to S3
+    local("cp %s latest.xpi" % output_file_name)
 
     return output_file_name
 
@@ -122,7 +130,7 @@ def publish(beta='True', version=None):
     update_manifest_file_name = "latest.rdf"
     latest_html_file_name = "latest.html"
     icon_name = "icon.png"
-    output_file_name = package(beta, version)
+    output_file_name = package(beta, version, "True") # !!!! we must publish only signed versions !!!!
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
     path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
     local("s3cmd --acl-public put %s %s" % (output_file_name, path_to_s3))
@@ -153,6 +161,10 @@ def publish(beta='True', version=None):
         f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
                                             path_to_s3))
+
+    #replace latest.xpi when everything is done
+    local("s3cmd --acl-public put latest.xpi %s" % path_to_s3)
+
     local("rm  %s" % latest_html_file_name)
 
 

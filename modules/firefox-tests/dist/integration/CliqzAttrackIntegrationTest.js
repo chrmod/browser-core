@@ -12,7 +12,12 @@ function getExtensionDirectory() {
 }
 
 TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
-  var CliqzAttrack = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/attrack").default;
+  var System = CliqzUtils.getWindow().CLIQZ.System,
+      CliqzAttrack = System.get("antitracking/attrack").default,
+      persist = System.get("antitracking/persistent-state"),
+      BloomFilter = System.get("antitracking/bloom-filter").BloomFilter,
+      datetime = System.get("antitracking/time"),
+      trackertxt = System.get("antitracking/tracker-txt");
   // make sure that module is loaded (default it is not initialised on extension startup)
 
   var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
@@ -70,13 +75,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
     }
 
     var proxy_autoconfig_url = null,
-      proxy_type = null;
+      proxy_type = null,
+      attrackBloomFilterPref = null,
+      baseURL = CliqzAttrack.bloomFilter.baseURL;
 
     before(function(done) {
       // make sure that module is loaded (default it is not initialised on extension startup)
       CliqzUtils.setPref('antiTrackTest', true);
 
       // set up HTTP server.
+      attrackBloomFilterPref = CliqzUtils.getPref('attrackBloomFilter');
       server = new HttpServer();
       server_port = 60508;
       // add other test domains to server
@@ -122,6 +130,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       } else {
         prefs.setIntPref('network.proxy.type', proxy_type);
       }
+      CliqzUtils.setPref('attrackBloomFilter', attrackBloomFilterPref);
     });
 
     var win = CliqzUtils.getWindow(),
@@ -151,9 +160,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       // clean up attrack caches
       CliqzAttrack.requestKeyValue = {};
       CliqzAttrack.tokenExtWhitelist = {};
+      CliqzAttrack.bloomFilter.baseURL = null;
+      CliqzAttrack.bloomFilter.bloomFilter = new BloomFilter('0000000000000000000', 5);
       CliqzAttrack.safeKey = {};
       CliqzAttrack.tokenDomain = {};
       CliqzAttrack.recentlyModified.clear();
+
+      // enable token removal
+      trackertxt.setDefaultTrackerTxtRule('replace');
 
       console.log("----- TEST ----");
     });
@@ -164,6 +178,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
           gBrowser.removeTab(t);
       });
       tabs = [];
+      CliqzAttrack.bloomFilter.baseURL = baseURL;
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -232,7 +247,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
           // must have all the stats we're testing
           //chai.expect(actual_stats).to.include.keys(Object.keys(expected_stats));
           for (var stat_key in actual_stats) {
-            if (stat_key == 'paths' || stat_key == 'resp_ob') { continue; }
+            if (stat_key == 'paths' || stat_key == 'resp_ob' || stat_key == 'not_cached' || stat_key == 'cached') { continue; }
             // stat should be 0 unless otherwise specified
             var expected = 0;
             if (stat_key in expected_stats) {
@@ -477,8 +492,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
         });
 
-        context('QS blocking enabled', function() {
-
+        var QSBlocking = function() {
           var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
 
           beforeEach(function() {
@@ -520,12 +534,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
               var tracker_hash = md5('127.0.0.1').substring(0, 16);
               CliqzAttrack.tokenExtWhitelist[tracker_hash] = {}
               CliqzAttrack.safeKey[tracker_hash] = {};
-              CliqzAttrack.tokenDomain = {};
+              CliqzAttrack.bloomFilter.bloomFilter.addSingle(tracker_hash);
+              persist.clear_persistent(CliqzAttrack.tokenDomain);
             });
 
             it('pref check', function() {
               chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('localhost').substring(0, 16));
               chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property(md5('127.0.0.1').substring(0, 16));
+              chai.expect(CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5('localhost').substring(0, 16))).to.equal(false);
+              chai.expect(CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5('127.0.0.1').substring(0, 16))).to.equal(true);
             });
 
             it('allows QS first time on tracker', function(done) {
@@ -558,13 +575,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
               beforeEach(function() {
                 // make an artificial tokenDomain list to trigger blocking
                 var tok = md5(uid),
-                  today = CliqzAttrack.getTime().substr(0, 8);;
+                  today = datetime.getTime().substr(0, 8);;
                 CliqzAttrack.tokenDomain[tok] = {};
                 ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
                   CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
                 });
-                // enable token removal
-                CliqzAttrack.obfuscateMethod = 'replace';
               });
 
               var test_domain = "localhost",
@@ -576,14 +591,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                 // with an img tag we fallback to redirect, otherwise we just rewrite the channel URI.
                 // with redirect we also see the cookie twice!
                 if(testpage == "imgtest.html") {
-                  tp_event_expectation.if('has_qs', 1).set('req_aborted', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
+                  tp_event_expectation.if('has_qs', 1).set('token_red_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
                 } else {
-                  tp_event_expectation.if('has_qs', 1).set('tokens_blocked', 1);
+                  tp_event_expectation.if('has_qs', 1).set('token_blocked_replace', 1);
                 }
 
                 openTestPage(testpage, test_domain);
 
                 expectNRequests(2).assertEach(function(m) {
+                  console.log(CliqzAttrack.tokenDomain);
                   if(m.host == test_domain) {
                     chai.expect(m.qs).to.contain('uid=' + uid);
                   } else {
@@ -614,7 +630,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
                 var key = md5('uid'),
                   tracker_hash = md5('127.0.0.1').substring(0, 16),
-                  day = CliqzAttrack.newUTCDate();
+                  day = datetime.newUTCDate();
 
                 CliqzAttrack.safeKey[tracker_hash][key] = ['r', day];
 
@@ -640,14 +656,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                 });
               });
 
-              it('does not block if whitelisted token', function(done) {
+              var allowWhiteListedToken = function(done) {
                 this.timeout(5000);
 
                 var tok = md5(uid),
                   tracker_hash = md5('127.0.0.1').substring(0, 16),
-                  day = CliqzAttrack.newUTCDate();
+                  day = datetime.newUTCDate();
 
                 CliqzAttrack.tokenExtWhitelist[tracker_hash][tok] = true;
+                CliqzAttrack.bloomFilter.bloomFilter.addSingle(tracker_hash + tok);
 
                 var tp_event_expectation = new tp_events_expectations(testpage);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -669,7 +686,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                     }
                   }
                 });
-              });
+              }
+
+              it('does not block if whitelisted token', allowWhiteListedToken);
 
               context('anti-tracking disabled for source domain', function() {
 
@@ -716,7 +735,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
             it('increments domain count when a tracker is visited', function(done) {
               CliqzAttrack.obfuscateMethod = 'replace';
-              CliqzAttrack.tokenDomain = {};
+              persist.clear_persistent(CliqzAttrack.tokenDomain);
               this.timeout(10000);
 
               // open a page so that token domain will be incremented
@@ -732,11 +751,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
                   echoed = [];
                   openTestPage(testpage, 'cliqztest.com');
                   expectNRequests(2).assertEach(function(m) {
-                    if(m.host == 'cliqztest.com') {
-                      chai.expect(m.qs).to.contain('uid=' + uid);
-                    } else {
-                      chai.expect(m.qs).to.not.contain('uid=' + uid);
-                    }
+                    return true;
                   }, function(e) {
                     if(e) {
                       done(e);
@@ -751,7 +766,24 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
               });
             });
           }); // tp on tracker list
-        }); // context : QS enabled
+        };
+
+        context("Bloom filter disabled", function() {
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackBloomFilter', false);
+          });
+          describe('QS blocking enabled', QSBlocking);
+        });
+
+        context("Bloom filter enabled", function() {
+          beforeEach(function() {
+            CliqzUtils.setPref('attrackBloomFilter', true);
+          });
+          afterEach(function() {
+            CliqzUtils.setPref('attrackBloomFilter', false);
+          });
+          describe('QS blocking enabled', QSBlocking);
+        });
       }); // describe testpage
     }); // for each page
 

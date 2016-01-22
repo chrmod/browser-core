@@ -28,41 +28,27 @@ if (!String.format) {
  */
 
 var CORE = {
-  loyaltyDntPrefs: Components.classes['@mozilla.org/preferences-service;1']
-    .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqzLoyalty.'),
+  versionChecker: null,
+  appInfo: null,
+  prefBranch: "extensions.cliqzLoyalty.",
+
   PREF_STRING: 32,
   PREF_INT: 64,
   PREF_BOOL: 128,
 
-  getPref: function (pref, notFound) {
+  assureVersionChecker: function() {
     try {
-      switch (CORE.loyaltyDntPrefs.getPrefType(pref)) {
-        case CORE.PREF_BOOL:
-          return CORE.loyaltyDntPrefs.getBoolPref(pref);
-        case CORE.PREF_STRING:
-          return CORE.loyaltyDntPrefs.getCharPref(pref);
-        case CORE.PREF_INT:
-          return CORE.loyaltyDntPrefs.getIntPref(pref);
-        default:
-          return notFound;
-      }
-    } catch (e) {
-      return notFound;
-    }
+      CORE.versionChecker = CORE.versionChecker || Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+          .getService(Components.interfaces.nsIVersionComparator);
+    } catch (e) {}
+  },
+
+  getPref: function (pref, notFound) {
+    return CliqzUtils.getPref(pref, notFound, CORE.prefBranch);
   },
 
   setPref: function (pref, val) {
-    switch (typeof val) {
-      case 'boolean':
-        CORE.loyaltyDntPrefs.setBoolPref(pref, val);
-        break;
-      case 'number':
-        CORE.loyaltyDntPrefs.setIntPref(pref, val);
-        break;
-      case 'string':
-        CORE.loyaltyDntPrefs.setCharPref(pref, val);
-        break;
-    }
+    CliqzUtils.setPref(pref, val, CORE.prefBranch);
   },
 
   iterateWindows: function(func, arg) {
@@ -85,6 +71,10 @@ var CORE = {
   },
 
   unload: function () {
+    CORE.loyaltyDntPrefs = null;
+    CORE.versionChecker = null;
+    CORE.appInfo = null;
+
     CORE.iterateWindows(function(win){
       var btn;
       if (btn = win.document.getElementById(ICONS.BTN_ID)) {
@@ -92,6 +82,15 @@ var CORE = {
       }
     },
     []);
+  },
+
+  isExtensionLatestVersion: function (currentVersion, latestVersion) {
+    CORE.assureVersionChecker();
+    try {
+      return CORE.versionChecker.compare(currentVersion, latestVersion)
+    } catch (e) {
+      return 2;
+    }
   }
 };
 
@@ -106,7 +105,7 @@ var META_KEY = "loyalty_m",
   NOTIFY_NORM_MSG = "nms",
   NOTIFY_INFO = "nf",
   NOTIFY_FLAG = "fl",// if notify flag is on, use notify icon for the browser
-  NOTIFY_FLAG_MSG = "fms",// notify message, "" means no msg. Only set to "" when user close this msg or when unload Loyalty
+  NOTIFY_FLAG_MSG = "fms",// notify message, "" means no msg. Only set to "" when user close this msg or when close the browser
   NOTIFY_BADGES = "b",
   ALERT_THRESHOLD_UPDATE_FAIL = 2;
 
@@ -125,7 +124,7 @@ function buildNotifyInfo(isNotify, notifyMsg) {
   var info = {};
   info[NOTIFY_FLAG] = isNotify;
   if (notifyMsg === null) {
-    var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+    var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
     info[NOTIFY_FLAG_MSG] = tmp[NOTIFY_INFO][NOTIFY_FLAG_MSG] || "";
   }
   else
@@ -182,7 +181,7 @@ PrefListener.prototype.observe = function (subject, topic, data) {
 };
 
 /**
- * @param {boolean=} trigger if true triggers the registered function
+ * @param trigger if true triggers the registered function
  *   on registration, that is, when this method is called.
  */
 PrefListener.prototype.register = function (trigger) {
@@ -215,8 +214,9 @@ var CLIQZ_OBSERVER = {
     CLIQZ_OBSERVER.clzListener.register(false);
     CLIQZ_OBSERVER.initSucceed = true;
   },
-  unload: function () {
+  onExtensionDisable: function () {
     if (CLIQZ_OBSERVER.initSucceed && CLIQZ_OBSERVER.clzListener) {
+      CLIQZ_OBSERVER.initSucceed = false;
       CLIQZ_OBSERVER.clzListener.unregister();
     }
   }
@@ -231,6 +231,7 @@ var CliqzStatsGlobal = {
   LOYALTY_DATA_PROVIDER: "http://newbeta.cliqz.com/api/v1/rich-header?path=/cl",
   // ------------ DEFAULT values from the backend -------------//
   MemberSystem: {"MEMBER": 0, "Buddy": 100, "Hero": 250, "LEGEND": 750},
+
   CliqzUsage: {  // user Cliqz Usage stat for comparison
     metric: [
       {"val": 10000, "name": "Rekordmarke", "img": "images/cup.svg"}
@@ -238,7 +239,7 @@ var CliqzStatsGlobal = {
     name: "Total Cliqz-Used"
   },
 
-  CliqzLatestVersion: "1.0.25",
+  CliqzLatestVersion: "1.0.66",
 
   messageAll: [
     { "msg": "..., dass das CLIQZ-Team gegenwärtig aus 28 Nationalitäten besteht?",
@@ -352,10 +353,10 @@ var ICONS = {
       "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-browser.svg"
     },
     'notify': {
-      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-notification.svg",
+      "MEMBER": "chrome://cliqz/content/loyalty/images/browser_icons/member-notif.svg",
       "BUDDY": "chrome://cliqz/content/loyalty/images/browser_icons/buddy-notification.svg",
       "HERO": "chrome://cliqz/content/loyalty/images/browser_icons/hero-notification.svg",
-      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legen-notification.svg"
+      "LEGEND": "chrome://cliqz/content/loyalty/images/browser_icons/legend-notif.svg"
     }
   },
 
@@ -395,11 +396,15 @@ var CliqzLLogic = {
 
     CliqzLLogic.currentStatus = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
 
-    var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+    var notify_meta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
     if (notify_meta) {
       CliqzLLogic.notify.isNotify = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG];
       CliqzLLogic.notify.notifyMsg = (notify_meta[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG] || "";
       CliqzLLogic.badges.curBadges = notify_meta[NOTIFY_BADGES];
+
+      if (CliqzLLogic.notify.notifyMsg && !CliqzLLogic.notify.isNotify)
+        updateNotifyPref(null, buildNotifyInfo(false, ""));
+      CliqzLLogic.notify.notifyMsg = "";
     }
   },
 
@@ -471,7 +476,7 @@ var CliqzLLogic = {
     badgeCode: [ "HMW", // human web
       "LV", // latest version
       "FU", // Frequent User - user cliqz frequently
-      "CLE" // Cliqz Expert level
+      "CLE" // Legend level
     ],
 
     HMW: {
@@ -484,7 +489,7 @@ var CliqzLLogic = {
     },
     LV: {
       isAchieved: function (data) {
-        return data.version.current >= data.version.latest;
+        return CORE.isExtensionLatestVersion(data.version.current, data.version.latest) >= 0;
       },
       img: 'images/Early adopter_icn.svg',
       name: "Latest CLIQZ",
@@ -494,7 +499,7 @@ var CliqzLLogic = {
       isAchieved: function (data) {
         return data.freqCliqzUse.current >= data.freqCliqzUse.threshold;
       },
-      img: 'images/Loyal_icn.svg',
+      img: 'images/Winning Team.svg',
       name: "Loyal Friend",
       des: ["", ""]
     },
@@ -540,9 +545,10 @@ var CliqzLLogic = {
       freqCliqzUse = Math.round(100 * user_stat.resultsCliqz.total / totalSearch);
       return {
         hmw: hmw,
-        version: {current: CliqzUtils.extensionVersion || "1.0.25", latest: CliqzStatsGlobal.CliqzLatestVersion},
+        version: {current: CliqzUtils.extensionVersion || "1.0.25",
+          latest: CliqzStatsGlobal.CliqzLatestVersion},
         freqCliqzUse: {current: freqCliqzUse, threshold: 80}, // todo: define threshold from the backend
-        totalCliqzUse: {current: user_stat.resultsCliqz.resultsCliqzTotal, Legend: CliqzStatsGlobal.getLegendBenchMark()}
+        totalCliqzUse: {current: user_stat.resultsCliqz.total, Legend: CliqzStatsGlobal.getLegendBenchMark()}
       }
     },
 
@@ -595,7 +601,7 @@ var CliqzLLogic = {
     },
 
     checkUpdateMsg: function () {
-      var notifyMeta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)),
+      var notifyMeta = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}')),
         msgIDListCur = notifyMeta[NOTIFY_NORM_MSG] || [],
         newMsg = false;
       CliqzStatsGlobal.messageAll.forEach(function (msgObj) {
@@ -608,7 +614,7 @@ var CliqzLLogic = {
       /**
        * @para: trigger_by: see update()
        */
-      var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
+      var awards = CliqzLLogic.badges.calBadges(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
       var changed = CliqzLLogic.badges.isBadgesUpdated(awards, CliqzLLogic.badges.curBadges);
       CliqzLLogic.badges.curBadges = awards;
       return changed;
@@ -644,26 +650,19 @@ var CliqzLLogic = {
       updateNotifyPref(null, buildNotifyInfo(isNotify, notifyMsg));
     },
 
-    updateOnOpenProgramPage: function () {  // turn off notification
+    updateOnOpenProgramPage: function () {  // turn off browser icon notification
       var latestStt = CliqzLLogic.memStatus.calStatus(CliqzStats.cliqzUsageCached);
       CliqzLLogic.notify.isNotify = false;
-      updateNotifyPref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false)), buildNotifyInfo(false, CliqzLLogic.notify.notifyMsg));
+      updateNotifyPref(JSON.parse(CORE.getPref(NOTIFY_KEY, '{}')), buildNotifyInfo(false, CliqzLLogic.notify.notifyMsg));
       CORE.refreshCliqzStarButtons(ICONS.getIconBrowser(true, latestStt["status"], false));
     },
 
     getNotifyInfo: function () {
-      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
       return {
         "isNotify": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG],
         "notifyMsg": (tmp[NOTIFY_INFO] || {})[NOTIFY_FLAG_MSG]
       }
-    },
-
-    onUnload: function () {
-      // reset notify msg to empty
-      if (CliqzLLogic.notify.notifyMsg && !CliqzLLogic.notify.isNotify)
-        updateNotifyPref(null, buildNotifyInfo(false, ""));
-      CliqzLLogic.notify.notifyMsg = "";
     }
   },
 
@@ -674,10 +673,6 @@ var CliqzLLogic = {
 
   calPoint: function (nCliqzUse) {
     return nCliqzUse || 0;
-  },
-
-  onUnload: function () {
-    CliqzLLogic.notify.onUnload();
   }
 };
 
@@ -704,7 +699,7 @@ var CliqzTERM = {
      @para m: month, 0,1,...11
      @para update: = true (default): update the pref if it's a new term
      */
-    var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false)),
+    var meta = JSON.parse(CORE.getPref(META_KEY, '{}')),
       t = CliqzTERM.calTermOfYear(time_.m);
     return t > meta[CUR_TERM_Y] || (!t && meta[CUR_TERM_Y]);
   },
@@ -741,7 +736,7 @@ var CliqzTERM = {
 
 var dbWrapper = function (func, callBack) {
   return function () {
-    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false)),
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}')),
       day = CliqzUtils.getDay();
 
     // call the original method
@@ -780,9 +775,8 @@ var CliqzStats = {
   initMin: function () {
     CliqzStats.migrateDataV0();
     CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
-
     // to avoid access to often to the db, we cache certain info here
-    var userDB = CliqzStats.get();
+    var userDB = CliqzStats.getStat();
     CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
   },
 
@@ -794,13 +788,13 @@ var CliqzStats = {
     CliqzEvents.sub('result_enter', CliqzStats.cliqzSelectedResults);
 
     CliqzStats.initMin();
+  },
 
-    CliqzStats.migrateDataV0();
-    CliqzStats.curDBTerm = CliqzStats.countTerm() - 1;
-
-    // to avoid access to often to the db, we cache certain info here
-    var userDB = CliqzStats.get();
-    CliqzStats.cliqzUsageCached = userDB["resultsCliqz"]["total"];
+  onExtensionDisable: function() {
+    CliqzStats.curDBTerm = -1;  // index of the current term in the user db array
+    CliqzStats.maxStoreTerm = 20;
+    CliqzStats.cliqzUsageCached = 0;
+    CliqzStats.cliqzDBCurTermCached = null;
   },
 
   formatTermDataForExternal: function (s) {
@@ -819,13 +813,19 @@ var CliqzStats = {
     };
   },
 
-  get: function (term) {
+  assureCurDBTerm: function () {
+    CliqzStats.curDBTerm = CliqzStats.curDBTerm >=0 ? CliqzStats.curDBTerm : CliqzStats.countTerm() - 1;
+  },
+
+  getStat: function (term) {
     // @para: term 0,1,2... where 0 is the first term the user start using loyalty. Leave term = null for default: current term
+    CliqzStats.assureCurDBTerm();
+
     var t = term === undefined ? CliqzStats.curDBTerm : term, s;
     if (t === CliqzStats.curDBTerm && CliqzStats.cliqzDBCurTermCached)
       s = CliqzStats.cliqzDBCurTermCached;
     else {
-      var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
+      var db = JSON.parse(CORE.getPref(STATS_KEY, '{}'));
       s = computeTerm(db, t);
       if (t === CliqzStats.curDBTerm)
         CliqzStats.cliqzDBCurTermCached = s;
@@ -835,7 +835,7 @@ var CliqzStats = {
 
   getAllTerms: function () {
 //    getAllTerms: dbWrapper(function(db){
-    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
+    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}'));
     var s = computeTerm(db, -1);
     var data = CliqzStats.formatTermDataForExternal(s["current"] || {});
     data["previous"] = {};
@@ -847,16 +847,15 @@ var CliqzStats = {
   },
 
   countTerm: function () {
-    var db = JSON.parse(CORE.getPref(STATS_KEY, '{}', false));
-    return Object.keys(db).length;
+    return Object.keys(JSON.parse(CORE.getPref(STATS_KEY, '{}'))).length;
   },
-//    countTerm: dbWrapper(function(db){return Object.keys(db).length; }),
 
   /*
    * Increment google selected results + total queries
    */
   googleSelectedResults: dbWrapper(function (db, day) {
     CliqzStats.cliqzDBCurTermCached = null;
+    CliqzStats.assureCurDBTerm();
     var t = CliqzStats.curDBTerm;
     db[t][day] = db[t][day] || {};
     db[t][day][G_SELECTED] = (db[t][day][G_SELECTED] || 0) + 1;
@@ -872,6 +871,7 @@ var CliqzStats = {
    */
   cliqzSelectedResults: dbWrapper(function (db, day, signal, meta) {  // todo: rethink on how to organize all this encodeResultType, VERTICAL_ENCODINGS, etc
     CliqzStats.cliqzDBCurTermCached = null;
+    CliqzStats.assureCurDBTerm();
     var t = CliqzStats.curDBTerm;
     db[t][day] = db[t][day] || {};
 
@@ -897,7 +897,7 @@ var CliqzStats = {
    * Re-organizing the db when starting a new term
    */
   prepNewTerm: dbWrapper(function (db, day, time_) {
-    var meta = JSON.parse(CORE.getPref(META_KEY, '{}', false));
+    var meta = JSON.parse(CORE.getPref(META_KEY, '{}'));
 
     if (CliqzStats.curDBTerm >= 0) {
       db[CliqzStats.curDBTerm] = computeTerm(db, CliqzStats.curDBTerm);
@@ -911,7 +911,6 @@ var CliqzStats = {
     // cleaning up db if it contains too many terms
     var termsID = Object.keys(db);
     if (termsID.length > CliqzStats.maxStoreTerm) {
-
       var lowBound = CliqzStats.curDBTerm - CliqzStats.maxStoreTerm + 1;
       termsID.forEach(function (id) {
         if (parseInt(id) < lowBound)
@@ -979,6 +978,7 @@ function computeTerm(db, termIdx) {
    */
   var c = db[termIdx] || {};
   var summary = {};
+  CliqzStats.assureCurDBTerm();
   if (termIdx === CliqzStats.curDBTerm) {
     summary = {
       resultsGoogle: 0,
@@ -1054,7 +1054,7 @@ AboutURL.prototype = {
     },
 
     getURIFlags: function(uri) { return Ci.nsIAboutModule.ALLOW_SCRIPT; }
-}
+};
 
 var AboutURLFactory = XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID);
 
@@ -1094,14 +1094,16 @@ var CliqzLoyalty = {
     CliqzStatsGlobal.cron();
   },
 
+  // only called when disable the extension
   unload: function () {
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 
-    CliqzLLogic.onUnload();
+    CliqzStats.onExtensionDisable();
+
     if (CliqzStatsGlobal.timer)
       CliqzUtils.clearTimeout(CliqzStatsGlobal.timer);
     if (CLIQZ_OBSERVER.initSucceed) {
-      CLIQZ_OBSERVER.unload();
+      CLIQZ_OBSERVER.onExtensionDisable();
     }
     CORE.unload();
   },
@@ -1144,7 +1146,7 @@ var CliqzLoyalty = {
   },
 
   getAllStatCurrentTerm: function () {
-    return CliqzLoyalty.prepareDataForUI(CliqzStats.get());
+    return CliqzLoyalty.prepareDataForUI(CliqzStats.getStat());
   },
 
   getAllStat: function () {
@@ -1152,7 +1154,7 @@ var CliqzLoyalty = {
   },
 
   getBadgesInfo: function () {
-    return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.get(), null));
+    return CliqzLLogic.badges.getBadgesInfo(CliqzLLogic.badges.prepCalBadges(CliqzStats.getStat(), null));
 //        return CliqzStatsGlobal.CliqzBadges;
   },
 
@@ -1166,7 +1168,7 @@ var CliqzLoyalty = {
      */
     var stt = null;
     if (CliqzLoyalty.hasJoined()) {
-      var user_stat = CliqzStats.get(),
+      var user_stat = CliqzStats.getStat(),
         point = CliqzLLogic.calPoint(user_stat.resultsCliqz.total);
       stt = CliqzLLogic.memStatus.calStatus(point);
     }
@@ -1193,7 +1195,7 @@ var CliqzLoyalty = {
   },
 
   hasJoined: function () {
-    return CORE.getPref('participateLoyalty') === true
+    return CORE.getPref('participateLoyalty', false) === true
   },
 
   getBrowserButtonID: function () {
@@ -1208,7 +1210,7 @@ var CliqzLoyalty = {
 
     var status = CliqzLoyalty.getMemStatus();
     if (status) {
-      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}', false));
+      var tmp = JSON.parse(CORE.getPref(NOTIFY_KEY, '{}'));
       is_notifier = (tmp[NOTIFY_INFO] || {} )[NOTIFY_FLAG] || false;
     }
 
@@ -1234,15 +1236,14 @@ var CliqzLoyalty = {
 // Buddy, needs 2 more to become Hero
 //{"0":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":177,"cSel":{"cTotal":172,"cAuto":101,"cActiveSel":71,"cHistory":1}}}}
 
-//{"0":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":179,"cSel":{"cTotal":174,"cAuto":101,"cActiveSel":73,"cHistory":2,"cBM":1}},"16666":{"gSel":3,"q":3}}}
+// 2 quarters, the current one: Jan 2016 -- 2 more to Legend
+//{"0":{"resultsGoogle":0,"resultsCliqzTotal":2,"resultsCliqzEnter":0,"resultsCliqzClick":0,"resultsCliqzAuto":0,"resultsCliqzActive":2,"resultsHistory":0,"resultsBM":2,"resultsEZ":0,"meta":{"y":2015,"ty":3,"ms":[9,10,11]}},"1":{"16807":{"cSel":{"cTotal":748,"cBM":300,"cActiveSel":448},"q":749,"gSel":1}}}
 
 // With 2 quarter, 3/4 badges (except the top record)
 //{"0":{"resultsGoogle":15,"resultsCliqzTotal":76,"resultsCliqzEnter":0,"resultsCliqzClick":18,"resultsCliqzAuto":5,"resultsCliqzActive":71,"resultsHistory":15,"resultsBM":5,"resultsEZ":15,"meta":{"y":2015,"ty":2,"ms":[6,7,8]}},"1":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":179,"cSel":{"cTotal":174,"cAuto":101,"cActiveSel":73,"cHistory":2,"cBM":1}},"16665":{"cSel":{"cTotal":2,"cEZ":1,"cActiveSel":2,"cBM":1},"q":4,"gSel":2},"16666":{"gSel":3,"q":3}}}
 
 // with 2 quarters, no CliqzLoyalty badge
 //{"0":{"resultsGoogle":15,"resultsCliqzTotal":76,"resultsCliqzEnter":0,"resultsCliqzClick":18,"resultsCliqzAuto":5,"resultsCliqzActive":71,"resultsHistory":15,"resultsBM":5,"resultsEZ":15,"meta":{"y":2015,"ty":2,"ms":[6,7,8]}},"1":{"16662":{"cSel":{"cTotal":1,"cAuto":1,"cActiveSel":0},"q":2,"gSel":1},"16661":{"cSel":{"cTotal":40,"cActiveSel":37,"cHistory":9,"cEZ":5,"cBM":5,"cAuto":3},"q":49,"gSel":9},"16660":{"cSel":{"cTotal":5,"cHistory":2,"cActiveSel":5},"q":7,"gSel":2},"16659":{"cSel":{"cTotal":1,"cEZ":1,"cActiveSel":1},"q":1},"16658":{"cSel":{"cTotal":28,"cClick":17,"cActiveSel":27,"cHistory":4,"cEZ":9,"cAuto":1},"q":29,"gSel":1},"16654":{"cSel":{"cTotal":1,"cClick":1,"cActiveSel":1},"q":2,"gSel":1},"16664":{"gSel":5,"q":179,"cSel":{"cTotal":174,"cAuto":101,"cActiveSel":73,"cHistory":2,"cBM":1}},"16665":{"cSel":{"cTotal":2,"cEZ":1,"cActiveSel":2,"cBM":1},"q":4,"gSel":2},"16666":{"gSel":3,"q":3},"16672":{"cSel":{"cTotal":17,"cBM":17,"cActiveSel":17},"q":36,"gSel":123}}}
-
-
 
 
 export default CliqzLoyalty;

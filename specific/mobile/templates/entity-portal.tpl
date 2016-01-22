@@ -8,13 +8,13 @@
 <div class="main mulitple">
 {{#each data.news}}
   <div class="item" url="{{ url }}" extra="entry-{{ @index }}" arrow="false">
-    <div class="main__image" style="background-image: url({{ thumbnail }});">
+    <div class="main__image" data-style="background-image: url({{ thumbnail }});">
         Image
     </div>
     <h1 class="main__headline"><a href="{{url}}">{{ title }}</a></h1>
     <span class="main__multiple__time">{{ time }}</span>
   </div>
-    
+
 {{/each}}
 </div>
 
@@ -26,7 +26,7 @@
            url="{{ url }}"
            extra="entry-{{ @index }}"
            arrow="false">
-        <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
+        <div class="entity-story-image cqz-image-round" data-style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-story-description">
           <div class="entity-story-title"><a href="{{url}}">{{ title }}</a></div>
           <div class="entity-story-comment">{{ time }}</div>

@@ -106,10 +106,6 @@ var CliqzAutocomplete = {
     getResultsOrder: function(results){
         return CliqzAutocomplete.prepareResultOrder(results);
     },
-    isUrlBarEmpty: function() {
-        var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
-        return urlbar.value.length == 0;
-    },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
     ProviderAutoCompleteResultCliqz: function(searchString, searchResult,
         defaultIndex, errorDescription) {
@@ -342,12 +338,6 @@ var CliqzAutocomplete = {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
-                //CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
-                // special case: user has deleted text from urlbar
-
-                if(q.length != 0 && CliqzAutocomplete.isUrlBarEmpty())
-                    return;
-
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
                     var now = Date.now();
 

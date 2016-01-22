@@ -21,12 +21,14 @@
                 <img data-src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
               </div>
               <div>
-                  {{distance distance}}
+                  {{#unless no_location}}
+                      {{distance distance}}
+                  {{/unless}}
               </div>
             </div>
           </div>
 
-          <div class="main__content description">{{description}}</div>
+
 
         <div class="cqz-local-des-blk local-sc-data-container">
           {{#unless no_location}}
@@ -36,14 +38,14 @@
                 <div class="cqz-local-info-left cqz-local-info-box" >
                   {{#if address}}
                     <div class="cqz-local-address" extra="address" show-status='true' url="{{mu}}">
-                      <div class="icon" style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/map-pin.svg)">
+                      <div class="icon" data-style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/map-pin.svg)">
                         Icon
                       </div> {{address}}
                     </div>
                   {{/if}}
                   {{#if phonenumber}}
-                    <div class="phone_num" onclick="osBridge.browserAction('{{phonenumber}}','phoneNumber')">
-                      <div class="icon" style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/phone-1.svg)">
+                    <div class="phone_num" cliqz-action="stop-click-event-propagation" onclick="osBridge.browserAction('{{phonenumber}}','phoneNumber')">
+                      <div class="icon" data-style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/phone-1.svg)">
                         Icon
                       </div>
                       <span class="clz_copy">{{phonenumber}}</span>
@@ -54,7 +56,7 @@
               {{#if opening_hours}}
                 <div class="cqz-local-info-right cqz-local-info-box" extra="open-hour">
                   <div class="cqz-local-time">
-                    <div class="icon" style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/clock.svg)">
+                    <div class="icon" data-style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/clock.svg)">
                       Icon
                     </div>
                     <p class="cqz-local-time-title" style="color: {{opening_status.color}}">
@@ -71,9 +73,8 @@
               {{/if}}
 
             </div>
-          {{else}}
-            {{>partials/missing_location_step_1}}
           {{/unless}}
+          <div class="main__content description">{{description}}</div>
         </div>
       {{/with}}
     </div>

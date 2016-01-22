@@ -371,7 +371,7 @@ var Mixer = {
       var localTemplate = result.data.superTemplate;
       if (localTemplate) {
         if (result.data.no_location) {
-          result.data.partials.push('missing_location_step_1');
+          result.data.partials.push('missing_location_1');
         } else {
           result.data.partials.push(localTemplate);
         }

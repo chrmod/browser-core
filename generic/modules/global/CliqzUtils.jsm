@@ -76,6 +76,7 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
+  BRANDS_DATABASE: BRANDS_DATABASE,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
@@ -98,7 +99,8 @@ var CliqzUtils = {
       'delivery-tracking': 2,
       'vod': 3,
       'conversations': 1,
-      'conversations_future': 1
+      'conversations_future': 1,
+      'topnews': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -111,6 +113,7 @@ var CliqzUtils = {
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   init: function(win){
+
 
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -131,8 +134,10 @@ var CliqzUtils = {
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
+
           CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
-          function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
+          function(req){
+            BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
             var retry = retryPattern.pop();
             if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
@@ -954,25 +959,37 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
-  //  gets a key and a dynamic of parameters
-  //  eg: getLocalizedString('sentence', 'John', 'biggest', 'fotball')
-  //  if the localized sentence is = '{} is the {} {} player' the output will be 'John is the biggest football player'
-  getLocalizedString: function(key){
-    var ret = key;
+  getLocalizedString: function(key, substitutions){
+    var str = key,
+        localMessages;
 
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
-        ret = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
-    } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
-        ret = CliqzUtils.locale['default'][key].message;
+        str = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+        localMessages = CliqzUtils.locale[CliqzUtils.currLocale];
+    } else if (CliqzUtils.locale.default && CliqzUtils.locale.default[key]) {
+        str = CliqzUtils.locale.default[key].message;
+        localMessages = CliqzUtils.locale.default;
     }
 
-    if(arguments.length>1){
-      var i = 1, args = arguments;
-      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
+    if (!substitutions) {
+      substitutions = [];
+    }
+    if (!Array.isArray(substitutions)) {
+      substitutions = [substitutions];
     }
 
-    return ret;
+    function replacer(matched, index, dollarSigns) {
+      if (index) {
+        index = parseInt(index, 10) - 1;
+        return index in substitutions ? substitutions[index] : "";
+      } else {
+        // For any series of contiguous `$`s, the first is dropped, and
+        // the rest remain in the output string.
+        return dollarSigns;
+      }
+    }
+    return str.replace(/\$(?:([1-9]\d*)|(\$+))/g, replacer);
   },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
@@ -995,13 +1012,16 @@ var CliqzUtils = {
 
     changes && changes();
 
+    var corePromises = [];
     enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       if(win.CLIQZ && win.CLIQZ.Core){
-        win.CLIQZ.Core.init();
+        corePromises.push(win.CLIQZ.Core.init());
       }
     }
+
+    return Promise.all(corePromises);
   },
   isWindows: function(){
     return CLIQZEnvironment.OS.indexOf("win") === 0;
@@ -1063,53 +1083,13 @@ var CliqzUtils = {
 
     return data;
   },
-  getNoResults: function() {
-      var se = [// default
-              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
-              {"name": "Google", "base_url": "https://www.google.de"},
-              {"name": "Google Images", "base_url": "https://images.google.de/"},
-              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
-          ],
-          chosen = new Array();
-
-      var engines = CliqzResultProviders.getSearchEngines(),
-          defaultName = engines[0].name;
-
-      se.forEach(function(def){
-        engines.forEach(function(e){
-          if(def.name == e.name){
-              var url = def.base_url || e.base_url;
-
-              def.code = e.code;
-              def.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
-              def.text = e.prefix.slice(1);
-
-              chosen.push(def)
-          }
-          if(e.default) defaultName = e.name;
-        })
-      })
-
-
-
-      return Result.cliqzExtra(
-              {
-                  data:
-                  {
-                      template:'noResult',
-                      text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
-                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
-                      // we should take care of this specific case differently on alternative platforms
-                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
-                      "search_engines": chosen,
-                      //use local image in case of no internet connection
-                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
-                  },
-                  subType: JSON.stringify({empty:true})
-              }
-          )
-    }
+  getNoResults: CLIQZEnvironment.getNoResults,
+  getParameterByName: function(name, location) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
 };
 
 CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);
