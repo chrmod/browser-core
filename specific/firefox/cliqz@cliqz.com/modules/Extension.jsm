@@ -54,6 +54,8 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 
+        CliqzUtils.initPlatform(System)
+
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();

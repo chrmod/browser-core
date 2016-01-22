@@ -212,10 +212,11 @@ var CliqzHistory = {
     return function(b) {
       var r = new CliqzUtils.getWindow().FileReader();
       r.onloadend = function() {
-        Cu.import('resource://gre/modules/osfile.jsm');
-        var writePath = FileUtils.getFile("ProfD", ["cliqz_thumbnails", filename + ".jpeg"]).path;
-        OS.File.writeAtomic(writePath, new Uint8Array(r.result), {
-          tmpPath: writePath + '.tmp'
+        CliqzUtils.import('core/fs').then(function (fs) {
+          fs.writeFile(
+            ["cliqz_thumbnails", filename+".jpeg"],
+            new Uint8Array(r.result)
+          );
         });
       };
       if (b.size > 2000) {

@@ -16,10 +16,7 @@ var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 // input trees
 var bowerComponents = new Funnel('bower_components');
 var nodeModules    = new Funnel('node_modules');
-var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
-  exclude: ['platform.js']
-});
-var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
+var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 var cliqziumSpecific= new Funnel('specific/cliqzium');
@@ -38,6 +35,14 @@ console.log('Configuration file:', configFilePath);
 console.log(cliqzConfig);
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
+var platform = new Funnel('platforms/'+cliqzConfig.platform);
+platform = Babel(platform, {
+  sourceMaps: 'inline',
+  filterExtensions: ['es'],
+  modules: 'system',
+  moduleRoot: 'platform'
+});
+
 webSpecific = jade(webSpecific);
 
 var mobileCss = compileSass(
@@ -48,15 +53,12 @@ var mobileCss = compileSass(
 );
 
 // attach subprojects
-var components = [];
-var modules = []
+var modules = [new Funnel(platform, { destDir: "platform" })];
 var requiredBowerComponents = new Set();
 
 cliqzConfig.modules.forEach(function (name) {
   var path = 'modules/'+name;
   if(fs.statSync(path).isDirectory()) {
-    var init = new Funnel(path, { include: ['component.js'], destDir: path });
-
     try {
       var conf = fs.readFileSync('modules/'+name+'/bower_components.json');
       JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
@@ -73,8 +75,7 @@ cliqzConfig.modules.forEach(function (name) {
 
     var outputTree = [
       new Funnel(path+'/dist'),
-      sources,
-      new Funnel(firefoxPlatform),
+      sources
     ];
 
     var hasStyles = false;
@@ -96,7 +97,6 @@ cliqzConfig.modules.forEach(function (name) {
 
     var module = new MergeTrees(outputTree);
 
-    components.push(init);
     modules.push(new Funnel(module, { destDir: name }));
   }
 });
