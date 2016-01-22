@@ -15,5 +15,6 @@
             </div>
         {{/if}}
         <h1 class="main__headline"><a href="{{url}}">{{ emphasis title text 2 true }}</a></h1>
+        <div class="cf"></div>
         <p class="main__content">{{ emphasis data.description text 2 true }}</p>
     </div>
