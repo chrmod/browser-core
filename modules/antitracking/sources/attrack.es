@@ -1217,7 +1217,7 @@ var CliqzAttrack = {
                         CliqzAttrack.local_tracking.getTableSize(function(table_size) {
                             var payl = {
                                 'ver': CliqzAttrack.VERSION,
-                                'ts': CliqzAttrack.getTime().substring(0, 8),
+                                'ts': datetime.getTime().substring(0, 8),
                                 'data': {
                                     'lt': results.map(function(tup) {
                                         return {'tp': tup[0], 'k': tup[1], 'v': tup[2], 'n': tup[3]};
