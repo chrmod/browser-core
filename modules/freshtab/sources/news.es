@@ -39,7 +39,8 @@ var CliqzFreshTabNews = {
 	},
   updateNews: function(callback){
     CliqzUtils.clearTimeout(t0);
-    if (CliqzFreshTabNews._isStale() || CliqzUtils.getPref('freshTabByPassCache') || !getNewsFromLS()){
+    var bypassCache = CliqzUtils.getPref('freshTabByPassCache');
+    if (CliqzFreshTabNews._isStale() || bypassCache || !getNewsFromLS()){
       var bBasedNewsRequirement = [];
       if (bypassCache) {
         log("Bypassing cache");
