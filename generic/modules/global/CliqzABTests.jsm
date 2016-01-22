@@ -563,7 +563,7 @@ var CliqzABTests = {
                 break;
             case "1055_A":
             case "1055_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("unblockEnabled");
+                CliqzUtils.clearPref("unblockEnabled");
                 break;
             case "1056_A":
             case "1056_B":
