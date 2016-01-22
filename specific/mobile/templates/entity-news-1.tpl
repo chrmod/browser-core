@@ -14,12 +14,15 @@
       <h1 class="main__headline">
         <a href="{{url}}">{{ title }}</a>
         <span>
-          {{time}}
+          
           {{#if tweet_count}}
             <span class="tweet_count">
               <img src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{tweet_count}}
             </span>
           {{/if}}
+          
+          {{time}}
+          
         </span>  
       </h1>
     </div>
