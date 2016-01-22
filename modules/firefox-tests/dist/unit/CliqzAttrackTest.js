@@ -790,30 +790,30 @@ TESTS.AttrackTest = function (CliqzUtils) {
           }, 500);
         });
 
-        it('updates if versions do not match', function(done) {
+        it('updates if versions do not match', function() {
           CliqzAttrack.loadRemoteWhitelists();
 
-          waitFor(function() {
+          return waitFor(function() {
             return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 1;
-          }).then(done);
+          });
         });
 
-        it('updates tokens only if needed', function(done) {
+        it('updates tokens only if needed', function() {
           persist.set_value("tokenWhitelistVersion", mock_token_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
-          waitFor(function() {
+          return waitFor(function() {
             return calledLoadRemoteTokenWhitelist == 0 && calledLoadRemoteSafeKey == 1;
-          }).then(done);
+          });
         });
 
-        it('updates safekeys only if needed', function(done) {
+        it('updates safekeys only if needed', function() {
           persist.set_value("safeKeyExtVersion", mock_safekey_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
-          waitFor(function() {
+          return waitFor(function() {
             return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 0;
-          }).then(done);
+          });
         });
 
         describe("force_clean", function() {
@@ -822,35 +822,30 @@ TESTS.AttrackTest = function (CliqzUtils) {
             CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck_clean.json";
           });
 
-          it('clears safekeys before loading new remote list', function(done) {
+          it('clears safekeys before loading new remote list', function() {
             CliqzAttrack.safeKey['a'] = {'b': ['20150101', 'l']};
             CliqzAttrack.loadRemoteWhitelists();
-            waitFor(function() {
+            return waitFor(function() {
               return calledLoadRemoteSafeKey == 1;
             }).then(function() {
-              try {
-                chai.expect(CliqzAttrack.safeKey).to.eql({});
-                chai.expect(CliqzAttrack.requestKeyValue).to.eql({});
-                done();
-              } catch(e) { done(e); }
+              chai.expect(CliqzAttrack.safeKey).to.eql({});
+              chai.expect(CliqzAttrack.requestKeyValue).to.eql({});
             });
           });
 
-          it('only clears when safekey update is required', function(done) {
+          it('only clears when safekey update is required', function() {
             CliqzAttrack.safeKey['a'] = {'b': ['20150101', 'l']};
             persist.set_value("safeKeyExtVersion", mock_safekey_hash);
             CliqzAttrack.loadRemoteWhitelists();
-            waitFor(function() {
+            return waitFor(function() {
               return calledLoadRemoteTokenWhitelist == 1;
             }).then(function() {
-              try {
-                chai.expect(CliqzAttrack.safeKey).to.not.eql({});
-                done();
-              } catch(e) { done(e); }
+              chai.expect(CliqzAttrack.safeKey).to.not.eql({});
             });
           });
         });
       });
+
       describe('loadBloomFilter', function() {
         var bloomFilter;
 
@@ -860,16 +855,14 @@ TESTS.AttrackTest = function (CliqzUtils) {
           bloomFilter.baseURL = mock_bloom_filter_base_url;
         });
 
-        it ('bloom filter first time update', function(done) {
+        it ('bloom filter first time update', function() {
           bloomFilter.checkUpdate();
-          waitFor(function() {
+          return waitFor(function() {
             return bloomFilter.bloomFilter != null && bloomFilter.version != null;
           }).then(function() {
-            try {
-              chai.expect(bloomFilter.version.major).to.equal('0');
-              chai.expect(bloomFilter.bloomFilter.k).to.equal(5);
-              done();
-          } catch(e) { done(e); }
+            chai.expect(bloomFilter.version.major).to.equal('0');
+            chai.expect(bloomFilter.bloomFilter.k).to.equal(5);
+          });
         });
       });
     });
@@ -921,8 +914,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
       });
     });
-  });
-}
+};
 
 TESTS.AttrackTest.MIN_BROWSER_VERSION = 35;
 
