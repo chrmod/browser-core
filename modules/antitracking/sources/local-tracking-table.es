@@ -1,10 +1,10 @@
-import dbConn from 'antitracking/sqlite';
+import getDbConn from 'antitracking/sqlite';
 
 /** Sqlite table for collecting tracking information locally.
  */
 export default class {
   constructor() {
-    this.dbConn = dbConn;
+    this.dbConn = getDbConn();
     let tracking_table = "create table if not exists 'attrack_tracking' (\
             'tp' VARCHAR(16) NOT NULL,\
             'fp' VARCHAR(16) NOT NULL,\

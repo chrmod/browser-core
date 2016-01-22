@@ -1,14 +1,15 @@
 import pacemaker from "antitracking/pacemaker";
-import dbConn from 'antitracking/sqlite';
+import getDbConn from 'antitracking/sqlite';
 
 const LOG_KEY = "attrack-persist";
 
+var dbConn;
 // connect to sqlite database and create attrack table
-var attrack_table = "create table if not exists attrack(\
-    id VARCHAR(24) PRIMARY KEY NOT NULL,\
-    data VARCHAR(1000000) \
-)";
-(dbConn.executeSimpleSQLAsync || dbConn.executeSimpleSQL)(attrack_table);
+export function init () {
+  dbConn = getDbConn();
+  var attrack_table = 'create table if not exists attrack(id VARCHAR(24) PRIMARY KEY NOT NULL, data VARCHAR(1000000))';
+  (dbConn.executeSimpleSQLAsync || dbConn.executeSimpleSQL)(attrack_table);
+}
 
 /** Load data from the attrack sqlite table.
     From CliqzAttrack.loadRecord
