@@ -6,7 +6,7 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 export default {
 
   init(settings) {
-    this.buttonEnabled = settings.antitrackingButton;
+    this.buttonEnabled = CliqzUtils.getPref("attrackUI", false);
     this.enabled = false;
 
     if ( this.buttonEnabled ) {
