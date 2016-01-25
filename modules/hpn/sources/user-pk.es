@@ -16,6 +16,7 @@ export default class {
      this.publicKey = this.keyGen.getPublicKeyB64();
      this.publicKeyB64 = this.keyGen.getPublicKeyB64();
      CliqzUtils.setPref('userPKBeta', this.privateKey);
+     this.registerKey();
     }
     else{
       this.keyGen.setPrivateKey(keySet);
@@ -58,5 +59,13 @@ export default class {
       }
     })
     return promise;
+  }
+
+  registerKey(){
+    // Needs to be public.
+    CliqzUtils.log("Setting public Key",CliqzSecureMessage.LOG_KEY);
+    CliqzSecureMessage.httpHandler("http://10.10.76.48/register/")
+      .post(JSON.stringify({"pk":CliqzSecureMessage.uPK["publicKey"]}))
+      .then(e=> CliqzUtils.log(e, CliqzSecureMessage.LOG_KEY))
   }
 }

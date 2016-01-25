@@ -27,3 +27,5 @@ export default class{
     this.e = '' + this.loadKey.parseKeyValues(this.dsPubKey)['e']; // Needs to be string, else fails on blinding nonce.
   }
 };
+
+

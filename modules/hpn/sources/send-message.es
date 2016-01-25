@@ -292,13 +292,14 @@ var sendM = function (m){
 			return;
 		}
 	}
-
+	CliqzHumanWeb.incrActionStats("tRcvd");
 	if(!mc) return;
 
     // Check for local temporal uniquness
     var uniqKey = mc.dmC;
     if(CliqzSecureMessage.localTemporalUniq && Object.keys(CliqzSecureMessage.localTemporalUniq).indexOf(uniqKey) > -1) {
     	CliqzUtils.log("This message has already been sent....",CliqzSecureMessage.LOG_KEY);
+    	CliqzHumanWeb.incrActionStats("droppedLocalCheck");
     	var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
     	if(mIdx) {
     		sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
@@ -382,6 +383,7 @@ var sendM = function (m){
     	var tt = new Date().getTime();
     	CliqzSecureMessage.localTemporalUniq[mc.dmC] = {"ts":tt};
     	CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-success",1);
+    	CliqzHumanWeb.incrActionStats("tSent");
     	var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
     	if(mIdx) {
     		sendM(CliqzSecureMessage._telemetry_sending[mIdx]);

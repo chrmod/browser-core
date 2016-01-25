@@ -94,6 +94,7 @@ var CliqzSecureMessage = {
     	}
     	fetchSourceMapping();
     	CliqzSecureMessage.fetchProxyList();
+      prunelocalTemporalUniq();
 
     }
 
@@ -434,6 +435,23 @@ function loadRecord(id, callback){
 			else callback(null);
 		}
 	});
+}
+
+function prunelocalTemporalUniq(){
+  if(CliqzSecureMessage.localTemporalUniq){
+    var curr_time = Date.now();
+    var pi = 0;
+    Object.keys(CliqzSecureMessage.localTemporalUniq).forEach( e => {
+      var d = CliqzSecureMessage.localTemporalUniq[e]["ts"];
+      var diff = (curr_time - d);
+      if(diff >= (24 * 60 * 60 * 1000)) {
+        delete CliqzSecureMessage.localTemporalUniq[e];
+        pi += 1;
+      }
+    });
+    CliqzUtils.log("Pruned local temp queue: " + pi + "items", CliqzSecureMessage.LOG_KEY);
+    if(CliqzHumanWeb.actionStats) CliqzHumanWeb.actionStats['itemsLocalValidation'] = Object.keys(CliqzSecureMessage.localTemporalUniq).length;
+  }
 }
 
 export default CliqzSecureMessage;
