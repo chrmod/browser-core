@@ -8,7 +8,7 @@ export default {
       [ 'telemetry-categories', 'categories.json' ],
       {
         remoteURL: 'https://cdn.cliqz.com/domain-categories/categories.json',
-        cron: '0 12 * * *',
+        cron: 24 * 60 * 60 * 1000, // 24 hours
       }
     );
   },
