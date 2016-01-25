@@ -17,7 +17,7 @@
           
           {{#if tweet_count}}
             <span class="tweet_count">
-              <img src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{tweet_count}}
+              <img data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{tweet_count}}
             </span>
           {{/if}}
           

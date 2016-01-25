@@ -107,7 +107,7 @@ CLIQZEnvironment = {
       height = Math.max( body.scrollHeight, body.offsetHeight,documentElement.clientHeight, documentElement.scrollHeight, documentElement.offsetHeight );
     }
 
-    for(var i=0; i<ezs.length; i++) {
+    for(var i=0; i < ezs.length; i++) {
       ezs[i].style.height = null;
       if(ezs[i].clientHeight+64 < height) {
         ezs[i].style.height = height-75 + 'px';
