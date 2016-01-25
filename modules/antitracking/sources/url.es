@@ -116,12 +116,19 @@ function getParametersQS(qs) {
             res[k] = v;
         }
     };
+    var quotes = '';
     for(let i=0; i<qs.length; i++) {
         let c = qs.charAt(i);
+        if (c == '"' || c == "'") {
+            if (quotes.slice(-1) == c)
+                quotes = quotes.slice(0, quotes.length - 1);
+            else
+                quotes += c;
+        }
         if(c == '=' && state == 'key' && k.length > 0) {
             state = 'value';
             continue;
-        } else if(c == '&' || c == ';') {
+        } else if((c == '&' || c == ';') && quotes == '') {
             if(state == 'value') {
                 state = 'key';
                 // in case the same key already exists
@@ -148,6 +155,39 @@ function getParametersQS(qs) {
         _updateQS(k, v);
     } else if(state == 'key' && k.length > 0) {
         res[k] = true;
+    }
+    return _flattenJson(res);
+};
+
+function _flattenJson(obj) {
+    if (typeof obj == 'string' && (obj.indexOf('{') > -1 || obj.indexOf('[') > -1)) {
+        try {
+            obj = JSON.parse(obj);
+            if (typeof obj != 'object' && typeof obj != 'array')
+                obj = JSON.stringify(obj);
+        } catch(e) {}
+    }
+    var res = {};
+    switch(typeof obj) {
+    case 'object':
+        for (var key in obj) {
+            var r = _flattenJson(obj[key]);
+            for (var _key in r)
+                res[key + _key] = r[_key];
+        }
+        break;
+    case 'array':
+        for (var i = 0; i < obj.length; i ++) {
+            var r = _flattenJson(obj[i]);
+            for (var _key in r)
+                res[i + _key] = r[_key];
+        }
+        break;
+    case 'number':
+        obj = JSON.stringify(obj);
+    default:
+        res[''] = obj;
+        return res;
     }
     return res;
 };
@@ -186,7 +226,7 @@ var URLInfo = function(url) {
     return this;
 }
 
-URLInfo._cache = new MapCache(function(url) { return new URLInfo(url) }, 100);
+URLInfo._cache = new MapCache(function(url) { return new URLInfo(url); }, 100);
 
 /** Factory getter for URLInfo. URLInfo are cached in a LRU cache. */
 URLInfo.get = function(url) {
