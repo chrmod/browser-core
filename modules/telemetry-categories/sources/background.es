@@ -26,7 +26,7 @@ export default {
     });
 
     loader.onUpdate( categories => {
-      if ( !this.loader ) {
+      if ( !this.reporter ) {
         return;
       }
 
