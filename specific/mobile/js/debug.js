@@ -48,8 +48,8 @@ Handlebars.helpers.timeOrCalculator = function(ezType) {
 }
 
 
-Handlebars.registerHelper('showSearch', function(results, options) { // if equal
-  if(results[0].data.template !== "noResult") {
+Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equal
+  if(!results[0] || results[0].data.template !== "noResult") {
     return options.fn(this);
   } else {
     return options.inverse(this);
@@ -98,8 +98,6 @@ if(onAndroid || location.port == 4200 || window.webkit) {
 var debugcss = "background-color:#00aa00;display:block;"
 
 CLIQZEnvironment.openLinksAllowed = true;
-
-CliqzUtils.setPref("adultContentFilter","moderate");
 
 
 CliqzUtils.requestMonitor.inHealth = function() { return true; }
