@@ -1,4 +1,4 @@
-<!-- news.tpl -->  
+<!-- news.tpl -->
     <div class="meta">
         {{> logo}}
         <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>
@@ -7,10 +7,10 @@
             {{/if}}
             {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
     </div>
-    
+
     <div class="main">
         {{#if image.src}}
-            <div class="main__image" style="background-image: url({{ image.src }});">
+            <div class="main__image" data-style="background-image: url({{ image.src }});">
                 Image
             </div>
         {{/if}}

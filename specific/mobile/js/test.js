@@ -7,7 +7,7 @@ function slowType(query) {
       setTimeout(function(){
         urlbar.value = urlbar.value + q;
         if(query.length == parseInt(i)+1) {
-          CLIQZEnvironment.search();
+          CLIQZEnvironment.search(urlbar.value, CLIQZEnvironment.location_enabled, 48.1517832, 11.6200855);
         }
       },i*15);
     })(query[i],i)

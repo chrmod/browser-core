@@ -31,7 +31,6 @@
             {{/if}}
       {{/with}}
 
-      {{>EZ-history}}
     </div>
     {{>EZ-category}}
     {{> logo}}

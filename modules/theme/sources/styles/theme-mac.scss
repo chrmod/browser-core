@@ -74,8 +74,14 @@
     display: none;
 }
 
+.tab-background,
+.tabs-newtab-button {
+    margin: 0 !important;
+}
+
 .tab-background-middle {
     margin: 0;
+    min-height: var(--tab-min-height);
 }
 .tab-background-middle[visuallyselected="true"] { background: none; }
 
@@ -86,7 +92,7 @@
     border-radius: 3px 3px 0 0;
 }
 
-.tabbrowser-tab {
+.tabbrowser-tab .tab-stack {
     margin: 0 2px;
 }
 .tabbrowser-tab:not([pinned]) {

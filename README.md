@@ -1,9 +1,11 @@
 # Navigation Extension
 
-See - [wiki](https://github.com/cliqz/navigation-extension/wiki)
+See [wiki](https://github.com/cliqz/navigation-extension/wiki).
 
 Please use the configuration from [editorconfig](https://github.com/cliqz/navigation-extension/blob/master/.editorconfig)
- - for sublimetext install [this](https://github.com/sindresorhus/editorconfig-sublime)
+ - for sublimetext install [editorconfig-sublime](https://github.com/sindresorhus/editorconfig-sublime)
+
+Make sure to check out the [**JavaScript Style Guide**](https://github.com/cliqz/js-style-guide) and ensure that your code complies with the rules.
 
 ## Requirements
 
@@ -44,7 +46,7 @@ Examples:
 
 ## Testing
 
-you need to build extension with `./fern.js serve ./configs/jenkins.json` configuration file in order to run tests. 
+you need to build extension with `./fern.js serve ./configs/jenkins.json` configuration file in order to run tests.
 
 Then open this URL to start tests `chrome://cliqz/content/firefox-tests/index.html`
 
@@ -52,3 +54,11 @@ Then open this URL to start tests `chrome://cliqz/content/firefox-tests/index.ht
 ## UI debugging
 
 http://localhost:4200/tool/
+
+## Firefox extension versioning
+
+* <= 1.0.X  -> extension built for Firefox and distributed via our own update channe (unsigned)
+* 1.1.X     -> extension on/for AMO (signed by Firefox)
+* 1.2.X     -> extension build for the CLIQZ browser (signed by CLIQZ)
+* X.X.X.1bX -> beta version
+
