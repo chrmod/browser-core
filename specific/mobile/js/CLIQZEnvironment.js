@@ -133,7 +133,7 @@ CLIQZEnvironment = {
     });
 
     var showGooglethis = 1;
-    if(renderedResults.results[0].data.template == "noResult") {
+    if(!renderedResults.results[0] || renderedResults.results[0].data.template == "noResult") {
       showGooglethis = 0;
     }
 
@@ -157,7 +157,7 @@ CLIQZEnvironment = {
 
 
     var showGooglethis = 1;
-    if(results[0].data.template == "noResult") {
+    if(!results[0] || results[0].data.template == "noResult") {
       showGooglethis = 0;
     }
 
@@ -823,7 +823,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     return;
   }
   if(query.length <= 2) {
-    if(recentItems[0].query.indexOf(query) == 0 
+    if(recentItems[0] && recentItems[0].query.indexOf(query) == 0 
        && recentItems[0].query.length == 3
        && Date.now() - recentItems[0].timestamp < 5 * 1000) {
          recentItems.shift();
