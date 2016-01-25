@@ -1,12 +1,13 @@
 // not available in older FF versions
 try {
-  Components.utils.import("resource://gre/modules/osfile.jsm");
+  Components.utils.import('resource://gre/modules/osfile.jsm');
 } catch(e) { }
 
 function getFullPath(filePath) {
-  if ( !(filePath instanceof Array) ) {
+  if ( typeof filePath === 'string' ) {
     filePath = [filePath];
   }
+  CliqzUtils.log(JSON.stringify(filePath))
   return OS.Path.join(OS.Constants.Path.profileDir, ...filePath);
 }
 
@@ -22,6 +23,8 @@ export function writeFile(filePath, data) {
   return OS.File.writeAtomic(path, data);
 }
 
-export function mkdir(path) {
+export function mkdir(dirPath) {
+  let path = getFullPath(dirPath);
+
   return OS.File.makeDir(path, { ignoreExisting: true });
 }

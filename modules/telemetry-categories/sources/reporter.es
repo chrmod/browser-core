@@ -1,5 +1,5 @@
-import DATA from 'telemetry-categories/categories';
 import { utils } from 'core/cliqz';
+import { readFile } from 'core/fs';
 
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
@@ -13,17 +13,19 @@ const ONE_DAY = 24 * 60 * 60 * 1000,
 
 export default class {
 
-  constructor() {
+  constructor(categories) {
     // timers
     this.t0 = this.tH = this.tD = null;
+    this.isRunning = false;
+    this.categories = categories;
   }
 
   start() {
-		this.sendData();
-		//wait 5 minutes to do this operation
-		this.t0 = utils.setTimeout(this.sendHistoricalData, 5 * 60 *1000)
+    this.sendData();
+    //wait 5 minutes to do this operation
+    this.t0 = utils.setTimeout(this.sendHistoricalData, 5 * 60 *1000)
 
-		log('init');
+    log('init');
   }
 
   stop() {
@@ -42,7 +44,7 @@ export default class {
     //we can add more tests, eg - with path
 
     for(var k in tests){
-        var c = DATA[utils.hash(k)];
+        var c = this.categories[utils.hash(k)];
         if(c){
             var t = JSON.parse(utils.getPref('cat', '{}'))
             t[c] = t[c] || { v:0, d:0 };
@@ -92,7 +94,7 @@ export default class {
               //we can add more tests, eg - with path
 
               for(var k in tests){
-                  var c = DATA[utils.hash(k)];
+                  var c = this.categories[utils.hash(k)];
                   if(c){
                       t[c] = t[c] || {v:0, u:0, d:0}
                       t[c].u++;
@@ -100,7 +102,7 @@ export default class {
                       t[c].d = t[c].d < r.last_visit_date ? r.last_visit_date : t[c].d;
                   }
               }
-          },
+          }.bind(this),
           {
             date: (Date.now() - ONE_MONTH) * 1000
           }).then(function() {
