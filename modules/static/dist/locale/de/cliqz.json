@@ -990,13 +990,13 @@
       "message": "Nein, niemals"
     },
     "cliqz-onboarding-title": {
-      "message": "Woohoo! CLIQZ has successfully installed."
+      "message": "Juhuuu! CLIQZ wurde erfolgreich installiert."
     },
     "cliqz-onboarding-search-simple": {
       "message": "Suchen direkt im Browser. Einfach in die Browser-Zeile tippen und schon siehst du"
     },
     "cliqz-onboarding-suggestions": {
-      "message": "Website-Vorschläge"
+      "message": "Website-Vorschläge."
     },
     "cliqz-onboarding-start-fresh": {
       "message": "Startseite: Wenn du den Browser oder einen neuen Tab öffnest, siehst du deine Lieblingsseiten und Nachrichten."
