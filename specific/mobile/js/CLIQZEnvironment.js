@@ -94,6 +94,27 @@ CLIQZEnvironment = {
     }
   },
 
+  setCardsHeight: function() {
+    var ezs = document.getElementsByClassName("ez");
+
+    var body = document.body,
+        documentElement = document.documentElement,
+        height;
+
+    if (typeof document.height !== 'undefined') {
+      height = document.height; // For webkit browsers
+    } else {
+      height = Math.max( body.scrollHeight, body.offsetHeight,documentElement.clientHeight, documentElement.scrollHeight, documentElement.offsetHeight );
+    }
+
+    for(var i=0; i < ezs.length; i++) {
+      ezs[i].style.height = null;
+      if(ezs[i].clientHeight+64 < height) {
+        ezs[i].style.height = height-75 + 'px';
+      } 
+    }
+  },
+
   renderResults: function(r, historyCount) {
 
     var validCount = 0;
@@ -205,6 +226,7 @@ CLIQZEnvironment = {
     if(document.getElementById("currency-tpl")) {
       document.getElementById("currency-tpl").parentNode.removeAttribute("url");
     }
+
   },
   cacheResults: function(req) {
     var response = JSON.parse(req.response);
@@ -251,33 +273,13 @@ CLIQZEnvironment = {
     CLIQZEnvironment.initializeSharing();
 
 
-    /* set height
-
-    TODO
-    var ezs = document.getElementsByClassName("ez");
-
-    var B = document.body,
-          H = document.documentElement,
-          height
-
-    if (typeof document.height !== 'undefined') {
-      height = document.height // For webkit browsers
-    } else {
-      height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
-    }
-
-    for(var i=0;i<ezs.length;i++) {
-        ezs[i].style.height = height-60 + 'px';
-    }
-
-    end set height
-
-    */
-
-
+    CLIQZEnvironment.setCardsHeight();
 
 
     CLIQZEnvironment.setResultNavigation(renderedResults.results);
+
+    // TODO: Put highlightWord here
+
   },
   search: function(e, location_enabled, latitude, longitude) {
     CLIQZEnvironment.lastSearch = e;
@@ -974,3 +976,5 @@ CLIQZEnvironment.initializeSharing = function() {
        shareButtons[i].addEventListener("click",CLIQZEnvironment.shareContent);
   }
 }
+
+

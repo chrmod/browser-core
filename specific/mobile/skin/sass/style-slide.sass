@@ -16,6 +16,7 @@ body, html
   font-size: 16px
   padding: 0
   margin: 0
+  -webkit-text-size-adjust: 100%
 
 .noselect
   -webkit-touch-callout: none; /* iOS Safari */
@@ -302,6 +303,11 @@ a
         font-size: 0.75rem
         line-height: 16px
         color: rgba(0,0,0,0.38)
+        .tweet_count
+          color: #49C0F2
+          display: inline
+          img
+            height: 10px
     .main__image
       position: absolute
       top: 0
@@ -331,13 +337,13 @@ a
   .alert
     padding: 5px
     .header
-      font-size: 24px
-      line-height: 32px
+      font-size: 14px
+      line-height: 18px
       font-weight: 700
       color: #fff
     .info
-      font-size: 16px
-      line-height: 24px
+      font-size: 12px
+      line-height: 14px
       color: #fff
   .EZ-weather-container
     width: 25%
@@ -378,13 +384,6 @@ a
         font-weight: 700
 
 .main__image
-  -webkit-box-flex: 1
-  -moz-box-flex: 1
-  box-flex: 1
-  -webkit-flex: 1 0 auto
-  -moz-flex: 1 0 auto
-  -ms-flex: 1 0 auto
-  flex: 1 0 auto
   background-position: center
   background-size: cover
   background-repeat: no-repeat
@@ -393,7 +392,19 @@ a
   text-indent: -9999px
   margin-top: 12px
   position: relative
+  width: 96px
+  float: left
+  margin: 0 12px 12px 0
   &.many
+    -webkit-box-flex: 1
+    -moz-box-flex: 1
+    box-flex: 1
+    -webkit-flex: 1 0 auto
+    -moz-flex: 1 0 auto
+    -ms-flex: 1 0 auto
+    flex: 1 0 auto
+    width: auto
+    margin: 0
     text-indent: 0
     display: -webkit-box
     display: -moz-box
@@ -675,6 +686,17 @@ a
     line-height: 16px
     span
       color: #c80000
+
+#moreResults
+  display: block
+  color: #666
+  padding: 4px 8px 4px
+  font-size: 14px
+  line-height: 21px
+  border: 1px rgba(0, 0, 0, 0.2) solid
+  border-radius: 4px
+  background-color: rgba(0, 0, 0, 0.1)
+  position: relative
 
 .cta
   margin: 0
@@ -1096,6 +1118,16 @@ a
 
 .history
   padding: 0 1rem 1rem
+  #control
+    display: block
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    background-color: red
+    padding: 0.5rem
+    td
+      color: #fff
   .question
     @extend .clearfix
     padding: 1rem 0 0.1rem

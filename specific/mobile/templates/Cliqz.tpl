@@ -3,9 +3,8 @@
 <div class="cqz-result-h2 nopadding">
  <div class="EZ-Cliqz-Header"
         style="background-image: url({{cliqz_logo}})">
-        {{#each social_contact}}
-            <img  url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" data-src="{{logo}}" arrow-override=''/>
-        {{/each}}
+        <img url="https://twitter.com/cliqz" class="EZ-Cliqz_Header-Contact-icon" data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg" arrow-override="" src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg" arrow="true" style="text-decoration: none;">
+        <img url="https://www.facebook.com/cliqzde" class="EZ-Cliqz_Header-Contact-icon" data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-facebook.svg" arrow-override="" src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-facebook.svg">
  </div>
 
  {{#with slogan}}
@@ -21,24 +20,19 @@
             <a>{{local 'cliqz_common_questions'}}</a>
          </li>
         <li class="cqz-ez-btn"  url="{{Give_Feedback.url}}">
-            <a>{{local 'cliqz_common_questions'}}
-            {{local 'cliqz_give_feedback'}}</a>
+            <a>{{local 'cliqz_give_feedback'}}</a>
          </li>
         <li class="cqz-ez-btn" url="{{About_Us.url}}">
-            <a>{{local 'cliqz_common_questions'}}
-            {{local 'cliqz_about_us'}}</a>
+            <a>{{local 'cliqz_about_us'}}</a>
          </li>
         <li class="cqz-ez-btn"  url="{{Jobs.url}}">
-            <a>{{local 'cliqz_common_questions'}}
-            {{local 'cliqz_jobs'}}</a>
+            <a>{{local 'cliqz_jobs'}}</a>
          </li>
         <li class="cqz-ez-btn" url="{{Privacy.url}}">
-            <a>{{local 'cliqz_common_questions'}}
-            {{local 'cliqz_privacy'}}</a>
+            <a>{{local 'cliqz_privacy'}}</a>
         </li>
         <li class="cqz-ez-btn"  url="{{Blog.url}}">
-            <a>{{local 'cliqz_common_questions'}}
-            {{local 'cliqz_blog'}}</a>
+            <a>{{local 'cliqz_blog'}}</a>
         </li>
     </ul>
  </div>
