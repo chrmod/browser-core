@@ -173,31 +173,6 @@ function getHeaderMD5(headers) {
     return qsMD5;
 };
 
-function getQSMD5(qs, ps) {
-    if(typeof qs == 'string') qs = getParametersQS(qs);
-    if(ps === undefined) ps = {};
-    var qsMD5 = {};
-    for (var key in qs) {
-        var tok = dURIC(qs[key]);
-        while (tok != dURIC(tok)) {
-            tok = dURIC(tok);
-        }
-        if (tok.length >= 8) {
-            qsMD5[md5(key)] = md5(tok);
-        }
-    }
-    for (var key in ps) {
-        var tok = dURIC(ps[key]);
-        while (tok != dURIC(tok)) {
-            tok = dURIC(tok);
-        }
-        if (tok.length >= 8) {
-            qsMD5[md5(key)] = md5(tok);
-        }
-    }
-    return qsMD5;
-};
-
 /**
     URLInfo class: holds a parsed URL.
 */
@@ -222,14 +197,32 @@ URLInfo.get = function(url) {
 URLInfo.prototype = {
     toString: function() {
         return this.url_str;
+    },
+    getKeyValues: function () {
+      var kvList = [];
+      for (let kv of [this.query_keys, this.parameter_keys]) {
+        for (let key in kv) {
+          kvList.push({k: key, v: kv[key]});
+        }
+      }
+      return kvList;
+    },
+    getKeyValuesMD5: function () {
+      var kvList = this.getKeyValues();
+      return kvList.map(function (kv) {
+        kv.k_len = kv.k.length;
+        kv.v_len = kv.v.length;
+        kv.k = md5(kv.k);
+        kv.v = md5(kv.v);
+        return kv;
+      });
     }
-}
+};
 
 export {
   parseURL,
   getParametersQS,
   dURIC,
   getHeaderMD5,
-  getQSMD5,
   URLInfo
 };
