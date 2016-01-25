@@ -84,6 +84,15 @@ CLIQZEnvironment = {
   setDimensions: function() {
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
+  shiftResults: function() {
+    var frames = document.getElementsByClassName('frame');
+    for (var i = 0; i < frames.length; i++) {
+      var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
+      left = parseInt(left);
+      left -= (left / (i + 1))
+      frames[i].style.left = left + 'px';
+    }
+  },
 
   setCardsHeight: function() {
     var ezs = document.getElementsByClassName("ez");
@@ -302,6 +311,10 @@ CLIQZEnvironment = {
       CLIQZEnvironment.stopProgressBar();
       return;
     }
+
+    //TODO: work around for now
+    urlbar.value = e.toLowerCase().trim();
+
     resultsBox.style.display = 'block';
     window.document.getElementById("startingpoint").style.display = 'none';
 
@@ -778,7 +791,7 @@ CLIQZEnvironment = {
     if(engineDiv && CliqzAutocomplete.lastSearch) {
       engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
       var moreResults = document.getElementById("moreResults")
-      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_result_action', engine.name));
+      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
       var noResults = document.getElementById("noResults")
       noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
     }
@@ -808,15 +821,24 @@ CLIQZEnvironment = {
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
   var recentItems = CLIQZEnvironment.getRecentQueries();
+  if(query.match(/http[s]{0,1}:/)) {
+    return;
+  }
+  if(query.length <= 2) {
+    if(recentItems[0].query.indexOf(query) == 0 
+       && recentItems[0].query.length == 3
+       && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+         recentItems.shift();
+         localStorage.setItem("recentQueries",JSON.stringify(recentItems));
+       }
+    return;
+  }
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2
-            && Date.now() - recentItems[0].timestamp < 5 * 1000
-            && query.length > 2
-            && !query.match(/http[s]{0,1}:/)
-            ) {
-    recentItems[0] = {id: recentItems[0].id, query:query,timestamp:Date.now()};
+            && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+    recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   } else {
     recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});

@@ -9,7 +9,7 @@
 		<div class="main__image many">
 		  {{#each images}}
 			<div url="{{ get_array_element ../images_meta @index 'ref_url'}}" class="main__image__many" 
-				style="background-image: url({{this}})" alt="{{data.richData.map.alt_text}}">
+				data-style="background-image: url({{this}})" alt="{{data.richData.map.alt_text}}">
 			</div>
 		  {{/each}}
 		</div>
