@@ -1793,12 +1793,9 @@ var CliqzAttrack = {
         var today = datetime.getTime().substr(0, 8);
 
         if (url_parts['query'].length == 0 && url_parts['parameters'].length == 0) return [];
-        var w = url_parts['query_keys'],
-            p = url_parts['parameter_keys'],
-            tok;
+        var tok;
 
         var badTokens = [];
-        var w2 = {};
 
         // stats keys
         ['cookie', 'private', 'cookie_b64', 'private_b64', 'safekey', 'whitelisted',
@@ -1947,13 +1944,11 @@ var CliqzAttrack = {
                     stats['whitelisted']++;
             }
         };
-        // both QS and parameter string
-        for (var key in w) {
-            _checkTokens(key, w[key]);
-        }
-        for (var key in p) {
-            _checkTokens(key, p[key]);
-        }
+
+        url_parts.getKeyValues().forEach(function (kv) {
+          _checkTokens(kv.k, kv.v);
+        });
+
         // update blockedToken
         var hour = datetime.getTime();
         if (!(hour in CliqzAttrack.blockedToken)) CliqzAttrack.blockedToken[hour] = 0;
