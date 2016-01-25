@@ -29,11 +29,12 @@ function renderNews(news) {
   Slider.init({
     "totalNews": $(".onlyTopNews li").length
   });
-  $('.topNewsLink').on('click', function() {
+  $('.topNewsLink').on('click', function(e) {
     CliqzUtils.telemetry({
       type: 'home',
       action: 'click',
       target_type: 'topnews',
+      extra: e.target.getAttribute('extra'),
       target_index: $(this).attr('data-index')
     });
   });
