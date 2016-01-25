@@ -8,7 +8,7 @@ import HeaderInfoVisitor from 'antitracking/header-info-visitor';
 import { HttpRequestContext, getRefToSource } from 'antitracking/http-request-context';
 import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
-import { parseURL, dURIC, getHeaderMD5, getQSMD5, URLInfo } from 'antitracking/url';
+import { parseURL, dURIC, getHeaderMD5, URLInfo } from 'antitracking/url';
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
 import * as hash from 'antitracking/hash';
 import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
@@ -1441,16 +1441,22 @@ var CliqzAttrack = {
         var payl = CliqzAttrack.generatePayload(data, datetime.getTime(), true, true);
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
     },
-    cacheInstantTokens: function(s, r, k, tok) {
+    cacheInstantTokens: function(s, r, kv) {
         // If this is the first apperance of this token within an hour,
         // We will cache it and send every five minutes
+        var k = kv.k,
+            tok = kv.v;
         if (!(s in CliqzAttrack.instantTokenCache))
             CliqzAttrack.instantTokenCache[s] = {};
         if (!(r in CliqzAttrack.instantTokenCache[s]))
             CliqzAttrack.instantTokenCache[s][r] = {'kv' : {}};
         if (!(k in CliqzAttrack.instantTokenCache[s][r]['kv']))
             CliqzAttrack.instantTokenCache[s][r]['kv'][k] = {};
-        CliqzAttrack.instantTokenCache[s][r]['kv'][k][tok] = 1;
+        CliqzAttrack.instantTokenCache[s][r]['kv'][k][tok] = {
+          c: 1,
+          k_len: kv.k_len,
+          v_len: kv.v_len
+        };
     },
     sendInstantTokens: function(){
         if (Object.keys(CliqzAttrack.instantTokenCache) > 0) {
@@ -1980,16 +1986,19 @@ var CliqzAttrack = {
         // mark field name as "safe" if different values appears
         var s = getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
-        var w = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']);
-        for (var key in w) {
+        url_parts.getKeyValuesMD5().filter(function (kv) {
+          return kv.v_len >= 8;
+        }).forEach(function (kv) {
+            var key = kv.k,
+                tok = kv.v;
             if (CliqzAttrack.safeKey[s] &&
                 CliqzAttrack.safeKey[s][key])
-                continue;
+                return;
             if (CliqzAttrack.requestKeyValue[s] == null)
                 CliqzAttrack.requestKeyValue[s] = {};
             if (CliqzAttrack.requestKeyValue[s][key] == null)
                 CliqzAttrack.requestKeyValue[s][key] = {};
-            var tok = w[key];
+
             CliqzAttrack.requestKeyValue[s][key][tok] = today;
             // see at least 3 different value until it's safe
             if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > 2) {
@@ -2004,12 +2013,12 @@ var CliqzAttrack = {
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};
             }
             CliqzAttrack._requestKeyValue.setDirty();
-        }
+        });
     },
     extractKeyTokens: function(url_parts, refstr) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
-        var keyTokens = getQSMD5(url_parts['query_keys'], url_parts['parameter_keys']),
+        var keyTokens = url_parts.getKeyValuesMD5(),
             s = md5(url_parts.hostname).substr(0, 16);
         refstr = md5(refstr).substr(0, 16);
         CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.cacheInstantTokens);
@@ -2017,12 +2026,18 @@ var CliqzAttrack = {
     extractHeaderTokens: function(url_parts, refstr, header) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
-        var keyTokens = {};
-        var w = getHeaderMD5(header);
-        for (var k in w) {
-            var tok = w[k];
+        var keyTokens = [];
+        for (var k in header) {
+            var tok = header[k];
             tok = dURIC(dURIC(tok));
-            if (tok.length >=8) keyTokens[k] = tok;
+            if (tok.length >=8) {
+              keyTokens.push({
+                k: md5(k),
+                v: md5(tok),
+                k_len: k.length,
+                v_len: tok.length
+              });
+            }
         }
         if (Object.keys(keyTokens).length > 0) {
             var s = md5(url_parts.hostname + url_parts.path);
@@ -2060,19 +2075,24 @@ var CliqzAttrack = {
     },
     saveKeyTokens: function(s, keyTokens, r, callback) {
         // anything here should already be hash
-        if (Object.keys(keyTokens).length == 0) return;
+        if (keyTokens.length === 0) return;
         if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {};
         if (CliqzAttrack.tokens[s][r] == null) CliqzAttrack.tokens[s][r] = {'c': 0, 'kv': {}};
         CliqzAttrack.tokens[s][r]['c'] =  (CliqzAttrack.tokens[s][r]['c'] || 0) + 1;
-        for (var k in keyTokens) {
-            var tok = keyTokens[k];
+        for (var kv of keyTokens) {
+            var tok = kv.v,
+                k = kv.k;
             if (CliqzAttrack.tokens[s][r]['kv'][k] == null) CliqzAttrack.tokens[s][r]['kv'][k] = {};
             if (CliqzAttrack.tokens[s][r]['kv'][k][tok] == null) {
-                CliqzAttrack.tokens[s][r]['kv'][k][tok] = 0;
+                CliqzAttrack.tokens[s][r]['kv'][k][tok] = {
+                  c: 0,
+                  k_len: kv.k_len,
+                  v_len: kv.v_len
+                };
                 // TODO: replace count with checksum
-                callback(s, r, k, tok);
+                callback(s, r, kv);
             }
-            CliqzAttrack.tokens[s][r]['kv'][k][tok] += 1;
+            CliqzAttrack.tokens[s][r]['kv'][k][tok].c += 1;
         }
         this._tokens.setDirty();
     },
