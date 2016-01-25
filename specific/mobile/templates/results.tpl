@@ -25,7 +25,7 @@
 {{/each}}
 
 {{#if googleThis }}
-	{{#showSearch results}}
+	{{#ifShowSearch results}}
 		{{#with googleThis }}
 			<!-- googlethis -->
 			<div id="defaultEngine" url="{{searchEngineUrl}}{{searchString}}" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
@@ -39,7 +39,7 @@
 			</div>
 			<!-- end googlethis -->
 		{{/with}}
-	{{/showSearch}}
+	{{/ifShowSearch}}
 {{/if}}
 
 <div class='cqz-result-selected transition'></div>
