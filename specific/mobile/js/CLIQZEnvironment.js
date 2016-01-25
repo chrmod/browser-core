@@ -815,6 +815,13 @@ CLIQZEnvironment = {
         subType: JSON.stringify({empty:true})
       }
     )
+  },
+  setClientPreferences: function(prefs) {
+    for (var key in prefs) {
+      if (prefs.hasOwnProperty(key)) {
+        CLIQZEnvironment.setPref(key, prefs[key])
+      }
+    }
   }
 
 }
