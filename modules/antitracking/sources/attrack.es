@@ -102,6 +102,7 @@ var CliqzAttrack = {
     tokenDomainCountThreshold: 2,
     safeKeyExpire: 7,
     localBlockExpire: 24,
+    shortTokenLength: 8,
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     placeHolder: '',
@@ -191,7 +192,7 @@ var CliqzAttrack = {
         //     if (val.length >= 8)
         //         p[val] = true;
         // }
-        // plugins
+        // plugin
         for (var i = 0; i < navigator.plugins.length; i++) {
             var name = navigator.plugins[i].name;
             if (name.length >= 8) {
@@ -1677,6 +1678,8 @@ var CliqzAttrack = {
             // tracker.txt and they can be removed by the AB test but we will lose data collection
             // if ('obfuscateMethod' in versioncheck) CliqzAttrack.obfuscateMethod = versioncheck['obfuscateMethod'];
             if ('placeHolder' in versioncheck) CliqzAttrack.placeHolder = versioncheck['placeHolder'];
+            // version check may specify the cutoff for short tokens (default 8.)
+            if (versioncheck.shortTokenLength) CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength);
         }, function() {
             // on error: just try and load anyway
             if (CliqzAttrack.debug) CliqzUtils.log("error checking token list versions", "attrack");
@@ -1869,11 +1872,11 @@ var CliqzAttrack = {
                 tok = dURIC(tok);
             }
 
-            if (tok.length < 8 || source_url.indexOf(tok) > -1) return;
+            if (tok.length < CliqzAttrack.shortTokenLength || source_url.indexOf(tok) > -1) return;
 
             // Bad values (cookies)
             for (var c in cookievalue) {
-                if ((tok.indexOf(c) > -1 && c.length > 8) || c.indexOf(tok) > -1) {
+                if ((tok.indexOf(c) > -1 && c.length >= CliqzAttrack.shortTokenLength) || c.indexOf(tok) > -1) {
                     if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + val, 'tokk');
                     var cc = _countCheck(tok);
                     if (c != tok) {
@@ -1886,7 +1889,7 @@ var CliqzAttrack = {
 
             // private value (from js function returns)
             for (var c in CliqzAttrack.privateValues) {
-                if ((tok.indexOf(c) > -1 && c.length > 8) || c.indexOf(tok) > -1) {
+                if ((tok.indexOf(c) > -1 && c.length >= CliqzAttrack.shortTokenLength) || c.indexOf(tok) > -1) {
                     if (CliqzAttrack.debug) CliqzUtils.log('same private values ' + val, 'tokk');
                     var cc = _countCheck(tok);
                     if (c != tok) {
@@ -1903,7 +1906,7 @@ var CliqzAttrack = {
             }
             if (b64 != null) {
                 for (var c in cookievalue) {
-                    if ((b64.indexOf(c) > -1 && c.length > 8) || c.indexOf(b64) > -1) {
+                    if ((b64.indexOf(c) > -1 && c.length >= CliqzAttrack.shortTokenLength) || c.indexOf(b64) > -1) {
                         if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + b64, 'tokk-b64');
                         var cc = _countCheck(tok);
                         if (c != tok) {
@@ -1914,7 +1917,7 @@ var CliqzAttrack = {
                     }
                 }
                 for (var c in CliqzAttrack.privateValues) {
-                    if (b64.indexOf(c) > -1 && c.length > 8) {
+                    if (b64.indexOf(c) > -1 && c.length >= CliqzAttrack.shortTokenLength) {
                         if (CliqzAttrack.debug) CliqzUtils.log('same private values ' + b64, 'tokk-b64');
                         var cc = _countCheck(tok);
                         if (c != tok) {
@@ -1987,7 +1990,7 @@ var CliqzAttrack = {
         var s = getGeneralDomain(url_parts.hostname);
         s = md5(s).substr(0, 16);
         url_parts.getKeyValuesMD5().filter(function (kv) {
-          return kv.v_len >= 8;
+          return kv.v_len >= CliqzAttrack.shortTokenLength;
         }).forEach(function (kv) {
             var key = kv.k,
                 tok = kv.v;
@@ -2030,7 +2033,7 @@ var CliqzAttrack = {
         for (var k in header) {
             var tok = header[k];
             tok = dURIC(dURIC(tok));
-            if (tok.length >=8) {
+            if (tok.length >= CliqzAttrack.shortTokenLength) {
               keyTokens.push({
                 k: md5(k),
                 v: md5(tok),
@@ -2050,7 +2053,7 @@ var CliqzAttrack = {
             cookies[p] = true;
         }
         for (var c in cookies) {
-            if (c.length < 8) continue;
+            if (c.length < CliqzAttrack.shortTokenLength) continue;
             var cc = [c, encodeURIComponent(c)];
             for (var i = 0; i < cc.length; i ++) {
                 var r = cc[i];
