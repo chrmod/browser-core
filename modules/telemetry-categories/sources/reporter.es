@@ -66,7 +66,8 @@ export default class {
     if(Object.keys(data).length !== 0){
       var action = {
         type: 'cat',
-        data: data
+        data: data,
+        version: this.categories.version,
       };
       utils.setPref('cat', '{}');
 
@@ -109,6 +110,7 @@ export default class {
             var action = {
               type: 'cat_history',
               data: t,
+              version: this.categories.version,
               duration: Date.now()-start
             };
 
