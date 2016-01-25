@@ -246,6 +246,9 @@ var UI = {
                     }
                     else if (currentResults.results.length == 0) {
                       UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                    } 
+                    else if (CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
+                        CLIQZEnvironment.shiftResults();
                     }
                 }
                 else {

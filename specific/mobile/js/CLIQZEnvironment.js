@@ -84,6 +84,15 @@ CLIQZEnvironment = {
   setDimensions: function() {
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
+  shiftResults: function() {
+    var frames = document.getElementsByClassName('frame');
+    for (var i = 0; i < frames.length; i++) {
+      var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
+      left = parseInt(left);
+      left -= (left / (i + 1))
+      frames[i].style.left = left + 'px';
+    }
+  },
 
   renderResults: function(r, historyCount) {
 
@@ -300,6 +309,10 @@ CLIQZEnvironment = {
       CLIQZEnvironment.stopProgressBar();
       return;
     }
+
+    //TODO: work around for now
+    urlbar.value = e.toLowerCase().trim();
+
     resultsBox.style.display = 'block';
     window.document.getElementById("startingpoint").style.display = 'none';
 
