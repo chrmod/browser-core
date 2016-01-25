@@ -99,8 +99,6 @@ var debugcss = "background-color:#00aa00;display:block;"
 
 CLIQZEnvironment.openLinksAllowed = true;
 
-CliqzUtils.setPref("adultContentFilter","moderate");
-
 
 CliqzUtils.requestMonitor.inHealth = function() { return true; }
 
