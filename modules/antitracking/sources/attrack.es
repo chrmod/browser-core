@@ -192,7 +192,7 @@ var CliqzAttrack = {
         //     if (val.length >= 8)
         //         p[val] = true;
         // }
-        // plugin
+        // plugins
         for (var i = 0; i < navigator.plugins.length; i++) {
             var name = navigator.plugins[i].name;
             if (name.length >= 8) {
