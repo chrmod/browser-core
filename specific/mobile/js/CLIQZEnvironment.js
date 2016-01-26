@@ -817,8 +817,8 @@ CLIQZEnvironment = {
     )
   },
   setClientPreferences: function(prefs) {
-    for (var key in p) {
-      if (p.hasOwnProperty(key)) {
+    for (var key in prefs) {
+      if (prefs.hasOwnProperty(key)) {
         CLIQZEnvironment.setPref(key, prefs[key])
       }
     }
