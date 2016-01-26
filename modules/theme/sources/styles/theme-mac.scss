@@ -40,7 +40,7 @@
 #pocket-button,
 #restore-button),
 #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    list-style-image: url("../../dist/images/browser/mac/Toolbar.png");
+    list-style-image: url("./images/browser/mac/Toolbar.png");
 }
 
 #main-window {
@@ -207,10 +207,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 .tabs-newtab-button,
 #TabsToolbar > #new-tab-button,
 #TabsToolbar > toolbarpaletteitem > #new-tab-button {
-    list-style-image: url("../../dist/images/browser/mac/newtab.png");
+    list-style-image: url("./images/browser/mac/newtab.png");
 }
 
-.close-icon { list-style-image: url("../../dist/images/browser/mac/close.png");  }
+.close-icon { list-style-image: url("./images/browser/mac/close.png");  }
 
 /*========== End Tabs =========*/
 
@@ -271,10 +271,10 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     .tabs-newtab-button,
     #TabsToolbar > #new-tab-button,
     #TabsToolbar > toolbarpaletteitem > #new-tab-button {
-        list-style-image: url("../../dist/images/browser/mac/newtab@2x.png");
+        list-style-image: url("./images/browser/mac/newtab@2x.png");
     }
 
-    .close-icon { list-style-image: url("../../dist/images/browser/mac/close@2x.png");  }
+    .close-icon { list-style-image: url("./images/browser/mac/close@2x.png");  }
 }
 
 @media (min-resolution: 1.1dppx) {
@@ -318,7 +318,7 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     #pocket-button,
     #restore-button),
     #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-        list-style-image: url("../../dist/images/browser/mac/Toolbar@2x.png");
+        list-style-image: url("./images/browser/mac/Toolbar@2x.png");
     }
 }
 
