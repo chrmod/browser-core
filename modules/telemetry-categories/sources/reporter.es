@@ -37,6 +37,12 @@ export default class {
 		log('unloaded');
   }
 
+  updateCategories( categories ) {
+    this.sendData();
+
+    this.categories = categories;
+  }
+
   assess(url) {
     var u = utils.getDetailsFromUrl(url), tests = {};
     tests[u.host] = true;
@@ -60,6 +66,8 @@ export default class {
   }
 
   sendData(){
+    utils.clearInterval( this.tD );
+
     log('send DATA');
 
     var data = JSON.parse(utils.getPref('cat', '{}'));
@@ -78,7 +86,11 @@ export default class {
   }
 
   sendHistoricalData(){
+    utils.clearInterval( this.tH );
+
     log('send HISTORY');
+
+    var categories = this.categories;
 
     var start = Date.now(), t = {};
     //send the signal maximum 1 time per day
@@ -95,7 +107,7 @@ export default class {
               //we can add more tests, eg - with path
 
               for(var k in tests){
-                  var c = this.categories[utils.hash(k)];
+                  var c = categories[utils.hash(k)];
                   if(c){
                       t[c] = t[c] || {v:0, u:0, d:0}
                       t[c].u++;
@@ -110,7 +122,7 @@ export default class {
             var action = {
               type: 'cat_history',
               data: t,
-              version: this.categories.version,
+              version: categories.version,
               duration: Date.now()-start
             };
 

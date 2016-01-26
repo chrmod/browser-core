@@ -30,7 +30,7 @@ export default {
         return;
       }
 
-      this.reporter.categories = categories;
+      this.reporter.updateCategories( categories );
     });
   },
 
