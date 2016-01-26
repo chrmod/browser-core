@@ -3,22 +3,22 @@ import MapCache from 'antitracking/fixed-size-cache';
 
 function parseURL(url) {
     /*  Parse a URL string into a set of sub-components, namely:
-        - protocol
-        - username
-        - password
-        - hostname
-        - port
-        - path
-        - parameters (semicolon separated key-values before the query string)
-        - query (? followed by & separated key-values)
-        - fragment (after the #)
-        Given a valid string url, this function returns an object with the above
-        keys, each with the value of that component, or empty string if it does not
-        appear in the url.
+     - protocol
+     - username
+     - password
+     - hostname
+     - port
+     - path
+     - parameters (semicolon separated key-values before the query string)
+     - query (? followed by & separated key-values)
+     - fragment (after the #)
+     Given a valid string url, this function returns an object with the above
+     keys, each with the value of that component, or empty string if it does not
+     appear in the url.
 
-        Additionally, any key-value pairs found in the parameters, query and fragment
-        components are extracted into objects in 'parameter_keys', query_keys' and
-        'fragment_keys' respectively.
+     Additionally, any key-value pairs found in the parameters, query and fragment
+     components are extracted into objects in 'parameter_keys', query_keys' and
+     'fragment_keys' respectively.
      */
     var o = {};
 
@@ -84,7 +84,7 @@ function parseURL(url) {
         return null;
     }
     return o;
-  };
+};
 
 function getParametersQS(qs) {
     var res = {},
@@ -119,16 +119,18 @@ function getParametersQS(qs) {
     var quotes = '';
     for(let i=0; i<qs.length; i++) {
         let c = qs.charAt(i);
-        if (c == '"' || c == "'") {
-            if (quotes.slice(-1) == c)
+        if (c === '"' || c === "'") {
+            if (quotes.slice(-1) === c) {
                 quotes = quotes.slice(0, quotes.length - 1);
-            else
+            }
+            else {
                 quotes += c;
+            }
         }
         if(c == '=' && state == 'key' && k.length > 0) {
             state = 'value';
             continue;
-        } else if((c == '&' || c == ';') && quotes == '') {
+        } else if((c === '&' || c === ';') && quotes === '') {
             if(state == 'value') {
                 state = 'key';
                 // in case the same key already exists
@@ -142,12 +144,12 @@ function getParametersQS(qs) {
             continue;
         }
         switch(state) {
-            case 'key':
-                k += c;
-                break;
-            case 'value':
-                v += c;
-                break;
+        case 'key':
+            k += c;
+            break;
+        case 'value':
+            v += c;
+            break;
         }
     }
     if(state == 'value') {
@@ -159,12 +161,14 @@ function getParametersQS(qs) {
     return _flattenJson(res);
 };
 
+// The value in query strings can be a json object, we need to extract the key-value pairs out
 function _flattenJson(obj) {
-    if (typeof obj == 'string' && (obj.indexOf('{') > -1 || obj.indexOf('[') > -1)) {
+    if (typeof obj === 'string' && (obj.indexOf('{') > -1 || obj.indexOf('[') > -1)) {
         try {
             obj = JSON.parse(obj);
-            if (typeof obj != 'object' && typeof obj != 'array')
+            if (typeof obj !== 'object' && typeof obj !== 'array') {
                 obj = JSON.stringify(obj);
+            }
         } catch(e) {}
     }
     var res = {};
@@ -172,22 +176,23 @@ function _flattenJson(obj) {
     case 'object':
         for (var key in obj) {
             var r = _flattenJson(obj[key]);
-            for (var _key in r)
+            for (var _key in r) {
                 res[key + _key] = r[_key];
+            }
         }
         break;
     case 'array':
-        for (var i = 0; i < obj.length; i ++) {
-            var r = _flattenJson(obj[i]);
-            for (var _key in r)
+        obj.forEach(function(e, i) {
+            var r = _flattenJson(e);
+            for (var _key in r) {
                 res[i + _key] = r[_key];
-        }
+            }
+        });
         break;
     case 'number':
         obj = JSON.stringify(obj);
     default:
         res[''] = obj;
-        return res;
     }
     return res;
 };
@@ -214,8 +219,8 @@ function getHeaderMD5(headers) {
 };
 
 /**
-    URLInfo class: holds a parsed URL.
-*/
+ URLInfo class: holds a parsed URL.
+ */
 var URLInfo = function(url) {
     this.url_str = url;
     // map parsed url parts onto URL object
@@ -239,30 +244,30 @@ URLInfo.prototype = {
         return this.url_str;
     },
     getKeyValues: function () {
-      var kvList = [];
-      for (let kv of [this.query_keys, this.parameter_keys]) {
-        for (let key in kv) {
-          kvList.push({k: key, v: kv[key]});
+        var kvList = [];
+        for (let kv of [this.query_keys, this.parameter_keys]) {
+            for (let key in kv) {
+                kvList.push({k: key, v: kv[key]});
+            }
         }
-      }
-      return kvList;
+        return kvList;
     },
     getKeyValuesMD5: function () {
-      var kvList = this.getKeyValues();
-      return kvList.map(function (kv) {
-        kv.k_len = kv.k.length;
-        kv.v_len = kv.v.length;
-        kv.k = md5(kv.k);
-        kv.v = md5(kv.v);
-        return kv;
-      });
+        var kvList = this.getKeyValues();
+        return kvList.map(function (kv) {
+            kv.k_len = kv.k.length;
+            kv.v_len = kv.v.length;
+            kv.k = md5(kv.k);
+            kv.v = md5(kv.v);
+            return kv;
+        });
     }
 };
 
 export {
-  parseURL,
-  getParametersQS,
-  dURIC,
-  getHeaderMD5,
-  URLInfo
+    parseURL,
+    getParametersQS,
+    dURIC,
+    getHeaderMD5,
+    URLInfo
 };
