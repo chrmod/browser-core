@@ -43,8 +43,8 @@ CLIQZEnvironment = {
           }
           if( CliqzHandlebars.tplCache[template] ) {
             CLIQZ.UI.enhanceResults(r);
-            if(document.getElementById("ez-" + index) && r.results[0] && r.results[0].data.template != "noResult") {
-              document.getElementById("ez-" + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
+            if(document.getElementById("cqz-result-box-" + index) && r.results[0] && r.results[0].data.template != "noResult") {
+              document.getElementById("cqz-result-box-" + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
         }
@@ -95,7 +95,7 @@ CLIQZEnvironment = {
   },
 
   setCardsHeight: function() {
-    var ezs = document.getElementsByClassName("ez");
+    var ezs = document.getElementsByClassName("cqz-result-box");
 
     var body = document.body,
         documentElement = document.documentElement,
@@ -605,8 +605,8 @@ CLIQZEnvironment = {
       if(CLIQZEnvironment){
         if(isMixerUrl(url)){
           CliqzUtils.log("resendRequest(true)","onerror");
+          setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
         }
-        resendRequest(true);
         Logger.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
         onerror && onerror();
       }
@@ -622,7 +622,9 @@ CLIQZEnvironment = {
 
       if(CLIQZEnvironment){ //might happen after disabling the extension
         CliqzUtils.log("RESENDING","ONTIMEOUT");
-        resendRequest(true);
+        if(isMixerUrl(url)){
+          setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
+        }
         Logger.log( "resending: timeout for " + url, "CLIQZEnvironment.httpHandler");
         onerror && onerror();
       }

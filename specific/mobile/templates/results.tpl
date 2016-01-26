@@ -2,7 +2,7 @@
 {{#each results}}
 	{{#unless invalid}}
 		<div class="frame" {{#if ../../frameWidth }} style="width: {{ ../../../frameWidth }}px; left: {{ left }}px" {{/if}}>
-			<div class="ez"
+			<div class="cqz-result-box"
 				type='{{ type }}'
 				kind='{{ kind_printer data.kind }}'
 				{{#if url}}
@@ -12,7 +12,7 @@
 					{{/unless}}
 				{{/if}}
 				idx='{{ @index }}'
-				id='ez-{{ @index }}'
+				id='cqz-result-box-{{ @index }}'
 				hasimage='{{ hasimage image }}'
 				>
 					{{partial vertical}}
@@ -29,7 +29,7 @@
 		{{#with googleThis }}
 			<!-- googlethis -->
 			<div id="defaultEngine" url="{{searchEngineUrl}}{{searchString}}" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
-			  <div class="ez">
+			  <div class="cqz-result-box">
 			    <div id="googleThisAnim">
 				    <img src="skin/img/icon-google.svg"><br>
 			        <div>{{ title }}</div><br>

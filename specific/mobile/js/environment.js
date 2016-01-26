@@ -23,10 +23,7 @@ function resendRequest(forceResend) {
 }
 
 function isMixerUrl(url) {
-  if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0) {
-    return true;
-  }
-  return false;
+  return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0;
 }
 
 window.addEventListener('load', function() {
