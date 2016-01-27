@@ -116,6 +116,10 @@ function displayData(data) {
     } else {
       return;
     }
+    if(isTapBlocked) {
+      isTapBlocked = false;
+      return;
+    }
     if(editMode) {
       selectItem(this);
     } else {
@@ -123,6 +127,7 @@ function displayData(data) {
     }
   });
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchmove', function () {
+    isTapBlocked = true;
     clearTimeout(touchTimer);
   });
 }
@@ -265,6 +270,6 @@ function selectItem(item) {
   }
 }
 
-var touchTimer;
+var touchTimer, isTapBlocked;
 
 osBridge.searchHistory("", "showHistory")
