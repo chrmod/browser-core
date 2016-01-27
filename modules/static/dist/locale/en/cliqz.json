@@ -965,6 +965,9 @@
     "freshtab_top_sites": {
       "message": "Top Sites"
     },
+    "mobile_reconnecting_msg": {
+      "message": "Re-establishing lost internet connection"
+    },
     "mobile_no_result_title": {
       "message": "We don't have great results this time."
     },
