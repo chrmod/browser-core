@@ -123,6 +123,9 @@ HttpRequestContext.prototype = {
       return this.getOuterWindowID();
     }
   },
+  isChannelPrivate() {
+    return this.channel.QueryInterface(Ci.nsIPrivateBrowsingChannel).isChannelPrivate;
+  },
   _legacyGetSource: function() {
     if (this._legacy_source === undefined) {
       this._legacy_source = getRefToSource(this.subject, this.getReferrer());

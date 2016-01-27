@@ -238,9 +238,6 @@ var CliqzAttrack = {
         }
         return cookieVal;
     },
-    isChannelPrivate(aChannel) {
-        return aChannel.QueryInterface(Ci.nsIPrivateBrowsingChannel).isChannelPrivate;
-    },
     httpopenObserver: {
         observe : function(subject, topic, data) {
             if ((CliqzAttrack.isBloomFilterEnabled() && CliqzAttrack.bloomFilter === null) ||
@@ -264,8 +261,8 @@ var CliqzAttrack = {
             }
 
             // find the ok tokens fields
-            var isPrivate = CliqzAttrack.isChannelPrivate(aChannel);
-            if (isPrivate) {
+            var isPrivate = requestContext.isChannelPrivate();
+            if (!isPrivate) {
                 CliqzAttrack.examineTokens(url_parts, CliqzAttrack.examineTokensCallback);
             }
 
@@ -563,7 +560,7 @@ var CliqzAttrack = {
             }
             var aChannel = subject.QueryInterface(nsIHttpChannel),
                 requestContext = new HttpRequestContext(subject),
-                isPrivate = CliqzAttrack.isChannelPrivate(aChannel),
+                isPrivate = requestContext.isChannelPrivate();
                 url = requestContext.url;
             if (!url || url == '') return;
             var visitor = new HeaderInfoVisitor(aChannel);
