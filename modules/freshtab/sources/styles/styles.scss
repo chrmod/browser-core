@@ -378,6 +378,10 @@ a:hover, a:active, a:focus {
   font-size: 18px;
 }
 
+.optinContent li:last-child {
+  padding-bottom: 25px;
+}
+
 .optinContent li div{
   margin-left: 60px;
   text-align: left;
@@ -414,10 +418,9 @@ a:hover, a:active, a:focus {
   display: inline-block;
   line-height: 26px;
   margin: 0 7px 4px 0;
-  padding: 5px 9px;
+  padding: 5px 15px;
   text-decoration: none;
   background-color: #FF5349;
-  width: 115px;
   height: 30px;
   font-size: 18px;
 }
