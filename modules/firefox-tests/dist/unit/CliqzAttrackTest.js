@@ -625,6 +625,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           // mock safekey URL
           CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
           persist.set_value("safeKeyExtVersion", "");
+          CliqzAttrack._safekey.clear();
           CliqzAttrack.safeKey = {};
         });
 
@@ -755,8 +756,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
         beforeEach(function() {
           // setup clean state
           persist.set_value("safeKeyExtVersion", "");
-          persist.clear_persistent(CliqzAttrack.safeKey);
           persist.set_value("tokenWhitelistVersion", "");
+          CliqzAttrack._safekey.clear();
+          CliqzAttrack.safeKey = {};
+          CliqzAttrack._tokenWhitelist.clear();
           CliqzAttrack.tokenExtWhitelist = {};
           CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
           // mock update functions
