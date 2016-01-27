@@ -61,13 +61,13 @@ export function _http(url){
         client.overrideMimeType('application/json');
         //client.setRequestHeader("Content-Type", "application/json;charset=utf-8");
         client.send(data);
-        CliqzSecureMessage.stats(uri, "total-sent", 1);
+        if(CliqzSecureMessage) CliqzSecureMessage.stats(uri, "total-sent", 1);
 
         client.onload = function () {
         	var statusClass = parseInt(client.status / 100);
         	var te = new Date().getTime();
         	CliqzUtils.log("Time taken: " + (te - ts),CliqzSecureMessage.LOG_KEY);
-        	CliqzSecureMessage.stats(uri, "latency", (te-ts));
+        	if(CliqzSecureMessage) CliqzSecureMessage.stats(uri, "latency", (te-ts));
           // CliqzUtils.log("Time taken2: " + CliqzSecureMessage.performance.getEntriesByName("lat"),CliqzSecureMessage.LOG_KEY);
 
           if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){

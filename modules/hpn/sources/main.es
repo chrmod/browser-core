@@ -21,9 +21,17 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/bigint.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/crypto.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/helperFunctions.js');
+/*
+var crypt = {
+  crypto: Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash)
+}
+*/
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/jsencrypt.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/sha256.js');
 
+
+// var JSEncrypt = crypt.JSEncrypt;
+// export { JSEncrypt };
 /* Global variables
 */
 var proxyCounter = 0;
@@ -88,12 +96,13 @@ var CliqzSecureMessage = {
   	}
 
     //Fetch sourceMap
-    if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 15 * 1) == 0) {
+    if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 3 * 1) == 0) {
     	if (CliqzSecureMessage.debug) {
     		CliqzUtils.log('Load proxy list', CliqzSecureMessage.LOG_KEY);
     	}
     	fetchSourceMapping();
     	CliqzSecureMessage.fetchProxyList();
+      CliqzSecureMessage.fetchRouteTable();
       prunelocalTemporalUniq();
 
     }
@@ -317,8 +326,9 @@ function createTable(){
 
 }
 
-function saveLocalCheckTable() {
+export function saveLocalCheckTable() {
 	if (CliqzSecureMessage.localTemporalUniq) {
+    CliqzUtils.log("Saving local table");
 		saveRecord('localTemporalUniq', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
 	}
 }

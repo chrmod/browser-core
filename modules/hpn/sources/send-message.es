@@ -1,7 +1,7 @@
 import CliqzSecureMessage from 'hpn/main';
 import messageContext from "hpn/message-context";
 import directoryServicePK from "hpn/directory-service";
-
+import { saveLocalCheckTable } from "hpn/main";
 
 /**
  * Method to create payload to send for blind signature.
@@ -299,6 +299,13 @@ var sendM = function (m){
     var uniqKey = mc.dmC;
     if(CliqzSecureMessage.localTemporalUniq && Object.keys(CliqzSecureMessage.localTemporalUniq).indexOf(uniqKey) > -1) {
     	CliqzUtils.log("This message has already been sent....",CliqzSecureMessage.LOG_KEY);
+    	if(CliqzSecureMessage.localTemporalUniq[uniqKey]["fullhash"]){
+    		if(mc.fullHash == CliqzSecureMessage.localTemporalUniq[uniqKey]["fullhash"]){
+    			CliqzHumanWeb.incrActionStats("exactduplicate");
+    		} else{
+    			CliqzHumanWeb.incrActionStats("coll");
+    		}
+    	}
     	CliqzHumanWeb.incrActionStats("droppedLocalCheck");
     	var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
     	if(mIdx) {
@@ -381,7 +388,7 @@ var sendM = function (m){
 	})
     .then(function(response){
     	var tt = new Date().getTime();
-    	CliqzSecureMessage.localTemporalUniq[mc.dmC] = {"ts":tt};
+    	CliqzSecureMessage.localTemporalUniq[mc.dmC] = {"ts":tt, "fullhash": mc.fullHash};
     	CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-success",1);
     	CliqzHumanWeb.incrActionStats("tSent");
     	var mIdx = CliqzSecureMessage.pushMessage.next()['value'];
@@ -389,6 +396,8 @@ var sendM = function (m){
     		sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
     	}
     	else{
+			// Queue is empty hence dump the local temp queue to disk.
+	    	saveLocalCheckTable();
     		return;
     	}
     })
@@ -400,7 +409,7 @@ var sendM = function (m){
     		sendM(CliqzSecureMessage._telemetry_sending[mIdx]);
     	}
     	else{
-    		return;
+	    	return;
     	}
     })
 }

@@ -1,18 +1,12 @@
 //'use strict';
 /*
- * This module injects warning message when user visit a phishing site
+ *
  *
  */
 
-// const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
 // Components.utils.importGlobalProperties(['crypto']);
-
-
 var crypto = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+
 //var EXPORTED_SYMBOLS = ['encrypted'];
 
 var Base64;

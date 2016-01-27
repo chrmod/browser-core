@@ -1,5 +1,5 @@
 import CliqzSecureMessage from 'hpn/main';
-
+import { _http } from 'hpn/utils';
 /**
 Generate user Public-private key.
 This should be long-time key
@@ -8,17 +8,13 @@ For now in prefs.
 */
 export default class {
   constructor(msg) {
-  var keySet = CliqzUtils.getPref('userPKBeta',false);
-  this.keyGen = new JSEncrypt({default_key_size:2048});
-  if(!keySet) {
-     // Using 2048 as 4096 is pretty compute intensive.
-     this.privateKey = this.keyGen.getPrivateKeyB64 ();
-     this.publicKey = this.keyGen.getPublicKeyB64();
-     this.publicKeyB64 = this.keyGen.getPublicKeyB64();
-     CliqzUtils.setPref('userPKBeta', this.privateKey);
-     this.registerKey();
+    var keySet = CliqzUtils.getPref('userPKBeta',false);
+    if(!keySet) {
+       // Using 2048 as 4096 is pretty compute intensive.
+       this.genKey().then(e=> CliqzUtils.log("Key generated"));
     }
     else{
+      this.keyGen = new JSEncrypt({default_key_size:2048});
       this.keyGen.setPrivateKey(keySet);
       this.privateKey = this.keyGen.getPrivateKeyB64();
       this.publicKey = this.keyGen.getPublicKey();
@@ -61,11 +57,34 @@ export default class {
     return promise;
   }
 
+  genKey(){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+     _this.keyGen = new JSEncrypt({default_key_size:2048});
+     _this.privateKey = _this.keyGen.getPrivateKeyB64 ();
+     _this.publicKey = _this.keyGen.getPublicKeyB64();
+     _this.publicKeyB64 = _this.keyGen.getPublicKeyB64();
+     CliqzUtils.setPref('userPKBeta', _this.privateKey);
+     _this.registerKey()
+     .then( e=> {
+        CliqzUtils.log("Registration complete");
+        resolve();
+      });
+    });
+    return promise;
+  }
+
   registerKey(){
     // Needs to be public.
-    CliqzUtils.log("Setting public Key",CliqzSecureMessage.LOG_KEY);
-    CliqzSecureMessage.httpHandler("http://10.10.76.48/register/")
-      .post(JSON.stringify({"pk":CliqzSecureMessage.uPK["publicKey"]}))
-      .then(e=> CliqzUtils.log(e, CliqzSecureMessage.LOG_KEY))
+    var upk = this.publicKey;
+
+    var promise = new Promise(function(resolve, reject){
+      CliqzUtils.log("Setting public Key","XXXX");
+      _http("http://10.10.76.48/register/")
+        .post(JSON.stringify({"pk": upk}))
+        .then(e=> resolve(true))
+    });
+
+    return promise;
   }
 }

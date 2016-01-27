@@ -181,6 +181,7 @@ export default class {
 		var hashM = CliqzSecureMessage.sha1(stringRouteHash).toString();
 		var dmC = hexToBinary(hashM)['result'].slice(0,13);
 		var routeHash = parseInt(dmC, 2);
+		this.fullHash = hashM;
 		return dmC;
 	}
 
