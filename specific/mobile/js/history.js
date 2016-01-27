@@ -103,27 +103,40 @@ function displayData(data) {
   });
 
   
-  var clickTimer = null;
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'mousedown', function () {
-    clickTimer = setTimeout(lunchEditMode, 100, this);
+  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchstart', function () {
+    touchTimer = setTimeout(lunchEditMode, 500, this);
   });
-
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'mouseup', function () {
+  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchend', function () {
     var type = this.getAttribute('class');
     var clickAction = type.indexOf('question') >= 0 ? osBridge.notifyQuery : osBridge.openLink;
-
+    console.log('timer', touchTimer);
+    if(touchTimer) {
+      clearTimeout(touchTimer);
+      touchTimer = null;
+    } else {
+      return;
+    }
+    if(isTapBlocked) {
+      isTapBlocked = false;
+      return;
+    }
     if(editMode) {
       selectItem(this);
     } else {
       clickAction(this.getAttribute('data'));
     }
-    clearTimeout(clickTimer);
+  });
+  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchmove', function () {
+    isTapBlocked = true;
+    clearTimeout(touchTimer);
   });
 }
 
 var editMode = false;
 
 function lunchEditMode(element) {
+  clearTimeout(touchTimer);
+  touchTimer = null;
   if(editMode) {
     endEditMode();
     lunchEditMode(element);
@@ -256,5 +269,7 @@ function selectItem(item) {
     endEditMode();
   }
 }
+
+var touchTimer, isTapBlocked;
 
 osBridge.searchHistory("", "showHistory")
