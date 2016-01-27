@@ -251,7 +251,7 @@ var CliqzAttrack = {
             if (!url || url == '') return;
             var url_parts = URLInfo.get(url);
 
-            if (requestContext.getContentPolicyType() == 6) {
+            if (requestContext.isFullPage()) {
                 CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID());
                 if (CliqzAttrack.isTrackerTxtEnabled()) {
                     TrackerTXT.get(url_parts).update();
@@ -571,7 +571,7 @@ var CliqzAttrack = {
                 source_tab = requestContext.getOriginWindowID();
 
             // full page
-            if (requestContext.getContentPolicyType() == 6) {
+            if (requestContext.isFullPage()) {
                 if ([300, 301, 302, 303, 307].indexOf(requestContext.channel.responseStatus) >= 0) {
                     // redirect, update location for tab
                     // if no redirect location set, stage the tab id so we don't get false data
@@ -707,7 +707,7 @@ var CliqzAttrack = {
                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH: " + JSON.stringify(CliqzAttrack.contextOauth), CliqzAttrack.LOG_KEY);
             }
             // content policy type 6 == TYPE_DOCUMENT: top level dom element. Do not block.
-            if (requestContext.getContentPolicyType() == 6) {
+            if (requestContext.isFullPage()) {
                 return;
             }
 
