@@ -1738,7 +1738,6 @@ var CliqzAttrack = {
                         safeKey[s][k] = [safeKey[s][k], 'r'];
                     }
                 }
-                persist.set_value("safeKeyExtVersion", safeKeyExtVersion);
                 for (s in safeKey) {
                     if (!(s in CliqzAttrack.safeKey)) {
                         CliqzAttrack.safeKey[s] = safeKey[s];
@@ -1757,6 +1756,7 @@ var CliqzAttrack = {
                 persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
                 CliqzAttrack._safekey.setDirty();
                 CliqzAttrack._safekey.save();
+                persist.set_value("safeKeyExtVersion", safeKeyExtVersion);
             },
             function() {
                 // on error
