@@ -1,6 +1,7 @@
 'use strict';
 
 function showHistory(history) {
+  clearTimeout(historyTimer);
   var data = [];
   history = history.results;
   var queries = [];
@@ -215,13 +216,13 @@ function removeSelectedQueries() {
   })
   localStorage.setItem("recentQueries", JSON.stringify(queries));
   selectedQueries = [];
-  osBridge.searchHistory("", "showHistory")
+  getHistory();
 }
 
 function removeSelectedHistory() {
   osBridge.removeHistory(selectedHistory);
   selectedHistory = [];
-  osBridge.searchHistory("", "showHistory")
+  getHistory();
 }
 
 function removeSelected() {
@@ -270,6 +271,13 @@ function selectItem(item) {
   }
 }
 
-var touchTimer, isTapBlocked;
+function getHistory() {
+  osBridge.searchHistory("", "showHistory");
+  historyTimer = setTimeout(showHistory, 200, {results: []});
+}
 
-osBridge.searchHistory("", "showHistory")
+getHistory();
+
+var touchTimer, isTapBlocked, historyTimer;
+
+

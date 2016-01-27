@@ -285,6 +285,7 @@ var CliqzAutocomplete = {
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
                 this.historyTimeout = true;
+                this.pushResults(this.searchString);
             },
             onHistoryDone: function(result, resultExtra) {
                 if(!this.startTime) {
