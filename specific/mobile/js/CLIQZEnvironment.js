@@ -596,6 +596,7 @@ CLIQZEnvironment = {
     }
     req.onerror = function(){
       if(latestUrl != url || url == lastSucceededUrl || !isMixerUrl(url)) {
+        onerror && onerror();
         return;
       }
       if(typeof CustomEvent != "undefined") {
