@@ -965,6 +965,9 @@
     "freshtab_top_sites": {
       "message": "Top Seiten"
     },
+    "mobile_reconnecting_msg": {
+      "message": "Internetverbindung wird wieder hergestellt"
+    },
     "mobile_no_result_title": {
       "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
