@@ -1445,7 +1445,7 @@ var CliqzAttrack = {
             hour = datetime.getTime();
         if (!hourChanged) {  // send 1/12 of data
             for (let tracker in CliqzAttrack.tokens) {
-                if (Object.keys(CliqzAttrack.tokens).length < Object.keys(data).length / 12) {
+                if (Object.keys(data).length > Object.keys(CliqzAttrack.tokens).length / 12) {
                     break;
                 }
                 let tokenData = CliqzAttrack.tokens[tracker];
