@@ -272,8 +272,8 @@ function selectItem(item) {
 }
 
 function getHistory() {
-  osBridge.searchHistory("", "showHistory");
   historyTimer = setTimeout(showHistory, 200, {results: []});
+  osBridge.searchHistory("", "showHistory");
 }
 
 getHistory();
