@@ -111,7 +111,7 @@ var CliqzAttrack = {
                                 .getService(Components.interfaces.nsIObserverService),
     tp_events: tp_events,
     tokens: null,
-    rTokenSeen: null,
+    sTokenSeen: null,
     instantTokenCache: {},
     tokenExtWhitelist: null,
     safeKey: null,
@@ -1275,7 +1275,7 @@ var CliqzAttrack = {
         // Smaller caches (e.g. update timestamps) are kept in prefs
         persist.init();
         this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
-        this._rTokenSeen = new persist.AutoPersistentObject("rTokenSeen", (v) => CliqzAttrack.rTokenSeen = v, 60000);
+        this._sTokenSeen = new persist.AutoPersistentObject("sTokenSeen", (v) => CliqzAttrack.sTokenSeen = v, 60000);
         this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
         // whitelist is loaded even if we're using bloom filter at the moment, as it is still used in some places.
@@ -1479,7 +1479,7 @@ var CliqzAttrack = {
             }
             // reset the state
             this._tokens.clear();
-            this._rTokenSeen.clear();
+            this._sTokenSeen.clear();
         }
 
         // send block list if the hour changed
@@ -2109,7 +2109,7 @@ var CliqzAttrack = {
     saveKeyTokens: function(s, keyTokens, r, isPrivate) {
         // anything here should already be hash
         if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {};
-        if (CliqzAttrack.rTokenSeen === null) CliqzAttrack.rTokenSeen = {};
+        if (CliqzAttrack.sTokenSeen === null) CliqzAttrack.sTokenSeen = {};
         if (CliqzAttrack.tokens[s][r] == null) CliqzAttrack.tokens[s][r] = {'c': 0, 'kv': {}};
         CliqzAttrack.tokens[s][r]['c'] =  (CliqzAttrack.tokens[s][r]['c'] || 0) + 1;
         for (var kv of keyTokens) {
@@ -2123,14 +2123,14 @@ var CliqzAttrack = {
                     v_len: kv.v_len,
                     isPrivate: isPrivate,
                     sent: false,
-                    rTokenSeen: (r + tok) in CliqzAttrack.rTokenSeen
+                    sTokenSeen: (s + tok) in CliqzAttrack.sTokenSeen
                 };
             }
-            CliqzAttrack.rTokenSeen[r + tok] = true;
+            CliqzAttrack.sTokenSeen[s + tok] = true;
             CliqzAttrack.tokens[s][r]['kv'][k][tok].c += 1;
         }
         CliqzAttrack._tokens.setDirty();
-        CliqzAttrack._rTokenSeen.setDirty();
+        CliqzAttrack._sTokenSeen.setDirty();
     },
     storeDomData: function(dom) {
         // cookies
