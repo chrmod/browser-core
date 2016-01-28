@@ -36,9 +36,10 @@ function createPayloadBlindSignature(uPK, bm1, bm2, bm3, sig){
  * @returns string with payload created.
  */
 
-function createPayloadProxy(uPK, mP, dmC, bs1, bs2, bs3, sig){
+function createPayloadProxy(uPK, suPK, mP, dmC, bs1, bs2, bs3, sig){
 	var payload = {};
 	payload["uPK"] = uPK;
+	payload["suPK"] = suPK;
 	payload["mP"] = mP;
 	payload["dmC"] = dmC;
 	payload["bs1"] = bs1;
@@ -365,6 +366,7 @@ var sendM = function (m){
 		var bs1 = response["bs1"];
 		var bs2 = response["bs2"];
 		var bs3 = response["bs3"];
+		var suPK = response["suPK"];
 
 		// Unblind the message to get the signature.
 		mc.us1 = unBlindMessage(bs1, mc.u1);
@@ -375,12 +377,14 @@ var sendM = function (m){
 		mc.vs2 = verifyBlindSignature(mc.us2, sha256_digest(mc.m2))
 		mc.vs3 = verifyBlindSignature(mc.us3, sha256_digest(mc.m3))
 
+		mc.suPK = suPK;
+
 		// SIG(uPK;mp;dmC;us1;us2;us3)
 		return CliqzSecureMessage.uPK.sign(CliqzSecureMessage.uPK.publicKeyB64 + ";" + mc.mP +";"+  mc.dmC + ";" + mc.us1 + ";" + mc.us2 + ";" + mc.us3);
 	})
     .then(function(signedMessageProxy){
 		// Create the payload to be sent to proxy;
-		var payload = createPayloadProxy(CliqzSecureMessage.uPK.publicKeyB64, mc.mP, mc.dmC, mc.us1, mc.us2, mc.us3, signedMessageProxy);
+		var payload = createPayloadProxy(CliqzSecureMessage.uPK.publicKeyB64, mc.suPK ,mc.mP, mc.dmC, mc.us1, mc.us2, mc.us3, signedMessageProxy);
 		CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-sent",1);
 		return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
 		.post(JSON.stringify(payload))
