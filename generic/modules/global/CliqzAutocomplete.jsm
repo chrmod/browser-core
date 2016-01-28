@@ -191,6 +191,9 @@ var CliqzAutocomplete = {
                 CliqzAutocomplete.lastResult = this;
                 var order = CliqzAutocomplete.getResultsOrder(this._results);
                 CliqzUtils.setResultOrder(order);
+
+                // flag for rendering to avoid rendering of "unmixed" results
+                this.isMixed = true;
             },
 
             filterUnexpected: function(results){
