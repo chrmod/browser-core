@@ -938,4 +938,3 @@ TESTS.AttrackTest = function (CliqzUtils) {
 };
 
 TESTS.AttrackTest.MIN_BROWSER_VERSION = 35;
-

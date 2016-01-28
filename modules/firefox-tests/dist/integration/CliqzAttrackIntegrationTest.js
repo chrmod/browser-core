@@ -19,8 +19,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       datetime = System.get("antitracking/time"),
       trackertxt = System.get("antitracking/tracker-txt");
   // make sure that module is loaded (default it is not initialised on extension startup)
-  CliqzUtils.setPref('antiTrackTest', true);
 
+  var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
   describe('CliqzAttrack_integration', function() {
     this.retries(3);
 
@@ -28,7 +28,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       server_port = -1,
       echoed = [],
       md5 = CliqzHumanWeb._md5,
-      module_enabled = CliqzUtils.getPref('antiTrackTest', false),
       window = CliqzUtils.getWindow();
 
     /** Collects metadata from the request and pushes it into the
@@ -70,6 +69,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
         // send actual gif file
         server._handler._writeFileResponse(request, imgFile, response, 0, imgFile.fileSize);
       } else {
+        response.setHeader('Content-Type', 'application/json;charset=utf-8');
         response.write('{}');
       }
     }
@@ -80,6 +80,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       baseURL = CliqzAttrack.bloomFilter.baseURL;
 
     before(function(done) {
+      // make sure that module is loaded (default it is not initialised on extension startup)
+      CliqzUtils.setPref('antiTrackTest', true);
+
       // set up HTTP server.
       attrackBloomFilterPref = CliqzUtils.getPref('attrackBloomFilter');
       server = new HttpServer();
@@ -112,6 +115,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
     });
 
     after(function() {
+      CliqzUtils.setPref('antiTrackTest', module_enabled);
       // shutdown server
       server.stop(function() {});
 

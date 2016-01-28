@@ -377,7 +377,6 @@ window.CLIQZ.Core = {
         gBrowser.removeProgressListener(locationListener);
 
         document.getElementById('urlbar-go-button').setAttribute('onclick', this._urlbarGoButtonClick);
-
         CliqzRedirect.unload();
         CliqzExtOnboarding.unload(window);
 
@@ -410,6 +409,7 @@ window.CLIQZ.Core = {
                   currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage,true);
                   currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage,true);
                 }
+
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);

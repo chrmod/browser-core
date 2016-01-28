@@ -37,7 +37,6 @@ var Extension = {
     modules: [],
     init: function(){
         Extension.unloadModules();
-
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
         Extension.System = System;
         Extension.System.baseURL = this.BASE_URI;
@@ -131,13 +130,13 @@ var Extension = {
             CliqzHumanWeb.unloadAtBrowser();
         }
 
-
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
             Extension.unloadFromWindow(win);
         }
+
 
         CliqzCategories.unload();
         CLIQZEnvironment.unload();

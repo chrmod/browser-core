@@ -2,22 +2,21 @@
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
-    "unblockUI": true,
-    "showDataCollectionMessage": true,
-    "cliqzOnboarding": false,
-    "channel": "99"
+    "unblockUI": false,
+    "showDataCollectionMessage": false,
+    "cliqzOnboarding": true,
+    "channel": "40"
   },
   "modules": [
     "static",
     "core",
     "context-menu",
+    "onboarding",
     "freshtab",
     "unblock",
     "theme",
     "users1st",
     "loyalty",
-    "firefox-tests",
-    "hpn",
-    "antitracking"
+    "hpn"
   ]
 }

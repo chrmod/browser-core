@@ -17,6 +17,7 @@ export default class {
     this.state = true;
     this.warningDissmissed = false;
 
+
     this.userListener = {
       QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
       onLocationChange: function(aBrowser, aWebProgress, aRequest, aLocation, aFlags) {
