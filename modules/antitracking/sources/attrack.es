@@ -560,7 +560,7 @@ var CliqzAttrack = {
             }
             var aChannel = subject.QueryInterface(nsIHttpChannel),
                 requestContext = new HttpRequestContext(subject),
-                isPrivate = requestContext.isChannelPrivate();
+                isPrivate = requestContext.isChannelPrivate(),
                 url = requestContext.url;
             if (!url || url == '') return;
             var visitor = new HeaderInfoVisitor(aChannel);
