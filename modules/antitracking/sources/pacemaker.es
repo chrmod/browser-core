@@ -6,12 +6,20 @@ class Pacemaker {
   constructor(tpace, twait) {
     this.tpace = tpace || default_tpace;
     this.twait = (new Date()).getTime() + (twait || 0);
-    this._id = CliqzUtils.setInterval(this._tick.bind(this), this.tpace, null);
+    this._id = null;
     this._tasks = new Set();
   }
 
-  destroy() {
+  start() {
+    if (this._id) {
+      this.stop();
+    }
+    this._id = CliqzUtils.setInterval(this._tick.bind(this), this.tpace, null);
+  }
+
+  stop() {
     CliqzUtils.clearTimeout(this._id);
+    this._id = null;
   }
 
   _tick() {

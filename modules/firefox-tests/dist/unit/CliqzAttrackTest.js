@@ -18,11 +18,22 @@ TESTS.AttrackTest = function (CliqzUtils) {
         CliqzAttrack = System.get("antitracking/attrack").default,
         persist = System.get("antitracking/persistent-state"),
         AttrackBloomFilter = System.get("antitracking/bloom-filter").AttrackBloomFilter,
-        datetime = System.get("antitracking/time");
+        datetime = System.get("antitracking/time"),
+        pacemaker = System.get("antitracking/pacemaker").default;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
     CliqzUtils.setPref('antiTrackTest', true);
+
+    before(function() {
+      // pause pacemaker to prevent external list updates
+      pacemaker.stop();
+    });
+
+    after(function() {
+      // restart pacemaker
+      pacemaker.start();
+    });
 
     describe('CliqzAttrack.tab_listener', function() {
 
@@ -805,19 +816,23 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('updates tokens only if needed', function() {
+          persist.set_value("safeKeyExtVersion", "");
           persist.set_value("tokenWhitelistVersion", mock_token_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
           return waitFor(function() {
+            chai.expect(calledLoadRemoteTokenWhitelist).to.eql(0);
             return calledLoadRemoteTokenWhitelist == 0 && calledLoadRemoteSafeKey == 1;
           });
         });
 
         it('updates safekeys only if needed', function() {
           persist.set_value("safeKeyExtVersion", mock_safekey_hash);
+          persist.set_value("tokenWhitelistVersion", "");
 
           CliqzAttrack.loadRemoteWhitelists();
           return waitFor(function() {
+            chai.expect(calledLoadRemoteSafeKey).to.eql(0);
             return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 0;
           });
         });
