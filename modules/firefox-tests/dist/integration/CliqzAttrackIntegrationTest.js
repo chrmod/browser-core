@@ -798,14 +798,12 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
             var url_hash = md5('127.0.0.1').substring(0, 16),
               callback_hash = md5('callback'),
               uid_hash = md5('uid');
-            waitFor(function() {
-              return url_hash in CliqzAttrack.safeKey;
-            }).then(function () {
+            setTimeout(function(){
               chai.expect(CliqzAttrack.safeKey).has.property(url_hash);
               chai.expect(CliqzAttrack.safeKey[url_hash]).has.property(callback_hash);
               chai.expect(CliqzAttrack.safeKey[url_hash]).not.has.property(uid_hash);
-            });
-            done();
+              done();
+            }, 500);
           } catch(e) {
             done(e);
           }
