@@ -82,4 +82,65 @@ var MockOS = {
   }
 }
 
-var mockedHistory = [{"id": 7, "title":"SPIEGEL MOCK","url":"http://www.spiegel.de/", "timestamp": Date.now()},{"id": 6, "title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "timestamp": Date.now()},{"id": 5, "title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "timestamp": Date.now() - 10000},{"id": 4, "title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "timestamp": Date.now() - 20000},{"id": 3, "title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "timestamp": Date.now() - 30000},{"id": 2, "title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "timestamp": Date.now() - 121240000},{"id": 1, "title":"Dein idealer Smartphone-Tarif von netzclub", "url":"https://www.netzclub.net/", "timestamp": Date.now() - 1222250000}];
+var mockedHistory = 
+        [{
+            "id": 7,
+            "title": "Amazon mock 1 ",
+            "url": "http://www.amazon.de/gp/product/B0196HHHK8?redirect=true&ref_=br_asw_pdt-3",
+            "timestamp": Date.now()
+        }, {
+            "id": 6,
+            "title": "TensCare selbsthaftende Elektroden (E-CM5050) 50mm x 50mm (12 Stück) - Amazon mock",
+            "url": "http://www.amazon.de/gp/product/B006J8HNGG?ref_=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
+            "timestamp": Date.now()
+        }, {
+            "id": 5,
+            "title": "Amazon mock sdfsefwfesfe ",
+            "url": "http://www.amazon.de/3",
+            "timestamp": Date.now() - 10000
+        }, {
+            "id": 4,
+            "title": "TensCare selbsthaftende ebay mock",
+            "url": "http://www.ebay.de/4",
+            "timestamp": Date.now() - 20000
+        }, {
+            "id": 3,
+            "title": "TensCare selbsthaftende ebay mock",
+            "url": "http://www.ebay.de/4",
+            "timestamp": Date.now() - 30090
+        },{
+            "id": 8,
+            "title": "TensCare selbsthaftende Elektroden (E-CM5050) 50mm x 50mm (12 Stück)  ebay mock",
+            "url": "http://www.ebay.de/4",
+            "timestamp": Date.now() - 30003
+        },{
+            "id": 9,
+            "title": "Plemeben und Bemben im Speckmantle -  ebay mock",
+            "url": "http://www.ebay.de/gp/product/B006J8HNGG?=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
+            "timestamp": Date.now() - 30000
+        }, {
+            "id": 10,
+            "title": "Plemeben und Bemben im Speckmantle -breznsoiza.de mock",
+            "url": "http://www.breznsoiza.de/gp/product/?ref_=gb1h__m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
+            "timestamp": Date.now() - 40000
+        },{
+            "id": 11,
+            "title": "Plemben und Bemben im blah Speckmantle -  breznsoiza mock",
+            "url": "http://www.breznsoiza.de/product/?ref_=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
+            "timestamp": Date.now() - 50000
+        },{
+            "id": 12,
+            "title": "Plemben und Bemben im blah Speckmantle -  breznsoiza mock",
+            "url": "http://www.breznsoiza.de/gp/B00HNGG?ref_=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
+            "timestamp": Date.now() - 80000
+        }, {
+            "id": 2,
+            "title": "Amazon mock sefsefsfsef ",
+            "url": "http://www.amazon.de/546451",
+            "timestamp": Date.now() - 121240000
+        }, {
+            "id": 1,
+            "title": "Amazon mock fesfse fsef sfs efs fs sf sefsefs se ",
+            "url": "http://www.amazon.de/14245542",
+            "timestamp": Date.now() - 1222250000
+        }];

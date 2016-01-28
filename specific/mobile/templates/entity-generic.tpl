@@ -39,6 +39,7 @@
             {{/each}}
             
         </ul>
+         {{>EZ-history}}
         </div>
     {{/with}}
 
