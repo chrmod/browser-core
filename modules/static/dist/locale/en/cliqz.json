@@ -968,6 +968,21 @@
     "mobile_reconnecting_msg": {
       "message": "Re-establishing lost internet connection"
     },
+    "mobile_history_title": {
+      "message": "History"
+    },
+    "mobile_favorites_title": {
+      "message": "Favorites"
+    },
+    "mobile_history_remove": {
+      "message": "Remove"
+    },
+    "mobile_history_star": {
+      "message": "Favorite"
+    },
+    "mobile_history_cancel": {
+      "message": "Cancel"
+    },
     "mobile_no_result_title": {
       "message": "We don't have great results this time."
     },
