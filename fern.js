@@ -48,9 +48,7 @@ program.command('serve [file]')
        .action(configPath => {
           setConfigPath(configPath);
 
-          let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH]);
-          child.stderr.on('data', data => console.log(data.toString()));
-          child.stdout.on('data', data => console.log(data.toString()));
+          let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
        });
 
 program.command('generate <type> <moduleName>')
