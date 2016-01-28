@@ -41,5 +41,5 @@
   "trailing": true,
   "white": false,
   "eqnull": true,
-  "esnext": true
+  "esversion": 6
 }
