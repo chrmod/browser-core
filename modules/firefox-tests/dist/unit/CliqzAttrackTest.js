@@ -766,7 +766,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           calledLoadRemoteSafeKey = 0,
           origLoadRemoteTokenWhitelistFn = CliqzAttrack.loadRemoteTokenWhitelist,
           origLoadRemoteSafeKeyFn = CliqzAttrack.loadRemoteSafeKey;
-
+        this.timeout(5000);
         beforeEach(function() {
           // setup clean state
           persist.set_value("safeKeyExtVersion", "");
@@ -838,7 +838,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         describe("force_clean", function() {
-
+          this.timeout(5000);
           beforeEach(function() {
             CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck_clean.json";
           });
