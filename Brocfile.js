@@ -10,6 +10,7 @@ var amdNameResolver = require('amd-name-resolver');
 var AssetRev = require('broccoli-asset-rev');
 var uglify = require('broccoli-uglify-sourcemap');
 var writeFile = require('broccoli-file-creator');
+var JSHinter = require('broccoli-jshint');
 
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
@@ -53,9 +54,21 @@ var components = [];
 var modules = []
 var requiredBowerComponents = new Set();
 
+var modulesTree = new Funnel('modules');
+var jsHinterTree = new JSHinter(
+  new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
+  { testGenerator: function () { return ''; } }
+);
+jsHinterTree.extensions = ['js', 'es']
+
+modulesTree = new MergeTrees([
+  modulesTree,
+  jsHinterTree
+]);
+
 cliqzConfig.modules.forEach(function (name) {
   var modulePath = 'modules/'+name;
-  if(fs.statSync(modulePath).isDirectory()) {
+  if (fs.statSync(modulePath).isDirectory()) {
     var init = new Funnel(modulePath, { include: ['component.js'], destDir: modulePath });
 
     try {
@@ -63,7 +76,7 @@ cliqzConfig.modules.forEach(function (name) {
       JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
     } catch(e) { }
 
-    var sources = new Funnel(modulePath+'/sources', { exclude: ['styles/**/*'] });
+    var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
 
     sources = Babel(sources, {
       sourceMaps: 'inline',
@@ -73,7 +86,7 @@ cliqzConfig.modules.forEach(function (name) {
     });
 
     var outputTree = [
-      new Funnel(modulePath+'/dist'),
+      new Funnel(modulesTree, { srcDir: name + '/dist' }),
       sources,
       new Funnel(firefoxPlatform),
     ];
