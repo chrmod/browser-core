@@ -18,11 +18,22 @@ TESTS.AttrackTest = function (CliqzUtils) {
         CliqzAttrack = System.get("antitracking/attrack").default,
         persist = System.get("antitracking/persistent-state"),
         AttrackBloomFilter = System.get("antitracking/bloom-filter").AttrackBloomFilter,
-        datetime = System.get("antitracking/time");
+        datetime = System.get("antitracking/time"),
+        pacemaker = System.get("antitracking/pacemaker").default;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
     CliqzUtils.setPref('antiTrackTest', true);
+
+    before(function() {
+      // pause pacemaker to prevent external list updates
+      pacemaker.stop();
+    });
+
+    after(function() {
+      // restart pacemaker
+      pacemaker.start();
+    });
 
     describe('CliqzAttrack.tab_listener', function() {
 
@@ -625,7 +636,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           // mock safekey URL
           CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
           persist.set_value("safeKeyExtVersion", "");
-          CliqzAttrack.safeKey = {};
+          CliqzAttrack._safekey.clear();
         });
 
         afterEach(function() {
@@ -654,6 +665,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             domain2_hash = "9776604f86ca9f6a",
             key_hash = "4a8a08f09d37b73795649038408b5f33",
             today = datetime.getTime().substring(0, 8);
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
           CliqzAttrack.safeKey[domain2_hash] = {};
@@ -682,6 +694,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           var domain1_hash = "f528764d624db129",
             key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
             today = datetime.getTime().substring(0, 8);
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
 
@@ -702,6 +715,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           var domain1_hash = "f528764d624db129",
             key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
             day = "20200102";
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [day, 'l'];
 
@@ -729,6 +743,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           d = (day.getDate()  < 10 ? "0" : "" ) + day.getDate();
           m = (day.getMonth() < 10 ? "0" : "" ) + parseInt((day.getMonth()));
           daystr = "" + day.getFullYear() + m + d;
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [daystr, 'l'];
 
@@ -755,8 +770,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
         beforeEach(function() {
           // setup clean state
           persist.set_value("safeKeyExtVersion", "");
-          persist.clear_persistent(CliqzAttrack.safeKey);
           persist.set_value("tokenWhitelistVersion", "");
+          CliqzAttrack._safekey.clear();
+          CliqzAttrack.safeKey = {};
+          CliqzAttrack._tokenWhitelist.clear();
           CliqzAttrack.tokenExtWhitelist = {};
           CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
           // mock update functions
@@ -799,19 +816,23 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('updates tokens only if needed', function() {
+          persist.set_value("safeKeyExtVersion", "");
           persist.set_value("tokenWhitelistVersion", mock_token_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
           return waitFor(function() {
+            chai.expect(calledLoadRemoteTokenWhitelist).to.eql(0);
             return calledLoadRemoteTokenWhitelist == 0 && calledLoadRemoteSafeKey == 1;
           });
         });
 
         it('updates safekeys only if needed', function() {
           persist.set_value("safeKeyExtVersion", mock_safekey_hash);
+          persist.set_value("tokenWhitelistVersion", "");
 
           CliqzAttrack.loadRemoteWhitelists();
           return waitFor(function() {
+            chai.expect(calledLoadRemoteSafeKey).to.eql(0);
             return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 0;
           });
         });
