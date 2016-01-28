@@ -111,7 +111,6 @@ var CliqzAttrack = {
                                 .getService(Components.interfaces.nsIObserverService),
     tp_events: tp_events,
     tokens: null,
-    sTokenSeen: null,
     instantTokenCache: {},
     tokenExtWhitelist: null,
     safeKey: null,
@@ -1275,7 +1274,6 @@ var CliqzAttrack = {
         // Smaller caches (e.g. update timestamps) are kept in prefs
         persist.init();
         this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
-        this._sTokenSeen = new persist.AutoPersistentObject("sTokenSeen", (v) => CliqzAttrack.sTokenSeen = v, 60000);
         this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
         // whitelist is loaded even if we're using bloom filter at the moment, as it is still used in some places.
@@ -1441,28 +1439,29 @@ var CliqzAttrack = {
             payl = CliqzAttrack.attachVersion(payl);
         return payl;
     },
-    sendTokens: function() {
+    sendTokens: function(hourChanged) {
         // send tokens every 5 minutes
-        let data = {};
-        // loop through token data and pick those haven't been sent
-        for (let s of CliqzAttrack.tokens) {
-            for (let r of CliqzAttrack.tokens[s]) {
-                for (let k of CliqzAttrack.tokens[s][r]['kv']) {
-                    for (let tok of CliqzAttrack.tokens[s][r]['kv'][k]) {
-                        if (!CliqzAttrack.tokens[s][r]['kv'][k][tok].sent) {
-                            if (!(s in data)) {
-                                data[s] = {};
-                            }
-                            if (!(r in data[s])) {
-                                data[s][r] = {kv: {}};
-                            }
-                            if (!(k in data[s][r]['kv'])) {
-                                data[s][r]['kv'][k] = {};
-                            }
-                            data[s][r]['kv'][k][tok] = CliqzAttrack.tokens[s][r]['kv'][k][tok];
-                            CliqzAttrack.tokens[s][r]['kv'][k][tok].sent = true;
-                        }
-                    }
+        let data = {},
+            hour = datetime.getTime();
+        if (!hourChanged) {  // send 1/12 of data
+            for (let tracker in CliqzAttrack.tokens) {
+                if (Object.keys(CliqzAttrack.tokens).length < Object.keys(data).length / 12) {
+                    break;
+                }
+                let tokenData = CliqzAttrack.tokens[tracker];
+                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
+                    data[tracker] = tokenData;
+                    delete(data[tracker].lastSent);
+                    delete(CliqzAttrack.tokens[tracker]);
+                }
+            }
+        } else {  // send everything that has not been send in the last hour
+            for (let tracker in CliqzAttrack.tokens) {
+                let tokenData = CliqzAttrack.tokens[tracker];
+                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
+                    data[tracker] = tokenData;
+                    delete(data[tracker].lastSent);
+                    delete(CliqzAttrack.tokens[tracker]);
                 }
             }
         }
@@ -1470,6 +1469,7 @@ var CliqzAttrack = {
             var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
         }
+        CliqzAttrack._tokens.setDirty();
     },
     hourChanged: function() {
         // clear the tokens if the hour changed
@@ -1478,8 +1478,7 @@ var CliqzAttrack = {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
             // reset the state
-            this._tokens.clear();
-            this._sTokenSeen.clear();
+            CliqzAttrack.sendTokens(true);
         }
 
         // send block list if the hour changed
@@ -2108,8 +2107,7 @@ var CliqzAttrack = {
     },
     saveKeyTokens: function(s, keyTokens, r, isPrivate) {
         // anything here should already be hash
-        if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {};
-        if (CliqzAttrack.sTokenSeen === null) CliqzAttrack.sTokenSeen = {};
+        if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {lastSent: datetime.getTime()};
         if (CliqzAttrack.tokens[s][r] == null) CliqzAttrack.tokens[s][r] = {'c': 0, 'kv': {}};
         CliqzAttrack.tokens[s][r]['c'] =  (CliqzAttrack.tokens[s][r]['c'] || 0) + 1;
         for (var kv of keyTokens) {
@@ -2121,16 +2119,12 @@ var CliqzAttrack = {
                     c: 0,
                     k_len: kv.k_len,
                     v_len: kv.v_len,
-                    isPrivate: isPrivate,
-                    sent: false,
-                    sTokenSeen: (s + tok) in CliqzAttrack.sTokenSeen
+                    isPrivate: isPrivate
                 };
             }
-            CliqzAttrack.sTokenSeen[s + tok] = true;
             CliqzAttrack.tokens[s][r]['kv'][k][tok].c += 1;
         }
         CliqzAttrack._tokens.setDirty();
-        CliqzAttrack._sTokenSeen.setDirty();
     },
     storeDomData: function(dom) {
         // cookies
