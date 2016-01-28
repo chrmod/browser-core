@@ -1313,6 +1313,7 @@ var CliqzAttrack = {
         }
 
         CliqzAttrack.initPacemaker();
+        pacemaker.start();
 
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpmodObserver, "http-on-modify-request", false);
         CliqzAttrack.observerService.addObserver(CliqzAttrack.httpopenObserver, "http-on-opening-request", false);
@@ -1371,7 +1372,7 @@ var CliqzAttrack = {
         CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-cached-response');
         CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpResponseObserver, 'http-on-examine-response');
 
-        pacemaker.destroy();
+        pacemaker.stop();
         HttpRequestContext.unloadCleaner();
     },
     unloadWindow: function(window) {
