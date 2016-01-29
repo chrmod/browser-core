@@ -9,13 +9,12 @@
     "after",
     "-Promise"
   ],
-  {
-  "globals":
-    { "$": false }
-  }
+  "globals": {
+    "$": false
+  },
   "expr": true,
   "proto": true,
-  "strict": true,
+  "strict": false,
   "indent": 2,
   "camelcase": true,
   "node": true,
