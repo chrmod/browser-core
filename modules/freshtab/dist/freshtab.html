@@ -27,8 +27,8 @@
         {{#each this}}
         <li>
           <a href="{{url}}" class="topNewsLink" data-index="{{@index}}">
-            <div class="title">{{short_title}}</div>
-            <span class="url">{{displayUrl}}</span>
+            <div extra="title" class="title">{{short_title}}</div>
+            <span extra="url" class="url">{{displayUrl}}</span>
           </a>
         </li>
         {{/each}}
