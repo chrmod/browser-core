@@ -71,9 +71,10 @@ var Extension = {
     load: function(upgrade, oldVersion, newVersion){
       CliqzUtils.extensionVersion = newVersion;
 
+      // wait before setting the support info as it uses LocalStorage which might not be accessible
       Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
         CliqzUtils.setSupportInfo()
-      },1000);
+      }, 30000);
 
       // Ensure prefs are set to our custom values
       Extension.setOurOwnPrefs();
