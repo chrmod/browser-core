@@ -19,12 +19,12 @@ body, html
   -webkit-text-size-adjust: 100%
 
 .noselect
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -khtml-user-select: none;    /* Konqueror */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* IE/Edge */
-  user-select: none;           /* non-prefixed version, currently not supported by any browser */
+  -webkit-touch-callout: none
+  -webkit-user-select: none
+  -khtml-user-select: none
+  -moz-user-select: none
+  -ms-user-select: none
+  user-select: none
 
 .wrapper
   margin: 0 auto
@@ -1134,7 +1134,7 @@ a
     margin: 0
     border: 0
     .selected
-      color: white;
+      color: white
     .framer
       background-color: lighten(#1F69AD, 40%)
       font-size: 1rem
@@ -1199,7 +1199,7 @@ a
     @extend .clearfix
     padding: 0.1rem 0
     .selected
-      color: white;
+      color: white
     .framer
       background-color: lighten(#55B146, 30%)
       font-size: 1rem
@@ -1267,5 +1267,27 @@ a
 
 .share
   display: none
+
+.currencyInput
+  width: 100%
+  box-sizing: border-box
+
+.currency__table
+  .text-center
+    text-align: center
+    font-weight: 500
+    
+.currencySwitch 
+  border: 0
+  width: 100%
+  box-sizing: border-box
+  background-color: #f9f9f9
+  margin: 0
+  padding: 0 0.25rem
+  height: 1.4rem
+  color: #999
+  &:hover
+    background-color: #eee
+    color: #333
     
 
