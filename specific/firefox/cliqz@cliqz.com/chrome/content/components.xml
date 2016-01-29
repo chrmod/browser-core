@@ -30,6 +30,19 @@
           ]]>
         </setter>
       </property>
+      <property name="richlistbox">
+        <setter>
+          <![CDATA[
+            //mask default FF
+          ]]>
+        </setter>
+        <getter>
+          <![CDATA[
+            //mask default FF
+            return {};
+          ]]>
+        </getter>
+      </property>
       <method name="_invalidate">
         <body>
           <![CDATA[
