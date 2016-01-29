@@ -9,6 +9,10 @@
     "after",
     "-Promise"
   ],
+  {
+  "globals":
+    { "$": false }
+  }
   "expr": true,
   "proto": true,
   "strict": true,
