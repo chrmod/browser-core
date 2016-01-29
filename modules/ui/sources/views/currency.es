@@ -1,3 +1,5 @@
+import Intl from "core/intl";
+
 export default {
   enhanceResults(data) {
     if (typeof Intl != "undefined" && Intl.NumberFormat) {

@@ -5,7 +5,7 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
-export default function(ctx) {
+function load(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
@@ -2042,7 +2042,7 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    UI.VIEWS[templateName] = require(templateName).default;
+    UI.VIEWS[templateName] = CLIQZ.System.get("ui/views/"+templateName).default;
     if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
       Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
         UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
@@ -2054,3 +2054,5 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
 ctx.CLIQZ.UI = UI;
 
 };
+
+load(this)

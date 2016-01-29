@@ -12,6 +12,7 @@
   "modules": [
     "static",
     "core",
+    "ui",
     "context-menu",
     "freshtab",
     "unblock",

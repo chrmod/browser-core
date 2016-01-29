@@ -1,4 +1,4 @@
-import localCinemaSC from 'local-cinema-sc';
+import localCinemaSC from 'ui/views/local-cinema-sc';
 
 export default {
   enhanceMovieSC: localCinemaSC.enhanceMovieSC,
