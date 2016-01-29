@@ -1,5 +1,5 @@
-Components.utils.import('chrome://cliqztests/content/screenshots/Screenshot.jsm');
-Components.utils.import('chrome://cliqztests/content/screenshots/ConfigWriter.jsm');
+Components.utils.import('chrome://cliqz/content/firefox-tests/screenshots/Screenshot.jsm');
+Components.utils.import('chrome://cliqz/content/firefox-tests/screenshots/ConfigWriter.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
 function getParameterByName(name) {
@@ -219,16 +219,16 @@ function prepareScreenshotTest(cfg) {
 
 // Load module with queries
 loadScript(
-    'chrome://cliqztests/content/screenshots/queries.js',
-    document.getElementsByTagName('head')[0]
+  'chrome://cliqz/content/firefox-tests/screenshots/queries.js',
+  document.getElementsByTagName('head')[0]
 );
 
 // Prepare selected test
 setTimeout(
   function() {
     loadScript(
-        'chrome://cliqztests/content/screenshots/' + getParameterByName('test'),
-        document.getElementsByTagName('head')[0]
+      'chrome://cliqz/content/firefox-tests/screenshots/' + getParameterByName('test'),
+      document.getElementsByTagName('head')[0]
     );
   },
   250
@@ -238,8 +238,8 @@ setTimeout(
 setTimeout(
     function(){
         loadScript(
-            'chrome://cliqztests/content/index.js',
-            document.getElementById('mocha')
+          'chrome://cliqz/content/firefox-tests/index.js',
+          document.getElementById('mocha')
         );
     },
     1000

@@ -1036,6 +1036,9 @@ var CliqzUtils = {
   isMac: function(){
     return CLIQZEnvironment.OS.indexOf("darwin") === 0;
   },
+  isLinux: function() {
+    return CLIQZEnvironment.OS.indexOf("linux") === 0;
+  },
   getWindow: CLIQZEnvironment.getWindow,
   getWindowID: CLIQZEnvironment.getWindowID,
   hasClass: function(element, className) {

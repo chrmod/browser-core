@@ -3,7 +3,6 @@
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
-    "antitrackingButton": false,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "04"

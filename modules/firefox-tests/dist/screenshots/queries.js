@@ -1,4 +1,4 @@
-QUERIES = {};
+var QUERIES = {};
 
 QUERIES.top = [
     'google.de', 'g', 'f', 'y', 'goo', 'fa', 'www.google.de', 'face',

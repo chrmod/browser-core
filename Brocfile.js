@@ -1,14 +1,17 @@
+"use strict";
 var Funnel = require('broccoli-funnel');
 var MergeTrees = require('broccoli-merge-trees');
 var compileSass = require('broccoli-sass-source-maps');
 var concat = require('broccoli-sourcemap-concat');
 var jade = require('broccoli-jade');
 var fs = require('fs');
+var path = require('path');
 var Babel = require('broccoli-babel-transpiler');
 var amdNameResolver = require('amd-name-resolver');
 var AssetRev = require('broccoli-asset-rev');
 var uglify = require('broccoli-uglify-sourcemap');
 var writeFile = require('broccoli-file-creator');
+var JSHinter = require('broccoli-jshint');
 
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
@@ -55,16 +58,30 @@ var mobileCss = compileSass(
 // attach subprojects
 var modules = [new Funnel(platform, { destDir: "platform" })];
 var requiredBowerComponents = new Set();
+var modulesTree = new Funnel('modules');
+var jsHinterTree = new JSHinter(
+  new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
+  { testGenerator: function () { return ''; },
+    jshintrcPath: process.cwd() + '/.jshintrc'
+  }
+);
+jsHinterTree.extensions = ['js', 'es']
+
+modulesTree = new MergeTrees([
+  modulesTree,
+  jsHinterTree
+]);
 
 cliqzConfig.modules.forEach(function (name) {
-  var path = 'modules/'+name;
-  if(fs.statSync(path).isDirectory()) {
+  var modulePath = 'modules/'+name;
+  if (fs.statSync(modulePath).isDirectory()) {
+
     try {
       var conf = fs.readFileSync('modules/'+name+'/bower_components.json');
       JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
     } catch(e) { }
 
-    var sources = new Funnel(path+'/sources', { exclude: ['styles/**/*'] });
+    var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
 
     sources = Babel(sources, {
       sourceMaps: 'inline',
@@ -74,25 +91,46 @@ cliqzConfig.modules.forEach(function (name) {
     });
 
     var outputTree = [
-      new Funnel(path+'/dist'),
-      sources
+      new Funnel(modulesTree, { srcDir: name + '/dist' }),
+      sources,
     ];
 
     var hasStyles = false;
     try {
-      fs.statSync(path+"/sources/styles"); // throws if not found
+      fs.statSync(modulePath+"/sources/styles"); // throws if not found
       hasStyles = true;
     } catch (e) { }
 
+    /*
     if (hasStyles) {
       var compiledCss = compileSass(
-        [path+'/sources/styles'],
+        [modulePath+'/sources/styles'],
         'styles.scss',
         'styles.css',
         { sourceMap: true }
       );
 
       outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
+    }
+    */
+    if (hasStyles) {
+      fs.readdirSync( modulePath+'/sources/styles').forEach(function (file) {
+        var extName = path.extname(file);
+
+        if ( (file.indexOf('_') === 0) ||
+             ['.sass', '.scss'].indexOf(extName) === -1 ) {
+          return;
+        }
+
+        var compiledCss = compileSass(
+          [modulePath+'/sources/styles'],
+          file,
+          file.replace(/\.(sass|scss)+$/, '.css'),
+          { sourceMap: true }
+        );
+
+        outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
+      });
     }
 
     var module = new MergeTrees(outputTree);

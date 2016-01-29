@@ -3,7 +3,6 @@
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
-    "antitrackingButton": true,
     "unblockUI": true,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,

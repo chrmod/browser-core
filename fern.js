@@ -34,22 +34,21 @@ program.version('0.1.0');
 program.command('build [file]')
 
        .action(configPath => {
+          var buildStart = Date.now();
           setConfigPath(configPath);
 
           console.log("Starting build");
           let child = spaws('broccoli', ['build', OUTPUT_PATH]);
           child.stderr.on('data', data => console.log(data.toString()));
           child.stdout.on('data', data => console.log(data.toString()));
-          child.on('close', code => console.log(code === 0 ? 'done' : ''));
+          child.on('close', code => console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : ''));
        });
 
 program.command('serve [file]')
        .action(configPath => {
           setConfigPath(configPath);
 
-          let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH]);
-          child.stderr.on('data', data => console.log(data.toString()));
-          child.stdout.on('data', data => console.log(data.toString()));
+          let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
        });
 
 program.command('generate <type> <moduleName>')

@@ -88,9 +88,9 @@ a:hover, a:active, a:focus {
 
 
 #freshTabPage #topVisited li {
-  width: 166px;
+  width: 186px;
   height: 102px;
-  padding: 0px 10px;
+  padding: 0px;
   list-style: none;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-top-color: rgba(0, 0, 0, 0);
@@ -105,8 +105,14 @@ a:hover, a:active, a:focus {
   overflow: hidden;
 }
 
+#freshTabPage #topVisited a {
+    display: block;
+    height: 100%;
+    padding-top: 10px;
+}
+
 #freshTabPage #topVisited li:hover {
-  width: 168px;
+  width: 188px;
   height: 104px;
   margin-right: 4px;
   margin-left: 4px;
@@ -119,7 +125,7 @@ a:hover, a:active, a:focus {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  max-width: 170px;
+  max-width: 186px;
 }
 /*
 #freshTabPage #topVisited li:last-child {
@@ -142,7 +148,7 @@ a:hover, a:active, a:focus {
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
-    margin: 10px auto 10px;
+    margin: 0px auto 10px auto;
     font-size: 24px;
 }
 
@@ -378,6 +384,10 @@ a:hover, a:active, a:focus {
   font-size: 18px;
 }
 
+.optinContent li:last-child {
+  padding-bottom: 25px;
+}
+
 .optinContent li div{
   margin-left: 60px;
   text-align: left;
@@ -414,10 +424,9 @@ a:hover, a:active, a:focus {
   display: inline-block;
   line-height: 26px;
   margin: 0 7px 4px 0;
-  padding: 5px 9px;
+  padding: 5px 15px;
   text-decoration: none;
   background-color: #FF5349;
-  width: 115px;
   height: 30px;
   font-size: 18px;
 }
@@ -471,6 +480,12 @@ a:hover, a:active, a:focus {
 
   #freshTabPage #topVisited li:hover {
     width: 68px;
+  }
+
+  #freshTabPage #topVisited .title {
+    max-width: 46px;
+    display: block;
+    margin: 0px auto;
   }
 
   #freshTabPage #searchContainer {
