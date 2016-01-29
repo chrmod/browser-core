@@ -1,13 +1,14 @@
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
-
-Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+import { utils, events } from 'core/cliqz';
 
 export default {
 
   init(settings) {
-    this.buttonEnabled = CliqzUtils.getPref("attrackUI", false);
+    this.buttonEnabled = utils.getPref("attrackUI", false);
     this.enabled = false;
+
+    utils.bindObjectFunctions( this.popupActions, this );
 
     if ( this.buttonEnabled ) {
       this.popup = new CliqzPopupButton({
@@ -31,7 +32,7 @@ export default {
     }.bind(this);
 
     this.onPrefChange(CliqzAttrack.ENABLE_PREF);
-    CliqzEvents.sub("prefchange", this.onPrefChange);
+    events.sub("prefchange", this.onPrefChange);
   },
 
   unload() {
@@ -39,7 +40,7 @@ export default {
       this.popup.destroy();
     }
 
-    CliqzEvents.un_sub("prefchange", this.onPrefChange);
+    events.un_sub("prefchange", this.onPrefChange);
 
     if (CliqzAttrack.isEnabled()) {
       CliqzAttrack.unload();
@@ -65,17 +66,22 @@ export default {
         url: info.hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
-        enabled: CliqzUtils.getPref("antiTrackTest"),
+        enabled: utils.getPref("antiTrackTest"),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname)
       });
     },
 
     toggleAttrack(args, cb) {
-      if ( CliqzUtils.getPref("antiTrackTest") ) {
+      if ( utils.getPref("antiTrackTest") ) {
         CliqzAttrack.disableModule();
       } else {
         CliqzAttrack.enableModule();
       }
+      cb();
+    },
+
+    closePopup(_, cb) {
+      this.popup.tbb.closePopup();
       cb();
     },
 
