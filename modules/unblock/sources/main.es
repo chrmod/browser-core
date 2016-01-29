@@ -63,6 +63,7 @@ export default {
 
       this.proxy_service = new ProxyService();
       this.proxy_manager = new ProxyManager(this.proxy_service);
+      this.proxy_manager.init();
 
       this.request_listener = new RequestListener();
 
@@ -82,6 +83,10 @@ export default {
     if (this.proxy_service != null) {
       this.proxy_service.destroy();
       this.proxy_service = null;
+    }
+    if (this.proxy_manager != null) {
+      this.proxy_manager.destroy();
+      this.proxy_manager = null;
     }
     if (this.request_listener != null) {
       this.request_listener.destroy();
