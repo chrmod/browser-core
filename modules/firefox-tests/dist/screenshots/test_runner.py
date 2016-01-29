@@ -19,8 +19,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-CHROME_URL = 'chrome://cliqztests/content/screenshots/run.html'
-
 logging.config.dictConfig({
     'version': 1,
     'loggers': {
@@ -82,7 +80,7 @@ EMAIL_TEMPLATES = {
 }
 
 
-def prepare_dynamic_test(args, test_content):
+def prepare_dynamic_tests(args, tests_path, test_abspath, test_content):
     match = re.search(r'.*queries_source:\s*s3://([^/]*)/(.*)\b.*',
                       test_content)
     if match and len(match.groups()) == 2:
@@ -98,13 +96,30 @@ def prepare_dynamic_test(args, test_content):
                 try:
                     queries.update(json.loads(key.get_contents_as_string()))
                     log.debug('Number of queries: %d' % len(queries))
+                    bucket.copy_key('_DONE/' + key.name, bucket_name, key.name)
                     bucket.delete_key(key)
                 except ValueError:
                     log.info('Error decoding JSON queries')
             if queries:
-                return re.sub(r'(.*queries:\s*)\[\](.*)',
-                              r'\1' + json.dumps(list(queries)) + r'\2',
-                              test_content)
+                # prevents json.dumps-escaping that
+                # is incompatible with JS parsing
+                queries = [q.replace('"', "'") for q in queries]
+                batch_size = 50
+                batches = [queries[i: i + batch_size]
+                           for i in xrange(0, len(queries), batch_size)]
+                base_name = os.path.splitext(os.path.split(test_abspath)[-1])[0]
+                log.debug('Number of query batches: %d', len(batches))
+                for i, b in enumerate(batches):
+                    dyn_test_content = re.sub(r'(.*queries:\s*)\[\](.*)',
+                                              r'\1' + json.dumps(b) +
+                                              r'\2', test_content)
+                    dyn_test_abspath = os.path.join(tests_path, base_name +
+                                                    '_%04d.js' % i)
+                    with open(dyn_test_abspath, 'w') as f:
+                        f.write(dyn_test_content)
+                    log.debug('Written temporary test file %s',
+                              dyn_test_abspath)
+
         except (S3ResponseError, IOError) as e:
             log.error('Error loading queries: %s' % str(e))
     else:
@@ -116,41 +131,16 @@ def prepare_dynamic_test(args, test_content):
 def run_test(args, test_relpath):
     log.info('Running test %s', test_relpath)
 
-    cur_dir_path = os.path.abspath(os.path.dirname(__file__))
-    tests_path = os.path.join(cur_dir_path, args.tests)
-    test_abspath = os.path.join(cur_dir_path, test_relpath)
-    dyn_test_abspath = os.path.join(tests_path, '_dyn_test')
-    dyn_text_relpath = os.path.relpath(dyn_test_abspath, cur_dir_path)
-
-    is_dyn_test = False
-    is_dyn_test_active = False
-    test_content = open(test_abspath).read()
-    if 'queries_source' in test_content:
-        log.debug('Found dynamic test "%s"' % test_relpath)
-        is_dyn_test = True
-        dyn_test_content = prepare_dynamic_test(args, test_content)
-        if dyn_test_content:
-            with open(dyn_test_abspath, 'w') as f:
-                f.write(dyn_test_content)
-            test_relpath = dyn_text_relpath
-            is_dyn_test_active = True
-            log.info('Written temporary test file %s', dyn_test_abspath)
-
-    if not is_dyn_test or (is_dyn_test and is_dyn_test_active):
-        cmd = [
-            args.browser_path,
-            '-chrome', CHROME_URL + '?test=' + test_relpath,
-            '-P', args.profile
-        ]
-        try:
-            subprocess.check_call(cmd)
-        except subprocess.CalledProcessError:
-            log.exception('Error running command %s:', cmd)
-    else:
-        log.info('Not running "%s"' % test_relpath)
-
-    # if is_dyn_test and is_dyn_test_active:
-    #     os.remove(dyn_test_abspath)
+    cmd = [
+        args.browser_path,
+        '-chrome', args.chrome_url + '?test=' +
+        test_relpath.replace('\\', '/'),
+        '-profile', args.profile, '--no-remote'
+    ]
+    try:
+        subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
+        log.exception('Error running command %s:', cmd)
 
 
 def upload_test_results(args, config, uploader_path):
@@ -263,9 +253,26 @@ def main(args):
     else:
         # test directory specified
         files_to_run = glob.glob(os.path.join(tests_path, '*.js'))
+        log.debug('Preparing dynamic tests')
+        dynamic_test_files = []
+        for test_abspath in files_to_run:
+            test_groups = get_test_groups(test_abspath)
+            if args.test_group and args.test_group not in test_groups:
+                continue
+            test_content = open(test_abspath).read()
+            if 'queries_source' in test_content:
+                log.debug('Found dynamic test: %s', test_abspath)
+                prepare_dynamic_tests(args, tests_path,
+                                      test_abspath, test_content)
+                dynamic_test_files.append(test_abspath)
+
+        # now includes dynamically generated tests...
+        files_to_run = glob.glob(os.path.join(tests_path, '*.js'))
+        # ...but not the template test files
+        files_to_run = [f for f in files_to_run if f not in dynamic_test_files]
         files_to_run = [os.path.relpath(f, cur_dir_path) for f in files_to_run]
 
-    log.debug('Will run tests: %s', files_to_run)
+    log.debug('Found tests: %s', files_to_run)
 
     uploader_path = os.path.join(cur_dir_path, 'upload.py')
 
@@ -309,6 +316,9 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--downloads-path',
                         dest='downloads_path', help='default downloads path',
                         default=r'C:\Users\vagrant\Downloads')
+    parser.add_argument('-c', '--chrome',
+                        dest='chrome_url', help='chrome URL of tests',
+                        default=r'chrome://cliqz/content/firefox-tests/screenshots/run.html')
     parser.add_argument('-o', '--output-path',
                         dest='output_path', help='output directory for uploader, a temp folder',
                         default=r'C:\temp')

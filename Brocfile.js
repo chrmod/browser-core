@@ -1,3 +1,4 @@
+"use strict";
 var Funnel = require('broccoli-funnel');
 var MergeTrees = require('broccoli-merge-trees');
 var compileSass = require('broccoli-sass-source-maps');
@@ -53,11 +54,12 @@ var mobileCss = compileSass(
 var components = [];
 var modules = []
 var requiredBowerComponents = new Set();
-
 var modulesTree = new Funnel('modules');
 var jsHinterTree = new JSHinter(
   new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
-  { testGenerator: function () { return ''; } }
+  { testGenerator: function () { return ''; },
+    jshintrcPath: process.cwd() + '/.jshintrc'
+  }
 );
 jsHinterTree.extensions = ['js', 'es']
 

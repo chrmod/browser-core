@@ -27,8 +27,8 @@
         {{#each this}}
         <li>
           <a href="{{url}}" class="topNewsLink" data-index="{{@index}}">
-            <div class="title">{{short_title}}</div>
-            <span class="url">{{displayUrl}}</span>
+            <div extra="title" class="title">{{short_title}}</div>
+            <span extra="url" class="url">{{displayUrl}}</span>
           </a>
         </li>
         {{/each}}
@@ -106,7 +106,7 @@
             <li class="surfSafe clearfix">
               <span class="icon"></span>
               <div>
-                <a class="privacy" target="_blank" href="https://cliqz.com/products/cliqz-for-windows/privacy">{{local 'cliqz-onboarding-privacy'}}</a>&nbsp;
+                <a class="privacy" target="_blank" href="https://cliqz.com/whycliqz/privacy">{{local 'cliqz-onboarding-privacy'}}</a>&nbsp;
                 {{local 'cliqz-onboarding-surf-safe'}}
                </div>
             </li>

@@ -1,8 +1,8 @@
 TESTS.QualityRaterScreenshotsTest = prepareScreenshotTest({
-    width: 600,
+    width: 1024,
     name: 'QualityRaterScreenshotsTest',
     upload: {
-        dropdown_width: 502,
+        dropdown_width: 786,
         bucket: 'tests-dropdown-appearance-dynamic-out',
         key_prefix: 'quality-rating-queries',
         flat_upload: true,
