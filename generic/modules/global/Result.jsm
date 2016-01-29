@@ -195,7 +195,8 @@ var Result = {
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
                 richData: result.snippet.rich_data,
-                adult: result.snippet.adult || false
+                adult: result.snippet.adult || false,
+                media: result.snippet.media
             },
             source = getSuperType(result) || result.source;
 

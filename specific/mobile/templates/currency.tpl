@@ -15,23 +15,23 @@
     </div>
       <table style="width:100%" class="currency__table">
         <tr>
-          <td>
+          <td class="text-center">
             {{data.fromCurrency}}
           </td>
           <td>
           </td>
-          <td>
+          <td class="text-center">
             {{data.toCurrency}}
           </td>
         </tr>
         <tr class="currency__swap">
-          <td>
+          <td style="width: 40%">
             <input class="currencyInput" id="fromInput" type"number" step="0.01" onkeyup="updateFromValue({{json data}})" value="{{data.fromAmount}}" />
           </td>
           <td>
             <button class="currencySwitch" onclick="switchCurrency({{json data}})">Swap</button>
           </td>
-          <td>
+          <td style="width: 40%">
             <input class="currencyInput" id="toInput" type"number" step="0.01" onkeyup="updateToValue({{json data}})" value="{{data.toAmount.main}}" />
           </td>
         </tr>

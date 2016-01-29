@@ -10,7 +10,7 @@
 
     <div class="main">
         {{#if image.src}}
-            <div class="main__image" data-style="background-image: url({{ image.src }});">
+            <div class="main__image" data-style="background-image: url({{ data.media }});">
                 Image
             </div>
         {{/if}}
