@@ -16,7 +16,7 @@ function HttpRequestContext(subject) {
   this._legacy_source = undefined;
 
   // tab tracking
-  if(this.getContentPolicyType() == 6) {
+  if(this.isFullPage()) {
     // fullpage - add tracked tab
     let tab_id = this.getOuterWindowID();
     HttpRequestContext._tabs[tab_id] = this.url;
@@ -74,7 +74,18 @@ HttpRequestContext.prototype = {
     }
   },
   getContentPolicyType: function() {
-    return this.loadInfo ? this.loadInfo.contentPolicyType : this._legacyGetContentPolicyType();
+    if (this.loadInfo) {
+      if (this.loadInfo.contentPolicyType) {
+        return this.loadInfo.contentPolicyType;
+      } else {
+        return this.loadInfo.externalContentPolicyType;
+      }
+    } else {
+      return this._legacyGetContentPolicyType();
+    }
+  },
+  isFullPage: function() {
+    return this.getContentPolicyType() == 6;
   },
   getCookieData: function() {
     return this.getRequestHeader("Cookie");
@@ -106,7 +117,7 @@ HttpRequestContext.prototype = {
     // in most cases this is the same as the outerWindowID.
     // however for frames, it is the parentWindowId
     let parentWindow = this.getParentWindowID();
-    if (this.getContentPolicyType() != 6 && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
+    if (!this.isFullPage() && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
       return parentWindow;
     } else {
       return this.getOuterWindowID();

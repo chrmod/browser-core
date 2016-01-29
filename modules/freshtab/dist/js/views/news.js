@@ -2,7 +2,10 @@ function renderNews(news) {
   var hb_news = news.hb_news,
       top_news = news.top_h_news,
       topNews  = CliqzHandlebars.compile($("#topNews").html()),
-      yourNews = CliqzHandlebars.compile($("#yourNews").html());
+      yourNews = CliqzHandlebars.compile($("#yourNews").html()),
+      startEnter,
+      elapsed,
+      extra;
 
   if (hb_news) {
     for (var domain in hb_news) {
@@ -33,5 +36,28 @@ function renderNews(news) {
       target_type: 'topnews',
       target_index: $(this).attr('data-index')
     });
+  });
+
+  $('.topNewsLink').on('mouseenter', '.title, .url', function(e) {
+    if( e.target.getAttribute('class') === 'title') {
+      extra = 'title';
+    } else {
+      extra = 'url';
+    }
+    startEnter = new Date().getTime();
+  });
+
+  $('.topNewsLink').on('mouseleave', '.title, .url', function(e) {
+    elapsed = new Date().getTime() - startEnter;
+    if(elapsed > 2000) {
+      CliqzUtils.telemetry({
+        type: 'home',
+        action: 'hover',
+        target_type: 'topnews',
+        extra: extra,
+        hover_time: elapsed,
+        target_index: $(this).attr('data-index')
+      });
+    }
   });
 }
