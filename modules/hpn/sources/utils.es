@@ -22,7 +22,7 @@ export function getRouteHash(msg){
 	var routeHashStr = "";
 	keys.forEach(function(key){
 		routeHashStr += flatMsg[key];
-	})
+	});
 	return routeHashStr;
 }
 
@@ -34,7 +34,7 @@ export function fetchSourceMapping(){
     	function success(req){
     		try {
     			CliqzSecureMessage.sourceMap = JSON.parse(req.response);
-    		} catch(e){};
+    		} catch(e){}
     	},
     	function error(res){
     		CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY);
@@ -75,7 +75,7 @@ export function _http(url){
             resolve(this.response);
           } else {
             // Performs the function "reject" when this.status is different than 2xx
-            CliqzUtils.log("Error _http: " + client.status,"Other status code.");
+            CliqzUtils.log("Error _http: " + client.status,"Other status code." + this.response);
             resolve(this.statusText);
           }
         };
@@ -88,7 +88,7 @@ export function _http(url){
         	CliqzSecureMessage.stats(uri, "total-timeouts", 1);
         	CliqzUtils.log("Error3","timeout");
         	reject(this.statusText);
-        }
+        };
       });
 
       // Return the promise
@@ -105,7 +105,7 @@ export function _http(url){
   		return core.req('POST', url, args, type);
   	}
   };
-};
+}
 
 /*
 Converts given array to generator like object.
@@ -161,10 +161,10 @@ var JsonFormatter = {
 
         // optionally extract iv and salt
         if (jsonObj.iv) {
-        	cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv)
+        	cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv);
         }
         if (jsonObj.s) {
-        	cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s)
+        	cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s);
         }
 
         return cipherParams;

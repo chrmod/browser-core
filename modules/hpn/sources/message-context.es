@@ -190,6 +190,7 @@ export default class {
 	 * @returns hash.
 	 */
 	getProxyIP(routeHash){
+		var routeHash = parseInt(routeHash, 2);
 		var totalProxies = 4096;
 		var modRoute = routeHash % totalProxies;
 		var proxyIP = createHttpUrl(CliqzSecureMessage.routeTable[modRoute]);
