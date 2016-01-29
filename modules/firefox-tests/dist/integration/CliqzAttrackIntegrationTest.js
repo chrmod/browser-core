@@ -791,19 +791,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
       it('adds local safekey if 3 different values seen', function(done) {
         this.timeout(5000);
-        openTestPage(testpage)
+        openTestPage(testpage);
 
         expectNRequests(3).then(function(m) {
           try {
             var url_hash = md5('127.0.0.1').substring(0, 16),
               callback_hash = md5('callback'),
               uid_hash = md5('uid');
-            setTimeout(function(){
-              chai.expect(CliqzAttrack.safeKey).has.property(url_hash);
-              chai.expect(CliqzAttrack.safeKey[url_hash]).has.property(callback_hash);
-              chai.expect(CliqzAttrack.safeKey[url_hash]).not.has.property(uid_hash);
-              done();
-            }, 500);
+            chai.expect(CliqzAttrack.safeKey).has.property(url_hash);
+            chai.expect(CliqzAttrack.safeKey[url_hash]).has.property(callback_hash);
+            chai.expect(CliqzAttrack.safeKey[url_hash]).not.has.property(uid_hash);
+            done();
           } catch(e) {
             done(e);
           }
