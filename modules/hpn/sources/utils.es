@@ -76,7 +76,8 @@ export function _http(url){
           } else {
             // Performs the function "reject" when this.status is different than 2xx
             CliqzUtils.log("Error _http: " + client.status,"Other status code." + this.response);
-            resolve(this.statusText);
+            CliqzSecureMessage.stats(uri, client.status, 1);
+            reject(this.statusText);
           }
         };
         client.onerror = function () {

@@ -326,7 +326,6 @@ var sendM = function (m){
 		// After the message is SIGNED, we need to start the blind signature.
 		mc.getMP();
 		var uPK = CliqzSecureMessage.uPK.publicKeyB64;
-
 		// Messages to be blinded.
 		mc.m1 = mc.mP ;
 		mc.m2 = mc.mP + ";" + uPK;

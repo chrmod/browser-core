@@ -20,7 +20,7 @@ export default class{
     rWMymdRofsl0g6+abRETWEg+8uu7pLlDVehM9sPZPhtOGd/Vl+05FDUhNsbszdOE\
     vUNtCY8pX4SI5pnA/FjWHOkCAwEAAQ==\
     -----END PUBLIC KEY-----"
-    this.endPoint = "http://securebrowsingbeta-1342316385.us-east-1.elb.amazonaws.com/sign";//"http://10.10.73.207/sign";
+    this.endPoint = CliqzSecureMessage.BLIND_SIGNER;//"http://10.10.73.207/sign";
     this.loadKey = new CliqzSecureMessage.JSEncrypt();
     this.loadKey.setPublicKey(CliqzSecureMessage.signerKey || this.dsPubKey);
     this.n = this.loadKey.parseKeyValues(this.dsPubKey)['mod'];

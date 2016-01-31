@@ -76,11 +76,11 @@ export default class {
 
   registerKey(){
     // Needs to be public.
-    var upk = this.publicKey;
+    var upk = this.publicKeyB64;
 
     var promise = new Promise(function(resolve, reject){
       CliqzUtils.log("Setting public Key","XXXX");
-      _http("http://10.10.76.48/register/")
+      _http("http://hpn-sign-499302487.us-east-1.elb.amazonaws.com/register")
         .post(JSON.stringify({"pk": upk}))
         .then(e=> resolve(true))
     });

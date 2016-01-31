@@ -187,7 +187,7 @@ export default class {
 
 	/**
 	 * Method to get proxy IP based on route hash which will be used for routing purpose.
-	 * @returns hash.
+	 * @returns proxyIP.
 	 */
 	getProxyIP(routeHash){
 		var routeHash = parseInt(routeHash, 2);
