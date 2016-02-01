@@ -57,11 +57,37 @@ function showHistory(history) {
     data.push(queries[qi]);
     qi++;
   }
-  displayData(data);
+  
+  var starredQueries = localStorage.getItem('starredQueries');
+  var starredHistory = localStorage.getItem('starredHistory');
+  starredQueries = starredQueries ? JSON.parse(starredQueries).reverse() : [];
+  starredHistory = starredHistory ? JSON.parse(starredHistory).reverse() : [];
+  data = data.map(function (item) {
+    if(item.url && item.id === starredHistory[0]) {
+      item.starred = true;
+      starredHistory.shift();
+    } else if(item.query && item.id === starredQueries[0]) {
+      item.starred = true;
+      starredQueries.shift();
+    }
+    return item;
+  });
+
+  if(starMode) {
+    displayStarredData(data);
+  } else {
+    displayData(data);
+  }
+}
+
+function displayStarredData(data) {
+  displayData(data.filter(function(item) {
+    return !(item.url || item.query) || item.starred;
+  }));
 }
 
 function displayData(data) {
-  if(!CliqzHandlebars.tplCache["conversations"]) {
+  if(!CliqzHandlebars.tplCache["conversations"] || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
     return setTimeout(displayData, 100, data);
   }
   document.body.innerHTML = CliqzHandlebars.tplCache["conversations"]({data: data});
@@ -133,8 +159,6 @@ function displayData(data) {
   });
 }
 
-var editMode = false;
-
 function lunchEditMode(element) {
   clearTimeout(touchTimer);
   touchTimer = null;
@@ -202,6 +226,50 @@ function filterHistory(value) {
 
 var selectedQueries = [];
 var selectedHistory = [];
+
+function starSelected() {
+  starSelectedList(selectedQueries, 'starredQueries');
+  starSelectedList(selectedHistory, 'starredHistory');
+  getHistory();
+  endEditMode();
+}
+
+function starSelectedList(selectedList, storageListName) {
+  var storageList = localStorage.getItem(storageListName);
+  if(!storageList) {
+    localStorage.setItem(storageListName, JSON.stringify(selectedList));
+    localStorage.setItem(storageListName, JSON.stringify(selectedList));
+    selectedList = [];
+    return;
+  }
+  storageList = JSON.parse(storageList);
+
+  var index = 0, id;
+  while(true) {
+    if(selectedList.length == 0) {
+      break;
+    }
+    id = selectedList[0];
+    if(index >= storageList.length) {
+      storageList = storageList.concat(selectedList);
+      break;
+    } else if(storageList[index] === id) {
+      storageList.splice(index, 1);
+      selectedList.shift();
+    } else if(storageList[index] < id) {
+      storageList.splice(index, 0, id);
+      index++;
+      selectedList.shift();
+    } else {
+      index++;
+    }
+  }
+
+  
+  
+  localStorage.setItem(storageListName, JSON.stringify(storageList));
+  selectedList = [];
+}
 
 function removeSelectedQueries() {
   var queries = localStorage.getItem("recentQueries");
@@ -271,13 +339,14 @@ function selectItem(item) {
   }
 }
 
-function getHistory() {
-  osBridge.searchHistory("", "showHistory");
+function getHistory(isStarred) {
+  starMode = isStarred;
   historyTimer = setTimeout(showHistory, 200, {results: []});
+  osBridge.searchHistory("", "showHistory");
 }
 
-getHistory();
+CliqzUtils.init(this);
+getHistory(false);
 
 var touchTimer, isTapBlocked, historyTimer;
-
-
+var editMode = false, starMode = false;

@@ -968,6 +968,21 @@
     "mobile_reconnecting_msg": {
       "message": "Internetverbindung wird wieder hergestellt"
     },
+    "mobile_history_title": {
+      "message": "Besuchte Seiten"
+    },
+    "mobile_favorites_title": {
+      "message": "Favoriten"
+    },
+    "mobile_history_remove": {
+      "message": "Löschen"
+    },
+    "mobile_history_star": {
+      "message": "Als Favorit sichern"
+    },
+    "mobile_history_cancel": {
+      "message": "Abbrechen"
+    },
     "mobile_no_result_title": {
       "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },

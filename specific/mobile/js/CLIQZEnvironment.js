@@ -256,8 +256,6 @@ CLIQZEnvironment = {
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
 
-    CLIQZEnvironment.autoComplete(r._results[0].val,r._searchString);
-
     var cacheTS = localStorage.getCacheTS(r._searchString);
     if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
       CLIQZEnvironment.enrichResults(r, 0, historyCount);
@@ -268,6 +266,10 @@ CLIQZEnvironment = {
     CLIQZEnvironment.setCurrentQuery(r._searchString);
     
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
+
+    if(renderedResults.results.length > historyCount) {
+      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+    }
 
 
     CLIQZEnvironment.initializeSharing();
