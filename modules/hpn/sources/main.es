@@ -37,8 +37,8 @@ Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/s
 var proxyCounter = 0;
 // hpn-query pref is to encrypt queries
 // hpn-telemetry is to encrypt telemetry data.
-// CliqzUtils.setPref('hpn', CliqzUtils.getPref('hpn', false));
-// CliqzUtils.setPref('hpn', CliqzUtils.getPref('hpn', false));
+CliqzUtils.setPref('hpn-telemetry', CliqzUtils.getPref('hpn-telemetry', true));
+CliqzUtils.setPref('hpn-query', CliqzUtils.getPref('hpn-query', true));
 
 var CliqzSecureMessage = {
 	VERSION: '0.1',
@@ -63,8 +63,8 @@ var CliqzSecureMessage = {
   proxyList: null,
   proxyStats:{},
   PROXY_LIST_PROVIDER: "https://hpn-collector.cliqz.com/proxyList?q=1",
-  BLIND_SIGNER:"http://hpn-sign-499302487.us-east-1.elb.amazonaws.com/sign",
-  USER_REG:"http://hpn-sign-499302487.us-east-1.elb.amazonaws.com/register",
+  BLIND_SIGNER:"https://hpn-sign.cliqz.com/sign",
+  USER_REG:"https://hpn-sign.cliqz.com/register",
   signerKey: null,
   loggerKey: null,
   getRouteHash: getRouteHash,

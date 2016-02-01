@@ -9,6 +9,9 @@
     "after",
     "-Promise"
   ],
+  "globals": {
+    "$": false
+  },
   "expr": true,
   "proto": true,
   "strict": true,
@@ -41,5 +44,5 @@
   "trailing": true,
   "white": false,
   "eqnull": true,
-  "esnext": true
+  "esversion": 6
 }

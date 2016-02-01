@@ -260,7 +260,10 @@ var CliqzAttrack = {
             }
 
             // find the ok tokens fields
-            CliqzAttrack.examineTokens(url_parts, CliqzAttrack.sendInstantSafeKey);
+            var isPrivate = requestContext.isChannelPrivate();
+            if (!isPrivate) {
+                CliqzAttrack.examineTokens(url_parts, CliqzAttrack.examineTokensCallback);
+            }
 
             // youtube
             if (url.indexOf("mime=video") > -1 || url.indexOf("mime=audio") > -1) return;
@@ -322,7 +325,7 @@ var CliqzAttrack = {
 
 
                 // extract and save tokens
-                CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname']);
+                CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname'], isPrivate, CliqzAttrack.saveKeyTokens);
                 try{
                     let source = getRefToSource(subject, referrer);
                     if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
@@ -554,9 +557,10 @@ var CliqzAttrack = {
                 CliqzAttrack.isBloomFilterEnabled() && CliqzAttrack.bloomFilter.bloomFilter == null){
                 return;
             }
-            var aChannel = subject.QueryInterface(nsIHttpChannel);
-            var requestContext = new HttpRequestContext(subject);
-            var url = requestContext.url;
+            var aChannel = subject.QueryInterface(nsIHttpChannel),
+                requestContext = new HttpRequestContext(subject),
+                isPrivate = requestContext.isChannelPrivate(),
+                url = requestContext.url;
             if (!url || url == '') return;
             var visitor = new HeaderInfoVisitor(aChannel);
             var headers = visitor.visitRequest();
@@ -595,7 +599,7 @@ var CliqzAttrack = {
                 //var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) return;
-                CliqzAttrack.extractHeaderTokens(url_parts, source_url_parts['hostname'], headers);
+                CliqzAttrack.extractHeaderTokens(url_parts, source_url_parts['hostname'], headers, isPrivate, CliqzAttrack.saveKeyTokens);
                 try{
                     if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
                         var doc = source.lc.topWindow.document;
@@ -1145,9 +1149,9 @@ var CliqzAttrack = {
             pacemaker.register(CliqzAttrack.updateBloomFilter, 10 * 60 * 1000);
 
         // send instant cache tokens whenever hour changes
-        // clear instant token every hour
-        pacemaker.register(CliqzAttrack.sendInstantTokens, 5 * 60 * 1000);
-        pacemaker.register(CliqzAttrack.sendTokens, two_mins, timeChangeConstraint("tokens", "hour"));
+        pacemaker.register(CliqzAttrack.sendTokens, 5 * 60 * 1000);
+        // if the hour has changed
+        pacemaker.register(CliqzAttrack.hourChanged, two_mins, timeChangeConstraint("hourChanged", "hour"));
 
         // every 2 mins
         pacemaker.register(function clean_visitCache(curr_time) {
@@ -1257,7 +1261,7 @@ var CliqzAttrack = {
                 CliqzAttrack.blacklist = JSON.parse(req.response).tpdomains;
             },
             function error(){
-                CliqzUtils.log("Could not load blacklist.")
+                CliqzUtils.log("Could not load blacklist.");
             }
          );
 
@@ -1435,53 +1439,80 @@ var CliqzAttrack = {
             payl = CliqzAttrack.attachVersion(payl);
         return payl;
     },
-    sendInstantSafeKey: function(s, key, today) {
-        // once there is a new safe key, send it back
-        var data = {};
-        data[s] = {};
-        data[s][key] = today;
-        var payl = CliqzAttrack.generatePayload(data, datetime.getTime(), true, true);
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
-    },
-    cacheInstantTokens: function(s, r, kv) {
-        // If this is the first apperance of this token within an hour,
-        // We will cache it and send every five minutes
-        var k = kv.k,
-            tok = kv.v;
-        if (!(s in CliqzAttrack.instantTokenCache))
-            CliqzAttrack.instantTokenCache[s] = {};
-        if (!(r in CliqzAttrack.instantTokenCache[s]))
-            CliqzAttrack.instantTokenCache[s][r] = {'kv' : {}};
-        if (!(k in CliqzAttrack.instantTokenCache[s][r]['kv']))
-            CliqzAttrack.instantTokenCache[s][r]['kv'][k] = {};
-        CliqzAttrack.instantTokenCache[s][r]['kv'][k][tok] = {
-          c: 1,
-          k_len: kv.k_len,
-          v_len: kv.v_len
-        };
-    },
-    sendInstantTokens: function(){
-        if (Object.keys(CliqzAttrack.instantTokenCache) > 0) {
-            var payl = CliqzAttrack.generatePayload(CliqzAttrack.instantTokenCache, datetime.getHourTimestamp(), true, true);
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
-            CliqzAttrack.instantTokenCache = {};
+    sendTokens: function(hourChanged) {
+        // send tokens every 5 minutes
+        let data = {},
+            hour = datetime.getTime();
+        if (!hourChanged) {  // send 1/12 of data
+            for (let tracker in CliqzAttrack.tokens) {
+                if (Object.keys(data).length > Object.keys(CliqzAttrack.tokens).length / 12) {
+                    break;
+                }
+                let tokenData = CliqzAttrack.tokens[tracker];
+                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
+                    data[tracker] = tokenData;
+                    delete(data[tracker].lastSent);
+                    delete(CliqzAttrack.tokens[tracker]);
+                }
+            }
+        } else {  // send everything that has not been send in the last hour
+            for (let tracker in CliqzAttrack.tokens) {
+                let tokenData = CliqzAttrack.tokens[tracker];
+                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
+                    data[tracker] = tokenData;
+                    delete(data[tracker].lastSent);
+                    delete(CliqzAttrack.tokens[tracker]);
+                }
+            }
         }
+        if (Object.keys(data).length > 0) {
+            var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
+            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+        }
+        CliqzAttrack._tokens.setDirty();
     },
-    sendTokens: function() {
+    hourChanged: function() {
+        // clear the tokens if the hour changed
         if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
             if (CliqzAttrack.local_tracking.isEnabled()) {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
             // reset the state
-            this._tokens.clear();
+            CliqzAttrack.sendTokens(true);
         }
 
-        // send block list
+        // send block list if the hour changed
         if (CliqzAttrack.blocked && Object.keys(CliqzAttrack.blocked).length > 0) {
             var payl = CliqzAttrack.generatePayload(CliqzAttrack.blocked, datetime.getHourTimestamp(), false, true);
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
             // reset the state
             this._blocked.clear();
+        }
+
+        // send safe key if the hour changed
+        if (CliqzAttrack.safeKey) {
+            // get only keys from local key
+            var day = CliqzAttrack.getTime().substring(0, 8);
+            var dts = {}, local = {}, localE = 0, s, k;
+            for (s in CliqzAttrack.safeKey) {
+                for (k in CliqzAttrack.safeKey[s]) {
+                    if (CliqzAttrack.safeKey[s][k][1] == 'l') {
+                        if (!local[s]) {
+                            local[s] = {};
+                            localE ++;
+                        }
+                        local[s] = CliqzAttrack.safeKey[s][k];
+                        if (CliqzAttrack.safeKey[s][k][0] == day) {
+                            if (!dts[s]) dts[s] = {};
+                            dts[s][k] = CliqzAttrack.safeKey[s][k][0];
+                        }
+                    }
+                }
+            }
+            if(Object.keys(dts).length > 0) {
+                payl = CliqzAttrack.generatePayload(dts, CliqzAttrack.tokensLastSent, false, true);
+                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
+            }
         }
     },
     pruneSafeKey: function() {
@@ -1979,6 +2010,9 @@ var CliqzAttrack = {
         return badHeaders;
     },
     examineTokens: function(url_parts, callback) {
+        callback(url_parts);
+    },
+    examineTokensCallback: function(url_parts) {
         var day = datetime.newUTCDate();
         var today = datetime.dateString(day);
         // save appeared tokens with field name
@@ -2003,9 +2037,6 @@ var CliqzAttrack = {
             if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > 2) {
                 if (CliqzAttrack.safeKey[s] == null)
                     CliqzAttrack.safeKey[s] = {};
-                if (!(key in CliqzAttrack.safeKey[s]) ||
-                    CliqzAttrack.safeKey[s][key][0] != today)
-                    callback(s, key, today);
                 CliqzAttrack.safeKey[s][key] = [today, 'l'];
                 CliqzAttrack._safekey.setDirty();
                 // keep the last seen token
@@ -2014,15 +2045,17 @@ var CliqzAttrack = {
             CliqzAttrack._requestKeyValue.setDirty();
         });
     },
-    extractKeyTokens: function(url_parts, refstr) {
+    extractKeyTokens: function(url_parts, refstr, isPrivate, callback) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
-        var keyTokens = url_parts.getKeyValuesMD5(),
-            s = md5(url_parts.hostname).substr(0, 16);
-        refstr = md5(refstr).substr(0, 16);
-        CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.cacheInstantTokens);
+        var keyTokens = url_parts.getKeyValuesMD5();
+        if (keyTokens.length > 0) {
+            var s = md5(url_parts.hostname).substr(0, 16);
+            refstr = md5(refstr).substr(0, 16);
+            callback(s, keyTokens, refstr, isPrivate);
+        }
     },
-    extractHeaderTokens: function(url_parts, refstr, header) {
+    extractHeaderTokens: function(url_parts, refstr, header, isPrivate, callback) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
         var keyTokens = [];
@@ -2030,18 +2063,18 @@ var CliqzAttrack = {
             var tok = header[k];
             tok = dURIC(dURIC(tok));
             if (tok.length >= CliqzAttrack.shortTokenLength) {
-              keyTokens.push({
-                k: md5(k),
-                v: md5(tok),
-                k_len: k.length,
-                v_len: tok.length
+                keyTokens.push({
+                    k: md5(k),
+                    v: md5(tok),
+                    k_len: k.length,
+                    v_len: tok.length
               });
             }
         }
         if (Object.keys(keyTokens).length > 0) {
             var s = md5(url_parts.hostname + url_parts.path);
             refstr = md5(refstr).substr(0, 16);
-            CliqzAttrack.saveKeyTokens(s, keyTokens, refstr, CliqzAttrack.cacheInstantTokens);
+            callback(s, keyTokens, refstr, isPrivate);
         }
     },
     checkPostReq: function(body, badTokens, cookies) {
@@ -2072,10 +2105,9 @@ var CliqzAttrack = {
         }
         return body;
     },
-    saveKeyTokens: function(s, keyTokens, r, callback) {
+    saveKeyTokens: function(s, keyTokens, r, isPrivate) {
         // anything here should already be hash
-        if (keyTokens.length === 0) return;
-        if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {};
+        if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {lastSent: datetime.getTime()};
         if (CliqzAttrack.tokens[s][r] == null) CliqzAttrack.tokens[s][r] = {'c': 0, 'kv': {}};
         CliqzAttrack.tokens[s][r]['c'] =  (CliqzAttrack.tokens[s][r]['c'] || 0) + 1;
         for (var kv of keyTokens) {
@@ -2084,16 +2116,15 @@ var CliqzAttrack = {
             if (CliqzAttrack.tokens[s][r]['kv'][k] == null) CliqzAttrack.tokens[s][r]['kv'][k] = {};
             if (CliqzAttrack.tokens[s][r]['kv'][k][tok] == null) {
                 CliqzAttrack.tokens[s][r]['kv'][k][tok] = {
-                  c: 0,
-                  k_len: kv.k_len,
-                  v_len: kv.v_len
+                    c: 0,
+                    k_len: kv.k_len,
+                    v_len: kv.v_len,
+                    isPrivate: isPrivate
                 };
-                // TODO: replace count with checksum
-                callback(s, r, kv);
             }
             CliqzAttrack.tokens[s][r]['kv'][k][tok].c += 1;
         }
-        this._tokens.setDirty();
+        CliqzAttrack._tokens.setDirty();
     },
     storeDomData: function(dom) {
         // cookies

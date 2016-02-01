@@ -80,7 +80,7 @@ export default class {
 
     var promise = new Promise(function(resolve, reject){
       CliqzUtils.log("Setting public Key","XXXX");
-      _http("http://hpn-sign-499302487.us-east-1.elb.amazonaws.com/register")
+      _http("http://hpn-sign.cliqz.com/register")
         .post(JSON.stringify({"pk": upk}))
         .then(e=> resolve(true))
     });
