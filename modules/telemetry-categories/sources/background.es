@@ -3,7 +3,7 @@ import Reporter from 'telemetry-categories/reporter';
 import ResourceLoader from 'telemetry-categories/resource-loader';
 
 export default {
-  init(settings) {
+  init() {
     this.loader = new ResourceLoader(
       [ 'telemetry-categories', 'categories.json' ],
       {
@@ -14,18 +14,18 @@ export default {
   },
 
   start() {
-    if ( this.reporter || utils.getPref( 'categoryAssessment', false ) ) {
+    if ( this.reporter || utils.getPref( 'categoryAssessment', false ) === false ) {
       return;
     }
 
-    loader.load().then( categories => {
+    this.loader.load().then( categories => {
       this.reporter = new Reporter( categories );
 
       this.reporter.start();
-      events.sub( 'core.location_change', this.reporter.assess )
+      events.sub( 'core.location_change', this.reporter.assess );
     });
 
-    loader.onUpdate( categories => {
+    this.loader.onUpdate( categories => {
       if ( !this.reporter ) {
         return;
       }
@@ -38,9 +38,9 @@ export default {
     this.loader.stop();
 
     if ( this.reporter ) {
-      CliqzEvents.un_sub( 'core.location_change', this.reporter.assess );
-      reporter.stop();
+      events.un_sub( 'core.location_change', this.reporter.assess );
+      this.reporter.stop();
     }
   },
 
-}
+};
