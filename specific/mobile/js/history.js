@@ -82,7 +82,9 @@ function showHistory(history) {
 
 function displayStarredData(data) {
   displayData(data.filter(function(item) {
-    return !(item.url || item.query) || item.starred;
+    return item.date || item.starred; // filter all unstarred records
+  }).filter(function(item, index, arr){
+    return !item.date || (arr[index + 1] && !arr[index + 1].date); // filter empty days
   }));
 }
 
@@ -350,3 +352,31 @@ getHistory(false);
 
 var touchTimer, isTapBlocked, historyTimer;
 var editMode = false, starMode = false;
+
+function requestHistoryCleanup(removeFavorites) {
+  if(removeFavorites) {
+    localStorage.setItem('starredHistory', []);
+    localStorage.setItem('starredQueries', []);
+    localStorage.setItem('recentQueries', []);
+    osBridge.cleanHistory();
+    return;
+  }
+  var starredHistory = localStorage.getItem('starredHistory');
+  starredHistory = starredHistory ? JSON.parse(starredHistory) : [];
+  osBridge.cleanHistory(starredHistory);
+  var starredQueries = localStorage.getItem('starredQueries');
+  starredQueries = starredQueries ? JSON.parse(starredQueries) : [];
+  var recentQueries = localStorage.getItem('recentQueries');
+  recentQueries = recentQueries ? JSON.parse(recentQueries) : [];
+  selectedQueries = getDiff(recentQueries, starredQueries);
+  removeSelectedQueries();
+}
+
+function getDiff(objArr, idArr) {
+  objArr = objArr.filter(function(item) {
+    return idArr.indexOf(item.id) == -1;
+  });
+  return objArr.map(function(item) {
+    return item.id;
+  });
+}

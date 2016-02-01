@@ -138,6 +138,19 @@ var osBridge = {
       data: ids
     }
     OS.postMessage(message);
+  },
+  /**
+    function: cleanHistory
+    description: removes history records from native history
+    params: excludedIds as list
+    message data: excludedIds as list
+  */
+  cleanHistory: function(excludedIds) {
+    var message = {
+      action: "cleanHistory",
+      data: excludedIds
+    }
+    OS.postMessage(message);
   }
 };
 
