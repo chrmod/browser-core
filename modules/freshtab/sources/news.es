@@ -372,7 +372,7 @@ function createNewsList(history_data, callback){
       if (isNotEmpty(val)){
         // merge results depends from type
         if (val.news_type == 'hb_news'){
-          var hbased_dict = val.res.results[0].news;
+          var hbased_dict = val.res.results && val.res.results[0].news;
 
           history_data.forEach(function(d){
             domain = d[0].split('/')[0];

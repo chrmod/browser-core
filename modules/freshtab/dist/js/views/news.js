@@ -53,10 +53,17 @@ function renderNews(news) {
 
   $('.news').on('mouseenter', '.logo, .title, .url', function(e) {
     startEnter = new Date().getTime();
+    /*if(e.delegateTarget.className.indexOf('topnews') > -1) {
+      Slider.pause();
+    }*/
   });
 
   $('.news').on('mouseleave', '.logo, .title, .url', function(e) {
     elapsed = new Date().getTime() - startEnter;
+    /*if(e.delegateTarget.className.indexOf('topnews') > -1) {
+      Slider.resume();
+    }*/
+
     if(elapsed > 2000) {
       CliqzUtils.telemetry({
         type: 'home',
