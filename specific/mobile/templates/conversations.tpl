@@ -3,6 +3,12 @@
 <div class="main">
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
+       		<div id="reconnecting">
+       			<h3>
+       				<span style="float: left" onclick="getHistory(true)">{{local 'mobile_favorites_title'}}</span>
+       				<span style="float: right" onclick="getHistory(false)">{{local 'mobile_history_title'}}</span>
+       			</h3>
+			</div>
             <!-- <a extra="title">THE PAST</a> -->
         </h1>
     </div>
@@ -21,7 +27,7 @@
                     </td>
                     <td class="meta">
                         <div>{{conversationsTime timestamp}}</div>
-                        <!--<div class="date">{{conversationsDate timestamp}}</div>-->
+                        {{#if starred}}<div>starred</div>{{/if}}
                     </td>
                 </tr>
             </table>
@@ -35,7 +41,7 @@
                     <tr>
                         <td class="meta">
                             <div>{{conversationsTime timestamp}}</div>
-                            <!--<div class="date">{{conversationsDate timestamp}}</div>-->
+                        	{{#if starred}}<div>starred</div>{{/if}}
                         </td>
                         <td class="framer">
                             <p class="query">{{query}}</p>
@@ -55,10 +61,13 @@
         <div id="control" style="display:none;">
 			<table>
 				<td onclick="removeSelected()">
-					remove
+					{{local 'mobile_history_remove'}}
+				</td>
+				<td onclick="starSelected()">
+					{{local 'mobile_history_star'}}
 				</td>
 				<td onclick="endEditMode()">
-					back
+					{{local 'mobile_history_cancel'}}
 				</td>
 
 			</table>
