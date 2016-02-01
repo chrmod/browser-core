@@ -1,17 +1,27 @@
 <!-- EZ-history.tpl -->
-{{#with data}}
-	<div class='cliqz-history-results cqz-3-history-results'>
+
+<div class='main'>
+    <ul class='cta cta__history'>
         {{#each urls}}
-            <div class='cliqz-pattern-element overflow'
-                 style='padding-left: 0px;'
-                 url='{{href}}' shortUrl='{{link}}'
-                 extra='{{extra}}'
-                 domain='{{domain}}'
-                 arrow="false">
-                <div class='cliqz-pattern-element-title'>{{ emphasis title ../../text 2 true }}</div>
-                <div class='cliqz-pattern-element-link'>{{ emphasis link ../../text 2 true }}</div>
-            </div>
+            <li url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' extra='{{extra}}' arrow="false">
+                 <a href="{{href}}">
+                     {{#with logo}}
+                         <div newtab='true' class='cta__logo'
+                             {{#if add_logo_url}}
+                                 url="{{logo_url}}"
+                             {{/if}}
+                             style="{{ style }};"
+                         >
+                             {{ text }}
+                         </div>
+                     {{/with}}
+                    <h3>{{ emphasis title ../text 2 true }}</h3>
+                    <span>{{ emphasis link ../text 2 true }}</span>
+                </a>
+                
+            </li>
         {{/each}}
-    </div>
-{{/with}}
+    </ul>
+</div>
+
 <!-- end EZ-history.tpl -->
