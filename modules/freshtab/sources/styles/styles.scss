@@ -42,14 +42,15 @@ a:hover, a:active, a:focus {
 #freshTabPage #searchContainer {
   position: relative;
   margin: 100px 0px;
+  width: 100%;
 }
 
 #freshTabPage #search-icon {
   position: absolute;
-  top: 5px;
+  top: 8px;
   left: 10px;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   background: url("../images/cliqz_icon.svg") no-repeat;
 }
 
@@ -61,17 +62,18 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #urlbar {
   width: 100%;
-  height: 28px;
-  border: 1px solid #999999;
-  padding: 0px 8px 0px 34px;
+  height: 40px;
+  border: 2px solid #999999;
+  padding: 0px 8px 0px 40px;
   box-sizing: border-box;
+  -moz-box-sizing: border-box;
   border-radius: 3px;
   font-size: 16px;
 }
 
 #freshTabPage #urlbar:focus {
   outline: none !important;
-  border: 1px solid #3B99FC;
+  border: 2px solid #3B99FC;
 }
 
 /* top visited */
