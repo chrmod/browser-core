@@ -8,7 +8,7 @@ For now in prefs.
 */
 export default class {
   constructor(msg) {
-    var keySet = CliqzUtils.getPref('userPKBeta',false);
+    var keySet = CliqzUtils.getPref('userPKTest',false);
     if(!keySet) {
        // Using 2048 as 4096 is pretty compute intensive.
        this.genKey().then(e=> CliqzUtils.log("Key generated"));
@@ -64,7 +64,7 @@ export default class {
      _this.privateKey = _this.keyGen.getPrivateKeyB64 ();
      _this.publicKey = _this.keyGen.getPublicKeyB64();
      _this.publicKeyB64 = _this.keyGen.getPublicKeyB64();
-     CliqzUtils.setPref('userPKBeta', _this.privateKey);
+     CliqzUtils.setPref('userPKTest', _this.privateKey);
      _this.registerKey()
      .then( e=> {
         CliqzUtils.log("Registration complete");
