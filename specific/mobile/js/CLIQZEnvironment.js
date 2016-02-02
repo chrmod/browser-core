@@ -268,7 +268,7 @@ CLIQZEnvironment = {
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
     if(renderedResults.results.length > historyCount) {
-      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      /////////////CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
 
 

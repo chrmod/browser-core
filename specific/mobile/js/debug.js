@@ -14,15 +14,11 @@ CLIQZ.Core = {
 }
 
 
-Handlebars.registerHelper("debug", function(optionalValue) {
-  console.log("Debug Current Context");
-  console.log(this);
 
-  if (optionalValue) {
-    console.log("Debug Value"); 
-    console.log(optionalValue);
-  }
+Handlebars.registerHelper("debug", function(optionalValue) {
+  console.log("%c Template Data " + this.vertical + " ","color:#fff;background:green",this);
 });
+
 
 Handlebars.registerHelper('conversationsTime', function(time) {
     var d = new Date(time);
@@ -317,6 +313,16 @@ CLIQZ.UI.VIEWS["stocks"] = {
   enhanceResults: function(data) {
     var myTime = new Date(data.message.last_update * 1000);
       data.message.time_string = myTime.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+  }
+}
+
+
+CLIQZ.UI.VIEWS["_generic"] = {
+
+  enhanceResults: function(data) {
+    for(var i in data.external_links) {
+      data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
+    }
   }
 }
 

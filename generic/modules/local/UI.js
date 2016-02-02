@@ -975,47 +975,47 @@ function enhanceResults(res){
         //if(r.snippet.rich_data.type === "news")
 
         if (r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') === 0) {
-            var d = r.data;
-            if(d){
-              if(d.template && TEMPLATES.hasOwnProperty(d.template)){
-                r.vertical = d.template;
-                r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-                if (r.vertical == 'text') r.dontCountAsResult = true;
-              } else {
-                // double safety - to be removed
-                r.invalid = true;
-                r.dontCountAsResult = true;
-                continue;
-              }
-
-              // Display the title instead of the name, if available
-              if(d.title)
-                d.name = d.title;
+          var d = r.data;
+          if(d){
+            if(d.template && TEMPLATES.hasOwnProperty(d.template)){
+              r.vertical = d.template;
+              r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+              r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+              if (r.vertical == 'text') r.dontCountAsResult = true;
+            } else {
+              // double safety - to be removed
+              r.invalid = true;
+              r.dontCountAsResult = true;
+              continue;
             }
+
+            // Display the title instead of the name, if available
+            if(d.title)
+              d.name = d.title;
+          }
         } else {
-            r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-            r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+          r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+          r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
-             if (getPartial(r.type) != 'images') {
-               r.image = constructImage(r.data);
-               //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
-             }
-            r.vertical = getPartial(r.type);
+           if (getPartial(r.type) != 'images') {
+             r.image = constructImage(r.data);
+             //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+           }
+          r.vertical = getPartial(r.type);
 
-            //extract debug info from title
-            var _tmp = getDebugMsg(r.title);
-            r.title = _tmp[0];
-            r.debug = _tmp[1];
-            if(!UI.showDebug)
-                r.debug = null;
+          //extract debug info from title
+          var _tmp = getDebugMsg(r.title);
+          r.title = _tmp[0];
+          r.debug = _tmp[1];
+          if(!UI.showDebug)
+              r.debug = null;
 
-            //extract tags from title
-            if(r.type.split(' ').indexOf('tag') != -1) {
-                _tmp = getTags(r.title);
-                r.title = _tmp[0];
-                r.tags = _tmp[1];
-            }
+          //extract tags from title
+          if(r.type.split(' ').indexOf('tag') != -1) {
+              _tmp = getTags(r.title);
+              r.title = _tmp[0];
+              r.tags = _tmp[1];
+          }
         }
 
         r.width = res.width > 500 ? res.width : 500;
@@ -1169,6 +1169,17 @@ function enhanceResults(res){
       //     text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
       //   }
       // });
+    }
+
+    for(var i=0; i<res.results.length; i++) {
+      console.log("template vertical", res.results[i].vertical);
+      res.results[i].vertical = "_generic";
+      if(res.results[i].data) {
+        for(var j in res.results[i].data.external_links) {
+          res.results[i].data.external_links[j].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(res.results[i].data.external_links[j].url));
+        }
+      }
+      
     }
 
     return res;
