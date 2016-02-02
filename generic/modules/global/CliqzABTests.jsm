@@ -17,9 +17,9 @@ var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-    init: function(system){
+    init: function(){
         CliqzABTests.check();
-        this.System = system;
+
     },
     unload: function(){
         CliqzUtils.clearTimeout(timer);
@@ -350,6 +350,12 @@ var CliqzABTests = {
             case "1061_B":
                 CliqzUtils.setPref("attrackUI", true);
                 break;
+            case "1063_A":
+                CliqzUtils.setPref("double-enter2", false);
+                break;
+            case "1063_B":
+                CliqzUtils.setPref("double-enter2", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -611,6 +617,10 @@ var CliqzABTests = {
             case "1061_A":
             case "1061_B":
                 CliqzUtils.clearPref("attrackUI");
+                break;
+            case "1063_A":
+            case "1063_B":
+                CliqzUtils.clearPref("double-enter2");
                 break;
             default:
                 rule_executed = false;
