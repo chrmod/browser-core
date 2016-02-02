@@ -151,6 +151,19 @@ var osBridge = {
       data: excludedIds
     }
     OS.postMessage(message);
+  },
+  /**
+    function: shareCard
+    description: sends card data to the OS
+    params: cardData as Object
+    message data: cardData as Object
+  */
+  shareCard: function(cardData) {
+    var message = {
+      action: "shareCard",
+      data: cardData
+    }
+    OS.postMessage(message);
   }
 };
 

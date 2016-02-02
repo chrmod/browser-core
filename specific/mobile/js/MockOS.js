@@ -36,6 +36,9 @@ var MockOS = {
       case "cleanHistory":
         MockOS.cleanHistory(message.data);
         break;
+      case "shareCard":
+        MockOS.shareCard(message.data);
+        break;
 
     }
     message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
@@ -95,6 +98,9 @@ var MockOS = {
       return index < data.length && data[index] === record.id && (index++ || true);
     });
     getHistory();
+  },
+  shareCard: function(data) {
+    console.log("--MOCK: action shareCard is called with data", data);
   }
 }
 
