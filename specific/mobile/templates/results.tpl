@@ -16,10 +16,9 @@
 				hasimage='{{ hasimage image }}'
 				>
 					{{partial vertical}}
-				</div>
-				<!--<div class="share">
-					Teilen
-				</div>-->
+				<p style="display:none" class="share_this_card">share this card <a href="{{ url }}">{{ url }}</a></p>
+			</div>
+			
 		</div>
 	{{/unless}}
 {{/each}}
@@ -43,4 +42,5 @@
 {{/if}}
 
 <div class='cqz-result-selected transition'></div>
+
 <!-- end results.tpl -->
