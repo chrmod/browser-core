@@ -1,7 +1,5 @@
 "use strict";
 
-Components.utils.import("chrome://cliqz/content/bower_components/httpd/index.js");
-
 function waitIfNotReady(fn) {
     var first = true;
     return waitFor(function() {
@@ -203,52 +201,31 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
             describe('redirects', function() {
 
-              var server, server_port, hit_target = false, proxy_type = null;
+              var server_port, hit_target = false, proxy_type = null;
               var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-              before(function() {
-                server = new HttpServer();
+              beforeEach(function() {
+                server_port = testServer.port;
                 // 302 redirect case
-                server.registerPathHandler('/302', function(request, response) {
+                testServer.registerPathHandler('/302', function(request, response) {
                   response.setStatusLine(request.httpVersion, 302, 'Redirect');
                   response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
                   response.write("<html><body></body></html>");
                 });
                 // 303 redirect case
-                server.registerPathHandler('/303', function(request, response) {
+                testServer.registerPathHandler('/303', function(request, response) {
                   response.setStatusLine(request.httpVersion, 303, 'Redirect');
                   response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
                   response.write("<html><body></body></html>");
                 });
                 // js redirect case
-                server.registerPathHandler('/js', function(request, response) {
+                testServer.registerPathHandler('/js', function(request, response) {
                   response.write("<html><body><script>window.location=\"http://cliqztest.de:"+ server_port +"/target\"</script></body></html>")
                 });
-                server.registerPathHandler('/target', function(request, response) {
+                testServer.registerPathHandler('/target', function(request, response) {
                   hit_target = true;
                   response.write("<html><body></body></html>");
                 });
-                server_port = 60508;
-                server.identity.add("http", "cliqztest.com", server_port);
-                server.identity.add("http", "cliqztest.de", server_port);
-
-                server.start(server_port);
-
-                prefs.setCharPref('network.proxy.autoconfig_url', 'chrome://cliqz/content/firefox-tests/proxy.pac');
-                if(prefs.prefHasUserValue('network.proxy.type')) {
-                  proxy_type = prefs.getIntPref('network.proxy.type');
-                }
-                prefs.setIntPref('network.proxy.type', 2);
-              });
-
-              after(function() {
-                server.stop(function() {});
-                // reset user prefs
-                if(proxy_type == null) {
-                  prefs.clearUserPref('network.proxy.type');
-                } else {
-                  prefs.setIntPref('network.proxy.type', proxy_type);
-                }
               });
 
               ['302', '303', 'js'].forEach(function(kind) {
@@ -552,41 +529,31 @@ TESTS.AttrackTest = function (CliqzUtils) {
         mock_bloom_filter_major = "{\"bkt\": [1, 2, 3, 4, 5], \"k\": 5}",
         mock_bloom_filter_minor = "{\"bkt\": [1, 0, 0, 0, 0], \"k\": 5}",
         mock_bloom_filter_config = '{"major": "0", "minor": "1"}',
-        server_port = -1,
-        server,
         mock_bloom_filter_config_url,
         mock_bloom_filter_base_url;
 
 
-      before(function() {
+      beforeEach(function() {
         // serve fake whitelists
-        server = new HttpServer();
-        server.registerPathHandler('/token_whitelist.json', function(request, response) {
+        testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
           response.write(mock_token_string);
         });
-        server.registerPathHandler('/safekey.json', function(request, response) {
+        testServer.registerPathHandler('/safekey.json', function(request, response) {
           response.write(mock_safekey_string);
         });
-        server.registerPathHandler('/bloom_filter/0/0.gz', function(request, response) {
+        testServer.registerPathHandler('/bloom_filter/0/0.gz', function(request, response) {
           response.write(mock_bloom_filter_major);
         });
-        server.registerPathHandler('/bloom_filter/0/1.gz', function(request, response) {
+        testServer.registerPathHandler('/bloom_filter/0/1.gz', function(request, response) {
           response.write(mock_bloom_filter_minor);
         });
-        server.registerPathHandler('/bloom_filter/config', function(request, response) {
+        testServer.registerPathHandler('/bloom_filter/config', function(request, response) {
           response.write(mock_bloom_filter_config);
         });
-        server.start(-1);
-        server_port = server.identity.primaryPort;
-        mock_token_url = "http://localhost:" + server_port + "/token_whitelist.json";
-        mock_safekey_url = "http://localhost:" + server_port + "/safekey.json";
-        mock_bloom_filter_config_url = 'http://localhost:' + server_port + '/bloom_filter/config',
-        mock_bloom_filter_base_url = 'http://localhost:' + server_port + '/bloom_filter/';
-      });
-
-      after(function() {
-        // shutdown server
-        server.stop(function() {});
+        mock_token_url = "http://localhost:" + testServer.port + "/token_whitelist.json";
+        mock_safekey_url = "http://localhost:" + testServer.port + "/safekey.json";
+        mock_bloom_filter_config_url = 'http://localhost:' + testServer.port + '/bloom_filter/config',
+        mock_bloom_filter_base_url = 'http://localhost:' + testServer.port + '/bloom_filter/';
       });
 
       it('version check URL is correct', function() {
