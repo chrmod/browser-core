@@ -1172,7 +1172,11 @@ function enhanceResults(res){
     }
 
     for(var i=0; i<res.results.length; i++) {
+      
       console.log("template vertical", res.results[i].vertical);
+      if(res.results[i].title && res.results[i].title.match("history generic")) {
+        continue;
+      }
       res.results[i].vertical = "_generic";
       if(res.results[i].data) {
         for(var j in res.results[i].data.external_links) {
