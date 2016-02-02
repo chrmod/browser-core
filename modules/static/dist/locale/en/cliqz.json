@@ -977,6 +977,9 @@
     "mobile_history_remove": {
       "message": "Remove"
     },
+    "mobile_history_unstar": {
+      "message": "Unfavorite"
+    },
     "mobile_history_star": {
       "message": "Favorite"
     },

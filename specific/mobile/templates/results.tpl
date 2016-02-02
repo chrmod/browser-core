@@ -16,7 +16,9 @@
 				hasimage='{{ hasimage image }}'
 				>
 					{{partial vertical}}
-				<p style="display:none" class="share_this_card">share this card <a href="{{ url }}">{{ url }}</a></p>
+				{{#if title}}{{#if url}}
+					<p cliqz-action='stop-click-event-propagation' onclick="osBridge.shareCard({{ json this }})" class="share_this_card">share this card </p>
+				{{/if}}{{/if}}
 			</div>
 			
 		</div>
