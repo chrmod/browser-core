@@ -162,6 +162,10 @@ function lunchEditMode(element) {
     endEditMode();
     lunchEditMode(element);
   } else {
+    var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
+    checkboxes.forEach(function(checkbox){
+      checkbox.style.display = 'block';
+    });
     var div = document.getElementById('control');
     div.style.display = 'block';
     editMode = true;
@@ -174,6 +178,13 @@ function lunchEditMode(element) {
 function endEditMode() {
   var framers = [].slice.call(document.getElementsByClassName('framer'));
   framers.forEach(function(item) {item.setAttribute('class', 'framer')});
+  
+  var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
+  checkboxes.forEach(function(element){
+    var checkbox = element.querySelector('input');
+    checkbox.checked = false;
+    element.style.display = 'none';
+  });
   
   var div = document.getElementById('control');
   div.style.display = 'none';
@@ -328,6 +339,8 @@ function selectHistory(id) {
 }
 
 function selectItem(item) {
+  var checkbox = item.querySelector('input');
+  checkbox.checked = !checkbox.checked;
   var selectAction = item.getAttribute('class').indexOf('question') >= 0 ? selectQuery : selectHistory;
   var id = parseInt(item.getAttribute('data-id'));
   selectAction(id);
