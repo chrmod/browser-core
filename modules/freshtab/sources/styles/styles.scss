@@ -237,6 +237,10 @@ a:hover, a:active, a:focus {
 }
 
 #freshTabPage #newsContainer div.title {
+  text-decoration: none;
+}
+
+#freshTabPage #newsContainer div.title.underline {
   text-decoration: underline;
 }
 

@@ -31,7 +31,11 @@
               <div extra="logo" class="logo" style="{{logo.style}}"></div>
             {{/unless}}
             <div class="newsContent">
-              <div extra="title" class="title">{{short_title}}</div>
+              {{#if underline }}
+                <div extra="title" class="title underline">{{short_title}}</div>
+              {{else}}
+                <div extra="title" class="title">{{short_title}}</div>
+              {{/if}}
               <div extra="url" class="url">{{displayUrl}}</div>
             </div>
           </a>
@@ -53,7 +57,11 @@
           {{#each this}}
             <li>
                 <a href="{{url}}" class="title yournews news" data-index="{{@index}}">
-                    <div extra="title" class="title">{{title}}</div>
+                    {{#if underline }}
+                      <div extra="title" class="title underline">{{title}}</div>
+                    {{else}}
+                      <div extra="title" class="title">{{title}}</div>
+                    {{/if}}
                     <div extra="url" class="url">{{displayUrl}}</div>
                 </a>
             </li>

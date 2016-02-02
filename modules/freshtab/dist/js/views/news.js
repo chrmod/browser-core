@@ -3,10 +3,10 @@ function renderNews(news) {
       top_news = news.top_h_news,
       topNews  = CliqzHandlebars.compile($('#topNews').html()),
       yourNews = CliqzHandlebars.compile($('#yourNews').html()),
+      underline = CliqzUtils.getPref('freshTabNewsUnderline'),
       startEnter,
       elapsed,
       onlyTopNews = true;
-
   if (hb_news) {
     for (var domain in hb_news) {
       hb_news[domain] = hb_news[domain].map(function(r){
@@ -14,7 +14,8 @@ function renderNews(news) {
           title: r.title,
           displayUrl: CliqzUtils.getDetailsFromUrl(r.url).domain || r.title,
           logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url)),
-          url: r.url
+          url: r.url,
+          underline: underline
         }
       });
     }
@@ -32,7 +33,8 @@ function renderNews(news) {
       displayUrl: CliqzUtils.getDetailsFromUrl(r.url).domain || r.title,
       url: r.url,
       logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url)),
-      onlyTopNews: onlyTopNews
+      onlyTopNews: onlyTopNews,
+      underline: underline
     };
   });
   document.getElementById('topNewsBox').innerHTML = topNews(top_news);
