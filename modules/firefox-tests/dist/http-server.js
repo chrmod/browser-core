@@ -36,7 +36,7 @@ WrappedHttpServer.prototype = {
   },
 
   _getChromeDirFile: function(relative_path) {
-    var abs_path = OS.Path.join.apply(null, this._testDirPrefix.concat(relative_path));
+    var abs_path = OS.Path.join.apply(OS.Path, this._testDirPrefix.concat(relative_path));
     return new FileUtils.File(abs_path);
   },
 
