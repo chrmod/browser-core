@@ -79,15 +79,18 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
       tabs.push(gBrowser.addTab(url));
     };
 
-    beforeEach(function() {
-      this.timeout(5000);
-
-      // setup http server
+    function setupAttrackTestServer() {
       // Add static resources from cliqz@cliqz.com/firefox-tests/mockserver directory
       testServer.registerDirectory('/', ['firefox-tests', 'mockserver']);
       testServer.registerDirectory('/bower_components/', ['bower_components']);
       // add specific handler for /test which will collect request parameters for testing.
       testServer.registerPathHandler('/test', collect_request_parameters);
+    }
+
+    beforeEach(function() {
+      this.timeout(5000);
+
+      setupAttrackTestServer();
 
       // clean preferences -> default everything to off, except Attrack module.
       CliqzUtils.setPref('attrackBlockCookieTracking', false);
@@ -328,6 +331,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
           before(function(done) {
             this.timeout(4000);
+            setupAttrackTestServer();
+
             // initial request to ensure cookies are set
             var tmp_tabs = ['localhost', 'cliqztest.com'].map(function(d) {
               var url = "http://"+ d +":" + testServer.port + "/" + testpage;
