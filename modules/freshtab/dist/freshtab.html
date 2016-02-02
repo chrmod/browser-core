@@ -51,23 +51,23 @@
       </div>
       <div class="content">
         {{#each this}}
-        <div class="clearfix newsBlock">
-          <div class="logo" style="{{this.[0].logo.style}}"></div>
           <ul>
           {{#each this}}
             <li>
                 <a href="{{url}}" class="title yournews news" data-index="{{@index}}">
-                    {{#if underline }}
-                      <div extra="title" class="title underline">{{title}}</div>
-                    {{else}}
-                      <div extra="title" class="title">{{title}}</div>
-                    {{/if}}
-                    <div extra="url" class="url">{{displayUrl}}</div>
+                    <div extra="logo" class="logo" style="{{logo.style}}"></div>
+                    <div class="newsContent">
+                      {{#if underline }}
+                        <div extra="title" class="title underline">{{title}}</div>
+                      {{else}}
+                        <div extra="title" class="title">{{title}}</div>
+                      {{/if}}
+                      <div extra="url" class="url">{{displayUrl}}</div>
+                    </div>
                 </a>
             </li>
           {{/each}}
           </ul>
-        </div>
         {{/each}}
       </div>
     </script>

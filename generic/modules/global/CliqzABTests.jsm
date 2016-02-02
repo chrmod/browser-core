@@ -347,6 +347,7 @@ var CliqzABTests = {
                 break;
             case "1062_B":
                 CliqzUtils.setPref("freshTabNewsUnderline", true);
+                CliqzUtils.setPref("freshTabAB", true);
                 break;
             default:
                 rule_executed = false;
@@ -609,6 +610,9 @@ var CliqzABTests = {
             case "1061_A":
             case "1061_B":
                 CliqzUtils.clearPref("attrackUI");
+                break;
+            case "1062_B":
+                CliqzUtils.clearPref("freshTabNewsUnderline");
                 break;
             default:
                 rule_executed = false;
