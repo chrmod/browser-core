@@ -4,11 +4,7 @@ function showHistory(history) {
   clearTimeout(historyTimer);
   var data = [];
   history = history.results;
-  var queries = [];
-  var q = localStorage.getItem("recentQueries");
-  if(q) {
-    queries = JSON.parse(q);
-  }
+  var queries = getListFromStorage("recentQueries");
 
   for(var i=0;i<history.length;i++) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
@@ -58,10 +54,8 @@ function showHistory(history) {
     qi++;
   }
   
-  var starredQueries = localStorage.getItem('starredQueries');
-  var starredHistory = localStorage.getItem('starredHistory');
-  starredQueries = starredQueries ? JSON.parse(starredQueries).reverse() : [];
-  starredHistory = starredHistory ? JSON.parse(starredHistory).reverse() : [];
+  var starredQueries = getListFromStorage('starredQueries').reverse();
+  var starredHistory = getListFromStorage('starredHistory').reverse();
   data = data.map(function (item) {
     if(item.url && item.id === starredHistory[0]) {
       item.starred = true;
@@ -231,36 +225,38 @@ var selectedHistory = [];
 
 function starSelected() {
   starSelectedList(selectedQueries, 'starredQueries');
+  selectedQueries = [];
   starSelectedList(selectedHistory, 'starredHistory');
-  getHistory();
+  selectedHistory = [];
+  getHistory(starMode);
   endEditMode();
 }
 
 function starSelectedList(selectedList, storageListName) {
-  var storageList = localStorage.getItem(storageListName);
-  if(!storageList) {
-    localStorage.setItem(storageListName, JSON.stringify(selectedList));
+  var storageList = getListFromStorage(storageListName);
+  if(storageList.length === 0) {
     localStorage.setItem(storageListName, JSON.stringify(selectedList));
     selectedList = [];
     return;
   }
-  storageList = JSON.parse(storageList);
 
   var index = 0, id;
-  while(true) {
+  while(index < storageList.length) {
     if(selectedList.length == 0) {
       break;
     }
     id = selectedList[0];
-    if(index >= storageList.length) {
+    if(index >= storageList.length && !unfavoriteMode) {
       storageList = storageList.concat(selectedList);
       break;
     } else if(storageList[index] === id) {
       storageList.splice(index, 1);
       selectedList.shift();
     } else if(storageList[index] < id) {
-      storageList.splice(index, 0, id);
-      index++;
+      if(!unfavoriteMode) {
+        storageList.splice(index, 0, id);
+        index++;
+      }
       selectedList.shift();
     } else {
       index++;
@@ -270,15 +266,16 @@ function starSelectedList(selectedList, storageListName) {
   
   
   localStorage.setItem(storageListName, JSON.stringify(storageList));
-  selectedList = [];
 }
 
 function removeSelectedQueries() {
-  var queries = localStorage.getItem("recentQueries");
-  if(!queries || selectedQueries.length === 0) {
+  var queries = getListFromStorage("recentQueries");
+  if(queries.length === 0 || selectedQueries.length === 0) {
     return;
   }
-  queries = JSON.parse(queries);
+
+  unfavoriteMode = true;
+  starSelectedList(selectedQueries, 'starredQueries');
 
   var index = 0;
   queries = queries.filter(function(query) {
@@ -286,13 +283,16 @@ function removeSelectedQueries() {
   })
   localStorage.setItem("recentQueries", JSON.stringify(queries));
   selectedQueries = [];
-  getHistory();
+  getHistory(starMode);
 }
 
 function removeSelectedHistory() {
+  unfavoriteMode = true;
+  starSelectedList(selectedHistory, 'starredHistory');
+
   osBridge.removeHistory(selectedHistory);
   selectedHistory = [];
-  getHistory();
+  getHistory(starMode);
 }
 
 function removeSelected() {
@@ -329,7 +329,14 @@ function selectHistory(id) {
 
 function selectItem(item) {
   var selectAction = item.getAttribute('class').indexOf('question') >= 0 ? selectQuery : selectHistory;
-  selectAction(parseInt(item.getAttribute('data-id')));
+  var id = parseInt(item.getAttribute('data-id'));
+  selectAction(id);
+  setUnfavoriteMode()
+  if(unfavoriteMode) {
+    document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_unstar');
+  } else {
+    document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_star');
+  }
   var framer = item.getElementsByClassName('framer')[0];
   if(framer.getAttribute('class').indexOf('selected') >= 0) {
     framer.setAttribute('class', 'framer');
@@ -341,17 +348,22 @@ function selectItem(item) {
   }
 }
 
+function setUnfavoriteMode() {
+  var starredQueries = getListFromStorage('starredQueries');
+  var starredHistory = getListFromStorage('starredHistory');
+  var diffQueries = getDiff(starredQueries, selectedQueries);
+  var diffHistory = getDiff(starredHistory, selectedHistory);
+  unfavoriteMode = diffQueries.length !== starredQueries.length || diffHistory.length !== starredHistory.length;
+}
+
 function getHistory(isStarred) {
   starMode = isStarred;
   historyTimer = setTimeout(showHistory, 200, {results: []});
   osBridge.searchHistory("", "showHistory");
 }
 
-CliqzUtils.init(this);
-getHistory(false);
-
 var touchTimer, isTapBlocked, historyTimer;
-var editMode = false, starMode = false;
+var editMode = false, starMode = false, unfavoriteMode = false;
 
 function requestHistoryCleanup(removeFavorites) {
   if(removeFavorites) {
@@ -361,22 +373,24 @@ function requestHistoryCleanup(removeFavorites) {
     osBridge.cleanHistory();
     return;
   }
-  var starredHistory = localStorage.getItem('starredHistory');
-  starredHistory = starredHistory ? JSON.parse(starredHistory) : [];
+  var starredHistory = getListFromStorage('starredHistory');
   osBridge.cleanHistory(starredHistory);
-  var starredQueries = localStorage.getItem('starredQueries');
-  starredQueries = starredQueries ? JSON.parse(starredQueries) : [];
-  var recentQueries = localStorage.getItem('recentQueries');
-  recentQueries = recentQueries ? JSON.parse(recentQueries) : [];
-  selectedQueries = getDiff(recentQueries, starredQueries);
+  var starredQueries = getListFromStorage('starredQueries');
+  var recentQueries = getListFromStorage('recentQueries');
+  selectedQueries = getDiff(recentQueries.map(function(item){return item.id}), starredQueries);
   removeSelectedQueries();
 }
 
-function getDiff(objArr, idArr) {
-  objArr = objArr.filter(function(item) {
-    return idArr.indexOf(item.id) == -1;
-  });
-  return objArr.map(function(item) {
-    return item.id;
+function getDiff(arr1, arr2) {
+  return arr1.filter(function(id) {
+    return arr2.indexOf(id) == -1;
   });
 }
+
+function getListFromStorage(listName) {
+  var list = localStorage.getItem(listName);
+  return list ? JSON.parse(list) : [];
+}
+
+CliqzUtils.init(this);
+getHistory(starMode);

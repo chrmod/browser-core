@@ -63,7 +63,7 @@
 				<td onclick="removeSelected()">
 					{{local 'mobile_history_remove'}}
 				</td>
-				<td onclick="starSelected()">
+				<td id='control_star' onclick="starSelected()">
 					{{local 'mobile_history_star'}}
 				</td>
 				<td onclick="endEditMode()">

@@ -977,8 +977,11 @@
     "mobile_history_remove": {
       "message": "Löschen"
     },
+    "mobile_history_unstar": {
+      "message": "Nicht favorisieren"
+    },
     "mobile_history_star": {
-      "message": "Als Favorit sichern"
+      "message": "Favorisieren"
     },
     "mobile_history_cancel": {
       "message": "Abbrechen"
