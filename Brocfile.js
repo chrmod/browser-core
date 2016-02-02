@@ -55,6 +55,8 @@ var components = [];
 var modules = []
 var requiredBowerComponents = new Set();
 var modulesTree = new Funnel('modules');
+
+if(false){
 var jsHinterTree = new JSHinter(
   new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
   { testGenerator: function () { return ''; },
@@ -67,6 +69,7 @@ modulesTree = new MergeTrees([
   modulesTree,
   jsHinterTree
 ]);
+}
 
 cliqzConfig.modules.forEach(function (name) {
   var modulePath = 'modules/'+name;
