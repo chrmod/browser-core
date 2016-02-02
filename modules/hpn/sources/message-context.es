@@ -42,7 +42,7 @@ export default class {
 	 	this.encrypted = null;
 	 	this.routeHash = null;// "http://54.157.18.130/verify"; // Default : null;
 	 	this.type = this.jMessage.type || null;
-	 	this.action = this.jMessage.action.toLowerCase() || null;
+	 	this.action = this.jMessage.action || null;
 	 	this.interval = this.action ? CliqzSecureMessage.sourceMap[this.action]["interval"] : null;
 	 	this.rateLimit = this.action ? CliqzSecureMessage.sourceMap[this.action]["ratelimit"] : null;
 	 	this.endPoint = this.action ? CliqzSecureMessage.sourceMap[this.action]["endpoint"] : null;

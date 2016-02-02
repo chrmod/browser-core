@@ -1,5 +1,47 @@
 import CliqzSecureMessage from 'hpn/main';
 
+
+/*
+Function to clean string for calculating route hash
+*/
+var punctuation = '!"\'()*,-./:;?[\\]^_`{|}~%$=&+#'
+var regex =  new RegExp("[" + punctuation + "]","g");
+function cleanStr(s){
+  // Replace all spaces
+
+  // Because in some telemetry message we only create uniqu based on anti-duplicate.
+  // Anti-duplicate is not a string, hence converting it to string.
+  s = '' + s;
+
+  // Decode uri component
+  // Need to find lua equivalent
+
+  try{
+    s = decodeURIComponent(s);
+  }catch(e){};
+
+
+  s = s.replace(/ /g,'');
+
+  // Convert to lower
+  s = s.toLowerCase();
+
+  // Trim
+  s = s.trim();
+
+  // Remove all punctuation marks
+  s = s.replace(regex,'');
+
+  // Clean the URL
+  s = s.replace(/^http:\/\//, "");
+  s = s.replace(/^https:\/\//, "");
+  s = s.replace(/^www\./,'');
+
+  // Cleant the Puntuations
+  return s;
+
+}
+
 /*
 Function to create http url
 */
@@ -10,10 +52,9 @@ export function createHttpUrl(host){
 
 /* This method will return the string based on mapping of which keys to use to hash for routing.
 */
-
 export function getRouteHash(msg){
 	// Make sure this is JSON.
-	msg.action = msg.action.toLowerCase();
+	// msg.action = msg.action.toLowerCase();
 	var static_fields = CliqzSecureMessage.sourceMap[msg.action]["static"] || [];
 	var flatMsg = JSON.flatten(msg, static_fields );
 	if(!flatMsg.action) return null;
@@ -21,8 +62,11 @@ export function getRouteHash(msg){
 
 	var routeHashStr = "";
 	keys.forEach(function(key){
-		routeHashStr += flatMsg[key];
+    var s = cleanStr(flatMsg[key])
+		routeHashStr += s;
 	});
+  routeHashStr = routeHashStr.replace(/ /g,'');
+  routeHashStr = routeHashStr.trim();
 	return routeHashStr;
 }
 

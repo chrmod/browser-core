@@ -57,7 +57,7 @@ var CliqzSecureMessage = {
   sourceMap:null,
   tmult: 4,
   tpace: 250,
-  SOURCE_MAP_PROVIDER: "https://hpn-collector.cliqz.com/sourcemap.json?q=1",
+  SOURCE_MAP_PROVIDER: "https://hpn-collector.cliqz.com/sourcemapjson?q=1",
   LOOKUP_TABLE_PROVIDER: "https://hpn-collector.cliqz.com/lookuptable?q=1",
   KEYS_PROVIDER: "https://hpn-collector.cliqz.com/signerKey?q=1",
   proxyList: null,
