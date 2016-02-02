@@ -959,6 +959,8 @@ var CliqzUtils = {
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
   getLocalizedString: function(key, substitutions){
+    if(!key) return '';
+
     var str = key,
         localMessages;
 
