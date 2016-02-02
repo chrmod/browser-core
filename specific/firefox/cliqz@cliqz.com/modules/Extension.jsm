@@ -114,6 +114,14 @@ var Extension = {
       Services.ww.registerNotification(Extension.windowWatcher);
     },
     unload: function(version, uninstall){
+        // only HumanWeb module requires shutdown signal for now
+        CliqzHumanWeb.unload();
+
+        if(!uninstall){ // == shutdown
+          //we can simply return if the browser shuts down - we do not need to do any cleaning
+          return;
+        }
+
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
 
         if(uninstall){
