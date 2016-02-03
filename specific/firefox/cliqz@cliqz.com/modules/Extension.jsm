@@ -72,9 +72,10 @@ var Extension = {
     load: function(upgrade, oldVersion, newVersion){
       CliqzUtils.extensionVersion = newVersion;
 
+      // wait before setting the support info as it uses LocalStorage which might not be accessible
       Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
         CliqzUtils.setSupportInfo()
-      },1000);
+      }, 30000);
 
       // Ensure prefs are set to our custom values
       Extension.setOurOwnPrefs();
@@ -114,6 +115,14 @@ var Extension = {
       Services.ww.registerNotification(Extension.windowWatcher);
     },
     unload: function(version, uninstall){
+        // only HumanWeb module requires shutdown signal for now
+        CliqzHumanWeb.unload();
+
+        if(!uninstall){ // == shutdown
+          //we can simply return if the browser shuts down - we do not need to do any cleaning
+          return;
+        }
+
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
 
         if(uninstall){

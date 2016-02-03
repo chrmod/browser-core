@@ -633,7 +633,8 @@ window.CLIQZ.Core = {
                 startup: startup? true: false,
                 prefs: CLIQZEnvironment.getCliqzPrefs(),
                 defaultSearchEngine: defaultSearchEngine,
-                private_window: CliqzUtils.isPrivate(window)
+                private_window: CliqzUtils.isPrivate(window),
+                distribution: CliqzUtils.getPref('distribution', '')
             };
 
             CliqzUtils.telemetry(info);
