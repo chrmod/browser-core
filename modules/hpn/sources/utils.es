@@ -29,15 +29,15 @@ function cleanStr(s){
   // Trim
   s = s.trim();
 
-  // Remove all punctuation marks
-  s = s.replace(regex,'');
-
   // Clean the URL
   s = s.replace(/^http:\/\//, "");
   s = s.replace(/^https:\/\//, "");
   s = s.replace(/^www\./,'');
 
-  // Cleant the Puntuations
+
+  // Remove all punctuation marks
+  s = s.replace(regex,'');
+
   return s;
 
 }
