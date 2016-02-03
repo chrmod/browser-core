@@ -402,7 +402,7 @@ window.CLIQZ.Core = {
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
             this.eventListeners.forEach(function(listener) {
-              listener.target.removeEventListener(listener.type, listener.func);
+              listener.target.removeEventListener(listener.type, listener.func, listener.propagate);
             });
         }
         this.reloadComponent(this.urlbar);
@@ -1074,7 +1074,7 @@ window.CLIQZ.Core = {
       };
 
       CliqzUtils.log("Propagating "+ eventType +" events to CliqzEvents as "+ eventPubName, "CliqzEvents");
-      this.eventListeners.push({ target: eventTarget, type: eventType, func: publishEvent });
+      this.eventListeners.push({ target: eventTarget, type: eventType, func: publishEvent, propagate: propagate || false });
       eventTarget.addEventListener(eventType, publishEvent, propagate || false);
     }
 };
