@@ -1,4 +1,5 @@
 import CliqzAttrack from 'antitracking/attrack';
+import CliqzHumanWeb from 'human-web/human-web';
 import md5 from 'antitracking/md5';
 import { sameGeneralDomain } from 'antitracking/domain';
 

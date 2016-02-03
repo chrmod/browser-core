@@ -11,6 +11,8 @@
   "modules": [
     "static",
     "core",
+    "human-web",
+    "anti-phishing",
     "context-menu",
     "onboarding",
     "freshtab",

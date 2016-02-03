@@ -1442,14 +1442,12 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
 
-      if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
-          CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {
-           'd': 1,
-           'q': CliqzAutocomplete.lastSearch ,
-           't': CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
-           'pt' : action.position_type
-          };
-      }
+      CliqzEvents.pub("ui:click-on-url", {
+        url: decodeURIComponent(url),
+        query: CliqzAutocomplete.lastSearch,
+        type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+        positionType: action.position_type
+      });
     }
     //LUCIAN: TODO - decouple CliqzHistory
     if(!window.gBrowser)return;

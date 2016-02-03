@@ -1,4 +1,4 @@
-
+import AntiPhishing from "anti-phishing/anti-phishing";
 /*
 Changes :
 * DropLongURL
@@ -19,25 +19,13 @@ Changes :
  *
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-var EXPORTED_SYMBOLS = ['CliqzHumanWeb'];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
-  'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
-
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBloomFilter',
-  'chrome://cliqzmodules/content/CliqzBloomFilter.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzBloomFilter.jsm');
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
@@ -1734,7 +1722,7 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
 
-                    CliqzAntiPhishing.auxOnPageLoad(activeURL);
+                    AntiPhishing.auxOnPageLoad(activeURL);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1){
@@ -4265,3 +4253,5 @@ var CliqzHumanWeb = {
     }
 
 };
+
+export default CliqzHumanWeb;

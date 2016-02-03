@@ -46,9 +46,7 @@ var Extension = {
 
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
@@ -85,6 +83,7 @@ var Extension = {
         this.config = JSON.parse(res.response);
       }.bind(this), function () {}, undefined, undefined, true);
 
+      CliqzUtils.log(1, "XXX");
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
         Extension.config.modules.map(function (moduleName) {
@@ -95,12 +94,10 @@ var Extension = {
           });
         })
       ).then(function () {
-        if(CliqzUtils.getPref("humanWeb", false)){
-          CliqzHumanWeb.initAtBrowser();
-        }
-
+        CliqzUtils.log(2, "XXX");
         Extension.cliqzPrefsObserver.register();
       }).catch(function (e) {
+        CliqzUtils.log("2err", "XXX");
         CliqzUtils.log("some modules failed to load - " + e, "Extension");
       });
 
@@ -115,14 +112,6 @@ var Extension = {
       Services.ww.registerNotification(Extension.windowWatcher);
     },
     unload: function(version, uninstall){
-        // only HumanWeb module requires shutdown signal for now
-        CliqzHumanWeb.unload();
-
-        if(!uninstall){ // == shutdown
-          //we can simply return if the browser shuts down - we do not need to do any cleaning
-          return;
-        }
-
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
 
         if(uninstall){
@@ -137,11 +126,6 @@ var Extension = {
             } catch(e){}
         }
 
-        if(CliqzUtils.getPref("humanWeb", false)){
-            CliqzHumanWeb.unloadAtBrowser();
-        }
-
-
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -151,7 +135,7 @@ var Extension = {
 
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
-        Extension.unloadModules();
+        Extension.unloadModules(uninstall);
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
 
@@ -184,11 +168,13 @@ var Extension = {
             }
         }
     },
-    unloadModules: function(){
+    unloadModules: function(uninstall){
         if(this.config) {
           this.config.modules.forEach(function (moduleName) {
             try {
-              Extension.System.get(moduleName+"/background").default.unload();
+              Extension.System.get(moduleName+"/background").default.unload({
+                uninstall: uninstall
+              });
             } catch(e) {
             }
           });
@@ -211,13 +197,11 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
