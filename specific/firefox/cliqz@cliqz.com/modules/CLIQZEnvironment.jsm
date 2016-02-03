@@ -358,6 +358,9 @@ var CLIQZEnvironment = {
 
         popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
+              if(CliqzAutocomplete.lastResult.searchString != aInput.value && aInput.value == '') {
+                return;
+              }
               if (!CliqzAutocomplete.isPopupOpen){
                 this.mInput = aInput;
                 this._invalidate();
