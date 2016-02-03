@@ -376,7 +376,7 @@ var UI = {
 
         UI.lastInputTime = (new Date()).getTime()
         if(ev.keyCode != ESC && UI.popupClosed) {
-          gCliqzBox.resultsBox.innerHTML = "";
+          if(gCliqzBox.resultsBox) gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
         switch(ev.keyCode) {
