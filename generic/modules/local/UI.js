@@ -1793,7 +1793,7 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
-    if(CliqzUtils.getPref("double-enter2", false)){
+    if(CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
       if(CLIQZ.config.settings.channel != "40"){
         // it should be only for the browser
