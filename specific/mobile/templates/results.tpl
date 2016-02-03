@@ -17,7 +17,7 @@
 				>
 					{{partial vertical}}
 				{{#if title}}{{#if url}}
-					<p cliqz-action='stop-click-event-propagation' onclick="osBridge.shareCard({{ json this }})" class="share_this_card">share this card </p>
+					<p style="display:none" cliqz-action='stop-click-event-propagation' onclick="osBridge.shareCard({{ json this }})" class="share_this_card">share this card </p>
 				{{/if}}{{/if}}
 			</div>
 			
