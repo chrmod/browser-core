@@ -1,4 +1,5 @@
 {
+  "platform": "firefox",
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
@@ -16,6 +17,7 @@
     "unblock",
     "theme",
     "users1st",
+    "telemetry-categories",
     "antitracking"
   ]
 }

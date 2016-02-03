@@ -1,16 +1,5 @@
 "use strict";
 
-Components.utils.import("chrome://cliqz/content/bower_components/httpd/index.js");
-Components.utils.import("resource://gre/modules/FileUtils.jsm");
-Components.utils.import('resource://gre/modules/osfile.jsm');
-
-var prefs = Components.classes['@mozilla.org/preferences-service;1']
-        .getService(Components.interfaces.nsIPrefBranch);
-/** Gets the absolute path to the Cliqz extension's root directory */
-function getExtensionDirectory() {
-  return JSON.parse(prefs.getCharPref('extensions.xpiState'))['app-profile']['cliqz@cliqz.com']['d'];
-}
-
 TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
   var System = CliqzUtils.getWindow().CLIQZ.System,
       CliqzAttrack = System.get("antitracking/attrack").default,
@@ -24,9 +13,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
   describe('CliqzAttrack_integration', function() {
     this.retries(3);
 
-    var server = null,
-      server_port = -1,
-      echoed = [],
+    var echoed = [],
       md5 = CliqzHumanWeb._md5,
       module_enabled = CliqzUtils.getPref('antiTrackTest', false),
       window = CliqzUtils.getWindow();
@@ -62,71 +49,23 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
       // send an appropriate response
       if ('accept' in headers && headers['accept'].indexOf('image') > -1) {
-        var imgFile = FileUtils.File(OS.Path.join(getExtensionDirectory(), 'chrome', 'content', 'firefox-tests', 'mockserver', 'Transparent.gif'));
+        var imgFile = ['firefox-tests', 'mockserver', 'Transparent.gif'];
         // prevent img caching
         response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.setHeader('Pragma', 'no-cache');
         response.setHeader('Expires', '0');
         // send actual gif file
-        server._handler._writeFileResponse(request, imgFile, response, 0, imgFile.fileSize);
+        testServer.writeFileResponse(request, imgFile, response);
       } else {
         response.write('{}');
       }
     }
 
-    var proxy_autoconfig_url = null,
-      proxy_type = null,
-      attrackBloomFilterPref = null,
+    var attrackBloomFilterPref = null,
       baseURL = CliqzAttrack.bloomFilter.baseURL;
 
-    before(function(done) {
-      // set up HTTP server.
+    before(function() {
       attrackBloomFilterPref = CliqzUtils.getPref('attrackBloomFilter');
-      server = new HttpServer();
-      server_port = 60508;
-      // add other test domains to server
-      server.identity.add("http", "cliqztest.com", server_port);
-      server.identity.add("http", "cliqztest.de", server_port);
-      server.identity.add("http", "www.cliqztest.com", server_port);
-      // Add static resources from cliqz@cliqz.com/test/mockserver directory
-      var f = new FileUtils.File(OS.Path.join(getExtensionDirectory(), 'chrome', 'content', 'firefox-tests', 'mockserver'));
-      server.registerDirectory('/', f);
-      var bower_dir = new FileUtils.File(OS.Path.join(getExtensionDirectory(), 'chrome', 'content', 'bower_components'));
-      server.registerDirectory('/bower_components/', bower_dir);
-      // add specific hander for /test which will collect request parameters for testing.
-      server.registerPathHandler('/test', collect_request_parameters);
-
-      server.start(server_port);
-      // wait for server to be up
-      setTimeout(done, 500);
-
-      // install PAC file (to proxy fake domains back to localhost)
-      if(prefs.prefHasUserValue('network.proxy.autoconfig_url')) {
-        proxy_autoconfig_url = prefs.getCharPref('network.proxy.autoconfig_url');
-      }
-      prefs.setCharPref('network.proxy.autoconfig_url', 'chrome://cliqz/content/firefox-tests/proxy.pac');
-      if(prefs.prefHasUserValue('network.proxy.type')) {
-        proxy_type = prefs.getIntPref('network.proxy.type');
-      }
-      prefs.setIntPref('network.proxy.type', 2);
-    });
-
-    after(function() {
-      // shutdown server
-      server.stop(function() {});
-
-      // reset proxy settings
-      if(proxy_autoconfig_url == null) {
-        prefs.clearUserPref('network.proxy.autoconfig_url');
-      } else {
-        prefs.setCharPref('network.proxy.autoconfig_url', proxy_autoconfig_url);
-      }
-      if(proxy_type == null) {
-        prefs.clearUserPref('network.proxy.type');
-      } else {
-        prefs.setIntPref('network.proxy.type', proxy_type);
-      }
-      CliqzUtils.setPref('attrackBloomFilter', attrackBloomFilterPref);
     });
 
     var win = CliqzUtils.getWindow(),
@@ -135,13 +74,24 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
     var openTestPage = function(testpage, domainname = 'localhost') {
       // open page in a new tab
-      var url = "http://"+ domainname +":" + server_port + "/" + testpage;
+      var url = "http://"+ domainname +":" + testServer.port + "/" + testpage;
       echoed = [];
       tabs.push(gBrowser.addTab(url));
     };
 
+    function setupAttrackTestServer() {
+      // Add static resources from cliqz@cliqz.com/firefox-tests/mockserver directory
+      testServer.registerDirectory('/', ['firefox-tests', 'mockserver']);
+      testServer.registerDirectory('/bower_components/', ['bower_components']);
+      // add specific handler for /test which will collect request parameters for testing.
+      testServer.registerPathHandler('/test', collect_request_parameters);
+    }
+
     beforeEach(function() {
       this.timeout(5000);
+
+      setupAttrackTestServer();
+
       // clean preferences -> default everything to off, except Attrack module.
       CliqzUtils.setPref('attrackBlockCookieTracking', false);
       CliqzUtils.setPref('attrackRemoveQueryStringTracking', false);
@@ -257,7 +207,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
     /** Helper class for generating tp_event expectations. */
     var tp_events_expectations = function(testpage, domainname = 'localhost') {
-      this.url = "http://" + domainname + ":" + server_port + "/" + testpage;
+      this.url = "http://" + domainname + ":" + testServer.port + "/" + testpage;
       this.tps = page_specs[testpage].base_tps();
     }
 
@@ -381,9 +331,11 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
 
           before(function(done) {
             this.timeout(4000);
+            setupAttrackTestServer();
+
             // initial request to ensure cookies are set
             var tmp_tabs = ['localhost', 'cliqztest.com'].map(function(d) {
-              var url = "http://"+ d +":" + server_port + "/" + testpage;
+              var url = "http://"+ d +":" + testServer.port + "/" + testpage;
               return gBrowser.addTab(url);
             });
             setTimeout(function() {
@@ -820,7 +772,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
           openTestPage(testpage);
 
           expectNRequests(2).assertEach(function(m) {
-            chai.expect(m.headers['referer']).to.contain("http://localhost:"+ server_port);
+            chai.expect(m.headers['referer']).to.contain("http://localhost:"+ testServer.port);
           }, done);
 
         });
