@@ -1,3 +1,6 @@
+import { utils } from "core/cliqz";
+
+
 export default CliqzPopupButton;
 
 // stolen mostly from: https://github.com/gorhill/uBlock/blob/master/platform/firefox/vapi-background.js#L2863
@@ -87,7 +90,7 @@ function CliqzPopupButton(options) {
 
   tbb.closePopup = function (tabBrowser) {
     this.CustomizableUI.hidePanelForNode(
-        gBrowser.ownerDocument.getElementById(tbb.viewId)
+        utils.getWindow().gBrowser.ownerDocument.getElementById(tbb.viewId)
     );
   }.bind(this);
 }
@@ -146,12 +149,12 @@ CliqzPopupButton.prototype.setupCommunicationChannel = function () {
         id: msg.id,
         message: res
       });
-    };
+    }
 
     if (!handler) { return; }
 
     handler(functionArgs, callback);
-  };
+  }
 
   CliqzEvents.sub(channelName+"-popup", popupMessageHandler);
-}
+};

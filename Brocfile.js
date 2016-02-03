@@ -1,3 +1,4 @@
+"use strict";
 var Funnel = require('broccoli-funnel');
 var MergeTrees = require('broccoli-merge-trees');
 var compileSass = require('broccoli-sass-source-maps');
@@ -10,6 +11,7 @@ var amdNameResolver = require('amd-name-resolver');
 var AssetRev = require('broccoli-asset-rev');
 var uglify = require('broccoli-uglify-sourcemap');
 var writeFile = require('broccoli-file-creator');
+var JSHinter = require('broccoli-jshint');
 
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
@@ -17,10 +19,7 @@ var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 // input trees
 var bowerComponents = new Funnel('bower_components');
 var nodeModules    = new Funnel('node_modules');
-var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com', {
-  exclude: ['platform.js']
-});
-var firefoxPlatform = new Funnel('specific/firefox/', { include: ['platform.js'] });
+var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 var cliqziumSpecific= new Funnel('specific/cliqzium');
@@ -39,6 +38,14 @@ console.log('Configuration file:', configFilePath);
 console.log(cliqzConfig);
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
+var platform = new Funnel('platforms/'+cliqzConfig.platform);
+platform = Babel(platform, {
+  sourceMaps: 'inline',
+  filterExtensions: ['es'],
+  modules: 'system',
+  moduleRoot: 'platform'
+});
+
 webSpecific = jade(webSpecific);
 
 var mobileCss = compileSass(
@@ -49,21 +56,35 @@ var mobileCss = compileSass(
 );
 
 // attach subprojects
-var components = [];
-var modules = []
+var modules = [new Funnel(platform, { destDir: "platform" })];
 var requiredBowerComponents = new Set();
+var modulesTree = new Funnel('modules');
+
+if(false){
+var jsHinterTree = new JSHinter(
+  new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
+  { testGenerator: function () { return ''; },
+    jshintrcPath: process.cwd() + '/.jshintrc'
+  }
+);
+jsHinterTree.extensions = ['js', 'es']
+
+modulesTree = new MergeTrees([
+  modulesTree,
+  jsHinterTree
+]);
+}
 
 cliqzConfig.modules.forEach(function (name) {
   var modulePath = 'modules/'+name;
-  if(fs.statSync(modulePath).isDirectory()) {
-    var init = new Funnel(modulePath, { include: ['component.js'], destDir: modulePath });
+  if (fs.statSync(modulePath).isDirectory()) {
 
     try {
       var conf = fs.readFileSync('modules/'+name+'/bower_components.json');
       JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
     } catch(e) { }
 
-    var sources = new Funnel(modulePath+'/sources', { exclude: ['styles/**/*'] });
+    var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
 
     sources = Babel(sources, {
       sourceMaps: 'inline',
@@ -73,9 +94,8 @@ cliqzConfig.modules.forEach(function (name) {
     });
 
     var outputTree = [
-      new Funnel(modulePath+'/dist'),
+      new Funnel(modulesTree, { srcDir: name + '/dist' }),
       sources,
-      new Funnel(firefoxPlatform),
     ];
 
     var hasStyles = false;
@@ -118,7 +138,6 @@ cliqzConfig.modules.forEach(function (name) {
 
     var module = new MergeTrees(outputTree);
 
-    components.push(init);
     modules.push(new Funnel(module, { destDir: name }));
   }
 });

@@ -1,4 +1,4 @@
-import createLazyResourceLoader from 'unblock/resource-loader';
+import ResourceLoader from 'unblock/resource-loader';
 
 /**
   Proxy manager class
@@ -11,11 +11,22 @@ export default class {
     this._last = null;
     this._preferred_regions = ['IR', 'US', 'UK', 'DE'];
     this.PROXY_UPDATE_URL = 'https://cdn.cliqz.com/unblock/proxies.json';
-    createLazyResourceLoader({
+    this._loader = null;
+  }
+
+  init() {
+    this._loader = new ResourceLoader({
       url: this.PROXY_UPDATE_URL,
       pref: "unblock_proxies",
       updateFn: this.updateProxyList.bind(this)
     });
+    CliqzUtils.setTimeout(this._loader.start.bind(this._loader), 100);
+  }
+
+  destroy() {
+    if (this._loader) {
+      this._loader.stop();
+    }
   }
 
   getAvailableRegions() {

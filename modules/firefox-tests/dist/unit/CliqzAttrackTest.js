@@ -1,7 +1,5 @@
 "use strict";
 
-Components.utils.import("chrome://cliqz/content/bower_components/httpd/index.js");
-
 function waitIfNotReady(fn) {
     var first = true;
     return waitFor(function() {
@@ -18,11 +16,22 @@ TESTS.AttrackTest = function (CliqzUtils) {
         CliqzAttrack = System.get("antitracking/attrack").default,
         persist = System.get("antitracking/persistent-state"),
         AttrackBloomFilter = System.get("antitracking/bloom-filter").AttrackBloomFilter,
-        datetime = System.get("antitracking/time");
+        datetime = System.get("antitracking/time"),
+        pacemaker = System.get("antitracking/pacemaker").default;
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
     CliqzUtils.setPref('antiTrackTest', true);
+
+    before(function() {
+      // pause pacemaker to prevent external list updates
+      pacemaker.stop();
+    });
+
+    after(function() {
+      // restart pacemaker
+      pacemaker.start();
+    });
 
     describe('CliqzAttrack.tab_listener', function() {
 
@@ -192,52 +201,31 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
             describe('redirects', function() {
 
-              var server, server_port, hit_target = false, proxy_type = null;
+              var server_port, hit_target = false, proxy_type = null;
               var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-              before(function() {
-                server = new HttpServer();
+              beforeEach(function() {
+                server_port = testServer.port;
                 // 302 redirect case
-                server.registerPathHandler('/302', function(request, response) {
+                testServer.registerPathHandler('/302', function(request, response) {
                   response.setStatusLine(request.httpVersion, 302, 'Redirect');
                   response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
                   response.write("<html><body></body></html>");
                 });
                 // 303 redirect case
-                server.registerPathHandler('/303', function(request, response) {
+                testServer.registerPathHandler('/303', function(request, response) {
                   response.setStatusLine(request.httpVersion, 303, 'Redirect');
                   response.setHeader('Location', 'http://cliqztest.de:'+ server_port +'/target');
                   response.write("<html><body></body></html>");
                 });
                 // js redirect case
-                server.registerPathHandler('/js', function(request, response) {
+                testServer.registerPathHandler('/js', function(request, response) {
                   response.write("<html><body><script>window.location=\"http://cliqztest.de:"+ server_port +"/target\"</script></body></html>")
                 });
-                server.registerPathHandler('/target', function(request, response) {
+                testServer.registerPathHandler('/target', function(request, response) {
                   hit_target = true;
                   response.write("<html><body></body></html>");
                 });
-                server_port = 60508;
-                server.identity.add("http", "cliqztest.com", server_port);
-                server.identity.add("http", "cliqztest.de", server_port);
-
-                server.start(server_port);
-
-                prefs.setCharPref('network.proxy.autoconfig_url', 'chrome://cliqz/content/firefox-tests/proxy.pac');
-                if(prefs.prefHasUserValue('network.proxy.type')) {
-                  proxy_type = prefs.getIntPref('network.proxy.type');
-                }
-                prefs.setIntPref('network.proxy.type', 2);
-              });
-
-              after(function() {
-                server.stop(function() {});
-                // reset user prefs
-                if(proxy_type == null) {
-                  prefs.clearUserPref('network.proxy.type');
-                } else {
-                  prefs.setIntPref('network.proxy.type', proxy_type);
-                }
               });
 
               ['302', '303', 'js'].forEach(function(kind) {
@@ -541,41 +529,31 @@ TESTS.AttrackTest = function (CliqzUtils) {
         mock_bloom_filter_major = "{\"bkt\": [1, 2, 3, 4, 5], \"k\": 5}",
         mock_bloom_filter_minor = "{\"bkt\": [1, 0, 0, 0, 0], \"k\": 5}",
         mock_bloom_filter_config = '{"major": "0", "minor": "1"}',
-        server_port = -1,
-        server,
         mock_bloom_filter_config_url,
         mock_bloom_filter_base_url;
 
 
-      before(function() {
+      beforeEach(function() {
         // serve fake whitelists
-        server = new HttpServer();
-        server.registerPathHandler('/token_whitelist.json', function(request, response) {
+        testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
           response.write(mock_token_string);
         });
-        server.registerPathHandler('/safekey.json', function(request, response) {
+        testServer.registerPathHandler('/safekey.json', function(request, response) {
           response.write(mock_safekey_string);
         });
-        server.registerPathHandler('/bloom_filter/0/0.gz', function(request, response) {
+        testServer.registerPathHandler('/bloom_filter/0/0.gz', function(request, response) {
           response.write(mock_bloom_filter_major);
         });
-        server.registerPathHandler('/bloom_filter/0/1.gz', function(request, response) {
+        testServer.registerPathHandler('/bloom_filter/0/1.gz', function(request, response) {
           response.write(mock_bloom_filter_minor);
         });
-        server.registerPathHandler('/bloom_filter/config', function(request, response) {
+        testServer.registerPathHandler('/bloom_filter/config', function(request, response) {
           response.write(mock_bloom_filter_config);
         });
-        server.start(-1);
-        server_port = server.identity.primaryPort;
-        mock_token_url = "http://localhost:" + server_port + "/token_whitelist.json";
-        mock_safekey_url = "http://localhost:" + server_port + "/safekey.json";
-        mock_bloom_filter_config_url = 'http://localhost:' + server_port + '/bloom_filter/config',
-        mock_bloom_filter_base_url = 'http://localhost:' + server_port + '/bloom_filter/';
-      });
-
-      after(function() {
-        // shutdown server
-        server.stop(function() {});
+        mock_token_url = "http://localhost:" + testServer.port + "/token_whitelist.json";
+        mock_safekey_url = "http://localhost:" + testServer.port + "/safekey.json";
+        mock_bloom_filter_config_url = 'http://localhost:' + testServer.port + '/bloom_filter/config',
+        mock_bloom_filter_base_url = 'http://localhost:' + testServer.port + '/bloom_filter/';
       });
 
       it('version check URL is correct', function() {
@@ -625,7 +603,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           // mock safekey URL
           CliqzAttrack.URL_SAFE_KEY = mock_safekey_url;
           persist.set_value("safeKeyExtVersion", "");
-          CliqzAttrack.safeKey = {};
+          CliqzAttrack._safekey.clear();
         });
 
         afterEach(function() {
@@ -654,6 +632,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             domain2_hash = "9776604f86ca9f6a",
             key_hash = "4a8a08f09d37b73795649038408b5f33",
             today = datetime.getTime().substring(0, 8);
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
           CliqzAttrack.safeKey[domain2_hash] = {};
@@ -682,6 +661,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           var domain1_hash = "f528764d624db129",
             key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
             today = datetime.getTime().substring(0, 8);
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [today, 'l'];
 
@@ -702,6 +682,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           var domain1_hash = "f528764d624db129",
             key_hash = "924a8ceeac17f54d3be3f8cdf1c04eb2",
             day = "20200102";
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [day, 'l'];
 
@@ -729,6 +710,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
           d = (day.getDate()  < 10 ? "0" : "" ) + day.getDate();
           m = (day.getMonth() < 10 ? "0" : "" ) + parseInt((day.getMonth()));
           daystr = "" + day.getFullYear() + m + d;
+          CliqzAttrack.safeKey = {};
           CliqzAttrack.safeKey[domain1_hash] = {};
           CliqzAttrack.safeKey[domain1_hash][key_hash] = [daystr, 'l'];
 
@@ -751,12 +733,14 @@ TESTS.AttrackTest = function (CliqzUtils) {
           calledLoadRemoteSafeKey = 0,
           origLoadRemoteTokenWhitelistFn = CliqzAttrack.loadRemoteTokenWhitelist,
           origLoadRemoteSafeKeyFn = CliqzAttrack.loadRemoteSafeKey;
-
+        this.timeout(5000);
         beforeEach(function() {
           // setup clean state
           persist.set_value("safeKeyExtVersion", "");
-          persist.clear_persistent(CliqzAttrack.safeKey);
           persist.set_value("tokenWhitelistVersion", "");
+          CliqzAttrack._safekey.clear();
+          CliqzAttrack.safeKey = {};
+          CliqzAttrack._tokenWhitelist.clear();
           CliqzAttrack.tokenExtWhitelist = {};
           CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck.json";
           // mock update functions
@@ -799,25 +783,29 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it('updates tokens only if needed', function() {
+          persist.set_value("safeKeyExtVersion", "");
           persist.set_value("tokenWhitelistVersion", mock_token_hash);
 
           CliqzAttrack.loadRemoteWhitelists();
           return waitFor(function() {
+            chai.expect(calledLoadRemoteTokenWhitelist).to.eql(0);
             return calledLoadRemoteTokenWhitelist == 0 && calledLoadRemoteSafeKey == 1;
           });
         });
 
         it('updates safekeys only if needed', function() {
           persist.set_value("safeKeyExtVersion", mock_safekey_hash);
+          persist.set_value("tokenWhitelistVersion", "");
 
           CliqzAttrack.loadRemoteWhitelists();
           return waitFor(function() {
+            chai.expect(calledLoadRemoteSafeKey).to.eql(0);
             return calledLoadRemoteTokenWhitelist == 1 && calledLoadRemoteSafeKey == 0;
           });
         });
 
         describe("force_clean", function() {
-
+          this.timeout(5000);
           beforeEach(function() {
             CliqzAttrack.URL_SAFE_KEY_VERSIONCHECK = "chrome://cliqz/content/firefox-tests/mockdata/versioncheck_clean.json";
           });

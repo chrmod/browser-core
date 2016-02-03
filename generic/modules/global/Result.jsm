@@ -136,9 +136,11 @@ var Result = {
 
         return ret;
     },
+    // not really cloning the object !!!
     clone: function(entry) {
         var ret = Result.generic(entry.style, entry.val, null, entry.comment, entry.label, entry.query, null);
         ret.data = JSON.parse(JSON.stringify(entry.data)); // nasty way of cloning an object
+        if(entry.autocompleted) ret.autocompleted = true;
         return ret;
     },
     // check if a result should be kept in final result list

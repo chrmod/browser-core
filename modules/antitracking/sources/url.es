@@ -136,8 +136,8 @@ function getParametersQS(qs) {
         // in case the same key already exists
         _updateQS(k, v);
       } else if(state == 'key' && k.length > 0) {
-        // key with no value, set value=true
-        res[k] = true;
+        // key with no value, set value='true'
+        res[k] = 'true';
       }
       k = '';
       v = '';
@@ -156,7 +156,7 @@ function getParametersQS(qs) {
     state = 'key';
     _updateQS(k, v);
   } else if(state == 'key' && k.length > 0) {
-    res[k] = true;
+    res[k] = 'true';
   }
   return _flattenJson(res);
 };
