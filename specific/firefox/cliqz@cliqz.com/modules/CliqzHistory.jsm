@@ -212,7 +212,7 @@ var CliqzHistory = {
     return function(b) {
       var r = new CliqzUtils.getWindow().FileReader();
       r.onloadend = function() {
-        CliqzUtils.import('core/fs').then(function (fs) {
+        CliqzUtils.importModule('core/fs').then(function (fs) {
           fs.writeFile(
             ["cliqz_thumbnails", filename+".jpeg"],
             new Uint8Array(r.result)
