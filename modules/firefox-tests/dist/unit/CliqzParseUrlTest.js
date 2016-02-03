@@ -306,7 +306,7 @@ var combined = [
         },
         "fragment": "http%3A%2F%2Fwww.adobe.com%2F%23",
         "fragment_keys": {
-            "http%3A%2F%2Fwww.adobe.com%2F%23": true
+            "http%3A%2F%2Fwww.adobe.com%2F%23": 'true'
         },
         "password": "",
         "port": 80
