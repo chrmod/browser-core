@@ -22,7 +22,7 @@ export default {
       this.reporter = new Reporter( categories );
 
       this.reporter.start();
-      events.sub( 'core.location_change', this.reporter.assess );
+      events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
     });
 
     this.loader.onUpdate( categories => {
@@ -38,7 +38,7 @@ export default {
     this.loader.stop();
 
     if ( this.reporter ) {
-      events.un_sub( 'core.location_change', this.reporter.assess );
+      events.un_sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
       this.reporter.stop();
     }
   },
