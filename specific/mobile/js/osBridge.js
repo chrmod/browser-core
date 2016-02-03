@@ -178,6 +178,3 @@ if(window.webkit) {
 } else {
   OS.postMessage = MockOS.postMessage;
 }
-
-// spread the code to the generic and environment parts
-// check with krzyadadjkjtof about this proxy for the bridge
