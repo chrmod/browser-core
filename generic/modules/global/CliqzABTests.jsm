@@ -332,7 +332,12 @@ var CliqzABTests = {
             case "1058_B":
                 CliqzUtils.setPref("unblockMode", "always");
                 break;
-
+            case "1059_A":
+                CliqzUtils.setPref("attrack.local_tracking", false);
+                break;
+            case "1059_B":
+                CliqzUtils.setPref("attrack.local_tracking", true);
+                break;
             case "1060_A":
                 CliqzUtils.setPref("attrackBloomFilter", false);
                 break;
