@@ -43,6 +43,7 @@ var CliqzUtils = loadModule("CliqzUtils"),
 mocha.setup({ ui: 'bdd', timeout: 3000 });
 
 injectTestHelpers(CliqzUtils);
+initHttpServer();
 
 // Load Tests and inject their dependencies
 Object.keys(window.TESTS).forEach(function (testName) {
