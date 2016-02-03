@@ -50,6 +50,8 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         return timer;
     },
     _removeTimerRef = function(timer){
+        timer.cancel();
+
         var i = _timers.indexOf(timer);
         if (i >= 0) {
             _timers.splice(_timers.indexOf(timer), 1);
@@ -248,7 +250,6 @@ var CLIQZEnvironment = {
         if (!timer) {
             return;
         }
-        timer.cancel();
         _removeTimerRef(timer);
     },
     clearInterval: this.clearTimeout,
