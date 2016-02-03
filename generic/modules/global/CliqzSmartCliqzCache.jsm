@@ -87,7 +87,7 @@ Cache.prototype.refresh = function (key, time) {
 
 // save cache to file
 Cache.prototype.save = function (filename) {
-  CliqzUtils.import("core/fs").then(function (fs) {
+  CliqzUtils.importModule("core/fs").then(function (fs) {
     var content = (new TextEncoder()).encode(JSON.stringify(this._cache));
     return fs.writeFile(filename, content);
   }).then(function (value) {
@@ -99,7 +99,7 @@ Cache.prototype.save = function (filename) {
 
 // load cache from file
 Cache.prototype.load = function (filename) {
-  CliqzUtils.import("core/fs").then(function (fs) {
+  CliqzUtils.importModule("core/fs").then(function (fs) {
     return fs.readFile(filename);
   }).then(function (data) {
     this._cache = JSON.parse((new TextDecoder()).decode(data));
@@ -168,7 +168,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
   // loads cache content from persistent storage
   init: function () {
-    CliqzUtils.import('core/fs').then(function (fs) {
+    CliqzUtils.importModule('core/fs').then(function (fs) {
       // create folder underneath profile folder to store persistent cache
       fs.mkdir( this.CUSTOM_DATA_CACHE_FOLDER );
     }.bind(this)).then(function () {
