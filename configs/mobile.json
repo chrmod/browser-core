@@ -1,4 +1,5 @@
 {
+  "platform": "mobile",
   "prefs": {
     "freshTabButton": false
   },
