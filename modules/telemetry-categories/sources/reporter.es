@@ -54,7 +54,7 @@ export default class {
         if(c){
             var t = JSON.parse(utils.getPref('cat', '{}'))
             t[c] = t[c] || { v:0, d:0 };
-            if(t[c].d + 1000 < Date.now()){ //only update if the last update was more than 1 second ago
+            if(t[c].d + 5000 < Date.now()){ //only update if the last update was more than 1 second ago
                 t[c].v++;
                 t[c].d = Date.now();
                 utils.setPref('cat', JSON.stringify(t))
