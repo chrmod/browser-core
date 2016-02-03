@@ -150,11 +150,11 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
 
-  initPlatform(System) {
+  initPlatform: function(System) {
     CliqzUtils.System = System;
   },
 
-  import(moduleName) {
+  importModule: function(moduleName) {
     return CliqzUtils.System.import(moduleName)
   },
 
