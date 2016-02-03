@@ -33,7 +33,7 @@ export default {
 
     data.phone_address = data.phonenumber || data.address;
 
-    if (data.opening_hours) {
+    if (data.opening_hours && data.opening_hours.length > 0) {
 
       data.opening_hours.forEach(function (el) {
         if (!el.open || !el.close) { return; }

@@ -4,10 +4,6 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm')
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-try {
-  Components.utils.import("resource://gre/modules/osfile.jsm");
-} catch(e) { }
-
 var ONE_MINUTE = 60 * 1000,
     ONE_DAY = 24 * 60 * ONE_MINUTE,
     ONE_MONTH = 30 * ONE_DAY,
