@@ -52,9 +52,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
-  'chrome://cliqzmodules/content/CliqzCategories.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
@@ -70,8 +67,8 @@ var Services = Services || CliqzUtils.getWindow().Services;
 var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
-  onLocationChange: function(aProgress, aRequest, aURI) {
-    CliqzEvents.pub("core.location_change", "");
+  onLocationChange: function(aBrowser, aRequest, aURI) {
+    CliqzEvents.pub("core.location_change", aBrowser.currentURI.spec);
   }
 };
 
@@ -121,15 +118,6 @@ window.CLIQZ.Core = {
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
         CliqzHistory.initDB();
-
-        if(CliqzUtils.getPref('categoryAssessment', false)){
-            CliqzCategories.init();
-        }
-
-        if (CliqzUtils.getPref('newsTopsitesAssessment', false) &&
-            !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
-            CliqzCategories.assessNewsTopsites();
-        }
 
         CliqzSpellCheck.initSpellCorrection();
 
@@ -446,7 +434,6 @@ window.CLIQZ.Core = {
             delete window.CliqzDemo;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
-            delete window.CliqzCategories;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
@@ -646,7 +633,8 @@ window.CLIQZ.Core = {
                 startup: startup? true: false,
                 prefs: CLIQZEnvironment.getCliqzPrefs(),
                 defaultSearchEngine: defaultSearchEngine,
-                private_window: CliqzUtils.isPrivate(window)
+                private_window: CliqzUtils.isPrivate(window),
+                distribution: CliqzUtils.getPref('distribution', '')
             };
 
             CliqzUtils.telemetry(info);

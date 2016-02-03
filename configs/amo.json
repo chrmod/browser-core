@@ -1,4 +1,5 @@
 {
+  "platform": "firefox",
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
@@ -11,6 +12,7 @@
     "static",
     "onboarding",
     "freshtab",
+    "telemetry-categories",
     "antitracking"
   ]
 }
