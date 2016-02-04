@@ -452,8 +452,7 @@ function createNewsList(hcache, callback){
   var NEWS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
       top_news_url = NEWS_PROVIDER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(),
 
-      // RICH_HEADER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com',
-      RICH_HEADER = 'http://rh-staging.clyqz.com/map?bmresult=hb-news.cliqz.com',
+      RICH_HEADER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com',
       topic_news_url = RICH_HEADER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(), // news by domain and topik
       topic_news_url = topic_news_url + '&q=',
       news_urls = [],
