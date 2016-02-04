@@ -1,30 +1,28 @@
 <!-- topsites.tpl -->
-
+{{debug}}
 {{#if this}}
-  <div class="heading">
-      <h2><span>{{ local 'freshtab_top_sites' }}</span></h2>
-  </div>
+
   <div class="main" style="margin-bottom: 20px;">
-    <ul>
+    <table>
+      <tr>
         {{#each this}}
-            <div class="item">
-                <div class="meta__logo transition"
+            <td align="center" valign="top">
+                <div 
+                 onclick="osBridge.openLink('{{baseDomain}}')"
                  style="{{style}}"
                  show-status=""
                  extra="{{extra}}"
-                 url="{{url}}"
+                 url="{{baseDomain}}"
                  >{{ text }}
                 </div>
-                <h1 class="main__headline">
-                    <a class="topSitesLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
-                        {{ title }}
-                    </a>
-                </h1>
-                <div class="meta">
-                  {{url}}
-                </div>
-            </div>
+                <a class="topSitesLink" data-index="{{@index}}" 
+                  onclick="osBridge.openLink('{{baseDomain}}')">
+                    {{ domain }}
+                </a>
+            </td>
         {{/each}}
+       </tr>
+      </table>
     </ul>
   </div>
 {{/if}}

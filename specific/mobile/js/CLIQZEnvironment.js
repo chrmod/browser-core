@@ -756,6 +756,23 @@ CLIQZEnvironment = {
     if(!CliqzHandlebars.tplCache.topsites) {
       return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
     }
+
+    if(!list.length) {
+      list = mockedHistory;
+    }
+    
+    var indexList = {},
+        myList = [];
+    for(var i=0; i<list.length; i++) {
+      indexList[list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]] = list[i];
+    }
+    for(var i in indexList) {
+      myList.push(indexList[i]);
+    }
+    list = myList;
+    
+    list = list.splice(0,4);
+    
     list = list.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
@@ -766,7 +783,9 @@ CLIQZEnvironment = {
         text: logo.text,
         backgroundColor: logo.backgroundColor,
         buttonsClass: logo.buttonsClass,
-        style: logo.style
+        style: logo.style,
+        baseDomain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[0],
+        domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]  
       }
     });
     var topSites = CliqzHandlebars.tplCache["topsites"];
@@ -788,7 +807,7 @@ CLIQZEnvironment = {
   },
   initHomepage: function() {
     CLIQZEnvironment.getNews();
-    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
+    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 50);
   },
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject("defaultSearchEngine", engine);
