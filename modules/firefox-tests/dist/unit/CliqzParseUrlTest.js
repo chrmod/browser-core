@@ -396,48 +396,10 @@ function fullTest(testFn) {
 }
 
 TESTS.CliqzParseUrlTest = function (CliqzUtils) {
-  var CliqzHumanWeb = CliqzUtils.getWindow().CLIQZ.System.get("human-web/human-web");
   var parseURL = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/url").parseURL;
-    describe('CliqzAttrack.parseURL', function() {
 
-        var testFn = parseURL;
-        fullTest(testFn);
+  describe('CliqzAttrack.parseURL', function() {
+    fullTest(parseURL);
+  });
 
-    });
-
-    /*describe('CliqzHumanWeb.parseURL', function() {
-
-        var testFn = function(url) {
-            var parts = CliqzHumanWeb.parseURL(url);
-            // forwards compatibility
-            parts['query'] = parts['query_string'] == null ? '' : parts['query_string'];
-            parts['query_keys'] = CliqzHumanWeb.getParametersQS(parts['query']);
-            parts['parameters'] = '';
-            parts['parameter_keys'] = {};
-            parts['fragment'] = '';
-            parts['fragment_keys'] = {};
-            return parts;
-        };
-        fullTest(testFn);
-
-    });
-
-    describe('CliqzHumanWeb.parseUri', function() {
-
-        var testFn = function(url) {
-            var parts = CliqzHumanWeb.parseUri(url);
-            // forwards compatibility
-            parts['username'] = parts['user'];
-            parts['hostname'] = parts['host'];
-            if(parts['port'] == '') parts['port'] = 80;
-            parts['query_keys'] = CliqzHumanWeb.getParametersQS(parts['query']);
-            parts['parameters'] = '';
-            parts['parameter_keys'] = {};
-            parts['fragment'] = parts['anchor'];
-            parts['fragment_keys'] = CliqzHumanWeb.getParametersQS(parts['fragment']);
-            return parts;
-        };
-        fullTest(testFn);
-
-    });*/
 };
