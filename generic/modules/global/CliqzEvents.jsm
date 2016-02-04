@@ -30,7 +30,11 @@ var CliqzEvents = CliqzEvents || {
     var args = Array.prototype.slice.call(arguments, 1);
     (CliqzEvents.cache[id] || []).forEach(function (ev) {
       CliqzUtils.setTimeout(function () {
-        ev.apply(null, args);
+        try {
+          ev.apply(null, args);
+        } catch(e) {
+          CliqzUtils.log(e, "CliqzEvents error");
+        }
       }, 0);
     });
   },

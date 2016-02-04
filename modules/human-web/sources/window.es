@@ -6,52 +6,49 @@ export default class {
     this.window = settings.window;
   }
 
+  enabled() {
+    return utils.getPref("humanWeb", false)
+           && !utils.getPref("dnt", false)
+           && !utils.isPrivate(this.window);
+  }
+
   init() {
-    if(utils.getPref("humanWeb", false) && !utils.getPref("dnt", false)
-       && !utils.isPrivate(this.window)){
-      HumanWeb.init(this.window);
-      this.window.gBrowser.addProgressListener(HumanWeb.listener);
+    if (!this.enabled()) {
+      return;
     }
 
-    if (!utils.isPrivate(this.window)) {
-      try {
-        var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-        if(utils.getPref("humanWeb", false)){
-            //Also need to add for Humanweb
-            hs.addObserver(CliqzHumanWeb.historyObserver, false);
-        }
-      } catch(e) {}
+    HumanWeb.init(this.window);
+
+    this.window.gBrowser.addProgressListener(HumanWeb.listener);
+
+    try {
+      let hs = Cc["@mozilla.org/browser/nav-history-service;1"]
+                 .getService(Ci.nsINavHistoryService);
+      hs.addObserver(HumanWeb.historyObserver, false);
+    } catch(e) {
+      utils.log(e, "HumanWeb History Observer error");
     }
   }
 
   unload() {
-    if (!utils.isPrivate(this.window)) {
-      try {
-          var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-          if (utils.getPref("humanWeb", false) ){
-              //Also, remove from Humanweb
-              hs.removeObserver(HumanWeb.historyObserver);
-          }
-      } catch(e) {}
+    if (!this.enabled()) {
+      return;
     }
 
-    if(utils.getPref("humanWeb", false)
-        && !utils.getPref("dnt", false)
-        && !utils.isPrivate(this.window)) {
+    try {
+      let hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+      hs.removeObserver(HumanWeb.historyObserver);
+    } catch(e) {}
 
-      this.window.gBrowser.removeProgressListener(HumanWeb.listener);
+    this.window.gBrowser.removeProgressListener(HumanWeb.listener);
 
-      var numTabs = window.gBrowser.tabContainer.childNodes.length;
-
-      for (var i=0; i<numTabs; i++) {
-        var currentTab = gBrowser.tabContainer.childNodes[i];
-        var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-        currentBrowser.contentDocument.removeEventListener("keypress", HumanWeb.captureKeyPressPage,true);
-        currentBrowser.contentDocument.removeEventListener("mousemove", HumanWeb.captureMouseMovePage,true);
-        currentBrowser.contentDocument.removeEventListener("mousedown", HumanWeb.captureMouseClickPage,true);
-        currentBrowser.contentDocument.removeEventListener("scroll", HumanWeb.captureScrollPage,true);
-        currentBrowser.contentDocument.removeEventListener("copy", HumanWeb.captureCopyPage,true);
-      }
+    window.gBrowser.tabContainer.childNodes.forEach( tab => {
+      const currentBrowser = this.window.gBrowser.getBrowserForTab(tab);
+      currentBrowser.contentDocument.removeEventListener("keypress",  HumanWeb.captureKeyPressPage,true);
+      currentBrowser.contentDocument.removeEventListener("mousemove", HumanWeb.captureMouseMovePage,true);
+      currentBrowser.contentDocument.removeEventListener("mousedown", HumanWeb.captureMouseClickPage,true);
+      currentBrowser.contentDocument.removeEventListener("scroll",    HumanWeb.captureScrollPage,true);
+      currentBrowser.contentDocument.removeEventListener("copy",      HumanWeb.captureCopyPage,true);
     }
   }
 
@@ -60,12 +57,11 @@ export default class {
         menu = doc.createElement('menu'),
         menuPopup = doc.createElement('menupopup');
 
-
     menu.setAttribute('label', 'Human Web');
 
     // HumanWeb checkbox
     menuPopup.appendChild(
-      this.createCheckBoxItem(
+      win.CLIQZ.Core.createCheckBoxItem(
         doc,
         'dnt',
         utils.getLocalizedString('btnSafeSearch'),
@@ -75,17 +71,18 @@ export default class {
 
     // HumanWeb learn more button
     menuPopup.appendChild(
-      this.createSimpleBtn(
+      win.CLIQZ.Core.createSimpleBtn(
         doc,
         utils.getLocalizedString('btnSafeSearchDesc'),
         function(){
-          CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
+          utils.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
         },
         'safe_search_desc')
     );
 
-    menu.appendChild(menuPopup)
-    return menu
+    menu.appendChild(menuPopup);
+
+    return menu;
   }
 
   changeHumanWebState() {
@@ -95,7 +92,7 @@ export default class {
       HumanWeb.initAtBrowser();
     }
 
-    utils.extensionRestart(function(){
+    utils.extensionRestart(function() {
       utils.setPref('dnt', !utils.getPref('dnt', false));
     });
   }
