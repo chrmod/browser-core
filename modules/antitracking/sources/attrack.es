@@ -1754,7 +1754,7 @@ var CliqzAttrack = {
                 persist.set_value('lastUpdate', JSON.stringify(CliqzAttrack.lastUpdate));
             },
             function() {},
-            10000);
+            60000);
     },
     loadRemoteSafeKey: function() {
         var today = datetime.getTime().substring(0, 8);
@@ -1792,7 +1792,7 @@ var CliqzAttrack = {
             },
             function() {
                 // on error
-            }, 10000
+            }, 60000
         );
     },
     updateBloomFilter: function() {
