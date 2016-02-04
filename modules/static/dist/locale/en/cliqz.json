@@ -1001,6 +1001,9 @@
     "mobile_more_results_action": {
       "message": "Tap here for results from $1..."
     },
+    "mobile_calc_more": {
+      "message": "More on"
+    },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"
     },

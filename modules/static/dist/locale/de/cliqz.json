@@ -1001,6 +1001,9 @@
     "mobile_more_results_action": {
       "message": "Hier antippen für Ergebnisse von $1..."
     },
+    "mobile_calc_more": {
+      "message": "Mehr auf"
+    },
     "unblock_menu_option": {
       "message": "Unblock content"
     },
