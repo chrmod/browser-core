@@ -993,13 +993,13 @@
       "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "mobile_no_result_action": {
-      "message": "Hier tappen für Ergebnisse von $1..."
+      "message": "Hier antippen für Ergebnisse von $1..."
     },
     "mobile_more_results_title": {
       "message": "Nichts gefunden?"
     },
     "mobile_more_results_action": {
-      "message": "Hier tappen für Ergebnisse von $1..."
+      "message": "Hier antippen für Ergebnisse von $1..."
     },
     "unblock_menu_option": {
       "message": "Unblock content"
