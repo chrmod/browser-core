@@ -410,6 +410,9 @@ var CLIQZEnvironment = {
       if (CLIQZEnvironment.getPref('share_location') == 'yes') {
         // Get current position
         geoService.getCurrentPosition(function(p) {
+          // the callback might come late if the extension gets disabled very fast
+          if(!CliqzUtils) return;
+
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
