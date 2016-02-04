@@ -83,7 +83,6 @@ var Extension = {
         this.config = JSON.parse(res.response);
       }.bind(this), function () {}, undefined, undefined, true);
 
-      CliqzUtils.log(1, "XXX");
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
         Extension.config.modules.map(function (moduleName) {
@@ -94,10 +93,8 @@ var Extension = {
           });
         })
       ).then(function () {
-        CliqzUtils.log(2, "XXX");
         Extension.cliqzPrefsObserver.register();
       }).catch(function (e) {
-        CliqzUtils.log("2err", "XXX");
         CliqzUtils.log("some modules failed to load - " + e, "Extension");
       });
 

@@ -1,38 +1,32 @@
-import { utils, events } from "core/cliqz";
+import { utils } from "core/cliqz";
+import background from "core/base/background";
 import HumanWeb from "human-web/human-web";
 
-export default {
-  init(settings) {
-    this.urlClickListener = this.urlClickListener.bind(this);
-
-    if(!utils.getPref("humanWeb", false)){
-      return;
-    }
-
-    HumanWeb.initAtBrowser();
-    events.sub("ui:click-on-url", this.urlClickListener);
+export default background({
+  enabled(settings) {
+    return utils.getPref("humanWeb", false);
   },
 
-  urlClickListener(data) {
-    HumanWeb.queryCache[data.url] = {
-      d: 1,
-      q: data.query,
-      t: data.type,
-      pt: data.positionType,
-    };
+  init(settings) {
+    HumanWeb.initAtBrowser();
   },
 
   unload(options) {
-    if(!utils.getPref("humanWeb", false)){
-      return;
-    }
-
-    events.un_sub("ui:click-on-url", this.urlClickListener);
-
     HumanWeb.unloadAtBrowser();
 
-    if ( options.uninstall ) {
+    if (uninstall) {
       HumanWeb.unload();
     }
+  },
+
+  events: {
+    "ui:click-on-url": function (data) {
+      HumanWeb.queryCache[data.url] = {
+        d: 1,
+        q: data.query,
+        t: data.type,
+        pt: data.positionType,
+      };
+    }
   }
-}
+})

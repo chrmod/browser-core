@@ -930,7 +930,7 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general": {
-      "message": "CLIQZ Anti Tracking blocked $1&nbsp;trackers on <strong>$2</strong>"
+      "message": "CLIQZ Anti Tracking blocked $1 trackers on <strong>$2</strong>"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
