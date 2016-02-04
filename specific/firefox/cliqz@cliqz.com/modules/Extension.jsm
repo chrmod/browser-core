@@ -114,11 +114,11 @@ var Extension = {
       // Load into all new windows
       Services.ww.registerNotification(Extension.windowWatcher);
     },
-    unload: function(version, uninstall){
+    unload: function(version, uninstall, upgrade){
         // only HumanWeb module requires shutdown signal for now
         CliqzHumanWeb.unload();
 
-        if(!uninstall){ // == shutdown
+        if(!uninstall && !upgrade){ // == shutdown
           //we can simply return if the browser shuts down - we do not need to do any cleaning
           return;
         }
