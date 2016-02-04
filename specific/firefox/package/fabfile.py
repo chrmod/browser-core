@@ -45,7 +45,7 @@ def get_version(beta='True'):
 
 
 @task
-def package(beta='True', version=None, sign='False'):
+def package(beta='True', version=None, sign='False', amo='False'):
     """Package the extension as a .xpi file."""
 
     checkout = True # Checkout the tag if we are not doing a beta package
@@ -65,7 +65,8 @@ def package(beta='True', version=None, sign='False'):
     template = env.get_template('install.rdf')
     output_from_parsed_template = template.render(name=NAME,
                                                   version=version,
-                                                  beta=beta)
+                                                  beta=beta,
+                                                  amo=amo)
     with open(install_manifest_path, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
 
@@ -77,6 +78,11 @@ def package(beta='True', version=None, sign='False'):
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
+
+            if amo == 'True':
+                # remove files which migth cause problems on AMO
+                local("rm chrome/content/abtests.html")
+
             local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 

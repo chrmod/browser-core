@@ -48,12 +48,13 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+
+        CliqzUtils.initPlatform(System)
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
@@ -71,9 +72,10 @@ var Extension = {
     load: function(upgrade, oldVersion, newVersion){
       CliqzUtils.extensionVersion = newVersion;
 
+      // wait before setting the support info as it uses LocalStorage which might not be accessible
       Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
         CliqzUtils.setSupportInfo()
-      },1000);
+      }, 30000);
 
       // Ensure prefs are set to our custom values
       Extension.setOurOwnPrefs();
@@ -113,6 +115,14 @@ var Extension = {
       Services.ww.registerNotification(Extension.windowWatcher);
     },
     unload: function(version, uninstall){
+        // only HumanWeb module requires shutdown signal for now
+        CliqzHumanWeb.unload();
+
+        if(!uninstall){ // == shutdown
+          //we can simply return if the browser shuts down - we do not need to do any cleaning
+          return;
+        }
+
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
 
         if(uninstall){
@@ -139,7 +149,6 @@ var Extension = {
             Extension.unloadFromWindow(win);
         }
 
-        CliqzCategories.unload();
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
         Extension.unloadModules();
@@ -204,7 +213,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');

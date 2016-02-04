@@ -7,29 +7,27 @@ var Slider = (function($, window){
         "gridItems":  3,
         "sliderContainer": '#sliderBtns',
         "sliderBtn": '#sliderBtns a',
+        "interval": 15000
       },
       items,
       t0;
-      //sliderBtns  = CliqzHandlebars.compile($("#slider-btns").html());
 
   function transition(container, start) {
-    items.fadeOut(100);
+    if($('.topnews:hover').length ===0 ) {
+      items.fadeOut(100);
 
-    /*console.log("Start", start)
-    console.log("State", state)*/
+      items.slice(start, start + config.gridItems).delay(200).fadeIn();
+      updateSliderBtns(state);
 
-    items.slice(start, start + config.gridItems).delay(200).fadeIn();
-    updateSliderBtns(state);
-
-    state++;
-    if(state * config.gridItems >= $(config.el).length) {
-      state = 0;
+      state++;
+      if(state * config.gridItems >= $(config.el).length) {
+        state = 0;
+      }
     }
 
     t0 = setTimeout(function() {
-      transition(container, config.gridItems * state)
-    }, 10000)
-
+      transition(container, config.gridItems * state);
+    }, config.interval);
   }
 
   function updateSliderBtns(state) {
@@ -58,7 +56,6 @@ var Slider = (function($, window){
       }
     }
 
-    //console.log("Options", options)
     items = $(config.el);
     // start the rotation only if we have more than gridItems
     if (options.totalNews / config.gridItems > 1) {

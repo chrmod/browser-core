@@ -150,6 +150,14 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
 
+  initPlatform: function(System) {
+    CliqzUtils.System = System;
+  },
+
+  importModule: function(moduleName) {
+    return CliqzUtils.System.import(moduleName)
+  },
+
   isNumber: function(n){
       /*
       NOTE: this function can't recognize numbers in the form such as: "1.2B", but it can for "1e4". See specification for isFinite()
@@ -959,6 +967,8 @@ var CliqzUtils = {
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
   getLocalizedString: function(key, substitutions){
+    if(!key) return '';
+
     var str = key,
         localMessages;
 
@@ -1027,6 +1037,9 @@ var CliqzUtils = {
   },
   isMac: function(){
     return CLIQZEnvironment.OS.indexOf("darwin") === 0;
+  },
+  isLinux: function() {
+    return CLIQZEnvironment.OS.indexOf("linux") === 0;
   },
   getWindow: CLIQZEnvironment.getWindow,
   getWindowID: CLIQZEnvironment.getWindowID,
