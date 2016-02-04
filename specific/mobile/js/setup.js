@@ -1,7 +1,7 @@
 function init() {
   System.baseURL = "modules/"
   CLIQZ.System = System;
-
+  CliqzUtils.initPlatform(System);
   System.import("freshtab/news").then(function (module) {
     CliqzFreshTabNews = module.default;
     osBridge.isReady();

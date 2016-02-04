@@ -4,6 +4,7 @@
     "freshTabButton": false
   },
   "modules": [
+    "core",
     "freshtab",
     "static"
   ]
