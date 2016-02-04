@@ -873,8 +873,6 @@ var CliqzUtils = {
   _telemetry_start: undefined,
   TELEMETRY_MAX_SIZE: 500,
   pushTelemetry: function() {
-    if(!CliqzUtils) return;
-
     CliqzUtils.setPref('telemetrySeq', CliqzUtils.telemetrySeq);
     if(CliqzUtils._telemetry_req) return;
 
