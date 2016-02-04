@@ -1,16 +1,19 @@
 {
+  "platform": "firefox",
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
-    "antitrackingButton": false,
+    "freshTabHistoryNews": true,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "04"
   },
   "modules": [
+    "core",
     "static",
     "onboarding",
     "freshtab",
+    "telemetry-categories",
     "antitracking"
   ]
 }

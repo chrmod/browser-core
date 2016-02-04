@@ -737,7 +737,7 @@ CLIQZEnvironment = {
         style: logo.style
       }
     });
-    if(!CliqzHandlebars.tplCache.topnews) {
+    if(!CliqzHandlebars.tplCache.topnews || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
       return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
     }
     var topNews = CliqzHandlebars.tplCache["topnews"];
@@ -753,7 +753,7 @@ CLIQZEnvironment = {
     });
   },
   displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites) {
+    if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
       return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
     }
 
@@ -805,7 +805,11 @@ CLIQZEnvironment = {
       element.addEventListener(eventType, listener);
     });
   },
-  initHomepage: function() {
+  initHomepage: function(firstTime) {
+    if(!firstTime) {
+      var start = document.getElementById("freshstart");
+      start && (start.style.display = 'none');
+    }
     CLIQZEnvironment.getNews();
     osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 50);
   },

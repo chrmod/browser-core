@@ -1,6 +1,6 @@
 window.addEventListener('disconnected', function() {
   var elem = document.getElementById("reconnecting");
-  elem && (elem.innerHTML = `<h3>${CliqzUtils.getLocalizedString('mobile_reconnecting_msg')}</h3>`);
+  elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
 });
 window.addEventListener('connected', function() {
   var elem = document.getElementById("reconnecting");

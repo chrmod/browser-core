@@ -962,6 +962,9 @@
     "freshtab_top_news": {
       "message": "Top News"
     },
+    "freshtab_your_news": {
+      "message": "Your News Sources"
+    },
     "freshtab_top_sites": {
       "message": "Top Sites"
     },
@@ -998,6 +1001,9 @@
     "mobile_more_results_action": {
       "message": "Tap here for results from $1..."
     },
+    "mobile_calc_more": {
+      "message": "More on"
+    },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"
     },
@@ -1014,7 +1020,7 @@
       "message": "No, never"
     },
     "cliqz-onboarding-title": {
-      "message": "Woohoo! CLIQZ has successfully installed."
+      "message": "Woohoo! CLIQZ has been successfully installed."
     },
     "cliqz-onboarding-search-simple": {
       "message": "Search effortlessly. Simply start typing in the address bar and instantly get"

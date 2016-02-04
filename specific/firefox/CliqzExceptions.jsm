@@ -15,7 +15,6 @@ var TARGET = [
         'CliqzAntiPhishing',
         //'CliqzAutocomplete', TODO
         'CliqzCalculator',
-        'CliqzCategories',
         'CliqzExceptions',
         //'CliqzHandlebars', TODO
         'CliqzHistory',

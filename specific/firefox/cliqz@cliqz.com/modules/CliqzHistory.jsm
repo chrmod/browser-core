@@ -22,8 +22,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
-  'chrome://cliqzmodules/content/CliqzCategories.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
   'chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
 
@@ -41,9 +39,6 @@ var CliqzHistory = {
     QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
     onLocationChange: function(aBrowser, aWebProgress, aRequest, aLocation, aFlags) {
-      if (CliqzUtils.getPref('categoryAssessment', false)) {
-        CliqzCategories.assess(aBrowser.currentURI.spec);
-      }
       var url = CliqzUtils.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
@@ -217,10 +212,11 @@ var CliqzHistory = {
     return function(b) {
       var r = new CliqzUtils.getWindow().FileReader();
       r.onloadend = function() {
-        Cu.import('resource://gre/modules/osfile.jsm');
-        var writePath = FileUtils.getFile("ProfD", ["cliqz_thumbnails", filename + ".jpeg"]).path;
-        OS.File.writeAtomic(writePath, new Uint8Array(r.result), {
-          tmpPath: writePath + '.tmp'
+        CliqzUtils.importModule('core/fs').then(function (fs) {
+          fs.writeFile(
+            ["cliqz_thumbnails", filename+".jpeg"],
+            new Uint8Array(r.result)
+          );
         });
       };
       if (b.size > 2000) {

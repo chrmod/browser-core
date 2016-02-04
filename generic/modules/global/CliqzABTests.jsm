@@ -17,9 +17,9 @@ var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-    init: function(system){
+    init: function(){
         CliqzABTests.check();
-        this.System = system;
+
     },
     unload: function(){
         CliqzUtils.clearTimeout(timer);
@@ -320,11 +320,45 @@ var CliqzABTests = {
             case "1056_B":
                 CliqzUtils.setPref("freshTabAB", true);
                 break;
+            case "1057_A":
+                CliqzUtils.setPref("trackerTxt", false);
+                break;
+            case "1057_B":
+                CliqzUtils.setPref("trackerTxt", true);
+                break;
             case "1058_A":
                 CliqzUtils.setPref("unblockMode", "never");
                 break;
             case "1058_B":
                 CliqzUtils.setPref("unblockMode", "always");
+                break;
+            case "1059_A":
+                CliqzUtils.setPref("attrack.local_tracking", false);
+                break;
+            case "1059_B":
+                CliqzUtils.setPref("attrack.local_tracking", true);
+                break;
+            case "1060_A":
+                CliqzUtils.setPref("attrackBloomFilter", false);
+                break;
+            case "1060_B":
+                CliqzUtils.setPref("attrackBloomFilter", true);
+                break;
+            case "1061_A":
+                CliqzUtils.setPref("attrackUI", false);
+                break;
+            case "1061_B":
+                CliqzUtils.setPref("attrackUI", true);
+                break;
+            case "1062_A":
+                CliqzUtils.setPref("freshTabNewsUnderline", false);
+            case "1062_B":
+                CliqzUtils.setPref("freshTabNewsUnderline", true);
+            case "1063_A":
+                CliqzUtils.setPref("double-enter2", false);
+                break;
+            case "1063_B":
+                CliqzUtils.setPref("double-enter2", true);
                 break;
             default:
                 rule_executed = false;
@@ -563,15 +597,37 @@ var CliqzABTests = {
                 break;
             case "1055_A":
             case "1055_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("unblockEnabled");
+                CliqzUtils.clearPref("unblockEnabled");
                 break;
             case "1056_A":
             case "1056_B":
                 CliqzUtils.clearPref("freshTabAB");
                 break;
+            case "1057_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("trackerTxt");
+                break;
             case "1058_A":
             case "1058_B":
                 CliqzUtils.clearPref("unblockMode");
+                break;
+            case "1059_A":
+            case "1059_B":
+                CliqzUtils.clearPref("attrack.local_tracking");
+                break;
+            case "1060_A":
+            case "1060_B":
+                CliqzUtils.clearPref("attrackBloomFilter");
+                break;
+            case "1061_A":
+            case "1061_B":
+                CliqzUtils.clearPref("attrackUI");
+                break;
+            case "1062_A":
+            case "1062_B":
+                CliqzUtils.clearPref("freshTabNewsUnderline");
+            case "1063_A":
+            case "1063_B":
+                CliqzUtils.clearPref("double-enter2");
                 break;
             default:
                 rule_executed = false;
