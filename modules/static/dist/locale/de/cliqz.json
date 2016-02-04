@@ -1004,6 +1004,9 @@
     "mobile_calc_more": {
       "message": "Mehr auf"
     },
+    "mobile_calc_copy_ans":{
+        "message": "Antippen zum Kopieren"
+    },
     "unblock_menu_option": {
       "message": "Unblock content"
     },

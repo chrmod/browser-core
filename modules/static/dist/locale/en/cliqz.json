@@ -1004,6 +1004,9 @@
     "mobile_calc_more": {
       "message": "More on"
     },
+    "mobile_calc_copy_ans":{
+        "message": "Tap anywhere to copy"
+    },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"
     },
