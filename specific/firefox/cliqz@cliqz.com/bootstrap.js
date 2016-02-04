@@ -22,7 +22,7 @@ function shutdown(aData, aReason) {
         action: TELEMETRY_SIGNAL[aReason]
     }, true /* force push */);
 
-    Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
+    Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL,  aReason == ADDON_UPGRADE || aReason == ADDON_DOWNGRADE);
 
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 }
