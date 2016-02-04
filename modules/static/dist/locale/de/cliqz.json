@@ -968,6 +968,9 @@
     "freshtab_top_sites": {
       "message": "Top Seiten"
     },
+    "mobile_share_card": {
+      "message": "Diese Karte teilen"
+    },
     "mobile_reconnecting_msg": {
       "message": "Internetverbindung wird wieder hergestellt"
     },
