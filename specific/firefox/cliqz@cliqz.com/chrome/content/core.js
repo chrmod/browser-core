@@ -220,56 +220,7 @@ window.CLIQZ.Core = {
           //this.whoAmI(true); //startup
           //CliqzUtils.log('Initialized', 'CORE');
 
-          /*
-              dataCollectionMessageState
-                      0 - not shown
-                      1 - shown
-                      2 - ignored
-                      3 - learn more
-          */
-          if(CLIQZ.config.settings.showDataCollectionMessage &&
-             CliqzUtils.getPref('dataCollectionMessageState', 0) == 0){
-            this._dataCollectionTimer = setTimeout(this.showDataCollectionMessage, 1000);
-          }
         }.bind(this));
-    },
-    showDataCollectionMessage: function(){
-      function updateDataCollectionState(state){
-        CliqzUtils.telemetry({
-          type: 'dataCollectionMessage',
-          state: state
-        });
-
-        CliqzUtils.setPref('dataCollectionMessageState', state);
-      }
-
-      var buttons = [{
-        label: CliqzUtils.getLocalizedString("learnMore"),
-        callback: function(){
-          // we only have the website localized in english end german
-          var lang = CliqzUtils.getLanguage(window) == 'de' ? '' : 'en/',
-              learnMoreUrl = 'chrome://cliqz/content/humanweb.html';
-
-          gBrowser.selectedTab  = gBrowser.addTab(learnMoreUrl);
-          updateDataCollectionState(3);
-        }
-      }];
-
-      document.getElementById("global-notificationbox").appendNotification(
-        CliqzUtils.getLocalizedString("dataCollection"),
-        null,
-        null,
-        document.getElementById("global-notificationbox").PRIORITY_INFO_HIGH,
-        buttons,
-        function(){
-          // notification hides if the user closes it or presses learn more
-          if(CliqzUtils.getPref('dataCollectionMessageState', 0) < 2){
-            updateDataCollectionState(2);
-          }
-        }
-      );
-
-      updateDataCollectionState(1);
     },
     responsiveClasses: function(){}, //tmp 15.09.2015 - some older version do not correctly deregister a resize handler
     addCSS: function(doc, path){
@@ -315,7 +266,6 @@ window.CLIQZ.Core = {
         this.windowModules = [];
 
         clearTimeout(this._whoAmItimer);
-        clearTimeout(this._dataCollectionTimer);
 
         CLIQZ.UI.unload();
 

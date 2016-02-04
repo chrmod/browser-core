@@ -1,9 +1,11 @@
 import { utils } from "core/cliqz";
 import HumanWeb from "human-web/human-web";
+import hs from "core/history-service";
 
 export default class {
   constructor(settings) {
     this.window = settings.window;
+    this.settings = settings.settings;
   }
 
   enabled() {
@@ -21,13 +23,9 @@ export default class {
 
     this.window.gBrowser.addProgressListener(HumanWeb.listener);
 
-    try {
-      let hs = Cc["@mozilla.org/browser/nav-history-service;1"]
-                 .getService(Ci.nsINavHistoryService);
-      hs.addObserver(HumanWeb.historyObserver, false);
-    } catch(e) {
-      utils.log(e, "HumanWeb History Observer error");
-    }
+    hs.addObserver(HumanWeb.historyObserver, false);
+
+    this._dataCollectionTimer = utils.setTimeout(this.showDataCollectionMessage.bind(this), 1000);
   }
 
   unload() {
@@ -35,10 +33,9 @@ export default class {
       return;
     }
 
-    try {
-      let hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-      hs.removeObserver(HumanWeb.historyObserver);
-    } catch(e) {}
+    utils.clearTimeout(this._dataCollectionTimer);
+
+    hs.removeObserver(HumanWeb.historyObserver);
 
     this.window.gBrowser.removeProgressListener(HumanWeb.listener);
 
@@ -49,7 +46,7 @@ export default class {
       currentBrowser.contentDocument.removeEventListener("mousedown", HumanWeb.captureMouseClickPage,true);
       currentBrowser.contentDocument.removeEventListener("scroll",    HumanWeb.captureScrollPage,true);
       currentBrowser.contentDocument.removeEventListener("copy",      HumanWeb.captureCopyPage,true);
-    }
+    });
   }
 
   createButtonItem(win) {
@@ -95,5 +92,56 @@ export default class {
     utils.extensionRestart(function() {
       utils.setPref('dnt', !utils.getPref('dnt', false));
     });
+  }
+
+  /**
+   * dataCollectionMessageState
+   *   0 - not shown
+   *   1 - shown
+   *   2 - ignored
+   *   3 - learn more
+   */
+  showDataCollectionMessage() {
+    if (!this.settings.showDataCollectionMessage ||
+       utils.getPref('dataCollectionMessageState', 0) !== 0) {
+      return;
+    }
+
+    function updateDataCollectionState(state) {
+      utils.telemetry({
+        type: 'dataCollectionMessage',
+        state: state
+      });
+
+      utils.setPref('dataCollectionMessageState', state);
+    }
+
+    let box = this.window.document.getElementById("global-notificationbox"),
+        buttons = [];
+
+    buttons.push({
+      label: utils.getLocalizedString("learnMore"),
+      callback: () => {
+        let learnMoreUrl = 'chrome://cliqz/content/human-web/humanweb.html';
+        this.window.gBrowser.selectedTab = this.window.gBrowser.addTab(learnMoreUrl);
+        updateDataCollectionState(3);
+      }
+    });
+
+    box.appendNotification(
+      utils.getLocalizedString("dataCollection"),
+      null,
+      null,
+      box.PRIORITY_INFO_HIGH,
+      buttons,
+      function () {
+        // notification hides if the user closes it or presses learn more
+        if(utils.getPref('dataCollectionMessageState', 0) < 2){
+          updateDataCollectionState(2);
+        }
+      }
+    );
+
+    updateDataCollectionState(1);
   }
 }
