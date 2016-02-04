@@ -786,7 +786,11 @@ CLIQZEnvironment = {
       element.addEventListener(eventType, listener);
     });
   },
-  initHomepage: function() {
+  initHomepage: function(firstTime) {
+    if(!firstTime) {
+      var start = document.getElementById("freshstart");
+      start && (start.style.display = 'none');
+    }
     CLIQZEnvironment.getNews();
     osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
   },

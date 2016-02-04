@@ -19,7 +19,7 @@ function tryInit(){
   //ugly hack to wait for logos
 
   if(tries-- == 0 || CliqzUtils.BRANDS_DATABASE.palette.length > 1)
-    CLIQZEnvironment.initHomepage();
+    CLIQZEnvironment.initHomepage(true);
 
   else setTimeout(tryInit, 100)
 }
