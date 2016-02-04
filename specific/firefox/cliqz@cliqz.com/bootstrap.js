@@ -1,6 +1,11 @@
 'use strict';
 const { utils: Cu } = Components;
 
+var TELEMETRY_SIGNAL = {};
+TELEMETRY_SIGNAL[APP_SHUTDOWN] = 'browser_shutdown';
+TELEMETRY_SIGNAL[ADDON_DISABLE] = 'addon_disable';
+TELEMETRY_SIGNAL[ADDON_UNINSTALL] = 'addon_uninstall';
+
 function startup(aData, aReason) {
     // try to cleanup an eventual broken shutdown
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
@@ -11,25 +16,15 @@ function startup(aData, aReason) {
 
 function shutdown(aData, aReason) {
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
+
+    Extension.telemetry({
+        type: 'activity',
+        action: TELEMETRY_SIGNAL[aReason]
+    }, true /* force push */);
+
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
 
-    if (aReason == APP_SHUTDOWN){
-        eventLog('browser_shutdown');
-        return;
-    }
-    if (aReason == ADDON_DISABLE) eventLog('addon_disable');
-    if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
-
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
-}
-
-function eventLog(ev){
-    var action = {
-        type: 'activity',
-        action: ev
-    };
-
-    Extension.telemetry(action, true);
 }
 
 function install(aData, aReason) {
