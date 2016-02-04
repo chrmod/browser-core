@@ -127,12 +127,20 @@ $(document).ready(function() {
   });
 
   Promise.all([dialUps, news]).then(function (values) {
+    var hbNews = [];
+    if(values[1] && values[1].hb_news) {
+      Object.keys(values[1].hb_news).forEach(function(key) {
+        hbNews.push(values[1].hb_news[key].length);
+      });
+    }
 
     telemetry({
       action: 'display',
       tab_index: CliqzUtils.getWindow().gBrowser.tabContainer.selectedIndex,
       topsites: values[0] && values[0].length || 0,
-      topnews: values[1] && values[1].top_h_news.length || 0
+      topnews: values[1] && values[1].top_h_news.length || 0,
+      topnews_version: values[1] && values[1].top_news_version || 0,
+      yournews:  hbNews
     });
 
     CliqzUtils.localizeDoc(document);

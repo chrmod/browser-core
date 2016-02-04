@@ -350,6 +350,10 @@ var CliqzABTests = {
             case "1061_B":
                 CliqzUtils.setPref("attrackUI", true);
                 break;
+            case "1062_A":
+                CliqzUtils.setPref("freshTabNewsUnderline", false);
+            case "1062_B":
+                CliqzUtils.setPref("freshTabNewsUnderline", true);
             case "1063_A":
                 CliqzUtils.setPref("double-enter2", false);
                 break;
@@ -618,6 +622,9 @@ var CliqzABTests = {
             case "1061_B":
                 CliqzUtils.clearPref("attrackUI");
                 break;
+            case "1062_A":
+            case "1062_B":
+                CliqzUtils.clearPref("freshTabNewsUnderline");
             case "1063_A":
             case "1063_B":
                 CliqzUtils.clearPref("double-enter2");
