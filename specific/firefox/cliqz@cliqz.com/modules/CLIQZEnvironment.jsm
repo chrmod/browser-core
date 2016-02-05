@@ -43,7 +43,14 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         var event = {
             notify: function (timer) {
                 func.apply(null, args);
-                _removeTimerRef && _removeTimerRef(timer);
+
+                // remove the reference of the setTimeout instances
+                // be sure the setInterval instances do not get canceled and removed
+                // loosing all the references of a setInterval allows the garbage
+                // collector to stop the interval
+                if(Ci && type == Ci.nsITimer.TYPE_ONE_SHOT){
+                  _removeTimerRef && _removeTimerRef(timer);
+                }
             }
         };
         timer.initWithCallback(event, timeout, type);
