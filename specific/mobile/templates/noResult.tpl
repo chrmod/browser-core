@@ -1,7 +1,7 @@
 <!-- noResult.tpl -->
   {{#with data}}
-    <div id="defaultEngine" onclick="osBridge.openLink('{{searchEngineUrl}}{{searchString}}')" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
-      <div class="cqz-result-box">
+    <div id="defaultEngine" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+      <div url="{{searchEngineUrl}}{{searchString}}" class="cqz-result-box">
         <div id="googleThisAnim">
           <img src="skin/img/icon-google.svg"><br>
           <div>{{ title }}</div><br>
