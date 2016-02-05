@@ -23,7 +23,7 @@ export default class {
   start() {
     this.sendData();
     //wait 5 minutes to do this operation
-    this.t0 = utils.setTimeout(this.sendHistoricalData, 5 * 60 *1000)
+    this.t0 = utils.setTimeout(this.sendHistoricalData.bind(this), 5 * 60 *1000)
 
     log('init');
   }
@@ -82,7 +82,7 @@ export default class {
       utils.telemetry(action);
     }
 
-    this.tD = utils.setTimeout(this.sendData, SEND_INTERVAL)
+    this.tD = utils.setTimeout(this.sendData.bind(this), SEND_INTERVAL)
   }
 
   sendHistoricalData(){
@@ -130,6 +130,6 @@ export default class {
           });
     }
 
-    this.tH = utils.setTimeout(this.sendHistoricalData, 60 * 60 * 1000)
+    this.tH = utils.setTimeout(this.sendHistoricalData.bind(this), 60 * 60 * 1000)
   }
 }

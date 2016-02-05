@@ -376,7 +376,7 @@ var UI = {
 
         UI.lastInputTime = (new Date()).getTime()
         if(ev.keyCode != ESC && UI.popupClosed) {
-          gCliqzBox.resultsBox.innerHTML = "";
+          if(gCliqzBox.resultsBox) gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
         switch(ev.keyCode) {
@@ -1369,7 +1369,7 @@ function urlIndexInHistory(url, urlList) {
                             state = 'yes'
                             adultMessage = 1;
                         } else {
-                            CLIQZEnvironment.log("SETTING","UI");
+                            CliqzUtils.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
                         clearMessage('bottom');
