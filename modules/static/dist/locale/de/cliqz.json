@@ -968,6 +968,9 @@
     "freshtab_top_sites": {
       "message": "Top Seiten"
     },
+    "mobile_share_card": {
+      "message": "Diese Karte teilen"
+    },
     "mobile_reconnecting_msg": {
       "message": "Internetverbindung wird wieder hergestellt"
     },
@@ -1003,6 +1006,9 @@
     },
     "mobile_calc_more": {
       "message": "Mehr auf"
+    },
+    "mobile_calc_copy_ans":{
+        "message": "Antippen zum Kopieren"
     },
     "unblock_menu_option": {
       "message": "Unblock content"

@@ -968,6 +968,9 @@
     "freshtab_top_sites": {
       "message": "Top Sites"
     },
+    "mobile_share_card": {
+      "message": "Share this card"
+    },
     "mobile_reconnecting_msg": {
       "message": "Re-establishing lost internet connection"
     },
@@ -1003,6 +1006,9 @@
     },
     "mobile_calc_more": {
       "message": "More on"
+    },
+    "mobile_calc_copy_ans":{
+        "message": "Tap anywhere to copy"
     },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"

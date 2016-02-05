@@ -17,7 +17,7 @@
 				>
 					{{partial vertical}}
 				{{#if title}}{{#if url}}
-					<p style="display:none" cliqz-action='stop-click-event-propagation' onclick="osBridge.shareCard({{ json this }})" class="share_this_card">share this card </p>
+					<p style="display:none" cliqz-action='stop-click-event-propagation' onclick="osBridge.shareCard({{ json this }})" class="share_this_card">{{local 'mobile_share_card'}}</p>
 				{{/if}}{{/if}}
 			</div>
 			
@@ -29,7 +29,7 @@
 	{{#ifShowSearch results}}
 		{{#with googleThis }}
 			<!-- googlethis -->
-			<div id="defaultEngine" url="{{searchEngineUrl}}{{searchString}}" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+			<div id="defaultEngine" onclick="osBridge.openLink('{{searchEngineUrl}}{{searchString}}')" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
 			  <div class="cqz-result-box">
 			    <div id="googleThisAnim">
 				    <img src="skin/img/icon-google.svg"><br>
