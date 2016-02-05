@@ -162,7 +162,7 @@ function getHbasedNewsList(hBasedNewsNumber){
         );
     }else{
       log('Get hbased recommendations from cache.');
-      resolve(JSON.parse(news_dcache));
+      resolve(JSON.parse(cache));
     }
   });
 }
@@ -237,7 +237,7 @@ function getNewsDistributionUrlBased(topic_db, records_number){
   }
 
   function subDomainCount(subDomain, rn, pathList){
-    
+
     var subDomainRatioThreshold = 0.6,
       subDomainList = [],
       added_at_level = 0;
@@ -587,4 +587,4 @@ function normalizeUrlBasedCount(topic_dict){
 }
 
 export default CliqzFreshTabNews;
-  
+

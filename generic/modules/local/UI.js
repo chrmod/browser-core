@@ -1369,7 +1369,7 @@ function urlIndexInHistory(url, urlList) {
                             state = 'yes'
                             adultMessage = 1;
                         } else {
-                            CLIQZEnvironment.log("SETTING","UI");
+                            CliqzUtils.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
                         clearMessage('bottom');
