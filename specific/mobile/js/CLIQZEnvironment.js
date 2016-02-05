@@ -721,7 +721,7 @@ CLIQZEnvironment = {
 
     var top_news = news.top_h_news;
 
-    console.log('%crendering top news', 'color:green', top_news)
+    //console.log('%crendering top news', 'color:green', top_news)
     top_news = top_news.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
@@ -756,6 +756,26 @@ CLIQZEnvironment = {
     if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
       return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
     }
+
+    if(!list.length) {
+      list = mockedHistory;
+    }
+    
+    var indexList = {}, myList = [], domain, domainArr, mainDomain; 
+    for(var i=0; i<list.length; i++) {
+      domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+      domainArr = domain.split(".");
+      mainDomain = domainArr[domainArr.length-2];
+      list[i].mainDomain = mainDomain;
+      indexList[mainDomain] = list[i];
+    }
+    for(var i in indexList) {
+      myList.push(indexList[i]);
+    }
+    list = myList;
+    
+    list = list.splice(0,4);
+    
     list = list.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
@@ -766,7 +786,10 @@ CLIQZEnvironment = {
         text: logo.text,
         backgroundColor: logo.backgroundColor,
         buttonsClass: logo.buttonsClass,
-        style: logo.style
+        style: logo.style,
+        mainDomain: r.mainDomain,
+        baseDomain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[0],
+        domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]  
       }
     });
     var topSites = CliqzHandlebars.tplCache["topsites"];
@@ -792,7 +815,7 @@ CLIQZEnvironment = {
       start && (start.style.display = 'none');
     }
     CLIQZEnvironment.getNews();
-    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
+    osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 50);
   },
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject("defaultSearchEngine", engine);

@@ -1,5 +1,5 @@
 <!-- recipe.tpl -->
-
+{{debug}}
 {{#if (recipe_rd_template data.richData)}}
 <div class="cqz-result-h1 cqz-rd cqz-result-padding recipe">
 
@@ -27,32 +27,21 @@
         <div class="cqz-rd-info">{{local 'CookTime' richData.cook_time}}&nbsp;&nbsp;·&nbsp;&nbsp;{{local 'Serves'}}: {{richData.numportion}}</div>
         <br>
       </div>
-      <div class="main__content">
-          <p>{{richData.des}}</p>
+      <div class="main__content">ARSCH
+          {{#if richData.mobi}}
+            <ul>
+              {{#each richData.mobi.ingredients}}
+                <li>{{this}}</li>
+              {{/each}}
+            </ul>
+          {{else}}
+            <p>{{richData.des}}</p>
+          {{/if}}
+          
       </div>
     </div>
 
 
-    <!--<div class="cqz-rd-body">
-        <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{richData.name}}</a></div>
-        <div class="cqz-rd-h3-snippet">
-            {{#if richData.image}}
-               <div class="cqz-rd-img_div cqz-image-round">
-                   <img data-src="{{richData.image}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
-               </div>
-            {{/if}}
-               <div>
-                          <div class="cqz-rd-info">{{local 'CookTime' richData.cook_time}}</div>
-                          <div class="cqz-rd-info">{{local 'Serves'}}: {{richData.numportion}}</div>
-                          {{#if richData.url_ratingimg}}
-                              <img data-src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg cqz-rd-snippet_hspacing" onerror="this.style.display='none';"/>
-                              <div class="cqz-rd-rate">{{richData.total_review}} {{local 'Votes'}}</div>
-                          {{/if}}
-               </div>
-        </div>
-        <div class="multi-ellipsis">
-            <p>{{richData.des}}</p>
-        </div>-->
     </div>
   {{/with}}
   {{>EZ-category}}
