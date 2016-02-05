@@ -765,7 +765,7 @@ CLIQZEnvironment = {
     for(var i=0; i<list.length; i++) {
       domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
       domainArr = domain.split(".");
-      mainDomain = domainArr[domainArr.length-2];
+      mainDomain = domainArr[domainArr.length-2].substr(0,10);
       list[i].mainDomain = mainDomain;
       indexList[mainDomain] = list[i];
     }
