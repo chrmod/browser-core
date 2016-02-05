@@ -106,33 +106,28 @@ var MockOS = {
 
 var mockedHistory = 
         [{
-            "id": 5,
-            "title": "Facebook",
-            "url": "http://www.facebook.de",
+            "id": 1,
+            "title": "deppen",
+            "url": "http://www.deppen.de",
             "timestamp": Date.now() - 10000
         }, {
-            "id": 4,
-            "title": "Bild",
-            "url": "http://www.bild.de",
-            "timestamp": Date.now() - 20000
-        }, {
-            "id": 6,
-            "title": "Bild",
-            "url": "http://www.bild.de/duplicate",
-            "timestamp": Date.now() - 20600
+            "id": 2,
+            "title": "Youtube",
+            "url": "http://www.youtube.de",
+            "timestamp": Date.now() - 1222250000
         }, {
             "id": 3,
             "title": "Focus",
             "url": "http://www.focus.de",
             "timestamp": Date.now() - 30090
+        }, {
+            "id": 4,
+            "title": "Bild",
+            "url": "http://www.bild.de",
+            "timestamp": Date.now() - 20000
         },  {
-            "id": 2,
+            "id": 5,
             "title": "Amazon",
             "url": "http://www.amazon.de",
             "timestamp": Date.now() - 121240000
-        }, {
-            "id": 1,
-            "title": "Youtube",
-            "url": "http://www.youtube.de",
-            "timestamp": Date.now() - 1222250000
         }];
