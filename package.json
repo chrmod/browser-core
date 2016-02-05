@@ -11,7 +11,7 @@
   "author": "Cliqz GmbH",
   "license": "ISC",
   "dependencies": {
-    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox"
+    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-2"
   },
   "devDependencies": {
     "amd-name-resolver": "0.0.2",
