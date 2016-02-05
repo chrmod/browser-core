@@ -1492,7 +1492,7 @@ var CliqzAttrack = {
         // send safe key if the hour changed
         if (CliqzAttrack.safeKey) {
             // get only keys from local key
-            var day = CliqzAttrack.getTime().substring(0, 8);
+            var day = datetime.getTime().substring(0, 8);
             var dts = {}, local = {}, localE = 0, s, k;
             for (s in CliqzAttrack.safeKey) {
                 for (k in CliqzAttrack.safeKey[s]) {
