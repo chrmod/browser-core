@@ -129,8 +129,10 @@ footer {
     position: absolute;
     bottom: 0;
     width: 100%;
+    text-align: right;
 }
 
+footer p { margin: 0; }
 footer .cqz-learn-more {
     float: right;
     margin-right: 3px;
@@ -149,6 +151,7 @@ footer .cqz-learn-more {
     overflow: hidden;
     text-align: center;
 }
+.cqz-antitracking-popup.cqz-show-details { height: 485px; }
 
 .cqz-antitracking-popup .cqz-antrc-head {
     padding: 25px 10px 25px 72px;
@@ -157,6 +160,17 @@ footer .cqz-learn-more {
     font-size: 16px;
     text-align: left;
     background: #49CC80 url("cliqz-logo-white.svg") no-repeat 15px 50%;
+}
+.cqz-antrc-head .cqz-title {
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+.cqz-antrc-head  .cqz-general-domain-msg {
+    overflow: hidden;
+    opacity: 0.8;
+    font-size: 14px;
+    margin-bottom: 3px !important;
+    text-overflow: ellipsis;
 }
 
 .cqz-antrc-head .cqz-deactive-msg { display: none; }
@@ -192,16 +206,68 @@ ul.cqz-antrc-btns-holder li {
 }
 
 .cqz-antrc-power-btn  {
-    background: #49CC80
+    font-size: 12px;
 }
 
-.cqz-antrc-btn .cqz-turn-on { display: none; }
+.cqz-antrc-power-btn .cqz-turn-on { display: none; }
+
+/*========= See Less =======*/
+
+.cqz-see-details { background: #49CC80; }
+.cqz-see-details:hover { background: #40af6d; }
+
+.cqz-see-details .cqz-details-less { display: none; }
+
+.cqz-show-details  .cqz-see-details .cqz-details-more { display: none; }
+.cqz-show-details  .cqz-see-details .cqz-details-less { display: block; }
+
+/*=========== Trackers List =========*/
+
+.cqz-trackers-blocked {
+    display: none;
+    overflow: auto;
+    max-height: 251px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.cqz-show-details .cqz-trackers-blocked { display: block; }
+
+.cqz-trackers-blocked li {
+    overflow: hidden;
+    height: 50px;
+    line-height: 48px;
+    color: #333;
+    font-size: 14px;
+    white-space: nowrap;
+    text-align: left;
+    border-top: 1px solid #ccc;
+}
+
+.cqz-trackers-blocked li:last-child { border-bottom: 1px solid #ccc; }
+
+
+.cqz-trackers-blocked li span {
+    float: left;
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+}
+.cqz-trackers-blocked li .cqz-title {
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 80%;
+}
+.cqz-trackers-blocked li .cqz-number {
+    width: 20%;
+    text-align: right;
+    padding-right: 5px;
+}
+
+
 
 /*========= Antitrack Enabled =======*/
-
-.cqz-attrack-enabled .cqz-antrc-power-btn { background-color: #FF5349; }
-.cqz-attrack-enabled .cqz-antrc-power-btn:hover { background-color: #EB4036; }
-
 
 .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: block; }
 .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: none; }
@@ -212,16 +278,30 @@ ul.cqz-antrc-btns-holder li {
 .cqz-attrack-disabled .cqz-antrc-head .cqz-deactive-msg { display: block; }
 .cqz-attrack-disabled .cqz-antrc-head .cqz-general-msg { display: none; }
 .cqz-attrack-disabled .cqz-antitracking-popup .cqz-antrc-head { background-color: #FF5349; }
-.cqz-attrack-disabled .cqz-antrc-btn .cqz-turn-on { display: block; }
+.cqz-attrack-disabled .cqz-antrc-power-btn .cqz-turn-on { display: block; }
+
 .cqz-attrack-disabled .cqz-whitelist-btn,
-.cqz-attrack-disabled .cqz-antrc-btn .cqz-turn-off { display: none; }
+.cqz-attrack-disabled .cqz-see-details,
+.cqz-attrack-disabled .cqz-antrc-power-btn .cqz-turn-off { display: none; }
 
-
-/*========= Antitrack Disabled =======*/
-
-.cqz-domain-in-whitelist .cqz-whitelist-btn {
-    background: #444;
+.cqz-attrack-disabled footer { bottom: 10px; text-align: center; }
+.cqz-attrack-disabled .cqz-antrc-power-btn {
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 5px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 3px;
+    background: #49CC80;
 }
+.cqz-attrack-disabled .cqz-antrc-power-btn:hover { background: #40af6d; }
+
+/*========= White List =======*/
+
+.cqz-domain-in-whitelist #cqz-see-details { display: none !important; }
+
+.cqz-domain-in-whitelist .cqz-whitelist-btn { background: red; }
 .cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: none; }
 .cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: block; }
 

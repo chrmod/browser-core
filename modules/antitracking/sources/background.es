@@ -55,6 +55,17 @@ export default {
     getPopupData(args, cb) {
       var info = CliqzAttrack.getCurrentTabBlockingInfo();
 
+      if (info.error) {
+        info = {
+          cookies: {
+            blocked: 0
+          },
+          requests: {
+            unsafe: 0
+          }
+        };
+      }
+
       cb({
         url: info.hostname,
         cookiesCount: info.cookies.blocked,
@@ -62,6 +73,7 @@ export default {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
+        trakersList: CliqzAttrack.getCurrentTabBlockingInfo()
       });
     },
 
@@ -87,6 +99,9 @@ export default {
         CliqzAttrack.addSourceDomainToWhitelist(hostname);
       }
       cb();
+    },
+    updateHeight(args, cb) {
+      this.popup.updateView(utils.getWindow(), args[0]);
     }
   }
 };

@@ -1,6 +1,8 @@
-var enableButton = document.querySelector("#cqz-antrc-power-btn"),
+var attPopUp = document.querySelector(".cqz-antitracking-popup"),
+    enableButton = document.querySelector("#cqz-antrc-power-btn"),
     whitelistButton = document.querySelector("#cqz-whitelist-btn"),
-    learnMoreLink = document.querySelector(".cqz-learn-more"),
+    seeDetailsButton = document.querySelector("#cqz-see-details"),
+    trackersListElement = document.querySelector(".cqz-trackers-blocked"),
     hostname;
 
 function setBodyClass(options) {
@@ -41,12 +43,14 @@ function populateDOM() {
   chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (data) {
     hostname = data.url;
 
-    var general_msg_trnsl = document.querySelector(".cqz-general-msg");
+    var general_msg_trnsl = document.querySelector(".cqz-general-trackers-msg");
+    var general_trackers_count = data.cookiesCount + data.requestsCount;
+
+    document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
 
     general_msg_trnsl.dataset.i18n = [
       general_msg_trnsl.dataset.i18n,
-      data.cookiesCount + data.requestsCount,
-      data.url || ' '
+      general_trackers_count
     ].join(',');
 
 
@@ -56,6 +60,31 @@ function populateDOM() {
       url: data.url
     });
 
+    if(general_trackers_count > 0 && data.trakersList && data.trakersList.trackers ) {
+      var trackL = data.trakersList.trackers;
+      whitelistButton.style.display = "block"
+      seeDetailsButton.style.display = "block";
+
+      for (var key in trackL) {
+        var trackerCount = trackL[key].cookie_blocked + trackL[key].bad_qs
+        if(trackerCount > 0) {
+          trackersListElement.innerHTML += "<li>" +
+              "<span class='cqz-title'> "  + key  + "</span>" +
+              "<span  class='cqz-number'>("  + trackerCount + ")</span>"
+          "</li>"
+        }
+      }
+    }else {
+      whitelistButton.style.display = "none"
+      seeDetailsButton.style.display = "none"
+    }
+
+    //Check if site is in the whitelist
+    if(data.isWhitelisted) {
+      whitelistButton.style.display = "block"
+    }
+
+    expandPopUp('reset');
     localizeDocument();
   });
 }
@@ -64,15 +93,29 @@ enableButton.addEventListener("click", function () {
   chrome.runtime.sendMessage({ functionName: "toggleAttrack" }, populateDOM);
 }, false);
 
+seeDetailsButton.addEventListener("click", function () {
+  expandPopUp('toggle');
+}, false);
+
 whitelistButton.addEventListener("click", function () {
   chrome.runtime.sendMessage({ functionName: "toggleWhiteList", args: {hostname: hostname} }, populateDOM);
 }, false);
 
+function expandPopUp (command) {
+  var height;
 
-learnMoreLink.addEventListener("click", function (ev) {
-  ev.preventDefault();
-  window.open(ev.target.href);
-  chrome.runtime.sendMessage({ functionName: "closePopup" });
-});
+  if(command == 'reset') {
+    height = 200;
+    attPopUp.classList.remove('cqz-show-details');
+  } else {
+    attPopUp.classList.toggle('cqz-show-details');
+    height = attPopUp.classList.contains('cqz-show-details') ? 485 : 200;
+  }
+
+  chrome.runtime.sendMessage({
+    functionName: "updateHeight",
+    args: [ height]
+  }, function () {});
+}
 
 populateDOM();
