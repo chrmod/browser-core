@@ -6,7 +6,7 @@ TESTS.VodScreenshotEnTest = prepareScreenshotTest({
         'roberto@cliqz.com', 'dominik.s@cliqz.com'
     ],
     subject: '[testing] en VOD screenshots',
-    width: 600,
+    width: 1024,
     name: 'VodScreenshotTestEn',
     extraBefore: [
         function() {
@@ -19,7 +19,7 @@ TESTS.VodScreenshotEnTest = prepareScreenshotTest({
         }
     ],
     upload: {
-        dropdown_width: 502
+        dropdown_width: 786
     },
     queries: QUERIES.vod,
     test_groups: ['nightly']

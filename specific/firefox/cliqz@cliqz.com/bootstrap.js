@@ -1,40 +1,30 @@
 'use strict';
-const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+const { utils: Cu } = Components;
+
+var TELEMETRY_SIGNAL = {};
+TELEMETRY_SIGNAL[APP_SHUTDOWN] = 'browser_shutdown';
+TELEMETRY_SIGNAL[ADDON_DISABLE] = 'addon_disable';
+TELEMETRY_SIGNAL[ADDON_UNINSTALL] = 'addon_uninstall';
 
 function startup(aData, aReason) {
     // try to cleanup an eventual broken shutdown
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 
-    Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 }
 
 function shutdown(aData, aReason) {
-    Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
-    CliqzHumanWeb.unload();
 
-    if (aReason == APP_SHUTDOWN){
-        eventLog('browser_shutdown');
-        return;
-    }
-    if (aReason == ADDON_DISABLE) eventLog('addon_disable');
-    if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
-
-    Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
-    Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
-    Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
-}
-
-function eventLog(ev){
-    var action = {
+    Extension.telemetry({
         type: 'activity',
-        action: ev
-    };
+        action: TELEMETRY_SIGNAL[aReason]
+    }, true /* force push */);
 
-    Extension.telemetry(action, true);
+    Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL,  aReason == ADDON_UPGRADE || aReason == ADDON_DOWNGRADE);
+
+    Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 }
 
 function install(aData, aReason) {

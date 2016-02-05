@@ -1,8 +1,9 @@
 {
+  "platform": "firefox",
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
-    "antitrackingButton": false,
+    "freshTabHistoryNews": true,
     "unblockUI": false,
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
@@ -17,7 +18,7 @@
     "unblock",
     "theme",
     "users1st",
-    "loyalty",
+    "telemetry-categories",
     "antitracking"
   ]
 }

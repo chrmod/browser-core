@@ -1,0 +1,10 @@
+{
+  "platform": "mobile",
+  "prefs": {
+    "freshTabButton": false
+  },
+  "modules": [
+    "freshtab",
+    "static"
+  ]
+}

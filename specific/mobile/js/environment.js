@@ -1,9 +1,13 @@
-window.addEventListener('disconnected', function() {document.getElementById("reconnecting").style.display = "block";});
-window.addEventListener('connected', function() {document.getElementById("reconnecting").style.display = "none";});
+window.addEventListener('disconnected', function() {
+  var elem = document.getElementById("reconnecting");
+  elem && (elem.style.display = "block");
+});
+window.addEventListener('connected', function() {
+  var elem = document.getElementById("reconnecting");
+  elem && (elem.style.display = "none");
+});
 
 var isRequestFailed = false;
-
-var hideOfflineDiv;
 
 var lastSucceededUrl;
 var latestUrl;
@@ -11,10 +15,9 @@ var latestUrl;
 function resendRequest(forceResend) {
   CliqzUtils.log("incoming, isRequestFailed="+isRequestFailed,"resendRequest");
   var shouldResend = forceResend || isRequestFailed;
-  hideOfflineDiv();
   if(shouldResend) {
     CliqzUtils.log("RESENDING","resendRequest");
-    setTimeout(CLIQZEnvironment.search , 500);
+    setTimeout(search_mobile, 500, CliqzAutocomplete.lastSearch, CLIQZEnvironment.location_enabled, CLIQZEnvironment.latitude, CLIQZEnvironment.longitude);
     isRequestFailed = false;
   }
 }
@@ -23,21 +26,11 @@ function isMixerUrl(url) {
   if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0) {
     return true;
   }
-  return url.indexOf(CliqzUtils.RICH_HEADER) == 0;
+  return false;
 }
 
 window.addEventListener('load', function() {
-  var noNetworkDiv = document.getElementById("no-network-message");
   CliqzUtils.pingCliqzResults();
-  function showOfflineDiv() {
-    noNetworkDiv.style.display = "block";
-  }
-  hideOfflineDiv = function() {
-    noNetworkDiv.style.display = "none";
-  }
-
-  window.addEventListener('online',  resendRequest);
-  window.addEventListener('offline', showOfflineDiv);
 });
 
 var db = {
@@ -45,9 +38,6 @@ var db = {
 };
 
 var onAndroid = false;
-
-
-var GEOLOC_WATCH_ID;
 
 
 
@@ -276,17 +266,7 @@ Services = {
           doc.addEventListener(domContentLoaded, listener = function () {
             doc.removeEventListener(domContentLoaded, listener)
             loaded = 1
-
-            if(typeof(jsBridge) != "undefined") {
-              osBridge.isReady();
-            }
-            console.log("isReady");
           });
-        } else {
-          if(typeof(jsBridge) != "undefined") {
-            osBridge.isReady();
-          }
-          console.log("isReady");
         }
       }());
 

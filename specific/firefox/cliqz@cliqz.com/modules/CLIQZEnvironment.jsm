@@ -20,6 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+
 function prefixPref(pref, prefix) {
     if ( !(typeof prefix === 'string') ) {
       prefix = 'extensions.cliqz.';
@@ -40,13 +43,22 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         var event = {
             notify: function (timer) {
                 func.apply(null, args);
-                _removeTimerRef && _removeTimerRef(timer);
+
+                // remove the reference of the setTimeout instances
+                // be sure the setInterval instances do not get canceled and removed
+                // loosing all the references of a setInterval allows the garbage
+                // collector to stop the interval
+                if(Ci && type == Ci.nsITimer.TYPE_ONE_SHOT){
+                  _removeTimerRef && _removeTimerRef(timer);
+                }
             }
         };
         timer.initWithCallback(event, timeout, type);
         return timer;
     },
     _removeTimerRef = function(timer){
+        timer.cancel();
+
         var i = _timers.indexOf(timer);
         if (i >= 0) {
             _timers.splice(_timers.indexOf(timer), 1);
@@ -204,6 +216,10 @@ var CLIQZEnvironment = {
             win.openUILink(url);
         }
     },
+    copyResult: function(val) {
+        var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+        gClipboardHelper.copyString(val);
+    },
     tldExtractor: function(host){
         var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
                                     .getService(Ci.nsIEffectiveTLDService);
@@ -241,7 +257,6 @@ var CLIQZEnvironment = {
         if (!timer) {
             return;
         }
-        timer.cancel();
         _removeTimerRef(timer);
     },
     clearInterval: this.clearTimeout,
@@ -350,6 +365,10 @@ var CLIQZEnvironment = {
 
         popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
+              var lr = CliqzAutocomplete.lastResult;
+              if(lr && lr.searchString != aInput.value && aInput.value == '') {
+                return;
+              }
               if (!CliqzAutocomplete.isPopupOpen){
                 this.mInput = aInput;
                 this._invalidate();
@@ -398,6 +417,9 @@ var CLIQZEnvironment = {
       if (CLIQZEnvironment.getPref('share_location') == 'yes') {
         // Get current position
         geoService.getCurrentPosition(function(p) {
+          // the callback might come late if the extension gets disabled very fast
+          if(!CliqzUtils) return;
+
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
@@ -455,6 +477,10 @@ var CLIQZEnvironment = {
             'nsIAutoCompleteSearch');
 
         return function(q, callback, sessionStart){
+            // special case: user has deleted text from urlbar
+            if(q.length != 0 && urlbar().value.length == 0)
+              return;
+
             if(q.length == 0 && sessionStart){
                 NewTabUtils.links.populateCache(function(){
                     callback(null, getTopSites());
@@ -483,9 +509,59 @@ var CLIQZEnvironment = {
                 });
             }
         }
-    })()
+    })(),
+    getNoResults: function() {
+      var se = [// default
+              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
+              {"name": "Google", "base_url": "https://www.google.de"},
+              {"name": "Google Images", "base_url": "https://images.google.de/"},
+              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
+          ],
+          chosen = new Array();
+
+      var engines = CliqzResultProviders.getSearchEngines(),
+          defaultName = engines[0].name;
+
+      se.forEach(function(def){
+        engines.forEach(function(e){
+          if(def.name == e.name){
+              var url = def.base_url || e.base_url;
+
+              def.code = e.code;
+              def.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+              def.text = e.prefix.slice(1);
+
+              chosen.push(def)
+          }
+          if(e.default) defaultName = e.name;
+        })
+      })
+
+
+
+      return Result.cliqzExtra(
+              {
+                  data:
+                  {
+                      template:'noResult',
+                      text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
+                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
+                      // we should take care of this specific case differently on alternative platforms
+                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
+                      "search_engines": chosen,
+                      //use local image in case of no internet connection
+                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
+                  },
+                  subType: JSON.stringify({empty:true})
+              }
+          )
+    },
 
     // END from CliqzAutocomplete
+}
+function urlbar(){
+  return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 }
 
 function getTopSites(){

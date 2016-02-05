@@ -3,6 +3,9 @@
    <head>
       <title>developer tool</title>
       <link href="skin/css/style.css" rel="stylesheet" type="text/css">
+
+      <script src="js/system-polyfill.js"></script>
+      <script src="js/home.js"></script>
       <script src="js/storage.js"></script>
       <script src="js/MockOS.js"></script>
       <script src="js/osBridge.js"></script>
@@ -17,11 +20,13 @@
       <script src="js/global.js"></script>
       <script src="js/local.js"></script>
       <script src="js/mobileTelemetry.js"></script>
+      <script src="js/setup.js"></script>
+
    </head>
    <body>
-      <div style="width:0px;height:1px;background:darkblue" id="progress"></div>
+      <div style="width:0px;height:1px;background:darkblue" id="progress" style="display:none"></div>
 
-      <div id="reconnecting" class="reconnecting-layer">
+      <div id="reconnecting" class="reconnecting-layer" style="display:none">
          <h3>Reconnecting</h3>
          <div class="spinner">
            <div class="bounce1"></div>
@@ -29,33 +34,45 @@
            <div class="bounce3"></div>
          </div>
       </div>
-      <div id="no-network-message">
-         No Network
+      <input id="urlbar" style="display:none">
+
+      <!-- Starting Stuff -->
+      <div id="startingpoint">
+          <div id="freshstart" style="display:none">
+            <div class="heading">
+              <h2><span>Zur&uuml;ck zur letzten ge&ouml;ffnete Seite</span></h2>
+            </div>
+            <div id="freshstartContent"></div>
+          </div>
+          <div id="topSites">
+          </div>
+          <div id="topNews">
+          </div>
       </div>
-      <input id="urlbar">
+      <!-- End Starting Stuff -->
+
       <div id="results">
-         <div id="cliqz-results" style="width: 501px;">
+
+         <div id="cliqz-results">
+
             <div class="cqz-result-selected transition"></div>
          </div>
       </div>
-      <div id="cliqz-swiping-dots-new">
+      <div id="cliqz-swiping-dots-new" style="display:none">
             <!--
                   <div id="showpastbutton" onclick="showPast()">PAST</div>
                   <div id="showfuturebutton" onclick="showFuture()">FUTURE</div>
             -->
-            <div id="cliqz-swiping-dots-new-inside">
-            
+            <div id="cliqz-swiping-dots-new-inside" style="display:none">
+
             </div>
-          
+
       </div>
 
       <script src="js/debug.js"></script>
-      <table id="logscreen">
-         <tr>
-            <td>first</td>
-            <td></td>
-         </tr>
-      </table>
+
+      <iframe width="250" height="600" id="testingshare" style="display:none;position:absolute;top:500px"></iframe>
+
    </body>
 </html>
 

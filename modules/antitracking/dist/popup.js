@@ -1,5 +1,6 @@
 var enableButton = document.querySelector("#cqz-antrc-power-btn"),
     whitelistButton = document.querySelector("#cqz-whitelist-btn"),
+    learnMoreLink = document.querySelector(".learn-more"),
     hostname;
 
 function setBodyClass(options) {
@@ -66,5 +67,12 @@ enableButton.addEventListener("click", function () {
 whitelistButton.addEventListener("click", function () {
   chrome.runtime.sendMessage({ functionName: "toggleWhiteList", args: {hostname: hostname} }, populateDOM);
 }, false);
+
+
+learnMoreLink.addEventListener("click", function (ev) {
+  ev.preventDefault();
+  window.open(ev.target.href);
+  chrome.runtime.sendMessage({ functionName: "closePopup" });
+});
 
 populateDOM();

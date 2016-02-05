@@ -52,9 +52,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
-  'chrome://cliqzmodules/content/CliqzCategories.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
@@ -70,8 +67,8 @@ var Services = Services || CliqzUtils.getWindow().Services;
 var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
-  onLocationChange: function(aProgress, aRequest, aURI) {
-    CliqzEvents.pub("core.location_change", "");
+  onLocationChange: function(aBrowser, aRequest, aURI) {
+    CliqzEvents.pub("core.location_change", aBrowser.currentURI.spec);
   }
 };
 
@@ -121,15 +118,6 @@ window.CLIQZ.Core = {
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
         CliqzHistory.initDB();
-
-        if(CliqzUtils.getPref('categoryAssessment', false)){
-            CliqzCategories.init();
-        }
-
-        if (CliqzUtils.getPref('newsTopsitesAssessment', false) &&
-            !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
-            CliqzCategories.assessNewsTopsites();
-        }
 
         CliqzSpellCheck.initSpellCorrection();
 
@@ -199,7 +187,7 @@ window.CLIQZ.Core = {
           //this._popupMaxHeight = this.popup.style.maxHeight;
           //this.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
 
-          this.reloadComponent(this.urlbar);
+          this.reloadUrlbar(this.urlbar);
 
           this.historyDropMarker = document.getAnonymousElementByAttribute(this.urlbar, "anonid", "historydropmarker")
 
@@ -236,7 +224,7 @@ window.CLIQZ.Core = {
               window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
 
               // CliqzEvents listeners
-              this.propagateEvents("core:page_load", window.gBrowser, "load");
+              this.propagateEvents("core:page_load", window.gBrowser, "load", true);
               this.propagateEvents("core:tab_select", window.gBrowser.tabContainer, "TabSelect");
           }
 
@@ -334,8 +322,12 @@ window.CLIQZ.Core = {
                (source || 'NONE');
     },
     // trigger component reload at install/uninstall
-    reloadComponent: function(el) {
-        return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
+    reloadUrlbar: function(el) {
+        var oldVal = el.value;
+        if(el && el.parentNode) {
+          el.parentNode.insertBefore(el, el.nextSibling);
+          el.value = oldVal;
+        }
     },
     // restoring
     unload: function(soft){
@@ -414,10 +406,10 @@ window.CLIQZ.Core = {
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
             this.eventListeners.forEach(function(listener) {
-              listener.target.removeEventListener(listener.type, listener.func);
+              listener.target.removeEventListener(listener.type, listener.func, listener.propagate);
             });
         }
-        this.reloadComponent(this.urlbar);
+        this.reloadUrlbar(this.urlbar);
 
         window.removeEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
         this.urlbar.removeEventListener("drop", this.urlbarEventHandlers.handleUrlbarTextDrop);
@@ -446,7 +438,6 @@ window.CLIQZ.Core = {
             delete window.CliqzDemo;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
-            delete window.CliqzCategories;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
@@ -1079,7 +1070,7 @@ window.CLIQZ.Core = {
      *  Listeners registered through this function are automatically unsubscribed when core.js
      *  is unloaded.
      */
-    propagateEvents: function(eventPubName, eventTarget, eventType) {
+    propagateEvents: function(eventPubName, eventTarget, eventType, propagate) {
       var publishEvent = function() {
         // call CliqzEvents.pub with arguments [eventPubName, ...arguments].
         // this causes clients listening to eventPubName get mirrored arguments from the original event
@@ -1087,8 +1078,8 @@ window.CLIQZ.Core = {
       };
 
       CliqzUtils.log("Propagating "+ eventType +" events to CliqzEvents as "+ eventPubName, "CliqzEvents");
-      this.eventListeners.push({ target: eventTarget, type: eventType, func: publishEvent });
-      eventTarget.addEventListener(eventType, publishEvent);
+      this.eventListeners.push({ target: eventTarget, type: eventType, func: publishEvent, propagate: propagate || false });
+      eventTarget.addEventListener(eventType, publishEvent, propagate || false);
     }
 };
 

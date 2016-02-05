@@ -40,7 +40,7 @@
 #pocket-button,
 #restore-button),
 #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    list-style-image: url("./images/browser/mac/Toolbar.png");
+    list-style-image: url("../images/browser/win/Toolbar.png");
 }
 
 #main-window {
@@ -69,6 +69,12 @@
 #tabbrowser-tabs {
     min-height: 27px;
 }
+
+.tab-background {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+}
+
 .tab-background-start,
 .tab-background-end {
     display: none;
@@ -87,7 +93,7 @@
 }
 
 .tabbrowser-tab {
-    margin: 0 2px;
+    margin: 0 2px 0 3px;
 }
 .tabbrowser-tab:not([pinned]) {
     max-width: 195px;
@@ -113,13 +119,6 @@
     background: transparent none repeat scroll 0% 0%;
 }
 
-#forward-button, #back-button {
-    margin-left: 0px !important;
-    border: 0px !important;
-    box-shadow: 0px 0px 0px 0px transparent !important;
-    border-radius: 0px;
-    background-color: transparent !important;
-}
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     -moz-margin-start: 0px;
@@ -127,12 +126,12 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 /*:-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #tabview-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #switch-to-metro-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #web-apps-button, #webide-button, #loop-button, #pocket-button), #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {*/
-/*list-style-image: url("./Toolbar.png");*/
+/*list-style-image: url("chrome://cliqz/content/static/skin/Toolbar.png");*/
 /*}*/
 
 #nav-bar, #navigator-toolbox, .tab-content, #PersonalToolbar {
     background-image: none !important;
-    background-color: #eee !important;
+    /*background-color: #eee !important;*/
 }
 
 /*======= Gabriel Changes */
@@ -165,21 +164,16 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #titlebar,
 #tab-view-deck,
 #titlebar-content {
-    background: #e0e0e0;
+    /*background: #e0e0e0;*/
 }
 
 /*========== Tabs =======*/
 .tab-content {
-    border-color: #F6F6F6;
-    background: #F6F6F6 !important;
+    border: none;
+    background: rgba(255, 255, 255, 0.5) !important;
 }
 
-.tabbrowser-tab[visuallyselected="true"] .tab-content {
-    border-color: #99B3C9;
-    border-top: 2px solid #ABC8E2;
-    background: #fff !important;
-}
-
+.tabbrowser-tab[visuallyselected="true"] .tab-content,
 #PersonalToolbar {
     background: #fff !important;
 }
@@ -190,7 +184,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 .tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
 .tabs-newtab-button:hover {
-    background: rgba(255, 255, 255, 1) !important;
+    background: rgba(255, 255, 255, 0.7) !important;
 }
 
 
@@ -204,35 +198,31 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     border: none !important;
 }
 
-.tabs-newtab-button,
-#TabsToolbar > #new-tab-button,
-#TabsToolbar > toolbarpaletteitem > #new-tab-button {
-    list-style-image: url("./images/browser/mac/newtab.png");
-}
-
-.close-icon { list-style-image: url("./images/browser/mac/close.png");  }
-
 /*========== End Tabs =========*/
 
 
-/*=== Bookmarks */
 #PersonalToolbar {
     padding-top: 7px;
-    border-top: none;
+    border-top: 1px solid #e0e0e0;
 }
 
 #nav-bar {
     margin-top: 0 !important;
-    border-top-color: #99B3C9 !important;
+    border-top-color: #fff !important;
     background: #fff !important;
 }
 
 #back-button {
-    width: auto !important;;
-    height: auto !important;;
-    padding: 5px 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 5px 0px 5px 6px !important;
 }
-#forward-button > .toolbarbutton-icon { margin: 0; }
+#forward-button > .toolbarbutton-icon {
+    margin: 0;
+    border: none !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+}
 
 #PersonalToolbar { padding-left: 8px; }
 
@@ -244,7 +234,7 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 }
 
 #nav-bar-customization-target {
-    padding: 0 4px 0 6px;
+    padding: 0 4px 0 0;
 }
 .tabs-newtab-button > .toolbarbutton-icon {
     padding-top: 3px;
@@ -267,15 +257,60 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 
 /*========== END Tabs undeer window buttons*/
 
-@media (min-resolution: 2dppx) {
-    .tabs-newtab-button,
-    #TabsToolbar > #new-tab-button,
-    #TabsToolbar > toolbarpaletteitem > #new-tab-button {
-        list-style-image: url("./images/browser/mac/newtab@2x.png");
-    }
 
-    .close-icon { list-style-image: url("./images/browser/mac/close@2x.png");  }
+ @media (-moz-os-version: windows-vista), (-moz-os-version: windows-win7) {
+     .tab-background-middle[visuallyselected=true]:not(:-moz-lwtheme) {
+         background: none !important;
+     }
+ }
+
+notification[type="warning"] {
+    padding: 6px 5px;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    background: #fec621;
+    letter-spacing: 0.4px;
 }
+
+notification[type="warning"] > button {
+    -moz-appearance: none;
+    padding: 5px 10px;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    text-shadow: none;
+    box-shadow: none;
+    background: #4661ae;
+}
+
+notification[type="warning"] .messageText {
+    font-weight: normal;
+    color: black;
+}
+
+
+notification[type="warning"] .notification-inner {
+    border: none;
+}
+
+
+/* ======= Navigation Arrows Back Forth ======= */
+
+#forward-button, #back-button {
+    margin-left: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 0 0 transparent !important;
+    background-color: transparent !important;
+}
+
+#back-button .toolbarbutton-icon {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
 
 @media (min-resolution: 1.1dppx) {
     :-moz-any(#back-button,
@@ -318,30 +353,6 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     #pocket-button,
     #restore-button),
     #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-        list-style-image: url("./images/browser/mac/Toolbar@2x.png");
+        list-style-image: url("../images/browser/win/Toolbar@2x.png");
     }
-}
-
-notification[type="warning"] {
-    padding: 6px 5px;
-    border: none;
-    color: #fff;
-    font-size: 14px;
-    background: #fec621;
-    letter-spacing: 0.4px;
-}
-
-notification[type="warning"] > button {
-    padding: 5px 10px;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    text-shadow: none;
-    box-shadow: none;
-    background: #4661ae;
-}
-
-notification[type="warning"] .messageText {
-    font-weight: normal;
-    color: black;
 }

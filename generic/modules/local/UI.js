@@ -376,7 +376,7 @@ var UI = {
 
         UI.lastInputTime = (new Date()).getTime()
         if(ev.keyCode != ESC && UI.popupClosed) {
-          gCliqzBox.resultsBox.innerHTML = "";
+          if(gCliqzBox.resultsBox) gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
         switch(ev.keyCode) {
@@ -1369,7 +1369,7 @@ function urlIndexInHistory(url, urlList) {
                             state = 'yes'
                             adultMessage = 1;
                         } else {
-                            CLIQZEnvironment.log("SETTING","UI");
+                            CliqzUtils.log("SETTING","UI");
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
                         clearMessage('bottom');
@@ -1464,9 +1464,7 @@ function resultScroll(ev) {
 }
 
 function copyResult(val) {
-    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                               .getService(Components.interfaces.nsIClipboardHelper);
-    gClipboardHelper.copyString(val);
+    CLIQZEnvironment.copyResult(val);
 }
 
 function resultClick(ev) {
@@ -1478,7 +1476,7 @@ function resultClick(ev) {
 
     var coordinate = null;
     if (UI.urlbar_box)
-        coordinate = [ev.clientX - (UI.urlbar_box.left || UI.urlbar_box.x), ev.clientY - UI.urlbar_box.bottom, CLIQZ.Core.popup.width];
+        coordinate = [ev.clientX - (UI.urlbar_box.left || UI.urlbar_box.x || 0), ev.clientY - UI.urlbar_box.bottom, CLIQZ.Core.popup.width || window.innerWidth];
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
@@ -1795,16 +1793,27 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
-    if(CliqzUtils.getPref("double-enter", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
-      var r = currentResults.results;
-      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
-        currentResults.blocked = true;
-        var signal = {
-            type: 'activity',
-            action: 'double_enter'
-        };
-        CliqzUtils.telemetry(signal);
-        return true;
+    if(CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+
+      if(CLIQZ.config.settings.channel != "40"){
+        // it should be only for the browser
+        // get out of the AB test if its not a browser build
+        // TODO: we should make a smarter way of getting filtering AB tests users besides the session ID
+        CliqzUtils.clearPref("double-enter2");
+
+        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
+        CliqzABTests.disable("1063_B");
+      } else {
+        var r = currentResults.results;
+        if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+          currentResults.blocked = true;
+          var signal = {
+              type: 'activity',
+              action: 'double_enter'
+          };
+          CliqzUtils.telemetry(signal);
+          return true;
+        }
       }
     }
 

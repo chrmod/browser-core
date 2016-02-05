@@ -14,7 +14,7 @@ IT IS USED AS A PARTIAL template
 <div class="main">
 
     {{#if richData.image}}
-        <div class="main__image" style="background-image: url({{ richData.image }});">
+        <div class="main__image" data-style="background-image: url({{ richData.image }});">
             Image
         </div>
     {{/if}}
@@ -29,7 +29,7 @@ IT IS USED AS A PARTIAL template
         {{/if}}
     </div>
     <p class="main__content">{{richData.des}}</p>
-    
+
 </div>
 {{/with}}
 <!-- end rd-h3-w-rating.tpl -->
