@@ -55,14 +55,35 @@ var mobileCss = compileSass(
   { sourceMap: true }
 );
 
-// attach subprojects
+// Attach subprojects
+let moduleConfigs = Object.create(null);
+let bareModules = [];
+
+cliqzConfig.modules.forEach(function (name) {
+  let configJson = "{}";
+
+  try {
+    configJson = fs.readFileSync('modules/'+name+'/config.json');
+  } catch(e) {
+    // Existance of config.json is not required
+  }
+
+  moduleConfigs[name] = JSON.parse(configJson);
+});
+
+let bareModuleNames = cliqzConfig.modules.filter(name => moduleConfigs[name].transpile === false)
+
 var modules = [new Funnel(platform, { destDir: "platform" })];
 var requiredBowerComponents = new Set();
 var modulesTree = new Funnel('modules');
 
 var jsHinterTree = new JSHinter(
-  new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
-  { testGenerator: function () { return ''; },
+  new Funnel(modulesTree, {
+    include: ['**/*.es', '**/*.js'],
+    exclude: bareModuleNames.map( name => `${name}/**/*` )
+  }),
+  {
+    testGenerator: function () { return ''; },
     jshintrcPath: process.cwd() + '/.jshintrc'
   }
 );
@@ -75,72 +96,69 @@ modulesTree = new MergeTrees([
 
 cliqzConfig.modules.forEach(function (name) {
   var modulePath = 'modules/'+name;
-  if (fs.statSync(modulePath).isDirectory()) {
 
-    try {
-      var conf = fs.readFileSync('modules/'+name+'/bower_components.json');
-      JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
-    } catch(e) { }
+  if (!fs.statSync(modulePath).isDirectory()) {
+    return;
+  }
 
-    var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
 
-    sources = Babel(sources, {
-      sourceMaps: 'inline',
-      filterExtensions: ['es'],
-      modules: 'system',
-      moduleRoot: name,
-    });
+  if (bareModuleNames.indexOf(name) >= 0) {
+    bareModules = new Funnel(`${modulePath}/dist`, { destDir: name });
+    return;
+  }
 
-    var outputTree = [
-      new Funnel(modulesTree, { srcDir: name + '/dist' }),
-      sources,
-    ];
+  try {
+    var conf = fs.readFileSync(modulePath+'/bower_components.json');
+    JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
+  } catch(e) { }
 
-    var hasStyles = false;
-    try {
-      fs.statSync(modulePath+"/sources/styles"); // throws if not found
-      hasStyles = true;
-    } catch (e) { }
+  var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
 
-    /*
-    if (hasStyles) {
+  sources = Babel(sources, {
+    sourceMaps: 'inline',
+    filterExtensions: ['es'],
+    modules: 'system',
+    moduleRoot: name,
+  });
+
+  var outputTree = [
+    new Funnel(modulesTree, { srcDir: name + '/dist' }),
+    sources,
+  ];
+
+  var hasStyles = false;
+
+  try {
+    fs.statSync(modulePath+"/sources/styles"); // throws if not found
+    hasStyles = true;
+  } catch (e) { }
+
+  if (hasStyles) {
+    fs.readdirSync( modulePath+'/sources/styles').forEach(function (file) {
+      var extName = path.extname(file);
+
+      if ( (file.indexOf('_') === 0) ||
+           ['.sass', '.scss'].indexOf(extName) === -1 ) {
+        return;
+      }
+
       var compiledCss = compileSass(
         [modulePath+'/sources/styles'],
-        'styles.scss',
-        'styles.css',
+        file,
+        file.replace(/\.(sass|scss)+$/, '.css'),
         { sourceMap: true }
       );
 
       outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
-    }
-    */
-    if (hasStyles) {
-      fs.readdirSync( modulePath+'/sources/styles').forEach(function (file) {
-        var extName = path.extname(file);
-
-        if ( (file.indexOf('_') === 0) ||
-             ['.sass', '.scss'].indexOf(extName) === -1 ) {
-          return;
-        }
-
-        var compiledCss = compileSass(
-          [modulePath+'/sources/styles'],
-          file,
-          file.replace(/\.(sass|scss)+$/, '.css'),
-          { sourceMap: true }
-        );
-
-        outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
-      });
-    }
-
-    var module = new MergeTrees(outputTree);
-
-    modules.push(new Funnel(module, { destDir: name }));
+    });
   }
+
+  var module = new MergeTrees(outputTree);
+
+  modules.push(new Funnel(module, { destDir: name }));
 });
 
-modules = new MergeTrees(modules);
+modules = new MergeTrees(modules.concat(bareModules));
 modules = new Funnel(modules, { exclude: ["**/*.jshint.js"] });
 
 var babelOptions = {

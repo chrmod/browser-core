@@ -19,6 +19,7 @@
     "loyalty",
     "firefox-tests",
     "telemetry-categories",
-    "antitracking"
+    "antitracking",
+    "fresh-tab"
   ]
 }
