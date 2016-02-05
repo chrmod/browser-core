@@ -75,7 +75,7 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
-  BRANDS_DATABASE_VERSION:        1427124611539,
+  BRANDS_DATABASE_VERSION:        1452759183853,
   BRANDS_DATABASE: BRANDS_DATABASE,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
