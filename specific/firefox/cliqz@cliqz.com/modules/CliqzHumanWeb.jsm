@@ -1936,7 +1936,7 @@ var CliqzHumanWeb = {
                         var cd = CliqzHumanWeb.getCDByURL(activeURL);
                         cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
                         cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
-                        cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage), true;
+                        cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage, true);
                         cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
                         cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
                     }, false);
