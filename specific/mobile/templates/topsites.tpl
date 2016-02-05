@@ -17,7 +17,7 @@
                 </div>
                 <a class="topSitesLink" data-index="{{@index}}" 
                   onclick="osBridge.openLink('{{baseDomain}}')">
-                    {{ domain }}
+                    {{ mainDomain }}
                 </a>
             </td>
         {{/each}}

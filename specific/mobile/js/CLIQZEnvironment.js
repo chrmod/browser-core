@@ -721,7 +721,7 @@ CLIQZEnvironment = {
 
     var top_news = news.top_h_news;
 
-    console.log('%crendering top news', 'color:green', top_news)
+    //console.log('%crendering top news', 'color:green', top_news)
     top_news = top_news.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
@@ -761,10 +761,13 @@ CLIQZEnvironment = {
       list = mockedHistory;
     }
     
-    var indexList = {},
-        myList = [];
+    var indexList = {}, myList = [], domain, domainArr, mainDomain; 
     for(var i=0; i<list.length; i++) {
-      indexList[list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]] = list[i];
+      domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+      domainArr = domain.split(".");
+      mainDomain = domainArr[domainArr.length-2];
+      list[i].mainDomain = mainDomain;
+      indexList[mainDomain] = list[i];
     }
     for(var i in indexList) {
       myList.push(indexList[i]);
@@ -784,6 +787,7 @@ CLIQZEnvironment = {
         backgroundColor: logo.backgroundColor,
         buttonsClass: logo.buttonsClass,
         style: logo.style,
+        mainDomain: r.mainDomain,
         baseDomain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[0],
         domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]  
       }
