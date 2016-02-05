@@ -42,6 +42,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBloomFilter',
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 var refineFuncMappings ;
+var gadurl = /\.google..*?\/(aclk)\?/;
 
 /*
 Configuration for Bloomfilter
@@ -615,8 +616,10 @@ var CliqzHumanWeb = {
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
 
-
-
+                if(gadurl.test(url) && aChannel && aChannel.referrer) {
+                    var refU = aChannel.referrer.spec;
+                    CliqzHumanWeb.linkCache[url] = {'s': ''+refU, 'time': CliqzHumanWeb.counter};
+                }
                 if (status=='301' || status == '302') {
                     CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter, 'location': loc};
                 }
@@ -631,7 +634,7 @@ var CliqzHumanWeb = {
 
 
 
-              } catch(ee){if (CliqzHumanWeb)  _log('observeActivity: ' + ee)};
+              } catch(ee){};
         }
     },
     // Extract earliest and latest entry of Firefox history
@@ -1606,6 +1609,7 @@ var CliqzHumanWeb = {
         return null;
     },
     captureJSRefresh: function(aRequest, aURI){
+
         if(aRequest && aRequest.referrer) {
             var refU = aRequest.referrer.asciiSpec;
             var newURL =  aURI.spec;
@@ -1634,6 +1638,8 @@ var CliqzHumanWeb = {
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
+
+            // This code looks obselete now, will remove in 1+ release.
             if (CliqzHumanWeb.ismRefresh){
                 try{
                     var tabID = CliqzHumanWeb.getTabID();
@@ -1660,7 +1666,7 @@ var CliqzHumanWeb = {
             var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
-            var gadurl = /\.google..*?\/(aclk)\?/;
+            // var gadurl = /\.google..*?\/(aclk)\?/;
 
             // suggested by AMO - requires further testing in case of rapid tab switching (orange, blue)
             // original:
@@ -1668,6 +1674,8 @@ var CliqzHumanWeb = {
 
             var currwin = aProgress.DOMWindow.top;
             if(!currwin) return; //internal FF page
+
+            // This code looks obselete now, will remove in 1+ release.
             if(gadurl.test(aURI.spec)){
                 var tabID = CliqzHumanWeb.getTabID();
                 if(tabID){
@@ -1789,6 +1797,7 @@ var CliqzHumanWeb = {
                     if(red.length == 0){
                         red = null;
                     }
+
                     //Set referral for the first redirect in the chain.
                     if (red && referral == null) {
                             var redURL = red[0];
@@ -1803,7 +1812,6 @@ var CliqzHumanWeb = {
                                 CliqzHumanWeb.queryCache[activeURL] = CliqzHumanWeb.queryCache[redURL];
                             }
                     }
-
 
                     CliqzHumanWeb.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                             'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red':red};
@@ -1828,6 +1836,16 @@ var CliqzHumanWeb = {
                             }
                         }
                     }
+
+                    // Change the type to gad if the it's coming from an ADV. else can give incorrect clicks on SERP results.
+                    if(red && red.length > 0){
+                        for(var i=0;i<red.length;i++){
+                            if(gadurl.test(red[i]) && CliqzHumanWeb.state['v'][activeURL].hasOwnProperty('qr')){
+                                CliqzHumanWeb.state['v'][activeURL]['qr']['t'] = 'gad';
+                            }
+                        }
+                    }
+
 
                     CliqzUtils.setTimeout(function(currWin, currURL) {
 
@@ -1854,7 +1872,6 @@ var CliqzHumanWeb = {
                                 }
                                 return;
                             }
-
                             //Check if the page is not a search engine:
 
                             var se = CliqzHumanWeb.checkSearchURL(currURL);
@@ -1890,9 +1907,7 @@ var CliqzHumanWeb = {
                             }
 
                         } catch(ee) {
-                            if (CliqzHumanWeb.debug) {
-                                _log("Error fetching title and length of page: " + ee);
-                            }
+                            _log("Error fetching title and length of page: " + ee + " : " + currURL);
                         }
 
                     }, CliqzHumanWeb.WAIT_TIME, currwin, activeURL);
@@ -1913,8 +1928,7 @@ var CliqzHumanWeb = {
                     cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
                     cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
                 }
-                /*
-                We might need this, to add listeners.
+                //We might need this, to add listeners.
                 else{
                     currwin.addEventListener('load', function loader() {
                         _log("CD failed: ");
@@ -1927,7 +1941,6 @@ var CliqzHumanWeb = {
                         cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
                     }, false);
                 }
-                */
             }
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
@@ -2516,12 +2529,12 @@ var CliqzHumanWeb = {
             // Check for title.
             if(msg.payload.x.t){
                 if(CliqzHumanWeb.isSuspiciousTitle(msg.payload.x.t)){
-                    _log("Suspicious Title: " + msg.payload['title']);
+                    _log("Suspicious Title: " + msg.payload.x.t);
                     return null;
                 }
             }
             else{
-                _log("Missing Title: " + msg.payload['title']);
+                _log("Missing Title: " + msg.payload.x.t);
                 return null;
             }
 
@@ -2721,7 +2734,7 @@ var CliqzHumanWeb = {
                 var notificationMsg = {};
                 notificationMsg['reason'] = "duplicate payload";
                 notificationMsg['payload'] = data;
-                CliqzHumanWeb.notification(notificationMsg);
+                // CliqzHumanWeb.notification(notificationMsg);
             }
             CliqzHumanWeb.previousDataPost = data;
         }
@@ -3079,6 +3092,7 @@ var CliqzHumanWeb = {
                             st.params.private = 1;
                             st.params.reason = 'empty page data';
                             setPrivate = true;
+                            _log("Setting private because empty page data");
 
                             // SPT
                         }
@@ -3088,6 +3102,7 @@ var CliqzHumanWeb = {
                             st.params.private = 1;
                             st.params.reason = 'susp. url';
                             setPrivate = true;
+                            _log("Setting private because suspiciousURL");
                             // SPT
                         }
                         else {
@@ -3096,6 +3111,7 @@ var CliqzHumanWeb = {
                                 st.params.private = 1;
                                 st.params.reason = '401';
                                 setPrivate = true;
+                                _log("Setting private because of 401");
                                 // SPT
                             }
                             else {
@@ -3113,7 +3129,7 @@ var CliqzHumanWeb = {
                             },
                             handleCompletion: function(aReason) {
                                 if(CliqzHumanWeb.debug){
-                                    _log("Insertion success");
+                                    _log("Insertion success add urltoDB");
                                 }
                             }
                         });
@@ -3202,6 +3218,11 @@ var CliqzHumanWeb = {
             delete CliqzHumanWeb.state['v'][url];
         }
         CliqzHumanWeb.dumpBloomFilter();
+
+        // incr stats for private page, to see public vs private pages marked.
+        // mp : when double fetch failed or url was marked private.
+        CliqzHumanWeb.incrActionStats("mp");
+
         /*
 
         //Add has in the hashusafe table
@@ -3295,7 +3316,9 @@ var CliqzHumanWeb = {
                     _log("SQL canceled or aborted");
                 }
                 else {
-                    _log("Got the result: " + res[0]);
+                    if(res.length > 0){
+                        _log("Got the result: " + res[0]);
+                    }
                     callback(res.splice(0,cap), null);
                 }
             }
@@ -3309,7 +3332,7 @@ var CliqzHumanWeb = {
             var notificationMsg = {};
             notificationMsg['reason'] = "listOfUncheckedUrls greater than one";
             notificationMsg['count'] = listOfUncheckedUrls.length;
-            CliqzHumanWeb.notification(notificationMsg);
+            // CliqzHumanWeb.notification(notificationMsg);
 
         }
 
@@ -3334,11 +3357,12 @@ var CliqzHumanWeb = {
                         },
                         handleCompletion: function(aReason) {
                             if(CliqzHumanWeb.debug){
-                                _log("Insertion success");
+                                _log("Insertion success private");
                             }
                         }
                     });
                     // SPT
+                    _log("Marking as private via is private");
                     CliqzHumanWeb.setAsPrivate(url);
                 }
                 else {
@@ -4019,7 +4043,7 @@ var CliqzHumanWeb = {
         var notificationMsg = {};
         notificationMsg['reason'] = "duplicate elements in trk";
         notificationMsg['payload'] = duplicates;
-        CliqzHumanWeb.notification(notificationMsg);
+        // CliqzHumanWeb.notification(notificationMsg);
     }
 
   },
@@ -4027,7 +4051,7 @@ var CliqzHumanWeb = {
     try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
     if(payload && typeof(payload) == 'object'){
         payload['ctry'] = location;
-        // CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
 
     }
     else{
@@ -4045,7 +4069,7 @@ var CliqzHumanWeb = {
         },
         handleCompletion: function(aReason) {
             if(CliqzHumanWeb.debug){
-                _log("Insertion success");
+                _log("Insertion success canonical URL");
             }
         }
     });
@@ -4096,7 +4120,7 @@ var CliqzHumanWeb = {
             },
             handleCompletion: function(aReason) {
                 if(CliqzHumanWeb && CliqzHumanWeb.debug){
-                    _log("Insertion success");
+                    _log("Insertion success save record");
                 }
             }
         });

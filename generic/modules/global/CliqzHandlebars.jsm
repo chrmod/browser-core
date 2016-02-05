@@ -466,6 +466,8 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('numberFormat', function (number) {
-        return number.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
+        number = parseFloat(number);
+        number = number.toFixed(2);
+        return parseFloat(number).toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
     });
 }

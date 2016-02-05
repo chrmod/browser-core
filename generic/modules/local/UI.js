@@ -1798,16 +1798,27 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
-    if(CliqzUtils.getPref("double-enter", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
-      var r = currentResults.results;
-      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
-        currentResults.blocked = true;
-        var signal = {
-            type: 'activity',
-            action: 'double_enter'
-        };
-        CliqzUtils.telemetry(signal);
-        return true;
+    if(CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+
+      if(CLIQZ.config.settings.channel != "40"){
+        // it should be only for the browser
+        // get out of the AB test if its not a browser build
+        // TODO: we should make a smarter way of getting filtering AB tests users besides the session ID
+        CliqzUtils.clearPref("double-enter2");
+
+        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
+        CliqzABTests.disable("1063_B");
+      } else {
+        var r = currentResults.results;
+        if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+          currentResults.blocked = true;
+          var signal = {
+              type: 'activity',
+              action: 'double_enter'
+          };
+          CliqzUtils.telemetry(signal);
+          return true;
+        }
       }
     }
 

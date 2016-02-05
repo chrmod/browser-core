@@ -1,7 +1,7 @@
 function init() {
   System.baseURL = "modules/"
   CLIQZ.System = System;
-
+  CliqzUtils.initPlatform(System);
   System.import("freshtab/news").then(function (module) {
     CliqzFreshTabNews = module.default;
     osBridge.isReady();
@@ -19,7 +19,7 @@ function tryInit(){
   //ugly hack to wait for logos
 
   if(tries-- == 0 || CliqzUtils.BRANDS_DATABASE.palette.length > 1)
-    CLIQZEnvironment.initHomepage();
+    CLIQZEnvironment.initHomepage(true);
 
   else setTimeout(tryInit, 100)
 }

@@ -42,14 +42,15 @@ a:hover, a:active, a:focus {
 #freshTabPage #searchContainer {
   position: relative;
   margin: 100px 0px;
+  width: 100%;
 }
 
 #freshTabPage #search-icon {
   position: absolute;
-  top: 5px;
+  top: 8px;
   left: 10px;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   background: url("../images/cliqz_icon.svg") no-repeat;
 }
 
@@ -61,17 +62,18 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #urlbar {
   width: 100%;
-  height: 28px;
-  border: 1px solid #999999;
-  padding: 0px 8px 0px 34px;
+  height: 40px;
+  border: 2px solid #999999;
+  padding: 0px 8px 0px 40px;
   box-sizing: border-box;
+  -moz-box-sizing: border-box;
   border-radius: 3px;
   font-size: 16px;
 }
 
 #freshTabPage #urlbar:focus {
   outline: none !important;
-  border: 1px solid #3B99FC;
+  border: 2px solid #3B99FC;
 }
 
 /* top visited */
@@ -88,9 +90,9 @@ a:hover, a:active, a:focus {
 
 
 #freshTabPage #topVisited li {
-  width: 166px;
+  width: 186px;
   height: 102px;
-  padding: 0px 10px;
+  padding: 0px;
   list-style: none;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-top-color: rgba(0, 0, 0, 0);
@@ -105,8 +107,14 @@ a:hover, a:active, a:focus {
   overflow: hidden;
 }
 
+#freshTabPage #topVisited a {
+    display: block;
+    height: 100%;
+    padding-top: 10px;
+}
+
 #freshTabPage #topVisited li:hover {
-  width: 168px;
+  width: 188px;
   height: 104px;
   margin-right: 4px;
   margin-left: 4px;
@@ -119,7 +127,7 @@ a:hover, a:active, a:focus {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  max-width: 170px;
+  max-width: 186px;
 }
 /*
 #freshTabPage #topVisited li:last-child {
@@ -142,7 +150,7 @@ a:hover, a:active, a:focus {
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
-    margin: 10px auto 10px;
+    margin: 0px auto 10px auto;
     font-size: 24px;
 }
 
@@ -218,15 +226,23 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #newsContainer li .title {
   font-size: 18px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   color: #333333;
   overflow: hidden;
   max-height: 66px;
 }
+
 #freshTabPage #newsContainer li .title:hover {
   color: #506bb8;
 }
 
+#freshTabPage #newsContainer div.title {
+  text-decoration: none;
+}
+
+#freshTabPage #newsContainer div.title.underline {
+  text-decoration: underline;
+}
 
 #freshTabPage #newsContainer li .url {
   font-size: 14px;
@@ -237,7 +253,20 @@ a:hover, a:active, a:focus {
   max-width: 320px;
 }
 
+#freshTabPage #newsContainer a.topnews {
+    display: block;
+}
+
+#freshTabPage #newsContainer .newsContent {
+  padding-left: 60px;
+}
+
 /***** Only top news *****/
+
+#freshTabPage #newsContainer .onlyTopNews .newsContent {
+  padding-left: 0px;
+}
+
 #freshTabPage #newsContainer .onlyTopNews li {
   float: left;
   width: 233px;
@@ -248,7 +277,7 @@ a:hover, a:active, a:focus {
   margin-right: 0px;
 }
 
-#freshTabPage .news-logo {
+#freshTabPage #newsContainer .logo {
   float: left;
   width: 40px;
   margin-right: 20px;
@@ -264,13 +293,6 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #yourNewsBox ul {
   float: left;
-}
-
-#freshTabPage #yourNewsBox li {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  max-width: 320px;
 }
 
 #freshTabPage .newsBlock {
@@ -378,6 +400,10 @@ a:hover, a:active, a:focus {
   font-size: 18px;
 }
 
+.optinContent li:last-child {
+  padding-bottom: 25px;
+}
+
 .optinContent li div{
   margin-left: 60px;
   text-align: left;
@@ -414,10 +440,9 @@ a:hover, a:active, a:focus {
   display: inline-block;
   line-height: 26px;
   margin: 0 7px 4px 0;
-  padding: 5px 9px;
+  padding: 5px 15px;
   text-decoration: none;
   background-color: #FF5349;
-  width: 115px;
   height: 30px;
   font-size: 18px;
 }
@@ -473,6 +498,12 @@ a:hover, a:active, a:focus {
     width: 68px;
   }
 
+  #freshTabPage #topVisited .title {
+    max-width: 46px;
+    display: block;
+    margin: 0px auto;
+  }
+
   #freshTabPage #searchContainer {
     margin: 75px 0px;
   }
@@ -489,5 +520,23 @@ a:hover, a:active, a:focus {
   #freshTabPage #newsContainer .onlyTopNews li{
     float: none;
     width: 100%;
+  }
+
+  #freshTabPage #newsContainer .newsBox {
+    float: none;
+    width: auto;
+    margin-left: 20px;
+  }
+
+  #freshTabPage #newsContainer #yourNewsBox {
+    margin-left: 20px;
+  }
+
+  #freshTabPage #yourNewsBox ul {
+    width: 80%;
+  }
+
+  #freshTabPage #yourNewsBox li {
+    max-width: 100%;
   }
 }

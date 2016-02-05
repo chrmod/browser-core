@@ -20,7 +20,7 @@
             <table cellspacing="0" cellpadding="0" class="answer" data="{{url}}"
                    data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
                 <tr>
-	                <td class="edit__delete"><input name="delete" type="checkbox"></td>
+	                <td class="edit__delete"><input name="delete" type="checkbox" disabled></td>
                     <td class="framer">
                         <p>{{title}}</p>
                         <p class="url">{{domain}}</p>
@@ -46,7 +46,7 @@
                         <td class="framer">
                             <p class="query">{{query}}</p>
                         </td>
-                        <td class="edit__delete"><input name="delete" type="checkbox"></td>
+                        <td class="edit__delete"><input name="delete" type="checkbox" disabled></td>
                     </tr>
                 </table>
 

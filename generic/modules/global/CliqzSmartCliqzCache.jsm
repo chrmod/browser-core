@@ -15,11 +15,6 @@ var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-// not available in older FF versions
-try {
-  Components.utils.import("resource://gre/modules/osfile.jsm");
-} catch(e) { }
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
@@ -92,41 +87,26 @@ Cache.prototype.refresh = function (key, time) {
 
 // save cache to file
 Cache.prototype.save = function (filename) {
-  try {
-    var data = (new TextEncoder()).encode(
-      JSON.stringify(this._cache));
-    var path = OS.Path.join(
-      OS.Constants.Path.profileDir, filename);
-    var _this = this;
-
-    OS.File.writeAtomic(path, data).then(
-      function(value) {
-          _this._log("save: saved to " + path);
-      }, function(e) {
-        _this._log("save: failed saving to " + path +
-          ": " + e);
-      });
-  } catch (e) {
-    this._log("save: failed saving: " + e);
-  }
+  CliqzUtils.importModule("core/fs").then(function (fs) {
+    var content = (new TextEncoder()).encode(JSON.stringify(this._cache));
+    return fs.writeFile(filename, content);
+  }).then(function (value) {
+    this._log("save: saved to " + filename);
+  }.bind(this)).catch(function (e) {
+    this._log("save: failed saving to " + filename + ": " + e);
+  }.bind(this));
 };
 
 // load cache from file
 Cache.prototype.load = function (filename) {
-  try {
-    var _this = this;
-    var path = OS.Path.join(
-      OS.Constants.Path.profileDir, filename);
-
-    OS.File.read(path).then(function(data) {
-      _this._cache = JSON.parse((new TextDecoder()).decode(data));
-      _this._log("load: loaded from: " + path);
-    }).catch(function(e) {
-      _this._log("load: failed loading: " + e);
-    });
-  } catch (e) {
+  CliqzUtils.importModule("core/fs").then(function (fs) {
+    return fs.readFile(filename);
+  }).then(function (data) {
+    this._cache = JSON.parse((new TextDecoder()).decode(data));
+    this._log("load: loaded from: " + filename);
+  }.bind(this)).catch(function (e) {
     this._log("load: failed loading: " + e);
-  }
+  }.bind(this));
 };
 
 Cache.prototype._log = function (msg) {
@@ -188,18 +168,15 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
   // loads cache content from persistent storage
   init: function () {
-    // create folder underneath profile folder to store persistent cache
-    try {
-      var folderPath = OS.Path.join(
-        OS.Constants.Path.profileDir, this.CUSTOM_DATA_CACHE_FOLDER);
-      OS.File.makeDir(folderPath, { ignoreExisting: true });
-
+    CliqzUtils.importModule('core/fs').then(function (fs) {
+      // create folder underneath profile folder to store persistent cache
+      fs.mkdir( this.CUSTOM_DATA_CACHE_FOLDER );
+    }.bind(this)).then(function () {
       // TODO: detect when loaded; allow save only afterwards
-      var filePath = OS.Path.join(folderPath, this.CUSTOM_DATA_CACHE_FILE);
-      this._customDataCache.load(filePath);
-    } catch (e) {
+      this._customDataCache.load(this.CUSTOM_DATA_CACHE_FILE);
+    }.bind(this)).catch(function (e) {
       this._log('init: unable to create cache folder:' + e);
-    }
+    }.bind(this));
 
     CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
 
