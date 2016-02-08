@@ -151,9 +151,9 @@ var CliqzAttrack = {
         // used when action != 'block'
         // default is a placeholder
         switch(method) {
+        case 'empty':
+            return '';
         case 'replace':
-            return replacement;
-        case 'random':
             return shuffle(s);
         case 'same':
             return s;
@@ -464,14 +464,12 @@ var CliqzAttrack = {
                     if (badTokens.length > 0 && CliqzAttrack.updatedInTime()) {
                         // determin action based on tracker.txt
                         var rule = getDefaultTrackerTxtRule(),
-                            _trackerGD = getGeneralDomain(url_parts.hostname),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
                         if (CliqzAttrack.isTrackerTxtEnabled()) {
                             if (_trackerTxt.last_update === null)
                                 // The first update is not ready yet
                                 sleep(300);
-                            if (_trackerGD in _trackerTxt.rules)
-                                rule = _trackerTxt.rules[_trackerGD];
+                            rule = _trackerTxt.getRule(url_parts.hostname)
                         }
                         if (rule == 'block') {
                             subject.cancel(Components.results.NS_BINDING_ABORTED);
