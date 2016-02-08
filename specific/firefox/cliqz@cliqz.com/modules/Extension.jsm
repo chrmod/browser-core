@@ -382,7 +382,7 @@ var Extension = {
           Extension.loadIntoWindow(win, true);
         } else if(topic === 'domwindowclosed') {
             //unload core even if the window closes to allow all modules to do their cleanup
-            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+            if (win && win.CLIQZ && !CliqzUtils.getPref("cliqz_core_disabled", false)) {
               win.CLIQZ.Core.unload();
             }
         }
