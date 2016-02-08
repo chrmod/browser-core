@@ -81,9 +81,7 @@ var Extension = {
       Extension.setOurOwnPrefs();
 
       // Load Config - Synchronous!
-      CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-        this.config = JSON.parse(res.response);
-      }.bind(this), function () {}, undefined, undefined, true);
+      this.config = {{CONFIG}};
 
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
