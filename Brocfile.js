@@ -142,7 +142,7 @@ cliqzConfig.modules.forEach(function (name) {
 });
 
 modules = new MergeTrees(modules);
-modules = new Funnel(modules, { exclude: ["**/*.jshint.js"] });
+modules = new Funnel(modules, { exclude: ["**/*.jshint.js", "**/.gitkeep"] });
 
 var babelOptions = {
   modules: "amdStrict",
