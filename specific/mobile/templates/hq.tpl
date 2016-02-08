@@ -21,7 +21,7 @@
     {{/if}}
 
     <h1 class="main__headline"><a href="{{url}}">{{ emphasis title text 2 true }}</a></h1>
-    <p class="main__content">{{ emphasis data.description text 2 true }}</p>
+    <p class="main__content">{{{ emphasis data.description text 2 true }}}</p>
 </div>
 
 {{#if (links_or_sources data.richData) }}

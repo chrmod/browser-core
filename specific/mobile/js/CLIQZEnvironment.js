@@ -44,6 +44,7 @@ CLIQZEnvironment = {
           if( CliqzHandlebars.tplCache[template] ) {
             CLIQZ.UI.enhanceResults(r);
             if(document.getElementById("cqz-result-box-" + index) && r.results[0] && r.results[0].data.template != "noResult") {
+              CLIQZEnvironment.highlightQuery([r.results[0]], r.results[0].q);
               document.getElementById("cqz-result-box-" + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -114,8 +115,30 @@ CLIQZEnvironment = {
       } 
     }
   },
-
+  highlightQuery: function(results, query) {
+    ['description', 'description_wiki'].forEach(function (desc_key) {
+      query.split(' ').forEach(function(word) {
+        if(!word) {
+          return;
+        }
+        var patt = word.length > 2 ? new RegExp('\\b' + word, 'igm') : new RegExp('\\b' + word + '\\b', 'igm');
+        results = results.map(function(patt, desc_key, result) {
+          if(result.data[desc_key]) {
+            result.data[desc_key] = result.data[desc_key].replace(patt, function() {
+              var match = patt.exec(result.data[desc_key]);
+              return '<span style="background-color:yellow">' + match[0] + '</span>';
+            });
+          }
+          return result;
+        }.bind(this, patt, desc_key));
+      });
+    });
+  },
   renderResults: function(r, historyCount) {
+
+    CLIQZEnvironment.highlightQuery(r._results, r._searchString);
+
+    
 
     var validCount = 0;
 

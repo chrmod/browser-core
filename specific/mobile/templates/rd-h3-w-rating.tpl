@@ -31,7 +31,7 @@ IT IS USED AS A PARTIAL template
             {{/if}}
         </div>
         <p class="main__content">
-            <p>{{description}}</p>
+            <p>{{{description}}}</p>
             <br />
             {{#if richData.mobi}}
                 <ul class="recipe_ingredients">

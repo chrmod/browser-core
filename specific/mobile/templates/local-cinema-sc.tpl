@@ -30,7 +30,7 @@
               {{/if}}
             </div>
             
-            <p class="main__content description">{{cinema.desc}}</p>
+            <p class="main__content description">{{{cinema.desc}}}</p>
             
             <ul class="cta">
                   <li><a xmlns="http://www.w3.org/1999/xhtml" arrow-override=""

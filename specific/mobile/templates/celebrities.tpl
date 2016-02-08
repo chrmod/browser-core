@@ -29,7 +29,7 @@
 			 {{/each}}
 		</span>
 	</h3>
-	<p class="main__content">{{ emphasis description_wiki ../text 2 true }}</p>
+	<p class="main__content">{{{ emphasis description_wiki ../text 2 true }}}</p>
 </div>
 
 
