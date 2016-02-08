@@ -107,8 +107,8 @@ var MockOS = {
 var mockedHistory = 
         [{
             "id": 1,
-            "title": "deppen",
-            "url": "http://www.deppen.de",
+            "title": "Facebook",
+            "url": "http://www.facebook.de",
             "timestamp": Date.now() - 10000
         }, {
             "id": 2,
