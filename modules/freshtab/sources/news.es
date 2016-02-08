@@ -461,6 +461,9 @@ function createNewsList(hcache, callback){
       history_data;
 
   news_data_cache = hcache;
+
+  // allways add random padding to the expected news
+  // domains to avoid privacy leaks
   topic_news_url += JSON.stringify(news_data_cache.hash_list)
 
   history_data = news_data_cache.domain_list;
