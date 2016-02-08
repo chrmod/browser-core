@@ -380,6 +380,11 @@ var Extension = {
     windowWatcher: function(win, topic) {
         if (topic === 'domwindowopened') {
           Extension.loadIntoWindow(win, true);
+        } else if(topic === 'domwindowclosed') {
+            //unload core even if the window closes to allow all modules to do their cleanup
+            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+              win.CLIQZ.Core.unload();
+            }
         }
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */
