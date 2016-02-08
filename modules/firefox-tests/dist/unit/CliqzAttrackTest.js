@@ -923,12 +923,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 txt = '# comment\n! pass\nR aaa.site1.com empty\nR site1.com placeholder\nnot a rule',
                 parseURL = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/url").parseURL,
                 r = TT.TrackerTXT.get(parseURL('http://www.google.com/'));
-            r.rules = [];
             TT.trackerRuleParser(txt, r.rules);
             r.status = 'update';
-            CliqzUtils.getWindow().console.log(r);
             chai.expect(r.getRule('bbbaaa.site1.com')).to.equal('empty');
             chai.expect(r.getRule('aa.site1.com')).to.equal('placeholder');
+            chai.expect(r.getRule('aa.site2.com')).to.equal('same');
         });
     });
 };

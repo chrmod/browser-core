@@ -19,7 +19,7 @@ export function setDefaultTrackerTxtRule(rule) {
 
 var trackerRuleParser = function(str, rules) {
     /* Tracker format:
-     one rule per line: "tracker: action"
+     one rule per line: "R tracker action"
      */
     str.split('\n').map(function(x) {return x.trim()}).filter(function(x) {return x[0] == 'R'}).forEach(
         function(element, index, array) {
@@ -66,6 +66,7 @@ TrackerTXT.prototype = {
             self.baseurl + '/trackering.txt',
             function success(req) {
                 if (req.responseText.length < 4 * 1024) {
+                    self.rules = [];
                     trackerRuleParser(req.responseText, self.rules);
                 }
                 self.status = 'updated';
