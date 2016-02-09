@@ -405,5 +405,9 @@ function getListFromStorage(listName) {
   return list ? JSON.parse(list) : [];
 }
 
+System.baseURL = "modules/"
+CLIQZ.System = System;
+CliqzUtils.initPlatform(System);
+
 CliqzUtils.init(this);
 getHistory(starMode);
