@@ -13,10 +13,10 @@ export default background({
 
   unload() {
     HumanWeb.unloadAtBrowser();
+    HumanWeb.unload();
   },
 
   beforeBrowserShutdown() {
-    HumanWeb.unloadAtBrowser();
     HumanWeb.unload();
   },
 
