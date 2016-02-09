@@ -1,3 +1,5 @@
+/*jshint -W110 */
+
 CLIQZEnvironment = {
   TEMPLATES_PATH: 'templates/',
   LOCALE_PATH: 'modules/static/locale/',
@@ -21,10 +23,10 @@ CLIQZEnvironment = {
     var request = new XMLHttpRequest();
     request.open('GET', encodeURI(richHeaderUrl), true);
     request.onreadystatechange = function () {
-      if(request.status == 200 && request.readyState == 4) {
+      if(request.status === 200 && request.readyState === 4) {
         callback(JSON.parse(request.response));
       }
-    }
+    };
     request.send();
   },
 
@@ -43,7 +45,7 @@ CLIQZEnvironment = {
           }
           if( CliqzHandlebars.tplCache[template] ) {
             CLIQZ.UI.enhanceResults(r);
-            if(document.getElementById("cqz-result-box-" + index) && r.results[0] && r.results[0].data.template != "noResult") {
+            if(document.getElementById("cqz-result-box-" + index) && r.results[0] && r.results[0].data.template !== "noResult") {
               document.getElementById("cqz-result-box-" + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -56,17 +58,17 @@ CLIQZEnvironment = {
   autoComplete: function (val,searchString) {
 
     if( val && val.length > 0){
-      val = val.replace(/http([s]?):\/\/(www.)?/,"");
+      val = val.replace(/http([s]?):\/\/(www.)?/,'');
       val = val.toLowerCase();
       var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
-      if( val.indexOf(urlbarValue) == 0 ) {
+      if( val.indexOf(urlbarValue) === 0 ) {
         // Logger.log("jsBridge autocomplete value:"+val,"osBridge1");
         osBridge.autocomplete(val);
       } else {
         var ls = JSON.parse(localStorage.recentQueries || '[]');
         for( var i in ls ) {
-          if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) == 0 ) {
+          if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
           }
         }
@@ -89,7 +91,7 @@ CLIQZEnvironment = {
     for (var i = 0; i < frames.length; i++) {
       var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
       left = parseInt(left);
-      left -= (left / (i + 1))
+      left -= (left / (i + 1));
       frames[i].style.left = left + 'px';
     }
   },
@@ -154,7 +156,7 @@ CLIQZEnvironment = {
     });
 
     var showGooglethis = 1;
-    if(!renderedResults.results[0] || renderedResults.results[0].data.template == "noResult") {
+    if(!renderedResults.results[0] || renderedResults.results[0].data.template === "noResult") {
       showGooglethis = 0;
     }
 
@@ -178,7 +180,7 @@ CLIQZEnvironment = {
 
 
     var showGooglethis = 1;
-    if(!results[0] || results[0].data.template == "noResult") {
+    if(!results[0] || results[0].data.template === "noResult") {
       showGooglethis = 0;
     }
 
@@ -192,7 +194,7 @@ CLIQZEnvironment = {
         myEl = document.createElement("span");
         myEl.innerText = ".";
         myEl.id = "dots-page-"+(i);
-        if( i==0 ){
+        if( i===0 ){
           myEl.className = "active";
         }
 
@@ -305,7 +307,7 @@ CLIQZEnvironment = {
       pageOffset: 0
     };
 
-    if(!e || e == "") {
+    if(!e || e === "") {
       resultsBox.style.display = 'none';
       window.document.getElementById("startingpoint").style.display = 'block';
       CLIQZ.UI.main(resultsBox);
@@ -320,7 +322,7 @@ CLIQZEnvironment = {
     resultsBox.style.display = 'block';
     window.document.getElementById("startingpoint").style.display = 'none';
 
-    if(e.toLowerCase() == "testme") {
+    if(e.toLowerCase() === "testme") {
       initTest();
     }
     CLIQZEnvironment.startProgressBar();
@@ -359,7 +361,7 @@ CLIQZEnvironment = {
           myEl = document.createElement("span");
           myEl.innerText = ".";
           myEl.id = "dots-page-"+(i);
-          if( i==page ){
+          if( i===page ){
             myEl.className = "active";
           }
 
@@ -395,8 +397,8 @@ CLIQZEnvironment = {
 
     callback = function (r) {
       return function () {
-        if ( this.readyState == 4 ) {
-          if (this.status != 200 ) {
+        if ( this.readyState === 4 ) {
+          if (this.status !== 200 ) {
             resp="" ;
           }
           else {
@@ -405,8 +407,8 @@ CLIQZEnvironment = {
           //console.log(resp);
           eval("myVal = {"+ resp + "}" ) ;
         }
-      }
-    }
+      };
+    };
 
       request = new XMLHttpRequest() ;
       request.open('GET', req, false);
@@ -443,7 +445,7 @@ CLIQZEnvironment = {
       document.getElementById("progress").style.width = "0px";
     },
 
-    table: function(args){ console.table(arguments) },
+    table: function(args){ console.table(arguments); },
     getPref: function(pref, notFound){
     localStorage.setItem("showConsoleLogs", true);
     var mypref;
@@ -466,7 +468,7 @@ CLIQZEnvironment = {
     @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
                                 This is used when the user clicks on Share Location "Just once".
                                 */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+    if (!(allowOnce || CliqzUtils.getPref("share_location") === "yes")) {
       failCB("No permission to get user's location");
       return;
     }
@@ -499,7 +501,7 @@ CLIQZEnvironment = {
     var geoService = navigator.geolocation;
     CLIQZEnvironment.removeGeoLocationWatch();
 
-    if (CLIQZEnvironment.getPref('share_location') == 'yes') {
+    if (CLIQZEnvironment.getPref('share_location') === 'yes') {
       // Get current position
       geoService.getCurrentPosition(function(p) {
         CLIQZEnvironment.USER_LAT = JSON.stringify(p.coords.latitude);
@@ -527,15 +529,15 @@ CLIQZEnvironment = {
     CLIQZEnvironment.USER_LAT = 48.155772899999995;
     CLIQZEnvironment.USER_LNG = 11.615600899999999;
     return;
-    if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+    if (newPerm === "yes" || newPerm === "no" || newPerm === "ask") {
       CLIQZEnvironment.setPref('share_location',newPerm);
       CLIQZEnvironment.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
       CLIQZEnvironment.updateGeoLocation();
     }
   },
-  setInterval: function(){ return setInterval.apply(null, arguments) },
-  setTimeout: function(){ return setTimeout.apply(null, arguments) },
-  clearTimeout: function(){ clearTimeout.apply(null, arguments) },
+  setInterval: function(){ return setInterval.apply(null, arguments); },
+  setTimeout: function(){ return setTimeout.apply(null, arguments); },
+  clearTimeout: function(){ clearTimeout.apply(null, arguments); },
   tldExtractor: function(host){
     //lucian: temp - FIX IT
     return host.split('.').splice(-1)[0];
@@ -557,7 +559,7 @@ CLIQZEnvironment = {
         return;
       }
       if(!window.navigator.onLine) {
-        if(typeof CustomEvent != "undefined") {
+        if(typeof CustomEvent !== "undefined") {
           window.dispatchEvent(new CustomEvent("disconnected", { "detail": "browser is offline" }));
         }
         isRequestFailed = true;
@@ -573,13 +575,15 @@ CLIQZEnvironment = {
     }
     req.overrideMimeType('application/json');
     req.onload = function(){
-      if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
+      if(!parseInt) {
+        return;
+      } //parseInt is not a function after extension disable/uninstall
 
       var statusClass = parseInt(req.status / 100);
-      if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
+      if(statusClass === 2 || statusClass === 3 || statusClass === 0 /* local files */){
 
         if(isMixerUrl(url)){
-          if(typeof CustomEvent != "undefined") {
+          if(typeof CustomEvent !== "undefined") {
             window.dispatchEvent(new CustomEvent("connected"));
           }
           CLIQZEnvironment.cacheResults(req);
@@ -595,13 +599,13 @@ CLIQZEnvironment = {
         }
         onerror && onerror();
       }
-    }
+    };
     req.onerror = function(){
-      if(latestUrl != url || url == lastSucceededUrl || !isMixerUrl(url)) {
+      if(latestUrl !== url || url === lastSucceededUrl || !isMixerUrl(url)) {
         onerror && onerror();
         return;
       }
-      if(typeof CustomEvent != "undefined") {
+      if(typeof CustomEvent !== "undefined") {
         window.dispatchEvent(new CustomEvent("disconnected", { "detail": "This could be caused because of request error" }));
       }
 
@@ -613,13 +617,13 @@ CLIQZEnvironment = {
         Logger.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
         onerror && onerror();
       }
-    }
+    };
     req.ontimeout = function(){
       CliqzUtils.log("BEFORE","ONTIMEOUT");
-      if(latestUrl != url || url == lastSucceededUrl || !isMixerUrl(url)) {
+      if(latestUrl !== url || url === lastSucceededUrl || !isMixerUrl(url)) {
         return;
       }
-      if(typeof CustomEvent != "undefined") {
+      if(typeof CustomEvent !== "undefined") {
         window.dispatchEvent(new CustomEvent("disconnected", { "detail": "This could be caused because of timed out request" }));
       }
 
@@ -631,7 +635,7 @@ CLIQZEnvironment = {
         Logger.log( "resending: timeout for " + url, "CLIQZEnvironment.httpHandler");
         onerror && onerror();
       }
-    }
+    };
 
     if(callback){
       if(timeout){
@@ -647,7 +651,7 @@ CLIQZEnvironment = {
   openLink: function(window, url, newTab){
     //Logger.log(CLIQZEnvironment.openLinksAllowed,"CLIQZEnvironment");
     if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== "#")  {
-      if( url.indexOf("http") == -1 ) {
+      if( url.indexOf("http") === -1 ) {
         url = "http://" + url;
       }
       osBridge.openLink(url);
@@ -665,11 +669,11 @@ CLIQZEnvironment = {
           style:   'favicon',
           value:   item.url,
           image:   '',
-          comment: (typeof(item.title) != "undefined" ? item.title : "no comment"),
+          comment: (typeof(item.title) !== "undefined" ? item.title : "no comment"),
           label:   ''
         });
       }
-      return {results: res, query:data.query, ready:true}
+      return {results: res, query:data.query, ready:true};
     } catch (e) {
       Logger.log( "historySearch", "Error: " + e);
     }
@@ -686,14 +690,14 @@ CLIQZEnvironment = {
       e.getSubmissionForQuery = function(q){
           //TODO: create the correct search URL
           return e.searchForm;
-        }
+        };
 
-        return e
+        return e;
       });
   },
   distance: function(lon1, lat1, lon2, lat2) {
     var R = 6371; // Radius of the earth in km
-    if(!lon2 || !lon1 || !lat2 || !lat1) { return 0 }
+    if(!lon2 || !lon1 || !lat2 || !lat1) { return 0; }
     var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
     var dLon = (lon2-lon1).toRad();
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -735,7 +739,7 @@ CLIQZEnvironment = {
         backgroundColor: logo.backgroundColor,
         buttonsClass: logo.buttonsClass,
         style: logo.style
-      }
+      };
     });
     if(!CliqzHandlebars.tplCache.topnews || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
       return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
@@ -769,7 +773,7 @@ CLIQZEnvironment = {
       list[i].mainDomain = mainDomain;
       indexList[mainDomain] = list[i];
     }
-    for(var i in indexList) {
+    for(i in indexList) {
       myList.push(indexList[i]);
     }
     list = myList;
@@ -790,7 +794,7 @@ CLIQZEnvironment = {
         mainDomain: r.mainDomain,
         baseDomain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[0],
         domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]  
-      }
+      };
     });
     var topSites = CliqzHandlebars.tplCache["topsites"];
     var div = window.document.getElementById('topSites');
@@ -822,9 +826,9 @@ CLIQZEnvironment = {
     var engineDiv = document.getElementById("defaultEngine");
     if(engineDiv && CliqzAutocomplete.lastSearch) {
       engineDiv.setAttribute("url", engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
-      var moreResults = document.getElementById("moreResults")
+      var moreResults = document.getElementById("moreResults");
       moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
-      var noResults = document.getElementById("noResults")
+      var noResults = document.getElementById("noResults");
       noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
     }
   },
@@ -846,17 +850,17 @@ CLIQZEnvironment = {
           },
         subType: JSON.stringify({empty:true})
       }
-    )
+    );
   },
   setClientPreferences: function(prefs) {
     for (var key in prefs) {
       if (prefs.hasOwnProperty(key)) {
-        CLIQZEnvironment.setPref(key, prefs[key])
+        CLIQZEnvironment.setPref(key, prefs[key]);
       }
     }
   }
 
-}
+};
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
   var recentItems = CLIQZEnvironment.getRecentQueries();
@@ -864,9 +868,9 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     return;
   }
   if(query.length <= 2) {
-    if(recentItems[0] && recentItems[0].query.indexOf(query) == 0 
-       && recentItems[0].query.length == 3
-       && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+    if( recentItems[0] && recentItems[0].query.indexOf(query) === 0 && 
+        recentItems[0].query.length === 3 && 
+        Date.now() - recentItems[0].timestamp < 5 * 1000) {
          recentItems.shift();
          localStorage.setItem("recentQueries",JSON.stringify(recentItems));
        }
@@ -880,8 +884,8 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   }
-  else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2
-            && Date.now() - recentItems[0].timestamp < 5 * 1000) {
+  else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 && 
+          Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   }
@@ -890,18 +894,18 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     recentItems = recentItems.slice(0,60);
     localStorage.setItem("recentQueries",JSON.stringify(recentItems));
   }
-}
+};
 
 
-CLIQZEnvironment.getRecentQueries = function(query) {
+CLIQZEnvironment.getRecentQueries = function() {
   if(localStorage.getItem("recentQueries") == null) {
     localStorage.setItem("recentQueries","[]");
   }
   return JSON.parse(localStorage.getItem("recentQueries"));
-}
+};
 
 CLIQZEnvironment.renderRecentQueries = function(scroll) {
-  if(location.hash != "#renderRecentQueries") {
+  if(location.hash !== "#renderRecentQueries") {
     return;
   }
   var conversationsEl = document.getElementById("conversations");
@@ -923,14 +927,14 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
   //myQueries = myQueries.splice(0,20);
   //myQueries.reverse();
 
-  conversationsEl.innerHTML = CliqzHandlebars.tplCache.conversations({data:myQueries} )
+  conversationsEl.innerHTML = CliqzHandlebars.tplCache.conversations({data:myQueries} );
   conversationsEl.style.width = window.innerWidth -20  + 'px';
 
   if(scroll) {
-    document.getElementById("conversations").scrollTop = 5000
+    document.getElementById("conversations").scrollTop = 5000;
   }
 
-}
+};
 
 
 CLIQZEnvironment.shareContent = function() {
@@ -959,12 +963,12 @@ CLIQZEnvironment.shareContent = function() {
     // clean up html / replace links
     var replaceUrlByOnclick = function (fullMatch,match) {
       return 'onClick="location.href=\'' + match + '\'"';
-    }
+    };
     var readyHtml = this.parentNode.innerHTML.replace( /url="(.*?)"/g, replaceUrlByOnclick );
-    var readyHtml = readyHtml.replace(this.outerHTML,"");
+    readyHtml = readyHtml.replace(this.outerHTML,"");
     var title = '';
     try {
-      var title = this.parentNode.getElementsByClassName("main__headline")[0].getElementsByTagName("a")[0].innerText
+       title = this.parentNode.getElementsByClassName("main__headline")[0].getElementsByTagName("a")[0].innerText;
     } catch(e) {
       console.log("You cannot share this");
       title = '';
@@ -1000,13 +1004,13 @@ CLIQZEnvironment.shareContent = function() {
     http.open("POST", url, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.onreadystatechange = function() {
-        if(http.readyState == 4 && http.status == 200) {
+        if(http.readyState === 4 && http.status === 200) {
             // goes to OS
             console.log("%c=== THIS GOES TO THE OS === " + http.responseText, 'background: #222; color: #bada55' );
         }
-    }
+    };
     http.send(params);
-}
+};
 
 
 CLIQZEnvironment.initializeSharing = function() {
@@ -1014,6 +1018,6 @@ CLIQZEnvironment.initializeSharing = function() {
   for(var i=0;i<shareButtons.length;i++) {
        shareButtons[i].addEventListener("click",CLIQZEnvironment.shareContent);
   }
-}
+};
 
 
