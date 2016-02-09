@@ -738,6 +738,10 @@ CLIQZEnvironment = {
   },
   getNews: function() {
     //console.log("Start getting news");
+    var cachedNews = localStorage.getObject('freshTab-news');
+    if(cachedNews) {
+      CLIQZEnvironment.displayTopNews(cachedNews);
+    }
     return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
   },
   displayTopNews: function(news) {
