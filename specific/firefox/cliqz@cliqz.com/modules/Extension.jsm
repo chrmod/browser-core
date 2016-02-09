@@ -361,26 +361,41 @@ var Extension = {
         }
     },
     unloadFromWindow: function(win){
+        //unload core even if the window closes to allow all modules to do their cleanup
+        if ( CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+            return;
+        }
+        if (win.location.href !== 'chrome://browser/content/browser.xul') {
+            return;
+        }
+
         try {
-            if(win && win.document){
-                var btn = win.document.getElementById('cliqz-button');
-                if(btn) btn.parentNode.removeChild(btn);
-            }
-            win.CLIQZ.Core.unload(false);
-            delete win.CLIQZ.Core;
-            delete win.CLIQZ.UI;
-            delete win.CLIQZ.ContextMenu;
-            try{ delete win.CLIQZ; } catch(e){} //fails at updating from version < 0.6.11
-        }catch(e){ Cu.reportError(e); }
+          if(win && win.document){
+              var btn = win.document.getElementById('cliqz-button');
+              if (btn) {
+                  btn.parentNode.removeChild(btn);
+              }
+          }
+
+          win.CLIQZ.Core.unload(false);
+          delete win.CLIQZ.Core;
+          delete win.CLIQZ.UI;
+          delete win.CLIQZ.ContextMenu;
+
+          try {
+              delete win.CLIQZ;
+          } catch(e) {
+              //fails at updating from version < 0.6.11
+          }
+        } catch(e) {
+            Cu.reportError(e);
+        }
     },
     windowWatcher: function(win, topic) {
         if (topic === 'domwindowopened') {
-          Extension.loadIntoWindow(win, true);
+            Extension.loadIntoWindow(win, true);
         } else if(topic === 'domwindowclosed') {
-            //unload core even if the window closes to allow all modules to do their cleanup
-            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
-              win.CLIQZ.Core.unload();
-            }
+            Extension.unloadFromWindow(win);
         }
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */
