@@ -6,11 +6,10 @@
 </div>
 
 <div class="main">
-		<div class="main__image many">
+		<div class="__main__image __many">
 		  {{#each images}}
-			<div url="{{ get_array_element ../images_meta @index 'ref_url'}}" class="main__image__many" 
-				data-style="background-image: url({{this}})" alt="{{data.richData.map.alt_text}}">
-			</div>
+			<img url="{{ get_array_element ../images_meta @index 'ref_url'}}" class="__main__image__many" 
+				data-src="{{this}}" alt="{{data.richData.map.alt_text}}" />
 		  {{/each}}
 		</div>
 
