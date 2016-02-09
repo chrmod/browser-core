@@ -20,6 +20,6 @@
     "firefox-tests",
     "telemetry-categories",
     "antitracking",
-    "fresh-tab"
+    "fresh-tab-frontend"
   ]
 }
