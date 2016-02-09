@@ -11,12 +11,13 @@ export default background({
     HumanWeb.initAtBrowser();
   },
 
-  unload(options) {
+  unload() {
     HumanWeb.unloadAtBrowser();
+  },
 
-    if (uninstall) {
-      HumanWeb.unload();
-    }
+  beforeBrowserShutdown() {
+    HumanWeb.unloadAtBrowser();
+    HumanWeb.unload();
   },
 
   events: {

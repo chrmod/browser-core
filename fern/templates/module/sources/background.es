@@ -5,5 +5,9 @@ export default {
 
   unload() {
 
+  },
+
+  quickUnload() {
+
   }
 }

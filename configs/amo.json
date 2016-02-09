@@ -3,9 +3,11 @@
   "settings": {
     "freshTabButton": true,
     "freshTabABtest" : true,
+    "freshTabHistoryNews": true,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
-    "channel": "04"
+    "channel": "04",
+    "antitrackingButton": false
   },
   "modules": [
     "core",

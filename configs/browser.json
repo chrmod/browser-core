@@ -3,10 +3,12 @@
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
+    "freshTabHistoryNews": true,
     "unblockUI": false,
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
-    "channel": "40"
+    "channel": "40",
+    "antitrackingButton": false
   },
   "modules": [
     "static",

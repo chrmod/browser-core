@@ -50,6 +50,8 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         return timer;
     },
     _removeTimerRef = function(timer){
+        timer.cancel();
+
         var i = _timers.indexOf(timer);
         if (i >= 0) {
             _timers.splice(_timers.indexOf(timer), 1);
@@ -248,7 +250,6 @@ var CLIQZEnvironment = {
         if (!timer) {
             return;
         }
-        timer.cancel();
         _removeTimerRef(timer);
     },
     clearInterval: this.clearTimeout,
@@ -357,6 +358,10 @@ var CLIQZEnvironment = {
 
         popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
+              var lr = CliqzAutocomplete.lastResult;
+              if(lr && lr.searchString != aInput.value && aInput.value == '') {
+                return;
+              }
               if (!CliqzAutocomplete.isPopupOpen){
                 this.mInput = aInput;
                 this._invalidate();
@@ -405,6 +410,9 @@ var CLIQZEnvironment = {
       if (CLIQZEnvironment.getPref('share_location') == 'yes') {
         // Get current position
         geoService.getCurrentPosition(function(p) {
+          // the callback might come late if the extension gets disabled very fast
+          if(!CliqzUtils) return;
+
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });

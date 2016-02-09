@@ -12,6 +12,7 @@ var AssetRev = require('broccoli-asset-rev');
 var uglify = require('broccoli-uglify-sourcemap');
 var writeFile = require('broccoli-file-creator');
 var JSHinter = require('broccoli-jshint');
+var ConfigReplace = require('broccoli-config-replace');
 
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
@@ -60,7 +61,6 @@ var modules = [new Funnel(platform, { destDir: "platform" })];
 var requiredBowerComponents = new Set();
 var modulesTree = new Funnel('modules');
 
-if(false){
 var jsHinterTree = new JSHinter(
   new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
   { testGenerator: function () { return ''; },
@@ -73,7 +73,6 @@ modulesTree = new MergeTrees([
   modulesTree,
   jsHinterTree
 ]);
-}
 
 cliqzConfig.modules.forEach(function (name) {
   var modulePath = 'modules/'+name;
@@ -143,6 +142,7 @@ cliqzConfig.modules.forEach(function (name) {
 });
 
 modules = new MergeTrees(modules);
+modules = new Funnel(modules, { exclude: ["**/*.jshint.js"] });
 
 var babelOptions = {
   modules: "amdStrict",
@@ -228,6 +228,26 @@ var firefoxLibs = new MergeTrees([
   libs,
   new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] }),
 ]);
+
+var extensionConfig = new ConfigReplace(
+  new Funnel(firefoxSpecific, { include: [ 'modules/Extension.jsm' ] }),
+  config,
+  {
+    configPath: 'cliqz.json',
+    files: [
+      'modules/Extension.jsm'
+    ],
+    patterns: [{
+      match: /\{\{CONFIG\}\}/g,
+      replacement: config => JSON.stringify(config)
+    }]
+  }
+);
+
+firefoxSpecific = new MergeTrees([
+  firefoxSpecific,
+  extensionConfig,
+], { overwrite: true });
 
 //  first level trees
 var firefox = new MergeTrees([

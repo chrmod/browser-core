@@ -1,4 +1,6 @@
 import AntiPhishing from "anti-phishing/anti-phishing";
+import CliqzBloomFilter from "human-web/bloom-filter";
+
 /*
 Changes :
 * DropLongURL
@@ -24,8 +26,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-Components.utils.import('chrome://cliqzmodules/content/CliqzBloomFilter.jsm');
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;

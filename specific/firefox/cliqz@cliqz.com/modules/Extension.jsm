@@ -36,7 +36,7 @@ var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     modules: [],
     init: function(){
-        Extension.unloadModules();
+        Extension.unloadJSMs();
 
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
         Extension.System = System;
@@ -79,9 +79,7 @@ var Extension = {
       Extension.setOurOwnPrefs();
 
       // Load Config - Synchronous!
-      CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-        this.config = JSON.parse(res.response);
-      }.bind(this), function () {}, undefined, undefined, true);
+      this.config = {{CONFIG}};
 
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
@@ -108,20 +106,26 @@ var Extension = {
       // Load into all new windows
       Services.ww.registerNotification(Extension.windowWatcher);
     },
-    unload: function(version, uninstall){
+    shutdown: function () {
+      Extension.quickUnloadModules();
+    },
+
+    disable: function (version) {
+      CliqzUtils.setSupportInfo("disabled")
+
+      var win  = Services.wm.getMostRecentWindow("navigator:browser");
+
+      try{
+          Extension.restoreSearchBar(win);
+          Extension.resetOriginalPrefs();
+          win.CLIQZ.Core.showUninstallMessage(version);
+      } catch(e){}
+    },
+
+    unload: function () {
+        Extension.unloadModules();
+
         CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
-
-        if(uninstall){
-            CliqzUtils.setSupportInfo("disabled")
-
-            var win  = Services.wm.getMostRecentWindow("navigator:browser");
-
-            try{
-                Extension.restoreSearchBar(win);
-                Extension.resetOriginalPrefs();
-                win.CLIQZ.Core.showUninstallMessage(version);
-            } catch(e){}
-        }
 
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -130,13 +134,22 @@ var Extension = {
             Extension.unloadFromWindow(win);
         }
 
-        CLIQZEnvironment.unload();
-        CliqzABTests.unload();
-        Extension.unloadModules(uninstall);
-
         Services.ww.unregisterNotification(Extension.windowWatcher);
 
         Extension.cliqzPrefsObserver.unregister();
+
+        // Remove this observer here to correct bug in 0.5.57
+        // - if you don't do this, the extension will crash on upgrade to a new version
+        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
+
+        CLIQZEnvironment.unload();
+        CliqzABTests.unload();
+
+        Extension.unloadJSMs();
     },
     restoreSearchBar: function(win){
         var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
@@ -165,18 +178,27 @@ var Extension = {
             }
         }
     },
-    unloadModules: function(uninstall){
-        if(this.config) {
-          this.config.modules.forEach(function (moduleName) {
+    quickUnloadModules: function () {
+        this.config.modules.forEach(function (moduleName) {
             try {
-              Extension.System.get(moduleName+"/background").default.unload({
-                uninstall: uninstall
-              });
+                Extension.System.get(moduleName+"/background")
+                                .default.beforeBrowserShutdown();
             } catch(e) {
+              CliqzUtils.log(e, "Error quick unloading module: "+moduleName);
             }
-          });
-        }
-
+        });
+    },
+    unloadModules: function () {
+        this.config.modules.forEach(function (moduleName) {
+            try {
+                Extension.System.get(moduleName+"/background")
+                                .default.unload();
+            } catch(e) {
+              CliqzUtils.log(e, "Error unloading module: "+moduleName);
+            }
+        });
+    },
+    unloadJSMs: function () {
         //unload all cliqz modules
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
@@ -204,17 +226,8 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
-        // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
-
-        // Remove this observer here to correct bug in 0.5.57
-        // - if you don't do this, the extension will crash on upgrade to a new version
-        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
-        try {
-            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
-        } catch(e) {}
-
         Cu.unload('chrome://cliqzmodules/content/CliqzHistory.jsm');
+        // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -363,6 +376,11 @@ var Extension = {
     windowWatcher: function(win, topic) {
         if (topic === 'domwindowopened') {
           Extension.loadIntoWindow(win, true);
+        } else if(topic === 'domwindowclosed') {
+            //unload core even if the window closes to allow all modules to do their cleanup
+            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+              win.CLIQZ.Core.unload();
+            }
         }
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */
@@ -418,5 +436,3 @@ var Extension = {
       }
     }
 };
-
-Extension.init();

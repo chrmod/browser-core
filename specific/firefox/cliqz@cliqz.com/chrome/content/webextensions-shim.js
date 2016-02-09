@@ -12,7 +12,7 @@ CliqzEvents.sub("antitracking-background", function (res) {
 
 var chrome = {
   runtime: {
-    sendMessage(message, callback) {
+    sendMessage: function(message, callback) {
       var messageId = CliqzEvents.nextId();
       messageCallbacks[messageId] = callback;
 
