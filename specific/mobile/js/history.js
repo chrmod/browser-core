@@ -158,6 +158,7 @@ function displayData(data) {
 function lunchEditMode(element) {
   clearTimeout(touchTimer);
   touchTimer = null;
+  return;
   if(editMode) {
     endEditMode();
     lunchEditMode(element);
