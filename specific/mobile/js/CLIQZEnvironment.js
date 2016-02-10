@@ -1,4 +1,5 @@
 CLIQZEnvironment = {
+  BRANDS_DATA_URL: 'js/brands_database.json',
   TEMPLATES_PATH: 'templates/',
   LOCALE_PATH: 'modules/static/locale/',
   RESULTS_LIMIT: 3,
