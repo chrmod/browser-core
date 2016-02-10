@@ -1024,5 +1024,8 @@
     },
     "cliqz-onboarding-cool-thanks": {
       "message": "OK, verstanden!"
+    },
+    "context-menu-search-item": {
+      "message": "CLIQZ-Suche nach \"$1\""
     }
 }
