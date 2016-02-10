@@ -3,7 +3,7 @@
 <div class="main">
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
-       		<div id="reconnecting" style="position:fixed;background-color: #8E4900;padding:1px 10px;color:#fff;font-size:14px">
+       		<div id="reconnecting" style="position:fixed;background-color: #8E4900;padding:1px 10px;color:#fff;font-size:14px;display:none;">
        				<span style="float: left" onclick="getHistory(true)">Favoriten</span>
        				<span style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
 			</div>

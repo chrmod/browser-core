@@ -74,7 +74,7 @@
 
             </div>
           {{/unless}}
-          <div class="main__content description">{{description}}</div>
+          <div class="main__content description">{{{description}}}</div>
         </div>
       {{/with}}
     </div>

@@ -158,6 +158,7 @@ function displayData(data) {
 function lunchEditMode(element) {
   clearTimeout(touchTimer);
   touchTimer = null;
+  return;
   if(editMode) {
     endEditMode();
     lunchEditMode(element);
@@ -404,6 +405,10 @@ function getListFromStorage(listName) {
   var list = localStorage.getItem(listName);
   return list ? JSON.parse(list) : [];
 }
+
+System.baseURL = "modules/"
+CLIQZ.System = System;
+CliqzUtils.initPlatform(System);
 
 CliqzUtils.init(this);
 getHistory(starMode);
