@@ -8,8 +8,6 @@ export default Ember.Service.extend({
     this.callbacks = Object.create(null);
 
     window.addEventListener("message", ev => {
-      console.log("XXXXXXXXXXXXXXXXXXXXXXXX");
-
       let message = {};
 
       try {
@@ -20,7 +18,7 @@ export default Ember.Service.extend({
 
       if (message.type === "response") {
         console.log("RESPONSE");
-        this.callbacks.getSpeedDials.call(null, message.response);
+        this.callbacks[message.action].call(null, message.response);
       }
     });
   },
@@ -34,6 +32,20 @@ export default Ember.Service.extend({
       target: "cliqz",
       module: "freshtab",
       action: "getSpeedDials"
+    }) , "*")
+
+    return DS.PromiseArray.create({ promise });
+  },
+
+   getNews() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getNews = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "freshtab",
+      action: "getNews"
     }) , "*")
 
     return DS.PromiseArray.create({ promise });

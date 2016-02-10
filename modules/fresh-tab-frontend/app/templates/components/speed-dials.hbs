@@ -1,5 +1,5 @@
 {{#each model as |dial|}}
-  {{dial}}
+  {{speed-dial model=dial tagName="li" removeAction="remove"}}
 {{else}}
   Nothing to show, sorry
 {{/each}}

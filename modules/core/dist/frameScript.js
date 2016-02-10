@@ -46,7 +46,8 @@ addEventListener("DOMWindowCreated", function (ev) {
     window.postMessage(JSON.stringify({
       target: "cliqz",
       type: "response",
-      response: msg.data.response
+      response: msg.data.response,
+      action: msg.data.action
     }), "*");
   };
 

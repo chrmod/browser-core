@@ -32,7 +32,10 @@ export default {
       const background = module.default;
       return background.actions[action]();
     }).then( response => {
-      this.globalMM.broadcastAsyncMessage(`window-${windowId}`, { response });
+      this.globalMM.broadcastAsyncMessage(`window-${windowId}`, {
+        response,
+        action: msg.data.payload.action
+      });
     }).catch( e => utils.log(e, "Problem with frameScript") );
   }
 };
