@@ -12,7 +12,7 @@
 				</h1>
 		</div>
 
-    <p class="main__content">{{ emphasis data.description text 2 true }}</p>
+    <p class="main__content">{{{ emphasis data.description text 2 true }}}</p>
 </div>
 
 <!-- end generic.tpl -->
