@@ -75,7 +75,10 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
+
   BRANDS_DATABASE: BRANDS_DATABASE,
+  BRANDS_DATABASE_VERSION: CLIQZEnvironment.BRANDS_DATABASE_VERSION,
+  
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,

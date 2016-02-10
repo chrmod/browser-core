@@ -3,7 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-
 CLIQZ.UI.init(urlbar);
 var item_container, currentQuery;
 
@@ -93,6 +92,14 @@ if(onAndroid || location.port == 4200 || window.webkit) {
 } else {
 
 }
+
+if(location.search.match("urlbar")) {
+  document.getElementById("urlbar").style.display = "block";
+  document.getElementById("urlbar").addEventListener("keyup",function() {
+      search_mobile(this.value, true, 48.155772899999995, 11.615600899999999)
+  });  
+}
+
 
 var debugcss = "background-color:#00aa00;display:block;"
 

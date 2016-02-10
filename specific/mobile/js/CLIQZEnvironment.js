@@ -8,6 +8,7 @@ CLIQZEnvironment = {
   RICH_HEADER_CACHE_TIMEOUT: 15000,
   PEEK: 20,
   PADDING: 16,
+  BRANDS_DATABASE_VERSION: 1452759183853,
 
   storeQueryTimeout: null,
 
