@@ -5,7 +5,7 @@ import { utils, events } from 'core/cliqz';
 export default {
 
   init(settings) {
-    this.buttonEnabled = utils.getPref("attrackUI", false);
+    this.buttonEnabled = settings.antitrackingButton && utils.getPref("attrackUI", false);
     this.enabled = false;
 
     utils.bindObjectFunctions( this.popupActions, this );
