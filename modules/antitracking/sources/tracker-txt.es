@@ -63,7 +63,7 @@ TrackerTXT.prototype = {
         this.status = 'updating';
         var self = this;
         CliqzUtils.httpGet(
-            self.baseurl + '/trackering.txt',
+            self.baseurl + '/tracking.txt',
             function success(req) {
                 if (req.responseText.length < 4 * 1024) {
                     self.rules = [];
@@ -77,7 +77,7 @@ TrackerTXT.prototype = {
                 self.last_update = getTime();
             }
         );
-    }, 
+    },
     getRule: function(tp) {
         for (let i = 0; i < this.rules.length; i++) {
             let rule = this.rules[i];
