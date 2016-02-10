@@ -246,7 +246,10 @@ var tp_events = {
             if(!(stat_key in req_log)) {
                 req_log[stat_key] = 0;
             }
-            req_log[stat_key] += n || 1;;
+            if (! Number.isInteger(n) ) {
+                n = 1;
+            }
+            req_log[stat_key] += n;
         }
     }
 }
