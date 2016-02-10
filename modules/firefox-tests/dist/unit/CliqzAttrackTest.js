@@ -451,7 +451,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     tps.forEach(function(tp) {
                         tp['c'] += 1;
                     });
-                    tps[1]['has_qs'] += 1;
+                    tps[1]['has_qs'] = 1;
 
                     var plain = page_load.asPlainObject();
                     chai.expect(plain.tps['example.com']).to.eql({'c': 2, 'has_qs': 1, 'paths': paths_hash});
