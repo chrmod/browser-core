@@ -132,7 +132,7 @@ CLIQZEnvironment = {
           if(result.data[desc_key]) {
             result.data[desc_key] = result.data[desc_key].replace(patt, function() {
               var match = patt.exec(result.data[desc_key]);
-              return '<span style="background-color:yellow">' + match[0] + '</span>';
+              return '<span class="highlighted">' + match[0] + '</span>';
             });
           }
           return result;
@@ -297,19 +297,14 @@ CLIQZEnvironment = {
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
     if(renderedResults.results.length > historyCount) {
-      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      // TODO CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
-
 
     CLIQZEnvironment.initializeSharing();
 
-
     CLIQZEnvironment.setCardsHeight();
 
-
     CLIQZEnvironment.setResultNavigation(renderedResults.results);
-
-    // TODO: Put highlightWord here
 
   },
   search: function(e, location_enabled, latitude, longitude) {
