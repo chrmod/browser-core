@@ -1,4 +1,9 @@
 // CLIQZ pages communication channel
+
+Components.utils.import("chrome://cliqzmodules/content/Extension.jsm");
+
+var whitelist = Extension.config.settings.frameScriptWhitelist;
+
 addEventListener("DOMWindowCreated", function (ev) {
   var window = ev.originalTarget.defaultView;
 
@@ -8,8 +13,10 @@ addEventListener("DOMWindowCreated", function (ev) {
   });
 
   var onMessage = function (ev) {
-    console.log(ev.data, "listen");
-    if (ev.target.location.href.indexOf("chrome://cliqz/") !== 0) {
+    var href = ev.target.location.href;
+
+    if ( href.indexOf("chrome://cliqz/") !== 0 &&
+        whitelist.indexOf(href) === -1 ) {
       return;
     }
 

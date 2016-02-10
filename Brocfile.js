@@ -34,6 +34,15 @@ var staticViews     = new Funnel(generic, { srcDir: 'modules/local/views' });
 // Build configuration
 var configFilePath  = process.env['CLIQZ_CONFIG_PATH'];
 var cliqzConfig     = JSON.parse(fs.readFileSync(configFilePath));
+
+// start - setting up frameScript whitelist
+cliqzConfig.settings.frameScriptWhitelist = cliqzConfig.settings.frameScriptWhitelist || [];
+if (buildEnv === 'development') {
+  // freshtab development server
+  cliqzConfig.settings.frameScriptWhitelist.push('http://localhost:3000/');
+}
+// end
+
 console.log('Configuration file:', configFilePath);
 console.log(cliqzConfig);
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));

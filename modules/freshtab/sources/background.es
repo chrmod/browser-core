@@ -15,7 +15,7 @@ export default {
 
   actions: {
     getSpeedDials() {
-      return Promise.resolve([1,2,3]);
+      return Promise.resolve(["abc", "def", "xxxx", "aaaa"]);
     }
   }
 };
