@@ -1,5 +1,6 @@
 import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
+import History from 'freshtab/history';
 import { utils } from 'core/cliqz';
 
 export default {
@@ -15,10 +16,20 @@ export default {
 
   actions: {
     getSpeedDials() {
-      return Promise.resolve(["abc", "def", "xxxx", "aaaa"]);
+      return History.getTopUrls(5).then(function(results){
+        return results.map(function(r){
+          var details = utils.getDetailsFromUrl(r.url);
+          return {
+            title: r.title,
+            url: r.url,
+            displayTitle: details.cleanHost || details.friendly_url || r.title,
+            logo: utils.getLogoDetails(details)
+          }
+        });
+      });
     },
     getNews() {
-      return Promise.resolve(["1", "2", "xxxx", "aaaa"]);
+      return Promise.resolve(["1", "2"]);
     }
   }
 };

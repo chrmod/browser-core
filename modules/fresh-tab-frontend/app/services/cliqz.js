@@ -23,6 +23,16 @@ export default Ember.Service.extend({
     });
   },
 
+  sendTelemetry(msg) {
+    this.callbacks.sendTelemetry = () => {};
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "core",
+      action: "sendTelemetry",
+      args: [msg]
+    }) , "*")
+  },
+
   getSpeedDials() {
     let promise = new Promise( resolve => {
       this.callbacks.getSpeedDials = resolve;
