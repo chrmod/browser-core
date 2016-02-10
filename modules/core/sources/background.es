@@ -2,6 +2,8 @@ import { utils } from "core/cliqz";
 import config from "core/config";
 
 export default {
+  FRAME_SCRIPT_URL: "chrome://cliqz/content/core/frameScript.js",
+
   init(settings) {
     this.dispatchMessage = this.dispatchMessage.bind(this);
 
@@ -14,28 +16,23 @@ export default {
 
     this.globalMM.addMessageListener("cliqz", this.dispatchMessage);
 
-    this.globalMM.loadFrameScript("chrome://cliqz/content/core/frameScript.js", true);
+    this.globalMM.loadFrameScript(this.FRAME_SCRIPT_URL, true);
   },
 
   unload() {
+    this.globalMM.removeMessageListener("cliqz", this.dispatchMessage);
+    this.globalMM.getDelayedFrameScripts(this.FRAME_SCRIPT_URL);
   },
 
   dispatchMessage(msg) {
-    utils.log(msg.data, "frame: message from page");
+    const { action, module } = msg.data.payload,
+          windowId = msg.data.windowId;
 
-    let message = {};
-
-    try {
-      message = JSON.parse(msg.data);
-    } catch (e) {
-      // non CLIQZ or invalid message should be ignored
-    }
-
-    utils.log(message, "Received");
-    if (message.target !== "cliqz") {
-      return;
-    }
-
-    utils.log(message.args, "Received");
+    utils.importModule(`${module}/background`).then( module => {
+      const background = module.default;
+      return background.actions[action]();
+    }).then( response => {
+      this.globalMM.broadcastAsyncMessage(`window-${windowId}`, { response });
+    }).catch( e => utils.log(e, "Problem with frameScript") );
   }
-}
+};
