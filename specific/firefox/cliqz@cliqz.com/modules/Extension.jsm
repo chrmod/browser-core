@@ -81,9 +81,7 @@ var Extension = {
       Extension.setOurOwnPrefs();
 
       // Load Config - Synchronous!
-      CliqzUtils.httpGet(this.BASE_URI+"cliqz.json", function (res) {
-        this.config = JSON.parse(res.response);
-      }.bind(this), function () {}, undefined, undefined, true);
+      this.config = {{CONFIG}};
 
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
@@ -114,11 +112,11 @@ var Extension = {
       // Load into all new windows
       Services.ww.registerNotification(Extension.windowWatcher);
     },
-    unload: function(version, uninstall){
+    unload: function(version, uninstall, upgrade){
         // only HumanWeb module requires shutdown signal for now
         CliqzHumanWeb.unload();
 
-        if(!uninstall){ // == shutdown
+        if(!uninstall && !upgrade){ // == shutdown
           //we can simply return if the browser shuts down - we do not need to do any cleaning
           return;
         }
@@ -382,6 +380,11 @@ var Extension = {
     windowWatcher: function(win, topic) {
         if (topic === 'domwindowopened') {
           Extension.loadIntoWindow(win, true);
+        } else if(topic === 'domwindowclosed') {
+            //unload core even if the window closes to allow all modules to do their cleanup
+            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
+              win.CLIQZ.Core.unload();
+            }
         }
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */

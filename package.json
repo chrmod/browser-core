@@ -11,13 +11,14 @@
   "author": "Cliqz GmbH",
   "license": "ISC",
   "dependencies": {
-    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox"
+    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-2"
   },
   "devDependencies": {
     "amd-name-resolver": "0.0.2",
     "broccoli": "cliqz-oss/broccoli#building-server",
     "broccoli-asset-rev": "^2.3.0",
     "broccoli-babel-transpiler": "^5.4.5",
+    "broccoli-config-replace": "^1.1.1",
     "broccoli-file-creator": "^1.0.1",
     "broccoli-funnel": "^0.2.10",
     "broccoli-jade": "^1.1.0",
