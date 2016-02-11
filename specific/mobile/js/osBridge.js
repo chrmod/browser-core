@@ -154,14 +154,14 @@ var osBridge = {
   },
   /**
     function: shareCard
-    description: sends card data to the OS
-    params: cardData as Object
-    message data: cardData as Object
+    description: sends card url to the OS
+    params: cardUrl as string
+    message data: cardUrl as string
   */
-  shareCard: function(cardData) {
+  shareCard: function(cardUrl) {
     var message = {
       action: "shareCard",
-      data: cardData
+      data: cardUrl
     }
     OS.postMessage(message);
   }
