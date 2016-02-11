@@ -111,73 +111,7 @@ function PageLoadData(url) {
     };
 };
 
-var stats = ['c', // hit counter
-             'has_qs', // qs counter
-             'has_ps',
-             'has_fragment',
-             'bad_qs', // bad tokens > 0
-             'bad_tokens',
-             'tokens_blocked',
-             'req_aborted',
-             'cookie_set',
-             'cookie_blocked',
-             'bad_cookie_sent',
-             'has_post',
-             'bad_post',
-             'post_altered',
-             'token.has_cookie',
-             'token.cookie',
-             'token.has_private',
-             'token.private',
-             'token.has_cookie_b64',
-             'token.cookie_b64',
-             'token.has_private_b64',
-             'token.private_b64',
-             'token.has_safekey',
-             'token.safekey',
-             'token.has_whitelisted',
-             'token.whitelisted',
-             'cv_to_dataURL_allowed',
-             'cv_to_dataURL_blocked',
-             'cookie_allow_newtab',
-             'cookie_allow_visitcache',
-             'cookie_allow_userinit',
-             'cookie_allow_bootingup',
-             'cookie_allow_oauth',
-             'cookie_block_favicon',
-             'cookie_block_tp1',
-             'cookie_block_tp2',
-             'cookie_block_ntp',
-             'cookie_allow_ntp',
-             'reloadAttempted',
-             'bad_headers',
-             'header.cookie',
-             'req_oauth',
-             'resp_ob',
-             'token.has_short_no_hash',
-             'token.short_no_hash',
-             'token.has_cookie_newToken',
-             'token.cookie_newToken',
-             'token.has_cookie_countThreshold',
-             'token.cookie_countThreshold',
-             'token.has_private_newToken',
-             'token.private_newToken',
-             'token.has_private_countThreshold',
-             'token.private_countThreshold',
-             'token.has_cookie_b64_newToken',
-             'token.cookie_b64_newToken',
-             'token.has_cookie_b64_countThreshold',
-             'token.cookie_b64_countThreshold',
-             'token.has_private_b64_newToken',
-             'token.private_b64_newToken',
-             'token.has_private_b64_countThreshold',
-             'token.private_b64_countThreshold',
-             'token.has_qs_newToken',
-             'token.qs_newToken',
-             'token.has_qs_countThreshold',
-             'token.qs_countThreshold',
-             'req_rule_aborted'
-             ];
+var stats = ['c'];
 
 var tp_events = {
     _active: {},
@@ -308,12 +242,15 @@ var tp_events = {
         }
         return ctr;
     },
-    incrementStat: function(req_log, stat_key) {
+    incrementStat: function(req_log, stat_key, n) {
         if (req_log != null) {
             if(!(stat_key in req_log)) {
                 req_log[stat_key] = 0;
             }
-            req_log[stat_key]++;
+            if (! Number.isInteger(n) ) {
+                n = 1;
+            }
+            req_log[stat_key] += n;
         }
     }
 }
