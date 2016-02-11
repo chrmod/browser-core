@@ -59,5 +59,25 @@ export default Ember.Service.extend({
     }) , "*")
 
     return DS.PromiseArray.create({ promise });
+
+    /*return [
+      {
+        title: 111,
+        short_title: 222,
+        displayUrl: 333,
+        url: 444,
+        logo: 555,
+        underline: false,
+        personalized: false
+      },
+      { title: 111,
+        short_title: 222,
+        displayUrl: 333,
+        url: 444,
+        logo: 555,
+        underline: false,
+        personalized: false
+      }
+    ]*/
   }
 });

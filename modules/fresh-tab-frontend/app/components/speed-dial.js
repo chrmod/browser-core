@@ -5,7 +5,9 @@ export default Ember.Component.extend({
 
   click() {
     this.get('cliqz').sendTelemetry({
-      index: this.get('index')
+      action: 'click',
+      target_type: 'topsites',
+      target_index: this.get('index')
     })
   },
   actions: {

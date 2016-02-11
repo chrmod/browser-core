@@ -2,6 +2,16 @@
   {{speed-dials model=model.speedDials tagName="ul"}}
 </div>
 
-<div id="topVisited" class="center">
-  {{speed-dials model=model.news tagName="ul"}}
+<div class="wrap">
+  <div id="searchContainer" class="center">
+    <div id="search-icon"></div>
+    <input id="urlbar" autocomplete="off" tm-click="search-bar" />
+  </div>
+
+  <div id="newsContainer" class="clearfix">
+    {{all-news model=model.news}}
+  </div>
+
 </div>
+<br /><br /><br />
+

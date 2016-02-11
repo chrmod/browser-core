@@ -1,0 +1,35 @@
+{{#unless yourNews }}
+  <div class="newsBox onlyTopNews" id="topNewsBox">
+    <div class="heading clearfix">
+      <h2>Top News</h2>
+      <div id="sliderBtns">
+      </div>
+    </div>
+    <div class="content">
+      {{article-items model=topNews tagName="ul" showLogo=false}}
+    </div>
+  </div>
+
+{{else}}
+  <div class="newsBox" id="topNewsBox">
+    <div class="heading clearfix">
+      <h2>Top News</h2>
+      <div id="sliderBtns">
+
+      </div>
+    </div>
+    <div class="content">
+      {{article-items model=topNews tagName="ul" showLogo=true}}
+    </div>
+  </div>
+  <div class="newsBox" id="yourNewsBox">
+    <div class="heading clearfix">
+      <h2>Your news</h2>
+    </div>
+    <div class="content">
+      {{article-items model=yourNews tagName="ul" showLogo=true}}
+    </div>
+  </div>
+{{/unless}}
+
+

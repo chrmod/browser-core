@@ -13,7 +13,8 @@ export default Ember.Route.extend({
     return {
       speedDials: this.get('cliqz').getSpeedDials(),
       news: this.get('cliqz').getNews(),
-      customDials: [1,2, 4],
+      //topNews: this.get('cliqz').getNews(),
+      customDials: [1,2, 4]
     };
   }
 });

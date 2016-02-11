@@ -38,7 +38,7 @@ export default {
         response,
         action: msg.data.payload.action
       });
-    }).catch( e => utils.log(e, "Problem with frameScript") );
+    }).catch( e => utils.log(e.toString(), "Problem with frameScript") );
   },
   actions: {
     sendTelemetry(msg) {
