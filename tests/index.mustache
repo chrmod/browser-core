@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>developer tool</title>
+    <link rel="stylesheet" href="/bower_components/mocha/mocha.css">
+    <script src="/bower_components/jquery/dist/jquery.js"></script>
+    <script src="/bower_components/mocha/mocha.js"></script>
+    <script src="/bower_components/chai/chai.js"></script>
+  
+    <script src="/bower_components/requirejs/require.js"></script>
+
+    <script src="/testem.js"></script>
+
+    <script>mocha.setup('bdd')</script>
+
+      
+   </head>
+
+   <body>
+    <style>
+    	.testFrame {
+    		height: 400px;
+    		width: 100%;
+    	}
+    </style>
+	<div id="mocha"></div>
+	<script>
+      var files = [];
+      {{#serve_files}}
+        files.push("../{{{src}}}");
+      {{/serve_files}}
+      require(files, function() {
+        mocha.run();
+      });
+     </script>
+   </body>
+
+</html>
