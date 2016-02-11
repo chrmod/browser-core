@@ -85,7 +85,9 @@ let bareModuleNames = cliqzConfig.modules.filter(name => moduleConfigs[name].tra
 
 var modules = [new Funnel(platform, { destDir: "platform" })];
 var requiredBowerComponents = new Set();
-var modulesTree = new Funnel('modules');
+var modulesTree = new Funnel('modules', {
+  include: cliqzConfig.modules.map( name => `${name}/**/*` )
+});
 
 var jsHinterTree = new JSHinter(
   new Funnel(modulesTree, {

@@ -21,6 +21,8 @@
     "firefox-tests",
     "telemetry-categories",
     "antitracking",
-    "fresh-tab-frontend"
+    "fresh-tab-frontend",
+    "human-web",
+    "anti-phishing"
   ]
 }

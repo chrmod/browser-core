@@ -15,6 +15,7 @@ import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracke
 import { AttrackBloomFilter, bloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import TrackingTable from 'antitracking/local-tracking-table';
+import CliqzHumanWeb from 'human-web/human-web';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
