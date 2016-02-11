@@ -1,18 +1,10 @@
-'use strict';
+import CliqzHumanWeb from "human-web/human-web";
+
 /*
  * This module injects warning message when user visit a phishing site
  *
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
-  'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
-
-var EXPORTED_SYMBOLS = ['CliqzAntiPhishing'];
 var BW_URL = "http://antiphishing.clyqz.com/api/bwlist?md5=";
 
 var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
@@ -226,3 +218,5 @@ var CliqzAntiPhishing = {
         }
     }
 };
+
+export default CliqzAntiPhishing;

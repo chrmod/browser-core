@@ -1,5 +1,6 @@
 import md5 from 'antitracking/md5';
 import MapCache from 'antitracking/fixed-size-cache';
+import CliqzHumanWeb from 'human-web/human-web';
 
 function parseURL(url) {
   /*  Parse a URL string into a set of sub-components, namely:

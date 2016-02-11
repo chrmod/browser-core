@@ -3,15 +3,7 @@
  * The module for bloom filter
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-var EXPORTED_SYMBOLS = ['CliqzBloomFilter'],
-    converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
       .createInstance(Components.interfaces.nsIScriptableUnicodeConverter),
     ch = Cc["@mozilla.org/security/hash;1"]
       .createInstance(Components.interfaces.nsICryptoHash);
@@ -137,7 +129,7 @@ var CliqzBloomFilter = {
     var data = converter.convertToByteArray(str);
     ch.update(data, data.length);
     var hashed = ch.finish(false);
-    return [toHexString(hashed.charCodeAt(i)) for (i in hashed)].join('');
+    return Object.keys(hashed).map( i => toHexString(hashed.charCodeAt(i)) ).join('');
   },
   fnv32a: function(str) {
     var FNV1_32A_INIT = 0x811c9dc5;
@@ -153,3 +145,5 @@ var CliqzBloomFilter = {
   },
   BloomFilter: BloomFilter
 };
+
+export default CliqzBloomFilter;

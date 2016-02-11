@@ -20,6 +20,8 @@
     "loyalty",
     "firefox-tests",
     "telemetry-categories",
-    "antitracking"
+    "antitracking",
+    "human-web",
+    "anti-phishing"
   ]
 }
