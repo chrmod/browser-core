@@ -902,6 +902,34 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
       });
     });
+
+    describe('Tracking.txt', function() {
+        it ('parse rules correctly', function() {
+            let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
+                txt = 'R site1.com empty\nR   site2.com\tplaceholder\nnot a rule',
+                rules = [];
+            parser(txt, rules);
+            chai.expect(rules).to.deep.equal([{site: 'site1.com', rule: 'empty'}, {site: 'site2.com', rule: 'placeholder'}])
+        });
+        it ('ignore comments', function() {
+            let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
+                txt = '# comment\n! pass\nR site1.com empty\nR site2.com placeholder\nnot a rule',
+                rules = [];
+            parser(txt, rules);
+            chai.expect(rules).to.deep.equal([{site: 'site1.com', rule: 'empty'}, {site: 'site2.com', rule: 'placeholder'}])
+        });
+        it ('apply correct rule to 3rd party', function() {
+            var TT = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt'),
+                txt = '# comment\n! pass\nR aaa.site1.com empty\nR site1.com placeholder\nnot a rule',
+                parseURL = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/url").parseURL,
+                r = TT.TrackerTXT.get(parseURL('http://www.google.com/'));
+            TT.trackerRuleParser(txt, r.rules);
+            r.status = 'update';
+            chai.expect(r.getRule('bbbaaa.site1.com')).to.equal('empty');
+            chai.expect(r.getRule('aa.site1.com')).to.equal('placeholder');
+            chai.expect(r.getRule('aa.site2.com')).to.equal('same');
+        });
+    });
 };
 
 TESTS.AttrackTest.MIN_BROWSER_VERSION = 35;
