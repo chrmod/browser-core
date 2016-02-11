@@ -1,4 +1,4 @@
-import Ember from "ember";
+import Ember from 'ember';
 
 export default Ember.Component.extend({
   topNews: Ember.computed.filterBy("model", "personalized", false),
