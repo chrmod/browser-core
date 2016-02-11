@@ -33,7 +33,7 @@ var CliqzEvents = CliqzEvents || {
         try {
           ev.apply(null, args);
         } catch(e) {
-          CliqzUtils.log(e, "CliqzEvents error");
+          CliqzUtils.log(e.toString(), "CliqzEvents error: "+id);
         }
       }, 0);
     });
