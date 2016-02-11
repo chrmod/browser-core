@@ -157,15 +157,15 @@ window.CLIQZ.Core = {
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
 
-        var modulePromises = CLIQZ.config.modules.map(function (moduleName) {
+        this.windowModules = CLIQZ.config.modules.map(function (moduleName) {
           return CLIQZ.System.import(moduleName+"/window").then(function (Module) {
             var mod = new Module.default(windowModuleConfig);
             mod.init();
-            CLIQZ.Core.windowModules.push(mod);
+            return mod;
           }).catch(function (e) { console.log(e) });
         });
 
-        return Promise.all(modulePromises).then(function () {
+        return Promise.all(this.windowModules).then(function () {
           var urlBarGo = document.getElementById('urlbar-go-button');
           this._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
           urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + this._urlbarGoButtonClick);
@@ -263,9 +263,11 @@ window.CLIQZ.Core = {
     // restoring
     unload: function(soft){
         this.windowModules.forEach(function (mod) {
-          try {
-            mod.unload();
-          } catch(e) {}
+          mod.then(function (mod) {
+            try {
+              mod.unload();
+            } catch(e) {}
+          });
         });
         this.windowModules = [];
 
@@ -725,8 +727,10 @@ window.CLIQZ.Core = {
         menupopup.appendChild(this.createLocationPermOptions(win));
 
         this.windowModules.forEach(function (mod) {
-          var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
-          if (buttonItem) { menupopup.appendChild(buttonItem); }
+          mod.then(function (mod) {
+            var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
+            if (buttonItem) { menupopup.appendChild(buttonItem); }
+          });
         });
       }
       else {
