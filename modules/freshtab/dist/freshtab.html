@@ -32,9 +32,9 @@
             {{/unless}}
             <div class="newsContent">
               {{#if underline }}
-                <div extra="title" class="title underline">{{short_title}}</div>
+                <div extra="title" class="title underline">{{shortTitle}}</div>
               {{else}}
-                <div extra="title" class="title">{{short_title}}</div>
+                <div extra="title" class="title">{{shortTitle}}</div>
               {{/if}}
               <div extra="url" class="url">{{displayUrl}}</div>
             </div>
@@ -50,7 +50,6 @@
         <h2>{{local 'freshtab_your_news'}}</h2>
       </div>
       <div class="content">
-        {{#each this}}
           <ul>
           {{#each this}}
             <li>
@@ -68,7 +67,6 @@
             </li>
           {{/each}}
           </ul>
-        {{/each}}
       </div>
     </script>
 

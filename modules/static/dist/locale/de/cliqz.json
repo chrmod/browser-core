@@ -930,7 +930,7 @@
       "message": "Ich nehme am Human Web teil"
     },
     "attrack-headline-general": {
-      "message": "CLIQZ Anti Tracking hat auf <strong>$2</strong> $1 Tracker blockiert"
+      "message": "<strong>Keiner der $1 Tracker</strong> auf $2 erhält Daten über dich"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
@@ -946,6 +946,9 @@
     },
     "attrack-btn-white-list": {
       "message": "Tracking für diese Seite zulassen"
+    },
+    "attrack-btn-white-list-off": {
+      "message": "Tracking für diese Seite nicht zulassen"
     },
     "attrack-learn-more": {
       "message": "Mehr erfahren"
@@ -1021,5 +1024,8 @@
     },
     "cliqz-onboarding-cool-thanks": {
       "message": "OK, verstanden!"
+    },
+    "context-menu-search-item": {
+      "message": "CLIQZ-Suche nach \"$1\""
     }
 }

@@ -1,8 +1,9 @@
 "use strict";
 
-TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils, CliqzHumanWeb) {
+TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
   var System = CliqzUtils.getWindow().CLIQZ.System,
       CliqzAttrack = System.get("antitracking/attrack").default,
+      CliqzHumanWeb = System.get("human-web/human-web").default,
       persist = System.get("antitracking/persistent-state"),
       BloomFilter = System.get("antitracking/bloom-filter").BloomFilter,
       datetime = System.get("antitracking/time"),
