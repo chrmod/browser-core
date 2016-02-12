@@ -35,6 +35,18 @@ export default background({
   actions: {
     recordKeyPress() {
       HumanWeb.captureKeyPressPage.apply(HumanWeb, arguments);
+    },
+    recordMouseMove() {
+      HumanWeb.captureMouseMovePage.apply(HumanWeb, arguments);
+    },
+    recordMouseDown() {
+      HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);
+    },
+    recordScroll() {
+      HumanWeb.captureScrollPage.apply(HumanWeb, arguments);
+    },
+    recordCopy() {
+      HumanWeb.captureCopyPage.apply(HumanWeb, arguments);
     }
   }
 })

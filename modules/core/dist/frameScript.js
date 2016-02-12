@@ -54,30 +54,46 @@ function onDOMWindowCreated(ev) {
     }), "*");
   };
 
-  var onKeyPress = function (ev) {
-    sendAsyncMessage("cliqz", {
-      windowId: windowId,
-      payload: {
-        module: "human-web",
-        action: "recordKeyPress",
-        args: [
-          {
-            target: {
-              baseURI: ev.target.baseURI
+  function proxyWindowEvent(action) {
+    return function (ev) {
+      sendAsyncMessage("cliqz", {
+        windowId: windowId,
+        payload: {
+          module: "human-web",
+          action: action,
+          args: [
+            {
+              target: {
+                baseURI: ev.target.baseURI
+              }
             }
-          }
-        ]
-      }
-    });
-  };
+          ]
+        }
+      });
+    }
+  }
+
+  var onKeyPress = proxyWindowEvent("recordKeyPress");
+  var onMouseMove = proxyWindowEvent("recordMouseMove");
+  var onMouseDown = proxyWindowEvent("recordMouseDown");
+  var onScroll = proxyWindowEvent("recordScroll");
+  var onCopy = proxyWindowEvent("recordCopy");
 
   window.addEventListener("message", onMessage);
   window.addEventListener("keypress", onKeyPress);
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("scroll", onScroll);
+  window.addEventListener("copy", onCopy);
   addMessageListener("window-"+windowId, onCallback);
 
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
     window.removeEventListener("keypress", onKeyPress);
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mousedown", onMouseDown);
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("copy", onCopy);
     removeMessageListener("window-"+windowId, onCallback);
   });
 
