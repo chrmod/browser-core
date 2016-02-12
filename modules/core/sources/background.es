@@ -44,6 +44,9 @@ export default {
     sendTelemetry(msg) {
       utils.telemetry(msg);
       return Promise.resolve();
+    },
+    getUrlbar() {
+      utils.getWindow().CLIQZ.Core.urlbar.focus();
     }
   }
 };

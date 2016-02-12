@@ -3,12 +3,6 @@ import Ember from "ember";
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
 
-  beforeModel() {
-    return new Promise( resolve => {
-      $(document).ready(resolve)
-    });
-  },
-
   model() {
     return {
       speedDials: this.get('cliqz').getSpeedDials(),

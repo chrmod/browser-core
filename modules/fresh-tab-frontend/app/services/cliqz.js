@@ -23,6 +23,15 @@ export default Ember.Service.extend({
     });
   },
 
+  getUrlbar() {
+    this.callbacks.getUrlbar = () => {};
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'core',
+      action: 'getUrlbar'
+    }), '*');
+  },
+
   sendTelemetry(msg) {
     this.callbacks.sendTelemetry = () => {};
     window.postMessage(JSON.stringify({
@@ -47,7 +56,7 @@ export default Ember.Service.extend({
     return DS.PromiseArray.create({ promise });
   },
 
-   getNews() {
+  getNews() {
     let promise = new Promise( resolve => {
       this.callbacks.getNews = resolve;
     });

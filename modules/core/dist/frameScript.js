@@ -4,7 +4,7 @@ Components.utils.import("chrome://cliqzmodules/content/Extension.jsm");
 
 var whitelist = Extension.config.settings.frameScriptWhitelist;
 
-addEventListener("DOMWindowCreated", function (ev) {
+function onDOWWindowCreated(ev) {
   var window = ev.originalTarget.defaultView;
 
   var windowId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -51,14 +51,19 @@ addEventListener("DOMWindowCreated", function (ev) {
     }), "*");
   };
 
-  window.addEventListener("load", function () {
-    window.addEventListener("message", onMessage);
-    addMessageListener("window-"+windowId, onCallback);
-  });
+  window.addEventListener("message", onMessage);
+  addMessageListener("window-"+windowId, onCallback);
 
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
     removeMessageListener("window-"+windowId, onCallback);
   });
 
-}, false);
+}
+
+onDOWWindowCreated({
+  originalTarget: {
+    defaultView: content
+  }
+})
+addEventListener("DOMWindowCreated", onDOWWindowCreated, false);
