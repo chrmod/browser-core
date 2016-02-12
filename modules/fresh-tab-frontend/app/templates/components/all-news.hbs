@@ -1,4 +1,4 @@
-{{#unless yourNews }}
+{{#unless model.yourNews }}
   <div class="newsBox onlyTopNews" id="topNewsBox">
     <div class="heading clearfix">
       <h2>Top News</h2>
@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="content">
-      {{article-items model=topNews tagName="ul" target-type="topnews" showLogo=false pageSize=3}}
+      {{article-items model=model.topNews tagName="ul" target-type="topnews" showLogo=false pageSize=3}}
     </div>
   </div>
 
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="content">
-      {{article-items model=topNews tagName="ul" target-type="topnews" showLogo=true}}
+      {{article-items model=model.topNews tagName="ul" target-type="topnews" showLogo=true}}
     </div>
   </div>
   <div class="newsBox" id="yourNewsBox">
@@ -27,7 +27,7 @@
       <h2>Your news</h2>
     </div>
     <div class="content">
-      {{article-items model=yourNews tagName="ul" target-type="yournews" showLogo=true}}
+      {{article-items model=model.yourNews tagName="ul" target-type="yournews" showLogo=true}}
     </div>
   </div>
 {{/unless}}

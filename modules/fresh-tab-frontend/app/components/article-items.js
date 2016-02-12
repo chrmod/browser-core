@@ -4,7 +4,7 @@ export default Ember.Component.extend({
   pageNum: 0,
 
   page: Ember.computed('model', 'pageNum', 'pageSize', function () {
-    const articles = this.get('model');
+    const articles = this.getWithDefault('model', []);
     const count = articles.length;
     const offset = this.get('pageNum') * this.get('pageSize')
     console.log("offset", offset)

@@ -67,7 +67,7 @@ export default Ember.Service.extend({
       action: "getNews"
     }) , "*")
 
-    return DS.PromiseArray.create({ promise });
+    return DS.PromiseObject.create({ promise });
 
     /*return [
       {

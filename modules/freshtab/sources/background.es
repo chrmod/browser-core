@@ -41,7 +41,7 @@ export default {
             hbNewsAll = [];
 
         Object.keys(hbNews).forEach(function(domain) {
-          hbNewsAll = hbNewsAll.concat(hbNews[domain])
+          hbNewsAll = hbNewsAll.concat(hbNews[domain]);
         });
 
         topNews = topNews.map(function(r){
@@ -54,18 +54,18 @@ export default {
           r.personalized = true;
           return r;
         });
-        return topNews.concat(hbNewsAll);
-      }).then(function (results) {
-        return results.map(function(r){
-          return {
+
+        return {
+          version: news.top_news_version,
+          news: topNews.concat(hbNewsAll).map( r => ({
             title: r.title,
             displayUrl: utils.getDetailsFromUrl(r.url).domain || r.title,
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,
             underline: underline,
-            personalized: r.personalized
-          }
-        });
+            personalized: r.personalized,
+          }))
+        };
       });
 
     }
