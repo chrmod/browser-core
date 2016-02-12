@@ -7,7 +7,7 @@ Components.utils.import("chrome://cliqzmodules/content/Extension.jsm");
 
 var whitelist = Extension.config.settings.frameScriptWhitelist;
 
-addEventListener("DOMWindowCreated", function (ev) {
+function onDOMWindowCreated(ev) {
   var window = ev.originalTarget.defaultView;
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
@@ -83,4 +83,14 @@ addEventListener("DOMWindowCreated", function (ev) {
     removeMessageListener("window-"+windowId, onCallback);
   });
 
-}, false);
+}
+
+// Load into existing window
+onDOMWindowCreated({
+  originalTarget: {
+    defaultView: content
+  }
+});
+
+// Load into windows that are created on locationChange / iframes
+addEventListener("DOMWindowCreated", onDOMWindowCreated, false);
