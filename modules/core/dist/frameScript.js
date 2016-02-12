@@ -71,11 +71,9 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  window.addEventListener("load", function () {
-    window.addEventListener("message", onMessage);
-    window.addEventListener("keypress", onKeyPress);
-    addMessageListener("window-"+windowId, onCallback);
-  });
+  window.addEventListener("message", onMessage);
+  window.addEventListener("keypress", onKeyPress);
+  addMessageListener("window-"+windowId, onCallback);
 
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
