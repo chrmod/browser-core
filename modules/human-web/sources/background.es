@@ -9,6 +9,7 @@ export default background({
 
   init(settings) {
     HumanWeb.initAtBrowser();
+    utils.bindObjectFunctions(this.actions, this);
   },
 
   unload() {
@@ -28,6 +29,12 @@ export default background({
         t: data.type,
         pt: data.positionType,
       };
+    }
+  },
+
+  actions: {
+    recordKeyPress() {
+      HumanWeb.captureKeyPressPage.apply(HumanWeb, arguments);
     }
   }
 })

@@ -25,17 +25,17 @@ export default {
   },
 
   dispatchMessage(msg) {
-    const { action, module } = msg.data.payload,
+    const { action, module, args } = msg.data.payload,
           windowId = msg.data.windowId;
 
     utils.importModule(`${module}/background`).then( module => {
       const background = module.default;
-      return background.actions[action]();
+      return background.actions[action].apply(null, args);
     }).then( response => {
       this.globalMM.broadcastAsyncMessage(`window-${windowId}`, {
         response,
         action: msg.data.payload.action
       });
-    }).catch( e => utils.log(e, "Problem with frameScript") );
+    }).catch( e => utils.log(e.toString(), "Problem with frameScript") );
   }
 };

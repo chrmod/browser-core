@@ -1910,7 +1910,7 @@ var CliqzHumanWeb = {
                 // they need to be loaded upon each onlocation, not only the first time
                 var cd = CliqzHumanWeb.getCDByURL(activeURL);
                 if(cd){
-                    cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
+                    //cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
                     cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
                     cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage, true);
                     cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
@@ -1922,7 +1922,7 @@ var CliqzHumanWeb = {
                         _log("CD failed: ");
                         currwin.removeEventListener('load', loader, false);
                         var cd = CliqzHumanWeb.getCDByURL(activeURL);
-                        cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
+                        //cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
                         cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
                         cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage), true;
                         cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
