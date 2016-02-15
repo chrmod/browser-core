@@ -51,7 +51,7 @@ a:hover, a:active, a:focus {
   left: 10px;
   width: 24px;
   height: 24px;
-  background: url("/assets/images/cliqz_icon.svg") no-repeat;
+  background: url("./images/cliqz_icon.svg") no-repeat;
 }
 
 
@@ -345,7 +345,7 @@ a:hover, a:active, a:focus {
 
 /******** CLIQZ Onboarding *********/
 #optinContainer {
-  display: none;
+  display: block;
 }
 
 .optinBackground {

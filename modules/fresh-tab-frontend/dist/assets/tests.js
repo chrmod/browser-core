@@ -7,13 +7,31 @@ define('fresh-tab/tests/app.jshint', ['exports'], function (exports) {
     assert.ok(true, 'app.js should pass jshint.');
   });
 });
+define('fresh-tab/tests/components/article-item.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/article-item.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'components/article-item.js should pass jshint.\ncomponents/article-item.js: line 20, col 14, \'ev\' is defined but never used.\n\n1 error');
+  });
+});
+define('fresh-tab/tests/components/article-items.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/article-items.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'components/article-items.js should pass jshint.');
+  });
+});
 define('fresh-tab/tests/components/speed-dial.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - components');
   QUnit.test('components/speed-dial.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/speed-dial.js should pass jshint.\ncomponents/speed-dial.js: line 6, col 57, Missing semicolon.\n\n1 error');
+    assert.ok(true, 'components/speed-dial.js should pass jshint.');
   });
 });
 define('fresh-tab/tests/components/speed-dials.jshint', ['exports'], function (exports) {
@@ -23,6 +41,15 @@ define('fresh-tab/tests/components/speed-dials.jshint', ['exports'], function (e
   QUnit.test('components/speed-dials.js should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'components/speed-dials.js should pass jshint.');
+  });
+});
+define('fresh-tab/tests/components/url-bar.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components');
+  QUnit.test('components/url-bar.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'components/url-bar.js should pass jshint.\ncomponents/url-bar.js: line 12, col 30, Missing semicolon.\ncomponents/url-bar.js: line 13, col 7, Missing semicolon.\n\n2 errors');
   });
 });
 define('fresh-tab/tests/helpers/destroy-app', ['exports', 'ember'], function (exports, _ember) {
@@ -39,6 +66,47 @@ define('fresh-tab/tests/helpers/destroy-app.jshint', ['exports'], function (expo
   QUnit.test('helpers/destroy-app.js should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'helpers/destroy-app.js should pass jshint.');
+  });
+});
+define('fresh-tab/tests/helpers/ember-i18n/test-helpers', ['exports', 'ember'], function (exports, _ember) {
+
+  // example usage: find(`.header:contains(${t('welcome_message')})`)
+  _ember['default'].Test.registerHelper('t', function (app, key, interpolations) {
+    var i18n = app.__container__.lookup('service:i18n');
+    return i18n.t(key, interpolations);
+  });
+
+  // example usage: expectTranslation('.header', 'welcome_message');
+  _ember['default'].Test.registerHelper('expectTranslation', function (app, element, key, interpolations) {
+    var text = app.testHelpers.t(key, interpolations);
+
+    assertTranslation(element, key, text);
+  });
+
+  var assertTranslation = (function () {
+    if (typeof QUnit !== 'undefined' && typeof ok === 'function') {
+      return function (element, key, text) {
+        ok(find(element + ':contains(' + text + ')').length, 'Found translation key ' + key + ' in ' + element);
+      };
+    } else if (typeof expect === 'function') {
+      return function (element, key, text) {
+        var found = !!find(element + ':contains(' + text + ')').length;
+        expect(found).to.equal(true);
+      };
+    } else {
+      return function () {
+        throw new Error("ember-i18n could not find a compatible test framework");
+      };
+    }
+  })();
+});
+define('fresh-tab/tests/helpers/equal.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - helpers');
+  QUnit.test('helpers/equal.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'helpers/equal.js should pass jshint.');
   });
 });
 define('fresh-tab/tests/helpers/module-for-acceptance', ['exports', 'qunit', 'fresh-tab/tests/helpers/start-app', 'fresh-tab/tests/helpers/destroy-app'], function (exports, _qunit, _freshTabTestsHelpersStartApp, _freshTabTestsHelpersDestroyApp) {
@@ -120,6 +188,42 @@ define('fresh-tab/tests/helpers/start-app.jshint', ['exports'], function (export
     assert.ok(true, 'helpers/start-app.js should pass jshint.');
   });
 });
+define('fresh-tab/tests/locales/de/translations.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - locales/de');
+  QUnit.test('locales/de/translations.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'locales/de/translations.js should pass jshint.');
+  });
+});
+define('fresh-tab/tests/locales/en/config.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - locales/en');
+  QUnit.test('locales/en/config.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'locales/en/config.js should pass jshint.');
+  });
+});
+define('fresh-tab/tests/locales/en/translations.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - locales/en');
+  QUnit.test('locales/en/translations.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'locales/en/translations.js should pass jshint.');
+  });
+});
+define('fresh-tab/tests/models/news.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - models');
+  QUnit.test('models/news.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/news.js should pass jshint.\nmodels/news.js: line 7, col 3, Missing semicolon.\n\n1 error');
+  });
+});
 define('fresh-tab/tests/resolver.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -138,13 +242,22 @@ define('fresh-tab/tests/router.jshint', ['exports'], function (exports) {
     assert.ok(true, 'router.js should pass jshint.');
   });
 });
+define('fresh-tab/tests/routes/application.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - routes');
+  QUnit.test('routes/application.js should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'routes/application.js should pass jshint.');
+  });
+});
 define('fresh-tab/tests/routes/index.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - routes');
   QUnit.test('routes/index.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/index.js should pass jshint.\nroutes/index.js: line 8, col 33, Missing semicolon.\nroutes/index.js: line 7, col 16, \'Promise\' is not defined.\nroutes/index.js: line 8, col 7, \'$\' is not defined.\n\n3 errors');
+    assert.ok(true, 'routes/index.js should pass jshint.');
   });
 });
 define('fresh-tab/tests/services/cliqz.jshint', ['exports'], function (exports) {
@@ -153,7 +266,7 @@ define('fresh-tab/tests/services/cliqz.jshint', ['exports'], function (exports) 
   QUnit.module('JSHint - services');
   QUnit.test('services/cliqz.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'services/cliqz.js should pass jshint.\nservices/cliqz.js: line 35, col 14, Missing semicolon.\nservices/cliqz.js: line 49, col 14, Missing semicolon.\nservices/cliqz.js: line 27, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 41, col 23, \'Promise\' is not defined.\n\n4 errors');
+    assert.ok(false, 'services/cliqz.js should pass jshint.\nservices/cliqz.js: line 75, col 14, Missing semicolon.\nservices/cliqz.js: line 87, col 14, Missing semicolon.\nservices/cliqz.js: line 101, col 14, Missing semicolon.\nservices/cliqz.js: line 27, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 79, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 93, col 23, \'Promise\' is not defined.\n\n6 errors');
   });
 });
 define('fresh-tab/tests/test-helper', ['exports', 'fresh-tab/tests/helpers/resolver', 'ember-qunit'], function (exports, _freshTabTestsHelpersResolver, _emberQunit) {

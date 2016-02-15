@@ -23,12 +23,45 @@ export default Ember.Service.extend({
     });
   },
 
-  getUrlbar() {
+  getConfig() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getConfig = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'getConfig'
+    }), '*');
+
+    return DS.PromiseObject.create({ promise });
+  },
+
+  takeFullTour() {
+    this.callbacks.takeFullTour = () => {};
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'takeFullTour'
+    }), '*');
+  },
+
+  getUrlbar(value) {
     this.callbacks.getUrlbar = () => {};
     window.postMessage(JSON.stringify({
       target: 'cliqz',
       module: 'core',
-      action: 'getUrlbar'
+      action: 'getUrlbar',
+      args: [value]
+    }), '*');
+  },
+
+  revertBack() {
+    this.callbacks.revertBack = () => {};
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'revertBack'
     }), '*');
   },
 
@@ -68,25 +101,5 @@ export default Ember.Service.extend({
     }) , "*")
 
     return DS.PromiseObject.create({ promise });
-
-    /*return [
-      {
-        title: 111,
-        short_title: 222,
-        displayUrl: 333,
-        url: 444,
-        logo: 555,
-        underline: false,
-        personalized: false
-      },
-      { title: 111,
-        short_title: 222,
-        displayUrl: 333,
-        url: 444,
-        logo: 555,
-        underline: false,
-        personalized: false
-      }
-    ]*/
   }
 });

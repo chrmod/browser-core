@@ -1,4 +1,15 @@
-<button {{action "next"}}>next page</button>
-{{#each page as |article index|}}
-  {{article-item model=article target-type=target-type index=index class="clearfix" tagName="li" showLogo=showLogo}}
-{{/each}}
+<div class="heading clearfix">
+  <h2>{{title}}</h2>
+  <div id="sliderBtns">
+    {{#unless isOnePage}}
+      {{#each pages as |page index|}}
+        <div class="{{if (equal index pageNum) "active"}}"><a href="#" {{action "setPage" index}}>{{index}}</a></div>
+      {{/each}}
+    {{/unless}}
+  </div>
+</div>
+<div class="content">
+  {{#each page as |article index|}}
+    {{article-item model=article target-type=target-type index=index class="clearfix" tagName="li" showLogo=showLogo}}
+  {{/each}}
+</div>

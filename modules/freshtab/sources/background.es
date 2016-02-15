@@ -15,6 +15,34 @@ export default {
   },
 
   actions: {
+    _showOnboarding() {
+        var showOnboarding = false;
+        if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref('browserOnboarding')) {
+          utils.setPref('browserOnboarding', true);
+          showOnboarding = true;
+        }
+        return showOnboarding;
+    },
+
+    _showMiniOnboarding() {
+       var miniOnboarding = false,
+           now = Date.now(),
+           ONE_DAY = 24 * 60 * 60 * 1000,
+           PREF_ONBOARDING = 'freshtabOnboarding',
+           isUserFirstTimeAtFreshTab = parseInt(utils.getPref(PREF_ONBOARDING, '0')) === 0;
+
+      if (isUserFirstTimeAtFreshTab){
+        utils.setPref(PREF_ONBOARDING, '' + now);
+      }
+
+      var isFirstDayAfterInstallation = parseInt(utils.getPref(PREF_ONBOARDING, '0')) +  ONE_DAY > now;
+      if (isFirstDayAfterInstallation) {
+        miniOnboarding = true;
+      }
+
+      return true;
+    },
+
     getSpeedDials() {
       return History.getTopUrls(5).then(function(results){
         utils.log("History", JSON.stringify(results));
@@ -68,6 +96,36 @@ export default {
         };
       });
 
+    },
+
+    getConfig() {
+      var self = this;
+
+      var config = {
+        locale: utils.PREFERRED_LANGUAGE,
+        showOnboarding: self.actions._showOnboarding(),
+        miniOnboarding: self.actions._showMiniOnboarding()
+      };
+
+      return Promise.resolve(config);
+    },
+
+    takeFullTour() {
+      var onboardingWindow = utils.getWindow().CLIQZ.System.get("onboarding/window").default;
+      new onboardingWindow({settings: {}, window: utils.getWindow()}).fullTour();
+
+      utils.telemetry({
+        "type": "onboarding",
+        "product": "cliqz",
+        "action": "click",
+        "action_target": "tour",
+        "version": 1.0
+      });
+    },
+
+    revertBack() {
+      FreshTab.toggleState();
+      utils.getWindow().CLIQZ.Core.refreshButtons();
     }
   }
 };

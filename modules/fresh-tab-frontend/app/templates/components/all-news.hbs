@@ -1,34 +1,14 @@
 {{#unless model.yourNews }}
   <div class="newsBox onlyTopNews" id="topNewsBox">
-    <div class="heading clearfix">
-      <h2>Top News</h2>
-      <div id="sliderBtns">
-      </div>
-    </div>
-    <div class="content">
-      {{article-items model=model.topNews tagName="ul" target-type="topnews" showLogo=false pageSize=3}}
-    </div>
+    {{article-items title="Top News" model=model.topNews tagName="ul" target-type="topnews" showLogo=false pageSize=3}}
   </div>
 
 {{else}}
   <div class="newsBox" id="topNewsBox">
-    <div class="heading clearfix">
-      <h2>Top News</h2>
-      <div id="sliderBtns">
-
-      </div>
-    </div>
-    <div class="content">
-      {{article-items model=model.topNews tagName="ul" target-type="topnews" showLogo=true}}
-    </div>
+    {{article-items title="Top News" model=model.topNews pageSize=3 tagName="ul" target-type="topnews" showLogo=true}}
   </div>
   <div class="newsBox" id="yourNewsBox">
-    <div class="heading clearfix">
-      <h2>Your news</h2>
-    </div>
-    <div class="content">
-      {{article-items model=model.yourNews tagName="ul" target-type="yournews" showLogo=true}}
-    </div>
+    {{article-items title="Your news" model=model.yourNews tagName="ul" target-type="yournews" showLogo=true pageSize=model.yourNews.length}}
   </div>
 {{/unless}}
 

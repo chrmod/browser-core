@@ -1,5 +1,5 @@
 import Ember from "ember";
-import News from "../models/news"
+import News from "../models/news";
 
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),

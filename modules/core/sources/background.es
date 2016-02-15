@@ -45,8 +45,12 @@ export default {
       utils.telemetry(msg);
       return Promise.resolve();
     },
-    getUrlbar() {
-      utils.getWindow().CLIQZ.Core.urlbar.focus();
+    getUrlbar(value) {
+      let urlBar = utils.getWindow().document.getElementById("urlbar")
+      urlBar.focus();
+      urlBar.mInputField.focus();
+      urlBar.mInputField.setUserInput(value);
+      //utils.getWindow().CLIQZ.Core.urlbar.focus("ss");
     }
   }
 };

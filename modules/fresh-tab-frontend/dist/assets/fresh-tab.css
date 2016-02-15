@@ -1,7 +1,7 @@
 /* common */
 @font-face {
   font-family: "Lato";
-  src: url("../../static/skin/fonts/Lato-Regular.ttf"); }
+  src: url("/assets/fonts/Lato-Regular.ttf"); }
 
 * {
   margin: 0px;
@@ -44,7 +44,7 @@ a:hover, a:active, a:focus {
   left: 10px;
   width: 24px;
   height: 24px;
-  background: url("../images/cliqz_icon.svg") no-repeat; }
+  background: url("./images/cliqz_icon.svg") no-repeat; }
 
 #freshTabPage .wrap {
   width: 800px;
@@ -206,7 +206,7 @@ a:hover, a:active, a:focus {
 #freshTabPage #newsContainer div.title {
   text-decoration: none; }
 
-#freshTabPage #newsContainer div.title.underline {
+#freshTabPage #newsContainer .underline .title {
   text-decoration: underline; }
 
 #freshTabPage #newsContainer li .url {
@@ -261,7 +261,7 @@ a:hover, a:active, a:focus {
   right: 25px;
   width: 24px;
   height: 24px;
-  background: url("../images/question-mark.svg");
+  background: url("/assets/images/question-mark.svg");
   cursor: pointer;
   z-index: 2; }
 
@@ -293,7 +293,7 @@ a:hover, a:active, a:focus {
 
 /******** CLIQZ Onboarding *********/
 #optinContainer {
-  display: none; }
+  display: block; }
 
 .optinBackground {
   position: absolute;
@@ -349,13 +349,13 @@ a:hover, a:active, a:focus {
   font-size: 18px; }
 
 .optinContent .surfSafe .icon {
-  background-image: url("../images/anti-tracking.svg"); }
+  background-image: url("/assets/images/anti-tracking.svg"); }
 
 .optinContent .searchSimple .icon {
-  background-image: url("../images/search.svg"); }
+  background-image: url("/assets/images/search.svg"); }
 
 .optinContent .startFresh .icon {
-  background-image: url("../images/freshtab.svg"); }
+  background-image: url("/assets/images/freshtab.svg"); }
 
 .optinContent .icon {
   position: absolute;
