@@ -1,6 +1,7 @@
 import AntiPhishing from "anti-phishing/anti-phishing";
 import CliqzBloomFilter from "human-web/bloom-filter";
 import core from "core/background";
+import { utils } from "core/cliqz";
 
 /*
 Changes :
@@ -1587,9 +1588,16 @@ var CliqzHumanWeb = {
       return parser.parseFromString(html, "text/html");
     },
     getCD(url) {
-      return this.getHTML(url)
-                 .then(this.createDoc)
-                 .catch( () => {} );
+      return this.getHTML(url).then( html => {
+        const doc = this.createDoc(html);
+        // monkey patching the doc so it looks like regular document element
+        /*
+        doc.location = {
+          href: url
+        };
+        */
+        return doc;
+      });
     },
     getCDByURL: function(url) {
         var dd_url = url;
@@ -1764,42 +1772,24 @@ var CliqzHumanWeb = {
                     AntiPhishing.auxOnPageLoad(activeURL);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
-                    if (se > -1){
-                        CliqzUtils.setTimeout(function(currURLAtTime, doc) {
+                          utils.log(activeURL, "HUMAN - url");
+                          utils.log(se, "HUMAN - se");
+                    if (se > -1) {
+                        CliqzUtils.setTimeout(function(url) {
+                          utils.log("XXXXXXXXXXXXXXXXX", "HUMAN");
+                          if (!CliqzHumanWeb) {
+                            return;
+                          }
 
-                            // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
-                            if (CliqzHumanWeb) {
-                                try {
-
-                                    // FIXME: this begs for refactoring!!
-
-                                    var activeURL = CliqzHumanWeb.currentURL();
-                                    var document = null;
-                                    var searchURL = null;
-
-                                    if (currURLAtTime == activeURL) {
-                                        document = doc; //currwin.gBrowser.selectedBrowser.contentDocument;
-                                        searchURL = activeURL;
-                                    }
-                                    else{
-                                        document = CliqzHumanWeb.getCDByURL(currURLAtTime);
-                                        searchURL = currURLAtTime;
-
-                                    }
-
-
-                                    CliqzHumanWeb.checkURL(document);
-                                    CliqzHumanWeb.queryCache[searchURL] = {'d': 0, 'q': CliqzHumanWeb.searchCache[se]['q'], 't': CliqzHumanWeb.searchCache[se]['t']};
-                                }
-                                catch(ee) {
-                                    // silent fail
-                                    if (CliqzHumanWeb.debug) {
-                                        _log('Exception: ' + ee);
-                                    }
-                                }
-                            }
-
-                        }, CliqzHumanWeb.WAIT_TIME, activeURL, aProgress.document);
+                          CliqzHumanWeb.getCD(url).then( doc => {
+                            CliqzHumanWeb.checkURL(doc, url);
+                            CliqzHumanWeb.queryCache[url] = {
+                              d: 0,
+                              q: CliqzHumanWeb.searchCache[se]['q'],
+                              t: CliqzHumanWeb.searchCache[se]['t']
+                            };
+                          });
+                        }, CliqzHumanWeb.WAIT_TIME, activeURL);
                     }
 
                     var status = null;
@@ -1876,11 +1866,11 @@ var CliqzHumanWeb = {
 
                     CliqzUtils.setTimeout(function(currWin, currURL) {
 
+                        utils.log(currURL, "WEB")
                         // Extract info about the page, title, length of the page, number of links, hash signature,
                         // 404, soft-404, you name it
                         //
 
-                        try {
 
                             // we cannot get it directly via
                             // var cd = currWin.gBrowser.selectedBrowser.contentDocument;
@@ -1889,53 +1879,54 @@ var CliqzHumanWeb = {
                             //var activeURL = CliqzHumanWeb.currentURL();
                             //if (activeURL != currURL) {}
 
+                            CliqzHumanWeb.getCD(currURL).then(function (cd) {
 
+                              var se = CliqzHumanWeb.checkSearchURL(currURL);
 
+                        utils.log(se, "WEB se")
 
-                            var cd = CliqzHumanWeb.getCDByURL(currURL);
-                            if (cd==null) {
-                                if (CliqzHumanWeb.debug) {
-                                    _log("CANNOT GET THE CONTENT OF : " + currURL);
+                              if (se == -1){
+                                try {
+                                  CliqzHumanWeb.checkURL(cd, currURL);
+                                } catch (e) {
+                                  utils.log(e.toString(), "WEB err");
                                 }
-                                return;
-                            }
-                            //Check if the page is not a search engine:
+                        utils.log(cd, "WEB cd")
+                                  //Check active usage...
+                                  CliqzHumanWeb.activeUsage += 1;
 
-                            var se = CliqzHumanWeb.checkSearchURL(currURL);
+                              }
 
+                        utils.log(currURL, "WEB currur")
+                              var x = CliqzHumanWeb.getPageData(currURL, cd);
 
-                            if (se == -1){
-                                CliqzHumanWeb.checkURL(cd);
-                                //Check active usage...
-                                CliqzHumanWeb.activeUsage += 1;
+                              if (x['canonical_url']) {
+                                  CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
+                                  CliqzHumanWeb.can_url_match[x['canonical_url']] = currURL;
 
-                            }
+                              }
 
-                            var x = CliqzHumanWeb.getPageData(currURL, cd);
+                              if (CliqzHumanWeb.state['v'][currURL] != null) {
+                                  CliqzHumanWeb.state['v'][currURL]['x'] = x;
+                              }
 
-                            if (x['canonical_url']) {
-                                CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
-                                CliqzHumanWeb.can_url_match[x['canonical_url']] = currURL;
+                              if (CliqzHumanWeb.queryCache[currURL]) {
+                                  CliqzHumanWeb.state['v'][currURL]['qr'] = CliqzHumanWeb.queryCache[currURL];
+                                  delete CliqzHumanWeb.queryCache[currURL];
+                              }
 
-                            }
+                              if (CliqzHumanWeb.state['v'][currURL] != null) {
+                                  CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
+                                  CliqzHumanWeb.queryCache[currURL];
+                              }
 
-                            if (CliqzHumanWeb.state['v'][currURL] != null) {
-                                CliqzHumanWeb.state['v'][currURL]['x'] = x;
-                            }
-
-                            if (CliqzHumanWeb.queryCache[currURL]) {
-                                CliqzHumanWeb.state['v'][currURL]['qr'] = CliqzHumanWeb.queryCache[currURL];
-                                delete CliqzHumanWeb.queryCache[currURL];
-                            }
-
-                            if (CliqzHumanWeb.state['v'][currURL] != null) {
-                                CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
-                                CliqzHumanWeb.queryCache[currURL];
-                            }
-
-                        } catch(ee) {
-                            _log("Error fetching title and length of page: " + ee + " : " + currURL);
-                        }
+                            }, function () {
+                              if (CliqzHumanWeb.debug) {
+                                  _log("CANNOT GET THE CONTENT OF : " + currURL);
+                              }
+                            }).catch( ee => {
+                              _log("Error fetching title and length of page: " + ee + " : " + currURL);
+                            });
 
                     }, CliqzHumanWeb.WAIT_TIME, currwin, activeURL);
 
@@ -3466,14 +3457,13 @@ var CliqzHumanWeb = {
             _log('Error loading config. ')
           }, 5000);
     },
-    checkURL: function(cd){
-        var url = cd.location.href;
+    checkURL: function(cd, url){
         var pageContent = cd;
         //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
         //scrap(4, pageContent)
         for(var i=0;i<CliqzHumanWeb.rArray.length;i++){
             if(CliqzHumanWeb.rArray[i].test(url)){
-                CliqzHumanWeb.extractContent(i, pageContent);
+                CliqzHumanWeb.extractContent(i, pageContent, url);
 
                 //Do not want to continue after search engines...
                 if(CliqzHumanWeb.searchEngines.indexOf(''+i) != -1 ){return;}
@@ -3502,7 +3492,7 @@ var CliqzHumanWeb = {
             }
         }
     },
-    extractContent: function(ind, cd){
+    extractContent: function(ind, cd, url){
         var scrapeResults = {};
         var eventMsg = {};
         var rules = {};
@@ -3526,7 +3516,7 @@ var CliqzHumanWeb = {
 
                         //Depending on etype, currently only supporting url. Maybe ctry too.
                         if(rules[key][each_key]['etype'] == 'url'){
-                            var qurl = cd.location.href;
+                            var qurl = url;
                             var functionsApplied = (rules[key][each_key]['functionsApplied'] || null);
                             // Check if the value needs to be refined or not.
                             if(functionsApplied){
