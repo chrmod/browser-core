@@ -1,14 +1,19 @@
 /* globals Components, Extension */
 /* globals sendAsyncMessage, removeMessageListener, addMessageListener */
-/* globals addEventListener */
+/* globals addEventListener, content */
 // CLIQZ pages communication channel
 
 Components.utils.import("chrome://cliqzmodules/content/Extension.jsm");
 
 var whitelist = Extension.config.settings.frameScriptWhitelist;
 
+function send(msg) {
+  sendAsyncMessage("cliqz:framescript", msg);
+}
+
 function onDOMWindowCreated(ev) {
   var window = ev.originalTarget.defaultView;
+  var currentURL = window.location.href;
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
@@ -39,24 +44,47 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
-    sendAsyncMessage("cliqz", {
+    send({
       windowId: windowId,
       payload: message
     });
   };
 
-  var onCallback = function (msg) {
+  function onCallback(msg) {
     window.postMessage(JSON.stringify({
       target: "cliqz",
       type: "response",
       response: msg.data.response,
       action: msg.data.action
     }), "*");
-  };
+  }
+
+  function onCore(msg) {
+    // we handle only getHTML ATM
+    if ( msg.data.action !== "getHTML" ) {
+      return;
+    }
+
+    if ( msg.data.args[0] !== currentURL ) {
+      return;
+    }
+
+    var html;
+    try {
+      html = window.document.documentElement.outerHTML;
+    } catch (e) {
+      console.error("cliqz framescript:", e);
+    }
+
+    send({
+      payload: html,
+      requestId: msg.data.requestId
+    });
+  }
 
   function proxyWindowEvent(action) {
     return function (ev) {
-      sendAsyncMessage("cliqz", {
+      send({
         windowId: windowId,
         payload: {
           module: "human-web",
@@ -70,7 +98,7 @@ function onDOMWindowCreated(ev) {
           ]
         }
       });
-    }
+    };
   }
 
   var onKeyPress = proxyWindowEvent("recordKeyPress");
@@ -86,6 +114,7 @@ function onDOMWindowCreated(ev) {
   window.addEventListener("scroll", onScroll);
   window.addEventListener("copy", onCopy);
   addMessageListener("window-"+windowId, onCallback);
+  addMessageListener("cliqz:core", onCore);
 
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
@@ -95,6 +124,7 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
     removeMessageListener("window-"+windowId, onCallback);
+    removeMessageListener("cliqz:core", onCore);
   });
 
 }

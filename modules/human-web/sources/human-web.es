@@ -1,5 +1,6 @@
 import AntiPhishing from "anti-phishing/anti-phishing";
 import CliqzBloomFilter from "human-web/bloom-filter";
+import core from "core/background";
 
 /*
 Changes :
@@ -1551,6 +1552,44 @@ var CliqzHumanWeb = {
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
         //_log("Testing" + x.ctry);
         return x;
+    },
+    getHTML(url) {
+      // lazy load fallback urls
+      const possibleUrls = [
+        url => decodeURI(decodeURI(url)),
+        url => decodeURIComponent(url),
+      ];
+
+      function getDoc(url) {
+        return core.getHTML(url).then( docs => {
+          const doc = docs[0];
+          if (doc) {
+            return doc;
+          } else {
+            throw "not found";
+          }
+        }).catch( () => {
+          const possibleUrl = possibleUrls.shift();
+          if (possibleUrl) {
+            const url = possibleUrl();
+            return getDoc(url);
+          } else {
+            throw "not found";
+          }
+        });
+      }
+
+      return getDoc(url);
+    },
+    createDoc(html) {
+      const hiddenWindow = Services.appShell.hiddenDOMWindow;
+      const parser = new hiddenWindow.DOMParser();
+      return parser.parseFromString(html, "text/html");
+    },
+    getCD(url) {
+      return this.getHTML(url)
+                 .then(this.createDoc)
+                 .catch( () => {} );
     },
     getCDByURL: function(url) {
         var dd_url = url;
