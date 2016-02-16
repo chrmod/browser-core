@@ -506,3 +506,11 @@ Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
     }
     return ret;
 });
+
+
+if( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ) {
+    var styleEl = document.createElement('style'), styleSheet;
+    document.head.appendChild(styleEl);
+    styleSheet = styleEl.sheet;
+    styleSheet.insertRule("p.share_this_card { display: block }", 0);
+}
