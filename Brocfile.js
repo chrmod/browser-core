@@ -65,8 +65,8 @@ var mobileCss = compileSass(
 );
 
 // Attach subprojects
-let moduleConfigs = Object.create(null);
-let bareModules = [];
+let transpilableModuleNames = [];
+var requiredBowerComponents = new Set();
 
 cliqzConfig.modules.forEach(function (name) {
   let configJson = "{}";
@@ -77,67 +77,51 @@ cliqzConfig.modules.forEach(function (name) {
     // Existance of config.json is not required
   }
 
-  moduleConfigs[name] = JSON.parse(configJson);
+  let config = JSON.parse(configJson);
+
+  (config.bower_components || []).forEach(Set.prototype.add.bind(requiredBowerComponents));
+
+  if (config.transpile !== false ){
+    transpilableModuleNames.push(name);
+  }
 });
 
-let bareModuleNames = cliqzConfig.modules.filter(name => moduleConfigs[name].transpile === false)
-
-var modules = [new Funnel(platform, { destDir: "platform" })];
-var requiredBowerComponents = new Set();
-var modulesTree = new Funnel('modules', {
-  include: cliqzConfig.modules.map( name => `${name}/**/*` )
+// START - ES TREE
+let sources = new Funnel('modules', {
+  include: transpilableModuleNames.map(name => `${name}/sources/**/*.es`),
+  getDestinationPath(path) {
+    return path.replace("/sources", "");
+  }
 });
 
-var jsHinterTree = new JSHinter(
-  new Funnel(modulesTree, {
-    include: ['**/*.es', '**/*.js'],
-    exclude: bareModuleNames.map( name => `${name}/**/*` )
-  }),
-  {
-    testGenerator: function () { return ''; },
-    jshintrcPath: process.cwd() + '/.jshintrc'
+let jsHinterTree = new JSHinter(sources, {
+  jshintrcPath: process.cwd() + '/.jshintrc',
+  disableTestGenerator: true
+});
+jsHinterTree.extensions = ['es']
+
+let transpiledSources = Babel(sources, {
+  sourceMaps: 'inline',
+  filterExtensions: ['es'],
+  modules: 'system',
+  moduleIds: true,
+});
+
+let sourceTree = new Funnel(
+  new MergeTrees([
+    jsHinterTree,
+    transpiledSources
+  ]), {
+    exclude: ["**/*.jshint.js"]
   }
 );
-jsHinterTree.extensions = ['js', 'es']
+// END - ES TREE
 
-modulesTree = new MergeTrees([
-  modulesTree,
-  jsHinterTree
-]);
-
-cliqzConfig.modules.forEach(function (name) {
-  var modulePath = 'modules/'+name;
-
-  if (!fs.statSync(modulePath).isDirectory()) {
-    return;
-  }
-
-
-  if (bareModuleNames.indexOf(name) >= 0) {
-    bareModules = new Funnel(`${modulePath}/dist`, { destDir: name });
-    return;
-  }
-
-  try {
-    var conf = fs.readFileSync(modulePath+'/bower_components.json');
-    JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
-  } catch(e) { }
-
-  var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
-
-  sources = Babel(sources, {
-    sourceMaps: 'inline',
-    filterExtensions: ['es'],
-    modules: 'system',
-    moduleRoot: name,
-  });
-
-  var outputTree = [
-    new Funnel(modulesTree, { srcDir: name + '/dist' }),
-    sources,
-  ];
-
-  var hasStyles = false;
+// START - CSS TREE
+let sassTrees = [];
+transpilableModuleNames.forEach( name => {
+  let modulePath = `modules/${name}`,
+      hasStyles = false;
 
   try {
     fs.statSync(modulePath+"/sources/styles"); // throws if not found
@@ -160,17 +144,28 @@ cliqzConfig.modules.forEach(function (name) {
         { sourceMap: true }
       );
 
-      outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
+      sassTrees.push(new Funnel(compiledCss, { destDir: `${name}/styles` }));
     });
   }
-
-  var module = new MergeTrees(outputTree);
-
-  modules.push(new Funnel(module, { destDir: name }));
 });
+let sassTree = new MergeTrees(sassTrees);
+// END - CSS TREE
 
-modules = new MergeTrees(modules.concat(bareModules));
-modules = new Funnel(modules, { exclude: ["**/*.jshint.js"] });
+// START - DIST TREE
+let distTree = new Funnel("modules", {
+  include: cliqzConfig.modules.map( name => `${name}/dist/**/*` ),
+  getDestinationPath(path) {
+    return path.replace("/dist", "");
+  }
+});
+// END - DIST TREE
+
+let modules = new MergeTrees([
+  new Funnel(platform, { destDir: "platform" }),
+  distTree,
+  sassTree,
+  sourceTree,
+]);
 
 var babelOptions = {
   modules: "amdStrict",
