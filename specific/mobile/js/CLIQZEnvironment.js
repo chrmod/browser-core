@@ -686,6 +686,10 @@ CLIQZEnvironment = {
       myList.push(indexList[i]);
     }
     list = myList;
+
+    if(list.length < 4) {
+      list = list.concat(mockedHistory);
+    }
     
     list = list.splice(0,4);
     
