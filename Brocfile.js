@@ -23,7 +23,6 @@ var nodeModules    = new Funnel('node_modules');
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
-var cliqziumSpecific= new Funnel('specific/cliqzium');
 var webSpecific     = new Funnel('specific/web');
 var generic         = new Funnel('generic');
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
@@ -292,13 +291,6 @@ var firefox = new MergeTrees([
   firefoxPackage,
 ]);
 
-var cliqzium = new MergeTrees([
-  new Funnel(globalConcated,   { destDir: 'js' }),
-  new Funnel(localConcated,    { destDir: 'js' }),
-  new Funnel(libsConcated,     { destDir: 'js' }),
-  cliqziumSpecific,
-]);
-
 var web = new MergeTrees([
   webSpecific,
   modules,
@@ -322,25 +314,10 @@ if (buildEnv === 'production' ) {
     replaceExtensions: ['html', 'css', 'js'],
     generateAssetMap: true
   });
-  // uglify breaks for cliqz-oss/broccoli#building-server:
-  // "The .read/.rebuild API is no longer supported of Broccoli 1.0"
-  // mobile = uglify(new Funnel(mobile), {
-  //   mangle: false,
-  //   compress: false,
-  //   output: {
-  //     indent_level: 2,
-  //     comments: false,
-  //     beautify: true
-  //   },
-  //   sourceMapConfig: {
-  //     enabled: false
-  //   }
-  // });
 }
 
 // Output
 module.exports = new MergeTrees([
-  new Funnel(cliqzium, { destDir: 'cliqzium'      }),
   new Funnel(firefox,  { destDir: 'firefox'       }),
   new Funnel(web,      { destDir: 'web'           }),
   new Funnel(mobile,   { destDir: 'mobile/search' }),
