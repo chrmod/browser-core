@@ -89,7 +89,8 @@ def package(beta='True', version=None, sign='False', amo='False'):
     if sign == 'True':
         local("mv %s UNSIGNED_%s" % (output_file_name, output_file_name))
         # signs the XPI with the CLIQZ certificate
-        local("python ../../../xpi-sign/xpisign.py -k /Volumes/Transcend/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
+
+        local("python /src/main/xpi-sign/xpisign.py -k /Volumes/CLIQZXPI/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
 
     # creates a copy to the current build in case we need to upload it to S3
     local("cp %s latest.xpi" % output_file_name)
