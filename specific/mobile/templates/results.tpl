@@ -14,11 +14,13 @@
 				idx='{{ @index }}'
 				id='cqz-result-box-{{ @index }}'
 				hasimage='{{ hasimage image }}'
-				>
-					{{partial vertical}}
-				{{#if title}}{{#if url}}
-					<p style="display:none" cliqz-action='stop-click-event-propagation' onclick="osBridge.shareCard({{ json this }})" class="share_this_card">{{local 'mobile_share_card'}}</p>
+				>{{#if title}}{{#if url}}
+					<p cliqz-action='stop-click-event-propagation' 
+						onclick="osBridge.shareCard({{ json this }})" 
+						class="share_this_card">{{local 'mobile_share_card'}}</p>
 				{{/if}}{{/if}}
+					{{partial vertical}}
+
 			</div>
 			
 		</div>
