@@ -25,8 +25,8 @@
 	</section>
 	<section class="secondary">
 		{{#each data.richData.internal_links}}
-			<div class="cards__item ext">
-				<div class="card__logo__secondary">Logo</div>
+			<div class="cards__item internal_links">
+				
 				<h2 class="cards__title__secondary">
 					<a href="{{url}}">{{title}}<a>
 				</h2>
@@ -34,28 +34,28 @@
 		{{/each}}
 
 		{{#each data.richData.additional_sources}} 
-			<div class="cards__item ext">
-				{{#with logoDetails}}
+			<div class="cards__item additional_sources">
+				<div class="card__logo__secondary">WI</div>
+				<!--{{#with logoDetails}}
 					{{#if backgroundImage}}
-						<div class="card__logo__secondary" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">Logo</div>
+						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
 					{{/if}}
-				{{/with}}	
+				{{/with}}-->
 				<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
 			</div>
 		{{/each}}	
 
-
 		{{#each data.actions}}
-			<div class="cards__item">
+			<div class="cards__item data_actions">
 				<h2 url="{{url}}" class="cards__title__secondary">{{title}}</h2>
 			</div>
 		{{/each}}	
 
 		{{#each data.external_links}}
-			<div class="cards__item ext">
+			<div class="cards__item external_links">
 				{{#with logoDetails}}
 					{{#if backgroundImage}}
-						<div class="card__logo__secondary" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">Logo</div>
+						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
 					{{/if}}
 				{{/with}}	
 				<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>

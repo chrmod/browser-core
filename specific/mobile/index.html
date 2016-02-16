@@ -25,10 +25,12 @@
       <script src="js/setup.js"></script>
 
       <style type="text/css">
-
+        html {
+          background-color: #083A6B !important;
+        }
         .card {
           position: absolute;
-          background-color: #fff;
+          background-color: #EFF5FB;
           top: 3.1rem;
           left: 1.5rem;
           width:93%;
@@ -41,19 +43,18 @@
           .card.third {
             left: 45rem; }
           .card .primary {
-            padding: 1.5rem 1.5rem 1rem; }
+            padding: 1rem 2rem 1rem; }
           .card .card__logo {
             position: absolute;
-            top: -1.5rem;
-            left: 50%;
-            margin-left: -1.5rem;
-            width: 3rem;
-            height: 3rem;
+            top: 1rem;
+            left: -1.25rem;
+            width: 2.5rem;
+            height: 2.5rem;
             background-position: center;
             background-repeat: no-repeat;
             background-size: 50%;
             text-indent: -9999px;
-            border-radius: 50%; }
+            border-radius: 0.15rem; }
           .card .card__logo__secondary {
             position: absolute;
             top: 0.5rem;
@@ -63,12 +64,20 @@
             background-position: center;
             background-repeat: no-repeat;
             background-size: 50%;
+            font-size: 0.75rem;
+            line-height: 2rem;
+            text-align: center;
+            color: #fff;
+            background-color: #60A8F1;
+            border-radius: 0.125rem; }
+          .card .card__logo__secondary.bg {
             text-indent: -9999px;
-            border-radius: 50%; }
+          }
           .card .card__description {
             font-size: 1rem;
+            padding: 0.5rem 0 0;
             line-height: 1.25rem;
-            color: #999; }
+            color: #0C2B4A; }
           .card .card__meta {
             font-size: 0.75rem;
             line-height: 1.25rem;
@@ -90,11 +99,12 @@
             font-size: 1rem;
             line-height: 1.5rem; }
           .card .card__title {
-            padding: 0.5rem 0;
+            padding: 0.65rem 0 0.5rem;
             margin: 0;
-            font-weight: 300;
-            text-align: center;
-            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: left;
+            font-size: 1.2rem;
+            line-height: 1.2;
             font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
           .card .card__image {
             width: 38%;
@@ -115,7 +125,7 @@
             -ms-flex: 1 0 auto;
             flex: 1 0 auto;
             width: auto;
-            margin: 0 0 1rem;
+            margin: 0 0;
             text-indent: 0;
             display: -webkit-box;
             display: -moz-box;
@@ -161,22 +171,22 @@
               height: 5rem;
               text-indent: -9999px; }
           .card .secondary {
-            background-color: #f9f9f9;
+            background-color: #D4E5F6;
             padding: 0; }
             .card .secondary .cards__item {
               position: relative;
               padding: 0.5rem 1rem;
-              border-top: 1px #eee solid; }
-              .card .secondary .cards__item.ext {
-                background-color: #f5f5f5; }
-                .card .secondary .cards__item.ext .cards__title__secondary {
-                  color: #aaa; }
+              border-top: 1px #B5D0EB solid; }
+              .card .secondary .cards__item.additional_sources {
+                background-color: #BAD3ED;
+                border-top: 1px #9DBFE2 solid; }
+              .card .secondary .cards__item.external_links {
+                background-color: #BAD3ED; }
           .card .share {
-            background-color: #f5f5f5;
-            padding: 0.25rem 1.5rem;
+            padding: 0.25rem 2rem;
             font-size: 0.5rem;
             line-height: 1.5rem;
-            border-top: 1px #eee solid;
+            display: none;
             color: #999; }
             .card .share a {
               color: #bbb;
