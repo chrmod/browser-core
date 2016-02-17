@@ -54,31 +54,40 @@ program.command('serve [file]')
        });
 
 program.command('test <file>')
-       .action(configPath => {
+       .option('--ci', 'Starts Testem in CI mode')
+       .action( (configPath, options) => {
           setConfigPath(configPath);
           let node = broccoli.loadBrocfile();
           let builder = new broccoli.Builder(node);
+          let testem = new Testem();
           let server = broccoli.server.serve(builder, {
             port: 4200,
             host: 'localhost'
           });
           let watcher = server.watcher;
+          let testemOptions = {
+            host: 'localhost',
+            port: '3000'
+          };
 
-          let testem = new Testem();
-          let started = false;
-
-          watcher.on('change', function() {
-            if (started) {
-              testem.restart();
-            } else {
-              started = true;
-
-              testem.startDev({
-                host: 'localhost',
-                port: '3000'
+          if (options.ci) {
+            watcher.on('change', function() {
+              testem.startCI(testemOptions, function(exitCode) {
+                process.exit();
               });
-            }
-          });
+            });
+          } else {
+            let started = false;
+
+            watcher.on('change', function() {
+              if (started) {
+                testem.restart();
+              } else {
+                started = true;
+                testem.startDev(testemOptions);
+              }
+            });
+          }
        });
 
 program.command('generate <type> <moduleName>')
