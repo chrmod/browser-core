@@ -108,26 +108,31 @@ var mockedHistory =
         [{
             "id": 1,
             "title": "Facebook",
+            "mainDomain": "Facebook",
             "url": "http://www.facebook.de",
             "timestamp": Date.now() - 10000
         }, {
             "id": 2,
             "title": "Youtube",
+            "mainDomain": "Youtube",
             "url": "http://www.youtube.de",
             "timestamp": Date.now() - 1222250000
         }, {
             "id": 3,
             "title": "Focus",
+            "mainDomain": "Focus",
             "url": "http://www.focus.de",
             "timestamp": Date.now() - 30090
         }, {
             "id": 4,
             "title": "Bild",
+            "mainDomain": "Bild",
             "url": "http://www.bild.de",
             "timestamp": Date.now() - 20000
         },  {
             "id": 5,
             "title": "Amazon",
+            "mainDomain": "Amazon",
             "url": "http://www.amazon.de",
             "timestamp": Date.now() - 121240000
         }];

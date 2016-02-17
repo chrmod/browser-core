@@ -293,6 +293,8 @@ CLIQZEnvironment = {
     
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
+    CLIQZEnvironment.lastResults = renderedResults.results;
+
     if(renderedResults.results.length > historyCount) {
       // TODO CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
@@ -679,6 +681,7 @@ CLIQZEnvironment = {
       domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
       domainArr = domain.split('.');
       mainDomain = domainArr[domainArr.length-2].substr(0,10);
+      mainDomain = mainDomain.charAt(0).toUpperCase() + mainDomain.slice(1);
       list[i].mainDomain = mainDomain;
       indexList[mainDomain] = list[i];
     }
@@ -686,6 +689,10 @@ CLIQZEnvironment = {
       myList.push(indexList[i]);
     }
     list = myList;
+
+    if(list.length < 4) {
+      list = list.concat(mockedHistory);
+    }
     
     list = list.splice(0,4);
     
