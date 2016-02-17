@@ -13,6 +13,9 @@
 
 	<section class="primary">
 		<h1 class="card__title">{{data.title}}</h1>
+		<div class="card__meta">
+			{{urlDetails.friendly_url}}
+		</div>
 		<div class="card__gallery">
 			{{#each data.richData.images}}
 				<div class="image" style="background-image: url({{this}})">Image</div>
@@ -20,9 +23,6 @@
 		</div>
 		<div class="card__description">
 			{{{data.description}}}
-		</div>
-		<div class="card__meta">
-			{{urlDetails.friendly_url}}
 		</div>
 	</section>
 	<section class="secondary">
