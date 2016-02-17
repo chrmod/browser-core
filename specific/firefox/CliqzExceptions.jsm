@@ -12,7 +12,6 @@ var EXPORTED_SYMBOLS = ['CliqzExceptions'];
 
 var TARGET = [
         'CliqzABTests',
-        'CliqzAntiPhishing',
         //'CliqzAutocomplete', TODO
         'CliqzCalculator',
         'CliqzExceptions',
@@ -21,7 +20,6 @@ var TARGET = [
         'CliqzHistoryAnalysis',
         'CliqzHistoryManager',
         'CliqzHistoryCluster',
-        'CliqzHumanWeb',
         'CliqzImages',
         'CliqzLanguage',
         'CliqzRedirect',

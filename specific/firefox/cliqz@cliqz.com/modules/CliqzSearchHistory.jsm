@@ -110,7 +110,7 @@ var CliqzSearchHistory = {
         // Clean last search to avoid conflicts
         CliqzAutocomplete.lastSearch = '';
 
-        if(curWin.lastQueryInTab && curWin.lastQueryInTab[ev.target.linkedPanel])
+        if(curWin && curWin.lastQueryInTab && curWin.lastQueryInTab[ev.target.linkedPanel])
             this.showLastQuery(curWin.lastQueryInTab[ev.target.linkedPanel]);
         else
             this.hideLastQuery();

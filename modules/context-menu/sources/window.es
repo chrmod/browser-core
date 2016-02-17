@@ -14,6 +14,8 @@ export default class {
     this.window = settings.window;
     this.contextMenu = this.window.document.getElementById(
         'contentAreaContextMenu');
+    this._builtInSearchItem = this.window.document.getElementById(
+        'context-searchselect');
     this.onPopupShowing = this.onPopupShowing.bind(this);
     this.onPopupHiding = this.onPopupHiding.bind(this);
     this.menuItem = null;
@@ -30,6 +32,7 @@ export default class {
     this.removeMenuItem();
     this.contextMenu.removeEventListener('popupshowing', this.onPopupShowing);
     this.contextMenu.removeEventListener('popupHiding', this.onPopupHiding);
+    this._builtInSearchItem.removeAttribute('hidden');
   }
 
   onPopupShowing(ev) {
@@ -42,12 +45,15 @@ export default class {
     if (selection) {
       this.menuItem = this.window.document.createElement('menuitem');
 
-      this.menuItem.setAttribute(
-          'label', `Search CLIQZ for "${trim(selection)}"`);
+      this.menuItem.setAttribute('label',
+        CliqzUtils.getLocalizedString('context-menu-search-item',
+          trim(selection)));
       this.menuItem.addEventListener(
           'click', this.clickHandler.bind(this, selection));
 
-      this.contextMenu.appendChild(this.menuItem);
+      this.contextMenu.insertBefore(this.menuItem, this._builtInSearchItem);
+      // Can't do once in constructor, because it's dynamic.
+      this._builtInSearchItem.setAttribute('hidden', 'true');
     } else {
       this.menuItem = null;
     }

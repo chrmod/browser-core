@@ -318,20 +318,6 @@ if (typeof KeyEvent == "undefined") {
 CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }
-
-CliqzHumanWeb = {
-    addURLtoDB: function () {
-        console.log("CHW addURLtoDB", arguments);
-    },
-    state: {},
-    notification: function (notification) {
-        console.log("CHW notification", arguments);
-    },
-    getCDByURL: function () {
-        console.log("CHW notification", arguments);
-    }
-
-}
 CliqzHistory = {
     updateQuery: function(){},
     setTabData: function(){}
