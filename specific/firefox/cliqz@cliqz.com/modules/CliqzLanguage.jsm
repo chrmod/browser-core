@@ -15,8 +15,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
-  'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
 // we keep a different preferences namespace than cliqz so that it does not get
 // removed after a re-install or sent during a logging signal
@@ -28,26 +26,6 @@ var CliqzLanguage = {
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
-    regexGoogleRef: /\.google\..*?\/(?:url|aclk)\?/,
-    regexGoogleQuery: /\.google\..*?[#?&;]q=[^$&]+/,
-    regexGoogleAdRef: /\.google\..*?\/aclk\?/,
-    regexGoogleRefUrl: /url=(.+?)&/,
-
-    sendCompSignal: function(actionName, options) {
-        var action = {
-            type: 'performance',
-            redirect: options.isRedirect,
-            action: actionName,
-            query_made: CliqzAutocomplete.afterQueryCount,
-            popup: CliqzAutocomplete.lastPopupOpen,
-            same_result: options.isSameResult,
-            result_type: options.cliqzResultType,
-            result_position: options.cliqzResultIndex,
-            is_ad: options.isGoogleAd,
-            v: 1
-        };
-        CliqzUtils.telemetry(action);
-    },
     _locale: null,
     getLocale: function(){
         if(!CliqzLanguage._locale){
@@ -73,12 +51,6 @@ var CliqzLanguage = {
 
             this.currentURL = aURI.spec;
 
-            // here we check if user ignored our results and went to google and landed on the same url
-            if (CliqzLanguage.regexGoogleQuery.test(this.currentURL) &&
-                !CliqzLanguage.regexGoogleRef.test(this.currentURL)) {
-                CliqzAutocomplete.afterQueryCount += 1;
-            }
-
             // now the language detection
             CliqzLanguage.window.setTimeout(function(currURLAtTime) {
                 try {
@@ -101,49 +73,6 @@ var CliqzLanguage = {
 
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
-        onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
-            var isRequestValid = aRequest && (aStateFlag &
-                    Ci.nsIWebProgressListener.STATE_START) && !aStatus,
-                isGoogleRef = aRequest && CliqzLanguage.regexGoogleRef.test(aRequest.name);
-
-            if (!isRequestValid || !isGoogleRef) {
-                return;
-            }
-
-            var isGoogleAd = CliqzLanguage.regexGoogleAdRef.test(aRequest.name),
-                googleUrlMatch = !isGoogleAd && aRequest.name.match(CliqzLanguage.regexGoogleRefUrl),
-                isLastPopupOpen = CliqzAutocomplete.lastPopupOpen,
-                cliqzResults = CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results,
-                cliqzResultType = null,
-                cliqzResultIndex = null,
-                isSameResult = false,
-                googleUrl;
-
-            if (!isGoogleAd && isLastPopupOpen && googleUrlMatch) {
-                googleUrl =
-                    CliqzUtils.generalizeUrl(decodeURIComponent(googleUrlMatch[1]));
-                isSameResult = cliqzResults && cliqzResults.some(function (r, i) {
-                    var cliqzUrl = CliqzUtils.generalizeUrl(r.val);
-
-                    if (cliqzUrl === googleUrl) {
-                        CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
-                        cliqzResultType = CliqzUtils.encodeResultType(r.style || r.type);
-                        cliqzResultIndex = i;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-            }
-
-            CliqzLanguage.sendCompSignal('result_compare', {
-                isRedirect: true,
-                isGoogleAd: isGoogleAd,
-                isSameResult: isSameResult,
-                cliqzResultType: cliqzResultType,
-                cliqzResultIndex: cliqzResultIndex
-            });
-        }
     },
 
     // load from the about:config settings

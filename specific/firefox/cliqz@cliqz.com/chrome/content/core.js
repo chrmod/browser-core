@@ -66,6 +66,21 @@ var locationListener = {
   }
 };
 
+var tabsProgressListener = {
+  QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+
+  onLocationChange: function (aBrowser, aProgress, aRequest, aURI) {
+    CliqzEvents.pub("core.tab_location_change", { url: aURI && aURI.spec });
+  },
+
+  onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
+    CliqzEvents.pub("core.tab_state_change", {
+      url: aRequest && aRequest.name,
+      isValid: (aStateFlag & Components.interfaces.nsIWebProgressListener.STATE_START) && !aStatus,
+    });
+  }
+}
+
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
@@ -153,6 +168,7 @@ window.CLIQZ.Core = {
         gBrowser.tabContainer.addEventListener("TabSelect", this.tabChange, false);
 
         gBrowser.addProgressListener(locationListener);
+        gBrowser.addTabsProgressListener(tabsProgressListener);
 
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
@@ -299,6 +315,7 @@ window.CLIQZ.Core = {
         gBrowser.tabContainer.removeEventListener("TabClose", this.tabRemoved, false);
 
         gBrowser.removeProgressListener(locationListener);
+        gBrowser.removeTabsProgressListener(tabsProgressListener);
 
         document.getElementById('urlbar-go-button').setAttribute('onclick', this._urlbarGoButtonClick);
 
