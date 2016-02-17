@@ -21,7 +21,7 @@ describe('Search View', function() {
 	
 	contentWindow.onload = function() {
 		isReady = contentWindow.osBridge.isReady;
-		contentWindow.osBridge.isReady = function () { console.log('IS READY'); isReady(); done() };
+		contentWindow.osBridge.isReady = function () { isReady(); done() };
 	}
 
   });
