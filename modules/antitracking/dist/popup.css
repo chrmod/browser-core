@@ -131,12 +131,16 @@ footer {
     width: 100%;
 }
 
-footer .learn-more {
+footer .cqz-learn-more {
     float: right;
+    margin-right: 3px;
+    color: #999;
+    font-size: 12px;
+    text-decoration: none;
 }
 
-.learn-more, .learn-more:hover, .learn-more:visited {
-    color: #aaa;
+.cqz-learn-more:hover {
+    text-decoration: underline;
 }
 
 .cqz-antitracking-popup {
@@ -148,7 +152,7 @@ footer .learn-more {
 
 .cqz-antitracking-popup .cqz-antrc-head {
     padding: 25px 10px 25px 72px;
-    margin: 0 0 20px;
+    margin: 0 0 10px;
     color: #fff;
     font-size: 16px;
     text-align: left;
@@ -180,11 +184,11 @@ ul.cqz-antrc-btns-holder li {
     color: #fff;
     font-size: 14px;
     border-radius: 3px;
-    background: #ccc;
+    background: #999;
 }
 
 .cqz-antrc-btn:hover {
-    background: #999;
+    background: #666;
 }
 
 .cqz-antrc-power-btn  {
@@ -196,6 +200,11 @@ ul.cqz-antrc-btns-holder li {
 /*========= Antitrack Enabled =======*/
 
 .cqz-attrack-enabled .cqz-antrc-power-btn { background-color: #FF5349; }
+.cqz-attrack-enabled .cqz-antrc-power-btn:hover { background-color: #EB4036; }
+
+
+.cqz-whitelist-btn  .cqz-whitelist-btn-on { display: block; }
+.cqz-whitelist-btn  .cqz-whitelist-btn-off { display: none; }
 
 
 /*========= Antitrack Disabled =======*/
@@ -209,11 +218,15 @@ ul.cqz-antrc-btns-holder li {
 
 
 /*========= Antitrack Disabled =======*/
+
 .cqz-domain-in-whitelist .cqz-whitelist-btn {
-    background: #666;
+    background: #444;
 }
+.cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: none; }
+.cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: block; }
+
 .cqz-domain-in-whitelist .cqz-whitelist-btn:hover {
-    background: #333;
+    background: #222;
 }
 
 

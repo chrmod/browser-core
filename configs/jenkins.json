@@ -6,7 +6,8 @@
     "unblockUI": true,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
-    "channel": "99"
+    "channel": "99",
+    "antitrackingButton": true
   },
   "modules": [
     "static",
@@ -19,6 +20,9 @@
     "loyalty",
     "firefox-tests",
     "telemetry-categories",
-    "antitracking"
+    "antitracking",
+    "fresh-tab-frontend",
+    "human-web",
+    "anti-phishing"
   ]
 }
