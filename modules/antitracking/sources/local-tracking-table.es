@@ -93,8 +93,10 @@ export default class {
 
   cleanTable() {
     var cutoff = (new Date()).getTime() - (1000 * 60 * 60 * 24 * 7); // 7 days ago
-    var query = "DELETE FROM attrack_tracking WHERE lastTime < " + cutoff;
-    this.dbConn.executeSimpleSQL(query);
+
+    var st = this.dbConn.createStatement("DELETE FROM attrack_tracking WHERE lastTime < :cutoff");
+    st.params.cutoff = cutoff;
+    st.executeAsync()
   }
 
   isEnabled() {
