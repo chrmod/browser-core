@@ -474,5 +474,4 @@ function registerHelpers(){
           return ''
         }
     });
-    });
 }
