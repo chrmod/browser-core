@@ -55,6 +55,11 @@ Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equ
 });
 
 
+Handlebars.registerHelper('mobileWikipediaUrls', function(url) { 
+  return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
+});
+
+
 
 function trace() {
   try {
