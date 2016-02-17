@@ -1,6 +1,6 @@
 var enableButton = document.querySelector("#cqz-antrc-power-btn"),
     whitelistButton = document.querySelector("#cqz-whitelist-btn"),
-    learnMoreLink = document.querySelector(".learn-more"),
+    learnMoreLink = document.querySelector(".cqz-learn-more"),
     hostname;
 
 function setBodyClass(options) {

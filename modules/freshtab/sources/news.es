@@ -11,7 +11,7 @@ var ONE_MINUTE = 60 * 1000,
     NEWS_CACHE_INTERVAL = 30 * ONE_MINUTE,
     DATA_CACHE_INTERVAL = ONE_DAY,
     t0, // timers
-    news_domains = {"239814667":true,"141155138":true,"177036313":true,"143121315":true,"70630552":true,"108090229":true,"75759830":true,"43531093":true,"72705985":true,"69361267":true,"112652137":true,"72713242":true,"109152934":true,"71039905":true,"46924745":true,"74661948":true,"147724433":true,"171598683":true,"79047610":true,"184245020":true,"242855958":true,"208083746":true,"34606719":true,"238777345":true,"113796197":true,"9136283":true,"11737641":true,"168119182":true,"236142977":true,"5759018":true,"104278336":true,"242422332":true,"242811461":true,"140910568":true,"45490817":true,"113652989":true,"202902407":true,"239458076":true,"213411883":true,"79569783":true,"140391363":true,"38700250":true,"145917300":true,"141036122":true,"170980553":true,"71790765":true,"80690384":true,"113393926":true,"108568271":true,"137528788":true,"102881421":true,"14345939":true,"241631840":true,"141856929":true,"211123764":true,"102241915":true,"105372134":true,"9254235":true,"39404899":true,"183218837":true,"69293591":true,"100894003":true,"6124559":true,"235505375":true,"15713350":true,"78534610":true,"45794709":true,"3521486":true,"138610627":true,"71113800":true,"140081125":true,"244002985":true,"43951400":true,"106215399":true,"10276572":true,"36616645":true,"241173928":true,"12235342":true,"6529331":true,"38686913":true,"6448076":true,"113298437":true,"181700849":true,"251443988":true,"214714184":true,"248724254":true,"212983134":true,"76471229":true,"108523534":true,"180095924":true,"5320408":true,"170085797":true,"136594333":true,"115675761":true,"81285235":true,"80880326":true,"81889451":true,"238595002":true,"3462868":true,"245440575":true,"71632735":true,"138353806":true,"171773418":true,"150613827":true,"72277360":true,"102857348":true,"101314158":true,"216124125":true,"74071458":true,"111313536":true,"148531919":true,"76644610":true,"16295799":true,"77319610":true,"83668076":true,"789884":true,"244009288":true,"216355379":true,"9792262":true,"75783985":true,"76948360":true,"150921227":true,"82065538":true,"236458718":true,"40762155":true,"76965235":true,"73353973":true,"180898825":true,"67320133":true,"72797110":true,"147148965":true,"237976063":true,"76971985":true,"214455477":true,"145858766":true,"10922616":true,"181502899":true,"173483201":true,"39472004":true,"69472735":true,"38094382":true,"5357951":true,"16120391":true,"210663045":true,"74231485":true,"183456569":true,"102999840":true,"16063865":true,"206470712":true,"5982326":true,"104780054":true,"68212258":true,"142977877":true,"100667580":true,"81471951":true,"107003152":true,"201557843":true,"150613963":true,"207641190":true,"81150235":true,"4454032":true,"143261715":true,"114601207":true,"37248174":true,"244434847":true,"178958752":true,"74275360":true,"248962108":true,"174373373":true,"82141174":true,"116229637":true,"73348137":true,"205726722":true,"148999872":true,"240903211":true,"145555265":true,"184043374":true,"465620":true,"251470487":true,"4574823":true,"47479667":true,"146672137":true,"6525262":true,"182872720":true,"4592036":true,"44469468":true,"75065486":true,"115867194":true,"77201485":true,"44971794":true,"217546276":true,"208726208":true,"107727411":true,"13675268":true,"172655282":true,"245292361":true,"5921576":true,"8639085":true,"77777528":true,"101589065":true,"69620493":true,"243524240":true,"46500457":true,"76431864":true,"108598008":true,"111033825":true,"73809610":true,"207521902":true,"70195478":true,"1857910":true,"249189098":true,"135964756":true,"182576755":true,"83345677":true,"134687466":true,"77870507":true,"106867254":true,"83508049":true,"68105860":true,"113095973":true,"37350675":true,"44296786":true,"175305615":true,"47271399":true,"6296201":true,"243466225":true,"6407576":true,"3780195":true,"15870603":true,"177381402":true,"115978914":true,"34623041":true,"67532110":true,"201572094":true,"177387947":true},
+    news_domains = {238777345: true, 205726722: true, 168693251: true, 116229637: true, 796680: true, 146672137: true, 150921227: true, 108523534: true, 6124559: true, 143261715: true, 12929557: true, 100682630: true, 69293591: true, 143002826: true, 205798148: true, 177381402: true, 45585948: true, 248842781: true, 42941135: true, 113298437: true, 74275360: true, 68212258: true, 217546276: true, 113393926: true, 184245020: true, 11737641: true, 5759018: true, 240903211: true, 38094382: true, 77319610: true, 45291057: true, 107727411: true, 211123764: true, 136808501: true, 106867254: true, 101941303: true, 206470712: true, 9179572: true, 115867194: true, 245704031: true, 74661948: true, 245440575: true, 34623041: true, 239814667: true, 138353806: true, 15713350: true, 16120391: true, 71113800: true, 101589065: true, 77201485: true, 12235342: true, 83345677: true, 80880326: true, 44296786: true, 2511443: true, 135964756: true, 12722702: true, 138610627: true, 247843929: true, 141036122: true, 242153487: true, 79047610: true, 114601207: true, 2306320: true, 3780195: true, 113796197: true, 207641190: true, 4574823: true, 46500457: true, 78449258: true, 79476327: true, 83668076: true, 8639085: true, 101314158: true, 115675761: true, 239942081: true, 182576755: true, 77474825: true, 5982326: true, 10922616: true, 102241915: true, 169723599: true, 34606719: true, 111313536: true, 45490817: true, 82065538: true, 68105860: true, 70195478: true, 244682053: true, 173483201: true, 6296201: true, 15870603: true, 102881421: true, 243084430: true, 182872720: true, 147724433: true, 5891625: true, 183218837: true, 251470487: true, 70630552: true, 4454032: true, 9136283: true, 184420634: true, 182419617: true, 115978914: true, 147148965: true, 109152934: true, 181374631: true, 244002985: true, 71790765: true, 240115886: true, 146427852: true, 108380849: true, 172655282: true, 47479667: true, 213331124: true, 145917300: true, 145307935: true, 100667580: true, 74231485: true, 148999872: true, 38686913: true, 242132674: true, 109253315: true, 237890166: true, 1794758: true, 136180937: true, 73809610: true, 79569783: true, 145858766: true, 148531919: true, 80690384: true, 77777528: true, 14345939: true, 465620: true, 75759830: true, 69361267: true, 5320408: true, 2189348: true, 143166170: true, 108568271: true, 44469468: true, 216124125: true, 236458718: true, 235505375: true, 209425120: true, 141793488: true, 3439569: true, 208318327: true, 134687466: true, 76735094: true, 36104430: true, 181700849: true, 80218356: true, 73353973: true, 73348137: true, 108598008: true, 73453305: true, 6427775: true, 113652989: true, 201572094: true, 149024640: true, 76644610: true, 213411883: true, 13675268: true, 43951400: true, 9792262: true, 250929793: true, 77984132: true, 137528788: true, 69620493: true, 107003152: true, 44971794: true, 37350675: true, 251443988: true, 171558165: true, 104780054: true, 103752472: true, 102857348: true, 106180769: true, 81150235: true, 239458076: true, 248724254: true, 210663045: true, 102999840: true, 208083746: true, 113095973: true, 45315878: true, 5921576: true, 10276572: true, 112979754: true, 40762155: true, 207521902: true, 207458364: true, 75783985: true, 72713242: true, 6529331: true, 181698195: true, 79743113: true, 15923252: true, 76821306: true, 75387708: true, 117337888: true, 104278336: true, 145555265: true, 141155138: true, 150613827: true, 14817092: true, 67320133: true, 170718023: true, 214714184: true, 245292361: true, 242422332: true, 6525262: true, 240417088: true, 83508049: true, 201557843: true, 13942670: true, 142977877: true, 183456569: true, 171598683: true, 212983134: true, 71632735: true, 80485432: true, 243524240: true, 245082466: true, 39404899: true, 112652137: true, 106215399: true, 184043374: true, 72277360: true, 167796712: true, 143968607: true, 76965235: true, 180898825: true, 108090229: true, 1857910: true, 16295799: true, 16063865: true, 79320954: true, 789884: true, 249189098: true, 5357951: true, 150359424: true, 236142977: true, 141526403: true, 39472004: true, 201774982: true, 202902407: true, 76948360: true, 9392012: true, 175540202: true, 168119182: true, 175305615: true, 208726208: true, 3462868: true, 45794709: true, 6407576: true, 137825482: true, 136594333: true, 244434847: true, 178958752: true, 71039905: true, 74071458: true, 143121315: true, 4592036: true, 170085797: true, 241173928: true, 1271721: true, 77870507: true, 68737437: true, 244009288: true, 181502899: true, 180095924: true, 33802677: true, 72797110: true, 238595002: true, 76471229: true, 72705985: true, 140391363: true, 36616645: true, 141856929: true, 246096328: true, 46924745: true, 150613963: true, 6448076: true, 44614606: true, 81471951: true, 76971985: true, 78534610: true, 177036313: true, 67532110: true, 43531093: true, 177387947: true, 242783198: true, 69472735: true, 216355379: true, 111033825: true, 134355940: true, 140081125: true, 105372134: true, 47271399: true, 140910568: true, 70748137: true, 171773418: true, 173399207: true, 108705261: true, 243466225: true, 40583031: true, 82141174: true, 76431864: true, 237976063: true, 171363: true, 174373373: true, 148890453: true},
     hBasedNews = config.freshTabHistoryNews,
     hBasedNewsNumber = 3,
     topNewsMaxNumber = 30;
@@ -104,7 +104,9 @@ function getHbasedNewsList(hBasedNewsNumber){
       log('Compose hbased recommendations.');
       var topic_db_path = {},
         news_results = [],
-        path_array = [];
+        path_array = [],
+        news_dcache = {},
+        hash_list = [];
 
       CliqzHistoryManager.PlacesInterestsStorage._execute(
         'SELECT * FROM moz_places WHERE last_visit_date>:date',
@@ -112,7 +114,7 @@ function getHbasedNewsList(hBasedNewsNumber){
         function(result){
           var url_desc = CliqzUtils.getDetailsFromUrl(result.url);
           //check if domain is in the list of news domains
-          var c = news_domains[CliqzUtils.hash(url_desc.domain)];
+          var c = news_domains[parseInt(CliqzUtils.hash(url_desc.domain))];
           if (c){
             // take visit count only for the exact domain and sub domains, not for articles' url
             path_array = url_desc.path.split('/');
@@ -135,13 +137,27 @@ function getHbasedNewsList(hBasedNewsNumber){
             }else{
               news_results = [];
             }
-            log(news_results);
 
+            news_dcache['domain_list'] = news_results;
+
+            if ((cache)&&(JSON.parse(cache))&&JSON.parse(cache).hash_list){
+              hash_list = JSON.parse(cache).hash_list;
+            }else{
+              hash_list = [];
+            }
+
+            if (news_results.length !== 0){
+              news_dcache['hash_list'] = randomizRequest(hash_list, news_results);
+            }else{
+              news_dcache['hash_list'] = [];
+            }
+
+            log(news_dcache);
             var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
-            if (ls) ls.setItem("freshTab-data", JSON.stringify(news_results));
+            if (ls) ls.setItem("freshTab-data", JSON.stringify(news_dcache));
 
             CliqzUtils.setPref('freshTabDTime', '' + Date.now());
-            resolve(news_results);
+            resolve(news_dcache);
           }
         );
     }else{
@@ -151,6 +167,69 @@ function getHbasedNewsList(hBasedNewsNumber){
   });
 }
 
+function randomizRequest(request_list, history_data){
+  function randomValueOf(obj) {
+    var keys = Object.keys(obj);
+    var len = keys.length;
+    var rnd = Math.floor(Math.random()*len);
+    return parseInt(keys[rnd]);
+  }
+
+  function sortFunct(i, j){
+    return i < j;
+  }
+
+  function subsRandomElement(request_list, history_hash_data, element_to_add){
+    var random_hashes = request_list.filter(function(i){ return history_hash_data.indexOf(i) < 0;});
+
+    var rn = random_hashes[randomValueOf(random_hashes)];
+    if (element_to_add){
+      request_list[request_list.indexOf(rn)] = element_to_add;
+    }else{
+      request_list[request_list.indexOf(rn)] = randomValueOf(news_domains);
+    }
+  }
+
+  if (history_data.length !== 0){
+    var randomised_array_size = 10,
+      buffer_value = 0,
+      number_of_elements_to_change = 0,
+      history_hash_data = [];
+
+    // fill array with up to necessary number
+    while (request_list.length < randomised_array_size){
+      request_list.push(randomValueOf(news_domains));
+    }
+
+    // transform domains to hash form
+    history_data.forEach(function(val){
+        buffer_value = parseInt(CliqzUtils.hash(val[0].split('/')[0]));
+        history_hash_data.push(buffer_value);
+      });
+
+    // fill array with necessary domain hashes
+    history_hash_data.forEach(function(val){
+      if (request_list.indexOf(val) === -1){
+        //substitute the necessary element
+        subsRandomElement(request_list, history_hash_data, val);
+        number_of_elements_to_change += 1
+      }
+    });
+
+    while (number_of_elements_to_change > 0){
+      //substitute additional rand. elements
+      subsRandomElement(request_list, history_hash_data, false);
+      number_of_elements_to_change -= 1
+    }
+
+    request_list.sort(sortFunct);
+
+    return request_list;
+  }else{
+    return [];
+  }
+}
+
 function getNewsDistributionUrlBased(topic_db, records_number){
 
   function sortFunct(i, j){
@@ -158,7 +237,7 @@ function getNewsDistributionUrlBased(topic_db, records_number){
   }
 
   function subDomainCount(subDomain, rn, pathList){
-    
+
     var subDomainRatioThreshold = 0.6,
       subDomainList = [],
       added_at_level = 0;
@@ -291,7 +370,7 @@ function getTopicBasedOnUrl(url_desc, visit_count, topic_dict){
   topic_dict[domain].sub = countSubCategories(topic_dict[domain].sub, keys_set, visit_count, 0);
 }
 
-function createNewsList(history_data, callback){
+function createNewsList(hcache, callback){
 
   function checkDuplicates(url, res_list){
     for (var k in res_list){
@@ -314,13 +393,16 @@ function createNewsList(history_data, callback){
     return true;
   }
 
-  function mergeNews(input_list, results, news_type, domain, number_to_add){
+  function mergeNews(input_list, results, news_type, domain, path, number_to_add){
 
     var i = 0;
     while ((number_to_add > 0)&&(i < input_list.length)){
       //check duplication in results
       //check if article already been read, not for humanly made news
-      if ((checkDuplicates(input_list[i]['url'], results))&&((news_type == 'top_h_news')||checkIfInHistory(input_list[i]['url']))){
+      //url should contain path sub path
+      if ((checkDuplicates(input_list[i]['url'], results))&&((news_type == 'top_h_news')||checkIfInHistory(input_list[i]['url']))
+          &&((path === '')||(input_list[i]['url'].indexOf(path) !== -1))){
+
         var article_to_add = input_list[i];
         article_to_add['news_type'] = news_type;
         if (domain != ''){
@@ -374,12 +456,17 @@ function createNewsList(history_data, callback){
       topic_news_url = RICH_HEADER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(), // news by domain and topik
       topic_news_url = topic_news_url + '&q=',
       news_urls = [],
-      news_results = {};
+      news_results = {},
+      news_data_cache = {},
+      history_data;
 
-  topic_news_url += JSON.stringify(history_data);
+  news_data_cache = hcache;
+  topic_news_url += JSON.stringify(news_data_cache.hash_list)
+
+  history_data = news_data_cache.domain_list;
 
   news_urls.push([top_news_url, topNewsMaxNumber, 'top_h_news']);
-  if (isNotEmpty(history_data)){
+  if (isNotEmpty(news_data_cache)){
     news_urls.push([topic_news_url, hBasedNewsNumber, 'hb_news']);
   }
 
@@ -415,29 +502,40 @@ function createNewsList(history_data, callback){
     //iterate over results
     vals.forEach(function(val){
         // merge results depends from type
-        if ((val.res)&&(val.res.results)){
+        if ((val.res)&&(val.res.results)&&val.res.results[0]){
           if (val.news_type == 'hb_news'){
+            log(val.res);
             var hbased_dict = val.res.results[0].news;
 
             history_data.forEach(function(d){
               domain = d[0].split('/')[0];
               path = d[0];
               limit = d[1] + not_added_news;
-              list_to_merge = hbased_dict[path] || [];
-              not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, limit);
+              list_to_merge = hbased_dict[domain] || [];
+              not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, path, limit);
+              // if sublevel was not merged try on domain level
+              if ((domain != path)&&(not_added_news > 0)){
+                not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, domain, not_added_news);
+              }
             });
           }else if (val.news_type == 'top_h_news') {
             list_to_merge = val.res.results[0].articles;
-            mergeNews(list_to_merge, news_results, val.news_type, '', val.limit);
+            mergeNews(list_to_merge, news_results, val.news_type, '', '', val.limit);
             if (val.res.results[0].news_version){
               news_results['top_news_version'] =  val.res.results[0].news_version;
             }
-          } 
+          }
         }else{
           cache_full_update_flag = false;
-          log('FreshTab news of type is failded to retrive: ' + val.news_type);
+          log('FreshTab news of type are failded to retrive: ' + val.news_type);
         }
     });
+    if (news_results.hb_news){
+      if (Object.keys(news_results.hb_news).reduce(function(prev, i){ return prev + Object.keys(news_results.hb_news[i]).length }, 0) < hBasedNewsNumber){
+        delete news_results.hb_news;
+        log('Not enough hbased news.');
+      }
+    }
     updateFreshTabNewsCache(news_results, cache_full_update_flag);
     if(callback) callback();
   });
@@ -489,3 +587,4 @@ function normalizeUrlBasedCount(topic_dict){
 }
 
 export default CliqzFreshTabNews;
+
