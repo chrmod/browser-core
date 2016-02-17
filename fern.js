@@ -8,6 +8,8 @@ const fs = require('fs');
 const wrench = require('wrench');
 const walk = require('walk');
 const colors = require('colors');
+const broccoli = require('broccoli');
+const Testem = require('testem')
 
 const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
@@ -49,6 +51,34 @@ program.command('serve [file]')
           setConfigPath(configPath);
 
           let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
+       });
+
+program.command('test <file>')
+       .action(configPath => {
+          setConfigPath(configPath);
+          let node = broccoli.loadBrocfile();
+          let builder = new broccoli.Builder(node);
+          let server = broccoli.server.serve(builder, {
+            port: 4200,
+            host: 'localhost'
+          });
+          let watcher = server.watcher;
+
+          let testem = new Testem();
+          let started = false;
+
+          watcher.on('change', function() {
+            if (started) {
+              testem.restart();
+            } else {
+              started = true;
+
+              testem.startDev({
+                host: 'localhost',
+                port: '3000'
+              });
+            }
+          });
        });
 
 program.command('generate <type> <moduleName>')

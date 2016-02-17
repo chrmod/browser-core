@@ -1,0 +1,7 @@
+{
+  "framework": "mocha",
+  "launch_in_dev": ["Chrome"],
+  "serve_files": [
+    "tests/**/*.js"
+  ]
+}
