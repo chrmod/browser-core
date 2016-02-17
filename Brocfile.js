@@ -15,7 +15,7 @@ var JSHinter = require('broccoli-jshint');
 var ConfigReplace = require('broccoli-config-replace');
 
 // build environment
-var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
+var buildEnv = 'production';
 
 // input trees
 var bowerComponents = new Funnel('bower_components');

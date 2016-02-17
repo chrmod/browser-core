@@ -9,8 +9,6 @@
 	{{/if}}
  {{/with}}
 
-
-
 	<section class="primary">
 		<h1 class="card__title">{{data.title}}</h1>
 		<div class="card__meta">
@@ -60,7 +58,10 @@
 						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
 					{{/if}}
 				{{/with}}	
-				<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
+				<h2 class="cards__title__secondary" url="{{url}}">
+					{{title}}
+					<span>{{rank}}</span>
+				</h2>
 			</div>
 		{{/each}}		
 		
