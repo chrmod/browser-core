@@ -16,7 +16,7 @@
       {{#with data}}
           <div class='multi-ellipsis'>
             <p>
-              {{description}}
+              {{{description}}}
             </p>
           </div>
             {{#if zeroInf}}

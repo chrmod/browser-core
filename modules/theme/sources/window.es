@@ -10,9 +10,11 @@ export default class {
         themeUrl;
 
     if(CliqzUtils.isWindows()) {
-      themeUrl = 'chrome://cliqz/content/theme/theme-win.css';
-    } else {
-      themeUrl = 'chrome://cliqz/content/theme/theme-mac.css';
+      themeUrl = 'chrome://cliqz/content/theme/styles/theme-win.css';
+    } else if (CliqzUtils.isMac()) {
+      themeUrl = 'chrome://cliqz/content/theme/styles/theme-mac.css';
+    } else if (CliqzUtils.isLinux()) {
+      themeUrl = 'chrome://cliqz/content/theme/styles/theme-linux.css';
     }
 
     CLIQZ.Core.addCSS(document, themeUrl);

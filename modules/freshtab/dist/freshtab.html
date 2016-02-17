@@ -6,7 +6,7 @@
     <link href="styles/styles.css" rel="stylesheet" media="screen" />
 
     <script src="js/jquery-2.1.3.min.js"></script>
-    <script src="platform.js"></script>
+    <script src="../platform/global.js"></script>
     <script src="js/helpers/telemetry.js"></script>
     <script src="js/plugins/slider.js"></script>
     <script src="js/models/history.js"></script>
@@ -25,10 +25,19 @@
       <div class="content">
         <ul>
         {{#each this}}
-        <li>
-          <a href="{{url}}" class="topNewsLink" data-index="{{@index}}">
-            <div class="title">{{short_title}}</div>
-            <div class="url">{{displayUrl}}</div>
+        <li class="clearfix">
+          <a href="{{url}}" class="topnews news" data-index="{{@index}}">
+            {{#unless onlyTopNews }}
+              <div extra="logo" class="logo" style="{{logo.style}}"></div>
+            {{/unless}}
+            <div class="newsContent">
+              {{#if underline }}
+                <div extra="title" class="title underline">{{short_title}}</div>
+              {{else}}
+                <div extra="title" class="title">{{short_title}}</div>
+              {{/if}}
+              <div extra="url" class="url">{{displayUrl}}</div>
+            </div>
           </a>
         </li>
         {{/each}}
@@ -36,29 +45,29 @@
       </div>
     </script>
 
-    <!--<script id="slider-btns" type="text/x-handlebars-template">
-            {{#each this}}
-                 <div><a data-state="{{@index}}" href="#">{{@index}}</a></div>
-            {{/each}}
-        </div>
-    </script>-->
-
     <script id="yourNews" type="text/x-handlebars-template">
-      <div class="heading">
-        <h2>YOUR NEWS</h2>
+      <div class="heading clearfix">
+        <h2>{{local 'freshtab_your_news'}}</h2>
       </div>
       <div class="content">
         {{#each this}}
-        <div class="clearfix newsBlock">
-          <div class="news-logo" style="{{logo.style}}"></div>
           <ul>
           {{#each this}}
             <li>
-              <a href="{{url}}" class="title" data-index="{{@index}}">{{title}}</a>
+                <a href="{{url}}" class="title yournews news" data-index="{{@index}}">
+                    <div extra="logo" class="logo" style="{{logo.style}}"></div>
+                    <div class="newsContent">
+                      {{#if underline }}
+                        <div extra="title" class="title underline">{{title}}</div>
+                      {{else}}
+                        <div extra="title" class="title">{{title}}</div>
+                      {{/if}}
+                      <div extra="url" class="url">{{displayUrl}}</div>
+                    </div>
+                </a>
             </li>
           {{/each}}
           </ul>
-        </div>
         {{/each}}
       </div>
     </script>
@@ -106,7 +115,7 @@
             <li class="surfSafe clearfix">
               <span class="icon"></span>
               <div>
-                <a class="privacy" target="_blank" href="https://cliqz.com/products/cliqz-for-windows/privacy">{{local 'cliqz-onboarding-privacy'}}</a>&nbsp;
+                <a class="privacy" target="_blank" href="https://cliqz.com/whycliqz/privacy">{{local 'cliqz-onboarding-privacy'}}</a>&nbsp;
                 {{local 'cliqz-onboarding-surf-safe'}}
                </div>
             </li>

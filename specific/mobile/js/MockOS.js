@@ -33,6 +33,12 @@ var MockOS = {
       case "removeHistory":
         MockOS.removeHistory(message.data);
         break;
+      case "cleanHistory":
+        MockOS.cleanHistory(message.data);
+        break;
+      case "shareCard":
+        MockOS.shareCard(message.data);
+        break;
 
     }
     message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
@@ -79,68 +85,54 @@ var MockOS = {
     mockedHistory = mockedHistory.filter(function(record) {
       return index >= data.length || data[index] !== record.id || (index++ && false);
     });
+  },
+  cleanHistory: function(data) {
+    console.log("--MOCK: action cleanHistory is called with data", data);
+    if(data.length == 0 || mockedHistory.length === 0) {
+      mockHistory = [];
+      return;
+    }
+
+    var index = 0;
+    mockedHistory = mockedHistory.filter(function(record) {
+      return index < data.length && data[index] === record.id && (index++ || true);
+    });
+    getHistory();
+  },
+  shareCard: function(data) {
+    console.log("--MOCK: action shareCard is called with data", data);
   }
 }
 
 var mockedHistory = 
         [{
-            "id": 7,
-            "title": "Amazon mock 1 ",
-            "url": "http://www.amazon.de/gp/product/B0196HHHK8?redirect=true&ref_=br_asw_pdt-3",
-            "timestamp": Date.now()
-        }, {
-            "id": 6,
-            "title": "TensCare selbsthaftende Elektroden (E-CM5050) 50mm x 50mm (12 Stück) - Amazon mock",
-            "url": "http://www.amazon.de/gp/product/B006J8HNGG?ref_=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
-            "timestamp": Date.now()
-        }, {
-            "id": 5,
-            "title": "Amazon mock sdfsefwfesfe ",
-            "url": "http://www.amazon.de/3",
+            "id": 1,
+            "title": "Facebook",
+            "mainDomain": "Facebook",
+            "url": "http://www.facebook.de",
             "timestamp": Date.now() - 10000
         }, {
-            "id": 4,
-            "title": "TensCare selbsthaftende ebay mock",
-            "url": "http://www.ebay.de/4",
-            "timestamp": Date.now() - 20000
+            "id": 2,
+            "title": "Youtube",
+            "mainDomain": "Youtube",
+            "url": "http://www.youtube.de",
+            "timestamp": Date.now() - 1222250000
         }, {
             "id": 3,
-            "title": "TensCare selbsthaftende ebay mock",
-            "url": "http://www.ebay.de/4",
+            "title": "Focus",
+            "mainDomain": "Focus",
+            "url": "http://www.focus.de",
             "timestamp": Date.now() - 30090
-        },{
-            "id": 8,
-            "title": "TensCare selbsthaftende Elektroden (E-CM5050) 50mm x 50mm (12 Stück)  ebay mock",
-            "url": "http://www.ebay.de/4",
-            "timestamp": Date.now() - 30003
-        },{
-            "id": 9,
-            "title": "Plemeben und Bemben im Speckmantle -  ebay mock",
-            "url": "http://www.ebay.de/gp/product/B006J8HNGG?=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
-            "timestamp": Date.now() - 30000
         }, {
-            "id": 10,
-            "title": "Plemeben und Bemben im Speckmantle -breznsoiza.de mock",
-            "url": "http://www.breznsoiza.de/gp/product/?ref_=gb1h__m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
-            "timestamp": Date.now() - 40000
-        },{
-            "id": 11,
-            "title": "Plemben und Bemben im blah Speckmantle -  breznsoiza mock",
-            "url": "http://www.breznsoiza.de/product/?ref_=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
-            "timestamp": Date.now() - 50000
-        },{
-            "id": 12,
-            "title": "Plemben und Bemben im blah Speckmantle -  breznsoiza mock",
-            "url": "http://www.breznsoiza.de/gp/B00HNGG?ref_=gb1h_tit_m-7_2787_1168f9e3&smid=A3JWKAKR8XB7XF",
-            "timestamp": Date.now() - 80000
-        }, {
-            "id": 2,
-            "title": "Amazon mock sefsefsfsef ",
-            "url": "http://www.amazon.de/546451",
+            "id": 4,
+            "title": "Bild",
+            "mainDomain": "Bild",
+            "url": "http://www.bild.de",
+            "timestamp": Date.now() - 20000
+        },  {
+            "id": 5,
+            "title": "Amazon",
+            "mainDomain": "Amazon",
+            "url": "http://www.amazon.de",
             "timestamp": Date.now() - 121240000
-        }, {
-            "id": 1,
-            "title": "Amazon mock fesfse fsef sfs efs fs sf sefsefs se ",
-            "url": "http://www.amazon.de/14245542",
-            "timestamp": Date.now() - 1222250000
         }];

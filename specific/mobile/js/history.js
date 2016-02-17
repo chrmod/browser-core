@@ -4,11 +4,7 @@ function showHistory(history) {
   clearTimeout(historyTimer);
   var data = [];
   history = history.results;
-  var queries = [];
-  var q = localStorage.getItem("recentQueries");
-  if(q) {
-    queries = JSON.parse(q);
-  }
+  var queries = getListFromStorage("recentQueries");
 
   for(var i=0;i<history.length;i++) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
@@ -58,10 +54,8 @@ function showHistory(history) {
     qi++;
   }
   
-  var starredQueries = localStorage.getItem('starredQueries');
-  var starredHistory = localStorage.getItem('starredHistory');
-  starredQueries = starredQueries ? JSON.parse(starredQueries).reverse() : [];
-  starredHistory = starredHistory ? JSON.parse(starredHistory).reverse() : [];
+  var starredQueries = getListFromStorage('starredQueries').reverse();
+  var starredHistory = getListFromStorage('starredHistory').reverse();
   data = data.map(function (item) {
     if(item.url && item.id === starredHistory[0]) {
       item.starred = true;
@@ -82,7 +76,9 @@ function showHistory(history) {
 
 function displayStarredData(data) {
   displayData(data.filter(function(item) {
-    return !(item.url || item.query) || item.starred;
+    return item.date || item.starred; // filter all unstarred records
+  }).filter(function(item, index, arr){
+    return !item.date || (arr[index + 1] && !arr[index + 1].date); // filter empty days
   }));
 }
 
@@ -162,10 +158,15 @@ function displayData(data) {
 function lunchEditMode(element) {
   clearTimeout(touchTimer);
   touchTimer = null;
+  return;
   if(editMode) {
     endEditMode();
     lunchEditMode(element);
   } else {
+    var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
+    checkboxes.forEach(function(checkbox){
+      checkbox.style.display = 'block';
+    });
     var div = document.getElementById('control');
     div.style.display = 'block';
     editMode = true;
@@ -178,6 +179,13 @@ function lunchEditMode(element) {
 function endEditMode() {
   var framers = [].slice.call(document.getElementsByClassName('framer'));
   framers.forEach(function(item) {item.setAttribute('class', 'framer')});
+  
+  var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
+  checkboxes.forEach(function(element){
+    var checkbox = element.querySelector('input');
+    checkbox.checked = false;
+    element.style.display = 'none';
+  });
   
   var div = document.getElementById('control');
   div.style.display = 'none';
@@ -229,36 +237,38 @@ var selectedHistory = [];
 
 function starSelected() {
   starSelectedList(selectedQueries, 'starredQueries');
+  selectedQueries = [];
   starSelectedList(selectedHistory, 'starredHistory');
-  getHistory();
+  selectedHistory = [];
+  getHistory(starMode);
   endEditMode();
 }
 
 function starSelectedList(selectedList, storageListName) {
-  var storageList = localStorage.getItem(storageListName);
-  if(!storageList) {
-    localStorage.setItem(storageListName, JSON.stringify(selectedList));
+  var storageList = getListFromStorage(storageListName);
+  if(storageList.length === 0) {
     localStorage.setItem(storageListName, JSON.stringify(selectedList));
     selectedList = [];
     return;
   }
-  storageList = JSON.parse(storageList);
 
   var index = 0, id;
-  while(true) {
+  while(index < storageList.length) {
     if(selectedList.length == 0) {
       break;
     }
     id = selectedList[0];
-    if(index >= storageList.length) {
+    if(index >= storageList.length && !unfavoriteMode) {
       storageList = storageList.concat(selectedList);
       break;
     } else if(storageList[index] === id) {
       storageList.splice(index, 1);
       selectedList.shift();
     } else if(storageList[index] < id) {
-      storageList.splice(index, 0, id);
-      index++;
+      if(!unfavoriteMode) {
+        storageList.splice(index, 0, id);
+        index++;
+      }
       selectedList.shift();
     } else {
       index++;
@@ -268,15 +278,16 @@ function starSelectedList(selectedList, storageListName) {
   
   
   localStorage.setItem(storageListName, JSON.stringify(storageList));
-  selectedList = [];
 }
 
 function removeSelectedQueries() {
-  var queries = localStorage.getItem("recentQueries");
-  if(!queries || selectedQueries.length === 0) {
+  var queries = getListFromStorage("recentQueries");
+  if(queries.length === 0 || selectedQueries.length === 0) {
     return;
   }
-  queries = JSON.parse(queries);
+
+  unfavoriteMode = true;
+  starSelectedList(selectedQueries, 'starredQueries');
 
   var index = 0;
   queries = queries.filter(function(query) {
@@ -284,13 +295,16 @@ function removeSelectedQueries() {
   })
   localStorage.setItem("recentQueries", JSON.stringify(queries));
   selectedQueries = [];
-  getHistory();
+  getHistory(starMode);
 }
 
 function removeSelectedHistory() {
+  unfavoriteMode = true;
+  starSelectedList(selectedHistory, 'starredHistory');
+
   osBridge.removeHistory(selectedHistory);
   selectedHistory = [];
-  getHistory();
+  getHistory(starMode);
 }
 
 function removeSelected() {
@@ -326,8 +340,17 @@ function selectHistory(id) {
 }
 
 function selectItem(item) {
+  var checkbox = item.querySelector('input');
+  checkbox.checked = !checkbox.checked;
   var selectAction = item.getAttribute('class').indexOf('question') >= 0 ? selectQuery : selectHistory;
-  selectAction(parseInt(item.getAttribute('data-id')));
+  var id = parseInt(item.getAttribute('data-id'));
+  selectAction(id);
+  setUnfavoriteMode()
+  if(unfavoriteMode) {
+    document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_unstar');
+  } else {
+    document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_star');
+  }
   var framer = item.getElementsByClassName('framer')[0];
   if(framer.getAttribute('class').indexOf('selected') >= 0) {
     framer.setAttribute('class', 'framer');
@@ -339,14 +362,53 @@ function selectItem(item) {
   }
 }
 
+function setUnfavoriteMode() {
+  var starredQueries = getListFromStorage('starredQueries');
+  var starredHistory = getListFromStorage('starredHistory');
+  var diffQueries = getDiff(starredQueries, selectedQueries);
+  var diffHistory = getDiff(starredHistory, selectedHistory);
+  unfavoriteMode = diffQueries.length !== starredQueries.length || diffHistory.length !== starredHistory.length;
+}
+
 function getHistory(isStarred) {
   starMode = isStarred;
   historyTimer = setTimeout(showHistory, 200, {results: []});
   osBridge.searchHistory("", "showHistory");
 }
 
-CliqzUtils.init(this);
-getHistory(false);
-
 var touchTimer, isTapBlocked, historyTimer;
-var editMode = false, starMode = false;
+var editMode = false, starMode = false, unfavoriteMode = false;
+
+function requestHistoryCleanup(removeFavorites) {
+  if(removeFavorites) {
+    localStorage.setItem('starredHistory', []);
+    localStorage.setItem('starredQueries', []);
+    localStorage.setItem('recentQueries', []);
+    osBridge.cleanHistory();
+    return;
+  }
+  var starredHistory = getListFromStorage('starredHistory');
+  osBridge.cleanHistory(starredHistory);
+  var starredQueries = getListFromStorage('starredQueries');
+  var recentQueries = getListFromStorage('recentQueries');
+  selectedQueries = getDiff(recentQueries.map(function(item){return item.id}), starredQueries);
+  removeSelectedQueries();
+}
+
+function getDiff(arr1, arr2) {
+  return arr1.filter(function(id) {
+    return arr2.indexOf(id) == -1;
+  });
+}
+
+function getListFromStorage(listName) {
+  var list = localStorage.getItem(listName);
+  return list ? JSON.parse(list) : [];
+}
+
+System.baseURL = "modules/"
+CLIQZ.System = System;
+CliqzUtils.initPlatform(System);
+
+CliqzUtils.init(this);
+getHistory(starMode);

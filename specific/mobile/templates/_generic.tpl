@@ -1,3 +1,5 @@
+<!-- _generic.tpl -->
+
 {{debug}}
 
 {{#with logo}}
@@ -17,7 +19,7 @@
 			{{/each}}
 		</div>
 		<div class="card__description">
-			{{data.description}}
+			{{{data.description}}}
 		</div>
 		<div class="card__meta">
 			{{urlDetails.friendly_url}}
@@ -66,3 +68,4 @@
 	<section class="share">
 		Share this card: <a href="">{{label}}</a>
 	</section>
+<!-- end _generic.tpl -->

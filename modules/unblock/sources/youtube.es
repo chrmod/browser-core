@@ -1,12 +1,14 @@
 import RegexProxyRule from 'unblock/regexp-proxy-rule';
-import createLazyResourceLoader from 'unblock/resource-loader';
+import ResourceLoader from 'unblock/resource-loader';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
+
+const REFRESH_RETRIES = 2;
 
 // DNS Filter for unblocking YT videos
 export default {
   current_region: '', // current region for YT videos
-  blocked: {}, // cache of seen blocked videos
+  video_info: {},
   video_lookup_cache: new Set(),
   proxied_videos: new Set(),
   last_success: null,
@@ -27,40 +29,40 @@ export default {
         return self.shouldProxy(url);
       }
     });
-    this._loader = createLazyResourceLoader({
+
+    this._loader = new ResourceLoader({
       url: this.CONFIG_URL,
       pref: "unblock_yt_config",
       updateFn: function(val) {
         self.conf = JSON.parse(val);
       }
     });
+    CliqzUtils.setTimeout(this._loader.start.bind(this._loader), 100);
   },
   unload: function() {
-    this._loader.cancel();
+    if (this._loader) {
+      this._loader.stop();
+    }
   },
   refresh: function() {
     // reset internal caches
-    this.blocked = {};
-    this.video_lookup_cache = new Set();
-    this.proxied_videos = new Set();
+    this.video_info = {};
   },
   updateProxyRule: function(vid) {
-    let block_info = this.blocked[vid];
+    var block_info = this.video_info[vid];
     let regex = this.getURLRegex(vid);
     // make a new rule
-    if (block_info['a'].length > 0) {
-      let region = this.proxy_manager.getPreferredRegion(block_info['a']);
+    if (block_info.is_blocked && !block_info.proxy_region && block_info.allowed_regions.length > 0) {
+      let region = this.proxy_manager.getPreferredRegion(block_info.allowed_regions);
       let proxy = this.proxy_manager.getNextProxy(region);
       if (proxy) {
         var rule = new RegexProxyRule(regex, proxy, region);
-        this.proxied_videos.add(vid);
         this.proxy_service.addProxyRule(rule);
-        this.blocked[vid]['p'] = region;
+        block_info.proxy_region = region;
         // revert rule after 1 minute
         CliqzUtils.setTimeout(function() {
-          this.proxied_videos.delete(vid);
+          this.video_info[vid].proxy_region = undefined;
           this.proxy_service.removeProxyRule(rule);
-          this.blocked[vid]['p'] = undefined;
         }.bind(this), 60000);
       }
     }
@@ -71,8 +73,8 @@ export default {
   pageObserver: function(doc) {
     var url = doc.defaultView.location.href,
       vid = this.getVideoID(url),
-      proxied = this.proxied_videos.has(vid),
-      blocking_detected = vid in this.blocked;
+      proxied = this.video_info[vid] && this.video_info[vid].proxy_region,
+      blocking_detected = this.video_info[vid] && this.video_info.is_blocked;
 
     if(vid != undefined) {
 
@@ -97,7 +99,12 @@ export default {
           // add blocked entry
           allowed_regions = new Set(this.proxy_manager.getAvailableRegions());
           allowed_regions.delete(this.current_region);
-          this.blocked[vid] = {'b': [this.current_region], 'a': Array.from(allowed_regions)}
+          // set video info data
+          this.video_info[vid] = this.video_info[vid] || {};
+          this.video_info[vid].is_blocked = true;
+          this.video_info[vid].blocked_regions = [this.current_region];
+          this.video_info[vid].allowed_regions = Array.from(allowed_regions);
+
           CliqzUtils.log('Add blocked youtube page', 'unblock');
           CliqzUtils.telemetry({
             'type': 'unblock',
@@ -106,13 +113,13 @@ export default {
           });
         } else {
           // proxy was also blocked, remove region from allow list
-          allowed_regions = new Set(this.blocked[vid]['a']);
-          allowed_regions.delete(this.blocked[vid]['p'] || '');
-          this.blocked[vid]['a'] = Array.from(allowed_regions);
+          allowed_regions = new Set(this.video_info[vid].allowed_regions);
+          allowed_regions.delete(this.video_info[vid].proxy_region || '');
+          this.video_info[vid].allowed_regions = Array.from(allowed_regions);
           CliqzUtils.telemetry({
             'type': 'unblock',
             'action': 'yt_blocked_2',
-            'region': this.blocked[vid]['p'] || '',
+            'region': this.blocked[vid].p || '',
             'remaining': allowed_regions.size
           });
         }
@@ -171,11 +178,11 @@ export default {
     var self = this;
 
     var vid = this.getVideoID(url),
-      proxied = this.proxied_videos.has(vid);
+      proxied = this.video_info[vid] && this.video_info[vid].proxy_region;
     if(vid && vid.length > 0) {
       // check block cache
-      if(vid in this.blocked &&
-        this.blocked[vid]['a'].indexOf(this.current_region) == -1) {
+      if(vid in this.video_info && this.video_info[vid].is_blocked &&
+        this.video_info[vid].allowed_regions.indexOf(this.current_region) == -1) {
         if (proxied) {
           // proxy rule already exists
           return;
@@ -190,8 +197,9 @@ export default {
         return;
       }
       // lookup api
-      if (!this.video_lookup_cache.has(vid)) {
-        this.video_lookup_cache.add(vid);
+      if (!(this.video_info[vid] && this.video_info[vid].lookup)) {
+        this.video_info[vid] = this.video_info[vid] || {}
+        this.video_info[vid].lookup = true;
 
         CliqzUtils.httpGet(this.conf.api_url.replace('{video_id}', vid), function(req) {
           if (self.conf.api_check.not_blocked_if.every(function(test) { return req.response.indexOf(test) == -1})
@@ -199,7 +207,9 @@ export default {
             // error code,
             let allowed_regions = new Set(self.proxy_manager.getAvailableRegions());
             allowed_regions.delete(self.current_region);
-            self.blocked[vid] = {'b': [self.current_region], 'a': Array.from(allowed_regions)};
+            self.video_info[vid].is_blocked = true;
+            self.video_info[vid].blocked_regions = [self.current_region]
+            self.video_info[vid].allowed_regions = Array.from(allowed_regions);
             CliqzUtils.telemetry({
               'type': 'unblock',
               'action': 'yt_blocked_api',
@@ -221,8 +231,10 @@ export default {
   },
   /** Adapted from getCDByURL on CliqzHumanWeb. Finds the tab(s) which have this video in them, and refreshes.
    */
-  refreshPageForVideo: function(vid) {
-    var enumerator = Services.wm.getEnumerator('navigator:browser');
+  refreshPageForVideo: function(vid, retry_count) {
+    var enumerator = Services.wm.getEnumerator('navigator:browser'),
+        found = false,
+    retry_count = retry_count || REFRESH_RETRIES;
     while (enumerator.hasMoreElements()) {
       var win = enumerator.getNext();
       var gBrowser = win.gBrowser;
@@ -236,9 +248,15 @@ export default {
 
           if(currURL.indexOf(vid) > -1 && currURL.indexOf('www.youtube.com') > -1) {
             cd.defaultView.location.reload();
+            found = true;
           }
         }
       }
+    }
+    if (!found && retry_count > 0) {
+      CliqzUtils.setTimeout(function() {
+        this.refreshPageForVideo(vid, retry_count-1);
+      }.bind(this), 400);
     }
   }
 }

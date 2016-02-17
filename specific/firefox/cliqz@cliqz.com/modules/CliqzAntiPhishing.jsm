@@ -134,7 +134,8 @@ function notifyHumanWeb(p) {
     var url = p.url;
     var status = p.status;
     CliqzHumanWeb.state['v'][url]['isMU'] = status;
-    CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+    // @konarkm: Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
+    // CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
     CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
 }
 
@@ -143,6 +144,7 @@ function updateSuspiciousStatus(url, status) {
     CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'suspicious:' + status;
     if (CliqzHumanWeb) {
         var p = {'url': url, 'status': status};
+
         if (CliqzHumanWeb.state['v'][url]) {
             notifyHumanWeb(p);
         } else {
@@ -187,7 +189,7 @@ function checkStatus(url, md5Prefix, md5Surfix) {
         checkSuspicious(doc, updateSuspiciousStatus);
     }
 }
-    
+
 var CliqzAntiPhishing = {
     forceWhiteList: {},
     blackWhiteList: {},

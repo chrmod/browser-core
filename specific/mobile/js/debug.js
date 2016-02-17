@@ -3,7 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-
 CLIQZ.UI.init(urlbar);
 var item_container, currentQuery;
 
@@ -89,6 +88,14 @@ if(onAndroid || location.port == 4200 || window.webkit) {
 } else {
 
 }
+
+if(location.search.match("urlbar")) {
+  document.getElementById("urlbar").style.display = "block";
+  document.getElementById("urlbar").addEventListener("keyup",function() {
+      search_mobile(this.value, true, 48.155772899999995, 11.615600899999999)
+  });  
+}
+
 
 var debugcss = "background-color:#00aa00;display:block;"
 
@@ -507,25 +514,9 @@ Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
 });
 
 
-function highlightWord(root, word){
-  textNodesUnder(root).forEach(highlightWords);
-  
-  function textNodesUnder(root){
-    var walk=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false),
-        text=[], node;
-    while(node=walk.nextNode()) text.push(node);
-    return text;
-  }
-
-  function highlightWords(n){
-
-    for (var i; (i = n.nodeValue.indexOf(word, i)) > -1; n = after){
-      var after = n.splitText(i + word.length);
-      var highlighted = n.splitText(i);
-      var span = document.createElement('span');
-      span.className = 'highlighted';
-      span.appendChild(highlighted);
-      after.parentNode.insertBefore(span, after);
-    }
-  }
+if( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ) {
+    var styleEl = document.createElement('style'), styleSheet;
+    document.head.appendChild(styleEl);
+    styleSheet = styleEl.sheet;
+    styleSheet.insertRule("p.share_this_card { display: block }", 0);
 }
