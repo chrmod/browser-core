@@ -96,6 +96,7 @@ var CliqzAttrack = {
     safeKeyExpire: 7,
     localBlockExpire: 24,
     shortTokenLength: 8,
+    safekeyValuesThreshold: 4,
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     placeHolder: '',
@@ -251,7 +252,7 @@ var CliqzAttrack = {
             // find the ok tokens fields
             var isPrivate = requestContext.isChannelPrivate();
             if (!isPrivate) {
-                CliqzAttrack.examineTokens(url_parts, CliqzAttrack.examineTokensCallback);
+                CliqzAttrack.examineTokens(url_parts);
             }
 
             // youtube
@@ -1288,6 +1289,12 @@ var CliqzAttrack = {
 
         HttpRequestContext.initCleaner();
 
+        // note: if a 0 value were to be saved, the default would be preferred. This is ok because these options
+        // cannot have 0 values.
+        CliqzAttrack.safekeyValuesThreshold = parseInt(persist.getValue('safekeyValuesThreshold')) || 4;
+        CliqzAttrack.shortTokenLength = parseInt(persist.getValue('shortTokenLength')) || 8;
+        
+        CliqzAttrack.placeHolder = persist.getValue('placeHolder', CliqzAttrack.placeHolder);
     },
     /** Per-window module initialisation
      */
@@ -1433,8 +1440,20 @@ var CliqzAttrack = {
             var versioncheck = JSON.parse(req.response);
 
             // config in versioncheck
-            if ('placeHolder' in versioncheck) CliqzAttrack.placeHolder = versioncheck['placeHolder'];
-            if (versioncheck.shortTokenLength) CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength);
+            if (versioncheck.placeHolder) {
+                persist.setValue('placeHolder', versioncheck.placeHolder)
+                CliqzAttrack.placeHolder = versioncheck.placeHolder;
+            }
+
+            if (versioncheck.shortTokenLength) {
+                persist.saveValue('shortTokenLength', versioncheck.shortTokenLength);
+                CliqzAttrack.shortTokenLength |= parseInt(versioncheck.shortTokenLength);
+            }
+
+            if (versioncheck.safekeyValuesThreshold) {
+                persist.saveValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
+                CliqzAttrack.safekeyValuesThreshold |= parseInt(versioncheck.safekeyValuesThreshold);
+            }
 
             // fire events for list update
             events.pub("attrack:updated_config", versioncheck);
@@ -1644,10 +1663,7 @@ var CliqzAttrack = {
         }
         return badHeaders;
     },
-    examineTokens: function(url_parts, callback) {
-        callback(url_parts);
-    },
-    examineTokensCallback: function(url_parts) {
+    examineTokens: function(url_parts) {
         var day = datetime.newUTCDate();
         var today = datetime.dateString(day);
         // save appeared tokens with field name
@@ -1668,7 +1684,7 @@ var CliqzAttrack = {
 
             CliqzAttrack.requestKeyValue[s][key][tok] = today;
             // see at least 3 different value until it's safe
-            if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > 2) {
+            if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > CliqzAttrack.safekeyValuesThreshold) {
                 CliqzAttrack.qs_whitelist.addSafeKey(s, key);
                 // keep the last seen token
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};

@@ -746,6 +746,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         tabs = [],
         testpage = 'localsafekey.html';
 
+      beforeEach(function() {
+        CliqzAttrack.safekeyValuesThreshold = 2;
+      });
+
       it('adds local safekey if 3 different values seen', function(done) {
         this.timeout(5000);
 
