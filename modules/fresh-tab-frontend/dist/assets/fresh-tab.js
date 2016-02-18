@@ -664,6 +664,7 @@ define('fresh-tab/services/cliqz', ['exports', 'ember', 'ember-data'], function 
       this.callbacks = Object.create(null);
 
       window.addEventListener("message", function (ev) {
+        console.log("message", ev.data);
         var message = {};
 
         try {
@@ -682,6 +683,7 @@ define('fresh-tab/services/cliqz', ['exports', 'ember', 'ember-data'], function 
     getConfig: function getConfig() {
       var _this2 = this;
 
+      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       var promise = new Promise(function (resolve) {
         _this2.callbacks.getConfig = resolve;
       });
@@ -2233,7 +2235,7 @@ catch(err) {
 
 /* jshint ignore:start */
 if (!runningTests) {
-  require("fresh-tab/app")["default"].create({"name":"fresh-tab","version":"0.0.0+bfef1125"});
+  require("fresh-tab/app")["default"].create({"name":"fresh-tab","version":"0.0.0+309c59a4"});
 }
 /* jshint ignore:end */
 //# sourceMappingURL=fresh-tab.map

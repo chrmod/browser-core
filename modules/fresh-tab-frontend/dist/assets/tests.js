@@ -266,7 +266,7 @@ define('fresh-tab/tests/services/cliqz.jshint', ['exports'], function (exports) 
   QUnit.module('JSHint - services');
   QUnit.test('services/cliqz.js should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'services/cliqz.js should pass jshint.\nservices/cliqz.js: line 75, col 14, Missing semicolon.\nservices/cliqz.js: line 87, col 14, Missing semicolon.\nservices/cliqz.js: line 101, col 14, Missing semicolon.\nservices/cliqz.js: line 27, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 79, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 93, col 23, \'Promise\' is not defined.\n\n6 errors');
+    assert.ok(false, 'services/cliqz.js should pass jshint.\nservices/cliqz.js: line 77, col 14, Missing semicolon.\nservices/cliqz.js: line 89, col 14, Missing semicolon.\nservices/cliqz.js: line 103, col 14, Missing semicolon.\nservices/cliqz.js: line 29, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 81, col 23, \'Promise\' is not defined.\nservices/cliqz.js: line 95, col 23, \'Promise\' is not defined.\n\n6 errors');
   });
 });
 define('fresh-tab/tests/test-helper', ['exports', 'fresh-tab/tests/helpers/resolver', 'ember-qunit'], function (exports, _freshTabTestsHelpersResolver, _emberQunit) {

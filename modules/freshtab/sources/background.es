@@ -106,7 +106,6 @@ export default {
         showOnboarding: self.actions._showOnboarding(),
         miniOnboarding: self.actions._showMiniOnboarding()
       };
-
       return Promise.resolve(config);
     },
 
