@@ -8,6 +8,10 @@ const fs = require('fs');
 const wrench = require('wrench');
 const walk = require('walk');
 const colors = require('colors');
+const broccoli = require('broccoli');
+const Testem = require('testem')
+const path = require('path')
+const childProcess = require('child_process')
 
 const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
@@ -49,6 +53,58 @@ program.command('serve [file]')
           setConfigPath(configPath);
 
           let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
+       });
+
+program.command('test <file>')
+       .option('--ci [output]', 'Starts Testem in CI mode')
+       .action( (configPath, options) => {
+          setConfigPath(configPath);
+          let node = broccoli.loadBrocfile();
+          let builder = new broccoli.Builder(node);
+          let server = broccoli.server.serve(builder, {
+            port: 4200,
+            host: 'localhost'
+          });
+          let watcher = server.watcher;
+
+          if (options.ci) {
+            watcher.on('change', function() {
+              let child = childProcess.execFile('node', [path.join('fern', 'testem-ci.js')]);
+
+              let testResults = [];
+              child.stderr.on('data', data => {
+                let result = data.toString();
+                testResults.push(result);
+                console.log(result);
+              });
+              child.stdout.on('data', data => {
+                let result = data.toString();
+                testResults.push(result);
+                console.log(result);
+              });
+              child.on('close', code => {
+                if (typeof options.ci === 'string') {
+                  fs.writeFileSync(options.ci, testResults.join(""));
+                }
+                process.exit()
+              });
+            });
+          } else {
+            let testem = new Testem();
+            let started = false;
+
+            watcher.on('change', function() {
+              if (started) {
+                testem.restart();
+              } else {
+                started = true;
+                testem.startDev({
+                  host: 'localhost',
+                  port: '3000'
+                });
+              }
+            });
+          }
        });
 
 program.command('generate <type> <moduleName>')

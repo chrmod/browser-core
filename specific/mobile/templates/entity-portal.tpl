@@ -2,7 +2,7 @@
 
 <div class="meta">
     {{> logo}}
-    <h3 class="meta__url"><a href="{{url}}">{{ emphasis data.name text 2 true }}</a></h3>
+    <h3 class="meta__url"><a href="{{url}}">{{ data.name }}</a></h3>
 </div>
 
 <div class="main mulitple">
@@ -19,7 +19,7 @@
 </div>
 
 <!--<div class="cqz-result-h1 ez-news cqz-result-padding">
-  <div class="cqz-ez-title" selectable=''><a href="{{url}}">{{ emphasis data.name text 2 true }}</a></div>
+  <div class="cqz-ez-title" selectable=''><a href="{{url}}">{{ data.name }}</a></div>
   <div class="entity-stories">
     {{#each data.news}}
       <div class="entity-story"
