@@ -295,67 +295,76 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         whitelist.destroy();
       });
 
-      describe('attrack:token_whitelist_versioncheck event', function() {
+      describe('attrack:updated_config event', function() {
 
-        var call_count;
+        var tokenCallCount,
+            safekeyCallCount;
 
         beforeEach(function() {
-          call_count = 0;
+          tokenCallCount = 0;
           whitelist._loadRemoteTokenWhitelist = function() {
-            call_count++;
+            tokenCallCount++;
+          };
+          safekeyCallCount = 0;
+          whitelist._loadRemoteSafeKey = function() {
+            safekeyCallCount++;
           };
         });
 
         it('triggers _loadRemoteTokenWhitelist if version is different', function() {
-          CliqzEvents.pub('attrack:token_whitelist_versioncheck', 'new_version');
-          console.log(CliqzEvents);
+          CliqzEvents.pub('attrack:updated_config', { token_whitelist_version: 'new_version' });
           return waitFor(function() {
-            return call_count == 1;
+            return tokenCallCount == 1;
+          }).then(() => {
+            chai.expect(tokenCallCount).to.equal(1);
+            chai.expect(safekeyCallCount).to.equal(0);
           });
         });
 
-        it('does not load if version is same', function(done) {
-          CliqzEvents.pub('attrack:token_whitelist_versioncheck', persist.getValue('tokenWhitelistVersion'));
+        it('does not load if token version is same', function(done) {
+          CliqzEvents.pub('attrack:updated_config', { token_whitelist_version: persist.getValue('tokenWhitelistVersion') });
           setTimeout(function() {
             try {
-              chai.expect(call_count).to.equal(0);
+              chai.expect(tokenCallCount).to.equal(0);
+              chai.expect(safekeyCallCount).to.equal(0);
               done();
             } catch(e) {
               done(e);
             }
           }, 100);
         });
-      });
 
-      describe('attrack:safekeys_versioncheck event', function() {
-
-        var call_count;
-
-        beforeEach(function() {
-          call_count = 0;
-          whitelist._loadRemoteSafeKey = function() {
-            call_count++;
-          };
-        });
-
-        it('triggers _loadRemoteSafeKey if version is different', function() {
-          CliqzEvents.pub('attrack:safekeys_versioncheck', 'new_version');
-          console.log(CliqzEvents);
+        it('triggers _loadRemoteSafeKey if safekey version is different', function() {
+          CliqzEvents.pub('attrack:updated_config', { safekey_version: 'new_version' });
           return waitFor(function() {
-            return call_count == 1;
+            return safekeyCallCount == 1;
+          }).then(function() {
+            chai.expect(tokenCallCount).to.equal(0);
+            chai.expect(safekeyCallCount).to.equal(1);
           });
         });
 
-        it('does not load if version is same', function(done) {
-          CliqzEvents.pub('attrack:safekeys_versioncheck', persist.getValue('safeKeyExtVersion'));
+        it('does not safekey load if version is same', function(done) {
+          CliqzEvents.pub('attrack:updated_config', { safekey_version: persist.getValue('safeKeyExtVersion') });
           setTimeout(function() {
             try {
-              chai.expect(call_count).to.equal(0);
+              chai.expect(safekeyCallCount).to.equal(0);
+              chai.expect(tokenCallCount).to.equal(0);
               done();
             } catch(e) {
               done(e);
             }
           }, 100);
+        });
+
+        it('loads both lists if both have new versions', function() {
+          CliqzEvents.pub('attrack:updated_config', { token_whitelist_version: 'new_version', safekey_version: 'new_version' });
+          return waitFor(function() {
+            return safekeyCallCount === 1 && tokenCallCount === 1;
+          }).then(function() {
+            chai.expect(tokenCallCount).to.equal(1);
+            chai.expect(safekeyCallCount).to.equal(1);
+          });
         });
       });
     });

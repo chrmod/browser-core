@@ -1437,8 +1437,7 @@ var CliqzAttrack = {
             if (versioncheck.shortTokenLength) CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength);
 
             // fire events for list update
-            events.pub("attrack:token_whitelist_versioncheck", versioncheck.token_whitelist_version);
-            events.pub("attrack:safekeys_versioncheck", versioncheck.safekey_version, versioncheck.force_clean === true);
+            events.pub("attrack:updated_config", versioncheck);
         }, utils.log, 10000);
     },
     pruneRequestKeyValue: function() {

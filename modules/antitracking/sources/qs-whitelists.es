@@ -39,29 +39,26 @@ export default class {
     events.sub('attrack:hour_changed', this.hourlyPruneAndSend);
 
     // list update events
-    this.onTokenVersionCheck = (newVersion) => {
-      var currentVersion = persist.getValue('tokenWhitelistVersion', '');
-      utils.log('Token whitelist: '+ currentVersion + ' vs ' + newVersion, 'xxx');
-      if (currentVersion !== newVersion) {
+    this.onConfigUpdate = (config) => {
+      var currentSafeKey = persist.getValue('safeKeyExtVersion', ''),
+          currentToken = persist.getValue('tokenWhitelistVersion', '');
+      // check safekey
+      utils.log('Safe keys: '+ config.safekey_version + ' vs ' + currentSafeKey, 'attrack');
+      if (config.safekey_version && currentSafeKey !== config.safekey_version) {
+        this._loadRemoteSafeKey(config.force_clean === true);
+      }
+      utils.log('Token whitelist: '+ config.token_whitelist_version + ' vs ' + currentToken, 'attrack');
+      if (config.token_whitelist_version && currentToken !== config.token_whitelist_version) {
         this._loadRemoteTokenWhitelist();
       }
     }.bind(this);
-    events.sub('attrack:token_whitelist_versioncheck', this.onTokenVersionCheck);
 
-    this.onSafeKeyVersionCheck = (newVersion, forceClean) => {
-      var currentVersion = persist.getValue('safeKeyExtVersion', '');
-      utils.log('Safe keys: '+ currentVersion + ' vs ' + newVersion, 'xxx');
-      if (currentVersion !== newVersion) {
-        this._loadRemoteSafeKey(forceClean);
-      }
-    };
-    events.sub('attrack:safekeys_versioncheck', this.onSafeKeyVersionCheck);
+    events.sub('attrack:updated_config', this.onConfigUpdate);
   }
 
   destroy() {
     events.un_sub('attrack:hour_changed', this.hourlyPruneAndSend);
-    events.un_sub('attrack:token_whitelist_versioncheck', this.onTokenVersionCheck);
-    events.un_sub('attrack:safekeys_versioncheck', this.onSafeKeyVersionCheck);
+    events.un_sub('attrack:updated_config', this.onConfigUpdate);
   }
 
   isUpToDate() {
