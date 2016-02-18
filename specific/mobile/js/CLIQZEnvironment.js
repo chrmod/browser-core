@@ -426,7 +426,6 @@ CLIQZEnvironment = {
     document.getElementById('progress').style.width = '0px';
   },
   getPref: function(pref, notFound){
-    localStorage.setItem('showConsoleLogs', true);
     var mypref;
     if(mypref = localStorage.getItem(pref)) {
       return mypref;
