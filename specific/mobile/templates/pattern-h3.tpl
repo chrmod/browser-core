@@ -18,8 +18,8 @@
                              {{ text }}
                          </div>
                      {{/with}}
-                    <h3>{{ emphasis title ../text 2 true }}</h3>
-                    <span>{{ emphasis link ../text 2 true }}</span>
+                    <h3>{{ title }}</h3>
+                    <span>{{ emphasis link ../query 2 true }}</span>
                 </a>
                 
             </li>

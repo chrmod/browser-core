@@ -6,8 +6,8 @@
 		{{/if}}
 		'
 	>
-		{{ emphasis urlDetails.host text 2 false ~}}
+		{{ emphasis urlDetails.host query 2 false ~}}
 	</span><span class='cliqz-result-url-path'>
-		{{~ emphasis urlDetails.extra text 2 false }}
+		{{~ emphasis urlDetails.extra query 2 false }}
 	</span>
 </div>
