@@ -1,5 +1,6 @@
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
+import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { utils, events } from 'core/cliqz';
 
 export default {
@@ -28,6 +29,8 @@ export default {
           CliqzAttrack.unload();
         }
         this.enabled = CliqzAttrack.isEnabled();
+      } else if (pref === DEFAULT_ACTION_PREF) {
+        updateDefaultTrackerTxtRule();
       }
     }.bind(this);
 
