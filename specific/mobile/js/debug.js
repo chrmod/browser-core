@@ -515,7 +515,7 @@ function getCardUrl() {
   }
 };
 
-if( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ) {
+if( false && navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ) {
     var styleEl = document.createElement('style'), styleSheet;
     document.head.appendChild(styleEl);
     styleSheet = styleEl.sheet;
