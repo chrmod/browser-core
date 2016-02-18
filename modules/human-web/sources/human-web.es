@@ -2274,13 +2274,21 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.contextFromEvent = null;
         }
     },
-    captureMouseClickPage: function(ev) {
+    captureMouseClickPage: function(ev, contextHTML) {
 
         // if the target is a link of type hash it does not work, it will create a new page without referral
         //
 
         var targetURL = CliqzHumanWeb.getURLFromEvent(ev);
-        CliqzHumanWeb.setContextFromEvent(ev);
+
+        if (contextHTML) {
+           CliqzHumanWeb.contextFromEvent = {
+             html: contextHTML,
+             ts: Date.now()
+           };
+        } else {
+           CliqzHumanWeb.contextFromEvent = null;
+        }
 
         if (targetURL!=null) {
 

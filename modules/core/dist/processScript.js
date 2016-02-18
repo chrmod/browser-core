@@ -15,6 +15,30 @@ function send(msg) {
   sendAsyncMessage("cliqz:framescript", msg);
 }
 
+function getContextHTML(ev) {
+  var target = ev.target,
+      count = 0,
+      html;
+
+  try {
+    while(true) {
+      html = target.innerHTML;
+
+      if (html.indexOf('http://') !==-1 || html.indexOf('https://') !==-1 ) {
+
+        return html;
+
+      }
+
+      target = target.parentNode;
+
+      count+=1;
+      if (count > 4) break;
+    }
+  } catch(ee) {
+  }
+}
+
 function onDOMWindowCreated(ev) {
   var window = ev.originalTarget.defaultView;
   var currentURL = window.location.href;
@@ -104,9 +128,31 @@ function onDOMWindowCreated(ev) {
     };
   }
 
+  var onMouseDown = function (ev) {
+    send({
+      windowId: windowId,
+      payload: {
+        module: "human-web",
+        action: "recordMouseDown",
+        args: [
+          {
+            target: {
+              baseURI: ev.target.baseURI,
+              value: ev.target.value,
+              href: ev.target.href,
+              parentNode: {
+                href: ev.target.parentNode.href
+              }
+            }
+          },
+          getContextHTML(ev)
+        ]
+      }
+    });
+  };
+
   var onKeyPress = proxyWindowEvent("recordKeyPress");
   var onMouseMove = proxyWindowEvent("recordMouseMove");
-  var onMouseDown = proxyWindowEvent("recordMouseDown");
   var onScroll = proxyWindowEvent("recordScroll");
   var onCopy = proxyWindowEvent("recordCopy");
 
