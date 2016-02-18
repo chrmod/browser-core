@@ -90,12 +90,12 @@ export default class {
     return domain in this.safeTokens.value && token in this.safeTokens.value[domain];
   }
 
-  addSafeKey(domain, key) {
+  addSafeKey(domain, key, valueCount) {
     let today = datetime.dateString(datetime.newUTCDate());
     if (!(domain in this.safeKeys.value)) {
       this.safeKeys.value[domain] = {};
     }
-    this.safeKeys.value[domain][key] = [today, 'l'];
+    this.safeKeys.value[domain][key] = [today, 'l', valueCount];
     this.safeKeys.setDirty();
   }
 
@@ -110,6 +110,29 @@ export default class {
     payl['whitelist'] = persist.getValue('tokenWhitelistVersion', '');
     payl['safeKey'] = persist.getValue('safeKeyExtVersion', '');
     return payl;
+  }
+
+  /** Annotate safekey entries with count of tokens seen, from requestKeyValue data.
+   *  This will add data on how many values were seen for each key by individual users.
+   */
+  annotateSafeKeys(requestKeyValue) {
+    for ( let domain in this.safeKeys.value ) {
+      for ( let key in this.safeKeys.value[domain] ) {
+        let tuple = this.safeKeys.value[domain][key];
+        // check if we have key-value data for this domain, key pair
+        if ( requestKeyValue[domain] && requestKeyValue[domain][key]) {
+          // remote and old safekeys may be in old pair format
+          if ( tuple.length === 2 ) {
+            tuple.push(0);
+          }
+
+          let valueCount = Object.keys(requestKeyValue[domain][key]).length;
+          tuple[2] = Math.max(tuple[2], valueCount);
+        }
+      }
+    }
+    this.safeKeys.setDirty();
+    this.safeKeys.save();
   }
 
   _loadRemoteTokenWhitelist() {

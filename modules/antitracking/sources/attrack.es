@@ -1216,6 +1216,10 @@ var CliqzAttrack = {
             }
         }, hourly, timeChangeConstraint("local_tracking", "day"));
 
+        pacemaker.register(function annotateSafeKeys() {
+            CliqzAttrack.qs_whitelist.annotateSafeKeys(CliqzAttrack.requestKeyValue);
+        }, 10 * 60 * 60 * 1000);
+
     },
     /** Global module initialisation.
      */
@@ -1293,7 +1297,7 @@ var CliqzAttrack = {
         // cannot have 0 values.
         CliqzAttrack.safekeyValuesThreshold = parseInt(persist.getValue('safekeyValuesThreshold')) || 4;
         CliqzAttrack.shortTokenLength = parseInt(persist.getValue('shortTokenLength')) || 8;
-        
+
         CliqzAttrack.placeHolder = persist.getValue('placeHolder', CliqzAttrack.placeHolder);
     },
     /** Per-window module initialisation
@@ -1684,8 +1688,9 @@ var CliqzAttrack = {
 
             CliqzAttrack.requestKeyValue[s][key][tok] = today;
             // see at least 3 different value until it's safe
-            if (Object.keys(CliqzAttrack.requestKeyValue[s][key]).length > CliqzAttrack.safekeyValuesThreshold) {
-                CliqzAttrack.qs_whitelist.addSafeKey(s, key);
+            let valueCount = Object.keys(CliqzAttrack.requestKeyValue[s][key]).length
+            if ( valueCount > CliqzAttrack.safekeyValuesThreshold ) {
+                CliqzAttrack.qs_whitelist.addSafeKey(s, key, valueCount);
                 // keep the last seen token
                 CliqzAttrack.requestKeyValue[s][key] = {tok: today};
             }

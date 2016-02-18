@@ -136,7 +136,7 @@ export class AttrackBloomFilter {
     return this.bloomFilter.testSingle(domain + token);
   }
 
-  addSafeKey(domain, key) {
+  addSafeKey(domain, key, valueCount) {
     this.bloomFilter.addSingle(domain + key);
   }
 
@@ -147,6 +147,10 @@ export class AttrackBloomFilter {
   attachVersion(payl) {
     payl['bloomFilterversion'] = this.bloomFilter ? this.bloomFilter.version : null;
     return payl;
+  }
+
+  annotateSafeKeys(requestKeyValue) {
+    // not yet implemented - bloom filter doesn't send safekey telemetry yet
   }
 
   update() {
