@@ -2,7 +2,7 @@
 
 <div class="meta">
     {{> logo}}
-    <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
+    <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host query 2 true }}{{ emphasis urlDetails.extra query 2 true }}</h3>
 </div>
 
     {{#if debug}}
@@ -10,7 +10,7 @@
     {{/if}}
     {{#with data}}
         <div class="main">
-          <h1 class="main__headline"><a href="{{../url}}">{{ emphasis name ../text 2 true }}</a></h1>
+          <h1 class="main__headline"><a href="{{../url}}">{{ name }}</a></h1>
       </div>
           <!-- <div class="after" data-style="background-image: url({{icon}})"></div> -->
 

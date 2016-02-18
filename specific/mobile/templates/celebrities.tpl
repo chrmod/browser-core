@@ -13,7 +13,7 @@
 		  {{/each}}
 		</div>
 
-	<h1 class="main__headline"><a href="{{../url}}">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span> - Wikipedia</span></a></h1>
+	<h1 class="main__headline"><a href="{{../url}}">{{ name }} ({{ocupation}})</a><span> - Wikipedia</span></a></h1>
 	
 	<h3 class="meta__social">
 		<i class="fa fa-mobile mobile"></i>
@@ -28,7 +28,7 @@
 			 {{/each}}
 		</span>
 	</h3>
-	<p class="main__content">{{{ emphasis description_wiki ../text 2 true }}}</p>
+	<p class="main__content">{{{ emphasis description_wiki ../query 2 true }}}</p>
 </div>
 
 

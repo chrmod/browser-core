@@ -86,8 +86,7 @@ var Result = {
         return item;
     },
     cliqz: function(result){
-        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source).join(''),
-            debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
+        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source).join('');
 
         if(result.snippet){
             return Result.generic(
@@ -96,12 +95,12 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                debugInfo, //query
+                result.q, //query
                 Result.getData(result),
                 result.subType
             );
         } else {
-            return Result.generic(resStyle, result.url, null, null, null, debugInfo, null, result.subType);
+            return Result.generic(resStyle, result.url, null, null, null, result.q, null, result.subType);
         }
     },
     cliqzExtra: function(result, snippet){
