@@ -246,7 +246,8 @@ var UI = {
                     }
                     else if (currentResults.results.length == 0) {
                       UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
-                    } 
+                    }
+                    // to handle broken promises (eg. Weather) on mobile
                     else if (CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
                         CLIQZEnvironment.shiftResults();
                     }

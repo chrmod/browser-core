@@ -466,8 +466,12 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('numberFormat', function (number) {
-        number = parseFloat(number);
-        number = number.toFixed(2);
-        return parseFloat(number).toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
+        try { //just in case this helper is used on unsanitezed data from backend
+          number = parseFloat(number);
+          number = number.toFixed(2);
+          return parseFloat(number).toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
+        } catch(e){
+          return ''
+        }
     });
 }
