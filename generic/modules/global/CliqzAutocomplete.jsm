@@ -31,6 +31,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
 XPCOMUtils.defineLazyModuleGetter(this, 'NewTabUtils',
   'resource://gre/modules/NewTabUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
+  'chrome://cliqzmodules/content/CliqzEvents.jsm');
+
 function isQinvalid(q){
     //TODO: add more
     if(q.indexOf('view-source:') === 0) return true;
@@ -189,6 +192,7 @@ var CliqzAutocomplete = {
                 this._results = this.filterUnexpected(results);
 
                 CliqzAutocomplete.lastResult = this;
+                CliqzEvents.pub('autocomplete.new_result', { result: this, isPopupOpen: CliqzAutocomplete.isPopupOpen });
                 var order = CliqzAutocomplete.getResultsOrder(this._results);
                 CliqzUtils.setResultOrder(order);
             },

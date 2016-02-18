@@ -1,5 +1,5 @@
 import RegexProxyRule from 'unblock/regexp-proxy-rule';
-import ResourceLoader from 'unblock/resource-loader';
+import ResourceLoader from 'core/resource-loader';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
@@ -12,6 +12,7 @@ export default {
   video_lookup_cache: new Set(),
   proxied_videos: new Set(),
   last_success: null,
+  conf: {},
   CONFIG_URL: "https://cdn.cliqz.com/unblock/yt_unblock_config.json",
   canFilter: function(url) {
     return url.indexOf("https://www.youtube.com") > -1;
@@ -30,19 +31,19 @@ export default {
       }
     });
 
-    this._loader = new ResourceLoader({
-      url: this.CONFIG_URL,
-      pref: "unblock_yt_config",
-      updateFn: function(val) {
-        self.conf = JSON.parse(val);
+    this._loader = new ResourceLoader(
+      ['unblock', 'yt_unblock_config.json'],
+      {
+        remoteURL: this.CONFIG_URL,
+        cron: 24 * 60 * 60 * 1000,
       }
-    });
-    CliqzUtils.setTimeout(this._loader.start.bind(this._loader), 100);
+    );
+    var updateConfig = (config) => this.conf = config;
+    this._loader.load().then(updateConfig);
+    this._loader.onUpdate(updateConfig);
   },
   unload: function() {
-    if (this._loader) {
-      this._loader.stop();
-    }
+    this._loader.stop();
   },
   refresh: function() {
     // reset internal caches
@@ -173,6 +174,10 @@ export default {
   },
   shouldProxy: function(url) {
     if (url.indexOf("https://www.youtube.com/watch") == -1) {
+      return false;
+    }
+    // check if config is loaded
+    if (!this.conf.api_url) {
       return false;
     }
     var self = this;
