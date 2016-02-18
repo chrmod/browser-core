@@ -1,6 +1,7 @@
 import md5 from 'antitracking/md5';
 import * as datetime from 'antitracking/time';
 import pacemaker from 'antitracking/pacemaker';
+import QSWhitelistBase from 'antitracking/qs-whitelist-base';
 import { utils } from 'core/cliqz';
 
 export function BloomFilter(a, k) {  // a the array, k the number of hash function
@@ -95,9 +96,10 @@ var BLOOMFILTER_BASE_URL = 'https://cdn.cliqz.com/anti-tracking/bloom_filter/',
 
 const UPDATE_EXPIRY_HOURS = 48;
 
-export class AttrackBloomFilter {
+export class AttrackBloomFilter extends QSWhitelistBase {
 
   constructor() {
+    super();
     this.lastUpdate = '0';
     this.bloomFilter = null;
     this.version = null;
@@ -106,11 +108,14 @@ export class AttrackBloomFilter {
   }
 
   init() {
+    super.init();
     this.update();
     pacemaker.register(this.update.bind(this), 10 * 60 * 1000);
   }
 
-  destroy() {}
+  destroy() {
+    super.destroy();
+  }
 
   isUpToDate() {
     var delay = UPDATE_EXPIRY_HOURS,
@@ -129,7 +134,7 @@ export class AttrackBloomFilter {
   }
 
   isSafeKey(domain, key) {
-    return this.bloomFilter.testSingle(domain + key);
+    return this.bloomFilter.testSingle(domain + key) || super.isSafeKey(domain, key);
   }
 
   isSafeToken(domain, token) {
@@ -138,6 +143,7 @@ export class AttrackBloomFilter {
 
   addSafeKey(domain, key, valueCount) {
     this.bloomFilter.addSingle(domain + key);
+    super.addSafeKey(domain, key, valueCount);
   }
 
   addSafeToken(domain, token) {
@@ -147,10 +153,6 @@ export class AttrackBloomFilter {
   attachVersion(payl) {
     payl['bloomFilterversion'] = this.bloomFilter ? this.bloomFilter.version : null;
     return payl;
-  }
-
-  annotateSafeKeys(requestKeyValue) {
-    // not yet implemented - bloom filter doesn't send safekey telemetry yet
   }
 
   update() {
