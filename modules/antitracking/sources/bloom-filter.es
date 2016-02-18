@@ -1,7 +1,9 @@
 import md5 from 'antitracking/md5';
+import * as datetime from 'antitracking/time';
+import pacemaker from 'antitracking/pacemaker';
+import { utils } from 'core/cliqz';
 
-
-function BloomFilter(a, k) {  // a the array, k the number of hash function
+export function BloomFilter(a, k) {  // a the array, k the number of hash function
   var m = a.length * 32,  // 32 bits for each element in a
       n = a.length,
       i = -1;
@@ -12,7 +14,9 @@ function BloomFilter(a, k) {  // a the array, k the number of hash function
       array = kbytes === 1 ? Uint8Array : kbytes === 2 ? Uint16Array : Uint32Array,
       kbuffer = new ArrayBuffer(kbytes * k),
       buckets = this.buckets = new Int32Array(n);
-  while (++i < n) buckets[i] = a[i];  // put the elements into their bucket
+  while (++i < n) {
+    buckets[i] = a[i];  // put the elements into their bucket
+  }
   this._locations = new array(kbuffer);  // stores location for each hash function
 }
 
@@ -48,9 +52,9 @@ BloomFilter.prototype.test = function(a, b) {
 };
 
 BloomFilter.prototype.testSingle = function(x) {
-  var md5_hex = md5(x);
-  var a = md5_hex.substring(0, 8),
-      b = md5_hex.substring(8, 16);
+  var md5Hex = md5(x);
+  var a = md5Hex.substring(0, 8),
+      b = md5Hex.substring(8, 16);
   return this.test(a, b);
 };
 
@@ -59,13 +63,15 @@ BloomFilter.prototype.add = function(a, b) {
   var l = this.locations(a, b),
       k = this.k,
       buckets = this.buckets;
-  for (var i = 0; i < k; ++i) buckets[Math.floor(l[i] / 32)] |= 1 << (l[i] % 32);
+  for (var i = 0; i < k; ++i) {
+    buckets[Math.floor(l[i] / 32)] |= 1 << (l[i] % 32);
+  }
 };
 
 BloomFilter.prototype.addSingle = function(x) {
-  var md5_hex = md5(x);
-  var a = md5_hex.substring(0, 8),
-      b = md5_hex.substring(8, 16);
+  var md5Hex = md5(x);
+  var a = md5Hex.substring(0, 8),
+      b = md5Hex.substring(8, 16);
   return this.add(a, b);
 };
 
@@ -75,70 +81,120 @@ BloomFilter.prototype.update = function(a) {
       n = a.length,
       i = -1;
   m = n * 32;
-  if (this.m != m)
-    throw "Bloom filter can only be updated with same length";
-  while (++i < n) this.buckets[i] |= a[i];
+  if (this.m !== m) {
+    throw 'Bloom filter can only be updated with same length';
+  }
+  while (++i < n) {
+    this.buckets[i] |= a[i];
+  }
 };
 
 
 var BLOOMFILTER_BASE_URL = 'https://cdn.cliqz.com/anti-tracking/bloom_filter/',
     BLOOMFILTER_CONFIG = 'https://cdn.cliqz.com/anti-tracking/bloom_filter/config';
 
-function AttrackBloomFilter() {
+const UPDATE_EXPIRY_HOURS = 48;
+
+export class AttrackBloomFilter {
+
+  constructor() {
+    this.lastUpdate = '0';
     this.bloomFilter = null;
     this.version = null;
     this.configURL = BLOOMFILTER_CONFIG;
     this.baseURL = BLOOMFILTER_BASE_URL;
-};
+  }
 
-AttrackBloomFilter.prototype.save = function() {};
+  init() {
+    this.update();
+    pacemaker.register(this.update.bind(this), 10 * 60 * 1000);
+  }
 
-AttrackBloomFilter.prototype.load = function() {};
+  destroy() {}
 
-AttrackBloomFilter.prototype.remoteUpdate = function(major, minor, callback) {
+  isUpToDate() {
+    var delay = UPDATE_EXPIRY_HOURS,
+        hour = datetime.newUTCDate();
+    hour.setHours(hour.getHours() - delay);
+    var hourCutoff = datetime.hourString(hour);
+    return this.lastUpdate > hourCutoff;
+  }
+
+  isReady() {
+    return this.bloomFilter !== null;
+  }
+
+  isTrackerDomain(domain) {
+    return this.bloomFilter.testSingle(domain);
+  }
+
+  isSafeKey(domain, key) {
+    return this.bloomFilter.testSingle(domain + key);
+  }
+
+  isSafeToken(domain, token) {
+    return this.bloomFilter.testSingle(domain + token);
+  }
+
+  addSafeKey(domain, key) {
+    this.bloomFilter.addSingle(domain + key);
+  }
+
+  addSafeToken(domain, token) {
+    this.bloomFilter.addSingle(domain + token);
+  }
+
+  attachVersion(payl) {
+    payl['bloomFilterversion'] = this.bloomFilter ? this.bloomFilter.version : null;
+    return payl;
+  }
+
+  update() {
+    this.checkUpdate(function() {
+      this.lastUpdate = datetime.getTime();
+    }.bind(this));
+  }
+
+  remoteUpdate(major, minor, callback) {
     var url = this.baseURL + major + '/' + minor + '.gz',
         self = this;
-    CliqzUtils.httpGet(url, function(req) {
-        var bf = JSON.parse(req.response);
-        if (minor != 0) {
-            self.bloomFilter.update(bf.bkt);
-        } else {
-            self.bloomFilter = new BloomFilter(bf.bkt, bf.k);
-        }
-        self.version.major = major;
-        self.version.minor = minor;
-        callback && callback();
-    }, function() {
+    utils.httpGet(url, function(req) {
+      var bf = JSON.parse(req.response);
+      if (minor !== 0) {
+          self.bloomFilter.update(bf.bkt);
+      } else {
+          self.bloomFilter = new BloomFilter(bf.bkt, bf.k);
+      }
+      self.version.major = major;
+      self.version.minor = minor;
+      callback && callback();
+  }, function() {
     }, 10000);
-};
+  }
 
-AttrackBloomFilter.prototype.checkUpdate = function(callback) {
+  checkUpdate(callback) {
     // check if the bloom filter version is up to date
-    if (this.configURL == null) return;
+    if (this.configURL === null) {
+      return;
+    }
     var self = this;
-    CliqzUtils.httpGet(self.configURL, function(req) {
-        var version = JSON.parse(req.response);
-        if (self.version === null || self.bloomFilter === null) {  // load the first time
-            self.version = {'major': null, 'minor': null};
-            self.remoteUpdate(version.major, 0, callback);
-            return;  // load the major version and update later
-        }
-        if (self.version.major == version.major &&
-            self.version.minor == version.minor) {  // already at the latest version
-            return;  
-        }
-        if (self.version.major != version.major)
-            self.remoteUpdate(version.major, 0, callback);
-        else
-            self.remoteUpdate(version.major, version.minor, callback);
+    utils.httpGet(self.configURL, function(req) {
+      var version = JSON.parse(req.response);
+      if (self.version === null || self.bloomFilter === null) {  // load the first time
+        self.version = {'major': null, 'minor': null};
+        self.remoteUpdate(version.major, 0, callback);
+        return;  // load the major version and update later
+      }
+      if (self.version.major === version.major &&
+        self.version.minor === version.minor) {  // already at the latest version
+        return;
+      }
+      if (self.version.major !== version.major) {
+        self.remoteUpdate(version.major, 0, callback);
+      } else {
+        self.remoteUpdate(version.major, version.minor, callback);
+      }
     }, function() {
     }, 10000);
-};
-
-var bloomFilter = new AttrackBloomFilter();
-
-export {
-    BloomFilter,
-    AttrackBloomFilter,
-    bloomFilter
-};
+  }
+}
