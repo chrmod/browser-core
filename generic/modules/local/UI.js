@@ -181,6 +181,7 @@ var UI = {
 
     // results function
     results: function(res){
+
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
@@ -1171,6 +1172,8 @@ function enhanceResults(res){
       // });
     }
 
+    // AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    // REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES    
     for(var i=0; i<res.results.length; i++) {
       
       console.log("template vertical", res.results[i].vertical);
@@ -1182,9 +1185,13 @@ function enhanceResults(res){
         for(var j in res.results[i].data.external_links) {
           res.results[i].data.external_links[j].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(res.results[i].data.external_links[j].url));
         }
+        for(j in res.results[i].data.news) {
+          res.results[i].data.news[j].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(res.results[i].data.news[j].url));
+        }
       }
-      
     }
+    // END REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES
+    // END AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 
     return res;
 }

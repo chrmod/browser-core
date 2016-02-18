@@ -27,15 +27,22 @@
 		</div>
 	</section>
 	<section class="secondary">
-		
-		<div class="cards__item news">
-			<div class="card__logo__secondary bg">WI</div>
-				<div class="card__logo__secondary" style="background-image:url(https://cdn.cliqz.com/brands-database/database/1452759183853/logos/tagesschau/$.svg);background-color:#4592d8">WI</div>
-			<h2 class="cards__title__secondary" url="{{url}}">Flüchtlingspolitik: Merkel wirbt für Altbekanntes</h2>
-			<div class="card__meta__secondary">
-				tagesschau.de/inland/merkel-fluechtlinge-
-			</div>
-		</div>
+		{{#if data.news}}
+			{{#each data.news}}
+				<div class="cards__item news">
+					{{#with logoDetails}}
+						{{#if backgroundImage}}
+							<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
+						{{/if}}
+					{{/with}}	
+				
+					<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
+					<div class="card__meta__secondary">
+						{{url}}
+					</div>
+				</div>
+			{{/each}}
+		{{/if}}
 		
 		{{#each data.richData.internal_links}}
 			<div class="cards__item internal_links">

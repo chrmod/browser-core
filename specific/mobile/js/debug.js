@@ -330,6 +330,11 @@ CLIQZ.UI.VIEWS["_generic"] = {
     for(var i in data.external_links) {
       data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
     }
+
+    for(var i in data.news) {
+      data.news[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.news[i].url));
+    }
+
   }
 }
 
