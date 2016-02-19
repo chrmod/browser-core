@@ -664,7 +664,6 @@ define('fresh-tab/services/cliqz', ['exports', 'ember', 'ember-data'], function 
       this.callbacks = Object.create(null);
 
       window.addEventListener("message", function (ev) {
-        console.log("message", ev.data);
         var message = {};
 
         try {
@@ -683,7 +682,6 @@ define('fresh-tab/services/cliqz', ['exports', 'ember', 'ember-data'], function 
     getConfig: function getConfig() {
       var _this2 = this;
 
-      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       var promise = new Promise(function (resolve) {
         _this2.callbacks.getConfig = resolve;
       });
@@ -786,11 +784,11 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 13,
+              "line": 10,
               "column": 2
             },
             "end": {
-              "line": 22,
+              "line": 19,
               "column": 2
             }
           },
@@ -853,7 +851,7 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
           morphs[3] = dom.createMorphAt(element2, 0, 0);
           return morphs;
         },
-        statements: [["element", "action", ["freshTabLearnMore", "https://cliqz.com/aboutus/blog/new-startpage"], ["on", "click"], ["loc", [null, [16, 37], [16, 125]]]], ["inline", "t", ["miniOnboarding.learn-more"], [], ["loc", [null, [17, 10], [17, 43]]]], ["element", "action", ["revertBack"], ["on", "click"], ["loc", [null, [19, 38], [19, 72]]]], ["inline", "t", ["miniOnboarding.back_to_old"], [], ["loc", [null, [19, 100], [19, 134]]]]],
+        statements: [["element", "action", ["freshTabLearnMore", "https://cliqz.com/aboutus/blog/new-startpage"], ["on", "click"], ["loc", [null, [13, 37], [13, 125]]]], ["inline", "t", ["miniOnboarding.learn-more"], [], ["loc", [null, [14, 10], [14, 43]]]], ["element", "action", ["revertBack"], ["on", "click"], ["loc", [null, [16, 38], [16, 72]]]], ["inline", "t", ["miniOnboarding.back_to_old"], [], ["loc", [null, [16, 100], [16, 134]]]]],
         locals: [],
         templates: []
       };
@@ -866,11 +864,11 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 22,
+              "line": 19,
               "column": 2
             },
             "end": {
-              "line": 26,
+              "line": 23,
               "column": 2
             }
           },
@@ -925,8 +923,8 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 27,
-            "column": 6
+            "line": 25,
+            "column": 0
           }
         },
         "moduleName": "fresh-tab/templates/application.hbs"
@@ -939,14 +937,14 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createElement("div");
         dom.setAttribute(el1, "id", "container");
-        var el2 = dom.createTextNode("\n\n  ");
+        var el2 = dom.createTextNode("\n  ");
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n");
+        var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
+        var el1 = dom.createTextNode("\n\n");
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("div");
         dom.setAttribute(el1, "id", "cliqzOnboarding");
@@ -961,10 +959,12 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("div");
         dom.setAttribute(el1, "id", "onboarding");
-        var el2 = dom.createTextNode("\n\n\n");
+        var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
         return el0;
       },
@@ -975,7 +975,7 @@ define("fresh-tab/templates/application", ["exports"], function (exports) {
         morphs[2] = dom.createMorphAt(dom.childAt(fragment, [4]), 1, 1);
         return morphs;
       },
-      statements: [["content", "outlet", ["loc", [null, [3, 2], [3, 12]]]], ["inline", "outlet", ["modal"], [], ["loc", [null, [7, 2], [7, 20]]]], ["block", "if", [["get", "model.miniOnboarding", ["loc", [null, [13, 8], [13, 28]]]]], [], 0, 1, ["loc", [null, [13, 2], [26, 9]]]]],
+      statements: [["content", "outlet", ["loc", [null, [2, 2], [2, 12]]]], ["inline", "outlet", ["modal"], [], ["loc", [null, [6, 2], [6, 20]]]], ["block", "if", [["get", "model.miniOnboarding", ["loc", [null, [10, 8], [10, 28]]]]], [], 0, 1, ["loc", [null, [10, 2], [23, 9]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -1578,7 +1578,7 @@ define("fresh-tab/templates/components/speed-dial", ["exports"], function (expor
             "column": 0
           },
           "end": {
-            "line": 6,
+            "line": 5,
             "column": 0
           }
         },
@@ -1592,6 +1592,7 @@ define("fresh-tab/templates/components/speed-dial", ["exports"], function (expor
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createElement("a");
         dom.setAttribute(el1, "class", "historyLink");
+        dom.setAttribute(el1, "target", "_blank");
         var el2 = dom.createTextNode("\n  ");
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("div");
@@ -1606,13 +1607,6 @@ define("fresh-tab/templates/components/speed-dial", ["exports"], function (expor
         var el3 = dom.createComment("");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n  ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("button");
-        dom.setAttribute(el2, "class", "close");
-        var el3 = dom.createTextNode("X");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
@@ -1623,18 +1617,16 @@ define("fresh-tab/templates/components/speed-dial", ["exports"], function (expor
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [0]);
         var element1 = dom.childAt(element0, [1]);
-        var element2 = dom.childAt(element0, [5]);
-        var morphs = new Array(7);
+        var morphs = new Array(6);
         morphs[0] = dom.createAttrMorph(element0, 'data-index');
         morphs[1] = dom.createAttrMorph(element0, 'href');
         morphs[2] = dom.createAttrMorph(element0, 'title');
         morphs[3] = dom.createAttrMorph(element1, 'style');
         morphs[4] = dom.createMorphAt(element1, 0, 0);
         morphs[5] = dom.createMorphAt(dom.childAt(element0, [3]), 0, 0);
-        morphs[6] = dom.createElementMorph(element2);
         return morphs;
       },
-      statements: [["attribute", "data-index", ["concat", [["get", "index", ["loc", [null, [1, 37], [1, 42]]]]]]], ["attribute", "href", ["concat", [["get", "model.url", ["loc", [null, [1, 54], [1, 63]]]]]]], ["attribute", "title", ["concat", [["get", "model.title", ["loc", [null, [1, 76], [1, 87]]]]]]], ["attribute", "style", ["concat", [["get", "model.logo.style", ["loc", [null, [2, 41], [2, 57]]]]]]], ["content", "model.logo.text", ["loc", [null, [2, 61], [2, 80]]]], ["content", "model.displayTitle", ["loc", [null, [3, 21], [3, 43]]]], ["element", "action", ["remove"], [], ["loc", [null, [4, 24], [4, 43]]]]],
+      statements: [["attribute", "data-index", ["concat", [["get", "index", ["loc", [null, [1, 37], [1, 42]]]]]]], ["attribute", "href", ["concat", [["get", "model.url", ["loc", [null, [1, 70], [1, 79]]]]]]], ["attribute", "title", ["concat", [["get", "model.title", ["loc", [null, [1, 92], [1, 103]]]]]]], ["attribute", "style", ["concat", [["get", "model.logo.style", ["loc", [null, [2, 41], [2, 57]]]]]]], ["content", "model.logo.text", ["loc", [null, [2, 61], [2, 80]]]], ["content", "model.displayTitle", ["loc", [null, [3, 21], [3, 43]]]]],
       locals: [],
       templates: []
     };
@@ -1800,7 +1792,7 @@ define("fresh-tab/templates/index", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 18,
+            "line": 17,
             "column": 0
           }
         },
@@ -1863,25 +1855,17 @@ define("fresh-tab/templates/index", ["exports"], function (exports) {
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
-        var el1 = dom.createElement("button");
-        var el2 = dom.createTextNode("test onboarding");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [2]);
-        var element1 = dom.childAt(fragment, [8]);
-        var morphs = new Array(4);
+        var morphs = new Array(3);
         morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 1, 1);
         morphs[1] = dom.createMorphAt(dom.childAt(element0, [1]), 1, 1);
         morphs[2] = dom.createMorphAt(dom.childAt(element0, [3]), 1, 1);
-        morphs[3] = dom.createElementMorph(element1);
         return morphs;
       },
-      statements: [["inline", "speed-dials", [], ["model", ["subexpr", "@mut", [["get", "model.speedDials", ["loc", [null, [2, 22], [2, 38]]]]], [], []], "tagName", "ul"], ["loc", [null, [2, 2], [2, 53]]]], ["content", "url-bar", ["loc", [null, [8, 2], [8, 13]]]], ["inline", "all-news", [], ["model", ["subexpr", "@mut", [["get", "model.news", ["loc", [null, [12, 21], [12, 31]]]]], [], []]], ["loc", [null, [12, 4], [12, 33]]]], ["element", "action", ["openModal", "onboarding"], [], ["loc", [null, [17, 8], [17, 43]]]]],
+      statements: [["inline", "speed-dials", [], ["model", ["subexpr", "@mut", [["get", "model.speedDials", ["loc", [null, [2, 22], [2, 38]]]]], [], []], "tagName", "ul"], ["loc", [null, [2, 2], [2, 53]]]], ["content", "url-bar", ["loc", [null, [8, 2], [8, 13]]]], ["inline", "all-news", [], ["model", ["subexpr", "@mut", [["get", "model.news", ["loc", [null, [12, 21], [12, 31]]]]], [], []]], ["loc", [null, [12, 4], [12, 33]]]]],
       locals: [],
       templates: []
     };
@@ -2235,7 +2219,7 @@ catch(err) {
 
 /* jshint ignore:start */
 if (!runningTests) {
-  require("fresh-tab/app")["default"].create({"name":"fresh-tab","version":"0.0.0+309c59a4"});
+  require("fresh-tab/app")["default"].create({"name":"fresh-tab","version":"0.0.0+5c10e984"});
 }
 /* jshint ignore:end */
 //# sourceMappingURL=fresh-tab.map
