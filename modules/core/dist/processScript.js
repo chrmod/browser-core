@@ -1,10 +1,13 @@
-// CLIQZ pages communication channel
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Components.utils.import("chrome://cliqzmodules/content/Extension.jsm");
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import("chrome://cliqzmodules/content/Extension.jsm");
 
-var whitelist = Extension.config.settings.frameScriptWhitelist;
+var whitelist = [
+  "chrome://cliqz/"
+].concat(Extension.config.settings.frameScriptWhitelist);
 
-addEventListener("DOMWindowCreated", function (ev) {
+function onDOWWindowCreated(ev, z) {
   var window = ev.originalTarget.defaultView;
 
   var windowId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -15,8 +18,7 @@ addEventListener("DOMWindowCreated", function (ev) {
   var onMessage = function (ev) {
     var href = ev.target.location.href;
 
-    if ( href.indexOf("chrome://cliqz/") !== 0 &&
-        whitelist.indexOf(href) === -1 ) {
+    if (!whitelist.some(function (url) { return href.indexOf(url) === 0; }) ) {
       return;
     }
 
@@ -51,14 +53,39 @@ addEventListener("DOMWindowCreated", function (ev) {
     }), "*");
   };
 
-  window.addEventListener("load", function () {
-    window.addEventListener("message", onMessage);
-    addMessageListener("window-"+windowId, onCallback);
-  });
+  window.addEventListener("message", onMessage);
+  addMessageListener("window-"+windowId, onCallback);
 
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
     removeMessageListener("window-"+windowId, onCallback);
   });
 
-}, false);
+}
+
+var DocumentManager = {
+
+  init() {
+    Services.obs.addObserver(this, "document-element-inserted", false);
+  },
+
+  uninit() {
+    Services.obs.removeObserver(this, "document-element-inserted");
+  },
+
+  observe: function(subject, topic, data) {
+    let document = subject;
+    let window = document && document.defaultView;
+    if (!document || !document.location || !window) {
+      return;
+    }
+
+    onDOWWindowCreated({
+      originalTarget: {
+        defaultView: window
+      }
+    }, true)
+  }
+}
+
+DocumentManager.init();
