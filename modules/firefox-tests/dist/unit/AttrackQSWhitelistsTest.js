@@ -4,8 +4,17 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
       QSWhitelist = System.get('antitracking/qs-whitelists').default,
       md5 = System.get('antitracking/md5').default,
       persist = System.get('antitracking/persistent-state'),
-      datetime = System.get('antitracking/time');
+      datetime = System.get('antitracking/time'),
+      pacemaker = System.get('antitracking/pacemaker').default;
 
+  before(function() {
+    // stop the pacemaker to avoid possible race conditions on events.
+    pacemaker.stop()
+  });
+
+  after(function() {
+    pacemaker.start();
+  });
 
   describe('QSWhitelist', function() {
     var whitelist;
