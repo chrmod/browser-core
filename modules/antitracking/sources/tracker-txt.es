@@ -4,10 +4,13 @@ TrackerTXT: caching rules for tracker.txt
 
 import MapCache from 'antitracking/fixed-size-cache';
 import { getTime } from 'antitracking/time';
+import { utils } from 'core/cliqz';
 
 var trackerTxtActions = new Set(['placeholder', 'block', 'empty', 'replace']);
 
-var defaultTrackerTxtRule = 'same';
+export const DEFAULT_ACTION_PREF = 'attrackDefaultAction';
+
+var defaultTrackerTxtRule = utils.getPref(DEFAULT_ACTION_PREF, 'same');
 
 export function getDefaultTrackerTxtRule() {
     return defaultTrackerTxtRule;
@@ -16,6 +19,17 @@ export function getDefaultTrackerTxtRule() {
 export function setDefaultTrackerTxtRule(rule) {
     defaultTrackerTxtRule = rule;
 };
+
+export function updateDefaultTrackerTxtRule() {
+    let ruleFromPref = utils.getPref('attrackDefaultAction', 'same');
+    // default rule may be either a tracking.txt action, or 'same'
+    if ( trackerTxtActions.has(ruleFromPref) || ruleFromPref === 'same') {
+        defaultTrackerTxtRule = ruleFromPref;
+    } else {
+        // bad pref value, reset it
+        utils.clearPref('attrackDefaultAction');
+    }
+}
 
 var trackerRuleParser = function(str, rules) {
     /* Tracker format:
