@@ -641,6 +641,7 @@ var UI = {
       if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
         r.data.template = r.data.superTemplate;
       }
+
       specificView = UI.VIEWS[r.data.template];
       if (specificView && specificView.enhanceResults) {
         specificView.enhanceResults(r.data);
@@ -952,6 +953,22 @@ function enhanceResults(res){
     clearMessage('bottom');
     var adult = false;
 
+    // AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    // REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES    
+    for(var i=0; i<res.results.length; i++) {
+
+      console.log("template vertical", res.results[i].vertical);
+      if(res.results[i].title && res.results[i].title.match("history generic")) {
+        continue;
+      }
+      res.results[i].vertical = "_generic";
+      res.results[i].data.template = "_generic";
+
+      
+    }
+    // END REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES
+    // END AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+
     for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
 
@@ -1172,26 +1189,7 @@ function enhanceResults(res){
       // });
     }
 
-    // AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-    // REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES    
-    for(var i=0; i<res.results.length; i++) {
-      
-      console.log("template vertical", res.results[i].vertical);
-      if(res.results[i].title && res.results[i].title.match("history generic")) {
-        continue;
-      }
-      res.results[i].vertical = "_generic";
-      if(res.results[i].data) {
-        for(var j in res.results[i].data.external_links) {
-          res.results[i].data.external_links[j].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(res.results[i].data.external_links[j].url));
-        }
-        for(j in res.results[i].data.news) {
-          res.results[i].data.news[j].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(res.results[i].data.news[j].url));
-        }
-      }
-    }
-    // END REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES
-    // END AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    
 
     return res;
 }

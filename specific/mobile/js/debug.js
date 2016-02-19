@@ -323,6 +323,7 @@ CLIQZ.UI.VIEWS["stocks"] = {
   }
 }
 
+actionsExternal = [];
 
 CLIQZ.UI.VIEWS["_generic"] = {
 
@@ -335,6 +336,15 @@ CLIQZ.UI.VIEWS["_generic"] = {
       data.news[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.news[i].url));
     }
 
+    if(data.actions && data.external_links) {
+      data.actionsExternalMixed = data.actions.concat(data.external_links);
+      data.actionsExternalMixed.sort(function(a,b) { 
+        if (a.rank < b.rank) {return 1;}
+        if (a.rank > b.rank) {return -1;}
+        return 0;
+      });
+    }
+    
   }
 }
 

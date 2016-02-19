@@ -35,7 +35,7 @@
 							<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
 						{{/if}}
 					{{/with}}	
-				
+
 					<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
 					<div class="card__meta__secondary">
 						{{url}}
@@ -43,35 +43,9 @@
 				</div>
 			{{/each}}
 		{{/if}}
-		
-		{{#each data.richData.internal_links}}
-			<div class="cards__item internal_links">
-				
-				<h2 class="cards__title__secondary">
-					<a href="{{url}}">{{title}}<a>
-				</h2>
-			</div>
-		{{/each}}
 
-		{{#each data.richData.additional_sources}} 
-			<div class="cards__item additional_sources">
-				<div class="card__logo__secondary">WI</div>
-				<!--{{#with logoDetails}}
-					{{#if backgroundImage}}
-						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
-					{{/if}}
-				{{/with}}-->
-				<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
-			</div>
-		{{/each}}	
-
-		{{#each data.actions}}
-			<div class="cards__item data_actions">
-				<h2 url="{{url}}" class="cards__title__secondary">{{title}}</h2>
-			</div>
-		{{/each}}	
-
-		{{#each data.external_links}}
+	
+		{{#each data.actionsExternalMixed}}
 			<div class="cards__item external_links">
 				{{#with logoDetails}}
 					{{#if backgroundImage}}
@@ -80,10 +54,11 @@
 				{{/with}}	
 				<h2 class="cards__title__secondary" url="{{url}}">
 					{{title}}
-					<span>{{rank}}</span>
+					<span>{{numberFormat rank}}</span>
 				</h2>
 			</div>
-		{{/each}}		
+		{{/each}}	
+
 		
 	</section>
 	<section class="share">
