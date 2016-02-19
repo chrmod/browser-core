@@ -1,35 +1,25 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>developer tool</title>
+  <head>
+    <title>CLIQZ TESTS</title>
     <link rel="stylesheet" href="/bower_components/mocha/mocha.css">
     <script src="/bower_components/jquery/dist/jquery.js"></script>
     <script src="/bower_components/mocha/mocha.js"></script>
     <script src="/bower_components/chai/chai.js"></script>
-
     <script src="/testem.js"></script>
-
     <script>mocha.setup('bdd')</script>
-
-      
-   </head>
-
-   <body>
     <style>
-    	.testFrame {
-    		height: 400px;
-    		width: 100%;
-    		visibility: hidden;
-    	}
+      .testFrame {
+        height: 400px;
+        width: 100%;
+      }
     </style>
-	<div id="mocha"></div>
-	
-    {{#serve_files}}
-		<script src="../{{{src}}}"></script>
-    {{/serve_files}}
-	<script>
-        mocha.run();
-     </script>
-   </body>
-
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script src="/build/tests/tests.js"></script>
+    <script>
+      mocha.run();
+    </script>
+  </body>
 </html>
