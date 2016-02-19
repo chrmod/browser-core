@@ -1,4 +1,6 @@
 <!-- news.tpl -->
+    {{partial '_generic'}}
+    #########################
     <div class="meta">
         {{> logo}}
         <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>
@@ -18,3 +20,4 @@
         <div class="cf"></div>
         <p class="main__content">{{{ emphasis data.description text 2 true }}}</p>
     </div>
+<!-- end news.tpl -->

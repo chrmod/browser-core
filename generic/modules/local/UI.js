@@ -951,23 +951,7 @@ function unEscapeUrl(url){
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
     clearMessage('bottom');
-    var adult = false;
-
-    // AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-    // REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES    
-    for(var i=0; i<res.results.length; i++) {
-
-      console.log("template vertical", res.results[i].vertical);
-      if(res.results[i].title && res.results[i].title.match("history generic")) {
-        continue;
-      }
-      res.results[i].vertical = "_generic";
-      res.results[i].data.template = "_generic";
-
-      
-    }
-    // END REMOVE THIS BEFORE MERGING! JUST TESTING PURPOSES
-    // END AWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    var adult = false, data;
 
     for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];

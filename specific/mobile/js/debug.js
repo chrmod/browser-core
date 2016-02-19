@@ -19,6 +19,11 @@ Handlebars.registerHelper("debug", function(optionalValue) {
 });
 
 
+Handlebars.registerHelper("trimNumbers", function(number) {
+  return Math.round(number);
+});
+
+
 Handlebars.registerHelper('conversationsTime', function(time) {
     var d = new Date(time);
     var hours = d.getHours();
@@ -325,9 +330,10 @@ CLIQZ.UI.VIEWS["stocks"] = {
 
 actionsExternal = [];
 
-CLIQZ.UI.VIEWS["_generic"] = {
+CLIQZ.UI.VIEWS["_generic"] = CLIQZ.UI.VIEWS["entity-generic"] = {
 
   enhanceResults: function(data) {
+
     for(var i in data.external_links) {
       data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
     }

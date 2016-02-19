@@ -1,4 +1,8 @@
-<!-- hq.tpl -->
+<!-- hq.tpl-->
+
+{{partial '_generic'}}
+
+
 <div class="meta">
     {{> logo}}
     <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>{{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>

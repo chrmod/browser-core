@@ -47,7 +47,7 @@ CLIQZEnvironment = {
             CLIQZ.UI.enhanceResults(r);
 
             if(document.getElementById('cqz-result-box-' + index) && r.results[0] && r.results[0].data.template !== 'noResult') {
-              CLIQZEnvironment.highlightQuery([r.results[0]], r.results[0].q);
+              //CLIQZEnvironment.highlightQuery([r.results[0]], r.results[0].q);
 
               document.getElementById('cqz-result-box-' + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
@@ -140,7 +140,7 @@ CLIQZEnvironment = {
   },
   renderResults: function(r) {
 
-    CLIQZEnvironment.highlightQuery(r._results, r._searchString);
+    // CLIQZEnvironment.highlightQuery(r._results, r._searchString);
 
     
 
@@ -273,6 +273,7 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r) {
+    
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;

@@ -103,7 +103,9 @@ var CliqzUtils = {
       'conversations': 1,
       'conversations_future': 1,
       'topnews': 1,
-      '_generic': 1
+      
+      '_generic': 1,
+      '_history': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,

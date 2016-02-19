@@ -1,4 +1,8 @@
 <!-- entity-video-1 -->
+{{partial '_generic'}}
+
+<br /><br />
+############################
 <div class="meta">
     {{> logo}}
     <h3 class="meta__url">
@@ -19,3 +23,4 @@
     {{/each}}
 </div>
 {{>EZ-category}}
+<!-- end entity-video-1 -->
