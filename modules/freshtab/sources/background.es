@@ -40,7 +40,7 @@ export default {
         miniOnboarding = true;
       }
 
-      return true;
+      return miniOnboarding;
     },
 
     getSpeedDials() {
