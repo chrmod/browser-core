@@ -516,7 +516,7 @@ function getCardUrl() {
   if(CLIQZEnvironment.lastResults && CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage]) {
     osBridge.shareCard(CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage].url);
   } else {
-    osBridge.shareCard(-1);
+    osBridge.shareCard('-1');
   }
 };
 
