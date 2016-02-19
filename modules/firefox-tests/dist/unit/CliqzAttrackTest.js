@@ -517,30 +517,14 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack list update', function() {
 
-      var real_versioncheck_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
-        real_token_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json',
-        real_safekey_url = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json',
-        mock_token_string = "{\"f528764d624db129\": {\"7269d282a42ce53e58c7b3f66ca19bac\": true}}\n",
-        mock_token_url = "/token_whitelist.json",
-        mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac',
-        mock_safekey_string = "{\"f528764d624db129\": {\"924a8ceeac17f54d3be3f8cdf1c04eb2\": \"20200101\"}}\n",
-        mock_safekey_url = "/safekey.json",
-        mock_safekey_hash = "3e82cf3535f01bfb960e826f1ad8ec2d",
-        mock_bloom_filter_major = "{\"bkt\": [1, 2, 3, 4, 5], \"k\": 5}",
-        mock_bloom_filter_minor = "{\"bkt\": [1, 0, 0, 0, 0], \"k\": 5}",
+      var mock_bloom_filter_major = '{"bkt": [1, 2, 3, 4, 5], "k": 5}',
+        mock_bloom_filter_minor = '{"bkt": [1, 0, 0, 0, 0], "k": 5}',
         mock_bloom_filter_config = '{"major": "0", "minor": "1"}',
-        mock_bloom_filter_config_url,
-        mock_bloom_filter_base_url;
-
+        mock_bloom_filter_config_url = null,
+        mock_bloom_filter_base_url = null;
 
       beforeEach(function() {
         // serve fake whitelists
-        testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
-          response.write(mock_token_string);
-        });
-        testServer.registerPathHandler('/safekey.json', function(request, response) {
-          response.write(mock_safekey_string);
-        });
         testServer.registerPathHandler('/bloom_filter/0/0.gz', function(request, response) {
           response.write(mock_bloom_filter_major);
         });
@@ -550,8 +534,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
         testServer.registerPathHandler('/bloom_filter/config', function(request, response) {
           response.write(mock_bloom_filter_config);
         });
-        mock_token_url = "http://localhost:" + testServer.port + "/token_whitelist.json";
-        mock_safekey_url = "http://localhost:" + testServer.port + "/safekey.json";
         mock_bloom_filter_config_url = 'http://localhost:' + testServer.port + '/bloom_filter/config',
         mock_bloom_filter_base_url = 'http://localhost:' + testServer.port + '/bloom_filter/';
       });
@@ -626,6 +608,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
     });
 
     describe('Tracking.txt', function() {
+
         it ('parse rules correctly', function() {
             let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
                 txt = 'R site1.com empty\nR   site2.com\tplaceholder\nnot a rule',
@@ -633,6 +616,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             parser(txt, rules);
             chai.expect(rules).to.deep.equal([{site: 'site1.com', rule: 'empty'}, {site: 'site2.com', rule: 'placeholder'}])
         });
+
         it ('ignore comments', function() {
             let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
                 txt = '# comment\n! pass\nR site1.com empty\nR site2.com placeholder\nnot a rule',
@@ -640,6 +624,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             parser(txt, rules);
             chai.expect(rules).to.deep.equal([{site: 'site1.com', rule: 'empty'}, {site: 'site2.com', rule: 'placeholder'}])
         });
+
         it ('apply correct rule to 3rd party', function() {
             var TT = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt'),
                 txt = '# comment\n! pass\nR aaa.site1.com empty\nR site1.com placeholder\nnot a rule',
