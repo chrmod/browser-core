@@ -124,6 +124,8 @@ CLIQZEnvironment = {
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var logo = CliqzUtils.getLogoDetails(details);
 
     CLIQZEnvironment.setDimensions();
 
@@ -152,7 +154,8 @@ CLIQZEnvironment = {
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
-        searchEngineUrl: engine.url
+        searchEngineUrl: engine.url,
+        logo: logo
       }
     });
 
@@ -726,6 +729,8 @@ CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var logo = CliqzUtils.getLogoDetails(details);
 
     return Result.cliqzExtra(
       {
@@ -735,7 +740,8 @@ CLIQZEnvironment = {
             title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
             action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
-            searchEngineUrl: engine.url
+            searchEngineUrl: engine.url,
+            logo: logo
           },
         subType: JSON.stringify({empty:true})
       }
