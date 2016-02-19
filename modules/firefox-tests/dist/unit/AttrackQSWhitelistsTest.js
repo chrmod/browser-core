@@ -5,7 +5,11 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
       md5 = System.get('antitracking/md5').default,
       persist = System.get('antitracking/persistent-state'),
       datetime = System.get('antitracking/time'),
-      pacemaker = System.get('antitracking/pacemaker').default;
+      pacemaker = System.get('antitracking/pacemaker').default,
+      CliqzAttrack = System.get('antitracking/attrack').default;
+
+  // kill config updating during the test
+  CliqzAttrack.VERSIONCHECK_URL = "http://localhost/null"
 
   before(function() {
     // stop the pacemaker to avoid possible race conditions on events.
