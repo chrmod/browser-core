@@ -17,7 +17,6 @@ export default Ember.Service.extend({
       }
 
       if (message.type === "response") {
-        console.log("RESPONSE");
         this.callbacks[message.action].call(null, message.response);
       }
     });
