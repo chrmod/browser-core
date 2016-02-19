@@ -1,10 +1,10 @@
 window.addEventListener('disconnected', function() {
   var elem = document.getElementById("reconnecting");
-  elem && (elem.style.display = "block");
+  elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
 });
 window.addEventListener('connected', function() {
   var elem = document.getElementById("reconnecting");
-  elem && (elem.style.display = "none");
+  elem && (elem.innerHTML = '');
 });
 
 var isRequestFailed = false;
@@ -23,10 +23,7 @@ function resendRequest(forceResend) {
 }
 
 function isMixerUrl(url) {
-  if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0) {
-    return true;
-  }
-  return false;
+  return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0;
 }
 
 window.addEventListener('load', function() {

@@ -247,6 +247,10 @@ var UI = {
                     else if (currentResults.results.length == 0) {
                       UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                     }
+                    // to handle broken promises (eg. Weather) on mobile
+                    else if (CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
+                        CLIQZEnvironment.shiftResults();
+                    }
                 }
                 else {
                   r.data = resp.data;
@@ -968,6 +972,8 @@ function enhanceResults(res){
           }
           UI.enhanceSpecificResult(r);
         }
+
+        //if(r.snippet.rich_data.type === "news")
 
         if (r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') === 0) {
             var d = r.data;

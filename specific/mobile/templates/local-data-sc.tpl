@@ -15,8 +15,8 @@
                 <img data-src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
             </div>
             {{/if}}
-            <h1 class="main__headline"><a url="{{../url}}" extra="title">{{title}}</a></h1>
-            <div class="main__meta">
+            <h1 class="main__headline {{#if no_location}}no__loc__headline{{/if}}"><a url="{{../url}}" extra="title">{{title}}</a></h1>
+            <div class="main__meta {{#if no_location}}no__loc__meta{{/if}}">
               <div class="cqz-rd-snippet_hspacing">
                 <img data-src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
               </div>
@@ -74,7 +74,7 @@
 
             </div>
           {{/unless}}
-          <div class="main__content description">{{description}}</div>
+          <div class="main__content description">{{{description}}}</div>
         </div>
       {{/with}}
     </div>
