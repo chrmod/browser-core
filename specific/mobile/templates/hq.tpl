@@ -32,7 +32,7 @@
     <ul class="cta">
     {{#each (links_or_sources data.richData)}}
         {{#if (limit_images_shown @index 100)}}
-            <li><a url='{{url}}' href="{{url}}" extra='sources{{ @index }}'>{{title}}</a></li>
+            <li><a url='{{mobileWikipediaUrls url}}' href="{{mobileWikipediaUrls url}}" extra='sources{{ @index }}'>{{title}}</a></li>
         {{/if}}
     {{/each}}
     </ul>
