@@ -23,7 +23,7 @@ export default class {
 
 	    menu.setAttribute('label', 'Secure channel');
 
-	    var safeSearchBtn = win.CLIQZ.Core.createCheckBoxItem(doc, 'hpn-query', CliqzUtils.getLocalizedString('btnSafeSearch'), true);
+	    var safeSearchBtn = win.CLIQZ.Core.createCheckBoxItem(doc, prefKey, CliqzUtils.getLocalizedString('btnSafeSearch'), true);
 	    menuPopup.appendChild(safeSearchBtn);
 
 	    menuPopup.appendChild(

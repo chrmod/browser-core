@@ -208,7 +208,7 @@ def comment_cleaner(path=None):
         return
 
     target = ['js', 'jsm', 'html']
-    exclude_dirs = ['node_modules', 'bower_components']
+    exclude_dirs = ['node_modules', 'bower_components', 'extern']
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'Validations.js', 'humanweb.html', 'CliqzAntiPhishing.jsm', 'freshtab.html']
 
     print 'CommentCleaner - Start'

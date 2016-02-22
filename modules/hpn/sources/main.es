@@ -38,7 +38,7 @@ var proxyCounter = 0;
 // hpn-query pref is to encrypt queries
 // hpn-telemetry is to encrypt telemetry data.
 CliqzUtils.setPref('hpn-telemetry', CliqzUtils.getPref('hpn-telemetry', true));
-CliqzUtils.setPref('hpn-query', CliqzUtils.getPref('hpn-query', true));
+CliqzUtils.setPref('hpn-query', CliqzUtils.getPref('hpn-query', false));
 
 var CliqzSecureMessage = {
 	VERSION: '0.1',
