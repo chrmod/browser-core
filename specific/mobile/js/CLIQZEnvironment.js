@@ -628,7 +628,7 @@ CLIQZEnvironment = {
         style: logo.style
       };
     });
-    if(!CliqzHandlebars.tplCache.topnews || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
+    if(!CliqzHandlebars.tplCache.topnews || CliqzUtils.getLocalizedString('freshtab_top_news') === 'freshtab_top_news') {
       return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
     }
     var topNews = CliqzHandlebars.tplCache['topnews'];
@@ -644,7 +644,7 @@ CLIQZEnvironment = {
     });
   },
   displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
+    if(!CliqzHandlebars.tplCache.topsites || CliqzUtils.getLocalizedString('freshtab_top_sites') === 'freshtab_top_sites') {
       return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
     }
 

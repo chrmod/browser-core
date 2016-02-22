@@ -83,7 +83,7 @@ function displayStarredData(data) {
 }
 
 function displayData(data) {
-  if(!CliqzHandlebars.tplCache["conversations"] || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
+  if(!CliqzHandlebars.tplCache["conversations"] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
     return setTimeout(displayData, 100, data);
   }
   document.body.innerHTML = CliqzHandlebars.tplCache["conversations"]({data: data});
