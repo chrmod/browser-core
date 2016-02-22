@@ -1,5 +1,5 @@
 <!-- EZ-history.tpl -->
-
+{{partial '_history'}}
 <div class='main'>
     <ul class='cta cta__history'>
         {{#each urls}}

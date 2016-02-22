@@ -1,3 +1,4 @@
+<!-- ligaEZ1Game.tpl-->
 <div class="cqz-result-h2 ez-liga">
      {{#with data}}
      
@@ -37,3 +38,5 @@
      {{/with}}
 
 </div>
+
+<!-- end ligaEZ1Game.tpl-->

@@ -1,8 +1,6 @@
 
 <!-- local-cinema-sc.tpl -->
 
-
-
 <div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-cinema-result local-movie-result">
     <div class="meta">
         {{> logo}}

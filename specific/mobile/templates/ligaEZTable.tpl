@@ -1,4 +1,4 @@
-<!-- <div id="cliqz-results"> -->
+<!-- ligaEZTable.tpl -->
    <div class="cqz-result-h1 ez-liga cqz-result-padding">
      {{#with data}}
      
@@ -43,4 +43,4 @@
        {{>logo}}
    </div>
 
-<!-- </div> -->
+<!-- end ligaEZTable.tpl -->
