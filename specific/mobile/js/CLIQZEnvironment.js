@@ -115,7 +115,7 @@ CLIQZEnvironment = {
       ezs[i].style.height = null;
       if(ezs[i].clientHeight+64 < height) {
         ezs[i].style.height = height-75 + 'px';
-      } 
+      }
     }
   },
   renderResults: function(r) {
@@ -264,9 +264,9 @@ CLIQZEnvironment = {
     } else {
       CLIQZEnvironment.enrichResults(r, 1, historyCount);
     }
-    
+
     CLIQZEnvironment.setCurrentQuery(r._searchString);
-    
+
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
     CLIQZEnvironment.lastResults = renderedResults.results;
@@ -453,7 +453,7 @@ CLIQZEnvironment = {
     } else {
       req.open(method, url, asynchronous);
     }
-    req.overrideMimeType('application/json');
+    req.overrideMimeType && req.overrideMimeType('application/json');
     req.onload = function(){
       if(!parseInt) {
         return;
@@ -648,8 +648,8 @@ CLIQZEnvironment = {
     if(!list.length) {
       list = mockedHistory;
     }
-    
-    var indexList = {}, myList = [], domain, domainArr, mainDomain; 
+
+    var indexList = {}, myList = [], domain, domainArr, mainDomain;
     for(var i=0; i<list.length; i++) {
       domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
       domainArr = domain.split('.');
@@ -666,9 +666,9 @@ CLIQZEnvironment = {
     if(list.length < 4) {
       list = list.concat(mockedHistory);
     }
-    
+
     list = list.splice(0,4);
-    
+
     list = list.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
@@ -682,7 +682,7 @@ CLIQZEnvironment = {
         style: logo.style,
         mainDomain: r.mainDomain,
         baseDomain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[0],
-        domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]  
+        domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]
       };
     });
     var topSites = CliqzHandlebars.tplCache['topsites'];
@@ -757,8 +757,8 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     return;
   }
   if(query.length <= 2) {
-    if( recentItems[0] && recentItems[0].query.indexOf(query) === 0 && 
-        recentItems[0].query.length === 3 && 
+    if( recentItems[0] && recentItems[0].query.indexOf(query) === 0 &&
+        recentItems[0].query.length === 3 &&
         Date.now() - recentItems[0].timestamp < 5 * 1000) {
          recentItems.shift();
          localStorage.setItem('recentQueries',JSON.stringify(recentItems));
@@ -773,7 +773,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     localStorage.setItem('recentQueries',JSON.stringify(recentItems));
   }
-  else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 && 
+  else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     localStorage.setItem('recentQueries',JSON.stringify(recentItems));
