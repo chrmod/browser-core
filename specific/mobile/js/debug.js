@@ -363,8 +363,9 @@ CLIQZ.UI.VIEWS["currency"] = {
 function switchCurrency(data) {
   var fromInput = document.getElementById("fromInput");
 
-  var convRate = 1 / parseFloat(data.mConversionRate);
+  var convRate = 1 / data.mConversionRate;
   data.mConversionRate = convRate + "";
+  convRate *= data.multiplyer;
   var fromValue = getNumValue(parseFloat(fromInput.value));
   data.toAmount.main = getNumValue(fromValue * convRate);
   data.fromAmount = fromValue;
@@ -377,6 +378,8 @@ function switchCurrency(data) {
   data.formSymbol = data.toSymbol;
   data.toSymbol = temp;
 
+  data.multiplyer = 1 / data.multiplyer;
+
   updateCurrencyTpl(data);
 }
 
@@ -384,7 +387,7 @@ function updateFromValue(data) {
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
   var toAmount = document.getElementById("toAmount");
-  var toValue = getNumValue(parseFloat(fromInput.value) * parseFloat(data.mConversionRate));
+  var toValue = getNumValue(fromInput.value / data.multiplyer * data.mConversionRate).toFixed(2) - 0;
   toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   toInput.value = toValue;
 }
@@ -393,14 +396,14 @@ function updateToValue(data) {
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
   var toAmount = document.getElementById("toAmount");
-  var toValue = getNumValue(parseFloat(toInput.value));
-  var fromValue = getNumValue(toValue / parseFloat(data.mConversionRate));
+  var toValue = getNumValue(toInput.value);
+  var fromValue = getNumValue(toValue * data.multiplyer / data.mConversionRate).toFixed(2);
   toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   fromInput.value = fromValue;
 }
 
 function getNumValue(value) {
-  return (isNaN(value) || value + 0.005 <= 0 ? 0 : value).toFixed(2); // rounding value
+  return (isNaN(value) || value <= 0 ? 0 : value - 0); // rounding value
 }
 
 function updateCurrencyTpl(data) {
