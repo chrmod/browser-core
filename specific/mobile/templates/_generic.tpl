@@ -26,19 +26,21 @@
             <div class="main__image" data-style="background-image: url({{ data.richData.image }});">
                 Image
             </div>
-        {{/if}}
+        {{else}}
 
-        {{#if data.media}}
-            <div class="main__image" data-style="background-image: url({{ data.media }});">
-                Image
-            </div>
-        {{/if}}
+			{{#if data.media}}
+				<div class="main__image" data-style="background-image: url({{ data.media }});">
+					Image
+				</div>
+			{{else}}
+				{{#if image.src}}
+					<div class="main__image" data-style="background-image: url({{ image.src }})">
+						Image
+					</div>
+				{{/if}}
+			{{/if}}
 
-        {{#if image.src}}
-            <div class="main__image" data-style="background-image: url({{ image.src }})">
-                Image
-            </div>
-        {{/if}}
+		{{/if}}
 
         <!-- end main images -->
 
