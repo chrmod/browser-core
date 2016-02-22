@@ -1,5 +1,6 @@
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
+import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { utils, events } from 'core/cliqz';
 
 export default {
@@ -12,14 +13,14 @@ export default {
 
     if ( this.buttonEnabled ) {
       this.popup = new CliqzPopupButton({
-        name: "antitracking",
+        name: 'antitracking',
         actions: this.popupActions
       });
       this.popup.attach();
     }
 
     this.onPrefChange = function(pref) {
-      if (pref == CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() != this.enabled) {
+      if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
         if (CliqzAttrack.isEnabled()) {
           // now enabled, initialise module
           CliqzAttrack.init();
@@ -28,11 +29,13 @@ export default {
           CliqzAttrack.unload();
         }
         this.enabled = CliqzAttrack.isEnabled();
+      } else if (pref === DEFAULT_ACTION_PREF) {
+        updateDefaultTrackerTxtRule();
       }
     }.bind(this);
 
     this.onPrefChange(CliqzAttrack.ENABLE_PREF);
-    events.sub("prefchange", this.onPrefChange);
+    events.sub('prefchange', this.onPrefChange);
   },
 
   unload() {
@@ -40,7 +43,7 @@ export default {
       this.popup.destroy();
     }
 
-    events.un_sub("prefchange", this.onPrefChange);
+    events.un_sub('prefchange', this.onPrefChange);
 
     if (CliqzAttrack.isEnabled()) {
       CliqzAttrack.unload();
@@ -66,13 +69,13 @@ export default {
         url: info.hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
-        enabled: utils.getPref("antiTrackTest"),
+        enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname)
       });
     },
 
     toggleAttrack(args, cb) {
-      if ( utils.getPref("antiTrackTest") ) {
+      if ( utils.getPref('antiTrackTest') ) {
         CliqzAttrack.disableModule();
       } else {
         CliqzAttrack.enableModule();

@@ -4,7 +4,7 @@ var testem = new Testem();
 
 testem.startCI({
   host: 'localhost',
-  port: '3000'
+  port: '4200'
 }, function(exitCode) {
   process.exit();
 });
