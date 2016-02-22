@@ -1919,9 +1919,8 @@ var CliqzAttrack = {
                 try {
                     var win = tabbrowser.getBrowserForOuterWindowID(int_id)
                     // check for http URI.
-                    if(win !== undefined && win.currentURI &&
-                        (win.currentURI.schemeIs('http') || win.currentURI.schemeIs('https'))) {
-                        return true;
+                    if (win !== undefined) {
+                        return win.currentURI && (win.currentURI.schemeIs('http') || win.currentURI.schemeIs('https'))
                     }
                 } catch(e) {
                     let tabwindow;

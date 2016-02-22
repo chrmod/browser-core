@@ -199,7 +199,7 @@ var tp_events = {
         if(now - this._last_clean > this._clean_interval || force_clean == true) {
             for(let k in this._active) {
                 var active = CliqzAttrack.tab_listener.isWindowActive(k);
-                if(!CliqzAttrack.tab_listener.isWindowActive(k) || force_stage == true) {
+                if(!active || force_stage == true) {
                     if (CliqzAttrack.debug) CliqzUtils.log('Stage tab '+k, 'tp_events');
                     this.stage(k);
                 }
