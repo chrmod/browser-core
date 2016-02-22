@@ -40,7 +40,7 @@ export default class extends QSWhitelistBase {
       if (config.safekey_version && currentSafeKey !== config.safekey_version) {
         this._loadRemoteSafeKey(config.force_clean === true);
       }
-      utils.log('Token whitelist: '+ config.token_whitelist_version + ' vs ' + currentToken, 'attrack');
+      utils.log('Token whitelist: '+ config.token_whitelist_version2 + ' vs ' + currentToken, 'attrack');
       if (config.token_whitelist_version && currentToken !== config.token_whitelist_version) {
         this._loadRemoteTokenWhitelist();
       }
