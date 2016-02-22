@@ -2061,8 +2061,18 @@ html
       &.additional_sources  
         background-color: #BAD3ED 
         border-top: 1px #9DBFE2 solid   
-      &.external_links  
-        background-color: #BAD3ED   
+      &.external_links
+        background-color: #BAD3ED  
+        border-top: 1px #8CB2D9 solid    
+  .third
+     background-color: #D4E5F6 
+     padding: 0   
+     .cards__item  
+       position: relative 
+       padding: 0.5rem 1rem 
+       border-top: 1px #8CB2D9 solid   
+       &.ez-category
+         background-color: #BAD3ED  
   .share  
     padding: 0.25rem 2rem 
     font-size: 0.5rem 
@@ -2079,4 +2089,28 @@ html
     background-color: inherit 
     overflow: inherit 
     border-radius: inherit 
-   
+  
+  .ez-video
+    padding: 0 2rem 1rem
+    .item
+      &::after
+        clear: both
+        content: ""
+        display: table
+      .main__image
+        background-repeat: no-repeat
+        background-size: cover
+        background-position: center
+        border-radius: 0.25rem
+        text-indent: -9999px
+        position: relative
+        float: left
+        margin: 0 1rem 0 0
+        height: auto
+        padding-top: 18%
+      .main__headline
+        font-size: 1rem
+        line-height: 1.25rem
+        max-height: 3.75rem
+        text-overflow: ellipsis
+        overflow: hidden
