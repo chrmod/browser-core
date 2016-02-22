@@ -44,7 +44,7 @@
 
 		<!-- for videos -->
 		{{#if data.items}}
-			<div class="cqz-result-h1 cqz-result-padding ez-video main mulitple">
+			<div class="ez-video">
 				{{#each data.items}}
 
 					<div class="item">
