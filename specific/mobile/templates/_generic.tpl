@@ -17,30 +17,37 @@
 		</h1>
 
 		<div class="card__meta">
-			{{urlDetails.friendly_url}}
+			
+			{{#if data.richData.discovery_timestamp}}
+				<div class="timestamp">{{ agoline data.richData.discovery_timestamp }}</div>
+			{{else}}
+				{{urlDetails.friendly_url}}
+			{{/if}}
 		</div>
 
 		<!-- main images -->
-
+		
+		<div class="card__gallery">
 		{{#if data.richData.image}}
-            <div class="main__image" data-style="background-image: url({{ data.richData.image }});">
+            <div class="image" data-style="background-image: url({{ data.richData.image }});">
                 Image
             </div>
         {{else}}
 
 			{{#if data.media}}
-				<div class="main__image" data-style="background-image: url({{ data.media }});">
+				<div class="image" data-style="background-image: url({{ data.media }});">
 					Image
 				</div>
 			{{else}}
 				{{#if image.src}}
-					<div class="main__image" data-style="background-image: url({{ image.src }})">
+					<div class="image" data-style="background-image: url({{ image.src }})">
 						Image
 					</div>
 				{{/if}}
 			{{/if}}
 
 		{{/if}}
+		</div>
 
         <!-- end main images -->
 
@@ -81,9 +88,7 @@
         </div>
 
 		<div class="card__description">
-			{{#if data.richData.discovery_timestamp}}
-				<div class="i_am_greislig" style="color:pink;font-weight:bold">{{ agoline data.richData.discovery_timestamp }}</div>
-			{{/if}}
+			
 
 			{{{data.description}}}
 
