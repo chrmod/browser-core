@@ -47,6 +47,7 @@
 			{{/if}}
 
 		{{/if}}
+		</div>
 
         <!-- end main images -->
 
