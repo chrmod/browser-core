@@ -28,11 +28,15 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
     });
 
     it('token whitelist URL is correct', function() {
-      chai.expect(whitelist.TOKEN_WHITELIST_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json');
+      chai.expect(whitelist.TOKEN_WHITELIST_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens.json');
     });
 
     it('safekey list URL is correct', function() {
       chai.expect(whitelist.SAFE_KEY_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json');
+    });
+
+    it('unsafekey list URL is correct', function() {
+      chai.expect(whitelist.UNSAFE_KEY_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_unsafe_key.json');
     });
 
     describe('isTrackerDomain', function() {
@@ -66,6 +70,16 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
 
     });
 
+    describe('addUnsafeKey', function() {
+      var domain = md5('example.com'),
+          key = md5('callback');
+
+      it('adds a key to the unsafekey list', function() {
+        whitelist.addUnsafeKey(domain, key);
+        chai.expect(whitelist.isUnsafeKey(domain, key)).to.be.true;
+      });
+    })
+
     describe('addSafeToken', function() {
       var domain = md5('example.com'),
           token = md5('safe');
@@ -82,13 +96,17 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         chai.expect(whitelist.isUpToDate()).to.be.false;
       });
 
-      describe('after list update', function() {
+      describe('after list update', function(done) {
+        this.timeout(5000);
         var mock_token_string = '{\"f528764d624db129\": {\"7269d282a42ce53e58c7b3f66ca19bac\": true}}\n',
           mock_token_url = '/token_whitelist.json',
           mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac',
           mock_safekey_string = '{\"f528764d624db129\": {\"924a8ceeac17f54d3be3f8cdf1c04eb2\": \"20200101\"}}\n',
           mock_safekey_url = '/safekey.json',
           mock_safekey_hash = '3e82cf3535f01bfb960e826f1ad8ec2d';
+          mock_unsafekey_string = '[["9dd5ed5535c6a873","d279186428a75016b17e4df5ea43d080"]]\n';
+          mock_unsafekey_url = '/unsafekey.json';
+          mock_unsafekey_hash = '734be41a8fdf93dbcb802dd3a1973d25';
 
         beforeEach(function() {
           testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
@@ -97,14 +115,20 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
           testServer.registerPathHandler('/safekey.json', function(request, response) {
             response.write(mock_safekey_string);
           });
+          testServer.registerPathHandler('/unsafekey.json', function(request, response) {
+            response.write(mock_unsafekey_string);
+          });
 
           whitelist.SAFE_KEY_URL = 'http://localhost:' + testServer.port + '/safekey.json';
           persist.setValue('safeKeyExtVersion', '');
           whitelist.TOKEN_WHITELIST_URL = 'http://localhost:' + testServer.port + '/token_whitelist.json';
           persist.setValue('tokenWhitelistVersion', '');
+          whitelist.UNSAFE_KEY_URL = 'http://localhost:' + testServer.port + '/unsafekey.json';
+          persist.setValue('unsafeKeyExtVersion', '');
 
           whitelist._loadRemoteSafeKey();
           whitelist._loadRemoteTokenWhitelist();
+          whitelist._loadRemoteUnsafeKey();
         });
 
         it('returns true', function() {
@@ -118,9 +142,9 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
 
     describe('_loadRemoteTokenWhitelist', function() {
 
-      var mock_token_string = '{\"f528764d624db129\": {\"7269d282a42ce53e58c7b3f66ca19bac\": true}}\n',
+      var mock_token_string = '{"domains": {"f528764d624db129": true}, "tokens": {"7269d282a42ce53e58c7b3f66ca19bac": true}}\n',
           mock_token_url = '/token_whitelist.json',
-          mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac';
+          mock_token_hash = '89673e5b595a8d8154404b0d6b70d0f6';
 
       beforeEach(function() {
         testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
@@ -342,7 +366,7 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
           chai.expect(safekeyCallCount).to.equal(1);
         });
 
-        it('does not safekey load if version is same', function() {
+        it('does not load if safekey version is same', function() {
           whitelist.onConfigUpdate({ safekey_version: persist.getValue('safeKeyExtVersion') });
           chai.expect(safekeyCallCount).to.equal(0);
           chai.expect(tokenCallCount).to.equal(0);
