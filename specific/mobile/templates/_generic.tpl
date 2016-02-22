@@ -145,7 +145,7 @@
             <div class="cards__item internal_links">
                 
                 <h2 class="cards__title__secondary">
-                    <a href="{{url}}">{{title}}<a>
+                    <a href="{{mobileWikipediaUrls url}}">{{title}}<a>
                 </h2>
             </div>
         {{/each}}
