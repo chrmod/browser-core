@@ -1917,8 +1917,10 @@ var CliqzAttrack = {
                 // gBrowser.getBrowserForOuterWindowID which works on FF>=39, and fall back to wm.getOuterWindowWithId()
                 // for older versions.
                 try {
-                    if(tabbrowser.getBrowserForOuterWindowID(int_id) != undefined) {
-                        return true;
+                    var win = tabbrowser.getBrowserForOuterWindowID(int_id)
+                    // check for http URI.
+                    if (win !== undefined) {
+                        return win.currentURI && (win.currentURI.schemeIs('http') || win.currentURI.schemeIs('https'))
                     }
                 } catch(e) {
                     let tabwindow;
@@ -1932,8 +1934,13 @@ var CliqzAttrack = {
                         return false;
                     } else {
                         try {
-                            let contents = tabwindow._content;
-                            return true;
+                            // check for http URI.
+                            if (tabwindow.document.documentURI.substring(0, 4) === 'http') {
+                                let contents = tabwindow._content;
+                                return true;
+                            } else {
+                                return false;
+                            }
                         } catch(ee) {
                             return false;
                         }
@@ -1964,21 +1971,30 @@ var CliqzAttrack = {
      *        more detailed blocking data.
      */
     getTabBlockingInfo: function(tab_id) {
-      if (! (tab_id in CliqzAttrack.tp_events._active) ) {
-        return {'error': 'Tab ID ' + tab_id + ' not active'};
-      }
-      var tab_data = CliqzAttrack.tp_events._active[tab_id],
-        result = {
-          hostname: tab_data.hostname,
+      var result = {
+          hostname: '',
           cookies: {allowed: 0, blocked: 0},
           requests: {safe: 0, unsafe: 0},
           trackers: {},
           companies: {}
-        },
+        };
+
+      if (! (tab_id in CliqzAttrack.tp_events._active) ) {
+        // no tp event, but 'active' tab = must reload for data
+        // otherwise -> system tab
+        if ( CliqzAttrack.tab_listener.isWindowActive(tab_id) ) {
+            result.reload = true;
+        }
+        result.error = 'No Data';
+        return result;
+      }
+
+      var tab_data = CliqzAttrack.tp_events._active[tab_id],
         trackers = Object.keys(tab_data.tps).filter(function(domain) {
           return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16));
         }),
         plain_data = tab_data.asPlainObject();
+      result.hostname = tab_data.hostname;
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};

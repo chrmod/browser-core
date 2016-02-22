@@ -68,9 +68,16 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     tabs = [];
                 });
 
-                it('returns true for open tab id', function() {
+                it('returns true for open tab id', function(done) {
                     console.log(tab_id);
-                    chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.true;
+                    setTimeout( function() {
+                        try {
+                            chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.true;
+                            done()
+                        } catch(e) {
+                            done(e);
+                        }
+                    }, 500);
                 });
 
                 describe('when tab is closed', function() {
@@ -122,8 +129,14 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     page_load;
 
                 beforeEach(function() {
-                    tabs.push(gBrowser.addTab("https://cliqz.com"));
-                    tabs.push(gBrowser.addTab("https://cliqz.com/privacy#saferWeb"));
+                    testServer.registerPathHandler('/', function(req, res) {
+                        res.write('<html><body><p>Hello world</p></body></html');
+                    });
+                    testServer.registerPathHandler('/privacy', function(req, res) {
+                        res.write('<html><body><p>Hello private world</p></body></html');
+                    });
+                    tabs.push(gBrowser.addTab("http://cliqztest.com"));
+                    tabs.push(gBrowser.addTab("http://cliqztest.com/privacy#saferWeb"));
                 });
 
                 it('should add tabs to _active', function(done) {
@@ -137,8 +150,8 @@ TESTS.AttrackTest = function (CliqzUtils) {
                         tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
                         page_load = CliqzAttrack.tp_events._active[tab_id];
                         chai.expect(page_load).to.include.keys('hostname', 'url', 'path');
-                        chai.expect(page_load.url).to.equal('https://cliqz.com/');
-                        chai.expect(page_load.hostname).to.equal('cliqz.com');
+                        chai.expect(page_load.url).to.equal('http://cliqztest.com/');
+                        chai.expect(page_load.hostname).to.equal('cliqztest.com');
                         // md5('/')
                         chai.expect(page_load.path).to.equal('6666cd76f96956469e7be39d750cc7d9'.substring(0, 16));
                         chai.expect(page_load.tps).to.be.empty;
@@ -148,9 +161,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 });
 
                 describe('when a tab is closed', function() {
-                    beforeEach(function() {
+                    beforeEach(function(done) {
                         gBrowser.removeTab(tabs.shift());
                         console.log(tabs);
+                        setTimeout(done, 700);
                     });
 
                     describe('CliqzAttrack.tp_events.commit', function() {
@@ -159,14 +173,15 @@ TESTS.AttrackTest = function (CliqzUtils) {
                         });
 
                         it('should stage closed tabs only', function() {
+                            this.timeout(30000);
                             chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
                             // check staged tab
                             chai.expect(CliqzAttrack.tp_events._staged).to.have.length(1);
-                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('https://cliqz.com/');
+                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com/');
 
                             // check active tab
                             tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
-                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("https://cliqz.com/privacy#saferWeb");
+                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://cliqztest.com/privacy#saferWeb");
                         });
                     });
 
@@ -174,8 +189,9 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 describe('when new page is loaded in existing tab', function() {
 
-                    beforeEach(function() {
-                        gBrowser.getBrowserForTab(tabs[0]).loadURI("http://www.w3.org/");
+                    beforeEach(function(done) {
+                        gBrowser.getBrowserForTab(tabs[0]).loadURI("http://cliqztest.de/");
+                        setTimeout(done, 700);
                     });
 
                     describe('CliqzAttrack.tp_events.commit', function() {
@@ -188,11 +204,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
                             chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(2);
                             // check staged tab
                             chai.expect(CliqzAttrack.tp_events._staged).to.have.length(1);
-                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('https://cliqz.com/');
+                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com/');
 
                             // check active tabs
                             tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
-                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://www.w3.org/");
+                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://cliqztest.de/");
                         });
                     });
 

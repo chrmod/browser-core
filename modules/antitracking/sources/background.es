@@ -6,7 +6,7 @@ import { utils, events } from 'core/cliqz';
 export default {
 
   init(settings) {
-    this.buttonEnabled = settings.antitrackingButton && utils.getPref("attrackUI", false);
+    this.buttonEnabled = settings.antitrackingButton && utils.getPref('attrackUI', false);
     this.enabled = false;
 
     utils.bindObjectFunctions( this.popupActions, this );
@@ -54,23 +54,14 @@ export default {
   popupActions: {
     getPopupData(args, cb) {
       var info = CliqzAttrack.getCurrentTabBlockingInfo();
-      if (info.error) {
-        info = {
-          cookies: {
-            blocked: 0
-          },
-          requests: {
-            unsafe: 0
-          }
-        };
-      }
 
       cb({
         url: info.hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         enabled: utils.getPref('antiTrackTest'),
-        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname)
+        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
+        reload: info.reload || false,
       });
     },
 
