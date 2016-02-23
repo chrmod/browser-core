@@ -41,7 +41,7 @@
                   class="cqz-ez-btn {{ ../logo.buttonsClass }}"
                   url="{{ url }}"
                   extra="cat-{{ @index }}" arrow="false" arrow-if-visible='true'>
-                    {{ emphasis (local title_key) ../../text 2 true}}
+                    {{ (local title_key) }}
                 </div>
             {{/each}}
        </div>

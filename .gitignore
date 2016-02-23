@@ -3,6 +3,7 @@
 *~
 *#
 tmp
+tests.tap
 
 # ignore invisible files
 .Trashes

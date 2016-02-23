@@ -33,6 +33,12 @@ var MockOS = {
       case "removeHistory":
         MockOS.removeHistory(message.data);
         break;
+      case "cleanHistory":
+        MockOS.cleanHistory(message.data);
+        break;
+      case "shareCard":
+        MockOS.shareCard(message.data);
+        break;
 
     }
     message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
@@ -79,7 +85,54 @@ var MockOS = {
     mockedHistory = mockedHistory.filter(function(record) {
       return index >= data.length || data[index] !== record.id || (index++ && false);
     });
+  },
+  cleanHistory: function(data) {
+    console.log("--MOCK: action cleanHistory is called with data", data);
+    if(data.length == 0 || mockedHistory.length === 0) {
+      mockHistory = [];
+      return;
+    }
+
+    var index = 0;
+    mockedHistory = mockedHistory.filter(function(record) {
+      return index < data.length && data[index] === record.id && (index++ || true);
+    });
+    getHistory();
+  },
+  shareCard: function(data) {
+    console.log("--MOCK: action shareCard is called with data", data);
   }
 }
 
-var mockedHistory = [{"id": 7, "title":"SPIEGEL MOCK","url":"http://www.spiegel.de/", "timestamp": Date.now()},{"id": 6, "title":"HISTORY MOCK KINO CADILLAC","url":"http://cadillac.movieplace.de/", "timestamp": Date.now()},{"id": 5, "title":"HISTORY MOCK Geschäftsführung (Deutschland) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Gesch%C3%A4ftsf%C3%BChrung_(Deutschland)#Gesch.C3.A4ftsf.C3.BChrer", "timestamp": Date.now() - 10000},{"id": 4, "title":"Chief Executive Officer – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Chief_Executive_Officer", "timestamp": Date.now() - 20000},{"id": 3, "title":"CEO (Begriffsklärung) – Wikipedia","url":"https://de.m.wikipedia.org/wiki/CEO_(Begriffskl%C3%A4rung)", "timestamp": Date.now() - 30000},{"id": 2, "title":"WebSockets over a 3G connection - Stack Overflow","url":"http://stackoverflow.com/questions/5557776/websockets-over-a-3g-connection", "timestamp": Date.now() - 121240000},{"id": 1, "title":"Dein idealer Smartphone-Tarif von netzclub", "url":"https://www.netzclub.net/", "timestamp": Date.now() - 1222250000}];
+var mockedHistory = 
+        [{
+            "id": 1,
+            "title": "Facebook",
+            "mainDomain": "Facebook",
+            "url": "http://www.facebook.de",
+            "timestamp": Date.now() - 10000
+        }, {
+            "id": 2,
+            "title": "Youtube",
+            "mainDomain": "Youtube",
+            "url": "http://www.youtube.de",
+            "timestamp": Date.now() - 1222250000
+        }, {
+            "id": 3,
+            "title": "Focus",
+            "mainDomain": "Focus",
+            "url": "http://www.focus.de",
+            "timestamp": Date.now() - 30090
+        }, {
+            "id": 4,
+            "title": "Bild",
+            "mainDomain": "Bild",
+            "url": "http://www.bild.de",
+            "timestamp": Date.now() - 20000
+        },  {
+            "id": 5,
+            "title": "Amazon",
+            "mainDomain": "Amazon",
+            "url": "http://www.amazon.de",
+            "timestamp": Date.now() - 121240000
+        }];

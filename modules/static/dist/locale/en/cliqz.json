@@ -1,4 +1,7 @@
 {
+    "more_on": {
+        "message": "More on"
+    },
     "calculator": {
         "message": "Calculator"
     },
@@ -968,6 +971,30 @@
     "freshtab_top_sites": {
       "message": "Top Sites"
     },
+    "mobile_share_card": {
+      "message": "Share this card"
+    },
+    "mobile_reconnecting_msg": {
+      "message": "Re-establishing lost internet connection"
+    },
+    "mobile_history_title": {
+      "message": "History"
+    },
+    "mobile_favorites_title": {
+      "message": "Favorites"
+    },
+    "mobile_history_remove": {
+      "message": "Remove"
+    },
+    "mobile_history_unstar": {
+      "message": "Unfavorite"
+    },
+    "mobile_history_star": {
+      "message": "Favorite"
+    },
+    "mobile_history_cancel": {
+      "message": "Cancel"
+    },
     "mobile_no_result_title": {
       "message": "We don't have great results this time."
     },
@@ -979,6 +1006,12 @@
     },
     "mobile_more_results_action": {
       "message": "Tap here for results from $1..."
+    },
+    "mobile_calc_more": {
+      "message": "More on"
+    },
+    "mobile_calc_copy_ans":{
+        "message": "Tap anywhere to copy"
     },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"

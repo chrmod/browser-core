@@ -138,6 +138,32 @@ var osBridge = {
       data: ids
     }
     OS.postMessage(message);
+  },
+  /**
+    function: cleanHistory
+    description: removes history records from native history
+    params: excludedIds as list
+    message data: excludedIds as list
+  */
+  cleanHistory: function(excludedIds) {
+    var message = {
+      action: "cleanHistory",
+      data: excludedIds
+    }
+    OS.postMessage(message);
+  },
+  /**
+    function: shareCard
+    description: sends card url to the OS
+    params: cardUrl as string
+    message data: cardUrl as string
+  */
+  shareCard: function(cardUrl) {
+    var message = {
+      action: "shareCard",
+      data: cardUrl
+    }
+    OS.postMessage(message);
   }
 };
 
@@ -152,6 +178,3 @@ if(window.webkit) {
 } else {
   OS.postMessage = MockOS.postMessage;
 }
-
-// spread the code to the generic and environment parts
-// check with krzyadadjkjtof about this proxy for the bridge

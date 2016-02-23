@@ -1,4 +1,4 @@
-import ResourceLoader from 'unblock/resource-loader';
+import ResourceLoader from 'core/resource-loader';
 
 /**
   Proxy manager class
@@ -15,18 +15,21 @@ export default class {
   }
 
   init() {
-    this._loader = new ResourceLoader({
-      url: this.PROXY_UPDATE_URL,
-      pref: "unblock_proxies",
-      updateFn: this.updateProxyList.bind(this)
-    });
-    CliqzUtils.setTimeout(this._loader.start.bind(this._loader), 100);
+    this._loader = new ResourceLoader(
+      [ 'unblock', 'proxies.json' ],
+      {
+        remoteURL: this.PROXY_UPDATE_URL,
+        cron: 24 * 60 * 60 * 1000, // 24 hours
+      }
+    );
+
+    var update = this.updateProxyList.bind(this);
+    this._loader.load().then(update);
+    this._loader.onUpdate(update);
   }
 
   destroy() {
-    if (this._loader) {
-      this._loader.stop();
-    }
+    this._loader.stop();
   }
 
   getAvailableRegions() {
@@ -67,9 +70,8 @@ export default class {
     }
   }
 
-  updateProxyList(resp) {
+  updateProxyList(proxies) {
     var self = this;
-    let proxies = JSON.parse(resp);
     // reset proxy list
     self._p = {};
     self._preferred_regions = proxies['regions'];

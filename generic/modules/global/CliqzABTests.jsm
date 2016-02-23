@@ -363,6 +363,21 @@ var CliqzABTests = {
             case "1063_B":
                 CliqzUtils.setPref("double-enter2", true);
                 break;
+            case "1064_A":
+                CliqzUtils.setPref("attrackDefaultAction", "same");
+                break;
+            case "1064_B":
+                CliqzUtils.setPref("attrackDefaultAction", "placeholder");
+                break;
+            case "1064_C":
+                CliqzUtils.setPref("attrackDefaultAction", "block");
+                break;
+            case "1064_D":
+                CliqzUtils.setPref("attrackDefaultAction", "empty");
+                break;
+            case "1064_E":
+                CliqzUtils.setPref("attrackDefaultAction", "replace");
+                break;
             default:
                 rule_executed = false;
         }
@@ -633,6 +648,13 @@ var CliqzABTests = {
             case "1063_A":
             case "1063_B":
                 CliqzUtils.clearPref("double-enter2");
+                break;
+            case "1064_A":
+            case "1064_B":
+            case "1064_C":
+            case "1064_D":
+            case "1064_E":
+                CliqzUtils.clearPref("attrackDefaultAction");
                 break;
             default:
                 rule_executed = false;

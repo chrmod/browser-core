@@ -32,7 +32,7 @@
 </div>
 
 <div class="poweredby">
-    Mehr auf <a href="http://www.weatherunderground.com">weatherunderground.com</a>
+    {{local 'more_on'}} <a href="http://www.weatherunderground.com">weatherunderground.com</a>
 </div>
 
 {{/with}}

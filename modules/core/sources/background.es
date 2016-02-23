@@ -5,7 +5,7 @@ var lastRequestId = 0;
 var callbacks = {};
 
 export default {
-  FRAME_SCRIPT_URL: "chrome://cliqz/content/core/frameScript.js",
+  PROCESS_SCRIPT_URL: "chrome://cliqz/content/core/processScript.js",
 
   init(settings) {
     this.dispatchMessage = this.dispatchMessage.bind(this);
@@ -14,17 +14,19 @@ export default {
   		config[key] = settings[key];
   	});
 
-    this.globalMM = Cc["@mozilla.org/globalmessagemanager;1"]
-        .getService(Ci.nsIMessageListenerManager);
+    this.mm = Cc["@mozilla.org/parentprocessmessagemanager;1"]
+        .getService(Ci.nsIProcessScriptLoader);
 
-    this.globalMM.addMessageListener("cliqz:framescript", this.dispatchMessage);
+    this.mm.loadProcessScript(this.PROCESS_SCRIPT_URL, true);
 
-    this.globalMM.loadFrameScript(this.FRAME_SCRIPT_URL, true);
+    this.mm.addMessageListener("cliqz", this.dispatchMessage);
+
+    utils.bindObjectFunctions(this.actions, this);
   },
 
   unload() {
-    this.globalMM.removeMessageListener("cliqz:framescript", this.dispatchMessage);
-    this.globalMM.getDelayedFrameScripts(this.FRAME_SCRIPT_URL);
+    this.mm.removeMessageListener("cliqz", this.dispatchMessage);
+    this.mm.getDelayedFrameScripts(this.FRAME_SCRIPT_URL);
   },
 
   getHTML(url, timeout = 1000) {
@@ -65,7 +67,7 @@ export default {
       const background = module.default;
       return background.actions[action].apply(null, args);
     }).then( response => {
-      this.globalMM.broadcastAsyncMessage(`window-${windowId}`, {
+      this.mm.broadcastAsyncMessage(`window-${windowId}`, {
         response,
         action: msg.data.payload.action
       });
@@ -74,5 +76,19 @@ export default {
 
   handleResponse(msg) {
     callbacks[msg.data.requestId].apply(null, [msg.data.payload]);
+  },
+
+  actions: {
+    sendTelemetry(msg) {
+      utils.telemetry(msg);
+      return Promise.resolve();
+    },
+    getUrlbar(value) {
+      let urlBar = utils.getWindow().document.getElementById("urlbar")
+      urlBar.focus();
+      urlBar.mInputField.focus();
+      urlBar.mInputField.setUserInput(value);
+      //utils.getWindow().CLIQZ.Core.urlbar.focus("ss");
+    }
   }
 };
