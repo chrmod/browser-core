@@ -29,18 +29,18 @@
 		
 		<div class="card__gallery">
 		{{#if data.richData.image}}
-            <div class="image" data-style="background-image: url({{ data.richData.image }});">
+            <div class="image big" data-style="background-image: url({{ data.richData.image }});">
                 Image
             </div>
         {{else}}
 
 			{{#if data.media}}
-				<div class="image" data-style="background-image: url({{ data.media }});">
+				<div class="image big" data-style="background-image: url({{ data.media }});">
 					Image
 				</div>
 			{{else}}
 				{{#if image.src}}
-					<div class="image" data-style="background-image: url({{ image.src }})">
+					<div class="image big" data-style="background-image: url({{ image.src }})">
 						Image
 					</div>
 				{{/if}}
