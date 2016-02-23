@@ -1,8 +1,11 @@
 <!-- ligaEZ1Game.tpl-->
-{{#with data}}
+
 {{#with logo}}
     <div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
- {{/with}}
+{{/with}}
+ 
+{{#with data}}
+
 
     <section class="primary">
 
