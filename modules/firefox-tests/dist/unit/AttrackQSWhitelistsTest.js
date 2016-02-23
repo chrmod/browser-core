@@ -308,7 +308,7 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         whitelist.destroy();
       });
 
-      describe('attrack:updated_config event', function() {
+      describe('onConfigUpdate', function() {
 
         var tokenCallCount,
             safekeyCallCount;
@@ -325,59 +325,33 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         });
 
         it('triggers _loadRemoteTokenWhitelist if version is different', function() {
-          CliqzEvents.pub('attrack:updated_config', { token_whitelist_version: 'new_version' });
-          return waitFor(function() {
-            return tokenCallCount == 1;
-          }).then(() => {
-            chai.expect(tokenCallCount).to.equal(1);
-            chai.expect(safekeyCallCount).to.equal(0);
-          });
+          whitelist.onConfigUpdate({ token_whitelist_version: 'new_version' });
+          chai.expect(tokenCallCount).to.equal(1);
+          chai.expect(safekeyCallCount).to.equal(0);
         });
 
-        it('does not load if token version is same', function(done) {
-          CliqzEvents.pub('attrack:updated_config', { token_whitelist_version: persist.getValue('tokenWhitelistVersion') });
-          setTimeout(function() {
-            try {
-              chai.expect(tokenCallCount).to.equal(0);
-              chai.expect(safekeyCallCount).to.equal(0);
-              done();
-            } catch(e) {
-              done(e);
-            }
-          }, 100);
+        it('does not load if token version is same', function() {
+          whitelist.onConfigUpdate({ token_whitelist_version: persist.getValue('tokenWhitelistVersion') });
+          chai.expect(tokenCallCount).to.equal(0);
+          chai.expect(safekeyCallCount).to.equal(0);
         });
 
         it('triggers _loadRemoteSafeKey if safekey version is different', function() {
-          CliqzEvents.pub('attrack:updated_config', { safekey_version: 'new_version' });
-          return waitFor(function() {
-            return safekeyCallCount == 1;
-          }).then(function() {
-            chai.expect(tokenCallCount).to.equal(0);
-            chai.expect(safekeyCallCount).to.equal(1);
-          });
+          whitelist.onConfigUpdate({ safekey_version: 'new_version' });
+          chai.expect(tokenCallCount).to.equal(0);
+          chai.expect(safekeyCallCount).to.equal(1);
         });
 
-        it('does not safekey load if version is same', function(done) {
-          CliqzEvents.pub('attrack:updated_config', { safekey_version: persist.getValue('safeKeyExtVersion') });
-          setTimeout(function() {
-            try {
-              chai.expect(safekeyCallCount).to.equal(0);
-              chai.expect(tokenCallCount).to.equal(0);
-              done();
-            } catch(e) {
-              done(e);
-            }
-          }, 100);
+        it('does not safekey load if version is same', function() {
+          whitelist.onConfigUpdate({ safekey_version: persist.getValue('safeKeyExtVersion') });
+          chai.expect(safekeyCallCount).to.equal(0);
+          chai.expect(tokenCallCount).to.equal(0);
         });
 
         it('loads both lists if both have new versions', function() {
-          CliqzEvents.pub('attrack:updated_config', { token_whitelist_version: 'new_version', safekey_version: 'new_version' });
-          return waitFor(function() {
-            return safekeyCallCount === 1 && tokenCallCount === 1;
-          }).then(function() {
-            chai.expect(tokenCallCount).to.equal(1);
-            chai.expect(safekeyCallCount).to.equal(1);
-          });
+          whitelist.onConfigUpdate({ token_whitelist_version: 'new_version', safekey_version: 'new_version' });
+          chai.expect(tokenCallCount).to.equal(1);
+          chai.expect(safekeyCallCount).to.equal(1);
         });
       });
     });
