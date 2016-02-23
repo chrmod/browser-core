@@ -798,59 +798,6 @@ a
       padding: 0 8px
       color: #666
 
-.weather
-  &::after
-    clear: both
-    content: ""
-    display: table
-  .alert
-    padding: 5px
-    .header
-      font-size: 14px
-      line-height: 18px
-      font-weight: 700
-      color: #fff
-    .info
-      font-size: 12px
-      line-height: 14px
-      color: #fff
-  .EZ-weather-container
-    width: 25%
-    float: left
-    padding-top: 50%
-    position: relative
-    .EZ-weather-img
-      background-position: center
-      background-repeat: no-repeat
-      background-size: contain
-      position: absolute
-      top: 16px
-      left: 0
-      right: 0
-      bottom: 16px
-    .EZ-weather-date
-      font-weight: 500
-      font-size: 12px
-      line-height: 24px
-      position: absolute
-      left: 0px
-      top: 16px
-    .EZ-weather-temp
-      font-size: 16px
-      line-height: 16px
-      font-weight: 500
-      position: absolute
-      left: 16px
-      color: #666
-      bottom: 0
-      span
-        font-weight: 400
-        font-size: 12px
-        line-height: 16px
-        color: #999
-    &.weather__today
-      .EZ-weather-date, .EZ-weather-temp
-        font-weight: 700
 
 .main__image
   background-position: center
@@ -2124,3 +2071,93 @@ html
         max-height: 3.75rem
         text-overflow: ellipsis
         overflow: hidden
+  .soccer__result
+    padding: 1rem 2rem
+    margin-top: 1rem
+    border-top: 1px rgba(0,0,0,0.1) solid
+    h5
+      font-size: 1rem
+      line-height: 1.5rem
+      font-weight: 700
+      color: #333
+    .meta__legend
+      font-size: 0.75rem
+      line-height: 1.5rem
+      display: block
+      color: #999
+    table
+      padding: 0
+      margin: 1rem 0
+      width: 100%
+      .ez-liga-score
+        font-weight: 700
+      .ez-liga-vs
+        font-weight: 700
+      .score
+        text-align: center
+      tr
+        td:last-child
+          text-align: right
+  .alert
+    display: block
+    background-color: #E38D00
+    padding: 0.5rem 2rem
+    margin: 0.75rem 0
+    color: #fff 
+    .header
+      font-weight: bold
+      font-size: 1rem
+      line-height: 1.5rem
+    .info
+      font-size: 0.75rem
+      line-height: 1.5rem
+      font-weight: 400
+  .weather__today
+    padding: 0.5rem 2rem
+    .EZ-weather-date
+      font-size: 1.25rem
+      line-height: 1.5rem
+      color: rgba(0,0,0,0.62)
+    .EZ-weather-temp
+      font-size: 1.25rem
+      line-height: 1.5rem
+      font-weight: 700
+      span
+        font-size: 0.75rem
+        color: rgba(0,0,0,0.38)
+    .EZ-weather-img
+      padding-top: 62%
+      background-position: center
+      background-size: contain
+      background-repeat: no-repeat
+      display: block
+      width: 100%
+  .weather__gallery
+    padding: 0 2rem
+    &::after
+      clear: both
+      content: ""
+      display: table
+    .EZ-weather-container
+      width: 50%
+      float: left
+      padding: 1rem 0
+      .EZ-weather-img
+        width: 100%
+        padding-top: 62%
+        background-position: center
+        background-repeat: no-repeat
+        background-size: contain
+      .EZ-weather-date
+        font-size: 1rem
+        line-height: 2rem
+        color: rgba(0,0,0,0.63)
+      .EZ-weather-temp
+        font-size: 1rem
+        font-weight: 700
+        padding: 0 0 1rem 0
+        span
+          color: rgba(0,0,0,0.38)
+          font-weight: 400
+          font-size: 0.75rem
+        
