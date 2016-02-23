@@ -12,7 +12,7 @@ var whitelist = [
 ].concat(Extension.config.settings.frameScriptWhitelist);
 
 function send(msg) {
-  sendAsyncMessage("cliqz:framescript", msg);
+  sendAsyncMessage("cliqz", msg);
 }
 
 function getContextHTML(ev) {
@@ -195,7 +195,7 @@ var DocumentManager = {
       return;
     }
 
-    onDOWWindowCreated({
+    onDOMWindowCreated({
       originalTarget: {
         defaultView: window
       }

@@ -33,7 +33,7 @@ export default {
     const requestId = lastRequestId++,
           documents = [];
 
-    this.globalMM.broadcastAsyncMessage("cliqz:core", {
+    this.mm.broadcastAsyncMessage("cliqz:core", {
       action: "getHTML",
       args: [ url ],
       requestId
