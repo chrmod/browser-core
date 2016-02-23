@@ -11,9 +11,12 @@ export default class extends QSWhitelistBase {
   constructor() {
     super();
     this.safeTokens = new persist.LazyPersistentObject('tokenExtWhitelist');
-    this.lastUpdate = ['0', '0', '0'];
+    this.trackerDomains = new persist.LazyPersistentObject('trackerDomains');
+    this.unsafeKeys = new persist.LazyPersistentObject('unsafeKey');
+    this.lastUpdate = ['0', '0', '0', '0'];
 
-    this.TOKEN_WHITELIST_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens.json';
+    this.TOKEN_WHITELIST_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/whitelist_tokens.json';
+    this.TRACKER_DM_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/tracker_domains.json';
     this.SAFE_KEY_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json';
     this.UNSAFE_KEY_URL = 'https://cdn.cliqz.com/anti-tracking/whitelist/domain_unsafe_key.json';
   }
@@ -27,22 +30,27 @@ export default class extends QSWhitelistBase {
           throw 'invalid lastUpdate value';
       }
     } catch(e) {
-      this.lastUpdate = ['0', '0', '0'];
+      this.lastUpdate = ['0', '0', '0', '0'];
     }
 
     // list update events
     this.onConfigUpdate = (config) => {
       var currentSafeKey = persist.getValue('safeKeyExtVersion', ''),
           currentToken = persist.getValue('tokenWhitelistVersion', ''),
-          currentUnsafeKey = persist.getValue('unsafeKeyExtVersion', '');
+          currentUnsafeKey = persist.getValue('unsafeKeyExtVersion', ''),
+          currentTracker = persist.getValue('trackerDomainsversion', '');
       // check safekey
       utils.log('Safe keys: '+ config.safekey_version + ' vs ' + currentSafeKey, 'attrack');
       if (config.safekey_version && currentSafeKey !== config.safekey_version) {
         this._loadRemoteSafeKey(config.force_clean === true);
       }
-      utils.log('Token whitelist: '+ config.token_whitelist_version2 + ' vs ' + currentToken, 'attrack');
-      if (config.token_whitelist_version && currentToken !== config.token_whitelist_version) {
+      utils.log('Token whitelist: '+ config.whitelist_token_version + ' vs ' + currentToken, 'attrack');
+      if (config.token_whitelist_version && currentToken !== config.whitelist_token_version) {
         this._loadRemoteTokenWhitelist();
+      }
+      utils.log('Tracker Domain: '+ config.tracker_domain_version + ' vs ' + currentTracker, 'attrack');
+      if (config.tracker_domain_version && currentTracker !== config.tracker_domain_version) {
+        this._loadRemoteTrackerDomainList();
       }
       utils.log('Unsafe keys: '+ config.unsafekey_version + ' vs ' + currentUnsafeKey, 'attrack');
       if (config.token_whitelist_version && currentToken !== config.token_whitelist_version) {
@@ -65,7 +73,8 @@ export default class extends QSWhitelistBase {
     var hourCutoff = datetime.hourString(hour);
     if (this.lastUpdate[0] > hourCutoff &&
         this.lastUpdate[1] > hourCutoff &&
-        this.lastUpdate[2] > hourCutoff) {
+        this.lastUpdate[2] > hourCutoff &&
+        this.lastUpdate[3] > hourCutoff) {
       return true;
     }
     return false;
@@ -73,36 +82,41 @@ export default class extends QSWhitelistBase {
 
   isReady() {
     // just check they're not null
-    return this.safeTokens.value && this.safeKeys.value && this.unsafeKeys.value;
+    return this.safeTokens.value && this.safeKeys.value && this.unsafeKeys.value && this.trackerDomains.value;
   }
 
-  prepareSafeTokens() {
-    if (!this.isReady()) {
-      return;
+  isSafeKey(domain, key) {
+    return (!this.isUnsafeKey(domain, key)) && domain in this.safeKeys.value && key in this.safeKeys.value[domain];
+  }
+
+  isUnsafeKey(domain, key) {
+    return this.isTrackerDomain(domain) && domain in this.unsafeKeys.value && this.unsafeKeys.value[domain].has(key);
+  }
+
+  addSafeKey(domain, key, valueCount) {
+    if (this.isUnsafeKey(domain, key)) {
+      return;  // keys in the unsafekey list should not be added to safekey list
     }
-    if (this.safeTokens.value.domains === undefined) {
-      this.safeTokens.value.domains = {};
+    let today = datetime.dateString(datetime.newUTCDate());
+    if (!(domain in this.safeKeys.value)) {
+      this.safeKeys.value[domain] = {};
     }
-    if (this.safeTokens.value.tokens === undefined) {
-      this.safeTokens.value.tokens = {};
-    }
+    this.safeKeys.value[domain][key] = [today, 'l', valueCount];
+    this.safeKeys.setDirty();
   }
 
   isTrackerDomain(domain) {
-    this.prepareSafeTokens();
-    return domain in this.safeTokens.value.domains;
+    return domain in this.trackerDomains.value;
   }
 
   isSafeToken(domain, token) {
-    this.prepareSafeTokens();
-    return this.isTrackerDomain(domain) && token in this.safeTokens.value.tokens;
+    return this.isTrackerDomain(domain) && token in this.safeTokens.value;
   }
 
   addSafeToken(domain, token) {
-    this.prepareSafeTokens();
-    this.safeTokens.value.domains[domain] = true;
+    this.trackerDomains.value[domain] = true;
     if (token && token !== '') {
-      this.safeTokens.value.tokens[token] = true;
+      this.safeTokens.value[token] = true;
     }
   }
 
@@ -116,20 +130,37 @@ export default class extends QSWhitelistBase {
   attachVersion(payl) {
     payl['whitelist'] = persist.getValue('tokenWhitelistVersion', '');
     payl['safeKey'] = persist.getValue('safeKeyExtVersion', '');
-    payl['unsafeKey'] = persist.getValue('UnsafeKeyExtVersion', '');
+    payl['unsafeKey'] = persist.getValue('unsafeKeyExtVersion', '');
+    payl['trackerDomains'] = persist.getValue('trackerDomainsVersion', '');
     return payl;
   }
 
   _loadRemoteTokenWhitelist() {
     var today = datetime.getTime().substring(0, 10);
     utils.httpGet(this.TOKEN_WHITELIST_URL +'?'+ today, function(req) {
-      var tokenExtWhitelist = JSON.parse(req.response),
-          tokenWhitelistVersion = md5(req.response);
-      this.safeTokens.setValue(tokenExtWhitelist);
-      persist.setValue('tokenWhitelistVersion', tokenWhitelistVersion);
+      utils.log(req.response);
+      var rList = JSON.parse(req.response),
+          rListMd5 = md5(req.response);
+      this.safeTokens.setValue(rList);
+      persist.setValue('tokenWhitelistVersion', rListMd5);
       this.lastUpdate[1] = datetime.getTime();
       persist.setValue('lastUpdate', JSON.stringify(this.lastUpdate));
-      events.pub('attrack:token_whitelist_updated', tokenWhitelistVersion);
+      events.pub('attrack:token_whitelist_updated', rListMd5);
+    }.bind(this),
+    function() {},
+    100000);
+  }
+
+  _loadRemoteTrackerDomainList() {
+    var today = datetime.getTime().substring(0, 10);
+    utils.httpGet(this.TRACKER_DM_URL +'?'+ today, function(req) {
+      utils.log(req.response);
+      var rList = JSON.parse(req.response),
+          rListMd5 = md5(req.response);
+      this.trackerDomains.setValue(rList);
+      persist.setValue('trackerDomainsversion', rListMd5);
+      this.lastUpdate[3] = datetime.getTime();
+      persist.setValue('lastUpdate', JSON.stringify(this.lastUpdate));
     }.bind(this),
     function() {},
     100000);
@@ -182,7 +213,7 @@ export default class extends QSWhitelistBase {
     utils.httpGet(this.UNSAFE_KEY_URL +'?'+ today, function(req) {
       let unsafeKeys = JSON.parse(req.response),
           unsafeKeyExtVersion = md5(req.response);
-      utils.log(unsafeKeys);
+      utils.log(unsafeKeys, 'unsafekey');
       for (let usk of unsafeKeys) {
         var dm = usk[0],
             k = usk[1];

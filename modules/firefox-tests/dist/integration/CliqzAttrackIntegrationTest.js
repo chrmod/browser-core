@@ -445,16 +445,19 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         });
 
         var QSBlocking = function() {
-          var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
-
+          var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134',
+              _isUpToDate = CliqzAttrack.qs_whitelist.isUpToDate;
           beforeEach(function() {
             CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+            CliqzAttrack.qs_whitelist.isUpToDate = function() {return true;}
           });
 
           it('pref check', function() {
             chai.expect(CliqzAttrack.isQSEnabled()).to.be.true;
             chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('localhost').substring(0, 16))).to.be.false;
             chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('127.0.0.1').substring(0, 16))).to.be.false;
+          afterEach(function() {
+            CliqzAttrack.qs_whitelist.isUpToDate = _isUpToDate;
           });
 
           it('allows query strings on domains not in the tracker list', function(done) {

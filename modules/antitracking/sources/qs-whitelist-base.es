@@ -13,7 +13,6 @@ export default class {
 
   constructor() {
     this.safeKeys = new persist.LazyPersistentObject('safeKey');
-    this.unsafeKeys = new persist.LazyPersistentObject('unsafeKey');
   }
 
   init() {
@@ -33,17 +32,9 @@ export default class {
   }
 
   isSafeKey(domain, key) {
-    return (!this.isUnsafeKey(domain, key)) && domain in this.safeKeys.value && key in this.safeKeys.value[domain];
+    return domain in this.safeKeys.value && key in this.safeKeys.value[domain];
   }
-
-  isUnsafeKey(domain, key) {
-    return domain in this.unsafeKeys.value && this.unsafeKeys.value[domain].has(key);
-  }
-
   addSafeKey(domain, key, valueCount) {
-    if (this.isUnsafeKey(domain, key)) {
-      return;  // keys in the unsafekey list should not be added to safekey list
-    }
     let today = datetime.dateString(datetime.newUTCDate());
     if (!(domain in this.safeKeys.value)) {
       this.safeKeys.value[domain] = {};
@@ -120,5 +111,4 @@ export default class {
       CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
     }
   }
-
 }
