@@ -17,7 +17,6 @@ export default class {
 
   init() {
     this.safeKeys.load();
-    this.unsafeKeys.load();
 
     // every hour, prune and send safekeys
     this.hourlyPruneAndSend = () => {

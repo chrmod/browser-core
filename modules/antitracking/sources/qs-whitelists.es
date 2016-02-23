@@ -24,6 +24,8 @@ export default class extends QSWhitelistBase {
   init() {
     super.init();
     this.safeTokens.load();
+    this.unsafeKeys.load();
+    this.trackerDomains.load();
     try {
       this.lastUpdate = JSON.parse(persist.getValue('lastUpdate'));
       if (this.lastUpdate.length !== 2) {
