@@ -90,7 +90,7 @@ export default class extends QSWhitelistBase {
   }
 
   isUnsafeKey(domain, key) {
-    return this.isTrackerDomain(domain) && domain in this.unsafeKeys.value && this.unsafeKeys.value[domain].has(key);
+    return this.isTrackerDomain(domain) && domain in this.unsafeKeys.value && key in this.unsafeKeys.value[domain];
   }
 
   addSafeKey(domain, key, valueCount) {
@@ -122,9 +122,9 @@ export default class extends QSWhitelistBase {
 
   addUnsafeKey(domain, key) {
     if (!(domain in this.unsafeKeys.value)) {
-      this.unsafeKeys.value[domain] = new Set();
+      this.unsafeKeys.value[domain] = {};
     }
-    this.unsafeKeys.value[domain].add(key);
+    this.unsafeKeys.value[domain][key] = true;
   }
 
   attachVersion(payl) {
@@ -214,11 +214,7 @@ export default class extends QSWhitelistBase {
       let unsafeKeys = JSON.parse(req.response),
           unsafeKeyExtVersion = md5(req.response);
       utils.log(unsafeKeys, 'unsafekey');
-      for (let usk of unsafeKeys) {
-        var dm = usk[0],
-            k = usk[1];
-        this.addUnsafeKey(dm, k);
-      }
+      this.unsafeKeys = unsafeKeys;
       this.lastUpdate[2] = datetime.getTime();
       persist.setValue('lastUpdate', JSON.stringify(this.lastUpdate));
       persist.setValue('unsafeKeyExtVesion', unsafeKeyExtVersion);

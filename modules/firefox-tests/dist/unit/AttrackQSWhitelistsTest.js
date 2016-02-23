@@ -109,7 +109,7 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
           mock_tracker_hash = 'ad9ce25e234a817f450e452088dac9f4',
           mock_safekey_string = '{\"f528764d624db129\": {\"924a8ceeac17f54d3be3f8cdf1c04eb2\": \"20200101\"}}\n',
           mock_safekey_hash = '3e82cf3535f01bfb960e826f1ad8ec2d';
-          mock_unsafekey_string = '[["9dd5ed5535c6a873","d279186428a75016b17e4df5ea43d080"]]\n';
+          mock_unsafekey_string = '{"9dd5ed5535c6a873":{"d279186428a75016b17e4df5ea43d080": true}}\n';
           mock_unsafekey_hash = '734be41a8fdf93dbcb802dd3a1973d25';
 
         beforeEach(function() {
