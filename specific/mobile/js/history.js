@@ -262,7 +262,7 @@ function removeSelected() {
   if(selectedQueries.length > 0) {
     removeQueries();
   }
-  if(selectedQueries.length > 0) {
+  if(selectedHistory.length > 0) {
     osBridge.removeHistory(selectedHistory);
   }
   endEditMode();
@@ -342,13 +342,15 @@ var allHistory = [];
 
 function clearQueries(removeFavorites) {
   if(removeFavorites) {
-    localStorage.setItem('recentQueries', []);
+    localStorage.setItem('recentQueries', '[]');
   } else {
     var recentQueries = getListFromStorage('recentQueries'); 
     localStorage.setItem('recentQueries', 
-      recentQueries.filter(function (item) {
-        return item.favorite;
-      })
+      JSON.stringify(
+        recentQueries.filter(function (item) {
+          return item.favorite;
+        })
+      )
     );
   }
 }
