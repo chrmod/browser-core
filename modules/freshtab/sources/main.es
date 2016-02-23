@@ -66,6 +66,7 @@ var FreshTab = {
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
           CliqzABTests.disable("1062_B");
+          CliqzABTests.disable("1065_B");
           disable = true;
         }
 

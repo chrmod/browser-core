@@ -46,13 +46,20 @@
     </script>
 
     <script id="yourNews" type="text/x-handlebars-template">
-      <div class="heading clearfix">
-        <h2>{{local 'freshtab_your_news'}}</h2>
-      </div>
+      {{#if newsEmail}}
+        <div class="heading clearfix">
+          <h2>{{local 'freshtab_abTest_hdr_news_email'}}</h2>
+          <div class="cqz-ez-btn cliqz-brands-button-6"><a class="subscribe" href="https://cliqz.com/error">{{local 'freshtab_abTest_btn_subscribe'}}</a></div>
+        </div>
+      {{else}}
+        <div class="heading clearfix">
+          <h2>{{local 'freshtab_your_news'}}</h2>
+        </div>
+      {{/if}}
       <div class="content">
         {{#each this}}
           <ul>
-          {{#each this}}
+          {{#each this.hbNews}}
             <li>
                 <a href="{{url}}" class="title yournews news" data-index="{{@index}}">
                     <div extra="logo" class="logo" style="{{logo.style}}"></div>
