@@ -10,11 +10,7 @@
 		<div class="card__meta">
 			{{urlDetails.friendly_url}}
 		</div>
-		<div class="card__gallery">
-			<!--{{#each data.richData.images}}
-				<div class="image" style="background-image: url({{this}})">Image</div>
-			{{/each}}-->
-			
+		<div class="card__gallery">			
 			{{#each images}}
 				{{#if (limit_images_shown @index 3)}}
 					<div class="image" style="background-image: url({{this}})">Image</div>

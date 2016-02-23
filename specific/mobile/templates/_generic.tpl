@@ -72,7 +72,9 @@
 		<div class="card__gallery">
 			{{#each data.richData.images}}
 				{{#if (limit_images_shown @index 3)}}
-					<div class="image" style="background-image: url({{this}})">Image</div>
+					{{#ifNotSvgImage this}}
+						<div class="image" style="background-image: url({{this}})">Image</div>
+					{{/ifNotSvgImage}}
 				{{/if}}
 			{{/each}}
 		</div>
@@ -117,9 +119,12 @@
 		{{#if data.news}}
 			{{#each data.news}}
 				<div class="cards__item news">
+
 					{{#with logoDetails}}
-					<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
-				{{/with}}		
+						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}"
+							 style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}
+						</div>
+					{{/with}}		
 
 					<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
 					<div class="card__meta__secondary">
