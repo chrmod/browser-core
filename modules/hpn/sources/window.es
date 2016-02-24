@@ -21,7 +21,7 @@ export default class {
 	        menu = doc.createElement('menu'),
 	        menuPopup = doc.createElement('menupopup');
 
-	    menu.setAttribute('label', 'Secure channel');
+	    menu.setAttribute('label', CliqzUtils.getLocalizedString('btnSecureChannel'));
 
 	    var safeSearchBtn = win.CLIQZ.Core.createCheckBoxItem(doc, prefKey, CliqzUtils.getLocalizedString('btnSafeSearch'), true);
 	    menuPopup.appendChild(safeSearchBtn);
@@ -31,7 +31,7 @@ export default class {
 	            doc,
 	            CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
 	            function(){
-	                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
+	                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/products/proxy');
 	                },
 	            'safe_search_desc'
 	        )
