@@ -208,7 +208,7 @@ export default class extends QSWhitelistBase {
       let unsafeKeys = JSON.parse(req.response),
           unsafeKeyExtVersion = md5(req.response);
       utils.log(unsafeKeys, 'unsafekey');
-      this.unsafeKeys = unsafeKeys;
+      this.unsafeKeys.setValue(unsafeKeys);
       this.lastUpdate[2] = datetime.getTime();
       persist.setValue('lastUpdate', JSON.stringify(this.lastUpdate));
       persist.setValue('unsafeKeyExtVesion', unsafeKeyExtVersion);

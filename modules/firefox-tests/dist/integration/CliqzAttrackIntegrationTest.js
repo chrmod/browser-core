@@ -455,7 +455,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             chai.expect(CliqzAttrack.isQSEnabled()).to.be.true;
             chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('localhost').substring(0, 16))).to.be.false;
             chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('127.0.0.1').substring(0, 16))).to.be.false;
-          }
+          });
 
           it('allows query strings on domains not in the tracker list', function(done) {
             this.timeout(5000);
