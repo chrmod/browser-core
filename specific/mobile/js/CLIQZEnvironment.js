@@ -148,6 +148,7 @@ CLIQZEnvironment = {
             return r;
           }),
       isInstant: false,
+      isMixed: true,
       googleThis: {
         title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
         action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
