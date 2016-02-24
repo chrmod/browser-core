@@ -15,6 +15,9 @@ export function init () {
     From CliqzAttrack.loadRecord
  */
 function loadRecord(id, callback) {
+  if (!dbConn) {
+    init();
+  }
   var stmt = dbConn.createAsyncStatement("SELECT id, data FROM attrack WHERE id = :id;");
       stmt.params.id = id;
 
@@ -48,6 +51,9 @@ function loadRecord(id, callback) {
     From CliqzAttrack.saveRecord
  */
 function saveRecord(id, data) {
+  if (!dbConn) {
+    init();
+  }
   var st = dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
   st.params.id = id;
   st.params.data = data;
