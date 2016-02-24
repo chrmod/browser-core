@@ -178,7 +178,9 @@ window.CLIQZ.Core = {
             var mod = new Module.default(windowModuleConfig);
             mod.init();
             return mod;
-          }).catch(function (e) { console.log(e) });
+          }).catch(function (e) {
+            console.log("CLIQZ core.js", "Error loading module: "+moduleName, e);
+          });
         });
 
         return Promise.all(this.windowModules).then(function () {
