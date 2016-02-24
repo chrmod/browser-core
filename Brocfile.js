@@ -47,7 +47,12 @@ console.log('Configuration file:', configFilePath);
 console.log(cliqzConfig);
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
-var platform = new Funnel('platforms/'+cliqzConfig.platform);
+var platform = new Funnel('platforms/'+cliqzConfig.platform, {
+  exclude: ['tests/**/*']
+});
+var platformTests = new Funnel('platforms/'+cliqzConfig.platform, {
+  include: ['tests/**/*']
+});
 platform = Babel(platform, {
   sourceMaps: 'inline',
   filterExtensions: ['es'],
@@ -303,6 +308,15 @@ var mobile = new MergeTrees([
   new Funnel(modules,        { destDir: 'modules' })
 ]);
 
+var testsTree = concat(platformTests, {
+  outputFile: 'tests.js',
+  inputFiles: [
+    "**/*.js"
+  ],
+  allowNone: true,
+  sourceMapConfig: { enabled: true },
+});
+
 if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css'],
@@ -311,9 +325,14 @@ if (buildEnv === 'production' ) {
   });
 }
 
-// Output
-module.exports = new MergeTrees([
+var trees = [
   new Funnel(firefox,  { destDir: 'firefox'       }),
   new Funnel(web,      { destDir: 'web'           }),
   new Funnel(mobile,   { destDir: 'mobile/search' }),
-]);
+];
+
+if (buildEnv !== 'production') {
+  trees.push(new Funnel(testsTree, { destDir: 'tests' }));
+}
+// Output
+module.exports = new MergeTrees(trees);

@@ -71,14 +71,6 @@
           <td>{{numberFormat (math data.mConversionRate '*' 1000)}} {{data.toCurrency}}</td>
         </tr>
       </table>
-     <!-- <br>
-    <p>{{numberFormat data.multiplyer}} {{data.fromCurrency}} = {{numberFormat data.mConversionRate}} {{data.toCurrency}}</p>
-    <p>{{numberFormat (math data.multiplyer '*' 10)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 10)}} {{data.toCurrency}}</p>
-    <p>{{numberFormat (math data.multiplyer '*' 50)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 50)}} {{data.toCurrency}}</p>
-    <p>{{numberFormat (math data.multiplyer '*' 100)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 100)}} {{data.toCurrency}}</p>
-    <p>{{numberFormat (math data.multiplyer '*' 200)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 200)}} {{data.toCurrency}}</p>
-    <p>{{numberFormat (math data.multiplyer '*' 500)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 500)}} {{data.toCurrency}}</p>
-    <p>{{numberFormat (math data.multiplyer '*' 1000)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 10)}} {{data.toCurrency}}</p>-->
     </div>
     <div class="poweredby">
         {{local 'mobile_calc_more'}} <a href="http://www.xe.com">XE.com</a>

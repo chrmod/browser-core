@@ -3,29 +3,29 @@
 function showHistory(history) {
   clearTimeout(historyTimer);
   var data = [];
-  history = history.results;
+  allHistory = history.results;
   var queries = getListFromStorage("recentQueries");
 
-  for(var i=0;i<history.length;i++) {
-    history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  for(var i=0; i < allHistory.length; i++) {
+    allHistory[i].domain = allHistory[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
 
-  history.reverse();
+  allHistory.reverse();
   queries.reverse();
   var hi = 0;
   var qi = 0;
   var date = "";
   while(true) {
-    if(hi >= history.length || qi >= queries.length) {
+    if(hi >= allHistory.length || qi >= queries.length) {
       break;
     }
 
-    if(history[hi].timestamp <= queries[qi].timestamp) {
-      if(getDateFromTimestamp(history[hi].timestamp) !== date) {
-        data.push({date: getDateFromTimestamp(history[hi].timestamp)});
-        date = getDateFromTimestamp(history[hi].timestamp);
+    if(allHistory[hi].timestamp <= queries[qi].timestamp) {
+      if(getDateFromTimestamp(allHistory[hi].timestamp) !== date) {
+        data.push({date: getDateFromTimestamp(allHistory[hi].timestamp)});
+        date = getDateFromTimestamp(allHistory[hi].timestamp);
       }
-      data.push(history[hi]);
+      data.push(allHistory[hi]);
 
       hi++;
     } else {
@@ -37,12 +37,12 @@ function showHistory(history) {
       qi++;
     }
   }
-  while(hi < history.length) {
-    if(getDateFromTimestamp(history[hi].timestamp) !== date) {
-      data.push({date: getDateFromTimestamp(history[hi].timestamp)});
-      date = getDateFromTimestamp(history[hi].timestamp);
+  while(hi < allHistory.length) {
+    if(getDateFromTimestamp(allHistory[hi].timestamp) !== date) {
+      data.push({date: getDateFromTimestamp(allHistory[hi].timestamp)});
+      date = getDateFromTimestamp(allHistory[hi].timestamp);
     }
-    data.push(history[hi]);
+    data.push(allHistory[hi]);
     hi++;
   }
   while(qi < queries.length) {
@@ -53,37 +53,24 @@ function showHistory(history) {
     data.push(queries[qi]);
     qi++;
   }
-  
-  var starredQueries = getListFromStorage('starredQueries').reverse();
-  var starredHistory = getListFromStorage('starredHistory').reverse();
-  data = data.map(function (item) {
-    if(item.url && item.id === starredHistory[0]) {
-      item.starred = true;
-      starredHistory.shift();
-    } else if(item.query && item.id === starredQueries[0]) {
-      item.starred = true;
-      starredQueries.shift();
-    }
-    return item;
-  });
 
-  if(starMode) {
-    displayStarredData(data);
+  if(showOnlyFavorite) {
+    displayFavorites(data);
   } else {
     displayData(data);
   }
 }
 
-function displayStarredData(data) {
+function displayFavorites(data) {
   displayData(data.filter(function(item) {
-    return item.date || item.starred; // filter all unstarred records
+    return item.date || item.favorite; // filter all unfavorite records
   }).filter(function(item, index, arr){
     return !item.date || (arr[index + 1] && !arr[index + 1].date); // filter empty days
   }));
 }
 
 function displayData(data) {
-  if(!CliqzHandlebars.tplCache["conversations"] || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
+  if(!CliqzHandlebars.tplCache["conversations"] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
     return setTimeout(displayData, 100, data);
   }
   document.body.innerHTML = CliqzHandlebars.tplCache["conversations"]({data: data});
@@ -127,7 +114,7 @@ function displayData(data) {
 
   
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchstart', function () {
-    touchTimer = setTimeout(lunchEditMode, 500, this);
+    touchTimer = setTimeout(launchEditMode, 500, this);
   });
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchend', function () {
     var type = this.getAttribute('class');
@@ -155,13 +142,13 @@ function displayData(data) {
   });
 }
 
-function lunchEditMode(element) {
+function launchEditMode(element) {
   clearTimeout(touchTimer);
   touchTimer = null;
-  return;
+
   if(editMode) {
     endEditMode();
-    lunchEditMode(element);
+    launchEditMode(element);
   } else {
     var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
     checkboxes.forEach(function(checkbox){
@@ -235,82 +222,51 @@ function filterHistory(value) {
 var selectedQueries = [];
 var selectedHistory = [];
 
-function starSelected() {
-  starSelectedList(selectedQueries, 'starredQueries');
-  selectedQueries = [];
-  starSelectedList(selectedHistory, 'starredHistory');
-  selectedHistory = [];
-  getHistory(starMode);
+function favoriteSelected() {
+  setQueryFavorite();
+  if(selectedHistory.length > 0) {
+    osBridge.setHistoryFavorite(selectedHistory, !unfavoriteMode)
+  }
   endEditMode();
+  getHistory(showOnlyFavorite);
 }
 
-function starSelectedList(selectedList, storageListName) {
-  var storageList = getListFromStorage(storageListName);
-  if(storageList.length === 0) {
-    localStorage.setItem(storageListName, JSON.stringify(selectedList));
-    selectedList = [];
-    return;
-  }
+function setQueryFavorite() {
+  var allQueries = getListFromStorage('recentQueries');
 
   var index = 0, id;
-  while(index < storageList.length) {
-    if(selectedList.length == 0) {
-      break;
+  allQueries.forEach(function(item) {
+    if(index >= selectedQueries.length) {
+      return;
     }
-    id = selectedList[0];
-    if(index >= storageList.length && !unfavoriteMode) {
-      storageList = storageList.concat(selectedList);
-      break;
-    } else if(storageList[index] === id) {
-      storageList.splice(index, 1);
-      selectedList.shift();
-    } else if(storageList[index] < id) {
-      if(!unfavoriteMode) {
-        storageList.splice(index, 0, id);
-        index++;
-      }
-      selectedList.shift();
-    } else {
+    if(item.id === selectedQueries[index]) {
+      item.favorite = !unfavoriteMode;
       index++;
     }
-  }
-
+  });
   
-  
-  localStorage.setItem(storageListName, JSON.stringify(storageList));
+  localStorage.setItem('recentQueries', JSON.stringify(allQueries));
 }
 
-function removeSelectedQueries() {
+function removeQueries() {
   var queries = getListFromStorage("recentQueries");
-  if(queries.length === 0 || selectedQueries.length === 0) {
-    return;
-  }
-
-  unfavoriteMode = true;
-  starSelectedList(selectedQueries, 'starredQueries');
 
   var index = 0;
   queries = queries.filter(function(query) {
     return index >= selectedQueries.length || selectedQueries[index] !== query.id || (index++ && false);
   })
   localStorage.setItem("recentQueries", JSON.stringify(queries));
-  selectedQueries = [];
-  getHistory(starMode);
-}
-
-function removeSelectedHistory() {
-  unfavoriteMode = true;
-  starSelectedList(selectedHistory, 'starredHistory');
-
-  osBridge.removeHistory(selectedHistory);
-  selectedHistory = [];
-  getHistory(starMode);
 }
 
 function removeSelected() {
-  removeSelectedQueries();
-  removeSelectedHistory();
+  if(selectedQueries.length > 0) {
+    removeQueries();
+  }
+  if(selectedHistory.length > 0) {
+    osBridge.removeHistory(selectedHistory);
+  }
   endEditMode();
+  getHistory(showOnlyFavorite);
 }
 
 function selectQuery(id) {
@@ -363,42 +319,40 @@ function selectItem(item) {
 }
 
 function setUnfavoriteMode() {
-  var starredQueries = getListFromStorage('starredQueries');
-  var starredHistory = getListFromStorage('starredHistory');
-  var diffQueries = getDiff(starredQueries, selectedQueries);
-  var diffHistory = getDiff(starredHistory, selectedHistory);
-  unfavoriteMode = diffQueries.length !== starredQueries.length || diffHistory.length !== starredHistory.length;
+  var selectedFavoriteQueries = getSelectedFavorite(getListFromStorage('recentQueries'), selectedQueries);
+  var selectedFavoriteHistory = getSelectedFavorite(allHistory, selectedHistory);
+  unfavoriteMode = selectedFavoriteQueries.length + selectedFavoriteHistory.length > 0;
 }
 
-function getHistory(isStarred) {
-  starMode = isStarred;
+function getSelectedFavorite(list, selectedList) {
+  return list.filter(function(item) {
+    return item.favorite && selectedList.indexOf(item.id) > -1;
+  });
+}
+
+function getHistory(onlyFavorites) {
+  showOnlyFavorite = onlyFavorites;
   historyTimer = setTimeout(showHistory, 200, {results: []});
   osBridge.searchHistory("", "showHistory");
 }
 
 var touchTimer, isTapBlocked, historyTimer;
-var editMode = false, starMode = false, unfavoriteMode = false;
+var editMode = false, showOnlyFavorite = false, unfavoriteMode = false;
+var allHistory = [];
 
-function requestHistoryCleanup(removeFavorites) {
+function clearQueries(removeFavorites) {
   if(removeFavorites) {
-    localStorage.setItem('starredHistory', []);
-    localStorage.setItem('starredQueries', []);
-    localStorage.setItem('recentQueries', []);
-    osBridge.cleanHistory();
-    return;
+    localStorage.setItem('recentQueries', '[]');
+  } else {
+    var recentQueries = getListFromStorage('recentQueries'); 
+    localStorage.setItem('recentQueries', 
+      JSON.stringify(
+        recentQueries.filter(function (item) {
+          return item.favorite;
+        })
+      )
+    );
   }
-  var starredHistory = getListFromStorage('starredHistory');
-  osBridge.cleanHistory(starredHistory);
-  var starredQueries = getListFromStorage('starredQueries');
-  var recentQueries = getListFromStorage('recentQueries');
-  selectedQueries = getDiff(recentQueries.map(function(item){return item.id}), starredQueries);
-  removeSelectedQueries();
-}
-
-function getDiff(arr1, arr2) {
-  return arr1.filter(function(id) {
-    return arr2.indexOf(id) == -1;
-  });
 }
 
 function getListFromStorage(listName) {
@@ -411,4 +365,4 @@ CLIQZ.System = System;
 CliqzUtils.initPlatform(System);
 
 CliqzUtils.init(this);
-getHistory(starMode);
+getHistory(showOnlyFavorite);
