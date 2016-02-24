@@ -179,22 +179,22 @@ var Extension = {
         }
     },
     quickUnloadModules: function () {
-        this.config.modules.forEach(function (moduleName) {
+        this.config.modules.slice(0).reverse().forEach(function (moduleName) {
             try {
                 Extension.System.get(moduleName+"/background")
                                 .default.beforeBrowserShutdown();
             } catch(e) {
-              CliqzUtils.log(e, "Error quick unloading module: "+moduleName);
+              CliqzUtils.log(e.toString(), "Error quick unloading module: "+moduleName);
             }
         });
     },
     unloadModules: function () {
-        this.config.modules.forEach(function (moduleName) {
+        this.config.modules.slice(0).reverse().forEach(function (moduleName) {
             try {
                 Extension.System.get(moduleName+"/background")
                                 .default.unload();
             } catch(e) {
-              CliqzUtils.log(e, "Error unloading module: "+moduleName);
+              CliqzUtils.log(e.toString(), "Error unloading module: "+moduleName);
             }
         });
     },
