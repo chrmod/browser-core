@@ -196,6 +196,13 @@ ul.cqz-antrc-btns-holder li {
 
 .cqz-antrc-power-btn  {
     font-size: 12px;
+    text-decoration: none;
+    color: #999;
+}
+
+.cqz-antrc-power-btn:hover {
+    color: #333;
+    text-decoration: underline;
 }
 
 .cqz-antrc-power-btn .cqz-turn-on { display: none; }
@@ -250,6 +257,16 @@ ul.cqz-antrc-btns-holder li {
     padding-right: 5px;
 }
 
+.cqz-trackers-blocked li .cqz-number i {
+    display: inline-block;
+    padding: 0 4px 2px;
+    margin-top: -1px;
+    font-style: normal;
+    color: #fff;
+    line-height: normal;
+    border-radius: 4px;
+    background: #717171;
+}
 
 
 /*========= Antitrack Enabled =======*/
@@ -261,6 +278,36 @@ ul.cqz-antrc-btns-holder li {
 .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: block; }
 .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: none; }
 
+
+/*========= White List =======*/
+
+.cqz-domain-in-whitelist .cqz-whitelist-btn { background: #222; }
+.cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: none; }
+.cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: block; }
+
+.cqz-domain-in-whitelist .cqz-whitelist-btn:hover {
+    background: #222;
+}
+
+/*========= NO Site =======*/
+
+.cqz-no-site .cqz-antrc-head .cqz-nosite-msg { display: block; }
+
+.cqz-no-site .cqz-antrc-btns-holder > li a.cqz-see-details,
+.cqz-attrack-enabled.cqz-no-site .cqz-antrc-head .cqz-general-msg { display: none; }
+
+/*========= Have Trackers =======*/
+
+.cqz-have-trackers .cqz-antrc-btns-holder > li a.cqz-whitelist-btn,
+.cqz-have-trackers .cqz-trackers-blocked {
+    display: block;
+}
+
+/*========= Reload =======*/
+.cqz-attrack-enabled.cqz-att-reload  .cqz-antrc-head .cqz-reload-msg { display: block; }
+
+.cqz-att-reload.cqz-no-site .cqz-antrc-head .cqz-nosite-msg,
+.cqz-att-reload .cqz-antrc-btns-holder > li a.cqz-see-details { display: none; }
 
 /*========= Antitrack Disabled =======*/
 
@@ -286,39 +333,8 @@ ul.cqz-antrc-btns-holder li {
 }
 .cqz-attrack-disabled .cqz-antrc-power-btn:hover { background: #40af6d; }
 
-.cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-see-details { display: none; }
-
-/*========= White List =======*/
-
-.cqz-domain-in-whitelist .cqz-whitelist-btn { background: #222; }
-.cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: none; }
-.cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: block; }
-
-.cqz-domain-in-whitelist .cqz-whitelist-btn:hover {
-    background: #222;
-}
-
-
-
-/*========= NO Site =======*/
-
-.cqz-no-site .cqz-antrc-head .cqz-nosite-msg { display: block; }
-
-.cqz-no-site .cqz-antrc-btns-holder > li a.cqz-see-details,
-.cqz-attrack-enabled.cqz-no-site .cqz-antrc-head .cqz-general-msg { display: none; }
-
-/*========= Have Trackers =======*/
-
-.cqz-have-trackers .cqz-antrc-btns-holder > li a.cqz-whitelist-btn,
-.cqz-have-trackers .cqz-trackers-blocked {
-    display: block;
-}
-
-/*========= Reload =======*/
-.cqz-att-reload  .cqz-antrc-head .cqz-reload-msg { display: block; }
-
-.cqz-att-reload.cqz-no-site .cqz-antrc-head .cqz-nosite-msg,
-.cqz-att-reload .cqz-antrc-btns-holder > li a.cqz-see-details { display: none; }
+.cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-see-details,
+.cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-whitelist-btn { display: none; }
 
 
 footer {
@@ -326,10 +342,11 @@ footer {
     position: absolute;
     bottom: 0;
     width: 100%;
-    text-align: right;
+    text-align: center;
 }
 
 footer p { margin: 0; }
+
 footer .cqz-learn-more {
     float: right;
     margin-right: 3px;

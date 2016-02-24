@@ -62,7 +62,7 @@ export default {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
-        trakersList: CliqzAttrack.getCurrentTabBlockingInfo()
+        trakersList: info
       });
     },
 

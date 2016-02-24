@@ -40,8 +40,6 @@ function setBodyClass(options) {
   } else {
     document.body.classList.remove("cqz-att-reload");
   }
-
-  console.log('======= Popup Classes =====', document.body.classList);
 }
 
 function localizeDocument() {
@@ -82,12 +80,12 @@ function populateDOM() {
       //Populate Tracking List
       trackersListElement.innerHTML = "";
       for (var key in trackL) {
-        var trackerCount = trackL[key].cookie_blocked + trackL[key].bad_qs
+        var trackerCount = (trackL[key].cookie_blocked || 0) + (trackL[key].bad_qs || 0)
         if(trackerCount > 0) {
           trackersListElement.innerHTML += "" +
             "<li>" +
                 "<span class='cqz-title'> "  + key  + "</span>" +
-                "<span  class='cqz-number'>("  + trackerCount + ")</span>"
+                "<span  class='cqz-number'><i>"  + trackerCount + "</i></span>"
             "</li>"
         }
       }
