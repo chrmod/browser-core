@@ -470,8 +470,12 @@ var CliqzAttrack = {
                             tp_events.incrementStat(req_log, 'token_blocked_' + rule);
                         } else {
                             var tmp_url = aChannel.URI.spec;
-                            for (var i = 0; i < badTokens.length; i++)
+                            for (var i = 0; i < badTokens.length; i++) {
+                                if (tmp_url.indexOf(badTokens[i]) < 0) {
+                                    badTokens[i] = encodeURIComponent(badTokens[i])
+                                }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
+                            }
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
@@ -1445,7 +1449,7 @@ var CliqzAttrack = {
 
             // config in versioncheck
             if (versioncheck.placeHolder) {
-                persist.setValue('placeHolder', versioncheck.placeHolder)
+                persist.setValue('placeHolder', versioncheck.placeHolder);
                 CliqzAttrack.placeHolder = versioncheck.placeHolder;
             }
 
