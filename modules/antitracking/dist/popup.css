@@ -124,26 +124,7 @@ p {
     opacity: 1;
 }
 
-footer {
-    font-size: 14px;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    text-align: right;
-}
-
-footer p { margin: 0; }
-footer .cqz-learn-more {
-    float: right;
-    margin-right: 3px;
-    color: #999;
-    font-size: 12px;
-    text-decoration: none;
-}
-
-.cqz-learn-more:hover {
-    text-decoration: underline;
-}
+/*============= Popup Styles =============*/
 
 .cqz-antitracking-popup {
     position: relative;
@@ -151,15 +132,23 @@ footer .cqz-learn-more {
     overflow: hidden;
     text-align: center;
 }
-.cqz-antitracking-popup.cqz-show-details { height: 485px; }
+
+.cqz-antrc-head > *,
+.cqz-trackers-blocked,
+.cqz-antrc-btns-holder > li a {
+    display: none;
+}
+.cqz-antrc-btns-holder > li a.cqz-see-details { display: block; }
+
+.cqz-antitracking-popup.cqz-big-popup { height: 485px; }
 
 .cqz-antitracking-popup .cqz-antrc-head {
-    padding: 25px 10px 25px 72px;
+    padding: 25px 10px;
     margin: 0 0 10px;
     color: #fff;
     font-size: 16px;
     text-align: left;
-    background: #49CC80 url("cliqz-logo-white.svg") no-repeat 15px 50%;
+    background: #49CC80;
 }
 .cqz-antrc-head .cqz-title {
     margin-top: -5px;
@@ -182,7 +171,7 @@ footer .cqz-learn-more {
 
 ul.cqz-antrc-btns-holder {
     list-style: none;
-    margin: 0 0 20px;
+    margin: 0;
 }
 
 ul.cqz-antrc-btns-holder li {
@@ -211,24 +200,19 @@ ul.cqz-antrc-btns-holder li {
 
 .cqz-antrc-power-btn .cqz-turn-on { display: none; }
 
-/*========= See Less =======*/
+/*========= See Details =======*/
 
 .cqz-see-details { background: #49CC80; }
 .cqz-see-details:hover { background: #40af6d; }
-
-.cqz-see-details .cqz-details-less { display: none; }
-
-.cqz-show-details  .cqz-see-details .cqz-details-more { display: none; }
-.cqz-show-details  .cqz-see-details .cqz-details-less { display: block; }
 
 /*=========== Trackers List =========*/
 
 .cqz-trackers-blocked {
     display: none;
     overflow: auto;
-    max-height: 251px;
+    height: 251px;
     padding: 0;
-    margin: 0;
+    margin: 0 0 20px;
     list-style: none;
 }
 
@@ -242,11 +226,12 @@ ul.cqz-antrc-btns-holder li {
     font-size: 14px;
     white-space: nowrap;
     text-align: left;
-    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }
-
-.cqz-trackers-blocked li:last-child { border-bottom: 1px solid #ccc; }
-
+.cqz-trackers-blocked li:first-child {
+    height: 40px;
+    line-height: 28px;
+}
 
 .cqz-trackers-blocked li span {
     float: left;
@@ -269,6 +254,10 @@ ul.cqz-antrc-btns-holder li {
 
 /*========= Antitrack Enabled =======*/
 
+.cqz-antrc-head .cqz-title,
+.cqz-antrc-head .cqz-general-msg {
+    display: block;
+}
 .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: block; }
 .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: none; }
 
@@ -297,11 +286,11 @@ ul.cqz-antrc-btns-holder li {
 }
 .cqz-attrack-disabled .cqz-antrc-power-btn:hover { background: #40af6d; }
 
+.cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-see-details { display: none; }
+
 /*========= White List =======*/
 
-.cqz-domain-in-whitelist #cqz-see-details { display: none !important; }
-
-.cqz-domain-in-whitelist .cqz-whitelist-btn { background: red; }
+.cqz-domain-in-whitelist .cqz-whitelist-btn { background: #222; }
 .cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-on { display: none; }
 .cqz-domain-in-whitelist .cqz-whitelist-btn  .cqz-whitelist-btn-off { display: block; }
 
@@ -311,9 +300,44 @@ ul.cqz-antrc-btns-holder li {
 
 
 
-/*========= Not on Site =======*/
+/*========= NO Site =======*/
 
 .cqz-no-site .cqz-antrc-head .cqz-nosite-msg { display: block; }
-.cqz-no-site .cqz-whitelist-btn,
-.cqz-no-site .cqz-antrc-head .cqz-general-msg,
-.cqz-no-site .cqz-antrc-head .cqz-deactive-msg { display: none; }
+
+.cqz-no-site .cqz-antrc-btns-holder > li a.cqz-see-details,
+.cqz-attrack-enabled.cqz-no-site .cqz-antrc-head .cqz-general-msg { display: none; }
+
+/*========= Have Trackers =======*/
+
+.cqz-have-trackers .cqz-antrc-btns-holder > li a.cqz-whitelist-btn,
+.cqz-have-trackers .cqz-trackers-blocked {
+    display: block;
+}
+
+/*========= Reload =======*/
+.cqz-att-reload  .cqz-antrc-head .cqz-reload-msg { display: block; }
+
+.cqz-att-reload.cqz-no-site .cqz-antrc-head .cqz-nosite-msg,
+.cqz-att-reload .cqz-antrc-btns-holder > li a.cqz-see-details { display: none; }
+
+
+footer {
+    font-size: 14px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: right;
+}
+
+footer p { margin: 0; }
+footer .cqz-learn-more {
+    float: right;
+    margin-right: 3px;
+    color: #999;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.cqz-learn-more:hover {
+    text-decoration: underline;
+}

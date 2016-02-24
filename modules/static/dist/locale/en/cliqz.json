@@ -944,6 +944,9 @@
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
     },
+    "attrack-headline-reload": {
+      "message": "Please reload to browse safely !"
+    },
     "attrack-headline-no-site": {
       "message": "This page does not contain any trackers."
     },

@@ -55,17 +55,6 @@ export default {
     getPopupData(args, cb) {
       var info = CliqzAttrack.getCurrentTabBlockingInfo();
 
-      if (info.error) {
-        info = {
-          cookies: {
-            blocked: 0
-          },
-          requests: {
-            unsafe: 0
-          }
-        };
-      }
-
       cb({
         url: info.hostname,
         cookiesCount: info.cookies.blocked,
