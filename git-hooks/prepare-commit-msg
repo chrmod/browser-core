@@ -35,7 +35,6 @@ fi
 if [ -z $ticket_id ]; then
   ticket_id="EX-XXX"
 fi
-prepend_msg_line "$ticket_id: "
 
 prepend_msg_line "$ticket_id: "
 prepend_msg_line "$ruler"
