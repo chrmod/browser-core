@@ -135,6 +135,7 @@ function getParametersQS(qs) {
       if(state == 'value') {
         state = 'key';
         // in case the same key already exists
+        v = dURIC(v);
         _updateQS(k, v);
       } else if(state == 'key' && k.length > 0) {
         // key with no value, set value='true'
@@ -155,6 +156,7 @@ function getParametersQS(qs) {
   }
   if(state == 'value') {
     state = 'key';
+    v = dURIC(v);
     _updateQS(k, v);
   } else if(state == 'key' && k.length > 0) {
     res[k] = 'true';
