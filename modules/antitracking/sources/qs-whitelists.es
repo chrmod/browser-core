@@ -73,13 +73,7 @@ export default class extends QSWhitelistBase {
         hour = datetime.newUTCDate();
     hour.setHours(hour.getHours() - delay);
     var hourCutoff = datetime.hourString(hour);
-    if (this.lastUpdate[0] > hourCutoff &&
-        this.lastUpdate[1] > hourCutoff &&
-        this.lastUpdate[2] > hourCutoff &&
-        this.lastUpdate[3] > hourCutoff) {
-      return true;
-    }
-    return false;
+    return this.lastUpdate.every((t) => {return t > hourCutoff;});
   }
 
   isReady() {
@@ -140,7 +134,6 @@ export default class extends QSWhitelistBase {
   _loadRemoteTokenWhitelist() {
     var today = datetime.getTime().substring(0, 10);
     utils.httpGet(this.TOKEN_WHITELIST_URL +'?'+ today, function(req) {
-      utils.log(req.response);
       var rList = JSON.parse(req.response),
           rListMd5 = md5(req.response);
       this.safeTokens.setValue(rList);
@@ -156,7 +149,6 @@ export default class extends QSWhitelistBase {
   _loadRemoteTrackerDomainList() {
     var today = datetime.getTime().substring(0, 10);
     utils.httpGet(this.TRACKER_DM_URL +'?'+ today, function(req) {
-      utils.log(req.response);
       var rList = JSON.parse(req.response),
           rListMd5 = md5(req.response);
       this.trackerDomains.setValue(rList);
