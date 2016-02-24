@@ -284,11 +284,13 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
-        this.windowModules.slice(0).reverse().forEach(function (mod) {
+        this.windowModules.slice(0).reverse().forEach(function (mod, index) {
+          var moduleIndex = CLIQZ.config.modules.length - 1 - index;
+          var moduleName = CLIQZ.config.modules[moduleIndex];
           try {
             mod.unload();
           } catch(e) {
-            console.log("CLIQZ core.js:", "error on unload module", e);
+            console.log("CLIQZ core.js:", "error on unload module " + moduleName, e);
           }
         });
 

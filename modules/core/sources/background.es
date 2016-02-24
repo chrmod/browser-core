@@ -23,7 +23,7 @@ export default {
 
   unload() {
     this.mm.removeMessageListener("cliqz", this.dispatchMessage);
-    this.mm.getDelayedFrameScripts(this.FRAME_SCRIPT_URL);
+    this.mm.removeDelayedProcessScript(this.PROCESS_SCRIPT_URL);
   },
 
   dispatchMessage(msg) {
