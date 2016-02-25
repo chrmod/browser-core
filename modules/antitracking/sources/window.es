@@ -1,5 +1,6 @@
 import background from 'antitracking/background';
 import CliqzAttrack from 'antitracking/attrack';
+import { utils, events } from 'core/cliqz';
 
 function onLocationChange(ev) {
   if(this.interval) { CliqzUtils.clearInterval(this.interval); }
@@ -74,6 +75,67 @@ export default class {
     }
 
     this.popup.setBadge(this.window, count);
+  }
+
+  createButtonItem() {
+    if (!background.buttonEnabled) return;
+
+    var win = this.window,
+        doc = win.document,
+        menu = doc.createElement('menu'),
+        menupopup = doc.createElement('menupopup');
+
+    menu.setAttribute('label', utils.getLocalizedString('attrack-force-block-setting'));
+
+    var filter_levels = {
+      false: {
+        name: utils.getLocalizedString('attrack-force-block-off'),
+        selected: false
+      },
+      true: {
+        name: utils.getLocalizedString('attrack-force-block-on'),
+        selected: false
+      }
+    };
+    filter_levels[utils.getPref('attrackForceBlock', false).toString()].selected = true;
+
+    for(var level in filter_levels) {
+      var item = doc.createElement('menuitem');
+      item.setAttribute('label', filter_levels[level].name);
+      item.setAttribute('class', 'menuitem-iconic');
+
+      if(filter_levels[level].selected){
+        item.style.listStyleImage = 'url(chrome://cliqz/content/static/skin/checkmark.png)';
+      }
+
+      item.filter_level = level;
+      item.addEventListener('command', function(event) {
+        if ( this.filter_level === 'true' ) {
+          utils.setPref('attrackForceBlock', true);
+        } else {
+          utils.clearPref('attrackForceBlock');
+        }
+        utils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
+      }, false);
+
+      menupopup.appendChild(item);
+    };
+
+    var learnMore = this.window.CLIQZ.Core.createSimpleBtn(
+        doc,
+        utils.getLocalizedString('attrack-learn-more'),
+        function() {
+          CLIQZEnvironment.openTabInWindow(this.window, 'https://cliqz.com/content/tracking/cliqz_whitepaper_tracking.pdf');
+        }.bind(this),
+        'attrack_learn_more'
+    );
+    learnMore.setAttribute('class', 'menuitem-iconic');
+    menupopup.appendChild(doc.createElement('menuseparator'));
+    menupopup.appendChild(learnMore);
+
+    menu.appendChild(menupopup);
+    return menu;
+
   }
 
 };
