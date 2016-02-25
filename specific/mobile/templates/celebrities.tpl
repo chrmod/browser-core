@@ -1,5 +1,6 @@
-<!-- celebrities.tpl -->
+<!-- celebrities.tpl @TODO -->
 
+{{debug}}
 {{#with logo}}
 	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
 {{/with}}
@@ -8,7 +9,7 @@
 <section class="primary">
 		<h1 class="card__title">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span>Wikipedia</span></h1>
 		<div class="card__meta">
-			{{urlDetails.friendly_url}}
+			{{../urlDetails.friendly_url}}
 		</div>
 		<div class="card__gallery">			
 			{{#each images}}
@@ -41,7 +42,7 @@
 
 					<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
 					<div class="card__meta__secondary">
-						{{url}}
+						{{data.url}}
 					</div>
 				</div>
 			{{/each}}
@@ -90,3 +91,5 @@
 		Share this card: <a href="">{{label}}</a>
 	</section>
 {{/with}}
+
+<!-- end celebrities.tpl @TODO -->
