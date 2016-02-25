@@ -79,18 +79,24 @@
 			{{/each}}
 		</div>
 
-		<div class="main__rating">
-            {{#if data.richData.url_ratingimg}}
-                <img data-src="{{data.richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
-            {{/if}}
-
-            {{#if data.richData.rating.img}}
-                <img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
-            {{/if}}
-        </div>
-
 		<div class="card__description">
 
+			<div class="main__rating">
+				{{#if data.richData.url_ratingimg}}
+					<img data-src="{{data.richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
+				{{/if}}
+
+				{{#if data.richData.rating.img}}
+					<img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
+				{{/if}}
+			</div>
+
+			{{#with data.richData.director}}
+				<div class="main__director">
+					<a url="{{info.url}}">{{title}}: {{info.name}}</a>
+				</div>
+			{{/with}}
+							
 			{{{data.description}}}
 
 			<!-- people data -->
