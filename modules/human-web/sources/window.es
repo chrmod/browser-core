@@ -39,14 +39,15 @@ export default class {
 
     this.window.gBrowser.removeProgressListener(HumanWeb.listener);
 
-    window.gBrowser.tabContainer.childNodes.forEach( tab => {
+    let tabs = Array.prototype.slice.apply(this.window.gBrowser.tabContainer.childNodes);
+    tabs.forEach( tab => {
       const currentBrowser = this.window.gBrowser.getBrowserForTab(tab);
       currentBrowser.contentDocument.removeEventListener("keypress",  HumanWeb.captureKeyPressPage,true);
       currentBrowser.contentDocument.removeEventListener("mousemove", HumanWeb.captureMouseMovePage,true);
       currentBrowser.contentDocument.removeEventListener("mousedown", HumanWeb.captureMouseClickPage,true);
       currentBrowser.contentDocument.removeEventListener("scroll",    HumanWeb.captureScrollPage,true);
       currentBrowser.contentDocument.removeEventListener("copy",      HumanWeb.captureCopyPage,true);
-    });
+    }.bind(this));
   }
 
   createButtonItem(win) {

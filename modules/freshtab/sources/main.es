@@ -141,7 +141,6 @@ var FreshTab = {
         if(!FreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
-        Services.ww.unregisterNotification(initNewTab);
 
         deactivate();
     },

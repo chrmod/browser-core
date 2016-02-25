@@ -173,15 +173,21 @@ window.CLIQZ.Core = {
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
 
-        this.windowModules = CLIQZ.config.modules.map(function (moduleName) {
+        // windowModules should be in same order as config.modules
+        this.windowModules = new Array(CLIQZ.config.modules.length);
+
+        var windowModulePromises = CLIQZ.config.modules.map(function (moduleName, moduleIndex) {
           return CLIQZ.System.import(moduleName+"/window").then(function (Module) {
             var mod = new Module.default(windowModuleConfig);
             mod.init();
+            this.windowModules[moduleIndex] = mod;
             return mod;
-          }).catch(function (e) { console.log(e) });
-        });
+          }.bind(this)).catch(function (e) {
+            console.log("CLIQZ core.js", "Error loading module: "+moduleName, e);
+          });
+        }.bind(this));
 
-        return Promise.all(this.windowModules).then(function () {
+        return Promise.all(windowModulePromises).then(function () {
           var urlBarGo = document.getElementById('urlbar-go-button');
           this._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
           urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + this._urlbarGoButtonClick);
@@ -278,14 +284,15 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
-        this.windowModules.forEach(function (mod) {
-          mod.then(function (mod) {
-            try {
-              mod.unload();
-            } catch(e) {}
-          });
+        this.windowModules.slice(0).reverse().forEach(function (mod, index) {
+          var moduleIndex = CLIQZ.config.modules.length - 1 - index;
+          var moduleName = CLIQZ.config.modules[moduleIndex];
+          try {
+            mod.unload();
+          } catch(e) {
+            console.log("CLIQZ core.js:", "error on unload module " + moduleName, e);
+          }
         });
-        this.windowModules = [];
 
         clearTimeout(this._whoAmItimer);
 
@@ -744,10 +751,8 @@ window.CLIQZ.Core = {
         menupopup.appendChild(this.createLocationPermOptions(win));
 
         this.windowModules.forEach(function (mod) {
-          mod.then(function (mod) {
-            var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
-            if (buttonItem) { menupopup.appendChild(buttonItem); }
-          });
+          var buttonItem = mod.createButtonItem && mod.createButtonItem(win);
+          if (buttonItem) { menupopup.appendChild(buttonItem); }
         });
       }
       else {
