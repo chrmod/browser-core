@@ -126,15 +126,15 @@
 
 	<section class="secondary">
 
-		<div class="card__description">
-			{{#if data.richData.mobi.ingredients}}
+		{{#if data.richData.mobi.ingredients}}
+			<div class="card__description">
 				<ul class="recipe_ingredients">
 					{{#each data.richData.mobi.ingredients}}
 						<li>{{this}}</li>
 					{{/each}}
 				</ul>
-			{{/if}}
-		</div>
+			</div>
+		{{/if}}
 
 		{{#if data.news}}
 			{{#each data.news}}
