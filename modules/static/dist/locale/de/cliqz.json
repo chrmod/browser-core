@@ -968,6 +968,36 @@
     "freshtab_top_sites": {
       "message": "Top Seiten"
     },
+    "freshtab_abTest_hdr_news_email": {
+      "message": "Die wichtigsten News DEINER NACHRICHTENSEITEN per E-Mail"
+    },
+    "freshtab_abTest_btn_subscribe": {
+      "message": "JETZT abonnieren"
+    },
+    "mobile_share_card": {
+      "message": "Diese Karte teilen"
+    },
+    "mobile_reconnecting_msg": {
+      "message": "Internetverbindung wird wieder hergestellt"
+    },
+    "mobile_history_title": {
+      "message": "Besuchte Seiten"
+    },
+    "mobile_favorites_title": {
+      "message": "Favoriten"
+    },
+    "mobile_history_remove": {
+      "message": "Löschen"
+    },
+    "mobile_history_unstar": {
+      "message": "Nicht favorisieren"
+    },
+    "mobile_history_star": {
+      "message": "Favorisieren"
+    },
+    "mobile_history_cancel": {
+      "message": "Abbrechen"
+    },
     "mobile_no_result_title": {
       "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
