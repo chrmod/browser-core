@@ -90,7 +90,6 @@
         </div>
 
 		<div class="card__description">
-			
 
 			{{{data.description}}}
 
@@ -166,6 +165,14 @@
                 <h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
             </div>
         {{/each}}    
+
+
+        {{#each data.external_social}}
+            <div class="cards__item external_social">
+                <div class="card__logo__secondary bg" style="background-image: url({{img}});background-color:#fff;">{{ domain }}</div>
+                <h2 class="cards__title__secondary" url="{{u}}">{{domain}}</h2>
+            </div>
+         {{/each}}
 		
 	</section>
 

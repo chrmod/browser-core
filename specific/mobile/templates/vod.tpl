@@ -1,4 +1,7 @@
 <!-- vod.tpl -->
+{{partial '_generic'}}
+
+############
 <div class="cqz-result-h1 cqz-rd cqz-result-padding">
     {{#with data}}
         <div class="cqz-rd-body">
@@ -48,7 +51,11 @@
         </div>
     {{/with}}
     <div>
+
         {{>EZ-category}}
+
+        
+
     </div>
     {{> logo}}
 

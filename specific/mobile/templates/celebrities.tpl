@@ -25,20 +25,14 @@
 	<section class="secondary">
 		
 		{{#each social}}
-			<!--<img
-				data-src='{{img}}'
-				url='{{url}}'
-				show-status='true'
-				class='cqz-celeb-social'
-				extra='social-{{ @index }}' />-->
-				
-				<div class="cards__item news">
-					<div class="card__logo__secondary bg" style="background-image: url({{img}});background-color:#fff;">{{ text }}</div>
-					<h2 class="cards__title__secondary" url="{{url}}">{{url}}</h2>
-				</div>
+			<div class="cards__item social">
+				<div class="card__logo__secondary bg" style="background-image: url({{img}});background-color:#fff;">{{ text }}</div>
+				<h2 class="cards__title__secondary" url="{{url}}">{{url}}</h2>
+			</div>
 		 {{/each}}
 		
 		{{#if data.news}}
+			<!-- data.news -->
 			{{#each data.news}}
 				<div class="cards__item news">
 					{{#with logoDetails}}
@@ -51,6 +45,7 @@
 					</div>
 				</div>
 			{{/each}}
+			<!-- end data.news -->
 		{{/if}}
 
 		{{#each data.actionsExternalMixed}}
