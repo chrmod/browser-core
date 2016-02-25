@@ -239,7 +239,7 @@ function _log(msg){
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.9',
+    VERSION: '2.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,

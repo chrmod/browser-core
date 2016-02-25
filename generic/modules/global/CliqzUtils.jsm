@@ -686,7 +686,8 @@ var CliqzUtils = {
       callback && callback(res, q);
     });
 
-    CliqzUtils.requestMonitor.addRequest(req);
+    // Currently when HPN is live, this guy breaks.
+    if(req) CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){

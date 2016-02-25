@@ -384,6 +384,12 @@ var CliqzABTests = {
             case "1065_B":
                 CliqzUtils.setPref("freshTabNewsEmail", true);
                 break;
+            case "1066_A":
+                CliqzUtils.setPref("proxyNetwork", false);
+                break;
+            case "1066_B":
+                CliqzUtils.setPref("proxyNetwork", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -661,6 +667,10 @@ var CliqzABTests = {
             case "1064_D":
             case "1064_E":
                 CliqzUtils.clearPref("attrackDefaultAction");
+                break;
+            case "1066_A":
+            case "1066_B":
+                CliqzUtils.clearPref("proxyNetwork");
                 break;
             case "1065_A":
             case "1065_B":

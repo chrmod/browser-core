@@ -45,7 +45,14 @@ var CliqzFreshTabNews = {
   updateNews: function(callback){
     CliqzUtils.clearTimeout(t0);
     var bypassCache = CliqzUtils.getPref('freshTabByPassCache');
-    if (CliqzFreshTabNews._isStale() || bypassCache || !getNewsFromLS()){
+    var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
+    //remove version of the cache from the previous version
+    if (ls.getItem('freshTab-news')){
+      ls.removeItem('freshTab-news');
+    }
+    var cache = ls.getItem('freshTab-news-cache');
+
+    if (CliqzFreshTabNews._isStale() || bypassCache || !cache){
       var bBasedNewsRequirement = [];
       if (bypassCache) {
         log("Bypassing cache");
@@ -54,10 +61,10 @@ var CliqzFreshTabNews = {
       if (hBasedNews) {
         getHbasedNewsList(hBasedNewsNumber).then(function(bBasedNewsRequirement){
           log(bBasedNewsRequirement);
-          createNewsList(bBasedNewsRequirement, callback);
+          requestNews(bBasedNewsRequirement, callback);
         });
       } else {
-        createNewsList([], callback);
+        requestNews([], callback);
       }
     }
     log('update tick')
@@ -66,12 +73,12 @@ var CliqzFreshTabNews = {
   getNews: function (){
     return new Promise(function (resolve, reject)  {
       var cache = getNewsFromLS();
-
       if (cache && !CliqzFreshTabNews._isStale() && CliqzUtils.getPref('freshTabByPassCache', false) === false) {
-        log("Reading from Local Storage", cache)
+        log("Reading from Local Storage");
         log(cache);
         resolve(cache);
       } else {
+
         log("Reading live data");
         CliqzFreshTabNews.updateNews(function(){
           //log("Update news Done", getNewsFromLS())
@@ -84,10 +91,11 @@ var CliqzFreshTabNews = {
 
 function getNewsFromLS(){
   var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
-  var cache = ls.getItem('freshTab-news');
-  if(cache){
-    log(cache);
-    return JSON.parse(cache);
+  var news_cache = ls.getItem('freshTab-news-cache');
+  var recommend_cache = ls.getItem('freshTab-data');
+
+  if (news_cache && recommend_cache){
+    return composeList(JSON.parse(news_cache), JSON.parse(recommend_cache));
   } else {
     return false;
   }
@@ -140,6 +148,7 @@ function getHbasedNewsList(hBasedNewsNumber){
 
             news_dcache['domain_list'] = news_results;
 
+            // compose hashes for the secure calling of the back end
             if ((cache)&&(JSON.parse(cache))&&JSON.parse(cache).hash_list){
               hash_list = JSON.parse(cache).hash_list;
             }else{
@@ -370,7 +379,73 @@ function getTopicBasedOnUrl(url_desc, visit_count, topic_dict){
   topic_dict[domain].sub = countSubCategories(topic_dict[domain].sub, keys_set, visit_count, 0);
 }
 
-function createNewsList(hcache, callback){
+function requestNews(hcache, callback){
+
+  var NEWS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
+      top_news_url = NEWS_PROVIDER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(),
+
+      RICH_HEADER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com',
+      topic_news_url = RICH_HEADER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(), // news by domain and topik
+      topic_news_url = topic_news_url + '&q=',
+      news_urls = [],
+      news_data_cache = {},
+      history_data = [],
+      cache_full_update_flag = true,
+      i = 0;
+
+
+  news_data_cache = hcache;
+
+  // allways add random padding to the expected news
+  // domains to avoid privacy leaks
+  topic_news_url += JSON.stringify(news_data_cache.hash_list)
+
+  history_data = news_data_cache.domain_list;
+
+  news_urls.push([top_news_url, topNewsMaxNumber, 'top_h_news']);
+  if (isNotEmpty(news_data_cache)){
+    news_urls.push([topic_news_url, hBasedNewsNumber, 'hb_news']);
+  }
+
+  //call news backend
+  log(news_urls);
+  var promises = news_urls.map(function(parameters){
+    return new Promise(function(resolve, reject){
+      CliqzUtils.httpGet(
+        parameters[0],
+        function(res){
+          resolve({'res': JSON.parse(res.response || '{}'),
+            'limit':parameters[1],
+            'news_type':parameters[2]});
+        },
+        reject,
+        5000
+      );
+    }).catch(function () {
+      log('Error fetching news. Check CLIQZEnvironment.httpHandler errors.');
+      return {};
+    });
+  });
+
+  var responsesList = [];
+
+  Promise.all(promises).then(function(vals){
+
+    vals.forEach(function(u){
+      if (!(isNotEmpty(u) && isNotEmpty(u.res))){
+        cache_full_update_flag = false;
+        log('FreshTab news of type are failded to retrive: ' + news_urls[i][2]);
+        i += 1;
+      }
+    });
+
+    updateFreshTabNewsCache(vals, cache_full_update_flag);
+    if(callback) callback();
+  });
+
+}
+
+function composeList(responsesList, historyCache){
 
   function checkDuplicates(url, res_list){
     for (var k in res_list){
@@ -378,13 +453,13 @@ function createNewsList(hcache, callback){
         if (k == "hb_news"){
           for (var i in res_list[k][e]){
             if (res_list[k][e][i]['url'] == url){
-              log('Url is already presented in resutls: ' + url);
+              log('Url is already presented in results: ' + url);
               return false;
             }
           }
         }else{
           if (res_list[k][e]['url'] == url){
-            log('Url is already presented in resutls: ' + url);
+            log('Url is already presented in results: ' + url);
             return false;
           }
         }
@@ -394,7 +469,6 @@ function createNewsList(hcache, callback){
   }
 
   function mergeNews(input_list, results, news_type, domain, path, number_to_add){
-
     var i = 0;
     while ((number_to_add > 0)&&(i < input_list.length)){
       //check duplication in results
@@ -449,99 +523,57 @@ function createNewsList(hcache, callback){
     }
   }
 
-  var NEWS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
-      top_news_url = NEWS_PROVIDER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(),
-
-      RICH_HEADER = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com',
-      topic_news_url = RICH_HEADER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(), // news by domain and topik
-      topic_news_url = topic_news_url + '&q=',
-      news_urls = [],
-      news_results = {},
-      news_data_cache = {},
-      history_data;
-
-  news_data_cache = hcache;
-
-  // allways add random padding to the expected news
-  // domains to avoid privacy leaks
-  topic_news_url += JSON.stringify(news_data_cache.hash_list)
-
-  history_data = news_data_cache.domain_list;
-
-  news_urls.push([top_news_url, topNewsMaxNumber, 'top_h_news']);
-  if (isNotEmpty(news_data_cache)){
-    news_urls.push([topic_news_url, hBasedNewsNumber, 'hb_news']);
-  }
-
-  //call news backend
-  log(news_urls);
-  var promises = news_urls.map(function(parameters){
-    return new Promise(function(resolve, reject){
-      CliqzUtils.httpGet(
-        parameters[0],
-        function(res){
-          resolve({'res': JSON.parse(res.response || '{}'),
-            'limit':parameters[1],
-            'news_type':parameters[2]});
-        },
-        reject,
-        5000
-      );
-    }).catch(function () {
-      log('Error fetching news. Check CLIQZEnvironment.httpHandler errors.');
-      return {};
-    });
-  });
 
   //merge results
-  Promise.all(promises).then(function(vals){
-    var list_to_merge = [],
-      domain = '',
-      path = '',
-      limit = 0,
-      not_added_news = 0,
-      cache_full_update_flag = true;
+  var list_to_merge = [],
+    domain = '',
+    path = '',
+    limit = 0,
+    not_added_news = 0,
+    news_results = {},
+    history_data = [];
 
-    //iterate over results
-    vals.forEach(function(val){
-        // merge results depends from type
-        if ((val.res)&&(val.res.results)&&val.res.results[0]){
-          if (val.news_type == 'hb_news'){
-            log(val.res);
-            var hbased_dict = val.res.results[0].news;
+  history_data = historyCache.domain_list || [];
 
-            history_data.forEach(function(d){
-              domain = d[0].split('/')[0];
-              path = d[0];
-              limit = d[1] + not_added_news;
-              list_to_merge = hbased_dict[domain] || [];
-              not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, path, limit);
-              // if sublevel was not merged try on domain level
-              if ((domain != path)&&(not_added_news > 0)){
-                not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, domain, not_added_news);
-              }
-            });
-          }else if (val.news_type == 'top_h_news') {
-            list_to_merge = val.res.results[0].articles;
-            mergeNews(list_to_merge, news_results, val.news_type, '', '', val.limit);
-            if (val.res.results[0].news_version){
-              news_results['top_news_version'] =  val.res.results[0].news_version;
+  //iterate over results
+  responsesList.forEach(function(val){
+      // merge results depends from type
+      if ((val.res)&&(val.res.results)&&val.res.results[0]){
+        if (val.news_type == 'hb_news'){
+          log(val.res);
+          var hbased_dict = val.res.results[0].news;
+
+          history_data.forEach(function(d){
+            domain = d[0].split('/')[0];
+            path = d[0];
+            limit = d[1] + not_added_news;
+            list_to_merge = hbased_dict[domain] || [];
+            not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, path, limit);
+            // if sublevel was not merged try on domain level
+            if ((domain != path)&&(not_added_news > 0)){
+              not_added_news =  mergeNews(list_to_merge, news_results, val.news_type, domain, domain, not_added_news);
             }
+          });
+        }else if (val.news_type == 'top_h_news') {
+          list_to_merge = val.res.results[0].articles;
+          mergeNews(list_to_merge, news_results, val.news_type, '', '', val.limit);
+          if (val.res.results[0].news_version){
+            news_results['top_news_version'] =  val.res.results[0].news_version;
           }
-        }else{
-          cache_full_update_flag = false;
-          log('FreshTab news of type are failded to retrive: ' + val.news_type);
         }
-    });
-    if (news_results.hb_news){
-      if (Object.keys(news_results.hb_news).reduce(function(prev, i){ return prev + Object.keys(news_results.hb_news[i]).length }, 0) < hBasedNewsNumber){
-        delete news_results.hb_news;
-        log('Not enough hbased news.');
+      }else{
+        log('FreshTab news of type are failded to retrive: ' + val.news_type);
       }
-    }
-    updateFreshTabNewsCache(news_results, cache_full_update_flag);
-    if(callback) callback();
   });
+  if (news_results.hb_news){
+    if (Object.keys(news_results.hb_news).reduce(function(prev, i){ return prev + Object.keys(news_results.hb_news[i]).length }, 0) < hBasedNewsNumber){
+      delete news_results.hb_news;
+      log('Not enough hbased news.');
+    }
+  }
+
+  return news_results;
+
 }
 
 function isNotEmpty(ob){
@@ -552,7 +584,7 @@ function isNotEmpty(ob){
 function updateFreshTabNewsCache(news_results, cache_full_update_flag) {
   if (isNotEmpty(news_results)) {
     var ls = CliqzUtils.getLocalStorage('chrome://cliqz/content/freshtab/freshtab.html');
-    if (ls) ls.setItem("freshTab-news", JSON.stringify(news_results));
+    if (ls) ls.setItem("freshTab-news-cache", JSON.stringify(news_results));
     //if not all news sources were retrieved, try again in a minute
     if (cache_full_update_flag){
       CliqzUtils.setPref('freshTabNewsTime', '' + Date.now());
