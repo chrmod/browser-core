@@ -108,18 +108,19 @@
 			<!-- end people data -->
 		</div>
 
-		{{#if data.richData.mobi.ingredients}}
-			<ul class="recipe_ingredients">
-				{{#each data.richData.mobi.ingredients}}
-					<li>{{this}}</li>
-				{{/each}}
-			</ul>
-		{{/if}}
-
-
 	</section>
 
 	<section class="secondary">
+
+		<div class="card__description">
+			{{#if data.richData.mobi.ingredients}}
+				<ul class="recipe_ingredients">
+					{{#each data.richData.mobi.ingredients}}
+						<li>{{this}}</li>
+					{{/each}}
+				</ul>
+			{{/if}}
+		</div>
 
 		{{#if data.news}}
 			{{#each data.news}}
