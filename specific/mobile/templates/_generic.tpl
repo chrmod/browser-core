@@ -44,6 +44,11 @@
 						Image
 					</div>
 				{{/if}}
+				{{#if data.i}}
+					<div class="image big" data-style="background-image: url({{ data.i }})">
+						Image
+					</div>
+				{{/if}}
 			{{/if}}
 
 		{{/if}}
@@ -89,6 +94,11 @@
 				{{#if data.richData.rating.img}}
 					<img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
 				{{/if}}
+
+				{{#if data.r.img}}
+					<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/> 
+					{{numberFormat data.r.val}}/{{data.r.scale}} <!--({{data.r.nVote}} Stimmen)-->
+				{{/if}}
 			</div>
 
 			{{#with data.richData.director}}
@@ -97,7 +107,11 @@
 				</div>
 			{{/with}}
 							
-			{{{data.description}}}
+			{{#if data.des}}
+				{{{data.des}}}
+			{{else}}
+				{{{data.description}}}
+			{{/if}}
 
 			<!-- people data -->
 				{{#with data.richData}}
@@ -152,6 +166,17 @@
 			</div>
 		{{/each}}	
 
+		{{#each data.links}}
+            <div class="cards__item links">
+                <div class="card__logo__secondary bg" 
+                	style="background-image:url({{icon}});background-color:#{{../logo.backgroundColor}}">{{ text }}</div>
+                <h2 class="cards__title__secondary">
+                    <a href="{{url}}">{{title}}<a>
+                </h2>
+            </div>
+        {{/each}}
+
+
 		{{#each data.richData.internal_links}}
             <div class="cards__item internal_links">
                 
@@ -181,6 +206,13 @@
             </div>
          {{/each}}
 		
+        {{#each data.w}}
+            <div class="cards__item data_w">
+                <div class="card__logo__secondary" style="background-image: url({{logo}});background-color:#fff;">{{ source }}</div>
+                <h2 class="cards__title__secondary" url="{{u}}">{{source}}</h2>
+            </div>
+         {{/each}}
+
 	</section>
 
 	{{>EZ-category}}

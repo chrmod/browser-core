@@ -339,6 +339,17 @@ CLIQZEnvironment = {
     if(e.toLowerCase() === 'testme') {
       initTest();
     }
+
+    if(e.toLowerCase() === 'josep') {
+      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
+      alert("switched to beta mixer with joseps magic links");
+    } 
+
+    if(e.toLowerCase() === 'nojosep') {
+      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
+      alert("switched to live mixer withOUT joseps magic links");
+    }
+
     CLIQZEnvironment.startProgressBar();
 
 
