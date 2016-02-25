@@ -175,19 +175,6 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         persist.setValue('trackerDomainsversion', '');
       });
 
-      it('loads remote token and tracker list', function(done) {
-        whitelist._loadRemoteTokenWhitelist();
-        whitelist._loadRemoteTrackerDomainList();
-        waitFor(function() {
-          return persist.getValue('tokenWhitelistVersion', '').length > 0 && persist.getValue('trackerDomainsversion', '').length > 0;
-        }).then(function() {
-          chai.expect(persist.getValue('tokenWhitelistVersion')).to.equal(mock_token_hash);
-          chai.expect(whitelist.isTrackerDomain('f528764d624db129')).to.be.true;
-          chai.expect(whitelist.isSafeToken('f528764d624db129', '7269d282a42ce53e58c7b3f66ca19bac')).to.be.true;
-          done();
-        });
-      });
-
       it('fires an event with the new list version number', function(done) {
         var testEventVersion = function(version) {
           try {
@@ -202,6 +189,20 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         CliqzEvents.sub('attrack:token_whitelist_updated', testEventVersion);
         whitelist._loadRemoteTokenWhitelist();
       });
+
+      it('loads remote token and tracker list', function(done) {
+        whitelist._loadRemoteTokenWhitelist();
+        whitelist._loadRemoteTrackerDomainList();
+        waitFor(function() {
+          return persist.getValue('tokenWhitelistVersion', '').length > 0 && persist.getValue('trackerDomainsversion', '').length > 0;
+        }).then(function() {
+          chai.expect(persist.getValue('tokenWhitelistVersion')).to.equal(mock_token_hash);
+          chai.expect(whitelist.isTrackerDomain('f528764d624db129')).to.be.true;
+          chai.expect(whitelist.isSafeToken('f528764d624db129', '7269d282a42ce53e58c7b3f66ca19bac')).to.be.true;
+          done();
+        });
+      });
+
     });
 
     describe('_loadRemoteSafeKey', function() {
@@ -219,19 +220,6 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         persist.setValue('safeKeyExtVersion', '');
       });
 
-      it('loads remote safekeys', function() {
-        whitelist._loadRemoteSafeKey();
-        waitFor(function() {
-          return persist.getValue('safeKeyExtVersion', '').length > 0;
-        }).then(function() {
-          try {
-            chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
-            chai.expect(whitelist.isSafeKey('f528764d624db129', '924a8ceeac17f54d3be3f8cdf1c04eb2'));
-            done();
-          } catch(e) { done(e); }
-        });
-      });
-
       it('fires an event with the new list version number', function(done) {
         var testEventVersion = function(version) {
           try {
@@ -244,7 +232,20 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
           }
         };
         CliqzEvents.sub('attrack:safekeys_updated', testEventVersion);
-        whitelist._loadRemoteTokenWhitelist();
+        whitelist._loadRemoteSafeKey();
+      });
+
+      it('loads remote safekeys', function() {
+        whitelist._loadRemoteSafeKey();
+        waitFor(function() {
+          return persist.getValue('safeKeyExtVersion', '').length > 0;
+        }).then(function() {
+          try {
+            chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
+            chai.expect(whitelist.isSafeKey('f528764d624db129', '924a8ceeac17f54d3be3f8cdf1c04eb2'));
+            done();
+          } catch(e) { done(e); }
+        });
       });
 
       it('merges with existing safekeys', function(done) {
