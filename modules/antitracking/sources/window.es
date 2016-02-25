@@ -47,6 +47,9 @@ export default class {
   init() {
     if ( this.popup ) {
       CliqzEvents.sub("core.location_change", this.onLocationChange);
+      // Better to wait for first window to set the state of the button
+      // otherways button may not be initialized yet
+      this.popup.updateState(utils.getWindow(), CliqzAttrack.isEnabled());
     }
     this.onPrefChange(CliqzAttrack.ENABLE_PREF);
     CliqzEvents.sub("prefchange", this.onPrefChange);
