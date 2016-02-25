@@ -14,6 +14,7 @@
 			{{else}}
 				{{data.title}}
 			{{/if}}
+			{{#if data.richData.under_name}}<span>{{data.richData.under_name}}</span>{{/if}}
 		</h1>
 
 		<div class="card__meta">
@@ -110,13 +111,16 @@
 			{{#if data.des}}
 				{{{data.des}}}
 			{{else}}
-				{{{data.description}}}
+				{{#if data.richData.current_company}}
+				{{else}}
+					{{{data.description}}}
+				{{/if}}
 			{{/if}}
 
 			<!-- people data -->
 				{{#with data.richData}}
-					{{#if current_company}}<br />{{current_company}} {{#if current_branch}}({{current_branch}}){{/if}}{{/if}}
-					{{#if current_job_type}}<br />{{current_job_type}}{{/if}}
+					{{#if current_job_title}}<br />{{current_job_title}}{{/if}}
+					{{#if current_company}}<br />{{current_company}}{{/if}}
 					{{#if since}}<br />seit {{since}}{{/if}}
 				{{/with}}
 			<!-- end people data -->
