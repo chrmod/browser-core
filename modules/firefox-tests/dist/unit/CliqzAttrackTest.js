@@ -68,16 +68,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     tabs = [];
                 });
 
-                it('returns true for open tab id', function(done) {
-                    console.log(tab_id);
-                    setTimeout( function() {
-                        try {
-                            chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.true;
-                            done()
-                        } catch(e) {
-                            done(e);
-                        }
-                    }, 500);
+                it('returns true for open tab id', function() {
+                    return waitFor(function() {
+                        return CliqzAttrack.tab_listener.isWindowActive(tab_id) === true;
+                    });
                 });
 
                 describe('when tab is closed', function() {
@@ -87,7 +81,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     });
 
                     it('returns false for closed tab id', function() {
-                        console.log(tab_id);
                         chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.false;
                     });
                 });
