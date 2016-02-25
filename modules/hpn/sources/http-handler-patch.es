@@ -36,6 +36,25 @@ export function overRideCliqzResults(){
         CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
       })
       return null;
+    } else if(url.indexOf(CliqzUtils.RESULTS_PROVIDER_LOG) > -1 && CliqzUtils.getPref('hpn-telemetry', false)) {
+      var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+      var mc = new messageContext({"action": "extension-result-telemetry", "type": "cliqz", "ver": "1.5", "payload":_q });
+      var proxyIP = CliqzSecureMessage.queryProxyIP;
+      mc.aesEncrypt()
+      .then(function(enxryptedQuery){
+        return mc.signKey();
+      })
+      .then(function(){
+        var data = {"mP":mc.getMP()}
+        CliqzSecureMessage.stats(proxyIP, "queries-sent", 1);
+        return CliqzSecureMessage.httpHandler(proxyIP)
+        .post(JSON.stringify(data), "instant")
+      })
+      .catch(function(err){
+        CliqzUtils.log("Error query chain: " + err,CliqzSecureMessage.LOG_KEY);
+        CliqzSecureMessage.stats(proxyIP, "result-telemetry-error", 1);
+      })
+      return null;
     }
     else if(url == CliqzUtils.SAFE_BROWSING && CliqzUtils.getPref('hpn-telemetry', false)){
       var batch = JSON.parse(data);
