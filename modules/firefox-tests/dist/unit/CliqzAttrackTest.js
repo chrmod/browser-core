@@ -650,7 +650,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             r.status = 'update';
             chai.expect(r.getRule('bbbaaa.site1.com')).to.equal('empty');
             chai.expect(r.getRule('aa.site1.com')).to.equal('placeholder');
-            chai.expect(r.getRule('aa.site2.com')).to.equal('same');
+            chai.expect(r.getRule('aa.site2.com')).to.equal(TT.getDefaultTrackerTxtRule());
         });
     });
 };

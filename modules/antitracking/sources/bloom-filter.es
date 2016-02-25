@@ -130,24 +130,45 @@ export class AttrackBloomFilter extends QSWhitelistBase {
   }
 
   isTrackerDomain(domain) {
-    return this.bloomFilter.testSingle(domain);
+    return this.bloomFilter.testSingle('d' + domain);
   }
 
   isSafeKey(domain, key) {
-    return this.bloomFilter.testSingle(domain + key) || super.isSafeKey(domain, key);
+    return (!this.isUnsafeKey(domain, key)) && (this.bloomFilter.testSingle('k' + domain + key) || super.isSafeKey(domain, key));
   }
 
   isSafeToken(domain, token) {
-    return this.bloomFilter.testSingle(domain + token);
+    return this.bloomFilter.testSingle('t' + domain + token);
+  }
+
+  isUnsafeKey(domain, token) {
+    return this.bloomFilter.testSingle('u' + domain + token);
+  }
+
+  addDomain(domain) {
+    this.bloomFilter.addSingle('d' + domain);
   }
 
   addSafeKey(domain, key, valueCount) {
-    this.bloomFilter.addSingle(domain + key);
+    if (this.isUnsafeKey(domain, key)) {
+      return;
+    }
+    this.bloomFilter.addSingle('k' + domain + key);
     super.addSafeKey(domain, key, valueCount);
   }
 
+  addUnsafeKey(domain, token) {
+    this.bloomFilter.addSingle('u' + domain + token);
+  }
+
   addSafeToken(domain, token) {
-    this.bloomFilter.addSingle(domain + token);
+    utils.log([domain, token]);
+    if (token === '') {
+      utils.log('add domain ' + domain);
+      this.addDomain(domain);
+    } else {
+      this.bloomFilter.addSingle('t' + domain + token);
+    }
   }
 
   attachVersion(payl) {

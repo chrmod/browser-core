@@ -28,11 +28,19 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
     });
 
     it('token whitelist URL is correct', function() {
-      chai.expect(whitelist.TOKEN_WHITELIST_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_whitelist_tokens_md5.json');
+      chai.expect(whitelist.TOKEN_WHITELIST_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/whitelist_tokens.json');
+    });
+
+    it('tracer domain list URL is correct', function() {
+      chai.expect(whitelist.TRACKER_DM_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/tracker_domains.json');
     });
 
     it('safekey list URL is correct', function() {
       chai.expect(whitelist.SAFE_KEY_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_safe_key.json');
+    });
+
+    it('unsafekey list URL is correct', function() {
+      chai.expect(whitelist.UNSAFE_KEY_URL).to.equal('https://cdn.cliqz.com/anti-tracking/whitelist/domain_unsafe_key.json');
     });
 
     describe('isTrackerDomain', function() {
@@ -66,6 +74,17 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
 
     });
 
+    describe('addUnsafeKey', function() {
+      var domain = md5('example.com'),
+          key = md5('callback');
+
+      it('adds a key to the unsafekey list', function() {
+        whitelist.addSafeToken(domain, '');
+        whitelist.addUnsafeKey(domain, key);
+        chai.expect(whitelist.isUnsafeKey(domain, key)).to.be.true;
+      });
+    })
+
     describe('addSafeToken', function() {
       var domain = md5('example.com'),
           token = md5('safe');
@@ -83,12 +102,15 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
       });
 
       describe('after list update', function() {
-        var mock_token_string = '{\"f528764d624db129\": {\"7269d282a42ce53e58c7b3f66ca19bac\": true}}\n',
-          mock_token_url = '/token_whitelist.json',
-          mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac',
+        this.timeout(5000);
+        var mock_token_string = '{"7269d282a42ce53e58c7b3f66ca19bac": true}\n',
+          mock_tracker_string = '{"f528764d624db129": true}\n',
+          mock_token_hash = '60c6923a50683b5a9c4643d82e6195ef',
+          mock_tracker_hash = 'ad9ce25e234a817f450e452088dac9f4',
           mock_safekey_string = '{\"f528764d624db129\": {\"924a8ceeac17f54d3be3f8cdf1c04eb2\": \"20200101\"}}\n',
-          mock_safekey_url = '/safekey.json',
           mock_safekey_hash = '3e82cf3535f01bfb960e826f1ad8ec2d';
+          mock_unsafekey_string = '{"9dd5ed5535c6a873":{"d279186428a75016b17e4df5ea43d080": true}}\n';
+          mock_unsafekey_hash = '734be41a8fdf93dbcb802dd3a1973d25';
 
         beforeEach(function() {
           testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
@@ -97,14 +119,27 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
           testServer.registerPathHandler('/safekey.json', function(request, response) {
             response.write(mock_safekey_string);
           });
+          testServer.registerPathHandler('/unsafekey.json', function(request, response) {
+            response.write(mock_unsafekey_string);
+          });
+          testServer.registerPathHandler('/tracker_domain.json', function(request, response) {
+            response.write(mock_tracker_string);
+          });
 
           whitelist.SAFE_KEY_URL = 'http://localhost:' + testServer.port + '/safekey.json';
           persist.setValue('safeKeyExtVersion', '');
           whitelist.TOKEN_WHITELIST_URL = 'http://localhost:' + testServer.port + '/token_whitelist.json';
           persist.setValue('tokenWhitelistVersion', '');
+          whitelist.UNSAFE_KEY_URL = 'http://localhost:' + testServer.port + '/unsafekey.json';
+          persist.setValue('unsafeKeyExtVersion', '');
+          whitelist.TRACKER_DM_URL = 'http://localhost:' + testServer.port + '/tracker_domain.json';
+          persist.setValue('trackerDomainsversion', '');
 
           whitelist._loadRemoteSafeKey();
           whitelist._loadRemoteTokenWhitelist();
+          whitelist._loadRemoteUnsafeKey();
+          whitelist._loadRemoteTrackerDomainList();
+
         });
 
         it('returns true', function() {
@@ -117,10 +152,11 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
     });
 
     describe('_loadRemoteTokenWhitelist', function() {
-
-      var mock_token_string = '{\"f528764d624db129\": {\"7269d282a42ce53e58c7b3f66ca19bac\": true}}\n',
-          mock_token_url = '/token_whitelist.json',
-          mock_token_hash = '4b45ea02efdbc85bf5a456beb3ab1cac';
+      var mock_token_string = '{"7269d282a42ce53e58c7b3f66ca19bac": true}\n',
+          mock_tracker_string = '{"f528764d624db129": true}\n',
+          mock_token_hash = '60c6923a50683b5a9c4643d82e6195ef',
+          mock_tracker_hash = 'ad9ce25e234a817f450e452088dac9f4',
+          mock_token_url, mock_tracker_url;
 
       beforeEach(function() {
         testServer.registerPathHandler('/token_whitelist.json', function(request, response) {
@@ -128,15 +164,22 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         });
         mock_token_url = 'http://localhost:' + testServer.port + '/token_whitelist.json';
 
+        testServer.registerPathHandler('/tracker_domain.json', function(request, response) {
+          response.write(mock_tracker_string);
+        });
+        mock_tracker_url = 'http://localhost:' + testServer.port + '/tracker_domain.json';
         // mock token whitelist URL
         whitelist.TOKEN_WHITELIST_URL = mock_token_url;
+        whitelist.TRACKER_DM_URL = mock_tracker_url;
         persist.setValue('tokenWhitelistVersion', '');
+        persist.setValue('trackerDomainsversion', '');
       });
 
-      it('loads remote token list', function(done) {
+      it('loads remote token and tracker list', function(done) {
         whitelist._loadRemoteTokenWhitelist();
+        whitelist._loadRemoteTrackerDomainList();
         waitFor(function() {
-          return persist.getValue('tokenWhitelistVersion', '').length > 0;
+          return persist.getValue('tokenWhitelistVersion', '').length > 0 && persist.getValue('trackerDomainsversion', '').length > 0;
         }).then(function() {
           chai.expect(persist.getValue('tokenWhitelistVersion')).to.equal(mock_token_hash);
           chai.expect(whitelist.isTrackerDomain('f528764d624db129')).to.be.true;
@@ -331,7 +374,7 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         });
 
         it('does not load if token version is same', function() {
-          whitelist.onConfigUpdate({ token_whitelist_version: persist.getValue('tokenWhitelistVersion') });
+          whitelist.onConfigUpdate({ whitelist_token_version: persist.getValue('tokenWhitelistVersion') });
           chai.expect(tokenCallCount).to.equal(0);
           chai.expect(safekeyCallCount).to.equal(0);
         });
@@ -342,7 +385,7 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
           chai.expect(safekeyCallCount).to.equal(1);
         });
 
-        it('does not safekey load if version is same', function() {
+        it('does not load if safekey version is same', function() {
           whitelist.onConfigUpdate({ safekey_version: persist.getValue('safeKeyExtVersion') });
           chai.expect(safekeyCallCount).to.equal(0);
           chai.expect(tokenCallCount).to.equal(0);
