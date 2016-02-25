@@ -19,6 +19,7 @@ import CliqzHumanWeb from 'human-web/human-web';
 import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
+import {ChannelListener} from 'antitracking/channel-listener';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -31,6 +32,8 @@ var countReload = false;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefBranch);
+
+var cListener = new ChannelListener();
 
 function shuffle(s) {
     var a = s.split(""),
@@ -107,6 +110,7 @@ var CliqzAttrack = {
     instantTokenCache: {},
     requestKeyValue: null,
     recentlyModified: new TempSet(),
+    cliqzHeader: 'CLIQZ-AntiTracking',
     favicons: {
         // A simple capacity limited set, with least recently used items removed when
         // capcity is full.
@@ -457,9 +461,9 @@ var CliqzAttrack = {
 
                     if (badTokens.length > 0 && CliqzAttrack.qs_whitelist.isUpToDate()) {
                         // determin action based on tracker.txt
-                        var rule = getDefaultTrackerTxtRule(),
+                        var rule = CliqzAttrack.getDefaultRule(),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
-                        if (CliqzAttrack.isTrackerTxtEnabled()) {
+                        if (!CliqzAttrack.isForceBlockEnabled() && CliqzAttrack.isTrackerTxtEnabled()) {
                             if (_trackerTxt.last_update === null)
                                 // The first update is not ready yet
                                 sleep(300);
@@ -476,6 +480,9 @@ var CliqzAttrack = {
                                 }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             }
+                            aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
+                            cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
+                            aChannel.notificationCallbacks = cListener;
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
@@ -967,6 +974,7 @@ var CliqzAttrack = {
         if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie REMOVED (" + reason + "): "  + req_metadata['dst'] + " >>> " + url, CliqzAttrack.LOG_KEY);
         // blocking cookie
         channel.setRequestHeader("Cookie", "", false);
+        channel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
         CliqzAttrack.blockedCache[req_metadata['dst']] = req_metadata['ts'];
         CliqzAttrack.cookieTraffic['cblocked'] += 1;
         CliqzAttrack.cookieTraffic['blocked'].unshift(req_metadata);
@@ -1057,6 +1065,13 @@ var CliqzAttrack = {
 
         }
     },
+    getDefaultRule: function() {
+        if (CliqzAttrack.isForceBlockEnabled()) {
+            return 'block';
+        } else {
+            return getDefaultTrackerTxtRule();
+        }
+    },
     isEnabled: function() {
         return CliqzUtils.getPref(CliqzAttrack.ENABLE_PREF, false);
     },
@@ -1083,6 +1098,9 @@ var CliqzAttrack = {
     },
     isBloomFilterEnabled: function() {
         return CliqzUtils.getPref('attrackBloomFilter', false);
+    },
+    isForceBlockEnabled: function() {
+        return CliqzUtils.getPref('attrackForceBlock', false);
     },
     initialiseAntiRefererTracking: function() {
         if (CliqzUtils.getPref('attrackRefererTracking', false)) {
@@ -1303,6 +1321,7 @@ var CliqzAttrack = {
         CliqzAttrack.shortTokenLength = parseInt(persist.getValue('shortTokenLength')) || 8;
 
         CliqzAttrack.placeHolder = persist.getValue('placeHolder', CliqzAttrack.placeHolder);
+        CliqzAttrack.cliqzHeader = persist.getValue('cliqzHeader', CliqzAttrack.cliqzHeader);
     },
     /** Per-window module initialisation
      */
@@ -1455,12 +1474,17 @@ var CliqzAttrack = {
 
             if (versioncheck.shortTokenLength) {
                 persist.saveValue('shortTokenLength', versioncheck.shortTokenLength);
-                CliqzAttrack.shortTokenLength |= parseInt(versioncheck.shortTokenLength);
+                CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength) || CliqzAttrack.shortTokenLength;
             }
 
             if (versioncheck.safekeyValuesThreshold) {
                 persist.saveValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
-                CliqzAttrack.safekeyValuesThreshold |= parseInt(versioncheck.safekeyValuesThreshold);
+                CliqzAttrack.safekeyValuesThreshold = parseInt(versioncheck.safekeyValuesThreshold) || CliqzAttrack.safekeyValuesThreshold;
+            }
+
+            if (versioncheck.cliqzHeader) {
+                persist.setValue('cliqzHeader', versioncheck.cliqzHeader);
+                CliqzAttrack.cliqzHeader = versioncheck.cliqzHeader;
             }
 
             // fire events for list update
