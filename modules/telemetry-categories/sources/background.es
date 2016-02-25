@@ -1,6 +1,6 @@
 import { utils, events } from 'core/cliqz';
 import Reporter from 'telemetry-categories/reporter';
-import ResourceLoader from 'telemetry-categories/resource-loader';
+import ResourceLoader from 'core/resource-loader';
 
 export default {
   init() {

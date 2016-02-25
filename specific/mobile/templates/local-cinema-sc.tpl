@@ -9,11 +9,11 @@
     {{#with data}}
     
         
-            <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{emphasis friendly_url text 2 true}}</h3>
+            <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{emphasis friendly_url query 2 true}}</h3>
         </div>
     
         <div class="main">
-            <h1 class="main__headline"><a href="{{url}}">{{ emphasis cinema.name text 2 true }}</a></h1>
+            <h1 class="main__headline"><a href="{{url}}">{{ cinema.name }}</a></h1>
             <div class="main__meta">
               <span>
                 {{#each stars}}
@@ -30,7 +30,7 @@
               {{/if}}
             </div>
             
-            <p class="main__content description">{{cinema.desc}}</p>
+            <p class="main__content description">{{{cinema.desc}}}</p>
             
             <ul class="cta">
                   <li><a xmlns="http://www.w3.org/1999/xhtml" arrow-override=""

@@ -3,6 +3,10 @@
 <div class="main">
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
+       		<div id="reconnecting" style="position:fixed;background-color: #8E4900;padding:1px 10px;color:#fff;font-size:14px;display:none;">
+       				<span style="float: left" onclick="getHistory(true)">Favoriten</span>
+       				<span style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
+			</div>
             <!-- <a extra="title">THE PAST</a> -->
         </h1>
     </div>
@@ -14,13 +18,14 @@
             <table cellspacing="0" cellpadding="0" class="answer" data="{{url}}"
                    data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
                 <tr>
+	                <td class="edit__delete"><input name="delete" type="checkbox" disabled></td>
                     <td class="framer">
                         <p>{{title}}</p>
                         <p class="url">{{domain}}</p>
                     </td>
                     <td class="meta">
                         <div>{{conversationsTime timestamp}}</div>
-                        <!--<div class="date">{{conversationsDate timestamp}}</div>-->
+                        {{#if starred}}<div>starred</div>{{/if}}
                     </td>
                 </tr>
             </table>
@@ -34,11 +39,12 @@
                     <tr>
                         <td class="meta">
                             <div>{{conversationsTime timestamp}}</div>
-                            <!--<div class="date">{{conversationsDate timestamp}}</div>-->
+                        	{{#if starred}}<div>starred</div>{{/if}}
                         </td>
                         <td class="framer">
                             <p class="query">{{query}}</p>
                         </td>
+                        <td class="edit__delete"><input name="delete" type="checkbox" disabled></td>
                     </tr>
                 </table>
 
@@ -50,21 +56,24 @@
 
             {{/if}}
         {{/each}}
-        <div id="control" style="display:none;">
+        <div id="control" style="display:none;background-color: #862701;position:fixed">
 			<table>
 				<td onclick="removeSelected()">
-					remove
+					{{local 'mobile_history_remove'}}
+				</td>
+				<td id='control_star' onclick="starSelected()">
+					{{local 'mobile_history_star'}}
 				</td>
 				<td onclick="endEditMode()">
-					back
+					{{local 'mobile_history_cancel'}}
 				</td>
 
 			</table>
         </div>
         {{#unless data}}
 			<div class="nohistoryyet">
-				<p>Bisher hast du noch nach nichts gesucht und keine Seiten besucht. </p>
-				<p>Sobald du das getan hast werde ich alles für dich bereit halten, falls du wieder zurück willst.</p>
+				<p>Hier findest Du in Zukunft Deine Suchen und besuchten Seiten.</p>
+				<p>Bisher hast Du noch nicht gesucht und warst auf keinen Webseiten.</p>
 			</div>
 		{{/unless}}
         

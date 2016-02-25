@@ -1,35 +1,44 @@
 function renderNews(news) {
-  var hb_news = news.hb_news,
-      top_news = news.top_h_news,
-      topNews  = CliqzHandlebars.compile($('#topNews').html()),
-      yourNews = CliqzHandlebars.compile($('#yourNews').html()),
+  var hbNews = news.hb_news,
+      topNews = news.top_h_news,
+      topNewsTpl  = CliqzHandlebars.compile($('#topNews').html()),
+      yourNewsTpl = CliqzHandlebars.compile($('#yourNews').html()),
       underline = CliqzUtils.getPref('freshTabNewsUnderline'),
+      newsEmail = CliqzUtils.getPref('freshTabNewsEmail'),
       startEnter,
       elapsed,
-      onlyTopNews = true;
-  if (hb_news) {
-    for (var domain in hb_news) {
-      hb_news[domain] = hb_news[domain].map(function(r){
-        return {
+      onlyTopNews = true,
+      hbNewsAll = [],
+      hbNewsData = {};
+  if (hbNews) {
+    log(hbNews)
+    Object.keys(hbNews).forEach(function(domain) {
+      hbNews[domain].forEach(function(r) {
+        hbNewsAll.push({
           title: r.title,
           displayUrl: CliqzUtils.getDetailsFromUrl(r.url).domain || r.title,
           logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url)),
           url: r.url,
           underline: underline
-        }
+        });
       });
-    }
-    log("Personalized news", hb_news);
+    });
+    log("Personalized news", hbNewsAll);
     onlyTopNews = false;
-    document.getElementById('yourNewsBox').innerHTML = yourNews(hb_news);
+    hbNewsData['newsEmail'] = newsEmail;
+    if(newsEmail) {
+      $('.wrap').addClass('newsEmail');
+    }
+    hbNewsData['hbNews'] = hbNewsAll;
+    document.getElementById('yourNewsBox').innerHTML = yourNewsTpl(hbNewsData);
   } else {
     $('.newsBox').addClass('onlyTopNews');
   }
-  log('top news', top_news);
-  top_news = top_news.map(function(r){
+  log('top news', topNews);
+  topNews = topNews.map(function(r){
     return {
       title: r.title,
-      short_title: r.short_title,
+      shortTitle: r.short_title,
       displayUrl: CliqzUtils.getDetailsFromUrl(r.url).domain || r.title,
       url: r.url,
       logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.url)),
@@ -37,10 +46,18 @@ function renderNews(news) {
       underline: underline
     };
   });
-  document.getElementById('topNewsBox').innerHTML = topNews(top_news);
+  document.getElementById('topNewsBox').innerHTML = topNewsTpl(topNews);
   Slider.init({
     totalNews: $("#topNewsBox li").length,
     el: $("#topNewsBox li")
+  });
+
+  $('.subscribe').on('click', function(e){
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target_type: 'newsEmail',
+      });
   });
 
   $('.news').on('click', function(e) {

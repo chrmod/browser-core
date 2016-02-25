@@ -12,6 +12,7 @@ var AssetRev = require('broccoli-asset-rev');
 var uglify = require('broccoli-uglify-sourcemap');
 var writeFile = require('broccoli-file-creator');
 var JSHinter = require('broccoli-jshint');
+var ConfigReplace = require('broccoli-config-replace');
 
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
@@ -22,7 +23,6 @@ var nodeModules    = new Funnel('node_modules');
 var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
 var firefoxPackage  = new Funnel('specific/firefox/package');
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
-var cliqziumSpecific= new Funnel('specific/cliqzium');
 var webSpecific     = new Funnel('specific/web');
 var generic         = new Funnel('generic');
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
@@ -34,11 +34,22 @@ var staticViews     = new Funnel(generic, { srcDir: 'modules/local/views' });
 // Build configuration
 var configFilePath  = process.env['CLIQZ_CONFIG_PATH'];
 var cliqzConfig     = JSON.parse(fs.readFileSync(configFilePath));
-console.log('Configuration file:', configFilePath);
-console.log(cliqzConfig);
-var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
-var platform = new Funnel('platforms/'+cliqzConfig.platform);
+// start - setting up frameScript whitelist
+cliqzConfig.settings.frameScriptWhitelist = cliqzConfig.settings.frameScriptWhitelist || [];
+if (buildEnv === 'development') {
+  // freshtab development server
+  cliqzConfig.settings.frameScriptWhitelist.push('http://localhost:3000/');
+}
+// end
+
+
+var platform = new Funnel('platforms/'+cliqzConfig.platform, {
+  exclude: ['tests/**/*']
+});
+var platformTests = new Funnel('platforms/'+cliqzConfig.platform, {
+  include: ['tests/**/*']
+});
 platform = Babel(platform, {
   sourceMaps: 'inline',
   filterExtensions: ['es'],
@@ -55,93 +66,118 @@ var mobileCss = compileSass(
   { sourceMap: true }
 );
 
-// attach subprojects
-var modules = [new Funnel(platform, { destDir: "platform" })];
+// Attach subprojects
+let transpilableModuleNames = [];
 var requiredBowerComponents = new Set();
-var modulesTree = new Funnel('modules');
 
-var jsHinterTree = new JSHinter(
-  new Funnel(modulesTree, { include: ['**/*.es', '**/*.js']}),
-  { testGenerator: function () { return ''; },
-    jshintrcPath: process.cwd() + '/.jshintrc'
+cliqzConfig.rawModules = [];
+cliqzConfig.modules.slice(0).forEach(function (name) {
+  let configJson = "{}";
+
+  try {
+    configJson = fs.readFileSync('modules/'+name+'/config.json');
+  } catch(e) {
+    // Existance of config.json is not required
   }
-);
-jsHinterTree.extensions = ['js', 'es']
 
-modulesTree = new MergeTrees([
-  modulesTree,
-  jsHinterTree
-]);
+  let config = JSON.parse(configJson);
 
-cliqzConfig.modules.forEach(function (name) {
-  var modulePath = 'modules/'+name;
-  if (fs.statSync(modulePath).isDirectory()) {
+  (config.bower_components || []).forEach(Set.prototype.add.bind(requiredBowerComponents));
 
-    try {
-      var conf = fs.readFileSync('modules/'+name+'/bower_components.json');
-      JSON.parse(conf).forEach(Set.prototype.add.bind(requiredBowerComponents));
-    } catch(e) { }
-
-    var sources = new Funnel(modulesTree, { srcDir: name + '/sources', exclude: ['styles/**/*'] });
-
-    sources = Babel(sources, {
-      sourceMaps: 'inline',
-      filterExtensions: ['es'],
-      modules: 'system',
-      moduleRoot: name,
-    });
-
-    var outputTree = [
-      new Funnel(modulesTree, { srcDir: name + '/dist' }),
-      sources,
-    ];
-
-    var hasStyles = false;
-    try {
-      fs.statSync(modulePath+"/sources/styles"); // throws if not found
-      hasStyles = true;
-    } catch (e) { }
-
-    /*
-    if (hasStyles) {
-      var compiledCss = compileSass(
-        [modulePath+'/sources/styles'],
-        'styles.scss',
-        'styles.css',
-        { sourceMap: true }
-      );
-
-      outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
-    }
-    */
-    if (hasStyles) {
-      fs.readdirSync( modulePath+'/sources/styles').forEach(function (file) {
-        var extName = path.extname(file);
-
-        if ( (file.indexOf('_') === 0) ||
-             ['.sass', '.scss'].indexOf(extName) === -1 ) {
-          return;
-        }
-
-        var compiledCss = compileSass(
-          [modulePath+'/sources/styles'],
-          file,
-          file.replace(/\.(sass|scss)+$/, '.css'),
-          { sourceMap: true }
-        );
-
-        outputTree.push(new Funnel(compiledCss, { destDir: 'styles' }));
-      });
-    }
-
-    var module = new MergeTrees(outputTree);
-
-    modules.push(new Funnel(module, { destDir: name }));
+  if (config.transpile !== false ){
+    transpilableModuleNames.push(name);
+  } else {
+    cliqzConfig.modules.splice(cliqzConfig.modules.indexOf(name), 1);
+    cliqzConfig.rawModules.push(name);
   }
 });
 
-modules = new MergeTrees(modules);
-modules = new Funnel(modules, { exclude: ["**/*.jshint.js"] });
+// cliqz.json should be saved after not transpiled modules are removed from configration
+var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
+console.log('Configuration file:', configFilePath);
+console.log(cliqzConfig);
+// cliqz.json is finalized
+
+// START - ES TREE
+let sources = new Funnel('modules', {
+  include: transpilableModuleNames.map(name => `${name}/sources/**/*.es`),
+  getDestinationPath(path) {
+    return path.replace("/sources", "");
+  }
+});
+
+let jsHinterTree = new JSHinter(sources, {
+  jshintrcPath: process.cwd() + '/.jshintrc',
+  disableTestGenerator: true
+});
+jsHinterTree.extensions = ['es']
+
+let transpiledSources = Babel(sources, {
+  sourceMaps: 'inline',
+  filterExtensions: ['es'],
+  modules: 'system',
+  moduleIds: true,
+});
+
+let sourceTree = new Funnel(
+  new MergeTrees([
+    jsHinterTree,
+    transpiledSources
+  ]), {
+    exclude: ["**/*.jshint.js"]
+  }
+);
+// END - ES TREE
+
+// START - CSS TREE
+let sassTrees = [];
+transpilableModuleNames.forEach( name => {
+  let modulePath = `modules/${name}`,
+      hasStyles = false;
+
+  try {
+    fs.statSync(modulePath+"/sources/styles"); // throws if not found
+    hasStyles = true;
+  } catch (e) { }
+
+  if (hasStyles) {
+    fs.readdirSync( modulePath+'/sources/styles').forEach(function (file) {
+      var extName = path.extname(file);
+
+      if ( (file.indexOf('_') === 0) ||
+           ['.sass', '.scss'].indexOf(extName) === -1 ) {
+        return;
+      }
+
+      var compiledCss = compileSass(
+        [modulePath+'/sources/styles'],
+        file,
+        file.replace(/\.(sass|scss)+$/, '.css'),
+        { sourceMap: true }
+      );
+
+      sassTrees.push(new Funnel(compiledCss, { destDir: `${name}/styles` }));
+    });
+  }
+});
+let sassTree = new MergeTrees(sassTrees);
+// END - CSS TREE
+
+// START - DIST TREE
+let distTree = new Funnel("modules", {
+  include: (cliqzConfig.modules.concat(cliqzConfig.rawModules)).map( name => `${name}/dist/**/*` ),
+  getDestinationPath(path) {
+    return path.replace("/dist", "");
+  }
+});
+// END - DIST TREE
+
+let modules = new MergeTrees([
+  new Funnel(platform, { destDir: "platform" }),
+  distTree,
+  sassTree,
+  sourceTree,
+]);
 
 var babelOptions = {
   modules: "amdStrict",
@@ -228,6 +264,26 @@ var firefoxLibs = new MergeTrees([
   new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] }),
 ]);
 
+var extensionConfig = new ConfigReplace(
+  new Funnel(firefoxSpecific, { include: [ 'modules/Extension.jsm' ] }),
+  config,
+  {
+    configPath: 'cliqz.json',
+    files: [
+      'modules/Extension.jsm'
+    ],
+    patterns: [{
+      match: /\{\{CONFIG\}\}/g,
+      replacement: config => JSON.stringify(config)
+    }]
+  }
+);
+
+firefoxSpecific = new MergeTrees([
+  firefoxSpecific,
+  extensionConfig,
+], { overwrite: true });
+
 //  first level trees
 var firefox = new MergeTrees([
   new Funnel(new MergeTrees([
@@ -240,13 +296,6 @@ var firefox = new MergeTrees([
     new Funnel(modules,     { destDir: 'chrome/content' }),
   ], { overwrite: true } ), { destDir: 'cliqz@cliqz.com' }),
   firefoxPackage,
-]);
-
-var cliqzium = new MergeTrees([
-  new Funnel(globalConcated,   { destDir: 'js' }),
-  new Funnel(localConcated,    { destDir: 'js' }),
-  new Funnel(libsConcated,     { destDir: 'js' }),
-  cliqziumSpecific,
 ]);
 
 var web = new MergeTrees([
@@ -266,32 +315,31 @@ var mobile = new MergeTrees([
   new Funnel(modules,        { destDir: 'modules' })
 ]);
 
+var testsTree = concat(platformTests, {
+  outputFile: 'tests.js',
+  inputFiles: [
+    "**/*.js"
+  ],
+  allowNone: true,
+  sourceMapConfig: { enabled: true },
+});
+
 if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css'],
     replaceExtensions: ['html', 'css', 'js'],
     generateAssetMap: true
   });
-  // uglify breaks for cliqz-oss/broccoli#building-server:
-  // "The .read/.rebuild API is no longer supported of Broccoli 1.0"
-  // mobile = uglify(new Funnel(mobile), {
-  //   mangle: false,
-  //   compress: false,
-  //   output: {
-  //     indent_level: 2,
-  //     comments: false,
-  //     beautify: true
-  //   },
-  //   sourceMapConfig: {
-  //     enabled: false
-  //   }
-  // });
 }
 
-// Output
-module.exports = new MergeTrees([
-  new Funnel(cliqzium, { destDir: 'cliqzium'      }),
+var trees = [
   new Funnel(firefox,  { destDir: 'firefox'       }),
   new Funnel(web,      { destDir: 'web'           }),
   new Funnel(mobile,   { destDir: 'mobile/search' }),
-]);
+];
+
+if (buildEnv !== 'production') {
+  trees.push(new Funnel(testsTree, { destDir: 'tests' }));
+}
+// Output
+module.exports = new MergeTrees(trees);

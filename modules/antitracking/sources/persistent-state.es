@@ -15,6 +15,9 @@ export function init () {
     From CliqzAttrack.loadRecord
  */
 function loadRecord(id, callback) {
+  if (!dbConn) {
+    init();
+  }
   var stmt = dbConn.createAsyncStatement("SELECT id, data FROM attrack WHERE id = :id;");
       stmt.params.id = id;
 
@@ -48,6 +51,9 @@ function loadRecord(id, callback) {
     From CliqzAttrack.saveRecord
  */
 function saveRecord(id, data) {
+  if (!dbConn) {
+    init();
+  }
   var st = dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
   st.params.id = id;
   st.params.data = data;
@@ -135,16 +141,66 @@ export function clear_persistent(value) {
   }
 };
 
-export function get_value(key, default_value) {
+export function getValue(key, default_value) {
   let val = CliqzUtils.getPref("attrack." + key, default_value);
   return val;
 };
 
-export function set_value(key, value) {
+export function setValue(key, value) {
   CliqzUtils.setPref("attrack." + key, value);
 };
 
 export { loadRecord, saveRecord };
+
+export class LazyPersistentObject {
+
+  constructor(name) {
+    this.name = name;
+    this.value = {};
+    this.dirty = false;
+  }
+
+  load() {
+    return new Promise(function(resolve, reject) {
+      loadRecord(this.name, function(value) {
+        try {
+          this.value = JSON.parse(value || '{}');
+        } catch(e) {
+          this.value = {};
+          this.dirty = true;
+        }
+        resolve(this.value);
+      }.bind(this));
+    }.bind(this));
+  }
+
+  save() {
+    if (this.dirty) {
+      saveRecord(this.name, JSON.stringify(this.value));
+      this.dirty = false;
+    }
+  }
+
+  setValue(v) {
+    this.value = v;
+    this.dirty = true;
+    this.save();
+  }
+
+  setDirty() {
+    this.dirty = true;
+  }
+
+  isDirty() {
+    return this.dirty;
+  }
+
+  clear() {
+    this.value = {};
+    this.dirty = true;
+    this.save();
+  }
+}
 
 export class PersistentObject {
 

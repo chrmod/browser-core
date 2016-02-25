@@ -7,6 +7,7 @@ Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
     CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/freshtab/freshtab.html",
+    //CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/fresh-tab-frontend/index.html",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
@@ -66,6 +67,7 @@ var FreshTab = {
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
           CliqzABTests.disable("1062_B");
+          CliqzABTests.disable("1065_B");
           disable = true;
         }
 
@@ -142,7 +144,6 @@ var FreshTab = {
         if(!FreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
-        Services.ww.unregisterNotification(initNewTab);
 
         deactivate();
     },

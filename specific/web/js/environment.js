@@ -329,7 +329,6 @@ CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }
 
-CliqzHumanWeb = {}
 CliqzHistory = {
     updateQuery: function(){},
     setTabData: function(){}
