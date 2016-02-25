@@ -1,4 +1,6 @@
+/* global waitFor, setTimeout, Promise */
 'use strict';
+
 
 TESTS.CliqzmessageCenterTestUnit = function (CliqzMsgCenter, CliqzUtils) {
   describe('CliqzMsgCenter (unit)', function() {
@@ -29,7 +31,7 @@ TESTS.CliqzmessageCenterTestUnit = function (CliqzMsgCenter, CliqzUtils) {
         ],
         text: 'Der CLIQZ browser ist besser als Firefox.'
       };
-    }, ui = CliqzUtils.getWindow().CLIQZ.UI,
+    }, ui = function () { return CliqzUtils.getWindow().CLIQZ.UI; },
     core = CliqzUtils.getWindow().CLIQZ.Core;
 
     beforeEach(function() {
@@ -83,11 +85,11 @@ TESTS.CliqzmessageCenterTestUnit = function (CliqzMsgCenter, CliqzUtils) {
 
 context('dropdown handler tests', function () {
   it('should show message (bottom)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'bottom');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage) &&
+      return Boolean(ui().messageCenterMessage) &&
              dropdownHandler._messageQueue.length === 1;
     }).then(function () {
       fillIn('some query');
@@ -100,11 +102,11 @@ context('dropdown handler tests', function () {
     });
   });
   it('should show message (top)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'top');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage) &&
+      return Boolean(ui().messageCenterMessage) &&
              dropdownHandler._messageQueue.length === 1;
     }).then(function () {
       fillIn('some query');
@@ -118,15 +120,15 @@ context('dropdown handler tests', function () {
   });
 
   it('should hide message (bottom)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'bottom');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage);
+      return Boolean(ui().messageCenterMessage);
     }).then(function () {
       messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return !Boolean(ui.messageCenterMessage);
+        return !Boolean(ui().messageCenterMessage);
       });
     }).then(function () {
       fillIn('some query');
@@ -139,15 +141,15 @@ context('dropdown handler tests', function () {
   });
 
   it('should hide message (top)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg = getMessage('ID0', 'top');
     messageCenter.showMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage);
+      return Boolean(ui().messageCenterMessage);
     }).then(function () {
       messageCenter.hideMessage(msg, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return !Boolean(ui.messageCenterMessage);
+        return !Boolean(ui().messageCenterMessage);
       });
     }).then(function () {
       fillIn('some query');
@@ -160,29 +162,29 @@ context('dropdown handler tests', function () {
   });
 
   it('should hide multiple messages (one after another)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
     msg0.text = 'msg0';
     msg1.text = 'msg1';
     messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage) &&
-        ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
+      return Boolean(ui().messageCenterMessage) &&
+        ui().messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
     }).then(function () {
       messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return !Boolean(ui.messageCenterMessage);
+        return !Boolean(ui().messageCenterMessage);
       });
     }).then(function () {
       messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return Boolean(ui.messageCenterMessage) &&
-          ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
+        return Boolean(ui().messageCenterMessage) &&
+          ui().messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
       });
     }).then(function () {
       messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return !Boolean(ui.messageCenterMessage);
+        return !Boolean(ui().messageCenterMessage);
       });
     }).then(function () {
       fillIn('some query');
@@ -197,20 +199,20 @@ context('dropdown handler tests', function () {
   });
 
   it('should hide multiple messages (in batch)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
     msg0.text = 'msg0';
     msg1.text = 'msg1';
     messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage) &&
-        ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
+      return Boolean(ui().messageCenterMessage) &&
+        ui().messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
     }).then(function () {
       messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
       // After some time nothing should change
       return new Promise(function (res) {
         setTimeout(function () {
-          chai.expect(ui.messageCenterMessage['footer-message'].simple_message)
+          chai.expect(ui().messageCenterMessage['footer-message'].simple_message)
               .to.contain(msg0.text);
           res();
         }, 100);
@@ -218,13 +220,13 @@ context('dropdown handler tests', function () {
     }).then(function () {
       messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return Boolean(ui.messageCenterMessage) &&
-          ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
+        return Boolean(ui().messageCenterMessage) &&
+          ui().messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
       });
     }).then(function () {
       messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return !Boolean(ui.messageCenterMessage);
+        return !Boolean(ui().messageCenterMessage);
       });
     }).then(function () {
       fillIn('some query');
@@ -239,19 +241,19 @@ context('dropdown handler tests', function () {
   });
 
   it('should hide message (mixed locations)', function() {
-    chai.expect(ui.messageCenterMessage).to.not.be.ok;
+    chai.expect(ui().messageCenterMessage).to.not.be.ok;
     var msg0 = getMessage('ID0', 'bottom'), msg1 = getMessage('ID1', 'top');
     msg0.text = 'msg0';
     msg1.text = 'msg1';
     messageCenter.showMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
     messageCenter.showMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
     return waitFor(function () {
-      return Boolean(ui.messageCenterMessage) &&
-             ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
+      return Boolean(ui().messageCenterMessage) &&
+             ui().messageCenterMessage['footer-message'].simple_message.indexOf(msg0.text) >= 0;
     }).then(function () {
       messageCenter.hideMessage(msg0, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return ui.messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
+        return ui().messageCenterMessage['footer-message'].simple_message.indexOf(msg1.text) >= 0;
       });
     }).then(function () {
       fillIn('some query');
@@ -263,7 +265,7 @@ context('dropdown handler tests', function () {
     }).then(function () {
       messageCenter.hideMessage(msg1, 'MESSAGE_HANDLER_DROPDOWN');
       return waitFor(function () {
-        return !Boolean(ui.messageCenterMessage) &&
+        return !Boolean(ui().messageCenterMessage) &&
                core.popup.cliqzBox.messageContainerTop.innerHTML.indexOf(msg1.text) === -1;
       });
     });
