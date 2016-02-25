@@ -36,8 +36,8 @@ export function overRideCliqzResults(){
         CliqzSecureMessage.stats(proxyIP, "queries-error", 1);
       })
       return null;
-    } else if(false && url.indexOf(CliqzUtils.RESULTS_PROVIDER_LOG) > -1 && CliqzUtils.getPref('hpn-telemetry', false)) {
-      var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+    } else if(url.indexOf(CliqzUtils.RESULTS_PROVIDER_LOG) > -1 && CliqzUtils.getPref('hpn-telemetry', false)) {
+      var _q = url.replace(CliqzUtils.RESULTS_PROVIDER_LOG,"")
       var mc = new messageContext({"action": "extension-result-telemetry", "type": "cliqz", "ver": "1.5", "payload":_q });
       var proxyIP = CliqzSecureMessage.queryProxyIP;
       mc.aesEncrypt()
