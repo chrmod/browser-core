@@ -4,6 +4,10 @@ import CliqzSecureMessage from 'hpn/main';
 
 
 export function overRideCliqzResults(){
+  // do not patch anything if the AB test is off
+  // TODO: implement a smarter way to handle this AB test
+  if(CliqzUtils.getPref("proxyNetwork", true) == false) return;
+
   if(!CLIQZEnvironment._httpHandler) CLIQZEnvironment._httpHandler = CLIQZEnvironment.httpHandler;
   CLIQZEnvironment.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
     if(url.indexOf(CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) > -1 && CliqzUtils.getPref('hpn-query', false)) {

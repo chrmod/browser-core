@@ -363,6 +363,12 @@ var CliqzABTests = {
             case "1063_B":
                 CliqzUtils.setPref("double-enter2", true);
                 break;
+            case "1066_A":
+                CliqzUtils.setPref("proxyNetwork", false);
+                break;
+            case "1066_B":
+                CliqzUtils.setPref("proxyNetwork", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -633,6 +639,10 @@ var CliqzABTests = {
             case "1063_A":
             case "1063_B":
                 CliqzUtils.clearPref("double-enter2");
+                break;
+            case "1066_A":
+            case "1066_B":
+                CliqzUtils.clearPref("proxyNetwork");
                 break;
             default:
                 rule_executed = false;

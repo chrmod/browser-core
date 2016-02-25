@@ -29,7 +29,9 @@ export default {
 			CliqzSecureMessage.init();
 		}
 		*/
-		CliqzSecureMessage.init();
+		if(CliqzUtils.getPref("proxyNetwork", true)){
+			CliqzSecureMessage.init();
+		}
 	},
 
 	unload() {
