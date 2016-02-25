@@ -143,6 +143,9 @@
     "btnSafeSearchDesc":{
         "message": "What is this?"
     },
+    "btnSecureChannel":{
+        "message": "Search via Proxy-Network"
+    },
     "btnStats":{
         "message": "Stats"
     },
