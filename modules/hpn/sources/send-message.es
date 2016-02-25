@@ -2,6 +2,7 @@ import CliqzSecureMessage from 'hpn/main';
 import messageContext from "hpn/message-context";
 import directoryServicePK from "hpn/directory-service";
 import { saveLocalCheckTable } from "hpn/main";
+import CliqzHumanWeb from "human-web/human-web";
 
 /**
  * Method to create payload to send for blind signature.
