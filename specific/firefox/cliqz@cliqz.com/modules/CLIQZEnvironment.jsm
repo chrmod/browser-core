@@ -230,7 +230,7 @@ var CLIQZEnvironment = {
         return eTLDService.getPublicSuffixFromHost(host);
     },
     isPrivate: function(window) {
-        if(window.cliqzIsPrivate === undefined){
+        if(window && window.cliqzIsPrivate === undefined){
             try {
                 // Firefox 20+
                 Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
