@@ -939,7 +939,7 @@
       "message": "CLIQZ ANTI TRACKING"
     },
     "attrack-headline-general-trackers": {
-      "message": "$1 trackers blocked"
+      "message": "For $1 trackers personal information has been deleted"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
