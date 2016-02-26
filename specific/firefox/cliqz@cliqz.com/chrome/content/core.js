@@ -516,10 +516,8 @@ window.CLIQZ.Core = {
         menupopup.appendChild(this.createLocationPermOptions(win));
 
         this.windowModules.forEach(function (mod) {
-          mod.then(function (mod) {
-            var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
-            if (buttonItem) { menupopup.appendChild(buttonItem); }
-          });
+          var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
+          if (buttonItem) { menupopup.appendChild(buttonItem); }
         });
       }
       else {

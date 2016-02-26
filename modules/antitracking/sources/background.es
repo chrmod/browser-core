@@ -32,8 +32,10 @@ export default {
           CliqzAttrack.unload();
         }
 
-        this.popup.updateState(utils.getWindow(), isEnabled);
-        this.enabled = isEnabled;
+        if(this.popup){
+          this.popup.updateState(utils.getWindow(), isEnabled);
+          this.enabled = isEnabled;
+        }
       } else if (pref === DEFAULT_ACTION_PREF) {
         updateDefaultTrackerTxtRule();
       }
