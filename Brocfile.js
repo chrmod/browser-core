@@ -28,7 +28,6 @@ var generic         = new Funnel('generic');
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local', exclude: ['views/**/*'] });
-var ui              = new Funnel(local,   { include: ['UI.js'] });
 var staticViews     = new Funnel(generic, { srcDir: 'modules/local/views' });
 
 // Build configuration
@@ -186,29 +185,6 @@ var babelOptions = {
   sourceMaps: "inline"
 };
 
-var loader = new Funnel(bowerComponents, { include: ['loader.js/loader.js'] });
-var babelStaticViews = new Babel(staticViews, babelOptions);
-var babelUi = new Babel(ui, babelOptions);
-var uiTree = MergeTrees([loader, babelStaticViews, babelUi]);
-
-var uiConcated = concat(uiTree, {
-  outputFile: 'UI.js',
-  headerFiles: ['loader.js/loader.js'],
-  inputFiles: [
-    "**/*.js"
-  ],
-  footerFiles: [
-    'UI.js',
-  ],
-  footer: "require('UI').default(this);",
-  sourceMapConfig: { enabled: true },
-});
-
-local = MergeTrees([
-  new Funnel(local, { exclude: ['UI.js'] }),
-  uiConcated
-]);
-
 var globalConcated = concat(global, {
   outputFile: 'global.js',
   header: "'use strict';\n\nvar CLIQZ = {};\n\n",
@@ -235,7 +211,6 @@ var localConcated = concat(local, {
   outputFile: 'local.js',
   header: "'use strict';\n\n",
   inputFiles: [
-    "UI.js",
     "ContextMenu.js",
   ],
   sourceMapConfig: { enabled: true },
@@ -247,12 +222,6 @@ var libsConcated = concat(libs, {
     "*.js",
   ],
   sourceMapConfig: { enabled: false },
-});
-
-var localMobile = concat(local, {
-  outputFile: 'local.js',
-  header: "'use strict';\n",
-  inputFiles: [ 'UI.js' ],
 });
 
 var bowerTree = new MergeTrees([
@@ -310,7 +279,6 @@ var mobile = new MergeTrees([
   mobileSpecific,
   new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
-  new Funnel(localMobile,    { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
   new Funnel(modules,        { destDir: 'modules' })
 ]);
