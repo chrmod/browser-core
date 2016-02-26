@@ -87,18 +87,17 @@ function populateDOM() {
         }
       }
 
-
-      document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
-      general_msg_trnsl.dataset.i18n = [
-        general_msg_trnsl.dataset.i18n,
-        counetTrackers,
-        general_trackers_count
-      ].join(',');
-
       expandPopUp('big');
     } else {
       expandPopUp('small');
     }
+
+    document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
+    general_msg_trnsl.dataset.i18n = [
+      general_msg_trnsl.dataset.i18n,
+      counetTrackers,
+      general_trackers_count
+    ].join(',');
 
     //Check if site is in the whitelist
     if(data.isWhitelisted) {

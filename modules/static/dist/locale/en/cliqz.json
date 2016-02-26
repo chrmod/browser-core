@@ -941,11 +941,14 @@
     "attrack-headline-general-trackers": {
       "message": "This site sends information to $1 services. All your $2 personal data points therein are removed"
     },
+    "attrack-headline-general-whitelisted": {
+      "message": "Currently, your personal data is accessible for third parties on this site"
+    },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
     },
     "attrack-headline-reload": {
-      "message": "Please reload page!"
+      "message": "Please reload to browse safely!"
     },
     "attrack-headline-no-site": {
       "message": "This page does not contain any trackers."

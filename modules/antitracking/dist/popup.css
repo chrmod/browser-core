@@ -209,7 +209,7 @@ ul.cqz-antrc-btns-holder li {
 
 /*========= See Details =======*/
 
-.cqz-see-details { background: #49CC80; }
+.cqz-see-details { display: none !important; background: #49CC80; }
 .cqz-see-details:hover { background: #40af6d; }
 
 /*=========== Trackers List =========*/
@@ -288,6 +288,9 @@ ul.cqz-antrc-btns-holder li {
 .cqz-domain-in-whitelist .cqz-whitelist-btn:hover {
     background: #222;
 }
+
+.cqz-attrack-enabled.cqz-domain-in-whitelist .cqz-antrc-head .cqz-whitelisted-msg { display: block; }
+.cqz-attrack-enabled.cqz-domain-in-whitelist .cqz-antrc-head .cqz-general-msg { display: none; }
 
 /*========= NO Site =======*/
 
