@@ -959,6 +959,15 @@
     "attrack-learn-more": {
       "message": "Mehr erfahren"
     },
+    "attrack-force-block-setting": {
+      "message": "Anti-Tracking Verhalten"
+    },
+    "attrack-force-block-off": {
+      "message": "Standard"
+    },
+    "attrack-force-block-on": {
+      "message": "Strikt"
+    },
     "freshtab_learn_more": {
       "message": "Mehr erfahren"
     },
