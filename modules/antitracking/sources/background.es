@@ -17,18 +17,23 @@ export default {
         actions: this.popupActions
       });
       this.popup.attach();
+      this.popup.updateState(utils.getWindow(), false);
     }
 
     this.onPrefChange = function(pref) {
       if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
-        if (CliqzAttrack.isEnabled()) {
+        let isEnabled = CliqzAttrack.isEnabled();
+
+        if (isEnabled) {
           // now enabled, initialise module
           CliqzAttrack.init();
         } else {
           // disabled, unload module
           CliqzAttrack.unload();
         }
-        this.enabled = CliqzAttrack.isEnabled();
+
+        this.popup.updateState(utils.getWindow(), isEnabled);
+        this.enabled = isEnabled;
       } else if (pref === DEFAULT_ACTION_PREF) {
         updateDefaultTrackerTxtRule();
       }
@@ -67,11 +72,16 @@ export default {
     },
 
     toggleAttrack(args, cb) {
-      if ( utils.getPref('antiTrackTest') ) {
+      var currentState = utils.getPref('antiTrackTest');
+
+      if (currentState) {
         CliqzAttrack.disableModule();
       } else {
         CliqzAttrack.enableModule();
       }
+
+      this.popup.updateState(utils.getWindow(), !currentState);
+
       cb();
     },
 
