@@ -14,7 +14,7 @@ export default class {
     if(this.cliqzOnboarding || !this.onInstall){
       return;
     } else {
-      fullTour();
+      this.fullTour();
     }
   }
 

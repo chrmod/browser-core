@@ -26,10 +26,6 @@ function isMixerUrl(url) {
   return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0;
 }
 
-window.addEventListener('load', function() {
-  CliqzUtils.pingCliqzResults();
-});
-
 var db = {
   showConsoleLogs: true
 };

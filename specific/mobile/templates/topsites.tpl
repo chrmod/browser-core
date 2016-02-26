@@ -1,5 +1,5 @@
 <!-- topsites.tpl -->
-{{debug}}
+
 {{#if this}}
 
   <div class="main" style="margin-bottom: 20px;">

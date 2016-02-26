@@ -17,10 +17,61 @@ export default Ember.Service.extend({
       }
 
       if (message.type === "response") {
-        console.log("RESPONSE");
         this.callbacks[message.action].call(null, message.response);
       }
     });
+  },
+
+  getConfig() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getConfig = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'getConfig'
+    }), '*');
+
+    return DS.PromiseObject.create({ promise });
+  },
+
+  takeFullTour() {
+    this.callbacks.takeFullTour = () => {};
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'takeFullTour'
+    }), '*');
+  },
+
+  getUrlbar(value) {
+    this.callbacks.getUrlbar = () => {};
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'core',
+      action: 'getUrlbar',
+      args: [value]
+    }), '*');
+  },
+
+  revertBack() {
+    this.callbacks.revertBack = () => {};
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'revertBack'
+    }), '*');
+  },
+
+  sendTelemetry(msg) {
+    this.callbacks.sendTelemetry = () => {};
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "core",
+      action: "sendTelemetry",
+      args: [msg]
+    }) , "*")
   },
 
   getSpeedDials() {
@@ -37,7 +88,7 @@ export default Ember.Service.extend({
     return DS.PromiseArray.create({ promise });
   },
 
-   getNews() {
+  getNews() {
     let promise = new Promise( resolve => {
       this.callbacks.getNews = resolve;
     });
@@ -48,6 +99,6 @@ export default Ember.Service.extend({
       action: "getNews"
     }) , "*")
 
-    return DS.PromiseArray.create({ promise });
+    return DS.PromiseObject.create({ promise });
   }
 });

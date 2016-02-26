@@ -43,7 +43,14 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         var event = {
             notify: function (timer) {
                 func.apply(null, args);
-                _removeTimerRef && _removeTimerRef(timer);
+
+                // remove the reference of the setTimeout instances
+                // be sure the setInterval instances do not get canceled and removed
+                // loosing all the references of a setInterval allows the garbage
+                // collector to stop the interval
+                if(Ci && type == Ci.nsITimer.TYPE_ONE_SHOT){
+                  _removeTimerRef && _removeTimerRef(timer);
+                }
             }
         };
         timer.initWithCallback(event, timeout, type);
@@ -64,9 +71,10 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
+var BRANDS_DATABASE_VERSION = 1452759183853;
 var CLIQZEnvironment = {
-    BRANDS_DATABASE_VERSION: 1452759183853,
-    BRANDS_DATA_URL: 'https://cdn.cliqz.com/brands-database/database/" + CLIQZEnvironment.BRANDS_DATABASE_VERSION + "/data/database.json',
+    BRANDS_DATABASE_VERSION: BRANDS_DATABASE_VERSION,
+    BRANDS_DATA_URL: 'https://cdn.cliqz.com/brands-database/database/' + BRANDS_DATABASE_VERSION + '/data/database.json',
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
     SKIN_PATH: 'chrome://cliqz/content/static/skin/',

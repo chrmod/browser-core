@@ -8,7 +8,7 @@ IT IS USED AS A PARTIAL template
 
 <div class="meta">
     {{> logo}}
-    <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
+    <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host query 2 true }}{{ emphasis urlDetails.extra query 2 true }}</h3>
 </div>
 
 {{#with data}}
@@ -31,7 +31,7 @@ IT IS USED AS A PARTIAL template
             {{/if}}
         </div>
         <p class="main__content">
-            <p>{{{description}}}</p>
+            <p>{{ emphasis description ../query 2 true }}</p>
             <br />
             {{#if richData.mobi}}
                 <ul class="recipe_ingredients">
