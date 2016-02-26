@@ -72,12 +72,12 @@ do
         echo >&2 "                                                                                ^"
         echo >&2 "--"
       fi
-    done < <(git rev-list "$range")
+    done < <(git rev-list --no-merges "$range")
     if [ $has_errors != 0 ]; then
       echo >&2 "Some of your commit messages do not conform to style guides."
       echo "Fix messages and try again."
       echo "Checked commits are:"
-      git rev-list $range
+      git rev-list --no-merges "$range"
       exit 1
     fi
   fi
