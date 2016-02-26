@@ -285,7 +285,7 @@ CLIQZEnvironment = {
 
   },
   search: function(e, location_enabled, latitude, longitude) {
-    //localStorage.clearCache();
+    localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
     if(location_enabled) {
