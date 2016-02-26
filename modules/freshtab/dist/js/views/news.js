@@ -4,10 +4,12 @@ function renderNews(news) {
       topNewsTpl  = CliqzHandlebars.compile($('#topNews').html()),
       yourNewsTpl = CliqzHandlebars.compile($('#yourNews').html()),
       underline = CliqzUtils.getPref('freshTabNewsUnderline'),
+      newsEmail = CliqzUtils.getPref('freshTabNewsEmail'),
       startEnter,
       elapsed,
       onlyTopNews = true,
-      hbNewsAll = [];
+      hbNewsAll = [],
+      hbNewsData = {};
   if (hbNews) {
     log(hbNews)
     Object.keys(hbNews).forEach(function(domain) {
@@ -23,7 +25,12 @@ function renderNews(news) {
     });
     log("Personalized news", hbNewsAll);
     onlyTopNews = false;
-    document.getElementById('yourNewsBox').innerHTML = yourNewsTpl(hbNewsAll);
+    hbNewsData['newsEmail'] = newsEmail;
+    if(newsEmail) {
+      $('.wrap').addClass('newsEmail');
+    }
+    hbNewsData['hbNews'] = hbNewsAll;
+    document.getElementById('yourNewsBox').innerHTML = yourNewsTpl(hbNewsData);
   } else {
     $('.newsBox').addClass('onlyTopNews');
   }
@@ -43,6 +50,14 @@ function renderNews(news) {
   Slider.init({
     totalNews: $("#topNewsBox li").length,
     el: $("#topNewsBox li")
+  });
+
+  $('.subscribe').on('click', function(e){
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target_type: 'newsEmail',
+      });
   });
 
   $('.news').on('click', function(e) {

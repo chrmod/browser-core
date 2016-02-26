@@ -43,11 +43,13 @@ if (buildEnv === 'development') {
 }
 // end
 
-console.log('Configuration file:', configFilePath);
-console.log(cliqzConfig);
-var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
-var platform = new Funnel('platforms/'+cliqzConfig.platform);
+var platform = new Funnel('platforms/'+cliqzConfig.platform, {
+  exclude: ['tests/**/*']
+});
+var platformTests = new Funnel('platforms/'+cliqzConfig.platform, {
+  include: ['tests/**/*']
+});
 platform = Babel(platform, {
   sourceMaps: 'inline',
   filterExtensions: ['es'],
@@ -68,7 +70,8 @@ var mobileCss = compileSass(
 let transpilableModuleNames = [];
 var requiredBowerComponents = new Set();
 
-cliqzConfig.modules.forEach(function (name) {
+cliqzConfig.rawModules = [];
+cliqzConfig.modules.slice(0).forEach(function (name) {
   let configJson = "{}";
 
   try {
@@ -83,8 +86,17 @@ cliqzConfig.modules.forEach(function (name) {
 
   if (config.transpile !== false ){
     transpilableModuleNames.push(name);
+  } else {
+    cliqzConfig.modules.splice(cliqzConfig.modules.indexOf(name), 1);
+    cliqzConfig.rawModules.push(name);
   }
 });
+
+// cliqz.json should be saved after not transpiled modules are removed from configration
+var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
+console.log('Configuration file:', configFilePath);
+console.log(cliqzConfig);
+// cliqz.json is finalized
 
 // START - ES TREE
 let sources = new Funnel('modules', {
@@ -153,7 +165,7 @@ let sassTree = new MergeTrees(sassTrees);
 
 // START - DIST TREE
 let distTree = new Funnel("modules", {
-  include: cliqzConfig.modules.map( name => `${name}/dist/**/*` ),
+  include: (cliqzConfig.modules.concat(cliqzConfig.rawModules)).map( name => `${name}/dist/**/*` ),
   getDestinationPath(path) {
     return path.replace("/dist", "");
   }
@@ -303,6 +315,15 @@ var mobile = new MergeTrees([
   new Funnel(modules,        { destDir: 'modules' })
 ]);
 
+var testsTree = concat(platformTests, {
+  outputFile: 'tests.js',
+  inputFiles: [
+    "**/*.js"
+  ],
+  allowNone: true,
+  sourceMapConfig: { enabled: true },
+});
+
 if (buildEnv === 'production' ) {
   mobile = new AssetRev(mobile, {
     extensions: ['js', 'css'],
@@ -311,9 +332,14 @@ if (buildEnv === 'production' ) {
   });
 }
 
-// Output
-module.exports = new MergeTrees([
+var trees = [
   new Funnel(firefox,  { destDir: 'firefox'       }),
   new Funnel(web,      { destDir: 'web'           }),
   new Funnel(mobile,   { destDir: 'mobile/search' }),
-]);
+];
+
+if (buildEnv !== 'production') {
+  trees.push(new Funnel(testsTree, { destDir: 'tests' }));
+}
+// Output
+module.exports = new MergeTrees(trees);

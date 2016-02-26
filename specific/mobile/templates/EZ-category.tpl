@@ -2,7 +2,7 @@
 
   <ul class="cta">
     <li>
-      <a  href="http://{{data.domain}}" 
+      <a  href="http://{{#if data.domain}}{{data.domain}}{{else}}{{data.friendly_url}}{{/if}}" 
           style="background-color:#efefef;color:#000;font-weight:bold">
         {{data.friendly_url}}
       </a>

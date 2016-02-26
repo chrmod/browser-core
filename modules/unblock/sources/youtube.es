@@ -41,6 +41,7 @@ export default {
     var updateConfig = (config) => this.conf = config;
     this._loader.load().then(updateConfig);
     this._loader.onUpdate(updateConfig);
+    this.initialized = true;
   },
   unload: function() {
     this._loader.stop();

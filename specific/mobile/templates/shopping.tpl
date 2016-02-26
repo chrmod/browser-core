@@ -54,7 +54,7 @@
       </span>
     </div>
     <div class='cliqz-result-description'>
-      {{ data.description }}
+      {{{ data.description }}}
     </div>
 
   </div>

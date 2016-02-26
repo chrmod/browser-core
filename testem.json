@@ -1,7 +1,6 @@
 {
-  "framework": "mocha",
-  "launch_in_dev": ["Chrome"],
-  "serve_files": [
-    "tests/**/*.js"
-  ]
+    "__COMMENT__": "https://github.com/drewzboto/grunt-connect-proxy/issues/70 npm install grunt-connect-proxy@0.1.10",
+    "launch_in_dev": ["Chrome"],
+    "launch_in_ci": ["Chrome"],
+    "test_page": "tests/index.mustache"
 }

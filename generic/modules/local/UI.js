@@ -154,7 +154,8 @@ var UI = {
       var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
-        isInstant: lastRes && lastRes.isInstant
+        isInstant: lastRes && lastRes.isInstant,
+        isMixed: lastRes && lastRes.isMixed,
       });
 
       // cache heights (1-3) for result order
@@ -191,8 +192,9 @@ var UI = {
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
 
-        // apply template
-        if(gCliqzBox.resultsBox) {
+        // apply template; do not render "unmixed" results
+        // (results pushed asynchronoysly without processing)
+        if(gCliqzBox.resultsBox && currentResults.isMixed) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
         }
@@ -246,6 +248,10 @@ var UI = {
                     }
                     else if (currentResults.results.length == 0) {
                       UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                    }
+                    // to handle broken promises (eg. Weather) on mobile
+                    else if (CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
+                        CLIQZEnvironment.shiftResults();
                     }
                 }
                 else {
@@ -968,6 +974,8 @@ function enhanceResults(res){
           }
           UI.enhanceSpecificResult(r);
         }
+
+        //if(r.snippet.rich_data.type === "news")
 
         if (r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') === 0) {
             var d = r.data;

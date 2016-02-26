@@ -5,7 +5,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       CliqzAttrack = System.get("antitracking/attrack").default,
       CliqzHumanWeb = System.get("human-web/human-web").default,
       persist = System.get("antitracking/persistent-state"),
+      AttrackBloomFilter = System.get("antitracking/bloom-filter").AttrackBloomFilter,
       BloomFilter = System.get("antitracking/bloom-filter").BloomFilter,
+      QSWhitelist = System.get("antitracking/qs-whitelists").default,
       datetime = System.get("antitracking/time"),
       trackertxt = System.get("antitracking/tracker-txt");
   // make sure that module is loaded (default it is not initialised on extension startup)
@@ -17,7 +19,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
     var echoed = [],
       md5 = CliqzHumanWeb._md5,
       module_enabled = CliqzUtils.getPref('antiTrackTest', false),
-      window = CliqzUtils.getWindow();
+      window = CliqzUtils.getWindow(),
+      hour = datetime.hourString(datetime.newUTCDate());
 
     /** Collects metadata from the request and pushes it into the
       echoed array. Also sets cookie and access control headers.
@@ -62,8 +65,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       }
     }
 
-    var attrackBloomFilterPref = null,
-      baseURL = CliqzAttrack.bloomFilter.baseURL;
+    var attrackBloomFilterPref = null;
 
     before(function() {
       attrackBloomFilterPref = CliqzUtils.getPref('attrackBloomFilter');
@@ -106,12 +108,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       CliqzAttrack.tp_events._staged = [];
       // clean up attrack caches
       CliqzAttrack.requestKeyValue = {};
-      CliqzAttrack.tokenExtWhitelist = {};
-      CliqzAttrack.bloomFilter.baseURL = null;
-      CliqzAttrack.bloomFilter.bloomFilter = new BloomFilter('0000000000000000000', 5);
-      CliqzAttrack.safeKey = {};
-      CliqzAttrack.tokenDomain = {};
       CliqzAttrack.recentlyModified.clear();
+      CliqzAttrack.disabled_sites.clear();
+
+      // create 'up-to-date' whitelist
+      CliqzAttrack.qs_whitelist = new QSWhitelist();
+      CliqzAttrack.qs_whitelist.lastUpdate[0] = hour;
+      CliqzAttrack.qs_whitelist.lastUpdate[1] = hour;
+      CliqzAttrack.qs_whitelist.lastUpdate[2] = hour;
+      CliqzAttrack.qs_whitelist.lastUpdate[3] = hour;
 
       // enable token removal
       trackertxt.setDefaultTrackerTxtRule('replace');
@@ -125,7 +130,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
           gBrowser.removeTab(t);
       });
       tabs = [];
-      CliqzAttrack.bloomFilter.baseURL = baseURL;
     });
 
     /** Helper function for testing each request to the /test endpoint after the expected
@@ -443,15 +447,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
         var QSBlocking = function() {
           var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
-
           beforeEach(function() {
             CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
           });
 
           it('pref check', function() {
             chai.expect(CliqzAttrack.isQSEnabled()).to.be.true;
-            chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('localhost').substring(0, 16));
-            chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('127.0.0.1').substring(0, 16));
+            chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('localhost').substring(0, 16))).to.be.false;
+            chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('127.0.0.1').substring(0, 16))).to.be.false;
           });
 
           it('allows query strings on domains not in the tracker list', function(done) {
@@ -481,17 +484,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
             beforeEach(function() {
               var tracker_hash = md5('127.0.0.1').substring(0, 16);
-              CliqzAttrack.tokenExtWhitelist[tracker_hash] = {}
-              CliqzAttrack.safeKey[tracker_hash] = {};
-              CliqzAttrack.bloomFilter.bloomFilter.addSingle(tracker_hash);
-              persist.clear_persistent(CliqzAttrack.tokenDomain);
+              CliqzAttrack.qs_whitelist.addSafeToken(tracker_hash, "");
+              CliqzAttrack.blockLog.clear();
             });
 
             it('pref check', function() {
-              chai.expect(CliqzAttrack.tokenExtWhitelist).to.not.have.property(md5('localhost').substring(0, 16));
-              chai.expect(CliqzAttrack.tokenExtWhitelist).to.have.property(md5('127.0.0.1').substring(0, 16));
-              chai.expect(CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5('localhost').substring(0, 16))).to.equal(false);
-              chai.expect(CliqzAttrack.bloomFilter.bloomFilter.testSingle(md5('127.0.0.1').substring(0, 16))).to.equal(true);
+              chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('localhost').substring(0, 16))).to.be.false;
+              chai.expect(CliqzAttrack.qs_whitelist.isTrackerDomain(md5('127.0.0.1').substring(0, 16))).to.be.true;
             });
 
             it('allows QS first time on tracker', function(done) {
@@ -524,15 +523,16 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
               beforeEach(function() {
                 // make an artificial tokenDomain list to trigger blocking
                 var tok = md5(uid),
-                  today = datetime.getTime().substr(0, 8);;
-                CliqzAttrack.tokenDomain[tok] = {};
+                  today = datetime.getTime().substr(0, 8);
                 ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
-                  CliqzAttrack.tokenDomain[tok][md5(d).substring(0, 16)] = today;
+                  CliqzAttrack.blockLog.tokenDomain.addTokenOnFirstParty(tok, md5(d).substring(0, 16));
                 });
               });
 
               var test_domain = "localhost",
                 testUIDisBlocked = function(done) {
+
+                //chai.expect(CliqzAttrack.getDefaultTrackerTxtRule()).to.equal('replace');
 
                 var tp_event_expectation = new tp_events_expectations(testpage, test_domain);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -548,7 +548,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 openTestPage(testpage, test_domain);
 
                 expectNRequests(2).assertEach(function(m) {
-                  console.log(CliqzAttrack.tokenDomain);
+                  console.log(CliqzAttrack.blockLog.tokenDomain._tokenDomain.value);
                   if(m.host == test_domain) {
                     chai.expect(m.qs).to.contain('uid=' + uid);
                   } else {
@@ -557,6 +557,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                   chai.expect(m.qs).to.contain('callback=func');
                 }, function(e) {
                   if(e) {
+                    console.log(CliqzAttrack.tp_events);
                     done(e);
                   } else {
                     try {
@@ -581,7 +582,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                   tracker_hash = md5('127.0.0.1').substring(0, 16),
                   day = datetime.newUTCDate();
 
-                CliqzAttrack.safeKey[tracker_hash][key] = ['r', day];
+                CliqzAttrack.qs_whitelist.addSafeKey(tracker_hash, key);
 
                 var tp_event_expectation = new tp_events_expectations(testpage);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -605,6 +606,48 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 });
               });
 
+              it('blocks if key listed as unsafe', function(done) {
+                this.timeout(5000);
+
+                var key = md5('uid'),
+                  tracker_hash = md5('127.0.0.1').substring(0, 16),
+                  day = datetime.newUTCDate();
+
+                CliqzAttrack.qs_whitelist.addSafeKey(tracker_hash, key);
+                CliqzAttrack.qs_whitelist.addUnsafeKey(tracker_hash, key);
+                var tp_event_expectation = new tp_events_expectations(testpage);
+                tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+                if(testpage == "imgtest.html") {
+                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_red_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
+                }                  
+                else {
+                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_blocked_replace', 1);
+                }
+
+                openTestPage(testpage);
+
+                expectNRequests(2).assertEach(function(m) {
+                  console.log(CliqzAttrack.blockLog.tokenDomain._tokenDomain.value);
+                  if(m.host == test_domain) {
+                    chai.expect(m.qs).to.contain('uid=' + uid);
+                  } else {
+                    chai.expect(m.qs).to.not.contain('uid=' + uid);
+                  }
+                  chai.expect(m.qs).to.contain('callback=func');
+                }, function(e) {
+                  if(e) {
+                    done(e);
+                  } else {
+                    try {
+                      test_tp_events(tp_event_expectation);
+                      done();
+                    } catch(e) {
+                      done(e);
+                    }
+                  }
+                });
+              });
+
               var allowWhiteListedToken = function(done) {
                 this.timeout(5000);
 
@@ -612,8 +655,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                   tracker_hash = md5('127.0.0.1').substring(0, 16),
                   day = datetime.newUTCDate();
 
-                CliqzAttrack.tokenExtWhitelist[tracker_hash][tok] = true;
-                CliqzAttrack.bloomFilter.bloomFilter.addSingle(tracker_hash + tok);
+                CliqzAttrack.qs_whitelist.addSafeToken(tracker_hash, tok);
 
                 var tp_event_expectation = new tp_events_expectations(testpage);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
@@ -684,7 +726,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
             it('increments domain count when a tracker is visited', function(done) {
               CliqzAttrack.obfuscateMethod = 'replace';
-              persist.clear_persistent(CliqzAttrack.tokenDomain);
+              CliqzAttrack.blockLog.clear();
               this.timeout(10000);
 
               // open a page so that token domain will be incremented
@@ -705,9 +747,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                     if(e) {
                       done(e);
                     } else {
-                      var tok = md5(uid);
-                      chai.expect(CliqzAttrack.tokenDomain).to.have.property(tok);
-                      chai.expect(Object.keys(CliqzAttrack.tokenDomain[tok])).to.have.length(2);
+                      var tok = md5(uid),
+                          tokenDomain = CliqzAttrack.blockLog.tokenDomain._tokenDomain.value;
+                      chai.expect(tokenDomain).to.have.property(tok);
+                      chai.expect(Object.keys(tokenDomain[tok])).to.have.length(2);
                       done();
                     }
                   });
@@ -727,6 +770,10 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         context("Bloom filter enabled", function() {
           beforeEach(function() {
             CliqzUtils.setPref('attrackBloomFilter', true);
+            // add emptry bloom filter whitelist
+            CliqzAttrack.qs_whitelist = new AttrackBloomFilter();
+            CliqzAttrack.qs_whitelist.bloomFilter = new BloomFilter('0000000000000000000', 5);
+            CliqzAttrack.qs_whitelist.lastUpdate = hour;
           });
           afterEach(function() {
             CliqzUtils.setPref('attrackBloomFilter', false);
@@ -742,8 +789,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         tabs = [],
         testpage = 'localsafekey.html';
 
+      beforeEach(function() {
+        CliqzAttrack.safekeyValuesThreshold = 2;
+      });
+
       it('adds local safekey if 3 different values seen', function(done) {
         this.timeout(5000);
+
         openTestPage(testpage);
 
         expectNRequests(3).then(function(m) {
@@ -751,9 +803,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             var url_hash = md5('127.0.0.1').substring(0, 16),
               callback_hash = md5('callback'),
               uid_hash = md5('uid');
-            chai.expect(CliqzAttrack.safeKey).has.property(url_hash);
-            chai.expect(CliqzAttrack.safeKey[url_hash]).has.property(callback_hash);
-            chai.expect(CliqzAttrack.safeKey[url_hash]).not.has.property(uid_hash);
+            chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, callback_hash)).to.be.true;
+            chai.expect(CliqzAttrack.qs_whitelist.isSafeKey(url_hash, uid_hash)).to.be.false;
             done();
           } catch(e) {
             done(e);

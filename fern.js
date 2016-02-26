@@ -66,9 +66,12 @@ program.command('test <file>')
           setConfigPath(configPath);
           let node = broccoli.loadBrocfile();
           let builder = new broccoli.Builder(node);
+          // maybe we can run watcher without server
+          // but then we will have to copy build artifacts to 'output' folder
           let server = broccoli.server.serve(builder, {
-            port: 4200,
-            host: 'localhost'
+            port: 4300,
+            host: 'localhost',
+            output: 'build'
           });
           let watcher = server.watcher;
 
@@ -105,7 +108,7 @@ program.command('test <file>')
                 started = true;
                 testem.startDev({
                   host: 'localhost',
-                  port: '3000'
+                  port: '4200'
                 });
               }
             });

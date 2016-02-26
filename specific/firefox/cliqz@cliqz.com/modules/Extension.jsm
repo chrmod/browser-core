@@ -87,7 +87,7 @@ var Extension = {
           return new Promise(function (resolve, reject) {
             Extension.System.import(moduleName+"/background")
                      .then(function (module) { module.default.init(Extension.config.settings); resolve(); })
-                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); resolve(); })
+                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e.toString()+" -- "+e.stack, "Extension"); resolve(); })
           });
         })
       ).then(function () {
@@ -179,22 +179,22 @@ var Extension = {
         }
     },
     quickUnloadModules: function () {
-        this.config.modules.forEach(function (moduleName) {
+        this.config.modules.slice(0).reverse().forEach(function (moduleName) {
             try {
                 Extension.System.get(moduleName+"/background")
                                 .default.beforeBrowserShutdown();
             } catch(e) {
-              CliqzUtils.log(e, "Error quick unloading module: "+moduleName);
+              CliqzUtils.log(e.toString()+" -- "+e.stack, "Error quick unloading module: "+moduleName);
             }
         });
     },
     unloadModules: function () {
-        this.config.modules.forEach(function (moduleName) {
+        this.config.modules.slice(0).reverse().forEach(function (moduleName) {
             try {
                 Extension.System.get(moduleName+"/background")
                                 .default.unload();
             } catch(e) {
-              CliqzUtils.log(e, "Error unloading module: "+moduleName);
+              CliqzUtils.log(e.toString()+" -- "+e.stack, "Error unloading module: "+moduleName);
             }
         });
     },

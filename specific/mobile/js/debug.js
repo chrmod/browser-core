@@ -3,8 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-document.getElementById("reconnecting").style.display = "none"; 
-
 CLIQZ.UI.init(urlbar);
 var item_container, currentQuery;
 
@@ -48,12 +46,17 @@ Handlebars.helpers.timeOrCalculator = function(ezType) {
 }
 
 
-Handlebars.registerHelper('showSearch', function(results, options) { // if equal
-  if(results[0].data.template !== "noResult") {
+Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equal
+  if(!results[0] || results[0].data.template !== "noResult") {
     return options.fn(this);
   } else {
     return options.inverse(this);
   }
+});
+
+
+Handlebars.registerHelper('mobileWikipediaUrls', function(url) { 
+  return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
 });
 
 
@@ -95,11 +98,17 @@ if(onAndroid || location.port == 4200 || window.webkit) {
 
 }
 
+if(location.search.match("urlbar")) {
+  document.getElementById("urlbar").style.display = "block";
+  document.getElementById("urlbar").addEventListener("keyup",function() {
+      search_mobile(this.value, true, 48.155772899999995, 11.615600899999999)
+  });  
+}
+
+
 var debugcss = "background-color:#00aa00;display:block;"
 
 CLIQZEnvironment.openLinksAllowed = true;
-
-CliqzUtils.setPref("adultContentFilter","moderate");
 
 
 CliqzUtils.requestMonitor.inHealth = function() { return true; }
@@ -133,6 +142,9 @@ window.addEventListener('resize', function () {
     CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
     }, 50);
+
+    CLIQZEnvironment.setCardsHeight();
+
 });
 
 CLIQZ.UI.VIEWS["local-data-sc"] = {
@@ -499,3 +511,18 @@ Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
     }
     return ret;
 });
+
+function getCardUrl() {
+  if(CLIQZEnvironment.lastResults && CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage]) {
+    osBridge.shareCard(CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage].url);
+  } else {
+    osBridge.shareCard(-1);
+  }
+};
+
+if( false && navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ) {
+    var styleEl = document.createElement('style'), styleSheet;
+    document.head.appendChild(styleEl);
+    styleSheet = styleEl.sheet;
+    styleSheet.insertRule("p.share_this_card { display: block }", 0);
+}

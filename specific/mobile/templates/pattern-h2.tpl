@@ -1,31 +1,28 @@
 <!-- pattern-h2 -->
-<div class='cqz-result-h2 cqz-result-padding cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title-h2 overflow' arrow='false' url='{{data.url}}'>
-          {{ emphasis data.title text 2 true }}
-      </div>
-        <div class='cqz-result-url overflow
-                    {{#if urlDetails.ssl }}
-                         cqz-result-url-ssl
-                    {{/if}}
-        '>
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
-        </div>
-      <div class='cliqz-pattern cqz-5-history-results'>
+<div class="meta">
+    <h3 class="meta__url" style="margin-left: 0; color: #691109">History results</h3>
+</div>
+
+<div class='main'>
+    <ul class='cta cta__history'>
         {{#each data.urls}}
-        <div class='cliqz-pattern-element overflow'
-            {{#if favicon }}
-             style='background-image: url({{ favicon }})'
-             {{else}}
-              style='padding-left: 0px;'
-             {{/if}}
-             url='{{href}}' shortUrl='{{link}}'
-             domain='{{domain}}'
-             extra='{{extra}}'
-             arrow="false">
-            <div class='cliqz-pattern-element-title'>{{ emphasis title ../text 2 true }}</div>
-            <div class='cliqz-pattern-element-link'>{{ emphasis link ../text 2 true }}</div>
-        </div>
+            <li url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' extra='{{extra}}' arrow="false">
+                 <a href="{{href}}">
+                     {{#with logo}}
+                         <div newtab='true' class='cta__logo'
+                             {{#if add_logo_url}}
+                                 url="{{logo_url}}"
+                             {{/if}}
+                             style="{{ style }};"
+                         >
+                             {{ text }}
+                         </div>
+                     {{/with}}
+                    <h3>{{ title }}</h3>
+                    <span>{{ emphasis link ../query 2 true }}</span>
+                </a>
+                
+            </li>
         {{/each}}
-    </div>
-    {{>logo}}
+    </ul>
 </div>

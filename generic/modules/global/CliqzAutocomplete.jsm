@@ -195,6 +195,9 @@ var CliqzAutocomplete = {
                 CliqzEvents.pub('autocomplete.new_result', { result: this, isPopupOpen: CliqzAutocomplete.isPopupOpen });
                 var order = CliqzAutocomplete.getResultsOrder(this._results);
                 CliqzUtils.setResultOrder(order);
+
+                // flag for rendering to avoid rendering of "unmixed" results
+                this.isMixed = true;
             },
 
             filterUnexpected: function(results){
@@ -289,6 +292,7 @@ var CliqzAutocomplete = {
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
                 this.historyTimeout = true;
+                this.pushResults(this.searchString);
             },
             onHistoryDone: function(result, resultExtra) {
                 if(!this.startTime) {
