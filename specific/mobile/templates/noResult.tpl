@@ -1,4 +1,5 @@
 <!-- noResult.tpl -->
+{{debug}}
   {{#with data}}
     <div id="defaultEngine" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
       <div url="{{searchEngineUrl}}{{searchString}}" class="cqz-result-box">
