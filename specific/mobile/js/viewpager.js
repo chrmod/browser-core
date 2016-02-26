@@ -73,7 +73,7 @@ function ViewPager(elem, options) {
       PAGES = options.pages !== undefined ? options.pages : false,
       PREVENT_ALL_NATIVE_SCROLLING = options.prevent_all_native_scrolling !== undefined ? options.prevent_all_native_scrolling : false,
       DIRECTION_HORIZONTAL = !options.vertical,
-      TIPPING_POINT = options.tipping_point !== undefined ? options.tipping_point : 0.5,
+      TIPPING_POINT = 0.05, //options.tipping_point !== undefined ? options.tipping_point : 0.1,
       /** Default interpolator, undefined is ok */
       INTERPOLATOR = options.interpolator,
 
