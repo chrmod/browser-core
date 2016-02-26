@@ -289,6 +289,9 @@ ul.cqz-antrc-btns-holder li {
     background: #222;
 }
 
+.cqz-attrack-enabled.cqz-domain-in-whitelist .cqz-antrc-head .cqz-whitelisted-msg { display: block; }
+.cqz-attrack-enabled.cqz-domain-in-whitelist .cqz-antrc-head .cqz-general-msg { display: none; }
+
 /*========= NO Site =======*/
 
 .cqz-no-site .cqz-antrc-head .cqz-nosite-msg { display: block; }
