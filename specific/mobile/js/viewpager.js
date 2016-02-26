@@ -73,11 +73,11 @@ function ViewPager(elem, options) {
       PAGES = options.pages !== undefined ? options.pages : false,
       PREVENT_ALL_NATIVE_SCROLLING = options.prevent_all_native_scrolling !== undefined ? options.prevent_all_native_scrolling : false,
       DIRECTION_HORIZONTAL = !options.vertical,
-      TIPPING_POINT = 0.2, //options.tipping_point !== undefined ? options.tipping_point : 0.1,
+      TIPPING_POINT = options.tipping_point !== undefined ? options.tipping_point : 0.5,
       /** Default interpolator, undefined is ok */
       INTERPOLATOR = options.interpolator,
 
-      MIN_DISTANCE_FOR_FLING_MS = 10, // px
+      MIN_DISTANCE_FOR_FLING_MS = 5, // px
       MIN_FLING_VELOCITY_PX_PER_MS = 0.1, //0.4, // px / ms
 
       elemSize = options.dragSize || undefined,
@@ -164,9 +164,6 @@ function ViewPager(elem, options) {
                               scroller.getStartX(), scroller.getFinalX());
       } else {
         position = scroller.getCurrX();
-      }
-      if(!position) {
-        return;
       }
 
       handleOnScroll(position);
