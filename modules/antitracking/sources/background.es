@@ -62,6 +62,7 @@ export default {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
+        trakersList: info
       });
     },
 
@@ -87,6 +88,9 @@ export default {
         CliqzAttrack.addSourceDomainToWhitelist(hostname);
       }
       cb();
+    },
+    updateHeight(args, cb) {
+      this.popup.updateView(utils.getWindow(), args[0]);
     }
   }
 };
