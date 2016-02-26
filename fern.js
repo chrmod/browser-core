@@ -29,9 +29,9 @@ colors.setTheme({
 });
 
 // Install git hooks:
-let hook_installer = spaws('git-hooks/install-hooks.sh');
-hook_installer.stderr.on('data', data => console.log(data.toString()));
-hook_installer.stdout.on('data', data => console.log(data.toString()));
+let hookInstaller = spaws('git-hooks/install-hooks.sh');
+hookInstaller.stderr.on('data', data => console.log(data.toString()));
+hookInstaller.stdout.on('data', data => console.log(data.toString()));
 
 function setConfigPath(configPath) {
   configPath = configPath || './configs/jenkins.json';
