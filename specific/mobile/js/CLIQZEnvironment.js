@@ -557,7 +557,7 @@ CLIQZEnvironment = {
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
-        req.timeout = (method === 'POST'? 10000 : 4000);
+        req.timeout = (method === 'POST'? 10000 : 1000);
       }
     }
 
