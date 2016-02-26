@@ -209,7 +209,7 @@ ul.cqz-antrc-btns-holder li {
 
 /*========= See Details =======*/
 
-.cqz-see-details { background: #49CC80; }
+.cqz-see-details { display: none !important; background: #49CC80; }
 .cqz-see-details:hover { background: #40af6d; }
 
 /*=========== Trackers List =========*/
