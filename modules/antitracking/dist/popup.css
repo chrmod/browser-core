@@ -128,7 +128,7 @@ p {
 
 .cqz-antitracking-popup {
     position: relative;
-    height: 200px;
+    height: 240px;
     overflow: hidden;
     text-align: center;
 }
@@ -140,7 +140,7 @@ p {
 }
 .cqz-antrc-btns-holder > li a.cqz-see-details { display: block; }
 
-.cqz-antitracking-popup.cqz-big-popup { height: 485px; }
+.cqz-antitracking-popup.cqz-big-popup { height: 510px; }
 
 .cqz-antitracking-popup .cqz-antrc-head {
     padding: 25px 10px;
@@ -219,7 +219,7 @@ ul.cqz-antrc-btns-holder li {
     overflow: auto;
     height: 251px;
     padding: 0;
-    margin: 0 0 20px;
+    margin: 0 0 10px;
     list-style: none;
 }
 
@@ -334,7 +334,7 @@ ul.cqz-antrc-btns-holder li {
 .cqz-attrack-disabled .cqz-antrc-power-btn:hover { background: #40af6d; }
 
 .cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-see-details,
-.cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-whitelist-btn { display: none; }
+.cqz-attrack-disabled .cqz-antrc-btns-holder > li a.cqz-whitelist-btn { display: none !important; }
 
 
 footer {

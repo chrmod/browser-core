@@ -939,13 +939,13 @@
       "message": "CLIQZ ANTI TRACKING"
     },
     "attrack-headline-general-trackers": {
-      "message": "Bei $1 Trackern wurden persönliche Informationen gelöscht"
+      "message": "Diese Seite schickt Informationen an $1 Services. Darin wurden alle deine $2 persönlichen Daten gelöscht."
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
     },
     "attrack-headline-reload": {
-      "message": "Für sicheres Browsen bitte Seite neu laden !"
+      "message": "Bitte Seite neu laden"
     },
     "attrack-headline-no-site": {
       "message": "Diese Seite enthält keine Tracker."

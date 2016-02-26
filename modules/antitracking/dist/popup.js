@@ -40,6 +40,7 @@ function setBodyClass(options) {
   } else {
     document.body.classList.remove("cqz-att-reload");
   }
+
 }
 
 function localizeDocument() {
@@ -58,13 +59,6 @@ function populateDOM() {
     var general_trackers_count = data.cookiesCount + data.requestsCount;
     var have_trackers_bool = general_trackers_count > 0;
 
-    document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
-    general_msg_trnsl.dataset.i18n = [
-      general_msg_trnsl.dataset.i18n,
-      general_trackers_count
-    ].join(',');
-
-
     setBodyClass({
       enabled: data.enabled,
       whitelisted: data.isWhitelisted,
@@ -76,6 +70,7 @@ function populateDOM() {
     ////Display Trackers list
     if(general_trackers_count > 0 && data.trakersList && data.trakersList.trackers ) {
       var trackL = data.trakersList.trackers;
+      var counetTrackers = 0;
 
       //Populate Tracking List
       trackersListElement.innerHTML = "";
@@ -86,9 +81,19 @@ function populateDOM() {
             "<li>" +
                 "<span class='cqz-title'> "  + key  + "</span>" +
                 "<span  class='cqz-number'><i>"  + trackerCount + "</i></span>"
-            "</li>"
+            "</li>";
+
+          counetTrackers++;
         }
       }
+
+
+      document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
+      general_msg_trnsl.dataset.i18n = [
+        general_msg_trnsl.dataset.i18n,
+        counetTrackers,
+        general_trackers_count
+      ].join(',');
 
       expandPopUp('big');
     } else {
@@ -125,7 +130,7 @@ function expandPopUp (command) {
     attPopUp.classList.add('cqz-big-popup');
   }
 
-  height = attPopUp.classList.contains('cqz-big-popup') ? 485 : 200;
+  height = attPopUp.classList.contains('cqz-big-popup') ? 510 : 240;
 
   chrome.runtime.sendMessage({
     functionName: "updateHeight",
