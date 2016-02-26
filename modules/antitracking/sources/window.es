@@ -74,6 +74,11 @@ export default class {
       count = 0;
     }
 
+    // do not display number if site is whitelisted
+    if (CliqzAttrack.isSourceWhitelisted(info.hostname)) {
+      count = 0;
+    }
+
     this.popup.setBadge(this.window, count);
   }
 
