@@ -1,0 +1,15 @@
+{{#unless model.yourNews }}
+  <div class="newsBox onlyTopNews" id="topNewsBox">
+    {{article-items title="Top News" model=model.topNews tagName="ul" target-type="topnews" showLogo=false pageSize=3}}
+  </div>
+
+{{else}}
+  <div class="newsBox" id="topNewsBox">
+    {{article-items title="Top News" model=model.topNews pageSize=3 tagName="ul" target-type="topnews" showLogo=true}}
+  </div>
+  <div class="newsBox" id="yourNewsBox">
+    {{article-items title="Your news" model=model.yourNews tagName="ul" target-type="yournews" showLogo=true pageSize=model.yourNews.length}}
+  </div>
+{{/unless}}
+
+

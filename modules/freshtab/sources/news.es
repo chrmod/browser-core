@@ -78,7 +78,7 @@ var CliqzFreshTabNews = {
         log(cache);
         resolve(cache);
       } else {
-        
+
         log("Reading live data");
         CliqzFreshTabNews.updateNews(function(){
           //log("Update news Done", getNewsFromLS())
@@ -148,7 +148,7 @@ function getHbasedNewsList(hBasedNewsNumber){
 
             news_dcache['domain_list'] = news_results;
 
-            // compose hashes for the secure calling of the back end 
+            // compose hashes for the secure calling of the back end
             if ((cache)&&(JSON.parse(cache))&&JSON.parse(cache).hash_list){
               hash_list = JSON.parse(cache).hash_list;
             }else{
@@ -523,6 +523,7 @@ function composeList(responsesList, historyCache){
     }
   }
 
+
   //merge results
   var list_to_merge = [],
     domain = '',
@@ -531,7 +532,7 @@ function composeList(responsesList, historyCache){
     not_added_news = 0,
     news_results = {},
     history_data = [];
-  
+
   history_data = historyCache.domain_list || [];
 
   //iterate over results

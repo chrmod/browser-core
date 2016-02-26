@@ -32,9 +32,9 @@
             {{/unless}}
             <div class="newsContent">
               {{#if underline }}
-                <div extra="title" class="title underline">{{short_title}}</div>
+                <div extra="title" class="title underline">{{shortTitle}}</div>
               {{else}}
-                <div extra="title" class="title">{{short_title}}</div>
+                <div extra="title" class="title">{{shortTitle}}</div>
               {{/if}}
               <div extra="url" class="url">{{displayUrl}}</div>
             </div>
@@ -57,7 +57,6 @@
         </div>
       {{/if}}
       <div class="content">
-        {{#each this}}
           <ul>
           {{#each this.hbNews}}
             <li>
@@ -75,7 +74,6 @@
             </li>
           {{/each}}
           </ul>
-        {{/each}}
       </div>
     </script>
 

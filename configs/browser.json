@@ -7,11 +7,14 @@
     "unblockUI": false,
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
-    "channel": "40"
+    "channel": "40",
+    "antitrackingButton": false
   },
   "modules": [
     "static",
     "core",
+    "human-web",
+    "anti-phishing",
     "context-menu",
     "onboarding",
     "freshtab",
@@ -19,7 +22,8 @@
     "theme",
     "users1st",
     "telemetry-categories",
-    "hpn",
-    "antitracking"
+    "antitracking",
+    "performance",
+    "hpn"
   ]
 }

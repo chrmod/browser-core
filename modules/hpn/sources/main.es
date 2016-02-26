@@ -9,6 +9,7 @@ import { sendM } from "hpn/send-message";
 import JsonFormatter,{ createHttpUrl, getRouteHash, _http, fetchSourceMapping, trkGen } from "hpn/utils";
 import { overRideCliqzResults } from "hpn/http-handler-patch";
 import userPK from "hpn/user-pk";
+import CliqzHumanWeb from "human-web/human-web";
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 

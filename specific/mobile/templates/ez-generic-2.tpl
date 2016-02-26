@@ -8,15 +8,15 @@
 >
 
 
-    <div class='cqz-result-title overflow' arrow-override=''><a href="{{../url}}"  extra="title">{{ emphasis data.name text 2 true }}</a></div>
+    <div class='cqz-result-title overflow' arrow-override=''><a href="{{../url}}"  extra="title">{{ data.name }}</a></div>
     <div class='cqz-result-url overflow'  extra="url">
-      {{ emphasis urlDetails.friendly_url text 2 true }}
+      {{ emphasis urlDetails.friendly_url query 2 true }}
     </div>
     <div class='cqz-result-content'>
       {{#with data}}
           <div class='multi-ellipsis'>
             <p>
-              {{description}}
+              {{{description}}}
             </p>
           </div>
             {{#if zeroInf}}
@@ -30,7 +30,7 @@
           </div>
             {{/if}}
       {{/with}}
-
+       {{>EZ-history}}
     </div>
     {{>EZ-category}}
     {{> logo}}

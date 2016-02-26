@@ -5,6 +5,7 @@
       </div>
       <div class='cliqz-pattern'>
         {{#each data.urls}}
+        {{link}}
         <div class='cliqz-pattern-element overflow'
              url='{{href}}' shortUrl='{{link}}'
              extra='{{extra}}'

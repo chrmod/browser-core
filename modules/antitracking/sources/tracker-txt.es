@@ -4,10 +4,13 @@ TrackerTXT: caching rules for tracker.txt
 
 import MapCache from 'antitracking/fixed-size-cache';
 import { getTime } from 'antitracking/time';
+import { utils } from 'core/cliqz';
 
-var trackerTxtActions = new Set(['placeholder', 'block', 'empty', 'random']);
+var trackerTxtActions = new Set(['placeholder', 'block', 'empty', 'replace']);
 
-var defaultTrackerTxtRule = 'same';
+export const DEFAULT_ACTION_PREF = 'attrackDefaultAction';
+
+var defaultTrackerTxtRule = utils.getPref(DEFAULT_ACTION_PREF, 'same');
 
 export function getDefaultTrackerTxtRule() {
     return defaultTrackerTxtRule;
@@ -17,16 +20,31 @@ export function setDefaultTrackerTxtRule(rule) {
     defaultTrackerTxtRule = rule;
 };
 
+export function updateDefaultTrackerTxtRule() {
+    let ruleFromPref = utils.getPref('attrackDefaultAction', 'same');
+    // default rule may be either a tracking.txt action, or 'same'
+    if ( trackerTxtActions.has(ruleFromPref) || ruleFromPref === 'same') {
+        defaultTrackerTxtRule = ruleFromPref;
+    } else {
+        // bad pref value, reset it
+        utils.clearPref('attrackDefaultAction');
+    }
+}
+
 var trackerRuleParser = function(str, rules) {
     /* Tracker format:
-     one rule per line: "tracker: action"
+     one rule per line: "R tracker action"
      */
-    str.split('\n').map(function(x) {return x.trim().split('#')[0];}).forEach(
+    str.split('\n').map(function(x) {return x.trim()}).filter(function(x) {return x[0] == 'R'}).forEach(
         function(element, index, array) {
-            var siteRule = element.split(':').map(function(x) {return x.trim().toLowerCase();});
-            if (siteRule.length == 2 &&
-                trackerTxtActions.has(siteRule[1]))
-                rules[siteRule[0]] = siteRule[1];
+            var siteRule = element.split(/\s+/).map(function(x) {return x.trim().toLowerCase();});
+            if (siteRule.length == 3 &&
+                trackerTxtActions.has(siteRule[2])) {
+                rules.push({
+                    site: siteRule[1],
+                    rule: siteRule[2]
+                });
+            }
         }
     );
 };
@@ -40,7 +58,7 @@ var sleep = function(milliseconds) {
 
 var TrackerTXT = function(baseurl) {
     this.baseurl = baseurl;
-    this.rules = {};
+    this.rules = [];
     this.status = null;
     this.last_update = null;
 };
@@ -59,9 +77,12 @@ TrackerTXT.prototype = {
         this.status = 'updating';
         var self = this;
         CliqzUtils.httpGet(
-            self.baseurl + '/trackers.txt',
+            self.baseurl + '/tracking.txt',
             function success(req) {
-                trackerRuleParser(req.responseText, self.rules);
+                if (req.responseText.length < 4 * 1024) {
+                    self.rules = [];
+                    trackerRuleParser(req.responseText, self.rules);
+                }
                 self.status = 'updated';
                 self.last_update = getTime();
             },
@@ -70,10 +91,20 @@ TrackerTXT.prototype = {
                 self.last_update = getTime();
             }
         );
+    },
+    getRule: function(tp) {
+        for (let i = 0; i < this.rules.length; i++) {
+            let rule = this.rules[i];
+            if (tp.endsWith(rule.site)) {
+                return rule.rule
+            }
+        }
+        return getDefaultTrackerTxtRule();
     }
 };
 
 export {
     TrackerTXT,
-    sleep
+    sleep,
+    trackerRuleParser
 };

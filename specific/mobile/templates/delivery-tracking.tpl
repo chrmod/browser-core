@@ -9,7 +9,7 @@
         </div>
 
         <div class='cqz-result-url overflow' extra="url">
-            {{ emphasis urlDetails.friendly_url text 2 true }}
+            {{ emphasis urlDetails.friendly_url query 2 true }}
         </div>
 
         <div class="cqz-delivery-status-boxes-holder">

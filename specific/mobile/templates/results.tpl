@@ -2,7 +2,7 @@
 {{#each results}}
 	{{#unless invalid}}
 		<div class="frame" {{#if ../../frameWidth }} style="width: {{ ../../../frameWidth }}px; left: {{ left }}px" {{/if}}>
-			<div class="ez"
+			<div class="cqz-result-box"
 				type='{{ type }}'
 				kind='{{ kind_printer data.kind }}'
 				{{#if url}}
@@ -12,26 +12,29 @@
 					{{/unless}}
 				{{/if}}
 				idx='{{ @index }}'
-				id='ez-{{ @index }}'
+				id='cqz-result-box-{{ @index }}'
 				hasimage='{{ hasimage image }}'
-				>
+				>{{#if title}}{{#if url}}
+					<p cliqz-action='stop-click-event-propagation' 
+						onclick="osBridge.shareCard({{ json this }})" 
+						class="share_this_card">{{local 'mobile_share_card'}}</p>
+				{{/if}}{{/if}}
 					{{partial vertical}}
-				</div>
-				<!--<div class="share">
-					Teilen
-				</div>-->
+
+			</div>
+			
 		</div>
 	{{/unless}}
 {{/each}}
 
 {{#if googleThis }}
-	{{#showSearch results}}
+	{{#ifShowSearch results}}
 		{{#with googleThis }}
 			<!-- googlethis -->
-			<div id="defaultEngine" url="{{searchEngineUrl}}{{searchString}}" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
-			  <div class="ez">
+			<div id="defaultEngine"class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+			  <div url="{{searchEngineUrl}}{{searchString}}"  class="cqz-result-box">
 			    <div id="googleThisAnim">
-				    <img src="skin/img/icon-google.svg"><br>
+				    <!-- <img src="skin/img/icon-google.svg"><br> -->
 			        <div>{{ title }}</div><br>
           			<div id="moreResults">{{ action }}</div>
 			    </div>
@@ -39,8 +42,9 @@
 			</div>
 			<!-- end googlethis -->
 		{{/with}}
-	{{/showSearch}}
+	{{/ifShowSearch}}
 {{/if}}
 
 <div class='cqz-result-selected transition'></div>
+
 <!-- end results.tpl -->

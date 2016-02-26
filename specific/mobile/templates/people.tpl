@@ -2,7 +2,7 @@
 {{#if data.richData.full_name}}
     <div class="meta">
         {{> logo}}
-        <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
+        <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{ emphasis urlDetails.host query 2 true }}{{ emphasis urlDetails.extra query 2 true }}</h3>
     </div>
 
     <div class="main people">
