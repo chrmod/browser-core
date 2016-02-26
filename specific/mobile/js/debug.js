@@ -346,12 +346,20 @@ CLIQZ.UI.VIEWS["stocks"] = {
 
 actionsExternal = [];
 
-CLIQZ.UI.VIEWS["_generic"] = CLIQZ.UI.VIEWS["entity-generic"] = {
+CLIQZ.UI.VIEWS["_generic"] 
+= CLIQZ.UI.VIEWS["entity-generic"] 
+= CLIQZ.UI.VIEWS["hq"] = {
 
   enhanceResults: function(data) {
 
     for(var i in data.external_links) {
       data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
+    }
+
+    if( data.richData && data.richData.additional_sources) {
+      for(var i in data.richData.additional_sources) {
+        data.richData.additional_sources[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.richData.additional_sources[i].url));
+      }  
     }
 
     for(var i in data.news) {

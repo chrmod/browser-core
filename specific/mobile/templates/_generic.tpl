@@ -192,12 +192,11 @@
 
         {{#each data.richData.additional_sources}} 
             <div class="cards__item additional_sources">
-                <div class="card__logo__secondary">WI</div>
-                <!--{{#with logoDetails}}
+                {{#with logoDetails}}
                     {{#if backgroundImage}}
                         <div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
                     {{/if}}
-                {{/with}}-->
+                {{/with}}
                 <h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
             </div>
         {{/each}}    
