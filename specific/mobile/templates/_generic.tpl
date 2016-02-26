@@ -78,9 +78,7 @@
 		<div class="card__gallery">
 			{{#each data.richData.images}}
 				{{#if (limit_images_shown @index 3)}}
-					{{#ifNotSvgImage this}}
-						<div class="image" style="background-image: url({{this}})">Image</div>
-					{{/ifNotSvgImage}}
+					<div class="image" style="background-image: url({{this}})">Image</div>
 				{{/if}}
 			{{/each}}
 		</div>

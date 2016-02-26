@@ -60,19 +60,6 @@ Handlebars.registerHelper('mobileWikipediaUrls', function(url) {
   return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
 });
 
-// rips out svg images until they are not sent
-// by CDN with application/octet-stream
-// https://cliqztix.atlassian.net/browse/DP-976
-Handlebars.registerHelper('ifNotSvgImage', function(url,options) { 
-  if(url.match(/\.svg$/)) {
-    return options.inverse(this);
-  } else {
-    return options.fn(this);
-  }
-});
-
-
-
 function trace() {
   try {
     throw new Error('myError');
