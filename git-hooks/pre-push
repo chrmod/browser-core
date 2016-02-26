@@ -31,14 +31,21 @@ do
     # Handle delete
     :
   else
-    if [ "$remote_sha" = $z40 ]
-    then
-      # New branch, examine all commits after diverging from master
+    if [ "$remote_sha" == $z40 ]; then
+      # New branch, examine all commits after diverging from master.
       master_merge_base=`git merge-base master $local_sha`
       range="$master_merge_base..$local_sha"
     else
-      # Update to existing branch, examine new commits
-      range="$remote_sha..$local_sha"
+      # This may fail if "$remote_sha" equals $z40
+      remote_merge_base=`git merge-base $remote_sha $local_sha`
+      if [ "$remote_merge_base" == "$remote_sha" ]; then
+        # Update to existing branch, examine new commits.
+        range="$remote_merge_base..$local_sha"
+      else
+        # Rewriting remote branch. Check commits after master.
+        master_merge_base=`git merge-base master $local_sha`
+        range="$master_merge_base..$local_sha"
+      fi
     fi
 
     # Check commit messages
