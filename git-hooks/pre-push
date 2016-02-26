@@ -26,6 +26,10 @@ z40=0000000000000000000000000000000000000000
 
 while read local_ref local_sha remote_ref remote_sha
 do
+  if [[ `git rev-parse master` == $local_sha ]]; then
+    continue
+  fi
+
   if [ "$local_sha" = $z40 ]
   then
     # Handle delete
