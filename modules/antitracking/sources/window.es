@@ -131,7 +131,7 @@ export default class {
 
     var learnMore = this.window.CLIQZ.Core.createSimpleBtn(
         doc,
-        utils.getLocalizedString('attrack-learn-more'),
+        utils.getLocalizedString('learnMore'),
         function() {
           CLIQZEnvironment.openTabInWindow(this.window, 'https://cliqz.com/content/tracking/cliqz_whitepaper_tracking.pdf');
         }.bind(this),

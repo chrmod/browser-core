@@ -115,6 +115,8 @@ CliqzPopupButton.prototype.updateView = function (win, clientHeight) {
 }
 
 CliqzPopupButton.prototype.updateState = function (win, turnOn) {
+  if(!win) return;
+
   var button = win.document.getElementById(this.tbb.id);
 
   if (turnOn) {
