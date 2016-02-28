@@ -12,6 +12,8 @@
   "modules": [
     "core",
     "static",
+    "human-web",
+    "anti-phishing",
     "onboarding",
     "freshtab",
     "telemetry-categories",
