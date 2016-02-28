@@ -119,6 +119,9 @@
     "whatIsCliqzTry":{
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
+    "btnPrivacyDashboard": {
+        "message": "Which data we collect?"
+    },
     "btnFeedbackFaq":{
         "message": "Support and contact"
     },

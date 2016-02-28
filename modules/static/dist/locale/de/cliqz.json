@@ -119,6 +119,9 @@
     "whatIsCliqzTry":{
         "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
+    "btnPrivacyDashboard": {
+        "message": "Welches data sammeln wir?"
+    },
     "btnFeedbackFaq":{
         "message": "Hilfe und Kontakt"
     },
