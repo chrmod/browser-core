@@ -971,6 +971,12 @@
     "freshtab_top_sites": {
       "message": "Top Seiten"
     },
+    "freshtab_abTest_hdr_news_email": {
+      "message": "Die wichtigsten News DEINER NACHRICHTENSEITEN per E-Mail"
+    },
+    "freshtab_abTest_btn_subscribe": {
+      "message": "JETZT abonnieren"
+    },
     "mobile_share_card": {
       "message": "Diese Karte teilen"
     },

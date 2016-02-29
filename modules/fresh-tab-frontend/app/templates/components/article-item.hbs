@@ -1,0 +1,13 @@
+<a href="{{model.url}}" class="topnews news" data-index="{{index}}">
+  {{#if showLogo }}
+    <div extra="logo" class="logo" style="{{model.logo.style}}"></div>
+  {{/if}}
+  <div class="newsContent">
+    {{#if underline}}
+      <div extra='title' class='title underline'>{{model.title}}</div>
+    {{else}}
+      <div extra='title' class='title'>{{model.title}}</div>
+    {{/if}}
+    <div extra="url" class="url">{{model.displayUrl}}</div>
+  </div>
+</a>
