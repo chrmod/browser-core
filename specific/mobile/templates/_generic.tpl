@@ -91,12 +91,16 @@
 				{{/if}}
 
 				{{#if data.richData.rating.img}}
-					<img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
+					{{#if data.richData.rating.val}}
+						<img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
+					{{/if}}
 				{{/if}}
 
 				{{#if data.r.img}}
-					<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/> 
-					{{numberFormat data.r.val}}/{{data.r.scale}} <!--({{data.r.nVote}} Stimmen)-->
+					{{#if data.r.val}}
+						<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/> 
+						{{numberFormat data.r.val}}/{{data.r.scale}} <!--({{data.r.nVote}} Stimmen)-->
+					{{/if}}
 				{{/if}}
 			</div>
 
