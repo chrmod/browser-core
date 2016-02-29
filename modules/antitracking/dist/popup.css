@@ -303,10 +303,8 @@ ul.cqz-antrc-btns-holder li {
 
 /*========= Have NO Trackers =======*/
 
-.cqz-have-no-trackers .cqz-antrc-head .cqz-no-trackers-msg {
-    display: block;
-}
-
+.cqz-have-no-trackers .cqz-antrc-head .cqz-no-trackers-msg { display: block; }
+.cqz-have-no-trackers .cqz-antrc-head .cqz-general-msg .cqz-general-trackers-msg { display: none; }
 /*========= Have BAD Trackers =======*/
 
 .cqz-have-bad-trackers .cqz-antrc-btns-holder > li a.cqz-whitelist-btn,
