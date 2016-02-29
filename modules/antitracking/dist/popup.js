@@ -76,23 +76,33 @@ function populateDOM() {
 
     ////Display Trackers list
     var counterTrackers = 0;
-    if(general_trackers_count > 0 && data.trakersList && data.trakersList.trackers ) {
-      var trackL = data.trakersList.trackers;
-
+    if(have_any_trackers_bool > 0 && data.trakersList && data.trakersList.trackers ) {
       //Populate Tracking List
-      trackersListElement.innerHTML = "";
-      for (var key in trackL) {
-        var trackerCount = (trackL[key].cookie_blocked || 0) + (trackL[key].bad_qs || 0)
-        if(trackerCount > 0) {
-          trackersListElement.innerHTML += "" +
-            "<li>" +
-                "<span class='cqz-title'> "  + key  + "</span>" +
-                "<span  class='cqz-number'><i>"  + trackerCount + "</i></span>"
-            "</li>";
+      var companies = []
 
-          counterTrackers++;
-        }
-      }
+      // aggregate data by company
+      for (var company in data.trakersList.companies) {
+        var trackerCount = data.trakersList.companies[company].reduce( function (sum, domain) {
+          let domainData = data.trakersList.trackers[domain];
+          return sum + (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
+        }, 0);
+        companies.push({name: company, count: trackerCount});
+      };
+
+      // sort companies by tracking
+      counterTrackers = companies.length;
+      companies.sort( function (a, b) {
+        return b.count - a.count;
+      });
+
+      // create html company list
+      trackersListElement.innerHTML = companies.map( function(c) {
+        return "" +
+          "<li>" +
+              "<span class='cqz-title'> "  + c.name  + "</span>" +
+              "<span  class='cqz-number'><i>"  + c.count + "</i></span>" +
+          "</li>";
+      }).join("");
 
       expandPopUp('big');
     } else {
