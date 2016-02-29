@@ -549,10 +549,11 @@ Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
 });
 
 function getCardUrl() {
+  var NOT_SHAREABLE_SIGNAL = '-1';
   if(CLIQZEnvironment.lastResults && CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage]) {
-    osBridge.shareCard(CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage].url);
+    osBridge.shareCard(CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage].url || NOT_SHAREABLE_SIGNAL);
   } else {
-    osBridge.shareCard('-1');
+    osBridge.shareCard(NOT_SHAREABLE_SIGNAL);
   }
 };
 

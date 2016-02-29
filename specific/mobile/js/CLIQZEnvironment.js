@@ -308,6 +308,7 @@ CLIQZEnvironment = {
       CLIQZ.UI.main(resultsBox);
       CLIQZEnvironment.initHomepage();
       CLIQZEnvironment.stopProgressBar();
+      CLIQZEnvironment.lastResults = null;
       return;
     }
 
