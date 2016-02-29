@@ -2091,20 +2091,11 @@ var CliqzAttrack = {
         CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
         CliqzUtils.setPref('attrackRefererTracking', true);
       }
-      // telemetry
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'enable_' + (module_only ? 'abtest' : 'manual')
-      });
     },
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
       CliqzUtils.setPref(CliqzAttrack.ENABLE_PREF, false);
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'disable'
-      });
     },
     disabled_sites: new Set(),
     DISABLED_SITES_PREF: "attrackSourceDomainWhitelist",
@@ -2117,10 +2108,6 @@ var CliqzAttrack = {
     },
     addSourceDomainToWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.add(domain);
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'domain_whitelist_add'
-      });
       // also send domain to humanweb
       CliqzHumanWeb.telemetry({
         'type': CliqzHumanWeb.msgType,
@@ -2131,10 +2118,6 @@ var CliqzAttrack = {
     },
     removeSourceDomainFromWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.delete(domain);
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'domain_whitelist_remove'
-      });
       CliqzAttrack.saveSourceDomainWhitelist();
     }
 };

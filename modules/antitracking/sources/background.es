@@ -85,6 +85,8 @@ export default {
       this.popup.updateState(utils.getWindow(), !currentState);
 
       cb();
+
+      this.popupActions.telemetry( {action: 'click', 'target': (currentState ? 'deactivate' : 'activate')} )
     },
 
     closePopup(_, cb) {
@@ -96,13 +98,25 @@ export default {
       var hostname = args.hostname;
       if (CliqzAttrack.isSourceWhitelisted(hostname)) {
         CliqzAttrack.removeSourceDomainFromWhitelist(hostname);
+        this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
       } else {
         CliqzAttrack.addSourceDomainToWhitelist(hostname);
+        this.popupActions.telemetry( { action: 'click', target: 'whitelist_domain'} );
       }
       cb();
     },
     updateHeight(args, cb) {
       this.popup.updateView(utils.getWindow(), args[0]);
+    },
+
+    telemetry(msg) {
+      if ( msg.includeUnsafeCount ) {
+        delete msg.includeUnsafeCount
+        let info = CliqzAttrack.getCurrentTabBlockingInfo();
+        msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
+      }
+      msg.type = 'antitracking';
+      utils.telemetry(msg);
     }
   }
 };
