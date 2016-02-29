@@ -162,6 +162,8 @@ p {
     text-overflow: ellipsis;
 }
 
+.cqz-antrc-head  .cqz-general-single-msg { display: none; }
+
 .cqz-antrc-head .cqz-deactive-msg { display: none; }
 .cqz-antrc-head .cqz-nosite-msg { display: none; }
 
@@ -294,22 +296,31 @@ ul.cqz-antrc-btns-holder li {
 
 /*========= NO Site =======*/
 
-.cqz-no-site .cqz-antrc-head .cqz-nosite-msg { display: block; }
+.cqz-no-site .cqz-antrc-head .cqz-no-trackers-msg { display: block; }
 
 .cqz-no-site .cqz-antrc-btns-holder > li a.cqz-see-details,
-.cqz-attrack-enabled.cqz-no-site .cqz-antrc-head .cqz-general-msg { display: none; }
+.cqz-attrack-enabled.cqz-no-site .cqz-antrc-head .cqz-general-msg .cqz-general-trackers-msg { display: none; }
 
-/*========= Have Trackers =======*/
+/*========= Have NO Trackers =======*/
 
-.cqz-have-trackers .cqz-antrc-btns-holder > li a.cqz-whitelist-btn,
-.cqz-have-trackers .cqz-trackers-blocked {
+.cqz-have-no-trackers .cqz-antrc-head .cqz-no-trackers-msg { display: block; }
+.cqz-have-no-trackers .cqz-antrc-head .cqz-general-msg .cqz-general-trackers-msg { display: none; }
+/*========= Have BAD Trackers =======*/
+
+.cqz-have-bad-trackers .cqz-antrc-btns-holder > li a.cqz-whitelist-btn,
+.cqz-have-bad-trackers .cqz-trackers-blocked {
     display: block;
 }
+
+/*========= Have NO BAD Trackers =======*/
+
+.cqz-have-no-bad-trackers .cqz-antrc-head .cqz-no-bad-trackers-msg { display: block; }
+.cqz-attrack-enabled.cqz-have-no-bad-trackers .cqz-antrc-head .cqz-general-msg .cqz-general-trackers-msg { display: none; }
 
 /*========= Reload =======*/
 .cqz-attrack-enabled.cqz-att-reload  .cqz-antrc-head .cqz-reload-msg { display: block; }
 
-.cqz-att-reload.cqz-no-site .cqz-antrc-head .cqz-nosite-msg,
+.cqz-att-reload.cqz-no-site .cqz-antrc-head .cqz-no-trackers-msg,
 .cqz-att-reload .cqz-antrc-btns-holder > li a.cqz-see-details { display: none; }
 
 /*========= Antitrack Disabled =======*/
