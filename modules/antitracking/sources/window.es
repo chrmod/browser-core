@@ -47,6 +47,9 @@ export default class {
   init() {
     if ( this.popup ) {
       CliqzEvents.sub("core.location_change", this.onLocationChange);
+      // Better to wait for first window to set the state of the button
+      // otherways button may not be initialized yet
+      this.popup.updateState(utils.getWindow(), CliqzAttrack.isEnabled());
     }
     this.onPrefChange(CliqzAttrack.ENABLE_PREF);
     CliqzEvents.sub("prefchange", this.onPrefChange);
@@ -71,6 +74,11 @@ export default class {
     try {
       count = info.cookies.blocked + info.requests.unsafe;
     } catch(e) {
+      count = 0;
+    }
+
+    // do not display number if site is whitelisted
+    if (CliqzAttrack.isSourceWhitelisted(info.hostname)) {
       count = 0;
     }
 
@@ -123,7 +131,7 @@ export default class {
 
     var learnMore = this.window.CLIQZ.Core.createSimpleBtn(
         doc,
-        utils.getLocalizedString('attrack-learn-more'),
+        utils.getLocalizedString('learnMore'),
         function() {
           CLIQZEnvironment.openTabInWindow(this.window, 'https://cliqz.com/content/tracking/cliqz_whitepaper_tracking.pdf');
         }.bind(this),

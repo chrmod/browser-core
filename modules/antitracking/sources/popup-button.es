@@ -112,7 +112,18 @@ CliqzPopupButton.prototype.updateView = function (win, clientHeight) {
     }
 
   onPopupReady();
-  utils.log(iframe.src, "panel")
+}
+
+CliqzPopupButton.prototype.updateState = function (win, turnOn) {
+  if(!win) return;
+
+  var button = win.document.getElementById(this.tbb.id);
+
+  if (turnOn) {
+    button.classList.remove("off");
+  } else {
+    button.classList.add("off");
+  }
 }
 
 CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
