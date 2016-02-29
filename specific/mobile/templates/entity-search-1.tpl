@@ -1,29 +1,52 @@
 <!-- entity-search-1.tpl -->
-<div
-  {{#if data.urls}}
-    class="cqz-result-h1 cqz-result-padding"
-  {{else}}
-    class="cqz-result-h2 cqz-result-padding"
-  {{/if}}
->
-  <div class="cqz-ez-title cqz-ez-search-title">
-    <a href="{{url}}">{{data.search_provider}}</a>
-  </div>
+{{#with logo}}
+	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+ {{/with}}
 
-  <div class="cqz-ez-search-app-box">
-    <ul class="cta-list">
-    {{#each data.links}}
-      <li
-        class="cqz-ez-search-app transition"
-        style="background-color: {{this.background_color_icon}};"
-        url="{{this.url}}"
-        extra="link-{{this.logg_as}}"
-        ><span class="cta__logo image" style="background-image: url({{this.icon_url}})">Icon</span>
-            <a>{{this.text}}</a>
-      </li>
-    {{/each}}
-  </ul>
-  </div>
-  {{>EZ-history}}
-</div>
+<section class="primary">
+
+    <h1 class="card__title">
+       <a href="{{url}}">{{data.search_provider}}</a>
+    </h1>
+
+    <div class="card__meta">
+        ####META#######
+    </div>
+
+</section>
+
+<section class="secondary">
+    <div class="card__description">
+        
+      <div
+        {{#if data.urls}}
+          class="cqz-result-h1 cqz-result-padding"
+        {{else}}
+          class="cqz-result-h2 cqz-result-padding"
+        {{/if}}
+      >
+        <div class="cqz-ez-search-app-box">
+          <ul class="cta-list">
+          {{#each data.links}}
+            <li
+              class="cqz-ez-search-app transition"
+              style="background-color: {{this.background_color_icon}};"
+              url="{{this.url}}"
+              extra="link-{{this.logg_as}}"
+              ><span class="cta__logo image" style="background-image: url({{this.icon_url}})">Icon</span>
+                  <a>{{this.text}}</a>
+            </li>
+          {{/each}}
+        </ul>
+        </div>
+        {{>EZ-history}}
+      </div>
+
+        
+    </div>
+</section>
+
+
+
+
 <!-- end entity-search-1.tpl -->
