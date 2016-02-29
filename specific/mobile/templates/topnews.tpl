@@ -6,7 +6,7 @@
   <div class="main" style="margin-bottom: 20px;">
     <ul>
         {{#each this}}
-            <div class="item">
+            <div class="item" onclick="osBridge.openLink('{{url}}')">
                 <div class="meta__logo transition"
                  style="{{style}}"
                  show-status=""
@@ -15,7 +15,7 @@
                  >{{ text }}
                 </div>
                 <h1 class="main__headline">
-                    <a class="topNewsLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
+                    <a class="topNewsLink" data-index="{{@index}}">
                         {{ short_title }}
                     </a>
                 </h1>
