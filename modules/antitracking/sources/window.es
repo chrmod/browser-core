@@ -120,8 +120,10 @@ export default class {
       item.addEventListener('command', function(event) {
         if ( this.filter_level === 'true' ) {
           utils.setPref('attrackForceBlock', true);
+          utils.telemetry( { type: 'antitracking', action: 'click', target: 'attrack_qbutton_strict'} );
         } else {
           utils.clearPref('attrackForceBlock');
+          utils.telemetry( { type: 'antitracking', action: 'click', target: 'attrack_qbutton_default'} );
         }
         utils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
       }, false);
