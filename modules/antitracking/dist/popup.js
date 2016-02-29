@@ -27,11 +27,25 @@ function setBodyClass(options) {
     document.body.classList.remove("cqz-no-site");
   }
 
-  //If thare are tracker
-  if( options.have_trackers ) {
-     document.body.classList.add("cqz-have-trackers");
+  //If thare are ANY tracker
+  if( !options.have_trackers ) {
+     document.body.classList.add("cqz-have-no-trackers");
   } else {
-    document.body.classList.remove("cqz-have-trackers");
+    document.body.classList.remove("cqz-have-no-trackers");
+  }
+
+  //If thare are BAD tracker
+  if( options.have_bad_trackers ) {
+     document.body.classList.add("cqz-have-bad-trackers");
+  } else {
+    document.body.classList.remove("cqz-have-bad-trackers");
+  }
+
+  //If thare are NO BAD tracker
+  if( options.have_trackers && !options.have_bad_trackers ) {
+     document.body.classList.add("cqz-have-no-bad-trackers");
+  } else {
+    document.body.classList.remove("cqz-have-no-bad-trackers");
   }
 
   // Turn on - off fix
@@ -57,20 +71,13 @@ function populateDOM() {
 
     var general_msg_trnsl = document.querySelector(".cqz-general-trackers-msg");
     var general_trackers_count = data.cookiesCount + data.requestsCount;
-    var have_trackers_bool = general_trackers_count > 0;
-
-    setBodyClass({
-      enabled: data.enabled,
-      whitelisted: data.isWhitelisted,
-      url: data.url,
-      reload: data.reload,
-      have_trackers: have_trackers_bool
-    });
+    var have_bad_trackers_bool = general_trackers_count > 0;
+    var have_any_trackers_bool = Object.keys(data.trakersList.trackers).length;
 
     ////Display Trackers list
+    var counterTrackers = 0;
     if(general_trackers_count > 0 && data.trakersList && data.trakersList.trackers ) {
       var trackL = data.trakersList.trackers;
-      var counetTrackers = 0;
 
       //Populate Tracking List
       trackersListElement.innerHTML = "";
@@ -83,7 +90,7 @@ function populateDOM() {
                 "<span  class='cqz-number'><i>"  + trackerCount + "</i></span>"
             "</li>";
 
-          counetTrackers++;
+          counterTrackers++;
         }
       }
 
@@ -95,7 +102,7 @@ function populateDOM() {
     document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
     general_msg_trnsl.dataset.i18n = [
       general_msg_trnsl.dataset.i18n,
-      counetTrackers,
+      counterTrackers,
       general_trackers_count
     ].join(',');
 
@@ -103,6 +110,15 @@ function populateDOM() {
     if(data.isWhitelisted) {
       whitelistButton.style.display = "block"
     }
+
+    setBodyClass({
+      enabled: data.enabled,
+      whitelisted: data.isWhitelisted,
+      url: data.url,
+      reload: data.reload,
+      have_bad_trackers: have_bad_trackers_bool,
+      have_trackers: have_any_trackers_bool
+    });
 
     localizeDocument();
   });

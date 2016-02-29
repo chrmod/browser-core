@@ -950,8 +950,11 @@
     "attrack-headline-reload": {
       "message": "Please reload to browse safely!"
     },
-    "attrack-headline-no-site": {
+    "attrack-headline-no-trackers": {
       "message": "This page does not contain any trackers."
+    },
+    "attrack-headline-no-bad-trackers": {
+      "message": "This site does not send any personal data."
     },
     "attrack-btn-power-on": {
       "message": "Activate Anti Tracking"
