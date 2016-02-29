@@ -166,6 +166,10 @@ function ViewPager(elem, options) {
         position = scroller.getCurrX();
       }
 
+      if(!position) {
+         //return;
+      }
+
       handleOnScroll(position);
 
       if (isAnimating) {
