@@ -9,7 +9,7 @@
        <a href="{{url}}">{{ emphasis data.name text 2 true }}</a>
     </h1>
 
-    <div class="">
+    <div class="primary card__description">
         <div class="main mulitple">
           {{#each data.news}}
             <div class="item">
