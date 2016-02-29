@@ -1,0 +1,87 @@
+/* Colors */
+/* Mixins */
+.cf::after {
+  clear: both;
+  content: "";
+  display: table; }
+
+body, html {
+  font-size: 16px;
+  margin: 0;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  background-color: #222;
+  padding: 0;
+  color: #fff; }
+
+h1 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  text-align: center;
+  font-weight: 300;
+  background-color: #333;
+  border-bottom: 1px #000 solid;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.38); }
+
+section {
+  display: block;
+  padding: 1rem; }
+  section header {
+    padding: 0 0 0.75rem; }
+  section .description {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #999; }
+    section .description a {
+      color: #1b5c97; }
+      section .description a:hover {
+        color: #1F69AD; }
+  section h2 {
+    padding: 0 0 0.25rem;
+    margin: 0;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: #FFC72F; }
+
+.blocked {
+  background-color: #8d0719 !important;
+  text-decoration: line-through !important;
+  color: rgba(255, 255, 255, 0.62) !important; }
+
+.allowed {
+  background-color: #3b7a30 !important;
+  color: #fff; }
+
+.item {
+  display: block;
+  width: 20%;
+  float: left;
+  padding: 0 1.5rem 0 0;
+  box-sizing: border-box;
+  height: 4rem;
+  overflow: hidden; }
+  .item .value {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: #222;
+    box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.38), inset 0 1px 2px 0 rgba(255, 255, 255, 0.12);
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    max-height: 2rem;
+    overflow: hidden;
+    font-weight: 500;
+    color: #fff;
+    border-radius: 0.25rem;
+    border: 1px #000 solid; }
+  .item .legend {
+    font-size: 0.75rem;
+    padding: 0.25rem 0;
+    color: #666;
+    line-height: 1rem;
+    box-sizing: border-box;
+    height: 1.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis; }
