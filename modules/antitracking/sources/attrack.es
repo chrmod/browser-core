@@ -464,10 +464,12 @@ var CliqzAttrack = {
                         var rule = CliqzAttrack.getDefaultRule(),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
                         if (!CliqzAttrack.isForceBlockEnabled() && CliqzAttrack.isTrackerTxtEnabled()) {
-                            if (_trackerTxt.last_update === null)
-                                // The first update is not ready yet
-                                sleep(300);
-                            rule = _trackerTxt.getRule(url_parts.hostname)
+                            if (_trackerTxt.last_update === null) {
+                                // The first update is not ready yet for this first party, allow it
+                                tp_events.incrementStat(req_log, 'tracker.txt_not_ready' + rule);
+                                return;
+                            }
+                            rule = _trackerTxt.getRule(url_parts.hostname);
                         }
                         if (rule == 'block') {
                             subject.cancel(Components.results.NS_BINDING_ABORTED);
