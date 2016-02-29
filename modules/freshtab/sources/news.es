@@ -57,7 +57,10 @@ var CliqzFreshTabNews = {
           createNewsList(bBasedNewsRequirement, callback);
         });
       } else {
-        createNewsList([], callback);
+        if(ls) {
+          ls.setItem('freshTab-data', '[]');
+        }
+        requestNews([], callback);
       }
     }
     log('update tick')

@@ -623,6 +623,10 @@ CLIQZEnvironment = {
   },
   displayTopNews: function(news) {
 
+    if(!news) {
+      return;
+    }
+
     var top_news = news.top_h_news;
 
     //console.log('%crendering top news', 'color:green', top_news)
