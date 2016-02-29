@@ -10,15 +10,16 @@
     "antitrackingButton": false
   },
   "modules": [
+    "static",
     "core",
     "ui",
-    "static",
     "human-web",
     "anti-phishing",
     "onboarding",
     "freshtab",
     "telemetry-categories",
     "antitracking",
-    "performance"
+    "performance",
+    "hpn"
   ]
 }
