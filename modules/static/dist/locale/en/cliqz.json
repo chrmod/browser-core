@@ -971,6 +971,12 @@
     "freshtab_top_sites": {
       "message": "Top Sites"
     },
+    "freshtab_abTest_hdr_news_email": {
+      "message": "Get YOUR NEWS sent directly to your inbox"
+    },
+    "freshtab_abTest_btn_subscribe": {
+      "message": "Subscribe NOW"
+    },
     "mobile_share_card": {
       "message": "Share this card"
     },

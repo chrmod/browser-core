@@ -2,7 +2,7 @@
   <div class="meta">
       {{> logo}}
       <h3 class="meta__url">
-          <a href="{{url}}">{{ emphasis data.name text 2 true }}</a></h3>
+          <a href="{{url}}">{{ data.name }}</a></h3>
   </div>
 
   <div class="main mulitple">
@@ -27,7 +27,7 @@
       </h1>
     </div>
 
-    {{!--<p class="main__content">{{{ emphasis data.description text 2 true }}}</p> --}}
+    {{!--<p class="main__content">{{{ emphasis data.description query 2 true }}}</p> --}}
 
   {{/each}}
   </div>

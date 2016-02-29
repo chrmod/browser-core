@@ -24,25 +24,46 @@ CliqzDelayedImageLoader.prototype = {
     this.isRunning = true;
     // TODO: Move loading of images to constructor. But make sure that DOM exists when constructor is called.
     this.elements = Array.prototype.slice.call(document.querySelectorAll(this.selector));
+    this.inProcess = this.elements.length;
+    if(this.inProcess === 0) {
+      window.dispatchEvent(new CustomEvent("imgLoadingOver"));
+      return;
+    }
     Array.apply(null, Array(this.BANDWITH)).forEach(this.loadNext.bind(this));
   },
 
   loadNext: function () {
-    var el = this.elements.shift();
-    if (!this.isRunning || !el) { return; }
+    var self = this;
+    function safeLoadNext() {
+        self.inProcess--;
+        if(self.inProcess <= 0) {
+          window.dispatchEvent(new CustomEvent("imgLoadingOver"));
+          return;
+        }
+        self.loadNext();
+      };
+
+    var el = self.elements.shift();
+    if(!self.isRunning) {
+      return;
+    }
+    if (!el) { 
+      return;
+    }
 
     if (el.dataset.src) {
+
       // TODO: onerror should show default error img
-      el.onload = el.onerror = this.loadNext.bind(this);
+      el.onload = el.onerror = safeLoadNext;
       el.src = el.dataset.src;
     } else if (el.dataset.style) {
-      var url = this.getBackgroundImageUrlFromStyle(el.dataset.style),
+      var url = self.getBackgroundImageUrlFromStyle(el.dataset.style),
           img = new Image();
       // TODO: onerror should show default error img
       img.onload = img.onerror = function () {
         el.setAttribute('style', el.dataset.style);
-        this.loadNext();
-      }.bind(this);
+        safeLoadNext(); 
+      }
       img.src = url;
     }
   },

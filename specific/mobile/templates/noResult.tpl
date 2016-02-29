@@ -7,6 +7,15 @@
           <div>{{ title }}</div><br>
           <div id="noResults">{{ action }}</div>
         </div>
+        {{#with logo}}
+          <div class="search_engine_logo"
+           style="{{style}}"
+           show-status=""
+           extra="{{extra}}"
+           url="{{url}}"
+           >{{ text }}
+          </div>
+        {{/with}}
       </div>
     </div>
   {{/with}}

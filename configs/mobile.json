@@ -1,7 +1,6 @@
 {
   "platform": "mobile",
-  "settings": {
-  },
+  "settings": {},
   "modules": [
     "core",
     "freshtab",

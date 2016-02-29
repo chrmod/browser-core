@@ -299,6 +299,48 @@ a:hover, a:active, a:focus {
   margin-bottom: 40px;
 }
 
+/******* newsEmail AB test *******/
+.cqz-ez-btn {
+  display: inline-block;
+  line-height: 26px;
+  margin: 0 7px 4px 0;
+  padding: 0 9px;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+#freshTabPage .cqz-ez-btn a {
+  color: #fff;
+}
+
+.cliqz-brands-button-6 { background-color: #4592d8 }
+.cliqz-brands-button-6:hover { background-color: #1967af }
+.cliqz-brands-button-6:active { background-color: #0b4b86 }
+
+#freshTabPage .newsEmail #yourNewsBox {
+  margin-top: -21px;
+}
+
+#freshTabPage .newsEmail #yourNewsBox h2 {
+  float: left;
+  width: 275px;
+  text-transform: none
+}
+
+#freshTabPage #yourNewsBox .cqz-ez-btn {
+  float: right;
+  margin-top: 13px;
+}
+
+#freshTabPage .wrap.newsEmail {
+  width: 890px;
+}
+
+#freshTabPage .newsEmail #newsContainer .newsBox {
+  width: 433px;
+}
+
 /******* Mini Onboarding ********/
 
 #freshTabPage #learnMore {
