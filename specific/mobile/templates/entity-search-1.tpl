@@ -10,12 +10,12 @@
     </h1>
 
     <div class="card__meta">
-        ####META#######
+        <a href="{{url}}">{{data.friendly_url}}</a>
     </div>
 
 </section>
 
-<section class="secondary">
+<section class="primary">
     <div class="card__description">
         
       <div
