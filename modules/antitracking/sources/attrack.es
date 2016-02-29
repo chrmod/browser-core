@@ -20,6 +20,7 @@ import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
+import ResourceLoader from 'core/resource-loader';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -70,7 +71,6 @@ var CliqzAttrack = {
     // URL_ALERT_TEMPLATE: 'chrome://cliqz/content/anti-tracking-index.html',
     // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
     URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
-    URL_TRACKER_COMPANIES: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
     ENABLE_PREF: 'antiTrackTest',
     debug: false,
     msgType:'attrack',
@@ -1284,9 +1284,13 @@ var CliqzAttrack = {
 
         if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
 
-        if (Object.keys(CliqzAttrack.tracker_companies).length == 0) {
-            CliqzAttrack.loadTrackerCompanies();
-        }
+        // load tracker companies data
+        this._trackerLoader = new ResourceLoader( ['antitracking', 'tracker_owners.json'], {
+            remoteURL: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
+            cron: 24 * 60 * 60 * 1000,
+        });
+        this._trackerLoader.load().then(CliqzAttrack._parseTrackerCompanies);
+        this._trackerLoader.onUpdate(CliqzAttrack._parseTrackerCompanies);
 
         // @konarkm : Since we already have window, passing it.
         // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
@@ -2057,20 +2061,10 @@ var CliqzAttrack = {
       return CliqzAttrack.getTabBlockingInfo(tabId);
     },
     tracker_companies: {},
-    loadTrackerCompanies: function() {
-      CliqzUtils.loadResource(CliqzAttrack.URL_TRACKER_COMPANIES, function(req) {
-        try {
-          CliqzAttrack._parseTrackerCompanies(req.response);
-        } catch(e) {
-          CliqzUtils.log(e);
-        }
-      });
-    },
     /** Parse tracker owners list {Company: [list, of, domains]}, into lookup table {domain: Company}
      */
-    _parseTrackerCompanies: function(response) {
-      var rev_list = {},
-        company_list = JSON.parse(response);
+    _parseTrackerCompanies: function(company_list) {
+      var rev_list = {};
       for (var company in company_list) {
         company_list[company].forEach(function(d) {
           rev_list[d] = company;
