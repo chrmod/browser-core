@@ -85,7 +85,29 @@ export default Ember.Service.extend({
       action: "getSpeedDials"
     }) , "*")
 
-    return DS.PromiseArray.create({ promise });
+    return DS.PromiseObject.create({ promise }).then(model => model.speedDials);
+  },
+
+  addSpeedDial(item) {
+    this.callbacks.addSpeedDial = () => {};
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "freshtab",
+      action: "addSpeedDial",
+      "args": [item]
+    }), "*");
+  },
+
+  removeSpeedDial(item) {
+    this.callbacks.removeSpeedDial = () => {};
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "freshtab",
+      "action": "removeSpeedDial",
+      "args": [item]
+    }), "*");
   },
 
   getNews() {

@@ -24,7 +24,7 @@ var CliqzFreshTabHistory = {
           ") as mzh",
           "group by mzh.place_id",
           "order by total_count desc",
-          "limit 15",
+          "limit 5",
         ].join(' '),
         ["url", "title", "total_count"],
         function(row) {
@@ -35,7 +35,8 @@ var CliqzFreshTabHistory = {
           }
         }
       ).then(function() {
-        resolve(result.slice(0,limit));
+        resolve(result);
+        //resolve(result.slice(0,limit));
       });
     });
   }

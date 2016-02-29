@@ -1,3 +1,11 @@
-{{#each model as |dial index|}}
-  {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
-{{/each}}
+<ul id="historyTiles">
+  {{#each model.history as |dial index|}}
+    {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
+  {{/each}}
+</ul>
+
+<ul id="customTiles">
+  {{#each model.custom as |dial index|}}
+    {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
+  {{/each}}
+</ul>
