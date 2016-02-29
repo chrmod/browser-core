@@ -116,6 +116,7 @@ let transpiledSources = Babel(sources, {
   filterExtensions: ['es'],
   modules: 'system',
   moduleIds: true,
+  compact: false
 });
 
 let sourceTree = new Funnel(
