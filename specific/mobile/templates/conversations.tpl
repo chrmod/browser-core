@@ -4,8 +4,8 @@
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
        		<div id="reconnecting" style="position:fixed;background-color: #8E4900;padding:1px 10px;color:#fff;font-size:14px;">
-       				<span style="float: left" onclick="getHistory(true)">Favoriten</span>
-       				<span style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
+       				<span id="show_favorites_only" style="float: left" onclick="getHistory(true)">Favoriten</span>
+       				<span class="active" id="show_history" style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
 			</div>
             <!-- <a extra="title">THE PAST</a> -->
         </h1>

@@ -59,6 +59,7 @@ function showHistory(history) {
   } else {
     displayData(data);
   }
+  
 }
 
 function displayFavorites(data) {
@@ -67,13 +68,20 @@ function displayFavorites(data) {
   }).filter(function(item, index, arr){
     return !item.date || (arr[index + 1] && !arr[index + 1].date); // filter empty days
   }));
+
+  document.getElementById("show_history").className = "";
+  document.getElementById("show_favorites_only").className = "active";
 }
 
 function displayData(data) {
   if(!CliqzHandlebars.tplCache["conversations"] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
     return setTimeout(displayData, 100, data);
   }
+
   document.body.innerHTML = CliqzHandlebars.tplCache["conversations"]({data: data});
+
+  document.getElementById("show_favorites_only").className = "";
+  document.getElementById("show_history").className = "active";
 
   var B = document.body,
       H = document.documentElement,

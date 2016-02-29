@@ -189,6 +189,7 @@ var Result = {
     },
     // rich data and image
     getData: function(result){
+
         //TODO: rethink the whole image filtering
         if(!result.snippet)
             return;

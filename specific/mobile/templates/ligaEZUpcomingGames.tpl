@@ -1,4 +1,4 @@
-
+<!-- ligaEZUpcomingGames.tpl -->
 <div class="cqz-result-h1 ez-liga cqz-result-padding">
  {{#with data}}
   <div class="cqz-ez-title" selectable=''><a href="{{../url}}">{{leagueName}}</a></div>
@@ -29,3 +29,4 @@
 </div>
 
 
+<!-- end ligaEZUpcomingGames.tpl -->

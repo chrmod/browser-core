@@ -1,45 +1,55 @@
 <!-- weatherAlert.tpl -->
-
-<div class="meta">
-    {{> logo}}
+{{#with logo}}
+    <div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+ {{/with}}
     {{#with data}}
-    <h3 class="meta__url">
-        <span>{{ returned_location }}</span></h3>
-</div>
+    <section class="primary">
 
-<div class="cqz-result-h2 ez-weather cqz-ez-black-title weather">
+        <h1 class="card__title">
+            {{ returned_location }}
+        </h1>
 
         {{#with alert}}
-            <div class="alert" style="background-color:{{alert-color}};padding:5px">
+            <div class="alert">
                 <div class="header">{{des}}</div>
                 <div class="info">{{time}}</div>
             </div>
         {{/with}}
-
+        
         <div class='EZ-weather-container weather__today'>
             <div class='EZ-weather-date'>{{ todayWeekday }}</div>
-            <div class="EZ-weather-temp">{{todayTemp}}<br><span>{{todayMin}}</span></div>
+            <div class="EZ-weather-temp"><span>max.</span> {{todayTemp}}<span> / min.</span> {{todayMin}}</div>
             <div class="EZ-weather-img" data-style="background-image:url({{todayIcon}})"></div>
+        
+        </div>
+        <div class="weather__gallery">
+        {{#each forecast}}
+            {{#if (limit_images_shown @index 4)}}
+                <div class='EZ-weather-container'>
+                    <div class='EZ-weather-date'>{{ weekday }}</div>
+                    <div class="EZ-weather-temp"><span>max.</span> {{max}}<span> / min.</span>{{min}}</div>
+                    <div class="EZ-weather-img" data-style="background-image:url({{icon}})"></div>
+                </div>
+            {{/if}}
+        
+        {{/each}}
+        </div>
+        
+        <div class="card__description">
+
+
+            {{{data.description}}}
 
         </div>
 
-        {{#each forecast}}
-            {{#if (limit_images_shown @index 3)}}
-                <div class='EZ-weather-container'>
-                    <div class="EZ-weather-img" data-style="background-image:url({{icon}})"></div>
-                    <div class='EZ-weather-date'>{{ weekday }}</div>
-                    <div class="EZ-weather-temp">{{max}}<br><span>{{min}}</span>
-                   </div>
-                </div>
-            {{/if}}
+    </section>
+    
+    <div class="poweredby">
+        {{local 'more_on'}} <a href="http://www.weatherunderground.com">weatherunderground.com</a>
+    </div>
 
-        {{/each}}
-
-</div>
-
-<div class="poweredby">
-    {{local 'more_on'}} <a href="http://www.weatherunderground.com">weatherunderground.com</a>
-</div>
-
+    <section class="share">
+        Share this card: <a href="">{{label}}</a>
+    </section>
 {{/with}}
 <!-- end weatherAlert.tpl -->

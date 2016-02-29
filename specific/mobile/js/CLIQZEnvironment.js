@@ -47,7 +47,6 @@ CLIQZEnvironment = {
             CLIQZ.UI.enhanceResults(r);
 
             if(document.getElementById('cqz-result-box-' + index) && r.results[0] && r.results[0].data.template !== 'noResult') {
-
               document.getElementById('cqz-result-box-' + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -253,6 +252,7 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r) {
+    
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
@@ -276,7 +276,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.lastResults = renderedResults.results;
 
     if(renderedResults.results.length > historyCount) {
-      // TODO CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      /////////////CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
 
     CLIQZEnvironment.setCardsHeight();
@@ -285,6 +285,7 @@ CLIQZEnvironment = {
 
   },
   search: function(e, location_enabled, latitude, longitude) {
+    localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
     if(location_enabled) {
@@ -319,6 +320,17 @@ CLIQZEnvironment = {
     if(e.toLowerCase() === 'testme') {
       initTest();
     }
+
+    if(e.toLowerCase() === 'josep') {
+      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
+      alert("switched to beta mixer with joseps magic links");
+    } 
+
+    if(e.toLowerCase() === 'nojosep') {
+      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
+      alert("switched to live mixer withOUT joseps magic links");
+    }
+
     CLIQZEnvironment.startProgressBar();
 
 
@@ -525,7 +537,7 @@ CLIQZEnvironment = {
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
-        req.timeout = (method === 'POST'? 10000 : 4000);
+        req.timeout = (method === 'POST'? 10000 : 1000);
       }
     }
 

@@ -13,15 +13,16 @@ CLIQZ.Core = {
 }
 
 
-Handlebars.registerHelper("debug", function(optionalValue) {
-  console.log("Debug Current Context");
-  console.log(this);
 
-  if (optionalValue) {
-    console.log("Debug Value"); 
-    console.log(optionalValue);
-  }
+Handlebars.registerHelper("debug", function(optionalValue) {
+  console.log("%c Template Data " + this.vertical + " ","color:#fff;background:green",this);
 });
+
+
+Handlebars.registerHelper("trimNumbers", function(number) {
+  return Math.round(number);
+});
+
 
 Handlebars.registerHelper('conversationsTime', function(time) {
     var d = new Date(time);
@@ -58,8 +59,6 @@ Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equ
 Handlebars.registerHelper('mobileWikipediaUrls', function(url) { 
   return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
 });
-
-
 
 function trace() {
   try {
@@ -329,6 +328,40 @@ CLIQZ.UI.VIEWS["stocks"] = {
   enhanceResults: function(data) {
     var myTime = new Date(data.message.last_update * 1000);
       data.message.time_string = myTime.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+  }
+}
+
+actionsExternal = [];
+
+CLIQZ.UI.VIEWS["_generic"] 
+= CLIQZ.UI.VIEWS["entity-generic"] 
+= CLIQZ.UI.VIEWS["hq"] = {
+
+  enhanceResults: function(data) {
+
+    for(var i in data.external_links) {
+      data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
+    }
+
+    if( data.richData && data.richData.additional_sources) {
+      for(var i in data.richData.additional_sources) {
+        data.richData.additional_sources[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.richData.additional_sources[i].url));
+      }  
+    }
+
+    for(var i in data.news) {
+      data.news[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.news[i].url));
+    }
+
+    if(data.actions && data.external_links) {
+      data.actionsExternalMixed = data.actions.concat(data.external_links);
+      data.actionsExternalMixed.sort(function(a,b) { 
+        if (a.rank < b.rank) {return 1;}
+        if (a.rank > b.rank) {return -1;}
+        return 0;
+      });
+    }
+    
   }
 }
 

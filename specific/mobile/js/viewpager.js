@@ -77,7 +77,7 @@ function ViewPager(elem, options) {
       /** Default interpolator, undefined is ok */
       INTERPOLATOR = options.interpolator,
 
-      MIN_DISTANCE_FOR_FLING_MS = 10, // px
+      MIN_DISTANCE_FOR_FLING_MS = 5, // px
       MIN_FLING_VELOCITY_PX_PER_MS = 0.1, //0.4, // px / ms
 
       elemSize = options.dragSize || undefined,
@@ -165,8 +165,9 @@ function ViewPager(elem, options) {
       } else {
         position = scroller.getCurrX();
       }
+
       if(!position) {
-        return;
+         //return;
       }
 
       handleOnScroll(position);
