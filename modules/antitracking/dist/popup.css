@@ -242,17 +242,35 @@ ul.cqz-antrc-btns-holder li {
     line-height: 28px;
 }
 
-.cqz-trackers-blocked li span {
+.cqz-trackers-blocked li > span {
     float: left;
     overflow: hidden;
     display: block;
     text-overflow: ellipsis;
 }
-.cqz-trackers-blocked li .cqz-title {
-    padding-left: 5px;
-    padding-right: 5px;
+.cqz-trackers-blocked li .cqz-title-holder {
     width: 80%;
 }
+.cqz-trackers-blocked li .cqz-title {
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 5px;
+    max-width: calc(100% - 20px);
+}
+.cqz-trackers-blocked li a.cqz-trackers-info {
+    display: inline-block;
+    color: #fff;
+    padding: 0 6px 2px;
+    margin-top: -1px;
+    text-decoration: none;
+    line-height: normal;
+    border-radius: 4px;
+    background: #ccc;
+}
+.cqz-trackers-blocked li a.cqz-trackers-info:hover {
+    background: #717171;
+}
+
 .cqz-trackers-blocked li .cqz-number {
     width: 20%;
     text-align: right;

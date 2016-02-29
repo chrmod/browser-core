@@ -99,7 +99,10 @@ function populateDOM() {
       trackersListElement.innerHTML = companies.map( function(c) {
         return "" +
           "<li>" +
-              "<span class='cqz-title'> "  + c.name  + "</span>" +
+              "<span class='cqz-title-holder'> "  +
+                "<a href='https://cliqz.com/whycliqz/anti-tracking/tracker#"+ c.name.replace(/ /g,"-") + "' class='cqz-trackers-info' target='_blank'> i </a>" +
+                "<span class='cqz-title'> "  + c.name  + "</span>" +
+              "</span>" +
               "<span  class='cqz-number'><i>"  + c.count + "</i></span>" +
           "</li>";
       }).join("");
