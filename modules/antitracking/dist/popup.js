@@ -83,7 +83,7 @@ function populateDOM() {
       // aggregate data by company
       for (var company in data.trakersList.companies) {
         var trackerCount = data.trakersList.companies[company].reduce( function (sum, domain) {
-          let domainData = data.trakersList.trackers[domain];
+          var domainData = data.trakersList.trackers[domain];
           return sum + (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
         }, 0);
         companies.push({name: company, count: trackerCount});
