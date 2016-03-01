@@ -185,7 +185,6 @@
 
 		{{#each data.richData.internal_links}}
             <div class="cards__item internal_links">
-                
                 <h2 class="cards__title__secondary">
                     <a href="{{mobileWikipediaUrls url}}">{{title}}<a>
                 </h2>
@@ -194,7 +193,7 @@
 
         {{#each data.richData.additional_sources}} 
             <div class="cards__item additional_sources">
-                {{#with logoDetails}}
+                {{#with ../logo}}
                     {{#if backgroundImage}}
                         <div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
                     {{/if}}
