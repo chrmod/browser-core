@@ -71,6 +71,7 @@ CLIQZEnvironment = {
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
+            break;
           }
         }
       }
@@ -276,7 +277,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.lastResults = renderedResults.results;
 
     if(renderedResults.results.length > historyCount) {
-      /////////////CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
 
     CLIQZEnvironment.setCardsHeight();
