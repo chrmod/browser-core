@@ -2042,13 +2042,19 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    UI.VIEWS[templateName] = CLIQZ.System.get("ui/views/"+templateName).default;
-    if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
-      Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
-        UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
-      });
+    var module = CLIQZ.System.get("ui/views/"+templateName);
+    if (module) {
+      UI.VIEWS[templateName] = new module.default(ctx);
+
+      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+        Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+          UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+        });
+      }
     }
-  } catch (ex) {}
+  } catch (ex) {
+    ctx.console.error(ex);
+  }
 });
 
 ctx.CLIQZ.UI = UI;
