@@ -1,5 +1,5 @@
 <!-- results.tpl -->
-{{debug}}
+
 {{#each results}}
 	{{#unless invalid}}
 		<div class="frame" {{#if ../../frameWidth }} style="width: {{ ../../../frameWidth }}px; left: {{ left }}px" {{/if}}>
@@ -21,7 +21,7 @@
 
 					<section class="share">
 						<p cliqz-action='stop-click-event-propagation' 
-							onclick="osBridge.shareCard({{ json this }})" 
+							onclick="osBridge.shareCard('{{ url }}')" 
 							>{{local 'mobile_share_card'}}: {{url}}</p>
 
 					</section>

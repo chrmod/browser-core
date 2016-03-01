@@ -86,10 +86,6 @@
 
 	{{>EZ-category}}
 
-
-	<section class="share">
-		Share this card: <a href="">{{label}}</a>
-	</section>
 {{/with}}
 
 <!-- end celebrities.tpl @TODO -->
