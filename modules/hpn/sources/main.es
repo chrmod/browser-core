@@ -272,6 +272,8 @@ var CliqzSecureMessage = {
     },
     dbConn: null,
     proxyIP: function (){
+      if(!CliqzSecureMessage.proxyList) return;
+
     	if(proxyCounter >= CliqzSecureMessage.proxyList.length) proxyCounter = 0;
     	var url = createHttpUrl(CliqzSecureMessage.proxyList[proxyCounter]);
       CliqzSecureMessage.queryProxyIP = url;//"http://54.145.178.227/verify" ; //url;
