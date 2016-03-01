@@ -1,4 +1,4 @@
-export default {
+export default class {
   enhanceResults(data) {
 
     function parseTime(timeStr) {  // e.g. timeStr: 10.30
