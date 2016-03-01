@@ -41,11 +41,20 @@
 							<h3>{{ title }}</h3>
 							<div id="moreResults">{{ action }}</div>
 						</div>
+					  
+					{{#with logo}}
+						<div class="search_engine_logo"
+						 style="{{style}}"
+						 show-status=""
+						 extra="{{extra}}"
+						 url="{{url}}"
+						 >
+						</div>
+					  {{/with}}
 					  </div>
 				</div>
 			  
 			</div>
-
 			<!-- end googlethis -->
 		{{/with}}
 	{{/ifShowSearch}}

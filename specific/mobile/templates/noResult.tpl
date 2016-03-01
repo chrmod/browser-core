@@ -11,15 +11,16 @@
             >{{ action }}</div>
             
         </div>
+      {{#with logo}}
+        <div class="search_engine_logo"
+         style="{{style}}"
+         show-status=""
+         extra="{{extra}}"
+         url="{{url}}"
+         >
+        </div>
+      {{/with}}
       </div>
 {{/with}}
 
-<!-- end noResult.tpl {{#with logo}}
-              <div class="search_engine_logo"
-               style="{{style}}"
-               show-status=""
-               extra="{{extra}}"
-               url="{{url}}"
-               >{{ text }}
-              </div>
-            {{/with}}-->
+<!-- end noResult.tpl -->
