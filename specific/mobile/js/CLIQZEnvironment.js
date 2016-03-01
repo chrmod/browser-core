@@ -112,8 +112,8 @@ CLIQZEnvironment = {
 
     for(var i=0; i < ezs.length; i++) {
       ezs[i].style.height = null;
-      if(ezs[i].clientHeight+64 < height) {
-        ezs[i].style.height = height-75 + 'px';
+      if(ezs[i].clientHeight+40 < height) {
+        ezs[i].style.height = height-40 + 'px';
       }
     }
   },
