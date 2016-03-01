@@ -208,8 +208,6 @@ function deactivate(){
       } else {
         const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
         aboutNewTabService.resetNewTabURL();
-        CliqzUtils.getWindow().document.getElementById('urlbar').inputField.value = '';
-
       }
       CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), ''); // set the startup page to be the homepage
   }
