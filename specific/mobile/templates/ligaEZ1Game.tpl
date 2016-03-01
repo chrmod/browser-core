@@ -51,9 +51,6 @@
 
     </section>
 
-    <section class="share">
-        Share this card: <a href="">{{label}}</a>
-    </section>
 {{/with}}
 
 

@@ -48,8 +48,5 @@
         {{local 'more_on'}} <a href="http://www.weatherunderground.com">weatherunderground.com</a>
     </div>
 
-    <section class="share">
-        Share this card: <a href="">{{label}}</a>
-    </section>
 {{/with}}
 <!-- end weatherEZ.tpl -->

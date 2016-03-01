@@ -18,13 +18,13 @@
 					hasimage='{{ hasimage image }}'
 					>
 						{{partial vertical}}
-
-					<section class="share">
-						<p cliqz-action='stop-click-event-propagation'
-							onclick="osBridge.shareCard('{{ url }}')" 
-							>{{local 'mobile_share_card'}}: {{url}}</p>
-
-					</section>
+					{{#if url}}
+						<section class="share">
+							<p cliqz-action='stop-click-event-propagation' 
+								onclick="osBridge.shareCard('{{ url }}')"
+								>{{local 'mobile_share_card'}}: {{url}}</p>
+						</section>
+					{{/if}}
 				</div>
 			</div>
 			<br>
