@@ -942,7 +942,7 @@
       "message": "CLIQZ Anti-Tracking"
     },
     "attrack-headline-general-trackers": {
-      "message": "Diese Seite schickt Informationen an $1 andere Firmen. CLIQZ hat zu Deinem Schutz alle Deine $2 persönlichen Daten entfernt"
+      "message": "Diese Seite schickt Informationen an $1 andere Firmen. CLIQZ hat zu Deinem Schutz alle $2 unsicheren Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich"
