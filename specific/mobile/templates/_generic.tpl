@@ -213,7 +213,7 @@
 		
         {{#each data.w}}
             <div class="cards__item data_w">
-                <div class="card__logo__secondary" style="background-image: url({{logo}});background-color:#fff;">{{ source }}</div>
+                <div class="card__logo__secondary" style="background-image: url({{logo}});background-color:#fff;">.</div>
                 <h2 class="cards__title__secondary" url="{{u}}">{{source}}</h2>
             </div>
          {{/each}}
@@ -224,8 +224,4 @@
 
 	{{partial '_history'}}
 
-
-	<section class="share">
-		Share this card: <a href="">{{label}}</a>
-	</section>
 <!-- end _generic.tpl -->

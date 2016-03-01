@@ -1,4 +1,5 @@
 <!-- results.tpl -->
+{{debug}}
 {{#each results}}
 	{{#unless invalid}}
 		<div class="frame" {{#if ../../frameWidth }} style="width: {{ ../../../frameWidth }}px; left: {{ left }}px" {{/if}}>
@@ -15,12 +16,15 @@
 					idx='{{ @index }}'
 					id='cqz-result-box-{{ @index }}'
 					hasimage='{{ hasimage image }}'
-					>{{#if title}}{{#if url}}
+					>
+						{{partial vertical}}
+
+					<section class="share">
 						<p cliqz-action='stop-click-event-propagation' 
 							onclick="osBridge.shareCard({{ json this }})" 
-							class="share_this_card">{{local 'mobile_share_card'}}</p>
-					{{/if}}{{/if}}
-						{{partial vertical}}
+							>{{local 'mobile_share_card'}}: {{url}}</p>
+
+					</section>
 				</div>
 			</div>
 			<br>
