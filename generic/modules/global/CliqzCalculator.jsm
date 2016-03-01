@@ -132,7 +132,19 @@ var CliqzCalculator = {
     } catch (err) {}
     return null
   },
-
+  clean: function(q) {
+    if (!isNaN(q)) {
+      return ''; // Don't trigger calculator yet if the query is just a number
+    }
+    var operators = ['+', '-', '*', '/', '^', '='];
+    q = q.replace(/ /g, ''); // Remove all spaces
+    for (var i = 0; i < operators.length; i++) {
+      if (q[q.length - 1] == operators[i]) {
+        return q.substr(0, q.length-1); // Remove the last operator
+      }
+    }
+    return q;
+  },
   calculate: function(q) {
     if (this.CALCULATOR_RES === null || this.CALCULATOR_RES === q) {
       return null;
