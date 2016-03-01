@@ -8,13 +8,6 @@
         <h1 class="card__title">
             {{ returned_location }}
         </h1>
-
-        {{#with alert}}
-            <div class="alert">
-                <div class="header">{{des}}</div>
-                <div class="info">{{time}}</div>
-            </div>
-        {{/with}}
         
         <div class='EZ-weather-container weather__today'>
             <div class='EZ-weather-date'>{{ todayWeekday }}</div>
