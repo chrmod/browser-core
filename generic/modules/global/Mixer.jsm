@@ -8,7 +8,6 @@ var EXPORTED_SYMBOLS = ['Mixer'];
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'UrlCompare',
   'chrome://cliqzmodules/content/UrlCompare.jsm');
@@ -23,6 +22,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 CliqzUtils.init();
+var CliqzSmartCliqzCache;
 
 function objectExtend(target, obj) {
   Object.keys(obj).forEach(function(key) {
@@ -60,7 +60,9 @@ var Mixer = {
   init: function() {
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
-      CliqzSmartCliqzCache.init();
+      CliqzUtils.importModule("smart-cliqz-cache/background").then((module) => {
+        CliqzSmartCliqzCache = module.default.smartCliqzCache;
+      });
     }, 3000);
   },
 
@@ -280,7 +282,7 @@ var Mixer = {
       });
 
       if (wasCacheUpdated) {
-        CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
+        CliqzSmartCliqzCache.triggerUrls.save(CliqzSmartCliqzCache.TRIGGER_URLS_CACHE_FILE);
       }
 
       CliqzSmartCliqzCache.store(r);
@@ -301,6 +303,11 @@ var Mixer = {
 
     if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
       var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
+      // clear dirty data that got into the data base
+      if (ezId === 'deprecated') {
+        CliqzSmartCliqzCache.triggerUrls.delete(url);
+        return undefined;
+      }
       ez = CliqzSmartCliqzCache.retrieve(ezId);
       if (ez) {
         // Cached EZ is available

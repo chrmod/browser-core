@@ -4,6 +4,7 @@
   "modules": [
     "core",
     "ui",
-    "static"
+    "static",
+    "smart-cliqz-cache"
   ]
 }

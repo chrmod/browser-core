@@ -219,7 +219,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
