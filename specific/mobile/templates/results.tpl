@@ -20,7 +20,7 @@
 						{{partial vertical}}
 
 					<section class="share">
-						<p cliqz-action='stop-click-event-propagation' 
+						<p cliqz-action='stop-click-event-propagation'
 							onclick="osBridge.shareCard('{{ url }}')" 
 							>{{local 'mobile_share_card'}}: {{url}}</p>
 
