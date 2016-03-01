@@ -47,27 +47,37 @@ export default {
     },
 
     getSpeedDials() {
-      function filterOutDeleted(results, type) {
+      var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
+          historyDialups = [],
+          customDialups = [];
 
-        try {
-          var deleted = JSON.parse(utils.getPref(DEL_DIALUPS, '', ''));
-          results = results.filter(function(item) {
-            return deleted[type].indexOf(item.url) === -1;
-          });
-
-        } catch(e) {
-          utils.log(`Error parsing deleted tiles  ${e.message}`);
-        }
-        return results;
-
-      }
-
-      var historyDialups = History.getTopUrls().then(function(results){
+      var historyDialups = History.getTopUrls(5).then(function(results){
         utils.log("History", JSON.stringify(results));
 
-        if(utils.hasPref(DEL_DIALUPS, '')) {
-          results = filterOutDeleted(results, 'history');
+        /*
+        ** Apart from checking non deleted history entries
+        * I filter out custom tiles as well
+        */
+        function isNotDeleted(history) {
+          var isNotDeleted = true;
+
+          for(var i = 0; i < dialUps.length; i++) {
+            var dialup = dialUps[i];
+            if ((dialup.url === history.url && dialup.deleted === true && dialup.custom === false) ||
+                (dialup.url === history.url && dialup.custom === true)) {
+              isNotDeleted = false;
+              break;
+            }
+          }
+          return isNotDeleted;
         }
+
+        results = dialUps.length === 0 ? results : results.filter(function(history) {
+
+          return isNotDeleted(history);
+        });
+
+        utils.log(results, "HISTORY RESULTS");
 
         return results.map(function(r){
           var details = utils.getDetailsFromUrl(r.url);
@@ -81,16 +91,11 @@ export default {
         });
       });
 
-      //get custom tiles
-      var customDialups = [];
-      if (utils.hasPref(DIALUPS, '')) {
-        customDialups = JSON.parse(utils.getPref(DIALUPS, '', '')).custom;
+      customDialups = dialUps.length === 0 ? [] : dialUps.filter(function(dialup) {
+        return !dialup.deleted && dialup.custom;
+      });
 
-        //filterout custom deleted ones
-        if(utils.hasPref(DEL_DIALUPS, '')) {
-          customDialups = filterOutDeleted(customDialups, 'custom');
-        }
-      }
+      utils.log(customDialups, "CUSTOM RESULTS")
 
       customDialups = customDialups.map(function(r) {
         var details = utils.getDetailsFromUrl(r.url);
@@ -105,6 +110,8 @@ export default {
 
       //Promise all concatenate results and return
       return Promise.all([historyDialups, customDialups]).then(function(results){
+        utils.log(results[0], "history dialups");
+        utils.log(results[1], "custom dialups")
         return {
           speedDials: results[0].concat(results[1])
         };
@@ -112,11 +119,66 @@ export default {
     },
 
     removeSpeedDial(item) {
-      utils.log(item, "Remove speed dial");
+      var isCustom = item.custom,
+          url = item.url,
+          dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
+          found = false;
+
+      for(var i = 0; i < dialUps.length; i++) {
+        if(dialUps[i].url === url) {
+          dialUps[i].deleted = true;
+          found = true;
+          break;
+        }
+      }
+      if(found === false) {
+        dialUps.push({
+          url: url,
+          deleted: true,
+          custom: isCustom
+        });
+      }
+
+      utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
     },
 
-    addSpeedDial(item) {
-      utils.log(item, "Add speed dial");
+    addSpeedDial(url) {
+      utils.log(url, "Add speed dial");
+
+      var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
+          found = false;
+
+      for(var i = 0; i < dialUps.length; i++) {
+        if(dialUps[i].url === url) {
+          dialUps[i].deleted = false;
+          dialUps[i].custom = true;
+          found = true;
+          break;
+        }
+      }
+      if(found === false) {
+        dialUps.push({
+          url: url,
+          deleted: false,
+          custom: true
+        });
+      }
+
+      utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+
+      //@TODO move this part
+      return new Promise((resolve) => {
+        utils.log("Resolve the promise!!!")
+        var details = utils.getDetailsFromUrl(url),
+            obj = {
+              title: url,
+              url: url,
+              displayTitle: details.cleanHost || details.friendly_url || url,
+              custom: true,
+              logo: utils.getLogoDetails(details)
+            }
+        resolve(obj);
+      });
     },
 
     getNews() {

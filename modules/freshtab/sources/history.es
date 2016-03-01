@@ -24,7 +24,7 @@ var CliqzFreshTabHistory = {
           ") as mzh",
           "group by mzh.place_id",
           "order by total_count desc",
-          "limit 5",
+          "limit 15",
         ].join(' '),
         ["url", "title", "total_count"],
         function(row) {

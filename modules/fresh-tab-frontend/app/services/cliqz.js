@@ -89,7 +89,9 @@ export default Ember.Service.extend({
   },
 
   addSpeedDial(item) {
-    this.callbacks.addSpeedDial = () => {};
+    let promise = new Promise( resolve => {
+      this.callbacks.addSpeedDial = resolve;
+    });
 
     window.postMessage(JSON.stringify({
       target: "cliqz",
@@ -97,6 +99,8 @@ export default Ember.Service.extend({
       action: "addSpeedDial",
       "args": [item]
     }), "*");
+
+    return DS.PromiseObject.create({ promise });
   },
 
   removeSpeedDial(item) {
