@@ -23,6 +23,7 @@
 						{{partial vertical}}
 				</div>
 			</div>
+			<br>
 		</div>
 	{{/unless}}
 {{/each}}
