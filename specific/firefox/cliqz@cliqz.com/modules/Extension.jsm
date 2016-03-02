@@ -221,8 +221,9 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v4.0.4.js');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');

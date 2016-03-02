@@ -6,6 +6,8 @@ import v3 from "ui/views/local-data-sc";
 import v4 from "ui/views/local-movie-sc";
 import v5 from "ui/views/weatherAlert";
 import v6 from "ui/views/weatherEZ";
+import v7 from "ui/views/generic";
+import v8 from "ui/views/entity-generic";
 import p1 from "ui/views/partials/missing_location_1";
 
 export default {

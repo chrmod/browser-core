@@ -29,7 +29,7 @@
     </div>
     <div id="cinema-showtimes-container" class="cinema-showtimes-container local-sc-data-container">
       {{#if no_location }}
-        {{> partials/missing_location_1}}
+        {{> partials/missing_location_step_1}}
       {{else}}
         {{> partials/timetable-movie }}
       {{/if}}
