@@ -12,7 +12,6 @@ CLIQZEnvironment = {
 
   log: Logger.log,
   logCounter: Logger.logCounter,
-  _recentHistory: {},
 
   callRichHeader: function(searchString, url, callback) {
     var richHeaderUrl = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map';
@@ -48,6 +47,7 @@ CLIQZEnvironment = {
             CLIQZ.UI.enhanceResults(r);
 
             if(document.getElementById('cqz-result-box-' + index) && r.results[0] && r.results[0].data.template !== 'noResult') {
+
               document.getElementById('cqz-result-box-' + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -72,7 +72,6 @@ CLIQZEnvironment = {
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
-            break;
           }
         }
       }
@@ -114,8 +113,8 @@ CLIQZEnvironment = {
 
     for(var i=0; i < ezs.length; i++) {
       ezs[i].style.height = null;
-      if(ezs[i].clientHeight+40 < height) {
-        ezs[i].style.height = height-40 + 'px';
+      if(ezs[i].clientHeight+64 < height) {
+        ezs[i].style.height = height-75 + 'px';
       }
     }
   },
@@ -125,8 +124,6 @@ CLIQZEnvironment = {
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CliqzUtils.getDetailsFromUrl(engine.url);
-    var logo = CliqzUtils.getLogoDetails(details);
 
     CLIQZEnvironment.setDimensions();
 
@@ -156,8 +153,7 @@ CLIQZEnvironment = {
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
-        searchEngineUrl: engine.url,
-        logo: logo
+        searchEngineUrl: engine.url
       }
     });
 
@@ -254,7 +250,6 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r) {
-    
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
@@ -278,7 +273,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.lastResults = renderedResults.results;
 
     if(renderedResults.results.length > historyCount) {
-      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      // TODO CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
 
     CLIQZEnvironment.setCardsHeight();
@@ -287,18 +282,6 @@ CLIQZEnvironment = {
 
   },
   search: function(e, location_enabled, latitude, longitude) {
-    if(!e || e === '') {
-      resultsBox.style.display = 'none';
-      window.document.getElementById('startingpoint').style.display = 'block';
-      CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.initHomepage();
-      CLIQZEnvironment.stopProgressBar();
-      CLIQZEnvironment.lastResults = null;
-      return;
-    }
-    e = e.toLowerCase().trim();
-
-    localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
     if(location_enabled) {
@@ -315,26 +298,24 @@ CLIQZEnvironment = {
 
     item_container = document.getElementById('cliqz-results');
 
+    if(!e || e === '') {
+      resultsBox.style.display = 'none';
+      window.document.getElementById('startingpoint').style.display = 'block';
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.initHomepage();
+      CLIQZEnvironment.stopProgressBar();
+      return;
+    }
+
     //TODO: work around for now
-    urlbar.value = e;
+    urlbar.value = e.toLowerCase().trim();
 
     resultsBox.style.display = 'block';
     window.document.getElementById('startingpoint').style.display = 'none';
 
-    if(e === 'testme') {
+    if(e.toLowerCase() === 'testme') {
       initTest();
     }
-
-    if(e === 'josep') {
-      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
-      alert("switched to beta mixer with joseps magic links");
-    } 
-
-    if(e === 'nojosep') {
-      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
-      alert("switched to live mixer withOUT joseps magic links");
-    }
-
     CLIQZEnvironment.startProgressBar();
 
 
@@ -541,7 +522,7 @@ CLIQZEnvironment = {
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
-        req.timeout = (method === 'POST'? 10000 : 1000);
+        req.timeout = (method === 'POST'? 10000 : 4000);
       }
     }
 
@@ -617,115 +598,17 @@ CLIQZEnvironment = {
   copyResult: function(val) {
     osBridge.copyResult(val);
   },
-  getNews: function(newsDomains) {
-    console.log("%cloading news","background:blue;color:white");
+  getNews: function() {
+    //console.log('Start getting news');
     var cachedNews = localStorage.getObject('freshTab-news');
     if(cachedNews) {
       CLIQZEnvironment.displayTopNews(cachedNews);
     }
-    // return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
-
-
-    if(newsDomains) {
-
-        var seen = {};
-        newsDomains = newsDomains.filter(function(item) {
-            return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-        });
-
-        var hashedDomains = [];
-        for(var i in newsDomains) {
-            hashedDomains.push(CliqzUtils.hash(newsDomains[i]));
-        }
-
-        // history based news
-        var method = "GET", 
-        url = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com&lang=en%2Cde&locale=en-GB&q="
-                + JSON.stringify(hashedDomains),
-        callback = function(data) {
-            try {
-                var sResponse = JSON.parse(data.responseText);
-                var news = sResponse.results[0].news;
-                var myNews = [], domain;
-                for(var i in newsDomains) {
-                    domain = newsDomains[i];
-                    if(news[domain]) {
-                      for(var j in news[domain]) {
-                        if(!CLIQZEnvironment._recentHistory[news[domain][j].url]) {
-                          news[domain][j].type = "history";  
-                          myNews.push(news[domain][j]);
-                          break;
-                        }
-                      }
-                    }
-                }
-                CLIQZEnvironment.collectNews('history',myNews);
-            } catch(e) {
-                console.error(e);
-            }
-        },
-        onerror = function() {
-          console.error("news error",arguments);
-          setTimeout(CLIQZEnvironment.getNews,1500);
-        },
-        timeout = function() {
-          console.error("timeout error",arguments);
-          CLIQZEnvironment.getNews(newsDomains);
-        },
-        data = null, 
-        asynchronous = true;
-        CLIQZEnvironment.httpHandler(method, url, callback, onerror, timeout, data, asynchronous);     
-    }
-
-    // temporary freshtab replacement for mobile
-    var method = "GET", 
-    url = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de",
-    callback = function(data) { 
-        try {
-            var sResponse = JSON.parse(data.responseText);
-            CLIQZEnvironment.collectNews('standard',sResponse.results[0].articles);
-        } catch(e) {
-            console.error(e);
-        }
-    },
-    onerror = function() {
-      console.error("news error",arguments);
-      setTimeout(CLIQZEnvironment.getNews,1500);
-    },
-    timeout = function() {
-      console.error("timeout error",arguments);
-      CLIQZEnvironment.getNews();
-    },
-    data = null, 
-    asynchronous = true;
-    CLIQZEnvironment.httpHandler(method, url, callback, onerror, timeout, data, asynchronous);
-
+    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
   },
+  displayTopNews: function(news) {
 
-  collectNews: function(type,news) {
-    if(type=="history") {
-        CLIQZEnvironment.newsHistory = news;
-    }
-    if(type=="standard") {
-        CLIQZEnvironment.newsStandard = news;
-    }
-    if(CLIQZEnvironment.newsHistory !== null && CLIQZEnvironment.newsStandard  !== null) {
-       if(CLIQZEnvironment.newsHistory) {
-          CLIQZEnvironment.displayTopNews(CLIQZEnvironment.newsHistory.concat(CLIQZEnvironment.newsStandard));
-       } else {
-         CLIQZEnvironment.displayTopNews(CLIQZEnvironment.newsStandard);
-       }
-    }
-  },
-
-
-
-  displayTopNews: function(top_news) {
-
-    CLIQZEnvironment.newsHistory = CLIQZEnvironment.newsStandard = null;
-    if(!top_news) {
-      return;
-    }
+    var top_news = news.top_h_news;
 
     //console.log('%crendering top news', 'color:green', top_news)
     top_news = top_news.map(function(r){
@@ -734,17 +617,16 @@ CLIQZEnvironment = {
       return {
         title: r.title,
         description: r.description,
-        short_title: r.short_title || r.title,
+        short_title: r.short_title,
         displayUrl: details.domain || r.title,
         url: r.url,
-        type: r.type,
         text: logo.text,
         backgroundColor: logo.backgroundColor,
         buttonsClass: logo.buttonsClass,
         style: logo.style
       };
     });
-    if(!CliqzHandlebars.tplCache.topnews || CliqzUtils.getLocalizedString('freshtab_top_news') === 'freshtab_top_news') {
+    if(!CliqzHandlebars.tplCache.topnews || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
       return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
     }
     var topNews = CliqzHandlebars.tplCache['topnews'];
@@ -759,16 +641,8 @@ CLIQZEnvironment = {
       });
     });
   },
-
-  getRecentHistory: function(history) {
-    for(var i in history.results) {
-         CLIQZEnvironment._recentHistory[history.results[i].url] = true;
-    }
-  },
-
-
   displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites || CliqzUtils.getLocalizedString('freshtab_top_sites') === 'freshtab_top_sites') {
+    if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
       return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
     }
 
@@ -776,21 +650,15 @@ CLIQZEnvironment = {
       list = mockedHistory;
     }
 
-    osBridge.searchHistory("","CLIQZEnvironment.getRecentHistory");
-
-    var indexList = {}, myList = [], domain, domainArr, mainDomain, newsDomainList = [];
+    var indexList = {}, myList = [], domain, domainArr, mainDomain;
     for(var i=0; i<list.length; i++) {
       domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
       domainArr = domain.split('.');
-      newsDomainList.push(domainArr[domainArr.length-2] + '.' + domainArr[domainArr.length-1]);
       mainDomain = domainArr[domainArr.length-2].substr(0,10);
       mainDomain = mainDomain.charAt(0).toUpperCase() + mainDomain.slice(1);
       list[i].mainDomain = mainDomain;
       indexList[mainDomain] = list[i];
     }
-
-    CLIQZEnvironment.getNews(newsDomainList);
-
     for(i in indexList) {
       myList.push(indexList[i]);
     }
@@ -835,15 +703,14 @@ CLIQZEnvironment = {
       element.addEventListener(eventType, listener);
     });
   },
-
   initHomepage: function(firstTime) {
     if(!firstTime) {
       var start = document.getElementById('freshstart');
       start && (start.style.display = 'none');
     }
-    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 20);
+    CLIQZEnvironment.getNews();
+    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 50);
   },
-
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject('defaultSearchEngine', engine);
     var engineDiv = document.getElementById('defaultEngine');
@@ -860,10 +727,8 @@ CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CliqzUtils.getDetailsFromUrl(engine.url);
-    var logo = CliqzUtils.getLogoDetails(details);
 
-    return Result.cliqzExtra(
+    var result =  Result.cliqzExtra(
       {
         data:
           {
@@ -871,12 +736,12 @@ CLIQZEnvironment = {
             title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
             action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
-            searchEngineUrl: engine.url,
-            logo: logo
-          },
-        subType: JSON.stringify({empty:true})
+            searchEngineUrl: engine.url
+          }
       }
     );
+    result.data.kind = ["CL"];
+    return result;
   },
   setClientPreferences: function(prefs) {
     for (var key in prefs) {
