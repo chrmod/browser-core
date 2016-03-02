@@ -22,8 +22,8 @@ var PrivacyRep = {
     if (PrivacyRep.initialized === false) {
       AboutURLPrivacy.prototype = {
         QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
-        classDescription: 'about:cliqzloyalty',
-        classID: Components.ID('{bbab0a50-7988-11e5-a837-0800200c9a66}'),
+        classDescription: 'about:acliqzloyalty',
+        classID: Components.ID('{abab0a50-7988-11e5-a837-0800200c9a66}'),
         contractID: '@mozilla.org/network/protocol/about;1?what=cliqzloyalty',
 
         newChannel: function (uri) {
