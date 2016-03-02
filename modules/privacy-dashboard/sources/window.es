@@ -15,7 +15,7 @@ export default class {
       win.document,
       utils.getLocalizedString('btnPrivacyDashboard'),
       function(){
-        utils.openTabInWindow(win, 'about:cliqzloyalty');
+        utils.openTabInWindow(win, 'about:transparency');
       }, 'Cliqz Privacy Dashboard');
     return btn;
   }

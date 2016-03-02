@@ -7,7 +7,7 @@
         content="Mit CLIQZ for Firefox erlebst du ein völlig neues Web: direkt, schnell, sicher. Hier kannst du die kostenlose Browser-Erweiterung herunterladen."/>
     <meta name="keywords"
         content="Firefox,Add on,Erweiterung,Browser,Suche,Suchmaschine,Google,Alternative,Internet,web,Navigation,suchen,navigieren,finden"/>
-    <title>Cliqz | Privacy Dashboard</title>
+    <title>Cliqz | Transparenz-Cockpit</title>
 
     <!-- Cliqz CSS -->
     <link rel="stylesheet" href="chrome://cliqz/content/privacy-dashboard/css/styles.css"/>
@@ -20,7 +20,7 @@
 
 	<h1>
 		<div class="title">
-			Privacy Dashboard
+			Transparenz-Cockpit
 		</div>
 		<div class="legend">
 			<b class="meta">Legend:</b>
@@ -28,48 +28,58 @@
 		</div>
 	</h1>
 	<div class="wrapper">
-		<section class="antitracking">
+            <section class="antitracking">
+                <header>
+                    <h2>Transparenz-Cockpit</h2>
+                    <div class="description">
+                        Wir Ihr wisst, ist uns Eure Privatsphäre extrem wichtig. Damit Ihr uns das nicht nur glauben müsst, sondern das auch überprüfen könnt, haben wir das Transparenz-Cockpit für Euch entwickelt.
+                        Das Transparenz-Cockpit zeigt Euch in Echtzeit welche Daten in Eurem Browser erhoben werden, welche wir blockieren um Eure Privatsphäre zu schützen, und welche davon von uns verarbeitet werden. Macht Euch Euer eigenes Bild!
+                    </div>
+                </header>
+            </section>
+
+		    <section class="antitracking">
 				<header>
-					<h2>Your search using CLIQZ</h2>
+					<h3>Eure Suche bei CLIQZ</h3>
 					<div class="description">
-						Lots of Blah blahj on what exactly we see here and why we block stuff and why we dont. <a href="">And additional links to somewhere</a>.
+						Suchanfragen und Adressen die Ihr über die CLIQZ-Suche eingebt seht Ihr in diesem Teil des Cockpits. Diese Informationen helfen uns Euer Sucherlebnis zu optimieren. Diese Daten sind für uns jedoch absolut anonym und können nicht mit Euch in Verbindung gebracht werden. Weitere Informationen findet Ihr <a target="_blank" href="https://cliqz.com/whycliqz/human-web">hier</a>.
 					</div>
 				</header>
-		
+
 				<div id="searchData" class="cf">
 				</div>
-		
+
 			</section>
-		
+
 			<section class="humanweb">
-		
+
 				<header>
-					<h2>Telemetry</h2>
+					<h3>Telemetrie</h3>
 					<div class="description">
-						Lots of Blah blahj on what exactly we see here and why we block stuff and why we dont. <a href="">And additional links to somewhere</a>.
+						Telemetrie umfasst alle Daten die die Verwendung und Leistung des Browsers und seiner Funktionen betreffen, damit wir fortlaufend das Produkt für Euch verbessern können. Daten die in diesen Bereich fallen, beinhalten z.B. die Browserversion oder die Reaktionszeit bis die Ergebnisse angezeigt werden. Diese Daten beinhalten jedoch keinerlei Information über Eure Suchanfragen, die Ergebnisse oder die Inhalte der Seiten. Weitergehende Information findet Ihr <a target="_blank" href="https://cliqz.com/whycliqz/human-web">hier</a>.
 					</div>
 				</header>
-		
+
 				<div id="telemetryData" class="cf">
 				</div>
-		
+
 			</section>
-		
+
 			<section class="humanweb">
-		
+
 				<header>
-					<h2>Human Web</h2>
-					<div class="description">
-						Lots of Blah blahj on what exactly we see here and why we block stuff and why we dont. <a href="">And additional links to somewhere</a>.
-					</div>
+					<h3>Human Web</h3>
+                    <div class="description">
+                        Human Web ist der Name unserer Technologie, die es uns erlaubt die Qualität unserer Suchergebnisse mittels statistischer Methoden ständig zu verbessern. Daten die hier gesammelt werden beziehen sich auf Suchanfragen und die jeweils erzielten Ergebnisse, unabhängig davon welche Suchmaschine Ihr nutzt. Das Human Web ist dabei so konzipiert, dass theoretisch mögliche Rückschlüsse auf Personen durch die Verknüpfung verschiedener Daten unmöglich sind. Zusätzlich sind Eure Suchanfragen durch ein Proxy-Netzwerk verschlüsselt. Weitergehende Information findet Ihr <a target="_blank" href="https://cliqz.com/whycliqz/human-web">hier</a>.
+                    </div>
 				</header>
-		
+
 				<div id="humanwebData" class="cf">
 				</div>
-		
+
 			</section>
 	</div>
-	
+
 
 </body>
 

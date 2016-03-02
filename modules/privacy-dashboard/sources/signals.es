@@ -22,7 +22,7 @@ function reformatSignalsFlat (sig, ignoreKeys=[], send=true) {
       if (ignoreKeys.indexOf(name) === -1) {
         info.push({
           "name": name,
-          "val": typeof(sig[name]) === "object" ? JSON.stringify(sig[name]) : sig[name] || " ",
+          "val": (sig[name] && typeof(sig[name]) === "object" ? JSON.stringify(sig[name]) : sig[name]).toString(),
           "send": send,
           "des": ""  // todo: fill in descriptions
         });
@@ -96,21 +96,13 @@ var SignalListener = {
       var qsParams = utils.parseQueryString(qs);
       Object.keys(qsParams).forEach(function(key){
         if(qsParams[key]){
-          queryLog[QUERY_LOG_PARAM[key] || key] = qsParams[key];
+          queryLog[key + ": " + (QUERY_LOG_PARAM[key] || key)] = qsParams[key];
         }
       });
 
       SignalListener.SigCache.ql = {"sig": queryLog, "timestamp": Date.now()};
       SignalListener.fireNewDataEvent("ql");
     }
-    return;
-    QUERY_LOG_PARAM.forEach(function (param, idx) {
-      if (arg[idx] !== null) {
-        queryLog[param] = arg[idx];
-      }
-    });
-    SignalListener.SigCache.ql = {"sig": queryLog, "timestamp": Date.now()};
-    SignalListener.fireNewDataEvent("ql");
   },
 
   init: function () {
@@ -163,10 +155,17 @@ var HumanwebSignal = {
 };
 
 var Signals = {
-  sigExpireTime: 5*60*1000, // miliseconds, if a signal is older than this, it's expired
-
+  sigExpireTime: 1*60*1000, // miliseconds, if a signal is older than this, it's expired
+  IPs: "",
   init: function () {
     SignalListener.init();
+
+    var dns = Components.classes["@mozilla.org/network/dns-service;1"]
+                    .getService(Components.interfaces.nsIDNSService),
+    myName = dns.myHostName,
+    record = dns.resolve(myName, 0);
+
+    while (record.hasMore()) Signals.IPs = Signals.IPs + " " + record.getNextAddrAsString();
   },
 
   setStreaming: function (boolVal) {
@@ -188,7 +187,7 @@ var Signals = {
         info = info.concat(reformatSignalsFlat(s));
       });
       info = info.concat(reformatSignalsFlat({
-        "IP": "your IP",
+        "IP": "your IPs: " + Signals.IPs,
         "GPS": "your location",
         "query": "what you search"
       }, [], false));
@@ -196,7 +195,7 @@ var Signals = {
     if (sigType === "ql") {
       info = reformatSignalsFlat(sig)
         .concat(reformatSignalsFlat({
-          "your identity": "your IP/IDs",
+          "your identity": "your IP/IDs: " + Signals.IPs,
           "GPS": "your location",
           "when you search": "time stamp"
         }, [], false));
