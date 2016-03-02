@@ -885,6 +885,7 @@ var CliqzUtils = {
     CliqzUtils._telemetry_start = Date.now();
 
     CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
+
     CliqzUtils._telemetry_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTelemetryCallback, JSON.stringify(CliqzUtils._telemetry_sending), CliqzUtils.pushTelemetryError);
   },
   pushTelemetryCallback: function(req){
