@@ -1,4 +1,4 @@
-import CliqzSecureMessage from 'hpn/main';
+import background from 'hpn/background';
 
 const prefKey = 'hpn-query', // 0 - enable, 1 - disable
       BLOCK = false,
@@ -10,8 +10,8 @@ export default class {
   }
 
   init() {
-  	if(CliqzUtils.getPref("proxyNetwork", true)){
-  		CliqzSecureMessage.initAtWindow(this.window);
+  	if(background.CliqzSecureMessage){
+  		background.CliqzSecureMessage.initAtWindow(this.window);
   	}
   }
 
@@ -19,7 +19,7 @@ export default class {
   }
 
 	createButtonItem(win){
-		if(CliqzUtils.getPref("proxyNetwork", true)){
+		if(background.CliqzSecureMessage){
 		    var doc = win.document,
 		        menu = doc.createElement('menu'),
 		        menuPopup = doc.createElement('menupopup');

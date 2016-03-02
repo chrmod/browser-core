@@ -19,6 +19,8 @@ import CliqzHumanWeb from 'human-web/human-web';
 import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
+import {ChannelListener} from 'antitracking/channel-listener';
+import ResourceLoader from 'core/resource-loader';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -31,6 +33,8 @@ var countReload = false;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefBranch);
+
+var cListener = new ChannelListener();
 
 function shuffle(s) {
     var a = s.split(""),
@@ -67,7 +71,6 @@ var CliqzAttrack = {
     // URL_ALERT_TEMPLATE: 'chrome://cliqz/content/anti-tracking-index.html',
     // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
     URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
-    URL_TRACKER_COMPANIES: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
     ENABLE_PREF: 'antiTrackTest',
     debug: false,
     msgType:'attrack',
@@ -107,6 +110,7 @@ var CliqzAttrack = {
     instantTokenCache: {},
     requestKeyValue: null,
     recentlyModified: new TempSet(),
+    cliqzHeader: 'CLIQZ-AntiTracking',
     favicons: {
         // A simple capacity limited set, with least recently used items removed when
         // capcity is full.
@@ -457,13 +461,15 @@ var CliqzAttrack = {
 
                     if (badTokens.length > 0 && CliqzAttrack.qs_whitelist.isUpToDate()) {
                         // determin action based on tracker.txt
-                        var rule = getDefaultTrackerTxtRule(),
+                        var rule = CliqzAttrack.getDefaultRule(),
                             _trackerTxt = TrackerTXT.get(source_url_parts);
-                        if (CliqzAttrack.isTrackerTxtEnabled()) {
-                            if (_trackerTxt.last_update === null)
-                                // The first update is not ready yet
-                                sleep(300);
-                            rule = _trackerTxt.getRule(url_parts.hostname)
+                        if (!CliqzAttrack.isForceBlockEnabled() && CliqzAttrack.isTrackerTxtEnabled()) {
+                            if (_trackerTxt.last_update === null) {
+                                // The first update is not ready yet for this first party, allow it
+                                tp_events.incrementStat(req_log, 'tracker.txt_not_ready' + rule);
+                                return;
+                            }
+                            rule = _trackerTxt.getRule(url_parts.hostname);
                         }
                         if (rule == 'block') {
                             subject.cancel(Components.results.NS_BINDING_ABORTED);
@@ -476,6 +482,9 @@ var CliqzAttrack = {
                                 }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             }
+                            aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
+                            cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
+                            aChannel.notificationCallbacks = cListener;
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
@@ -967,6 +976,7 @@ var CliqzAttrack = {
         if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie REMOVED (" + reason + "): "  + req_metadata['dst'] + " >>> " + url, CliqzAttrack.LOG_KEY);
         // blocking cookie
         channel.setRequestHeader("Cookie", "", false);
+        channel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
         CliqzAttrack.blockedCache[req_metadata['dst']] = req_metadata['ts'];
         CliqzAttrack.cookieTraffic['cblocked'] += 1;
         CliqzAttrack.cookieTraffic['blocked'].unshift(req_metadata);
@@ -1057,6 +1067,13 @@ var CliqzAttrack = {
 
         }
     },
+    getDefaultRule: function() {
+        if (CliqzAttrack.isForceBlockEnabled()) {
+            return 'block';
+        } else {
+            return getDefaultTrackerTxtRule();
+        }
+    },
     isEnabled: function() {
         return CliqzUtils.getPref(CliqzAttrack.ENABLE_PREF, false);
     },
@@ -1083,6 +1100,9 @@ var CliqzAttrack = {
     },
     isBloomFilterEnabled: function() {
         return CliqzUtils.getPref('attrackBloomFilter', false);
+    },
+    isForceBlockEnabled: function() {
+        return CliqzUtils.getPref('attrackForceBlock', false);
     },
     initialiseAntiRefererTracking: function() {
         if (CliqzUtils.getPref('attrackRefererTracking', false)) {
@@ -1264,9 +1284,13 @@ var CliqzAttrack = {
 
         if (CliqzAttrack.qsBlockRule == null) CliqzAttrack.loadBlockRules();
 
-        if (Object.keys(CliqzAttrack.tracker_companies).length == 0) {
-            CliqzAttrack.loadTrackerCompanies();
-        }
+        // load tracker companies data
+        this._trackerLoader = new ResourceLoader( ['antitracking', 'tracker_owners.json'], {
+            remoteURL: 'https://cdn.cliqz.com/anti-tracking/tracker_owners_list.json',
+            cron: 24 * 60 * 60 * 1000,
+        });
+        this._trackerLoader.load().then(CliqzAttrack._parseTrackerCompanies);
+        this._trackerLoader.onUpdate(CliqzAttrack._parseTrackerCompanies);
 
         // @konarkm : Since we already have window, passing it.
         // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
@@ -1303,6 +1327,7 @@ var CliqzAttrack = {
         CliqzAttrack.shortTokenLength = parseInt(persist.getValue('shortTokenLength')) || 8;
 
         CliqzAttrack.placeHolder = persist.getValue('placeHolder', CliqzAttrack.placeHolder);
+        CliqzAttrack.cliqzHeader = persist.getValue('cliqzHeader', CliqzAttrack.cliqzHeader);
     },
     /** Per-window module initialisation
      */
@@ -1455,12 +1480,17 @@ var CliqzAttrack = {
 
             if (versioncheck.shortTokenLength) {
                 persist.saveValue('shortTokenLength', versioncheck.shortTokenLength);
-                CliqzAttrack.shortTokenLength |= parseInt(versioncheck.shortTokenLength);
+                CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength) || CliqzAttrack.shortTokenLength;
             }
 
             if (versioncheck.safekeyValuesThreshold) {
                 persist.saveValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
-                CliqzAttrack.safekeyValuesThreshold |= parseInt(versioncheck.safekeyValuesThreshold);
+                CliqzAttrack.safekeyValuesThreshold = parseInt(versioncheck.safekeyValuesThreshold) || CliqzAttrack.safekeyValuesThreshold;
+            }
+
+            if (versioncheck.cliqzHeader) {
+                persist.setValue('cliqzHeader', versioncheck.cliqzHeader);
+                CliqzAttrack.cliqzHeader = versioncheck.cliqzHeader;
             }
 
             // fire events for list update
@@ -2031,20 +2061,10 @@ var CliqzAttrack = {
       return CliqzAttrack.getTabBlockingInfo(tabId);
     },
     tracker_companies: {},
-    loadTrackerCompanies: function() {
-      CliqzUtils.loadResource(CliqzAttrack.URL_TRACKER_COMPANIES, function(req) {
-        try {
-          CliqzAttrack._parseTrackerCompanies(req.response);
-        } catch(e) {
-          CliqzUtils.log(e);
-        }
-      });
-    },
     /** Parse tracker owners list {Company: [list, of, domains]}, into lookup table {domain: Company}
      */
-    _parseTrackerCompanies: function(response) {
-      var rev_list = {},
-        company_list = JSON.parse(response);
+    _parseTrackerCompanies: function(company_list) {
+      var rev_list = {};
       for (var company in company_list) {
         company_list[company].forEach(function(d) {
           rev_list[d] = company;
@@ -2065,20 +2085,11 @@ var CliqzAttrack = {
         CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
         CliqzUtils.setPref('attrackRefererTracking', true);
       }
-      // telemetry
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'enable_' + (module_only ? 'abtest' : 'manual')
-      });
     },
     /** Disables anti-tracking immediately.
      */
     disableModule: function() {
       CliqzUtils.setPref(CliqzAttrack.ENABLE_PREF, false);
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'disable'
-      });
     },
     disabled_sites: new Set(),
     DISABLED_SITES_PREF: "attrackSourceDomainWhitelist",
@@ -2091,10 +2102,6 @@ var CliqzAttrack = {
     },
     addSourceDomainToWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.add(domain);
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'domain_whitelist_add'
-      });
       // also send domain to humanweb
       CliqzHumanWeb.telemetry({
         'type': CliqzHumanWeb.msgType,
@@ -2105,10 +2112,6 @@ var CliqzAttrack = {
     },
     removeSourceDomainFromWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.delete(domain);
-      CliqzUtils.telemetry({
-        'type': 'attrack',
-        'action': 'domain_whitelist_remove'
-      });
       CliqzAttrack.saveSourceDomainWhitelist();
     }
 };

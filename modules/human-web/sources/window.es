@@ -1,6 +1,5 @@
 import { utils } from "core/cliqz";
 import HumanWeb from "human-web/human-web";
-import hs from "core/history-service";
 
 export default class {
   constructor(settings) {
@@ -23,8 +22,6 @@ export default class {
 
     this.window.gBrowser.addProgressListener(HumanWeb.listener);
 
-    hs.addObserver(HumanWeb.historyObserver, false);
-
     this._dataCollectionTimer = utils.setTimeout(this.showDataCollectionMessage.bind(this), 1000);
   }
 
@@ -34,8 +31,6 @@ export default class {
     }
 
     utils.clearTimeout(this._dataCollectionTimer);
-
-    hs.removeObserver(HumanWeb.historyObserver);
 
     this.window.gBrowser.removeProgressListener(HumanWeb.listener);
 

@@ -51,6 +51,8 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
         CliqzUtils.initPlatform(System)
 
@@ -263,7 +265,6 @@ var Extension = {
         Extension.modulesLoadedPromise.then(function () {
           Extension.setupCliqzGlobal(win);
           Extension.addScript('core', win);
-          Extension.addScript('UI', win);
           Extension.addScript('ContextMenu', win);
 
           Extension.addButtons(win);

@@ -28,7 +28,7 @@ export default class extends QSWhitelistBase {
     this.trackerDomains.load();
     try {
       this.lastUpdate = JSON.parse(persist.getValue('lastUpdate'));
-      if (this.lastUpdate.length !== 2) {
+      if (this.lastUpdate.length !== 4) {
           throw 'invalid lastUpdate value';
       }
     } catch(e) {
@@ -207,7 +207,6 @@ export default class extends QSWhitelistBase {
     utils.httpGet(this.UNSAFE_KEY_URL +'?'+ today, function(req) {
       let unsafeKeys = JSON.parse(req.response),
           unsafeKeyExtVersion = md5(req.response);
-      utils.log(unsafeKeys, 'unsafekey');
       this.unsafeKeys.setValue(unsafeKeys);
       this.lastUpdate[2] = datetime.getTime();
       persist.setValue('lastUpdate', JSON.stringify(this.lastUpdate));

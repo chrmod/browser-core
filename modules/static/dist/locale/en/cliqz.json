@@ -119,6 +119,9 @@
     "whatIsCliqzTry":{
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
+    "btnPrivacyDashboard": {
+        "message": "Which data we collect?"
+    },
     "btnFeedbackFaq":{
         "message": "Support and contact"
     },
@@ -935,14 +938,26 @@
     "humanWeb10": {
       "message": "I participate in the Human Web"
     },
-    "attrack-headline-general": {
-      "message": "None of the <strong>$1 trackers</strong> on $2 receives any data about you."
+    "attrack-headline-general-title": {
+      "message": "CLIQZ Anti-Tracking"
+    },
+    "attrack-headline-general-trackers": {
+      "message": "This site sends information to $1 other companies. CLIQZ has removed $2 unsafe data points for your protection"
+    },
+    "attrack-headline-general-whitelisted": {
+      "message": "Currently, your personal data is accessible for third parties on this site"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
     },
-    "attrack-headline-no-site": {
+    "attrack-headline-reload": {
+      "message": "Please reload to browse safely!"
+    },
+    "attrack-headline-no-trackers": {
       "message": "This page does not contain any trackers."
+    },
+    "attrack-headline-no-bad-trackers": {
+      "message": "This site does not send any personal data."
     },
     "attrack-btn-power-on": {
       "message": "Activate Anti Tracking"
@@ -956,8 +971,20 @@
     "attrack-btn-white-list-off": {
       "message": "Block tracking for this site"
     },
-    "attrack-learn-more": {
-      "message": "Learn more"
+    "attrack-btn-details-more": {
+      "message": "See More"
+    },
+    "attrack-btn-details-less": {
+      "message": "See Less"
+    },
+    "attrack-force-block-setting": {
+      "message": "Anti-Tracking Behaviour"
+    },
+    "attrack-force-block-off": {
+      "message": "Default"
+    },
+    "attrack-force-block-on": {
+      "message": "Strict"
     },
     "freshtab_learn_more": {
       "message": "Learn more"

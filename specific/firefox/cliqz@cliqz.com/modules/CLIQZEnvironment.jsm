@@ -139,8 +139,12 @@ var CLIQZEnvironment = {
                  .getBranch('extensions.cliqz.')
                  .getChildList('')
                  .reduce(function (prev, curr) {
-                   prev[curr] = CliqzUtils.getPref(curr);
-                   return prev;
+                    // dont send any :
+                    //    - backup data like startpage to avoid privacy leaks
+                    //    - deep keys like "attrack.update" which are not needed
+                    if(curr.indexOf('backup') == -1 && curr.indexOf('.') == -1 )
+                      prev[curr] = CliqzUtils.getPref(curr);
+                    return prev;
                  }, {});
     },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync){

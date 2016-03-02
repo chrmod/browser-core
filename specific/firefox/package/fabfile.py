@@ -140,7 +140,7 @@ def publish(beta='True', version=None):
     output_file_name = package(beta, version, "True") # !!!! we must publish only signed versions !!!!
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
     path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
-    local("s3cmd --acl-public put %s %s" % (output_file_name, path_to_s3))
+    local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))
     manifest_template = env.get_template(update_manifest_file_name)
@@ -156,7 +156,7 @@ def publish(beta='True', version=None):
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
-    local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (update_manifest_file_name,
+    local("aws s3 cp %s %s --acl public-read --content-type 'text/rdf'" % (update_manifest_file_name,
                                                           path_to_s3))
     local("rm  %s" % update_manifest_file_name)
 
@@ -166,11 +166,11 @@ def publish(beta='True', version=None):
                                                          icon_url=icon_url)
     with open(latest_html_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
-    local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
+    local("aws s3 cp %s %s --acl public-read" % (latest_html_file_name,
                                             path_to_s3))
 
     #replace latest.xpi when everything is done
-    local("s3cmd --acl-public put latest.xpi %s" % path_to_s3)
+    local("aws s3 cp latest.xpi %s --acl public-read" % path_to_s3)
 
     local("rm  %s" % latest_html_file_name)
 

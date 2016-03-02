@@ -8,11 +8,12 @@
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
     "channel": "40",
-    "antitrackingButton": false
+    "antitrackingButton": true
   },
   "modules": [
     "static",
     "core",
+    "ui",
     "human-web",
     "anti-phishing",
     "context-menu",
