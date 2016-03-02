@@ -190,16 +190,21 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         whitelist._loadRemoteTokenWhitelist();
       });
 
-      it('loads remote token and tracker list', function(done) {
-        whitelist._loadRemoteTokenWhitelist();
-        whitelist._loadRemoteTrackerDomainList();
-        waitFor(function() {
-          return persist.getValue('tokenWhitelistVersion', '').length > 0 && persist.getValue('trackerDomainsversion', '').length > 0;
-        }).then(function() {
+      context('load token and tracker lists', function() {
+        var today = datetime.getTime();
+
+        beforeEach( function() {
+          whitelist._loadRemoteTokenWhitelist();
+          whitelist._loadRemoteTrackerDomainList();
+          return waitFor(function() {
+            return whitelist.lastUpdate[1] === today && whitelist.lastUpdate[3] === today;
+          });
+        });
+
+        it('loads remote token and tracker list', function() {
           chai.expect(persist.getValue('tokenWhitelistVersion')).to.equal(mock_token_hash);
           chai.expect(whitelist.isTrackerDomain('f528764d624db129')).to.be.true;
           chai.expect(whitelist.isSafeToken('f528764d624db129', '7269d282a42ce53e58c7b3f66ca19bac')).to.be.true;
-          done();
         });
       });
 
