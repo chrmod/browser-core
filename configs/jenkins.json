@@ -12,6 +12,7 @@
   "modules": [
     "static",
     "core",
+    "ui",
     "context-menu",
     "freshtab",
     "unblock",
@@ -20,6 +21,12 @@
     "loyalty",
     "firefox-tests",
     "telemetry-categories",
-    "antitracking"
+    "antitracking",
+    "fresh-tab-frontend",
+    "human-web",
+    "anti-phishing",
+    "privacy-dashboard",
+    "performance",
+    "hpn"
   ]
 }

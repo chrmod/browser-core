@@ -26,4 +26,5 @@ export default class {
     CLIQZ.Core.urlbarContainer.insertBefore(CLIQZ.Core.frwBtn, CLIQZ.Core.urlbarWrapper);
   }
 
+  unload() {}
 }

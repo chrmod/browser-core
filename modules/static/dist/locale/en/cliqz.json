@@ -1,4 +1,7 @@
 {
+    "more_on": {
+        "message": "More on"
+    },
     "calculator": {
         "message": "Calculator"
     },
@@ -116,6 +119,9 @@
     "whatIsCliqzTry":{
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
+    "btnPrivacyDashboard": {
+        "message": "Which data we collect?"
+    },
     "btnFeedbackFaq":{
         "message": "Support and contact"
     },
@@ -142,6 +148,9 @@
     },
     "btnSafeSearchDesc":{
         "message": "What is this?"
+    },
+    "btnSecureChannel":{
+        "message": "Search via Proxy-Network"
     },
     "btnStats":{
         "message": "Stats"
@@ -929,14 +938,26 @@
     "humanWeb10": {
       "message": "I participate in the Human Web"
     },
-    "attrack-headline-general": {
-      "message": "CLIQZ Anti Tracking blocked $1&nbsp;trackers on <strong>$2</strong>"
+    "attrack-headline-general-title": {
+      "message": "CLIQZ Anti-Tracking"
+    },
+    "attrack-headline-general-trackers": {
+      "message": "This site sends information to $1 other companies. CLIQZ has removed $2 unsafe data points for your protection"
+    },
+    "attrack-headline-general-whitelisted": {
+      "message": "Currently, your personal data is accessible for third parties on this site"
     },
     "attrack-headline-deactivate": {
       "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
     },
-    "attrack-headline-no-site": {
+    "attrack-headline-reload": {
+      "message": "Please reload to browse safely!"
+    },
+    "attrack-headline-no-trackers": {
       "message": "This page does not contain any trackers."
+    },
+    "attrack-headline-no-bad-trackers": {
+      "message": "This site does not send any personal data."
     },
     "attrack-btn-power-on": {
       "message": "Activate Anti Tracking"
@@ -947,8 +968,23 @@
     "attrack-btn-white-list": {
       "message": "Allow tracking for this site"
     },
-    "attrack-learn-more": {
-      "message": "Learn more"
+    "attrack-btn-white-list-off": {
+      "message": "Block tracking for this site"
+    },
+    "attrack-btn-details-more": {
+      "message": "See More"
+    },
+    "attrack-btn-details-less": {
+      "message": "See Less"
+    },
+    "attrack-force-block-setting": {
+      "message": "Anti-Tracking Behaviour"
+    },
+    "attrack-force-block-off": {
+      "message": "Default"
+    },
+    "attrack-force-block-on": {
+      "message": "Strict"
     },
     "freshtab_learn_more": {
       "message": "Learn more"
@@ -965,6 +1001,36 @@
     "freshtab_top_sites": {
       "message": "Top Sites"
     },
+    "freshtab_abTest_hdr_news_email": {
+      "message": "Get YOUR NEWS sent directly to your inbox"
+    },
+    "freshtab_abTest_btn_subscribe": {
+      "message": "Subscribe NOW"
+    },
+    "mobile_share_card": {
+      "message": "Share this card"
+    },
+    "mobile_reconnecting_msg": {
+      "message": "Re-establishing lost internet connection"
+    },
+    "mobile_history_title": {
+      "message": "History"
+    },
+    "mobile_favorites_title": {
+      "message": "Favorites"
+    },
+    "mobile_history_remove": {
+      "message": "Remove"
+    },
+    "mobile_history_unstar": {
+      "message": "Unfavorite"
+    },
+    "mobile_history_star": {
+      "message": "Favorite"
+    },
+    "mobile_history_cancel": {
+      "message": "Cancel"
+    },
     "mobile_no_result_title": {
       "message": "We don't have great results this time."
     },
@@ -976,6 +1042,12 @@
     },
     "mobile_more_results_action": {
       "message": "Tap here for results from $1..."
+    },
+    "mobile_calc_more": {
+      "message": "More on"
+    },
+    "mobile_calc_copy_ans":{
+        "message": "Tap anywhere to copy"
     },
     "unblock_menu_option": {
       "message": "Unblock YouTube Videos"
@@ -1021,5 +1093,8 @@
     },
     "cliqz-onboarding-cool-thanks": {
       "message": "Cool, thanks!"
+    },
+    "context-menu-search-item": {
+      "message": "Search CLIQZ for \"$1\""
     }
 }

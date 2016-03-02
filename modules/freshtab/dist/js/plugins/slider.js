@@ -12,11 +12,15 @@ var Slider = (function($, window){
       items,
       t0;
 
-  function transition(container, start) {
+  function transition(container, start, firstStart) {
     if($('.topnews:hover').length ===0 ) {
       items.fadeOut(100);
+      if(firstStart) {
+        items.slice(start, start + config.gridItems).css('display', 'block');
+      } else {
+        items.slice(start, start + config.gridItems).delay(200).fadeIn();
+      }
 
-      items.slice(start, start + config.gridItems).delay(200).fadeIn();
       updateSliderBtns(state);
 
       state++;
@@ -61,7 +65,7 @@ var Slider = (function($, window){
     if (options.totalNews / config.gridItems > 1) {
       displaySliderBtns(options.totalNews / config.gridItems);
       $(config.el).hide();
-      transition(config.el, config.gridItems * state);
+      transition(config.el, config.gridItems * state, true);
     }
   };
 

@@ -1,0 +1,22 @@
+{
+  "settings": {
+    "freshTabButton": false,
+    "freshTabABtest" : false,
+    "unblockUI": false,
+    "showDataCollectionMessage": false,
+    "cliqzOnboarding": true,
+    "channel": "40"
+  },
+  "modules": [
+    "static",
+    "core",
+    "context-menu",
+    "onboarding",
+    "freshtab",
+    "unblock",
+    "theme",
+    "users1st",
+    "loyalty",
+    "hpn"
+  ]
+}

@@ -11,6 +11,7 @@ function startup(aData, aReason) {
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 
     Cu.import('chrome://cliqzmodules/content/Extension.jsm');
+    Extension.init();
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 }
 
@@ -22,7 +23,29 @@ function shutdown(aData, aReason) {
         action: TELEMETRY_SIGNAL[aReason]
     }, true /* force push */);
 
-    Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL,  aReason == ADDON_UPGRADE || aReason == ADDON_DOWNGRADE);
+    /**
+     *
+     *  There are different reasons on which extension does shutdown:
+     *  https://developer.mozilla.org/en-US/Add-ons/Bootstrapped_extensions#Reason_constants
+     *
+     *  We handle them differently:
+     *  * APP_SHUTDOWN - nothing need to be unloaded as browser shutdown, but
+     *      there may be data that we may like to persist
+     *  * ADDON_DISABLE, ADDON_UNINSTALL - full cleanup + bye bye messages
+     *  * ADDON_UPGRADE, ADDON_DOWNGRADE - fast cleanup
+     *
+     */
+
+    if ( aReason === APP_SHUTDOWN ) {
+      Extension.shutdown();
+      return;
+    }
+
+    if ( aReason === ADDON_DISABLE || aReason === ADDON_UNINSTALL ) {
+      Extension.disable(aData.version);
+    }
+
+    Extension.unload();
 
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 }

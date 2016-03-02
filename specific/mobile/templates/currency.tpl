@@ -7,7 +7,7 @@
   <div class="main">
   <!--
     <div class="sub__headline">
-      {{data.formSymbol}} {{data.fromAmount}} {{data.fromCurrency}} <span> equals </span>
+      {{data.formSymbol}} {{numberFormat data.fromAmount}} {{data.fromCurrency}} <span> equals </span>
     </div>
     -->
     <div class="main__headline">
@@ -15,23 +15,23 @@
     </div>
       <table style="width:100%" class="currency__table">
         <tr>
-          <td>
+          <td class="text-center">
             {{data.fromCurrency}}
           </td>
           <td>
           </td>
-          <td>
+          <td class="text-center">
             {{data.toCurrency}}
           </td>
         </tr>
         <tr class="currency__swap">
-          <td>
+          <td style="width: 40%">
             <input class="currencyInput" id="fromInput" type"number" step="0.01" onkeyup="updateFromValue({{json data}})" value="{{data.fromAmount}}" />
           </td>
           <td>
             <button class="currencySwitch" onclick="switchCurrency({{json data}})">Swap</button>
           </td>
-          <td>
+          <td style="width: 40%">
             <input class="currencyInput" id="toInput" type"number" step="0.01" onkeyup="updateToValue({{json data}})" value="{{data.toAmount.main}}" />
           </td>
         </tr>
@@ -80,7 +80,7 @@
     <p>{{numberFormat (math data.multiplyer '*' 500)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 500)}} {{data.toCurrency}}</p>
     <p>{{numberFormat (math data.multiplyer '*' 1000)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 10)}} {{data.toCurrency}}</p>-->
     </div>
-  </div>
-<div class="poweredby">
-    Mehr auf <a href="http://www.xe.com">XE.com</a>
+    <div class="poweredby">
+        {{local 'mobile_calc_more'}} <a href="http://www.xe.com">XE.com</a>
+    </div>
 </div>

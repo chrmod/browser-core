@@ -1,9 +1,9 @@
 {
   "platform": "mobile",
-  "prefs": {
-    "freshTabButton": false
-  },
+  "settings": {},
   "modules": [
+    "core",
+    "ui",
     "freshtab",
     "static"
   ]

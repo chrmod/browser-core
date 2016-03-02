@@ -71,7 +71,10 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
+var BRANDS_DATABASE_VERSION = 1452759183853;
 var CLIQZEnvironment = {
+    BRANDS_DATABASE_VERSION: BRANDS_DATABASE_VERSION,
+    BRANDS_DATA_URL: 'https://cdn.cliqz.com/brands-database/database/' + BRANDS_DATABASE_VERSION + '/data/database.json',
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
     SKIN_PATH: 'chrome://cliqz/content/static/skin/',
@@ -136,8 +139,12 @@ var CLIQZEnvironment = {
                  .getBranch('extensions.cliqz.')
                  .getChildList('')
                  .reduce(function (prev, curr) {
-                   prev[curr] = CliqzUtils.getPref(curr);
-                   return prev;
+                    // dont send any :
+                    //    - backup data like startpage to avoid privacy leaks
+                    //    - deep keys like "attrack.update" which are not needed
+                    if(curr.indexOf('backup') == -1 && curr.indexOf('.') == -1 )
+                      prev[curr] = CliqzUtils.getPref(curr);
+                    return prev;
                  }, {});
     },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync){
@@ -227,7 +234,7 @@ var CLIQZEnvironment = {
         return eTLDService.getPublicSuffixFromHost(host);
     },
     isPrivate: function(window) {
-        if(window.cliqzIsPrivate === undefined){
+        if(window && window.cliqzIsPrivate === undefined){
             try {
                 // Firefox 20+
                 Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');

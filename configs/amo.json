@@ -7,14 +7,19 @@
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "04",
-    "antitrackingButton": false
+    "antitrackingButton": true
   },
   "modules": [
-    "core",
     "static",
+    "core",
+    "ui",
+    "human-web",
+    "anti-phishing",
     "onboarding",
     "freshtab",
     "telemetry-categories",
-    "antitracking"
+    "antitracking",
+    "performance",
+    "hpn"
   ]
 }

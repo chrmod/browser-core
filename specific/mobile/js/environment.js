@@ -1,10 +1,10 @@
 window.addEventListener('disconnected', function() {
   var elem = document.getElementById("reconnecting");
-  elem && (elem.style.display = "block");
+  elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
 });
 window.addEventListener('connected', function() {
   var elem = document.getElementById("reconnecting");
-  elem && (elem.style.display = "none");
+  elem && (elem.innerHTML = '');
 });
 
 var isRequestFailed = false;
@@ -23,10 +23,7 @@ function resendRequest(forceResend) {
 }
 
 function isMixerUrl(url) {
-  if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0) {
-    return true;
-  }
-  return false;
+  return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0;
 }
 
 window.addEventListener('load', function() {
@@ -63,7 +60,7 @@ if(typeof jsBridge == "undefined") {
           console.log("%c jsBridge calling notifyQuery with "+val,"background-color:#00ff00");
           if(window.webkit) {
             window.webkit.messageHandlers.changeUrlVal.postMessage(val);
-          }            
+          }
         },
         getTopSites: function() {
           return JSON.stringify([{"title":"BILD.DE AfD-Führung: \"Von Neonazis nicht zu unterscheiden\"","url":"http://www.bild.de/politik/deutschland/afd-spd-vize-ralf-stegner-fordert-beobachtung-der-parteifuehrung-a-1059564.html","timestamp":1445862077384, "score": 0},{"title":"Gewalt gegen Flüchtlinge: Der Faschismus lebt - SPIEGEL ONLINE - Nachrichten - Politik","url":"http://m.spiegel.de/politik/deutschland/a-1059574.html#spRedirectedFrom=www&referrrer=","timestamp":1445880101453, "score": 0},{"title":"Asiatisch - Kostenlose Porno von Asiatisch - Einfachporno.com","url":"http://www.einfachporno.com/pornofilme/asiatisch/","timestamp":1445859482383, "score": 0},{"title":"Türkei: Europa verrät seine Werte - SPIEGEL ONLINE","url":"http://www.spiegel.de/politik/ausland/tuerkei-europa-verraet-seine-werte-a-1059540.html","timestamp":1445862076516, "score": 0},{"title":"Kostenlos Pornos von mehrere Kategorien auf einfachporno: junge Mädchen, Arschficken, Orgien, Lesben","url":"http://www.einfachporno.com/kategorien/","timestamp":1445858997336, "score": 0},{"title":"Nachrichten - SPIEGEL ONLINE","url":"http://www.spiegel.de/","timestamp":1445866453249, "score": 0},{"title":"Trotz Absage: Viele helfen mit: Ai Weiwei kann Lego-Projekt umsetzen - Kunst - FOCUS Online Mobile - Nachrichten","url":"http://m.focus.de/kultur/kunst/trotz-absage-viele-helfen-mit-ai-weiwei-kann-lego-projekt-umsetzen_id_5040511.html","timestamp":1445880102614, "score": 0},{"title":"Amazon.de: Spiegel-Bestseller: Bücher: Jahresbestseller 2013, Hardcover Belletristik, Hardcover Sachbuch und mehr","url":"http://www.amazon.de/b/ref=amb_link_51544565_1?ie=UTF8&node=4206085031&pf_r…ZFBX&pf_rd_t=1401&pf_rd_p=515157807&pf_rd_i=1000127753&tag=wwwspiegelde-21","timestamp":1445878091575, "score": 0},{"title":"„ARD-aktuell\"-Chefredakteur gibt zu: „Versäumnis bedauern wir\": ARD verfälschte Bericht über Flüchtlings-Lichterkette - Medien - FOCUS Online - Nachrichten","url":"http://www.focus.de/kultur/medien/ard-aktuell-chefredakteur-gibt-zu-versaeu…s-bedauern-wir-ard-verfaelschte-bericht-ueber-fluechtlinge_id_5029327.html","timestamp":1445862112719, "score": 0},{"title":"Fefes Blog","url":"http://blog.fefe.de/","timestamp":1445859446110, "score": 0},{"title":"Armand Zipfel – Wikipedia","url":"https://de.m.wikipedia.org/wiki/Armand_Zipfel","timestamp":1445880102950, "score": 0},{"title":"National Hockey League – Wikipedia","url":"https://de.m.wikipedia.org/wiki/National_Hockey_League","timestamp":1445878305256, "score": 0},{"title":"Gewalt gegen Flüchtlinge: Der Faschismus lebt - Kolumne - SPIEGEL ONLINE","url":"http://www.spiegel.de/politik/deutschland/gewalt-gegen-fluechtlinge-der-faschismus-lebt-kolumne-a-1059574.html","timestamp":1445877854997, "score": 0},{"title":"FOCUS Online - Nachrichten","url":"http://www.focus.de/","timestamp":1445862077474, "score": 0},{"title":"Leiden und Hoffen im Ballettinternat: Auf der Spitze - SPIEGEL ONLINE - Nachrichten - SchulSPIEGEL","url":"http://m.spiegel.de/schulspiegel/a-1057589.html","timestamp":1445862078146, "score": 0},{"title":"Zwillinge in der Pubertät: Best Friends Forever - SPIEGEL ONLINE - Nachrichten - SchulSPIEGEL","url":"http://m.spiegel.de/schulspiegel/a-1058561.html","timestamp":1445862077998, "score": 0},{"title":"SchulSPIEGEL - SPIEGEL ONLINE","url":"http://m.spiegel.de/schulspiegel/","timestamp":1445862078029, "score": 0},{"title":"Japanische Mutter vergnügt sich mit ihrem Sohn - Einfachporno.com","url":"http://www.einfachporno.com/filme/japanische-mutter-vergnugt-sich-mit-ihrem-sohn/","timestamp":1445859039584, "score": 0},{"title":"Zusammenarbeit in der Flüchtlingskrise: EU hält offenbar kritischen Bericht zur Türkei zurück - SPIEGEL ONLINE - Nachrichten - Politik","url":"http://m.spiegel.de/politik/ausland/a-1059486.html","timestamp":1445858972663, "score": 0},{"title":"Politik - SPIEGEL ONLINE","url":"http://www.spiegel.de/politik/","timestamp":1445859092519, "score": 0}]);
@@ -208,20 +205,6 @@ if(typeof jsBridge == "undefined") {
 //Lucian: temp hopefully
 CliqzLanguage = {
   stateToQueryString: function(){ return ''; }
-}
-
-CliqzHumanWeb = {
-  addURLtoDB: function () {
-    console.log("CHW addURLtoDB", arguments);
-  },
-  state: {},
-  notification: function (notification) {
-    console.log("CHW notification", arguments);
-  },
-  getCDByURL: function () {
-    console.log("CHW notification", arguments);
-  }
-
 }
 CliqzHistory = {
   updateQuery: function(){},
