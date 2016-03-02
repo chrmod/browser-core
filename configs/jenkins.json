@@ -12,6 +12,7 @@
   "modules": [
     "static",
     "core",
+    "ui",
     "context-menu",
     "freshtab",
     "unblock",
@@ -24,6 +25,7 @@
     "fresh-tab-frontend",
     "human-web",
     "anti-phishing",
+    "privacy-dashboard",
     "performance",
     "hpn"
   ]

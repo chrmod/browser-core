@@ -1,4 +1,4 @@
-export default {
+export default class {
   enhanceMovieSC(data) {
     var rating = data.ratingStars.rating ? Math.round(data.ratingStars.rating) : 0,
         ratingCss = {
@@ -16,7 +16,7 @@ export default {
         x.num_empty_columns = data.table_size - x.showtimes.length;
       });
     }
-  },
+  }
 
   enhanceResults(data) {
     data.ratingStars = data.cinema;
