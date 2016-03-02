@@ -248,95 +248,111 @@ TESTS.AttrackQSWhitelistTest = function (CliqzUtils, CliqzEvents) {
         });
       });
 
-      it('merges with existing safekeys', function(done) {
+      context('with existing safekeys', function() {
         var domain1_hash = 'f528764d624db129',
           domain2_hash = '9776604f86ca9f6a',
           key_hash = '4a8a08f09d37b73795649038408b5f33';
-        whitelist.addSafeKey(domain1_hash, key_hash);
-        whitelist.addSafeKey(domain2_hash, key_hash);
 
-        whitelist._loadRemoteSafeKey();
-        waitFor(function() {
-          return persist.getValue('safeKeyExtVersion', '').length > 0;
-        }).then(function() {
-          try {
-            chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
+        beforeEach( function() {
+          var today = datetime.getTime();
 
-            chai.expect(whitelist.isSafeKey(domain1_hash, key_hash)).to.be.true;
-            chai.expect(whitelist.isSafeKey(domain1_hash, '924a8ceeac17f54d3be3f8cdf1c04eb2')).to.be.true;
-            chai.expect(whitelist.isSafeKey(domain2_hash, key_hash)).to.be.true;
-            chai.expect(whitelist.isSafeKey(domain2_hash, '924a8ceeac17f54d3be3f8cdf1c04eb2')).to.be.false;
-            done();
-          } catch(e) { done(e); }
+          whitelist.addSafeKey(domain1_hash, key_hash);
+          whitelist.addSafeKey(domain2_hash, key_hash);
+
+          whitelist._loadRemoteSafeKey();
+          return waitFor(function() {
+            return whitelist.lastUpdate[0] === today
+          });
+        });
+
+        it('merges with existing safekeys', function() {
+          chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
+
+          chai.expect(whitelist.isSafeKey(domain1_hash, key_hash)).to.be.true;
+          chai.expect(whitelist.isSafeKey(domain1_hash, '924a8ceeac17f54d3be3f8cdf1c04eb2')).to.be.true;
+          chai.expect(whitelist.isSafeKey(domain2_hash, key_hash)).to.be.true;
+          chai.expect(whitelist.isSafeKey(domain2_hash, '924a8ceeac17f54d3be3f8cdf1c04eb2')).to.be.false;
         });
       });
 
-      it('replaces local key with remote if remote is more recent', function(done) {
+      context('old local key', function() {
         var domain1_hash = 'f528764d624db129',
           key_hash = '924a8ceeac17f54d3be3f8cdf1c04eb2',
-          today = datetime.getTime().substring(0, 8),
-          safeKeys = whitelist.safeKeys.value;
-        safeKeys[domain1_hash] = {};
-        safeKeys[domain1_hash][key_hash] = [today, 'l'];
+          today = datetime.getTime();
 
-        whitelist._loadRemoteSafeKey();
-        waitFor(function() {
-          return persist.getValue('safeKeyExtVersion', '').length > 0;
-        }).then(function() {
-          try {
-            chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
-            chai.expect(safeKeys[domain1_hash]).to.have.property(key_hash);
-            chai.expect(safeKeys[domain1_hash][key_hash]).to.eql(['20200101', 'r']);
-            done();
-          } catch(e) { done(e); }
+        beforeEach(function() {
+          var safeKeys = whitelist.safeKeys.value;
+          safeKeys[domain1_hash] = {};
+          safeKeys[domain1_hash][key_hash] = [today.substring(0, 8), 'l'];
+
+          whitelist._loadRemoteSafeKey();
+          return waitFor(function() {
+            return whitelist.lastUpdate[0] === today
+          });
+        });
+
+        it('replaces local key with remote if remote is more recent', function() {
+          var safeKeys = whitelist.safeKeys.value;
+          chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
+          chai.expect(safeKeys[domain1_hash]).to.have.property(key_hash);
+          chai.expect(safeKeys[domain1_hash][key_hash]).to.eql(['20200101', 'r']);
         });
       });
 
-      it('leaves local key if it is more recent than remote', function(done) {
+      context('new local key', function() {
         var domain1_hash = 'f528764d624db129',
           key_hash = '924a8ceeac17f54d3be3f8cdf1c04eb2',
-          day = '20200102',
-          safeKeys = whitelist.safeKeys.value;
-        safeKeys[domain1_hash] = {};
-        safeKeys[domain1_hash][key_hash] = [day, 'l'];
+          today = datetime.getTime(),
+          day = '20200102';
 
-        whitelist._loadRemoteSafeKey();
-        waitFor(function() {
-          return persist.getValue('safeKeyExtVersion', '').length > 0;
-        }).then(function() {
-          try {
-            chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
-            chai.expect(safeKeys[domain1_hash]).to.have.property(key_hash);
-            chai.expect(safeKeys[domain1_hash][key_hash]).to.eql([day, 'l']);
-            done();
-          } catch(e) { done(e); }
+        beforeEach(function() {
+          var safeKeys = whitelist.safeKeys.value;
+          safeKeys[domain1_hash] = {};
+          safeKeys[domain1_hash][key_hash] = [day, 'l'];
+
+          whitelist._loadRemoteSafeKey();
+          return waitFor(function() {
+            return whitelist.lastUpdate[0] === today
+          });
         });
+
+        it('leaves local key if it is more recent than remote', function() {
+          var safeKeys = whitelist.safeKeys.value;
+          chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
+          chai.expect(safeKeys[domain1_hash]).to.have.property(key_hash);
+          chai.expect(safeKeys[domain1_hash][key_hash]).to.eql([day, 'l']);
+        });
+
       });
 
-      it('prunes keys more than 7 days old', function(done) {
-        var domain1_hash = 'f528764d624db129',
+      context('7 day old key', function() {
+        var today = datetime.getTime(),
+          domain1_hash = 'f528764d624db129',
           key_hash = '4a8a08f09d37b73795649038408b5f33',
           day = new Date(),
           daystr = null,
           d = '',
-          m = '',
-          safeKeys = whitelist.safeKeys.value;
+          m = '';
         day.setDate(day.getDate() - 8);
         d = (day.getDate()  < 10 ? '0' : '' ) + day.getDate();
         m = (day.getMonth() < 10 ? '0' : '' ) + parseInt((day.getMonth()));
         daystr = '' + day.getFullYear() + m + d;
-        safeKeys[domain1_hash] = {};
-        safeKeys[domain1_hash][key_hash] = [daystr, 'l'];
 
-        whitelist._loadRemoteSafeKey();
-        waitFor(function() {
-          return persist.getValue('safeKeyExtVersion', '').length > 0;
-        }).then(function() {
-          try {
-            chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
-            chai.expect(safeKeys[domain1_hash]).to.not.have.property(key_hash);
-            done();
-          } catch(e) { done(e); }
+        beforeEach(function() {
+          var safeKeys = whitelist.safeKeys.value;
+          safeKeys[domain1_hash] = {};
+          safeKeys[domain1_hash][key_hash] = [daystr, 'l'];
+
+          whitelist._loadRemoteSafeKey();
+          return waitFor(function() {
+            return whitelist.lastUpdate[0] === today
+          });
+        });
+
+        it('prunes keys more than 7 days old', function() {
+          var safeKeys = whitelist.safeKeys.value;
+          chai.expect(persist.getValue('safeKeyExtVersion')).to.equal(mock_safekey_hash);
+          chai.expect(safeKeys[domain1_hash]).to.not.have.property(key_hash);
         });
       });
 
