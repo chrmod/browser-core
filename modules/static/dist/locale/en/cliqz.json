@@ -942,7 +942,7 @@
       "message": "CLIQZ Anti-Tracking"
     },
     "attrack-headline-general-trackers": {
-      "message": "This site sends information to $1 services. All your $2 personal data points therein are removed"
+      "message": "This site sends information to $1 other companies. CLIQZ has removed $2 unsafe data points for your protection"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Currently, your personal data is accessible for third parties on this site"

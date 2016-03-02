@@ -5,9 +5,20 @@ export default class {
     this.window = settings.window;
     this.urlbarGoClick = this.urlbarGoClick.bind(this);
 
-    utils.bindObjectFunctions(urlbarEventHandlers, this);
-    utils.bindObjectFunctions(popupEventHandlers, this);
-    utils.bindObjectFunctions(miscHandlers, this);
+    this.urlbarEventHandlers = {}
+    Object.keys(urlbarEventHandlers).forEach( ev => {
+      this.urlbarEventHandlers[ev] = urlbarEventHandlers[ev].bind(this)
+    })
+
+    this.popupEventHandlers = {}
+    Object.keys(popupEventHandlers).forEach( ev => {
+      this.popupEventHandlers[ev] = popupEventHandlers[ev].bind(this)
+    })
+
+    this.miscHandlers = {}
+    Object.keys(miscHandlers).forEach( ev => {
+      this.miscHandlers[ev] = miscHandlers[ev].bind(this)
+    })
   }
 
   init() {
@@ -50,11 +61,12 @@ export default class {
     //we somehow break default FF -> on goclick the autocomplete doesnt get considered
     urlBarGo.setAttribute('onclick', "CLIQZ.UI.window.urlbarGoClick(); " + this._urlbarGoButtonClick);
 
-    this.popup.addEventListener('popuphiding', popupEventHandlers.popupClose);
-    this.popup.addEventListener('popupshowing', popupEventHandlers.popupOpen);
+    this.popup.addEventListener('popuphiding', this.popupEventHandlers.popupClose);
+    this.popup.addEventListener('popupshowing', this.popupEventHandlers.popupOpen);
 
-    Object.keys(urlbarEventHandlers).forEach(function(ev) {
-      this.urlbar.addEventListener(ev, urlbarEventHandlers[ev]);
+    Object.keys(this.urlbarEventHandlers).forEach(function(ev) {
+      this.urlbar.addEventListener(ev, this.urlbarEventHandlers[ev]);
+
     }.bind(this));
 
     this.reloadUrlbar(this.urlbar);
@@ -63,7 +75,7 @@ export default class {
     var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(null, this.window);
     this.window.CLIQZ.Core.elem.push(searchHistoryContainer);
 
-    this.window.addEventListener("keydown", miscHandlers.handleKeyboardShortcuts);
+    this.window.addEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
 
   }
 
@@ -123,11 +135,13 @@ export default class {
 
     this.urlbar.setAttribute('autocompletesearch', this._autocompletesearch);
     this.urlbar.setAttribute('autocompletepopup', this._autocompletepopup);
-    this.popup.removeEventListener('popuphiding', popupEventHandlers.popupClose);
-    this.popup.removeEventListener('popupshowing', popupEventHandlers.popupOpen);
+    this.popup.removeEventListener('popuphiding', this.popupEventHandlers.popupClose);
+    this.popup.removeEventListener('popupshowing', this.popupEventHandlers.popupOpen);
 
-    Object.keys(urlbarEventHandlers).forEach(function(ev) {
-      this.urlbar.removeEventListener(ev, urlbarEventHandlers[ev]);
+
+
+    Object.keys(this.urlbarEventHandlers).forEach(function(ev) {
+      this.urlbar.removeEventListener(ev, this.urlbarEventHandlers[ev]);
     }.bind(this));
 
     var searchContainer = this.window.document.getElementById('search-container');
@@ -139,7 +153,7 @@ export default class {
 
     this.reloadUrlbar(this.urlbar);
 
-    this.window.removeEventListener("keydown", miscHandlers.handleKeyboardShortcuts);
+    this.window.removeEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
 
     delete this.window.CLIQZ.UI;
 

@@ -82,7 +82,7 @@ var CliqzSecureMessage = {
   		var currentTime = Date.now();
 
 
-  		if(!CliqzUtils.getWindow() || !CliqzUtils.getWindow().CLIQZ) return;
+  		if(!CliqzUtils.getWindow() || !CliqzUtils.getWindow().CLIQZ || !CliqzUtils.getWindow().CLIQZ.UI) return;
   		var tDiff = currentTime - CliqzUtils.getWindow().CLIQZ.UI.lastInputTime;
 
   		if(tDiff > 0 && tDiff > (1000 * 2 * 1)){
@@ -272,6 +272,8 @@ var CliqzSecureMessage = {
     },
     dbConn: null,
     proxyIP: function (){
+      if(!CliqzSecureMessage.proxyList) return;
+
     	if(proxyCounter >= CliqzSecureMessage.proxyList.length) proxyCounter = 0;
     	var url = createHttpUrl(CliqzSecureMessage.proxyList[proxyCounter]);
       CliqzSecureMessage.queryProxyIP = url;//"http://54.145.178.227/verify" ; //url;
