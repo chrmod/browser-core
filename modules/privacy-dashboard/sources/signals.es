@@ -31,11 +31,21 @@ function reformatSignalsFlat (sig, ignoreKeys=[], send=true) {
   return info;
 }
 
-var QUERY_LOG_PARAM = ["query", "queryAutocompleted", "resultIndex", "resultUrl", "resultOrder", "extra"];
+var QUERY_LOG_PARAM = {
+  "q": "query",
+  "a": "queryAutocompleted",
+  "i": "resultIndex",
+  "u": "resultUrl",
+  "o": "resultOrder",
+  "e": "extra",
+  "s": "searchSession",
+  "n": "sessionSequence",
+  "qc": "queryCount"
+};
 
 var SignalListener = {
   telemetryOrigin: utils.telemetry,
-  resultTelemetryOrigin: utils.resultTelemetry,
+  httpGetOrigin: utils.httpGet, // used for fetching result and query log telemetry
   hwOrigin: CliqzHumanWeb.telemetry,  // todo: handle the case hw is inited AFTER this module
 
   SigCache: {
@@ -76,10 +86,24 @@ var SignalListener = {
     SignalListener.fireNewDataEvent("tel");
   },
 
-  monkeyPatchResultTelemetry: function () {
+  monkeyPatchHttpGet: function () {
     var queryLog = {}, arg = arguments;
-    SignalListener.resultTelemetryOrigin.apply(this, arguments);
+    SignalListener.httpGetOrigin.apply(this, arguments);
 
+    var url = arguments[0];
+    if(url.indexOf(utils.RESULTS_PROVIDER) == 0 || url.indexOf(utils.RESULTS_PROVIDER_LOG) == 0){
+      var qs = utils.getDetailsFromUrl(url).query;
+      var qsParams = utils.parseQueryString(qs);
+      Object.keys(qsParams).forEach(function(key){
+        if(qsParams[key]){
+          queryLog[QUERY_LOG_PARAM[key] || key] = qsParams[key];
+        }
+      });
+
+      SignalListener.SigCache.ql = {"sig": queryLog, "timestamp": Date.now()};
+      SignalListener.fireNewDataEvent("ql");
+    }
+    return;
     QUERY_LOG_PARAM.forEach(function (param, idx) {
       if (arg[idx] !== null) {
         queryLog[param] = arg[idx];
@@ -91,7 +115,7 @@ var SignalListener = {
 
   init: function () {
     utils.telemetry = SignalListener.monkeyPatchTelemetry;
-    utils.resultTelemetry = SignalListener.monkeyPatchResultTelemetry;
+    utils.httpGet = SignalListener.monkeyPatchHttpGet;
     CliqzHumanWeb.telemetry = SignalListener.monkeyPatchHmw;
   }
 };
