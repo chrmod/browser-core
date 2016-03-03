@@ -1,40 +1,41 @@
 <!-- delivery-tracking.tpl --> 
-<div class="cqz-result-h2 cqz-result-padding cqz-ez-delivery">
+{{#with logo}}
+	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+ {{/with}}
 
-    <div>
-        <div extra="title" class='cqz-result-title overflow' arrow="false" arrow-override=''>
-            <a href="{{url}}" extra="title">
-                 {{ data.name }} {{ data.trackid }}
-            </a>
-        </div>
+<section class="primary">
 
-        <div class='cqz-result-url overflow' extra="url">
-            {{ emphasis urlDetails.friendly_url query 2 true }}
-        </div>
+    <h1 class="card__title">
+       Delivery tracking
+    </h1>
 
-        <div class="cqz-delivery-status-boxes-holder">
-            {{#each data.links}}
-                <span class="cqz-status-box
-                            cqz-status-box-active-{{ this.step_status }}
-                            cqz-status-box-name-{{ this.step_name }} "
-                      style="background-image: url({{ this.icon_url }});"
-                      url="{{this.url}}"
-                      extra="item-{{ this.logg_as }}"
-                >
-                    {{ this.step_name }}
-                </span>
-            {{/each}}
-        </div>
-        <div class="cqz-delivery-info">
-            <p>
-                <span class="cqz-delivery-info-status">{{ data.status }}</span>
-                <span class="cqz-delivery-info-date">{{ data.date }}</span>
-            </p>
-            <p class="cqz-delivery-info-msg">
-                {{ data.message }}
-            </p>
-        </div>
+    <div class="card__meta">
+        <div url="{{url}}" extra="title">{{ data.name }} {{ data.trackid }}</div>
     </div>
 
-    {{> logo}}
-</div>
+</section>
+
+<section class="secondary">
+    <div class="cqz-delivery-status-boxes-holder">
+        {{#each data.links}}
+            <span class="cqz-status-box
+                        cqz-status-box-active-{{ this.step_status }}
+                        cqz-status-box-name-{{ this.step_name }} "
+                  style="background-image: url({{ this.icon_url }});"
+                  url="{{this.url}}"
+                  extra="item-{{ this.logg_as }}"
+            >
+                {{ this.step_name }}
+            </span>
+        {{/each}}
+    </div>
+    <div class="card__description">
+        <div class="cqz-delivery-info">
+            <b><p>{{ data.status }}</p></b>
+            <p>{{ data.date }}</p>
+            <p><br />{{ data.message }}</p>
+        </div>
+    </div>
+</section>
+
+
