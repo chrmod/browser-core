@@ -286,6 +286,17 @@ CLIQZEnvironment = {
 
   },
   search: function(e, location_enabled, latitude, longitude) {
+    if(!e || e === '') {
+      resultsBox.style.display = 'none';
+      window.document.getElementById('startingpoint').style.display = 'block';
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.initHomepage();
+      CLIQZEnvironment.stopProgressBar();
+      CLIQZEnvironment.lastResults = null;
+      return;
+    }
+    e = e.toLowerCase().trim();
+
     localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
@@ -303,32 +314,22 @@ CLIQZEnvironment = {
 
     item_container = document.getElementById('cliqz-results');
 
-    if(!e || e === '') {
-      resultsBox.style.display = 'none';
-      window.document.getElementById('startingpoint').style.display = 'block';
-      CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.initHomepage();
-      CLIQZEnvironment.stopProgressBar();
-      CLIQZEnvironment.lastResults = null;
-      return;
-    }
-
     //TODO: work around for now
-    urlbar.value = e.toLowerCase().trim();
+    urlbar.value = e;
 
     resultsBox.style.display = 'block';
     window.document.getElementById('startingpoint').style.display = 'none';
 
-    if(e.toLowerCase() === 'testme') {
+    if(e === 'testme') {
       initTest();
     }
 
-    if(e.toLowerCase() === 'josep') {
+    if(e === 'josep') {
       CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
       alert("switched to beta mixer with joseps magic links");
     } 
 
-    if(e.toLowerCase() === 'nojosep') {
+    if(e === 'nojosep') {
       CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
       alert("switched to live mixer withOUT joseps magic links");
     }

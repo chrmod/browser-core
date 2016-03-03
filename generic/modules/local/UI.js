@@ -250,10 +250,6 @@ var UI = {
                     else if (currentResults.results.length == 0) {
                       UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                     }
-                    // to handle broken promises (eg. Weather) on mobile
-                    else if (CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
-                        CLIQZEnvironment.shiftResults();
-                    }
                 }
                 else {
                   r.data = resp.data;
@@ -279,6 +275,10 @@ var UI = {
                       }
                   }
                 }
+              }
+              // to handle broken promises (eg. Weather and flights) on mobile
+              else if (r.data && r.data.__callback_url__ && CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
+                CLIQZEnvironment.shiftResults();
               }
               else {
                 res.splice(i,1);
