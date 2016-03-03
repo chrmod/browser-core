@@ -2,13 +2,19 @@ function init() {
   System.baseURL = "modules/"
   CLIQZ.System = System;
   CliqzUtils.initPlatform(System);
-  System.import("freshtab/news").then(function (module) {
+  /*System.import("freshtab/news").then(function (module) {
     CliqzFreshTabNews = module.default;
     osBridge.isReady();
     tryInit();
   }).catch(function () {
     console.log("error", arguments)
-  });
+  });*/
+  try{
+    osBridge.isReady();
+    tryInit();
+  } catch(e) {
+    console.error(e);
+  }
 };
 
 osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
@@ -16,12 +22,7 @@ osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
 var tries=20;
 
 function tryInit(){
-  //ugly hack to wait for logos
-
-  //if(tries-- == 0 || CliqzUtils.BRANDS_DATABASE.palette.length > 1)
     CLIQZEnvironment.initHomepage(true);
-
-  //else setTimeout(tryInit, 100)
 }
 
 /**
@@ -37,6 +38,7 @@ function tryInit(){
   }
 */
 function resetState(cfg) {
+  CLIQZEnvironment.getNews();
   var start = document.getElementById("freshstart");
   var freshstartContent = document.getElementById("freshstartContent");
   var resultsBox = document.getElementById("results");

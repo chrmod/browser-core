@@ -617,12 +617,36 @@ CLIQZEnvironment = {
     osBridge.copyResult(val);
   },
   getNews: function() {
-    //console.log('Start getting news');
+    console.log("%cloading news","background:blue;color:white");
     var cachedNews = localStorage.getObject('freshTab-news');
     if(cachedNews) {
       CLIQZEnvironment.displayTopNews(cachedNews);
     }
-    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+    // return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+
+    // temporary freshtab replacement for mobile
+    var method = "GET", 
+    url = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de",
+    callback = function(data) { 
+        try {
+            var sResponse = JSON.parse(data.responseText);
+            CLIQZEnvironment.displayTopNews({top_h_news:sResponse.results[0].articles});
+        } catch(e) {
+            console.error(e);
+        }
+    },
+    onerror = function() {
+      console.ERROR("news error",arguments);
+      setTimeout(CLIQZEnvironment.getNews,1500);
+    },
+    timeout = function() {
+      console.ERROR("timeout error",arguments);
+      CLIQZEnvironment.getNews();
+    },
+    data = null, 
+    asynchronous = true;
+    CLIQZEnvironment.httpHandler(method, url, callback, onerror, timeout, data, asynchronous);
+    
   },
   displayTopNews: function(news) {
 
@@ -731,7 +755,7 @@ CLIQZEnvironment = {
       start && (start.style.display = 'none');
     }
     CLIQZEnvironment.getNews();
-    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 50);
+    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 10);
   },
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject('defaultSearchEngine', engine);
