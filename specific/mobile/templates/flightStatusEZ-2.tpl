@@ -18,8 +18,8 @@
     </section>
 
     <section class="card__description">
-       <div extra="route" class="flightStatusEZ-plane-position">
-           <img class="flightStatusEZ-plane-position-plane-img" style="left:{{plane_position}}%" data-src="{{plane_icon}}" />
+       <div class="flightStatusEZ-plane-position">
+           <img class="flightStatusEZ-plane-position-plane-img" style="left:0" data-src="{{plane_icon}}" />
            <div class="flightStatusEZ-plane-position-bar">
                <div class="flightStatusEZ-plane-position-dot" style="left:{{plane_position}}%; background:{{status_color}}"></div>
            </div>
