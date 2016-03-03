@@ -636,11 +636,11 @@ CLIQZEnvironment = {
         }
     },
     onerror = function() {
-      console.ERROR("news error",arguments);
+      console.error("news error",arguments);
       setTimeout(CLIQZEnvironment.getNews,1500);
     },
     timeout = function() {
-      console.ERROR("timeout error",arguments);
+      console.error("timeout error",arguments);
       CLIQZEnvironment.getNews();
     },
     data = null, 
