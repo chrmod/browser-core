@@ -96,7 +96,7 @@ var SignalListener = {
       var qsParams = utils.parseQueryString(qs);
       Object.keys(qsParams).forEach(function(key){
         if(qsParams[key]){
-          queryLog[key + ": " + (QUERY_LOG_PARAM[key] || key)] = qsParams[key];
+          queryLog[QUERY_LOG_PARAM[key] || key] = qsParams[key];
         }
       });
 
@@ -196,9 +196,14 @@ var Signals = {
       info = reformatSignalsFlat(sig)
         .concat(reformatSignalsFlat({
           "your identity": "your IP/IDs: " + Signals.IPs,
-          "GPS": "your location",
           "when you search": "time stamp"
         }, [], false));
+
+      if(sig.loc == undefined){
+          info = info.concat(reformatSignalsFlat({
+            "GPS": "your location"
+          }, [], false));
+      }
     }
     if (sigType === "hw") {
       info = HumanwebSignal.reformatSignals(sig)
