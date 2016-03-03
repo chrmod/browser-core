@@ -115,7 +115,7 @@
 			{{else}}
 				{{#if data.richData.current_company}}
 				{{else}}
-					{{{data.description}}}
+					{{ emphasis data.description query 2 true }}
 				{{/if}}
 			{{/if}}
 
