@@ -3,7 +3,7 @@
 {{debug}}
 
 {{#with logo}}
-	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+	<div extra="logo" url="{{../url}}" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
 
 <div id="currency-tpl" class='cqz-result-h3 currency' >
@@ -13,13 +13,16 @@
           {{local 'no_legal_disclaimer'}}
       </div>
 
-      <h1 class="card__title">
+      <h1 cliqz-action='copy-calc-answer' class="card__title">
          <div class="main__headline">
-            {{data.toSymbol}} <i id="toAmount">{{numberFormat data.toAmount.main}}</i> {{data.toCurrency}}
+            {{data.toSymbol}} <i id="calc-answer">{{numberFormat data.toAmount.main}}</i> {{data.toCurrency}}
           </div>
       </h1>
-
       
+      <div class="card__description">
+            <div class="message" id="calc-copy-msg">{{local 'mobile_calc_copy_ans'}}</div>
+            <div class="message" id="calc-copied-msg" style="display: none">{{local 'Copied'}}</div>
+      </div>
 
   </section>
 
@@ -93,8 +96,8 @@
           <p>{{numberFormat (math data.multiplyer '*' 500)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 500)}} {{data.toCurrency}}</p>
           <p>{{numberFormat (math data.multiplyer '*' 1000)}} {{data.fromCurrency}} = {{numberFormat (math data.mConversionRate '*' 10)}} {{data.toCurrency}}</p>-->
           </div>
-          <div class="poweredby">
-              {{local 'mobile_calc_more'}} <a href="http://www.xe.com">XE.com</a>
+          <div extra="url" url="http://www.xe.com" class="poweredby">
+              {{local 'mobile_calc_more'}} XE.com
           </div>
       
   </section>

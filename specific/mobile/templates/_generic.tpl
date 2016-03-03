@@ -3,12 +3,12 @@
 {{debug}}
 
 {{#with logo}}
-	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
 
 	<section class="primary">
 
-		<h1 class="card__title">
+		<h1 extra="title" class="card__title">
 			{{#if data.richData.full_name}}
 				{{data.richData.full_name}}
 			{{else}}
@@ -17,7 +17,7 @@
 			{{#if data.richData.under_name}}<span>{{data.richData.under_name}}</span>{{/if}}
 		</h1>
 
-		<div class="card__meta">
+		<div extra="url" class="card__meta">
 			
 			{{#if data.richData.discovery_timestamp}}
 				<div class="timestamp">{{ agoline data.richData.discovery_timestamp }}</div>
@@ -62,11 +62,11 @@
 			<div class="ez-video">
 				{{#each data.items}}
 
-					<div class="item">
+					<div class="item" url="{{link}}">
 					  <div class="main__image" data-style="background-image: url({{ thumbnail }})">
 						  {{#if (sec_to_duration duration)}}<span> {{ sec_to_duration duration}}</span>{{/if}}
 					  </div>
-					  <h1 class="main__headline"><a href="{{link}}">{{ title }}</a></h1>
+					  <h1 class="main__headline">{{ title }}</h1>
 					  <!--<div class="main__meta">{{ views_helper views}}</div>-->
 					</div>
 
@@ -83,7 +83,7 @@
 			{{/each}}
 		</div>
 
-		<div class="card__description">
+		<div extra="des" class="card__description">
 
 			<div class="main__rating">
 				{{#if data.richData.url_ratingimg}}
@@ -105,8 +105,8 @@
 			</div>
 
 			{{#with data.richData.director}}
-				<div class="main__director">
-					<a url="{{info.url}}">{{title}}: {{info.name}}</a>
+				<div url="{{info.url}}" class="main__director">
+					{{title}}: {{info.name}}
 				</div>
 			{{/with}}
 							
@@ -173,20 +173,20 @@
 		{{/each}}	
 
 		{{#each data.links}}
-            <div class="cards__item links">
+            <div url="{{url}}" extra="link-{{@index}}" class="cards__item links">
                 <div class="card__logo__secondary bg" 
                 	style="background-image:url({{icon}});background-color:#{{../logo.backgroundColor}}">{{ text }}</div>
                 <h2 class="cards__title__secondary">
-                    <a href="{{url}}">{{title}}<a>
+                    {{title}}
                 </h2>
             </div>
         {{/each}}
 
 
 		{{#each data.richData.internal_links}}
-            <div class="cards__item internal_links">
+            <div url="{{mobileWikipediaUrls url}}" class="cards__item internal_links">
                 <h2 class="cards__title__secondary">
-                    <a href="{{mobileWikipediaUrls url}}">{{title}}<a>
+                    {{title}}
                 </h2>
             </div>
         {{/each}}

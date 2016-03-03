@@ -1,6 +1,6 @@
 <!-- local-data-sc.tpl -->
 {{#with logo}}
-	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
 
 
@@ -24,14 +24,14 @@
             <div class="cqz-zone-holder">
               <div class="meta">
                   {{#with data}}
-                  <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{friendly_url}}</h3>
+                  <h3 extra="url" class="meta__url"><i class="fa fa-mobile mobile"></i> {{friendly_url}}</h3>
               </div>
               <div class="main local">
                 <div class="item">
                   <div class="cf local__head">
                     {{#if map_img}}
                     <div class="main__image"/>
-                        <img data-src="{{map_img}}" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
+                        <img data-src="{{map_img}}" extra="map-image" url="{{mu}}" class="cqz-rd-img local-data-img" onerror="this.style.display='none';"/>
                     </div>
                     {{/if}}
                     <h1 class="main__headline {{#if no_location}}no__loc__headline{{/if}}"><a url="{{../url}}" extra="title">{{title}}</a></h1>
@@ -39,7 +39,7 @@
                       <div class="cqz-rd-snippet_hspacing">
                         <img data-src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
                       </div>
-                      <div>
+                      <div extra="distance">
                           {{#unless no_location}}
                               {{distance distance}}
                           {{/unless}}
@@ -93,7 +93,7 @@
 
                     </div>
                   {{/unless}}
-                  <div class="main__content description">{{{description}}}</div>
+                  <div extra="des" class="main__content description">{{{description}}}</div>
                 </div>
               {{/with}}
             </div>

@@ -1,16 +1,16 @@
 <!-- entity-portal -->
 {{debug}}
 {{#with logo}}
-	<div class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
 
 <section class="primary">
 
-    <h1 class="card__title">
+    <h1 extra="title" class="card__title">
        {{data.name}}
     </h1>
 
-    <div class="card__meta">
+    <div extra="url" class="card__meta">
         {{label}}
     </div>
 
@@ -21,7 +21,7 @@
           <div class="main__image" data-style="background-image: url({{ thumbnail }});">
               Image
           </div>
-          <h1 class="main__headline"><a href="{{url}}">{{ title }}</a></h1>
+          <h1 class="main__headline">{{ title }}</h1>
           <span class="main__multiple__time">{{ time }}</span>
         </div>
 

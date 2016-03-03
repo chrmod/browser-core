@@ -419,7 +419,7 @@ function switchCurrency(data) {
 function updateFromValue(data) {
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
-  var toAmount = document.getElementById("toAmount");
+  var toAmount = document.getElementById("calc-answer");
   var toValue = getNumValue(fromInput.value / data.multiplyer * data.mConversionRate).toFixed(2) - 0;
   toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   toInput.value = toValue;
@@ -428,7 +428,7 @@ function updateFromValue(data) {
 function updateToValue(data) {
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
-  var toAmount = document.getElementById("toAmount");
+  var toAmount = document.getElementById("calc-answer");
   var toValue = getNumValue(toInput.value);
   var fromValue = getNumValue(toValue * data.multiplyer / data.mConversionRate).toFixed(2);
   toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
