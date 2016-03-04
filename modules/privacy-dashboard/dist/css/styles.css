@@ -94,20 +94,20 @@ section {
     line-height: 2.5rem;
     color: #424F5A; }
 
-section.headerbox {
-    background-image: url("../transparency.png");
-    padding-bottom: 352px;
-    background-size: 600px 320px;
-    background-repeat: no-repeat;
-    background-position: center 240px;
-}
-
 .blocked {
   background-color: #F87140 !important;
   color: rgba(255, 255, 255, 0.62) !important; }
 
 .allowed {
   background-color: #55B146 !important;
+  color: #fff; }
+
+.no-activity {
+  background-color: #606060 !important;
+  color: #fff; }
+
+.inactive {
+  background-color: #999999 !important;
   color: #fff; }
 
 .item {

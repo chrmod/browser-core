@@ -16,7 +16,7 @@ function lastElementArray (arr) {
   return tmp.length > 0 ? tmp[tmp.length - 1] : null;
 }
 
-function reformatSignalsFlat (sig, ignoreKeys=[], send=true) {
+function reformatSignalsFlat (sig, ignoreKeys=[], send="allowed") {
   var info = [];
   Object.keys(sig || []).forEach(function (name) {
       if (ignoreKeys.indexOf(name) === -1) {
@@ -74,7 +74,8 @@ var SignalListener = {
     // aggregate data within the predefined aggregation window
     // To use ONLY the LAST SIGNAL, use this line below instead of the if block, OR set SignalListener.telSigAggregatePeriod = 0
 
-    // SignalListener.SigCache.tel = {"sig": [lastElementArray(utils.trk)], "timestamp": Date.now()};
+    SignalListener.SigCache.tel = {"sig": [lastElementArray(utils.trk)], "timestamp": Date.now()};
+    /*
     var timeNow = Date.now();
     if (timeNow - SignalListener.SigCache.tel.timestamp < SignalListener.telSigAggregatePeriod) {
       SignalListener.SigCache.tel.sig.push(lastElementArray(utils.trk));
@@ -82,6 +83,7 @@ var SignalListener = {
       SignalListener.SigCache.tel.sig = [lastElementArray(utils.trk)];
       SignalListener.SigCache.tel.timestamp = timeNow;
     }
+    */
 
     SignalListener.fireNewDataEvent("tel");
   },
@@ -187,30 +189,33 @@ var Signals = {
         info = info.concat(reformatSignalsFlat(s));
       });
       info = info.concat(reformatSignalsFlat({
-        "IP": "your IPs: " + Signals.IPs,
         "GPS": "your location",
         "query": "what you search"
-      }, [], false));
+      }, [], "blocked"));
     }
     if (sigType === "ql") {
       info = reformatSignalsFlat(sig)
         .concat(reformatSignalsFlat({
-          "your identity": "your IP/IDs: " + Signals.IPs,
-          "when you search": "time stamp"
-        }, [], false));
+          "search history": "private URLs"
+        }, [], "blocked"));
 
       if(sig.loc == undefined){
           info = info.concat(reformatSignalsFlat({
             "GPS": "your location"
-          }, [], false));
+          }, [], "blocked"));
+      }
+      if(utils.getPref("hpn-query") == true){
+          info = info.concat(reformatSignalsFlat({
+            "your identity": "your IP/IDs: " + Signals.IPs,
+          }, [], "blocked"));
       }
     }
     if (sigType === "hw") {
       info = HumanwebSignal.reformatSignals(sig)
         .concat(reformatSignalsFlat({
-          "your personal information": "ID/IP/Password/name/etc."
-        }, [], false));
-      utils.log(info, "THUY reformatSignals, info = ");
+          "your identity": "your IP/IDs: " + Signals.IPs,
+        }, [], "blocked"));
+      utils.log(info, "reformatSignals, info = ");
     }
 
     return info;
@@ -219,8 +224,18 @@ var Signals = {
   getSignalsToDashboard: function () {
     var info = {};
     Object.keys(SignalListener.SigCache).forEach(function (sigType) {
-      info[sigType] = Date.now() - SignalListener.SigCache[sigType].timestamp < Signals.sigExpireTime ?
-        Signals.reformatSignals(SignalListener.SigCache[sigType].sig, sigType) : [];
+      if(sigType == "hw" && utils.getPref('dnt') == true){
+        info[sigType] = [{
+          "name": "",
+          "val": "Human Web ist nicht aktiviert",
+          "send": "inactive",
+          "unique": true,
+          "des": ""  // todo: fill in descriptions
+        }];
+      } else {
+        info[sigType] = Date.now() - SignalListener.SigCache[sigType].timestamp < Signals.sigExpireTime ?
+          Signals.reformatSignals(SignalListener.SigCache[sigType].sig, sigType) : [];
+      }
     });
     return info;
   }

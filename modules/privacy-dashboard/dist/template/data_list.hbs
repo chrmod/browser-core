@@ -1,6 +1,6 @@
 {{#each this}}
-    <div class="item">
-        <div class= "{{#if send}}value allowed{{else}}value blocked{{/if}}" title="{{val}}">
+    <div class="item" {{#if unique }} style="margin-left: calc(50% - 112px);" {{/if}}/>
+        <div class= "value {{send}}" title="{{val}}">
             {{val}}
         </div>
         <div class="legend">
@@ -9,10 +9,9 @@
     </div>
 {{else}}
     <div class="item" style="margin-left: calc(50% - 112px);">
-        <div class= "value blocked" >
+        <div class= "value no-activity" >
             Aktuell keine Aktivität
         </div>
     </div>
-
 {{/each}}
 

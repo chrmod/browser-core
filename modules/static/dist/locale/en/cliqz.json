@@ -120,7 +120,7 @@
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
     "btnPrivacyDashboard": {
-        "message": "Which data we collect?"
+        "message": "Transparency Dashboard"
     },
     "btnFeedbackFaq":{
         "message": "Support and contact"
