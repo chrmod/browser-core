@@ -8,7 +8,7 @@
         <h1 class="card__title">
             {{ returned_location }}
         </h1>
-        
+       
         <div class='EZ-weather-container weather__today'>
             <div class='EZ-weather-date'>{{ todayWeekday }}</div>
             <div class="EZ-weather-temp"><span>max.</span> {{todayTemp}}<span> / min.</span> {{todayMin}}</div>
@@ -41,5 +41,8 @@
         {{local 'more_on'}} <a href="http://www.weatherunderground.com">weatherunderground.com</a>
     </div>
 
+    <section class="share">
+        Share this card: <a href="">{{label}}</a>
+    </section>
 {{/with}}
 <!-- end weatherAlert.tpl -->
