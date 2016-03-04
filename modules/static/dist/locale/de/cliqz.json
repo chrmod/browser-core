@@ -939,10 +939,10 @@
       "message": "Ich nehme am Human Web teil"
     },
     "attrack-headline-general-title": {
-      "message": "Schutz der Privatsphäre"
+      "message": "Schutz der Privatsphäre"
     },
     "attrack-headline-general-trackers": {
-      "message": "Diese Seite schickt Informationen an $1 andere Firmen. CLIQZ hat zu Deinem Schutz alle $2 unsicheren Daten entfernt"
+      "message": "$1 schickt Informationen an $2 andere Firmen. CLIQZ hat zu Deinem Schutz alle $3 unsicheren Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich"
@@ -960,10 +960,10 @@
       "message": "Diese Seite sendet keine persönlichen Informationen."
     },
     "attrack-btn-power-on": {
-      "message": "Schutz der Privatsphäre einschalten"
+      "message": "Schutz der Privatsphäre einschalten"
     },
     "attrack-btn-power-off": {
-      "message": "Schutz der Privatsphäre ausschalten"
+      "message": "Schutz der Privatsphäre ausschalten"
     },
     "attrack-btn-white-list": {
       "message": "Datensammlung auf $1 zulassen"
