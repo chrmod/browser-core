@@ -939,10 +939,10 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general-title": {
-      "message": "CLIQZ Anti-Tracking"
+      "message": "Privacy protection"
     },
     "attrack-headline-general-trackers": {
-      "message": "This site sends information to $1 other companies. CLIQZ has removed $2 unsafe data points for your protection"
+      "message": "$1 sends information to $2 other companies. CLIQZ has removed $3 unsafe data points for your protection"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Currently, your personal data is accessible for third parties on this site"
@@ -960,16 +960,16 @@
       "message": "This site does not send any personal data."
     },
     "attrack-btn-power-on": {
-      "message": "Activate Anti Tracking"
+      "message": "Activate privacy protection"
     },
     "attrack-btn-power-off": {
-      "message": "Deactivate Anti Tracking"
+      "message": "Deactivate privacy protection"
     },
     "attrack-btn-white-list": {
-      "message": "Allow tracking for this site"
+      "message": "Allow being tracked on $1"
     },
     "attrack-btn-white-list-off": {
-      "message": "Block tracking for this site"
+      "message": "Disable being tracked on $1"
     },
     "attrack-btn-details-more": {
       "message": "See More"
