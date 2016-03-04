@@ -67,6 +67,8 @@ var PrivacyRep = {
   },
 
   registerStream: function () {
+    Signals.startListening();
+
     PrivacyRep.openingStreamCount += 1;
     Signals.setStreaming(true);
   },

@@ -159,9 +159,8 @@ var HumanwebSignal = {
 var Signals = {
   sigExpireTime: 1*60*1000, // miliseconds, if a signal is older than this, it's expired
   IPs: "",
+  initialized: false,
   init: function () {
-    SignalListener.init();
-
     var dns = Components.classes["@mozilla.org/network/dns-service;1"]
                     .getService(Components.interfaces.nsIDNSService),
     myName = dns.myHostName,
@@ -169,7 +168,13 @@ var Signals = {
 
     while (record.hasMore()) Signals.IPs = Signals.IPs + " " + record.getNextAddrAsString();
   },
-
+  // TODO: implement stop listening when no dashboards are active
+  startListening: function() {
+    if(!Signals.initialized){
+      SignalListener.init();
+      Signals.initialized = true;
+    }
+  },
   setStreaming: function (boolVal) {
     streamMode = boolVal;
   },
