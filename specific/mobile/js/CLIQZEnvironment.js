@@ -601,6 +601,10 @@ CLIQZEnvironment = {
   getNews: function() {
     //console.log('Start getting news');
     var cachedNews = localStorage.getObject('freshTab-news');
+    if(cachedNews && cachedNews["top_h_news"]) {
+      localStorage.setObject('freshTab-news',cachedNews.top_h_news);
+      cachedNews = cachedNews.top_h_news;
+    }
     if(cachedNews) {
       CLIQZEnvironment.displayTopNews(cachedNews);
     }
