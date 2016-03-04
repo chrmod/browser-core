@@ -1067,20 +1067,50 @@
     "cliqz-onboarding-title": {
       "message": "Juhuuu! CLIQZ wurde erfolgreich installiert."
     },
-    "cliqz-onboarding-search-simple": {
-      "message": "Suchen direkt im Browser. Einfach in die Browser-Zeile tippen und schon siehst du"
+    "cliqz-onboarding-hdr-privacy": {
+      "message": "Mit CLIQZ bist du sicher"
     },
-    "cliqz-onboarding-suggestions": {
-      "message": "Website-Vorschläge."
+    "cliqz-onboarding-txt-privacy1": {
+      "message": "Unsere innovativen"
     },
-    "cliqz-onboarding-start-fresh": {
-      "message": "Startseite: Wenn du den Browser oder einen neuen Tab öffnest, siehst du deine Lieblingsseiten und Nachrichten."
+    "cliqz-onboarding-txt-privacy2": {
+      "message": "Anti-Tracking & -Phising"
     },
-    "cliqz-onboarding-surf-safe": {
-      "message": "Für CLIQZ bist du anonym – auf unseren Servern werden keinerlei Daten über dich gespeichert."
+    "cliqz-onboarding-txt-privacy3": {
+      "message": "Funktionen schützen deine persönlichen Daten."
     },
-    "cliqz-onboarding-privacy": {
-      "message": "Mehr Privatsphäre."
+    "cliqz-onboarding-cta1": {
+      "message": "Weiter"
+    },
+    "cliqz-onboarding-hdr-search": {
+      "message": "Schnell-Suche"
+    },
+    "cliqz-onboarding-txt-search1": {
+      "message": "Während du tippst, schlägt CLIQZ dir Websites vor. Klick einfach auf einen"
+    },
+    "cliqz-onboarding-txt-search2": {
+      "message": "Vorschlag"
+    },
+    "cliqz-onboarding-txt-search3": {
+      "message": "."
+    },
+    "cliqz-onboarding-cta2": {
+      "message": "Weiter..."
+    },
+    "cliqz-onboarding-hdr-homescreen": {
+      "message": "Deine top Websites und News"
+    },
+    "cliqz-onboarding-txt-homescreen1": {
+      "message": "Auf dem CLIQZ"
+    },
+    "cliqz-onboarding-txt-homescreen2": {
+      "message": "Homescreen"
+    },
+    "cliqz-onboarding-txt-homescreen3": {
+      "message": "siehst du Direktlinks zu deinen Lieblingsseiten und Nachrichten."
+    },
+    "cliqz-onboarding-cta3": {
+      "message": "Und los geht‘s!"
     },
     "cliqz-onboarding-learn-more": {
       "message": "Mehr über CLIQZ erfahren"
@@ -1090,9 +1120,6 @@
     },
     "cliqz-onboarding-or": {
       "message": "oder"
-    },
-    "cliqz-onboarding-cool-thanks": {
-      "message": "OK, verstanden!"
     },
     "context-menu-search-item": {
       "message": "CLIQZ-Suche nach \"$1\""

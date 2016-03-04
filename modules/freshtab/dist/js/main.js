@@ -7,6 +7,32 @@ function log(){
   //console.log(arguments);
 }
 
+function closeOnboarding() {
+  CliqzFreshTab.cliqzOnboarding = false;
+  $('#optinContainer').css('display', 'none')
+}
+
+function navigateOnboarding(screen, currentScreenId) {
+  var curScreen = $('#screen' + currentScreenId),
+      background = $('.optinBackground'),
+      allScreens = $('.screen');
+
+    $.each(allScreens, function() {
+      $(this).addClass('hidden');
+    });
+
+    curScreen.removeClass('hidden');
+
+    telemetry({
+      type: "onboarding",
+      product: "cliqz",
+      action: "click",
+      action_target: "navigation",
+      action_index: currentScreenId,
+      version: "2.0"
+    });
+}
+
 $(document).ready(function() {
 
    var urlbar  = CliqzUtils.getWindow().document.getElementById("urlbar"),
@@ -17,24 +43,47 @@ $(document).ready(function() {
 
   if(CliqzUtils.getParameterByName('cliqzOnboarding', location) === "1" && !CliqzUtils.hasPref('browserOnboarding')) {
     CliqzUtils.setPref('browserOnboarding', true);
+
+    var onBoardingSliderTpl  = CliqzHandlebars.compile($('#onBoardingNavigation').html());
+    $('.onboardingNav').html(onBoardingSliderTpl);
+
     $('#optinContainer').css('display', 'block');
     telemetry({
       type: "onboarding",
       product: "cliqz",
       action: "show",
-      version: "1.0"
+      version: "2.0"
     });
   }
 
-  $('.cqz-optin-btn').on('click', function() {
-    CliqzFreshTab.cliqzOnboarding = false;
-    $('#optinContainer').css('display', 'none');
+  $('.cqz-optin-btn').on('click', function(e) {
+    var curScreen = $(this).closest('.screen'),
+        currentScreenId = parseInt($(curScreen).attr('id').slice(-1), 10),
+        nextScreenId = parseInt(currentScreenId, 10) + 1;
+        nextScreen = $('#screen' + nextScreenId),
+        background = $('.optinBackground');
+
+    if(currentScreenId === 3) {
+      closeOnboarding();
+    } else {
+      curScreen.addClass('hidden');
+      nextScreen.removeClass('hidden');
+    }
+
+    if(nextScreenId === 3) {
+      background.fadeOut(700, function() {
+        background.fadeIn(400);
+        $(this).delay(100).toggleClass('transparent').removeClass('bgImage');
+      });
+    }
+
     telemetry({
       type: "onboarding",
       product: "cliqz",
       action: "click",
       action_target: "confirm",
-      version: "1.0"
+      action_index: currentScreenId,
+      version: "2.0"
     });
   });
 
@@ -49,7 +98,7 @@ $(document).ready(function() {
       "product": "cliqz",
       "action": "click",
       "action_target": "tour",
-      "version": 1.0,
+      "version": "2.0",
     });
   });
 
@@ -59,17 +108,17 @@ $(document).ready(function() {
       "product": "cliqz",
       "action": "click",
       "action_target": "more",
-      "version": 1.0,
+      "version": "2.0",
     });
   });
 
-  $('.suggestions').on('click', function() {
+  $('.search').on('click', function() {
     telemetry({
       "type": "onboarding",
       "product": "cliqz",
       "action": "click",
       "action_target": "suggestions",
-      "version": 1.0,
+      "version": "2.0",
     });
   });
 
@@ -79,8 +128,21 @@ $(document).ready(function() {
       "product": "cliqz",
       "action": "click",
       "action_target": "privacy",
-      "version": 1.0,
+      "version": "2.0",
     });
+  });
+
+  $('.homescreen').on('click', function(e) {
+    e.preventDefault();
+    telemetry({
+      "type": "onboarding",
+      "product": "cliqz",
+      "action": "click",
+      "action_target": "homescreen",
+      "version": "2.0",
+    });
+
+    closeOnboarding();
   });
 
   var dialUps = History.getTopUrls(5).then(function(results){
