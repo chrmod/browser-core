@@ -133,7 +133,6 @@ $(document).ready(function() {
   });
 
   $('.homescreen').on('click', function(e) {
-    e.preventDefault();
     telemetry({
       "type": "onboarding",
       "product": "cliqz",
@@ -141,8 +140,6 @@ $(document).ready(function() {
       "action_target": "homescreen",
       "version": "2.0",
     });
-
-    closeOnboarding();
   });
 
   var dialUps = History.getTopUrls(5).then(function(results){
