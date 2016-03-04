@@ -120,7 +120,7 @@
         "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "btnPrivacyDashboard": {
-        "message": "Welches data sammeln wir?"
+        "message": "Transparenz Cockpit"
     },
     "btnFeedbackFaq":{
         "message": "Hilfe und Kontakt"
@@ -939,10 +939,10 @@
       "message": "Ich nehme am Human Web teil"
     },
     "attrack-headline-general-title": {
-      "message": "CLIQZ Anti-Tracking"
+      "message": "Schutz der Privatsphäre"
     },
     "attrack-headline-general-trackers": {
-      "message": "Diese Seite schickt Informationen an $1 andere Firmen. CLIQZ hat zu Deinem Schutz alle $2 unsicheren Daten entfernt"
+      "message": "$1 schickt Informationen an $2 andere Firmen. CLIQZ hat zu Deinem Schutz alle $3 unsicheren Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich"
@@ -960,16 +960,16 @@
       "message": "Diese Seite sendet keine persönlichen Informationen."
     },
     "attrack-btn-power-on": {
-      "message": "Anti Tracking aktivieren"
+      "message": "Schutz der Privatsphäre einschalten"
     },
     "attrack-btn-power-off": {
-      "message": "Anti Tracking abschalten"
+      "message": "Schutz der Privatsphäre ausschalten"
     },
     "attrack-btn-white-list": {
-      "message": "Tracking für diese Seite zulassen"
+      "message": "Datensammlung auf $1 zulassen"
     },
     "attrack-btn-white-list-off": {
-      "message": "Tracking für diese Seite nicht zulassen"
+      "message": "Datensammlung auf $1 wieder verhindern"
     },
     "attrack-btn-details-more": {
       "message": "Mehr sehen"
