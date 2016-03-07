@@ -401,8 +401,8 @@ describe('Search View', function() {
     });
 
     it("should have the weather card", function () {
-      expect($('.EZ-weather-container')).to.have.length(4);
-      expect($('.EZ-weather-img')).to.have.length(4);
+      expect($('.EZ-weather-container')).to.have.length(5);
+      expect($('.EZ-weather-img')).to.have.length(5);
     });
   });
 
@@ -481,7 +481,7 @@ describe('Search View', function() {
     });
 
     it("should have the latest results smart card", function () {
-      expect($('.ez-liga')).to.have.length(1);
+      expect($('.soccer__result')).to.have.length(1);
       expect($('.meta__legend')).to.have.length(1);
     });
   });

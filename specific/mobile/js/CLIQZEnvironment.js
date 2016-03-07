@@ -644,6 +644,7 @@ CLIQZEnvironment = {
         target_index: this.dataset.index
       });
     });
+    osBridge.isReady();
   },
   displayTopSites: function (list) {
     if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {

@@ -11,7 +11,7 @@ function init() {
     console.log("error", arguments)
   });*/
   try{
-    osBridge.isReady();
+    
     tryInit();
   } catch(e) {
     console.error(e);
