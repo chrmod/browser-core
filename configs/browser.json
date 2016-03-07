@@ -25,6 +25,7 @@
     "telemetry-categories",
     "antitracking",
     "performance",
-    "hpn"
+    "hpn",
+    "privacy-dashboard"
   ]
 }

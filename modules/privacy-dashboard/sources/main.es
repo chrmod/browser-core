@@ -22,9 +22,9 @@ var PrivacyRep = {
     if (PrivacyRep.initialized === false) {
       AboutURLPrivacy.prototype = {
         QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
-        classDescription: 'about:cliqzloyalty',
-        classID: Components.ID('{bbab0a50-7988-11e5-a837-0800200c9a66}'),
-        contractID: '@mozilla.org/network/protocol/about;1?what=cliqzloyalty',
+        classDescription: 'about:transparency',
+        classID: Components.ID('{abab0a50-7988-11e5-a837-0800200c9a66}'),
+        contractID: '@mozilla.org/network/protocol/about;1?what=transparency',
 
         newChannel: function (uri) {
           var ioService = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
@@ -67,6 +67,8 @@ var PrivacyRep = {
   },
 
   registerStream: function () {
+    Signals.startListening();
+
     PrivacyRep.openingStreamCount += 1;
     Signals.setStreaming(true);
   },

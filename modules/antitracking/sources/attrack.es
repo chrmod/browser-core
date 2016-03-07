@@ -2083,7 +2083,6 @@ var CliqzAttrack = {
       if (!module_only) {
         CliqzUtils.setPref('attrackBlockCookieTracking', true);
         CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
-        CliqzUtils.setPref('attrackRefererTracking', true);
       }
     },
     /** Disables anti-tracking immediately.

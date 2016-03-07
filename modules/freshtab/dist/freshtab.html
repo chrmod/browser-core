@@ -15,6 +15,12 @@
     <script src="js/views/onboarding.js"></script>
     <script src="js/main.js"></script>
 
+    <script id="onBoardingNavigation" type="text/x-handlebars-template">
+      <a class="navItem" data-screen="1" href="#" onclick="navigateOnboarding(this, 1); return false;">1</a>
+      <a class="navItem" data-screen="2" href="#" onclick="navigateOnboarding(this, 2); return false;">2</a>
+      <a class="navItem" data-screen="3" href="#" onclick="navigateOnboarding(this, 3); return false;">3</a>
+    </script>
+
     <script id="topNews" type="text/x-handlebars-template">
       <div class="heading clearfix">
         <h2>{{local 'freshtab_top_news'}}</h2>
@@ -105,44 +111,80 @@
 
     <script id="partial-cliqzOnboarding" type="text/x-handlebars-template">
       <div id="optinContainer">
-        <div class="optinBackground"></div>
+        <div class="optinBackground bgImage"></div>
         <div class="optinContent">
-          <div class="title">{{local 'cliqz-onboarding-title'}}</div>
-          <ul>
-            <li class="searchSimple clearfix">
-              <span class="icon"></span>
-              <div>
-                {{local 'cliqz-onboarding-search-simple'}}
-                <a class="suggestions" target="_blank" href="https://cliqz.com/products/tips">{{local 'cliqz-onboarding-suggestions'}}</a>
-              </div>
-            </li>
 
-            <li class="surfSafe clearfix">
-              <span class="icon"></span>
-              <div>
-                <a class="privacy" target="_blank" href="https://cliqz.com/whycliqz/privacy">{{local 'cliqz-onboarding-privacy'}}</a>&nbsp;
-                {{local 'cliqz-onboarding-surf-safe'}}
-               </div>
-            </li>
-            <li class="startFresh clearfix">
-              <span class="icon"></span>
-              <div>
-                {{local 'cliqz-onboarding-start-fresh'}}
-              </div>
-            </li>
-          </ul>
+          <div id="header">
+            <h1>{{local 'cliqz-onboarding-title'}}</h1>
+          </div>
 
-          <div class="optin-cta-con">
-            <div class="cqz-optin-btn">
-              {{local 'cliqz-onboarding-cool-thanks'}}
+          <div id="screen1" class="screen">
+            <h2>{{local 'cliqz-onboarding-hdr-privacy'}}</h2>
+            <div class="imgContainer">
+              <img src="images/shield.png" />
+            </div>
+
+            <p>
+              {{local 'cliqz-onboarding-txt-privacy1'}}
+              <a class="privacy" target="_blank" href="https://cliqz.com/whycliqz/privacy">{{local 'cliqz-onboarding-txt-privacy2'}}</a>
+              {{local 'cliqz-onboarding-txt-privacy3'}}
+            </p>
+
+            <div class="onboardingNav clearfix">
+            </div>
+
+            <div class="optin-cta-con">
+              <div class="cqz-optin-btn">
+                {{local 'cliqz-onboarding-cta1'}}
+              </div>
             </div>
           </div>
 
-          <div class="footer">
-            <a class="cliqzLearnMore" target="_blank" href="https://cliqz.com">{{local 'cliqz-onboarding-learn-more'}}</a>
-            <span>{{local 'cliqz-onboarding-or'}}</span>
-            <a class="fullTour" target="_blank" href="#">{{local 'cliqz-onboarding-full-tour'}}</a>
+          <div id="screen2" class="screen hidden">
+            <h2>{{local 'cliqz-onboarding-hdr-search'}}</h2>
+            <div class="imgContainer">
+              <img src="images/type-cliqz.gif" />
+            </div>
+
+            <p>
+              {{local 'cliqz-onboarding-txt-search1'}}
+              <a target="_blank" href="https://cliqz.com/products/tips" class="search">{{local 'cliqz-onboarding-txt-search2'}}</a>
+              {{local 'cliqz-onboarding-txt-search3'}}
+            </p>
+
+            <div class="onboardingNav clearfix">
+
+            </div>
+
+            <div class="optin-cta-con">
+              <div class="cqz-optin-btn">
+                {{local 'cliqz-onboarding-cta2'}}
+              </div>
+            </div>
           </div>
+
+          <div id="screen3" class="hidden screen">
+            <h2>{{local 'cliqz-onboarding-hdr-homescreen'}}</h2>
+            <div class="imgContainer">
+              <img src="images/house.png" />
+            </div>
+
+            <p>
+              {{local 'cliqz-onboarding-txt-homescreen1'}}
+              <a href="https://cliqz.com/aboutus/blog/new-startpage" target="_blank" class="homescreen">{{local 'cliqz-onboarding-txt-homescreen2'}}</a>
+              {{local 'cliqz-onboarding-txt-homescreen3'}}
+            </p>
+
+            <div class="onboardingNav clearfix">
+            </div>
+
+            <div class="optin-cta-con">
+              <div class="cqz-optin-btn">
+                {{local 'cliqz-onboarding-cta3'}}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 

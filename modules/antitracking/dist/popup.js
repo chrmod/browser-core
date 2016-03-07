@@ -100,7 +100,7 @@ function populateDOM() {
         return "" +
           "<li>" +
               "<span class='cqz-title-holder'> "  +
-                "<a href='https://cliqz.com/whycliqz/anti-tracking/tracker#"+ c.name.replace(/ /g,"-") + "' class='cqz-trackers-info' target='_blank'> i </a>" +
+                "<a href='https://cliqz.com/whycliqz/anti-tracking#"+ c.name.replace(/ /g,"-") + "' class='cqz-trackers-info' target='_blank'> i </a>" +
                 "<span class='cqz-title'> "  + c.name  + "</span>" +
               "</span>" +
               "<span  class='cqz-number'><i>"  + c.count + "</i></span>" +
@@ -115,8 +115,21 @@ function populateDOM() {
     document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
     general_msg_trnsl.dataset.i18n = [
       general_msg_trnsl.dataset.i18n,
+      data.url,
       counterTrackers,
       general_trackers_count
+    ].join(',');
+
+    var whiteListOn = document.querySelector(".cqz-whitelist-btn-on");
+    whiteListOn.dataset.i18n = [
+      whiteListOn.dataset.i18n,
+      data.url,
+    ].join(',');
+
+    var whiteListOff = document.querySelector(".cqz-whitelist-btn-off");
+    whiteListOff.dataset.i18n = [
+      whiteListOff.dataset.i18n,
+      data.url,
     ].join(',');
 
     //Check if site is in the whitelist

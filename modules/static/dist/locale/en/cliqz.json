@@ -120,7 +120,7 @@
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
     "btnPrivacyDashboard": {
-        "message": "Which data we collect?"
+        "message": "Transparency Dashboard"
     },
     "btnFeedbackFaq":{
         "message": "Support and contact"
@@ -939,10 +939,10 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general-title": {
-      "message": "CLIQZ Anti-Tracking"
+      "message": "Privacy protection"
     },
     "attrack-headline-general-trackers": {
-      "message": "This site sends information to $1 other companies. CLIQZ has removed $2 unsafe data points for your protection"
+      "message": "$1 sends information to $2 other companies. CLIQZ has removed $3 unsafe data points for your protection"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Currently, your personal data is accessible for third parties on this site"
@@ -960,16 +960,16 @@
       "message": "This site does not send any personal data."
     },
     "attrack-btn-power-on": {
-      "message": "Activate Anti Tracking"
+      "message": "Activate privacy protection"
     },
     "attrack-btn-power-off": {
-      "message": "Deactivate Anti Tracking"
+      "message": "Deactivate privacy protection"
     },
     "attrack-btn-white-list": {
-      "message": "Allow tracking for this site"
+      "message": "Allow being tracked on $1"
     },
     "attrack-btn-white-list-off": {
-      "message": "Block tracking for this site"
+      "message": "Disable being tracked on $1"
     },
     "attrack-btn-details-more": {
       "message": "See More"
@@ -1065,22 +1065,52 @@
       "message": "No, never"
     },
     "cliqz-onboarding-title": {
-      "message": "Woohoo! CLIQZ has been successfully installed."
+      "message": "Woohoo! CLIQZ was successfully installed."
     },
-    "cliqz-onboarding-search-simple": {
-      "message": "Search effortlessly. Simply start typing in the address bar and instantly get"
+    "cliqz-onboarding-hdr-privacy": {
+      "message": "You are safe with CLIQZ"
     },
-    "cliqz-onboarding-suggestions": {
-      "message": "website suggestions."
+    "cliqz-onboarding-txt-privacy1": {
+      "message": "Our innovative"
     },
-    "cliqz-onboarding-start-fresh": {
-      "message": "Start fresh. We populate your homescreen with your favorite sites - plus news we think will interest you."
+    "cliqz-onboarding-txt-privacy2": {
+      "message": "Anti-Tracking & -Phising"
     },
-    "cliqz-onboarding-surf-safe": {
-      "message": "We don’t collect any data about you on our servers."
+    "cliqz-onboarding-txt-privacy3": {
+      "message": "technologies protect you and your privacy."
     },
-    "cliqz-onboarding-privacy": {
-      "message": "Protect your privacy."
+    "cliqz-onboarding-cta1": {
+      "message": "Cool, what else?"
+    },
+    "cliqz-onboarding-hdr-search": {
+      "message": "Quick search"
+    },
+    "cliqz-onboarding-txt-search1": {
+      "message": "See"
+    },
+    "cliqz-onboarding-txt-search2": {
+      "message": "search results"
+    },
+    "cliqz-onboarding-txt-search3": {
+      "message": "as you type and click to go there directly."
+    },
+    "cliqz-onboarding-cta2": {
+      "message": "Got it..."
+    },
+    "cliqz-onboarding-hdr-homescreen": {
+      "message": "Your top sites and news"
+    },
+    "cliqz-onboarding-txt-homescreen1": {
+      "message": "We populate your"
+    },
+    "cliqz-onboarding-txt-homescreen2": {
+      "message": "Homescreen"
+    },
+    "cliqz-onboarding-txt-homescreen3": {
+      "message": "with your favorite websites and trending news."
+    },
+    "cliqz-onboarding-cta3": {
+      "message": "OK, let's go!"
     },
     "cliqz-onboarding-learn-more": {
       "message": "Learn more about CLIQZ"
@@ -1090,9 +1120,6 @@
     },
     "cliqz-onboarding-or": {
       "message": "or"
-    },
-    "cliqz-onboarding-cool-thanks": {
-      "message": "Cool, thanks!"
     },
     "context-menu-search-item": {
       "message": "Search CLIQZ for \"$1\""

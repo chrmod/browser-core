@@ -619,7 +619,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
     describe('Tracking.txt', function() {
 
         it ('parse rules correctly', function() {
-            let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
+            var parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
                 txt = 'R site1.com empty\nR   site2.com\tplaceholder\nnot a rule',
                 rules = [];
             parser(txt, rules);
@@ -627,7 +627,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it ('ignore comments', function() {
-            let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
+            var parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
                 txt = '# comment\n! pass\nR site1.com empty\nR site2.com placeholder\nnot a rule',
                 rules = [];
             parser(txt, rules);

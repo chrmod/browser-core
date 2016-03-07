@@ -80,3 +80,5 @@ TESTS.HPNTest = function (CliqzUtils) {
 	})
 
 }
+
+TESTS.HPNTest.MIN_BROWSER_VERSION = 41;

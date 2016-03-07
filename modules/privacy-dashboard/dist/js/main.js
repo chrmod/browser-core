@@ -51,6 +51,9 @@ CliqzPrivacyRep = CliqzUtils.getWindow().CLIQZ.System.get("privacy-dashboard/mai
     window.addEventListener( "unload", onWindowUnload)
   }
 
+  // re-render  all the dashboard - the signals might be expired
+  setInterval(renderDashboard, 5000);
+
   function onUpdateData(sigType) {
     var divID = sigType === "tel" ? "telemetryData" : (sigType === "hw" ? "humanwebData" : "searchData"),
       signals = CliqzPrivacyRep.getCurrentData();
