@@ -693,12 +693,6 @@ var CliqzAttrack = {
             // no cookies, let's return
             if (cookie_data == null) return;
 
-            // check if domain is whitelisted,
-            if (CliqzAttrack.isInWhitelist(url_parts.hostname)) {
-                if (CliqzAttrack.debug) CliqzUtils.log("Is whitelisted (type: direct): " + url, CliqzAttrack.LOG_KEY);
-                return;
-            }
-
             // Gather more info for further checks
             var curr_time = Date.now();
             if ((curr_time - CliqzAttrack.bootupTime) > CliqzAttrack.timeBootup) CliqzAttrack.bootingUp = false;
@@ -784,17 +778,23 @@ var CliqzAttrack = {
                 // not a 3rd party cookie, do nothing
                 // if(req_log != null) req_log.cookie_allow_ntp++;
                 return;
-            } else {
-                req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                tp_events.incrementStat(req_log, 'cookie_set');
-                if (source_url.indexOf('about:')==0) {
-                    // it's a brand new tab, and the url is loaded externally,
-                    // about:home, about:blank
-                    req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                    tp_events.incrementStat(req_log, 'cookie_allow_newtab');
-                    CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': source_url, 'data': cookie_data, 'ts': curr_time}, "about:blank");
-                    return;
-                }
+            }
+
+            req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+            tp_events.incrementStat(req_log, 'cookie_set');
+            if (source_url.indexOf('about:')==0) {
+                // it's a brand new tab, and the url is loaded externally,
+                // about:home, about:blank
+                tp_events.incrementStat(req_log, 'cookie_allow_newtab');
+                CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': source_url, 'data': cookie_data, 'ts': curr_time}, "about:blank");
+                return;
+            }
+
+            // check if domain is whitelisted,
+            if (CliqzAttrack.isInWhitelist(url_parts.hostname)) {
+                tp_events.incrementStat(req_log, 'cookie_allow_whitelisted');
+                if (CliqzAttrack.debug) CliqzUtils.log("Is whitelisted (type: direct): " + url, CliqzAttrack.LOG_KEY);
+                return;
             }
 
             var host = getGeneralDomain(url_parts.hostname);
@@ -1292,6 +1292,15 @@ var CliqzAttrack = {
         this._trackerLoader.load().then(CliqzAttrack._parseTrackerCompanies);
         this._trackerLoader.onUpdate(CliqzAttrack._parseTrackerCompanies);
 
+        // load cookie whitelist
+        this._cookieWhitelistLoader = new ResourceLoader( ['antitracking', 'cookie_whitelist.json'], {
+            remoteURL: 'https://cdn.cliqz.com/anti-tracking/whitelist/cookie_whitelist.json',
+            cron: 24 * 60 * 60 * 1000
+        });
+        var updateCookieWhitelist = (data) => { CliqzAttrack.whitelist = data }
+        this._cookieWhitelistLoader.load().then(updateCookieWhitelist);
+        this._cookieWhitelistLoader.onUpdate(updateCookieWhitelist);
+
         // @konarkm : Since we already have window, passing it.
         // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
         CliqzAttrack.checkInstalledAddons();
@@ -1531,7 +1540,7 @@ var CliqzAttrack = {
     },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
-        var keys = Object.keys(CliqzAttrack.whitelist);
+        var keys = CliqzAttrack.whitelist;
         for(var i=0;i<keys.length;i++) {
             var ind = domain.indexOf(keys[i]);
             if (ind>=0) {
