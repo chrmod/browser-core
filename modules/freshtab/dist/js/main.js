@@ -133,7 +133,6 @@ $(document).ready(function() {
   });
 
   $('.homescreen').on('click', function(e) {
-    e.preventDefault();
     telemetry({
       "type": "onboarding",
       "product": "cliqz",
