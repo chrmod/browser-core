@@ -65,6 +65,15 @@ var mobileCss = compileSass(
   { sourceMap: true }
 );
 
+
+var babelOptions = {
+  sourceMaps: 'inline',
+  filterExtensions: ['es'],
+  modules: 'system',
+  moduleIds: true,
+  compact: false
+};
+
 // Attach subprojects
 let transpilableModuleNames = [];
 var requiredBowerComponents = new Set();
@@ -105,25 +114,37 @@ let sources = new Funnel('modules', {
   }
 });
 
+const moduleTestsTree = new Funnel('modules', {
+  include: transpilableModuleNames.map(name => `${name}/tests/**/*.es`),
+  getDestinationPath(path) {
+    return path.replace("/tests", "");
+  }
+});
+
 let jsHinterTree = new JSHinter(sources, {
   jshintrcPath: process.cwd() + '/.jshintrc',
   disableTestGenerator: true
 });
 jsHinterTree.extensions = ['es']
 
-let transpiledSources = Babel(sources, {
-  sourceMaps: 'inline',
-  filterExtensions: ['es'],
-  modules: 'system',
-  moduleIds: true,
-  compact: false
-});
+let transpiledSources = Babel(sources, babelOptions);
+let transpiledModuleTestsTree = Babel(
+  new Funnel(moduleTestsTree, { destDir: 'tests' }),
+  babelOptions
+);
+
+let sourceTrees = [
+  jsHinterTree,
+  transpiledSources,
+];
+
+if (buildEnv !== 'production') {
+  sourceTrees.push(transpiledModuleTestsTree);
+}
 
 let sourceTree = new Funnel(
-  new MergeTrees([
-    jsHinterTree,
-    transpiledSources
-  ]), {
+  new MergeTrees(sourceTrees),
+  {
     exclude: ["**/*.jshint.js"]
   }
 );
@@ -178,13 +199,6 @@ let modules = new MergeTrees([
   sassTree,
   sourceTree,
 ]);
-
-var babelOptions = {
-  modules: "amdStrict",
-  moduleIds: true,
-  resolveModuleSource: amdNameResolver,
-  sourceMaps: "inline"
-};
 
 var globalConcated = concat(global, {
   outputFile: 'global.js',
@@ -308,7 +322,9 @@ var trees = [
 ];
 
 if (buildEnv !== 'production') {
-  trees.push(new Funnel(testsTree, { destDir: 'tests' }));
+  trees.push(new Funnel(new MergeTrees([
+    testsTree,
+  ]), { destDir: 'tests' }));
 }
 // Output
 module.exports = new MergeTrees(trees);
