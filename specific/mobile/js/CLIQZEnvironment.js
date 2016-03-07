@@ -47,7 +47,6 @@ CLIQZEnvironment = {
             CLIQZ.UI.enhanceResults(r);
 
             if(document.getElementById('cqz-result-box-' + index) && r.results[0] && r.results[0].data.template !== 'noResult') {
-
               document.getElementById('cqz-result-box-' + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -72,6 +71,7 @@ CLIQZEnvironment = {
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
+            break;
           }
         }
       }
@@ -113,8 +113,8 @@ CLIQZEnvironment = {
 
     for(var i=0; i < ezs.length; i++) {
       ezs[i].style.height = null;
-      if(ezs[i].clientHeight+64 < height) {
-        ezs[i].style.height = height-75 + 'px';
+      if(ezs[i].clientHeight+40 < height) {
+        ezs[i].style.height = height-40 + 'px';
       }
     }
   },
@@ -124,6 +124,8 @@ CLIQZEnvironment = {
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var logo = CliqzUtils.getLogoDetails(details);
 
     CLIQZEnvironment.setDimensions();
 
@@ -153,7 +155,8 @@ CLIQZEnvironment = {
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
-        searchEngineUrl: engine.url
+        searchEngineUrl: engine.url,
+        logo: logo
       }
     });
 
@@ -250,6 +253,7 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r) {
+    
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
@@ -273,7 +277,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.lastResults = renderedResults.results;
 
     if(renderedResults.results.length > historyCount) {
-      // TODO CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
 
     CLIQZEnvironment.setCardsHeight();
@@ -282,6 +286,18 @@ CLIQZEnvironment = {
 
   },
   search: function(e, location_enabled, latitude, longitude) {
+    if(!e || e === '') {
+      resultsBox.style.display = 'none';
+      window.document.getElementById('startingpoint').style.display = 'block';
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.initHomepage();
+      CLIQZEnvironment.stopProgressBar();
+      CLIQZEnvironment.lastResults = null;
+      return;
+    }
+    e = e.toLowerCase().trim();
+
+    localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
     if(location_enabled) {
@@ -298,24 +314,26 @@ CLIQZEnvironment = {
 
     item_container = document.getElementById('cliqz-results');
 
-    if(!e || e === '') {
-      resultsBox.style.display = 'none';
-      window.document.getElementById('startingpoint').style.display = 'block';
-      CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.initHomepage();
-      CLIQZEnvironment.stopProgressBar();
-      return;
-    }
-
     //TODO: work around for now
-    urlbar.value = e.toLowerCase().trim();
+    urlbar.value = e;
 
     resultsBox.style.display = 'block';
     window.document.getElementById('startingpoint').style.display = 'none';
 
-    if(e.toLowerCase() === 'testme') {
+    if(e === 'testme') {
       initTest();
     }
+
+    if(e === 'josep') {
+      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
+      alert("switched to beta mixer with joseps magic links");
+    } 
+
+    if(e === 'nojosep') {
+      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
+      alert("switched to live mixer withOUT joseps magic links");
+    }
+
     CLIQZEnvironment.startProgressBar();
 
 
@@ -522,7 +540,7 @@ CLIQZEnvironment = {
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
-        req.timeout = (method === 'POST'? 10000 : 4000);
+        req.timeout = (method === 'POST'? 10000 : 1000);
       }
     }
 
@@ -599,18 +617,42 @@ CLIQZEnvironment = {
     osBridge.copyResult(val);
   },
   getNews: function() {
-    //console.log('Start getting news');
+    console.log("%cloading news","background:blue;color:white");
     var cachedNews = localStorage.getObject('freshTab-news');
-    if(cachedNews && cachedNews["top_h_news"]) {
-      localStorage.setObject('freshTab-news',cachedNews.top_h_news);
-      cachedNews = cachedNews.top_h_news;
-    }
     if(cachedNews) {
       CLIQZEnvironment.displayTopNews(cachedNews);
     }
-    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+    // return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
+
+    // temporary freshtab replacement for mobile
+    var method = "GET", 
+    url = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de",
+    callback = function(data) { 
+        try {
+            var sResponse = JSON.parse(data.responseText);
+            CLIQZEnvironment.displayTopNews({top_h_news:sResponse.results[0].articles});
+        } catch(e) {
+            console.error(e);
+        }
+    },
+    onerror = function() {
+      console.error("news error",arguments);
+      setTimeout(CLIQZEnvironment.getNews,1500);
+    },
+    timeout = function() {
+      console.error("timeout error",arguments);
+      CLIQZEnvironment.getNews();
+    },
+    data = null, 
+    asynchronous = true;
+    CLIQZEnvironment.httpHandler(method, url, callback, onerror, timeout, data, asynchronous);
+    
   },
   displayTopNews: function(news) {
+
+    if(!news) {
+      return;
+    }
 
     var top_news = news.top_h_news;
 
@@ -630,7 +672,7 @@ CLIQZEnvironment = {
         style: logo.style
       };
     });
-    if(!CliqzHandlebars.tplCache.topnews || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
+    if(!CliqzHandlebars.tplCache.topnews || CliqzUtils.getLocalizedString('freshtab_top_news') === 'freshtab_top_news') {
       return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
     }
     var topNews = CliqzHandlebars.tplCache['topnews'];
@@ -647,7 +689,7 @@ CLIQZEnvironment = {
     osBridge.isReady();
   },
   displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
+    if(!CliqzHandlebars.tplCache.topsites || CliqzUtils.getLocalizedString('freshtab_top_sites') === 'freshtab_top_sites') {
       return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
     }
 
@@ -714,7 +756,7 @@ CLIQZEnvironment = {
       start && (start.style.display = 'none');
     }
     CLIQZEnvironment.getNews();
-    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 50);
+    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 10);
   },
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject('defaultSearchEngine', engine);
@@ -732,6 +774,8 @@ CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var logo = CliqzUtils.getLogoDetails(details);
 
     var result =  Result.cliqzExtra(
       {
@@ -741,8 +785,10 @@ CLIQZEnvironment = {
             title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
             action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
-            searchEngineUrl: engine.url
-          }
+            searchEngineUrl: engine.url,
+            logo: logo
+          },
+        subType: JSON.stringify({empty:true})
       }
     );
     result.data.kind = ["CL"];

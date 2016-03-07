@@ -1,13 +1,25 @@
 <!-- noResult.tpl -->
+{{debug}}
   {{#with data}}
-    <div id="defaultEngine" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
-      <div url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
-        <div id="googleThisAnim">
-          <!-- <img src="skin/img/icon-google.svg"><br> -->
-          <div>{{ title }}</div><br>
-          <div id="noResults">{{ action }}</div>
+    <div  style="background: #245C92;padding: 30px;color: #fff;text-align: center;height:100%" 
+          url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
+        <div>
+            <h3>{{ title }}</h3>
+            <div id="moreResults"
+            style="color: #fff;margin-top: 30px;"
+
+            >{{ action }}</div>
         </div>
+      {{#with logo}}
+        <div class="search_engine_logo"
+         style="{{style}}"
+         show-status=""
+         extra="{{extra}}"
+         url="{{url}}"
+         >
+        </div>
+      {{/with}}
       </div>
-    </div>
-  {{/with}}
+{{/with}}
+
 <!-- end noResult.tpl -->

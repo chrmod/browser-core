@@ -7,7 +7,7 @@
   <div class="main" style="margin-bottom: 20px;">
     <ul>
         {{#each this}}
-            <li class="item" onclick="CLIQZEnvironment._recentHistory['{{url}}']=true;osBridge.openLink('{{url}}')">
+            <li class="item" onclick="osBridge.openLink('{{url}}')">
                 <div class="meta__logo transition"
                  style="{{style}}"
                  show-status=""
@@ -15,8 +15,8 @@
                  url="{{url}}"
                  >{{ text }}
                 </div>
-                <h1 class="main__headline type_{{type}}"">
-                    <a class="topNewsLink data-index="{{@index}}">
+                <h1 class="main__headline">
+                    <a class="topNewsLink" data-index="{{@index}}">
                         {{ short_title }}
                     </a>
                 </h1>

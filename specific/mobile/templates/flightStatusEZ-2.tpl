@@ -10,7 +10,7 @@
            {{flight_name}}
         </h1>
 
-        <div extra="time-left" class="card__meta">
+        <div extra="status" class="card__meta">
             <div class="flightStatusEZ-flightStatus" style="color:{{status_color}}">{{status}}</div>
             {{status_detail}}
         </div>
@@ -18,7 +18,7 @@
     </section>
 
     <section class="card__description">
-       <div class="flightStatusEZ-plane-position">
+       <div extra="route" class="flightStatusEZ-plane-position">
            <img class="flightStatusEZ-plane-position-plane-img" style="left:0" data-src="{{plane_icon}}" />
            <div class="flightStatusEZ-plane-position-bar">
                <div class="flightStatusEZ-plane-position-dot" style="left:{{plane_position}}%; background:{{status_color}}"></div>
