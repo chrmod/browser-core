@@ -28,7 +28,6 @@ var generic         = new Funnel('generic');
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local', exclude: ['views/**/*'] });
-var ui              = new Funnel(local,   { include: ['UI.js'] });
 var staticViews     = new Funnel(generic, { srcDir: 'modules/local/views' });
 
 // Build configuration
@@ -43,9 +42,6 @@ if (buildEnv === 'development') {
 }
 // end
 
-console.log('Configuration file:', configFilePath);
-console.log(cliqzConfig);
-var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 
 var platform = new Funnel('platforms/'+cliqzConfig.platform, {
   exclude: ['tests/**/*']
@@ -69,11 +65,21 @@ var mobileCss = compileSass(
   { sourceMap: true }
 );
 
+
+var babelOptions = {
+  sourceMaps: 'inline',
+  filterExtensions: ['es'],
+  modules: 'system',
+  moduleIds: true,
+  compact: false
+};
+
 // Attach subprojects
 let transpilableModuleNames = [];
 var requiredBowerComponents = new Set();
 
-cliqzConfig.modules.forEach(function (name) {
+cliqzConfig.rawModules = [];
+cliqzConfig.modules.slice(0).forEach(function (name) {
   let configJson = "{}";
 
   try {
@@ -88,8 +94,17 @@ cliqzConfig.modules.forEach(function (name) {
 
   if (config.transpile !== false ){
     transpilableModuleNames.push(name);
+  } else {
+    cliqzConfig.modules.splice(cliqzConfig.modules.indexOf(name), 1);
+    cliqzConfig.rawModules.push(name);
   }
 });
+
+// cliqz.json should be saved after not transpiled modules are removed from configration
+var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
+console.log('Configuration file:', configFilePath);
+console.log(cliqzConfig);
+// cliqz.json is finalized
 
 // START - ES TREE
 let sources = new Funnel('modules', {
@@ -99,24 +114,37 @@ let sources = new Funnel('modules', {
   }
 });
 
+const moduleTestsTree = new Funnel('modules', {
+  include: transpilableModuleNames.map(name => `${name}/tests/**/*.es`),
+  getDestinationPath(path) {
+    return path.replace("/tests", "");
+  }
+});
+
 let jsHinterTree = new JSHinter(sources, {
   jshintrcPath: process.cwd() + '/.jshintrc',
   disableTestGenerator: true
 });
 jsHinterTree.extensions = ['es']
 
-let transpiledSources = Babel(sources, {
-  sourceMaps: 'inline',
-  filterExtensions: ['es'],
-  modules: 'system',
-  moduleIds: true,
-});
+let transpiledSources = Babel(sources, babelOptions);
+let transpiledModuleTestsTree = Babel(
+  new Funnel(moduleTestsTree, { destDir: 'tests' }),
+  babelOptions
+);
+
+let sourceTrees = [
+  jsHinterTree,
+  transpiledSources,
+];
+
+if (buildEnv !== 'production') {
+  sourceTrees.push(transpiledModuleTestsTree);
+}
 
 let sourceTree = new Funnel(
-  new MergeTrees([
-    jsHinterTree,
-    transpiledSources
-  ]), {
+  new MergeTrees(sourceTrees),
+  {
     exclude: ["**/*.jshint.js"]
   }
 );
@@ -158,7 +186,7 @@ let sassTree = new MergeTrees(sassTrees);
 
 // START - DIST TREE
 let distTree = new Funnel("modules", {
-  include: cliqzConfig.modules.map( name => `${name}/dist/**/*` ),
+  include: (cliqzConfig.modules.concat(cliqzConfig.rawModules)).map( name => `${name}/dist/**/*` ),
   getDestinationPath(path) {
     return path.replace("/dist", "");
   }
@@ -170,36 +198,6 @@ let modules = new MergeTrees([
   distTree,
   sassTree,
   sourceTree,
-]);
-
-var babelOptions = {
-  modules: "amdStrict",
-  moduleIds: true,
-  resolveModuleSource: amdNameResolver,
-  sourceMaps: "inline"
-};
-
-var loader = new Funnel(bowerComponents, { include: ['loader.js/loader.js'] });
-var babelStaticViews = new Babel(staticViews, babelOptions);
-var babelUi = new Babel(ui, babelOptions);
-var uiTree = MergeTrees([loader, babelStaticViews, babelUi]);
-
-var uiConcated = concat(uiTree, {
-  outputFile: 'UI.js',
-  headerFiles: ['loader.js/loader.js'],
-  inputFiles: [
-    "**/*.js"
-  ],
-  footerFiles: [
-    'UI.js',
-  ],
-  footer: "require('UI').default(this);",
-  sourceMapConfig: { enabled: true },
-});
-
-local = MergeTrees([
-  new Funnel(local, { exclude: ['UI.js'] }),
-  uiConcated
 ]);
 
 var globalConcated = concat(global, {
@@ -228,7 +226,6 @@ var localConcated = concat(local, {
   outputFile: 'local.js',
   header: "'use strict';\n\n",
   inputFiles: [
-    "UI.js",
     "ContextMenu.js",
   ],
   sourceMapConfig: { enabled: true },
@@ -240,12 +237,6 @@ var libsConcated = concat(libs, {
     "*.js",
   ],
   sourceMapConfig: { enabled: false },
-});
-
-var localMobile = concat(local, {
-  outputFile: 'local.js',
-  header: "'use strict';\n",
-  inputFiles: [ 'UI.js' ],
 });
 
 var bowerTree = new MergeTrees([
@@ -303,7 +294,6 @@ var mobile = new MergeTrees([
   mobileSpecific,
   new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
-  new Funnel(localMobile,    { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
   new Funnel(modules,        { destDir: 'modules' })
 ]);
@@ -332,7 +322,9 @@ var trees = [
 ];
 
 if (buildEnv !== 'production') {
-  trees.push(new Funnel(testsTree, { destDir: 'tests' }));
+  trees.push(new Funnel(new MergeTrees([
+    testsTree,
+  ]), { destDir: 'tests' }));
 }
 // Output
 module.exports = new MergeTrees(trees);

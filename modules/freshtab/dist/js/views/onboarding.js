@@ -14,6 +14,10 @@ function renderOnboarding() {
     CliqzUtils.setPref(PREF_ONBOARDING, '' + now);
   }
 
+  if (CliqzFreshTab.isBrowser) {
+    $('.revertBtn').css('display', 'none');
+  }
+
   var isFirstDayAfterInstallation = parseInt(CliqzUtils.getPref(PREF_ONBOARDING, '0')) +  ONE_DAY > now;
   if (isFirstDayAfterInstallation) {
     $('#learnMore').removeClass('visible')

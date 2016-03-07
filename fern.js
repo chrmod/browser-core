@@ -28,6 +28,11 @@ colors.setTheme({
   error: 'red'
 });
 
+// Install git hooks:
+let hookInstaller = spaws('git-hooks/install-hooks.sh');
+hookInstaller.stderr.on('data', data => console.log(data.toString()));
+hookInstaller.stdout.on('data', data => console.log(data.toString()));
+
 function setConfigPath(configPath) {
   configPath = configPath || './configs/jenkins.json';
   process.env['CLIQZ_CONFIG_PATH'] = configPath;

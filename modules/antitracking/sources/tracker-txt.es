@@ -49,13 +49,6 @@ var trackerRuleParser = function(str, rules) {
     );
 };
 
-var sleep = function(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 10000; i++)
-        if (Date.now() - start > milliseconds)
-            break;
-};
-
 var TrackerTXT = function(baseurl) {
     this.baseurl = baseurl;
     this.rules = [];
@@ -105,6 +98,5 @@ TrackerTXT.prototype = {
 
 export {
     TrackerTXT,
-    sleep,
     trackerRuleParser
 };

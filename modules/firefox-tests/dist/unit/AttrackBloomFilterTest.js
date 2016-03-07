@@ -51,6 +51,16 @@ TESTS.AttrackBloomFilterTest = function (CliqzUtils) {
 
     });
 
+    describe('addUnsafeKey', function() {
+      var domain = md5('example.com'),
+          key = md5('callback');
+
+      it('adds a key to the unsafekey list', function() {
+        whitelist.addUnsafeKey(domain, key);
+        chai.expect(whitelist.isUnsafeKey(domain, key)).to.be.true;
+      });
+    })
+
     describe('addSafeToken', function() {
       var domain = md5('example.com'),
           token = md5('safe');

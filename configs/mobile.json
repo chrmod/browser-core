@@ -3,6 +3,7 @@
   "settings": {},
   "modules": [
     "core",
+    "ui",
     "freshtab",
     "static"
   ]

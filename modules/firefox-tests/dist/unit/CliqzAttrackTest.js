@@ -68,16 +68,10 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     tabs = [];
                 });
 
-                it('returns true for open tab id', function(done) {
-                    console.log(tab_id);
-                    setTimeout( function() {
-                        try {
-                            chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.true;
-                            done()
-                        } catch(e) {
-                            done(e);
-                        }
-                    }, 500);
+                it('returns true for open tab id', function() {
+                    return waitFor(function() {
+                        return CliqzAttrack.tab_listener.isWindowActive(tab_id) === true;
+                    });
                 });
 
                 describe('when tab is closed', function() {
@@ -87,7 +81,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     });
 
                     it('returns false for closed tab id', function() {
-                        console.log(tab_id);
                         chai.expect(CliqzAttrack.tab_listener.isWindowActive(tab_id)).to.be.false;
                     });
                 });
@@ -626,7 +619,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
     describe('Tracking.txt', function() {
 
         it ('parse rules correctly', function() {
-            let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
+            var parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
                 txt = 'R site1.com empty\nR   site2.com\tplaceholder\nnot a rule',
                 rules = [];
             parser(txt, rules);
@@ -634,7 +627,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
         });
 
         it ('ignore comments', function() {
-            let parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
+            var parser = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/tracker-txt').trackerRuleParser,
                 txt = '# comment\n! pass\nR site1.com empty\nR site2.com placeholder\nnot a rule',
                 rules = [];
             parser(txt, rules);
@@ -650,7 +643,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             r.status = 'update';
             chai.expect(r.getRule('bbbaaa.site1.com')).to.equal('empty');
             chai.expect(r.getRule('aa.site1.com')).to.equal('placeholder');
-            chai.expect(r.getRule('aa.site2.com')).to.equal('same');
+            chai.expect(r.getRule('aa.site2.com')).to.equal(TT.getDefaultTrackerTxtRule());
         });
     });
 };

@@ -6,7 +6,7 @@ import { utils } from 'core/cliqz';
 export default {
   init(settings) {
     utils.bindObjectFunctions(this.actions, this);
-    FreshTab.startup(settings.freshTabABtest, settings.freshTabButton, settings.cliqzOnboarding);
+    FreshTab.startup(settings.freshTabABtest, settings.freshTabButton, settings.cliqzOnboarding, settings.channel);
   },
 
   unload() {

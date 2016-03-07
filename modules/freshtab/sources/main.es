@@ -46,8 +46,9 @@ var FreshTab = {
     signalType: "home",
     initialized: false,
     cliqzOnboarding: 0,
+    isBrowser: false,
 
-    startup: function(abTest, hasButton, cliqzOnboarding){
+    startup: function(abTest, hasButton, cliqzOnboarding, channel){
         var disable = false;
 
         //show cliqz onboarding on 1st installation of browser
@@ -56,6 +57,8 @@ var FreshTab = {
         }
 
         HAS_BUTTON = hasButton;
+
+        FreshTab.isBrowser = channel === "40";
 
         // exit if not in the AB test
         if(abTest && (!CliqzUtils.hasPref(FRESH_TAB_AB) || CliqzUtils.getPref(FRESH_TAB_AB) == false)) disable = true;
@@ -141,7 +144,6 @@ var FreshTab = {
         if(!FreshTab.initialized) return;
 
         Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
-        Services.ww.unregisterNotification(initNewTab);
 
         deactivate();
     },
@@ -206,8 +208,6 @@ function deactivate(){
       } else {
         const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
         aboutNewTabService.resetNewTabURL();
-        CliqzUtils.getWindow().document.getElementById('urlbar').inputField.value = '';
-
       }
       CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), ''); // set the startup page to be the homepage
   }

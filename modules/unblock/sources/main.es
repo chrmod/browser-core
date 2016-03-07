@@ -93,7 +93,7 @@ export default {
       this.request_listener = null;
     }
     this.unblockers.forEach(function(b) {
-      b.unload && b.unload();
+      b.unload && b.initialized && b.unload();
     });
 
     CliqzEvents.un_sub("core:page_load", this.boundPageObserver);

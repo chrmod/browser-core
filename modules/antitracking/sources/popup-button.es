@@ -42,7 +42,6 @@ function CliqzPopupButton(options) {
       iframe.style.height = toPx(clientHeight);
       panel.style.height = toPx(clientHeight + panel.boxObject.height - panel.clientHeight );
     }
-
     iframe.addEventListener('load', onPopupReady, true);
   }
 
@@ -93,6 +92,38 @@ function CliqzPopupButton(options) {
         utils.getWindow().gBrowser.ownerDocument.getElementById(tbb.viewId)
     );
   }.bind(this);
+}
+
+CliqzPopupButton.prototype.updateView = function (win, clientHeight) {
+  var panel = win.document.getElementById(this.tbb.viewId);
+  var iframe = panel.querySelector("iframe");
+
+    function toPx(pixels) {
+      return pixels.toString() + 'px';
+    }
+
+    function onPopupReady() {
+      if (!iframe || !iframe.contentDocument) { return; }
+
+      var body = iframe.contentDocument.body;
+
+      iframe.style.height = toPx(clientHeight);
+      panel.style.height = toPx(clientHeight + panel.boxObject.height - panel.clientHeight );
+    }
+
+  onPopupReady();
+}
+
+CliqzPopupButton.prototype.updateState = function (win, turnOn) {
+  if(!win) return;
+
+  var button = win.document.getElementById(this.tbb.id);
+
+  if (turnOn) {
+    button.classList.remove("off");
+  } else {
+    button.classList.add("off");
+  }
 }
 
 CliqzPopupButton.prototype.setBadge = function (win, badgeText) {

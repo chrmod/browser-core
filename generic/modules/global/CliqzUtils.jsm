@@ -79,7 +79,7 @@ var CliqzUtils = {
 
   BRANDS_DATABASE: BRANDS_DATABASE,
   BRANDS_DATABASE_VERSION: CLIQZEnvironment.BRANDS_DATABASE_VERSION,
-  
+
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
@@ -690,7 +690,8 @@ var CliqzUtils = {
       callback && callback(res, q);
     });
 
-    CliqzUtils.requestMonitor.addRequest(req);
+    // Currently when HPN is live, this guy breaks.
+    if(req) CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -1075,6 +1076,25 @@ var CliqzUtils = {
         continue;
       from[funcName] = func.bind(to);
     }
+  },
+  tryDecodeURIComponent: function(s) {
+    // avoide error from decodeURIComponent('%2')
+    try {
+      return decodeURIComponent(s);
+    } catch(e) {
+      return s;
+    }
+  },
+  parseQueryString: function(qstr) {
+    var query = {};
+    var a = (qstr || '').split('&');
+    for (var i in a)
+    {
+      var b = a[i].split('=');
+      query[CliqzUtils.tryDecodeURIComponent(b[0])] = CliqzUtils.tryDecodeURIComponent(b[1]);
+    }
+
+    return query;
   },
   roundToDecimal: function(number, digits) {
     var multiplier = Math.pow(10, digits);

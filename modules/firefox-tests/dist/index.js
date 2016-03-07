@@ -34,6 +34,28 @@ function getParameterByName(name) {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function closeBrowser() {
+  Cc['@mozilla.org/toolkit/app-startup;1']
+    .getService(Ci.nsIAppStartup)
+    .quit(Ci.nsIAppStartup.eForceQuit);
+}
+
+function writeToFile(testData) {
+  var version   = getBrowserVersion(),
+      filename  = "mocha-report-" + version + ".xml",
+      file      = FileUtils.getFile("ProfD", [filename]),
+      ostream   = FileUtils.openSafeFileOutputStream(file),
+      converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                    .createInstance(Ci.nsIScriptableUnicodeConverter),
+      istream;
+
+  converter.charset = "UTF-8";
+  istream = converter.convertToInputStream(testData);
+
+  NetUtil.asyncCopy(istream, ostream);
+}
+
+var runner;
 var CliqzUtils = loadModule("CliqzUtils"),
     chrome = CliqzUtils.getWindow(),
     telemetry,
@@ -41,6 +63,21 @@ var CliqzUtils = loadModule("CliqzUtils"),
     browserMajorVersion = parseInt(getBrowserVersion().split('.')[0]);
 
 mocha.setup({ ui: 'bdd', timeout: 3000 });
+
+/**
+ * If extension did not intialize properly we want to kill tests ASAP
+ */
+if (!CliqzUtils) {
+  describe("CLIQZ Tests", function () {
+    it("initialize property", function () {
+      throw "CliqzUtils missing";
+    });
+    after(function () {
+      // Force end hook to fire
+      runner.emit('end');
+    });
+  });
+}
 
 injectTestHelpers(CliqzUtils);
 initHttpServer();
@@ -120,27 +157,6 @@ Mocha.reporters.XUnit.prototype.write = function (line) {
 new Mocha.reporters.XUnit(runner, {});
 
 runner.on('end', function () {
-  function closeBrowser() {
-    Cc['@mozilla.org/toolkit/app-startup;1']
-      .getService(Ci.nsIAppStartup)
-      .quit(Ci.nsIAppStartup.eForceQuit);
-  }
-
-  function writeToFile(testData) {
-    var version   = getBrowserVersion(),
-        filename  = "mocha-report-" + version + ".xml",
-        file      = FileUtils.getFile("ProfD", [filename]),
-        ostream   = FileUtils.openSafeFileOutputStream(file),
-        converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                      .createInstance(Ci.nsIScriptableUnicodeConverter),
-        istream;
-
-    converter.charset = "UTF-8";
-    istream = converter.convertToInputStream(testData);
-
-    NetUtil.asyncCopy(istream, ostream);
-  }
-
   writeToFile(XMLReport);
   if(getParameterByName('closeOnFinish') === "1") { closeBrowser(); }
 });
