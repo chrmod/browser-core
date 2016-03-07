@@ -27,8 +27,8 @@ function navigateOnboarding(screen, currentScreenId) {
       type: "onboarding",
       product: "cliqz",
       action: "click",
-      action_target: "navigation",
-      action_index: currentScreenId,
+      action_target: "pagination-dots",
+      action_index: currentScreenId - 1,
       version: "2.0"
     });
 }
