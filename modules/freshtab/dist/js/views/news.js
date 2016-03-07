@@ -56,7 +56,7 @@ function renderNews(news) {
     CliqzUtils.telemetry({
       type: 'home',
       action: 'click',
-      target_type: 'newsEmail',
+      target_type: 'news-email'
       });
   });
 
