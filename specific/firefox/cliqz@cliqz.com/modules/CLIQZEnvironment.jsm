@@ -147,37 +147,15 @@ var CLIQZEnvironment = {
                     return prev;
                  }, {});
     },
-    _compress: undefined,
-    SUPPORT_GZIP_POST: new Set(),
-    httpHandler: function(method, url, callback, onerror, timeout, data, sync){
+    httpHandler: function(method, url, callback, onerror, timeout, data, sync, encoding){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
         req.open(method, url, !sync);
         req.overrideMimeType('application/json');
 
-        // load compression if available
-        if (CLIQZEnvironment._compress === undefined && CliqzUtils.importModule) {
-          // if CliqzUtils.importModule throws, rollback and try loading next time.
-          CLIQZEnvironment._compress = false;
-          try {
-            CliqzUtils.importModule('core/gzip').then( function(gzip) {
-              CLIQZEnvironment._compress = gzip.compress;
-              CLIQZEnvironment.SUPPORT_GZIP_POST.add(CliqzUtils.LOG);
-            }).catch( function(e) {
-              CLIQZEnvironment.log(e, "xxx");
-              CLIQZEnvironment._compress = false;
-            });
-          } catch(e) {
-            CLIQZEnvironment._compress = undefined;
-          }
-        }
-
-        // check if it is a post request that we can compress
-        if (method == 'POST' && CLIQZEnvironment._compress && CLIQZEnvironment.SUPPORT_GZIP_POST.has(url)) {
-          var dataLength = data.length;
-          data = CLIQZEnvironment._compress(data);
-          req.setRequestHeader('Content-Encoding', 'gzip');
-          CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+        // headers for compressed data
+        if ( encoding ) {
+            req.setRequestHeader('Content-Encoding', encoding);
         }
 
         req.onload = function(){
@@ -214,6 +192,25 @@ var CLIQZEnvironment = {
 
         req.send(data);
         return req;
+    },
+    promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
+        return new Promise( function(resolve, reject) {
+            if ( method === 'POST' && compressedPost) {
+                CliqzUtils.importModule('core/gzip').then( function(gzip) {
+                    // gzip.compress may be false if there is no implementation for this platform
+                    if ( gzip.compress ) {
+                        var dataLength = data.length;
+                        data = gzip.compress(data);
+                        CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
+                    } else {
+                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
+                    }
+                });
+            } else {
+                CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
+            }
+        });
     },
     openLink: function(win, url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
