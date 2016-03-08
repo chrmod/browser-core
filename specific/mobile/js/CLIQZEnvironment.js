@@ -174,7 +174,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.stopProgressBar();
     CLIQZEnvironment.openLinksAllowed = true;
 
-    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style]');
+    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
     CLIQZEnvironment.imgLoader.start();
 
     return renderedResults;

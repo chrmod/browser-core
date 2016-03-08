@@ -2,7 +2,7 @@
 
 {{debug}}
 {{#with logo}}
-	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" data-style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
 {{/with}}
 
 {{#with data}}
@@ -14,7 +14,7 @@
 		<div class="card__gallery">			
 			{{#each images}}
 				{{#if (limit_images_shown @index 3)}}
-					<div extra="image-{{@index}}" class="image" style="background-image: url({{this}})">Image</div>
+					<div extra="image-{{@index}}" class="image" data-style="background-image: url({{this}})">Image</div>
 				{{/if}}
 			{{/each}}
 		</div>
@@ -27,7 +27,7 @@
 		
 		{{#each social}}
 			<div extra="social-{{@index}}" url="{{url}}" class="cards__item social">
-				<div class="card__logo__secondary bg" style="background-image: url({{img}});background-color:#fff;">{{ text }}</div>
+				<div class="card__logo__secondary bg" data-style="background-image: url({{img}});background-color:#fff;">{{ text }}</div>
 				<h2 class="cards__title__secondary">{{url}}</h2>
 			</div>
 		 {{/each}}
@@ -37,7 +37,7 @@
 			{{#each data.news}}
 				<div class="cards__item news">
 					{{#with logoDetails}}
-					<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+					<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" data-style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
 				{{/with}}		
 
 					<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
@@ -52,7 +52,7 @@
 		{{#each data.actionsExternalMixed}}
 			<div class="cards__item actionsExternalMixed">
 				{{#with logoDetails}}
-					<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
+					<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" data-style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
 				{{/with}}	
 				<h2 class="cards__title__secondary" url="{{url}}">
 					{{title}}
@@ -75,7 +75,7 @@
 				<div class="card__logo__secondary">WI</div>
 				<!--{{#with logoDetails}}
 					{{#if backgroundImage}}
-						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
+						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" data-style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
 					{{/if}}
 				{{/with}}-->
 				<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>

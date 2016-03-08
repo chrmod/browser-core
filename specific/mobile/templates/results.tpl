@@ -40,7 +40,7 @@
 				<div class="card last-card">
 					<div url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
 						<div id="googleThisAnim">
-							<!-- <img src="skin/img/icon-google.svg"><br> -->
+							<!-- <img data-src="skin/img/icon-google.svg"><br> -->
 							<h3>{{ title }}</h3>
 							<div id="moreResults">{{ action }}</div>
 						</div>

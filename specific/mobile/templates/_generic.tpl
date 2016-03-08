@@ -78,7 +78,7 @@
 		<div class="card__gallery">
 			{{#each data.richData.images}}
 				{{#if (limit_images_shown @index 3)}}
-					<div class="image" style="background-image: url({{this}})">Image</div>
+					<div class="image" data-style="background-image: url({{this}})">Image</div>
 				{{/if}}
 			{{/each}}
 		</div>
@@ -175,7 +175,7 @@
 		{{#each data.links}}
             <div url="{{url}}" extra="link-{{@index}}" class="cards__item links">
                 <div class="card__logo__secondary bg" 
-                	style="background-image:url({{icon}});background-color:#{{../logo.backgroundColor}}">{{ text }}</div>
+                	data-style="background-image:url({{icon}});background-color:#{{../logo.backgroundColor}}">{{ text }}</div>
                 <h2 class="cards__title__secondary">
                     {{title}}
                 </h2>
@@ -195,7 +195,7 @@
             <div class="cards__item additional_sources">
                 {{#with ../logo}}
                     {{#if backgroundImage}}
-                        <div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
+                        <div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" data-style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">WI</div>
                     {{/if}}
                 {{/with}}
                 <h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
@@ -205,14 +205,14 @@
 
         {{#each data.external_social}}
             <div class="cards__item external_social">
-                <div class="card__logo__secondary bg" style="background-image: url({{img}});background-color:#fff;">{{ domain }}</div>
+                <div class="card__logo__secondary bg" data-style="background-image: url({{img}});background-color:#fff;">{{ domain }}</div>
                 <h2 class="cards__title__secondary" url="{{u}}">{{domain}}</h2>
             </div>
          {{/each}}
 		
         {{#each data.w}}
             <div class="cards__item data_w">
-                <div class="card__logo__secondary" style="background-image: url({{logo}});background-color:#fff;">.</div>
+                <div class="card__logo__secondary" data-style="background-image: url({{logo}});background-color:#fff;">.</div>
                 <h2 class="cards__title__secondary" url="{{u}}">{{source}}</h2>
             </div>
          {{/each}}

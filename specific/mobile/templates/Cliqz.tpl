@@ -9,9 +9,9 @@
        {{#with data}}
             <div class="cqz-result-h2 nopadding">
              <div class="EZ-Cliqz-Header"
-                    style="background-image: url({{cliqz_logo}})">
-                    <img url="https://twitter.com/cliqz" class="EZ-Cliqz_Header-Contact-icon" data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg" arrow-override="" src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg" arrow="true" style="text-decoration: none;">
-                    <img url="https://www.facebook.com/cliqzde" class="EZ-Cliqz_Header-Contact-icon" data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-facebook.svg" arrow-override="" src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-facebook.svg">
+                    data-style="background-image: url({{cliqz_logo}})">
+                    <img url="https://twitter.com/cliqz" class="EZ-Cliqz_Header-Contact-icon" data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg" arrow-override="" arrow="true" style="text-decoration: none;">
+                    <img url="https://www.facebook.com/cliqzde" class="EZ-Cliqz_Header-Contact-icon" data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-facebook.svg" arrow-override="">
              </div>
 
              {{#with slogan}}

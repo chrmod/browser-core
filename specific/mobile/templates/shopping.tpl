@@ -4,7 +4,7 @@
     <div class='cliqz-result-type' ></div>
   </div>
   {{#if image.src}}
-    <div class="cliqz-image" style="
+    <div class="cliqz-image" data-style="
           background-image: url({{ image.src }});
           background-size: contain;
           width: 64px;

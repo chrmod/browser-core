@@ -21,7 +21,7 @@
             <span class="cqz-status-box
                         cqz-status-box-active-{{ this.step_status }}
                         cqz-status-box-name-{{ this.step_name }} "
-                  style="background-image: url({{ this.icon_url }});"
+                  data-style="background-image: url({{ this.icon_url }});"
                   url="{{this.url}}"
                   extra="item-{{ this.logg_as }}"
             >

@@ -33,7 +33,7 @@
               style="background-color: {{this.background_color_icon}};"
               url="{{this.url}}"
               extra="link-{{this.logg_as}}"
-              ><span class="cta__logo image" style="background-image: url({{this.icon_url}})">Icon</span>
+              ><span class="cta__logo image" data-style="background-image: url({{this.icon_url}})">Icon</span>
                   <a>{{this.text}}</a>
             </li>
           {{/each}}

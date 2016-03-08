@@ -28,7 +28,7 @@
                 <div class="cqz-ez-banking-box cqz-ez-banking-opt"
                      url="{{ url }}"
                      extra="link-{{ @index }}"
-                     style="background-image: url({{ icon }});">
+                     data-style="background-image: url({{ icon }});">
                     {{ title }}
                 </div>
             {{/each}}
