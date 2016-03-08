@@ -60,23 +60,29 @@ function compressString(aString) {
 }
 
 function uncompressString(aString) {
-    var accumulator,
-        converter,
-        stream;
+  var accumulator,
+      converter,
+      stream;
 
-    accumulator = new Accumulator();
-    converter = new UncompressConverter('gzip', 'uncompressed', accumulator, null);
-    stream = new StringInputStream();
-    stream.data = String.fromCharCode.apply(null, aString);
-    simulateRequest(converter, stream, aString.length);
+  accumulator = new Accumulator();
+  converter = new UncompressConverter('gzip', 'uncompressed', accumulator, null);
+  stream = new StringInputStream();
+  stream.data = String.fromCharCode.apply(null, aString);
+  simulateRequest(converter, stream, aString.length);
 
-    return String.fromCharCode.apply(null, accumulator.buffer);
-  }
+  return String.fromCharCode.apply(null, accumulator.buffer);
+}
 
-export function compress(string) {
-  return compressString(string);
-};
+function compatabilityCheck() {
+  return Uint8Array.from !== undefined;
+}
 
-export function decompress(data) {
-  return uncompressString(data);
-};
+var compress = false,
+    decompress = false;
+
+if (compatabilityCheck()) {
+  compress = compressString;
+  decompress = uncompressString;
+}
+
+export {compress, decompress};

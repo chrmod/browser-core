@@ -40,4 +40,4 @@ TESTS.GzipTest = function(CliqzUtils) {
   });
 }
 
-
+TESTS.GzipTest.MIN_BROWSER_VERSION = 38;
