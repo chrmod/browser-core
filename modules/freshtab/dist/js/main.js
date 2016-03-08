@@ -12,18 +12,23 @@ function closeOnboarding() {
   $('#optinContainer').css('display', 'none')
 }
 
+function markPagination(activeScreen, activeScreenId) {
+  var paginationDots = activeScreen.find('.navItem');
+
+  $.each(paginationDots, function() {
+    $(this).removeClass('active');
+  });
+
+  //add active class to pagination dot of current screen
+  activeScreen.find('.navItem[data-screen=' + activeScreenId +']').addClass('active');
+}
+
 function navigateOnboarding(target, currentScreenId) {
   var curScreen     = $('#screen' + currentScreenId),
       background    = $('.optinBackground'),
-      allScreens    = $('.screen'),
-      paginationDot = curScreen.find('.navItem');
+      allScreens    = $('.screen');
 
-    $.each(paginationDot, function() {
-      $(this).removeClass('active');
-    });
-
-    //add active class to pagination dot of current screen
-    curScreen.find('.navItem[data-screen=' + currentScreenId +']').addClass('active');
+    markPagination(curScreen, currentScreenId);
 
     $.each(allScreens, function() {
       $(this).addClass('hidden');
@@ -70,6 +75,8 @@ $(document).ready(function() {
         nextScreenId = parseInt(currentScreenId, 10) + 1;
         nextScreen = $('#screen' + nextScreenId),
         background = $('.optinBackground');
+
+    markPagination(nextScreen, nextScreenId);
 
     if(currentScreenId === 3) {
       closeOnboarding();
