@@ -21,6 +21,7 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
+import { cookieChecker, limitedLinks } from 'antitracking/cookie-checker'
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -100,6 +101,7 @@ var CliqzAttrack = {
     localBlockExpire: 24,
     shortTokenLength: 8,
     safekeyValuesThreshold: 4,
+    cChecker: new cookieChecker(),
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     placeHolder: '',
@@ -819,26 +821,31 @@ var CliqzAttrack = {
             }
 
             // check if user initiated this request by an element click.
-            if (CliqzHumanWeb.contextFromEvent) {
-                var diff = curr_time - (CliqzHumanWeb.contextFromEvent.ts || 0);
+            if (CliqzAttrack.cChecker.contextFromEvent) {
+                var diff = curr_time - (CliqzAttrack.cChecker.contextFromEvent.ts || 0);
                 if (diff < CliqzAttrack.timeAfterLink) {
 
                     var pu = url.split(/[?&;]/)[0];
-
-                    if (CliqzHumanWeb.contextFromEvent.html.indexOf(pu)!=-1) {
-                        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzHumanWeb.contextFromEvent.html, CliqzAttrack.LOG_KEY);
+                    if (CliqzAttrack.cChecker.contextFromEvent.html.indexOf(pu)!=-1) {
+                        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzAttrack.cChecker.contextFromEvent.html, CliqzAttrack.LOG_KEY);
 
                         // the url is in pu
                         if (url_parts && url_parts.hostname && url_parts.hostname!='') {
                             var host = getGeneralDomain(url_parts.hostname);
                             //var host = url_parts.hostname;
-                            if (host=='google.com') {
-                                if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url_parts.hostname + ' (CONTEXT EVENT)', CliqzAttrack.LOG_KEY);
-                            }
                             CliqzAttrack.visitCache[host] = curr_time;
                             var src = null;
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
+
                             tp_events.incrementStat(req_log, 'cookie_allow_userinit');
+                            CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
+                            return;
+                        }
+                    } else {
+                        if (CliqzAttrack.cChecker.contextFromEvent.html.indexOf(getGeneralDomain(url_parts.hostname)) != -1 &&
+                            limitedLinks(CliqzAttrack.cChecker.contextFromEvent.html)) {
+
+                            tp_events.incrementStat(req_log, 'cookie_allow_userinit2');
                             CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
                             return;
                         }
@@ -862,12 +869,6 @@ var CliqzAttrack = {
 
                                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH and click " + url, CliqzAttrack.LOG_KEY);
                                 var host = getGeneralDomain(url_parts.hostname);
-                                //var host = url_parts.hostname;
-                                //if (host=='google.com') {
-                                //    if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url + ' (CONTEXT OAUTH)', CliqzAttrack.LOG_KEY);
-                                //}
-                                //CliqzAttrack.visitCache[host] = curr_time;
-
                                 var src = null;
                                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                                 tp_events.incrementStat(req_log, 'cookie_allow_oauth');
@@ -1350,6 +1351,7 @@ var CliqzAttrack = {
         window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
 
         CliqzAttrack.getPrivateValues(window);
+        CliqzAttrack.cChecker.addListeners(window);
     },
     unload: function() {
         // don't need to unload if disabled
@@ -1388,6 +1390,7 @@ var CliqzAttrack = {
         if (window.CLIQZ) {
             window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
         }
+        CliqzAttrack.cChecker.removeListeners(window);
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
