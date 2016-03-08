@@ -7,6 +7,7 @@ function log(){
   //console.log(arguments);
 }
 
+/****** Onboarding ******/
 function closeOnboarding() {
   CliqzFreshTab.cliqzOnboarding = false;
   $('#optinContainer').css('display', 'none')
@@ -23,6 +24,19 @@ function markPagination(activeScreen, activeScreenId) {
   activeScreen.find('.navItem[data-screen=' + activeScreenId +']').addClass('active');
 }
 
+function fadeOut(background) {
+  if(!$(background).hasClass('transparent')) {
+    background.fadeOut(700, function() {
+      background.fadeIn(400);
+      $(this).delay(100).toggleClass('transparent').removeClass('bgImage');
+    });
+  }
+}
+
+function isLastScreen(screenId, maxScreens) {
+  return screenId === maxScreens;
+}
+
 function navigateOnboarding(target, currentScreenId) {
   var curScreen     = $('#screen' + currentScreenId),
       background    = $('.optinBackground'),
@@ -35,6 +49,10 @@ function navigateOnboarding(target, currentScreenId) {
     });
 
     curScreen.removeClass('hidden');
+
+    if(isLastScreen(currentScreenId, 3)) {
+      fadeOut(background);
+    }
 
     telemetry({
       type: "onboarding",
@@ -85,11 +103,8 @@ $(document).ready(function() {
       nextScreen.removeClass('hidden');
     }
 
-    if(nextScreenId === 3) {
-      background.fadeOut(700, function() {
-        background.fadeIn(400);
-        $(this).delay(100).toggleClass('transparent').removeClass('bgImage');
-      });
+    if(isLastScreen(nextScreenId, 3)) {
+      fadeOut(background);
     }
 
     telemetry({
@@ -97,7 +112,7 @@ $(document).ready(function() {
       product: "cliqz",
       action: "click",
       action_target: "confirm",
-      action_index: currentScreenId,
+      action_index: currentScreenId - 1,
       version: "2.0"
     });
   });
