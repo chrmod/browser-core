@@ -1081,10 +1081,10 @@ var CliqzAttrack = {
         if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
             return false;
         }
-        return CliqzUtils.getPref('attrackBlockCookieTracking', false);
+        return CliqzUtils.getPref('attrackBlockCookieTracking', true);
     },
     isQSEnabled: function() {
-        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', false);
+        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', true);
     },
     isPostEnabled: function() {
         return CliqzUtils.getPref('attrackAlterPostdataTracking', false);
