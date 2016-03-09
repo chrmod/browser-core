@@ -273,6 +273,9 @@ var CliqzUtils = {
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
   },
+  promiseHttpHandler: function() {
+    return CLIQZEnvironment.promiseHttpHandler.apply(CLIQZEnvironment, arguments);
+  },
   /**
    * Loads a resource URL from the xpi.
    *
@@ -886,7 +889,7 @@ var CliqzUtils = {
 
     CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
 
-    CliqzUtils._telemetry_req = CLIQZEnvironment.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(CliqzUtils._telemetry_sending), 10000, true);
+    CliqzUtils._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(CliqzUtils._telemetry_sending), 10000, true);
     CliqzUtils._telemetry_req.then( CliqzUtils.pushTelemetryCallback );
     CliqzUtils._telemetry_req.catch( CliqzUtils.pushTelemetryError );
   },
