@@ -7,29 +7,52 @@ function log(){
   //console.log(arguments);
 }
 
+/****** Onboarding ******/
 function closeOnboarding() {
   CliqzFreshTab.cliqzOnboarding = false;
   $('#optinContainer').css('display', 'none')
 }
 
+function markPagination(activeScreen, activeScreenId) {
+  var paginationDots = activeScreen.find('.navItem');
+
+  $.each(paginationDots, function() {
+    $(this).removeClass('active');
+  });
+
+  //add active class to pagination dot of current screen
+  activeScreen.find('.navItem[data-screen=' + activeScreenId +']').addClass('active');
+}
+
+function fadeOut(background) {
+  if(!$(background).hasClass('transparent')) {
+    background.fadeOut(700, function() {
+      background.fadeIn(400);
+      $(this).delay(100).toggleClass('transparent').removeClass('bgImage');
+    });
+  }
+}
+
+function isLastScreen(screenId, maxScreens) {
+  return screenId === maxScreens;
+}
+
 function navigateOnboarding(target, currentScreenId) {
   var curScreen     = $('#screen' + currentScreenId),
       background    = $('.optinBackground'),
-      allScreens    = $('.screen'),
-      paginationDot = curScreen.find('.navItem');
+      allScreens    = $('.screen');
 
-    $.each(paginationDot, function() {
-      $(this).removeClass('active');
-    });
-
-    //add active class to pagination dot of current screen
-    curScreen.find('.navItem[data-screen=' + currentScreenId +']').addClass('active');
+    markPagination(curScreen, currentScreenId);
 
     $.each(allScreens, function() {
       $(this).addClass('hidden');
     });
 
     curScreen.removeClass('hidden');
+
+    if(isLastScreen(currentScreenId, 3)) {
+      fadeOut(background);
+    }
 
     telemetry({
       type: "onboarding",
@@ -71,6 +94,8 @@ $(document).ready(function() {
         nextScreen = $('#screen' + nextScreenId),
         background = $('.optinBackground');
 
+    markPagination(nextScreen, nextScreenId);
+
     if(currentScreenId === 3) {
       closeOnboarding();
     } else {
@@ -78,11 +103,8 @@ $(document).ready(function() {
       nextScreen.removeClass('hidden');
     }
 
-    if(nextScreenId === 3) {
-      background.fadeOut(700, function() {
-        background.fadeIn(400);
-        $(this).delay(100).toggleClass('transparent').removeClass('bgImage');
-      });
+    if(isLastScreen(nextScreenId, 3)) {
+      fadeOut(background);
     }
 
     telemetry({
@@ -90,7 +112,7 @@ $(document).ready(function() {
       product: "cliqz",
       action: "click",
       action_target: "confirm",
-      action_index: currentScreenId,
+      action_index: currentScreenId - 1,
       version: "2.0"
     });
   });
