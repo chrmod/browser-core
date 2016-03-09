@@ -21,6 +21,7 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
+import { cookieChecker, limitedLinks } from 'antitracking/cookie-checker'
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -100,6 +101,7 @@ var CliqzAttrack = {
     localBlockExpire: 24,
     shortTokenLength: 8,
     safekeyValuesThreshold: 4,
+    cChecker: new cookieChecker(),
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     placeHolder: '',
@@ -693,12 +695,6 @@ var CliqzAttrack = {
             // no cookies, let's return
             if (cookie_data == null) return;
 
-            // check if domain is whitelisted,
-            if (CliqzAttrack.isInWhitelist(url_parts.hostname)) {
-                if (CliqzAttrack.debug) CliqzUtils.log("Is whitelisted (type: direct): " + url, CliqzAttrack.LOG_KEY);
-                return;
-            }
-
             // Gather more info for further checks
             var curr_time = Date.now();
             if ((curr_time - CliqzAttrack.bootupTime) > CliqzAttrack.timeBootup) CliqzAttrack.bootingUp = false;
@@ -752,15 +748,15 @@ var CliqzAttrack = {
                 // if(req_log != null) req_log.cookie_set++;
             }
 
-            if (request_type == 'extension_resource' ||
-                    (source_url_parts && source_url_parts['hostname'] == 'browser' && source_url_parts['path'] == "/content/browser.xul")) {
+            if ((source_url_parts && source_url_parts['hostname'] == 'browser' && source_url_parts['path'] == "/content/browser.xul") ||
+                (source_url === '')) {
                 // extension_resource type may indicate favicon, check if it looks like a favicon url
                 var baseurl = url.split('#')[0];
                 if(url_parts.path.indexOf('/favicon.') == 0 || baseurl in CliqzAttrack.favicons) {
                     // block favicon cookies
                     req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                    tp_events.incrementStat(req_log, 'cookie_block_favicon');
-                    CliqzAttrack.blockCookie(aChannel, url, {'dst': 'favicon', 'src': url_parts.hostname, 'data': cookie_data, 'ts': curr_time, 'type': 'favicon'}, "favicon");
+                    tp_events.incrementStat(req_log, 'cookie_allow_favicon');
+                    CliqzAttrack.allowCookie(aChannel, url, {'dst': 'favicon', 'src': url_parts.hostname, 'data': cookie_data, 'ts': curr_time, 'type': 'favicon'}, "favicon");
                     return;
                 }
             } else if(request_type == 'fullpage') {
@@ -784,17 +780,23 @@ var CliqzAttrack = {
                 // not a 3rd party cookie, do nothing
                 // if(req_log != null) req_log.cookie_allow_ntp++;
                 return;
-            } else {
-                req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                tp_events.incrementStat(req_log, 'cookie_set');
-                if (source_url.indexOf('about:')==0) {
-                    // it's a brand new tab, and the url is loaded externally,
-                    // about:home, about:blank
-                    req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                    tp_events.incrementStat(req_log, 'cookie_allow_newtab');
-                    CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': source_url, 'data': cookie_data, 'ts': curr_time}, "about:blank");
-                    return;
-                }
+            }
+
+            req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+            tp_events.incrementStat(req_log, 'cookie_set');
+            if (source_url.indexOf('about:')==0) {
+                // it's a brand new tab, and the url is loaded externally,
+                // about:home, about:blank
+                tp_events.incrementStat(req_log, 'cookie_allow_newtab');
+                CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': source_url, 'data': cookie_data, 'ts': curr_time}, "about:blank");
+                return;
+            }
+
+            // check if domain is whitelisted,
+            if (CliqzAttrack.isInWhitelist(url_parts.hostname)) {
+                tp_events.incrementStat(req_log, 'cookie_allow_whitelisted');
+                if (CliqzAttrack.debug) CliqzUtils.log("Is whitelisted (type: direct): " + url, CliqzAttrack.LOG_KEY);
+                return;
             }
 
             var host = getGeneralDomain(url_parts.hostname);
@@ -819,26 +821,31 @@ var CliqzAttrack = {
             }
 
             // check if user initiated this request by an element click.
-            if (CliqzHumanWeb.contextFromEvent) {
-                var diff = curr_time - (CliqzHumanWeb.contextFromEvent.ts || 0);
+            if (CliqzAttrack.cChecker.contextFromEvent) {
+                var diff = curr_time - (CliqzAttrack.cChecker.contextFromEvent.ts || 0);
                 if (diff < CliqzAttrack.timeAfterLink) {
 
                     var pu = url.split(/[?&;]/)[0];
-
-                    if (CliqzHumanWeb.contextFromEvent.html.indexOf(pu)!=-1) {
-                        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzHumanWeb.contextFromEvent.html, CliqzAttrack.LOG_KEY);
+                    if (CliqzAttrack.cChecker.contextFromEvent.html.indexOf(pu)!=-1) {
+                        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzAttrack.cChecker.contextFromEvent.html, CliqzAttrack.LOG_KEY);
 
                         // the url is in pu
                         if (url_parts && url_parts.hostname && url_parts.hostname!='') {
                             var host = getGeneralDomain(url_parts.hostname);
                             //var host = url_parts.hostname;
-                            if (host=='google.com') {
-                                if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url_parts.hostname + ' (CONTEXT EVENT)', CliqzAttrack.LOG_KEY);
-                            }
                             CliqzAttrack.visitCache[host] = curr_time;
                             var src = null;
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
+
                             tp_events.incrementStat(req_log, 'cookie_allow_userinit');
+                            CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
+                            return;
+                        }
+                    } else {
+                        if (CliqzAttrack.cChecker.contextFromEvent.html.indexOf(getGeneralDomain(url_parts.hostname)) != -1 &&
+                            limitedLinks(CliqzAttrack.cChecker.contextFromEvent.html)) {
+
+                            tp_events.incrementStat(req_log, 'cookie_allow_userinit2');
                             CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
                             return;
                         }
@@ -862,12 +869,6 @@ var CliqzAttrack = {
 
                                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH and click " + url, CliqzAttrack.LOG_KEY);
                                 var host = getGeneralDomain(url_parts.hostname);
-                                //var host = url_parts.hostname;
-                                //if (host=='google.com') {
-                                //    if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url + ' (CONTEXT OAUTH)', CliqzAttrack.LOG_KEY);
-                                //}
-                                //CliqzAttrack.visitCache[host] = curr_time;
-
                                 var src = null;
                                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                                 tp_events.incrementStat(req_log, 'cookie_allow_oauth');
@@ -943,7 +944,7 @@ var CliqzAttrack = {
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                             tp_events.incrementStat(req_log, 'cookie_blocked');
                             tp_events.incrementStat(req_log, 'cookie_block_tp2');
-                            CliqzAttrack.blockCookie(aChannel, diff, {'src': src, 'dst': url_parts.hostname, 'data': cookie_data, 'ts': curr_time}, 'type2')
+                            CliqzAttrack.blockCookie(aChannel, url, {'src': src, 'dst': url_parts.hostname, 'data': cookie_data, 'ts': curr_time}, 'type2')
                             return;
                         }
                         else {
@@ -1081,10 +1082,10 @@ var CliqzAttrack = {
         if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
             return false;
         }
-        return CliqzUtils.getPref('attrackBlockCookieTracking', false);
+        return CliqzUtils.getPref('attrackBlockCookieTracking', true);
     },
     isQSEnabled: function() {
-        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', false);
+        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', true);
     },
     isPostEnabled: function() {
         return CliqzUtils.getPref('attrackAlterPostdataTracking', false);
@@ -1292,6 +1293,15 @@ var CliqzAttrack = {
         this._trackerLoader.load().then(CliqzAttrack._parseTrackerCompanies);
         this._trackerLoader.onUpdate(CliqzAttrack._parseTrackerCompanies);
 
+        // load cookie whitelist
+        this._cookieWhitelistLoader = new ResourceLoader( ['antitracking', 'cookie_whitelist.json'], {
+            remoteURL: 'https://cdn.cliqz.com/anti-tracking/whitelist/cookie_whitelist.json',
+            cron: 24 * 60 * 60 * 1000
+        });
+        var updateCookieWhitelist = (data) => { CliqzAttrack.whitelist = data }
+        this._cookieWhitelistLoader.load().then(updateCookieWhitelist);
+        this._cookieWhitelistLoader.onUpdate(updateCookieWhitelist);
+
         // @konarkm : Since we already have window, passing it.
         // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
         CliqzAttrack.checkInstalledAddons();
@@ -1341,6 +1351,7 @@ var CliqzAttrack = {
         window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
 
         CliqzAttrack.getPrivateValues(window);
+        CliqzAttrack.cChecker.addListeners(window);
     },
     unload: function() {
         // don't need to unload if disabled
@@ -1379,6 +1390,7 @@ var CliqzAttrack = {
         if (window.CLIQZ) {
             window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
         }
+        CliqzAttrack.cChecker.removeListeners(window);
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
@@ -1531,7 +1543,7 @@ var CliqzAttrack = {
     },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
-        var keys = Object.keys(CliqzAttrack.whitelist);
+        var keys = CliqzAttrack.whitelist;
         for(var i=0;i<keys.length;i++) {
             var ind = domain.indexOf(keys[i]);
             if (ind>=0) {
@@ -2083,7 +2095,6 @@ var CliqzAttrack = {
       if (!module_only) {
         CliqzUtils.setPref('attrackBlockCookieTracking', true);
         CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
-        CliqzUtils.setPref('attrackRefererTracking', true);
       }
     },
     /** Disables anti-tracking immediately.

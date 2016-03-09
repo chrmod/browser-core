@@ -115,8 +115,21 @@ function populateDOM() {
     document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
     general_msg_trnsl.dataset.i18n = [
       general_msg_trnsl.dataset.i18n,
+      data.url,
       counterTrackers,
       general_trackers_count
+    ].join(',');
+
+    var whiteListOn = document.querySelector(".cqz-whitelist-btn-on");
+    whiteListOn.dataset.i18n = [
+      whiteListOn.dataset.i18n,
+      data.url,
+    ].join(',');
+
+    var whiteListOff = document.querySelector(".cqz-whitelist-btn-off");
+    whiteListOff.dataset.i18n = [
+      whiteListOff.dataset.i18n,
+      data.url,
     ].join(',');
 
     //Check if site is in the whitelist

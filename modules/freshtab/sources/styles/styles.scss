@@ -183,7 +183,13 @@ a:hover, a:active, a:focus {
   margin-top: 8px;
 }
 
-#freshTabPage #newsContainer #sliderBtns div {
+#freshTabPage .optinContent .onboardingNav {
+  margin: 30px auto 0px auto;
+  width: 45px;
+}
+
+#freshTabPage #newsContainer #sliderBtns div,
+#freshTabPage .optinContent .onboardingNav a{
     float: left;
     border-radius: 50%;
     width: 8px;
@@ -193,15 +199,13 @@ a:hover, a:active, a:focus {
     background-color: #cccccc;
 }
 
-#freshTabPage #newsContainer #sliderBtns div.active {
+#freshTabPage #newsContainer #sliderBtns div.active,
+#freshTabPage .optinContent .onboardingNav .active {
   background-color: #999999
 }
 
-#freshTabPage #newsContainer #sliderBtns a {
-   overflow:hidden;
-    text-indent:100%;
-    white-space:nowrap;
-    display: block
+#freshTabPage .optinContent .onboardingNav a {
+  margin-right: 7px;
 }
 
 #freshTabPage #newsContainer .newsBox {
@@ -397,31 +401,66 @@ a:hover, a:active, a:focus {
   bottom: 0px;
   width: 100%;
   height: 100%;
+  z-index: 1004;
+  background-color: #EEF6FC;
+}
+
+.optinBackground.transparent {
   opacity: 0.75;
-  background-color: #ABC8E2;
-  z-index: 1004
+}
+
+.optinBackground.bgImage {
+  background-image: url("../images/bkg.png");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
 }
 
 .optinContent {
-  position: absolute;
+  width: 619px;
+  height: 554px;
+  border-radius: 8px;
   background-color: #ffffff;
-  z-index: 1005;
   text-align: center;
+  z-index: 1005;
+  position: absolute;
   left: 50%;
   top: 50%;
-  border-radius: 2px;
-  width: 600px;
-  height: 475px;
   margin-left: -300px;
   margin-top: -237px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.15);
 }
 
-.optinContent .title {
-  background-color: #56EAC6;
-  height: 55px;
-  color: #ffffff;
-  padding-top: 37px;
+.optinContent #header {
+  height: 80px;
+  background-color: #1D55A0;
+  border-radius: 8px 8px 0 0;
+}
+
+.optinContent h1 {
+  display: inline-block;
+  color: #fff;
+  line-height: 75px;
   font-size: 26px;
+  font-weight: 200;
+}
+
+.optinContent h2 {
+  font-size: 30px;
+  font-weight: 400;
+  margin-top: 30px;
+  margin-bottom: 0;
+}
+
+.optinContent .imgContainer {
+  margin-top: 30px;
+}
+
+.optinContent p {
+  margin: 28px auto 0px auto;
+  font-size: 18px;
+  width: 410px;
 }
 
 #freshTabPage .optinContent a {
@@ -430,31 +469,8 @@ a:hover, a:active, a:focus {
 
 }
 
-.optinContent ul {
-  padding: 40px 55px 10px;
-}
-
-.optinContent li {
-  list-style: none;
-  position: relative;
-  line-height: 1.4;
-  padding: 0px 0 30px;
-  font-size: 18px;
-}
-
-.optinContent li:last-child {
-  padding-bottom: 25px;
-}
-
-.optinContent li div{
-  margin-left: 60px;
-  text-align: left;
-  font-size: 18px;
-}
-
-.optinContent .surfSafe .icon {
+/*.optinContent .surfSafe .icon {
   background-image: url("../images/anti-tracking.svg");
-
 }
 
 .optinContent .searchSimple .icon {
@@ -463,17 +479,8 @@ a:hover, a:active, a:focus {
 
 .optinContent .startFresh .icon {
   background-image: url("../images/freshtab.svg");
-}
+}*/
 
-.optinContent .icon {
-  position: absolute;
-  background-repeat: no-repeat;
-  background-position: 0px 0px;
-  width: 40px;
-  height: 40px;
-  top: 0px;
-  left: 0px;
-}
 
 .optinContent .cqz-optin-btn {
   border-radius: 3px;
@@ -481,10 +488,10 @@ a:hover, a:active, a:focus {
   cursor: pointer;
   display: inline-block;
   line-height: 26px;
-  margin: 0 7px 4px 0;
+  margin: 30px 0px;
   padding: 5px 15px;
   text-decoration: none;
-  background-color: #FF5349;
+  background-color: #63AFE6;
   height: 30px;
   font-size: 18px;
 }
@@ -510,6 +517,14 @@ a:hover, a:active, a:focus {
 
 .hidden {
   display: none;
+}
+
+.overflow-hidden {
+  overflow:hidden;
+  text-indent:100%;
+  white-space:nowrap;
+  display: block;
+  cursor: pointer;
 }
 
 @media (min-width: 768px) and (max-width: 990px) {

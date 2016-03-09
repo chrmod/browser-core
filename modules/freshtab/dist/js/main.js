@@ -7,6 +7,63 @@ function log(){
   //console.log(arguments);
 }
 
+/****** Onboarding ******/
+function closeOnboarding() {
+  CliqzFreshTab.cliqzOnboarding = false;
+  $('#optinContainer').css('display', 'none')
+}
+
+function markPagination(activeScreen, activeScreenId) {
+  var paginationDots = activeScreen.find('.navItem');
+
+  $.each(paginationDots, function() {
+    $(this).removeClass('active');
+  });
+
+  //add active class to pagination dot of current screen
+  activeScreen.find('.navItem[data-screen=' + activeScreenId +']').addClass('active');
+}
+
+function fadeOut(background) {
+  if(!$(background).hasClass('transparent')) {
+    background.fadeOut(700, function() {
+      background.fadeIn(400);
+      $(this).delay(100).toggleClass('transparent').removeClass('bgImage');
+    });
+  }
+}
+
+function isLastScreen(screenId, maxScreens) {
+  return screenId === maxScreens;
+}
+
+function navigateOnboarding(target, currentScreenId) {
+  var curScreen     = $('#screen' + currentScreenId),
+      background    = $('.optinBackground'),
+      allScreens    = $('.screen');
+
+    markPagination(curScreen, currentScreenId);
+
+    $.each(allScreens, function() {
+      $(this).addClass('hidden');
+    });
+
+    curScreen.removeClass('hidden');
+
+    if(isLastScreen(currentScreenId, 3)) {
+      fadeOut(background);
+    }
+
+    telemetry({
+      type: "onboarding",
+      product: "cliqz",
+      action: "click",
+      action_target: "pagination-dots",
+      action_index: currentScreenId - 1,
+      version: "2.0"
+    });
+}
+
 $(document).ready(function() {
 
    var urlbar  = CliqzUtils.getWindow().document.getElementById("urlbar"),
@@ -17,24 +74,46 @@ $(document).ready(function() {
 
   if(CliqzUtils.getParameterByName('cliqzOnboarding', location) === "1" && !CliqzUtils.hasPref('browserOnboarding')) {
     CliqzUtils.setPref('browserOnboarding', true);
+
+    var onBoardingSliderTpl  = CliqzHandlebars.compile($('#onBoardingNavigation').html());
+    $('.onboardingNav').html(onBoardingSliderTpl);
+
     $('#optinContainer').css('display', 'block');
     telemetry({
       type: "onboarding",
       product: "cliqz",
       action: "show",
-      version: "1.0"
+      version: "2.0"
     });
   }
 
-  $('.cqz-optin-btn').on('click', function() {
-    CliqzFreshTab.cliqzOnboarding = false;
-    $('#optinContainer').css('display', 'none');
+  $('.cqz-optin-btn').on('click', function(e) {
+    var curScreen = $(this).closest('.screen'),
+        currentScreenId = parseInt($(curScreen).attr('id').slice(-1), 10),
+        nextScreenId = parseInt(currentScreenId, 10) + 1;
+        nextScreen = $('#screen' + nextScreenId),
+        background = $('.optinBackground');
+
+    markPagination(nextScreen, nextScreenId);
+
+    if(currentScreenId === 3) {
+      closeOnboarding();
+    } else {
+      curScreen.addClass('hidden');
+      nextScreen.removeClass('hidden');
+    }
+
+    if(isLastScreen(nextScreenId, 3)) {
+      fadeOut(background);
+    }
+
     telemetry({
       type: "onboarding",
       product: "cliqz",
       action: "click",
       action_target: "confirm",
-      version: "1.0"
+      action_index: currentScreenId - 1,
+      version: "2.0"
     });
   });
 
@@ -49,7 +128,7 @@ $(document).ready(function() {
       "product": "cliqz",
       "action": "click",
       "action_target": "tour",
-      "version": 1.0,
+      "version": "2.0",
     });
   });
 
@@ -59,17 +138,17 @@ $(document).ready(function() {
       "product": "cliqz",
       "action": "click",
       "action_target": "more",
-      "version": 1.0,
+      "version": "2.0",
     });
   });
 
-  $('.suggestions').on('click', function() {
+  $('.search').on('click', function() {
     telemetry({
       "type": "onboarding",
       "product": "cliqz",
       "action": "click",
       "action_target": "suggestions",
-      "version": 1.0,
+      "version": "2.0",
     });
   });
 
@@ -79,7 +158,17 @@ $(document).ready(function() {
       "product": "cliqz",
       "action": "click",
       "action_target": "privacy",
-      "version": 1.0,
+      "version": "2.0",
+    });
+  });
+
+  $('.homescreen').on('click', function(e) {
+    telemetry({
+      "type": "onboarding",
+      "product": "cliqz",
+      "action": "click",
+      "action_target": "homescreen",
+      "version": "2.0",
     });
   });
 

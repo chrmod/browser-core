@@ -7,7 +7,7 @@
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "04",
-    "antitrackingButton": true
+    "antitrackingButton": false
   },
   "modules": [
     "static",
