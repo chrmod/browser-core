@@ -184,6 +184,7 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage)
           url = "http://localhost:"+ testServer.port + "/",
           responseTest = "hello world",
           requestData,
+          contentEncodingHeader,
           ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream", "init");
 
       function binaryStringToUint8Array(str) {
@@ -198,10 +199,18 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage)
       beforeEach( function() {
         hitCtr = 0;
         requestData = "";
+        contentEncodingHeader = "";
         testServer.registerPathHandler('/', function(req, res) {
           hitCtr++;
-          var s = new ScriptableInputStream(req._bodyInputStream);
+          // get postdata from request
+          var s = new ScriptableInputStream(req.bodyInputStream);
           requestData = s.readBytes(s.available());
+
+          // save content-encoding header if set
+          try {
+            contentEncodingHeader = req.getHeader('content-encoding');
+          } catch(e) {}
+
           res.write(responseTest);
         });
       });
@@ -240,6 +249,7 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage)
             return CliqzUtils.promiseHttpHandler('POST', url, postDataSent, undefined, true).then( function(resp) {
               chai.expect(hitCtr).to.eql(1);
               chai.expect(resp.response).to.eql(responseTest);
+              chai.expect(contentEncodingHeader).to.eql('gzip');
               let postData = gzip.decompress(binaryStringToUint8Array(requestData));
               chai.expect(postData).to.eql(postDataSent);
             });
