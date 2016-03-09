@@ -22,7 +22,7 @@ function init() {
   }
 */
 function resetState(cfg) {
-  CLIQZEnvironment.getNews();
+  CLIQZEnvironment.initHomepage();
   var start = document.getElementById("freshstart");
   var freshstartContent = document.getElementById("freshstartContent");
   var resultsBox = document.getElementById("results");
