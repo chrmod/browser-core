@@ -56,8 +56,17 @@ var MockOS = {
     setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
     return -1;
   },
-  openLink: function(id) {
-    console.log("--MOCK: action openLink is called with data", id);
+  openLink: function(url) {
+    console.log("--MOCK: action openLink is called with data", url);
+    var id = parseInt(6 + 100 * Math.random());
+    mockedHistory.unshift({
+            "id": id,
+            "title": "History item " + id,
+            "mainDomain": url,
+            "url": url,
+            "timestamp": Date.now(),
+            "favorite": false
+        })
   },
   getTopSites: function(limit) {
     console.log("--MOCK: action getTopSites is called");

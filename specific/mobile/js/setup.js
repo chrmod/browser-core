@@ -2,28 +2,12 @@ function init() {
   System.baseURL = "modules/"
   CLIQZ.System = System;
   CliqzUtils.initPlatform(System);
-  /*System.import("freshtab/news").then(function (module) {
-    CliqzFreshTabNews = module.default;
-    osBridge.isReady();
-    tryInit();
-  }).catch(function () {
-    console.log("error", arguments)
-  });*/
   try{
-    
-    tryInit();
+    CLIQZEnvironment.initHomepage(true);
   } catch(e) {
     console.error(e);
   }
 };
-
-osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
-
-var tries=20;
-
-function tryInit(){
-    CLIQZEnvironment.initHomepage(true);
-}
 
 /**
   Parameter format
