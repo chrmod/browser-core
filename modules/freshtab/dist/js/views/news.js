@@ -56,32 +56,35 @@ function renderNews(news) {
     CliqzUtils.telemetry({
       type: 'home',
       action: 'click',
-      target_type: 'newsEmail',
+      target_type: 'news-email'
       });
   });
 
   $('.news').on('click', function(e) {
-      CliqzUtils.telemetry({
-        type: 'home',
-        action: 'click',
-        target_type: e.currentTarget.className.indexOf('topnews') > -1 ? 'topnews' : 'yournews',
-        extra: e.target.getAttribute('extra'),
-        target_index: $(this).attr('data-index')
-      });
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target_type: e.currentTarget.className.indexOf('topnews') > -1 ? 'topnews' : 'yournews',
+      extra: e.target.getAttribute('extra'),
+      target_index: $(this).attr('data-index')
+    });
+  });
+
+  $('.newsPagination').on('click', function(e) {
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target_type: 'topnews-pagination-dots',
+      target_index: $(this).attr('data-state')
+    });
   });
 
   $('.news').on('mouseenter', '.logo, .title, .url', function(e) {
     startEnter = new Date().getTime();
-    /*if(e.delegateTarget.className.indexOf('topnews') > -1) {
-      Slider.pause();
-    }*/
   });
 
   $('.news').on('mouseleave', '.logo, .title, .url', function(e) {
     elapsed = new Date().getTime() - startEnter;
-    /*if(e.delegateTarget.className.indexOf('topnews') > -1) {
-      Slider.resume();
-    }*/
 
     if(elapsed > 2000) {
       CliqzUtils.telemetry({

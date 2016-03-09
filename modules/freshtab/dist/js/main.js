@@ -12,10 +12,18 @@ function closeOnboarding() {
   $('#optinContainer').css('display', 'none')
 }
 
-function navigateOnboarding(screen, currentScreenId) {
-  var curScreen = $('#screen' + currentScreenId),
-      background = $('.optinBackground'),
-      allScreens = $('.screen');
+function navigateOnboarding(target, currentScreenId) {
+  var curScreen     = $('#screen' + currentScreenId),
+      background    = $('.optinBackground'),
+      allScreens    = $('.screen'),
+      paginationDot = curScreen.find('.navItem');
+
+    $.each(paginationDot, function() {
+      $(this).removeClass('active');
+    });
+
+    //add active class to pagination dot of current screen
+    curScreen.find('.navItem[data-screen=' + currentScreenId +']').addClass('active');
 
     $.each(allScreens, function() {
       $(this).addClass('hidden');
@@ -27,8 +35,8 @@ function navigateOnboarding(screen, currentScreenId) {
       type: "onboarding",
       product: "cliqz",
       action: "click",
-      action_target: "navigation",
-      action_index: currentScreenId,
+      action_target: "pagination-dots",
+      action_index: currentScreenId - 1,
       version: "2.0"
     });
 }
@@ -140,8 +148,6 @@ $(document).ready(function() {
       "action_target": "homescreen",
       "version": "2.0",
     });
-
-    closeOnboarding();
   });
 
   var dialUps = History.getTopUrls(5).then(function(results){

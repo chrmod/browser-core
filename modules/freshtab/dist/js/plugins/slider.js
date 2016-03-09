@@ -42,7 +42,7 @@ var Slider = (function($, window){
   function displaySliderBtns(num) {
     var sliderBtns = '';
     for(var i=0; i < num; i++) {
-      sliderBtns += '<div><a data-state="' + i +'" href="#" onclick="return false;">' + i + '</a></div>';
+      sliderBtns += '<div><a class="newsPagination overflow-hidden" data-state="' + i +'" href="#" onclick="return false;">' + i + '</a></div>';
     }
     document.getElementById('sliderBtns').innerHTML = sliderBtns;
 

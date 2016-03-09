@@ -23,7 +23,11 @@ bower install # to satisfy bower.json
 
 ## Development
 
-Use `fern.js`:
+Follow CLIQZ coding style and Git workflow guides.
+This repository contains Git-hooks, intended to enforce some of those rules.
+When commiting, your message must start with Jira ticket ID (EX-XXX) followed by a description.
+Commit message line length is also limited to 80 characters.
+See code in git-hooks directory for details.
 
 To start build system:
 

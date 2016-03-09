@@ -1,5 +1,6 @@
 {
   "platform": "firefox",
+  "testsBasePath": "./build/firefox/cliqz@cliqz.com/chrome/content",
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
@@ -21,7 +22,6 @@
     "freshtab",
     "unblock",
     "theme",
-    "users1st",
     "telemetry-categories",
     "antitracking",
     "performance",
