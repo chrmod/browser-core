@@ -89,13 +89,16 @@ CLIQZEnvironment = {
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
   shiftResults: function() {
+    alert('shiftresults');
     var frames = document.getElementsByClassName('frame');
     for (var i = 0; i < frames.length; i++) {
       var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
       left = parseInt(left);
       left -= (left / (i + 1));
+      CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
       frames[i].style.left = left + 'px';
     }
+    CLIQZEnvironment.setResultNavigation(CLIQZEnvironment.lastResults);
   },
 
   setCardsHeight: function() {
@@ -189,24 +192,9 @@ CLIQZEnvironment = {
       showGooglethis = 0;
     }
 
-    var dots = document.getElementById('cliqz-swiping-dots-new-inside');
-    var currentResultsCount = CLIQZEnvironment.currentResultsCount =  results.length+showGooglethis;
-    if(dots) {
-      dots.innerHTML = '';
-      var myEl;
 
-      for(var i=0;i<currentResultsCount;i++) {
-        myEl = document.createElement('span');
-        myEl.innerText = '.';
-        myEl.id = 'dots-page-'+(i);
-        if( i===0 ){
-          myEl.className = 'active';
-        }
-
-        dots.appendChild(myEl);
-      }
-    }
-    //<span class='active'>·</span>
+    var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
+    var currentResultsCount = CLIQZEnvironment.currentResultsCount =  lastResultOffset / CLIQZEnvironment.CARD_WIDTH + showGooglethis + 1;
 
     if(running) {
       setTimeout(nextTest,2000);
@@ -346,7 +334,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.initViewpager.views = {};
     CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
-    var dots = document.getElementById('cliqz-swiping-dots-new-inside');
+    
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
       dragSize: window.innerWidth,
@@ -362,20 +350,7 @@ CLIQZEnvironment = {
 
       onPageChange : function (page) {
 
-        dots.innerHTML = '';
-        var myEl;
         page = Math.abs(page);
-
-        for(var i=0;i<CLIQZEnvironment.currentResultsCount;i++) {
-          myEl = document.createElement('span');
-          myEl.innerText = '.';
-          myEl.id = 'dots-page-'+(i);
-          if( i===page ){
-            myEl.className = 'active';
-          }
-
-          dots.appendChild(myEl);
-        }
 
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
