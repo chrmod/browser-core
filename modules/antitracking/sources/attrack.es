@@ -484,9 +484,11 @@ var CliqzAttrack = {
                                 }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             }
-                            aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
-                            cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
-                            aChannel.notificationCallbacks = cListener;
+                            if (rule != 'same') {
+                                aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
+                                cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
+                                aChannel.notificationCallbacks = cListener;
+                            }                            
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
