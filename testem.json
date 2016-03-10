@@ -6,7 +6,7 @@
         "protocol": "tap"
       }
     },
-    "launch_in_dev": ["Chrome"],
+    "launch_in_dev": ["Chrome", "Mocha"],
     "launch_in_ci": ["Chrome", "Mocha"],
     "test_page": "tests/index.mustache"
 }

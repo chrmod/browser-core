@@ -182,7 +182,6 @@ var UI = {
 
     // results function
     results: function(res){
-
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 

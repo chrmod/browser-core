@@ -1,7 +1,5 @@
 <!-- currency.tpl -->
 
-{{debug}}
-
 {{#with logo}}
 	<div extra="logo" url="{{../url}}" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
