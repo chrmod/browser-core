@@ -35,17 +35,10 @@ function setBodyClass(options) {
   }
 
   //If thare are BAD tracker
-  if (options.have_bad_trackers) {
+  if (options.have_bad_trackers || options.have_trackers) {
     document.body.classList.add("cqz-have-bad-trackers");
   } else {
     document.body.classList.remove("cqz-have-bad-trackers");
-  }
-
-  //If thare are NO BAD tracker
-  if (options.have_trackers && !options.have_bad_trackers) {
-    document.body.classList.add("cqz-have-no-bad-trackers");
-  } else {
-    document.body.classList.remove("cqz-have-no-bad-trackers");
   }
 
   // Turn on - off fix
