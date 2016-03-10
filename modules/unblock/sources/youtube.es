@@ -151,7 +151,38 @@ export default {
           'action': 'yt_success'
         });
         this.last_success = url;
+
+        // check for loading failure
+        CliqzUtils.setTimeout(() => {
+          this.checkLoadError(url, doc, 0)
+        }.bind(this), 1000);
       }
+    }
+  },
+  checkLoadError: function(url, doc, t) {
+    // if page url changes, cancel check
+    if (doc.defaultView.location.href != url) {
+      return;
+    }
+    // see if error message is visible
+    let error = false;
+    try {
+      let errorElement = doc.defaultView.body.querySelector(".ytp-error");
+      error = errorElement.offsetParent != null;
+    } catch(e) {
+      error = false;
+    }
+    // send telemetry if video times out, otherwise check again later.
+    if (error) {
+      CliqzUtils.telemetry({
+        type: 'unblock',
+        action: 'yt_timeout',
+        t: t
+      });
+    } else {
+      CliqzUtils.setTimeout(() => {
+        this.checkLoadError(url, doc, t + 1);
+      }.bind(this), 1000);
     }
   },
   getVideoID: function(url) {
