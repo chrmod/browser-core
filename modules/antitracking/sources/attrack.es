@@ -2015,7 +2015,7 @@ var CliqzAttrack = {
      *    trackers: more detailed information about each tracker. Object with keys being tracker domain and values
      *        more detailed blocking data.
      */
-    getTabBlockingInfo: function(tab_id) {
+    getTabBlockingInfo: function(tab_id, url) {
       var result = {
           hostname: '',
           cookies: {allowed: 0, blocked: 0},
@@ -2023,6 +2023,12 @@ var CliqzAttrack = {
           trackers: {},
           companies: {}
         };
+
+      // ignore special tabs
+      if (url && (url.indexOf('about') == 0 || url.indexOf('chrome') == 0) ) {
+        result.error = 'Special tab';
+        return result;
+      }
 
       if (! (tab_id in CliqzAttrack.tp_events._active) ) {
         // no tp event, but 'active' tab = must reload for data
@@ -2065,11 +2071,15 @@ var CliqzAttrack = {
       return result;
     },
     getCurrentTabBlockingInfo: function() {
+      var tabId, urlForTab;
       try {
-        var tabId = CliqzUtils.getWindow().gBrowser.selectedTab.linkedBrowser._loadContext.DOMWindowID;
+        var gBrowser = CliqzUtils.getWindow().gBrowser,
+            selectedTab = gBrowser.selectedTab;
+        tabId = selectedTab.linkedBrowser._loadContext.DOMWindowID;
+        urlForTab = '' + gBrowser.getBrowserForTab(selectedTab).contentDocument.location;
       } catch (e) {
       }
-      return CliqzAttrack.getTabBlockingInfo(tabId);
+      return CliqzAttrack.getTabBlockingInfo(tabId, urlForTab);
     },
     tracker_companies: {},
     /** Parse tracker owners list {Company: [list, of, domains]}, into lookup table {domain: Company}
