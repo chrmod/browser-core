@@ -6,18 +6,28 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 const REFRESH_RETRIES = 2;
 
 // DNS Filter for unblocking YT videos
-export default {
-  current_region: '', // current region for YT videos
-  video_info: {},
-  video_lookup_cache: new Set(),
-  proxied_videos: new Set(),
-  last_success: null,
-  conf: {},
-  CONFIG_URL: "https://cdn.cliqz.com/unblock/yt_unblock_config.json",
-  canFilter: function(url) {
+export default class {
+
+  constructor() {
+    this.current_region = '';
+    this.video_info = {};
+    this.video_lookup_cache = new Set();
+    this.proxied_videos = new Set();
+    this.last_success = null;
+    this.conf = {};
+    this.CONFIG_URL = "https://cdn.cliqz.com/unblock/yt_unblock_config.json";
+    this.proxy_manager = null;
+    this.proxy_service = null;
+    this.request_listener = null;
+    this.on_block_cb = null;
+    this.initialized = false;
+  }
+
+  canFilter(url) {
     return url.indexOf("https://www.youtube.com") > -1;
-  },
-  init: function(proxy_manager, proxy_service, request_listener, on_block_cb) {
+  }
+
+  init(proxy_manager, proxy_service, request_listener, on_block_cb) {
     var self = this;
     this.proxy_manager = proxy_manager;
     this.proxy_service = proxy_service;
@@ -42,15 +52,18 @@ export default {
     this._loader.load().then(updateConfig);
     this._loader.onUpdate(updateConfig);
     this.initialized = true;
-  },
-  unload: function() {
+  }
+
+  unload() {
     this._loader.stop();
-  },
-  refresh: function() {
+  }
+
+  refresh() {
     // reset internal caches
     this.video_info = {};
-  },
-  updateProxyRule: function(vid) {
+  }
+
+  updateProxyRule(vid) {
     var block_info = this.video_info[vid];
     let regex = this.getURLRegex(vid);
     // make a new rule
@@ -68,11 +81,13 @@ export default {
         }.bind(this), 60000);
       }
     }
-  },
-  getURLRegex: function(vid) {
+  }
+
+  getURLRegex(vid) {
     return new RegExp("^https://www.youtube.com/watch\\?.*v="+vid);
-  },
-  pageObserver: function(doc) {
+  }
+
+  pageObserver(doc) {
     var url = doc.defaultView.location.href,
       vid = this.getVideoID(url),
       proxied = this.video_info[vid] && this.video_info[vid].proxy_region,
@@ -158,8 +173,9 @@ export default {
         }.bind(this), 1000);
       }
     }
-  },
-  checkLoadError: function(url, doc, t) {
+  }
+
+  checkLoadError(url, doc, t) {
     // if page url changes, cancel check
     if (doc.defaultView.location.href != url) {
       return;
@@ -184,8 +200,9 @@ export default {
         this.checkLoadError(url, doc, t + 1);
       }.bind(this), 1000);
     }
-  },
-  getVideoID: function(url) {
+  }
+
+  getVideoID(url) {
     let url_parts = CliqzUtils.getDetailsFromUrl(url),
       query = getParametersQS(url_parts.query);
     if(url_parts.path == '/watch' &&
@@ -194,8 +211,9 @@ export default {
     } else {
       return undefined;
     }
-  },
-  isVideoBlocked: function(doc) {
+  }
+
+  isVideoBlocked(doc) {
     // check for block message
     try {
       let msg = doc.defaultView.body.querySelector(this.conf.blocked_video_element);
@@ -203,8 +221,9 @@ export default {
     } catch(e) {
       return false;
     }
-  },
-  shouldProxy: function(url) {
+  }
+
+  shouldProxy(url) {
     if (url.indexOf("https://www.youtube.com/watch") == -1) {
       return false;
     }
@@ -265,10 +284,11 @@ export default {
       }
     }
     return false;
-  },
+  }
+
   /** Adapted from getCDByURL on CliqzHumanWeb. Finds the tab(s) which have this video in them, and refreshes.
    */
-  refreshPageForVideo: function(vid, retry_count) {
+  refreshPageForVideo(vid, retry_count) {
     var enumerator = Services.wm.getEnumerator('navigator:browser'),
         found = false,
     retry_count = retry_count || REFRESH_RETRIES;
