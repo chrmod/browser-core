@@ -182,9 +182,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 describe('when new page is loaded in existing tab', function() {
 
-                    beforeEach(function(done) {
+                    beforeEach(function() {
+                        var wait = waitFor( function() {
+                          var tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
+                          return CliqzAttrack.tp_events._active[tab_id].url === "http://cliqztest.de/"
+                        });
                         gBrowser.getBrowserForTab(tabs[0]).loadURI("http://cliqztest.de/");
-                        setTimeout(done, 700);
+                        return wait;
                     });
 
                     describe('CliqzAttrack.tp_events.commit', function() {
