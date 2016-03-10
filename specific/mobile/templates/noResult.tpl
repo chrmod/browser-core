@@ -1,5 +1,5 @@
 <!-- noResult.tpl -->
-{{debug}}
+
   {{#with data}}
     <div  style="background: #245C92;padding: 30px;color: #fff;text-align: center;height:100%" 
           url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
