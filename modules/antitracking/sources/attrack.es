@@ -841,7 +841,7 @@ var CliqzAttrack = {
 
                         // the url is in pu
                         if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                            
+
                             CliqzAttrack.visitCache[host] = curr_time;
 
                             tp_events.incrementStat(req_log, 'cookie_allow_userinit_same_gd_link');
@@ -1432,32 +1432,32 @@ var CliqzAttrack = {
             payl = CliqzAttrack.qs_whitelist.attachVersion(payl);
         return payl;
     },
-    sendTokens: function(hourChanged) {
+    sendTokens: function() {
         // send tokens every 5 minutes
         let data = {},
-            hour = datetime.getTime();
-        if (!hourChanged) {  // send 1/12 of data
-            for (let tracker in CliqzAttrack.tokens) {
-                if (Object.keys(data).length > Object.keys(CliqzAttrack.tokens).length / 12) {
-                    break;
-                }
-                let tokenData = CliqzAttrack.tokens[tracker];
-                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-                    data[tracker] = tokenData;
-                    delete(data[tracker].lastSent);
-                    delete(CliqzAttrack.tokens[tracker]);
-                }
+            hour = datetime.getTime(),
+            limit = Object.keys(CliqzAttrack.tokens).length / 12;
+
+        // sort tracker keys by lastSent, i.e. send oldest data first
+        let sortedTrackers = Object.keys(CliqzAttrack.tokens).sort((a, b) => {
+            return parseInt(CliqzAttrack.tokens[a].lastSent || 0) - parseInt(CliqzAttrack.tokens[b].lastSent || 0)
+        });
+
+        for (let i in sortedTrackers) {
+            let tracker = sortedTrackers[i];
+
+            if (limit > 0 && Object.keys(data).length > limit) {
+                break;
             }
-        } else {  // send everything that has not been send in the last hour
-            for (let tracker in CliqzAttrack.tokens) {
-                let tokenData = CliqzAttrack.tokens[tracker];
-                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-                    data[tracker] = tokenData;
-                    delete(data[tracker].lastSent);
-                    delete(CliqzAttrack.tokens[tracker]);
-                }
+
+            let tokenData = CliqzAttrack.tokens[tracker];
+            if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
+                data[tracker] = tokenData;
+                delete(data[tracker].lastSent);
+                delete(CliqzAttrack.tokens[tracker]);
             }
         }
+
         if (Object.keys(data).length > 0) {
             var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
@@ -1470,8 +1470,6 @@ var CliqzAttrack = {
             if (CliqzAttrack.local_tracking.isEnabled()) {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
-            // reset the state
-            CliqzAttrack.sendTokens(true);
         }
 
         // trigger other hourly events
