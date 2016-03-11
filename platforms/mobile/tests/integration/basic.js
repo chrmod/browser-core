@@ -80,8 +80,7 @@ function injectSinon(win) {
 }
 
 describe('Search View', function() {
-  var testBox,
-	    isReady;
+  var testBox;
 
   beforeEach(function () {
     // startup can be quite slow for the first time. Maybe there is better way
@@ -97,8 +96,7 @@ describe('Search View', function() {
 
     function waitForWindow(win) {
       return new Promise(function (res) {
-        isReady = win.osBridge.isReady;
-        win.osBridge.isReady = function () { isReady(); res() };
+        win.addEventListener('newsLoadingDone', function () { res(); });
       })
     }
 
@@ -118,7 +116,6 @@ describe('Search View', function() {
   });
 
   afterEach(function () {
-  	contentWindow.osBridge.isReady = isReady;
   	contentWindow.localStorage.clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
@@ -131,7 +128,7 @@ describe('Search View', function() {
     beforeEach(function (done) {
       this.timeout(4000);
 
-      contentWindow.addEventListener('imgLoadingOver', function () { done() });
+      contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       extraResult = {
         "q": "kino cadillac",
@@ -195,7 +192,7 @@ describe('Search View', function() {
     var query = "amazon";
 
     beforeEach(function (done) {
-      contentWindow.addEventListener('imgLoadingOver', function () { done() });
+      contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [], [
         {
@@ -277,7 +274,7 @@ describe('Search View', function() {
     var query = "titten";
 
     beforeEach(function (done) {
-      contentWindow.addEventListener('imgLoadingOver', function () { done() });
+      contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [
         {
@@ -311,7 +308,7 @@ describe('Search View', function() {
     var query = "wetter münchen";
 
     beforeEach(function (done) {
-      contentWindow.addEventListener('imgLoadingOver', function () { done() });
+      contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [], [
         {
@@ -410,7 +407,7 @@ describe('Search View', function() {
     var query = "fcbayern";
 
     beforeEach(function (done) {
-      contentWindow.addEventListener('imgLoadingOver', function () { done() });
+      contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [], [
         {
