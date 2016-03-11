@@ -8,7 +8,7 @@ For now in prefs.
 */
 export default class {
   constructor(msg) {
-    var keySet = CliqzUtils.getPref('userPKTest',false,'extenions.cliqz_hpn.');
+    var keySet = CliqzUtils.getPref('userPKTest',false,'extensions.cliqz_hpn.');
     if(!keySet) {
        // Using 2048 as 4096 is pretty compute intensive.
        this.genKey().then(e=> CliqzUtils.log("Key generated"));
