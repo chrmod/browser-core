@@ -575,7 +575,6 @@ var CliqzAttrack = {
             var referrer = requestContext.getReferrer();
             var same_gd = false;
 
-
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
@@ -642,6 +641,7 @@ var CliqzAttrack = {
                 var badHeaders = CliqzAttrack.checkHeaders(url_parts, headers, cookievalue, stats);
                 if (req_log) {
                     tp_events.incrementStat(req_log, 'resp_ob');
+                    tp_events.incrementStat(req_log, 'content_length', parseInt(requestContext.getResponseHeader('Content-Length')) || 0);
                     Object.keys(stats).forEach(function(key) {
                         tp_events.incrementStat(req_log, 'header.' + key, stats[key] || 0);
                     });
