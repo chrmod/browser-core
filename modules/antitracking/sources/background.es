@@ -7,6 +7,12 @@ export default {
 
   init(settings) {
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
+
+    // fix for users without pref properly set: set to value from build config
+    if ( !utils.hasPref('attrackRemoveQueryStringTracking') ) {
+      utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
+    }
+
     this.enabled = false;
 
     utils.bindObjectFunctions( this.popupActions, this );
