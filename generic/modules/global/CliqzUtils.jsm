@@ -56,7 +56,6 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-//  RESULTS_PROVIDER:               'http://mixer-beta.clyqz.com/api/v1/results?q=',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
@@ -102,7 +101,9 @@ var CliqzUtils = {
       'vod': 3,
       'conversations': 1,
       'conversations_future': 1,
-      'topnews': 1
+      'topnews': 1,
+      '_generic': 1,
+      '_history': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,

@@ -6,9 +6,6 @@
     class='cqz-result-h2 cqz-result-padding'
   {{/if}}
 >
-    {{#if debug}}
-        <div class='cqz-result-debug'>{{ debug }}</div>
-    {{/if}}
     {{#with data}}
         <div class="cqz-ez-title cqz-ez-banking-title">
           {{name}}
@@ -28,7 +25,7 @@
                 <div class="cqz-ez-banking-box cqz-ez-banking-opt"
                      url="{{ url }}"
                      extra="link-{{ @index }}"
-                     style="background-image: url({{ icon }});">
+                     data-style="background-image: url({{ icon }});">
                     {{ title }}
                 </div>
             {{/each}}

@@ -26,10 +26,6 @@ function isMixerUrl(url) {
   return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0;
 }
 
-window.addEventListener('load', function() {
-  CliqzUtils.pingCliqzResults();
-});
-
 var db = {
   showConsoleLogs: true
 };
@@ -204,7 +200,7 @@ if(typeof jsBridge == "undefined") {
 
 //Lucian: temp hopefully
 CliqzLanguage = {
-  stateToQueryString: function(){ return ''; }
+  stateToQueryString: function(){ return '&lang=de,en'; }
 }
 CliqzHistory = {
   updateQuery: function(){},

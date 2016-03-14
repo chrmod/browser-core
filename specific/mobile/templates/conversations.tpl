@@ -3,9 +3,9 @@
 <div class="main">
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
-       		<div id="reconnecting" style="position:fixed;background-color: #8E4900;padding:1px 10px;color:#fff;font-size:14px;display:none;">
-       				<span style="float: left" onclick="getHistory(true)">Favoriten</span>
-       				<span style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
+       		<div id="historysub">
+       				<span id="show_favorites_only" style="float: left" onclick="getHistory(true)">Favoriten</span>
+       				<span class="active" id="show_history" style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
 			</div>
             <!-- <a extra="title">THE PAST</a> -->
         </h1>
@@ -25,7 +25,7 @@
                     </td>
                     <td class="meta">
                         <div>{{conversationsTime timestamp}}</div>
-                        {{#if starred}}<div>starred</div>{{/if}}
+                        {{#if favorite}}<div>favorite</div>{{/if}}
                     </td>
                 </tr>
             </table>
@@ -39,7 +39,7 @@
                     <tr>
                         <td class="meta">
                             <div>{{conversationsTime timestamp}}</div>
-                        	{{#if starred}}<div>starred</div>{{/if}}
+                        	{{#if favorite}}<div>favorite</div>{{/if}}
                         </td>
                         <td class="framer">
                             <p class="query">{{query}}</p>
@@ -61,7 +61,7 @@
 				<td onclick="removeSelected()">
 					{{local 'mobile_history_remove'}}
 				</td>
-				<td id='control_star' onclick="starSelected()">
+				<td id='control_star' onclick="favoriteSelected()">
 					{{local 'mobile_history_star'}}
 				</td>
 				<td onclick="endEditMode()">

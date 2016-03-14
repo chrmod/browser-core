@@ -132,12 +132,11 @@ var CliqzCalculator = {
     } catch (err) {}
     return null
   },
-
   clean: function(q) {
     if (!isNaN(q)) {
       return ''; // Don't trigger calculator yet if the query is just a number
     }
-    let operators = ['+', '-', '*', '/', '^', '='];
+    var operators = ['+', '-', '*', '/', '^', '='];
     q = q.replace(/ /g, ''); // Remove all spaces
     for (var i = 0; i < operators.length; i++) {
       if (q[q.length - 1] == operators[i]) {
@@ -146,7 +145,6 @@ var CliqzCalculator = {
     }
     return q;
   },
-
   calculate: function(q) {
     if (this.CALCULATOR_RES === null || this.CALCULATOR_RES === q) {
       return null;
@@ -270,7 +268,7 @@ var CliqzCalculator = {
     // filter out:
     // + too short query (avoid answering e, pi)
     // + automatically convert queries like '10cm
-    var tmp = this.clean(q);  // remove all space
+    var tmp = q.replace(/ /g, '');  // remove all space
     if (tmp.length <= 2 || tmp.length > 150) {
       return false;
     }

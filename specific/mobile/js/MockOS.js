@@ -33,6 +33,9 @@ var MockOS = {
       case "removeHistory":
         MockOS.removeHistory(message.data);
         break;
+      case "setHistoryFavorite":
+        MockOS.setHistoryFavorite(message.data);
+        break;
       case "cleanHistory":
         MockOS.cleanHistory(message.data);
         break;
@@ -53,8 +56,17 @@ var MockOS = {
     setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
     return -1;
   },
-  openLink: function(id) {
-    console.log("--MOCK: action openLink is called with data", id);
+  openLink: function(url) {
+    console.log("--MOCK: action openLink is called with data", url);
+    var id = parseInt(6 + 100 * Math.random());
+    mockedHistory.unshift({
+            "id": id,
+            "title": "History item " + id,
+            "mainDomain": url,
+            "url": url,
+            "timestamp": Date.now(),
+            "favorite": false
+        })
   },
   getTopSites: function(limit) {
     console.log("--MOCK: action getTopSites is called");
@@ -86,6 +98,19 @@ var MockOS = {
       return index >= data.length || data[index] !== record.id || (index++ && false);
     });
   },
+  setHistoryFavorite: function(data) {
+    console.log("--MOCK: action setHistoryFavorite is called with data", data);
+
+    var index = 0;
+    mockedHistory.forEach(function(record) {
+      if(index >= data.ids) {
+        return;
+      } else if(data.ids[index] === record.id) {
+        record.favorite = data.value;
+        index++;
+      }
+    });
+  },
   cleanHistory: function(data) {
     console.log("--MOCK: action cleanHistory is called with data", data);
     if(data.length == 0 || mockedHistory.length === 0) {
@@ -106,33 +131,38 @@ var MockOS = {
 
 var mockedHistory = 
         [{
-            "id": 1,
+            "id": 5,
             "title": "Facebook",
             "mainDomain": "Facebook",
             "url": "http://www.facebook.de",
-            "timestamp": Date.now() - 10000
+            "timestamp": Date.now() - 30090,
+            "favorite": true
         }, {
-            "id": 2,
+            "id": 4,
             "title": "Youtube",
             "mainDomain": "Youtube",
             "url": "http://www.youtube.de",
-            "timestamp": Date.now() - 1222250000
+            "timestamp": Date.now() - 130090,
+            "favorite": true
         }, {
             "id": 3,
             "title": "Focus",
             "mainDomain": "Focus",
             "url": "http://www.focus.de",
-            "timestamp": Date.now() - 30090
+            "timestamp": Date.now() - 1130090,
+            "favorite": false
         }, {
-            "id": 4,
+            "id": 2,
             "title": "Bild",
             "mainDomain": "Bild",
             "url": "http://www.bild.de",
-            "timestamp": Date.now() - 20000
+            "timestamp": Date.now() - 11130090,
+            "favorite": false
         },  {
-            "id": 5,
+            "id": 1,
             "title": "Amazon",
             "mainDomain": "Amazon",
             "url": "http://www.amazon.de",
-            "timestamp": Date.now() - 121240000
+            "timestamp": Date.now() - 111130090,
+            "favorite": true
         }];

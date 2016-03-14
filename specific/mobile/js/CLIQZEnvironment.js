@@ -47,7 +47,6 @@ CLIQZEnvironment = {
             CLIQZ.UI.enhanceResults(r);
 
             if(document.getElementById('cqz-result-box-' + index) && r.results[0] && r.results[0].data.template !== 'noResult') {
-
               document.getElementById('cqz-result-box-' + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
             }
           }
@@ -72,6 +71,7 @@ CLIQZEnvironment = {
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
+            break;
           }
         }
       }
@@ -113,8 +113,8 @@ CLIQZEnvironment = {
 
     for(var i=0; i < ezs.length; i++) {
       ezs[i].style.height = null;
-      if(ezs[i].clientHeight+64 < height) {
-        ezs[i].style.height = height-75 + 'px';
+      if(ezs[i].clientHeight+40 < height) {
+        ezs[i].style.height = height-40 + 'px';
       }
     }
   },
@@ -124,6 +124,8 @@ CLIQZEnvironment = {
 
     r.encodedSearchString = encodeURIComponent(r._searchString);
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var logo = CliqzUtils.getLogoDetails(details);
 
     CLIQZEnvironment.setDimensions();
 
@@ -146,13 +148,15 @@ CLIQZEnvironment = {
             return r;
           }),
       isInstant: false,
+      isMixed: true,
       googleThis: {
         title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
         action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
         left: (CLIQZEnvironment.CARD_WIDTH * validCount),
         frameWidth: CLIQZEnvironment.CARD_WIDTH,
         searchString: r.encodedSearchString,
-        searchEngineUrl: engine.url
+        searchEngineUrl: engine.url,
+        logo: logo
       }
     });
 
@@ -170,7 +174,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.stopProgressBar();
     CLIQZEnvironment.openLinksAllowed = true;
 
-    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style]');
+    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
     CLIQZEnvironment.imgLoader.start();
 
     return renderedResults;
@@ -249,6 +253,7 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r) {
+    
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
@@ -272,7 +277,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.lastResults = renderedResults.results;
 
     if(renderedResults.results.length > historyCount) {
-      // TODO CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
+      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
     }
 
     CLIQZEnvironment.setCardsHeight();
@@ -281,6 +286,18 @@ CLIQZEnvironment = {
 
   },
   search: function(e, location_enabled, latitude, longitude) {
+    if(!e || e === '') {
+      resultsBox.style.display = 'none';
+      window.document.getElementById('startingpoint').style.display = 'block';
+      CLIQZ.UI.main(resultsBox);
+      CLIQZEnvironment.initHomepage();
+      CLIQZEnvironment.stopProgressBar();
+      CLIQZEnvironment.lastResults = null;
+      return;
+    }
+    e = e.toLowerCase().trim();
+
+    localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
     if(location_enabled) {
@@ -297,24 +314,26 @@ CLIQZEnvironment = {
 
     item_container = document.getElementById('cliqz-results');
 
-    if(!e || e === '') {
-      resultsBox.style.display = 'none';
-      window.document.getElementById('startingpoint').style.display = 'block';
-      CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.initHomepage();
-      CLIQZEnvironment.stopProgressBar();
-      return;
-    }
-
     //TODO: work around for now
-    urlbar.value = e.toLowerCase().trim();
+    urlbar.value = e;
 
     resultsBox.style.display = 'block';
     window.document.getElementById('startingpoint').style.display = 'none';
 
-    if(e.toLowerCase() === 'testme') {
+    if(e === 'testme') {
       initTest();
     }
+
+    if(e === 'josep') {
+      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
+      alert("switched to beta mixer with joseps magic links");
+    } 
+
+    if(e === 'nojosep') {
+      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
+      alert("switched to live mixer withOUT joseps magic links");
+    }
+
     CLIQZEnvironment.startProgressBar();
 
 
@@ -521,7 +540,7 @@ CLIQZEnvironment = {
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
-        req.timeout = (method === 'POST'? 10000 : 4000);
+        req.timeout = (method === 'POST'? 10000 : 1000);
       }
     }
 
@@ -597,119 +616,20 @@ CLIQZEnvironment = {
   copyResult: function(val) {
     osBridge.copyResult(val);
   },
-  getNews: function() {
-    //console.log('Start getting news');
-    var cachedNews = localStorage.getObject('freshTab-news');
-    if(cachedNews) {
-      CLIQZEnvironment.displayTopNews(cachedNews);
-    }
-    return CliqzFreshTabNews.getNews().then(CLIQZEnvironment.displayTopNews);
-  },
-  displayTopNews: function(news) {
-
-    var top_news = news.top_h_news;
-
-    //console.log('%crendering top news', 'color:green', top_news)
-    top_news = top_news.map(function(r){
-      var details = CliqzUtils.getDetailsFromUrl(r.url);
-      var logo = CliqzUtils.getLogoDetails(details);
-      return {
-        title: r.title,
-        description: r.description,
-        short_title: r.short_title,
-        displayUrl: details.domain || r.title,
-        url: r.url,
-        text: logo.text,
-        backgroundColor: logo.backgroundColor,
-        buttonsClass: logo.buttonsClass,
-        style: logo.style
-      };
-    });
-    if(!CliqzHandlebars.tplCache.topnews || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
-      return setTimeout(CLIQZEnvironment.displayTopNews, 100, news);
-    }
-    var topNews = CliqzHandlebars.tplCache['topnews'];
-    var div = window.document.getElementById('topNews');
-    div.innerHTML = topNews(top_news);
-    CLIQZEnvironment.addEventListenerToElements('.topNewsLink', 'click', function () {
-      CliqzUtils.telemetry({
-        type: 'home',
-        action: 'click',
-        target_type: 'topnews',
-        target_index: this.dataset.index
-      });
-    });
-  },
-  displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites || !CliqzUtils.locale[CliqzUtils.PREFERRED_LANGUAGE]) {
-      return setTimeout(CLIQZEnvironment.displayTopSites, 100, list);
-    }
-
-    if(!list.length) {
-      list = mockedHistory;
-    }
-
-    var indexList = {}, myList = [], domain, domainArr, mainDomain;
-    for(var i=0; i<list.length; i++) {
-      domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
-      domainArr = domain.split('.');
-      mainDomain = domainArr[domainArr.length-2].substr(0,10);
-      mainDomain = mainDomain.charAt(0).toUpperCase() + mainDomain.slice(1);
-      list[i].mainDomain = mainDomain;
-      indexList[mainDomain] = list[i];
-    }
-    for(i in indexList) {
-      myList.push(indexList[i]);
-    }
-    list = myList;
-
-    if(list.length < 4) {
-      list = list.concat(mockedHistory);
-    }
-
-    list = list.splice(0,4);
-
-    list = list.map(function(r){
-      var details = CliqzUtils.getDetailsFromUrl(r.url);
-      var logo = CliqzUtils.getLogoDetails(details);
-      return {
-        title: r.title,
-        displayUrl: details.domain || r.title,
-        url: r.url,
-        text: logo.text,
-        backgroundColor: logo.backgroundColor,
-        buttonsClass: logo.buttonsClass,
-        style: logo.style,
-        mainDomain: r.mainDomain,
-        baseDomain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[0],
-        domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]
-      };
-    });
-    var topSites = CliqzHandlebars.tplCache['topsites'];
-    var div = window.document.getElementById('topSites');
-    div.innerHTML = topSites(list);
-    CLIQZEnvironment.addEventListenerToElements('.topSitesLink', 'click', function () {
-      CliqzUtils.telemetry({
-        type: 'home',
-        action: 'click',
-        target_type: 'topsites',
-        target_index: this.dataset.index
-      });
-    });
-  },
   addEventListenerToElements: function (elementSelector, eventType, listener) {
     Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
       element.addEventListener(eventType, listener);
     });
   },
+
   initHomepage: function(firstTime) {
     if(!firstTime) {
       var start = document.getElementById('freshstart');
       start && (start.style.display = 'none');
     }
-    CLIQZEnvironment.getNews();
-    osBridge.getTopSites('CLIQZEnvironment.displayTopSites', 50);
+    osBridge.getTopSites('News.displayTopSites', 20);
   },
+
   setDefaultSearchEngine: function(engine) {
     localStorage.setObject('defaultSearchEngine', engine);
     var engineDiv = document.getElementById('defaultEngine');
@@ -726,8 +646,10 @@ CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
+    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var logo = CliqzUtils.getLogoDetails(details);
 
-    return Result.cliqzExtra(
+    var result =  Result.cliqzExtra(
       {
         data:
           {
@@ -735,11 +657,14 @@ CLIQZEnvironment = {
             title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
             action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
-            searchEngineUrl: engine.url
+            searchEngineUrl: engine.url,
+            logo: logo
           },
         subType: JSON.stringify({empty:true})
       }
     );
+    result.data.kind = ["CL"];
+    return result;
   },
   setClientPreferences: function(prefs) {
     for (var key in prefs) {

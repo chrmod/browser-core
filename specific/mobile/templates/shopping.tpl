@@ -4,7 +4,7 @@
     <div class='cliqz-result-type' ></div>
   </div>
   {{#if image.src}}
-    <div class="cliqz-image" style="
+    <div class="cliqz-image" data-style="
           background-image: url({{ image.src }});
           background-size: contain;
           width: 64px;
@@ -22,11 +22,6 @@
          style='padding-bottom: 0px;'>
       {{ title }}
     </div>
-    {{#if debug}}
-      <span class='cliqz-result-debug overflow'>
-        <span>{{ debug }}</span>
-      </span>
-    {{/if}}
     <div class='cliqz-result-url-box overflow'>
       <span class='cliqz-result-url-host
         {{#if urlDetails.ssl }}

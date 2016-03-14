@@ -13,15 +13,16 @@ CLIQZ.Core = {
 }
 
 
-Handlebars.registerHelper("debug", function(optionalValue) {
-  console.log("Debug Current Context");
-  console.log(this);
 
-  if (optionalValue) {
-    console.log("Debug Value"); 
-    console.log(optionalValue);
-  }
+Handlebars.registerHelper("debug", function(optionalValue) {
+  console.log("%c Template Data " + this.vertical + " ","color:#fff;background:green",this);
 });
+
+
+Handlebars.registerHelper("trimNumbers", function(number) {
+  return Math.round(number);
+});
+
 
 Handlebars.registerHelper('conversationsTime', function(time) {
     var d = new Date(time);
@@ -58,8 +59,6 @@ Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equ
 Handlebars.registerHelper('mobileWikipediaUrls', function(url) { 
   return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
 });
-
-
 
 function trace() {
   try {
@@ -332,6 +331,40 @@ CLIQZ.UI.VIEWS["stocks"] = {
   }
 }
 
+actionsExternal = [];
+
+CLIQZ.UI.VIEWS["_generic"] 
+= CLIQZ.UI.VIEWS["entity-generic"] 
+= CLIQZ.UI.VIEWS["hq"] = {
+
+  enhanceResults: function(data) {
+
+    for(var i in data.external_links) {
+      data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
+    }
+
+    if( data.richData && data.richData.additional_sources) {
+      for(var i in data.richData.additional_sources) {
+        data.richData.additional_sources[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.richData.additional_sources[i].url));
+      }  
+    }
+
+    for(var i in data.news) {
+      data.news[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.news[i].url));
+    }
+
+    if(data.actions && data.external_links) {
+      data.actionsExternalMixed = data.actions.concat(data.external_links);
+      data.actionsExternalMixed.sort(function(a,b) { 
+        if (a.rank < b.rank) {return 1;}
+        if (a.rank > b.rank) {return -1;}
+        return 0;
+      });
+    }
+    
+  }
+}
+
 
 CLIQZ.UI.VIEWS["weatherEZ"] = {
   enhanceResults: function(data) {
@@ -363,8 +396,9 @@ CLIQZ.UI.VIEWS["currency"] = {
 function switchCurrency(data) {
   var fromInput = document.getElementById("fromInput");
 
-  var convRate = 1 / parseFloat(data.mConversionRate);
+  var convRate = 1 / data.mConversionRate;
   data.mConversionRate = convRate + "";
+  convRate *= data.multiplyer;
   var fromValue = getNumValue(parseFloat(fromInput.value));
   data.toAmount.main = getNumValue(fromValue * convRate);
   data.fromAmount = fromValue;
@@ -377,14 +411,16 @@ function switchCurrency(data) {
   data.formSymbol = data.toSymbol;
   data.toSymbol = temp;
 
+  data.multiplyer = 1 / data.multiplyer;
+
   updateCurrencyTpl(data);
 }
 
 function updateFromValue(data) {
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
-  var toAmount = document.getElementById("toAmount");
-  var toValue = getNumValue(parseFloat(fromInput.value) * parseFloat(data.mConversionRate));
+  var toAmount = document.getElementById("calc-answer");
+  var toValue = getNumValue(fromInput.value / data.multiplyer * data.mConversionRate).toFixed(2) - 0;
   toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   toInput.value = toValue;
 }
@@ -392,15 +428,15 @@ function updateFromValue(data) {
 function updateToValue(data) {
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
-  var toAmount = document.getElementById("toAmount");
-  var toValue = getNumValue(parseFloat(toInput.value));
-  var fromValue = getNumValue(toValue / parseFloat(data.mConversionRate));
+  var toAmount = document.getElementById("calc-answer");
+  var toValue = getNumValue(toInput.value);
+  var fromValue = getNumValue(toValue * data.multiplyer / data.mConversionRate).toFixed(2);
   toAmount.innerText = toValue.toLocaleString(CliqzUtils.PREFERRED_LANGUAGE);
   fromInput.value = fromValue;
 }
 
 function getNumValue(value) {
-  return (isNaN(value) || value + 0.005 <= 0 ? 0 : value).toFixed(2); // rounding value
+  return (isNaN(value) || value <= 0 ? 0 : value - 0); // rounding value
 }
 
 function updateCurrencyTpl(data) {
@@ -513,16 +549,11 @@ Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
 });
 
 function getCardUrl() {
+  var NOT_SHAREABLE_SIGNAL = '-1';
   if(CLIQZEnvironment.lastResults && CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage]) {
-    osBridge.shareCard(CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage].url);
+    osBridge.shareCard(CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage].url || NOT_SHAREABLE_SIGNAL);
   } else {
-    osBridge.shareCard(-1);
+    osBridge.shareCard(NOT_SHAREABLE_SIGNAL);
   }
 };
 
-if( false && navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ) {
-    var styleEl = document.createElement('style'), styleSheet;
-    document.head.appendChild(styleEl);
-    styleSheet = styleEl.sheet;
-    styleSheet.insertRule("p.share_this_card { display: block }", 0);
-}

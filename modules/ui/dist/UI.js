@@ -249,10 +249,6 @@ var UI = {
                     else if (currentResults.results.length == 0) {
                       UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                     }
-                    // to handle broken promises (eg. Weather) on mobile
-                    else if (CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
-                        CLIQZEnvironment.shiftResults();
-                    }
                 }
                 else {
                   r.data = resp.data;
@@ -278,6 +274,10 @@ var UI = {
                       }
                   }
                 }
+              }
+              // to handle broken promises (eg. Weather and flights) on mobile
+              else if (r.data && r.data.__callback_url__ && CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
+                CLIQZEnvironment.shiftResults();
               }
               else {
                 res.splice(i,1);
@@ -643,6 +643,7 @@ var UI = {
       if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
         r.data.template = r.data.superTemplate;
       }
+
       specificView = UI.VIEWS[r.data.template];
       if (specificView && specificView.enhanceResults) {
         specificView.enhanceResults(r.data);
@@ -952,7 +953,7 @@ function unEscapeUrl(url){
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
     clearMessage('bottom');
-    var adult = false;
+    var adult = false, data;
 
     for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
@@ -978,47 +979,47 @@ function enhanceResults(res){
         //if(r.snippet.rich_data.type === "news")
 
         if (r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') === 0) {
-            var d = r.data;
-            if(d){
-              if(d.template && TEMPLATES.hasOwnProperty(d.template)){
-                r.vertical = d.template;
-                r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-                if (r.vertical == 'text') r.dontCountAsResult = true;
-              } else {
-                // double safety - to be removed
-                r.invalid = true;
-                r.dontCountAsResult = true;
-                continue;
-              }
-
-              // Display the title instead of the name, if available
-              if(d.title)
-                d.name = d.title;
+          var d = r.data;
+          if(d){
+            if(d.template && TEMPLATES.hasOwnProperty(d.template)){
+              r.vertical = d.template;
+              r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+              r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+              if (r.vertical == 'text') r.dontCountAsResult = true;
+            } else {
+              // double safety - to be removed
+              r.invalid = true;
+              r.dontCountAsResult = true;
+              continue;
             }
+
+            // Display the title instead of the name, if available
+            if(d.title)
+              d.name = d.title;
+          }
         } else {
-            r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-            r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+          r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+          r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
-             if (getPartial(r.type) != 'images') {
-               r.image = constructImage(r.data);
-               //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
-             }
-            r.vertical = getPartial(r.type);
+           if (getPartial(r.type) != 'images') {
+             r.image = constructImage(r.data);
+             //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+           }
+          r.vertical = getPartial(r.type);
 
-            //extract debug info from title
-            var _tmp = getDebugMsg(r.title);
-            r.title = _tmp[0];
-            r.debug = _tmp[1];
-            if(!UI.showDebug)
-                r.debug = null;
+          //extract debug info from title
+          var _tmp = getDebugMsg(r.title);
+          r.title = _tmp[0];
+          r.debug = _tmp[1];
+          if(!UI.showDebug)
+              r.debug = null;
 
-            //extract tags from title
-            if(r.type.split(' ').indexOf('tag') != -1) {
-                _tmp = getTags(r.title);
-                r.title = _tmp[0];
-                r.tags = _tmp[1];
-            }
+          //extract tags from title
+          if(r.type.split(' ').indexOf('tag') != -1) {
+              _tmp = getTags(r.title);
+              r.title = _tmp[0];
+              r.tags = _tmp[1];
+          }
         }
 
         r.width = res.width > 500 ? res.width : 500;
@@ -1173,6 +1174,8 @@ function enhanceResults(res){
       //   }
       // });
     }
+
+    
 
     return res;
 }

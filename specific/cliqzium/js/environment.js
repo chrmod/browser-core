@@ -316,7 +316,9 @@ if (typeof KeyEvent == "undefined") {
 
 //Lucian: temp hopefully
 CliqzLanguage = {
-	stateToQueryString: function(){ return ''; }
+	stateToQueryString: function(){ 
+        return '&lang=de,en';
+	}
 }
 CliqzHistory = {
     updateQuery: function(){},
