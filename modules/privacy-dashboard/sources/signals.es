@@ -48,8 +48,6 @@ var SignalListener = {
   httpGetOrigin: utils.httpGet, // used for fetching result and query log telemetry
   hwOrigin: CliqzHumanWeb.telemetry,  // todo: handle the case hw is inited AFTER this module
 
-  listening: false,
-
   SigCache: {
     "hw": {"sig": null, "timestamp": 0},
     "tel": {"sig": [], "timestamp": 0},
