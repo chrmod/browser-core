@@ -381,8 +381,14 @@ var Mixer = {
       if (result.data.urls && result.data.urls.length) {
         result.data.partials.push('history');
         var index = result.data.partials.indexOf('description');
+
         if (index > -1) {
-          result.data.partials.splice(index, 1);
+          if(result.data.urls.length <= 5) {
+            result.data.partials[index] = 'description-m';
+          }else {
+            result.data.urls = result.data.urls.slice(0, 6);
+            result.data.partials.splice(index, 1);
+          }
         }
       }
 
@@ -440,6 +446,7 @@ var Mixer = {
     if (results.length > 0) {
       cliqzExtra = Mixer._filterConflictingEZ(cliqzExtra, results[0]);
     }
+
 
     // Add custom results to the beginning if there are any
     if (customResults && customResults.length > 0) {
