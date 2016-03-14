@@ -33,10 +33,26 @@
     overflow-y: scroll;
 }
 
+.cqz-results .cqz-result-h1,
+.cqz-results .cqz-result-h2,
+.cqz-results .cqz-result-h3 {
+    padding: 16px 110px 16px 20px;
+}
+
+.cqz-results .cqz-ez-holder {
+    padding: 16px 110px 16px 20px;
+}
+
 .cqz-ellipsis {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    & > * {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .cqz-row-overflow {
@@ -117,12 +133,6 @@
 
 .cqz-results i {
     font-style: italic;
-}
-
-.cqz-results .cqz-result-h1,
-.cqz-results .cqz-result-h2,
-.cqz-results .cqz-result-h3 {
-    padding: 17px 125px 17px 22px;
 }
 
 .cqz-results .cqz-result-box > .cqz-result-h1,
@@ -222,11 +232,15 @@
 
 /* common */
 .cqz-results .cqz-ez-btns {
-    @extend .cqz-row-overflow;
-
     margin: 20px 0 0;
     height: 26px;
-    padding-right: 60px;
+
+    .cqz-ez-btns-holder {
+        @extend .cqz-row-overflow;
+
+        height: inherit;
+        padding-right: 60px;
+    }
 }
 
 .cqz-results a.cqz-ez-btn,
@@ -234,8 +248,9 @@
     @extend .cqz-ellipsis;
 
     display: inline-block;
+    max-width: 140px;
     line-height: 26px;
-    margin: 0 7px 4px 0;
+    margin: 0 5px 4px 0;
     padding: 0 9px;
     cursor: pointer;
     color: #fff;
@@ -337,59 +352,6 @@
     text-decoration: underline;
 }
 
-.cqz-results .cqz-ez-generic-elems,
-.cqz-results .cqz-ez-generic-box,
-.cqz-results .cqz-ez-generic-opt {
-    @extend .cqz-ellipsis;
-
-    height: 132px;
-}
-
-.cqz-results .cqz-ez-generic-elems {
-    padding-right: 70px;
-}
-
-.cqz-results .cqz-ez-generic-box {
-    float: left;
-}
-
-.cqz-results .cqz-ez-generic-box .cqz-ez-btn {
-    display: block;
-}
-
-.cqz-results .cqz-ez-generic-opt {
-    min-width: 130px;
-    max-width: 174px;
-    margin-left: 9px;
-    text-align: center;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 7px 18px 0;
-    border-radius: 3px;
-    cursor: pointer;
-    background-color: #efefef;
-
-}
-
-.cqz-results .cqz-ez-generic-opt:hover {
-    text-decoration: underline;
-}
-
-.cqz-results .cqz-ez-generic-opt div {
-    height: 65px;
-    width: 65px;
-    margin: 14px auto;
-    cursor: pointer;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.cqz-results .cqz-ez-generic-opt:hover div {
-    height: 69px;
-    width: 69px;
-    margin: 12px auto;
-}
 
 /* EZ banking */
 .cqz-results .cqz-ez-banking-box {
@@ -570,14 +532,6 @@
 
 .cqz-results .cqz-5-history-results .cliqz-pattern-element:nth-of-type(1n+6) {
     display: none;
-}
-
-.cqz-results .cqz-ez-generic .cqz-3-history-results {
-    margin-top: 21px;
-}
-
-.cqz-results .cqz-ez-generic .cqz-3-history-results .cliqz-pattern-element {
-    margin-bottom: 9px;
 }
 
 /*  no result */

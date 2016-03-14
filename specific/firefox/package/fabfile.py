@@ -211,7 +211,6 @@ def comment_cleaner(path=None):
 
     exclude_dirs = ['node_modules', 'bower_components', 'extern']
     ignore = [
-        'handlebars-v1.3.0.js',
         'ToolbarButtonManager.jsm',
         'math.min.jsm',
         'Validations.js',

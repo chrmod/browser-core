@@ -536,6 +536,9 @@
     "nationality": {
         "message": "Nationality"
     },
+    "history": {
+      "message":"History"
+    },
     "history_results": {
       "message":"Visited Sites"
     },

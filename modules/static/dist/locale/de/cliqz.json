@@ -536,6 +536,9 @@
     "nationality": {
         "message": "Nationalität"
     },
+    "history": {
+      "message":"Verlauf"
+    },
     "history_results": {
       "message":"Besuchte Seiten"
     },

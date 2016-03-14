@@ -33,6 +33,6 @@
 
       {{>EZ-history}}
     </div>
-    {{>EZ-category}}
+    {{>partials/ez-generic-buttons}}
     {{> logo}}
 </div>

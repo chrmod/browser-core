@@ -20,6 +20,7 @@
     "telemetry-categories",
     "antitracking",
     "performance",
-    "hpn"
+    "hpn",
+    "smart-cliqz-cache"
   ]
 }
