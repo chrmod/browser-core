@@ -18,12 +18,20 @@ function HttpRequestContext(subject) {
   // tab tracking
   if(this.isFullPage()) {
     // fullpage - add tracked tab
-    let tab_id = this.getOuterWindowID();
-    HttpRequestContext._tabs[tab_id] = this.url;
+    let tabId = this.getOuterWindowID();
+    HttpRequestContext._tabs[tabId] = {url: this.url, top: true};
+  } else if ( this.getContentPolicyType() === 7 ) {
+    // frame, push down tab source
+    let tabId = this.getOuterWindowID();
+    let parentId = this.getParentWindowID();
+    if (tabId != parentId) {
+      HttpRequestContext._tabs[tabId] = {url: this.url, top: false, parent: parentId};
+    }
   }
 }
 
 HttpRequestContext._tabs = {};
+HttpRequestContext._iframes = {};
 // clean up tab cache every minute
 HttpRequestContext._cleaner = null;
 
@@ -66,7 +74,10 @@ HttpRequestContext.prototype = {
   getLoadingDocument: function() {
     let parentWindow = this.getParentWindowID();
     if (parentWindow in HttpRequestContext._tabs) {
-      return HttpRequestContext._tabs[parentWindow];
+      while (!HttpRequestContext._tabs[parentWindow].top) {
+        parentWindow = HttpRequestContext._tabs[parentWindow].parent;
+      }
+      return HttpRequestContext._tabs[parentWindow].url;
     } else if (this.loadInfo != null) {
       return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument && this.loadInfo.loadingDocument.location ? this.loadInfo.loadingDocument.location.href : ""
     } else {
@@ -118,6 +129,9 @@ HttpRequestContext.prototype = {
     // however for frames, it is the parentWindowId
     let parentWindow = this.getParentWindowID();
     if (!this.isFullPage() && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
+      while (!HttpRequestContext._tabs[parentWindow].top) {
+        parentWindow = HttpRequestContext._tabs[parentWindow].parent;
+      }
       return parentWindow;
     } else {
       return this.getOuterWindowID();
