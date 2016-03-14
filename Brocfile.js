@@ -295,6 +295,7 @@ var mobile = new MergeTrees([
   new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
+  new Funnel(bowerTree,      { destDir: 'bower_components' }),
   new Funnel(modules,        { destDir: 'modules' })
 ]);
 
