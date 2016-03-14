@@ -19,14 +19,14 @@ function lastElementArray (arr) {
 function reformatSignalsFlat (sig, ignoreKeys=[], send="allowed") {
   var info = [];
   Object.keys(sig || []).forEach(function (name) {
-      if (ignoreKeys.indexOf(name) === -1) {
-        info.push({
-          "name": name,
-          "val": (sig[name] && typeof(sig[name]) === "object" ? JSON.stringify(sig[name]) : sig[name]).toString(),
-          "send": send,
-          "des": ""  // todo: fill in descriptions
-        });
-      }
+    if (ignoreKeys.indexOf(name) === -1 && (sig[name] !== null)) {
+      info.push({
+        "name": name,
+        "val": (sig[name] && typeof(sig[name]) === "object" ? JSON.stringify(sig[name]) : sig[name]).toString(),
+        "send": send,
+        "des": ""  // todo: fill in descriptions
+      });
+    }
     });
   return info;
 }
@@ -48,13 +48,15 @@ var SignalListener = {
   httpGetOrigin: utils.httpGet, // used for fetching result and query log telemetry
   hwOrigin: CliqzHumanWeb.telemetry,  // todo: handle the case hw is inited AFTER this module
 
+  listening: false,
+
   SigCache: {
     "hw": {"sig": null, "timestamp": 0},
     "tel": {"sig": [], "timestamp": 0},
     "ql": {"sig": null, "timestamp": 0}
   },
 
-  telSigAggregatePeriod: 10, // miliseconds, telemetry signal will be aggregate within this window (non-everlap)
+  //telSigAggregatePeriod: 10, // miliseconds, telemetry signal will be aggregate within this window (non-everlap)
 
   fireNewDataEvent: function (sigType) {
     if (streamMode === true) {
@@ -89,11 +91,11 @@ var SignalListener = {
   },
 
   monkeyPatchHttpGet: function () {
-    var queryLog = {}, arg = arguments;
+    var queryLog = {};
     SignalListener.httpGetOrigin.apply(this, arguments);
 
     var url = arguments[0];
-    if(url.indexOf(utils.RESULTS_PROVIDER) == 0 || url.indexOf(utils.RESULTS_PROVIDER_LOG) == 0){
+    if(url.startsWith(utils.RESULTS_PROVIDER) || url.startsWith(utils.RESULTS_PROVIDER_LOG)){
       var qs = utils.getDetailsFromUrl(url).query;
       var qsParams = utils.parseQueryString(qs);
       Object.keys(qsParams).forEach(function(key){
@@ -108,11 +110,43 @@ var SignalListener = {
   },
 
   init: function () {
-    utils.telemetry = SignalListener.monkeyPatchTelemetry;
-    utils.httpGet = SignalListener.monkeyPatchHttpGet;
-    CliqzHumanWeb.telemetry = SignalListener.monkeyPatchHmw;
+    if (!(SignalListener.monkeyPatchTelemetry &&  SignalListener.monkeyPatchHttpGet && SignalListener.monkeyPatchHmw)) {
+      SignalListener.telemetryOrigin = utils.telemetry;
+      SignalListener.httpGetOrigin = utils.httpGet;
+      SignalListener.hwOrigin = CliqzHumanWeb.telemetry;
+    }
+    if (SignalListener.monkeyPatchTelemetry &&  SignalListener.monkeyPatchHttpGet && SignalListener.monkeyPatchHmw) {
+      utils.telemetry = SignalListener.monkeyPatchTelemetry;
+      utils.httpGet = SignalListener.monkeyPatchHttpGet;
+      CliqzHumanWeb.telemetry = SignalListener.monkeyPatchHmw;
+
+      // if Signals only start listens only when someone open the dashboard -> there'll be no data to be shown
+      // to avoid disappointment from the users, we will show the last telemetry signal and the last Humanweb signal
+      // stored in the queue (if any)
+
+      // this should be the signal user clicking the privacy dashboard button
+      SignalListener.SigCache.tel = {"sig": [lastElementArray(utils.trk)], "timestamp": Date.now()};
+      // last human web signal
+      SignalListener.SigCache.hw = {"sig": lastElementArray(CliqzHumanWeb.trk), "timestamp": Date.now()};
+      return true;
+    }
+    return false;
+  },
+
+  stopListen: function () {
+    if (SignalListener.telemetryOrigin) {
+      utils.telemetry = SignalListener.telemetryOrigin;
+    }
+    if (SignalListener.httpGetOrigin) {
+      utils.httpGet = SignalListener.httpGetOrigin;
+    }
+    if (SignalListener.hwOrigin) {
+      CliqzHumanWeb.telemetry = SignalListener.hwOrigin;
+    }
+    return true;
   }
 };
+
 
 var HumanwebSignal = {
   /*
@@ -121,14 +155,18 @@ var HumanwebSignal = {
       2. publication on humanweb -> contact josep@cliqz.com
    */
   dataKey: "payload",
-  dataSubKey: ["c", "r"],
+  dataSubKey: ["c", "r", "e", "x", "red"],
   dataSubKeyDes: {
     "r": "Search result",
-    "c": "Visited page"
+    "c": "Visited page",
+    "e": "Count action",
+    "x": "Page info",
+    "red": "Redirected links"
   },
 
   reformatDataKey: function (data) {
-    var info = [], subKeyInfo = [];
+    var info = reformatSignalsFlat(data, HumanwebSignal.dataSubKey),
+      subKeyInfo = [];
 
     HumanwebSignal.dataSubKey.forEach(function (subKey) {
       if (data.hasOwnProperty(subKey)) {
@@ -137,10 +175,9 @@ var HumanwebSignal = {
         // add generic description
         if (HumanwebSignal.dataSubKeyDes.hasOwnProperty(subKey)) {
           subKeyInfo.forEach( function (item) {
-            item["des"] = HumanwebSignal.dataSubKeyDes[subKey];
+            item["des"] = HumanwebSignal.dataSubKeyDes[subKey] || "";
           });
         }
-
         info = info.concat(subKeyInfo);
       }
     });
@@ -166,15 +203,23 @@ var Signals = {
     myName = dns.myHostName,
     record = dns.resolve(myName, 0);
 
-    while (record.hasMore()) Signals.IPs = Signals.IPs + " " + record.getNextAddrAsString();
-  },
-  // TODO: implement stop listening when no dashboards are active
-  startListening: function() {
-    if(!Signals.initialized){
-      SignalListener.init();
-      Signals.initialized = true;
+    while (record.hasMore()) {
+      Signals.IPs = Signals.IPs + " " + record.getNextAddrAsString();
     }
   },
+
+  startListening: function() {
+    if(!Signals.initialized){
+      Signals.initialized = SignalListener.init();
+    }
+  },
+
+  stopListening: function () {
+    if(Signals.initialized) {
+      Signals.initialized = !SignalListener.stopListen();
+    }
+  },
+
   setStreaming: function (boolVal) {
     streamMode = boolVal;
   },
@@ -198,29 +243,34 @@ var Signals = {
         "query": "what you search"
       }, [], "blocked"));
     }
+
     if (sigType === "ql") {
       info = reformatSignalsFlat(sig)
         .concat(reformatSignalsFlat({
           "search history": "private URLs"
         }, [], "blocked"));
 
-      if(sig.loc == undefined){
+      if (info.length > 0) {
+        if(sig.loc === undefined){
           info = info.concat(reformatSignalsFlat({
             "GPS": "your location"
           }, [], "blocked"));
-      }
-      if(utils.getPref("hpn-query") == true){
+        }
+        if(utils.getPref("hpn-query") === true){
           info = info.concat(reformatSignalsFlat({
-            "your identity": "your IP/IDs: " + Signals.IPs,
+            "your identity": "your IP/IDs: " + Signals.IPs
           }, [], "blocked"));
+        }
       }
     }
+
     if (sigType === "hw") {
-      info = HumanwebSignal.reformatSignals(sig)
-        .concat(reformatSignalsFlat({
-          "your identity": "your IP/IDs: " + Signals.IPs,
+      info = HumanwebSignal.reformatSignals(sig);
+      if (info.length > 0) {
+        info = info.concat(reformatSignalsFlat({
+          "your identity": "your IP/IDs: " + Signals.IPs
         }, [], "blocked"));
-      utils.log(info, "reformatSignals, info = ");
+      }
     }
 
     return info;
@@ -229,13 +279,13 @@ var Signals = {
   getSignalsToDashboard: function () {
     var info = {};
     Object.keys(SignalListener.SigCache).forEach(function (sigType) {
-      if(sigType == "hw" && utils.getPref('dnt') == true){
+      if(sigType === "hw" && utils.getPref("dnt") === true){
         info[sigType] = [{
           "name": "",
           "val": "Human Web ist nicht aktiviert",
           "send": "inactive",
           "unique": true,
-          "des": ""  // todo: fill in descriptions
+          "des": ""
         }];
       } else {
         info[sigType] = Date.now() - SignalListener.SigCache[sigType].timestamp < Signals.sigExpireTime ?
