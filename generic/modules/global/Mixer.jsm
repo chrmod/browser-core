@@ -62,8 +62,10 @@ var Mixer = {
       CliqzUtils.log('Init', 'Mixer');
       CliqzUtils.importModule("smart-cliqz-cache/background").then((module) => {
         CliqzSmartCliqzCache = module.default.smartCliqzCache;
+      }).catch((error) => {
+        CliqzUtils.log('Failed loading SmartCliqzCache');
       });
-    }, 3000);
+    }, 0);
   },
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
@@ -290,7 +292,7 @@ var Mixer = {
   },
 
   // Take the first entry (if history cluster) and see if we can trigger an EZ
-  //  with it, this will override an EZ sent by backend.
+  // with it, this will override an EZ sent by backend.
   _historyTriggerEZ: function(result) {
     if (!result || !result.data ||
        !result.data.cluster || // if not history cluster
@@ -422,7 +424,9 @@ var Mixer = {
     }
 
     // Cache any EZs found
-    Mixer._cacheEZs(cliqzExtra);
+    if (CliqzSmartCliqzCache) {
+      Mixer._cacheEZs(cliqzExtra);
+    }
 
     // Prepare other incoming data
     cliqz = Mixer._prepareCliqzResults(cliqz || []);
@@ -444,9 +448,11 @@ var Mixer = {
     var results = r.first.concat(r.second);
 
     // Trigger EZ with first entry
-    var historyEZ = Mixer._historyTriggerEZ(results[0]);
-    if (historyEZ) {
-      cliqzExtra = [historyEZ];
+    if (CliqzSmartCliqzCache) {
+      var historyEZ = Mixer._historyTriggerEZ(results[0]);
+      if (historyEZ) {
+        cliqzExtra = [historyEZ];
+      }
     }
 
     // Filter conflicting EZs
