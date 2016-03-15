@@ -88,6 +88,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       testServer.registerDirectory('/bower_components/', ['bower_components']);
       // add specific handler for /test which will collect request parameters for testing.
       testServer.registerPathHandler('/test', collect_request_parameters);
+      testServer.registerPathHandler('/tracker302', function(request, response) {
+        response.setStatusLine('1.1', 302);
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.setHeader('Pragma', 'no-cache');
+        response.setHeader('Expires', '0');
+        response.setHeader('Location', 'http://127.0.0.1:'+ testServer.port +'/test?'+ request.queryString);
+        console.log('tracker302');
+      });
     }
 
     beforeEach(function() {
@@ -322,6 +331,50 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'type_2': 1,
                 'cookie_set': 1
+              }
+            }
+          }
+        }
+      },
+      'image302test.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'type_3': 1
+              }
+            }
+          }
+        }
+      },
+      'nestediframetest.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/iframe.html': {
+                'c': 1,
+                'cookie_set': 1,
+                'type_7': 1
+              },
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'type_11': 1
+              },
+              '/bower_components/jquery/dist/jquery.js': {
+                'c': 1,
+                'type_2': 1,
+                'cookie_set': 1
+              }
+            },
+            'cliqztest.de': {
+              '/proxyiframe.html': {
+                'c': 1,
+                'type_7': 1
               }
             }
           }
@@ -621,7 +674,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
                 if(testpage == "imgtest.html") {
                   tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_red_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
-                }                  
+                }
                 else {
                   tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_blocked_replace', 1);
                 }

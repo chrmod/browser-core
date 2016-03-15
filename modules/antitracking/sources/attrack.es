@@ -488,7 +488,7 @@ var CliqzAttrack = {
                                 aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
                                 cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
                                 aChannel.notificationCallbacks = cListener;
-                            }                            
+                            }
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
@@ -784,6 +784,11 @@ var CliqzAttrack = {
             }
 
             req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+
+            if (req_log && req_log.c === 0) {
+                CliqzAttrack.httpopenObserver.observe(subject, topic, data);
+                req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+            }
             tp_events.incrementStat(req_log, 'cookie_set');
             if (source_url.indexOf('about:')==0) {
                 // it's a brand new tab, and the url is loaded externally,
