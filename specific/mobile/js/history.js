@@ -127,7 +127,6 @@ function displayData(data) {
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchend', function () {
     var type = this.getAttribute('class');
     var clickAction = type.indexOf('question') >= 0 ? osBridge.notifyQuery : osBridge.openLink;
-    console.log('timer', touchTimer);
     if(touchTimer) {
       clearTimeout(touchTimer);
       touchTimer = null;

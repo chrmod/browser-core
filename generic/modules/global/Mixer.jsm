@@ -60,9 +60,9 @@ var Mixer = {
   init: function() {
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
-      CliqzUtils.importModule("smart-cliqz-cache/background").then((module) => {
+      CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
         CliqzSmartCliqzCache = module.default.smartCliqzCache;
-      }).catch((error) => {
+      }).catch(function(error) {
         CliqzUtils.log('Failed loading SmartCliqzCache');
       });
     }, 0);
