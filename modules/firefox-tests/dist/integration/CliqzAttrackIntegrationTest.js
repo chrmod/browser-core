@@ -349,6 +349,36 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             }
           }
         }
+      },
+      'nestediframetest.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/iframe.html': {
+                'c': 1,
+                'cookie_set': 1,
+                'type_7': 1
+              },
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'type_11': 1
+              },
+              '/bower_components/jquery/dist/jquery.js': {
+                'c': 1,
+                'type_2': 1,
+                'cookie_set': 1
+              }
+            },
+            'cliqztest.de': {
+              '/proxyiframe.html': {
+                'c': 1,
+                'type_7': 1
+              }
+            }
+          }
+        }
       }
     };
 
