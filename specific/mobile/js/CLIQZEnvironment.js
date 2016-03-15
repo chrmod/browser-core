@@ -89,7 +89,6 @@ CLIQZEnvironment = {
     CLIQZEnvironment.CARD_WIDTH = window.innerWidth - CLIQZEnvironment.PADDING - 2 * CLIQZEnvironment.PEEK;
   },
   shiftResults: function() {
-    alert('shiftresults');
     var frames = document.getElementsByClassName('frame');
     for (var i = 0; i < frames.length; i++) {
       var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
@@ -310,16 +309,6 @@ CLIQZEnvironment = {
 
     if(e === 'testme') {
       initTest();
-    }
-
-    if(e === 'josep') {
-      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
-      alert("switched to beta mixer with joseps magic links");
-    } 
-
-    if(e === 'nojosep') {
-      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
-      alert("switched to live mixer withOUT joseps magic links");
     }
 
     CLIQZEnvironment.startProgressBar();

@@ -336,7 +336,7 @@ var System = {
             var mod = get(normalizedName);
             return mod ? resolve(mod) : load(name).then(function () {
                 resolve(get(normalizedName));
-            });
+            }).catch((error) => reject(error));
         });
     },
     register: function(name, deps, wrapper) {
