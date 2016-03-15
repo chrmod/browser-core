@@ -15,23 +15,26 @@ function HttpRequestContext(subject) {
   this._parsedURL = undefined;
   this._legacy_source = undefined;
 
+  let tabId = this.getOuterWindowID();
+  let parentId = this.getParentWindowID();
   // tab tracking
   if(this.isFullPage()) {
     // fullpage - add tracked tab
-    let tabId = this.getOuterWindowID();
-    HttpRequestContext._tabs[tabId] = {url: this.url, top: true};
+    HttpRequestContext.deleteTab(tabId); // clear old tab and children
+    HttpRequestContext._tabs[tabId] = {url: this.url, top: true, id: tabId};
   } else if ( this.getContentPolicyType() === 7 ) {
-    // frame, push down tab source
-    let tabId = this.getOuterWindowID();
-    let parentId = this.getParentWindowID();
+    // frame, add tab with parent
+    // need this check to guarantee tree search will terminate
     if (tabId != parentId) {
-      HttpRequestContext._tabs[tabId] = {url: this.url, top: false, parent: parentId};
+      HttpRequestContext._tabs[tabId] = {url: this.url, top: false, parent: parentId, id: tabId};
     }
+  } else if (!(tabId in HttpRequestContext._tabs) && parentId in HttpRequestContext._tabs) {
+    // new tab id, but not a frame request
+    HttpRequestContext._tabs[tabId] = {url: this.url, top: false, parent: parentId, id: tabId, origin: this.getContentPolicyType()};
   }
 }
 
 HttpRequestContext._tabs = {};
-HttpRequestContext._iframes = {};
 // clean up tab cache every minute
 HttpRequestContext._cleaner = null;
 
@@ -39,8 +42,8 @@ HttpRequestContext.initCleaner = function() {
   if (!HttpRequestContext._cleaner) {
     HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
       for (let t in HttpRequestContext._tabs) {
-        if(!CliqzAttrack.tab_listener.isWindowActive(t)) {
-          delete HttpRequestContext._tabs[t];
+        if(HttpRequestContext._tabs[t].top && !CliqzAttrack.tab_listener.isWindowActive(t)) {
+          HttpRequestContext.deleteTab(t);
         }
       }
     }, 60000);
@@ -50,6 +53,20 @@ HttpRequestContext.initCleaner = function() {
 HttpRequestContext.unloadCleaner = function() {
   CliqzUtils.clearInterval(HttpRequestContext._cleaner);
   HttpRequestContext._cleaner = null;
+};
+
+HttpRequestContext.deleteTab = function(tabId) {
+  var childTabs = [];
+  for (let id in HttpRequestContext._tabs) {
+    let tab = HttpRequestContext._tabs[id];
+    if (tab.parent == tabId) {
+      childTabs.push(id);
+    }
+  }
+  delete HttpRequestContext._tabs[tabId];
+  childTabs.forEach( (t) => {
+    HttpRequestContext.deleteTab(t);
+  });
 };
 
 HttpRequestContext.prototype = {
@@ -74,7 +91,7 @@ HttpRequestContext.prototype = {
   getLoadingDocument: function() {
     let parentWindow = this.getParentWindowID();
     if (parentWindow in HttpRequestContext._tabs) {
-      while (!HttpRequestContext._tabs[parentWindow].top) {
+      while (HttpRequestContext._tabs[parentWindow] && !HttpRequestContext._tabs[parentWindow].top) {
         parentWindow = HttpRequestContext._tabs[parentWindow].parent;
       }
       return HttpRequestContext._tabs[parentWindow].url;
@@ -129,7 +146,7 @@ HttpRequestContext.prototype = {
     // however for frames, it is the parentWindowId
     let parentWindow = this.getParentWindowID();
     if (!this.isFullPage() && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
-      while (!HttpRequestContext._tabs[parentWindow].top) {
+      while (HttpRequestContext._tabs[parentWindow] && !HttpRequestContext._tabs[parentWindow].top) {
         parentWindow = HttpRequestContext._tabs[parentWindow].parent;
       }
       return parentWindow;
