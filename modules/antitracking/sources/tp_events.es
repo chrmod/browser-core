@@ -223,9 +223,8 @@ var tp_events = {
             // if we still have some data, send the telemetry
             if(payload_data.length > 0) {
                 if (CliqzAttrack.debug) CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
-                var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled(), 'bloomFilter': CliqzAttrack.isBloomFilterEnabled(), 'trackTxt': CliqzAttrack.isTrackerTxtEnabled()};
                 for (var i = 0; i < payload_data.length; i++) {
-                    var payl = {'data': [payload_data[i]], 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon, 'observers': CliqzAttrack.obsCounter, 'updateInTime': CliqzAttrack.qs_whitelist.isUpToDate()};
+                    var payl = {'data': [payload_data[i]], 'ver': CliqzAttrack.VERSION, 'addons': CliqzAttrack.similarAddon, 'updateInTime': CliqzAttrack.qs_whitelist.isUpToDate()};
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
                 }
             }

@@ -3,6 +3,7 @@ import * as datetime from 'antitracking/time';
 import { events } from 'core/cliqz';
 import CliqzAttrack from 'antitracking/attrack';
 import CliqzHumanWeb from 'human-web/human-web';
+import pacemaker from 'antitracking/pacemaker';
 
 const safeKeyExpire = 7;
 
@@ -17,17 +18,34 @@ export default class {
 
   init() {
     this.safeKeys.load();
-
-    // every hour, prune and send safekeys
-    this.hourlyPruneAndSend = () => {
-      this._pruneSafeKeys();
-      this._sendSafeKeys();
-    }.bind(this);
-    events.sub('attrack:hour_changed', this.hourlyPruneAndSend);
+    pacemaker.register(this._hourlyPruneAndSend.bind(this), 60 * 60 * 1000);
   }
 
   destroy() {
-    events.un_sub('attrack:hour_changed', this.hourlyPruneAndSend);
+  }
+
+  get _safeKeysLastSent() {
+    let lastSent = persist.getValue('safeKeysLastSent');
+    if (!lastSent) {
+      lastSent = datetime.getTime();
+      this._safeKeysLastSent = lastSent;
+    }
+    return lastSent;
+  }
+
+  set _safeKeysLastSent(value) {
+    persist.setValue('safeKeysLastSent', value);
+  }
+
+  _hourlyPruneAndSend() {
+    // every hour, prune and send safekeys
+    var now = datetime.getTime();
+    this._pruneSafeKeys();
+
+    if (this._safeKeysLastSent < now) {
+      this._sendSafeKeys();
+      this._safeKeysLastSent = now;
+    }
   }
 
   isSafeKey(domain, key) {

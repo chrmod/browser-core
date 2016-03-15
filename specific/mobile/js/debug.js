@@ -73,16 +73,6 @@ function trace() {
 // overriding things
 CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 
-setTimeout(() => {
-  System.import("smart-cliqz-cache/background").then(function (module) {
-    module.default.init();
-    module.default.smartCliqzCache._prepareCustomData = function () {};
-  }).catch(function () {
-    console.log("error", arguments)
-  });
-}, 0);
-
-
 // end of overriding things
 
 CLIQZ.Core.popup.hidePopup = function() {}
