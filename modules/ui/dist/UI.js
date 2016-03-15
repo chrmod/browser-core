@@ -182,7 +182,6 @@ var UI = {
 
     // results function
     results: function(res){
-
         currentResults = enhanceResults(res);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
@@ -645,7 +644,7 @@ var UI = {
         r.data.template = r.data.superTemplate;
       }
 
-      specificView = UI.VIEWS[r.data.template];
+      specificView = UI.VIEWS[r.data.template] || UI.VIEWS.generic;
       if (specificView && specificView.enhanceResults) {
         specificView.enhanceResults(r.data);
       }

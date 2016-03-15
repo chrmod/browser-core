@@ -6,7 +6,13 @@ import { utils, events } from 'core/cliqz';
 export default {
 
   init(settings) {
-    this.buttonEnabled = settings.antitrackingButton && utils.getPref('attrackUI', false);
+    this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
+
+    // fix for users without pref properly set: set to value from build config
+    if ( !utils.hasPref('attrackRemoveQueryStringTracking') ) {
+      utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
+    }
+
     this.enabled = false;
 
     utils.bindObjectFunctions( this.popupActions, this );

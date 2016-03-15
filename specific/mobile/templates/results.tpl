@@ -2,7 +2,7 @@
 
 {{#each results}}
 	{{#unless invalid}}
-		<div class="frame" {{#if ../../frameWidth }} style="width: {{ ../../../frameWidth }}px; left: {{ left }}px" {{/if}}>
+		<div class="frame" {{#if ../frameWidth }} style="width: {{ ../frameWidth }}px; left: {{ left }}px" {{/if}}>
 			<div class="card">
 				<div class="cqz-result-box"
 					type='{{ type }}'

@@ -149,7 +149,7 @@ var CliqzCalculator = {
     if (this.CALCULATOR_RES === null || this.CALCULATOR_RES === q) {
       return null;
     }
-    var expandedExpression = this.IS_UNIT_CONVERTER ? this.BASE_UNIT_CONVERTER : mathLib.parse(q).toString(),
+    var expandedExpression = this.IS_UNIT_CONVERTER ? this.BASE_UNIT_CONVERTER : mathLib.parse(this.clean(q)).toString(),
       resultSign = this.shortenNumber()[0];
 
     return Result.cliqzExtra(

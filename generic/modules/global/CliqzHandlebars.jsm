@@ -11,7 +11,7 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js', this);
+Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
@@ -23,6 +23,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       'onboarding-callout',
       'onboarding-callout-extended',
       'slow_connection',
+      'partials/location/missing_location_step_2',
+      'partials/location/no-locale-data',
       'partials/missing_location_2',
       'partials/no-locale-data'
     ],
@@ -30,9 +32,16 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'url',
         'logo',
         'EZ-category',
+        'partials/ez-title',
+        'partials/ez-url',
+        'partials/ez-history',
+        'partials/ez-description',
+        'partials/ez-generic-buttons',
         'EZ-history',
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
+        'partials/location/local-data',
+        'partials/location/missing_location_step_1',
         'partials/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie'
@@ -236,7 +245,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('log', function(value, key) {
-        console.log('TEMPLATE LOG HELPER', value);
+        CliqzUtils.log(value, 'TEMPLATE LOG HELPER');
     });
 
     Handlebars.registerHelper('toLowerCase', function(str) {

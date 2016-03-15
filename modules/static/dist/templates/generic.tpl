@@ -1,15 +1,17 @@
-<div class='cqz-result-h3'>
-    <div class='cqz-result-center'>
-      <div class='cqz-result-title overflow' arrow-override=''><a extra="title" href="{{url}}">{{ emphasis title text 2 true }}</a></div>
-      <div class='cqz-result-url overflow
-                {{#if urlDetails.ssl }}
-                     cqz-result-url-ssl
-                {{/if}}' extra="url">
-        {{ emphasis urlDetails.friendly_url text 2 true }}
-      </div>
-      <div class='cqz-result-desc overflow'>
-            <span extra="des">{{ emphasis data.description text 2 true }}</span>
-      </div>
+<!-- Resize to include history -->
+<div class="{{ data.genericZone.class }} cqz-ez-holder cqz-ez-generic">
+    <div class="cqz-zone-holder">
+        {{! Debug }}
+        {{#if debug}} <div class='cqz-result-debug'>{{ debug }}</div> {{/if}}
+        {{! /Debug }}
+
+        {{#each data.genericZone.partials as |partial| }}
+            {{!Last argument .. send the correct data to the partial }}
+            {{> (lookup ../data.genericZone.partials @index) ..}}
+        {{/each}}
+
+        {{> logo }}
     </div>
-    {{> logo}}
 </div>
+
+

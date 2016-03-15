@@ -29,6 +29,12 @@
             "extra": {
                 "ts": 1437568920,
                 "data": {
+                    "__subType__": {
+                      "class": "EntityPortal",
+                      "id": "-3288035892634213924",
+                      "name": "GMX"
+
+                    },
                     "categories": [
                         {
                             "title": "Email",
@@ -84,7 +90,7 @@
                     "template": "entity-portal"
                 },
                 "url": "http://www.gmx.de",
-                "subType": "{\"ez\": \"-3288035892634213924\"}",
+                "subType": "{\"class\": \"EntityPortal\", \"ez\": \"deprecated\"}",
                 "trigger_urls": [
                     "gmx.de"
                 ]

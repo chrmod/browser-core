@@ -7,7 +7,7 @@
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "04",
-    "antitrackingButton": true
+    "antitrackingButton": false
   },
   "modules": [
     "static",
@@ -20,6 +20,7 @@
     "telemetry-categories",
     "antitracking",
     "performance",
-    "hpn"
+    "hpn",
+    "smart-cliqz-cache"
   ]
 }

@@ -21,6 +21,7 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
+import { cookieChecker } from 'antitracking/cookie-checker'
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -100,6 +101,7 @@ var CliqzAttrack = {
     localBlockExpire: 24,
     shortTokenLength: 8,
     safekeyValuesThreshold: 4,
+    cChecker: new cookieChecker(),
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     placeHolder: '',
@@ -482,9 +484,11 @@ var CliqzAttrack = {
                                 }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             }
-                            aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
-                            cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
-                            aChannel.notificationCallbacks = cListener;
+                            if (rule != 'same') {
+                                aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
+                                cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
+                                aChannel.notificationCallbacks = cListener;
+                            }                            
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
@@ -739,7 +743,6 @@ var CliqzAttrack = {
             }
 
             source_url_parts = URLInfo.get(source_url);
-
             var req_log = null;
             if(request_type != 'fullpage' && source_url_parts && source_tab != -1) {
                 // req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
@@ -819,26 +822,29 @@ var CliqzAttrack = {
             }
 
             // check if user initiated this request by an element click.
-            if (CliqzHumanWeb.contextFromEvent) {
-                var diff = curr_time - (CliqzHumanWeb.contextFromEvent.ts || 0);
+            if (CliqzAttrack.cChecker.contextFromEvent) {
+                var diff = curr_time - (CliqzAttrack.cChecker.contextFromEvent.ts || 0);
                 if (diff < CliqzAttrack.timeAfterLink) {
 
+                    var host = getGeneralDomain(url_parts.hostname);
+                    if (host === CliqzAttrack.cChecker.contextFromEvent.gDM) {
+                        CliqzAttrack.visitCache[host] = curr_time;
+                        var src = null;
+                        if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
+                        tp_events.incrementStat(req_log, 'cookie_allow_userinit_same_context_gd');
+                        CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
+                        return;
+                    }
                     var pu = url.split(/[?&;]/)[0];
-
-                    if (CliqzHumanWeb.contextFromEvent.html.indexOf(pu)!=-1) {
-                        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzHumanWeb.contextFromEvent.html, CliqzAttrack.LOG_KEY);
+                    if (CliqzAttrack.cChecker.contextFromEvent.html.indexOf(pu)!=-1) {
+                        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzAttrack.cChecker.contextFromEvent.html, CliqzAttrack.LOG_KEY);
 
                         // the url is in pu
                         if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                            var host = getGeneralDomain(url_parts.hostname);
-                            //var host = url_parts.hostname;
-                            if (host=='google.com') {
-                                if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url_parts.hostname + ' (CONTEXT EVENT)', CliqzAttrack.LOG_KEY);
-                            }
+
                             CliqzAttrack.visitCache[host] = curr_time;
-                            var src = null;
-                            if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
-                            tp_events.incrementStat(req_log, 'cookie_allow_userinit');
+
+                            tp_events.incrementStat(req_log, 'cookie_allow_userinit_same_gd_link');
                             CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
                             return;
                         }
@@ -862,12 +868,6 @@ var CliqzAttrack = {
 
                                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH and click " + url, CliqzAttrack.LOG_KEY);
                                 var host = getGeneralDomain(url_parts.hostname);
-                                //var host = url_parts.hostname;
-                                //if (host=='google.com') {
-                                //    if (CliqzAttrack.debug) CliqzUtils.log("ADDING google to visitCache: " + url + ' (CONTEXT OAUTH)', CliqzAttrack.LOG_KEY);
-                                //}
-                                //CliqzAttrack.visitCache[host] = curr_time;
-
                                 var src = null;
                                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                                 tp_events.incrementStat(req_log, 'cookie_allow_oauth');
@@ -1081,10 +1081,10 @@ var CliqzAttrack = {
         if (source_hostname != undefined && CliqzAttrack.isSourceWhitelisted(source_hostname)) {
             return false;
         }
-        return CliqzUtils.getPref('attrackBlockCookieTracking', false);
+        return CliqzUtils.getPref('attrackBlockCookieTracking', true);
     },
     isQSEnabled: function() {
-        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', false);
+        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', true);
     },
     isPostEnabled: function() {
         return CliqzUtils.getPref('attrackAlterPostdataTracking', false);
@@ -1350,6 +1350,7 @@ var CliqzAttrack = {
         window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
 
         CliqzAttrack.getPrivateValues(window);
+        CliqzAttrack.cChecker.addListeners(window);
     },
     unload: function() {
         // don't need to unload if disabled
@@ -1388,6 +1389,7 @@ var CliqzAttrack = {
         if (window.CLIQZ) {
             window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
         }
+        CliqzAttrack.cChecker.removeListeners(window);
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
@@ -1430,32 +1432,32 @@ var CliqzAttrack = {
             payl = CliqzAttrack.qs_whitelist.attachVersion(payl);
         return payl;
     },
-    sendTokens: function(hourChanged) {
+    sendTokens: function() {
         // send tokens every 5 minutes
         let data = {},
-            hour = datetime.getTime();
-        if (!hourChanged) {  // send 1/12 of data
-            for (let tracker in CliqzAttrack.tokens) {
-                if (Object.keys(data).length > Object.keys(CliqzAttrack.tokens).length / 12) {
-                    break;
-                }
-                let tokenData = CliqzAttrack.tokens[tracker];
-                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-                    data[tracker] = tokenData;
-                    delete(data[tracker].lastSent);
-                    delete(CliqzAttrack.tokens[tracker]);
-                }
+            hour = datetime.getTime(),
+            limit = Object.keys(CliqzAttrack.tokens).length / 12;
+
+        // sort tracker keys by lastSent, i.e. send oldest data first
+        let sortedTrackers = Object.keys(CliqzAttrack.tokens).sort((a, b) => {
+            return parseInt(CliqzAttrack.tokens[a].lastSent || 0) - parseInt(CliqzAttrack.tokens[b].lastSent || 0)
+        });
+
+        for (let i in sortedTrackers) {
+            let tracker = sortedTrackers[i];
+
+            if (limit > 0 && Object.keys(data).length > limit) {
+                break;
             }
-        } else {  // send everything that has not been send in the last hour
-            for (let tracker in CliqzAttrack.tokens) {
-                let tokenData = CliqzAttrack.tokens[tracker];
-                if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-                    data[tracker] = tokenData;
-                    delete(data[tracker].lastSent);
-                    delete(CliqzAttrack.tokens[tracker]);
-                }
+
+            let tokenData = CliqzAttrack.tokens[tracker];
+            if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
+                data[tracker] = tokenData;
+                delete(data[tracker].lastSent);
+                delete(CliqzAttrack.tokens[tracker]);
             }
         }
+
         if (Object.keys(data).length > 0) {
             var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
@@ -1468,8 +1470,6 @@ var CliqzAttrack = {
             if (CliqzAttrack.local_tracking.isEnabled()) {
                 CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
             }
-            // reset the state
-            CliqzAttrack.sendTokens(true);
         }
 
         // trigger other hourly events
@@ -2013,7 +2013,7 @@ var CliqzAttrack = {
      *    trackers: more detailed information about each tracker. Object with keys being tracker domain and values
      *        more detailed blocking data.
      */
-    getTabBlockingInfo: function(tab_id) {
+    getTabBlockingInfo: function(tab_id, url) {
       var result = {
           hostname: '',
           cookies: {allowed: 0, blocked: 0},
@@ -2021,6 +2021,12 @@ var CliqzAttrack = {
           trackers: {},
           companies: {}
         };
+
+      // ignore special tabs
+      if (url && (url.indexOf('about') == 0 || url.indexOf('chrome') == 0) ) {
+        result.error = 'Special tab';
+        return result;
+      }
 
       if (! (tab_id in CliqzAttrack.tp_events._active) ) {
         // no tp event, but 'active' tab = must reload for data
@@ -2063,11 +2069,15 @@ var CliqzAttrack = {
       return result;
     },
     getCurrentTabBlockingInfo: function() {
+      var tabId, urlForTab;
       try {
-        var tabId = CliqzUtils.getWindow().gBrowser.selectedTab.linkedBrowser._loadContext.DOMWindowID;
+        var gBrowser = CliqzUtils.getWindow().gBrowser,
+            selectedTab = gBrowser.selectedTab;
+        tabId = selectedTab.linkedBrowser._loadContext.DOMWindowID;
+        urlForTab = '' + gBrowser.getBrowserForTab(selectedTab).contentDocument.location;
       } catch (e) {
       }
-      return CliqzAttrack.getTabBlockingInfo(tabId);
+      return CliqzAttrack.getTabBlockingInfo(tabId, urlForTab);
     },
     tracker_companies: {},
     /** Parse tracker owners list {Company: [list, of, domains]}, into lookup table {domain: Company}

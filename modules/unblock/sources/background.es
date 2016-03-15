@@ -17,7 +17,7 @@ export default {
 
   loadPlugins() {
     if (CliqzUtils.getPref('unblock.plugin.youtube', true)) {
-      CliqzUnblock.unblockers.push(YoutubeUnblocker);
+      CliqzUnblock.unblockers.push(new YoutubeUnblocker());
     }
   },
 

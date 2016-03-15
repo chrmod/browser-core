@@ -56,7 +56,7 @@ Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equ
 });
 
 
-Handlebars.registerHelper('mobileWikipediaUrls', function(url) { 
+Handlebars.registerHelper('mobileWikipediaUrls', function(url) {
   return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
 });
 
@@ -72,8 +72,6 @@ function trace() {
 
 // overriding things
 CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
-
-CliqzSmartCliqzCache._prepareCustomData = function () {}
 
 // end of overriding things
 
@@ -101,7 +99,7 @@ if(location.search.match("urlbar")) {
   document.getElementById("urlbar").style.display = "block";
   document.getElementById("urlbar").addEventListener("keyup",function() {
       search_mobile(this.value, true, 48.155772899999995, 11.615600899999999)
-  });  
+  });
 }
 
 
@@ -333,8 +331,8 @@ CLIQZ.UI.VIEWS["stocks"] = {
 
 actionsExternal = [];
 
-CLIQZ.UI.VIEWS["_generic"] 
-= CLIQZ.UI.VIEWS["entity-generic"] 
+CLIQZ.UI.VIEWS["_generic"]
+= CLIQZ.UI.VIEWS["entity-generic"]
 = CLIQZ.UI.VIEWS["hq"] = {
 
   enhanceResults: function(data) {
@@ -346,7 +344,7 @@ CLIQZ.UI.VIEWS["_generic"]
     if( data.richData && data.richData.additional_sources) {
       for(var i in data.richData.additional_sources) {
         data.richData.additional_sources[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.richData.additional_sources[i].url));
-      }  
+      }
     }
 
     for(var i in data.news) {
@@ -355,13 +353,13 @@ CLIQZ.UI.VIEWS["_generic"]
 
     if(data.actions && data.external_links) {
       data.actionsExternalMixed = data.actions.concat(data.external_links);
-      data.actionsExternalMixed.sort(function(a,b) { 
+      data.actionsExternalMixed.sort(function(a,b) {
         if (a.rank < b.rank) {return 1;}
         if (a.rank > b.rank) {return -1;}
         return 0;
       });
     }
-    
+
   }
 }
 
