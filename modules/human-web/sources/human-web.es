@@ -2170,33 +2170,6 @@ var CliqzHumanWeb = {
     },
     pacemakerId: null,
     // load from the about:config settings
-    captureKeyPress: function(ev) {
-        if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypress']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypresspage']|0)) > 1 * CliqzHumanWeb.tmult)) {
-            if (CliqzHumanWeb.debug) {
-                _log('captureKeyPressAll');
-            }
-            CliqzHumanWeb.lastEv['keypress'] = CliqzHumanWeb.counter;
-            CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
-        }
-    },
-    captureMouseMove: function(ev) {
-        if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemove']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemovepage']|0)) > 1 * CliqzHumanWeb.tmult)) {
-            if (CliqzHumanWeb.debug) {
-                _log('captureMouseMoveAll');
-            }
-            CliqzHumanWeb.lastEv['mousemove'] = CliqzHumanWeb.counter;
-            CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
-        }
-    },
-    captureMouseClick: function(ev) {
-        if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclick']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclickpage']|0)) > 1 * CliqzHumanWeb.tmult)) {
-            if (CliqzHumanWeb.debug) {
-                _log('captureMouseClickAll');
-            }
-            CliqzHumanWeb.lastEv['mouseclick'] = CliqzHumanWeb.counter;
-            CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
-        }
-    },
     captureKeyPressPage: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypresspage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
