@@ -59,8 +59,8 @@ export default Ember.Component.extend({
 
   animate: function(setNextPage) {
     //stop rotation on hover
-    if(Ember.$('.topnews:hover').length ===0 ) {
-      Ember.$(this.element).find('.content').fadeOut(function() {
+    if(this.$('.topnews:hover').length ===0 ) {
+      this.$().find('.content').fadeOut(function() {
         setNextPage();
       }).fadeIn();
     }
