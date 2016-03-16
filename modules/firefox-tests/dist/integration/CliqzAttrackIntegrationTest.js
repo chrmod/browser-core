@@ -213,6 +213,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             var expected = 0;
             if (stat_key in expected_stats) {
               expected = expected_stats[stat_key];
+            } else if (stat_key === 'content_length') {
+              continue;
             }
             chai.expect(actual_stats[stat_key]).to.equal(expected, 'tp_event['+ [tp_domain, tp_path, stat_key].join('][') +']');
           }
@@ -264,7 +266,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_2': 1
+                'type_2': 1,
+                'content_length': 2
               }
             }
           }
@@ -278,7 +281,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_2': 1
+                'type_2': 1,
+                'content_length': 2
               }
             }
           }
@@ -292,7 +296,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_3': 1
+                'type_3': 1,
+                'content_length': 42
               }
             }
           }
@@ -306,7 +311,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_11': 1
+                'type_11': 1,
+                'content_length': 2
               }
             }
           }
@@ -325,7 +331,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_11': 1
+                'type_11': 1,
+                'content_length': 2
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
@@ -344,7 +351,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_3': 1
+                'type_3': 1,
+                'content_length': 42
               }
             }
           }
@@ -363,7 +371,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
-                'type_11': 1
+                'type_11': 1,
+                'content_length': 2
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
