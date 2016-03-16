@@ -37,17 +37,12 @@ export default Ember.Component.extend({
     }
     Ember.run.cancel(this.get("timer"));
     this.set('timer', Ember.run.later( () => {
-      this.nextPage();
+      this.animate(function() {
+        this.nextPage();
+      }.bind(this));
       this.autoRotate();
     }, 15000));
   }.on('didInsertElement'),
-
-  /*autoRotate: function () {
-    Ember.run.later( () => {
-      this.nextPage();
-      this.autoRotate();
-    }, 2000)
-  }.on('didInsertElement'),*/
 
   actions: {
     next() {
@@ -55,9 +50,17 @@ export default Ember.Component.extend({
     },
 
     setPage(num) {
-      this.set("pageNum", num);
+      this.animate(function() {
+        this.set('pageNum', num);
+      }.bind(this));
       this.autoRotate();
      }
+  },
+
+  animate: function(setNextPage) {
+    Ember.$(this.element).find('.content').fadeOut(function() {
+      setNextPage();
+    }).fadeIn();
   }
 
 });
