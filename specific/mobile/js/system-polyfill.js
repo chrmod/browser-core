@@ -275,7 +275,7 @@ function loadAssetMap(){
 
     var req = new XMLHttpRequest();
     req.open('GET', 'assets/assetMap.json?r=' + Math.random(), false);
-    req.overrideMimeType('application/json');
+    req.overrideMimeType && req.overrideMimeType('application/json');
     req.onload = function () {
         if(req.status === 200) {
           assetMap = JSON.parse(req.response).assets;
@@ -336,6 +336,8 @@ var System = {
             var mod = get(normalizedName);
             return mod ? resolve(mod) : load(name).then(function () {
                 resolve(get(normalizedName));
+            }).catch(function(error) {
+                reject(error)
             });
         });
     },

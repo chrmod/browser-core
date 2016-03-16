@@ -10,12 +10,17 @@
     "antitrackingButton": false
   },
   "modules": [
-    "core",
     "static",
+    "core",
+    "ui",
+    "human-web",
+    "anti-phishing",
     "onboarding",
     "freshtab",
     "telemetry-categories",
     "antitracking",
-    "performance"
+    "performance",
+    "hpn",
+    "smart-cliqz-cache"
   ]
 }

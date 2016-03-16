@@ -6,11 +6,23 @@
 </head>
 <body>
     <section class="cqz-antitracking-popup">
+        <!-- ======= Header =========-->
         <div class="cqz-antrc-head">
-            <p class="cqz-nosite-msg" data-i18n="attrack-headline-no-site"></p>
+            <h1 class="cqz-title" data-i18n="attrack-headline-general-title"></h1>
             <p class="cqz-deactive-msg" data-i18n="attrack-headline-deactivate"></p>
-            <p class="cqz-general-msg" data-i18n="attrack-headline-general"></p>
+            <p class="cqz-reload-msg" data-i18n="attrack-headline-reload"></p>
+            <p class="cqz-whitelisted-msg" data-i18n="attrack-headline-general-whitelisted"></p>
+            <div class="cqz-general-msg">
+                <p class="cqz-general-domain-msg" style="display: none"></p>
+                <p class="cqz-no-bad-trackers-msg cqz-general-single-msg" data-i18n="attrack-headline-no-bad-trackers"></p>
+                <p class="cqz-no-trackers-msg cqz-general-single-msg" data-i18n="attrack-headline-no-trackers"></p>
+                <p class="cqz-general-trackers-msg" data-i18n="attrack-headline-general-trackers"></p>
+            </div>
         </div>
+        <!-- ======= Tacking List =========-->
+        <ul class="cqz-trackers-blocked"></ul>
+
+        <!-- ======= Buttons List =========-->
         <ul class="cqz-antrc-btns-holder">
             <li>
                 <a href="#"
@@ -21,16 +33,20 @@
                 </a>
             </li>
             <li>
-                <a href="#" id="cqz-antrc-power-btn" class="cqz-antrc-btn cqz-antrc-power-btn">
-                    <span class="cqz-turn-on" data-i18n="attrack-btn-power-on"></span>
-                    <span class="cqz-turn-off" data-i18n="attrack-btn-power-off"></span>
+                <a href="#"
+                   id="cqz-see-details"
+                   class="cqz-antrc-btn cqz-see-details">
+                        <span class="cqz-details-more" data-i18n="attrack-btn-details-more"></span>
                 </a>
             </li>
         </ul>
         <footer>
-            <a href="https://cliqz.com/whycliqz/anti-tracking"
-               class="cqz-learn-more"
-               data-i18n="attrack-learn-more"></a>
+            <p>
+                <a href="#" id="cqz-antrc-power-btn" class="cqz-antrc-power-btn">
+                    <span class="cqz-turn-on" data-i18n="attrack-btn-power-on"></span>
+                    <span class="cqz-turn-off" data-i18n="attrack-btn-power-off"></span>
+                </a>
+            </p>
         </footer>
     </section>
     <script src="popup.js"></script>

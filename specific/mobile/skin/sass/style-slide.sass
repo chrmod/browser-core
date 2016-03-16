@@ -1,3 +1,449 @@
+/* old style css */
+
+*
+  margin: 0
+  padding: 0
+
+html
+  background-color: #EEEEEE
+
+body
+  background-color: #FFFFFF
+
+input#urlbar
+  display: n
+  /* margin: 0px auto 0;
+  /* height: 0px;
+  font-size: 24px
+  /* display: none;
+  width: 200px
+  opacity: 0.2
+  right: 0
+  position: absolute
+  z-index: 500
+
+#results
+  position: absolute
+  top: -17px
+  bottom: 0
+  margin: 0px auto
+#results::-webkit-scrollbar
+  display: none 
+  /*border: 1px solid gray;
+  /* background: #eee;
+
+progress#progress
+  opacity: 0.2
+  position: absolute
+  height: 4px
+  display: none
+  z-index: 100
+  top: 0px
+  left: 20px
+  width: 316px
+
+.cliqz-brand-logo.transition
+  width: 51px
+  float: left
+  margin-right: 7px
+  height: 32px
+  background-repeat: no-repeat
+  background-position-x: center
+
+div#recent
+
+button#recentbutton
+  opacity: 0.8
+  font-size: 18px
+  border: 1px solid #999999
+  /* opacity: 0.5;
+  font-size: 31px
+  /* border: 1px solid #999999;
+  font-weight: 900
+  display: none
+
+#recentitems
+
+// fixes history
+
+.cliqz-pattern-element.overflow
+  overflow: hidden
+  margin: 15px 0px
+  width: 100%
+
+.cliqz-pattern-element-title
+  width: 79%
+  overflow: hidden
+  height: 14px
+  /* float: left;
+  font-weight: bold
+
+.cliqz-pattern-element-link
+  width: 100%
+  overflow: hidden
+  height: 19px
+  margin-left: 0px
+  font-size: 13px
+
+.cliqz-brand-logo.cliqz-history-logo.transition
+  background-repeat: no-repeat
+  float: right
+  margin-top: -33px
+  max-height: 22px
+  background-position-y: center
+  max-width: 40px
+
+div
+  &#no-network-message
+    display: none
+    font-size: xx-small
+    position: fixed
+    left: 20px
+    top: 0px
+    color: red
+  &#req-status-message
+    z-index: 1000
+    font-size: xx-small
+    position: fixed
+    left: 0px
+    top: 100px
+    color: red
+
+.spinner
+  margin: 18px auto 0
+  width: 70px
+  text-align: center
+  > div
+    width: 5px
+    height: 5px
+    background-color: #8FDF57
+    border-radius: 100%
+    display: inline-block
+    -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both
+  .bounce1
+    -webkit-animation-delay: -0.32s
+    animation-delay: -0.32s
+  .bounce2
+    -webkit-animation-delay: -0.16s
+    animation-delay: -0.16s
+
+@-webkit-keyframes sk-bouncedelay
+  0%, 80%, 100%
+    -webkit-transform: scale(0)
+
+  40%
+    -webkit-transform: scale(1)
+
+
+@keyframes sk-bouncedelay
+  0%, 80%, 100%
+    -webkit-transform: scale(0)
+    transform: scale(0)
+
+  40%
+    -webkit-transform: scale(1)
+    transform: scale(1)
+
+
+ul#recentitems
+  list-style-type: none
+  /* width: 100%;
+
+#recentitems li
+  line-height: 20px
+  border-radius: 4px
+  border: 1px solid #B5B5B5
+  padding: 7px
+  margin-bottom: 5px
+  /* background: 
+   *-webkit-gradient(linear, left top, right top, color-stop(0%,#feffff), color-stop(35%,#E0F3FB), color-stop(100%,#F2F6F7));
+  display: block
+  width: 290px
+
+#recent li a
+  color: #000
+
+#recentitems li.active
+  background: #fff
+  margin-left: 20px
+
+img
+  &.cqz-rd-rateimg
+    height: 15px
+    margin-bottom: 5px
+    margin-left: -2px
+    color: #FEDE07
+  &.EZ-Cliqz_Header-Contact-icon
+    height: 1.5rem
+    background-repeat: no-repeat
+    /* margin-left: 87px;
+
+.EZ-Cliqz-Header
+  background-repeat: no-repeat
+  background-position: 0
+  padding-left: 98px
+  line-height: 1.5rem
+  text-align: right
+  margin: 1rem 0
+  img
+    margin: 0 0.5rem
+
+.EZ-Cliqz-Body-H1
+  font-weight: bold
+  padding: 0 0 0.5rem
+
+li.cqz-ez-search-app.transition
+  background-repeat: no-repeat
+  background-position: 5px
+  padding-left: 38px
+  background-size: 20px
+
+.meta
+  .meta__url i.mobile, .meta__logo
+    display: none
+  .meta__url
+    margin: 0 0 0 2px
+    font-weight: 400
+    color: #999
+    font-size: 12px
+    line-height: 12px
+    white-space: nowrap
+    overflow: hidden
+    position: relative
+.meta__social
+  .cqz-celeb-social-box
+    display: block
+    padding: 0 0 0.25rem
+    img
+      height: 1.25rem
+      margin: 0 0.75rem 0 0
+
+.meta .meta__url
+  margin: 0 0 0 0px !important
+  line-height: 12px !important
+
+a
+  /* font-weight: bold;
+  color: rgba(0, 0, 0, 0.8) !important
+
+div#cliqz-swiping-dots-new
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(25, 25, 25, 0)), to(rgba(25, 25, 25, 0.8)), color-stop(0.45, #fff))
+  position: fixed
+  width: 100%
+  height: 30px
+  top: 8px
+  text-align: -webkit-center
+  position: fixed
+  bottom: 0px
+  top: inherit
+  span
+    /* font-size: 130px;
+    position: relative
+    margin-top: 5px
+    background: rgb(247, 247, 247)
+    border-radius: 30%
+    border: 1px solid #aaa
+    width: 10px
+    display: block
+    float: left
+    height: 10px
+    margin-left: 5px
+    text-indent: -2000px
+    &#dots-page-0
+      color: #888
+      font-weight: bold
+      font-size: 9px
+      text-indent: -5000px
+      margin-left: 10px
+    &.active
+      background-color: rgba(22, 61, 76, 0.26)
+  height: 20px
+  background: #efefef
+
+h1.main__headline a
+  color: #163D4C !important
+  font-weight: bold
+
+div#cliqz-swiping-dots-new-inside
+  white-space: nowrap
+  width: 113px
+
+img
+  &.cqz-rd-img_div.cqz-image-round
+    /* float: right;
+    width: 70px
+  &.cqz-rd-img
+    float: right
+    /* width: 40%;
+    /* margin-top: -50px;
+    margin-left: 20px
+    max-height: 160px
+
+.meta__logo.image
+  text-indent: -1000px
+
+.cqz-multy-lines-ellipses
+  clear: both
+  padding-top: 10px
+  padding-bottom: 17px
+
+.cqz-result-url.overflow
+  margin: 10px 0px
+
+.cqz-rd-info-2
+  margin: 10px 0
+
+.main__meta .cqz-rating-star-on
+  color: #FEDE07
+
+img.__main__image__many
+  max-width: 100px
+  height: 52px
+  margin-right: 5px
+  border: 1px solid #eee
+  float: left
+
+.__main__image.__many
+  width: 100%
+  height: 55px
+  margin-top: 0.75rem
+  overflow: hidden
+
+.queries
+  float: right
+  display: block
+  clear: both
+  padding: 2px 2px 2px 8px
+  background: #E3F5E3
+  font-size: 16px
+  border: 1px solid #DFDFDF
+  margin: 4px 18px 4px 1px
+  border-radius: 5px
+  color: #000
+  box-shadow: 1px 2px 1px 0px rgba(0, 0, 0, 0.5)
+  .time
+    float: right
+    display: block
+    clear: both
+    padding: 2px
+    font-size: 9px
+    margin: 5px 5px 0px 5px
+    color: #777
+
+.link
+  float: left
+  display: block
+  clear: both
+  padding: 3px 3px 2px 11px
+  background: #fff
+  font-size: 16px
+  border: 1px solid #DFDFDF
+  margin: 4px 18px 3px 1px
+  border-radius: 5px
+  color: #000
+  max-width: 80%
+  box-shadow: 1px 2px 1px 0px rgba(0, 0, 0, 0.5)
+  .time
+    float: right
+    display: block
+    clear: both
+    padding: 2px
+    font-size: 9px
+    margin: 5px 5px 0px 5px
+    color: #777
+
+div
+  &#conversations
+    /* background: #eee;
+    left: -7px
+  &#showpastbutton
+    position: absolute
+    left: -4px
+    border-radius: 5px
+    border: 1px solid #555
+    padding: 9px
+    top: -13px
+    background: rgba(0, 31, 110, 0.3)
+    color: #fff
+  &#showfuturebutton
+    position: absolute
+    right: -3px
+    border-radius: 5px
+    border: 1px solid #555
+    padding: 8px
+    top: -15px
+    background: rgba(0, 31, 110, 0.3)
+    color: #fff
+
+.future_domain h1
+  font-size: 21px
+
+div.future_domain
+  ul
+    display: none
+  border-radius: 4px
+  background: #EEF8FF
+  border: 1px solid #999
+  margin: 10px
+  padding: 10px
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.44)
+
+.future_domain
+  .amount
+    /* position: absolute;
+    float: right
+    margin-top: -22px
+    border-radius: 50%
+    border: 1px solid #555
+    background: #640000
+    color: white
+    width: 20px
+    height: 20px
+    text-align: center
+  a
+    font-weight: bold
+    font-weight: bold
+  li
+    list-style-type: none
+    margin: 0px
+    padding: 10px
+    border: 1px solid rgba(85, 85, 85, 0.22)
+    background: rgba(239, 239, 239, 0.4)
+    background-: 0.5
+    margin-bottom: 5px
+    margin-top: 10px
+    img
+      float: right
+      max-width: 100px
+
+#reconnecting
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  text-align: center
+  padding: 0px 0 0
+  display: block
+  text-align: center
+  background-color: #000
+  z-index: 9999
+  h3
+    text-align: center
+    margin: 0
+    padding: 0
+    font-size: 1rem
+    line-height: 2rem
+    color: #fff
+    font-weight: 300
+
+div#progress
+  top: 0px
+  position: absolute
+  z-index: 100000
+
+/* Old Style-Slide */
+
 .cf::after
   clear: both
   content: ""
@@ -694,9 +1140,6 @@ a
   padding: 4px 8px 4px
   font-size: 14px
   line-height: 21px
-  border: 1px rgba(0, 0, 0, 0.2) solid
-  border-radius: 4px
-  background-color: rgba(0, 0, 0, 0.1)
   position: relative
 
 .cta
@@ -1273,9 +1716,6 @@ a
   input::-webkit-input-placeholder
     color: #FE9531
 
-.share
-  display: none
-
 .currencyInput
   width: 100%
   box-sizing: border-box
@@ -1384,7 +1824,9 @@ div#freshstart
 em
     /* font-weight: bold */
     background: #FFF5E5
-
+    font-style: normal
+    background: #FFDD50
+    padding: 0 0
 
 p.share_this_card 
     text-indent: -500px
@@ -1402,3 +1844,13 @@ p.share_this_card
 
 h3.meta__url 
     max-width: 80%
+
+
+.cards__title__secondary span 
+  right: 24px
+  color: #000
+  font-size: 10px
+  position: absolute
+  top: 23px
+
+

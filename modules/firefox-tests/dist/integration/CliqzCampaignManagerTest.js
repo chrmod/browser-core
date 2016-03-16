@@ -6,7 +6,7 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
 
     var response, messageCenter, campaignManager,
     core = CliqzUtils.getWindow().CLIQZ.Core,
-    ui = CliqzUtils.getWindow().CLIQZ.UI,
+    ui = function() { return CliqzUtils.getWindow().CLIQZ.UI },
     gBrowser = CliqzUtils.getWindow().gBrowser;
 
     beforeEach(function() {
@@ -73,14 +73,14 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
         core.urlbar.blur();
         core.urlbar.focus();
         return waitFor(function () {
-          return Boolean(ui.messageCenterMessage) &&
+          return Boolean(ui().messageCenterMessage) &&
                  campaignManager._campaigns.TEST001.state === 'show';
         });
       }).then(function () {
         fillIn('some query');
 
         return waitForResult().then(function() {
-          return Boolean(ui.messageCenterMessage) &&
+          return Boolean(ui().messageCenterMessage) &&
                  core.popup.cliqzBox.messageContainer.innerHTML.indexOf(
                    response.campaigns.TEST001.message.text) >= 0;
         });
@@ -93,12 +93,12 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
       core.urlbar.blur();
       core.urlbar.focus();
       return waitFor(function () {
-        return Boolean(ui.messageCenterMessage) &&
+        return Boolean(ui().messageCenterMessage) &&
                campaignManager._campaigns.TEST001.state === 'show';
       }).then(function () {
         campaignManager._onMessageAction('TEST001', 'postpone');
         return waitFor(function () {
-          return !Boolean(ui.messageCenterMessage);
+          return !Boolean(ui().messageCenterMessage);
         });
       }).then(function () {
         fillIn('some query');

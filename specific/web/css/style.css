@@ -3,6 +3,14 @@
   padding: 0;
 }
 
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 input {
   height: 30px;
   font-size: 20px;
@@ -44,14 +52,14 @@ input {
 }
 
 .debugView #panelWindow {
-  background: #f7f7f7;
-  padding: 40px 16px;
-  left: -265px;
   position: absolute;
-  transition: left 0.3s ease-in-out 0s;
   width: auto;
+  left: -265px;
+  padding: 40px 16px;
+  transition: left 0.3s ease-in-out 0s;
+  border: 1px solid #888888;
+  background: #f7f7f7;
   z-index: 10;
-  box-shadow: 10px 10px 5px #888888;
 }
 
 .debugView button {
@@ -70,4 +78,16 @@ input {
   color: rgba(255, 255, 255, 0.3);
   text-shadow: -1px -1px rgba(0, 0, 0, 0.2);
   text-align: center;
+}
+
+#urlbar {
+  padding: 0 10px
+}
+#urlbar:focus {
+  outline: none;
+  border: 1px solid #0066aa;
+}
+
+#results {
+  max-width: 800px;
 }

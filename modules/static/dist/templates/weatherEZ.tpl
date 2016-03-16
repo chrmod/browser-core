@@ -23,7 +23,7 @@
         </div>
     {{/with}}
     {{# if data.forecast_url}}
-       {{>EZ-category}}
+       {{>partials/ez-generic-buttons}}
     {{/if}}
     {{>logo}}
 </div>

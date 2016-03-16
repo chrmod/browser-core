@@ -140,6 +140,23 @@ var osBridge = {
     OS.postMessage(message);
   },
   /**
+    function: setHistoryFavorite
+    description: sets history records' favorite property
+    params: ids as list
+    params: value as boolean
+    message data: ids as list, value as boolean
+  */
+  setHistoryFavorite: function(ids, value) {
+    var message = {
+      action: "setHistoryFavorite",
+      data: {
+        ids: ids,
+        value: value
+      }
+    }
+    OS.postMessage(message);
+  },
+  /**
     function: cleanHistory
     description: removes history records from native history
     params: excludedIds as list

@@ -89,7 +89,8 @@ def package(beta='True', version=None, sign='False', amo='False'):
     if sign == 'True':
         local("mv %s UNSIGNED_%s" % (output_file_name, output_file_name))
         # signs the XPI with the CLIQZ certificate
-        local("python ../../../xpi-sign/xpisign.py -k /Volumes/Transcend/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
+
+        local("python /src/main/xpi-sign/xpisign.py -k /Volumes/CLIQZXPI/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
 
     # creates a copy to the current build in case we need to upload it to S3
     local("cp %s latest.xpi" % output_file_name)
@@ -139,7 +140,7 @@ def publish(beta='True', version=None):
     output_file_name = package(beta, version, "True") # !!!! we must publish only signed versions !!!!
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
     path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
-    local("s3cmd --acl-public put %s %s" % (output_file_name, path_to_s3))
+    local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))
     manifest_template = env.get_template(update_manifest_file_name)
@@ -155,7 +156,7 @@ def publish(beta='True', version=None):
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
-    local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (update_manifest_file_name,
+    local("aws s3 cp %s %s --acl public-read --content-type 'text/rdf'" % (update_manifest_file_name,
                                                           path_to_s3))
     local("rm  %s" % update_manifest_file_name)
 
@@ -165,11 +166,11 @@ def publish(beta='True', version=None):
                                                          icon_url=icon_url)
     with open(latest_html_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
-    local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
+    local("aws s3 cp %s %s --acl public-read" % (latest_html_file_name,
                                             path_to_s3))
 
     #replace latest.xpi when everything is done
-    local("s3cmd --acl-public put latest.xpi %s" % path_to_s3)
+    local("aws s3 cp latest.xpi %s --acl public-read" % path_to_s3)
 
     local("rm  %s" % latest_html_file_name)
 
@@ -207,9 +208,9 @@ def comment_cleaner(path=None):
         return
 
     target = ['js', 'jsm', 'html']
-    exclude_dirs = ['node_modules', 'bower_components']
+
+    exclude_dirs = ['node_modules', 'bower_components', 'extern']
     ignore = [
-        'handlebars-v1.3.0.js',
         'ToolbarButtonManager.jsm',
         'math.min.jsm',
         'Validations.js',

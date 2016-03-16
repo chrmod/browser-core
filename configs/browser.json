@@ -1,5 +1,6 @@
 {
   "platform": "firefox",
+  "testsBasePath": "./build/firefox/cliqz@cliqz.com/chrome/content",
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
@@ -8,22 +9,24 @@
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
     "channel": "40",
-    "antitrackingButton": false
+    "antitrackingButton": true
   },
   "modules": [
     "static",
     "core",
+    "ui",
     "human-web",
     "anti-phishing",
     "context-menu",
     "onboarding",
     "freshtab",
-    "fresh-tab-frontend",
     "unblock",
     "theme",
-    "users1st",
     "telemetry-categories",
     "antitracking",
-    "performance"
+    "performance",
+    "hpn",
+    "privacy-dashboard",
+    "smart-cliqz-cache"
   ]
 }

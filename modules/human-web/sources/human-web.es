@@ -241,7 +241,7 @@ function _log(msg){
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.9',
+    VERSION: '2.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -2742,7 +2742,9 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.previousDataPost = data;
         }
 
-        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
+        CliqzHumanWeb._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.SAFE_BROWSING, data, 60000, true);
+        CliqzHumanWeb._telemetry_req.then( CliqzHumanWeb.pushTelemetryCallback );
+        CliqzHumanWeb._telemetry_req.catch( CliqzHumanWeb.pushTelemetryError );
     },
     pushTelemetryCallback: function(req){
         try {

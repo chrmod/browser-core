@@ -88,6 +88,15 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       testServer.registerDirectory('/bower_components/', ['bower_components']);
       // add specific handler for /test which will collect request parameters for testing.
       testServer.registerPathHandler('/test', collect_request_parameters);
+      testServer.registerPathHandler('/tracker302', function(request, response) {
+        response.setStatusLine('1.1', 302);
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.setHeader('Pragma', 'no-cache');
+        response.setHeader('Expires', '0');
+        response.setHeader('Location', 'http://127.0.0.1:'+ testServer.port +'/test?'+ request.queryString);
+        console.log('tracker302');
+      });
     }
 
     beforeEach(function() {
@@ -115,6 +124,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       CliqzAttrack.qs_whitelist = new QSWhitelist();
       CliqzAttrack.qs_whitelist.lastUpdate[0] = hour;
       CliqzAttrack.qs_whitelist.lastUpdate[1] = hour;
+      CliqzAttrack.qs_whitelist.lastUpdate[2] = hour;
+      CliqzAttrack.qs_whitelist.lastUpdate[3] = hour;
 
       // enable token removal
       trackertxt.setDefaultTrackerTxtRule('replace');
@@ -175,6 +186,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         chai.expect(m.headers['cookie']).to.contain('uid=abcdefghijklmnop');
       } else {
         chai.expect(m.headers).to.not.have.property('cookie');
+        chai.expect(m.headers).to.have.property(CliqzAttrack.cliqzHeader.toLowerCase());
       }
     };
 
@@ -323,6 +335,50 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             }
           }
         }
+      },
+      'image302test.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'type_3': 1
+              }
+            }
+          }
+        }
+      },
+      'nestediframetest.html': {
+        base_tps: function() {
+          return {
+            '127.0.0.1': {
+              '/iframe.html': {
+                'c': 1,
+                'cookie_set': 1,
+                'type_7': 1
+              },
+              '/test': {
+                'c': 1,
+                'cookie_set': 1,
+                'has_qs': 1,
+                'type_11': 1
+              },
+              '/bower_components/jquery/dist/jquery.js': {
+                'c': 1,
+                'type_2': 1,
+                'cookie_set': 1
+              }
+            },
+            'cliqztest.de': {
+              '/proxyiframe.html': {
+                'c': 1,
+                'type_7': 1
+              }
+            }
+          }
+        }
       }
     };
 
@@ -445,7 +501,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
         var QSBlocking = function() {
           var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
-
           beforeEach(function() {
             CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
           });
@@ -522,7 +577,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
               beforeEach(function() {
                 // make an artificial tokenDomain list to trigger blocking
                 var tok = md5(uid),
-                  today = datetime.getTime().substr(0, 8);;
+                  today = datetime.getTime().substr(0, 8);
                 ['example.com', 'localhost', 'cliqz.com'].forEach(function(d) {
                   CliqzAttrack.blockLog.tokenDomain.addTokenOnFirstParty(tok, md5(d).substring(0, 16));
                 });
@@ -552,6 +607,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                     chai.expect(m.qs).to.contain('uid=' + uid);
                   } else {
                     chai.expect(m.qs).to.not.contain('uid=' + uid);
+                    chai.expect(m.headers).to.have.property(CliqzAttrack.cliqzHeader.toLowerCase());
                   }
                   chai.expect(m.qs).to.contain('callback=func');
                 }, function(e) {
@@ -591,6 +647,49 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
                 expectNRequests(2).assertEach(function(m) {
                   chai.expect(m.qs).to.contain('uid=' + uid);
+                }, function(e) {
+                  if(e) {
+                    done(e);
+                  } else {
+                    try {
+                      test_tp_events(tp_event_expectation);
+                      done();
+                    } catch(e) {
+                      done(e);
+                    }
+                  }
+                });
+              });
+
+              it('blocks if key listed as unsafe', function(done) {
+                this.timeout(5000);
+
+                var key = md5('uid'),
+                  tracker_hash = md5('127.0.0.1').substring(0, 16),
+                  day = datetime.newUTCDate();
+
+                CliqzAttrack.qs_whitelist.addSafeKey(tracker_hash, key);
+                CliqzAttrack.qs_whitelist.addUnsafeKey(tracker_hash, key);
+                var tp_event_expectation = new tp_events_expectations(testpage);
+                tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
+                if(testpage == "imgtest.html") {
+                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_red_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
+                }
+                else {
+                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_blocked_replace', 1);
+                }
+
+                openTestPage(testpage);
+
+                expectNRequests(2).assertEach(function(m) {
+                  console.log(CliqzAttrack.blockLog.tokenDomain._tokenDomain.value);
+                  if(m.host == test_domain) {
+                    chai.expect(m.qs).to.contain('uid=' + uid);
+                  } else {
+                    chai.expect(m.qs).to.not.contain('uid=' + uid);
+                    chai.expect(m.headers).to.have.property(CliqzAttrack.cliqzHeader.toLowerCase());
+                  }
+                  chai.expect(m.qs).to.contain('callback=func');
                 }, function(e) {
                   if(e) {
                     done(e);

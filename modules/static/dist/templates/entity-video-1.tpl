@@ -22,7 +22,7 @@
       </div>
     {{/each}}
   </div>
-  {{>EZ-category}}
+  {{>partials/ez-generic-buttons}}
   {{>logo}}
 
 </div>

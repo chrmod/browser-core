@@ -1,6 +1,7 @@
 import { utils } from "core/cliqz";
 import background from "core/base/background";
 import HumanWeb from "human-web/human-web";
+import hs from "core/history-service";
 
 export default background({
   enabled(settings) {
@@ -10,9 +11,12 @@ export default background({
   init(settings) {
     HumanWeb.initAtBrowser();
     utils.bindObjectFunctions(this.actions, this);
+    hs.addObserver(HumanWeb.historyObserver, false);
   },
 
   unload() {
+    hs.removeObserver(HumanWeb.historyObserver);
+
     HumanWeb.unloadAtBrowser();
     HumanWeb.unload();
   },

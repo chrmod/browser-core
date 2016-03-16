@@ -51,6 +51,8 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
         CliqzUtils.initPlatform(System)
 
@@ -87,7 +89,7 @@ var Extension = {
           return new Promise(function (resolve, reject) {
             Extension.System.import(moduleName+"/background")
                      .then(function (module) { module.default.init(Extension.config.settings); resolve(); })
-                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e, "Extension"); resolve(); })
+                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e.toString()+" -- "+e.stack, "Extension"); resolve(); })
           });
         })
       ).then(function () {
@@ -179,22 +181,22 @@ var Extension = {
         }
     },
     quickUnloadModules: function () {
-        this.config.modules.forEach(function (moduleName) {
+        this.config.modules.slice(0).reverse().forEach(function (moduleName) {
             try {
                 Extension.System.get(moduleName+"/background")
                                 .default.beforeBrowserShutdown();
             } catch(e) {
-              CliqzUtils.log(e, "Error quick unloading module: "+moduleName);
+              CliqzUtils.log(e.toString()+" -- "+e.stack, "Error quick unloading module: "+moduleName);
             }
         });
     },
     unloadModules: function () {
-        this.config.modules.forEach(function (moduleName) {
+        this.config.modules.slice(0).reverse().forEach(function (moduleName) {
             try {
                 Extension.System.get(moduleName+"/background")
                                 .default.unload();
             } catch(e) {
-              CliqzUtils.log(e, "Error unloading module: "+moduleName);
+              CliqzUtils.log(e.toString()+" -- "+e.stack, "Error unloading module: "+moduleName);
             }
         });
     },
@@ -217,10 +219,10 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v4.0.4.js');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
@@ -263,7 +265,6 @@ var Extension = {
         Extension.modulesLoadedPromise.then(function () {
           Extension.setupCliqzGlobal(win);
           Extension.addScript('core', win);
-          Extension.addScript('UI', win);
           Extension.addScript('ContextMenu', win);
 
           Extension.addButtons(win);

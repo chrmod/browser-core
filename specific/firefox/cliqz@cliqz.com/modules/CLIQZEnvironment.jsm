@@ -139,15 +139,25 @@ var CLIQZEnvironment = {
                  .getBranch('extensions.cliqz.')
                  .getChildList('')
                  .reduce(function (prev, curr) {
-                   prev[curr] = CliqzUtils.getPref(curr);
-                   return prev;
+                    // dont send any :
+                    //    - backup data like startpage to avoid privacy leaks
+                    //    - deep keys like "attrack.update" which are not needed
+                    if(curr.indexOf('backup') == -1 && curr.indexOf('.') == -1 )
+                      prev[curr] = CliqzUtils.getPref(curr);
+                    return prev;
                  }, {});
     },
-    httpHandler: function(method, url, callback, onerror, timeout, data, sync){
+    httpHandler: function(method, url, callback, onerror, timeout, data, sync, encoding){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
         req.open(method, url, !sync);
         req.overrideMimeType('application/json');
+
+        // headers for compressed data
+        if ( encoding ) {
+            req.setRequestHeader('Content-Encoding', encoding);
+        }
+
         req.onload = function(){
             if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
 
@@ -182,6 +192,25 @@ var CLIQZEnvironment = {
 
         req.send(data);
         return req;
+    },
+    promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
+        return new Promise( function(resolve, reject) {
+            if ( method === 'POST' && compressedPost) {
+                CliqzUtils.importModule('core/gzip').then( function(gzip) {
+                    // gzip.compress may be false if there is no implementation for this platform
+                    if ( gzip.compress ) {
+                        var dataLength = data.length;
+                        data = gzip.compress(data);
+                        CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
+                    } else {
+                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
+                    }
+                });
+            } else {
+                CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
+            }
+        });
     },
     openLink: function(win, url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
@@ -230,7 +259,7 @@ var CLIQZEnvironment = {
         return eTLDService.getPublicSuffixFromHost(host);
     },
     isPrivate: function(window) {
-        if(window.cliqzIsPrivate === undefined){
+        if(window && window.cliqzIsPrivate === undefined){
             try {
                 // Firefox 20+
                 Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');

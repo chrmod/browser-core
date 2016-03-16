@@ -8,7 +8,6 @@ var EXPORTED_SYMBOLS = ['Mixer'];
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'UrlCompare',
   'chrome://cliqzmodules/content/UrlCompare.jsm');
@@ -23,6 +22,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 CliqzUtils.init();
+var CliqzSmartCliqzCache;
 
 function objectExtend(target, obj) {
   Object.keys(obj).forEach(function(key) {
@@ -60,8 +60,12 @@ var Mixer = {
   init: function() {
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
-      CliqzSmartCliqzCache.init();
-    }, 3000);
+      CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
+        CliqzSmartCliqzCache = module.default.smartCliqzCache;
+      }).catch(function(error) {
+        CliqzUtils.log('Failed loading SmartCliqzCache');
+      });
+    }, 0);
   },
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
@@ -280,7 +284,7 @@ var Mixer = {
       });
 
       if (wasCacheUpdated) {
-        CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
+        CliqzSmartCliqzCache.triggerUrls.save(CliqzSmartCliqzCache.TRIGGER_URLS_CACHE_FILE);
       }
 
       CliqzSmartCliqzCache.store(r);
@@ -288,7 +292,7 @@ var Mixer = {
   },
 
   // Take the first entry (if history cluster) and see if we can trigger an EZ
-  //  with it, this will override an EZ sent by backend.
+  // with it, this will override an EZ sent by backend.
   _historyTriggerEZ: function(result) {
     if (!result || !result.data ||
        !result.data.cluster || // if not history cluster
@@ -301,6 +305,11 @@ var Mixer = {
 
     if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
       var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
+      // clear dirty data that got into the data base
+      if (ezId === 'deprecated') {
+        CliqzSmartCliqzCache.triggerUrls.delete(url);
+        return undefined;
+      }
       ez = CliqzSmartCliqzCache.retrieve(ezId);
       if (ez) {
         // Cached EZ is available
@@ -381,8 +390,14 @@ var Mixer = {
       if (result.data.urls && result.data.urls.length) {
         result.data.partials.push('history');
         var index = result.data.partials.indexOf('description');
+
         if (index > -1) {
-          result.data.partials.splice(index, 1);
+          if(result.data.urls.length <= 5) {
+            result.data.partials[index] = 'description-m';
+          }else {
+            result.data.urls = result.data.urls.slice(0, 6);
+            result.data.partials.splice(index, 1);
+          }
         }
       }
 
@@ -409,7 +424,9 @@ var Mixer = {
     }
 
     // Cache any EZs found
-    Mixer._cacheEZs(cliqzExtra);
+    if (CliqzSmartCliqzCache) {
+      Mixer._cacheEZs(cliqzExtra);
+    }
 
     // Prepare other incoming data
     cliqz = Mixer._prepareCliqzResults(cliqz || []);
@@ -431,15 +448,18 @@ var Mixer = {
     var results = r.first.concat(r.second);
 
     // Trigger EZ with first entry
-    var historyEZ = Mixer._historyTriggerEZ(results[0]);
-    if (historyEZ) {
-      cliqzExtra = [historyEZ];
+    if (CliqzSmartCliqzCache) {
+      var historyEZ = Mixer._historyTriggerEZ(results[0]);
+      if (historyEZ) {
+        cliqzExtra = [historyEZ];
+      }
     }
 
     // Filter conflicting EZs
     if (results.length > 0) {
       cliqzExtra = Mixer._filterConflictingEZ(cliqzExtra, results[0]);
     }
+
 
     // Add custom results to the beginning if there are any
     if (customResults && customResults.length > 0) {

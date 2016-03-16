@@ -36,7 +36,7 @@ var VERTICAL_ENCODINGS = {
     'people':'p',
     'news':'n',
     'video':'v',
-    'hq':'h',
+    //'hq':'h',
     'bm': 'm',
     'recipeRD': 'r',
     'game': 'g',
@@ -56,7 +56,6 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-//  RESULTS_PROVIDER:               'http://mixer-beta.clyqz.com/api/v1/results?q=',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
@@ -78,7 +77,7 @@ var CliqzUtils = {
 
   BRANDS_DATABASE: BRANDS_DATABASE,
   BRANDS_DATABASE_VERSION: CLIQZEnvironment.BRANDS_DATABASE_VERSION,
-  
+
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
@@ -102,7 +101,9 @@ var CliqzUtils = {
       'vod': 3,
       'conversations': 1,
       'conversations_future': 1,
-      'topnews': 1
+      'topnews': 1,
+      '_generic': 1,
+      '_history': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -272,6 +273,9 @@ var CliqzUtils = {
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
+  },
+  promiseHttpHandler: function() {
+    return CLIQZEnvironment.promiseHttpHandler.apply(CLIQZEnvironment, arguments);
   },
   /**
    * Loads a resource URL from the xpi.
@@ -686,7 +690,8 @@ var CliqzUtils = {
       callback && callback(res, q);
     });
 
-    CliqzUtils.requestMonitor.addRequest(req);
+    // Currently when HPN is live, this guy breaks.
+    if(req) CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -884,7 +889,10 @@ var CliqzUtils = {
     CliqzUtils._telemetry_start = Date.now();
 
     CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
-    CliqzUtils._telemetry_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTelemetryCallback, JSON.stringify(CliqzUtils._telemetry_sending), CliqzUtils.pushTelemetryError);
+
+    CliqzUtils._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(CliqzUtils._telemetry_sending), 10000, true);
+    CliqzUtils._telemetry_req.then( CliqzUtils.pushTelemetryCallback );
+    CliqzUtils._telemetry_req.catch( CliqzUtils.pushTelemetryError );
   },
   pushTelemetryCallback: function(req){
     try {
@@ -1071,6 +1079,25 @@ var CliqzUtils = {
         continue;
       from[funcName] = func.bind(to);
     }
+  },
+  tryDecodeURIComponent: function(s) {
+    // avoide error from decodeURIComponent('%2')
+    try {
+      return decodeURIComponent(s);
+    } catch(e) {
+      return s;
+    }
+  },
+  parseQueryString: function(qstr) {
+    var query = {};
+    var a = (qstr || '').split('&');
+    for (var i in a)
+    {
+      var b = a[i].split('=');
+      query[CliqzUtils.tryDecodeURIComponent(b[0])] = CliqzUtils.tryDecodeURIComponent(b[1]);
+    }
+
+    return query;
   },
   roundToDecimal: function(number, digits) {
     var multiplier = Math.pow(10, digits);

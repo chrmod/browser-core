@@ -12,11 +12,11 @@
   "modules": [
     "static",
     "core",
+    "ui",
     "context-menu",
     "freshtab",
     "unblock",
     "theme",
-    "users1st",
     "loyalty",
     "firefox-tests",
     "telemetry-categories",
@@ -24,6 +24,9 @@
     "fresh-tab-frontend",
     "human-web",
     "anti-phishing",
-    "performance"
+    "privacy-dashboard",
+    "performance",
+    "hpn",
+    "smart-cliqz-cache"
   ]
 }
