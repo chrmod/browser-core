@@ -142,7 +142,7 @@ var News = {
         target_index: this.dataset.index
       });
     });
-    osBridge.isReady();
+    window.dispatchEvent(new CustomEvent("newsLoadingDone"));
   },
 
   getRecentHistory: function(history) {
