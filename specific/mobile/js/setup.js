@@ -25,8 +25,8 @@ function init() {
 */
 function resetState(cfg) {
   CLIQZEnvironment.initHomepage();
-  var start = document.getElementById("freshstart");
-  var freshstartContent = document.getElementById("freshstartContent");
+  var start = document.getElementById("resetState");
+  var resetStateContent = document.getElementById("resetStateContent");
   var resultsBox = document.getElementById("results");
   if(resultsBox) {
     resultsBox.style.display = 'none';
@@ -34,21 +34,21 @@ function resetState(cfg) {
   if(cfg.url && cfg.url.length > 0) {
     start.style.display = "block";
     window.document.getElementById("startingpoint").style.display = 'block';
-    var elem = document.createElement('a');
+    var elem = document.createElement('div');
     elem.setAttribute('onclick', 'osBridge.openLink("' + cfg.url + '")');
     elem.innerHTML = cfg.title;
-    freshstartContent.innerHTML = "";
-    freshstartContent.appendChild(elem);
+    resetStateContent.innerHTML = "";
+    resetStateContent.appendChild(elem);
   } 
   else if(cfg.q && cfg.q.length > 0) {
     start.style.display = "block";
     window.document.getElementById("startingpoint").style.display = 'block';
     var location_enabled = !!cfg.lat && !!cfg.lon;
-    var elem = document.createElement('a');
+    var elem = document.createElement('div');
     elem.setAttribute('onclick', 'osBridge.notifyQuery("' + cfg.q + '", ' + location_enabled + ', ' + cfg.lat + ', ' + cfg.lon + ')');
     elem.innerHTML = cfg.q;
-    freshstartContent.innerHTML = "";
-    freshstartContent.appendChild(elem);
+    resetStateContent.innerHTML = "";
+    resetStateContent.appendChild(elem);
   }
 }
 
