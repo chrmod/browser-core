@@ -1,15 +1,18 @@
 import Ember from "ember";
 import News from "../models/news";
+import SpeedDials from "../models/speed-dials";
 
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
 
   model() {
-    return Ember.Object.create({
-      speedDials: this.get('cliqz').getSpeedDials(),
-      news: News.create({}),
-      customDials: [1,2, 4]
-    });
+    return this.get('cliqz').getSpeedDials().then( speedDials => {
+      return Ember.Object.create({
+        speedDials: SpeedDials.create({ content: speedDials }),
+        news: News.create({ model: [] })
+      });
+    })
+
   },
 
   afterModel(model) {

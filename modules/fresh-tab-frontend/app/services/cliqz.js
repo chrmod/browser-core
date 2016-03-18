@@ -17,7 +17,8 @@ export default Ember.Service.extend({
       }
 
       if (message.type === "response") {
-        this.callbacks[message.action].call(null, message.response);
+        const action = this.callbacks[message.action];
+        action && action.call(null, message.response);
       }
     });
   },
@@ -85,7 +86,33 @@ export default Ember.Service.extend({
       action: "getSpeedDials"
     }) , "*")
 
-    return DS.PromiseArray.create({ promise });
+    return DS.PromiseObject.create({ promise }).then(model => model.speedDials);
+  },
+
+  addSpeedDial(item) {
+    let promise = new Promise( resolve => {
+      this.callbacks.addSpeedDial = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "freshtab",
+      action: "addSpeedDial",
+      "args": [item]
+    }), "*");
+
+    return DS.PromiseObject.create({ promise });
+  },
+
+  removeSpeedDial(item) {
+    this.callbacks.removeSpeedDial = () => {};
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "freshtab",
+      "action": "removeSpeedDial",
+      "args": [item]
+    }), "*");
   },
 
   getNews() {

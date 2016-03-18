@@ -1,3 +1,38 @@
-{{#each model as |dial index|}}
-  {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
-{{/each}}
+<ul id="historyTiles">
+  {{#each model.history as |dial index|}}
+    {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
+  {{/each}}
+</ul>
+
+<ul id="customTiles">
+  {{#each model.custom as |dial index|}}
+    {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
+  {{/each}}
+  {{#if displayAddBtn }}
+    {{#unless hideAddBtn}}
+      <li class="addFrame"><a href="#" class="addBtn overflow-hidden" {{action 'showAddForm'}}>Add icon</a></li>
+    {{/unless}}
+  {{/if}}
+  {{#if showAddForm}}
+  <li>
+    <form name="addForm" {{action "addSpeedDial" on="submit"}} class="clearfix addDialForm">
+      <a class="hideAddForm formRow" {{action 'hideAddForm'}}>X</a>
+
+      {{input name="addUrl" type="text" placeholder="url" value=newSpeedDial class="formRow addUrl"}}
+
+      {{#if showNotification }}
+        <div class="notification">Exists already</div>
+      {{/if}}
+
+      {{#if notValidUrl }}
+        <div class="notification">Not valid url</div>
+      {{/if}}
+
+      <button type="submit" class="cliqz-brands-button-4 cqz-ez-btn">Add</button>
+    </form>
+  </li>
+{{/if}}
+</ul>
+
+
+

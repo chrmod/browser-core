@@ -6,8 +6,8 @@ Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
-    CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/freshtab/freshtab.html",
-    //CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/fresh-tab-frontend/index.html",
+    //CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/freshtab/freshtab.html",
+    CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/fresh-tab-frontend/index.html",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
