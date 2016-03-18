@@ -6,10 +6,13 @@ export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
 
   model() {
-    return Ember.Object.create({
-      speedDials: this.get('cliqz').getSpeedDials(),
-      news: this.get('cliqz').getNews()
-    });
+    return this.get('cliqz').getSpeedDials().then( speedDials => {
+      return Ember.Object.create({
+        speedDials: SpeedDials.create({ content: speedDials }),
+        news: News.create({ model: [] })
+      });
+    })
+
   },
 
   afterModel(model) {

@@ -4,14 +4,13 @@ export default Ember.Component.extend({
   cliqz: Ember.inject.service('cliqz'),
 
   displayAddBtn: Ember.computed('model.custom', function() {
-    return this.get('model.custom').length < 5;
+    return this.getWithDefault('model.custom.length', 0) < 5;
   }),
 
   actions: {
     remove(speedDial) {
       this.get("model").removeObject(speedDial);
       this.get('cliqz').removeSpeedDial(speedDial);
-      console.log(speedDial);
     },
     addSpeedDial() {
       var url = this.get('newSpeedDial') && this.get('newSpeedDial').trim(),
@@ -19,12 +18,10 @@ export default Ember.Component.extend({
           isPresent = false;
 
       if (!url) { return; }
-      console.log(url);
 
       speedDials.some(function(dial) {
 
         if (dial.url === url) {
-          console.log(dial.url === url, "Equal");
           isPresent = true;
           return true;
         }
