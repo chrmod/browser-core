@@ -22,6 +22,7 @@ import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
 import { cookieChecker } from 'antitracking/cookie-checker'
+import TrackerProxy from 'antitracking/tracker-proxy';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -64,7 +65,7 @@ var getBrowserMajorVersion = function() {
 };
 
 var CliqzAttrack = {
-    VERSION: '0.95',
+    VERSION: '0.96',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
     VERSIONCHECK_URL: 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
@@ -414,7 +415,12 @@ var CliqzAttrack = {
                     });
                 }
 
-                if (badTokens.length == 0) return;
+                if (badTokens.length == 0) {
+                    if (CliqzAttrack.trackerProxy.checkShouldProxy(url)) {
+                        tp_events.incrementStat(req_log, 'proxy');
+                    }
+                    return;
+                }
 
                 // Block request based on rules specified
                 var _key = source_tab + ":" + source_url;
@@ -496,6 +502,10 @@ var CliqzAttrack = {
                                 aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
                                 tp_events.incrementStat(req_log, 'token_red_' + rule);
                             }
+
+                            if (CliqzAttrack.trackerProxy.checkShouldProxy(tmp_url)) {
+                                tp_events.incrementStat(req_log, 'proxy');
+                            }
                         }
                         CliqzAttrack.recentlyModified.add(source_tab + url, 30000);
                     }
@@ -575,7 +585,6 @@ var CliqzAttrack = {
             var referrer = requestContext.getReferrer();
             var same_gd = false;
 
-
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
@@ -642,6 +651,7 @@ var CliqzAttrack = {
                 var badHeaders = CliqzAttrack.checkHeaders(url_parts, headers, cookievalue, stats);
                 if (req_log) {
                     tp_events.incrementStat(req_log, 'resp_ob');
+                    tp_events.incrementStat(req_log, 'content_length', parseInt(requestContext.getResponseHeader('Content-Length')) || 0);
                     Object.keys(stats).forEach(function(key) {
                         tp_events.incrementStat(req_log, 'header.' + key, stats[key] || 0);
                     });
@@ -1342,6 +1352,9 @@ var CliqzAttrack = {
 
         CliqzAttrack.placeHolder = persist.getValue('placeHolder', CliqzAttrack.placeHolder);
         CliqzAttrack.cliqzHeader = persist.getValue('cliqzHeader', CliqzAttrack.cliqzHeader);
+
+        CliqzAttrack.trackerProxy = new TrackerProxy();
+        CliqzAttrack.trackerProxy.init();
     },
     /** Per-window module initialisation
      */
@@ -1387,6 +1400,8 @@ var CliqzAttrack = {
 
         pacemaker.stop();
         HttpRequestContext.unloadCleaner();
+
+        CliqzAttrack.trackerProxy.destroy();
     },
     unloadWindow: function(window) {
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
