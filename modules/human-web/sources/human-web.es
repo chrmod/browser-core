@@ -1772,11 +1772,8 @@ var CliqzHumanWeb = {
                     AntiPhishing.auxOnPageLoad(activeURL);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
-                          utils.log(activeURL, "HUMAN - url");
-                          utils.log(se, "HUMAN - se");
                     if (se > -1) {
                         CliqzUtils.setTimeout(function(url) {
-                          utils.log("XXXXXXXXXXXXXXXXX", "HUMAN");
                           if (!CliqzHumanWeb) {
                             return;
                           }
@@ -1866,7 +1863,6 @@ var CliqzHumanWeb = {
 
                     CliqzUtils.setTimeout(function(currWin, currURL) {
 
-                        utils.log(currURL, "WEB")
                         // Extract info about the page, title, length of the page, number of links, hash signature,
                         // 404, soft-404, you name it
                         //
@@ -1883,21 +1879,17 @@ var CliqzHumanWeb = {
 
                               var se = CliqzHumanWeb.checkSearchURL(currURL);
 
-                        utils.log(se, "WEB se")
 
                               if (se == -1){
                                 try {
                                   CliqzHumanWeb.checkURL(cd, currURL);
                                 } catch (e) {
-                                  utils.log(e.toString(), "WEB err");
                                 }
-                        utils.log(cd, "WEB cd")
                                   //Check active usage...
                                   CliqzHumanWeb.activeUsage += 1;
 
                               }
 
-                        utils.log(currURL, "WEB currur")
                               var x = CliqzHumanWeb.getPageData(currURL, cd);
 
                               if (x['canonical_url']) {
