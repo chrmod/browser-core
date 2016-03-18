@@ -2,8 +2,6 @@
 
 // todo: WRITE UNIT TEST
 
-//const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
-
 import { utils } from 'core/cliqz';
 import Signals from 'privacy-dashboard/signals';
 
