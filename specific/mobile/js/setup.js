@@ -1,6 +1,7 @@
+System.baseURL = "modules/"
+CLIQZ.System = System;
+
 function init() {
-  System.baseURL = "modules/"
-  CLIQZ.System = System;
   CliqzUtils.initPlatform(System);
   try{
     CLIQZEnvironment.initHomepage(true);
