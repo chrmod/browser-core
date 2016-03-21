@@ -1,15 +1,13 @@
 {
   "name": "navigation-extension",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "",
   "main": "",
   "scripts": {
-    "build": "echo '11'",
     "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
     "deploy-mobile-beta": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta"
   },
   "author": "Cliqz GmbH",
-  "license": "ISC",
   "dependencies": {
     "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-2"
   },
