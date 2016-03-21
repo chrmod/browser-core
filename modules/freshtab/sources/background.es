@@ -4,7 +4,14 @@ import History from 'freshtab/history';
 import { utils } from 'core/cliqz';
 
 const DEL_DIALUPS = 'extensions.cliqzLocal.delDialups';
-const DIALUPS = 'extensions.cliqzLocal.dialups';
+//const DIALUPS = 'extensions.cliqzLocal.dialups';
+const DIALUPS = 'extensions.cliqzLocal.speedDials';
+
+function sanitizeUrl(url) {
+  url = utils.cleanUrlProtocol(url);
+  url = utils.stripTrailingSlash(url);
+  return url;
+}
 
 export default {
   init(settings) {
@@ -55,29 +62,21 @@ export default {
         utils.log("History", JSON.stringify(results));
 
         /*
-        ** Apart from checking non deleted history entries
-        * I filter out custom tiles as well
+        ** Return if url is a deleted history entry
         */
-        function isNotDeleted(history) {
-          var isNotDeleted = true;
+        function isDeleted(url) {
+          return (url in dialUps) && dialUps[url].history === false;
+        }
 
-          for(var i = 0; i < dialUps.length; i++) {
-            var dialup = dialUps[i];
-            if ((dialup.url === history.url && dialup.deleted === true && dialup.custom === false) ||
-                (dialup.url === history.url && dialup.custom === true)) {
-              isNotDeleted = false;
-              break;
-            }
-          }
-          return isNotDeleted;
+        function isCustom(url) {
+          return (url in dialUps) && dialUps[url].custom;
         }
 
         results = dialUps.length === 0 ? results : results.filter(function(history) {
-
-          return isNotDeleted(history);
+          return !isDeleted(history.url) && !isCustom(history.url);
         });
 
-        utils.log(results, "HISTORY RESULTS");
+        //utils.log(results, "HISTORY RESULTS");
 
         return results.map(function(r){
           var details = utils.getDetailsFromUrl(r.url);
@@ -91,18 +90,20 @@ export default {
         });
       });
 
-      customDialups = dialUps.length === 0 ? [] : dialUps.filter(function(dialup) {
-        return !dialup.deleted && dialup.custom;
-      });
+      if(dialUps.length !== 0) {
+        customDialups = Object.keys(dialUps).filter(function(dialup){
+          return dialUps[dialup].custom;
+        });
+      }
 
-      utils.log(customDialups, "CUSTOM RESULTS")
+      //utils.log(customDialups, "CUSTOM RESULTS")
 
-      customDialups = customDialups.map(function(r) {
-        var details = utils.getDetailsFromUrl(r.url);
+      customDialups = customDialups.map(function(url) {
+        var details = utils.getDetailsFromUrl(url);
         return {
-          title: r.url,
-          url: r.url,
-          displayTitle: details.cleanHost || details.friendly_url || r.url,
+          title: url,
+          url: url,
+          displayTitle: details.cleanHost || details.friendly_url || url,
           custom: true,
           logo: utils.getLogoDetails(details)
         };
@@ -122,21 +123,14 @@ export default {
       var isCustom = item.custom,
           url = item.url,
           dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
-          found = false;
+          found = false,
+          type = isCustom ? 'custom' : 'history';
 
-      for(var i = 0; i < dialUps.length; i++) {
-        if(dialUps[i].url === url) {
-          dialUps[i].deleted = true;
-          found = true;
-          break;
-        }
-      }
-      if(found === false) {
-        dialUps.push({
-          url: url,
-          deleted: true,
-          custom: isCustom
-        });
+      if(url in dialUps) {
+        dialUps[url][type] = false;
+      } else {
+        dialUps[url] = {};
+        dialUps[url][type] = false;
       }
 
       utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
@@ -144,40 +138,62 @@ export default {
 
     addSpeedDial(url) {
       utils.log(url, "Add speed dial");
-
       var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
-          found = false;
+          isPresent = false;
 
-      for(var i = 0; i < dialUps.length; i++) {
-        if(dialUps[i].url === url) {
-          dialUps[i].deleted = false;
-          dialUps[i].custom = true;
-          found = true;
-          break;
-        }
-      }
-      if(found === false) {
-        dialUps.push({
-          url: url,
-          deleted: false,
-          custom: true
-        });
-      }
+      //validate existing urls
+      return this.actions.getSpeedDials().then((result) => {
+        return new Promise((resolve) => {
+          result.speedDials.some(function(dialup) {
+            var dialupUrl = sanitizeUrl(dialup.url),
+                urlToAdd = sanitizeUrl(url);
 
-      utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
-
-      //@TODO move this part
-      return new Promise((resolve) => {
-        utils.log("Resolve the promise!!!")
-        var details = utils.getDetailsFromUrl(url),
-            obj = {
-              title: url,
-              url: url,
-              displayTitle: details.cleanHost || details.friendly_url || url,
-              custom: true,
-              logo: utils.getLogoDetails(details)
+            //www.bild.de & user adds bild.de
+            if(!(dialupUrl.startsWith('www') && urlToAdd.startsWith('www'))) {
+              dialupUrl = utils.removeWww(dialupUrl);
+              urlToAdd = utils.removeWww(urlToAdd);
             }
-        resolve(obj);
+            if (dialupUrl === urlToAdd) {
+              utils.log(dialup.url, "isPresent");
+              isPresent = true;
+              return true;
+            }
+          });
+          resolve({
+            error: isPresent,
+            reason: 'duplicate'
+          });
+        });
+
+      }).then(function(obj) {
+        if(isPresent) {
+          return new Promise((resolve) => {
+            resolve(obj);
+          });
+        } else {
+
+          if(url in dialUps) {
+            dialUps[url].custom = true;
+          } else {
+            dialUps[url] = {
+              custom: true
+            };
+          }
+          utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+
+          return new Promise((resolve) => {
+            utils.log("Resolve the promise!!!")
+            var details = utils.getDetailsFromUrl(url),
+                obj = {
+                  title: url,
+                  url: url,
+                  displayTitle: details.cleanHost || details.friendly_url || url,
+                  custom: true,
+                  logo: utils.getLogoDetails(details)
+                }
+            resolve(obj);
+          });
+        }
       });
     },
 

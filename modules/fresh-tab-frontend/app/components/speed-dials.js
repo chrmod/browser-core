@@ -14,48 +14,20 @@ export default Ember.Component.extend({
     },
     addSpeedDial() {
       var url = this.get('newSpeedDial') && this.get('newSpeedDial').trim(),
-          speedDials = this.get('model').toArray(),
-          isPresent = false;
-
+          self = this;
       if (!url) { return; }
 
-      speedDials.some(function(dial) {
-
-        if (dial.url === url) {
-          isPresent = true;
-          return true;
+      this.get('cliqz').addSpeedDial(url).then((obj) => {
+        if('error' in obj) {
+          this.set('showNotification', true);
+          return;
+        } else {
+          self.get("model").pushObject(obj);
+          self.set('newSpeedDial', '');
+          self.set('showAddForm', false);
+          self.set('hideAddBtn', false);
         }
       });
-
-      function isValidUrl(url) {
-        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-        return regexp.test(url);
-      }
-
-      if (isPresent) {
-        this.set('showNotification', true);
-        return;
-      }
-
-      if(!isValidUrl(url)) {
-        this.set('notValidUrl', true);
-        return;
-      }
-
-      /*var obj = {
-        url: url,
-        title: "haha",
-        displayTitle: url,
-        custom: true
-      };*/
-      var self = this;
-      this.get('cliqz').addSpeedDial(url).then(function(obj) {
-        self.get("model").pushObject(obj);
-        self.set('newSpeedDial', '');
-        self.set('showAddForm', false);
-        self.set('hideAddBtn', false);
-      })
-
     },
 
     showAddForm() {
