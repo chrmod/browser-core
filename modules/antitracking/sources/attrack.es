@@ -10,7 +10,7 @@ import tp_events from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
 import { parseURL, dURIC, getHeaderMD5, URLInfo } from 'antitracking/url';
 import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
-import * as hash from 'antitracking/hash';
+import {HashProb} from 'antitracking/hash';
 import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { AttrackBloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
@@ -22,6 +22,7 @@ import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
 import { cookieChecker } from 'antitracking/cookie-checker'
+import TrackerProxy from 'antitracking/tracker-proxy';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -64,7 +65,7 @@ var getBrowserMajorVersion = function() {
 };
 
 var CliqzAttrack = {
-    VERSION: '0.95',
+    VERSION: '0.96',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
     VERSIONCHECK_URL: 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
@@ -414,7 +415,12 @@ var CliqzAttrack = {
                     });
                 }
 
-                if (badTokens.length == 0) return;
+                if (badTokens.length == 0) {
+                    if (CliqzAttrack.trackerProxy.checkShouldProxy(url)) {
+                        tp_events.incrementStat(req_log, 'proxy');
+                    }
+                    return;
+                }
 
                 // Block request based on rules specified
                 var _key = source_tab + ":" + source_url;
@@ -488,13 +494,17 @@ var CliqzAttrack = {
                                 aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
                                 cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
                                 aChannel.notificationCallbacks = cListener;
-                            }                            
+                            }
                             try {
                                 aChannel.URI.spec = tmp_url;
                                 tp_events.incrementStat(req_log, 'token_blocked_' + rule);
                             } catch(error) {
                                 aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
                                 tp_events.incrementStat(req_log, 'token_red_' + rule);
+                            }
+
+                            if (CliqzAttrack.trackerProxy.checkShouldProxy(tmp_url)) {
+                                tp_events.incrementStat(req_log, 'proxy');
                             }
                         }
                         CliqzAttrack.recentlyModified.add(source_tab + url, 30000);
@@ -575,7 +585,6 @@ var CliqzAttrack = {
             var referrer = requestContext.getReferrer();
             var same_gd = false;
 
-
             var source_url = requestContext.getLoadingDocument(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
@@ -642,6 +651,7 @@ var CliqzAttrack = {
                 var badHeaders = CliqzAttrack.checkHeaders(url_parts, headers, cookievalue, stats);
                 if (req_log) {
                     tp_events.incrementStat(req_log, 'resp_ob');
+                    tp_events.incrementStat(req_log, 'content_length', parseInt(requestContext.getResponseHeader('Content-Length')) || 0);
                     Object.keys(stats).forEach(function(key) {
                         tp_events.incrementStat(req_log, 'header.' + key, stats[key] || 0);
                     });
@@ -784,6 +794,11 @@ var CliqzAttrack = {
             }
 
             req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+
+            if (req_log && req_log.c === 0) {
+                CliqzAttrack.httpopenObserver.observe(subject, topic, data);
+                req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+            }
             tp_events.incrementStat(req_log, 'cookie_set');
             if (source_url.indexOf('about:')==0) {
                 // it's a brand new tab, and the url is loaded externally,
@@ -1258,7 +1273,7 @@ var CliqzAttrack = {
         // Replace getWindow functions with window object used in init.
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
 
-        hash.init();
+        CliqzAttrack.hashProb = new HashProb();
 
         // load all caches:
         // Large dynamic caches are loaded via the persist module, which will lazily propegate changes back
@@ -1337,6 +1352,9 @@ var CliqzAttrack = {
 
         CliqzAttrack.placeHolder = persist.getValue('placeHolder', CliqzAttrack.placeHolder);
         CliqzAttrack.cliqzHeader = persist.getValue('cliqzHeader', CliqzAttrack.cliqzHeader);
+
+        CliqzAttrack.trackerProxy = new TrackerProxy();
+        CliqzAttrack.trackerProxy.init();
     },
     /** Per-window module initialisation
      */
@@ -1382,6 +1400,8 @@ var CliqzAttrack = {
 
         pacemaker.stop();
         HttpRequestContext.unloadCleaner();
+
+        CliqzAttrack.trackerProxy.destroy();
     },
     unloadWindow: function(window) {
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
@@ -1573,7 +1593,7 @@ var CliqzAttrack = {
 
         var _countCheck = function(tok) {
             // for token length < 12 and may be not a hash, we let it pass
-            if (tok.length < 12 && !hash.isHash(tok))
+            if (tok.length < 12 && !CliqzAttrack.hashProb.isHash(tok))
                 return 0;
             // update tokenDomain
             tok = md5(tok);

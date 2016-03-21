@@ -1,6 +1,9 @@
 import { utils } from "core/cliqz";
 import config from "core/config";
 
+var lastRequestId = 0;
+var callbacks = {};
+
 export default {
   PROCESS_SCRIPT_URL: "chrome://cliqz/content/core/processScript.js",
 
@@ -26,7 +29,37 @@ export default {
     this.mm.removeDelayedProcessScript(this.PROCESS_SCRIPT_URL);
   },
 
+  getHTML(url, timeout = 1000) {
+    const requestId = lastRequestId++,
+          documents = [];
+
+    this.mm.broadcastAsyncMessage("cliqz:core", {
+      action: "getHTML",
+      args: [ url ],
+      requestId
+    });
+
+    callbacks[requestId] = function (doc) {
+      documents.push(doc);
+    };
+
+    return new Promise( resolve => {
+      utils.setTimeout(function () {
+        delete callbacks[requestId];
+        resolve(documents);
+      }, timeout);
+    });
+  },
+
   dispatchMessage(msg) {
+    if (msg.data.requestId in callbacks) {
+      this.handleResponse(msg);
+    } else {
+      this.handleRequest(msg);
+    }
+  },
+
+  handleRequest(msg) {
     const { action, module, args } = msg.data.payload,
           windowId = msg.data.windowId;
 
@@ -40,6 +73,11 @@ export default {
       });
     }).catch( e => utils.log(e.toString(), "Problem with frameScript") );
   },
+
+  handleResponse(msg) {
+    callbacks[msg.data.requestId].apply(null, [msg.data.payload]);
+  },
+
   actions: {
     sendTelemetry(msg) {
       utils.telemetry(msg);

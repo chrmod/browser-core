@@ -31,6 +31,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     PARTIALS = [
         'url',
         'logo',
+        'EZ-category',
         'partials/ez-title',
         'partials/ez-url',
         'partials/ez-history',

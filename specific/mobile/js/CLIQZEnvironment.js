@@ -94,8 +94,10 @@ CLIQZEnvironment = {
       var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
       left = parseInt(left);
       left -= (left / (i + 1));
+      CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
       frames[i].style.left = left + 'px';
     }
+    CLIQZEnvironment.setResultNavigation(CLIQZEnvironment.lastResults);
   },
 
   setCardsHeight: function() {
@@ -189,24 +191,9 @@ CLIQZEnvironment = {
       showGooglethis = 0;
     }
 
-    var dots = document.getElementById('cliqz-swiping-dots-new-inside');
-    var currentResultsCount = CLIQZEnvironment.currentResultsCount =  results.length+showGooglethis;
-    if(dots) {
-      dots.innerHTML = '';
-      var myEl;
 
-      for(var i=0;i<currentResultsCount;i++) {
-        myEl = document.createElement('span');
-        myEl.innerText = '.';
-        myEl.id = 'dots-page-'+(i);
-        if( i===0 ){
-          myEl.className = 'active';
-        }
-
-        dots.appendChild(myEl);
-      }
-    }
-    //<span class='active'>·</span>
+    var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
+    var currentResultsCount = CLIQZEnvironment.currentResultsCount =  lastResultOffset / CLIQZEnvironment.CARD_WIDTH + showGooglethis + 1;
 
     if(running) {
       setTimeout(nextTest,2000);
@@ -324,16 +311,6 @@ CLIQZEnvironment = {
       initTest();
     }
 
-    if(e === 'josep') {
-      CliqzUtils.RESULTS_PROVIDER = 'http://mixer-beta.clyqz.com/api/v1/results?q=';
-      alert("switched to beta mixer with joseps magic links");
-    } 
-
-    if(e === 'nojosep') {
-      CliqzUtils.RESULTS_PROVIDER = 'https://newbeta.cliqz.com/api/v1/results?q=';
-      alert("switched to live mixer withOUT joseps magic links");
-    }
-
     CLIQZEnvironment.startProgressBar();
 
 
@@ -346,7 +323,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.initViewpager.views = {};
     CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
-    var dots = document.getElementById('cliqz-swiping-dots-new-inside');
+    
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
       dragSize: window.innerWidth,
@@ -362,20 +339,7 @@ CLIQZEnvironment = {
 
       onPageChange : function (page) {
 
-        dots.innerHTML = '';
-        var myEl;
         page = Math.abs(page);
-
-        for(var i=0;i<CLIQZEnvironment.currentResultsCount;i++) {
-          myEl = document.createElement('span');
-          myEl.innerText = '.';
-          myEl.id = 'dots-page-'+(i);
-          if( i===page ){
-            myEl.className = 'active';
-          }
-
-          dots.appendChild(myEl);
-        }
 
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
@@ -681,21 +645,8 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   if(query.match(/http[s]{0,1}:/)) {
     return;
   }
-  if(query.length <= 2) {
-    if( recentItems[0] && recentItems[0].query.indexOf(query) === 0 &&
-        recentItems[0].query.length === 3 &&
-        Date.now() - recentItems[0].timestamp < 5 * 1000) {
-         recentItems.shift();
-         localStorage.setItem('recentQueries',JSON.stringify(recentItems));
-       }
-    return;
-  }
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
-    localStorage.setItem('recentQueries',JSON.stringify(recentItems));
-  }
-  else if(recentItems[0].query === query) {
-    recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     localStorage.setItem('recentQueries',JSON.stringify(recentItems));
   }
   else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
