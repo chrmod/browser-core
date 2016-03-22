@@ -64,5 +64,5 @@ TESTS.HPNMessagesTest = function (CliqzUtils) {
 
 }
 
-TESTS.HPNTest.MIN_BROWSER_VERSION = 41;
+TESTS.HPNMessagesTest.MIN_BROWSER_VERSION = 41;
 
