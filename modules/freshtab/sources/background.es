@@ -2,16 +2,11 @@ import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
 import { utils } from 'core/cliqz';
+import SpeedDial from 'freshtab/speed-dial';
 
 const DEL_DIALUPS = 'extensions.cliqzLocal.delDialups';
 //const DIALUPS = 'extensions.cliqzLocal.dialups';
 const DIALUPS = 'extensions.cliqzLocal.speedDials';
-
-function sanitizeUrl(url) {
-  url = utils.cleanUrlProtocol(url);
-  url = utils.stripTrailingSlash(url);
-  return url;
-}
 
 export default {
   init(settings) {
@@ -61,9 +56,6 @@ export default {
       var historyDialups = History.getTopUrls(5).then(function(results){
         utils.log("History", JSON.stringify(results));
 
-        /*
-        ** Return if url is a deleted history entry
-        */
         function isDeleted(url) {
           return (url in dialUps) && dialUps[url].history === false;
         }
@@ -76,17 +68,8 @@ export default {
           return !isDeleted(history.url) && !isCustom(history.url);
         });
 
-        //utils.log(results, "HISTORY RESULTS");
-
         return results.map(function(r){
-          var details = utils.getDetailsFromUrl(r.url);
-          return {
-            title: r.title,
-            url: r.url,
-            displayTitle: details.cleanHost || details.friendly_url || r.title,
-            custom: false,
-            logo: utils.getLogoDetails(details)
-          };
+          return new SpeedDial(r.url, false);
         });
       });
 
@@ -96,33 +79,29 @@ export default {
         });
       }
 
-      //utils.log(customDialups, "CUSTOM RESULTS")
-
       customDialups = customDialups.map(function(url) {
-        var details = utils.getDetailsFromUrl(url);
-        return {
-          title: url,
-          url: url,
-          displayTitle: details.cleanHost || details.friendly_url || url,
-          custom: true,
-          logo: utils.getLogoDetails(details)
-        };
+        return new SpeedDial(url, true);
       });
 
       //Promise all concatenate results and return
       return Promise.all([historyDialups, customDialups]).then(function(results){
-        utils.log(results[0], "history dialups");
-        utils.log(results[1], "custom dialups")
         return {
           speedDials: results[0].concat(results[1])
         };
       });
     },
 
+    /**
+    * @param Object item
+    * {
+    *   custom: true,
+    *   url: https://www.cliqz.com
+    *  }
+    */
     removeSpeedDial(item) {
       var isCustom = item.custom,
           url = item.url,
-          dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
+          dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
           found = false,
           type = isCustom ? 'custom' : 'history';
 
@@ -135,66 +114,35 @@ export default {
 
       utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
     },
-
+    /**
+     * @param String url
+     */
     addSpeedDial(url) {
-      utils.log(url, "Add speed dial");
-      var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
-          isPresent = false;
-
+      const urlToAdd = utils.stripTrailingSlash(url);
       //validate existing urls
       return this.actions.getSpeedDials().then((result) => {
-        return new Promise((resolve) => {
-          result.speedDials.some(function(dialup) {
-            var dialupUrl = sanitizeUrl(dialup.url),
-                urlToAdd = sanitizeUrl(url);
-
-            //www.bild.de & user adds bild.de
-            if(!(dialupUrl.startsWith('www') && urlToAdd.startsWith('www'))) {
-              dialupUrl = utils.removeWww(dialupUrl);
-              urlToAdd = utils.removeWww(urlToAdd);
-            }
-            if (dialupUrl === urlToAdd) {
-              utils.log(dialup.url, "isPresent");
-              isPresent = true;
-              return true;
-            }
-          });
-          resolve({
-            error: isPresent,
-            reason: 'duplicate'
-          });
+        const isDuplicate = result.speedDials.some(function(dialup) {
+          return urlToAdd === utils.stripTrailingSlash(dialup.url);
         });
 
-      }).then(function(obj) {
-        if(isPresent) {
-          return new Promise((resolve) => {
-            resolve(obj);
-          });
-        } else {
-
-          if(url in dialUps) {
-            dialUps[url].custom = true;
-          } else {
-            dialUps[url] = {
-              custom: true
-            };
-          }
-          utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
-
-          return new Promise((resolve) => {
-            utils.log("Resolve the promise!!!")
-            var details = utils.getDetailsFromUrl(url),
-                obj = {
-                  title: url,
-                  url: url,
-                  displayTitle: details.cleanHost || details.friendly_url || url,
-                  custom: true,
-                  logo: utils.getLogoDetails(details)
-                }
-            resolve(obj);
-          });
+        if(isDuplicate) {
+          throw "duplicate";
         }
-      });
+      }).then(function(obj) {
+        var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
+            details = utils.getDetailsFromUrl(url);
+
+        if(url in dialUps) {
+          dialUps[url].custom = true;
+        } else {
+          dialUps[url] = {
+            custom: true
+          };
+        }
+        utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+        return new SpeedDial(url, true);
+
+      }).catch(reason => ({ error: true, reason }));
     },
 
     getNews() {
