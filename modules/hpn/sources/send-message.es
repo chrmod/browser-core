@@ -403,21 +403,26 @@ var sendM = function (m, sent=[]) {
         sent.push(null);
         let nextMsg = CliqzSecureMessage.nextMessage();
         if(nextMsg) {
-            sendM(nextMsg, sent);
+            return sendM(nextMsg, sent);
         }
         else{
             // Queue is empty hence dump the local temp queue to disk.
             saveLocalCheckTable();
+            return sent;
         }
-        return sent;
+        
     })
     .catch(e => { // Message sending KO
         sent.push(e);
         let nextMsg = CliqzSecureMessage.nextMessage();
         if(nextMsg) {
-            sendM(nextMsg, sent);
+            return sendM(nextMsg, sent);
         }
-        return sent;
+        else {
+            // Queue is empty hence dump the local temp queue to disk.
+            saveLocalCheckTable();
+            return sent;
+        }
     });
 }
 
