@@ -39,9 +39,5 @@ export default {
   },
   urlBar: {
     "search-address": "Search or enter address"
-  },
-  news: {
-    "top-news": "Top News",
-    "your-news": "Your News Sources"
   }
 };

@@ -9,7 +9,11 @@
   </div>
 
   <div id="newsContainer" class="clearfix">
-    {{all-news model=model.news}}
+    {{#unless model.news.yourNews}}
+      {{all-news model=model.news.topNews type="yournews"}}
+    {{else}}
+      {{all-news model=model.news.yourNews type="topnews"}}
+    {{/unless}}
   </div>
 </div>
 <br /><br /><br />
