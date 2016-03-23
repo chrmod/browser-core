@@ -7,6 +7,14 @@ export default Ember.Component.extend({
     return this.getWithDefault('model.custom.length', 0) < 5;
   }),
 
+  observeNewSpeedDial: Ember.observer("newSpeedDial", function () {
+    var url = this.get("newSpeedDial"),
+        re = /^((https?:\/\/.*)|((https?:\/)|(https?:)|(https?)|(htt)|(ht)|(h?))$)/;
+      if(!re.test(url)) {
+        this.set("newSpeedDial", "http://" + url);
+      }
+  }),
+
   actions: {
     remove(speedDial) {
       this.get("model").removeObject(speedDial);
