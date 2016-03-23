@@ -71,7 +71,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
-var BRANDS_DATABASE_VERSION = 1452759183853;
+var BRANDS_DATABASE_VERSION = 1457952995848;
 var CLIQZEnvironment = {
     BRANDS_DATABASE_VERSION: BRANDS_DATABASE_VERSION,
     BRANDS_DATA_URL: 'https://cdn.cliqz.com/brands-database/database/' + BRANDS_DATABASE_VERSION + '/data/database.json',
