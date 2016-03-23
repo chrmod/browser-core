@@ -945,13 +945,13 @@
       "message": "Schutz der Privatsphäre"
     },
     "attrack-headline-general-trackers": {
-      "message": "$1 schickt Informationen an $2 andere Firmen. CLIQZ hat zu Deinem Schutz alle $3 unsicheren Daten entfernt"
+      "message": "unsichere Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
       "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich"
     },
     "attrack-headline-deactivate": {
-      "message": "CLIQZ Anti-Tracking ist deaktiviert. Persönliche Daten sind nun Dritten zugänglich."
+      "message": "Der CLIQZ Privatsphärenschutz ist deaktiviert. Private Daten sind nun Dritten zugänglich."
     },
     "attrack-headline-reload": {
       "message": "Für sicheres Browsen bitte Seite neu laden"
@@ -969,16 +969,19 @@
       "message": "Schutz der Privatsphäre ausschalten"
     },
     "attrack-btn-white-list": {
-      "message": "Datensammlung auf $1 zulassen"
+      "message": "Privatsphärenschutz für diese Seite ausschalten."
     },
     "attrack-btn-white-list-off": {
-      "message": "Datensammlung auf $1 wieder verhindern"
+      "message": "Privatsphärenschutz für diese Seite ausschalten."
     },
     "attrack-btn-details-more": {
       "message": "Mehr sehen"
     },
     "attrack-btn-details-less": {
       "message": "Weniger sehen"
+    },
+    "attrack-help": {
+      "message": "Hilfe"
     },
     "attrack-force-block-setting": {
       "message": "Anti-Tracking Verhalten"
@@ -988,6 +991,12 @@
     },
     "attrack-force-block-on": {
       "message": "Strikt"
+    },
+    "attrack-trackers-info-msg": {
+      "message": "Liste der Tracking Firmen"
+    },
+    "attrack-trackers-count-info-msg": {
+      "message": "Private Daten"
     },
     "freshtab_learn_more": {
       "message": "Mehr erfahren"
