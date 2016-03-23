@@ -5,6 +5,7 @@
 import urllib2
 import xml.etree.ElementTree as ET
 import os, os.path
+import json
 
 from fabric.contrib import console
 from fabric.api import task, local, lcd, hide
@@ -33,7 +34,11 @@ def get_version(beta='True'):
     full_version = local("git describe --tags", capture=True)  # e.g. 0.4.08-2-gb4f9f56
     # full_version = 'images'
     version_parts = full_version.split("-")
-    version = version_parts[0]
+
+    with open('../../package.json') as package_json_file:
+        package_json = json.load(package_json_file)
+        version = package_json['version']
+
     if beta == 'True':
         # If the number of commits after a tag is 0 the returned versions have
         # no dashes (e.g. 0.4.08)
@@ -90,7 +95,12 @@ def package(beta='True', version=None, sign='False', amo='False'):
         local("mv %s UNSIGNED_%s" % (output_file_name, output_file_name))
         # signs the XPI with the CLIQZ certificate
 
-        local("python /src/main/xpi-sign/xpisign.py -k /Volumes/CLIQZXPI/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
+        # look for xpi-sign report on the same level as navigation-extension
+        local( ("python ../../xpi-sign/xpisign.py "
+                "-k ../../certs/xpisign-cliqz\@cliqz.com "
+                "--signer openssl "
+                "--passin file:../../certs/pass "
+                "UNSIGNED_%s %s ") % (output_file_name, output_file_name))
 
     # creates a copy to the current build in case we need to upload it to S3
     local("cp %s latest.xpi" % output_file_name)
