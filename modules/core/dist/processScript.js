@@ -67,7 +67,6 @@ function getContextHTML(ev) {
 }
 
 function onDOMWindowCreated(ev) {
-  dump("NEW WINDOW \n\n");
   var window = ev.originalTarget.defaultView;
   var currentURL = window.location.href;
 
