@@ -52,8 +52,7 @@ function orderedStringify(t, res, onlyKeys) {
       throw 'Found undefined field when trying to calculate msg routehash';
     }
     res.push(cleanStr(t));
-  }
-  else {
+  } else {
     let keys = Object.keys(t);
     keys.sort();
     let isArray = Array.isArray(t);
