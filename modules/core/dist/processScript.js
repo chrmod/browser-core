@@ -12,6 +12,10 @@ var whitelist = [
   "chrome://cliqz/"
 ].concat(config.settings.frameScriptWhitelist);
 
+/**
+ * processScripts are supported for Firefox >= 38
+ * so for older version we need to provide other means of communication
+ */
 function send(msg) {
   sendAsyncMessage("cliqz", msg);
 }
