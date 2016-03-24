@@ -4,6 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
+    "package-beta": "cd build/firefox; fab package:beta=True; cp latest.xpi ../../; cd ../..",
     "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
     "deploy-mobile-beta": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta"
   },
@@ -16,7 +17,7 @@
     "broccoli": "cliqz-oss/broccoli#building-server",
     "broccoli-asset-rev": "^2.3.0",
     "broccoli-babel-transpiler": "^5.4.5",
-    "broccoli-config-replace": "^1.1.1",
+    "broccoli-config-replace": "cliqz-oss/broccoli-config-replace#nested-paths",
     "broccoli-file-creator": "^1.0.1",
     "broccoli-funnel": "^0.2.10",
     "broccoli-jade": "^1.1.0",
