@@ -2,17 +2,44 @@
 /* globals sendAsyncMessage, removeMessageListener, addMessageListener */
 /* globals addEventListener, content */
 // CLIQZ pages communication channel
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/Services.jsm');
-Cu.import("chrome://cliqzmodules/content/Extension.jsm");
+
+var config = {{CONFIG}};
 
 var whitelist = [
   "chrome://cliqz/"
-].concat(Extension.config.settings.frameScriptWhitelist);
+].concat(config.settings.frameScriptWhitelist);
 
-function send(msg) {
-  sendAsyncMessage("cliqz", msg);
+/**
+ * processScripts are supported for Firefox >= 38
+ * so for older version we need to provide other means of communication
+ */
+if (typeof sendAsyncMessage !== "undefined") {
+  function send(msg) {
+    sendAsyncMessage("cliqz", msg);
+  }
+
+  function startListening(channel, cb) {
+    addMessageListener(channel, cb);
+  }
+
+  function stopListening(channel, cb) {
+    removeMessageListener(channel, cb);
+  }
+} else if(CliqzEvents) {
+  function send(msg) {
+    CliqzEvents.pub("process-script-cliqz", { data: msg });
+  }
+
+  function startListening(channel, cb) {
+    CliqzEvents.sub("process-script-"+channel, cb);
+  }
+
+  function stopListening(channel, cb) {
+    CliqzEvents.un_sub("process-script-"+channel, cb);
+  }
 }
 
 function getContextHTML(ev) {
@@ -40,6 +67,7 @@ function getContextHTML(ev) {
 }
 
 function onDOMWindowCreated(ev) {
+  dump("NEW WINDOW \n\n");
   var window = ev.originalTarget.defaultView;
   var currentURL = window.location.href;
 
@@ -162,8 +190,8 @@ function onDOMWindowCreated(ev) {
   window.addEventListener("mousedown", onMouseDown);
   window.addEventListener("scroll", onScroll);
   window.addEventListener("copy", onCopy);
-  addMessageListener("window-"+windowId, onCallback);
-  addMessageListener("cliqz:core", onCore);
+  startListening("window-"+windowId, onCallback);
+  startListening("cliqz:core", onCore);
 
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
@@ -172,8 +200,8 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
-    removeMessageListener("window-"+windowId, onCallback);
-    removeMessageListener("cliqz:core", onCore);
+    stopListening("window-"+windowId, onCallback);
+    stopListening("cliqz:core", onCore);
   });
 
 }
