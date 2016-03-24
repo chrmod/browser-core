@@ -5,11 +5,12 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/Services.jsm');
-Cu.import("chrome://cliqzmodules/content/Extension.jsm");
+
+var config = {{CONFIG}};
 
 var whitelist = [
   "chrome://cliqz/"
-].concat(Extension.config.settings.frameScriptWhitelist);
+].concat(config.settings.frameScriptWhitelist);
 
 function send(msg) {
   sendAsyncMessage("cliqz", msg);
