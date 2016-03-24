@@ -219,7 +219,7 @@ def comment_cleaner(path=None):
 
     target = ['js', 'jsm', 'html']
 
-    exclude_dirs = ['node_modules', 'bower_components', 'extern']
+    exclude_dirs = ['node_modules', 'bower_components', 'extern', 'fresh-tab-frontend']
     ignore = [
         'ToolbarButtonManager.jsm',
         'math.min.jsm',
