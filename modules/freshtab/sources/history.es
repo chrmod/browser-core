@@ -35,7 +35,8 @@ var CliqzFreshTabHistory = {
           }
         }
       ).then(function() {
-        resolve(result.slice(0,limit));
+        resolve(result);
+        //resolve(result.slice(0,limit));
       });
     });
   }

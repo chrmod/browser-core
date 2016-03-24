@@ -69,4 +69,13 @@ export function overRideCliqzResults(){
       return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
     }
   }
+  if(!CLIQZEnvironment._promiseHttpHandler) CLIQZEnvironment._promiseHttpHandler = CLIQZEnvironment.promiseHttpHandler;
+  CLIQZEnvironment.promiseHttpHandler = function(method, url, data, timeout, compressedPost) {
+    if(url == CliqzUtils.SAFE_BROWSING && CliqzUtils.getPref('hpn-telemetry', false)){
+      return CLIQZEnvironment._promiseHttpHandler(method, url, data, timeout, false);
+    }
+    else{
+      return CLIQZEnvironment._promiseHttpHandler.apply(CLIQZEnvironment, arguments);
+    }
+  }
 }

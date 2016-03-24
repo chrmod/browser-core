@@ -21,12 +21,26 @@ export default Ember.Route.extend({
   afterModel() {
     const config = this.get('config');
 
-    if (config.showOnboarding) {
+    if(config.showOnboarding) {
       Ember.run.later(this.send.bind(this, 'openModal', 'onboarding'), 1000);
     }
   },
 
   actions: {
+
+    toggleBackground() {
+      const $background = $('.optinBackground');
+
+      if($background.hasClass('transparent')) {
+        return;
+      }
+
+      $background.fadeOut(700)
+        .fadeIn(400)
+        .delay(100)
+        .toggleClass('transparent')
+        .removeClass('bgImage');
+    },
 
     openLink(url, telemetry) {
       this.get('cliqz').sendTelemetry({
@@ -34,7 +48,7 @@ export default Ember.Route.extend({
         "product": "cliqz",
         "action": "click",
         "action_target": telemetry,
-        "version": 1.0,
+        "version": "2.0",
       });
       window.open(url,'_blank');
     },
@@ -46,7 +60,7 @@ export default Ember.Route.extend({
           type: "onboarding",
           product: "cliqz",
           action: "show",
-          version: "1.0"
+          version: "2.0"
         });
       }
 
@@ -62,7 +76,7 @@ export default Ember.Route.extend({
         product: "cliqz",
         action: "click",
         action_target: "confirm",
-        version: "1.0"
+        version: "2.0"
       });
 
       return this.disconnectOutlet({

@@ -129,7 +129,7 @@ var CliqzSecureMessage = {
 
       // Flush proxy stats
       CliqzSecureMessage.flushProxyStats();
-      }
+    }
 
     CliqzSecureMessage.counter += 1;
   },
@@ -215,7 +215,16 @@ var CliqzSecureMessage = {
       CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
       CliqzSecureMessage._telemetry_start = (new Date()).getTime();
       CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
-      if(CliqzSecureMessage._telemetry_sending.length > 0) sendM(CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]]);
+      let nextMsg = CliqzSecureMessage.nextMessage();
+      if (nextMsg) {
+        return sendM(nextMsg);
+      }
+      return Promise.resolve([]);
+    },
+    nextMessage: function() {
+      if(CliqzSecureMessage._telemetry_sending.length > 0) {
+        return CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]];
+      }
     },
     initAtWindow: function(window){
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/crypto-kjur.js', window);
