@@ -12,7 +12,7 @@ export function overRideCliqzResults(){
   CLIQZEnvironment.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
     if(url.indexOf(CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) > -1 && CliqzUtils.getPref('hpn-query', false)) {
       var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
-      var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ver": "1.5", "payload":_q });
+      var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ts": "", "ver": "1.5", "payload":_q });
       var proxyIP = CliqzSecureMessage.queryProxyIP;
       mc.aesEncrypt()
       .then(function(enxryptedQuery){
@@ -38,7 +38,7 @@ export function overRideCliqzResults(){
       return null;
     } else if(url.indexOf(CliqzUtils.RESULTS_PROVIDER_LOG) > -1 && CliqzUtils.getPref('hpn-telemetry', false)) {
       var _q = url.replace(CliqzUtils.RESULTS_PROVIDER_LOG,"")
-      var mc = new messageContext({"action": "extension-result-telemetry", "type": "cliqz", "ver": "1.5", "payload":_q });
+      var mc = new messageContext({"action": "extension-result-telemetry", "type": "cliqz", "ts": "", "ver": "1.5", "payload":_q });
       var proxyIP = CliqzSecureMessage.queryProxyIP;
       mc.aesEncrypt()
       .then(function(enxryptedQuery){
