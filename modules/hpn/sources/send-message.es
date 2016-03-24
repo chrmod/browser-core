@@ -286,6 +286,7 @@ var sendMessage = function(m) {
         catch (e){
             CliqzUtils.log("Error creating mc: " + e,CliqzSecureMessage.LOG_KEY);
             reject('error-creating-mc');
+            return;
         }
         CliqzHumanWeb.incrActionStats("tRcvd");
 
@@ -302,6 +303,7 @@ var sendMessage = function(m) {
             }
             CliqzHumanWeb.incrActionStats("droppedLocalCheck");
             reject('dropped-local-check');
+            return;
         }
 
         mc.aesEncrypt()
