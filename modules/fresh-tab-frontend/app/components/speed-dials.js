@@ -7,6 +7,10 @@ export default Ember.Component.extend({
     return this.getWithDefault('model.custom.length', 0) < 5;
   }),
 
+  topFiveHistory: Ember.computed('model.history', function() {
+    return this.get('model.history').slice(0, 5)
+  }),
+
   observeNewSpeedDial: Ember.observer("newSpeedDial", function () {
     var url = this.get("newSpeedDial"),
         re = /^((https?:\/\/.*)|((https?:\/)|(https?:)|(https?)|(htt)|(ht)|(h?))$)/;

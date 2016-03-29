@@ -1,5 +1,5 @@
 <ul id="historyTiles">
-  {{#each model.history as |dial index|}}
+  {{#each topFiveHistory as |dial index|}}
     {{speed-dial model=dial index=index tagName="li" removeAction="remove"}}
   {{/each}}
 </ul>
