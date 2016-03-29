@@ -8,12 +8,13 @@ export default Ember.Component.extend({
       type: 'home',
       action: 'click',
       target_type: 'topsites',
+      target_source: this.get('source'),
       target_index: this.get('index')
     });
   },
   actions: {
     remove() {
-      this.sendAction("removeAction", this.get('model'));
+      this.sendAction("removeAction", this.get('model'), this.get('source'));
     }
   }
 });

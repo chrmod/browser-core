@@ -99,7 +99,7 @@ export default describeModule("freshtab/background",
         });
 
         it('display manually added custom tiles', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
             "https://yahoo.com/": { "custom": true },
             "https://www.gmail.com/": { "custom": true }
           }));
@@ -111,7 +111,7 @@ export default describeModule("freshtab/background",
         });
 
         it('do NOT display manually deleted custom tiles', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
             "https://yahoo.com/": { "custom": true },
             "https://www.gmail.com/": { "custom": false }
           }));
@@ -123,7 +123,7 @@ export default describeModule("freshtab/background",
         });
 
         it('do NOT display manually deleted history tiles', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
             "http://cliqz.com/": { "history": false },
             "https://www.spiegel.com/": { "custom": true }
           }));
@@ -138,7 +138,7 @@ export default describeModule("freshtab/background",
 
         it('do NOT display history tiles in 1st row when manually added to 2nd row', function() {
 
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
             "http://cliqz.com/": { "custom": true },
             "https://www.spiegel.com/": { "custom": true }
           }));
@@ -153,7 +153,7 @@ export default describeModule("freshtab/background",
         });
 
         it('display tiles in 1st row when manually deleted from 2nd row', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
             "http://cliqz.com/": { "custom": false },
             "https://www.spiegel.com/": { "custom": true }
           }));
@@ -187,7 +187,7 @@ export default describeModule("freshtab/background",
             const url = "http://cliqz.com";
 
             return this.module().default.actions.addSpeedDial(url).then((newSpeedDial) => {
-              const speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.speedDials"));
+              const speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.freshtab.speedDials"));
 
               chai.expect(speedDials).to.deep.equal({ [url]: { custom: true }});
               chai.expect(newSpeedDial).to.have.property('title').that.equal(url)
@@ -203,13 +203,13 @@ export default describeModule("freshtab/background",
         context("speed dials already present", function () {
           it("add back a speed dial that was previously deleted", function () {
             const url = "http://cliqz.com/";
-            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
               "http://cliqz.com/": { "custom": false },
               "https://www.spiegel.com/": { "custom": true }
             }));
 
             return this.module().default.actions.addSpeedDial(url).then(() => {
-              const actual = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.speedDials"));
+              const actual = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.freshtab.speedDials"));
               const expected = {
                 "http://cliqz.com/": { "custom": true },
                 "https://www.spiegel.com/": { "custom": true }
@@ -250,7 +250,7 @@ export default describeModule("freshtab/background",
         context("custom speed dials already present", function() {
 
           it("remove custom speed dial", function() {
-            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
+            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
               "http://cliqz.com/": { "custom": true },
               "https://www.spiegel.com/": { "custom": true }
             }));
@@ -260,7 +260,7 @@ export default describeModule("freshtab/background",
               "custom": true
             }
             this.module().default.actions.removeSpeedDial(speedDial);
-            let speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.speedDials"));
+            let speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.freshtab.speedDials"));
             chai.expect(speedDials["http://cliqz.com/"].custom).to.equal(false);
           });
         });

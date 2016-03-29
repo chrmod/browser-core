@@ -4,9 +4,7 @@ import History from 'freshtab/history';
 import { utils } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 
-const DEL_DIALUPS = 'extensions.cliqzLocal.delDialups';
-//const DIALUPS = 'extensions.cliqzLocal.dialups';
-const DIALUPS = 'extensions.cliqzLocal.speedDials';
+const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
 
 export default {
   init(settings) {
