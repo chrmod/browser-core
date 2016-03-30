@@ -68,13 +68,15 @@ export default {
         }
 
         function isCustom(url) {
+          url = utils.stripTrailingSlash(url);
+
           var isCustom = false;
 
           if(dialUps && dialUps.custom) {
 
             dialUps.custom.some(function(dialup) {
 
-              if(dialup.url === url) {
+              if(utils.stripTrailingSlash(dialup.url) === url) {
                 isCustom = true;
                 return true;
               }

@@ -69,6 +69,8 @@ export default describeModule("freshtab/background",
             return Math.floor(Math.random(0,1) *10000)
           }
         }
+
+        this.deps("core/cliqz").utils.stripTrailingSlash = function(url) { return url; }
       });
 
       describe("#getSpeedDials", function() {
