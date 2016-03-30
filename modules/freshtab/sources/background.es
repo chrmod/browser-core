@@ -49,21 +49,42 @@ export default {
     getSpeedDials() {
       var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
           historyDialups = [],
-          customDialups = [];
+          customDialups = dialUps.custom ? dialUps.custom : [];
 
-      var historyDialups = History.getTopUrls(5).then(function(results){
+      historyDialups = History.getTopUrls(5).then(function(results){
         utils.log("History", JSON.stringify(results));
+        //hash history urls
+        results = results.map(function(r) {
+          return {
+            title: r.title,
+            url: r.url,
+            hashedUrl: utils.hash(r.url),
+            total_count: r.total_count
+          }
+        });
 
         function isDeleted(url) {
-          return (url in dialUps) && dialUps[url].history === false;
+          return dialUps.history && (url in dialUps.history) && dialUps.history[url].hidden === true;
         }
 
         function isCustom(url) {
-          return (url in dialUps) && dialUps[url].custom;
+          var isCustom = false;
+
+          if(dialUps && dialUps.custom) {
+
+            dialUps.custom.some(function(dialup) {
+
+              if(dialup.url === url) {
+                isCustom = true;
+                return true;
+              }
+            });
+          }
+          return isCustom;
         }
 
         results = dialUps.length === 0 ? results : results.filter(function(history) {
-          return !isDeleted(history.url) && !isCustom(history.url);
+          return !isDeleted(history.hashedUrl) && !isCustom(history.url);
         });
 
         return results.map(function(r){
@@ -71,15 +92,12 @@ export default {
         });
       });
 
-      if(dialUps.length !== 0) {
-        customDialups = Object.keys(dialUps).filter(function(dialup){
-          return dialUps[dialup].custom;
+      if(customDialups.length > 0) {
+        utils.log(customDialups, "custom dialups");
+        customDialups = customDialups.map(function(dialup) {
+          return new SpeedDial(dialup.url, true);
         });
       }
-
-      customDialups = customDialups.map(function(url) {
-        return new SpeedDial(url, true);
-      });
 
       //Promise all concatenate results and return
       return Promise.all([historyDialups, customDialups]).then(function(results){
@@ -98,16 +116,20 @@ export default {
     */
     removeSpeedDial(item) {
       var isCustom = item.custom,
-          url = item.url,
+          url = isCustom ? item.url : utils.hash(item.url),
           dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
           found = false,
           type = isCustom ? 'custom' : 'history';
 
-      if(url in dialUps) {
-        dialUps[url][type] = false;
+      if(isCustom) {
+        dialUps.custom = dialUps.custom.filter(function(dialup) {
+          return dialup.url !== url
+        });
       } else {
-        dialUps[url] = {};
-        dialUps[url][type] = false;
+        if(!dialUps.history) {
+          dialUps.history = {};
+        }
+        dialUps.history[url] = { hidden: true };
       }
 
       utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
@@ -130,13 +152,12 @@ export default {
         var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
             details = utils.getDetailsFromUrl(url);
 
-        if(url in dialUps) {
-          dialUps[url].custom = true;
-        } else {
-          dialUps[url] = {
-            custom: true
-          };
+        if(!dialUps.custom) {
+          dialUps.custom = [];
         }
+        dialUps.custom.push({
+          url: url
+        });
         utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
         return new SpeedDial(url, true);
 
