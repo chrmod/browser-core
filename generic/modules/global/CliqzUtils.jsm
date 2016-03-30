@@ -369,6 +369,12 @@ var CliqzUtils = {
 
     return url;
   },
+  removeWww: function(url) {
+    if(url.toLowerCase().indexOf('www.') == 0) {
+      url = url.slice(4);
+    }
+    return url;
+  },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol

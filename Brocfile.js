@@ -248,13 +248,25 @@ var firefoxLibs = new MergeTrees([
   new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] }),
 ]);
 
-var extensionConfig = new ConfigReplace(
-  new Funnel(firefoxSpecific, { include: [ 'modules/Extension.jsm' ] }),
+
+var firefoxTree = new MergeTrees([
+  firefoxSpecific,
+  new Funnel(config,      { destDir: 'chrome/content'}),
+  new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
+  new Funnel(global,      { destDir: 'modules' }),
+  new Funnel(local,       { destDir: 'chrome/content'}),
+  new Funnel(bowerTree,   { destDir: 'chrome/content/bower_components' }),
+  new Funnel(modules,     { destDir: 'chrome/content' }),
+], { overwrite: true } );
+
+var firefoxConfigTree = new ConfigReplace(
+  firefoxTree,
   config,
   {
     configPath: 'cliqz.json',
     files: [
-      'modules/Extension.jsm'
+      'modules/Extension.jsm',
+      'chrome/content/core/processScript.js'
     ],
     patterns: [{
       match: /\{\{CONFIG\}\}/g,
@@ -263,22 +275,13 @@ var extensionConfig = new ConfigReplace(
   }
 );
 
-firefoxSpecific = new MergeTrees([
-  firefoxSpecific,
-  extensionConfig,
+firefoxTree = new MergeTrees([
+  firefoxTree,
+  firefoxConfigTree
 ], { overwrite: true });
 
-//  first level trees
 var firefox = new MergeTrees([
-  new Funnel(new MergeTrees([
-    firefoxSpecific,
-    new Funnel(config,      { destDir: 'chrome/content'}),
-    new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
-    new Funnel(global,      { destDir: 'modules' }),
-    new Funnel(local,       { destDir: 'chrome/content'}),
-    new Funnel(bowerTree,   { destDir: 'chrome/content/bower_components' }),
-    new Funnel(modules,     { destDir: 'chrome/content' }),
-  ], { overwrite: true } ), { destDir: 'cliqz@cliqz.com' }),
+  new Funnel(firefoxTree, { destDir: 'cliqz@cliqz.com' }),
   firefoxPackage,
 ]);
 

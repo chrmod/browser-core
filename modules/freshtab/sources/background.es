@@ -2,6 +2,11 @@ import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
 import { utils } from 'core/cliqz';
+import SpeedDial from 'freshtab/speed-dial';
+
+const DEL_DIALUPS = 'extensions.cliqzLocal.delDialups';
+//const DIALUPS = 'extensions.cliqzLocal.dialups';
+const DIALUPS = 'extensions.cliqzLocal.speedDials';
 
 export default {
   init(settings) {
@@ -44,18 +49,100 @@ export default {
     },
 
     getSpeedDials() {
-      return History.getTopUrls(5).then(function(results){
+      var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
+          historyDialups = [],
+          customDialups = [];
+
+      var historyDialups = History.getTopUrls(5).then(function(results){
         utils.log("History", JSON.stringify(results));
+
+        function isDeleted(url) {
+          return (url in dialUps) && dialUps[url].history === false;
+        }
+
+        function isCustom(url) {
+          return (url in dialUps) && dialUps[url].custom;
+        }
+
+        results = dialUps.length === 0 ? results : results.filter(function(history) {
+          return !isDeleted(history.url) && !isCustom(history.url);
+        });
+
         return results.map(function(r){
-          var details = utils.getDetailsFromUrl(r.url);
-          return {
-            title: r.title,
-            url: r.url,
-            displayTitle: details.cleanHost || details.friendly_url || r.title,
-            logo: utils.getLogoDetails(details)
-          }
+          return new SpeedDial(r.url, false);
         });
       });
+
+      if(dialUps.length !== 0) {
+        customDialups = Object.keys(dialUps).filter(function(dialup){
+          return dialUps[dialup].custom;
+        });
+      }
+
+      customDialups = customDialups.map(function(url) {
+        return new SpeedDial(url, true);
+      });
+
+      //Promise all concatenate results and return
+      return Promise.all([historyDialups, customDialups]).then(function(results){
+        return {
+          speedDials: results[0].concat(results[1])
+        };
+      });
+    },
+
+    /**
+    * @param Object item
+    * {
+    *   custom: true,
+    *   url: https://www.cliqz.com
+    *  }
+    */
+    removeSpeedDial(item) {
+      var isCustom = item.custom,
+          url = item.url,
+          dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
+          found = false,
+          type = isCustom ? 'custom' : 'history';
+
+      if(url in dialUps) {
+        dialUps[url][type] = false;
+      } else {
+        dialUps[url] = {};
+        dialUps[url][type] = false;
+      }
+
+      utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+    },
+    /**
+     * @param String url
+     */
+    addSpeedDial(url) {
+      const urlToAdd = utils.stripTrailingSlash(url);
+      //validate existing urls
+      return this.actions.getSpeedDials().then((result) => {
+        const isDuplicate = result.speedDials.some(function(dialup) {
+          return urlToAdd === utils.stripTrailingSlash(dialup.url);
+        });
+
+        if(isDuplicate) {
+          throw "duplicate";
+        }
+      }).then(function(obj) {
+        var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
+            details = utils.getDetailsFromUrl(url);
+
+        if(url in dialUps) {
+          dialUps[url].custom = true;
+        } else {
+          dialUps[url] = {
+            custom: true
+          };
+        }
+        utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+        return new SpeedDial(url, true);
+
+      }).catch(reason => ({ error: true, reason }));
     },
 
     getNews() {

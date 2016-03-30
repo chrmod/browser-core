@@ -71,7 +71,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
-var BRANDS_DATABASE_VERSION = 1452759183853;
+var BRANDS_DATABASE_VERSION = 1457952995848;
 var CLIQZEnvironment = {
     BRANDS_DATABASE_VERSION: BRANDS_DATABASE_VERSION,
     BRANDS_DATA_URL: 'https://cdn.cliqz.com/brands-database/database/' + BRANDS_DATABASE_VERSION + '/data/database.json',
@@ -454,7 +454,13 @@ var CLIQZEnvironment = {
 
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+        },
+        function(e) {
+          CliqzUtils.log(e, "Error updating geolocation");
+        },
+        {
+          maximumAge: 3600*1000 // 1 hour
+        });
 
         //Upate position if it changes
         GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
@@ -463,7 +469,13 @@ var CLIQZEnvironment = {
             CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
             CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
           }
-        }, function(e) { CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
+        },
+        function(e) {
+          CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation");
+        },
+        {
+          maximumAge: 3600*1000 // 1 hour
+        });
       } else {
         CLIQZEnvironment.USER_LAT = null;
         CLIQZEnvironment.USER_LNG = null;

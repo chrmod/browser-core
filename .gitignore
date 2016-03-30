@@ -22,3 +22,6 @@ bower_components
 *.scssc
 generic/static/styles/css/
 npm.err
+
+/certs
+/xpi-sign

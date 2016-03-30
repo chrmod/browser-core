@@ -2,13 +2,9 @@
 
 // todo: WRITE UNIT TEST
 
-const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
 import { utils } from 'core/cliqz';
 import Signals from 'privacy-dashboard/signals';
 
-Cm.QueryInterface(Ci.nsIComponentRegistrar);
 function AboutURLPrivacy() {}
 var AboutURLFactoryPrivacy;
 
@@ -18,6 +14,8 @@ var PrivacyRep = {
 
   onExtensionStart: function () {
     Signals.init();
+
+    Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
     if (PrivacyRep.initialized === false) {
       AboutURLPrivacy.prototype = {
@@ -67,7 +65,9 @@ var PrivacyRep = {
   },
 
   registerStream: function () {
-    Signals.startListening();
+    if (PrivacyRep.openingStreamCount === 0) {
+      Signals.startListening();
+    }
 
     PrivacyRep.openingStreamCount += 1;
     Signals.setStreaming(true);
@@ -76,8 +76,9 @@ var PrivacyRep = {
   unregisterStream: function () {
     PrivacyRep.openingStreamCount -= 1;
     if (PrivacyRep.openingStreamCount <= 0) {
-      Signals.setStreaming(false);
       PrivacyRep.openingStreamCount = 0;
+      Signals.setStreaming(false);
+      Signals.stopListening();
     }
   },
 
