@@ -147,6 +147,16 @@ var CLIQZEnvironment = {
                     return prev;
                  }, {});
     },
+    isDefaultBrowser: function(window){
+      try {
+        var shell = window.getShellService();
+        if (shell) {
+          return shell.isDefaultBrowser(false);
+        }
+      } catch(e) {}
+
+      return null;
+    },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync, encoding){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
