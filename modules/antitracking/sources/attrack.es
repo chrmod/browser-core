@@ -1508,12 +1508,12 @@ var CliqzAttrack = {
             }
 
             if (versioncheck.shortTokenLength) {
-                persist.saveValue('shortTokenLength', versioncheck.shortTokenLength);
+                persist.setValue('shortTokenLength', versioncheck.shortTokenLength);
                 CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength) || CliqzAttrack.shortTokenLength;
             }
 
             if (versioncheck.safekeyValuesThreshold) {
-                persist.saveValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
+                persist.setValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
                 CliqzAttrack.safekeyValuesThreshold = parseInt(versioncheck.safekeyValuesThreshold) || CliqzAttrack.safekeyValuesThreshold;
             }
 
