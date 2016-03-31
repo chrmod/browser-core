@@ -7,6 +7,10 @@ export default Ember.Component.extend({
     return this.getWithDefault('model.custom.length', 0) < 5;
   }),
 
+  topFiveHistory: Ember.computed('model.history', function() {
+    return this.get('model.history').slice(0, 5)
+  }),
+
   observeNewSpeedDial: Ember.observer("newSpeedDial", function () {
     var url = this.get("newSpeedDial"),
         re = /^((https?:\/\/.*)|((https?:\/)|(https?:)|(https?)|(htt)|(ht)|(h?))$)/;
@@ -19,6 +23,14 @@ export default Ember.Component.extend({
     remove(speedDial) {
       this.get("model").removeObject(speedDial);
       this.get('cliqz').removeSpeedDial(speedDial);
+      this.get('cliqz').sendTelemetry({
+        type: 'home',
+        action: 'click',
+        action_target: 'remove',
+        target_type: 'topsites',
+        target_source: arguments[1],
+        target_index: this.get('index')
+      });
     },
     addSpeedDial() {
       var url = this.get('newSpeedDial') && this.get('newSpeedDial').trim(),
@@ -34,6 +46,13 @@ export default Ember.Component.extend({
           self.set('newSpeedDial', '');
           self.set('showAddForm', false);
           self.set('hideAddBtn', false);
+
+          this.get('cliqz').sendTelemetry({
+            type: 'home',
+            action: 'click',
+            action_target: 'add',
+            target_type: 'topsites'
+          });
         }
       });
     },
@@ -43,8 +62,13 @@ export default Ember.Component.extend({
       this.toggleProperty('showAddForm');
       setTimeout(function() {
         Ember.$('.addUrl').focus();
-
       }, 300);
+      this.get('cliqz').sendTelemetry({
+        type: 'home',
+        action: 'click',
+        action_target: 'show-add-form',
+        target_type: 'topsites'
+      });
     },
 
     hideAddForm() {
@@ -53,6 +77,13 @@ export default Ember.Component.extend({
       this.set('newSpeedDial', '');
       this.set('showNotification', false);
       this.set('notValidUrl', false);
+
+      this.get('cliqz').sendTelemetry({
+        type: 'home',
+        action: 'click',
+        action_target: 'hide-add-form',
+        target_type: 'topsites'
+      });
     }
   }
 });

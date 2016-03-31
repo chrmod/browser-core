@@ -61,6 +61,16 @@ export default describeModule("freshtab/background",
           this.custom = custom;
           this.logo = '';
         }
+
+        this.deps("core/cliqz").utils.hash = function(url) {
+          if(url === 'http://cliqz.com/') {
+            return '171601621';
+          } else {
+            return Math.floor(Math.random(0,1) *10000)
+          }
+        }
+
+        this.deps("core/cliqz").utils.stripTrailingSlash = function(url) { return url; }
       });
 
       describe("#getSpeedDials", function() {
@@ -99,9 +109,11 @@ export default describeModule("freshtab/background",
         });
 
         it('display manually added custom tiles', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-            "https://yahoo.com/": { "custom": true },
-            "https://www.gmail.com/": { "custom": true }
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
+            "custom": [
+              { url: "https://yahoo.com/" },
+              { url: "https://www.gmail.com/" }
+            ]
           }));
 
           return this.module().default.actions.getSpeedDials().then((result) => {
@@ -110,22 +122,15 @@ export default describeModule("freshtab/background",
           });
         });
 
-        it('do NOT display manually deleted custom tiles', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-            "https://yahoo.com/": { "custom": true },
-            "https://www.gmail.com/": { "custom": false }
-          }));
-
-          return this.module().default.actions.getSpeedDials().then((result) => {
-            var customTiles = result.speedDials.filter((tile) => tile.custom);
-            chai.expect(customTiles.length).to.equal(1);
-          });
-        });
 
         it('do NOT display manually deleted history tiles', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-            "http://cliqz.com/": { "history": false },
-            "https://www.spiegel.com/": { "custom": true }
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
+            "history": {
+              "171601621": { "hidden": true }
+            },
+            "custom": [
+              {"url": "https://www.spiegel.com/"}
+            ]
           }));
 
           return this.module().default.actions.getSpeedDials().then((result) => {
@@ -138,9 +143,11 @@ export default describeModule("freshtab/background",
 
         it('do NOT display history tiles in 1st row when manually added to 2nd row', function() {
 
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-            "http://cliqz.com/": { "custom": true },
-            "https://www.spiegel.com/": { "custom": true }
+          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
+            "custom": [
+              {"url": "https://www.yahoo.com/"},
+              {"url": "http://cliqz.com/"}
+            ]
           }));
 
           return this.module().default.actions.getSpeedDials().then((result) => {
@@ -149,21 +156,6 @@ export default describeModule("freshtab/background",
             chai.expect(result.speedDials.length).to.equal(4);
             chai.expect(customTiles.length).to.equal(2);
             chai.expect(historyTiles.length).to.equal(2);
-          });
-        });
-
-        it('display tiles in 1st row when manually deleted from 2nd row', function() {
-          this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-            "http://cliqz.com/": { "custom": false },
-            "https://www.spiegel.com/": { "custom": true }
-          }));
-
-          return this.module().default.actions.getSpeedDials().then((result) => {
-            var customTiles = result.speedDials.filter((tile) => tile.custom),
-                historyTiles = result.speedDials.filter((tile) => !tile.custom);
-            chai.expect(result.speedDials.length).to.equal(4);
-            chai.expect(customTiles.length).to.equal(1);
-            chai.expect(historyTiles.length).to.equal(3);
           });
         });
       });
@@ -187,9 +179,11 @@ export default describeModule("freshtab/background",
             const url = "http://cliqz.com";
 
             return this.module().default.actions.addSpeedDial(url).then((newSpeedDial) => {
-              const speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.speedDials"));
+              const speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.freshtab.speedDials"));
 
-              chai.expect(speedDials).to.deep.equal({ [url]: { custom: true }});
+              chai.expect(speedDials.custom).to.deep.equal([
+                { "url": url }
+              ]);
               chai.expect(newSpeedDial).to.have.property('title').that.equal(url)
               chai.expect(newSpeedDial).to.have.property('url').that.equal(url);
               chai.expect(newSpeedDial).to.have.property('displayTitle').that.equal(url)
@@ -201,22 +195,6 @@ export default describeModule("freshtab/background",
         });
 
         context("speed dials already present", function () {
-          it("add back a speed dial that was previously deleted", function () {
-            const url = "http://cliqz.com/";
-            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-              "http://cliqz.com/": { "custom": false },
-              "https://www.spiegel.com/": { "custom": true }
-            }));
-
-            return this.module().default.actions.addSpeedDial(url).then(() => {
-              const actual = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.speedDials"));
-              const expected = {
-                "http://cliqz.com/": { "custom": true },
-                "https://www.spiegel.com/": { "custom": true }
-              };
-              chai.expect(actual).to.deep.equal(expected);
-            });
-          });
 
           it("do NOT add duplicate urls (after sanitization)", function() {
             this.deps("core/cliqz").utils.stripTrailingSlash = function(url) { return 'always_the_same'; }
@@ -247,12 +225,33 @@ export default describeModule("freshtab/background",
             .bind(this.module().default);
         });
 
+        context("NO previous deleted tiles", function() {
+          it("remove history speed dial", function() {
+            //this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", ''));
+
+            const speedDial = {
+              "url": "http://cliqz.com/",
+              "custom": false
+            }
+            this.module().default.actions.removeSpeedDial(speedDial);
+            let speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.freshtab.speedDials"));
+            chai.expect(speedDials).to.deep.equal({
+              "history":
+                {
+                  "171601621": { "hidden": true}
+                }
+              });
+          });
+        });
+
         context("custom speed dials already present", function() {
 
           it("remove custom speed dial", function() {
-            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.speedDials", JSON.stringify({
-              "http://cliqz.com/": { "custom": true },
-              "https://www.spiegel.com/": { "custom": true }
+            this.deps("core/cliqz").utils.setPref("extensions.cliqzLocal.freshtab.speedDials", JSON.stringify({
+              "custom": [
+                { "url": "http://cliqz.com/" },
+                { "url": "https://www.spiegel.com/" }
+              ]
             }));
 
             const speedDial = {
@@ -260,8 +259,11 @@ export default describeModule("freshtab/background",
               "custom": true
             }
             this.module().default.actions.removeSpeedDial(speedDial);
-            let speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.speedDials"));
-            chai.expect(speedDials["http://cliqz.com/"].custom).to.equal(false);
+            let speedDials = JSON.parse(this.deps("core/cliqz").utils.getPref("extensions.cliqzLocal.freshtab.speedDials"));
+            chai.expect(speedDials).to.deep.equal({
+              "custom": [
+                { "url": "https://www.spiegel.com/" }
+              ]});
           });
         });
       });
