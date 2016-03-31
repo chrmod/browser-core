@@ -344,7 +344,7 @@ CLIQZEnvironment = {
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
 
-        if(page !== CLIQZEnvironment.currentPage) {
+        if(page && page !== CLIQZEnvironment.currentPage) {
           CliqzUtils.telemetry({
             type: 'activity',
             action: 'swipe',
