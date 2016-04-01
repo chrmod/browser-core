@@ -76,7 +76,9 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
-  BRANDS_DATABASE_VERSION: CLIQZEnvironment.BRANDS_DATABASE_VERSION,
+
+  //will be updated from the mixer config endpoint every time new logos are generated
+  BRANDS_DATABASE_VERSION: 1457952995848,
 
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
@@ -135,17 +137,17 @@ var CliqzUtils = {
 
       var retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
-      (function getLogoDB(){
+      (function getLogoDB(url){
 
-          CliqzUtils && CliqzUtils.httpGet(CLIQZEnvironment.BRANDS_DATA_URL,
+          CliqzUtils && CliqzUtils.httpGet(url,
           function(req){
             CliqzUtils.BRANDS_DATABASE =  BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
             var retry = retryPattern.pop();
-            if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
+            if(retry) CliqzUtils.setTimeout(getLogoDB, retry, url);
           }
           , MINUTE/2);
-      })();
+      })(CLIQZEnvironment.getBrandsDBUrl(this.BRANDS_DATABASE_VERSION));
     }
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
