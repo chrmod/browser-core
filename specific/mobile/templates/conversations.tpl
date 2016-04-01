@@ -49,8 +49,7 @@
                 </table>
 
                 {{else}}
-
-                <h2><span>{{../date}}</span></h2>
+                <h2><span>{{this.date}}</span></h2>
 
                 {{/if}}
 

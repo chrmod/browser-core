@@ -139,7 +139,7 @@ var CliqzUtils = {
 
           CliqzUtils && CliqzUtils.httpGet(CLIQZEnvironment.BRANDS_DATA_URL,
           function(req){
-            BRANDS_DATABASE = JSON.parse(req.response); },
+            CliqzUtils.BRANDS_DATABASE =  BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
             var retry = retryPattern.pop();
             if(retry) CliqzUtils.setTimeout(getLogoDB, retry);

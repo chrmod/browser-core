@@ -277,7 +277,7 @@ CLIQZEnvironment = {
       resultsBox.style.display = 'none';
       window.document.getElementById('startingpoint').style.display = 'block';
       CLIQZ.UI.main(resultsBox);
-      CLIQZEnvironment.initHomepage();
+      CLIQZEnvironment.initHomepage(true);
       CLIQZEnvironment.stopProgressBar();
       CLIQZEnvironment.lastResults = null;
       return;
@@ -344,7 +344,7 @@ CLIQZEnvironment = {
         CLIQZEnvironment.initViewpager.views[page] =
           (CLIQZEnvironment.initViewpager.views[page] || 0) + 1;
 
-        if(page !== CLIQZEnvironment.currentPage) {
+        if(page && page !== CLIQZEnvironment.currentPage) {
           CliqzUtils.telemetry({
             type: 'activity',
             action: 'swipe',
@@ -586,9 +586,9 @@ CLIQZEnvironment = {
     });
   },
 
-  initHomepage: function(firstTime) {
-    if(!firstTime) {
-      var start = document.getElementById('freshstart');
+  initHomepage: function(hideLastState) {
+    if(hideLastState) {
+      var start = document.getElementById('resetState');
       start && (start.style.display = 'none');
     }
     osBridge.getTopSites('News.displayTopSites', 20);

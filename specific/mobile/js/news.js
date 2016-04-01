@@ -1,3 +1,11 @@
+var DEPENDENCY_STATUS = {
+  NOT_LOADED: 'NOT_LOADED',
+  LOADED: 'LOADED',
+  GIVE_UP: 'GIVE_UP',
+  RETRY_LIMIT: 20,
+  retryCount: {}
+}
+
 var News = {
   
   _recentHistory: {},
@@ -128,8 +136,11 @@ var News = {
         style: logo.style
       };
     });
-    if(!CliqzHandlebars.tplCache.topnews || CliqzUtils.getLocalizedString('freshtab_top_news') === 'freshtab_top_news') {
-      return setTimeout(News.displayTopNews, 100, news);
+    var dependencyStatus = News.getDependencyStatus('topnews');
+    if(dependencyStatus === DEPENDENCY_STATUS.NOT_LOADED) {
+      return setTimeout(News.displayTopNews, 100, top_news);
+    } else if(dependencyStatus === DEPENDENCY_STATUS.GIVE_UP) {
+      return;
     }
     var topNews = CliqzHandlebars.tplCache['topnews'];
     var div = window.document.getElementById('topNews');
@@ -153,8 +164,11 @@ var News = {
 
 
   displayTopSites: function (list) {
-    if(!CliqzHandlebars.tplCache.topsites || CliqzUtils.getLocalizedString('freshtab_top_sites') === 'freshtab_top_sites') {
+    var dependencyStatus = News.getDependencyStatus('topsites');
+    if(dependencyStatus === DEPENDENCY_STATUS.NOT_LOADED) {
       return setTimeout(News.displayTopSites, 100, list);
+    } else if(dependencyStatus === DEPENDENCY_STATUS.GIVE_UP) {
+      return;
     }
 
     if(!list.length) {
@@ -214,5 +228,16 @@ var News = {
         target_index: this.dataset.index
       });
     });
+  },
+  // wait for logos, templates, and locale to be loaded
+  getDependencyStatus: function(template) {
+    if(DEPENDENCY_STATUS.retryCount[template] === undefined) {
+      DEPENDENCY_STATUS.retryCount[template] = 0;
+    }
+    if(!CliqzUtils.BRANDS_DATABASE.buttons || !CliqzHandlebars.tplCache[template] || CliqzUtils.getLocalizedString('freshtab_top_sites') === 'freshtab_top_sites') {
+      return DEPENDENCY_STATUS.retryCount[template]++ < DEPENDENCY_STATUS.RETRY_LIMIT ? DEPENDENCY_STATUS.NOT_LOADED : DEPENDENCY_STATUS.GIVE_UP;
+    }
+    DEPENDENCY_STATUS.retryCount[template] = 0;
+    return DEPENDENCY_STATUS.LOADED;
   }
 }
