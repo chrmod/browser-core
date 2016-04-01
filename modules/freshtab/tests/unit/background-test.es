@@ -38,8 +38,8 @@ export default describeModule("freshtab/background",
       beforeEach(function() {
         prefs = {};
 
-        this.deps("core/cliqz").utils.getPref = function(key) {
-          return prefs[key];
+        this.deps("core/cliqz").utils.getPref = function(key, def) {
+          return prefs[key] || def;
         }
 
         this.deps("core/cliqz").utils.hasPref = function(key) { return key in prefs; }

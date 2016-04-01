@@ -151,18 +151,29 @@ export default {
           throw "duplicate";
         }
       }).then(function(obj) {
-        var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
+        var dialUps = JSON.parse(utils.getPref(DIALUPS, '{}', '')),
             details = utils.getDetailsFromUrl(url);
 
         if(!dialUps.custom) {
           dialUps.custom = [];
         }
-        dialUps.custom.push({
-          url: url
-        });
-        utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
-        return new SpeedDial(url, true);
 
+        /* before adding new dialup make sure it is not there already
+        ** looks like concurrency issues of messaging framework could lead to race conditions
+        */
+        const isPresent = dialUps.custom.some(function(dialup) {
+          return urlToAdd === utils.stripTrailingSlash(dialup.url);
+        });
+
+        if(isPresent) {
+          throw "duplicate";
+        } else {
+          dialUps.custom.push({
+            url: url
+          });
+          utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+          return new SpeedDial(url, true);
+        }
       }).catch(reason => ({ error: true, reason }));
     },
 
