@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+  cliqz: Ember.inject.service(),
   pageNum: 0,
 
   isOnePage: Ember.computed.equal("pages.length", 1),
@@ -45,6 +46,7 @@ export default Ember.Component.extend({
   }.on('didInsertElement'),
 
   actions: {
+
     next() {
       this.nextPage();
     },
@@ -53,6 +55,12 @@ export default Ember.Component.extend({
       this.animate(function() {
         this.set('pageNum', num);
       }.bind(this));
+      this.get('cliqz').sendTelemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'topnews-pagination-dots',
+        target_index: num
+      });
       this.autoRotate();
      }
   },

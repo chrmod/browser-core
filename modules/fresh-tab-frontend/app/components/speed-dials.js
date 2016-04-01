@@ -26,10 +26,8 @@ export default Ember.Component.extend({
       this.get('cliqz').sendTelemetry({
         type: 'home',
         action: 'click',
-        action_target: 'remove',
-        target_type: 'topsites',
-        target_source: arguments[1],
-        target_index: this.get('index')
+        target_type: 'remove-' + arguments[1].slice(0, -1),
+        target_index: arguments[2]
       });
     },
     addSpeedDial() {
@@ -50,8 +48,7 @@ export default Ember.Component.extend({
           this.get('cliqz').sendTelemetry({
             type: 'home',
             action: 'click',
-            action_target: 'add',
-            target_type: 'topsites'
+            target_type: 'add-customsite'
           });
         }
       });
@@ -66,8 +63,7 @@ export default Ember.Component.extend({
       this.get('cliqz').sendTelemetry({
         type: 'home',
         action: 'click',
-        action_target: 'show-add-form',
-        target_type: 'topsites'
+        target_type: 'show-customsites-add-form'
       });
     },
 
@@ -81,8 +77,7 @@ export default Ember.Component.extend({
       this.get('cliqz').sendTelemetry({
         type: 'home',
         action: 'click',
-        action_target: 'hide-add-form',
-        target_type: 'topsites'
+        target_type: 'hide-customsites-add-form'
       });
     }
   }

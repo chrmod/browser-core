@@ -7,14 +7,13 @@ export default Ember.Component.extend({
     this.get('cliqz').sendTelemetry({
       type: 'home',
       action: 'click',
-      target_type: 'topsites',
-      target_source: this.get('source'),
+      target_type: this.get('type'),
       target_index: this.get('index')
     });
   },
   actions: {
     remove() {
-      this.sendAction("removeAction", this.get('model'), this.get('source'));
+      this.sendAction("removeAction", this.get('model'), this.get('type'), this.get('index'));
     }
   }
 });

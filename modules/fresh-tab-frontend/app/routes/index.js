@@ -19,12 +19,11 @@ export default Ember.Route.extend({
     this.get('cliqz').getNews().then( news => {
       model.set('news.model', news);
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,
-          customSites = model.getWithDefault("speedDials.custom.length", 0),
-          topSites = historySites + customSites;
+          customSites = model.getWithDefault("speedDials.custom.length", 0);
+
       this.get('cliqz').sendTelemetry({
         type: 'home',
         action: 'display',
-        topsites: topSites,
         historysites: historySites,
         customsites: customSites,
         topnews: model.getWithDefault("news.topNews.length", 0),
