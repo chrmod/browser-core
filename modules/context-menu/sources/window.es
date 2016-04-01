@@ -73,6 +73,9 @@ export default class {
   }
 
   clickHandler(query) {
+    // opens a new empty tab
+    CLIQZEnvironment.openTabInWindow(this.window, '')
+
     var urlbar = this.window.document.getElementById('urlbar');
 
     urlbar.mInputField.focus();
