@@ -942,16 +942,16 @@
       "message": "I participate in the Human Web"
     },
     "attrack-headline-general-title": {
-      "message": "Privacy protection"
+      "message": "Privacy Protection"
     },
     "attrack-headline-general-trackers": {
-      "message": "$1 sends information to $2 other companies. CLIQZ has removed $3 unsafe data points for your protection"
+      "message": "Data points neutralized"
     },
     "attrack-headline-general-whitelisted": {
-      "message": "Currently, your personal data is accessible for third parties on this site"
+      "message": "As long as the checkbox is checked Privacy Protection for this site will be turned off"
     },
     "attrack-headline-deactivate": {
-      "message": "CLIQZ Anti-Tracking is deactivated. Private data can now be accessed by third parties."
+      "message": "Privacy Protection is OFF. Your data is exposed to trackers !"
     },
     "attrack-headline-reload": {
       "message": "Please reload to browse safely!"
@@ -966,19 +966,22 @@
       "message": "Activate privacy protection"
     },
     "attrack-btn-power-off": {
-      "message": "Deactivate privacy protection"
+      "message": "Turn off Privacy Protection"
     },
     "attrack-btn-white-list": {
-      "message": "Allow being tracked on $1"
+      "message": "Turn off Protection for this site!"
     },
     "attrack-btn-white-list-off": {
-      "message": "Disable being tracked on $1"
+      "message": "Turn off Protection for this site!"
     },
     "attrack-btn-details-more": {
       "message": "See More"
     },
     "attrack-btn-details-less": {
       "message": "See Less"
+    },
+    "attrack-help": {
+      "message": "Help"
     },
     "attrack-force-block-setting": {
       "message": "Anti-Tracking Behaviour"
@@ -988,6 +991,12 @@
     },
     "attrack-force-block-on": {
       "message": "Strict"
+    },
+    "attrack-trackers-info-msg": {
+      "message": "List of tracking companies"
+    },
+    "attrack-trackers-count-info-msg": {
+      "message": "Private data points"
     },
     "freshtab_learn_more": {
       "message": "Learn more"
