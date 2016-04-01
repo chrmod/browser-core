@@ -101,8 +101,8 @@ var Mixer = {
     }
 
     try {
-      var eztype = JSON.parse(ez.data.subType).ez;
-      if (!eztype) {
+      var ezId = CliqzSmartCliqzCache.getId(ez);
+      if (!ezId) {
         return false;
       }
     } catch (e) {
@@ -272,13 +272,13 @@ var Mixer = {
 
     // slice creates a shallow copy, so we don't reverse existing array.
     extraResults.slice().reverse().forEach(function(r) {
-      var eztype = JSON.parse(r.data.subType).ez;
+      var ezId = CliqzSmartCliqzCache.getId(r);
       var trigger_urls = r.data.trigger_urls || [];
       var wasCacheUpdated = false;
 
       trigger_urls.forEach(function(url) {
-        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != eztype) {
-          CliqzSmartCliqzCache.triggerUrls.store(url, eztype);
+        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != ezId) {
+          CliqzSmartCliqzCache.triggerUrls.store(url, ezId);
           wasCacheUpdated = true;
         }
       });
@@ -415,17 +415,22 @@ var Mixer = {
   mix: function(q, cliqz, cliqzExtra, history, customResults,
                 only_history) {
 
-    // Prepare incoming EZ results
-    cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
-
-    // Add EZ from first cliqz results to list of EZs, if valid
-    if (cliqz && cliqz.length > 0 && Mixer._isValidQueryForEZ(q)) {
-      Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
+    if(! Mixer._isValidQueryForEZ(q)){
+      cliqzExtra = [];
     }
+    else {
+      // Prepare incoming EZ results
+      cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
 
-    // Cache any EZs found
-    if (CliqzSmartCliqzCache) {
-      Mixer._cacheEZs(cliqzExtra);
+      // Add EZ from first cliqz results to list of EZs, if valid
+      if (cliqz && cliqz.length > 0) {
+        Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
+      }
+
+      // Cache any EZs found
+      if (CliqzSmartCliqzCache) {
+        Mixer._cacheEZs(cliqzExtra);
+      }
     }
 
     // Prepare other incoming data
