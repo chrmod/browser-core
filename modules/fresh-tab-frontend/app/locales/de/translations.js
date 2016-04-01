@@ -12,7 +12,7 @@ export default {
     "title": "Juhuuu! CLIQZ wurde erfolgreich installiert.",
     "hdr-privacy": "Mit CLIQZ bist du sicher.",
     "txt-privacy1": "Unsere innovativen",
-    "txt-privacy2": "Anti-Tracking & -Phising",
+    "txt-privacy2": "Anti-Tracking & -Phishing",
     "txt-privacy3": "Funktionen schützen deine persönlichen Daten.",
     "cta1": "Weiter",
     "hdr-search": "Schnell-Suche",
