@@ -101,7 +101,7 @@ var Mixer = {
     }
 
     try {
-      var ezId = CliqzSmartCliqzCache.getId(ez);
+      var ezId = Mixer._getSmartCliqzId(ez);
       if (!ezId) {
         return false;
       }
@@ -265,6 +265,9 @@ var Mixer = {
       return !duplicate;
     });
   },
+  _getSmartCliqzId: function(smartCliqz) {
+    return smartCliqz.data.__subType__.id;
+  },
 
   // Find any entity zone in the results and cache them for later use.
   // Go backwards to prioritize the newest, which will be first in the list.
@@ -272,7 +275,7 @@ var Mixer = {
 
     // slice creates a shallow copy, so we don't reverse existing array.
     extraResults.slice().reverse().forEach(function(r) {
-      var ezId = CliqzSmartCliqzCache.getId(r);
+      var ezId = Mixer._getSmartCliqzId(r);
       var trigger_urls = r.data.trigger_urls || [];
       var wasCacheUpdated = false;
 
@@ -415,10 +418,9 @@ var Mixer = {
   mix: function(q, cliqz, cliqzExtra, history, customResults,
                 only_history) {
 
-    if(! Mixer._isValidQueryForEZ(q)){
+    if (!Mixer._isValidQueryForEZ(q)) {
       cliqzExtra = [];
-    }
-    else {
+    } else {
       // Prepare incoming EZ results
       cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
 
