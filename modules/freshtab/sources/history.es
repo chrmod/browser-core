@@ -30,7 +30,7 @@ var CliqzFreshTabHistory = {
         ].join(' '),
         ["url", "title", "total_count"],
         function(row) {
-          var key = CliqzUtils.getDetailsFromUrl(row.url).host.replace(/^(www\.)/,'');
+          var key = CliqzUtils.getDetailsFromUrl(row.url).cleanHost;
           if (!(key in domains)){
             result.push(row);
             domains[key]=row;
