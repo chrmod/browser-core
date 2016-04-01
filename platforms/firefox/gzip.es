@@ -48,13 +48,17 @@ function simulateRequest(aConverter, aStream, aContentLength) {
 function compressString(aString) {
   var accumulator,
       converter,
-      stream;
+      stream,
+      utf8String;
 
+  // Converts a Javascript string into UTF-8 encoding
+  // (see http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html)
+  utf8String = unescape(encodeURIComponent(aString));
   accumulator = new Accumulator();
   converter = new CompressConverter('uncompresssed', 'gzip', accumulator, null);
   stream = new StringInputStream();
-  stream.data = aString;
-  simulateRequest(converter, stream, aString.length);
+  stream.data = utf8String;
+  simulateRequest(converter, stream, utf8String.length);
 
   return Uint8Array.from(accumulator.buffer);
 }
