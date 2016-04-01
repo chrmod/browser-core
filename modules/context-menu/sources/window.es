@@ -69,6 +69,7 @@ export default class {
   removeMenuItem() {
     if (this.menuItem) {
       this.contextMenu.removeChild(this.menuItem);
+      this.menuItem = null;
     }
   }
 
