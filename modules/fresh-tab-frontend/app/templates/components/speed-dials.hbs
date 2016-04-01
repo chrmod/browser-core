@@ -1,12 +1,12 @@
 <ul id="historyTiles">
   {{#each topFiveHistory as |dial index|}}
-    {{speed-dial model=dial index=index tagName="li" source='history' removeAction="remove"}}
+    {{speed-dial model=dial index=index tagName="li" type='historysites' removeAction="remove"}}
   {{/each}}
 </ul>
 
 <ul id="customTiles">
   {{#each model.custom as |dial index|}}
-    {{speed-dial model=dial index=index tagName="li" source='custom' removeAction="remove"}}
+    {{speed-dial model=dial index=index tagName="li" type='customsites' removeAction="remove"}}
   {{/each}}
   {{#if displayAddBtn }}
     {{#unless hideAddBtn}}
