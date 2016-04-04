@@ -1,4 +1,13 @@
+
  /* common */
+*,
+*:before,
+*:after {
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+}
+
 @font-face {
   font-family: "Lato";
   src: url("./fonts/Lato-Regular.ttf");
@@ -541,6 +550,7 @@ a:hover, a:active, a:focus {
   background-color: #63AFE6;
   height: 30px;
   font-size: 18px;
+  box-sizing: content-box;
 }
 
 .optinContent .footer {
