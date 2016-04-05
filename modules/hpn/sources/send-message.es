@@ -386,7 +386,13 @@ var sendMessage = function(m) {
             resolve();
         })
         .catch(err =>  {
-            CliqzUtils.log("Error promise failed: " + err,CliqzSecureMessage.LOG_KEY);
+            if (err === 'msgtoobig') {
+                CliqzUtils.log("Error promise failed: " + err, CliqzSecureMessage.LOG_KEY);
+                CliqzHumanWeb.incrActionStats("msgtoobig");
+            } else {
+                CliqzUtils.log("Unknown error: " + err, CliqzSecureMessage.LOG_KEY);
+                CliqzHumanWeb.incrActionStats("unknownerrorsm");
+            }
             CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-error",1);
             reject('error-promise-failed');
         })

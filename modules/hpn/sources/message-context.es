@@ -14,9 +14,12 @@ import secureEventLoggerContext from "hpn/secure-logger";
 /* This method will ensure that we have the same length for all the mesages
 */
 function padMessage(msg){
-	var mxLen = "14000";
-	var str = msg + new Array((mxLen - msg.length) + 1).join("\n");
-	return str;
+	const mxLen = 14000;
+	var padLen = (mxLen - msg.length) + 1;
+	if (padLen < 0) {
+		throw 'msgtoobig';
+	}
+	return msg + new Array(padLen).join("\n");
 }
 
 function isJson(str) {
