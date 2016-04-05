@@ -36,7 +36,7 @@ var VERTICAL_ENCODINGS = {
     'people':'p',
     'news':'n',
     'video':'v',
-    //'hq':'h',
+    'hq':'h',
     'bm': 'm',
     'recipeRD': 'r',
     'game': 'g',

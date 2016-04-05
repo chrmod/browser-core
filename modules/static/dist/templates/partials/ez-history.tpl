@@ -7,7 +7,8 @@
                  shortUrl="{{link}}"
                  extra="{{extra}}"
                  domain="{{domain}}"
-                 arrow="false">
+                 arrow="false"
+                 useParentOffset="true">
                 <span class='cqz-history-item-title'>{{ emphasis title ../../text 2 true }}</span>
                 <span class='cqz-history-item-link'>{{ emphasis link ../../text 2 true }}</span>
             </li>
