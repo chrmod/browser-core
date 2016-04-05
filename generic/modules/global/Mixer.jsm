@@ -100,9 +100,17 @@ var Mixer = {
       return false;
     }
 
+    if (!ez.data.__subType__) {
+      return false;
+    }
+
     try {
       var ezId = Mixer._getSmartCliqzId(ez);
       if (!ezId) {
+        return false;
+      }
+      var ezClass = JSON.parse(ez.data.subType).class;
+      if (!ezClass) {
         return false;
       }
     } catch (e) {
