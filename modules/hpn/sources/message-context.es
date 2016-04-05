@@ -75,6 +75,7 @@ export default class {
 
 	/**
 	 * Method to parse a message and encrypt with AES.
+	 * @throws {string} Will throw 'msgtoobig' if message size exceeds a threshold.
 	 * @returns string of AES encrypted message.
 	 */
 	aesEncrypt(){

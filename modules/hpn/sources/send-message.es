@@ -387,11 +387,11 @@ var sendMessage = function(m) {
         })
         .catch(err =>  {
             if (err === 'msgtoobig') {
-                CliqzUtils.log("Error promise failed: " + err, CliqzSecureMessage.LOG_KEY);
-                CliqzHumanWeb.incrActionStats("msgtoobig");
+                CliqzUtils.log(`Error promise failed: msgtoobig-${m.action}`, CliqzSecureMessage.LOG_KEY);
+                CliqzHumanWeb.incrActionStats(`msgtoobig-${m.action}`);
             } else {
-                CliqzUtils.log("Unknown error: " + err, CliqzSecureMessage.LOG_KEY);
-                CliqzHumanWeb.incrActionStats("unknownerrorsm");
+                CliqzUtils.log(`Unknown error: ${err}-${m.action}`, CliqzSecureMessage.LOG_KEY);
+                CliqzHumanWeb.incrActionStats(`unknownerror-${m.action}`);
             }
             CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-error",1);
             reject('error-promise-failed');
