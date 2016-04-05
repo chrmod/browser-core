@@ -35,7 +35,6 @@ export default class {
 	constructor(msg) {
 		if(!msg) return;
 		CliqzUtils.log("Message Rec: " + JSON.stringify(msg),CliqzSecureMessage.LOG_KEY);
-		CliqzUtils.log("Length Message Rec: " + JSON.stringify(msg).length,CliqzSecureMessage.LOG_KEY);
 	 	this.orgMessage = isJson(msg) ? JSON.stringify(msg) : msg;
 	 	this.jMessage = isJson(msg) ? msg : JSON.parse(msg);
 	 	this.sha256 = sha256_digest(this.orgMessage);
