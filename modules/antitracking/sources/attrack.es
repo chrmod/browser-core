@@ -2094,7 +2094,7 @@ var CliqzAttrack = {
         var gBrowser = CliqzUtils.getWindow().gBrowser,
             selectedTab = gBrowser.selectedTab;
         tabId = selectedTab.linkedBrowser._loadContext.DOMWindowID;
-        urlForTab = '' + gBrowser.getBrowserForTab(selectedTab).contentDocument.location;
+        urlForTab = selectedTab.linkedBrowser.currentURI.spec;
       } catch (e) {
       }
       return CliqzAttrack.getTabBlockingInfo(tabId, urlForTab);

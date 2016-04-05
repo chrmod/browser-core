@@ -62,7 +62,7 @@ var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
   onLocationChange: function(aBrowser, aRequest, aURI) {
-    CliqzEvents.pub("core.location_change", aBrowser.currentURI.spec);
+    CliqzEvents.pub("core.location_change", aURI.spec);
   }
 };
 

@@ -2148,7 +2148,11 @@ var CliqzHumanWeb = {
         if (currwin && currwin.gBrowser) {
             // http://mikeconley.github.io/e10s-MM-CPOW-talk/#slide-54
             // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/browser.js#2395
-            ret = ''+currwin.gBrowser.selectedBrowser[currwin.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'].location;
+            if(currwin.gMultiProcessBrowser) {
+              ret = currwin.gBrowser.selectedBrowser.currentURI.spec;
+            } else {
+              ret = ''+currwin.gBrowser.selectedBrowser.contentDocument.location;
+            }
         }
         return CliqzHumanWeb.cleanCurrentUrl(ret);
     },
