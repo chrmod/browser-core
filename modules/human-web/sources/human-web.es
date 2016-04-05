@@ -2004,6 +2004,10 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.debug) {
                 _log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
             }
+
+            // Ensuring the dbConn is not null.
+            var dbConn = CliqzHumanWeb.getDBConn();
+
             CliqzHumanWeb.cleanHttpCache();
             CliqzHumanWeb.cleanDocCache();
             CliqzHumanWeb.cleanLinkCache();
@@ -4231,6 +4235,9 @@ var CliqzHumanWeb = {
 
         });
 
+    },
+    getDBConn: function(){
+        return CliqzHumanWeb.dbConn || CliqzHumanWeb.initDB();
     }
 
 };
