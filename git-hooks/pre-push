@@ -57,14 +57,16 @@ do
     while read commit_id
     do
       commit_message=`git log -n1 --pretty=%s $commit_id`
-      ticked_id_match=`echo $commit_message | egrep '^EX-\d+:\s\w+'`
+      # Before modifying RE, make sure it works on all platfrorms!
+      ticked_id_match=`echo $commit_message | grep -E '^EX-[0-9]+:?\s\w+'`
       if [ -z "$ticked_id_match" ]; then
         has_errors=1
         echo >&2 "Commit message of $commit_id contains no ticket ID:"
         echo >&2 $commit_message
         echo >&2 "--"
       fi
-      long_line=`echo $commit_message | egrep -m 1 '.{81}'`
+      # Before modifying RE, make sure it works on all platfrorms!
+      long_line=`echo $commit_message | grep -E -m 1 '.{81}'`
       if ! [ -z $long_line ]; then
         has_errors=1
         echo >&2 "Commit message of $commit_id contains lines exceeding 80 symbols:"
