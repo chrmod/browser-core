@@ -24,6 +24,7 @@ import core from 'core/background';
 import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
+import {PrivacyScore} from 'antitracking/privacy-score';
 
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
@@ -1703,7 +1704,8 @@ var CliqzAttrack = {
           cookies: {allowed: 0, blocked: 0},
           requests: {safe: 0, unsafe: 0},
           trackers: {},
-          companies: {}
+          companies: {},
+          ps: null
         };
 
       // ignore special tabs
@@ -1729,6 +1731,10 @@ var CliqzAttrack = {
         plain_data = tab_data.asPlainObject(),
         firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tab_data.hostname)];
       result.hostname = tab_data.hostname;
+      result.ps = PrivacyScore.get(md5(getGeneralDomain(result.hostname)).substr(0, 16) + 'site');
+      if (!result.ps.score) {
+        result.ps.getPrivacyScore();
+      }
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};

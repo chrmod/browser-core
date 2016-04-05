@@ -948,16 +948,22 @@
       "message": "Ich nehme am Human Web teil"
     },
     "attrack-headline-general-title": {
-      "message": "Schutz der Privatsphäre"
+      "message": "Privatsphäre geschützt"
+    },
+    "attrack-headline-general-title-protection-off": {
+      "message": "Privatsphäre nicht geschützt"
+    },
+    "attrack-score-text": {
+      "message": "Privatsphären-Punkte:"
     },
     "attrack-headline-general-trackers": {
-      "message": "unsichere Daten entfernt"
+      "message": "Unsichere Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
-      "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich"
+      "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich."
     },
     "attrack-headline-deactivate": {
-      "message": "Der CLIQZ Privatsphärenschutz ist deaktiviert. Private Daten sind nun Dritten zugänglich."
+      "message": "Der CLIQZ Privatsphären-Schutz ist ausgeschaltet. Private Daten sind nun Dritten zugänglich."
     },
     "attrack-headline-reload": {
       "message": "Für sicheres Browsen bitte Seite neu laden"
@@ -972,13 +978,13 @@
       "message": "Schutz der Privatsphäre einschalten"
     },
     "attrack-btn-power-off": {
-      "message": "Schutz der Privatsphäre ausschalten"
+      "message": "Ausschalten"
     },
     "attrack-btn-white-list": {
-      "message": "Privatsphärenschutz für diese Seite ausschalten."
+      "message": "Schutz der Privatsphäre für diese Seite ausschalten"
     },
     "attrack-btn-white-list-off": {
-      "message": "Privatsphärenschutz für diese Seite ausschalten."
+      "message": "Schutz der Privatsphäre für diese Seite ausschalten"
     },
     "attrack-btn-details-more": {
       "message": "Mehr sehen"
@@ -999,7 +1005,7 @@
       "message": "Strikt"
     },
     "attrack-trackers-info-msg": {
-      "message": "Liste der Tracking Firmen"
+      "message": "Liste der Tracking-Firmen"
     },
     "attrack-trackers-count-info-msg": {
       "message": "Private Daten"
