@@ -46,6 +46,10 @@ export default {
       return miniOnboarding;
     },
 
+    _isBrowser() {
+      return FreshTab.isBrowser;
+    },
+
     getSpeedDials() {
       var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
           historyDialups = [],
@@ -223,7 +227,8 @@ export default {
       var config = {
         locale: utils.PREFERRED_LANGUAGE,
         showOnboarding: self.actions._showOnboarding(),
-        miniOnboarding: self.actions._showMiniOnboarding()
+        miniOnboarding: self.actions._showMiniOnboarding(),
+        isBrowser: self.actions._isBrowser()
       };
       return Promise.resolve(config);
     },
