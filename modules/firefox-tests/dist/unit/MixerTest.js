@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
+TESTS.Mixer = function(Mixer, CliqzUtils) {
   describe('Mixer', function() {
 
     beforeEach(function() {
@@ -124,12 +124,6 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
 
       afterEach(function() {
         CliqzUtils.setTimeout = setTimeout;
-      });
-
-      it('should call CliqzHistory.updateTitlesDescriptions after timeout', function() {
-        Mixer._persistTitlesDescriptions([]);
-        expect(callbackTime).to.equal(25);
-        expect(callbackFunction).to.equal(CliqzHistory.updateTitlesDescriptions);
       });
 
       it('should set title', function() {

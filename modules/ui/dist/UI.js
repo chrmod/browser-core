@@ -1175,7 +1175,7 @@ function enhanceResults(res){
       // });
     }
 
-    
+
 
     return res;
 }
@@ -1460,11 +1460,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
         positionType: action.position_type
       });
     }
-    //LUCIAN: TODO - decouple CliqzHistory
     if(!window.gBrowser)return;
-
-    CliqzHistory.updateQuery(query, autocompleteUrl);
-    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
 // user scroll event
@@ -1836,7 +1832,6 @@ function onEnter(ev, item){
     //publish google event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
-    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.customizeQuery(input);

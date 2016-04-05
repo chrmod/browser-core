@@ -16,8 +16,6 @@ var TARGET = [
         'CliqzCalculator',
         'CliqzExceptions',
         //'CliqzHandlebars', TODO
-        'CliqzHistory',
-        'CliqzHistoryAnalysis',
         'CliqzHistoryManager',
         'CliqzHistoryCluster',
         'CliqzImages',

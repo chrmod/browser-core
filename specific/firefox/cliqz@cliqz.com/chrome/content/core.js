@@ -34,9 +34,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
@@ -92,34 +89,8 @@ window.CLIQZ.Core = {
     windowModules: [],
     eventListeners: [],
     init: function(){
-        // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
-        var listners = window.gBrowser.mTabsProgressListeners;
-        for(var i=0; i<listners.length; i++){
-            var l = listners[i];
-            if(l["QueryInterface"] &&
-               l["onLocationChange"] &&
-               l["onStateChange"] &&
-               l["onStatusChange"]){
-
-                //if this listner matches the signature of CliqzHistory - remove it
-                window.gBrowser.removeTabsProgressListener(l);
-                break;
-            }
-        }
-        // end TEMP fix
-        XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-            'chrome://cliqzmodules/content/CliqzHistory.jsm');
-
-        if (!CliqzUtils.isPrivate(window)) {
-          try {
-            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            hs.addObserver(CliqzHistory.historyObserver, false);
-          } catch(e) {}
-        }
-
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
-        CliqzHistory.initDB();
 
         CliqzSpellCheck.initSpellCorrection();
 
@@ -167,22 +138,6 @@ window.CLIQZ.Core = {
               CliqzLanguage.init(window);
               CliqzDemo.init(window);
 
-              // Update CLIQZ history data
-              CliqzHistory.tabOpen({
-                target: window.gBrowser.selectedTab
-              });
-              CliqzHistory.tabSelect({
-                target: window.gBrowser.selectedTab
-              });
-              // CLIQZ history listener
-              window.addEventListener('close', CliqzHistory.updateAllTabs);
-              window.addEventListener('mousemove', CliqzHistory.mouseMove(window.gBrowser));
-              window.addEventListener('click', CliqzHistory.action);
-              window.addEventListener('keydown', CliqzHistory.action);
-              window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
-              window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
-              window.gBrowser.tabContainer.addEventListener("TabClose", CliqzHistory.tabClose, false);
-              window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
 
               window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
 
@@ -268,28 +223,12 @@ window.CLIQZ.Core = {
         // remove listeners
         if ('gBrowser' in window) {
             window.gBrowser.removeTabsProgressListener(CliqzLanguage.listener);
-            window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
 
-            window.removeEventListener('close', CliqzHistory.updateAllTabs);
-            window.removeEventListener('mousemove', CliqzHistory.mouseMove(window.gBrowser));
-            window.removeEventListener('click', CliqzHistory.action);
-            window.removeEventListener('keydown', CliqzHistory.action);
-            window.gBrowser.tabContainer.removeEventListener("TabClose", CliqzHistory.tabClose, false);
-            window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzHistory.tabSelect, false);
-            window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
-            CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
 
             this.eventListeners.forEach(function(listener) {
               listener.target.removeEventListener(listener.type, listener.func, listener.propagate);
             });
-        }
-
-        if (!CliqzUtils.isPrivate(window)) {
-            try {
-                var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-                hs.removeObserver(CliqzHistory.historyObserver);
-            } catch(e) {}
         }
 
         if(!soft){
@@ -302,7 +241,6 @@ window.CLIQZ.Core = {
             delete window.CliqzResultProviders;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
-            delete window.CliqzHistory;
             delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzEvents;
