@@ -2004,6 +2004,10 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.debug) {
                 _log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
             }
+
+            // Ensuring the dbConn is not null.
+            var dbConn = CliqzHumanWeb.getDBConn();
+
             CliqzHumanWeb.cleanHttpCache();
             CliqzHumanWeb.cleanDocCache();
             CliqzHumanWeb.cleanLinkCache();
@@ -2378,7 +2382,7 @@ var CliqzHumanWeb = {
 
 
         _log("Init function called:")
-        CliqzHumanWeb.initDB();
+        var dbConn = CliqzHumanWeb.initDB();
 
         if (CliqzHumanWeb.state == null) {
             CliqzHumanWeb.state = {};
@@ -2748,12 +2752,13 @@ var CliqzHumanWeb = {
 
             }
             CliqzHumanWeb.createTable();
-            return;
         }
         else {
             CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
             CliqzHumanWeb.createTable();
         }
+
+        return CliqzHumanWeb.dbConn;
 
     },
     dbConn: null,
@@ -4231,6 +4236,9 @@ var CliqzHumanWeb = {
 
         });
 
+    },
+    getDBConn: function(){
+        return CliqzHumanWeb.dbConn || CliqzHumanWeb.initDB();
     }
 
 };
