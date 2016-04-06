@@ -2382,7 +2382,7 @@ var CliqzHumanWeb = {
 
 
         _log("Init function called:")
-        CliqzHumanWeb.initDB();
+        var dbConn = CliqzHumanWeb.initDB();
 
         if (CliqzHumanWeb.state == null) {
             CliqzHumanWeb.state = {};
@@ -2758,6 +2758,8 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
             CliqzHumanWeb.createTable();
         }
+
+        return CliqzHumanWeb.dbConn;
 
     },
     dbConn: null,
