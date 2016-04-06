@@ -238,3 +238,15 @@ var JsonFormatter = {
 
 
 export { JsonFormatter };
+
+var rndGen = Cc["@mozilla.org/security/random-generator;1"].createInstance(Ci.nsIRandomGenerator);
+// Returns an array of n cryptographically secure random words (signed 32 bit numbers)
+export function getRandomWords(n) {
+  var buffer = '';
+  var bytebucket = rndGen.generateRandomBytes(4*n, buffer);
+  var words = [];
+  for (var i = 0; i < bytebucket.length; i += 4) {
+    words.push(bytebucket[i] << 24 | bytebucket[i + 1] << 16 | bytebucket[i + 2] << 8 | bytebucket[i + 3]);
+  }
+  return words;
+}
