@@ -41,7 +41,7 @@ export default class {
       },
       'missing_location_step_1': {
         'space-count': 3,
-        'path': 'partials/loaction/missing_location_step_1'
+        'path': 'partials/location/missing_location_step_1'
       }
     }
 

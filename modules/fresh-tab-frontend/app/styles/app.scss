@@ -1,4 +1,13 @@
+
  /* common */
+*,
+*:before,
+*:after {
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+}
+
 @font-face {
   font-family: "Lato";
   src: url("./fonts/Lato-Regular.ttf");
@@ -84,7 +93,7 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #topVisited ul{
   max-width: 1024px;
-  margin: 0px auto;
+  margin: -7px auto 10px;
 }
 
 #freshTabPage #historyTiles,
@@ -94,21 +103,18 @@ a:hover, a:active, a:focus {
 }
 
 #freshTabPage #topVisited li {
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
   width: 166px;
   height: 96px;
   padding: 0px;
+  margin: 7px 5px 10px 5px;
   list-style: none;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-top-color: rgba(0, 0, 0, 0);
-  border-radius: 2px;
   text-align: center;
-  margin: 0px 5px 10px 5px;
-  display: inline-block;
-  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0), 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  position: relative;
-  transition:width 0.2s ease, height 0.2s ease, margin-right 0.2s ease, margin-left 0.2s ease,  margin-top 0.2s ease, box-shadow 0.7s ease;
-  -webkit-transition: width 0.2s ease, height 0.2s ease,  margin-right 0.2s ease, margin-left 0.2s ease, margin-top 0.2s ease, box-shadow 0.7s ease;
+  box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  transition: box-shadow 0.25s ease;
 }
 
 #freshTabPage #topVisited li:hover .delete {
@@ -123,13 +129,8 @@ a:hover, a:active, a:focus {
     padding-top: 10px;
 }
 
-#freshTabPage #topVisited li:not(.addFrame):hover {
-  width: 168px;
-  height: 98px;
-  margin-right: 4px;
-  margin-left: 4px;
-  margin-top: -2px;
-  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0), 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
+#freshTabPage #topVisited li:hover {
+  box-shadow: 0px 2px 6px  rgba(0, 0, 0, 0.35);
 }
 
 #freshTabPage #topVisited .title {
@@ -163,7 +164,13 @@ a:hover, a:active, a:focus {
     background-repeat: no-repeat;
     margin: 0px auto 10px auto;
     font-size: 24px;
+    transition: all 0.45s;
 }
+
+/*#freshTabPage #topVisited ul li:hover .cliqz-brand-logo {
+  width: 100%;
+  border-radius: 0;
+}*/
 
 #freshTabPage .cliqz-brands-button-4 { background-color: #74d463 }
 #freshTabPage .cliqz-brands-button-4:hover,
@@ -172,22 +179,17 @@ a:hover, a:active, a:focus {
 
 
 #freshTabPage #topVisited li.addFrame {
-  border: 2px dashed #ccc;
+  border: 1px dashed #ccc;
   box-shadow: none;
-  /*height: 96px;*/
 }
 
-#freshTabPage #topVisited li:hover {
-  /*height: 96px;*/
-}
 
 #freshTabPage #topVisited .addBtn {
   background: url("./images/plus_icon.svg") no-repeat;
   width: 32px;
   height: 32px;
   display: block;
-  margin-top: 32px;
-  margin-left: 68px;
+  margin: 32px auto;
 }
 
 #freshTabPage #topVisited .addDialForm {
@@ -548,6 +550,7 @@ a:hover, a:active, a:focus {
   background-color: #63AFE6;
   height: 30px;
   font-size: 18px;
+  box-sizing: content-box;
 }
 
 .optinContent .footer {
@@ -580,13 +583,22 @@ a:hover, a:active, a:focus {
   display: block
 }
 
-
-@media (min-width: 768px) and (max-width: 990px) {
+@media (min-width: 825px) and (max-width: 990px) {
   #freshTabPage #topVisited li {
     width: 150px;
   }
-  #freshTabPage #topVisited li:hover {
-    width: 152px;
+
+  #freshTabPage #topVisited .addDialForm button {
+    left: 50px;
+  }
+}
+
+@media (min-width: 767px) and (max-width: 824px) {
+  #freshTabPage #topVisited li {
+    width: 120px;
+  }
+  #freshTabPage #topVisited .addDialForm button {
+    left: 32px;
   }
 }
 
@@ -603,10 +615,6 @@ a:hover, a:active, a:focus {
   #freshTabPage #topVisited li {
     margin-bottom: 10px;
     width: 66px;
-  }
-
-  #freshTabPage #topVisited li:hover {
-    width: 68px;
   }
 
   #freshTabPage #topVisited .title {
@@ -649,5 +657,9 @@ a:hover, a:active, a:focus {
 
   #freshTabPage #yourNewsBox li {
     max-width: 100%;
+  }
+
+  #freshTabPage #topVisited .addDialForm button {
+    left: 10px;
   }
 }
