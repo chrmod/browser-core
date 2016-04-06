@@ -93,7 +93,7 @@ export default class {
         return;
       }
       try {
-        this._fetchSmartCliqz(id).then(function(smartCliqz) {
+        this._fetchSmartCliqz(id).then((smartCliqz) => {
           if (smartCliqz.data && smartCliqz.data.trigger_urls) {
             let found = false;
             for (let i = 0; i < smartCliqz.data.trigger_urls.length; i++) {
@@ -108,7 +108,7 @@ export default class {
               this.triggerUrls.save(this.TRIGGER_URLS_CACHE_FILE);
             }
           }
-        }).catch(function(e) {
+        }).catch((e) => {
           if (e.type && e.type === 'ID_NOT_FOUND') {
             this._log('ID ' + id + ' not found on server: removing SmartCliqz from cache');
             this.triggerUrls.delete(cachedUrl);
@@ -168,7 +168,7 @@ export default class {
 
     this._log('fetchAndStore: for id ' + id);
     this._fetchLock[id] = true;
-    this._fetchSmartCliqz(id).then((function (smartCliqz) {
+    this._fetchSmartCliqz(id).then((smartCliqz) => {
       // limit number of categories/links
       if (smartCliqz.hasOwnProperty('data')) {
         if (smartCliqz.data.hasOwnProperty('links')) {
@@ -180,11 +180,11 @@ export default class {
       }
       this.store(smartCliqz);
       delete this._fetchLock[id];
-    }).bind(this), (function (reason) {
+    }, (e) => {
       this._log('fetchAndStore: error while fetching data: ' +
-                 reason.type + ' ' + reason.message);
+                 e.type + ' ' + e.message);
       delete this._fetchLock[id];
-    }).bind(this));
+    });
   }
 
   // returns SmartCliqz from cache (false if not found);
@@ -249,7 +249,6 @@ export default class {
   // re-orders categories based on visit frequency
   _customizeSmartCliqz(smartCliqz) {
     const id = this.getId(smartCliqz);
-
     if (this._customDataCache.isCached(id)) {
       this._injectCustomData(smartCliqz, this._customDataCache.retrieve(id));
 
@@ -288,25 +287,19 @@ export default class {
       return;
     }
 
-    // FIXME: if any of the following steps fail, stale custom data
-    //        will linger around; possible fix: if it fails, delete
-    //        custom data from cache
-
     // for stats
     const oldCustomData = this._customDataCache.retrieve(id);
-    const _this = this;
 
     // (1) fetch template from rich header
-    this._fetchSmartCliqz(id).then((function (smartCliqz) {
-      const id = this.getId(smartCliqz);
-      const domain = this.getDomain(smartCliqz);
-
+    this._fetchSmartCliqz(id)
+      .then((smartCliqz) => {
+        const domain = this.getDomain(smartCliqz);
+        return Promise.all([Promise.resolve(smartCliqz), this._fetchVisitedUrls(domain)]);
+      })
       // (2) fetch history for SmartCliqz domain
-      // FIXME: occasionnaly throws `TypeError: this._fetchVisitedUrls(...) is undefined`
-      //        if `this` is used
-      _this._fetchVisitedUrls(domain, (function callback(urls) {
-
-        // (3) re-order template categories based on history
+      .then(([smartCliqz, urls]) => {
+        // now, (3) re-order template categories based on history
+        const domain = this.getDomain(smartCliqz);
 
         // TODO: define per SmartCliqz what the data field to be customized is called
         if (!this.isNews(smartCliqz)) {
@@ -361,11 +354,8 @@ export default class {
 
         this._log('_prepareCustomData: done preparing for id ' + id);
         this._customDataCache.save(CUSTOM_DATA_CACHE_FILE);
-      }).bind(this)).bind(this)   ;
-    }).bind(this), (function (reason) {
-      this._log('_prepareCustomData: error while fetching data: ' +
-                reason.type + ' ' + reason.message);
-    }).bind(this));
+      })
+      .catch(e => this._log('_prepareCustomData: error while fetching data: ' + e));
   }
 
   // extracts relevant information to base matching on
@@ -412,7 +402,7 @@ export default class {
   _fetchSmartCliqz(id) {
     this._log('_fetchSmartCliqz: start fetching for id ' + id);
 
-    const promise = new Promise((function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       const endpointUrl = SMART_CLIQZ_ENDPOINT + id;
 
       utils.httpGet(endpointUrl, (function success(req) {
@@ -443,49 +433,45 @@ export default class {
           message: ''
         });
       });
-    }).bind(this));
-    return promise;
+    });
   }
 
   // from history, fetches all visits to given domain within 30 days from now (async.)
-  _fetchVisitedUrls(domain, callback) {
-    this._log('_fetchVisitedUrls: start fetching for domain ' + domain);
-    // TODO: make cross platform
-    const historyService = Components
-      .classes['@mozilla.org/browser/nav-history-service;1']
-      .getService(Components.interfaces.nsINavHistoryService);
+  _fetchVisitedUrls(domain) {
+    return new Promise((resolve, reject) => {
+      this._log('_fetchVisitedUrls: start fetching for domain ' + domain);
+      // TODO: make cross platform
+      const historyService = Components
+        .classes['@mozilla.org/browser/nav-history-service;1']
+        .getService(Components.interfaces.nsINavHistoryService);
 
-    if (!historyService) {
-      this._log('_fetchVisitedUrls: history service not available');
-      return;
-    }
+      if (!historyService) {
+        reject('_fetchVisitedUrls: history service not available');
+      } else {
+        const options = historyService.getNewQueryOptions();
+        const query = historyService.getNewQuery();
+        query.domain = domain;
+        // 30 days from now
+        query.beginTimeReference = query.TIME_RELATIVE_NOW;
+        query.beginTime = -1 * 30 * 24 * 60 * 60 * 1000000;
+        query.endTimeReference = query.TIME_RELATIVE_NOW;
+        query.endTime = 0;
 
-    const options = historyService.getNewQueryOptions();
+        const result = historyService.executeQuery(query, options);
+        const container = result.root;
+        container.containerOpen = true;
 
-    const query = historyService.getNewQuery();
-    query.domain = domain;
-    // 30 days from now
-    query.beginTimeReference = query.TIME_RELATIVE_NOW;
-    query.beginTime = -1 * 30 * 24 * 60 * 60 * 1000000;
-    query.endTimeReference = query.TIME_RELATIVE_NOW;
-    query.endTime = 0;
+        let urls = [];
+        for (let i = 0; i < container.childCount; i ++) {
+          urls[i] = container.getChild(i).uri;
+        }
 
-    utils.setTimeout((function fetch() {
-      const result = historyService.executeQuery(query, options);
-
-      const container = result.root;
-      container.containerOpen = true;
-
-      let urls = [];
-      for (let i = 0; i < container.childCount; i ++) {
-        urls[i] = container.getChild(i).uri;
+        this._log(
+            '_fetchVisitedUrls: done fetching ' +  urls.length +
+            ' URLs for domain ' + domain);
+        resolve(urls);
       }
-
-      this._log(
-          '_fetchVisitedUrls: done fetching ' +  urls.length +
-          ' URLs for domain ' + domain);
-      callback(urls);
-    }).bind(this), 0);
+    });
   }
 
   _sendStats(id, oldCategories, newCategories, isRepeatedCustomization, urls) {

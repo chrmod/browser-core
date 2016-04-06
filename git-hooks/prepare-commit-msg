@@ -30,7 +30,8 @@ prepend_msg_line () {
 
 if current=$(git symbolic-ref --short -q HEAD); then
   # It's not a detached head. Extract ticket ID if any.
-  ticket_id=`echo "$current" | egrep '^EX-\d+' -o`
+  # Before modifying RE, make sure it works on all platfrorms!
+  ticket_id=`echo "$current" | grep -E '^EX-[0-9]+' -o`
 fi
 if [ -z $ticket_id ]; then
   ticket_id="EX-XXX"

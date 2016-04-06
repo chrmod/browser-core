@@ -323,8 +323,8 @@ var CliqzSecureMessage = {
     flushProxyStats: function(){
     	var proxyStats = CliqzSecureMessage.proxyStats;
     	if(Object.keys(proxyStats).length == 0) return;
-    	var msg = {"action": "proxy-health", "anti-duplicates":Math.floor(Math.random() * 10000000),"type": "cliqz", "ver": "1.5", "payload": proxyStats,"ts": CliqzUtils.getPref('config_ts', null)};
-    	CliqzSecureMessage.telemetry(msg);
+    	// var msg = {"action": "proxy-health", "anti-duplicates":Math.floor(Math.random() * 10000000),"type": "cliqz", "ver": "1.5", "payload": proxyStats,"ts": CliqzUtils.getPref('config_ts', null)};
+    	// CliqzSecureMessage.telemetry(msg);
     	CliqzSecureMessage.proxyStats = {};
     	return;
     }

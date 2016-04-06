@@ -7,16 +7,18 @@
 */
 
 import CliqzSecureMessage from 'hpn/main';
-import JsonFormatter, { createHttpUrl, getRouteHash } from "hpn/utils";
+import JsonFormatter, { createHttpUrl, getRouteHash, getRandomWords } from "hpn/utils";
 import secureEventLoggerContext from "hpn/secure-logger";
-
 
 /* This method will ensure that we have the same length for all the mesages
 */
 function padMessage(msg){
-	var mxLen = "14000";
-	var str = msg + new Array((mxLen - msg.length) + 1).join("\n");
-	return str;
+	const mxLen = 14000;
+	var padLen = (mxLen - msg.length) + 1;
+	if (padLen < 0) {
+		throw 'msgtoobig';
+	}
+	return msg + new Array(padLen).join("\n");
 }
 
 function isJson(str) {
@@ -72,22 +74,21 @@ export default class {
 
 	/**
 	 * Method to parse a message and encrypt with AES.
+	 * @throws {string} Will throw 'msgtoobig' if message size exceeds a threshold.
 	 * @returns string of AES encrypted message.
 	 */
 	aesEncrypt(){
 		var _this = this;
 		var promise = new Promise(function(resolve, reject){
 			try{
-				var salt = CryptoJS.lib.WordArray.random(128/8);
+				var salt = CryptoJS.lib.WordArray.create(getRandomWords(4));
 				var iv = CryptoJS.enc.Hex.parse(salt.toString());
 			    var eventID = ('' + iv).substring(0,5);
-			    // The AES key needs to replaced by some random value.
-			    // Any specific reasons why it can't be MD5 of the message ?
 			    var encryptionPaylod = {};
 			    encryptionPaylod['msg'] = _this.orgMessage;
 			    encryptionPaylod['endpoint'] = _this.endPoint;
 			    var msgEncrypt = padMessage(JSON.stringify(encryptionPaylod));
-			    var key = CryptoJS.MD5(_this.orgMessage);
+			    var key = CryptoJS.lib.WordArray.create(getRandomWords(4));
 			    // var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
 			    var encrypted = CryptoJS.AES.encrypt(msgEncrypt, key, {iv:iv});
 			    _this.log(eventID);
