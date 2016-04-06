@@ -641,10 +641,13 @@ CLIQZEnvironment = {
 };
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
-  var recentItems = CLIQZEnvironment.getRecentQueries();
-  if(query.match(/http[s]{0,1}:/)) {
+  
+  if(CLIQZEnvironment.getPref('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
     return;
   }
+
+  var recentItems = CLIQZEnvironment.getRecentQueries();
+  
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     localStorage.setItem('recentQueries',JSON.stringify(recentItems));
