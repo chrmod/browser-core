@@ -1898,7 +1898,7 @@ function enginesClick(ev){
                 CLIQZEnvironment.openLink(window, url, true);
                 action.new_tab = true;
             } else {
-                gBrowser.selectedBrowser.contentDocument.location = url;
+                gBrowser.selectedBrowser.loadURI(url);
                 CLIQZ.Core.popup.closePopup();
                 action.new_tab = false;
             }

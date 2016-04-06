@@ -1599,50 +1599,6 @@ var CliqzHumanWeb = {
         return doc;
       });
     },
-    getCDByURL: function(url) {
-        var dd_url = url;
-
-        try {
-            dd_url = decodeURI(decodeURI(url));
-        } catch(ee) {}
-
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
-            var gBrowser = win.gBrowser;
-            if (gBrowser.tabContainer) {
-                var numTabs = gBrowser.tabContainer.childNodes.length;
-                for (var i=0; i<numTabs; i++) {
-                    var currentTab = gBrowser.tabContainer.childNodes[i];
-                    var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                    var cd = currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'];
-                    var currURL=''+cd.location;
-
-                    if (CliqzHumanWeb.debug) {
-                        _log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL);
-                    }
-
-                    if (currURL==''+url) {
-                        return cd;
-                    }
-                    else {
-                        // silent fail is currURL is invalid, we need to ignore that element otherwise
-                        // one bad url would prevent any other url to be found
-                        //
-                        try {
-                            if (decodeURI(decodeURI(currURL))==dd_url) return cd;
-                            else {
-                                if (url == decodeURIComponent(currURL)) return currentBrowser.contentDocument;
-                            }
-                        }
-                        catch(ee) {}
-                    }
-                }
-            }
-        }
-
-        return null;
-    },
     captureJSRefresh: function(aRequest, aURI){
 
         if(aRequest && aRequest.referrer) {
@@ -2146,13 +2102,7 @@ var CliqzHumanWeb = {
     currentURL: function() {
         var currwin = CliqzUtils.getWindow(), ret = null;
         if (currwin && currwin.gBrowser) {
-            // http://mikeconley.github.io/e10s-MM-CPOW-talk/#slide-54
-            // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/browser.js#2395
-            if(currwin.gMultiProcessBrowser) {
-              ret = currwin.gBrowser.selectedBrowser.currentURI.spec;
-            } else {
-              ret = ''+currwin.gBrowser.selectedBrowser.contentDocument.location;
-            }
+            ret = currwin.gBrowser.selectedBrowser.currentURI.spec;
         }
         return CliqzHumanWeb.cleanCurrentUrl(ret);
     },
@@ -2358,7 +2308,7 @@ var CliqzHumanWeb = {
                     for (var i=0; i<numTabs; i++) {
                         var currentTab = gBrowser.tabContainer.childNodes[i];
                         var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                        var currURL=''+currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'].location;
+                        var currURL = currentBrowser.selectedBrowser.currentURI.spec;
                         if (currURL.indexOf('about:')!=0) {
                             res.push(decodeURIComponent(currURL));
                         }

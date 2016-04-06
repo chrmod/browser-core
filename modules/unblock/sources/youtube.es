@@ -300,11 +300,10 @@ export default class {
         for (var i=0; i<numTabs; i++) {
           var currentTab = gBrowser.tabContainer.childNodes[i];
           var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-          var cd = currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'];
-          var currURL=''+cd.location;
+          var currURL= currentBrowser.currentURI.spec;
 
           if(currURL.indexOf(vid) > -1 && currURL.indexOf('www.youtube.com') > -1) {
-            cd.defaultView.location.reload();
+            currentBrowser.reload();
             found = true;
           }
         }

@@ -55,7 +55,7 @@ var CliqzLanguage = {
             CliqzLanguage.window.setTimeout(function(currURLAtTime) {
                 try {
                     if(CliqzLanguage){ //might be called after the extension is disabled
-                        var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
+                        var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.currentURI.spec;
                         if (''+currURLAtTime == ''+currURL) {
                             // the person has stayed at least READING_THRESHOLD at the URL, now let's try
                             // to fetch the locale

@@ -113,25 +113,42 @@ function onDOMWindowCreated(ev) {
     }), "*");
   }
 
+  var fns = {
+    getHTML: function () {
+      return window.document.documentElement.outerHTML;
+    },
+    queryHTML: function (selector, attribute) {
+      return Array.prototype.map.call(
+          window.document.querySelectorAll(selector),
+          function (el) {
+            return el[attribute];
+          }
+      );
+    },
+    getCookie: function () {
+      return window.document.cookie;
+    }
+  };
+
   function onCore(msg) {
     // we handle only getHTML ATM
-    if ( msg.data.action !== "getHTML" ) {
+    if ( msg.data.url !== currentURL ) {
       return;
     }
 
-    if ( msg.data.args[0] !== currentURL ) {
+    if ( !(msg.data.action in fns) ) {
       return;
     }
 
-    var html;
+    var payload;
     try {
-      html = window.document.documentElement.outerHTML;
+      payload = fns[msg.data.action].apply(null, msg.data.args || []);
     } catch (e) {
       console.error("cliqz framescript:", e);
     }
 
     send({
-      payload: html,
+      payload: payload,
       requestId: msg.data.requestId
     });
   }

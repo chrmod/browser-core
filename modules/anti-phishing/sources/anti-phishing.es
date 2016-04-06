@@ -168,7 +168,7 @@ function checkSuspicious(doc, callback) {
 }
 
 function checkStatus(url, md5Prefix, md5Surfix) {
-    var doc = CliqzHumanWeb.getCDByURL(url);
+    var doc = CliqzHumanWeb.getCD(url);
     var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
     if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black

@@ -24,13 +24,38 @@ export default {
     this.mm.unload();
   },
 
+  queryHTML(url, selector, attribute) {
+    const requestId = lastRequestId++,
+          documents = [];
+
+    this.mm.broadcast("cliqz:core", {
+      action: "queryHTML",
+      url,
+      args: [selector, attribute],
+      requestId
+    });
+
+    return new Promise( (resolve, reject) => {
+      callbacks[requestId] = function (attributeValues) {
+        delete callbacks[requestId];
+        resolve(attributeValues);
+      };
+
+      utils.setTimeout(function () {
+        delete callbacks[requestId];
+        reject();
+      }, 1000);
+    });
+  },
+
   getHTML(url, timeout = 1000) {
     const requestId = lastRequestId++,
           documents = [];
 
     this.mm.broadcast("cliqz:core", {
       action: "getHTML",
-      args: [ url ],
+      url,
+      args: [],
       requestId
     });
 
@@ -43,6 +68,30 @@ export default {
         delete callbacks[requestId];
         resolve(documents);
       }, timeout);
+    });
+  },
+
+  getCookie(url) {
+    const requestId = lastRequestId++,
+          documents = [];
+
+    this.mm.broadcast("cliqz:core", {
+      action: "getCookie",
+      url,
+      args: [],
+      requestId
+    });
+
+    return new Promise( (resolve, reject) => {
+      callbacks[requestId] = function (attributeValues) {
+        delete callbacks[requestId];
+        resolve(attributeValues);
+      };
+
+      utils.setTimeout(function () {
+        delete callbacks[requestId];
+        reject();
+      }, 1000);
     });
   },
 
