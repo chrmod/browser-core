@@ -103,7 +103,7 @@ export default class {
 
   _sendSafeKeys() {
     // get only keys from local key
-    var day = datetime.getTime().substring(0, 8);
+    var day = datetime.getTime();
     var dts = {}, local = {}, localE = 0, s, k;
     var safeKey = this.safeKeys.value;
     for (s in safeKey) {
