@@ -402,7 +402,7 @@ var Mixer = {
       }
 
       // Smart CLIQZ buttons
-      if (result.data.template == 'entity-generic') {
+      if (result.data.actions && result.data.actions.length > 0) {
         result.data.partials.push('buttons');
       }
 
@@ -536,4 +536,3 @@ var Mixer = {
 };
 
 Mixer.init();
-
