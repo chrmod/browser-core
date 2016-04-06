@@ -7,9 +7,8 @@
 */
 
 import CliqzSecureMessage from 'hpn/main';
-import JsonFormatter, { createHttpUrl, getRouteHash } from "hpn/utils";
+import JsonFormatter, { createHttpUrl, getRouteHash, getRandomWords } from "hpn/utils";
 import secureEventLoggerContext from "hpn/secure-logger";
-
 
 /* This method will ensure that we have the same length for all the mesages
 */
@@ -82,16 +81,14 @@ export default class {
 		var _this = this;
 		var promise = new Promise(function(resolve, reject){
 			try{
-				var salt = CryptoJS.lib.WordArray.random(128/8);
+				var salt = CryptoJS.lib.WordArray.create(getRandomWords(4));
 				var iv = CryptoJS.enc.Hex.parse(salt.toString());
 			    var eventID = ('' + iv).substring(0,5);
-			    // The AES key needs to replaced by some random value.
-			    // Any specific reasons why it can't be MD5 of the message ?
 			    var encryptionPaylod = {};
 			    encryptionPaylod['msg'] = _this.orgMessage;
 			    encryptionPaylod['endpoint'] = _this.endPoint;
 			    var msgEncrypt = padMessage(JSON.stringify(encryptionPaylod));
-			    var key = CryptoJS.MD5(_this.orgMessage);
+			    var key = CryptoJS.lib.WordArray.create(getRandomWords(4));
 			    // var encrypted = CryptoJS.AES.encrypt(_this.orgMessage, key, {iv:iv});
 			    var encrypted = CryptoJS.AES.encrypt(msgEncrypt, key, {iv:iv});
 			    _this.log(eventID);
