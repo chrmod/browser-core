@@ -356,7 +356,7 @@ window.CLIQZ.Core = {
                 startup: startup? true: false,
                 prefs: CLIQZEnvironment.getCliqzPrefs(),
                 defaultSearchEngine: defaultSearchEngine,
-                isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser(window),
+                isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser(),
                 private_window: CliqzUtils.isPrivate(window),
                 distribution: CliqzUtils.getPref('distribution', '')
             };

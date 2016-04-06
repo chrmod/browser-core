@@ -144,9 +144,10 @@ var CLIQZEnvironment = {
                     return prev;
                  }, {});
     },
-    isDefaultBrowser: function(window){
+    isDefaultBrowser: function(){
       try {
-        var shell = window.getShellService();
+        var shell = Components.classes["@mozilla.org/browser/shellservice;1"]
+                      .getService(Components.interfaces.nsIShellService)
         if (shell) {
           return shell.isDefaultBrowser(false);
         }
