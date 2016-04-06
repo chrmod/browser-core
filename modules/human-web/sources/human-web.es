@@ -2752,7 +2752,6 @@ var CliqzHumanWeb = {
 
             }
             CliqzHumanWeb.createTable();
-            return;
         }
         else {
             CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
