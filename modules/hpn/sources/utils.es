@@ -70,9 +70,9 @@ function orderedStringify(t, res, onlyKeys) {
 function getRouteHashStr(obj, sourceMap) {
   let action = obj.action;
   let keys = sourceMap[action].keys;
-  let isStatic = new Set(sourceMap[action].static||[]);
+  let staticKeys = sourceMap[action].static||[];
   let res = [];
-  keys.forEach(k => orderedStringify(getField(obj, k), res, isStatic.has(k)));
+  keys.forEach(k => orderedStringify(getField(obj, k), res, staticKeys.some(sk => k.endsWith(sk))));
   return res.join('');
 }
 
