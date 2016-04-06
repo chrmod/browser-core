@@ -202,19 +202,21 @@ var CLIQZEnvironment = {
         return req;
     },
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
+        //lazy load gzip module
+        if(compressedPost && !CLIQZEnvironment.gzip){
+            CliqzUtils.importModule('core/gzip').then( function(gzip) {
+                CLIQZEnvironment.gzip = gzip
+            });
+        }
+
         return new Promise( function(resolve, reject) {
-            if ( method === 'POST' && compressedPost) {
-                CliqzUtils.importModule('core/gzip').then( function(gzip) {
-                    // gzip.compress may be false if there is no implementation for this platform
-                    if ( gzip.compress ) {
-                        var dataLength = data.length;
-                        data = gzip.compress(data);
-                        CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
-                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
-                    } else {
-                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
-                    }
-                });
+            // gzip.compress may be false if there is no implementation for this platform
+            // or maybe it is not loaded yet
+            if ( CLIQZEnvironment.gzip && CLIQZEnvironment.gzip.compress && method === 'POST' && compressedPost) {
+                var dataLength = data.length;
+                data = CLIQZEnvironment.gzip.compress(data);
+                CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+                CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
             } else {
                 CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
             }
