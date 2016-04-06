@@ -100,9 +100,17 @@ var Mixer = {
       return false;
     }
 
+    if (!ez.data.__subType__) {
+      return false;
+    }
+
     try {
-      var eztype = JSON.parse(ez.data.subType).ez;
-      if (!eztype) {
+      var ezId = Mixer._getSmartCliqzId(ez);
+      if (!ezId) {
+        return false;
+      }
+      var ezClass = JSON.parse(ez.data.subType).class;
+      if (!ezClass) {
         return false;
       }
     } catch (e) {
@@ -265,6 +273,9 @@ var Mixer = {
       return !duplicate;
     });
   },
+  _getSmartCliqzId: function(smartCliqz) {
+    return smartCliqz.data.__subType__.id;
+  },
 
   // Find any entity zone in the results and cache them for later use.
   // Go backwards to prioritize the newest, which will be first in the list.
@@ -272,13 +283,13 @@ var Mixer = {
 
     // slice creates a shallow copy, so we don't reverse existing array.
     extraResults.slice().reverse().forEach(function(r) {
-      var eztype = JSON.parse(r.data.subType).ez;
+      var ezId = Mixer._getSmartCliqzId(r);
       var trigger_urls = r.data.trigger_urls || [];
       var wasCacheUpdated = false;
 
       trigger_urls.forEach(function(url) {
-        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != eztype) {
-          CliqzSmartCliqzCache.triggerUrls.store(url, eztype);
+        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != ezId) {
+          CliqzSmartCliqzCache.triggerUrls.store(url, ezId);
           wasCacheUpdated = true;
         }
       });
@@ -415,17 +426,21 @@ var Mixer = {
   mix: function(q, cliqz, cliqzExtra, history, customResults,
                 only_history) {
 
-    // Prepare incoming EZ results
-    cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
+    if (!Mixer._isValidQueryForEZ(q)) {
+      cliqzExtra = [];
+    } else {
+      // Prepare incoming EZ results
+      cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
 
-    // Add EZ from first cliqz results to list of EZs, if valid
-    if (cliqz && cliqz.length > 0 && Mixer._isValidQueryForEZ(q)) {
-      Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
-    }
+      // Add EZ from first cliqz results to list of EZs, if valid
+      if (cliqz && cliqz.length > 0) {
+        Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
+      }
 
-    // Cache any EZs found
-    if (CliqzSmartCliqzCache) {
-      Mixer._cacheEZs(cliqzExtra);
+      // Cache any EZs found
+      if (CliqzSmartCliqzCache) {
+        Mixer._cacheEZs(cliqzExtra);
+      }
     }
 
     // Prepare other incoming data
