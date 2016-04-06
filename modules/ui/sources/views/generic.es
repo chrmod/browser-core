@@ -39,9 +39,9 @@ export default class {
         'space-count': 3,
         'path': 'partials/location/local-data'
       },
-      'missing_location_step_1': {
+      'missing_location_1': {
         'space-count': 3,
-        'path': 'partials/location/missing_location_step_1'
+        'path': 'partials/missing_location_1'
       }
     }
 

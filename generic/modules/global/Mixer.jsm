@@ -371,56 +371,6 @@ var Mixer = {
       return true;
     });
   },
-
-  // Determine partials to be used for generic results
-  _setPartialTemplates: function(results) {
-    return results.map(function(result) {
-      if (!result.data) {
-        result.data = {};
-      }
-
-      // Every entry has title and URL
-      result.data.partials = ['title', 'url'];
-
-      // Description
-      if (result.data.description) {
-        result.data.partials.push('description');
-      }
-
-      // Local data
-      var localTemplate = result.data.superTemplate;
-      if (localTemplate) {
-        if (result.data.no_location) {
-          result.data.partials.push('missing_location_1');
-        } else {
-          result.data.partials.push(localTemplate);
-        }
-      }
-
-      // History
-      if (result.data.urls && result.data.urls.length) {
-        result.data.partials.push('history');
-        var index = result.data.partials.indexOf('description');
-
-        if (index > -1) {
-          if(result.data.urls.length <= 5) {
-            result.data.partials[index] = 'description-m';
-          }else {
-            result.data.urls = result.data.urls.slice(0, 6);
-            result.data.partials.splice(index, 1);
-          }
-        }
-      }
-
-      // Smart CLIQZ buttons
-      if (result.data.actions && result.data.actions.length > 0) {
-        result.data.partials.push('buttons');
-      }
-
-      return result;
-    });
-  },
-
   // Mix together history, backend and custom results. Called twice per query:
   // once with only history (instant), second with all data.
   mix: function(q, cliqz, cliqzExtra, history, customResults,
@@ -537,9 +487,6 @@ var Mixer = {
       if (r.style.indexOf('cliqz-results ') === 0) cliqzRes++;
       return cliqzRes <= 3;
     });
-
-    // Prepare list of partial templates for rendering
-    results = Mixer._setPartialTemplates(results);
 
     // Show no results message
     if (results.length === 0 && !only_history) {
