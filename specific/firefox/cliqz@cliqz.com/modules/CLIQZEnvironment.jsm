@@ -146,7 +146,7 @@ var CLIQZEnvironment = {
     },
     isDefaultBrowser: function(){
       try {
-        var shell = Components.classes["@mozilla.org/browser/shellservice;1"]
+        var shell = Components.classes["@mozilla.org/browser/shell-service;1"]
                       .getService(Components.interfaces.nsIShellService)
         if (shell) {
           return shell.isDefaultBrowser(false);
