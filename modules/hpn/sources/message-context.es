@@ -147,7 +147,10 @@ export default class {
 		var _this = this;
 		var promise = new Promise(function(resolve, reject){
 			try{
-				var messageToSign = _this.key + ";" + _this.iv + ";endPoint";
+				// To protect from padding oracle attacks, we need to send the hash of
+				// mE.
+				var mI = '' + CryptoJS.MD5(_this.mE);
+				var messageToSign = _this.key + ";" + _this.iv + ";endPoint;" + mI;
 				var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(messageToSign);
 				_this.signedKey = signedKey;
 				_this.mK = signedKey;
