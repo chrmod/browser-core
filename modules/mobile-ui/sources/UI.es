@@ -38,7 +38,8 @@ var TEMPLATES = {
         "weatherAlert": true,
         "weatherEZ": true
     },
-    resultsBox= null
+    resultsBox = null,
+    currentResults = null
     ;
 
 var UI = {
@@ -52,14 +53,107 @@ var UI = {
         resultsBox = document.getElementById('cliqz-results',box);
     },
     results: function(res){
-        res = enhanceResults(res);
-        //TODO copy async
-        resultsBox.innerHTML = CliqzHandlebars.tplCache.results(res);
+        var query = res.q || '';
 
-        return res;
+        currentResults = enhanceResults(res);
+
+        // Results that are not ready (extra results, for which we received a callback_url)
+        var asyncResults = currentResults.results.filter(assessAsync(true));
+        currentResults.results = currentResults.results.filter(assessAsync(false));
+
+        //TODO copy async
+        redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+
+        if(asyncResults.length > 0) loadAsyncResult(asyncResults, query);
+
+        return currentResults;
     },
     VIEWS: {}
 };
+
+function loadAsyncResult(res, query) {
+    for (var i in res) {
+      var r = res[i];
+      var query = r.text || r.query;
+      var qt = query + ": " + new Date().getTime();
+      CliqzUtils.log(r,"LOADINGASYNC");
+      CliqzUtils.log(query,"loadAsyncResult");
+      var loop_count = 0;
+      var async_callback = function(req) {
+          CliqzUtils.log(query,"async_callback");
+          var resp = null;
+          try {
+            resp = JSON.parse(req.response).results[0];
+          }
+          catch(err) {
+            res.splice(i,1);
+          }
+          if (resp &&  urlbar.value == query) {
+
+            var kind = r.data.kind;
+            if ("__callback_url__" in resp.data) {
+                // If the result is again a promise, retry.
+                if (loop_count < 10 /*smartCliqzMaxAttempts*/) {
+                  setTimeout(function() {
+                    loop_count += 1;
+                    CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
+                  }, 100 /*smartCliqzWaitTime*/);
+                }
+                else if (currentResults.results.length == 0) {
+                  redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                }
+            }
+            else {
+              r.data = resp.data;
+              r.url = resp.url;
+              r.data.kind = kind;
+              r.data.subType = resp.subType;
+              r.data.trigger_urls = resp.trigger_urls;
+              r.vertical = r.data.template;
+              r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+              r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+
+              if(resultsBox && urlbar.value == query) {
+                  // Remove all existing extra results
+                  currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
+                  // add the current one on top of the list
+                  currentResults.results.unshift(r);
+
+                  if (currentResults.results.length > 0) {
+                    redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+                  }
+                  else {
+                    redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                  }
+              }
+            }
+          }
+          // to handle broken promises (eg. Weather and flights) on mobile
+          else if (r.data && r.data.__callback_url__ && CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
+            CLIQZEnvironment.shiftResults();
+          }
+          else {
+            res.splice(i,1);
+            if (currentResults.results.length == 0)
+              redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+          }
+
+      };
+      CliqzUtils.httpGet(r.data.__callback_url__, async_callback, async_callback);
+    }
+}
+
+
+function assessAsync(getAsync){
+    return function(result){
+        var isAsync = result.type == "cliqz-extra" && result.data && "__callback_url__" in result.data ;
+        return getAsync ? isAsync : !isAsync;
+    }
+}
+
+function redrawDropdown(newHTML){
+    resultsBox.innerHTML = newHTML;
+}
 
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++) {
