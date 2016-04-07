@@ -459,26 +459,15 @@ var Mixer = {
 
     // Special case: adjust second result if it doesn't fit
     if (results.length > 1 && results[1].data.template == 'pattern-h2') {
-      if (CliqzUtils.getPref('simpleHistory', false)) {
-        CliqzUtils.log('Converting cluster for ' + results[1].val +
-                       ' to simple history', 'Mixer');
+      CliqzUtils.log('Converting cluster for ' + results[1].val +
+                     ' to simple history', 'Mixer');
 
-        // convert to simple history entry
-        var simple = Result.generic('favicon', results[1].val, null,
-                                    results[1].data.title, null, searchString);
-        simple.data.kind = ['H'];
-        simple.data.description = result[1].data.description;
-        results[1] = simple;
-      } else {
-        CliqzUtils.log('Converting cluster for ' + results[1].val +
-                       ' to 1/3 size.', 'Mixer');
-
-        // convert to 1/3 sized history cluster
-        results[1].data.template = 'pattern-h3';
-
-        // limit number of URLs
-        results[1].data.urls = (results[1].data.urls || []).slice(0, 3);
-      }
+      // convert to simple history entry
+      var simple = Result.generic('favicon', results[1].val, null,
+                                  results[1].data.title, null, searchString);
+      simple.data.kind = ['H'];
+      simple.data.description = result[1].data.description;
+      results[1] = simple;
     }
 
     // Only show a maximum 3 BM results

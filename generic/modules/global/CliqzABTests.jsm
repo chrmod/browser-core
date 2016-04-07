@@ -249,12 +249,6 @@ var CliqzABTests = {
             case "1039_C":
                 CliqzUtils.setPref("alternative_ez", "description");
                 break;
-            case "1040_A":
-                CliqzUtils.setPref("simpleHistory", false);
-                break;
-            case "1040_B":
-                CliqzUtils.setPref("simpleHistory", true);
-                break;
             case "1041_A":
                 CliqzUtils.setPref("extended_onboarding_typed_url", false);
                 break;
@@ -571,10 +565,6 @@ var CliqzABTests = {
             case "1039_B":
             case "1039_C":
                 CliqzUtils.clearPref("alternative_ez");
-                break;
-            case "1040_A":
-            case "1040_B":
-                CliqzUtils.clearPref("simpleHistory");
                 break;
             case "1041_A":
             case "1041_B":
