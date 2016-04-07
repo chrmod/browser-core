@@ -97,9 +97,17 @@ var Mixer = {
       return false;
     }
 
+    if (!ez.data.__subType__) {
+      return false;
+    }
+
     try {
-      var eztype = JSON.parse(ez.data.subType).ez;
-      if (!eztype) {
+      var ezId = Mixer._getSmartCliqzId(ez);
+      if (!ezId) {
+        return false;
+      }
+      var ezClass = JSON.parse(ez.data.subType).class;
+      if (!ezClass) {
         return false;
       }
     } catch (e) {
@@ -243,6 +251,9 @@ var Mixer = {
       return !duplicate;
     });
   },
+  _getSmartCliqzId: function(smartCliqz) {
+    return smartCliqz.data.__subType__.id;
+  },
 
   // Find any entity zone in the results and cache them for later use.
   // Go backwards to prioritize the newest, which will be first in the list.
@@ -250,13 +261,13 @@ var Mixer = {
 
     // slice creates a shallow copy, so we don't reverse existing array.
     extraResults.slice().reverse().forEach(function(r) {
-      var eztype = JSON.parse(r.data.subType).ez;
+      var ezId = Mixer._getSmartCliqzId(r);
       var trigger_urls = r.data.trigger_urls || [];
       var wasCacheUpdated = false;
 
       trigger_urls.forEach(function(url) {
-        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != eztype) {
-          CliqzSmartCliqzCache.triggerUrls.store(url, eztype);
+        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != ezId) {
+          CliqzSmartCliqzCache.triggerUrls.store(url, ezId);
           wasCacheUpdated = true;
         }
       });
@@ -338,72 +349,26 @@ var Mixer = {
       return true;
     });
   },
-
-  // Determine partials to be used for generic results
-  _setPartialTemplates: function(results) {
-    return results.map(function(result) {
-      if (!result.data) {
-        result.data = {};
-      }
-
-      // Every entry has title and URL
-      result.data.partials = ['title', 'url'];
-
-      // Description
-      if (result.data.description) {
-        result.data.partials.push('description');
-      }
-
-      // Local data
-      var localTemplate = result.data.superTemplate;
-      if (localTemplate) {
-        if (result.data.no_location) {
-          result.data.partials.push('missing_location_1');
-        } else {
-          result.data.partials.push(localTemplate);
-        }
-      }
-
-      // History
-      if (result.data.urls && result.data.urls.length) {
-        result.data.partials.push('history');
-        var index = result.data.partials.indexOf('description');
-
-        if (index > -1) {
-          if(result.data.urls.length <= 5) {
-            result.data.partials[index] = 'description-m';
-          }else {
-            result.data.urls = result.data.urls.slice(0, 6);
-            result.data.partials.splice(index, 1);
-          }
-        }
-      }
-
-      // Smart CLIQZ buttons
-      if (result.data.template == 'entity-generic') {
-        result.data.partials.push('buttons');
-      }
-
-      return result;
-    });
-  },
-
   // Mix together history, backend and custom results. Called twice per query:
   // once with only history (instant), second with all data.
   mix: function(q, cliqz, cliqzExtra, history, customResults,
                 only_history) {
 
-    // Prepare incoming EZ results
-    cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
+    if (!Mixer._isValidQueryForEZ(q)) {
+      cliqzExtra = [];
+    } else {
+      // Prepare incoming EZ results
+      cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
 
-    // Add EZ from first cliqz results to list of EZs, if valid
-    if (cliqz && cliqz.length > 0 && Mixer._isValidQueryForEZ(q)) {
-      Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
-    }
+      // Add EZ from first cliqz results to list of EZs, if valid
+      if (cliqz && cliqz.length > 0) {
+        Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
+      }
 
-    // Cache any EZs found
-    if (CliqzSmartCliqzCache) {
-      Mixer._cacheEZs(cliqzExtra);
+      // Cache any EZs found
+      if (CliqzSmartCliqzCache) {
+        Mixer._cacheEZs(cliqzExtra);
+      }
     }
 
     // Prepare other incoming data
@@ -469,26 +434,15 @@ var Mixer = {
 
     // Special case: adjust second result if it doesn't fit
     if (results.length > 1 && results[1].data.template == 'pattern-h2') {
-      if (CliqzUtils.getPref('simpleHistory', false)) {
-        CliqzUtils.log('Converting cluster for ' + results[1].val +
-                       ' to simple history', 'Mixer');
+      CliqzUtils.log('Converting cluster for ' + results[1].val +
+                     ' to simple history', 'Mixer');
 
-        // convert to simple history entry
-        var simple = Result.generic('favicon', results[1].val, null,
-                                    results[1].data.title, null, searchString);
-        simple.data.kind = ['H'];
-        simple.data.description = result[1].data.description;
-        results[1] = simple;
-      } else {
-        CliqzUtils.log('Converting cluster for ' + results[1].val +
-                       ' to 1/3 size.', 'Mixer');
-
-        // convert to 1/3 sized history cluster
-        results[1].data.template = 'pattern-h3';
-
-        // limit number of URLs
-        results[1].data.urls = (results[1].data.urls || []).slice(0, 3);
-      }
+      // convert to simple history entry
+      var simple = Result.generic('favicon', results[1].val, null,
+                                  results[1].data.title, null, searchString);
+      simple.data.kind = ['H'];
+      simple.data.description = result[1].data.description;
+      results[1] = simple;
     }
 
     // Only show a maximum 3 BM results
@@ -497,9 +451,6 @@ var Mixer = {
       if (r.style.indexOf('cliqz-results ') === 0) cliqzRes++;
       return cliqzRes <= 3;
     });
-
-    // Prepare list of partial templates for rendering
-    results = Mixer._setPartialTemplates(results);
 
     // Show no results message
     if (results.length === 0 && !only_history) {
@@ -511,4 +462,3 @@ var Mixer = {
 };
 
 Mixer.init();
-

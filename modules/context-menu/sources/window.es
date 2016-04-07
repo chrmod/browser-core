@@ -69,10 +69,14 @@ export default class {
   removeMenuItem() {
     if (this.menuItem) {
       this.contextMenu.removeChild(this.menuItem);
+      this.menuItem = null;
     }
   }
 
   clickHandler(query) {
+    // opens a new empty tab
+    CLIQZEnvironment.openTabInWindow(this.window, '')
+
     var urlbar = this.window.document.getElementById('urlbar');
 
     urlbar.mInputField.focus();

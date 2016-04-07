@@ -71,6 +71,9 @@ var tabsProgressListener = {
   },
 
   onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
+    //we do not consider local files
+    if(aStatus == 0) return;
+
     CliqzEvents.pub("core.tab_state_change", {
       url: aRequest && aRequest.name,
       isValid: (aStateFlag & Components.interfaces.nsIWebProgressListener.STATE_START) && !aStatus,
@@ -289,6 +292,7 @@ window.CLIQZ.Core = {
                 startup: startup? true: false,
                 prefs: CLIQZEnvironment.getCliqzPrefs(),
                 defaultSearchEngine: defaultSearchEngine,
+                isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser(),
                 private_window: CliqzUtils.isPrivate(window),
                 distribution: CliqzUtils.getPref('distribution', '')
             };

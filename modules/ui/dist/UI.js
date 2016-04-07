@@ -166,12 +166,16 @@ var UI = {
               return Math.floor(r.offsetHeight / 100);
             });
 
-      var curResAll = currentResults.results;
-      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
-        curResAll[0].url = curResAll[0].data.urls[0].href;
+      var curResAll = currentResults.results, firstResult = curResAll[0];
+      if(curResAll && curResAll.length > 0){
+        //if the first result has no url and it is a history pattern result try to extract the first url and set it to the whole entry
+        if(!firstResult.url && firstResult.type == "cliqz-pattern"
+            && firstResult.data && firstResult.data.urls && firstResult.data.urls.length > 0)
+          firstResult.url = firstResult.data.urls[0].href;
 
-      if(curResAll && curResAll.length > 0 && curResAll[0].url){
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
+        if(firstResult.url){
+          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title, firstResult.data);
+        }
 
         snippetQualityTelemetry(curResAll);
       }
@@ -950,6 +954,50 @@ function unEscapeUrl(url){
             unEscapeURIForUI('UTF-8', url)
 }
 
+// Determine partials to be used for generic results
+function setPartialTemplates(data) {
+  // Every entry has title and URL
+  var partials = ['title', 'url'];
+
+  // Description
+  if (data.description) {
+    partials.push('description');
+  }
+
+  // Local data
+  var localTemplate = data.superTemplate;
+  if (localTemplate) {
+    if (data.no_location) {
+      partials.push('missing_location_1');
+    } else {
+      partials.push(localTemplate);
+    }
+  }
+
+  // History
+  if (data.urls && data.urls.length) {
+    partials.push('history');
+    var index = partials.indexOf('description');
+
+    if (index > -1) {
+      if(data.urls.length <= 5) {
+        partials[index] = 'description-m';
+      }else {
+        data.urls = data.urls.slice(0, 6);
+        partials.splice(index, 1);
+      }
+    }
+  }
+
+  // Smart CLIQZ buttons
+  if (data.template == 'entity-generic') {
+    partials.push('buttons');
+  }
+
+  return partials;
+}
+
+
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
     clearMessage('bottom');
@@ -957,26 +1005,28 @@ function enhanceResults(res){
 
     for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
-
-        if(r.data && r.data.adult) adult = true;
-
-        if(r.data) {
-          //always use data.btns independetly of whether the buttons come from (history, rich header etc)
-          r.data.btnExtra = 'cat';
-          if(r.data.categories) {
-            r.data.btns = r.data.categories;
-          } else if(r.data.richData && r.data.richData.categories) {
-            r.data.btns = r.data.richData.categories;
-          } else if(r.data.actions) {
-            r.data.btns = r.data.actions;
-            r.data.btnExtra = 'action';
-          } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
-              r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
-          }
-          UI.enhanceSpecificResult(r);
+        if (!r.data) {
+          r.data = {};
         }
 
-        //if(r.snippet.rich_data.type === "news")
+        if(r.data.adult) adult = true;
+
+        // Prepare list of partial templates for rendering
+        r.data.partials = setPartialTemplates(r.data);
+
+        //always use data.btns independetly of whether the buttons come from (history, rich header etc)
+        r.data.btnExtra = 'cat';
+        if(r.data.categories) {
+          r.data.btns = r.data.categories;
+        } else if(r.data.richData && r.data.richData.categories) {
+          r.data.btns = r.data.richData.categories;
+        } else if(r.data.actions) {
+          r.data.btns = r.data.actions;
+          r.data.btnExtra = 'action';
+        } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
+            r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
+        }
+        UI.enhanceSpecificResult(r);
 
         if (r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') === 0) {
           var d = r.data;
@@ -1683,6 +1733,9 @@ function setResultSelection(el, scrollTop, changeUrl, mouseOver){
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
+        if(target.hasAttribute("useParentOffset")){
+          offset += target.parentElement.offsetTop || target.parentElement.parentElement.offsetTop
+        }
 
         if(el.hasAttribute('arrow-override') || target.hasAttribute('arrow-override')){
           offset += closest(el, '.cqz-result-box').offsetTop;
@@ -1798,7 +1851,7 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
-    if(CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+    if(currentResults && CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
       if(CLIQZ.config.settings.channel != "40"){
         // it should be only for the browser

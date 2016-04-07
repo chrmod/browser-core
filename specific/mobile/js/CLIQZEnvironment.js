@@ -6,8 +6,6 @@ CLIQZEnvironment = {
   RICH_HEADER_CACHE_TIMEOUT: 15000,
   PEEK: 20,
   PADDING: 16,
-  BRANDS_DATABASE_VERSION: 1452759183853,
-
   storeQueryTimeout: null,
 
   log: Logger.log,
@@ -29,7 +27,10 @@ CLIQZEnvironment = {
     };
     request.send();
   },
-
+  getBrandsDBUrl: function(version){
+    //TODO - consider the version !!
+    return 'js/brands_database.json'
+  },
   enrichResults: function(r, startIndex, historyCount) {
     r._results.forEach( function (result, index) {
       // if(index < startIndex) {
@@ -641,10 +642,13 @@ CLIQZEnvironment = {
 };
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
-  var recentItems = CLIQZEnvironment.getRecentQueries();
-  if(query.match(/http[s]{0,1}:/)) {
+  
+  if(CLIQZEnvironment.getPref('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
     return;
   }
+
+  var recentItems = CLIQZEnvironment.getRecentQueries();
+  
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     localStorage.setItem('recentQueries',JSON.stringify(recentItems));

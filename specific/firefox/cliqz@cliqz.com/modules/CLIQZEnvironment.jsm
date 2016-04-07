@@ -71,10 +71,7 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
-var BRANDS_DATABASE_VERSION = 1457952995848;
 var CLIQZEnvironment = {
-    BRANDS_DATABASE_VERSION: BRANDS_DATABASE_VERSION,
-    BRANDS_DATA_URL: 'https://cdn.cliqz.com/brands-database/database/' + BRANDS_DATABASE_VERSION + '/data/database.json',
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
     SKIN_PATH: 'chrome://cliqz/content/static/skin/',
@@ -147,6 +144,17 @@ var CLIQZEnvironment = {
                     return prev;
                  }, {});
     },
+    isDefaultBrowser: function(){
+      try {
+        var shell = Components.classes["@mozilla.org/browser/shell-service;1"]
+                      .getService(Components.interfaces.nsIShellService)
+        if (shell) {
+          return shell.isDefaultBrowser(false);
+        }
+      } catch(e) {}
+
+      return null;
+    },
     httpHandler: function(method, url, callback, onerror, timeout, data, sync, encoding){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
@@ -194,19 +202,21 @@ var CLIQZEnvironment = {
         return req;
     },
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
+        //lazy load gzip module
+        if(compressedPost && !CLIQZEnvironment.gzip){
+            CliqzUtils.importModule('core/gzip').then( function(gzip) {
+                CLIQZEnvironment.gzip = gzip
+            });
+        }
+
         return new Promise( function(resolve, reject) {
-            if ( method === 'POST' && compressedPost) {
-                CliqzUtils.importModule('core/gzip').then( function(gzip) {
-                    // gzip.compress may be false if there is no implementation for this platform
-                    if ( gzip.compress ) {
-                        var dataLength = data.length;
-                        data = gzip.compress(data);
-                        CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
-                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
-                    } else {
-                        CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
-                    }
-                });
+            // gzip.compress may be false if there is no implementation for this platform
+            // or maybe it is not loaded yet
+            if ( CLIQZEnvironment.gzip && CLIQZEnvironment.gzip.compress && method === 'POST' && compressedPost) {
+                var dataLength = data.length;
+                data = CLIQZEnvironment.gzip.compress(data);
+                CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+                CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
             } else {
                 CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
             }
@@ -257,6 +267,9 @@ var CLIQZEnvironment = {
                                     .getService(Ci.nsIEffectiveTLDService);
 
         return eTLDService.getPublicSuffixFromHost(host);
+    },
+    getBrandsDBUrl: function(version){
+      return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
     },
     isPrivate: function(window) {
         if(window && window.cliqzIsPrivate === undefined){
