@@ -3,7 +3,7 @@
   "settings": {},
   "modules": [
     "core",
-    "ui",
+    "mobile-ui",
     "static"
   ]
 }
