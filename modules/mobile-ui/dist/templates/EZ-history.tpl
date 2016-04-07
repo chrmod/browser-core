@@ -1,5 +1,5 @@
 <!-- EZ-history.tpl -->
-{{partial '_history'}}
+{{partial 'history'}}
 <div class='main'>
     <ul class='cta cta__history'>
         {{#each urls}}
@@ -18,7 +18,7 @@
                     <h3>{{ title }}</h3>
                     <span>{{ emphasis link ../query 2 true }}</span>
                 </a>
-                
+
             </li>
         {{/each}}
     </ul>
