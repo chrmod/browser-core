@@ -166,12 +166,16 @@ var UI = {
               return Math.floor(r.offsetHeight / 100);
             });
 
-      var curResAll = currentResults.results;
-      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
-        curResAll[0].url = curResAll[0].data.urls[0].href;
+      var curResAll = currentResults.results, firstResult = curResAll[0];
+      if(curResAll && curResAll.length > 0){
+        //if the first result has no url and it is a history pattern result try to extract the first url and set it to the whole entry
+        if(!firstResult.url && firstResult.type == "cliqz-pattern"
+            && firstResult.data && firstResult.data.urls && firstResult.data.urls.length > 0)
+          firstResult.url = firstResult.data.urls[0].href;
 
-      if(curResAll && curResAll.length > 0 && curResAll[0].url){
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
+        if(firstResult.url){
+          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title, firstResult.data);
+        }
 
         snippetQualityTelemetry(curResAll);
       }
@@ -1851,7 +1855,7 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
-    if(CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+    if(currentResults && CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
       if(CLIQZ.config.settings.channel != "40"){
         // it should be only for the browser

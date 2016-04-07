@@ -503,7 +503,8 @@ var CliqzAutocomplete = {
                 CliqzUtils.telemetry(action);
 
                 if(invalidQ) {
-                    listener.onSearchResult(this, null)
+                    //we call the callback with no results to trigger a dropdown close
+                    callback(null, this)
                     return;
                 }
 

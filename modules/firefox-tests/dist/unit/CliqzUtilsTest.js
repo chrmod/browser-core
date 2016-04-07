@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage) {
+TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage, CLIQZEnvironment) {
   describe('CliqzUtils', function(){
 
     it('HOST should be set to cliqz.com', function(){
@@ -246,6 +246,8 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage)
 
         it('can compress sent post data', function() {
           return CliqzUtils.importModule('core/gzip').then( function (gzip) {
+            CLIQZEnvironment.gzip = gzip;
+
             return CliqzUtils.promiseHttpHandler('POST', url, postDataSent, undefined, true).then( function(resp) {
               chai.expect(hitCtr).to.eql(1);
               chai.expect(resp.response).to.eql(responseTest);
