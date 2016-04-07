@@ -56,7 +56,6 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-//  RESULTS_PROVIDER:               'http://mixer-beta.clyqz.com/api/v1/results?q=',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
@@ -77,7 +76,9 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
-  BRANDS_DATABASE_VERSION: CLIQZEnvironment.BRANDS_DATABASE_VERSION,
+
+  //will be updated from the mixer config endpoint every time new logos are generated
+  BRANDS_DATABASE_VERSION: 1457952995848,
 
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
@@ -102,7 +103,9 @@ var CliqzUtils = {
       'vod': 3,
       'conversations': 1,
       'conversations_future': 1,
-      'topnews': 1
+      'topnews': 1,
+      '_generic': 1,
+      '_history': 1
   },
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -134,17 +137,17 @@ var CliqzUtils = {
 
       var retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
-      (function getLogoDB(){
+      (function getLogoDB(url){
 
-          CliqzUtils && CliqzUtils.httpGet(CLIQZEnvironment.BRANDS_DATA_URL,
+          CliqzUtils && CliqzUtils.httpGet(url,
           function(req){
-            BRANDS_DATABASE = JSON.parse(req.response); },
+            CliqzUtils.BRANDS_DATABASE =  BRANDS_DATABASE = JSON.parse(req.response); },
           function(){
             var retry = retryPattern.pop();
-            if(retry) CliqzUtils.setTimeout(getLogoDB, retry);
+            if(retry) CliqzUtils.setTimeout(getLogoDB, retry, url);
           }
           , MINUTE/2);
-      })();
+      })(CLIQZEnvironment.getBrandsDBUrl(this.BRANDS_DATABASE_VERSION));
     }
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
@@ -273,6 +276,9 @@ var CliqzUtils = {
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
   },
+  promiseHttpHandler: function() {
+    return CLIQZEnvironment.promiseHttpHandler.apply(CLIQZEnvironment, arguments);
+  },
   /**
    * Loads a resource URL from the xpi.
    *
@@ -363,6 +369,12 @@ var CliqzUtils = {
     if(cleanWWW && url.toLowerCase().indexOf('www.') == 0)
       url = url.slice(4);
 
+    return url;
+  },
+  removeWww: function(url) {
+    if(url.toLowerCase().indexOf('www.') == 0) {
+      url = url.slice(4);
+    }
     return url;
   },
   getDetailsFromUrl: function(originalUrl){
@@ -885,7 +897,10 @@ var CliqzUtils = {
     CliqzUtils._telemetry_start = Date.now();
 
     CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
-    CliqzUtils._telemetry_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTelemetryCallback, JSON.stringify(CliqzUtils._telemetry_sending), CliqzUtils.pushTelemetryError);
+
+    CliqzUtils._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(CliqzUtils._telemetry_sending), 10000, true);
+    CliqzUtils._telemetry_req.then( CliqzUtils.pushTelemetryCallback );
+    CliqzUtils._telemetry_req.catch( CliqzUtils.pushTelemetryError );
   },
   pushTelemetryCallback: function(req){
     try {

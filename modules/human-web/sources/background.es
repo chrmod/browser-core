@@ -10,7 +10,7 @@ export default background({
 
   init(settings) {
     HumanWeb.initAtBrowser();
-
+    utils.bindObjectFunctions(this.actions, this);
     hs.addObserver(HumanWeb.historyObserver, false);
   },
 
@@ -33,6 +33,24 @@ export default background({
         t: data.type,
         pt: data.positionType,
       };
+    }
+  },
+
+  actions: {
+    recordKeyPress() {
+      HumanWeb.captureKeyPressPage.apply(HumanWeb, arguments);
+    },
+    recordMouseMove() {
+      HumanWeb.captureMouseMovePage.apply(HumanWeb, arguments);
+    },
+    recordMouseDown() {
+      HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);
+    },
+    recordScroll() {
+      HumanWeb.captureScrollPage.apply(HumanWeb, arguments);
+    },
+    recordCopy() {
+      HumanWeb.captureCopyPage.apply(HumanWeb, arguments);
     }
   }
 })

@@ -5,6 +5,7 @@
 import urllib2
 import xml.etree.ElementTree as ET
 import os, os.path
+import json
 
 from fabric.contrib import console
 from fabric.api import task, local, lcd, hide
@@ -18,6 +19,7 @@ PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
 PATH_TO_S3_BUCKET = "s3://cdncliqz/update/browser/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
+PATH_TO_S3_PRE_BUCKET = "s3://cdncliqz/update/pre-release/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
 
@@ -33,7 +35,11 @@ def get_version(beta='True'):
     full_version = local("git describe --tags", capture=True)  # e.g. 0.4.08-2-gb4f9f56
     # full_version = 'images'
     version_parts = full_version.split("-")
-    version = version_parts[0]
+
+    with open('../../package.json') as package_json_file:
+        package_json = json.load(package_json_file)
+        version = package_json['version']
+
     if beta == 'True':
         # If the number of commits after a tag is 0 the returned versions have
         # no dashes (e.g. 0.4.08)
@@ -90,7 +96,12 @@ def package(beta='True', version=None, sign='False', amo='False'):
         local("mv %s UNSIGNED_%s" % (output_file_name, output_file_name))
         # signs the XPI with the CLIQZ certificate
 
-        local("python /src/main/xpi-sign/xpisign.py -k /Volumes/CLIQZXPI/xpisign-cliqz\@cliqz.com UNSIGNED_%s %s " % (output_file_name, output_file_name))
+        # look for xpi-sign report on the same level as navigation-extension
+        local( ("python ../../xpi-sign/xpisign.py "
+                "-k ../../certs/xpisign-cliqz\@cliqz.com "
+                "--signer openssl "
+                "--passin file:../../certs/pass "
+                "UNSIGNED_%s %s ") % (output_file_name, output_file_name))
 
     # creates a copy to the current build in case we need to upload it to S3
     local("cp %s latest.xpi" % output_file_name)
@@ -117,7 +128,7 @@ def install_in_browser(beta='True', version=None):
 
 
 @task
-def publish(beta='True', version=None):
+def publish(beta='True', version=None, pre='True'):
     """Upload extension to s3 (credentials in ~/.s3cfg need to be set to primary)"""
     if not (beta == 'True') and version is not None:
         abort("You should never publish a non-beta package with a fixed version.\n"\
@@ -139,7 +150,14 @@ def publish(beta='True', version=None):
     icon_name = "icon.png"
     output_file_name = package(beta, version, "True") # !!!! we must publish only signed versions !!!!
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
-    path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
+
+    # use a different folder for each channel:
+    #        BETA:     beta        extensions which update from beta    channel (used by our beta browser users)
+    #        RELEASE:  release     extensions which update from release channel (used by our production browser users )
+    #        PRE:      pre-release extensions which update from release channel (used for pre-resease testing)
+    path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else \
+                 PATH_TO_S3_PRE_BUCKET if pre == 'True' else PATH_TO_S3_BUCKET
+
     local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))
@@ -209,9 +227,8 @@ def comment_cleaner(path=None):
 
     target = ['js', 'jsm', 'html']
 
-    exclude_dirs = ['node_modules', 'bower_components', 'extern']
+    exclude_dirs = ['node_modules', 'bower_components', 'extern', 'fresh-tab-frontend']
     ignore = [
-        'handlebars-v1.3.0.js',
         'ToolbarButtonManager.jsm',
         'math.min.jsm',
         'Validations.js',

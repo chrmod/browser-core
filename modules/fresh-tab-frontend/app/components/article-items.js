@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+  cliqz: Ember.inject.service(),
   pageNum: 0,
 
   isOnePage: Ember.computed.equal("pages.length", 1),
@@ -37,27 +38,40 @@ export default Ember.Component.extend({
     }
     Ember.run.cancel(this.get("timer"));
     this.set('timer', Ember.run.later( () => {
-      this.nextPage();
+      this.animate(function() {
+        this.nextPage();
+      }.bind(this));
       this.autoRotate();
     }, 15000));
   }.on('didInsertElement'),
 
-  /*autoRotate: function () {
-    Ember.run.later( () => {
-      this.nextPage();
-      this.autoRotate();
-    }, 2000)
-  }.on('didInsertElement'),*/
-
   actions: {
+
     next() {
       this.nextPage();
     },
 
     setPage(num) {
-      this.set("pageNum", num);
+      this.animate(function() {
+        this.set('pageNum', num);
+      }.bind(this));
+      this.get('cliqz').sendTelemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'topnews-pagination-dots',
+        target_index: num
+      });
       this.autoRotate();
      }
+  },
+
+  animate: function(setNextPage) {
+    //stop rotation on hover
+    if(this.$('.topnews:hover') && this.$('.topnews:hover').length ===0 ) {
+      this.$().find('.content').fadeOut(function() {
+        setNextPage();
+      }).fadeIn();
+    }
   }
 
 });

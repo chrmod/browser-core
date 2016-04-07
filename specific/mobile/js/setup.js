@@ -1,28 +1,15 @@
+System.baseURL = "modules/"
+CLIQZ.System = System;
+
 function init() {
-  System.baseURL = "modules/"
-  CLIQZ.System = System;
   CliqzUtils.initPlatform(System);
-  System.import("freshtab/news").then(function (module) {
-    CliqzFreshTabNews = module.default;
-    osBridge.isReady();
-    tryInit();
-  }).catch(function () {
-    console.log("error", arguments)
-  });
-};
-
-osBridge.getTopSites("CLIQZEnvironment.displayTopSites", 5);
-
-var tries=20;
-
-function tryInit(){
-  //ugly hack to wait for logos
-
-  //if(tries-- == 0 || CliqzUtils.BRANDS_DATABASE.palette.length > 1)
+  try{
     CLIQZEnvironment.initHomepage(true);
-
-  //else setTimeout(tryInit, 100)
-}
+    osBridge.isReady();
+  } catch(e) {
+    console.error(e);
+  }
+};
 
 /**
   Parameter format
@@ -37,8 +24,9 @@ function tryInit(){
   }
 */
 function resetState(cfg) {
-  var start = document.getElementById("freshstart");
-  var freshstartContent = document.getElementById("freshstartContent");
+  CLIQZEnvironment.initHomepage();
+  var start = document.getElementById("resetState");
+  var resetStateContent = document.getElementById("resetStateContent");
   var resultsBox = document.getElementById("results");
   if(resultsBox) {
     resultsBox.style.display = 'none';
@@ -46,21 +34,21 @@ function resetState(cfg) {
   if(cfg.url && cfg.url.length > 0) {
     start.style.display = "block";
     window.document.getElementById("startingpoint").style.display = 'block';
-    var elem = document.createElement('a');
+    var elem = document.createElement('div');
     elem.setAttribute('onclick', 'osBridge.openLink("' + cfg.url + '")');
     elem.innerHTML = cfg.title;
-    freshstartContent.innerHTML = "";
-    freshstartContent.appendChild(elem);
+    resetStateContent.innerHTML = "";
+    resetStateContent.appendChild(elem);
   } 
   else if(cfg.q && cfg.q.length > 0) {
     start.style.display = "block";
     window.document.getElementById("startingpoint").style.display = 'block';
     var location_enabled = !!cfg.lat && !!cfg.lon;
-    var elem = document.createElement('a');
+    var elem = document.createElement('div');
     elem.setAttribute('onclick', 'osBridge.notifyQuery("' + cfg.q + '", ' + location_enabled + ', ' + cfg.lat + ', ' + cfg.lon + ')');
     elem.innerHTML = cfg.q;
-    freshstartContent.innerHTML = "";
-    freshstartContent.appendChild(elem);
+    resetStateContent.innerHTML = "";
+    resetStateContent.appendChild(elem);
   }
 }
 

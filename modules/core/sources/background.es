@@ -1,8 +1,11 @@
 import { utils } from "core/cliqz";
 import config from "core/config";
+import ProcessScriptManager from "core/process-script-manager";
+
+var lastRequestId = 0;
+var callbacks = {};
 
 export default {
-  PROCESS_SCRIPT_URL: "chrome://cliqz/content/core/processScript.js",
 
   init(settings) {
     this.dispatchMessage = this.dispatchMessage.bind(this);
@@ -11,22 +14,47 @@ export default {
   		config[key] = settings[key];
   	});
 
-    this.mm = Cc["@mozilla.org/parentprocessmessagemanager;1"]
-        .getService(Ci.nsIProcessScriptLoader);
-
-    this.mm.loadProcessScript(this.PROCESS_SCRIPT_URL, true);
-
-    this.mm.addMessageListener("cliqz", this.dispatchMessage);
-
     utils.bindObjectFunctions(this.actions, this);
+
+    this.mm = new ProcessScriptManager(this.dispatchMessage);
+    this.mm.init();
   },
 
   unload() {
-    this.mm.removeMessageListener("cliqz", this.dispatchMessage);
-    this.mm.removeDelayedProcessScript(this.PROCESS_SCRIPT_URL);
+    this.mm.unload();
+  },
+
+  getHTML(url, timeout = 1000) {
+    const requestId = lastRequestId++,
+          documents = [];
+
+    this.mm.broadcast("cliqz:core", {
+      action: "getHTML",
+      args: [ url ],
+      requestId
+    });
+
+    callbacks[requestId] = function (doc) {
+      documents.push(doc);
+    };
+
+    return new Promise( resolve => {
+      utils.setTimeout(function () {
+        delete callbacks[requestId];
+        resolve(documents);
+      }, timeout);
+    });
   },
 
   dispatchMessage(msg) {
+    if (msg.data.requestId in callbacks) {
+      this.handleResponse(msg);
+    } else {
+      this.handleRequest(msg);
+    }
+  },
+
+  handleRequest(msg) {
     const { action, module, args } = msg.data.payload,
           windowId = msg.data.windowId;
 
@@ -34,12 +62,17 @@ export default {
       const background = module.default;
       return background.actions[action].apply(null, args);
     }).then( response => {
-      this.mm.broadcastAsyncMessage(`window-${windowId}`, {
+      this.mm.broadcast(`window-${windowId}`, {
         response,
         action: msg.data.payload.action
       });
     }).catch( e => utils.log(e.toString(), "Problem with frameScript") );
   },
+
+  handleResponse(msg) {
+    callbacks[msg.data.requestId].apply(null, [msg.data.payload]);
+  },
+
   actions: {
     sendTelemetry(msg) {
       utils.telemetry(msg);

@@ -1,20 +1,3 @@
 <!-- news.tpl -->
-    <div class="meta">
-        {{> logo}}
-        <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>
-            {{#if data.richData.discovery_timestamp}}
-                <span>{{ agoline data.richData.discovery_timestamp }}</span>&nbsp;&nbsp;·&nbsp;&nbsp;
-            {{/if}}
-            {{ emphasis urlDetails.host query 2 true }}{{ emphasis urlDetails.extra query 2 true }}</h3>
-    </div>
-
-    <div class="main">
-        {{#if image.src}}
-            <div class="main__image" data-style="background-image: url({{ data.media }});">
-                Image
-            </div>
-        {{/if}}
-        <h1 class="main__headline"><a href="{{url}}">{{ title }}</a></h1>
-        <div class="cf"></div>
-        <p class="main__content">{{{ emphasis data.description query 2 true }}}</p>
-    </div>
+    {{partial '_generic'}}
+<!-- end news.tpl -->

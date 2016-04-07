@@ -26,7 +26,7 @@ CliqzDelayedImageLoader.prototype = {
     this.elements = Array.prototype.slice.call(document.querySelectorAll(this.selector));
     this.inProcess = this.elements.length;
     if(this.inProcess === 0) {
-      window.dispatchEvent(new CustomEvent("imgLoadingOver"));
+      window.dispatchEvent(new CustomEvent("imgLoadingDone"));
       return;
     }
     Array.apply(null, Array(this.BANDWITH)).forEach(this.loadNext.bind(this));
@@ -37,7 +37,7 @@ CliqzDelayedImageLoader.prototype = {
     function safeLoadNext() {
         self.inProcess--;
         if(self.inProcess <= 0) {
-          window.dispatchEvent(new CustomEvent("imgLoadingOver"));
+          window.dispatchEvent(new CustomEvent("imgLoadingDone"));
           return;
         }
         self.loadNext();

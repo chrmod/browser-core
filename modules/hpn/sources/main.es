@@ -129,7 +129,7 @@ var CliqzSecureMessage = {
 
       // Flush proxy stats
       CliqzSecureMessage.flushProxyStats();
-      }
+    }
 
     CliqzSecureMessage.counter += 1;
   },
@@ -215,7 +215,16 @@ var CliqzSecureMessage = {
       CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
       CliqzSecureMessage._telemetry_start = (new Date()).getTime();
       CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
-      if(CliqzSecureMessage._telemetry_sending.length > 0) sendM(CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]]);
+      let nextMsg = CliqzSecureMessage.nextMessage();
+      if (nextMsg) {
+        return sendM(nextMsg);
+      }
+      return Promise.resolve([]);
+    },
+    nextMessage: function() {
+      if(CliqzSecureMessage._telemetry_sending.length > 0) {
+        return CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]];
+      }
     },
     initAtWindow: function(window){
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/crypto-kjur.js', window);
@@ -314,8 +323,8 @@ var CliqzSecureMessage = {
     flushProxyStats: function(){
     	var proxyStats = CliqzSecureMessage.proxyStats;
     	if(Object.keys(proxyStats).length == 0) return;
-    	var msg = {"action": "proxy-health", "anti-duplicates":Math.floor(Math.random() * 10000000),"type": "cliqz", "ver": "1.5", "payload": proxyStats,"ts": CliqzUtils.getPref('config_ts', null)};
-    	CliqzSecureMessage.telemetry(msg);
+    	// var msg = {"action": "proxy-health", "anti-duplicates":Math.floor(Math.random() * 10000000),"type": "cliqz", "ver": "1.5", "payload": proxyStats,"ts": CliqzUtils.getPref('config_ts', null)};
+    	// CliqzSecureMessage.telemetry(msg);
     	CliqzSecureMessage.proxyStats = {};
     	return;
     }

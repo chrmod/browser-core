@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage) {
+TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage, CLIQZEnvironment) {
   describe('CliqzUtils', function(){
 
     it('HOST should be set to cliqz.com', function(){
@@ -178,5 +178,89 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage)
       });
     });
 
+    describe("promiseHttpHandler", function() {
+
+      var hitCtr,
+          url = "http://localhost:"+ testServer.port + "/",
+          responseTest = "hello world",
+          requestData,
+          contentEncodingHeader,
+          ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1", "nsIScriptableInputStream", "init");
+
+      function binaryStringToUint8Array(str) {
+        var buf = new ArrayBuffer(str.length*2);
+        var bufView = new Uint8Array(buf);
+        for (var i=0, strLen=str.length; i<strLen; i++) {
+          bufView[i] = str.charCodeAt(i);
+        }
+        return bufView;
+      }
+
+      beforeEach( function() {
+        hitCtr = 0;
+        requestData = "";
+        contentEncodingHeader = "";
+        testServer.registerPathHandler('/', function(req, res) {
+          hitCtr++;
+          // get postdata from request
+          var s = new ScriptableInputStream(req.bodyInputStream);
+          requestData = s.readBytes(s.available());
+
+          // save content-encoding header if set
+          try {
+            contentEncodingHeader = req.getHeader('content-encoding');
+          } catch(e) {}
+
+          res.write(responseTest);
+        });
+      });
+
+      context('get request', function() {
+
+        it('gets response of request', function() {
+          return CliqzUtils.promiseHttpHandler('GET', url).then( function(resp) {
+            chai.expect(hitCtr).to.eql(1);
+            chai.expect(resp.response).to.eql(responseTest);
+          });
+        });
+
+        it('does not fulfill for a 404', function() {
+          return CliqzUtils.promiseHttpHandler('GET', url + "404").then( function fulfilled() {
+            throw "promise unexpectedly fulfilled";
+          }, function rejected() {
+          });
+        });
+
+      });
+
+      context('post request', function() {
+        var postDataSent = "testdata";
+
+        it('posts provided data', function() {
+          return CliqzUtils.promiseHttpHandler('POST', url, postDataSent).then( function(resp) {
+            chai.expect(hitCtr).to.eql(1);
+            chai.expect(resp.response).to.eql(responseTest);
+            chai.expect(requestData).to.eql(postDataSent);
+          });
+        });
+
+        it('can compress sent post data', function() {
+          return CliqzUtils.importModule('core/gzip').then( function (gzip) {
+            CLIQZEnvironment.gzip = gzip;
+
+            return CliqzUtils.promiseHttpHandler('POST', url, postDataSent, undefined, true).then( function(resp) {
+              chai.expect(hitCtr).to.eql(1);
+              chai.expect(resp.response).to.eql(responseTest);
+              chai.expect(contentEncodingHeader).to.eql('gzip');
+              let postData = gzip.decompress(binaryStringToUint8Array(requestData));
+              chai.expect(postData).to.eql(postDataSent);
+            });
+          });
+        });
+
+      });
+    });
+
   });
+
 };

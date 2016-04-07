@@ -8,14 +8,7 @@
 
 <div id="onboarding">
   {{#if model.miniOnboarding}}
-    <div id="firstTimeOnboarding">
-      <div class="options">
-        <a key="freshtab_learn_more" {{action 'freshTabLearnMore' "https://cliqz.com/aboutus/blog/new-startpage" on='click'}}  class="moreBtn" href="https://cliqz.com/aboutus/blog/new-startpage">
-          {{t 'miniOnboarding.learn-more'}}
-        </a>
-        <a key="freshtab_back_to_old" {{action 'revertBack' on='click'}} class="revertBtn" href="#">{{t 'miniOnboarding.back_to_old'}}</a>
-      </div>
-    </div>
+    {{mini-onboarding isBrowser=model.isBrowser freshTabLearnMoreAction="freshTabLearnMore"}}
   {{else}}
     <div id="learnMore">
       <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>

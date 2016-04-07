@@ -472,8 +472,7 @@ var CliqzTour = {
         }
     },
     openDropdown: function () {
-        CliqzTour.win.CLIQZ.Core.popup.
-            _openAutocompletePopup(CliqzTour.urlBar, CliqzTour.urlBar);
+        CliqzTour.win.CLIQZ.Core.popup.openPopup(CliqzTour.urlBar, "topleft bottomleft", 32, 0);
     },
     closeDropdown: function () {
         CliqzTour.win.CLIQZ.Core.popup.hidePopup();

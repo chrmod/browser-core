@@ -559,35 +559,25 @@ var CliqzHistoryCluster = {
 
       instant_results.push(instant);
 
-    } else {
-      // generic history
-      var simple_generic = CliqzUtils.getPref('simpleHistory', false);
-
-      if (simple_generic) {
-        var maxHistoryResults = 2;
-        for (var i = 0; i < maxHistoryResults; i++) {
-          if (i < results.length) {
-            var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
-            instant.comment += ' (history generic)!';
-            instant.data.kind = ['H'];
-            promises.push(CliqzHistoryCluster._getDescription(instant));
-            instant_results.push(instant);
-          } else {
-            break;
-          }
-        }
-      } else {
-        // 3-up combined generic history entry
-        var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
-        instant.data.title = '';
+    } else if (results.length < 3) {
+      for (var i = 0; i < results.length; i++) {
+        var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
         instant.comment += ' (history generic)!';
-        instant.data.template = 'pattern-h3';
-        instant.data.generic = true;
-
-        this._attachURLs(instant, results, true);
-
+        instant.data.kind = ['H'];
+        promises.push(CliqzHistoryCluster._getDescription(instant));
         instant_results.push(instant);
       }
+    } else {
+      // 3-up combined generic history entry
+      var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
+      instant.data.title = '';
+      instant.comment += ' (history generic)!';
+      instant.data.template = 'pattern-h3';
+      instant.data.generic = true;
+
+      this._attachURLs(instant, results, true);
+
+      instant_results.push(instant);
     }
 
     if (typeof(Promise) === 'undefined') {

@@ -28,6 +28,12 @@
             "extra": {
                 "ts": 1436352424,
                 "data": {
+                    "__subType__": {
+                      "class": "EntityNews",
+                      "id": "2116501414516858838",
+                      "name": "SPIEGEL ONLINE"
+
+                    },
                     "categories": [
                         {
                             "title": "Politik",
@@ -144,7 +150,7 @@
                     ]
                 },
                 "url": "http://www.spiegel.de",
-                "subType": "{\"ez\": \"2116501414516858838\"}",
+                "subType": "{\"class\": \"EntityNews\", \"ez\": \"deprecated\"}",
                 "trigger_urls": [
                     "spiegel.de"
                 ]

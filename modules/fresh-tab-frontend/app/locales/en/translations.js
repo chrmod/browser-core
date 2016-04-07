@@ -10,15 +10,22 @@ export default {
   // "key.with.interpolation": "Text with {{anInterpolation}}"
   onboarding: {
     "title": "Woohoo! CLIQZ has been successfully installed.",
-    "search-simple": "Search effortlessly. Simply start typing in the address bar and instantly get",
-    "suggestions": "website suggestions.",
-    "privacy": "Protect your privacy.",
-    "surf-safe": "We don’t collect any data about you on our servers.",
-    "start-fresh": "Start fresh. We populate your homescreen with your favorite sites - plus news we think will interest you.",
-    "cool-thanks": "Cool, thanks!",
-    "learn-more": "Learn more about CLIQZ",
-    "or": "or",
-    "full-tour": "take the full tour"
+    "hdr-privacy": "You are safe with CLIQZ.",
+    "txt-privacy1": "Our innovative",
+    "txt-privacy2": "Anti-Tracking & -Phishing",
+    "txt-privacy3": "technologies protect you and your privacy.",
+    "cta1": "Cool, what else?",
+    "hdr-search": "Quick search",
+    "txt-search1": "See",
+    "txt-search2": "search results",
+    "txt-search3": "as you type and click to go there directly.",
+    "cta2": "Got it...",
+    "hdr-homescreen": "Your top sites and news",
+    "txt-homescreen1": "We populate your",
+    "txt-homescreen2": "Homescreen",
+    "txt-homescreen3": "with your favorite websites and trending news.",
+    "cta3": "OK, let's go!",
+    "learn-more": "Learn more about CLIQZ"
   },
   miniOnboarding: {
     "learn-more": "Learn more",

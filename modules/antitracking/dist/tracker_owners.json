@@ -676,11 +676,19 @@
     "Goldbach Management AG": [
         "goldbach.com"
     ],
-    "Google": [
-        "2mdn.net",
-        "gstatic.com",
+    "Doubleclick by Google": [
         "doubleclick.net",
+        "2mdn.net"
+    ],
+    "Google Analytics": [
+        "google-analytics.com"
+    ],
+    "Youtube": [
         "youtube.com",
+        "googlevideo.com"
+    ],
+    "Google": [
+        "gstatic.com",
         "google.de",
         "googlesyndication.com",
         "ggpht.com",
@@ -691,7 +699,6 @@
         "recaptcha.net",
         "panoramio.com",
         "gmodules.com",
-        "google-analytics.com",
         "google.ad",
         "google.ae",
         "google.com.af",
@@ -1550,13 +1557,6 @@
     "Skimlinks": [
         "skimresources.com"
     ],
-
-
-
-
-
-
-
     "Smart AdServer": [
         "smartadserver.com",
         "sascdn.com"
@@ -1692,11 +1692,18 @@
     "Telemetry Ltd": [
         "tekblue.net"
     ],
+    "Teradata": [
+        "flx1.com",
+        "flxone.com"
+    ],
     "The Interpublic Group of Companies, Inc.": [
         "mbww.com"
     ],
     "The Trade Desk": [
         "adsrvr.org"
+    ],
+    "The Weather Channel, LLC": [
+        "wfxtriggers.com"
     ],
     "ToneMedia": [
         "clickfuse.com"
@@ -1828,6 +1835,7 @@
         "viglink.com"
     ],
     "Vimeo": [
+        "vimeo.com",
         "vimeocdn.com"
     ],
     "Vine Labs, Inc.": [

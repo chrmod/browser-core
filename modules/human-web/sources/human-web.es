@@ -1,5 +1,7 @@
 import AntiPhishing from "anti-phishing/anti-phishing";
 import CliqzBloomFilter from "human-web/bloom-filter";
+import core from "core/background";
+import { utils } from "core/cliqz";
 
 /*
 Changes :
@@ -661,6 +663,10 @@ var CliqzHumanWeb = {
         });
     },
     SQL: function(sql, onRow, callback, parameters) {
+        // temporary fix to avoid console logs if human web is disabled
+        // the history listner should be handled better if HW module is disabled
+        if(!CliqzHumanWeb.dbConn) return;
+
         var st = CliqzHumanWeb.dbConn.createAsyncStatement(sql);
 
         for(var key in parameters) {
@@ -1552,6 +1558,51 @@ var CliqzHumanWeb = {
         //_log("Testing" + x.ctry);
         return x;
     },
+    getHTML(url) {
+      // lazy load fallback urls
+      const possibleUrls = [
+        url => decodeURI(decodeURI(url)),
+        url => decodeURIComponent(url),
+      ];
+
+      function getDoc(url) {
+        return core.getHTML(url).then( docs => {
+          const doc = docs[0];
+          if (doc) {
+            return doc;
+          } else {
+            throw "not found";
+          }
+        }).catch( () => {
+          const possibleUrl = possibleUrls.shift();
+          if (possibleUrl) {
+            const url = possibleUrl();
+            return getDoc(url);
+          } else {
+            throw "not found";
+          }
+        });
+      }
+
+      return getDoc(url);
+    },
+    createDoc(html) {
+      const hiddenWindow = Services.appShell.hiddenDOMWindow;
+      const parser = new hiddenWindow.DOMParser();
+      return parser.parseFromString(html, "text/html");
+    },
+    getCD(url) {
+      return this.getHTML(url).then( html => {
+        const doc = this.createDoc(html);
+        // monkey patching the doc so it looks like regular document element
+        /*
+        doc.location = {
+          href: url
+        };
+        */
+        return doc;
+      });
+    },
     getCDByURL: function(url) {
         var dd_url = url;
 
@@ -1725,42 +1776,21 @@ var CliqzHumanWeb = {
                     AntiPhishing.auxOnPageLoad(activeURL);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
-                    if (se > -1){
-                        CliqzUtils.setTimeout(function(currURLAtTime, doc) {
+                    if (se > -1) {
+                        CliqzUtils.setTimeout(function(url) {
+                          if (!CliqzHumanWeb) {
+                            return;
+                          }
 
-                            // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
-                            if (CliqzHumanWeb) {
-                                try {
-
-                                    // FIXME: this begs for refactoring!!
-
-                                    var activeURL = CliqzHumanWeb.currentURL();
-                                    var document = null;
-                                    var searchURL = null;
-
-                                    if (currURLAtTime == activeURL) {
-                                        document = doc; //currwin.gBrowser.selectedBrowser.contentDocument;
-                                        searchURL = activeURL;
-                                    }
-                                    else{
-                                        document = CliqzHumanWeb.getCDByURL(currURLAtTime);
-                                        searchURL = currURLAtTime;
-
-                                    }
-
-
-                                    CliqzHumanWeb.checkURL(document);
-                                    CliqzHumanWeb.queryCache[searchURL] = {'d': 0, 'q': CliqzHumanWeb.searchCache[se]['q'], 't': CliqzHumanWeb.searchCache[se]['t']};
-                                }
-                                catch(ee) {
-                                    // silent fail
-                                    if (CliqzHumanWeb.debug) {
-                                        _log('Exception: ' + ee);
-                                    }
-                                }
-                            }
-
-                        }, CliqzHumanWeb.WAIT_TIME, activeURL, aProgress.document);
+                          CliqzHumanWeb.getCD(url).then( doc => {
+                            CliqzHumanWeb.checkURL(doc, url);
+                            CliqzHumanWeb.queryCache[url] = {
+                              d: 0,
+                              q: CliqzHumanWeb.searchCache[se]['q'],
+                              t: CliqzHumanWeb.searchCache[se]['t']
+                            };
+                          });
+                        }, CliqzHumanWeb.WAIT_TIME, activeURL);
                     }
 
                     var status = null;
@@ -1841,7 +1871,6 @@ var CliqzHumanWeb = {
                         // 404, soft-404, you name it
                         //
 
-                        try {
 
                             // we cannot get it directly via
                             // var cd = currWin.gBrowser.selectedBrowser.contentDocument;
@@ -1850,53 +1879,50 @@ var CliqzHumanWeb = {
                             //var activeURL = CliqzHumanWeb.currentURL();
                             //if (activeURL != currURL) {}
 
+                            CliqzHumanWeb.getCD(currURL).then(function (cd) {
+
+                              var se = CliqzHumanWeb.checkSearchURL(currURL);
 
 
-
-                            var cd = CliqzHumanWeb.getCDByURL(currURL);
-                            if (cd==null) {
-                                if (CliqzHumanWeb.debug) {
-                                    _log("CANNOT GET THE CONTENT OF : " + currURL);
+                              if (se == -1){
+                                try {
+                                  CliqzHumanWeb.checkURL(cd, currURL);
+                                } catch (e) {
                                 }
-                                return;
-                            }
-                            //Check if the page is not a search engine:
+                                  //Check active usage...
+                                  CliqzHumanWeb.activeUsage += 1;
 
-                            var se = CliqzHumanWeb.checkSearchURL(currURL);
+                              }
 
+                              var x = CliqzHumanWeb.getPageData(currURL, cd);
 
-                            if (se == -1){
-                                CliqzHumanWeb.checkURL(cd);
-                                //Check active usage...
-                                CliqzHumanWeb.activeUsage += 1;
+                              if (x['canonical_url']) {
+                                  CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
+                                  CliqzHumanWeb.can_url_match[x['canonical_url']] = currURL;
 
-                            }
+                              }
 
-                            var x = CliqzHumanWeb.getPageData(currURL, cd);
+                              if (CliqzHumanWeb.state['v'][currURL] != null) {
+                                  CliqzHumanWeb.state['v'][currURL]['x'] = x;
+                              }
 
-                            if (x['canonical_url']) {
-                                CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
-                                CliqzHumanWeb.can_url_match[x['canonical_url']] = currURL;
+                              if (CliqzHumanWeb.queryCache[currURL]) {
+                                  CliqzHumanWeb.state['v'][currURL]['qr'] = CliqzHumanWeb.queryCache[currURL];
+                                  delete CliqzHumanWeb.queryCache[currURL];
+                              }
 
-                            }
+                              if (CliqzHumanWeb.state['v'][currURL] != null) {
+                                  CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
+                                  CliqzHumanWeb.queryCache[currURL];
+                              }
 
-                            if (CliqzHumanWeb.state['v'][currURL] != null) {
-                                CliqzHumanWeb.state['v'][currURL]['x'] = x;
-                            }
-
-                            if (CliqzHumanWeb.queryCache[currURL]) {
-                                CliqzHumanWeb.state['v'][currURL]['qr'] = CliqzHumanWeb.queryCache[currURL];
-                                delete CliqzHumanWeb.queryCache[currURL];
-                            }
-
-                            if (CliqzHumanWeb.state['v'][currURL] != null) {
-                                CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
-                                CliqzHumanWeb.queryCache[currURL];
-                            }
-
-                        } catch(ee) {
-                            _log("Error fetching title and length of page: " + ee + " : " + currURL);
-                        }
+                            }, function () {
+                              if (CliqzHumanWeb.debug) {
+                                  _log("CANNOT GET THE CONTENT OF : " + currURL);
+                              }
+                            }).catch( ee => {
+                              _log("Error fetching title and length of page: " + ee + " : " + currURL);
+                            });
 
                     }, CliqzHumanWeb.WAIT_TIME, currwin, activeURL);
 
@@ -1905,29 +1931,6 @@ var CliqzHumanWeb = {
                     // wops, it exists on the active page, probably it comes from a back button or back
                     // from tab navigation
                     CliqzHumanWeb.state['v'][activeURL]['tend'] = null;
-                }
-
-                // they need to be loaded upon each onlocation, not only the first time
-                var cd = CliqzHumanWeb.getCDByURL(activeURL);
-                if(cd){
-                    cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
-                    cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
-                    cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage, true);
-                    cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
-                    cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
-                }
-                //We might need this, to add listeners.
-                else{
-                    currwin.addEventListener('load', function loader() {
-                        _log("CD failed: ");
-                        currwin.removeEventListener('load', loader, false);
-                        var cd = CliqzHumanWeb.getCDByURL(activeURL);
-                        cd.addEventListener("keypress", CliqzHumanWeb.captureKeyPressPage, true);
-                        cd.addEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage, true);
-                        cd.addEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage, true);
-                        cd.addEventListener("scroll", CliqzHumanWeb.captureScrollPage, true);
-                        cd.addEventListener("copy", CliqzHumanWeb.captureCopyPage, true);
-                    }, false);
                 }
             }
         },
@@ -2005,6 +2008,10 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.debug) {
                 _log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
             }
+
+            // Ensuring the dbConn is not null.
+            var dbConn = CliqzHumanWeb.getDBConn();
+
             CliqzHumanWeb.cleanHttpCache();
             CliqzHumanWeb.cleanDocCache();
             CliqzHumanWeb.cleanLinkCache();
@@ -2163,33 +2170,6 @@ var CliqzHumanWeb = {
     },
     pacemakerId: null,
     // load from the about:config settings
-    captureKeyPress: function(ev) {
-        if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypress']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypresspage']|0)) > 1 * CliqzHumanWeb.tmult)) {
-            if (CliqzHumanWeb.debug) {
-                _log('captureKeyPressAll');
-            }
-            CliqzHumanWeb.lastEv['keypress'] = CliqzHumanWeb.counter;
-            CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
-        }
-    },
-    captureMouseMove: function(ev) {
-        if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemove']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mousemovepage']|0)) > 1 * CliqzHumanWeb.tmult)) {
-            if (CliqzHumanWeb.debug) {
-                _log('captureMouseMoveAll');
-            }
-            CliqzHumanWeb.lastEv['mousemove'] = CliqzHumanWeb.counter;
-            CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
-        }
-    },
-    captureMouseClick: function(ev) {
-        if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclick']|0)) > 1 * CliqzHumanWeb.tmult && ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['mouseclickpage']|0)) > 1 * CliqzHumanWeb.tmult)) {
-            if (CliqzHumanWeb.debug) {
-                _log('captureMouseClickAll');
-            }
-            CliqzHumanWeb.lastEv['mouseclick'] = CliqzHumanWeb.counter;
-            CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
-        }
-    },
     captureKeyPressPage: function(ev) {
         if ((CliqzHumanWeb.counter - (CliqzHumanWeb.lastEv['keypresspage']|0)) > 1 * CliqzHumanWeb.tmult) {
             if (CliqzHumanWeb.debug) {
@@ -2267,13 +2247,21 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.contextFromEvent = null;
         }
     },
-    captureMouseClickPage: function(ev) {
+    captureMouseClickPage: function(ev, contextHTML) {
 
         // if the target is a link of type hash it does not work, it will create a new page without referral
         //
 
         var targetURL = CliqzHumanWeb.getURLFromEvent(ev);
-        CliqzHumanWeb.setContextFromEvent(ev);
+
+        if (contextHTML) {
+           CliqzHumanWeb.contextFromEvent = {
+             html: contextHTML,
+             ts: Date.now()
+           };
+        } else {
+           CliqzHumanWeb.contextFromEvent = null;
+        }
 
         if (targetURL!=null) {
 
@@ -2398,7 +2386,7 @@ var CliqzHumanWeb = {
 
 
         _log("Init function called:")
-        CliqzHumanWeb.initDB();
+        var dbConn = CliqzHumanWeb.initDB();
 
         if (CliqzHumanWeb.state == null) {
             CliqzHumanWeb.state = {};
@@ -2727,7 +2715,9 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.previousDataPost = data;
         }
 
-        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
+        CliqzHumanWeb._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.SAFE_BROWSING, data, 60000, true);
+        CliqzHumanWeb._telemetry_req.then( CliqzHumanWeb.pushTelemetryCallback );
+        CliqzHumanWeb._telemetry_req.catch( CliqzHumanWeb.pushTelemetryError );
     },
     pushTelemetryCallback: function(req){
         try {
@@ -2766,12 +2756,13 @@ var CliqzHumanWeb = {
 
             }
             CliqzHumanWeb.createTable();
-            return;
         }
         else {
             CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
             CliqzHumanWeb.createTable();
         }
+
+        return CliqzHumanWeb.dbConn;
 
     },
     dbConn: null,
@@ -3450,14 +3441,13 @@ var CliqzHumanWeb = {
             _log('Error loading config. ')
           }, 5000);
     },
-    checkURL: function(cd){
-        var url = cd.location.href;
+    checkURL: function(cd, url){
         var pageContent = cd;
         //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
         //scrap(4, pageContent)
         for(var i=0;i<CliqzHumanWeb.rArray.length;i++){
             if(CliqzHumanWeb.rArray[i].test(url)){
-                CliqzHumanWeb.extractContent(i, pageContent);
+                CliqzHumanWeb.extractContent(i, pageContent, url);
 
                 //Do not want to continue after search engines...
                 if(CliqzHumanWeb.searchEngines.indexOf(''+i) != -1 ){return;}
@@ -3486,7 +3476,7 @@ var CliqzHumanWeb = {
             }
         }
     },
-    extractContent: function(ind, cd){
+    extractContent: function(ind, cd, url){
         var scrapeResults = {};
         var eventMsg = {};
         var rules = {};
@@ -3510,7 +3500,7 @@ var CliqzHumanWeb = {
 
                         //Depending on etype, currently only supporting url. Maybe ctry too.
                         if(rules[key][each_key]['etype'] == 'url'){
-                            var qurl = cd.location.href;
+                            var qurl = url;
                             var functionsApplied = (rules[key][each_key]['functionsApplied'] || null);
                             // Check if the value needs to be refined or not.
                             if(functionsApplied){
@@ -4250,6 +4240,9 @@ var CliqzHumanWeb = {
 
         });
 
+    },
+    getDBConn: function(){
+        return CliqzHumanWeb.dbConn || CliqzHumanWeb.initDB();
     }
 
 };
