@@ -138,9 +138,6 @@ window.CLIQZ.Core = {
               CliqzLanguage.init(window);
               CliqzDemo.init(window);
 
-
-              window.gBrowser.addTabsProgressListener(CliqzLanguage.listener);
-
               // CliqzEvents listeners
               this.propagateEvents("core:page_load", window.gBrowser, "load", true);
               this.propagateEvents("core:tab_select", window.gBrowser.tabContainer, "TabSelect");
@@ -222,8 +219,6 @@ window.CLIQZ.Core = {
 
         // remove listeners
         if ('gBrowser' in window) {
-            window.gBrowser.removeTabsProgressListener(CliqzLanguage.listener);
-
             CliqzDemo.unload(window);
 
             this.eventListeners.forEach(function(listener) {

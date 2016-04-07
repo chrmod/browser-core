@@ -1,4 +1,4 @@
-import { utils } from "core/cliqz";
+import { language, utils } from "core/cliqz";
 import config from "core/config";
 import ProcessScriptManager from "core/process-script-manager";
 
@@ -133,6 +133,12 @@ export default {
       urlBar.mInputField.focus();
       urlBar.mInputField.setUserInput(value);
       //utils.getWindow().CLIQZ.Core.urlbar.focus("ss");
+    },
+    recordLang(url, lang) {
+      if (lang) {
+        language.addLocale(url, lang);
+      }
+      return Promise.resolve();
     }
   }
 };

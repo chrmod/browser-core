@@ -195,6 +195,23 @@ function onDOMWindowCreated(ev) {
     });
   };
 
+  var onReady = function () {
+    var lang = window.document.getElementsByTagName('html')
+      .item(0).getAttribute('lang');
+
+    send({
+      windowId: windowId,
+      payload: {
+        module: "core",
+        action: "recordLang",
+        args: [
+          currentURL,
+          lang
+        ]
+      }
+    });
+  };
+
   var onKeyPress = proxyWindowEvent("recordKeyPress");
   var onMouseMove = proxyWindowEvent("recordMouseMove");
   var onScroll = proxyWindowEvent("recordScroll");
@@ -206,6 +223,7 @@ function onDOMWindowCreated(ev) {
   window.addEventListener("mousedown", onMouseDown);
   window.addEventListener("scroll", onScroll);
   window.addEventListener("copy", onCopy);
+  window.addEventListener("DOMContentLoaded", onReady);
   startListening("window-"+windowId, onCallback);
   startListening("cliqz:core", onCore);
 
@@ -216,6 +234,7 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
+    window.removeEventListener("DOMContentLoaded", onReady);
     stopListening("window-"+windowId, onCallback);
     stopListening("cliqz:core", onCore);
   });

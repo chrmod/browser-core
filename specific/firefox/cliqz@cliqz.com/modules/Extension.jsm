@@ -53,6 +53,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
         CliqzUtils.initPlatform(System)
 
