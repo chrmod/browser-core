@@ -1,6 +1,6 @@
 CLIQZEnvironment = {
   BRANDS_DATA_URL: 'js/brands_database.json',
-  TEMPLATES_PATH: 'templates/',
+  TEMPLATES_PATH: 'modules/mobile-ui/templates/',
   LOCALE_PATH: 'modules/static/locale/',
   RESULTS_LIMIT: 3,
   RICH_HEADER_CACHE_TIMEOUT: 15000,
@@ -241,7 +241,7 @@ CLIQZEnvironment = {
     return 0;
   },
   resultsHandler: function (r) {
-    
+
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
@@ -324,7 +324,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.initViewpager.views = {};
     CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
-    
+
     return new ViewPager(resultsBox, {
       pages: CLIQZEnvironment.numberPages,
       dragSize: window.innerWidth,
@@ -642,13 +642,13 @@ CLIQZEnvironment = {
 };
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
-  
+
   if(CLIQZEnvironment.getPref('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
     return;
   }
 
   var recentItems = CLIQZEnvironment.getRecentQueries();
-  
+
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     localStorage.setItem('recentQueries',JSON.stringify(recentItems));

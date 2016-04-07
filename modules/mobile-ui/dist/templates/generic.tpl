@@ -16,7 +16,7 @@
 		</h1>
 
 		<div extra="url" class="card__meta">
-			
+
 			{{#if data.richData.discovery_timestamp}}
 				<div class="timestamp">{{ agoline data.richData.discovery_timestamp }}</div>
 			{{else}}
@@ -25,7 +25,7 @@
 		</div>
 
 		<!-- main images -->
-		
+
 		<div class="card__gallery">
 		{{#if data.richData.image}}
             <div class="image big" data-style="background-image: url({{ data.richData.image }});">
@@ -96,7 +96,7 @@
 
 				{{#if data.r.img}}
 					{{#if data.r.val}}
-						<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/> 
+						<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/>
 						{{numberFormat data.r.val}}/{{data.r.scale}} <!--({{data.r.nVote}} Stimmen)-->
 					{{/if}}
 				{{/if}}
@@ -107,7 +107,7 @@
 					{{title}}: {{info.name}}
 				</div>
 			{{/with}}
-							
+
 			{{#if data.des}}
 				{{{data.des}}}
 			{{else}}
@@ -148,7 +148,7 @@
 						<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}"
 							 style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}
 						</div>
-					{{/with}}		
+					{{/with}}
 
 					<h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
 					<div class="card__meta__secondary">
@@ -157,22 +157,22 @@
 				</div>
 			{{/each}}
 		{{/if}}
-	
+
 		{{#each data.actionsExternalMixed}}
 			<div class="cards__item actionsExternalMixed">
 				{{#with logoDetails}}
 					<div class="card__logo__secondary {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
-				{{/with}}	
+				{{/with}}
 				<h2 class="cards__title__secondary" url="{{url}}">
 					{{title}}
 					<span>{{trimNumbers rank}}</span>
 				</h2>
 			</div>
-		{{/each}}	
+		{{/each}}
 
 		{{#each data.links}}
             <div url="{{url}}" extra="link-{{@index}}" class="cards__item links">
-                <div class="card__logo__secondary bg" 
+                <div class="card__logo__secondary bg"
                 	data-style="background-image:url({{icon}});background-color:#{{../logo.backgroundColor}}">{{ text }}</div>
                 <h2 class="cards__title__secondary">
                     {{title}}
@@ -189,7 +189,7 @@
             </div>
         {{/each}}
 
-        {{#each data.richData.additional_sources}} 
+        {{#each data.richData.additional_sources}}
             <div class="cards__item additional_sources">
                 {{#with ../logo}}
                     {{#if backgroundImage}}
@@ -198,7 +198,7 @@
                 {{/with}}
                 <h2 class="cards__title__secondary" url="{{url}}">{{title}}</h2>
             </div>
-        {{/each}}    
+        {{/each}}
 
 
         {{#each data.external_social}}
@@ -207,7 +207,7 @@
                 <h2 class="cards__title__secondary" url="{{u}}">{{domain}}</h2>
             </div>
          {{/each}}
-		
+
         {{#each data.w}}
             <div class="cards__item data_w">
                 <div class="card__logo__secondary" data-style="background-image: url({{logo}});background-color:#fff;">.</div>
@@ -219,6 +219,6 @@
 
 	{{>EZ-category}}
 
-	{{partial '_history'}}
+	{{partial 'history'}}
 
 <!-- end _generic.tpl -->
