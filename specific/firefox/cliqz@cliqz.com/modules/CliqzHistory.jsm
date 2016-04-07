@@ -901,7 +901,7 @@ var CliqzHistory = {
     }
 
     var acc = "";
-    for (i in hash) {
+    for (var i in hash) {
       acc += toHexString(hash.charCodeAt(i));
     }
     return acc;

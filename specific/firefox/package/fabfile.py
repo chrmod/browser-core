@@ -19,6 +19,7 @@ PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
 PATH_TO_S3_BUCKET = "s3://cdncliqz/update/browser/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
+PATH_TO_S3_PRE_BUCKET = "s3://cdncliqz/update/pre-release/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
 
@@ -127,7 +128,7 @@ def install_in_browser(beta='True', version=None):
 
 
 @task
-def publish(beta='True', version=None):
+def publish(beta='True', version=None, pre='True'):
     """Upload extension to s3 (credentials in ~/.s3cfg need to be set to primary)"""
     if not (beta == 'True') and version is not None:
         abort("You should never publish a non-beta package with a fixed version.\n"\
@@ -149,7 +150,14 @@ def publish(beta='True', version=None):
     icon_name = "icon.png"
     output_file_name = package(beta, version, "True") # !!!! we must publish only signed versions !!!!
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
-    path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
+
+    # use a different folder for each channel:
+    #        BETA:     beta        extensions which update from beta    channel (used by our beta browser users)
+    #        RELEASE:  release     extensions which update from release channel (used by our production browser users )
+    #        PRE:      pre-release extensions which update from release channel (used for pre-resease testing)
+    path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else \
+                 PATH_TO_S3_PRE_BUCKET if pre == 'True' else PATH_TO_S3_BUCKET
+
     local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))

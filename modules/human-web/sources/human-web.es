@@ -663,6 +663,10 @@ var CliqzHumanWeb = {
         });
     },
     SQL: function(sql, onRow, callback, parameters) {
+        // temporary fix to avoid console logs if human web is disabled
+        // the history listner should be handled better if HW module is disabled
+        if(!CliqzHumanWeb.dbConn) return;
+
         var st = CliqzHumanWeb.dbConn.createAsyncStatement(sql);
 
         for(var key in parameters) {
