@@ -118,11 +118,20 @@ function onDOMWindowCreated(ev) {
       return window.document.documentElement.outerHTML;
     },
     queryHTML: function (selector, attribute) {
+      var attributes = attribute.split(",");
+
       return Array.prototype.map.call(
-          window.document.querySelectorAll(selector),
-          function (el) {
+        window.document.querySelectorAll(selector),
+        function (el) {
+          if (attributes.length > 1) {
+            return attributes.reduce( function (hash, attr) {
+              hash[attr] = el[attr];
+              return hash;
+            }, {});
+          } else {
             return el[attribute];
           }
+        }
       );
     },
     getCookie: function () {
@@ -144,7 +153,7 @@ function onDOMWindowCreated(ev) {
     try {
       payload = fns[msg.data.action].apply(null, msg.data.args || []);
     } catch (e) {
-      console.error("cliqz framescript:", e);
+      window.console.error("cliqz framescript:", e);
     }
 
     send({
