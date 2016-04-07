@@ -105,6 +105,9 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCallback(msg) {
+    if (!whitelist.some(function (url) { return currentURL.indexOf(url) === 0; }) ) {
+      return;
+    }
     window.postMessage(JSON.stringify({
       target: "cliqz",
       type: "response",
