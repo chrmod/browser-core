@@ -42,43 +42,30 @@ var UI = {
     results: function(r){
       UI.setDimensions();
 
-      var validCount = 0;
       var engine = CLIQZEnvironment.getDefaultSearchEngine();
       var details = CliqzUtils.getDetailsFromUrl(engine.url);
       var logo = CliqzUtils.getLogoDetails(details);
 
-      var res = {
+      var enhancedResults = enhanceResults(r._results);
+
+      var currentResults = {
         searchString: r._searchString,
         frameWidth: UI.CARD_WIDTH,
-        results: r._results.map(function(r){
-          r.type = r.style;
-          r.left = (UI.CARD_WIDTH * validCount);
-          r.url = r.val || '';
-          r.title = r.comment || '';
-
-          if (!r.invalid) validCount++;
-
-          return r;
-        }),
+        results: enhancedResults,
         isInstant: false,
         isMixed: true,
         googleThis: {
           title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
           action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
-          left: UI.CARD_WIDTH * validCount,
+          left: UI.CARD_WIDTH * enhancedResults.length,
           frameWidth: UI.CARD_WIDTH,
           searchString: encodeURIComponent(r._searchString),
           searchEngineUrl: engine.url,
           logo: logo
         }
       }
+        var query = currentResults.searchString || '';
 
-
-        var query = res.q || '';
-
-
-
-        currentResults = enhanceResults(res);
         if (imgLoader) imgLoader.stop();
 
         // Results that are not ready (extra results, for which we received a callback_url)
@@ -264,9 +251,14 @@ function redrawDropdown(newHTML){
     resultsBox.innerHTML = newHTML;
 }
 
-function enhanceResults(res){
-    for(var i=0; i<res.results.length; i++) {
-        var r = res.results[i];
+function enhanceResults(results){
+    for(var i=0; i<results.length; i++) {
+        var r = results[i];
+        r.type = r.style;
+        r.left = (UI.CARD_WIDTH * i);
+        r.url = r.val || '';
+        r.title = r.comment || '';
+
         r.data = r.data || {};
 
         enhanceSpecificResult(r);
@@ -279,11 +271,18 @@ function enhanceResults(res){
         var _tmp = getDebugMsg(r.title);
         r.title = _tmp[0];
         r.debug = _tmp[1];
+
+
+    }
+    var filteredResults = results.filter(function(r){ return !(r.data && r.data.adult); });
+
+    // if there no results after adult filter - show no results entry
+    if(filteredResults.length == 0){
+      filteredResults.push(CliqzUtils.getNoResults());
+      filteredResults[0].vertical = 'noResult';
     }
 
-    res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
-
-    return res;
+    return filteredResults
 }
 
 // debug message are at the end of the title like this: "title (debug)!"
