@@ -20,7 +20,7 @@
 						{{partial vertical}}
 					{{#if url}}
 						<section class="share">
-							<p cliqz-action='stop-click-event-propagation' 
+							<p cliqz-action='stop-click-event-propagation'
 								onclick="osBridge.shareCard('{{ url }}')"
 								>{{local 'mobile_share_card'}}: {{url}}</p>
 						</section>
@@ -44,7 +44,7 @@
 							<h3>{{ title }}</h3>
 							<div id="moreResults">{{ action }}</div>
 						</div>
-					  
+
 					{{#with logo}}
 						<div class="search_engine_logo"
 						 style="{{style}}"

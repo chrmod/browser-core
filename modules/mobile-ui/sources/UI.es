@@ -19,10 +19,15 @@ import v9 from "mobile-ui/views/weatherEZ";
 
 var resultsBox = null,
     currentResults = null,
-    imgLoader = null
+    imgLoader = null,
+
+    PEEK = 20,
+    PADDING = 16,
+    currentResultsCount = 0
     ;
 
 var UI = {
+    CARD_WIDTH: 0,
     init: function(){
         //check if loading is done
         if(!CliqzHandlebars.tplCache.main)return;
@@ -31,8 +36,47 @@ var UI = {
 
         resultsBox = document.getElementById('cliqz-results', box);
     },
-    results: function(res){
+    setDimensions: function() {
+      UI.CARD_WIDTH = window.innerWidth - PADDING - 2 * PEEK;
+    },
+    results: function(r){
+      UI.setDimensions();
+
+      var validCount = 0;
+      var engine = CLIQZEnvironment.getDefaultSearchEngine();
+      var details = CliqzUtils.getDetailsFromUrl(engine.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+
+      var res = {
+        searchString: r._searchString,
+        frameWidth: UI.CARD_WIDTH,
+        results: r._results.map(function(r){
+          r.type = r.style;
+          r.left = (UI.CARD_WIDTH * validCount);
+          r.url = r.val || '';
+          r.title = r.comment || '';
+
+          if (!r.invalid) validCount++;
+
+          return r;
+        }),
+        isInstant: false,
+        isMixed: true,
+        googleThis: {
+          title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
+          action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
+          left: UI.CARD_WIDTH * validCount,
+          frameWidth: UI.CARD_WIDTH,
+          searchString: encodeURIComponent(r._searchString),
+          searchEngineUrl: engine.url,
+          logo: logo
+        }
+      }
+
+
         var query = res.q || '';
+
+
 
         currentResults = enhanceResults(res);
         if (imgLoader) imgLoader.stop();
@@ -49,9 +93,89 @@ var UI = {
         imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
         imgLoader.start();
 
+        crossTransform(resultsBox, 0);
+        setCardsHeight();
+
+        UI.setResultNavigation(currentResults.results);
+
         return currentResults;
     },
-    VIEWS: {}
+    setResultNavigation: function(results) {
+
+      var showGooglethis = 1;
+      if(!results[0] || results[0].data.template === 'noResult') {
+        showGooglethis = 0;
+      }
+
+      resultsBox.style.width = (window.innerWidth * (results.length + showGooglethis)) + 'px';
+      resultsBox.style.marginLeft = PEEK + 'px';
+
+
+      var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
+
+      currentResultsCount = lastResultOffset / CLIQZ.UI.CARD_WIDTH + showGooglethis + 1;
+
+      if(running) setTimeout(nextTest,2000);
+
+      if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
+        CLIQZEnvironment.vp.destroy();
+      }
+      CLIQZEnvironment.currentPage = 0;
+      CLIQZEnvironment.vp = CLIQZ.UI.initViewpager(currentResultsCount);
+
+      // CLIQZEnvironment.vp.goToIndex(1,0);
+
+      if(document.getElementById('currency-tpl')) {
+        document.getElementById('currency-tpl').parentNode.removeAttribute('url');
+      }
+
+    },
+    VIEWS: {},
+    initViewpager: function(numberPages) {
+        var views = {},
+            pageShowTs = Date.now(),
+            innerWidth = window.innerWidth,
+            offset = 0;
+
+        crossTransform(resultsBox, Math.min((offset * innerWidth), (innerWidth * currentResultsCount)));
+
+        return new ViewPager(resultsBox, {
+          pages: numberPages,
+          dragSize: window.innerWidth,
+          prevent_all_native_scrolling: false,
+          vertical: false,
+          anim_duration:400,
+          onPageScroll : function (scrollInfo) {
+            offset = -scrollInfo.totalOffset;
+            crossTransform(resultsBox, (offset * UI.CARD_WIDTH));
+          },
+
+          onPageChange : function (page) {
+
+            page = Math.abs(page);
+
+            views[page] =
+              (views[page] || 0) + 1;
+
+            if(page && page !== CLIQZEnvironment.currentPage) {
+              CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'swipe',
+                swipe_direction:
+                  page > CLIQZEnvironment.currentPage ? 'right' : 'left',
+                current_position: page,
+                views: views[page],
+                prev_position: CLIQZEnvironment.currentPage,
+                prev_display_time: Date.now() - pageShowTs
+              });
+            }
+
+            pageShowTs = Date.now();
+
+            CLIQZEnvironment.currentPage = page;
+          }
+        });
+    }
 };
 
 function loadAsyncResult(res, query) {
@@ -135,6 +259,8 @@ function assessAsync(getAsync){
 }
 
 function redrawDropdown(newHTML){
+    resultsBox.style.display = 'block';
+
     resultsBox.innerHTML = newHTML;
 }
 
@@ -234,29 +360,67 @@ function closest(elem, selector) {
     return false;
 }
 
+function crossTransform (element, x) {
+  var platforms = ['', '-webkit-', '-ms-'];
+  platforms.forEach(function(platform) {
+    element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
+  });
+}
+
+function setCardsHeight() {
+  var ezs = document.getElementsByClassName('cqz-result-box');
+
+  var body = document.body,
+      documentElement = document.documentElement,
+      height;
+
+  if (typeof document.height !== 'undefined') {
+    height = document.height; // For webkit browsers
+  } else {
+    height = Math.max( body.scrollHeight, body.offsetHeight,documentElement.clientHeight, documentElement.scrollHeight, documentElement.offsetHeight );
+  }
+
+  for(var i=0; i < ezs.length; i++) {
+    ezs[i].style.height = null;
+    if(ezs[i].clientHeight+40 < height) {
+      ezs[i].style.height = height-40 + 'px';
+    }
+  }
+}
+
 window.addEventListener('resize', function () {
   setTimeout(function () {
-    CLIQZEnvironment.setDimensions();
+    UI.setDimensions();
     var w = window.innerWidth;
     var frames = document.getElementsByClassName("frame");
     var i;
     for(i=0;i<frames.length;i++) {
-      frames[i].style.left = (CLIQZEnvironment.CARD_WIDTH*i) +"px";
-      frames[i].style.width = CLIQZEnvironment.CARD_WIDTH+"px";
+      frames[i].style.left = (UI.CARD_WIDTH*i) +"px";
+      frames[i].style.width = UI.CARD_WIDTH+"px";
     }
 
     if(CLIQZEnvironment.vp) {
       CLIQZEnvironment.vp.destroy();
     }
 
-    CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
-    CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
+    crossTransform(document.getElementById("results"), 0);
+    CLIQZEnvironment.vp = CLIQZ.UI.initViewpager();
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
     }, 50);
 
-    CLIQZEnvironment.setCardsHeight();
-
+    setCardsHeight();
 });
+
+window.addEventListener('disconnected', function() {
+  var elem = document.getElementById("reconnecting");
+  elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
+});
+
+window.addEventListener('connected', function() {
+  var elem = document.getElementById("reconnecting");
+  elem && (elem.innerHTML = '');
+});
+
 
 UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {

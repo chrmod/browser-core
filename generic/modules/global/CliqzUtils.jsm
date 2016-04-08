@@ -146,18 +146,6 @@ var CliqzUtils = {
   getKnownType: function(type){
     return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
   },
-  getLocalStorage: function(url) {
-    var uri = Services.io.newURI(url,"",null),
-        principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
-
-    if (typeof principalFunction != "function") return false
-
-    var principal = principalFunction(uri),
-        dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
-              .getService(Components.interfaces.nsIDOMStorageManager)
-
-    return dsm.getLocalStorageForPrincipal(principal, '')
-  },
   //move this out of CliqzUtils!
   setSupportInfo: function(status){
     var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
@@ -177,7 +165,7 @@ var CliqzUtils = {
         sites = ["http://cliqz.com","https://cliqz.com"]
 
     sites.forEach(function(url){
-        var ls = CliqzUtils.getLocalStorage(url)
+        var ls = CLIQZEnvironment.getLocalStorage(url)
 
         if (ls) ls.setItem("extension-info",info)
     })
