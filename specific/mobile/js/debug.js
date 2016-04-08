@@ -12,54 +12,6 @@ CLIQZ.Core = {
   refreshButtons: function(){}
 }
 
-
-
-Handlebars.registerHelper("debug", function(optionalValue) {
-  console.log("%c Template Data " + this.vertical + " ","color:#fff;background:green",this);
-});
-
-
-Handlebars.registerHelper("trimNumbers", function(number) {
-  return Math.round(number);
-});
-
-
-Handlebars.registerHelper('conversationsTime', function(time) {
-    var d = new Date(time);
-    var hours = d.getHours();
-    hours = hours > 9 ? hours : '0' + hours
-    var minutes = d.getMinutes();
-    minutes = minutes > 9 ? minutes : '0' + minutes
-    var formatedDate = hours + ':' + minutes;
-    return formatedDate;
-});
-
-Handlebars.registerHelper('uriEncode', function(uriComponent) {
-    return encodeURIComponent(uriComponent);
-});
-
-Handlebars.helpers.timeOrCalculator = function(ezType) {
-    if(ezType=="time") {
-      return Handlebars.helpers.local("time");
-    } else {
-      return Handlebars.helpers.local("calculator");
-    }
-}
-
-
-Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equal
-  if(!results[0] || results[0].data.template !== "noResult") {
-    return options.fn(this);
-  } else {
-    return options.inverse(this);
-  }
-});
-
-
-Handlebars.registerHelper('mobileWikipediaUrls', function(url) {
-  return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
-});
-
 function trace() {
   try {
     throw new Error('myError');

@@ -1,13 +1,13 @@
 'use strict';
 
-function CliqzDelayedImageLoader(selector) {
+function DelayedImageLoader(selector) {
   this.DELAY = 500;
   this.BANDWITH = 2;
 
   this.selector = selector;
 }
 
-CliqzDelayedImageLoader.prototype = {
+DelayedImageLoader.prototype = {
 
   start: function() {
     this.timeout = setTimeout(this.loadFirstBatch.bind(this), this.DELAY);
@@ -47,7 +47,7 @@ CliqzDelayedImageLoader.prototype = {
     if(!self.isRunning) {
       return;
     }
-    if (!el) { 
+    if (!el) {
       return;
     }
 
@@ -62,7 +62,7 @@ CliqzDelayedImageLoader.prototype = {
       // TODO: onerror should show default error img
       img.onload = img.onerror = function () {
         el.setAttribute('style', el.dataset.style);
-        safeLoadNext(); 
+        safeLoadNext();
       }
       img.src = url;
     }
@@ -73,3 +73,5 @@ CliqzDelayedImageLoader.prototype = {
     return (match && match.length === 2) ? match[1] : '';
   }
 };
+
+export default DelayedImageLoader;

@@ -59,7 +59,7 @@ function showHistory(history) {
   } else {
     displayData(data);
   }
-  
+
 }
 
 function displayFavorites(data) {
@@ -120,7 +120,7 @@ function displayData(data) {
     url_count: urlCount
   });
 
-  
+
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchstart', function () {
     touchTimer = setTimeout(launchEditMode, 500, this);
   });
@@ -173,14 +173,14 @@ function launchEditMode(element) {
 function endEditMode() {
   var framers = [].slice.call(document.getElementsByClassName('framer'));
   framers.forEach(function(item) {item.setAttribute('class', 'framer')});
-  
+
   var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
   checkboxes.forEach(function(element){
     var checkbox = element.querySelector('input');
     checkbox.checked = false;
     element.style.display = 'none';
   });
-  
+
   var div = document.getElementById('control');
   div.style.display = 'none';
   editMode = false;
@@ -251,7 +251,7 @@ function setQueryFavorite() {
       index++;
     }
   });
-  
+
   localStorage.setItem('recentQueries', JSON.stringify(allQueries));
 }
 
@@ -284,7 +284,7 @@ function selectQuery(id) {
     } else if(selectedQueries[i] < id) {
       selectedQueries.splice(i, 0, id);
       return;
-    } 
+    }
   }
   selectedQueries.push(id);
 }
@@ -297,7 +297,7 @@ function selectHistory(id) {
     } else if(selectedHistory[i] < id) {
       selectedHistory.splice(i, 0, id);
       return;
-    } 
+    }
   }
   selectedHistory.push(id);
 }
@@ -351,8 +351,8 @@ function clearQueries(removeFavorites) {
   if(removeFavorites) {
     localStorage.setItem('recentQueries', '[]');
   } else {
-    var recentQueries = getListFromStorage('recentQueries'); 
-    localStorage.setItem('recentQueries', 
+    var recentQueries = getListFromStorage('recentQueries');
+    localStorage.setItem('recentQueries',
       JSON.stringify(
         recentQueries.filter(function (item) {
           return item.favorite;
@@ -367,8 +367,6 @@ function getListFromStorage(listName) {
   return list ? JSON.parse(list) : [];
 }
 
-System.baseURL = "modules/"
-CLIQZ.System = System;
 CliqzUtils.initPlatform(System);
 
 CliqzUtils.init(this);

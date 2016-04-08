@@ -5,6 +5,8 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
+import DelayedImageLoader from "mobile-ui/DelayedImageLoader";
+
 var TEMPLATES = {
         "Cliqz": true,
         "EZ-category": true,
@@ -39,7 +41,8 @@ var TEMPLATES = {
         "weatherEZ": true
     },
     resultsBox = null,
-    currentResults = null
+    currentResults = null,
+    imgLoader = null
     ;
 
 var UI = {
@@ -56,6 +59,7 @@ var UI = {
         var query = res.q || '';
 
         currentResults = enhanceResults(res);
+        if (imgLoader) imgLoader.stop();
 
         // Results that are not ready (extra results, for which we received a callback_url)
         var asyncResults = currentResults.results.filter(assessAsync(true));
@@ -65,6 +69,9 @@ var UI = {
         redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
 
         if(asyncResults.length > 0) loadAsyncResult(asyncResults, query);
+
+        imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
+        imgLoader.start();
 
         return currentResults;
     },
@@ -250,5 +257,24 @@ function closest(elem, selector) {
     }
     return false;
 }
+
+UI.clickHandlers = {};
+Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
+  UI.VIEWS[templateName] = Object.create(null);
+  try {
+    var module = CLIQZ.System.get("mobile-ui/views/"+templateName);
+    if (module) {
+      UI.VIEWS[templateName] = new module.default(ctx);
+
+      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+        Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+          UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+        });
+      }
+    }
+  } catch (ex) {
+    console.error(ex);
+  }
+});
 
 export default UI;

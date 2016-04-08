@@ -1,5 +1,5 @@
 CLIQZEnvironment = {
-  BRANDS_DATA_URL: 'js/brands_database.json',
+  BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'modules/mobile-ui/templates/',
   LOCALE_PATH: 'modules/static/locale/',
   RESULTS_LIMIT: 3,
@@ -29,7 +29,7 @@ CLIQZEnvironment = {
   },
   getBrandsDBUrl: function(version){
     //TODO - consider the version !!
-    return 'js/brands_database.json'
+    return 'static/brands_database.json'
   },
   enrichResults: function(r, startIndex, historyCount) {
     r._results.forEach( function (result, index) {
@@ -132,7 +132,6 @@ CLIQZEnvironment = {
 
     CLIQZEnvironment.setDimensions();
 
-    if (CLIQZEnvironment.imgLoader) { CLIQZEnvironment.imgLoader.stop(); }
     CLIQZ.UI.main(resultsBox);
 
     var renderedResults = CLIQZ.UI.results({
@@ -177,11 +176,7 @@ CLIQZEnvironment = {
     CLIQZEnvironment.stopProgressBar();
     CLIQZEnvironment.openLinksAllowed = true;
 
-    CLIQZEnvironment.imgLoader = new CliqzDelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
-    CLIQZEnvironment.imgLoader.start();
-
     return renderedResults;
-
   },
 
   setResultNavigation: function(results) {

@@ -39,7 +39,7 @@ function resetState(cfg) {
     elem.innerHTML = cfg.title;
     resetStateContent.innerHTML = "";
     resetStateContent.appendChild(elem);
-  } 
+  }
   else if(cfg.q && cfg.q.length > 0) {
     start.style.display = "block";
     window.document.getElementById("startingpoint").style.display = 'block';
