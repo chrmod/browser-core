@@ -527,6 +527,38 @@ function registerHelpers(){
 
 
     Handlebars.registerHelper('mobileWikipediaUrls', function(url) {
-      return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
+        return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
+    });
+
+    Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
+        var fn = options.fn,
+            inverse = options.inverse,
+            ret = "",
+            _context = [];
+
+        $.each(context, function (index, object) {
+            var _object = $.extend({}, object);
+            _context.push(_object);
+        });
+
+        if ( _context && _context.length > 0 ) {
+            for ( var i = 0, j = _context.length; i < j; i++ ) {
+                _context[i]["parentContext"] = options.hash.parent;
+                ret = ret + fn(_context[i]);
+            }
+        } else {
+            ret = inverse(this);
+        }
+        return ret;
+    });
+
+    Handlebars.registerHelper('conversationsTime', function(time) {
+        var d = new Date(time);
+        var hours = d.getHours();
+        hours = hours > 9 ? hours : '0' + hours
+        var minutes = d.getMinutes();
+        minutes = minutes > 9 ? minutes : '0' + minutes
+        var formatedDate = hours + ':' + minutes;
+        return formatedDate;
     });
 }

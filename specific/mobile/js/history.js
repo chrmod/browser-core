@@ -188,16 +188,6 @@ function endEditMode() {
   selectedHistory = [];
 }
 
-Handlebars.registerHelper('conversationsTime', function(time) {
-    var d = new Date(time);
-    var hours = d.getHours();
-    hours = hours > 9 ? hours : '0' + hours
-    var minutes = d.getMinutes();
-    minutes = minutes > 9 ? minutes : '0' + minutes
-    var formatedDate = hours + ':' + minutes;
-    return formatedDate;
-});
-
 function getDateFromTimestamp(time) {
     var d = new Date(time);
 
@@ -212,9 +202,6 @@ function getDateFromTimestamp(time) {
     var formatedDate = days + '.' + months + '.' + year;
     return formatedDate;
 }
-
-Handlebars.registerHelper('conversationsDate', getDateFromTimestamp);
-
 function filterHistory(value) {
     var framers = document.getElementsByClassName("framer");
     for(var i=0;i<framers.length;i++) {

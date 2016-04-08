@@ -3,7 +3,6 @@ CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 var progressIndicator = document.getElementById('progress');
 
-CLIQZ.UI.init(urlbar);
 var item_container, currentQuery;
 
 CLIQZ.Core = {
@@ -26,10 +25,6 @@ function trace() {
 CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 
 // end of overriding things
-
-CLIQZ.Core.popup.hidePopup = function() {}
-
-CLIQZ.UI.init(urlbar);
 
 function initResultBox () {
   if(!CliqzHandlebars.tplCache.main) return setTimeout(initResultBox, 100);
@@ -232,26 +227,6 @@ function openFuture(el) {
    el.getElementsByTagName("ul")[0].style.display = "block";
   //console.log(el)
 }
-
-Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
-    var fn = options.fn,
-        inverse = options.inverse,
-        ret = "",
-        _context = [];
-        $.each(context, function (index, object) {
-            var _object = $.extend({}, object);
-            _context.push(_object);
-        });
-    if ( _context && _context.length > 0 ) {
-        for ( var i = 0, j = _context.length; i < j; i++ ) {
-            _context[i]["parentContext"] = options.hash.parent;
-            ret = ret + fn(_context[i]);
-        }
-    } else {
-        ret = inverse(this);
-    }
-    return ret;
-});
 
 function getCardUrl() {
   var NOT_SHAREABLE_SIGNAL = '-1';
