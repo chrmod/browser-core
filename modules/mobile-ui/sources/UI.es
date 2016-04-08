@@ -224,6 +224,30 @@ function closest(elem, selector) {
     return false;
 }
 
+window.addEventListener('resize', function () {
+  setTimeout(function () {
+    CLIQZEnvironment.setDimensions();
+    var w = window.innerWidth;
+    var frames = document.getElementsByClassName("frame");
+    var i;
+    for(i=0;i<frames.length;i++) {
+      frames[i].style.left = (CLIQZEnvironment.CARD_WIDTH*i) +"px";
+      frames[i].style.width = CLIQZEnvironment.CARD_WIDTH+"px";
+    }
+
+    if(CLIQZEnvironment.vp) {
+      CLIQZEnvironment.vp.destroy();
+    }
+
+    CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
+    CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
+    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
+    }, 50);
+
+    CLIQZEnvironment.setCardsHeight();
+
+});
+
 UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);

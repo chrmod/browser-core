@@ -211,7 +211,6 @@ CLIQZEnvironment = {
     item_container.style.width = resultsBox.style.width;
 
     CLIQZEnvironment.stopProgressBar();
-    CLIQZEnvironment.openLinksAllowed = true;
 
     return renderedResults;
   },
@@ -363,7 +362,6 @@ CLIQZEnvironment = {
         currentScrollInfo = scrollInfo;
         offset = -scrollInfo.totalOffset;
         CLIQZEnvironment.crossTransform(resultsBox, (offset * CLIQZEnvironment.CARD_WIDTH));
-        CLIQZEnvironment.openLinksAllowed = false;
       },
 
       onPageChange : function (page) {
@@ -388,7 +386,6 @@ CLIQZEnvironment = {
 
         CLIQZEnvironment.initViewpager.pageShowTs = Date.now();
 
-        CLIQZEnvironment.openLinksAllowed = true;
         CLIQZEnvironment.currentPage = page;
       }
     });
@@ -543,8 +540,7 @@ CLIQZEnvironment = {
     return req;
   },
   openLink: function(window, url){
-    //Logger.log(CLIQZEnvironment.openLinksAllowed,'CLIQZEnvironment');
-    if(/*CLIQZEnvironment.openLinksAllowed &&*/ url !== '#')  {
+    if(url !== '#')  {
       if( url.indexOf('http') === -1 ) {
         url = 'http://' + url;
       }
@@ -702,36 +698,4 @@ CLIQZEnvironment.getRecentQueries = function() {
   }
   return JSON.parse(localStorage.getItem('recentQueries'));
 };
-
-CLIQZEnvironment.renderRecentQueries = function(scroll) {
-  if(location.hash !== '#renderRecentQueries') {
-    return;
-  }
-  var conversationsEl = document.getElementById('conversations');
-
-  if( !document.getElementById('conversations') || !CliqzHandlebars.tplCache['conversations'] ) {
-    setTimeout('CLIQZEnvironment.renderRecentQueries(true)',500);
-    console.log('trying');
-    return;
-  }
-
-  var myQueries = CLIQZEnvironment.getRecentQueries();
-  // myQueries = myQueries.concat(JSON.parse(jsBridge.getTopSites()));
-
-  myQueries.sort(function(a, b) {
-    return a.timestamp - b.timestamp;
-  });
-
-  //myQueries.reverse();
-  //myQueries = myQueries.splice(0,20);
-  //myQueries.reverse();
-
-  conversationsEl.innerHTML = CliqzHandlebars.tplCache.conversations({data:myQueries} );
-  conversationsEl.style.width = window.innerWidth -20  + 'px';
-
-  if(scroll) {
-    document.getElementById('conversations').scrollTop = 5000;
-  }
-};
-
 

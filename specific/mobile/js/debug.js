@@ -15,50 +15,6 @@ CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 // end of overriding things
 
 
-
-var debugcss = "background-color:#00aa00;display:block;"
-
-CLIQZEnvironment.openLinksAllowed = true;
-
-
-CliqzUtils.requestMonitor.inHealth = function() { return true; }
-
-
-CLIQZEnvironment.renderRecentQueries();
-
-
-//TODO: Should be refactored!!!!
-
-function search_mobile(e, location_enabled, latitude, longitude) {
-  CLIQZEnvironment.search(e, location_enabled, latitude, longitude);
-}
-
-window.addEventListener('resize', function () {
-  setTimeout(function () {
-    CLIQZEnvironment.setDimensions();
-    var w = window.innerWidth;
-    var frames = document.getElementsByClassName("frame");
-    var i;
-    for(i=0;i<frames.length;i++) {
-      frames[i].style.left = (CLIQZEnvironment.CARD_WIDTH*i) +"px";
-      frames[i].style.width = CLIQZEnvironment.CARD_WIDTH+"px";
-    }
-
-    if(CLIQZEnvironment.vp) {
-      CLIQZEnvironment.vp.destroy();
-    }
-
-    CLIQZEnvironment.crossTransform(document.getElementById("results"), 0);
-    CLIQZEnvironment.vp = CLIQZEnvironment.initViewpager();
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
-    }, 50);
-
-    CLIQZEnvironment.setCardsHeight();
-
-});
-
-actionsExternal = [];
-
 function switchCurrency(data) {
   var fromInput = document.getElementById("fromInput");
 
@@ -120,7 +76,6 @@ function compareTimestamps(a, b) {
 }
 
 function showPast() {
-  CLIQZEnvironment.renderRecentQueries(true);
   document.getElementById("conversations").parentElement.scrollTop = 10000
   if( CLIQZEnvironment.vp ) {
     CLIQZEnvironment.vp.goToIndex(0,0)
