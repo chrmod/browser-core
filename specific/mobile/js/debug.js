@@ -28,7 +28,6 @@ CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 
 function initResultBox () {
   if(!CliqzHandlebars.tplCache.main) return setTimeout(initResultBox, 100);
-  CLIQZ.UI.main(resultsBox);
   CLIQZ.Core.popup.cliqzBox = resultsBox;
 };
 initResultBox();

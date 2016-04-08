@@ -7,40 +7,7 @@
 
 import DelayedImageLoader from "mobile-ui/DelayedImageLoader";
 
-var TEMPLATES = {
-        "Cliqz": true,
-        "EZ-category": true,
-        "EZ-history": true,
-        "calculator": true,
-        "celebrities": true,
-        "conversations": true,
-        "currency": true,
-        "emphasis": true,
-        "empty": true,
-        "entity-news-1": true,
-        "entity-search-1": true,
-        "flightStatusEZ-2": true,
-        "generic": true,
-        "history": true,
-        "ligaEZ1Game": true,
-        "ligaEZTable": true,
-        "ligaEZUpcomingGames": true,
-        "local-cinema-sc": true,
-        "local-data-sc": true,
-        "local-movie-sc": true,
-        "logo": true,
-        "main": true,
-        "noResult": true,
-        "rd-h3-w-rating": true,
-        "results": true,
-        "stocks": true,
-        "topnews": true,
-        "topsites": true,
-        "url": true,
-        "weatherAlert": true,
-        "weatherEZ": true
-    },
-    resultsBox = null,
+var resultsBox = null,
     currentResults = null,
     imgLoader = null
     ;
@@ -206,7 +173,7 @@ function enhanceSpecificResult(r) {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
     }
-    if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+    if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
         r.data.template = r.data.superTemplate;
     }
 

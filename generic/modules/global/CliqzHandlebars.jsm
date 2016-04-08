@@ -12,38 +12,15 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
-var TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = [
-      'footer-message',
-      'onboarding-callout',
-      'onboarding-callout-extended',
-      'slow_connection',
-      'partials/missing_location_2',
-      'partials/location/no-locale-data',
-      'partials/no-locale-data'
-    ],
-    PARTIALS = [
-        'url',
-        'logo',
-        'EZ-category',
-        'partials/ez-title',
-        'partials/ez-url',
-        'partials/ez-history',
-        'partials/ez-description',
-        'partials/ez-generic-buttons',
-        'EZ-history',
-        'rd-h3-w-rating',
-        'pcgame_movie_side_snippet',
-        'partials/location/local-data',
-        'partials/missing_location_1',
-        'partials/timetable-cinema',
-        'partials/timetable-movie'
-    ],
+var TEMPLATES = CLIQZEnvironment.TEMPLATES,
+    MESSAGE_TEMPLATES = CLIQZEnvironment.MESSAGE_TEMPLATES || [],
+    PARTIALS = CLIQZEnvironment.PARTIALS,
     AGO_CEILINGS = [
         [0            , '',1],
         [120          , 'ago1Minute' , 1],

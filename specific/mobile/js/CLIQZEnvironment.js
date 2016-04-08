@@ -7,7 +7,46 @@ CLIQZEnvironment = {
   PEEK: 20,
   PADDING: 16,
   storeQueryTimeout: null,
-
+  TEMPLATES: {
+        "Cliqz": true,
+        "EZ-category": true,
+        "EZ-history": true,
+        "calculator": true,
+        "celebrities": true,
+        "conversations": true,
+        "currency": true,
+        "emphasis": true,
+        "empty": true,
+        "entity-news-1": true,
+        "entity-search-1": true,
+        "flightStatusEZ-2": true,
+        "generic": true,
+        "history": true,
+        "ligaEZ1Game": true,
+        "ligaEZTable": true,
+        "ligaEZUpcomingGames": true,
+        "local-cinema-sc": true,
+        "local-data-sc": true,
+        "local-movie-sc": true,
+        "logo": true,
+        "main": true,
+        "noResult": true,
+        "rd-h3-w-rating": true,
+        "results": true,
+        "stocks": true,
+        "topnews": true,
+        "topsites": true,
+        "url": true,
+        "weatherAlert": true,
+        "weatherEZ": true
+  },
+  PARTIALS: [
+      'url',
+      'logo',
+      'EZ-category',
+      'EZ-history',
+      'rd-h3-w-rating'
+  ],
   log: Logger.log,
   logCounter: Logger.logCounter,
 
@@ -131,8 +170,6 @@ CLIQZEnvironment = {
     var logo = CliqzUtils.getLogoDetails(details);
 
     CLIQZEnvironment.setDimensions();
-
-    CLIQZ.UI.main(resultsBox);
 
     var renderedResults = CLIQZ.UI.results({
       searchString: r._searchString,
