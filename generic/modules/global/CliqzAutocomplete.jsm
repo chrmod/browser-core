@@ -208,7 +208,7 @@ var CliqzAutocomplete = {
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
                             // override the template if the superTemplate is known
-                            if(r.data.template && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.template)===false){
+                            if(CLIQZEnvironment.isUnknownTemplate(r.data.template)){
                                 // unexpected/unknown template
                                 continue;
                             }

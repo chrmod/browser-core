@@ -199,6 +199,10 @@ var CLIQZEnvironment = {
                     return prev;
                  }, {});
     },
+    isUnknownTemplate: function(template){
+      return template &&
+        CLIQZEnvironment.TEMPLATES.hasOwnProperty(template) == false;
+    },
     isDefaultBrowser: function(){
       try {
         var shell = Components.classes["@mozilla.org/browser/shell-service;1"]

@@ -1,4 +1,4 @@
-<!-- _generic.tpl -->
+<!-- generic.tpl -->
 
 {{#with logo}}
 	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
@@ -221,4 +221,4 @@
 
 	{{partial 'history'}}
 
-<!-- end _generic.tpl -->
+<!-- end generic.tpl -->

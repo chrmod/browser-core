@@ -38,6 +38,14 @@ CLIQZEnvironment = {
         "weatherAlert": true,
         "weatherEZ": true
   },
+  KNOWN_TEMPLATES: {
+      'entity-portal': true, //TODO check with Tomas
+      'entity-generic': true,
+      'entity-video-1': true,
+      'recipe': true, //TODO check with Thuy
+      'ez-generic-2': true,
+      'vod': true
+  },
   PARTIALS: [
       'url',
       'logo',
@@ -47,7 +55,12 @@ CLIQZEnvironment = {
   ],
   log: Logger.log,
   logCounter: Logger.logCounter,
-
+  isUnknownTemplate: function(template){
+     // in case an unknown template is required
+     return template &&
+            CLIQZEnvironment.TEMPLATES.hasOwnProperty(template) == false &&
+            CLIQZEnvironment.KNOWN_TEMPLATES.hasOwnProperty(template) == false;
+  },
   callRichHeader: function(searchString, url, callback) {
     var richHeaderUrl = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map';
     richHeaderUrl += '&q=' + searchString;
@@ -413,15 +426,9 @@ CLIQZEnvironment = {
     this.searchHistoryCallback = callback;
     window.osBridge.searchHistory(q, 'CLIQZEnvironment.displayHistory');
   },
+  //TODO: remove this dependency
   getSearchEngines: function(){
-    return ENGINES.map(function(e){
-      e.getSubmissionForQuery = function(){
-          //TODO: create the correct search URL
-          return e.searchForm;
-        };
-
-        return e;
-      });
+    return []
   },
   distance: function(lon1, lat1, lon2, lat2) {
     var R = 6371; // Radius of the earth in km
@@ -437,10 +444,10 @@ CLIQZEnvironment = {
   },
   // mocked functions
   getEngineByName: function () {
-    return ENGINES[0];
+    return '';
   },
   getEngineByAlias: function () {
-    return ENGINES[0];
+    return '';
   },
   copyResult: function(val) {
     osBridge.copyResult(val);

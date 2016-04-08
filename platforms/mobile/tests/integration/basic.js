@@ -266,7 +266,7 @@ describe('Search View', function() {
     });
 
     it("should render generic template", function () {
-      expect($("#cliqz-results")[0].innerHTML).to.contain('<!-- entity-generic -->');
+      expect($("#cliqz-results")[0].innerHTML).to.contain('<!-- generic.tpl -->');
     });
   });
 
