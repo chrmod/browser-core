@@ -1,5 +1,6 @@
 export default class {
   enhanceResults(data) {
+    debugger;
 
     function parseTime(timeStr) {  // e.g. timeStr: 10.30
       var time = timeStr.split(".");
@@ -33,7 +34,7 @@ export default class {
 
     data.phone_address = data.phonenumber || data.address;
 
-    if (data.opening_hours && data.opening_hours.length > 0) {
+    if (data.opening_hours) {
 
       data.opening_hours.forEach(function (el) {
         if (!el.open || !el.close) { return; }
@@ -67,7 +68,7 @@ export default class {
 
       data.opening_status = {
         color: openingColors[open_stt],
-        stt_text: CliqzUtils.getLocalizedString(open_stt),
+        stt_text: open_stt && CliqzUtils.getLocalizedString(open_stt),
         time_info_til: CliqzUtils.getLocalizedString("open_hour"),
         time_info_str: timeInfos.join(", ")
       };
@@ -90,5 +91,11 @@ export default class {
 
 
     data.big_rs_size = isBigSnippet;
+
+    data.distance = CLIQZEnvironment.distance(
+                        data.lon,
+                        data.lat,
+                      CLIQZEnvironment.USER_LNG,
+                      CLIQZEnvironment.USER_LAT)*1000;
   }
 };
