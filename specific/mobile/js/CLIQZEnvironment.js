@@ -411,6 +411,8 @@ CLIQZEnvironment = {
   httpHandler: function(method, url, callback, onerror, timeout, data, asynchronous) {
     latestUrl = url;
 
+    function isMixerUrl(url) { return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0; }
+
     if(isMixerUrl(url)) {
       var cache = localStorage.getCachedResult && localStorage.getCachedResult(CLIQZEnvironment.lastSearch);
       if(cache) {
@@ -697,7 +699,6 @@ CLIQZEnvironment.renderRecentQueries = function(scroll) {
   if(scroll) {
     document.getElementById('conversations').scrollTop = 5000;
   }
-
 };
 
 
