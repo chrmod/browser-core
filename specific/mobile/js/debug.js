@@ -6,47 +6,14 @@ var progressIndicator = document.getElementById('progress');
 var item_container, currentQuery;
 
 CLIQZ.Core = {
-  urlbar: urlbar,
   popup: resultsBox,
   refreshButtons: function(){}
 }
 
-function trace() {
-  try {
-    throw new Error('myError');
-  }
-  catch(e) {
-    CliqzUtils.log(JSON.stringify(e.stack),"TRACE");
-  }
-}
-
-
 // overriding things
 CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
-
 // end of overriding things
 
-function initResultBox () {
-  if(!CliqzHandlebars.tplCache.main) return setTimeout(initResultBox, 100);
-  CLIQZ.Core.popup.cliqzBox = resultsBox;
-};
-initResultBox();
-
-//CliqzUtils.RESULTS_PROVIDER = "http://mixer-beta.clyqz.com/api/v1/results?q=";
-//CliqzUtils.RICH_HEADER = "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map";
-
-if(onAndroid || location.port == 4200 || window.webkit) {
-  document.getElementById("urlbar").style.display = "none";
-} else {
-
-}
-
-if(location.search.match("urlbar")) {
-  document.getElementById("urlbar").style.display = "block";
-  document.getElementById("urlbar").addEventListener("keyup",function() {
-      search_mobile(this.value, true, 48.155772899999995, 11.615600899999999)
-  });
-}
 
 
 var debugcss = "background-color:#00aa00;display:block;"

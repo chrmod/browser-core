@@ -309,7 +309,6 @@ CLIQZEnvironment = {
     if(!e || e === '') {
       resultsBox.style.display = 'none';
       window.document.getElementById('startingpoint').style.display = 'block';
-      CLIQZ.UI.main(resultsBox);
       CLIQZEnvironment.initHomepage(true);
       CLIQZEnvironment.stopProgressBar();
       CLIQZEnvironment.lastResults = null;
@@ -333,9 +332,6 @@ CLIQZEnvironment = {
     }
 
     item_container = document.getElementById('cliqz-results');
-
-    //TODO: work around for now
-    urlbar.value = e;
 
     resultsBox.style.display = 'block';
     window.document.getElementById('startingpoint').style.display = 'none';

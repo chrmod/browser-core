@@ -13,14 +13,13 @@ var resultsBox = null,
     ;
 
 var UI = {
-    init: function(){},
-    main: function(box) {
+    init: function(){
         //check if loading is done
         if(!CliqzHandlebars.tplCache.main)return;
-
+        var box = document.getElementById('results');
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
-        resultsBox = document.getElementById('cliqz-results',box);
+        resultsBox = document.getElementById('cliqz-results', box);
     },
     results: function(res){
         var query = res.q || '';
