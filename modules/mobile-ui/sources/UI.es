@@ -7,6 +7,16 @@
 
 import DelayedImageLoader from "mobile-ui/DelayedImageLoader";
 
+//TODO: improve loading of these views!
+import v1 from "mobile-ui/views/currency";
+import v2 from "mobile-ui/views/entity-generic";
+import v3 from "mobile-ui/views/generic";
+import v4 from "mobile-ui/views/hq";
+import v6 from "mobile-ui/views/local-data-sc";
+import v7 from "mobile-ui/views/stocks";
+import v8 from "mobile-ui/views/weatherAlert";
+import v9 from "mobile-ui/views/weatherEZ";
+
 var resultsBox = null,
     currentResults = null,
     imgLoader = null
@@ -137,7 +147,7 @@ function enhanceResults(res){
 
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-        r.vertical = (r.data.template && TEMPLATES.hasOwnProperty(r.data.template)) ? r.data.template : 'generic';
+        r.vertical = (r.data.template && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.template)) ? r.data.template : 'generic';
 
         //extract debug info from title
         var _tmp = getDebugMsg(r.title);
@@ -254,7 +264,7 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
   try {
     var module = CLIQZ.System.get("mobile-ui/views/"+templateName);
     if (module) {
-      UI.VIEWS[templateName] = new module.default(ctx);
+      UI.VIEWS[templateName] = new module.default(window);
 
       if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
         Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {

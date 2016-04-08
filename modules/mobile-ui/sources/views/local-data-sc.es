@@ -1,6 +1,5 @@
 export default class {
   enhanceResults(data) {
-    debugger;
 
     function parseTime(timeStr) {  // e.g. timeStr: 10.30
       var time = timeStr.split(".");
