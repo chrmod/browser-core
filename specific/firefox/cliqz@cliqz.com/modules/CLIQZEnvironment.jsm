@@ -207,9 +207,9 @@ var CLIQZEnvironment = {
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
         //lazy load gzip module
         if(compressedPost && !CLIQZEnvironment.gzip){
-            CliqzUtils.importModule('core/gzip').then( function(gzip) {
-                CLIQZEnvironment.gzip = gzip
-            });
+            //CliqzUtils.importModule('core/gzip').then( function(gzip) {
+            //    CLIQZEnvironment.gzip = gzip
+            //});
         }
 
         return new Promise( function(resolve, reject) {
