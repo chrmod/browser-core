@@ -36,9 +36,9 @@
 	{{#ifShowSearch results}}
 		{{#with googleThis }}
 			<!-- googlethis -->
-			<div id="defaultEngine" class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+			<div class="frame" extra="search" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
 				<div class="card last-card">
-					<div url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
+					<div id="defaultEngine" url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
 						<div id="googleThisAnim">
 							<!-- <img data-src="skin/img/icon-google.svg"><br> -->
 							<h3>{{ title }}</h3>
@@ -46,11 +46,9 @@
 						</div>
 					  
 					{{#with logo}}
-						<div class="search_engine_logo"
+						<div id="searchEngineLogo"
+						 class="search_engine_logo"
 						 style="{{style}}"
-						 show-status=""
-						 extra="{{extra}}"
-						 url="{{url}}"
 						 >
 						</div>
 					  {{/with}}
