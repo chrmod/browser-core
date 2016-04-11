@@ -83,7 +83,10 @@ var CLIQZEnvironment = {
     },
     unload: function() {
         CLIQZEnvironment.unloadSearch();
-        _timers.forEach(_removeTimerRef);
+
+        //stop all the timers still active and lose their reference
+        _timers.forEach(function(timer){ timer.cancel(); });
+        _timers = [];
 
         CLIQZEnvironment.removeGeoLocationWatch();
     },
@@ -204,9 +207,9 @@ var CLIQZEnvironment = {
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
         //lazy load gzip module
         if(compressedPost && !CLIQZEnvironment.gzip){
-            CliqzUtils.importModule('core/gzip').then( function(gzip) {
-                CLIQZEnvironment.gzip = gzip
-            });
+            //CliqzUtils.importModule('core/gzip').then( function(gzip) {
+            //    CLIQZEnvironment.gzip = gzip
+            //});
         }
 
         return new Promise( function(resolve, reject) {
