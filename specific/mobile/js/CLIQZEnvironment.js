@@ -53,8 +53,9 @@ CLIQZEnvironment = {
       'EZ-history',
       'rd-h3-w-rating'
   ],
-  log: Logger.log,
-  logCounter: Logger.logCounter,
+  log: function(msg){
+    console.log(msg);
+  },
   isUnknownTemplate: function(template){
      // in case an unknown template is required
      return template &&
@@ -115,7 +116,7 @@ CLIQZEnvironment = {
       var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) === 0 ) {
-        // Logger.log('jsBridge autocomplete value:'+val,'osBridge1');
+        // CLIQZEnvironment.log('jsBridge autocomplete value:'+val,'osBridge1');
         osBridge.autocomplete(val);
       } else {
         var ls = JSON.parse(localStorage.recentQueries || '[]');
@@ -269,7 +270,7 @@ CLIQZEnvironment = {
     }
   },
   setPref: function(pref, val){
-    //Logger.log('setPrefs',arguments);
+    //CLIQZEnvironment.log('setPrefs',arguments);
     localStorage.setItem(pref,val);
   },
   setInterval: function(){ return setInterval.apply(null, arguments); },
@@ -305,7 +306,7 @@ CLIQZEnvironment = {
           window.dispatchEvent(new CustomEvent('disconnected', { 'detail': 'browser is offline' }));
         }
         isRequestFailed = true;
-        Logger.log( 'request ' + url + ' will be deferred until the browser is online');
+        CLIQZEnvironment.log( 'request ' + url + ' will be deferred until the browser is online');
         return;
       }
     }
@@ -335,7 +336,7 @@ CLIQZEnvironment = {
 
         callback && callback(req);
       } else {
-        Logger.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler');
+        CLIQZEnvironment.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler');
         if(isMixerUrl(url)){
           CliqzUtils.log('status '+re.status,'calling onerror');
         }
@@ -356,7 +357,7 @@ CLIQZEnvironment = {
           CliqzUtils.log('resendRequest(true)','onerror');
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
         }
-        Logger.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler');
+        CLIQZEnvironment.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler');
         onerror && onerror();
       }
     };
@@ -374,7 +375,7 @@ CLIQZEnvironment = {
         if(isMixerUrl(url)){
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
         }
-        Logger.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler');
+        CLIQZEnvironment.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler');
         onerror && onerror();
       }
     };
@@ -416,7 +417,7 @@ CLIQZEnvironment = {
       }
       return {results: res, query:data.query, ready:true};
     } catch (e) {
-      Logger.log( 'historySearch', 'Error: ' + e);
+      CLIQZEnvironment.log( 'historySearch', 'Error: ' + e);
     }
   },
   displayHistory: function(data){

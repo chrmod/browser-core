@@ -1,5 +1,5 @@
 CLIQZ.UI.VIEWS["local-data-sc"] = {
-  
+
 }
 
 
@@ -37,7 +37,7 @@ CLIQZ.UI.VIEWS["local-cinema-sc"] = {
                       CLIQZEnvironment.USER_LNG,
                       CLIQZEnvironment.USER_LAT)*1000;
     }
-    //Logger.log(data.cinemas,"DATAAAAAAA");
+    //CLIQZEnvironment.log(data.cinemas,"DATAAAAAAA");
 
     if (data.emptyColumns) {
       data.emptyColumns.map(function(x, _) {
