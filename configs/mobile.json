@@ -4,6 +4,7 @@
   "modules": [
     "core",
     "mobile-ui",
+    "mobile-freshtab",
     "static"
   ]
 }

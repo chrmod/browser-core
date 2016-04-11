@@ -244,3 +244,5 @@ var News = {
     return DEPENDENCY_STATUS.LOADED;
   }
 }
+
+export default News;
