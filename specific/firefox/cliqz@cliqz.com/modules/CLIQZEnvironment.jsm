@@ -83,7 +83,10 @@ var CLIQZEnvironment = {
     },
     unload: function() {
         CLIQZEnvironment.unloadSearch();
-        _timers.forEach(_removeTimerRef);
+
+        //stop all the timers still active and lose their reference
+        _timers.forEach(function(timer){ timer.cancel(); });
+        _timers = [];
 
         CLIQZEnvironment.removeGeoLocationWatch();
     },
