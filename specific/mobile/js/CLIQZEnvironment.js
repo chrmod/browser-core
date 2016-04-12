@@ -2,6 +2,7 @@ CLIQZEnvironment = {
   BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'modules/mobile-ui/templates/',
   LOCALE_PATH: 'modules/static/locale/',
+  SYSTEM_BASE_URL: 'modules/',
   RESULTS_LIMIT: 3,
   RICH_HEADER_CACHE_TIMEOUT: 15000,
   storeQueryTimeout: null,

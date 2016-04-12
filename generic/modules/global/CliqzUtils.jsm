@@ -128,6 +128,7 @@ var CliqzUtils = {
   },
 
   initPlatform: function(System) {
+    System.baseURL = CLIQZEnvironment.SYSTEM_BASE_URL;
     CliqzUtils.System = System;
   },
 

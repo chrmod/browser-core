@@ -4,8 +4,8 @@
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
        		<div id="historysub">
-       				<span id="show_favorites_only" style="float: left" onclick="getHistory(true)">Favoriten</span>
-       				<span class="active" id="show_history" style="float: right" onclick="getHistory(false)">Besuchte Seiten</span>
+       				<span id="show_favorites_only" style="float: left" onclick="History.getHistory(true)">Favoriten</span>
+       				<span class="active" id="show_history" style="float: right" onclick="History.getHistory(false)">Besuchte Seiten</span>
 			</div>
             <!-- <a extra="title">THE PAST</a> -->
         </h1>
@@ -75,7 +75,7 @@
 				<p>Bisher hast Du noch nicht gesucht und warst auf keinen Webseiten.</p>
 			</div>
 		{{/unless}}
-        
+
     </div>
 </div>
 

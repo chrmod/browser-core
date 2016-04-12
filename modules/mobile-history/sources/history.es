@@ -327,7 +327,7 @@ function getSelectedFavorite(list, selectedList) {
 function getHistory(onlyFavorites) {
   showOnlyFavorite = onlyFavorites;
   historyTimer = setTimeout(showHistory, 200, {results: []});
-  osBridge.searchHistory("", "showHistory");
+  osBridge.searchHistory("", "History.showHistory");
 }
 
 var touchTimer, isTapBlocked, historyTimer;
@@ -357,4 +357,14 @@ function getListFromStorage(listName) {
 CliqzUtils.initPlatform(System);
 
 CliqzUtils.init(this);
-getHistory(showOnlyFavorite);
+
+
+History = {
+  init: function(){
+    getHistory(showOnlyFavorite);
+  },
+  showHistory: showHistory,
+  getHistory: getHistory
+}
+
+export default History;

@@ -5,6 +5,7 @@
     "core",
     "mobile-ui",
     "mobile-freshtab",
+    "mobile-history",
     "static"
   ]
 }

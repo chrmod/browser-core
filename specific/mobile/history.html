@@ -12,7 +12,13 @@
        <script src="js/environment.js"></script>
        <script src="js/CLIQZEnvironment.js"></script>
        <script src="js/global.js"></script>
-       <script src="js/history.js"></script>
+       <script>
+        CliqzUtils.init(window);
+        CliqzUtils.initPlatform(System);
+        System.import("mobile-history/history").then(function(History){
+            History.default.init();
+        });
+       </script>
        <meta name="viewport" content="initial-scale=1.0001, user-scalable=no" />
    </head>
    <body class="noselect">
