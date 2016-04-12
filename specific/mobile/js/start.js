@@ -1,6 +1,6 @@
 CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 
-
+CliqzUtils.initPlatform(System);
 CliqzUtils.init(window);
 
 System.import("core/startup").then(function (startupModule) {
