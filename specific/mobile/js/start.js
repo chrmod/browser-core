@@ -1,3 +1,6 @@
+CLIQZ.System = System;
+CliqzUtils.initPlatform(System);
+
 CliqzUtils.init(window);
 
 // overriding things
