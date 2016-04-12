@@ -198,10 +198,6 @@ CliqzLanguage = {
         return '&lang=de,en';
 	}
 }
-CliqzHistory = {
-    updateQuery: function(){},
-    setTabData: function(){}
-}
 XPCOMUtils = {
 	defineLazyModuleGetter: function(){},
     generateQI: function(){},
@@ -221,8 +217,3 @@ Components = {
 	},
     ID: function(){}
 }
-
-XULBrowserWindow = {
-    updateStatusField: function(){},
-    setOverLink: function(){}
-};

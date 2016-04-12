@@ -311,7 +311,6 @@ CLIQZEnvironment = {
         if(typeof CustomEvent !== 'undefined') {
           window.dispatchEvent(new CustomEvent('disconnected', { 'detail': 'browser is offline' }));
         }
-        isRequestFailed = true;
         CLIQZEnvironment.log( 'request ' + url + ' will be deferred until the browser is online');
         return;
       }
@@ -437,14 +436,20 @@ CLIQZEnvironment = {
   getSearchEngines: function(){
     return []
   },
+  //TODO: move this out
   distance: function(lon1, lat1, lon2, lat2) {
+    /** Converts numeric degrees to radians */
+    function degreesToRad(degree){
+      return degree * Math.PI / 180;
+    }
+
     var R = 6371; // Radius of the earth in km
     if(!lon2 || !lon1 || !lat2 || !lat1) { return 0; }
-    var dLat = (lat2-lat1).toRad();  // Javascript functions in radians
-    var dLon = (lon2-lon1).toRad();
+    var dLat = degreesToRad(lat2-lat1);  // Javascript functions in radians
+    var dLon = degreesToRad(lon2-lon1);
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
+            Math.cos(degreesToRad(lat1)) * Math.cos(degreesToRad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c; // Distance in km
     return d;

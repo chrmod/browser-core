@@ -150,8 +150,10 @@ var Mixer = {
     }, {});
 
     // postpone this operation until after this result set is rendered
-    CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25,
-                          titlesDescriptions);
+    // TODO: remove this dependency
+    if(typeof CliqzHistory !== "undefined")
+      CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25,
+                            titlesDescriptions);
   },
 
   // Is query valid for triggering an EZ?

@@ -232,10 +232,6 @@ Components = {
     ID: function(){}
 }
 
-XULBrowserWindow = {
-    updateStatusField: function(){},
-    setOverLink: function(){}
-}
 
 ENGINES = [
     {
