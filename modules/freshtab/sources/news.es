@@ -393,17 +393,17 @@ function requestNews(hcache, callback){
       cache_full_update_flag = true,
       i = 0;
 
-
-  news_data_cache = hcache;
-
-  // allways add random padding to the expected news
-  // domains to avoid privacy leaks
-  topic_news_url += JSON.stringify(news_data_cache.hash_list)
-
-  history_data = news_data_cache.domain_list;
-
+  // add a call for top news
   news_urls.push([top_news_url, topNewsMaxNumber, 'top_h_news']);
-  if (isNotEmpty(news_data_cache)){
+
+  // add a call for hbased news if history exists
+  news_data_cache = hcache;
+  if (isNotEmpty(news_data_cache.hash_list)){
+    // allways add random padding to the expected news
+    // domains to avoid privacy leaks
+    topic_news_url += JSON.stringify(news_data_cache.hash_list)
+
+    history_data = news_data_cache.domain_list;
     news_urls.push([topic_news_url, hBasedNewsNumber, 'hb_news']);
   }
 
