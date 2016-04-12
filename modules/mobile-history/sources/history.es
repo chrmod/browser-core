@@ -364,7 +364,8 @@ History = {
     getHistory(showOnlyFavorite);
   },
   showHistory: showHistory,
-  getHistory: getHistory
+  getHistory: getHistory,
+  clearQueries: clearQueries
 }
 
 export default History;

@@ -1,5 +1,5 @@
 import { utils } from "core/cliqz";
-import UI from "mobile-ui/UI";
+import History from "mobile-history/history";
 
 export default class {
   constructor(settings) {
@@ -7,8 +7,7 @@ export default class {
   }
 
   init() {
-  	window.CLIQZ.UI = UI;
-  	window.CLIQZ.UI.init();
+  	this.window.History = History;
   }
 
   unload() {}

@@ -1,7 +1,20 @@
 'use strict';
 
 var osBridge = {
-
+  OS: {},
+  init: function() {
+    if(window.webkit) {
+      osBridge.OS.postMessage = window.webkit.messageHandlers.jsBridge.postMessage.bind(window.webkit.messageHandlers.jsBridge);
+    } else if(window.jsBridge) {
+        var nativePostMessage = jsBridge.postMessage.bind(jsBridge);
+        osBridge.OS.postMessage = function(message) {
+          nativePostMessage(JSON.stringify(message));
+        }
+    } else {
+      osBridge.OS.postMessage = MockOS.postMessage;
+    }
+    osBridge.isReady();
+  },
   /**
     function: searchHistory
     description: requests search history from OS
@@ -15,7 +28,7 @@ var osBridge = {
       data: query,
       callback: callback
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: isReady
@@ -25,7 +38,7 @@ var osBridge = {
     var message = {
       action: "isReady"
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: openLink
@@ -38,7 +51,7 @@ var osBridge = {
       action: "openLink",
       data: url
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: browserAction
@@ -55,7 +68,7 @@ var osBridge = {
         type: type
       }
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: getTopSites
@@ -70,7 +83,7 @@ var osBridge = {
       data: limit,
       callback: callback
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: autocomplete
@@ -83,7 +96,7 @@ var osBridge = {
       action: "autocomplete",
       data: query
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: notifyQuery
@@ -98,7 +111,7 @@ var osBridge = {
         "q": query,
       }
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: pushTelemetry
@@ -111,7 +124,7 @@ var osBridge = {
       action: "pushTelemetry",
       data: msg
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: copyResult
@@ -124,7 +137,7 @@ var osBridge = {
       action: "copyResult",
       data: val
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: removeHistory
@@ -137,7 +150,7 @@ var osBridge = {
       action: "removeHistory",
       data: ids
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: setHistoryFavorite
@@ -154,20 +167,7 @@ var osBridge = {
         value: value
       }
     }
-    OS.postMessage(message);
-  },
-  /**
-    function: cleanHistory
-    description: removes history records from native history
-    params: excludedIds as list
-    message data: excludedIds as list
-  */
-  cleanHistory: function(excludedIds) {
-    var message = {
-      action: "cleanHistory",
-      data: excludedIds
-    }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   },
   /**
     function: shareCard
@@ -180,18 +180,6 @@ var osBridge = {
       action: "shareCard",
       data: cardUrl
     }
-    OS.postMessage(message);
+    osBridge.OS.postMessage(message);
   }
 };
-
-var OS = {}
-if(window.webkit) {
-  OS.postMessage = window.webkit.messageHandlers.jsBridge.postMessage.bind(window.webkit.messageHandlers.jsBridge);
-} else if(window.jsBridge) {
-    var nativePostMessage = jsBridge.postMessage.bind(jsBridge);
-    OS.postMessage = function(message) {
-      nativePostMessage(JSON.stringify(message));
-    }
-} else {
-  OS.postMessage = MockOS.postMessage;
-}

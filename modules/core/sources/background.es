@@ -10,10 +10,6 @@ export default {
   init(settings) {
     this.dispatchMessage = this.dispatchMessage.bind(this);
 
-  	Object.keys(settings).forEach( key => {
-  		config[key] = settings[key];
-  	});
-
     utils.bindObjectFunctions(this.actions, this);
 
     this.mm = new ProcessScriptManager(this.dispatchMessage);
