@@ -6,8 +6,8 @@ CliqzUtils.init(window);
 System.import("core/startup").then(function (startupModule) {
   return startupModule.default(window);
 }).then(function () {
+  osBridge.init();
   CLIQZEnvironment.initHomepage(true);
-  osBridge.isReady();
 });
 
 /* APIs for native */

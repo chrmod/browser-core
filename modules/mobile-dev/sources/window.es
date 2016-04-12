@@ -1,5 +1,6 @@
 import { utils } from "core/cliqz";
 import Test from "mobile-dev/test";
+import MockOS from "mobile-dev/MockOS";
 
 export default class {
   constructor(settings) {
@@ -8,6 +9,7 @@ export default class {
 
   init() {
   	this.window.Test = Test;
+  	this.window.MockOS = MockOS;
   }
 
   unload() {}
