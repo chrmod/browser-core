@@ -21,14 +21,14 @@
       {{input name="addUrl" type="text" placeholder="url" value=newSpeedDial class="formRow addUrl"}}
 
       {{#if showNotification }}
-        <div class="notification">Exists already</div>
+        <div class="notification">{{t 'speedDials.exists-already' }}</div>
       {{/if}}
 
       {{#if notValidUrl }}
-        <div class="notification">Not valid url</div>
+        <div class="notification">{{t 'speedDials.not-valid'}}</div>
       {{/if}}
 
-      <button type="submit" class="cliqz-brands-button-4 cqz-ez-btn">Add</button>
+      <button type="submit" class="cliqz-brands-button-4 cqz-ez-btn">{{t 'speedDials.add'}}</button>
     </form>
   </li>
 {{/if}}

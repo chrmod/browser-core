@@ -209,7 +209,10 @@ a:hover, a:active, a:focus {
 #freshTabPage #topVisited .addDialForm button {
   position: absolute;
   bottom: 5px;
-  left: 60px;
+  left: 0px;
+  right: 0px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #freshTabPage #topVisited .notification {
@@ -587,18 +590,11 @@ a:hover, a:active, a:focus {
   #freshTabPage #topVisited li {
     width: 150px;
   }
-
-  #freshTabPage #topVisited .addDialForm button {
-    left: 50px;
-  }
 }
 
 @media (min-width: 767px) and (max-width: 824px) {
   #freshTabPage #topVisited li {
     width: 120px;
-  }
-  #freshTabPage #topVisited .addDialForm button {
-    left: 32px;
   }
 }
 
@@ -657,9 +653,5 @@ a:hover, a:active, a:focus {
 
   #freshTabPage #yourNewsBox li {
     max-width: 100%;
-  }
-
-  #freshTabPage #topVisited .addDialForm button {
-    left: 10px;
   }
 }
