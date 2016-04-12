@@ -1,28 +1,11 @@
+CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
+
+
 CliqzUtils.init(window);
 
-// overriding things
-CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
-// end of overriding things
-
-var promises = [];
-
-promises.push(System.import("mobile-ui/UI"));
-
-promises.push(System.import("mobile-freshtab/news"));
-
-Promise.all(promises).then(function (arr) {
-  var UI = arr[0];
-  var news = arr[1];
-  // UI
-  window.CLIQZ.UI = UI.default;
-  window.CLIQZ.UI.init();
-
-
-  // news
-  window.News = news.default;
-
-
-  // initialize
+System.import("core/startup").then(function (startupModule) {
+  return startupModule.default(window);
+}).then(function () {
   CLIQZEnvironment.initHomepage(true);
   osBridge.isReady();
 });

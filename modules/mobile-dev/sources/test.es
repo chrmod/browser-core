@@ -1,13 +1,14 @@
 /* UGLY TEST SYSTEM */
+/* UGLY TEST SYSTEM */
 
 function slowType(query) {
-  urlbar.value = "";
+  var urlbarvalue = "";
   for(var i in query) {
     (function(q,i) {
       setTimeout(function(){
-        urlbar.value = urlbar.value + q;
+        urlbarvalue = urlbarvalue + q;
         if(query.length == parseInt(i)+1) {
-          CLIQZEnvironment.search(urlbar.value, CLIQZEnvironment.location_enabled, 48.1517832, 11.6200855);
+          CLIQZEnvironment.search(urlbarvalue, CLIQZEnvironment.location_enabled, 48.1517832, 11.6200855);
         }
       },i*15);
     })(query[i],i)
@@ -16,8 +17,7 @@ function slowType(query) {
 
 var iterator = 0;
 var startEl, backEl, nextEl;
-initTest = function () {
-  document.getElementById("urlbar").style.display = "block";
+function initTest() {
   startEl = document.createElement("div")
   startEl.style.position = "absolute";
   startEl.style.zIndex = "10000";
@@ -32,7 +32,7 @@ initTest = function () {
 
   startEl.addEventListener( 'click', function() {
         //nextTest();
-        if(running) {
+        if(Test.running) {
           stopAutoTest();
         } else {
           startAutoTest();
@@ -169,16 +169,25 @@ var testArray = [
 "flug DLH 2475",
 ];
 
-var autoTestInterval, running = false;
+var autoTestInterval;
 function startAutoTest() {
   nextTest();
-    //autoTestInterval = setInterval(nextTest,1500);
-    startEl.innerHTML = "STOP"
-    running = true;
-  }
+  //autoTestInterval = setInterval(nextTest,1500);
+  startEl.innerHTML = "STOP"
+  Test.running = true;
+}
 
-  function stopAutoTest() {
-    autoTestInterval && clearInterval(autoTestInterval);
-    startEl.innerHTML = "PLAY"
-    running = false;
-  }
+function stopAutoTest() {
+  autoTestInterval && clearInterval(autoTestInterval);
+  startEl.innerHTML = "PLAY"
+  Test.running = false;
+}
+
+
+var Test = {
+  initTest: initTest,
+  running: false,
+  nextTest: nextTest
+}
+
+export default Test;

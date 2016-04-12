@@ -234,7 +234,7 @@ CLIQZEnvironment = {
     window.document.getElementById('startingpoint').style.display = 'none';
 
     if(e === 'testme') {
-      initTest();
+      Test.initTest();
     }
 
     CLIQZEnvironment.startProgressBar();

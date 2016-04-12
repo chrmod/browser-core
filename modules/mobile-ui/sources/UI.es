@@ -102,7 +102,7 @@ var UI = {
 
       currentResultsCount = lastResultOffset / CLIQZ.UI.CARD_WIDTH + showGooglethis + 1;
 
-      if(running) setTimeout(nextTest,2000);
+      if(Test.running) setTimeout(Test.nextTest,2000);
 
       if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
         CLIQZEnvironment.vp.destroy();
