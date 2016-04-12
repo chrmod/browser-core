@@ -796,28 +796,7 @@ var CliqzUtils = {
     return true;
   },
   isPrivate: CLIQZEnvironment.isPrivate,
-  trk: [],
-  trkTimer: null,
-  telemetry: function(msg, instantPush) {
-    if(!CliqzUtils) return; //might be called after the module gets unloaded
-    var current_window = CliqzUtils.getWindow();
-    if(msg.type != 'environment' &&
-       current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
-    CliqzUtils.log(msg, 'Utils.telemetry');
-    if(!CliqzUtils.getPref('telemetry', true))return;
-    msg.session = CLIQZEnvironment.getPref('session');
-    msg.ts = Date.now();
-    CliqzUtils.telemetrySeq = (CliqzUtils.telemetrySeq + 1) % 2147483647;
-    msg.seq = CliqzUtils.telemetrySeq
-
-    CliqzUtils.trk.push(msg);
-    CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
-    if(instantPush || CliqzUtils.trk.length % 100 == 0){
-      CliqzUtils.pushTelemetry();
-    } else {
-      CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTelemetry, 60000);
-    }
-  },
+  telemetry: CLIQZEnvironment.telemetry,
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     var current_window = CliqzUtils.getWindow();
     if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
@@ -834,60 +813,12 @@ var CliqzUtils = {
     CliqzUtils.setResultOrder('');
     CliqzUtils.log(params, 'Utils.resultTelemetry');
   },
-
   _resultOrder: '',
   setResultOrder: function(resultOrder) {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
     return CliqzUtils._resultOrder && CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
-  },
-
-  _telemetry_req: null,
-  _telemetry_sending: [],
-  _telemetry_start: undefined,
-  TELEMETRY_MAX_SIZE: 500,
-  pushTelemetry: function() {
-    CliqzUtils.setPref('telemetrySeq', CliqzUtils.telemetrySeq);
-    if(CliqzUtils._telemetry_req) return;
-
-    // put current data aside in case of failure
-    CliqzUtils._telemetry_sending = CliqzUtils.trk.slice(0);
-    CliqzUtils.trk = [];
-
-    CliqzUtils._telemetry_start = Date.now();
-
-    CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
-
-    CliqzUtils._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(CliqzUtils._telemetry_sending), 10000, true);
-    CliqzUtils._telemetry_req.then( CliqzUtils.pushTelemetryCallback );
-    CliqzUtils._telemetry_req.catch( CliqzUtils.pushTelemetryError );
-  },
-  pushTelemetryCallback: function(req){
-    try {
-      var response = JSON.parse(req.response);
-
-      if(response.new_session){
-        CliqzUtils.setPref('session', response.new_session);
-      }
-      CliqzUtils._telemetry_sending = [];
-      CliqzUtils._telemetry_req = null;
-    } catch(e){}
-  },
-  pushTelemetryError: function(req){
-    // pushTelemetry failed, put data back in queue to be sent again later
-    CliqzUtils.log('push telemetry failed: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
-    CliqzUtils.trk = CliqzUtils._telemetry_sending.concat(CliqzUtils.trk);
-
-    // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TELEMETRY_MAX_SIZE + 100;
-    if(slice_pos > 0){
-      CliqzUtils.log('discarding ' + slice_pos + ' old telemetry data', "CliqzUtils.pushTelemetry");
-      CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
-    }
-
-    CliqzUtils._telemetry_sending = [];
-    CliqzUtils._telemetry_req = null;
   },
   setInterval: CLIQZEnvironment.setInterval,
   setTimeout: CLIQZEnvironment.setTimeout,
@@ -1100,5 +1031,3 @@ var CliqzUtils = {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 };
-
-CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);

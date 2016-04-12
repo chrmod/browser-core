@@ -342,26 +342,28 @@ var CLIQZEnvironment = {
     getBrandsDBUrl: function(version){
       return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
     },
-    isPrivate: function(window) {
-        if(window && window.cliqzIsPrivate === undefined){
+    isPrivate: function(win) {
+        if(typeof win == "undefined") win = CLIQZEnvironment.getWindow();
+
+        if(win && win.cliqzIsPrivate === undefined){
             try {
                 // Firefox 20+
                 Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
-                window.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+                win.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(win);
             } catch(e) {
                 // pre Firefox 20
                 try {
-                  window.cliqzIsPrivate = Cc['@mozilla.org/privatebrowsing;1'].
+                  win.cliqzIsPrivate = Cc['@mozilla.org/privatebrowsing;1'].
                                           getService(Ci.nsIPrivateBrowsingService).
                                           privateBrowsingEnabled;
                 } catch(ex) {
                   Cu.reportError(ex);
-                  window.cliqzIsPrivate = 5;
+                  win.cliqzIsPrivate = true;
                 }
             }
         }
 
-        return window.cliqzIsPrivate
+        return win.cliqzIsPrivate
     },
     setInterval: function(func, timeout) {
         return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
@@ -399,6 +401,89 @@ var CLIQZEnvironment = {
         var tab = tBrowser.addTab(url);
         tBrowser.selectedTab = tab;
     },
+    // TODO: move this
+    trk: [],
+    telemetry: (function(url){
+      var trkTimer = null,
+          telemetrySeq = -1,
+          telemetryReq = null,
+          telemetrySending = [],
+          telemetryStart = undefined,
+          TELEMETRY_MAX_SIZE = 500;
+
+      function getNextSeq(){
+        if(telemetrySeq == -1)
+          telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0)
+
+        telemetrySeq = (telemetrySeq + 1) % 2147483647;
+
+        return telemetrySeq;
+      }
+
+      function pushTelemetry() {
+        CliqzUtils.setPref('telemetrySeq', telemetrySeq);
+        if(telemetryReq) return;
+
+        // put current data aside in case of failure
+        telemetrySending = CLIQZEnvironment.trk.slice(0);
+        CLIQZEnvironment.trk = [];
+
+        telemetryStart = Date.now();
+
+        CliqzUtils.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
+
+        telemetryReq = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(telemetrySending), 10000, true);
+        telemetryReq.then( pushTelemetryCallback );
+        telemetryReq.catch( pushTelemetryError );
+      }
+
+      function pushTelemetryCallback(req){
+        try {
+          var response = JSON.parse(req.response);
+
+          if(response.new_session){
+            CliqzUtils.setPref('session', response.new_session);
+          }
+          telemetrySending = [];
+          telemetryReq = null;
+        } catch(e){}
+      }
+
+      function pushTelemetryError(req){
+        // pushTelemetry failed, put data back in queue to be sent again later
+        CliqzUtils.log('push telemetry failed: ' + telemetrySending.length + ' elements', "pushTelemetry");
+        CLIQZEnvironment.trk = telemetrySending.concat(CLIQZEnvironment.trk);
+
+        // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
+        var slice_pos = CLIQZEnvironment.trk.length - TELEMETRY_MAX_SIZE + 100;
+        if(slice_pos > 0){
+          CliqzUtils.log('discarding ' + slice_pos + ' old telemetry data', "pushTelemetry");
+          CLIQZEnvironment.trk = CLIQZEnvironment.trk.slice(slice_pos);
+        }
+
+        telemetrySending = [];
+        telemetryReq = null;
+      }
+
+      return function(msg, instantPush) {
+        if(!CliqzUtils) return; //might be called after the module gets unloaded
+        if(msg.type != 'environment' && CliqzUtils.isPrivate()) return; // no telemetry in private windows
+
+        CliqzUtils.log(msg, 'Utils.telemetry');
+        if(!CliqzUtils.getPref('telemetry', true))return;
+        msg.session = CLIQZEnvironment.getPref('session');
+        msg.ts = Date.now();
+        msg.seq = getNextSeq();
+
+        CLIQZEnvironment.trk.push(msg);
+        CliqzUtils.clearTimeout(trkTimer);
+        if(instantPush || CLIQZEnvironment.trk.length % 100 == 0){
+          pushTelemetry();
+        } else {
+          trkTimer = CliqzUtils.setTimeout(pushTelemetry, 60000);
+        }
+      }
+    })(),
 
     // from CliqzAutocomplete
     loadSearch: function(){

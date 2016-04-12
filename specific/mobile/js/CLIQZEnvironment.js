@@ -56,6 +56,11 @@ CLIQZEnvironment = {
   log: function(msg){
     console.log(msg);
   },
+  //TODO: check if calling the bridge for each telemetry point is expensive or not
+  telemetry: function(msg) {
+    msg.ts = Date.now();
+    osBridge.pushTelemetry(msg);
+  },
   isUnknownTemplate: function(template){
      // in case an unknown template is required
      return template &&
