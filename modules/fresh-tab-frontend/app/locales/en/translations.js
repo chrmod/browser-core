@@ -32,7 +32,8 @@ export default {
     "back_to_old": "Go back to old start page"
   },
   speedDials: {
-    "add": "Add",
+    "btn-add": "Add",
+    "address": "Enter address",
     "exists-already": "Exists already",
     "not-valid": "Not valid url"
   }
