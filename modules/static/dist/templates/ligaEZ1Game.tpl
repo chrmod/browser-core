@@ -1,7 +1,7 @@
 {{#if data.static}}
     <div class="cqz-result-h1 ez-liga-genSM">
         {{#with data}}
-            <div class="cqz-result-title overflow" extra="title"><a href="{{../url}}">{{club}} Website</a></div>
+            <div class="cqz-result-title overflow" extra="title"><a href="{{../url}}">{{club}}</a></div>
             <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
             <div class="cqz-multy-lines-ellipses cqz-line-vis-2">
                 <p>{{static.description}}</p>
@@ -40,7 +40,7 @@
 
         {{/with}}
         {{#if data.btns}}
-            {{>EZ-category}}
+            {{>partials/ez-generic-buttons}}
         {{/if}}
         {{>logo}}
     </div>

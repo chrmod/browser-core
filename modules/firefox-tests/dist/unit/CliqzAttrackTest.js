@@ -14,10 +14,13 @@ function waitIfNotReady(fn) {
 TESTS.AttrackTest = function (CliqzUtils) {
     var System = CliqzUtils.getWindow().CLIQZ.System,
         CliqzAttrack = System.get("antitracking/attrack").default,
+        HashProb = System.get('antitracking/hash').HashProb,
+        hp = new HashProb(),
         persist = System.get("antitracking/persistent-state"),
         AttrackBloomFilter = System.get("antitracking/bloom-filter").AttrackBloomFilter,
         datetime = System.get("antitracking/time"),
         pacemaker = System.get("antitracking/pacemaker").default;
+
 
     var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
@@ -182,9 +185,13 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 describe('when new page is loaded in existing tab', function() {
 
-                    beforeEach(function(done) {
+                    beforeEach(function() {
+                        var wait = waitFor( function() {
+                          var tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
+                          return CliqzAttrack.tp_events._active[tab_id].url === "http://cliqztest.de/"
+                        });
                         gBrowser.getBrowserForTab(tabs[0]).loadURI("http://cliqztest.de/");
-                        setTimeout(done, 700);
+                        return wait;
                     });
 
                     describe('CliqzAttrack.tp_events.commit', function() {
@@ -472,33 +479,35 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
     describe('CliqzAttrack.isHash', function() {
 
-        var isHash = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/hash').isHash;
+        // we test between 7 to 12 characters
         var not_hash = ['',
             'Firefox',
-            'some words',
-            '23/9/2015 13:32:57 5 -120', // date string
-            //'UTF-8',
-            'http://www.cliqz.com', // a url
-            '1440x900', // screen resolution
-            '/59666047/theguardian.com/international/front/ng',
-            'url=%2Finternational&edition=int&ct=section&p=ng&k=international&x=pirae8sgr%2Cpirak431b&su=0&pv=ig3kwi0qkucaub6l1azw&bp=desktop&si=f&fr=5plus' // 'cust_params' from doubleclick
+            'cliqz.com', // a url
+            'anti-tracking',
+            'front/ng',
+            'javascript',
+            'callback'
             ];
 
-        var hashes = ['04C2EAD03BAB7F5E-2E85855CF4C75134',
-            '54f5095c96e53deed8f9c147cfb12870',
-            '1AB62a15974a93a320e682g1445527405',
-            '22163a4ff9030048002213fd4895c8edc3160ed6ab'
-            ]
+        var hashes = ['04C2EAD03B',
+            '54f5095c96e',
+            'B62a15974a93',
+            '22163a4ff903',
+            '468x742',
+            '1021x952',
+            '1024x768',
+            '1440x900'
+        ]
 
         not_hash.forEach(function(str) {
           it("'" + str + "' is not a hash", function() {
-            chai.expect(isHash(str)).to.be.false;
+            chai.expect(hp.isHash(str)).to.be.false;
           })
         });
 
         hashes.forEach(function(str) {
           it("'" + str + "' is a hash", function() {
-            chai.expect(isHash(str)).to.be.true;
+            chai.expect(hp.isHash(str)).to.be.true;
           })
         });
 

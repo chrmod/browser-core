@@ -6,7 +6,7 @@
       <div class='cliqz-okt-date'>München, 20. Sept. - 5. Okt.</div>
     </div>
     <div class='cliqz-okt-image'
-         style="background-image:url({{ image }})">
+         data-style="background-image:url({{ image }})">
     </div>
     <div class='cliqz-okt-logo'></div>
     <div class='cliqz-okt-btn-box'>

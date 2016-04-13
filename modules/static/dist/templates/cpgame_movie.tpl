@@ -16,7 +16,7 @@
         </div>
     </div>
   {{/with}}
-  {{>EZ-category}}
+  {{>partials/ez-generic-buttons}}
   {{> logo}}
 </div>
 {{else}}

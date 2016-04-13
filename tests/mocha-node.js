@@ -2,6 +2,11 @@ const walk = require('walk');
 const System = require('systemjs');
 const Mocha = require('mocha');
 const fs = require('fs');
+const chai = require('../bower_components/chai/chai.js');
+chai.config.truncateThreshold = 0
+require('source-map-support').install();
+
+global.chai = chai;
 
 const configFilePath  = process.env['CLIQZ_CONFIG_PATH'];
 const cliqzConfig = JSON.parse(fs.readFileSync(configFilePath));

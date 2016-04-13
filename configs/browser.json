@@ -20,12 +20,14 @@
     "context-menu",
     "onboarding",
     "freshtab",
+    "fresh-tab-frontend",
     "unblock",
     "theme",
     "telemetry-categories",
     "antitracking",
     "performance",
     "hpn",
+    "smart-cliqz-cache",
     "privacy-dashboard"
   ]
 }

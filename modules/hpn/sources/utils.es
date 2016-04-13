@@ -21,7 +21,7 @@ function cleanStr(s){
   }catch(e){};
 
 
-  s = s.replace(/ /g,'');
+  s = s.replace(/\s+/g,'');
 
   // Convert to lower
   s = s.toLowerCase();
@@ -42,6 +42,40 @@ function cleanStr(s){
 
 }
 
+function getField(obj, path) {
+  return path.split(/[\.\[\]]+/).filter(x => x).reduce((o, i) => o[i], obj);
+}
+
+function orderedStringify(t, res, onlyKeys) {
+  if (!t || typeof t !== 'object') {
+    if (t === undefined) {
+      throw 'Found undefined field when trying to calculate msg routehash';
+    }
+    res.push(cleanStr(t));
+  } else {
+    let keys = Object.keys(t);
+    keys.sort();
+    let isArray = Array.isArray(t);
+    keys.forEach(k => {
+      if (!isArray) {
+        res.push(cleanStr(k));
+      }
+      if (!onlyKeys) {
+        orderedStringify(t[k], res);
+      }
+    });
+  }
+}
+
+function getRouteHashStr(obj, sourceMap) {
+  let action = obj.action;
+  let keys = sourceMap[action].keys;
+  let staticKeys = sourceMap[action].static||[];
+  let res = [];
+  keys.forEach(k => orderedStringify(getField(obj, k), res, staticKeys.some(sk => k.endsWith(sk))));
+  return res.join('');
+}
+
 /*
 Function to create http url
 */
@@ -53,21 +87,7 @@ export function createHttpUrl(host){
 /* This method will return the string based on mapping of which keys to use to hash for routing.
 */
 export function getRouteHash(msg){
-	// Make sure this is JSON.
-	// msg.action = msg.action.toLowerCase();
-	var static_fields = CliqzSecureMessage.sourceMap[msg.action]["static"] || [];
-	var flatMsg = JSON.flatten(msg, static_fields );
-	if(!flatMsg.action) return null;
-	var keys = CliqzSecureMessage.sourceMap[flatMsg.action]["keys"];
-
-	var routeHashStr = "";
-	keys.forEach(function(key){
-    var s = cleanStr(flatMsg[key])
-		routeHashStr += s;
-	});
-  routeHashStr = routeHashStr.replace(/ /g,'');
-  routeHashStr = routeHashStr.trim();
-	return routeHashStr;
+	return getRouteHashStr(msg, CliqzSecureMessage.sourceMap);
 }
 
 
@@ -218,3 +238,15 @@ var JsonFormatter = {
 
 
 export { JsonFormatter };
+
+var rndGen = Cc["@mozilla.org/security/random-generator;1"].createInstance(Ci.nsIRandomGenerator);
+// Returns an array of n cryptographically secure random words (signed 32 bit numbers)
+export function getRandomWords(n) {
+  var buffer = '';
+  var bytebucket = rndGen.generateRandomBytes(4*n, buffer);
+  var words = [];
+  for (var i = 0; i < bytebucket.length; i += 4) {
+    words.push(bytebucket[i] << 24 | bytebucket[i + 1] << 16 | bytebucket[i + 2] << 8 | bytebucket[i + 3]);
+  }
+  return words;
+}

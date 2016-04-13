@@ -16,8 +16,11 @@ function setBodyClass(options) {
 
   if (options.whitelisted) {
     document.body.classList.add("cqz-domain-in-whitelist");
+    // Switch is on if the Domain is not in white list.
+    whitelistButton.classList.remove("cqz-switch-state-on");
   } else {
     document.body.classList.remove("cqz-domain-in-whitelist");
+    whitelistButton.classList.add("cqz-switch-state-on");
   }
 
   // If ATT enabled and there is no site
@@ -35,17 +38,10 @@ function setBodyClass(options) {
   }
 
   //If thare are BAD tracker
-  if (options.have_bad_trackers) {
+  if (options.have_bad_trackers || options.have_trackers) {
     document.body.classList.add("cqz-have-bad-trackers");
   } else {
     document.body.classList.remove("cqz-have-bad-trackers");
-  }
-
-  //If thare are NO BAD tracker
-  if (options.have_trackers && !options.have_bad_trackers) {
-    document.body.classList.add("cqz-have-no-bad-trackers");
-  } else {
-    document.body.classList.remove("cqz-have-no-bad-trackers");
   }
 
   // Turn on - off fix
@@ -54,7 +50,6 @@ function setBodyClass(options) {
   } else {
     document.body.classList.remove("cqz-att-reload");
   }
-
 }
 
 function localizeDocument() {
@@ -76,7 +71,9 @@ function populateDOM() {
 
     ////Display Trackers list
     var counterTrackers = 0;
-    if(have_any_trackers_bool > 0 && data.trakersList && data.trakersList.trackers ) {
+
+    // Check if we have trackers && if domain is not whitelisted
+    if(have_any_trackers_bool > 0 && data.trakersList && data.trakersList.trackers && !data.isWhitelisted) {
       //Populate Tracking List
       var companies = []
 
@@ -86,7 +83,9 @@ function populateDOM() {
           var domainData = data.trakersList.trackers[domain];
           return sum + (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
         }, 0);
-        companies.push({name: company, count: trackerCount});
+
+        if (trackerCount > 0)
+          companies.push({name: company, count: trackerCount});
       };
 
       // sort companies by tracking
@@ -112,30 +111,32 @@ function populateDOM() {
       expandPopUp('small');
     }
 
-    document.querySelector(".cqz-general-domain-msg").innerHTML = data.url;
-    general_msg_trnsl.dataset.i18n = [
-      general_msg_trnsl.dataset.i18n,
-      data.url,
-      counterTrackers,
-      general_trackers_count
-    ].join(',');
+    document.querySelector(".cqz-count").innerHTML = general_trackers_count;
 
-    var whiteListOn = document.querySelector(".cqz-whitelist-btn-on");
+    //general_msg_trnsl.dataset.i18n = [
+    //  general_msg_trnsl.dataset.i18n,
+    //  data.url,
+    //  counterTrackers,
+    //  general_trackers_count
+    //].join(',');
+
+    var whiteListOn = document.querySelector(".cqz-whitelisted-msg");
+    var domainName = document.querySelector(".cqz-domain-name");
+
+    domainName.innerHTML = data.url;
+    if (data.url.length > 24) {
+      domainName.classList.add('cqz-size-small')
+    }
+
     whiteListOn.dataset.i18n = [
       whiteListOn.dataset.i18n,
       data.url,
     ].join(',');
 
-    var whiteListOff = document.querySelector(".cqz-whitelist-btn-off");
-    whiteListOff.dataset.i18n = [
-      whiteListOff.dataset.i18n,
-      data.url,
-    ].join(',');
-
     //Check if site is in the whitelist
-    if(data.isWhitelisted) {
-      whitelistButton.style.display = "block"
-    }
+    //if(data.isWhitelisted) {
+    //  whitelistButton.style.display = "block"
+    //}
 
     setBodyClass({
       enabled: data.enabled,
@@ -171,7 +172,7 @@ function expandPopUp (command) {
     attPopUp.classList.add('cqz-big-popup');
   }
 
-  height = attPopUp.classList.contains('cqz-big-popup') ? 510 : 240;
+  height = attPopUp.classList.contains('cqz-big-popup') ? 420 : 240;
 
   chrome.runtime.sendMessage({
     functionName: "updateHeight",

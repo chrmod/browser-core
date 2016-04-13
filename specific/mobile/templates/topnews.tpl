@@ -1,4 +1,5 @@
 <!-- topnews.tpl -->
+
 {{#if this}}
   <div class="heading">
       <h2><span>{{ local 'freshtab_top_news' }}</span></h2>
@@ -6,7 +7,7 @@
   <div class="main" style="margin-bottom: 20px;">
     <ul>
         {{#each this}}
-            <div class="item">
+            <li class="item" onclick="osBridge.openLink('{{url}}')">
                 <div class="meta__logo transition"
                  style="{{style}}"
                  show-status=""
@@ -15,14 +16,14 @@
                  >{{ text }}
                 </div>
                 <h1 class="main__headline">
-                    <a class="topNewsLink" data-index="{{@index}}" onclick="osBridge.openLink('{{url}}')">
+                    <a class="topNewsLink" data-index="{{@index}}">
                         {{ short_title }}
                     </a>
                 </h1>
                 <div class="meta">
                   {{url}}
                 </div>
-            </div>
+            </li>
         {{/each}}
     </ul>
   </div>

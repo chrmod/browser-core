@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
+TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
   describe('Mixer', function() {
 
     beforeEach(function() {
@@ -582,10 +582,15 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
           data: {
             friendly_url: 'cliqz.com',
             template: 'Cliqz',
-            subType: '{"ez": "-7290289273393613729"}',
+            subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
             trigger_urls: ['cliqz.com'],
             ts: 1447772162,
             kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
+            __subType__: {
+              class: "CliqzEZ",
+              id: "2700150093133398460",
+              name: "Cliqz 1",
+            },
           },
         };
       });
@@ -610,21 +615,29 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
         delete result.subType;
         expect(Mixer._isValidEZ(result)).to.be.false;
       });
+
+      it('should discard if __subType__ is missing or ID is missing', function() {
+        delete result.data.__subType__.id;
+        expect(Mixer._isValidEZ(result)).to.be.false;
+        delete result.data.__subType__;
+        expect(Mixer._isValidEZ(result)).to.be.false;
+      });
     });
 
     describe('cacheEZs', function() {
 
       // extracts id from SmartCliqz
       function getIdfunction(smartCliqz) {
-        return JSON.parse(smartCliqz.data.subType).ez;
+        return smartCliqz.data.__subType__.id;
       }
 
       var saved = false,
           results = {},
           urls = {},
           ezs = {},
-          urlTriggerUrls = CliqzSmartCliqzCache.triggerUrls,
-          ezStore = CliqzSmartCliqzCache.store;
+          smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
+          urlTriggerUrls = smartCliqzCache.triggerUrls,
+          ezStore = smartCliqzCache.store;
 
       // Mock CliqzSmartCliqzCache
       beforeEach(function() {
@@ -638,10 +651,15 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
           data: {
             friendly_url: 'cliqz.com',
             template: 'Cliqz',
-            subType: '{"ez": "-7290289273393613729"}',
+            subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
             trigger_urls: ['cliqz.com'],
             ts: 1447772162,
             kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
+            __subType__: {
+              class: "CliqzEZ",
+              id: "2700150093133398460",
+              name: "Cliqz 1",
+            },
           },
         },];
 
@@ -649,7 +667,7 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
         urls = {};
         ezs = {};
 
-        CliqzSmartCliqzCache.triggerUrls = {
+        smartCliqzCache.triggerUrls = {
           retrieve: function(url) {
             if (!(url in urls)) {
               return urls[url];
@@ -668,14 +686,15 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
           },
         };
 
-        CliqzSmartCliqzCache.store = function(ezData) {
+        smartCliqzCache.store = function(ezData) {
           ezs[getIdfunction(ezData)] = ezData;
         };
       });
 
       afterEach(function() {
-        CliqzSmartCliqzCache.triggerUrls = urlTriggerUrls;
-        CliqzSmartCliqzCache.store = ezStore;
+        var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
+        smartCliqzCache.triggerUrls = urlTriggerUrls;
+        smartCliqzCache.store = ezStore;
       });
 
       it('should cache 1 entry given 1', function() {
@@ -703,7 +722,7 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
       it('should cache 2 entries given 2', function() {
         results.push(JSON.parse(JSON.stringify(results[0])));
         results[1].data.trigger_urls[0] = 'test.com';
-        results[1].data.subType = '{"ez": "1111111111"}';
+        results[1].data.__subType__ = { id: "1111111111" };
 
         Mixer._cacheEZs(results);
 
@@ -721,9 +740,10 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
           result = {},
           urls = {},
           ezs = {},
-          urlTriggerUrls = CliqzSmartCliqzCache.triggerUrls,
-          ezFetchStore = CliqzSmartCliqzCache.fetchAndStore,
-          ezRetrieve = CliqzSmartCliqzCache.retrieve;
+          smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
+          urlTriggerUrls = smartCliqzCache.triggerUrls,
+          ezFetchStore = smartCliqzCache.fetchAndStore,
+          ezRetrieve = smartCliqzCache.retrieve;
 
       // Mock CliqzSmartCliqzCache
       beforeEach(function() {
@@ -749,10 +769,15 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
             data: {
               friendly_url: 'cliqz.com',
               template: 'Cliqz',
-              subType: '{"ez": "-7290289273393613729"}',
+              subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
               trigger_urls: ['cliqz.com'],
               ts: 1447772162,
               kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
+              __subType__: {
+                class: "CliqzEZ",
+                id: "2700150093133398460",
+                name: "Cliqz 1",
+              },
             },
           },
         };
@@ -763,7 +788,7 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
 
         fetching = undefined;
 
-        CliqzSmartCliqzCache.triggerUrls = {
+        smartCliqzCache.triggerUrls = {
           isCached: function(url) {
             return urls[url] ? true : false;
           },
@@ -777,19 +802,20 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
           },
         };
 
-        CliqzSmartCliqzCache.fetchAndStore = function(ezId) {
+        smartCliqzCache.fetchAndStore = function(ezId) {
           fetching = ezId;
         };
 
-        CliqzSmartCliqzCache.retrieve = function(ezId) {
+        smartCliqzCache.retrieve = function(ezId) {
           return ezs[ezId];
         };
       });
 
       afterEach(function() {
-        CliqzSmartCliqzCache.triggerUrls = urlTriggerUrls;
-        CliqzSmartCliqzCache.fetchAndStore = ezFetchStore;
-        CliqzSmartCliqzCache.retrieve = ezRetrieve;
+        var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
+        smartCliqzCache.triggerUrls = urlTriggerUrls;
+        smartCliqzCache.fetchAndStore = ezFetchStore;
+        smartCliqzCache.retrieve = ezRetrieve;
       });
 
       it('should trigger ez', function() {
@@ -844,10 +870,15 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils, CliqzSmartCliqzCache) {
           data: {
               friendly_url: 'cliqz.com',
               template: 'Cliqz',
-              subType: '{"ez": "-7290289273393613729"}',
+              subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
               trigger_urls: ['cliqz.com'],
               ts: 1447772162,
               kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
+              __subType__: {
+                class: "CliqzEZ",
+                id: "2700150093133398460",
+                name: "Cliqz 1",
+              },
             },
         },
       ];

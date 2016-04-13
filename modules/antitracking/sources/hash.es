@@ -1,30 +1,48 @@
+import ResourceLoader from 'core/resource-loader';
 
-var probHashLogM = null;
-var probHashThreshold = 0.0165;
-var probHashChars = {' ': 38, '-': 37, '.': 36, '1': 26, '0': 35, '3': 28, '2': 27, '5': 30, '4': 29, '7': 32, '6': 31, '9': 34, '8': 33, 'a': 0, 'c': 2, 'b': 1, 'e': 4, 'd': 3, 'g': 6, 'f': 5, 'i': 8, 'h': 7, 'k': 10, 'j': 9, 'm': 12, 'l': 11, 'o': 14, 'n': 13, 'q': 16, 'p': 15, 's': 18, 'r': 17, 'u': 20, 't': 19, 'w': 22, 'v': 21, 'y': 24, 'x': 23, 'z': 25};
+export function HashProb() {
+    this.probHashLogM = null;
+    this.probHashThreshold = null;
+    this.probHashChars = {};
+    'abcdefghijklmnopqrstuvwxyz1234567890.- '.split('').forEach(function(e, idx) {
+        this.probHashChars[e] = idx;
+    }.bind(this));
 
-function isHashProb(str) {
-    var log_prob = 0.0;
-    var trans_c = 0;
-    str = str.toLowerCase().replace(/[^a-z0-9\.\- ]/g,'');
-    for(var i=0;i<str.length-1;i++) {
-        var pos1 = probHashChars[str[i]];
-        var pos2 = probHashChars[str[i+1]];
+    this.probLoader = new ResourceLoader(['antitracking', 'prob.json'], {
+        remoteURL: 'https://cdn.cliqz.com/anti-tracking/prob.json',
+        cron: 24 * 60 * 60 * 1000  // daily
+    });
 
-        log_prob += probHashLogM[pos1][pos2];
-        trans_c += 1;
-    }
-    if (trans_c > 0) return Math.exp(log_prob/trans_c);
-    else return Math.exp(log_prob);
-};
-
-export function init () {
-  CliqzUtils.httpGet('chrome://cliqz/content/antitracking/prob.json', function success (req) {
-    probHashLogM = JSON.parse(req.response);
-  });
+    this.probLoader.load().then(function(data) {
+        this.probHashLogM = data.logM;
+        this.probHashThreshold = data.thresh;
+    }.bind(this));
+    this.probLoader.onUpdate(function(data) {
+        this.probHashLogM = data.logM;
+        this.probHashThreshold = data.thresh;
+    }.bind(this));
 }
 
-export function isHash(str) {
-    var p = isHashProb(str);
-    return (p < probHashThreshold);
+HashProb.prototype.isHashProb = function(str) {
+    var logProb = 0.0;
+    var transC = 0;
+    str = str.toLowerCase().replace(/[^a-z0-9\.\- ]/g,'');
+    for(var i=0;i<str.length-1;i++) {
+        var pos1 = this.probHashChars[str[i]];
+        var pos2 = this.probHashChars[str[i+1]];
+
+        logProb += this.probHashLogM[pos1][pos2];
+        transC += 1;
+    }
+    if (transC > 0) {
+        return Math.exp(logProb/transC);
+    }
+    else {
+        return Math.exp(logProb);
+    }
+};
+
+HashProb.prototype.isHash = function(str) {
+    var p = this.isHashProb(str);
+    return (p < this.probHashThreshold);
 };
