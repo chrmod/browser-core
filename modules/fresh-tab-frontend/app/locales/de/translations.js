@@ -30,5 +30,10 @@ export default {
   miniOnboarding: {
     "learn-more": "Mehr erfahren",
     "back_to_old": "Zurück zu alter Startseite"
+  },
+  speedDials: {
+    "add": "Hinzufügen",
+    "exists-already": "Bereits vorhanden",
+    "not-valid": "Keine gültige url"
   }
 };
