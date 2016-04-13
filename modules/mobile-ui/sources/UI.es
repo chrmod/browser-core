@@ -102,8 +102,6 @@ var UI = {
 
       currentResultsCount = lastResultOffset / CLIQZ.UI.CARD_WIDTH + showGooglethis + 1;
 
-      if(Test.running) setTimeout(Test.nextTest,2000);
-
       if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
         CLIQZEnvironment.vp.destroy();
       }
@@ -425,7 +423,7 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    var module = CLIQZ.System.get("mobile-ui/views/"+templateName);
+    var module = System.get("mobile-ui/views/"+templateName);
     if (module) {
       UI.VIEWS[templateName] = new module.default(window);
 

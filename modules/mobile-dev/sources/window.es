@@ -9,6 +9,8 @@ export default class {
 
   init() {
   	this.window.Test = Test;
+  	this.window.Test.init();
+  	
   	this.window.MockOS = MockOS;
   }
 
