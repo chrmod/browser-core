@@ -32,8 +32,16 @@ export default {
     "back_to_old": "Zurück zu alter Startseite"
   },
   speedDials: {
-    "add": "Hinzufügen",
+    "btn-add": "Hinzufügen",
+    "address": "Adresse eingeben",
     "exists-already": "Bereits vorhanden",
     "not-valid": "Keine gültige url"
+  },
+  urlBar: {
+    "search-address": "Suche oder Adresse eingeben"
+  },
+  news: {
+    "top-news": "Top Nachrichten",
+    "your-news": "Deine Nachrichtenseiten"
   }
 };
