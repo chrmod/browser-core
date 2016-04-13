@@ -5,6 +5,9 @@ export default Ember.Component.extend({
   actions: {
     freshTabLearnMore(url) {
       this.sendAction("freshTabLearnMoreAction", url)
+    },
+    revertBack() {
+      this.sendAction("revertBackAction");
     }
   }
 });
