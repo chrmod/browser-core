@@ -990,7 +990,7 @@ function setPartialTemplates(data) {
   }
 
   // Smart CLIQZ buttons
-  if (data.template == 'entity-generic') {
+  if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
   }
 
