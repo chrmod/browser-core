@@ -191,7 +191,9 @@ var News = {
       indexList[mainDomain] = list[i];
     }
 
-    News.getNews(newsDomainList);
+    // kick out history based news
+    // News.getNews(newsDomainList);
+    News.getNews();
 
     for(i in indexList) {
       myList.push(indexList[i]);
