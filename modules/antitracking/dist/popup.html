@@ -2,7 +2,19 @@
 <html>
 <head>
     <script src="../webextensions-shim.js"></script>
+    <script src="chrome://cliqz/content/bower_components/handlebars/handlebars.js"></script>
     <link rel="stylesheet" href="popup.css">
+    <script id="trackersListTemplate" type="text/x-handlebars-template">
+        {{#each this}}
+            <li>
+                <span class='cqz-title-holder'>
+                    <a href='https://cliqz.com/whycliqz/anti-tracking/tracker#{{nameCleaner name}}' class='cqz-trackers-info' target='_blank'> i </a>
+                    <span class='cqz-title'> {{ name }} </span>
+                </span>
+                <span  class='cqz-number'><i>{{ count }}</i></span>
+            </li>
+        {{/each}}
+    </script>
 </head>
 <body>
     <section class="cqz-antitracking-popup">
