@@ -24,6 +24,7 @@ import ResourceLoader from 'core/resource-loader';
 import { cookieChecker } from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import {PrivacyScore} from 'antitracking/privacy-score';
+import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -1445,19 +1446,6 @@ var CliqzAttrack = {
                 CliqzAttrack.obsCounter[x] = counter;
             });
     },
-    generatePayload: function(data, ts, instant, attachVersion) {
-        var payl = {
-            'data': data,
-            'ver': CliqzAttrack.VERSION,
-            'ts': ts,
-            'anti-duplicates': Math.floor(Math.random() * 10000000)
-        };
-        if (instant)
-            payl['instant'] = true;
-        if (attachVersion)
-            payl = CliqzAttrack.qs_whitelist.attachVersion(payl);
-        return payl;
-    },
     sendTokens: function() {
         // send tokens every 5 minutes
         let data = {},
@@ -1485,8 +1473,24 @@ var CliqzAttrack = {
         }
 
         if (Object.keys(data).length > 0) {
-            var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+            const compress = compressionAvailable();
+            const ts = datetime.getHourTimestamp();
+            const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();
+            extraAttrs.ver = CliqzAttrack.VERSION;
+
+            splitTelemetryData(data, 20000).map((d) => {
+                const payl = generatePayload(d, ts, false, extraAttrs);
+                const msg = {
+                    'type': CliqzHumanWeb.msgType,
+                    'action': 'attrack.tokens',
+                    'payload': payl
+                };
+                if ( compress ) {
+                    msg.compressed = true;
+                    msg.payload = compressJSONToBase64(payl);
+                }
+                CliqzHumanWeb.telemetry(msg);
+            });
         }
         CliqzAttrack._tokens.setDirty();
     },
