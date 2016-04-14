@@ -225,7 +225,7 @@ var CliqzUtils = {
     if(base.length == 0)
       return result;
 
-    if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
+    if (base == "IP") result = { text: "IP", backgroundColor: "9077e3" }
 
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
