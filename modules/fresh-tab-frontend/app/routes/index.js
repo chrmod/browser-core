@@ -2,8 +2,19 @@ import Ember from "ember";
 import News from "../models/news";
 import SpeedDials from "../models/speed-dials";
 
+var focusTotalTime = 0,
+    displayTotalTime = 0,
+    start = 0,
+    focusStart,
+    blurStart = 0,
+    focusTime = 0;
+
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
+
+  hidden: undefined,
+
+  visibilityChange: undefined,
 
   model() {
     return this.get('cliqz').getSpeedDials().then( speedDials => {
@@ -19,7 +30,8 @@ export default Ember.Route.extend({
     this.get('cliqz').getNews().then( news => {
       model.set('news.model', news);
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,
-          customSites = model.getWithDefault("speedDials.custom.length", 0);
+          customSites = model.getWithDefault("speedDials.custom.length", 0),
+          self = this;
 
       this.get('cliqz').sendTelemetry({
         type: 'home',
@@ -30,6 +42,42 @@ export default Ember.Route.extend({
         topnews_version: model.get("news.version"),
         yournews: model.getWithDefault("news.yourNews.length", 0),
       });
+      start = new Date().getTime();
+      focusStart = start;
+      console.log(start, 'Start');
+      console.log(focusTotalTime, 'Focus total time');
+
+      window.addEventListener("beforeunload", function() {
+        console.log("hide tab")
+        displayTotalTime = new Date().getTime() - start;
+        focusTotalTime += new Date().getTime() - focusStart;
+        this.get('cliqz').sendTelemetry({
+          type: 'home',
+          action: 'hide',
+          display_time: displayTotalTime,
+          focus_time: focusTotalTime
+        });
+      }.bind(this), false);
+
+      window.addEventListener('blur', function() {
+        blurStart = new Date().getTime();
+        focusTotalTime += blurStart - focusStart;
+        focusTime = blurStart - focusStart;
+        this.get('cliqz').sendTelemetry({
+          type: 'home',
+          action: 'blur',
+          focus_time: focusTime
+        });
+      }.bind(this));
+
+      window.addEventListener('focus', function() {
+        focusStart = new Date().getTime();
+        this.get('cliqz').sendTelemetry({
+          type: 'home',
+          action: 'focus',
+          display_time: focusStart - start
+        });
+      }.bind(this));
     });
   }
 });
