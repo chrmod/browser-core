@@ -1446,6 +1446,12 @@ var CliqzAttrack = {
                 CliqzAttrack.obsCounter[x] = counter;
             });
     },
+    generateAttrackPayload: function(data, ts) {
+        const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();
+        extraAttrs.ver = CliqzAttrack.VERSION;
+        ts = ts || datetime.getHourTimestamp();
+        return generatePayload(data, ts, false, extraAttrs);
+    },
     sendTokens: function() {
         // send tokens every 5 minutes
         let data = {},
@@ -1474,12 +1480,9 @@ var CliqzAttrack = {
 
         if (Object.keys(data).length > 0) {
             const compress = compressionAvailable();
-            const ts = datetime.getHourTimestamp();
-            const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();
-            extraAttrs.ver = CliqzAttrack.VERSION;
 
             splitTelemetryData(data, 20000).map((d) => {
-                const payl = generatePayload(d, ts, false, extraAttrs);
+                const payl = CliqzAttrack.generateAttrackPayload(d);
                 const msg = {
                     'type': CliqzHumanWeb.msgType,
                     'action': 'attrack.tokens',
