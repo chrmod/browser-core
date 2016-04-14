@@ -7,7 +7,15 @@ export default Ember.Route.extend({
   beforeModel() {
     return this.get('cliqz').getConfig().then( config => {
       this.set('config', config);
-      this.set('i18n.locale', config.locale);
+      var locale = config.locale,
+          defaultLocale = this.get('i18n.locale');
+
+      const isLocaleAvailable = this.get('i18n.locales').some(function(elem) {
+        //locale is in en-US form
+        //i18n.locale is in en form
+        return locale.split('-').indexOf(elem) > -1
+      });
+      isLocaleAvailable ? this.set('i18n.locale', locale) : this.set('i18n.locale', defaultLocale);
     });
   },
 
