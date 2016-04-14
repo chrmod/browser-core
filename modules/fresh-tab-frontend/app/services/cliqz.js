@@ -65,6 +65,20 @@ export default Ember.Service.extend({
     }), '*');
   },
 
+  getTabIndex() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getTabIndex = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'getTabIndex'
+    }), '*');
+
+    return DS.PromiseObject.create({ promise });
+  },
+
   sendTelemetry(msg) {
     this.callbacks.sendTelemetry = () => {};
     window.postMessage(JSON.stringify({

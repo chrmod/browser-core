@@ -12,10 +12,6 @@ var focusTotalTime = 0,
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
 
-  hidden: undefined,
-
-  visibilityChange: undefined,
-
   model() {
     return this.get('cliqz').getSpeedDials().then( speedDials => {
       return Ember.Object.create({
@@ -33,50 +29,55 @@ export default Ember.Route.extend({
           customSites = model.getWithDefault("speedDials.custom.length", 0),
           self = this;
 
-      this.get('cliqz').sendTelemetry({
-        type: 'home',
-        action: 'display',
-        historysites: historySites,
-        customsites: customSites,
-        topnews: model.getWithDefault("news.topNews.length", 0),
-        topnews_version: model.get("news.version"),
-        yournews: model.getWithDefault("news.yourNews.length", 0),
-      });
-      start = new Date().getTime();
-      focusStart = start;
-      console.log(start, 'Start');
-      console.log(focusTotalTime, 'Focus total time');
 
-      window.addEventListener("beforeunload", function() {
-        console.log("hide tab")
-        displayTotalTime = new Date().getTime() - start;
-        focusTotalTime += new Date().getTime() - focusStart;
+      this.get('cliqz').getTabIndex().then(function(tabIndex){
         this.get('cliqz').sendTelemetry({
           type: 'home',
-          action: 'hide',
-          display_time: displayTotalTime,
-          focus_time: focusTotalTime
+          action: 'display',
+          historysites: historySites,
+          customsites: customSites,
+          topnews: model.getWithDefault("news.topNews.length", 0),
+          topnews_version: model.get("news.version"),
+          yournews: model.getWithDefault("news.yourNews.length", 0),
+          tab_index: tabIndex
         });
-      }.bind(this), false);
 
-      window.addEventListener('blur', function() {
-        blurStart = new Date().getTime();
-        focusTotalTime += blurStart - focusStart;
-        focusTime = blurStart - focusStart;
-        this.get('cliqz').sendTelemetry({
-          type: 'home',
-          action: 'blur',
-          focus_time: focusTime
-        });
-      }.bind(this));
+        start = new Date().getTime();
+        focusStart = start;
 
-      window.addEventListener('focus', function() {
-        focusStart = new Date().getTime();
-        this.get('cliqz').sendTelemetry({
-          type: 'home',
-          action: 'focus',
-          display_time: focusStart - start
-        });
+        window.addEventListener("beforeunload", function() {
+          displayTotalTime = new Date().getTime() - start;
+          focusTotalTime += new Date().getTime() - focusStart;
+          this.get('cliqz').sendTelemetry({
+            type: 'home',
+            action: 'hide',
+            display_time: displayTotalTime,
+            focus_time: focusTotalTime,
+            home_id: tabIndex
+          });
+        }.bind(this), false);
+
+        window.addEventListener('blur', function() {
+          blurStart = new Date().getTime();
+          focusTotalTime += blurStart - focusStart;
+          focusTime = blurStart - focusStart;
+          this.get('cliqz').sendTelemetry({
+            type: 'home',
+            action: 'blur',
+            focus_time: focusTime,
+            home_id: tabIndex
+          });
+        }.bind(this));
+
+        window.addEventListener('focus', function() {
+          focusStart = new Date().getTime();
+          this.get('cliqz').sendTelemetry({
+            type: 'home',
+            action: 'focus',
+            home_id: tabIndex
+          });
+        }.bind(this));
+
       }.bind(this));
     });
   }

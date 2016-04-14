@@ -249,6 +249,11 @@ export default {
     revertBack() {
       FreshTab.toggleState();
       utils.getWindow().CLIQZ.Core.refreshButtons();
-    }
+    },
+
+    getTabIndex() {
+      return Promise.resolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
+    },
+
   }
 };
