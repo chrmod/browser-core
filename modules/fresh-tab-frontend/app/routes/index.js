@@ -7,7 +7,8 @@ var focusTotalTime = 0,
     start = 0,
     focusStart,
     blurStart = 0,
-    focusTime = 0;
+    focusTime = 0,
+    blurCount = 0;
 
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
@@ -53,6 +54,7 @@ export default Ember.Route.extend({
             action: 'hide',
             display_time: displayTotalTime,
             focus_time: focusTotalTime,
+            blur_count: blurCount,
             home_id: tabIndex
           });
         }.bind(this), false);
@@ -61,6 +63,7 @@ export default Ember.Route.extend({
           blurStart = new Date().getTime();
           focusTotalTime += blurStart - focusStart;
           focusTime = blurStart - focusStart;
+          blurCount++;
           this.get('cliqz').sendTelemetry({
             type: 'home',
             action: 'blur',
