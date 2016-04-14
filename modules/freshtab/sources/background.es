@@ -210,7 +210,7 @@ export default {
           version: news.top_news_version,
           news: topNews.concat(hbNewsAll).map( r => ({
             title: r.title,
-            displayUrl: utils.getDetailsFromUrl(r.url).domain || r.title,
+            displayUrl: utils.getDetailsFromUrl(r.url).cleanHost || r.title,
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,
             underline: underline,
