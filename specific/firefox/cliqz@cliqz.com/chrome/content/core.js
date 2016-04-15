@@ -346,7 +346,10 @@ window.CLIQZ.Core = {
                 defaultSearchEngine: defaultSearchEngine,
                 isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser(),
                 private_window: CliqzUtils.isPrivate(window),
-                distribution: CliqzUtils.getPref('distribution', '')
+                distribution: CliqzUtils.getPref('distribution', ''),
+                version_host: CliqzUtils.getPref('gecko.mstone', '', ''),
+                version_dist: CliqzUtils.getPref('distribution.version', '', '')
+
             };
 
             CliqzUtils.telemetry(info);
