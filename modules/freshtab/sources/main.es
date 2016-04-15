@@ -66,7 +66,6 @@ var FreshTab = {
         // disable the AB test if the user doesnt have FF41 or above
         if(!FF41_OR_ABOVE){
           CliqzABTests.disable("1056_B");
-          CliqzABTests.disable("1062_B");
           CliqzABTests.disable("1065_B");
           disable = true;
         }
