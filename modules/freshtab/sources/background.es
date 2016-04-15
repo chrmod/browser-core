@@ -182,7 +182,6 @@ export default {
     },
 
     getNews() {
-      let underline = utils.getPref('freshTabNewsUnderline');
 
       return News.getNews().then(function(news) {
         News.init();
@@ -213,7 +212,6 @@ export default {
             displayUrl: utils.getDetailsFromUrl(r.url).cleanHost || r.title,
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,
-            underline: underline,
             personalized: r.personalized,
           }))
         };
