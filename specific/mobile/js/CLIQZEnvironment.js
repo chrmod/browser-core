@@ -204,7 +204,7 @@ CLIQZEnvironment = {
   },
   search: function(e, location_enabled, latitude, longitude) {
     if(!e || e === '') {
-      resultsBox.style.display = 'none';
+      CLIQZ.UI.hideResultsBox();
       window.document.getElementById('startingpoint').style.display = 'block';
       CLIQZEnvironment.initHomepage(true);
       CLIQZEnvironment.stopProgressBar();

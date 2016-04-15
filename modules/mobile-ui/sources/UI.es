@@ -161,6 +161,8 @@ var UI = {
             CLIQZEnvironment.currentPage = page;
           }
         });
+    }, hideResultsBox: function() {
+          resultsBox.style.display = 'none';
     }
 };
 
