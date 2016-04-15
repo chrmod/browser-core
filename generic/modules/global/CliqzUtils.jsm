@@ -487,6 +487,11 @@ var CliqzUtils = {
     //remove trailing slash from the end
     friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
 
+    //Handle case where we have only tld for example http://cliqznas
+    if(cleanHost === tld) {
+      name = tld;
+    }
+
     var urlDetails = {
               scheme: scheme,
               name: name,
