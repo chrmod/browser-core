@@ -268,7 +268,7 @@ var CliqzCalculator = {
     // filter out:
     // + too short query (avoid answering e, pi)
     // + automatically convert queries like '10cm
-    var tmp = q.replace(/ /g, '');  // remove all space
+    var tmp = this.clean(q)
     if (tmp.length <= 2 || tmp.length > 150) {
       return false;
     }
