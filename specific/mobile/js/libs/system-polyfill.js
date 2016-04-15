@@ -196,7 +196,7 @@
 
 var headEl = document.getElementsByTagName('head')[0],
     ie = /MSIE/.test(navigator.userAgent),
-    assetMap;
+    assetMap = {};
 
 /*
   normalizeName() is inspired by Ember's loader:
