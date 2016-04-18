@@ -17,6 +17,9 @@ var ConfigReplace = require('broccoli-config-replace');
 // build environment
 var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 
+// source maps
+var sourceMaps = process.env.CLIQZ_SOURCE_MAPS == 'false' ? false : true;
+
 // input trees
 var bowerComponents = new Funnel('bower_components');
 var nodeModules    = new Funnel('node_modules');
@@ -50,7 +53,7 @@ var platformTests = new Funnel('platforms/'+cliqzConfig.platform, {
   include: ['tests/**/*']
 });
 platform = Babel(platform, {
-  sourceMaps: 'inline',
+  sourceMaps: sourceMaps ? 'inline' : false,
   filterExtensions: ['es'],
   modules: 'system',
   moduleRoot: 'platform'
@@ -62,12 +65,12 @@ var mobileCss = compileSass(
   ['specific/mobile/skin/sass'],
   'style.sass',
   'style.css',
-  { sourceMap: true }
+  { sourceMap: sourceMaps }
 );
 
 
 var babelOptions = {
-  sourceMaps: 'inline',
+  sourceMaps: sourceMaps ? 'inline' : false,
   filterExtensions: ['es'],
   modules: 'system',
   moduleIds: true,
@@ -103,6 +106,7 @@ cliqzConfig.modules.slice(0).forEach(function (name) {
 // cliqz.json should be saved after not transpiled modules are removed from configration
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
 console.log('Configuration file:', configFilePath);
+console.log('Source maps:', sourceMaps);
 console.log(cliqzConfig);
 // cliqz.json is finalized
 
@@ -174,7 +178,7 @@ transpilableModuleNames.forEach( name => {
         [modulePath+'/sources/styles'],
         file,
         file.replace(/\.(sass|scss)+$/, '.css'),
-        { sourceMap: true }
+        { sourceMap: sourceMaps }
       );
 
       sassTrees.push(new Funnel(compiledCss, { destDir: `${name}/styles` }));
@@ -210,7 +214,7 @@ var globalConcated = concat(global, {
     '*.jsm',
   ],
   footer: "\n",
-  sourceMapConfig: { enabled: true },
+  sourceMapConfig: { enabled: sourceMaps },
   process: function (src,filepath) {
     var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
     return "// start module " + modulename + "\n"
@@ -228,7 +232,7 @@ var localConcated = concat(local, {
   inputFiles: [
     "ContextMenu.js",
   ],
-  sourceMapConfig: { enabled: true },
+  sourceMapConfig: { enabled: sourceMaps },
 });
 
 var libsConcated = concat(libs, {
@@ -308,7 +312,7 @@ var testsTree = concat(platformTests, {
     "**/*.js"
   ],
   allowNone: true,
-  sourceMapConfig: { enabled: true },
+  sourceMapConfig: { enabled: sourceMaps },
 });
 
 if (buildEnv === 'production' ) {

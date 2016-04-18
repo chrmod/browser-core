@@ -200,9 +200,6 @@
     "weatherCurrent":{
         "message":"current"
     },
-    "weatherCredits":{
-        "message":"provided courtesy of <br /> openweathermap.org"
-    },
     "ago1Minute":{
         "message":"one minute ago"
     },
@@ -514,9 +511,6 @@
     },
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
-    },
-    "statsText": {
-        "message": "You've initiated <b>$1 searches</b> in the past <b>7 days</b>.<br/><br/><b>cliqz</b> answered <b>$2</b> of these successfully.<br/><br/><b>cliqz pre-selects an average of $3 results</b> - that's versus the $4 you'd receive with a typical search engine.<br/><br/>We've <b>spared you from viewing $5 ads</b> (on average, search results contain 7 'sponsored' links). <br/><br/>Best of all, since you'd spend an average of 3.5 seconds (per search) reading a results page, we've <b>saved you $6 full minutes of your precious time!</b>"
     },
     "statsShareMsg": {
         "message": "@cliqz saved me $1 minutes over the last 7 days"

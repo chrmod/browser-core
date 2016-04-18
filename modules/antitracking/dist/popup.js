@@ -5,6 +5,12 @@ var attPopUp = document.querySelector(".cqz-antitracking-popup"),
     trackersListElement = document.querySelector(".cqz-trackers-blocked"),
     hostname;
 
+var trackersListTemplate = Handlebars.compile(document.querySelector("#trackersListTemplate").innerHTML);
+
+Handlebars.registerHelper('nameCleaner', function(name) {
+  return name.replace(/ /g,"-");
+});
+
 function setBodyClass(options) {
   if (options.enabled) {
     document.body.classList.add("cqz-attrack-enabled");
@@ -56,7 +62,7 @@ function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
     var elArgs = el.dataset.i18n.split(","),
         key = elArgs.shift();
-    el.innerHTML = chrome.i18n.getMessage(key, elArgs);
+    el.textContent = chrome.i18n.getMessage(key, elArgs);
   });
 }
 
@@ -95,23 +101,14 @@ function populateDOM() {
       });
 
       // create html company list
-      trackersListElement.innerHTML = companies.map( function(c) {
-        return "" +
-          "<li>" +
-              "<span class='cqz-title-holder'> "  +
-                "<a href='https://cliqz.com/whycliqz/anti-tracking/tracker#"+ c.name.replace(/ /g,"-") + "' class='cqz-trackers-info' target='_blank'> i </a>" +
-                "<span class='cqz-title'> "  + c.name  + "</span>" +
-              "</span>" +
-              "<span  class='cqz-number'><i>"  + c.count + "</i></span>" +
-          "</li>";
-      }).join("");
+      trackersListElement.innerHTML = trackersListTemplate(companies);
 
       expandPopUp('big');
     } else {
       expandPopUp('small');
     }
 
-    document.querySelector(".cqz-count").innerHTML = general_trackers_count;
+    document.querySelector(".cqz-count").textContent = general_trackers_count;
 
     //general_msg_trnsl.dataset.i18n = [
     //  general_msg_trnsl.dataset.i18n,
@@ -123,7 +120,7 @@ function populateDOM() {
     var whiteListOn = document.querySelector(".cqz-whitelisted-msg");
     var domainName = document.querySelector(".cqz-domain-name");
 
-    domainName.innerHTML = data.url;
+    domainName.textContent = data.url;
     if (data.url.length > 24) {
       domainName.classList.add('cqz-size-small')
     }
