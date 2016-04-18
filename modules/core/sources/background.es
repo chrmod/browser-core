@@ -1,6 +1,6 @@
 import { utils } from "core/cliqz";
 import config from "core/config";
-import ProcessScriptManager from "core/process-script-manager";
+import ProcessScriptManager from "platform/process-script-manager";
 
 var lastRequestId = 0;
 var callbacks = {};
