@@ -20,7 +20,7 @@ module.exports = function(environment) {
   };
 
   ENV.i18n = {
-    defaultLocale: 'de'
+    defaultLocale: 'en'
   };
 
   if (environment === 'development') {
