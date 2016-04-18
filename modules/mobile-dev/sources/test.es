@@ -1,19 +1,4 @@
 /* UGLY TEST SYSTEM */
-/* UGLY TEST SYSTEM */
-
-function slowType(query) {
-  var urlbarvalue = "";
-  for(var i in query) {
-    (function(q,i) {
-      setTimeout(function(){
-        urlbarvalue = urlbarvalue + q;
-        if(query.length == parseInt(i)+1) {
-          CLIQZEnvironment.search(urlbarvalue, CLIQZEnvironment.location_enabled, 48.1517832, 11.6200855);
-        }
-      },i*15);
-    })(query[i],i)
-  }
-}
 
 var iterator = 0;
 var startEl, backEl, nextEl;
@@ -31,8 +16,7 @@ function initTest() {
   startEl.innerHTML = "PLAY";
 
   startEl.addEventListener( 'click', function() {
-        //nextTest();
-        if(Test.running) {
+        if(running) {
           stopAutoTest();
         } else {
           startAutoTest();
@@ -80,7 +64,7 @@ function nextTest() {
   if(typeof testArray[iterator] == "undefined") {
     iterator = 0;
   }
-  slowType(testArray[iterator]);
+  CLIQZEnvironment.search(testArray[iterator], true, 48.1517832, 11.6200855);
 }
 
 function lastTest() {
@@ -88,7 +72,7 @@ function lastTest() {
   if(typeof testArray[iterator] == "undefined") {
     iterator = testArray.length-1;
   }
-  slowType(testArray[iterator]);
+  CLIQZEnvironment.search(testArray[iterator], true, 48.1517832, 11.6200855);
   
 }
 
@@ -169,25 +153,33 @@ var testArray = [
 "flug DLH 2475",
 ];
 
-var autoTestInterval;
+var autoTestInterval, running = false;
 function startAutoTest() {
   nextTest();
   //autoTestInterval = setInterval(nextTest,1500);
   startEl.innerHTML = "STOP"
-  Test.running = true;
+  running = true;
 }
 
 function stopAutoTest() {
   autoTestInterval && clearInterval(autoTestInterval);
   startEl.innerHTML = "PLAY"
-  Test.running = false;
+  running = false;
 }
 
-
 var Test = {
-  initTest: initTest,
-  running: false,
-  nextTest: nextTest
+  init: function() {
+    window.addEventListener('imgLoadingDone', _ => running && setTimeout(nextTest,1000));
+    var testSearch = CLIQZEnvironment.search;
+    CLIQZEnvironment.search = function(q, ...rest) {
+      if(q === 'testme') {
+        initTest();
+      } else {
+        rest.unshift(q);
+        testSearch.apply(this, rest)
+      }
+    }
+  }
 }
 
 export default Test;

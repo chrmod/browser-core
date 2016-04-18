@@ -23,8 +23,8 @@ var resultsBox = null,
 
     PEEK = 20,
     PADDING = 16,
-    currentResultsCount = 0
-    ;
+    currentResultsCount = 0,
+    FRAME = 'frame';
 
 var UI = {
     CARD_WIDTH: 0,
@@ -35,6 +35,7 @@ var UI = {
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
         resultsBox = document.getElementById('cliqz-results', box);
+        resultsBox.addEventListener('click', resultClick);
     },
     setDimensions: function() {
       UI.CARD_WIDTH = window.innerWidth - PADDING - 2 * PEEK;
@@ -102,8 +103,6 @@ var UI = {
 
       currentResultsCount = lastResultOffset / CLIQZ.UI.CARD_WIDTH + showGooglethis + 1;
 
-      if(Test.running) setTimeout(Test.nextTest,2000);
-
       if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
         CLIQZEnvironment.vp.destroy();
       }
@@ -162,6 +161,8 @@ var UI = {
             CLIQZEnvironment.currentPage = page;
           }
         });
+    }, hideResultsBox: function() {
+          resultsBox.style.display = 'none';
     }
 };
 
@@ -387,11 +388,66 @@ function setCardsHeight() {
   }
 }
 
+function getResultKind(el){
+    return getResultOrChildAttr(el, 'kind').split(';');
+}
+
+// bubbles up maximum to the result container
+function getResultOrChildAttr(el, attr){
+  if(el == null) return '';
+  if(el.className == FRAME) return el.getAttribute(attr) || '';
+  return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
+}
+
+function resultClick(ev) {
+    var el = ev.target, url,
+        extra,
+        action;
+
+    while (el) {
+        extra = extra || el.getAttribute("extra");
+        url = el.getAttribute('url');
+        action = el.getAttribute('cliqz-action');
+
+        if (url && url != "#") {
+
+            var card = document.getElementsByClassName('card')[CLIQZEnvironment.currentPage];
+            var cardPosition = card.getBoundingClientRect();
+            var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
+
+            var signal = {
+                action: "result_click",
+                extra: extra,
+                mouse: coordinate,
+                position_type: getResultKind(el)
+            };
+
+            CliqzUtils.telemetry(signal);
+            CLIQZEnvironment.openLink(window, url);
+            return;
+            
+        } else if (action) {
+            switch (action) {
+                case 'stop-click-event-propagation':
+                    return;
+                case 'copy-calc-answer':
+                    CLIQZEnvironment.copyResult(document.getElementById('calc-answer').innerHTML);
+                    document.getElementById('calc-copied-msg').style.display = "";
+                    document.getElementById('calc-copy-msg').style.display = "none";
+                    break;
+            }
+        }
+
+        if (el.className == FRAME) break; // do not go higher than a result
+        el = el.parentElement;
+    }
+}
+
 window.addEventListener('resize', function () {
   setTimeout(function () {
     UI.setDimensions();
     var w = window.innerWidth;
-    var frames = document.getElementsByClassName("frame");
+    var frames = document.getElementsByClassName(FRAME);
     var i;
     for(i=0;i<frames.length;i++) {
       frames[i].style.left = (UI.CARD_WIDTH*i) +"px";
@@ -425,7 +481,7 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    var module = CLIQZ.System.get("mobile-ui/views/"+templateName);
+    var module = System.get("mobile-ui/views/"+templateName);
     if (module) {
       UI.VIEWS[templateName] = new module.default(window);
 
