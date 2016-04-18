@@ -1,6 +1,6 @@
 var MockOS = {
   postMessage: function(message) {
-    console.log("--MOCK: message Received", message);
+    CliqzUtils.log(message, 'Mock');
     var dataBack;
     switch (message.action) {
       case "searchHistory":
@@ -84,20 +84,18 @@ var mockedHistory =
   }];
 
 function searchHistory(q) {
-  console.log("--MOCK: action searchHistory is called with data", q);
   return {results:mockedHistory, query:q};
 
 };
 function isReady() {
-  console.log("--MOCK: action isReady is called");
   setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
   CLIQZEnvironment.setClientPreferences({
-    incognito: false
+    incognito: false,
+    showConsoleLogs: true
   });
   return -1;
 };
 function openLink(url) {
-  console.log("--MOCK: action openLink is called with data", url);
   var id = parseInt(6 + 100 * Math.random());
   mockedHistory.unshift({
           "id": id,
@@ -109,26 +107,14 @@ function openLink(url) {
       })
 };
 function getTopSites(limit) {
-  console.log("--MOCK: action getTopSites is called");
   return mockedHistory;
 };
-function browserAction(data) {
-  console.log("--MOCK: action browserAction is called with data", data);
-};
-function autocomplete(data) {
-  console.log("--MOCK: action autocomplete is called with data", data);
-};
-function notifyQuery(data) {
-  console.log("--MOCK: action notifyQuery is called with data", data);
-};
-function pushTelemetry(data) {
-  console.log("--MOCK: action pushTelemetry is called with data", data);
-};
-function copyResult(data) {
-  console.log("--MOCK: action copyResult is called with data", data);
-};
+function browserAction(data) {};
+function autocomplete(data) {};
+function notifyQuery(data) {};
+function pushTelemetry(data) {};
+function copyResult(data) {};
 function removeHistory(data) {
-  console.log("--MOCK: action removeHistory is called with data", data);
   if(data.length == 0 || mockedHistory.length === 0) {
     return;
   }
@@ -139,7 +125,6 @@ function removeHistory(data) {
   });
 };
 function setHistoryFavorite(data) {
-  console.log("--MOCK: action setHistoryFavorite is called with data", data);
 
   var index = 0;
   mockedHistory.forEach(function(record) {
@@ -152,7 +137,6 @@ function setHistoryFavorite(data) {
   });
 };
 function shareCard(data) {
-  console.log("--MOCK: action shareCard is called with data", data);
 }
 
 export default MockOS;

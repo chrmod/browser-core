@@ -282,7 +282,7 @@ function loadAssetMap(){
         } else if (req.status === 404) {
           // no asset rewrite during development, thus not asset map
           assetMap = {};
-          console.log('failed loading assetMap: 404');
+          CliqzUtils.log('failed loading assetMap: 404', 'system-polyfill');
         }
         resolve();
     }
@@ -291,7 +291,7 @@ function loadAssetMap(){
     } catch (e) {
       assetMap = {};
       resolve();
-      console.log('failed loading assetMap ' + e);
+      CliqzUtils.log('failed loading assetMap ' + e, 'system-polyfill');
     }
   });
 }
