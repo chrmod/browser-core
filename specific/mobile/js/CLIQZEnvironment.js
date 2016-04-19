@@ -1,3 +1,35 @@
+//TEMP
+CliqzLanguage = {
+  stateToQueryString: function(){ return '&lang=de,en'; }
+}
+XPCOMUtils = {
+  defineLazyModuleGetter: function(){},
+  generateQI: function(){},
+}
+
+Services = {
+  scriptloader: {
+    loadSubScript: function(){}
+  }
+}
+
+Components = {
+  interfaces: {
+    nsIAutoCompleteResult: {}
+  },
+  utils: {
+    import: function(){}
+  },
+  ID: function(){}
+}
+
+//TODO: get rid of me!
+var lastSucceededUrl;
+var latestUrl;
+////
+
+// END TEMP
+
 CLIQZEnvironment = {
   BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'modules/mobile-ui/templates/',
