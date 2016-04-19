@@ -63,7 +63,7 @@ var Mixer = {
       CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
         CliqzSmartCliqzCache = module.default.smartCliqzCache;
       }).catch(function(error) {
-        CliqzUtils.log('Failed loading SmartCliqzCache');
+        CliqzUtils.log('Failed loading SmartCliqzCache', "Mixer");
       });
     }, 0);
   },
