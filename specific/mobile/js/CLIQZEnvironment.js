@@ -92,7 +92,7 @@ CLIQZEnvironment = {
   //TODO: check if calling the bridge for each telemetry point is expensive or not
   telemetry: function(msg) {
     msg.ts = Date.now();
-    osBridge.pushTelemetry(msg);
+    osAPI.pushTelemetry(msg);
   },
   isUnknownTemplate: function(template){
      // in case an unknown template is required
@@ -154,13 +154,13 @@ CLIQZEnvironment = {
       var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) === 0 ) {
-        // CLIQZEnvironment.log('jsBridge autocomplete value:'+val,'osBridge1');
-        osBridge.autocomplete(val);
+        // CLIQZEnvironment.log('jsBridge autocomplete value:'+val,'osAPI1');
+        osAPI.autocomplete(val);
       } else {
         var ls = JSON.parse(localStorage.recentQueries || '[]');
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
-            osBridge.autocomplete(ls[i].query.toLowerCase());
+            osAPI.autocomplete(ls[i].query.toLowerCase());
             break;
           }
         }
@@ -429,7 +429,7 @@ CLIQZEnvironment = {
       if( url.indexOf('http') === -1 ) {
         url = 'http://' + url;
       }
-      osBridge.openLink(url);
+      osAPI.openLink(url);
     }
 
     return false;
@@ -458,13 +458,13 @@ CLIQZEnvironment = {
   },
   historySearch: function(q, callback){
     this.searchHistoryCallback = callback;
-    window.osBridge.searchHistory(q, 'CLIQZEnvironment.displayHistory');
+    window.osAPI.searchHistory(q, 'CLIQZEnvironment.displayHistory');
   },
   //TODO: remove this dependency
   getSearchEngines: function(){
     return []
   },
-  //TODO: move this out
+  //TODO: move this out to CLIQZ utils
   distance: function(lon1, lat1, lon2, lat2) {
     /** Converts numeric degrees to radians */
     function degreesToRad(degree){
@@ -490,7 +490,7 @@ CLIQZEnvironment = {
     return '';
   },
   copyResult: function(val) {
-    osBridge.copyResult(val);
+    osAPI.copyResult(val);
   },
   addEventListenerToElements: function (elementSelector, eventType, listener) {
     Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
@@ -503,22 +503,7 @@ CLIQZEnvironment = {
       var start = document.getElementById('resetState');
       start && (start.style.display = 'none');
     }
-    osBridge.getTopSites('News.displayTopSites', 20);
-  },
-
-  setDefaultSearchEngine: function(engine) {
-    localStorage.setObject('defaultSearchEngine', engine);
-    var engineDiv = document.getElementById('defaultEngine');
-    if(engineDiv && CliqzAutocomplete.lastSearch) {
-      engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
-      var moreResults = document.getElementById('moreResults');
-      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
-      var noResults = document.getElementById('noResults');
-      noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
-    }
-  },
-  getDefaultSearchEngine: function() {
-    return localStorage.getObject('defaultSearchEngine') || {name:'Google', url: 'http://www.google.com/search?q='};
+    osAPI.getTopSites('News.displayTopSites', 20);
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();

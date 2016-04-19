@@ -7,7 +7,7 @@
   <div class="main" style="margin-bottom: 20px;">
     <ul>
         {{#each this}}
-            <li class="item" onclick="osBridge.openLink('{{url}}')">
+            <li class="item" onclick="osAPI.openLink('{{url}}')">
                 <div class="meta__logo transition"
                  style="{{style}}"
                  show-status=""

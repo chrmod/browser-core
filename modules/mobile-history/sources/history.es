@@ -126,7 +126,7 @@ function displayData(data) {
   });
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchend', function () {
     var type = this.getAttribute('class');
-    var clickAction = type.indexOf('question') >= 0 ? osBridge.notifyQuery : osBridge.openLink;
+    var clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
     if(touchTimer) {
       clearTimeout(touchTimer);
       touchTimer = null;
@@ -219,7 +219,7 @@ var selectedHistory = [];
 function favoriteSelected() {
   setQueryFavorite();
   if(selectedHistory.length > 0) {
-    osBridge.setHistoryFavorite(selectedHistory, !unfavoriteMode)
+    osAPI.setHistoryFavorite(selectedHistory, !unfavoriteMode)
   }
   endEditMode();
   getHistory(showOnlyFavorite);
@@ -257,7 +257,7 @@ function removeSelected() {
     removeQueries();
   }
   if(selectedHistory.length > 0) {
-    osBridge.removeHistory(selectedHistory);
+    osAPI.removeHistory(selectedHistory);
   }
   endEditMode();
   getHistory(showOnlyFavorite);
@@ -327,7 +327,7 @@ function getSelectedFavorite(list, selectedList) {
 function getHistory(onlyFavorites) {
   showOnlyFavorite = onlyFavorites;
   historyTimer = setTimeout(showHistory, 200, {results: []});
-  osBridge.searchHistory("", "History.showHistory");
+  osAPI.searchHistory("", "History.showHistory");
 }
 
 var touchTimer, isTapBlocked, historyTimer;

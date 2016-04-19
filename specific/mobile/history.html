@@ -6,24 +6,25 @@
 
        <script src="bower_components/handlebars/handlebars.js"></script>
        <script src="js/libs/system-polyfill.js"></script>
-       <script src="js/osBridge.js"></script>
+       <script src="js/osAPI.js"></script>
+       <script src="js/jsAPI.js"></script>
        <script src="js/libs.js"></script>
        <script src="js/storage.js"></script>
        <script src="js/CLIQZEnvironment.js"></script>
        <script src="js/global.js"></script>
        <script>
-       
+
         CliqzUtils.init(window);
         CliqzUtils.initPlatform(System);
         System.import("core/startup").then(function (startupModule) {
           return startupModule.default(window, [
             "core",
-            "mobile-dev",
+            "mobile-dev", //only available in mobile-dev config
             "mobile-history",
             "static"
           ]);
         }).then(function () {
-          osBridge.init();
+          osAPI.init();
           History.init();
         });
 

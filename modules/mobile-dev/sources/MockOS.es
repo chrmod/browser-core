@@ -88,8 +88,8 @@ function searchHistory(q) {
 
 };
 function isReady() {
-  CLIQZEnvironment.setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
-  CLIQZEnvironment.setClientPreferences({
+  jsAPI.setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
+  jsAPI.setClientPreferences({
     incognito: false,
     showConsoleLogs: true
   });

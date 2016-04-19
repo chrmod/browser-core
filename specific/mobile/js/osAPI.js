@@ -1,19 +1,19 @@
 'use strict';
 
-var osBridge = {
+var osAPI = {
   OS: {},
   init: function() {
     if(window.webkit) {
-      osBridge.OS.postMessage = window.webkit.messageHandlers.jsBridge.postMessage.bind(window.webkit.messageHandlers.jsBridge);
+      osAPI.OS.postMessage = window.webkit.messageHandlers.jsBridge.postMessage.bind(window.webkit.messageHandlers.jsBridge);
     } else if(window.jsBridge) {
         var nativePostMessage = jsBridge.postMessage.bind(jsBridge);
-        osBridge.OS.postMessage = function(message) {
+        osAPI.OS.postMessage = function(message) {
           nativePostMessage(JSON.stringify(message));
         }
     } else {
-      osBridge.OS.postMessage = MockOS.postMessage;
+      osAPI.OS.postMessage = MockOS.postMessage;
     }
-    osBridge.isReady();
+    osAPI.isReady();
   },
   /**
     function: searchHistory
@@ -28,7 +28,7 @@ var osBridge = {
       data: query,
       callback: callback
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: isReady
@@ -38,7 +38,7 @@ var osBridge = {
     var message = {
       action: "isReady"
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: openLink
@@ -51,7 +51,7 @@ var osBridge = {
       action: "openLink",
       data: url
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: browserAction
@@ -68,7 +68,7 @@ var osBridge = {
         type: type
       }
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: getTopSites
@@ -83,7 +83,7 @@ var osBridge = {
       data: limit,
       callback: callback
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: autocomplete
@@ -96,7 +96,7 @@ var osBridge = {
       action: "autocomplete",
       data: query
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: notifyQuery
@@ -107,11 +107,11 @@ var osBridge = {
   notifyQuery: function(query, locationEnabled, lat, lon) {
     var message = {
       action: "notifyQuery",
-      data: { 
+      data: {
         "q": query,
       }
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: pushTelemetry
@@ -124,7 +124,7 @@ var osBridge = {
       action: "pushTelemetry",
       data: msg
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: copyResult
@@ -137,7 +137,7 @@ var osBridge = {
       action: "copyResult",
       data: val
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: removeHistory
@@ -150,7 +150,7 @@ var osBridge = {
       action: "removeHistory",
       data: ids
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: setHistoryFavorite
@@ -167,7 +167,7 @@ var osBridge = {
         value: value
       }
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   },
   /**
     function: shareCard
@@ -180,6 +180,6 @@ var osBridge = {
       action: "shareCard",
       data: cardUrl
     }
-    osBridge.OS.postMessage(message);
+    osAPI.OS.postMessage(message);
   }
 };
