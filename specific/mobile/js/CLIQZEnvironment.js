@@ -527,14 +527,20 @@ CLIQZEnvironment = {
     result.data.kind = ["CL"];
     return result;
   },
-  setClientPreferences: function(prefs) {
-    for (var key in prefs) {
-      if (prefs.hasOwnProperty(key)) {
-        CLIQZEnvironment.setPref(key, prefs[key]);
-      }
+  setDefaultSearchEngine: function(engine) {
+    localStorage.setObject('defaultSearchEngine', engine);
+    var engineDiv = document.getElementById('defaultEngine');
+    if(engineDiv && CliqzAutocomplete.lastSearch) {
+      engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
+      var moreResults = document.getElementById('moreResults');
+      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
+      var noResults = document.getElementById('noResults');
+      noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
     }
-  }
-
+  },
+  getDefaultSearchEngine: function() {
+    return localStorage.getObject('defaultSearchEngine') || {name:'Google', url: 'http://www.google.com/search?q='};
+  },
 };
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
