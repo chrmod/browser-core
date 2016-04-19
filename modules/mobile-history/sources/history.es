@@ -239,7 +239,7 @@ function setQueryFavorite() {
     }
   });
 
-  localStorage.setItem('recentQueries', JSON.stringify(allQueries));
+  CliqzStorage.setItem('recentQueries', JSON.stringify(allQueries));
 }
 
 function removeQueries() {
@@ -249,7 +249,7 @@ function removeQueries() {
   queries = queries.filter(function(query) {
     return index >= selectedQueries.length || selectedQueries[index] !== query.id || (index++ && false);
   })
-  localStorage.setItem("recentQueries", JSON.stringify(queries));
+  CliqzStorage.setItem("recentQueries", JSON.stringify(queries));
 }
 
 function removeSelected() {
@@ -336,10 +336,10 @@ var allHistory = [];
 
 function clearQueries(removeFavorites) {
   if(removeFavorites) {
-    localStorage.setItem('recentQueries', '[]');
+    CliqzStorage.setItem('recentQueries', '[]');
   } else {
     var recentQueries = getListFromStorage('recentQueries');
-    localStorage.setItem('recentQueries',
+    CliqzStorage.setItem('recentQueries',
       JSON.stringify(
         recentQueries.filter(function (item) {
           return item.favorite;
@@ -350,7 +350,7 @@ function clearQueries(removeFavorites) {
 }
 
 function getListFromStorage(listName) {
-  var list = localStorage.getItem(listName);
+  var list = CliqzStorage.getItem(listName);
   return list ? JSON.parse(list) : [];
 }
 

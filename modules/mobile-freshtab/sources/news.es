@@ -50,9 +50,9 @@ var News = {
   _recentHistory: {},
   getNews: function(newsDomains) {
     log("loading news");
-    var cachedNews = localStorage.getObject('freshTab-news');
+    var cachedNews = CliqzStorage.getObject('freshTab-news');
     if(cachedNews && cachedNews["top_h_news"]) {
-      localStorage.setObject('freshTab-news',cachedNews.top_h_news);
+      CliqzStorage.setObject('freshTab-news',cachedNews.top_h_news);
       cachedNews = cachedNews.top_h_news;
     }
     if(cachedNews) {

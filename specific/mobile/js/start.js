@@ -1,7 +1,6 @@
 CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 
 CliqzUtils.initPlatform(System);
-CliqzUtils.init(window);
 
 System.import("core/startup").then(function (startupModule) {
   return startupModule.default(window, [
@@ -12,6 +11,7 @@ System.import("core/startup").then(function (startupModule) {
     "static"
   ]);
 }).then(function () {
+  CliqzUtils.init(window);
   osBridge.init();
   CLIQZEnvironment.initHomepage(true);
 });

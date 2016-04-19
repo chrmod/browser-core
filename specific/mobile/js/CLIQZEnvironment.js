@@ -36,7 +36,6 @@ CLIQZEnvironment = {
   LOCALE_PATH: 'modules/static/locale/',
   SYSTEM_BASE_URL: 'modules/',
   RESULTS_LIMIT: 3,
-  RICH_HEADER_CACHE_TIMEOUT: 15000,
   storeQueryTimeout: null,
   TEMPLATES: {
         "Cliqz": true,
@@ -100,52 +99,10 @@ CLIQZEnvironment = {
             CLIQZEnvironment.TEMPLATES.hasOwnProperty(template) == false &&
             CLIQZEnvironment.KNOWN_TEMPLATES.hasOwnProperty(template) == false;
   },
-  callRichHeader: function(searchString, url, callback) {
-    var richHeaderUrl = 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map';
-    richHeaderUrl += '&q=' + searchString;
-    richHeaderUrl += '&bmresult=' + url;
-    if(CLIQZEnvironment.location_enabled) {
-      richHeaderUrl += '&loc=' + CLIQZEnvironment.USER_LAT + ',' + CLIQZEnvironment.USER_LNG + ',U';
-    }
-    var request = new XMLHttpRequest();
-    request.open('GET', encodeURI(richHeaderUrl), true);
-    request.onreadystatechange = function () {
-      if(request.status === 200 && request.readyState === 4) {
-        callback(JSON.parse(request.response));
-      }
-    };
-    request.send();
-  },
   getBrandsDBUrl: function(version){
     //TODO - consider the version !!
     return 'static/brands_database.json'
   },
-  enrichResults: function(r, startIndex, historyCount) {
-    r._results.forEach( function (result, index) {
-      // if(index < startIndex) {
-      if(index > historyCount || index < historyCount + startIndex) { // kicking out enriching cards after the first 1
-        return;
-      }
-      CLIQZEnvironment.callRichHeader(r._searchString, result.val, function(r) {
-        if(r.results && r.results[0] && r.results[0].data) {
-          localStorage.updateRichHeaderData(r.results[0], index);
-          var template = r.results[0].data.superTemplate;
-          if(!CliqzHandlebars.tplCache[template]) {
-            template = r.results[0].data.template;
-          }
-          if( CliqzHandlebars.tplCache[template] ) {
-            CLIQZ.UI.enhanceResults(r);
-
-            if(document.getElementById('cqz-result-box-' + index) && r.results[0] && r.results[0].data.template !== 'noResult') {
-              document.getElementById('cqz-result-box-' + index).innerHTML = CliqzHandlebars.tplCache[template]({data: r.results[0].data});
-            }
-          }
-        }
-      });
-    }
-    );
-  },
-
   autoComplete: function (val,searchString) {
 
     if( val && val.length > 0){
@@ -157,7 +114,7 @@ CLIQZEnvironment = {
         // CLIQZEnvironment.log('jsBridge autocomplete value:'+val,'osBridge1');
         osBridge.autocomplete(val);
       } else {
-        var ls = JSON.parse(localStorage.recentQueries || '[]');
+        var ls = JSON.parse(CliqzStorage.recentQueries || '[]');
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osBridge.autocomplete(ls[i].query.toLowerCase());
@@ -167,7 +124,6 @@ CLIQZEnvironment = {
       }
     }
   },
-
   shiftResults: function() {
     var frames = document.getElementsByClassName('frame');
     for (var i = 0; i < frames.length; i++) {
@@ -185,17 +141,6 @@ CLIQZEnvironment = {
     CLIQZEnvironment.stopProgressBar();
 
     return renderedResults;
-  },
-
-
-  cacheResults: function(req) {
-    var response = JSON.parse(req.response);
-
-    if(response.result && response.result.length > 0) {
-      localStorage.cacheResult(response.q, {response: req.response});
-    } else {
-      CliqzUtils.log('results not cached !!!', 'CLIQZEnvironment');
-    }
   },
   putHistoryFirst: function(r) {
     for(var i = 0; i < r._results.length; i++) {
@@ -216,13 +161,6 @@ CLIQZEnvironment = {
     var historyCount = CLIQZEnvironment.putHistoryFirst(r);
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
-
-    var cacheTS = localStorage.getCacheTS(r._searchString);
-    if(cacheTS && Date.now() - cacheTS > CLIQZEnvironment.RICH_HEADER_CACHE_TIMEOUT) {
-      CLIQZEnvironment.enrichResults(r, 0, historyCount);
-    } else {
-      CLIQZEnvironment.enrichResults(r, 1, historyCount);
-    }
 
     CLIQZEnvironment.setCurrentQuery(r._searchString);
 
@@ -245,7 +183,6 @@ CLIQZEnvironment = {
     }
     e = e.toLowerCase().trim();
 
-    localStorage.clearCache();
     CLIQZEnvironment.lastSearch = e;
     CLIQZEnvironment.location_enabled = location_enabled;
     if(location_enabled) {
@@ -297,7 +234,7 @@ CLIQZEnvironment = {
   },
   getPref: function(pref, notFound){
     var mypref;
-    if(mypref = localStorage.getItem(pref)) {
+    if(mypref = CliqzStorage.getItem(pref)) {
       return mypref;
     } else {
       return notFound;
@@ -305,7 +242,7 @@ CLIQZEnvironment = {
   },
   setPref: function(pref, val){
     //CLIQZEnvironment.log('setPrefs',arguments);
-    localStorage.setItem(pref,val);
+    CliqzStorage.setItem(pref,val);
   },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
@@ -330,11 +267,6 @@ CLIQZEnvironment = {
     function isMixerUrl(url) { return url.indexOf(CliqzUtils.RESULTS_PROVIDER) == 0; }
 
     if(isMixerUrl(url)) {
-      var cache = localStorage.getCachedResult && localStorage.getCachedResult(CLIQZEnvironment.lastSearch);
-      if(cache) {
-        callback(cache, CLIQZEnvironment.lastSearch);
-        return;
-      }
       if(!window.navigator.onLine) {
         if(typeof CustomEvent !== 'undefined') {
           window.dispatchEvent(new CustomEvent('disconnected', { 'detail': 'browser is offline' }));
@@ -362,7 +294,6 @@ CLIQZEnvironment = {
           if(typeof CustomEvent !== 'undefined') {
             window.dispatchEvent(new CustomEvent('connected'));
           }
-          CLIQZEnvironment.cacheResults(req);
           lastSucceededUrl = url;
           CliqzUtils.log('status '+req.status,'onload');
         }
@@ -507,7 +438,7 @@ CLIQZEnvironment = {
   },
 
   setDefaultSearchEngine: function(engine) {
-    localStorage.setObject('defaultSearchEngine', engine);
+    CliqzStorage.setObject('defaultSearchEngine', engine);
     var engineDiv = document.getElementById('defaultEngine');
     if(engineDiv && CliqzAutocomplete.lastSearch) {
       engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
@@ -518,7 +449,7 @@ CLIQZEnvironment = {
     }
   },
   getDefaultSearchEngine: function() {
-    return localStorage.getObject('defaultSearchEngine') || {name:'Google', url: 'http://www.google.com/search?q='};
+    return CliqzStorage.getObject('defaultSearchEngine') || {name:'Google', url: 'http://www.google.com/search?q='};
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
@@ -562,25 +493,25 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
-    localStorage.setItem('recentQueries',JSON.stringify(recentItems));
+    CliqzStorage.setItem('recentQueries',JSON.stringify(recentItems));
   }
   else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
-    localStorage.setItem('recentQueries',JSON.stringify(recentItems));
+    CliqzStorage.setItem('recentQueries',JSON.stringify(recentItems));
   }
   else {
     recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
-    localStorage.setItem('recentQueries',JSON.stringify(recentItems));
+    CliqzStorage.setItem('recentQueries',JSON.stringify(recentItems));
   }
 };
 
 
 CLIQZEnvironment.getRecentQueries = function() {
-  if(localStorage.getItem('recentQueries') == null) {
-    localStorage.setItem('recentQueries','[]');
+  if(CliqzStorage.getItem('recentQueries') == null) {
+    CliqzStorage.setItem('recentQueries','[]');
   }
-  return JSON.parse(localStorage.getItem('recentQueries'));
+  return JSON.parse(CliqzStorage.getItem('recentQueries'));
 };
 

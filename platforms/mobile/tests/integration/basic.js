@@ -116,7 +116,7 @@ describe('Search View', function() {
   });
 
   afterEach(function () {
-  	contentWindow.localStorage.clear();
+  	contentWindow.CliqzStorage.clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
   });
