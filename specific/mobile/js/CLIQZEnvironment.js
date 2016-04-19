@@ -54,8 +54,8 @@ CLIQZEnvironment = {
       'EZ-history',
       'rd-h3-w-rating'
   ],
-  log: function(msg){
-    console.log(msg);
+  log: function(msg, key){
+    console.log(key, msg);
   },
   //TODO: check if calling the bridge for each telemetry point is expensive or not
   telemetry: function(msg) {
@@ -162,7 +162,7 @@ CLIQZEnvironment = {
     if(response.result && response.result.length > 0) {
       localStorage.cacheResult(response.q, {response: req.response});
     } else {
-      console.log('results not cached !!!');
+      CliqzUtils.log('results not cached !!!', 'CLIQZEnvironment');
     }
   },
   putHistoryFirst: function(r) {

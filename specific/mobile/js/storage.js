@@ -27,7 +27,7 @@ Storage.prototype.addToCacheList = function(key) {
     if(list.length >= CACHE_LIMIT) {
       var item = list.shift();
       localStorage.removeItem(item.key);
-      console.log(list);
+      CliqzUtils.log(list, 'storage');
     }
     list.push(ob);
   }
@@ -45,7 +45,7 @@ Storage.prototype.refreshCache = function() {
     return true;
   });
   localStorage.setObject('cache_list', list);
-  console.log("refreshing cache, " + (len - list.length) + " results uncached");
+  CliqzUtils.log("refreshing cache, " + (len - list.length) + " results uncached", 'storage');
 }
 Storage.prototype.clearCache = function() {
   var list = localStorage.getObject('cache_list');
@@ -84,7 +84,7 @@ Storage.prototype.updateRichHeaderData = function(res, index) {
       localStorage.cacheResult(res.q, cache);
     }
   }
-  console.log(cache);
+  CliqzUtils.log(cache, 'storage');
 };
 Storage.prototype.getCacheTS = function(key) {
   key = CACHE_PREFIX + key.trim().toLowerCase();

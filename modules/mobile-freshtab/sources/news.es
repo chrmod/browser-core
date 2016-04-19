@@ -49,7 +49,7 @@ var News = {
 
   _recentHistory: {},
   getNews: function(newsDomains) {
-    console.log("%cloading news","background:blue;color:white");
+    log("loading news");
     var cachedNews = localStorage.getObject('freshTab-news');
     if(cachedNews && cachedNews["top_h_news"]) {
       localStorage.setObject('freshTab-news',cachedNews.top_h_news);
@@ -98,15 +98,15 @@ var News = {
                 }
                 News.collectNews('history',myNews);
             } catch(e) {
-                console.error(e);
+                log(e);
             }
         },
         onerror = function() {
-          console.error("news error",arguments);
+          log("news error",arguments);
           setTimeout(News.getNews,1500);
         },
         timeout = function() {
-          console.error("timeout error",arguments);
+          log("timeout error",arguments);
           News.getNews(newsDomains);
         },
         data = null,
@@ -122,15 +122,15 @@ var News = {
             var sResponse = JSON.parse(data.responseText);
             News.collectNews('standard',sResponse.results[0].articles);
         } catch(e) {
-            console.error(e);
+            log(e);
         }
     },
     onerror = function() {
-      console.error("news error",arguments);
+      log("news error",arguments);
       setTimeout(News.getNews,1500);
     },
     timeout = function() {
-      console.error("timeout error",arguments);
+      log("timeout error",arguments);
       News.getNews();
     },
     data = null,
@@ -161,7 +161,6 @@ var News = {
       return;
     }
 
-    //console.log('%crendering top news', 'color:green', top_news)
     top_news = top_news.map(function(r){
       var details = CliqzUtils.getDetailsFromUrl(r.url);
       var logo = CliqzUtils.getLogoDetails(details);
@@ -284,4 +283,7 @@ var News = {
   }
 }
 
+function log() {
+  CliqzUtils.log(arguments, 'News')
+}
 export default News;

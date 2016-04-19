@@ -492,7 +492,7 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
       }
     }
   } catch (ex) {
-    console.error(ex);
+    CliqzUtils.log(ex, 'UI');
   }
 });
 
