@@ -89,7 +89,7 @@ function searchHistory(q) {
 };
 function isReady() {
   CLIQZEnvironment.setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
-  CLIQZEnvironment.setClientPreferences({
+  jsAPI.setClientPreferences({
     incognito: false,
     showConsoleLogs: true
   });

@@ -6,7 +6,7 @@
 
   <!--<section class="primary">
 
-      
+
         <h1 class="card__title">
            ####TITLE#######
         </h1>
@@ -14,7 +14,7 @@
         <div class="card__meta">
             ####META#######
         </div>
-       
+
 
   </section>-->
   {{#if data.big_rs_size}}
@@ -63,7 +63,7 @@
                             </div>
                           {{/if}}
                           {{#if phonenumber}}
-                            <div class="phone_num" cliqz-action="stop-click-event-propagation" onclick="osBridge.browserAction('{{phonenumber}}','phoneNumber')">
+                            <div class="phone_num" cliqz-action="stop-click-event-propagation" onclick="osAPI.browserAction('{{phonenumber}}','phoneNumber')">
                               <div class="icon" data-style="background-image: url(http://cdn.cliqz.com/extension/EZ/local/phone-1.svg)">
                                 Icon
                               </div>

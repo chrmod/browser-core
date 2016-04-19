@@ -6,7 +6,7 @@ var DEPENDENCY_STATUS = {
   retryCount: {}
 }
 
-var mockedTopSites = 
+var mockedTopSites =
         [{
             "id": 5,
             "title": "Facebook",
@@ -216,7 +216,7 @@ var News = {
       list = mockedTopSites;
     }
 
-    osBridge.searchHistory("","News.getRecentHistory");
+    osAPI.searchHistory("","News.getRecentHistory");
 
     var indexList = {}, myList = [], domain, domainArr, mainDomain, newsDomainList = [];
     for(var i=0; i<list.length; i++) {

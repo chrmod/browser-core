@@ -425,7 +425,7 @@ function resultClick(ev) {
             CliqzUtils.telemetry(signal);
             CLIQZEnvironment.openLink(window, url);
             return;
-            
+
         } else if (action) {
             switch (action) {
                 case 'stop-click-event-propagation':
