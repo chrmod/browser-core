@@ -12,13 +12,19 @@
        <script src="js/CLIQZEnvironment.js"></script>
        <script src="js/global.js"></script>
        <script>
+       
         CliqzUtils.init(window);
         CliqzUtils.initPlatform(System);
-
         System.import("core/startup").then(function (startupModule) {
-          return startupModule.default(window, ["core","mobile-dev","mobile-history","static"]);
+          return startupModule.default(window, [
+            "core",
+            "mobile-dev",
+            "mobile-history",
+            "static"
+          ]);
         }).then(function () {
           osBridge.init();
+          History.init();
         });
 
        </script>

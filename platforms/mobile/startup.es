@@ -1,9 +1,9 @@
 /* global System */
 import config from "core/config";
 
-export default function (window) {
+export default function (window, modules = config.modules) {
 	return Promise.all(
-    config.modules.map( moduleName => {
+    modules.map( moduleName => {
       return new Promise( (resolve, reject) => {
         System.import(moduleName+"/background")
           .then( module => module.default.init(config) )
