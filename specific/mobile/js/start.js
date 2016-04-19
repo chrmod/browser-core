@@ -4,7 +4,13 @@ CliqzUtils.initPlatform(System);
 CliqzUtils.init(window);
 
 System.import("core/startup").then(function (startupModule) {
-  return startupModule.default(window);
+  return startupModule.default(window, [
+    "core",
+    "mobile-ui",
+    "mobile-dev",
+    "mobile-freshtab",
+    "static"
+  ]);
 }).then(function () {
   osBridge.init();
   CLIQZEnvironment.initHomepage(true);

@@ -354,10 +354,6 @@ function getListFromStorage(listName) {
   return list ? JSON.parse(list) : [];
 }
 
-CliqzUtils.initPlatform(System);
-
-CliqzUtils.init(this);
-
 
 History = {
   init: function(){
