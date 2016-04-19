@@ -8,7 +8,9 @@ var focusTotalTime = 0,
     focusStart,
     blurStart = 0,
     focusTime = 0,
-    blurCount = 0;
+    blurCount = 0,
+    unloadingStarted = false,
+    focus = true;
 
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
@@ -24,6 +26,11 @@ export default Ember.Route.extend({
   },
 
   afterModel(model) {
+    // wait iframe to finish loading and set focus to its contents
+    setTimeout(function() {
+      document.getElementById('container').focus();
+    }, 500);
+
     this.get('cliqz').getNews().then( news => {
       model.set('news.model', news);
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,
@@ -47,6 +54,11 @@ export default Ember.Route.extend({
         focusStart = start;
 
         window.addEventListener("beforeunload", function() {
+          if (unloadingStarted) {
+            return;
+          } else {
+            unloadingStarted = true;
+          }
           displayTotalTime = new Date().getTime() - start;
           focusTotalTime += new Date().getTime() - focusStart;
           this.get('cliqz').sendTelemetry({
@@ -60,6 +72,7 @@ export default Ember.Route.extend({
         }.bind(this), false);
 
         window.addEventListener('blur', function() {
+          focus = false;
           blurStart = new Date().getTime();
           focusTotalTime += blurStart - focusStart;
           focusTime = blurStart - focusStart;
@@ -72,7 +85,16 @@ export default Ember.Route.extend({
           });
         }.bind(this));
 
+         this.get('cliqz').sendTelemetry({
+            type: 'home',
+            action: 'focus',
+            home_id: tabIndex
+          });
+
         window.addEventListener('focus', function() {
+          if (focus) {
+            return;
+          }
           focusStart = new Date().getTime();
           this.get('cliqz').sendTelemetry({
             type: 'home',
