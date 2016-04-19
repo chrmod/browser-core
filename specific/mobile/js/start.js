@@ -18,10 +18,6 @@ function search_mobile(e, location_enabled, latitude, longitude) {
   CLIQZEnvironment.search(e, location_enabled, latitude, longitude);
 }
 
-function setDefaultSearchEngine(engine) {
-  CLIQZEnvironment.setDefaultSearchEngine(engine);
-}
-
 function getCardUrl() {
   var NOT_SHAREABLE_SIGNAL = '-1';
   if(CLIQZEnvironment.lastResults && CLIQZEnvironment.lastResults[CLIQZEnvironment.currentPage]) {

@@ -45,7 +45,7 @@ var MockOS = {
   }
 }
 
-var mockedHistory = 
+var mockedHistory =
   [{
       "id": 5,
       "title": "Facebook",
@@ -88,7 +88,7 @@ function searchHistory(q) {
 
 };
 function isReady() {
-  setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
+  CLIQZEnvironment.setDefaultSearchEngine({name: "google", url: "http://www.google.com/search?q="});
   CLIQZEnvironment.setClientPreferences({
     incognito: false,
     showConsoleLogs: true
