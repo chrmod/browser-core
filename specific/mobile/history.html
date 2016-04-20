@@ -9,12 +9,10 @@
        <script src="js/osAPI.js"></script>
        <script src="js/jsAPI.js"></script>
        <script src="js/libs.js"></script>
-       <script src="js/storage.js"></script>
        <script src="js/CLIQZEnvironment.js"></script>
        <script src="js/global.js"></script>
        <script>
 
-        CliqzUtils.init(window);
         CliqzUtils.initPlatform(System);
         System.import("core/startup").then(function (startupModule) {
           return startupModule.default(window, [
@@ -24,6 +22,7 @@
             "static"
           ]);
         }).then(function () {
+          CliqzUtils.init(window);
           osAPI.init();
           History.init();
         });
