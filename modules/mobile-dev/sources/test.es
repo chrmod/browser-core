@@ -169,7 +169,7 @@ function stopAutoTest() {
 
 var Test = {
   init: function() {
-    window.addEventListener('imgLoadingDone', _ => running && setTimeout(nextTest,1000));
+    window.addEventListener('imgLoadingDone', _ => running && setTimeout(nextTest,500));
     var testSearch = CLIQZEnvironment.search;
     CLIQZEnvironment.search = function(q, ...rest) {
       if(q === 'testme') {

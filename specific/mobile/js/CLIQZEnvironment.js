@@ -85,8 +85,9 @@ CLIQZEnvironment = {
       'EZ-history',
       'rd-h3-w-rating'
   ],
+  GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
   log: function(msg, key){
-    console.log(key, msg);
+    console.log('[[' + key + ']]', msg);
   },
   //TODO: check if calling the bridge for each telemetry point is expensive or not
   telemetry: function(msg) {
@@ -103,6 +104,7 @@ CLIQZEnvironment = {
     //TODO - consider the version !!
     return 'static/brands_database.json'
   },
+  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   autoComplete: function (val,searchString) {
 
     if( val && val.length > 0){
@@ -111,7 +113,7 @@ CLIQZEnvironment = {
       var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) === 0 ) {
-        // CLIQZEnvironment.log('jsBridge autocomplete value:'+val,'osAPI1');
+        // CliqzUtils.log('jsBridge autocomplete value:'+val,'osAPI1');
         osAPI.autocomplete(val);
       } else {
         var ls = JSON.parse(CLIQZ.CliqzStorage.recentQueries || '[]');
@@ -124,24 +126,14 @@ CLIQZEnvironment = {
       }
     }
   },
-  shiftResults: function() {
-    var frames = document.getElementsByClassName('frame');
-    for (var i = 0; i < frames.length; i++) {
-      var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
-      left = parseInt(left);
-      left -= (left / (i + 1));
-      CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
-      frames[i].style.left = left + 'px';
-    }
-    CLIQZ.UI.setResultNavigation(CLIQZEnvironment.lastResults);
-  },
   renderResults: function(r) {
     var renderedResults = CLIQZ.UI.results(r);
 
-    CLIQZEnvironment.stopProgressBar();
+    CLIQZ.UI.stopProgressBar();
 
     return renderedResults;
   },
+  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   putHistoryFirst: function(r) {
     for(var i = 0; i < r._results.length; i++) {
       if(r._results[i].style === 'cliqz-pattern' || r._results[i].style === 'favicon') {
@@ -177,7 +169,7 @@ CLIQZEnvironment = {
       CLIQZ.UI.hideResultsBox();
       window.document.getElementById('startingpoint').style.display = 'block';
       CLIQZEnvironment.initHomepage(true);
-      CLIQZEnvironment.stopProgressBar();
+      CLIQZ.UI.stopProgressBar();
       CLIQZEnvironment.lastResults = null;
       return;
     }
@@ -189,48 +181,18 @@ CLIQZEnvironment = {
       CLIQZEnvironment.USER_LAT = latitude;
       CLIQZEnvironment.USER_LNG = longitude;
     } else {
-      CLIQZEnvironment.USER_LAT = undefined;
-      CLIQZEnvironment.USER_LNG = undefined;
+      delete CLIQZEnvironment.USER_LAT;
+      delete CLIQZEnvironment.USER_LNG;
     }
-
-    if(document.getElementById('recentitems')) {
-      // document.getElementById('recentitems').style.display = 'none';
-    }
-
-    item_container = document.getElementById('cliqz-results');
-
 
     window.document.getElementById('startingpoint').style.display = 'none';
 
-    CLIQZEnvironment.startProgressBar();
+    CLIQZ.UI.startProgressBar();
 
 
     // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //CliqzUtils.log(e,'XHR');
     (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
-  },
-
-
-  startProgressBar: function() {
-    if(CLIQZEnvironment.interval) {
-      clearInterval(CLIQZEnvironment.interval);
-    }
-    var multiplier = parseInt(Math.ceil(window.innerWidth/100)),
-    progress = document.getElementById('progress'),
-    i = 0;
-    CLIQZEnvironment.interval = setInterval(function() {
-      i++;
-      progress.style.width = (i*multiplier)+'px';
-    },20);
-
-    setTimeout(CLIQZEnvironment.stopProgressBar,4000);
-  },
-
-  stopProgressBar: function() {
-    if(CLIQZEnvironment.interval) {
-      clearInterval(CLIQZEnvironment.interval);
-    }
-    document.getElementById('progress').style.width = '0px';
   },
   getPref: function(pref, notFound){
     var mypref;
@@ -241,7 +203,7 @@ CLIQZEnvironment = {
     }
   },
   setPref: function(pref, val){
-    //CLIQZEnvironment.log('setPrefs',arguments);
+    //CliqzUtils.log('setPrefs',arguments);
     CLIQZ.CliqzStorage.setItem(pref,val);
   },
   setInterval: function(){ return setInterval.apply(null, arguments); },
@@ -254,7 +216,7 @@ CLIQZEnvironment = {
   getLocalStorage: function(url) {
     return CLIQZ.CliqzStorage;
   },
-  OS: 'android',
+  OS: 'mobile',
   isPrivate: function(){ return false; },
   isScrolling: false,
   getWindow: function(){ return window; },
@@ -271,7 +233,7 @@ CLIQZEnvironment = {
         if(typeof CustomEvent !== 'undefined') {
           window.dispatchEvent(new CustomEvent('disconnected', { 'detail': 'browser is offline' }));
         }
-        CLIQZEnvironment.log( 'request ' + url + ' will be deferred until the browser is online');
+        CliqzUtils.log( 'request ' + url + ' will be deferred until the browser is online', 'CLIQZEnvironment.httphandler');
         return;
       }
     }
@@ -295,15 +257,12 @@ CLIQZEnvironment = {
             window.dispatchEvent(new CustomEvent('connected'));
           }
           lastSucceededUrl = url;
-          CliqzUtils.log('status '+req.status,'onload');
+          CliqzUtils.log('status '+req.status, 'CLIQZEnvironment.httpHandler.onload');
         }
 
         callback && callback(req);
       } else {
-        CLIQZEnvironment.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler');
-        if(isMixerUrl(url)){
-          CliqzUtils.log('status '+re.status,'calling onerror');
-        }
+        CliqzUtils.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler.onload');
         onerror && onerror();
       }
     };
@@ -318,15 +277,15 @@ CLIQZEnvironment = {
 
       if(CLIQZEnvironment){
         if(isMixerUrl(url)){
-          CliqzUtils.log('resendRequest(true)','onerror');
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
         }
-        CLIQZEnvironment.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler');
+        CliqzUtils.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler,onerror');
         onerror && onerror();
       }
     };
     req.ontimeout = function(){
-      CliqzUtils.log('BEFORE','ONTIMEOUT');
+      
+      CliqzUtils.log('BEFORE', 'CLIQZEnvironment.httpHandler.ontimeout');
       if(latestUrl !== url || url === lastSucceededUrl || !isMixerUrl(url)) {
         return;
       }
@@ -335,11 +294,10 @@ CLIQZEnvironment = {
       }
 
       if(CLIQZEnvironment){ //might happen after disabling the extension
-        CliqzUtils.log('RESENDING','ONTIMEOUT');
         if(isMixerUrl(url)){
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
         }
-        CLIQZEnvironment.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler');
+        CliqzUtils.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler.ontimeout');
         onerror && onerror();
       }
     };
@@ -355,6 +313,7 @@ CLIQZEnvironment = {
     req.send(data);
     return req;
   },
+  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   openLink: function(window, url){
     if(url !== '#')  {
       if( url.indexOf('http') === -1 ) {
@@ -365,6 +324,7 @@ CLIQZEnvironment = {
 
     return false;
   },
+  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   processHistory: function(data) {
     try {
       var items = data.results;
@@ -381,12 +341,14 @@ CLIQZEnvironment = {
       }
       return {results: res, query:data.query, ready:true};
     } catch (e) {
-      CLIQZEnvironment.log( 'historySearch', 'Error: ' + e);
+      CliqzUtils.log('Error: ' + e, 'CLIQZEnvironment.processHistory');
     }
   },
+  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   displayHistory: function(data){
     this.searchHistoryCallback(CLIQZEnvironment.processHistory(data));
   },
+  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   historySearch: function(q, callback){
     this.searchHistoryCallback = callback;
     window.osAPI.searchHistory(q, 'CLIQZEnvironment.displayHistory');
@@ -460,17 +422,9 @@ CLIQZEnvironment = {
   },
   setDefaultSearchEngine: function(engine) {
     CLIQZ.CliqzStorage.setObject('defaultSearchEngine', engine);
-    var engineDiv = document.getElementById('defaultEngine');
-    if(engineDiv && CliqzAutocomplete.lastSearch) {
-      engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
-      var moreResults = document.getElementById('moreResults');
-      moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
-      var noResults = document.getElementById('noResults');
-      noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
-    }
   },
   getDefaultSearchEngine: function() {
-    return CLIQZ.CliqzStorage.getObject('defaultSearchEngine') || {name:'Google', url: 'http://www.google.com/search?q='};
+    return CLIQZ.CliqzStorage.getObject('defaultSearchEngine') || GOOGLE_ENGINE;
   },
 };
 
