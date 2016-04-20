@@ -1,9 +1,21 @@
 import { notImplemented } from "core/platform";
-import * as storage from "platform/storage";
+import storage from "platform/storage";
 
-export let setItem = storage.setItem.bind(localStorage) || notImplemented;
-export let getItem = storage.getItem.bind(localStorage) || notImplemented;
-export let removeItem = storage.removeItem.bind(localStorage) || notImplemented;
-export let clear = storage.clear.bind(localStorage) || notImplemented;
-export let setObject = storage.setObject || notImplemented;
-export let getObject = storage.getObject || notImplemented;
+export default class {
+	constructor() {
+		this.storage = storage;
+		this.getItem = this.storage.getItem.bind(this.storage);
+		this.setItem = this.storage.setItem.bind(this.storage);
+		this.removeItem = this.storage.removeItem.bind(this.storage);
+		this.clear = this.storage.clear.bind(this.storage);
+	}
+
+	setObject(key, object) {
+		this.storage.setItem(key, JSON.stringify(object));
+	}
+
+	getObject(key) {
+	  const o = storage.getItem(key);
+	  return o && JSON.parse(o);
+	}
+}

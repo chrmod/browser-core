@@ -13,7 +13,6 @@
        <script src="js/global.js"></script>
        <script>
 
-        CliqzUtils.init(window);
         CliqzUtils.initPlatform(System);
         System.import("core/startup").then(function (startupModule) {
           return startupModule.default(window, [
@@ -23,6 +22,7 @@
             "static"
           ]);
         }).then(function () {
+          CliqzUtils.init(window);
           osAPI.init();
           History.init();
         });

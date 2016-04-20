@@ -239,7 +239,7 @@ function setQueryFavorite() {
     }
   });
 
-  CliqzStorage.setItem('recentQueries', JSON.stringify(allQueries));
+  CLIQZ.CliqzStorage.setItem('recentQueries', JSON.stringify(allQueries));
 }
 
 function removeQueries() {
@@ -249,7 +249,7 @@ function removeQueries() {
   queries = queries.filter(function(query) {
     return index >= selectedQueries.length || selectedQueries[index] !== query.id || (index++ && false);
   })
-  CliqzStorage.setItem("recentQueries", JSON.stringify(queries));
+  CLIQZ.CliqzStorage.setItem("recentQueries", JSON.stringify(queries));
 }
 
 function removeSelected() {
@@ -336,10 +336,10 @@ var allHistory = [];
 
 function clearQueries(removeFavorites) {
   if(removeFavorites) {
-    CliqzStorage.setItem('recentQueries', '[]');
+    CLIQZ.CliqzStorage.setItem('recentQueries', '[]');
   } else {
     var recentQueries = getListFromStorage('recentQueries');
-    CliqzStorage.setItem('recentQueries',
+    CLIQZ.CliqzStorage.setItem('recentQueries',
       JSON.stringify(
         recentQueries.filter(function (item) {
           return item.favorite;
@@ -350,7 +350,7 @@ function clearQueries(removeFavorites) {
 }
 
 function getListFromStorage(listName) {
-  var list = CliqzStorage.getItem(listName);
+  var list = CLIQZ.CliqzStorage.getItem(listName);
   return list ? JSON.parse(list) : [];
 }
 

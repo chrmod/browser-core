@@ -1,12 +1,13 @@
-import * as storage from "core/storage";
+import Storage from "core/storage";
 
 export default class {
 
   constructor(settings) {
+  	this.window = settings.window;
   }
 
   init() {
-  	window.CliqzStorage = storage;
+  	this.window.CLIQZ.CliqzStorage = new Storage();
   }
 
   unload() {
