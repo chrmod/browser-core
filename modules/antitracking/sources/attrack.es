@@ -346,13 +346,14 @@ var CliqzAttrack = {
                     CliqzUtils.log('known url from reflinks: ' + url, 'tokk-kown-url');
                 }
                 */
+                // work around for https://github.com/cliqz/navigation-extension/issues/1230
+                if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
+                    CliqzAttrack.recentlyModified.delete(source_tab + url);
+                    subject.cancel(Components.results.NS_BINDING_ABORTED);
+                    return;
+                }
                 if (url in reflinks) {
-                    // work around for https://github.com/cliqz/navigation-extension/issues/1230
-                    if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
-                        subject.cancel(Components.results.NS_BINDING_ABORTED);
-                        return;
-                    }
-                    // CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
+                    CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
                     // return;
                 }
 
