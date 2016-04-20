@@ -604,6 +604,10 @@ CLIQZEnvironment = {
       moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
       var noResults = document.getElementById('noResults');
       noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
+      var searchEngineLogo = document.getElementById('searchEngineLogo');
+      var details = CliqzUtils.getDetailsFromUrl(engine.url);
+      var logo = CliqzUtils.getLogoDetails(details);
+      searchEngineLogo && searchEngineLogo.setAttribute('style', logo.style);
     }
   },
   getDefaultSearchEngine: function() {

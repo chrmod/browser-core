@@ -30,5 +30,18 @@ export default {
   miniOnboarding: {
     "learn-more": "Learn more",
     "back_to_old": "Go back to old start page"
+  },
+  speedDials: {
+    "btn-add": "Add",
+    "address": "Enter address",
+    "exists-already": "Exists already",
+    "not-valid": "Not valid url"
+  },
+  urlBar: {
+    "search-address": "Search or enter address"
+  },
+  news: {
+    "top-news": "Top News",
+    "your-news": "Your News Sources"
   }
 };

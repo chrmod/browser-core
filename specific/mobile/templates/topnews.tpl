@@ -21,7 +21,7 @@
                     </a>
                 </h1>
                 <div class="meta">
-                  {{url}}
+                  {{displayUrl}}
                 </div>
             </li>
         {{/each}}

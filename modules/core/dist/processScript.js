@@ -68,7 +68,7 @@ function getContextHTML(ev) {
 
 function onDOMWindowCreated(ev) {
   var window = ev.originalTarget.defaultView;
-  var currentURL = window.location.href;
+  var currentURL = function(){return window.location.href};
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
@@ -105,7 +105,7 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCallback(msg) {
-    if (!whitelist.some(function (url) { return currentURL.indexOf(url) === 0; }) ) {
+    if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
       return;
     }
     window.postMessage(JSON.stringify({
@@ -143,8 +143,9 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCore(msg) {
-    // we handle only getHTML ATM
-    if ( msg.data.url !== currentURL ) {
+    var payload;
+
+    if ( msg.data.url !== currentURL() ) {
       return;
     }
 
@@ -152,7 +153,6 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
-    var payload;
     try {
       payload = fns[msg.data.action].apply(null, msg.data.args || []);
     } catch (e) {

@@ -111,9 +111,6 @@ var UI = {
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
-
-
-        handlePopupHeight(box);
     },
     handleResults: function(){
       // TODO: this is FF specific - move it to another place!
@@ -749,40 +746,6 @@ function hideMisalignedElements(ctx){
     }
 }
 
-function handlePopupHeight(box){/*
-    var MAX=352, MIN =160,
-        height = CliqzUtils.getPref('popupHeight', 290),
-        start, footer = document.getElementById('cliqz-footer', box);
-
-    function setHeight(delta){
-        var t = Math.min(Math.max(height + delta, MIN), MAX);
-        box.resultsBox.style.maxHeight = (t - 36) + 'px';
-
-        footer.style.cursor = t == MIN? 's-resize':
-                              t == MAX? 'n-resize':
-                              'ns-resize';
-    }
-    setHeight(0);
-    //handle resize
-    function moveIT(e){
-        setHeight(e.pageY - start);
-    }
-
-    function mouseReleased(){
-        height = 36 + +box.resultsBox.style.maxHeight.replace('px','')
-        CliqzUtils.setPref('popupHeight', height);
-        document.removeEventListener('mousemove', moveIT);
-        document.removeEventListener('mouseup', mouseReleased);
-    }
-
-    footer.addEventListener('mousedown', function(e){
-        if(e.target != footer)return;
-        start = e.pageY;
-        document.addEventListener('mousemove',moveIT);
-        document.addEventListener('mouseup', mouseReleased);
-    });*/
-}
-
 //returns the first child which matches the selector
 function $(selector, ctx){return (ctx || document).querySelector(selector); }
 
@@ -990,7 +953,7 @@ function setPartialTemplates(data) {
   }
 
   // Smart CLIQZ buttons
-  if (data.template == 'entity-generic') {
+  if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
   }
 

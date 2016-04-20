@@ -21,9 +21,15 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
+<<<<<<< HEAD
 import CookieChecker from 'antitracking/cookie-checker'
 import TrackerProxy from 'antitracking/tracker-proxy';
 import core from 'core/background';
+=======
+import { cookieChecker } from 'antitracking/cookie-checker';
+import TrackerProxy from 'antitracking/tracker-proxy';
+import {PrivacyScore} from 'antitracking/privacy-score';
+>>>>>>> upstream/master
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -319,9 +325,14 @@ var CliqzAttrack = {
                 // same general domain && ref is clearly in the tab
                 // var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
-                if (same_gd) return;
+                if (same_gd) {
+                  var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'site');
+                  ps.getPrivacyScore();
+                  return;
+                }
 
-
+                var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'tracker');
+                ps.getPrivacyScore();
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname'], isPrivate, CliqzAttrack.saveKeyTokens);
 

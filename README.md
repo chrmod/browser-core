@@ -37,6 +37,21 @@ Release channel configuration file can be specified via optional argument (defau
 
 `./fern.js serve ./configs/amo.json`
 
+To run ember freshtab:
+
+`cd modules/fresh-tab-frontend`
+`ember serve -p 3000`
+
+You can then access freshtab under http://localhost:3000. Every change you make in fresh-tab-frontend folder will be live reloaded. However if you change anything in freshtab folder (backend), restart browser to see your changes.
+
+To build ember freshtab:
+`cd modules/fresh-tab-frontend`
+`npm run build`
+
+By running above command you end up with minified distributed files in fresh-tab-frontend/dist folder.
+If you want these files to be moved into build/firefox folder, you also have to be running fern.
+
+
 ## Packaging
 
 All release channels configurations files are stored in `./configs` folder. Choose your channel and build it with:
