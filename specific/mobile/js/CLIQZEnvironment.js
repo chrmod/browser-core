@@ -166,6 +166,7 @@ CLIQZEnvironment = {
   },
   search: function(e, location_enabled, latitude, longitude) {
     if(!e || e === '') {
+      CLIQZEnvironment.lastSearch = '';
       CLIQZ.UI.hideResultsBox();
       window.document.getElementById('startingpoint').style.display = 'block';
       CLIQZEnvironment.initHomepage(true);
@@ -410,7 +411,7 @@ CLIQZEnvironment = {
             template:'noResult',
             title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
             action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
-            searchString: encodeURIComponent(CliqzAutocomplete.lastSearch),
+            searchString: encodeURIComponent(CLIQZEnvironment.lastSearch),
             searchEngineUrl: engine.url,
             logo: logo
           },
