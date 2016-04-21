@@ -320,6 +320,14 @@ function enhanceSpecificResult(r) {
     if (specificView && specificView.enhanceResults) {
         specificView.enhanceResults(r.data);
     }
+
+    if(r.data.news) {
+      r.data.news.forEach(function(article) {
+        var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
+        logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+        article.logo = logoDetails;
+      });
+    }
 }
 
 function crossTransform (element, x) {
