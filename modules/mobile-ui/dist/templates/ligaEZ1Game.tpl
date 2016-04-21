@@ -55,9 +55,9 @@
       <div class="main mulitple">
         {{#each news}}
               <div url="{{url}}" extra="entry-{{@index}}" class="item">
-                <div class="main__image" data-style="background-image: url({{#if thumbnail}}{{ thumbnail }}{{else}}http://cdn.cliqz.com/extension/EZ/news/no-image-mobile.png{{/if}});">
-                    Image
-                </div>
+                {{#with logo}}
+                <div class="card__logo__secondary" data-style="{{style}}">.</div>
+                {{/with}}
                 <h1 class="main__headline">
                   {{ title }}
                   <span>
@@ -66,7 +66,6 @@
                         <img data-src="http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg"> {{tweet_count}}
                       </span>
                     {{/if}}
-                    {{debug}}
                     {{ agoline discovery_timestamp }}
                   </span>  
                 </h1>
