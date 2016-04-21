@@ -20,7 +20,7 @@ import v9 from "mobile-ui/views/weatherEZ";
 var resultsBox = null,
     currentResults = null,
     imgLoader = null,
-
+    progressBarInterval = null,
     PEEK = 20,
     PADDING = 16,
     currentResultsCount = 0,
@@ -49,7 +49,7 @@ var UI = {
 
       var enhancedResults = enhanceResults(r._results);
 
-      var currentResults = {
+      currentResults = {
         searchString: r._searchString,
         frameWidth: UI.CARD_WIDTH,
         results: enhancedResults,
@@ -84,37 +84,9 @@ var UI = {
         crossTransform(resultsBox, 0);
         setCardsHeight();
 
-        UI.setResultNavigation(currentResults.results);
+        setResultNavigation(currentResults.results);
 
         return currentResults;
-    },
-    setResultNavigation: function(results) {
-
-      var showGooglethis = 1;
-      if(!results[0] || results[0].data.template === 'noResult') {
-        showGooglethis = 0;
-      }
-
-      resultsBox.style.width = (window.innerWidth * (results.length + showGooglethis)) + 'px';
-      resultsBox.style.marginLeft = PEEK + 'px';
-
-
-      var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
-
-      currentResultsCount = lastResultOffset / CLIQZ.UI.CARD_WIDTH + showGooglethis + 1;
-
-      if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
-        CLIQZEnvironment.vp.destroy();
-      }
-      CLIQZEnvironment.currentPage = 0;
-      CLIQZEnvironment.vp = CLIQZ.UI.initViewpager(currentResultsCount);
-
-      // CLIQZEnvironment.vp.goToIndex(1,0);
-
-      if(document.getElementById('currency-tpl')) {
-        document.getElementById('currency-tpl').parentNode.removeAttribute('url');
-      }
-
     },
     VIEWS: {},
     initViewpager: function(numberPages) {
@@ -161,8 +133,40 @@ var UI = {
             CLIQZEnvironment.currentPage = page;
           }
         });
-    }, hideResultsBox: function() {
+    },
+    hideResultsBox: function() {
           resultsBox.style.display = 'none';
+    },
+    updateSearchCard: function(engine) {
+      var engineDiv = document.getElementById('defaultEngine');
+      if(engineDiv && CliqzAutocomplete.lastSearch) {
+        engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
+        var moreResults = document.getElementById('moreResults');
+        moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
+        var noResults = document.getElementById('noResults');
+        noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
+      }
+    },
+    startProgressBar: function() {
+      if(progressBarInterval) {
+        clearInterval(progressBarInterval);
+      }
+      var multiplier = parseInt(Math.ceil(window.innerWidth/100)),
+      progress = document.getElementById('progress'),
+      i = 0;
+      progressBarInterval = setInterval(function() {
+        i++;
+        progress.style.width = (i*multiplier)+'px';
+      },20);
+
+      setTimeout(UI.stopProgressBar,4000);
+    },
+
+    stopProgressBar: function() {
+      if(progressBarInterval) {
+        clearInterval(progressBarInterval);
+      }
+      document.getElementById('progress').style.width = '0px';
     }
 };
 
@@ -183,7 +187,7 @@ function loadAsyncResult(res, query) {
           catch(err) {
             res.splice(i,1);
           }
-          if (resp &&  urlbar.value == query) {
+          if (resp &&  CliqzAutocomplete.lastSearch == query) {
 
             var kind = r.data.kind;
             if ("__callback_url__" in resp.data) {
@@ -208,7 +212,7 @@ function loadAsyncResult(res, query) {
               r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
               r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
-              if(resultsBox && urlbar.value == query) {
+              if(resultsBox && CliqzAutocomplete.lastSearch == query) {
                   // Remove all existing extra results
                   currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
                   // add the current one on top of the list
@@ -224,8 +228,8 @@ function loadAsyncResult(res, query) {
             }
           }
           // to handle broken promises (eg. Weather and flights) on mobile
-          else if (r.data && r.data.__callback_url__ && CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
-            CLIQZEnvironment.shiftResults();
+          else if (r.data && r.data.__callback_url__) {
+            shiftResults();
           }
           else {
             res.splice(i,1);
@@ -318,48 +322,6 @@ function enhanceSpecificResult(r) {
     }
 }
 
-//returns the first child which matches the selector
-function $(selector, ctx){return (ctx || document).querySelector(selector); }
-
-//returns all the childs which match the selector
-function $$(selector, ctx){return (ctx || document).querySelectorAll(selector); }
-
-//returns the ctx itself if its a match or first child which matches the selector
-function $_(selector, ctx){
-    if(matches(ctx || document, selector)){
-        return ctx || document;
-    } else return $(selector, ctx);
-}
-
-
-// returns true if the selector matches the element
-function matches(elem, selector) {
-    var f = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
-    if(f){
-        return f.bind(elem)(selector);
-    }
-    else {
-        //older FF doest have mathes - create our own
-        return elem.parentNode && Array.prototype.indexOf.call(elem.parentNode.querySelectorAll(selector), elem) != -1;
-    }
-}
-
-/**
- * Finds the closest ancestor of @p elem that matches @p selector.
- *
- * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
- */
-function closest(elem, selector) {
-    while (elem) {
-        if (matches(elem, selector)) {
-            return elem;
-        } else {
-            elem = elem.parentElement;
-        }
-    }
-    return false;
-}
-
 function crossTransform (element, x) {
   var platforms = ['', '-webkit-', '-ms-'];
   platforms.forEach(function(platform) {
@@ -443,6 +405,48 @@ function resultClick(ev) {
     }
 }
 
+function shiftResults() {
+  var frames = document.getElementsByClassName('frame');
+  for (var i = 0; i < frames.length; i++) {
+    var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
+    left = parseInt(left);
+    left -= (left / (i + 1));
+    CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
+    frames[i].style.left = left + 'px';
+  }
+  setResultNavigation(CLIQZEnvironment.lastResults);
+}
+
+
+function setResultNavigation(results) {
+
+  var showGooglethis = 1;
+  if(!results[0] || results[0].data.template === 'noResult') {
+    showGooglethis = 0;
+  }
+
+  resultsBox.style.width = (window.innerWidth * (results.length + showGooglethis)) + 'px';
+  resultsBox.style.marginLeft = PEEK + 'px';
+
+
+  var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
+
+  currentResultsCount = lastResultOffset / UI.CARD_WIDTH + showGooglethis + 1;
+
+  if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
+    CLIQZEnvironment.vp.destroy();
+  }
+  CLIQZEnvironment.currentPage = 0;
+  CLIQZEnvironment.vp = UI.initViewpager(currentResultsCount);
+
+  // CLIQZEnvironment.vp.goToIndex(1,0);
+
+  if(document.getElementById('currency-tpl')) {
+    document.getElementById('currency-tpl').parentNode.removeAttribute('url');
+  }
+
+}
+
 window.addEventListener('resize', function () {
   setTimeout(function () {
     UI.setDimensions();
@@ -459,7 +463,7 @@ window.addEventListener('resize', function () {
     }
 
     crossTransform(document.getElementById("results"), 0);
-    CLIQZEnvironment.vp = CLIQZ.UI.initViewpager();
+    CLIQZEnvironment.vp = UI.initViewpager();
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
     }, 50);
 
