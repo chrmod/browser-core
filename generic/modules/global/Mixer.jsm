@@ -21,7 +21,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-CliqzUtils.init();
 var CliqzSmartCliqzCache;
 
 function objectExtend(target, obj) {
