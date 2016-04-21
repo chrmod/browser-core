@@ -361,7 +361,10 @@ History = {
   },
   showHistory: showHistory,
   getHistory: getHistory,
-  clearQueries: clearQueries
+  clearQueries: clearQueries,
+  favoriteSelected: favoriteSelected,
+  removeSelected: removeSelected,
+  endEditMode: endEditMode
 }
 
 export default History;

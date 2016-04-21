@@ -57,13 +57,13 @@
         {{/each}}
         <div id="control" style="display:none;background-color: #862701;position:fixed">
 			<table>
-				<td onclick="removeSelected()">
+				<td onclick="History.removeSelected()">
 					{{local 'mobile_history_remove'}}
 				</td>
-				<td id='control_star' onclick="favoriteSelected()">
+				<td id='control_star' onclick="History.favoriteSelected()">
 					{{local 'mobile_history_star'}}
 				</td>
-				<td onclick="endEditMode()">
+				<td onclick="History.endEditMode()">
 					{{local 'mobile_history_cancel'}}
 				</td>
 
