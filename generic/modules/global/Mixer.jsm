@@ -57,6 +57,7 @@ var Mixer = {
   ],
 
   init: function() {
+    //TODO: remove this dependency
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
       CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
@@ -64,7 +65,7 @@ var Mixer = {
       }).catch(function(error) {
         CliqzUtils.log('Failed loading SmartCliqzCache', "Mixer");
       });
-    }, 0);
+    }, 1000);
   },
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
