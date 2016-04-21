@@ -758,6 +758,10 @@ var CliqzAttrack = {
                 source_url = referrer;
             }
 
+            if (!source_url) {
+                return;
+            }
+
             source_url_parts = URLInfo.get(source_url);
             var req_log = null;
             if(request_type != 'fullpage' && source_url_parts && source_tab != -1) {
