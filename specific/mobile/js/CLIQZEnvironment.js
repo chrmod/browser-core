@@ -36,6 +36,7 @@ CLIQZEnvironment = {
   LOCALE_PATH: 'modules/static/locale/',
   SYSTEM_BASE_URL: 'modules/',
   RESULTS_LIMIT: 3,
+  MIN_QUERY_LENGHT_FOR_EZ: 0,
   storeQueryTimeout: null,
   TEMPLATES: {
         "Cliqz": true,
@@ -285,7 +286,7 @@ CLIQZEnvironment = {
       }
     };
     req.ontimeout = function(){
-      
+
       CliqzUtils.log('BEFORE', 'CLIQZEnvironment.httpHandler.ontimeout');
       if(latestUrl !== url || url === lastSucceededUrl || !isMixerUrl(url)) {
         return;
