@@ -30,7 +30,6 @@ function prefixPref(pref, prefix) {
     return prefix + pref;
 }
 
-var GEOLOC_WATCH_ID;
 
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     // references to all the timers to avoid garbage collection before firing
@@ -79,7 +78,31 @@ var CLIQZEnvironment = {
     MIN_QUERY_LENGHT_FOR_EZ: 2,
     prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
+    LAST_SLEEP: 0,
+    LAST_GEOLOCATION_UPDATE: 0,
+    GEOLOCATION_UPDATE_MIN_WAIT: 3600 * 1000, // If the computer wakes up from a sleep that was longer than this many milliseconds, we update geolocation.
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
+    OBSERVERS: [
+      {
+        notifications: ['wake_notification', 'sleep_notification'],
+        observer: {
+          observe: function(subject, topic, data) {
+            var currentTimestamp = new Date().getTime();
+            if (topic == 'sleep_notification') {
+              CLIQZEnvironment.LAST_SLEEP = currentTimestamp;
+            } else if (topic == 'wake_notification') {
+              // Just in case we fail to handle the sleep_notification, we still
+              // need to make sure geolocation is never updated more often than
+              // once every GEOLOCATION_UPDATE_MIN_WAIT milliseconds.
+              var lastTimestamp = Math.max(CLIQZEnvironment.LAST_SLEEP, CLIQZEnvironment.LAST_GEOLOCATION_UPDATE);
+              if (currentTimestamp - lastTimestamp >= CLIQZEnvironment.GEOLOCATION_UPDATE_MIN_WAIT) {
+                CLIQZEnvironment.updateGeoLocation();
+              }
+            }
+          }
+        }
+      }
+    ],
     TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -134,15 +157,30 @@ var CLIQZEnvironment = {
     ],
     init: function(){
         CLIQZEnvironment.loadSearch();
+        CLIQZEnvironment.registerObservers();
     },
     unload: function() {
         CLIQZEnvironment.unloadSearch();
-
-        //stop all the timers still active and lose their reference
-        _timers.forEach(function(timer){ timer.cancel(); });
-        _timers = [];
-
-        CLIQZEnvironment.removeGeoLocationWatch();
+        _timers.forEach(_removeTimerRef);
+        CLIQZEnvironment.unregisterObservers();
+    },
+    registerObservers: function() {
+      var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+      CLIQZEnvironment.OBSERVERS.forEach(function(el) {
+        el.notifications.forEach(function(notification) {
+          observerService.addObserver(el.observer, notification, false);
+        });
+      });
+    },
+    unregisterObservers: function() {
+      var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+      CLIQZEnvironment.OBSERVERS.forEach(function(el) {
+        el.notifications.forEach(function(notification) {
+          observerService.removeObserver(el.observer, notification);
+        });
+      });
     },
     log: function(msg, key){
         _log.logStringMessage(
@@ -609,13 +647,8 @@ var CLIQZEnvironment = {
           }, failCB);
         }
     },
-    removeGeoLocationWatch: function() {
-      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
-      GEOLOC_WATCH_ID && geoService.clearWatch(GEOLOC_WATCH_ID);
-    },
     updateGeoLocation: function() {
       var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
-      CLIQZEnvironment.removeGeoLocationWatch();
 
       if (CLIQZEnvironment.getPref('share_location') == 'yes') {
         // Get current position
@@ -625,27 +658,10 @@ var CLIQZEnvironment = {
 
           CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
           CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
+          CLIQZEnvironment.LAST_GEOLOCATION_UPDATE = new Date().getTime();
         },
         function(e) {
           CliqzUtils.log(e, "Error updating geolocation");
-        },
-        {
-          maximumAge: 3600*1000 // 1 hour
-        });
-
-        //Upate position if it changes
-        GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
-          // Make another check, to make sure that the user hasn't changed permissions meanwhile
-          if (CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.getPref('share_location') == 'yes') {
-            CLIQZEnvironment.USER_LAT = CliqzUtils.roundToDecimal(p.coords.latitude, CLIQZEnvironment.LOCATION_ACCURACY);
-            CLIQZEnvironment.USER_LNG =  CliqzUtils.roundToDecimal(p.coords.longitude, CLIQZEnvironment.LOCATION_ACCURACY);
-          }
-        },
-        function(e) {
-          CliqzUtils && GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation");
-        },
-        {
-          maximumAge: 3600*1000 // 1 hour
         });
       } else {
         CLIQZEnvironment.USER_LAT = null;

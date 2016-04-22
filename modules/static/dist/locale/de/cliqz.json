@@ -200,9 +200,6 @@
     "weatherCurrent":{
         "message":"aktuell"
     },
-    "weatherCredits":{
-        "message":"zur Verfügung gestellt von <br /> openweathermap.org"
-    },
     "ago1Minute":{
         "message":"vor einer Minute"
     },
@@ -514,9 +511,6 @@
     },
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
-    },
-    "statsText": {
-        "message": "In den letzten <b>7 Tagen</b> hast Du <b>$1 Suchen</b> gestartet.<br/><br/>Bei <b>$2</b> dieser Suchen hat <b>cliqz</b> Dich zu Deinem Ziel geführt.<br/><br/>Dabei musstest Du im Schnitt <b>unter lediglich $3 Vorschlägen aussuchen,</b> statt auf langenSuchmaschinen-Ergebnisseiten unter im Schnitt $4 Vorschlägen das richtige Ergebnis zu suchen.<br/><br/>Zusätzlich hat cliqz Dir damit <b>$5 Werbeplatzierungen erspart</b>(eine Suchmaschine zeigt im Schnitt 7 gekaufte Links auf ihnen Suchergebnis-Seiten an).<br/><br/>Und weil Du auf einer Suchmaschinen-Ergebnisseite im Schnitt 3,5 Sekunden verbringst,hat cliqz Dir zusätzlich <b>$6 Minuten Deiner wertvollen Zeit gespart.</b>"
     },
     "statsShareMsg": {
         "message": "@cliqz saved me $1 minutes over the last 7 days"

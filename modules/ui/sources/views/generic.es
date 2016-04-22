@@ -57,34 +57,27 @@ export default class {
         partialSizeCounter += partialsBank[prName]['space-count'];
         partialsPath.push(partialsBank[prName].path);
       }
-
-      // Check which description has to be One line or Multiline.
-      if (prName.indexOf('description') > -1) {
-        // If it is entity-generic
-        if (data.template === 'entity-generic') {
-          prName = 'description-m';
-        }
-
-        var partialDescr = prName;
-      }
     }
-
+    var partialDescr; // 'description' if description should be on single line, otherwise 'description-m'
     // Calculate the EZ size. If it is size 3 = 1 line result; If it is between 3 & 6 size = 2 line result; Over 6 = 3 line result;
     if (partialSizeCounter <= 3) {
       data.genericZone = {
         'size': 1,
         'class': 'cqz-result-h3'
       };
+      partialDescr = 'description';
     } else if (partialSizeCounter > 3 && partialSizeCounter <= 6) {
       data.genericZone = {
         'size': 2,
         'class': 'cqz-result-h2'
       };
+      partialDescr = 'description-m';
     } else {
       data.genericZone = {
         'size': 3,
         'class': 'cqz-result-h1',
       };
+      partialDescr = 'description-m';
     }
 
     data.genericZone.partials = partialsPath;

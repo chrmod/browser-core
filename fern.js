@@ -41,10 +41,12 @@ function setConfigPath(configPath) {
 program.version('0.1.0');
 
 program.command('build [file]')
-
-       .action(configPath => {
+       .option('--no-maps', 'disables source maps')
+       .action((configPath, options) => {
           var buildStart = Date.now();
           setConfigPath(configPath);
+
+          process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
           console.log("Starting build");
           let child = spaws('broccoli', ['build', OUTPUT_PATH]);

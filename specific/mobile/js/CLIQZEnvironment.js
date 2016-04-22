@@ -419,7 +419,7 @@ CLIQZEnvironment = {
         subType: JSON.stringify({empty:true})
       }
     );
-    result.data.kind = ["CL"];
+    result.data.kind = ['CL'];
     return result;
   },
   setDefaultSearchEngine: function(engine) {

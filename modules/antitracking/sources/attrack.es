@@ -21,8 +21,9 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
-import { cookieChecker } from 'antitracking/cookie-checker'
+import { cookieChecker } from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
+import {PrivacyScore} from 'antitracking/privacy-score';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -318,9 +319,14 @@ var CliqzAttrack = {
                 // same general domain && ref is clearly in the tab
                 // var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
-                if (same_gd) return;
+                if (same_gd) {
+                  var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'site');
+                  ps.getPrivacyScore();
+                  return;
+                }
 
-
+                var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'tracker');
+                ps.getPrivacyScore();
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname'], isPrivate, CliqzAttrack.saveKeyTokens);
                 try{
@@ -750,6 +756,10 @@ var CliqzAttrack = {
             // Fallback to referrer if we don't find source from tab
             if (source_url === undefined || source_url == ''){
                 source_url = referrer;
+            }
+
+            if (!source_url) {
+                return;
             }
 
             source_url_parts = URLInfo.get(source_url);

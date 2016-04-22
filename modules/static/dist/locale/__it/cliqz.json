@@ -47,9 +47,6 @@
     "weatherCurrent":{
         "message":"attuale"
     },
-    "weatherCredits":{
-        "message":"le informazioni sono fornite da <br /> openweathermap.org"
-    },
     "ago1Minute":{
         "message":"un minuto fa"
     },

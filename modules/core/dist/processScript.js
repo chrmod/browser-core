@@ -68,7 +68,7 @@ function getContextHTML(ev) {
 
 function onDOMWindowCreated(ev) {
   var window = ev.originalTarget.defaultView;
-  var currentURL = window.location.href;
+  var currentURL = function(){return window.location.href};
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
@@ -105,7 +105,7 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCallback(msg) {
-    if (!whitelist.some(function (url) { return currentURL.indexOf(url) === 0; }) ) {
+    if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
       return;
     }
     window.postMessage(JSON.stringify({
@@ -122,7 +122,7 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
-    if ( msg.data.args[0] !== currentURL ) {
+    if ( msg.data.args[0] !== currentURL() ) {
       return;
     }
 

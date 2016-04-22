@@ -53,9 +53,6 @@
     "weatherCurrent":{
         "message":"actuellement"
     },
-    "weatherCredits":{
-        "message":"Résultats fournis par <br /> openweathermap.org"
-    },
     "ago1Minute":{
         "message":"il y a une minute"
     },

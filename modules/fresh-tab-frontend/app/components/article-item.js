@@ -1,8 +1,6 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  isUnderlined: Ember.computed.alias('model.underline'),
-  classNameBindings: ['isUnderlined:underline'],
   startEnter: 0,
   elapsed: 0,
   cliqz: Ember.inject.service(),
