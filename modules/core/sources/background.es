@@ -1,6 +1,6 @@
 import { utils } from "core/cliqz";
 import config from "core/config";
-import ProcessScriptManager from "core/process-script-manager";
+import ProcessScriptManager from "platform/process-script-manager";
 
 var lastRequestId = 0;
 var callbacks = {};
@@ -9,10 +9,6 @@ export default {
 
   init(settings) {
     this.dispatchMessage = this.dispatchMessage.bind(this);
-
-  	Object.keys(settings).forEach( key => {
-  		config[key] = settings[key];
-  	});
 
     utils.bindObjectFunctions(this.actions, this);
 

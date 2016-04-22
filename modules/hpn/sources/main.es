@@ -202,7 +202,6 @@ var CliqzSecureMessage = {
     },
     _telemetry_req: null,
     _telemetry_sending: [],
-    _telemetry_start: undefined,
     telemetry_MAX_SIZE: 500,
     previousDataPost: null,
     pushMessage : [],
@@ -213,7 +212,6 @@ var CliqzSecureMessage = {
     performance:null,
     pushTelemetry: function() {
       CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
-      CliqzSecureMessage._telemetry_start = (new Date()).getTime();
       CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
       let nextMsg = CliqzSecureMessage.nextMessage();
       if (nextMsg) {

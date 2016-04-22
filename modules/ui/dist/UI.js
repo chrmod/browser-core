@@ -7,7 +7,7 @@
 
 function load(ctx) {
 
-var TEMPLATES = CliqzUtils.TEMPLATES,
+var TEMPLATES = CLIQZEnvironment.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
     IC = 'cqz-result-box', // result item class
@@ -641,7 +641,7 @@ var UI = {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
       }
-      if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
         r.data.template = r.data.superTemplate;
       }
 
@@ -1960,7 +1960,7 @@ function snippetQualityTelemetry(results){
     // push empty data for EZones and history
     else data.push({});
 
-    slots += CliqzUtils.TEMPLATES[r.vertical];
+    slots += CLIQZEnvironment.TEMPLATES[r.vertical];
 
     // entity generic can be 3 slots height
     if(r.vertical == 'entity-generic' && r.data.urls) slots++;

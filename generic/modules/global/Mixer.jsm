@@ -21,7 +21,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-CliqzUtils.init();
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzEnvironment.jsm');
+
 var CliqzSmartCliqzCache;
 
 function objectExtend(target, obj) {
@@ -58,14 +60,15 @@ var Mixer = {
   ],
 
   init: function() {
+    //TODO: remove this dependency
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
       CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
         CliqzSmartCliqzCache = module.default.smartCliqzCache;
       }).catch(function(error) {
-        CliqzUtils.log('Failed loading SmartCliqzCache');
+        CliqzUtils.log('Failed loading SmartCliqzCache', "Mixer");
       });
-    }, 0);
+    }, 1000);
   },
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
@@ -150,8 +153,10 @@ var Mixer = {
     }, {});
 
     // postpone this operation until after this result set is rendered
-    CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25,
-                          titlesDescriptions);
+    // TODO: remove this dependency
+    if(typeof CliqzHistory !== "undefined")
+      CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25,
+                            titlesDescriptions);
   },
 
   // Is query valid for triggering an EZ?
@@ -159,7 +164,7 @@ var Mixer = {
   //  - avoids many unexpected EZ triggerings
   _isValidQueryForEZ: function(q) {
     var trimmed = q.trim();
-    if (trimmed.length <= 2) {
+    if (trimmed.length <= CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ) {
       return false;
     }
 

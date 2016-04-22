@@ -79,33 +79,7 @@ var CliqzUtils = {
 
   //will be updated from the mixer config endpoint every time new logos are generated
   BRANDS_DATABASE_VERSION: 1457952995848,
-
-  TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
-      'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
-      'spellcheck': 1,
-      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
-      'entity-portal': 3, 'topsites': 3,
-      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'flightStatusEZ-2': 2, 'weatherEZ': 2, 'commicEZ': 3,
-      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2,
-      'ligaEZUpcomingGames': 3,
-      'ligaEZTable': 3,
-      'local-movie-sc':3,
-      'local-cinema-sc':3,
-      'local-data-sc': 2,
-      'recipe': 3,
-      'rd-h3-w-rating': 1,
-      'ez-generic-2': 3,
-      'cpgame_movie': 3,
-      'delivery-tracking': 2,
-      'vod': 3,
-      'conversations': 1,
-      'conversations_future': 1,
-      'topnews': 1,
-      '_generic': 1,
-      '_history': 1
-  },
+  GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
         'p': 'people'  ,
@@ -154,6 +128,7 @@ var CliqzUtils = {
   },
 
   initPlatform: function(System) {
+    System.baseURL = CLIQZEnvironment.SYSTEM_BASE_URL;
     CliqzUtils.System = System;
   },
 
@@ -171,18 +146,6 @@ var CliqzUtils = {
   //returns the type only if it is known
   getKnownType: function(type){
     return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
-  },
-  getLocalStorage: function(url) {
-    var uri = Services.io.newURI(url,"",null),
-        principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
-
-    if (typeof principalFunction != "function") return false
-
-    var principal = principalFunction(uri),
-        dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
-              .getService(Components.interfaces.nsIDOMStorageManager)
-
-    return dsm.getLocalStorageForPrincipal(principal, '')
   },
   //move this out of CliqzUtils!
   setSupportInfo: function(status){
@@ -203,7 +166,7 @@ var CliqzUtils = {
         sites = ["http://cliqz.com","https://cliqz.com"]
 
     sites.forEach(function(url){
-        var ls = CliqzUtils.getLocalStorage(url)
+        var ls = CLIQZEnvironment.getLocalStorage(url)
 
         if (ls) ls.setItem("extension-info",info)
     })
@@ -839,28 +802,7 @@ var CliqzUtils = {
     return true;
   },
   isPrivate: CLIQZEnvironment.isPrivate,
-  trk: [],
-  trkTimer: null,
-  telemetry: function(msg, instantPush) {
-    if(!CliqzUtils) return; //might be called after the module gets unloaded
-    var current_window = CliqzUtils.getWindow();
-    if(msg.type != 'environment' &&
-       current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
-    CliqzUtils.log(msg, 'Utils.telemetry');
-    if(!CliqzUtils.getPref('telemetry', true))return;
-    msg.session = CLIQZEnvironment.getPref('session');
-    msg.ts = Date.now();
-    CliqzUtils.telemetrySeq = (CliqzUtils.telemetrySeq + 1) % 2147483647;
-    msg.seq = CliqzUtils.telemetrySeq
-
-    CliqzUtils.trk.push(msg);
-    CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
-    if(instantPush || CliqzUtils.trk.length % 100 == 0){
-      CliqzUtils.pushTelemetry();
-    } else {
-      CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTelemetry, 60000);
-    }
-  },
+  telemetry: CLIQZEnvironment.telemetry,
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     var current_window = CliqzUtils.getWindow();
     if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
@@ -877,60 +819,12 @@ var CliqzUtils = {
     CliqzUtils.setResultOrder('');
     CliqzUtils.log(params, 'Utils.resultTelemetry');
   },
-
   _resultOrder: '',
   setResultOrder: function(resultOrder) {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
     return CliqzUtils._resultOrder && CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
-  },
-
-  _telemetry_req: null,
-  _telemetry_sending: [],
-  _telemetry_start: undefined,
-  TELEMETRY_MAX_SIZE: 500,
-  pushTelemetry: function() {
-    CliqzUtils.setPref('telemetrySeq', CliqzUtils.telemetrySeq);
-    if(CliqzUtils._telemetry_req) return;
-
-    // put current data aside in case of failure
-    CliqzUtils._telemetry_sending = CliqzUtils.trk.slice(0);
-    CliqzUtils.trk = [];
-
-    CliqzUtils._telemetry_start = Date.now();
-
-    CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
-
-    CliqzUtils._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.LOG, JSON.stringify(CliqzUtils._telemetry_sending), 10000, true);
-    CliqzUtils._telemetry_req.then( CliqzUtils.pushTelemetryCallback );
-    CliqzUtils._telemetry_req.catch( CliqzUtils.pushTelemetryError );
-  },
-  pushTelemetryCallback: function(req){
-    try {
-      var response = JSON.parse(req.response);
-
-      if(response.new_session){
-        CliqzUtils.setPref('session', response.new_session);
-      }
-      CliqzUtils._telemetry_sending = [];
-      CliqzUtils._telemetry_req = null;
-    } catch(e){}
-  },
-  pushTelemetryError: function(req){
-    // pushTelemetry failed, put data back in queue to be sent again later
-    CliqzUtils.log('push telemetry failed: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
-    CliqzUtils.trk = CliqzUtils._telemetry_sending.concat(CliqzUtils.trk);
-
-    // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TELEMETRY_MAX_SIZE + 100;
-    if(slice_pos > 0){
-      CliqzUtils.log('discarding ' + slice_pos + ' old telemetry data', "CliqzUtils.pushTelemetry");
-      CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
-    }
-
-    CliqzUtils._telemetry_sending = [];
-    CliqzUtils._telemetry_req = null;
   },
   setInterval: CLIQZEnvironment.setInterval,
   setTimeout: CLIQZEnvironment.setTimeout,
@@ -1143,5 +1037,3 @@ var CliqzUtils = {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 };
-
-CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);

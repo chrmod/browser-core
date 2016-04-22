@@ -263,27 +263,6 @@ var firefoxTree = new MergeTrees([
   new Funnel(modules,     { destDir: 'chrome/content' }),
 ], { overwrite: true } );
 
-var firefoxConfigTree = new ConfigReplace(
-  firefoxTree,
-  config,
-  {
-    configPath: 'cliqz.json',
-    files: [
-      'modules/Extension.jsm',
-      'chrome/content/core/processScript.js'
-    ],
-    patterns: [{
-      match: /\{\{CONFIG\}\}/g,
-      replacement: config => JSON.stringify(config)
-    }]
-  }
-);
-
-firefoxTree = new MergeTrees([
-  firefoxTree,
-  firefoxConfigTree
-], { overwrite: true });
-
 var firefox = new MergeTrees([
   new Funnel(firefoxTree, { destDir: 'cliqz@cliqz.com' }),
   firefoxPackage,
@@ -334,5 +313,34 @@ if (buildEnv !== 'production') {
     testsTree,
   ]), { destDir: 'tests' }));
 }
+
+var outputTree = new MergeTrees(trees);
+
+var configTree = new ConfigReplace(
+  outputTree,
+  config,
+  {
+    configPath: 'cliqz.json',
+    files: [
+      'firefox/cliqz@cliqz.com/modules/Extension.jsm',
+      'firefox/cliqz@cliqz.com/chrome/content/core/processScript.js',
+      'firefox/cliqz@cliqz.com/chrome/content/core/config.js',
+      'mobile/search/modules/core/config.js'
+    ],
+    patterns: [{
+      match: /\{\{CONFIG\}\}/g,
+      replacement: config => JSON.stringify(config)
+    },{
+      match: /\_\_CONFIG\_\_/g,
+      replacement: config => JSON.stringify(config)
+    }]
+  }
+);
+
+outputTree = new MergeTrees([
+  outputTree,
+  configTree
+], { overwrite: true });
+
 // Output
-module.exports = new MergeTrees(trees);
+module.exports = outputTree;
