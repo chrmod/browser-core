@@ -23,7 +23,7 @@ import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
 import { cookieChecker } from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
-import {PrivacyScore} from 'antitracking/privacy-score';
+//import {PrivacyScore} from 'antitracking/privacy-score';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
@@ -321,13 +321,14 @@ var CliqzAttrack = {
                 // var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) {
-                  var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'site');
-                  ps.getPrivacyScore();
+                  //var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'site');
+                  //ps.getPrivacyScore();
                   return;
                 }
 
-                var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'tracker');
-                ps.getPrivacyScore();
+                //var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'tracker');
+                //ps.getPrivacyScore();
+
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname'], isPrivate, CliqzAttrack.saveKeyTokens);
                 try{
