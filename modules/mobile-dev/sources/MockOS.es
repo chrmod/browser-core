@@ -45,43 +45,7 @@ var MockOS = {
   }
 }
 
-var mockedHistory =
-  [{
-      "id": 5,
-      "title": "Facebook",
-      "mainDomain": "Facebook",
-      "url": "http://www.facebook.de",
-      "timestamp": Date.now() - 30090,
-      "favorite": true
-  }, {
-      "id": 4,
-      "title": "Youtube",
-      "mainDomain": "Youtube",
-      "url": "http://www.youtube.de",
-      "timestamp": Date.now() - 130090,
-      "favorite": true
-  }, {
-      "id": 3,
-      "title": "Focus",
-      "mainDomain": "Focus",
-      "url": "http://www.focus.de",
-      "timestamp": Date.now() - 1130090,
-      "favorite": false
-  }, {
-      "id": 2,
-      "title": "Bild",
-      "mainDomain": "Bild",
-      "url": "http://www.bild.de",
-      "timestamp": Date.now() - 11130090,
-      "favorite": false
-  },  {
-      "id": 1,
-      "title": "Amazon",
-      "mainDomain": "Amazon",
-      "url": "http://www.amazon.de",
-      "timestamp": Date.now() - 111130090,
-      "favorite": true
-  }];
+var mockedHistory = [];
 
 function searchHistory(q) {
   return {results:mockedHistory, query:q};
