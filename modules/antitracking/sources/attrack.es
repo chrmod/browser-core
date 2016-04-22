@@ -21,15 +21,11 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
-<<<<<<< HEAD
-import CookieChecker from 'antitracking/cookie-checker'
-import TrackerProxy from 'antitracking/tracker-proxy';
 import core from 'core/background';
-=======
 import { cookieChecker } from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import {PrivacyScore} from 'antitracking/privacy-score';
->>>>>>> upstream/master
+
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
