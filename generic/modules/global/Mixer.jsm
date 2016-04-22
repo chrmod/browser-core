@@ -21,8 +21,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzEnvironment.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
+  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 var CliqzSmartCliqzCache;
 
