@@ -157,8 +157,8 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     if version is None:
         version = get_version(beta)
 
-    download_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (channel, output_file_name)
-    download_link_latest_html = "http://cdn2.cliqz.com/update/%s/%s" % (channel, output_file_name)
+    download_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (folder, output_file_name)
+    download_link_latest_html = "http://cdn2.cliqz.com/update/%s/%s" % (folder, output_file_name)
 
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
