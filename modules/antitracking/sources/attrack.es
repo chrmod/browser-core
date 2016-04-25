@@ -23,7 +23,8 @@ import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
 import { cookieChecker } from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
-import {PrivacyScore} from 'antitracking/privacy-score';
+//import {PrivacyScore} from 'antitracking/privacy-score';
+import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -372,13 +373,14 @@ var CliqzAttrack = {
                 // var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) {
-                  var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'site');
-                  ps.getPrivacyScore();
+                  //var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'site');
+                  //ps.getPrivacyScore();
                   return;
                 }
 
-                var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'tracker');
-                ps.getPrivacyScore();
+                //var ps = PrivacyScore.get(md5(getGeneralDomain(url_parts.hostname)).substr(0, 16) + 'tracker');
+                //ps.getPrivacyScore();
+
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname'], isPrivate, CliqzAttrack.saveKeyTokens);
                 try{
@@ -808,6 +810,10 @@ var CliqzAttrack = {
             // Fallback to referrer if we don't find source from tab
             if (source_url === undefined || source_url == ''){
                 source_url = referrer;
+            }
+
+            if (!source_url) {
+                return;
             }
 
             source_url_parts = URLInfo.get(source_url);
@@ -1497,18 +1503,11 @@ var CliqzAttrack = {
                 CliqzAttrack.obsCounter[x] = counter;
             });
     },
-    generatePayload: function(data, ts, instant, attachVersion) {
-        var payl = {
-            'data': data,
-            'ver': CliqzAttrack.VERSION,
-            'ts': ts,
-            'anti-duplicates': Math.floor(Math.random() * 10000000)
-        };
-        if (instant)
-            payl['instant'] = true;
-        if (attachVersion)
-            payl = CliqzAttrack.qs_whitelist.attachVersion(payl);
-        return payl;
+    generateAttrackPayload: function(data, ts) {
+        const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();
+        extraAttrs.ver = CliqzAttrack.VERSION;
+        ts = ts || datetime.getHourTimestamp();
+        return generatePayload(data, ts, false, extraAttrs);
     },
     sendTokens: function() {
         // send tokens every 5 minutes
@@ -1537,8 +1536,21 @@ var CliqzAttrack = {
         }
 
         if (Object.keys(data).length > 0) {
-            var payl = CliqzAttrack.generatePayload(data, datetime.getHourTimestamp(), true, true);
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
+            const compress = compressionAvailable();
+
+            splitTelemetryData(data, 20000).map((d) => {
+                const payl = CliqzAttrack.generateAttrackPayload(d);
+                const msg = {
+                    'type': CliqzHumanWeb.msgType,
+                    'action': 'attrack.tokens',
+                    'payload': payl
+                };
+                if ( compress ) {
+                    msg.compressed = true;
+                    msg.payload = compressJSONToBase64(payl);
+                }
+                CliqzHumanWeb.telemetry(msg);
+            });
         }
         CliqzAttrack._tokens.setDirty();
     },

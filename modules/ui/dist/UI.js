@@ -193,25 +193,30 @@ var UI = {
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
 
-        // apply template; do not render "unmixed" results
-        // (results pushed asynchronoysly without processing)
-        if(gCliqzBox.resultsBox && currentResults.isMixed) {
-          UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
-          UI.loadAsyncResult(asyncResults, query);
-        }
+        // try to avoid Stack size limitations on Linux by breaking out Handlebars processing
+        setTimeout(function(currentResults, asyncResults, query){
+          // apply template; do not render "unmixed" results
+          // (results pushed asynchronoysly without processing)
+          if(gCliqzBox.resultsBox && currentResults.isMixed) {
+            UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+            UI.loadAsyncResult(asyncResults, query);
+          }
 
-        //might be unset at the first open
-        CLIQZ.Core.popup.mPopupOpen = true;
+          //might be unset at the first open
+          CLIQZ.Core.popup.mPopupOpen = true;
 
-        // try to find and hide misaligned elemets - eg - weather
-        setTimeout(function(){
-            hideMisalignedElements(gCliqzBox.resultsBox);
-            smCqzAnalogClock($('.cqz-analog-clock', gCliqzBox.resultsBox));
-        }, 0);
+          // try to find and hide misaligned elemets - eg - weather
+          setTimeout(function(box){
+              hideMisalignedElements(box);
+              smCqzAnalogClock($('.cqz-analog-clock', box));
+          }, 0, gCliqzBox.resultsBox);
 
-        // find out if scrolling is possible
-        CliqzAutocomplete.resultsOverflowHeight =
-            gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
+
+          // find out if scrolling is possible
+          CliqzAutocomplete.resultsOverflowHeight =
+              gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
+
+        }, 0, currentResults, asyncResults, query);
 
         return currentResults;
     },

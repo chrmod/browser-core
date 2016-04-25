@@ -45,6 +45,7 @@ a:hover, a:active, a:focus {
   max-width: 1024px;
   min-width: 800px;
   margin: 0px auto;
+  outline: none;
 }
 
 /* search */
@@ -656,3 +657,17 @@ a:hover, a:active, a:focus {
     max-width: 100%;
   }
 }
+
+/* EX-2255 */ /* Ref: theme-linux.scss */
+
+#freshTabPage #urlbar {
+    background-color: #fff !important;
+    color: #333;
+}
+
+#freshTabPage #urlbar::-moz-placeholder {
+    color: #999;
+}
+
+/* END EX-2255*/
+

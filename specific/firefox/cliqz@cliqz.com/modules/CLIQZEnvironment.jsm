@@ -245,9 +245,9 @@ var CLIQZEnvironment = {
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
         //lazy load gzip module
         if(compressedPost && !CLIQZEnvironment.gzip){
-            //CliqzUtils.importModule('core/gzip').then( function(gzip) {
-            //    CLIQZEnvironment.gzip = gzip
-            //});
+            CliqzUtils.importModule('core/gzip').then( function(gzip) {
+               CLIQZEnvironment.gzip = gzip
+            });
         }
 
         return new Promise( function(resolve, reject) {
@@ -256,7 +256,7 @@ var CLIQZEnvironment = {
             if ( CLIQZEnvironment.gzip && CLIQZEnvironment.gzip.compress && method === 'POST' && compressedPost) {
                 var dataLength = data.length;
                 data = CLIQZEnvironment.gzip.compress(data);
-                CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+                CliqzUtils.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
                 CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
             } else {
                 CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
