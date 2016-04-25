@@ -96,8 +96,10 @@ export default {
   },
 
   dispatchMessage(msg) {
-    if (msg.data.requestId in callbacks) {
-      this.handleResponse(msg);
+    if (msg.data.requestId) {
+      if (msg.data.requestId in callbacks) {
+        this.handleResponse(msg);
+      }
     } else {
       this.handleRequest(msg);
     }
@@ -115,7 +117,7 @@ export default {
         response,
         action: msg.data.payload.action
       });
-    }).catch( e => utils.log(e.toString(), "Problem with frameScript") );
+    }).catch( e => utils.log(`${module}/${action}`+e.toString()+'---'+e.stack, "Problem with frameScript") );
   },
 
   handleResponse(msg) {

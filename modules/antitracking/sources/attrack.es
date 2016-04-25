@@ -22,7 +22,7 @@ import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
 import core from 'core/background';
-import { cookieChecker } from 'antitracking/cookie-checker';
+import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import {PrivacyScore} from 'antitracking/privacy-score';
 
