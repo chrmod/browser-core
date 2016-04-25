@@ -18,8 +18,7 @@ node {
       sh 'su travis; /bin/bash -l -c "npm install"'
       sh 'su travis; /bin/bash -l -c "bower install --allow-root"'
       sh 'su travis; /bin/bash -l -c "./fern.js build ./configs/browser.json"'
-      sh 'su travis; cd build/firefox; /bin/bash -l -c "PATH=/openssl-0.9.8zg/apps/:$PATH fab package:sign=True,channel='+CLIQZ_CHANNEL+'"'
-      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; fab publish:channel='+CLIQZ_CHANNEL+'"'
+      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:channel='+CLIQZ_CHANNEL+',pre=False"'
     }
 
     sh 'rm -rf certs'
