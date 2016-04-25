@@ -123,12 +123,13 @@ export default class extends QSWhitelistBase {
     this.unsafeKeys.value[domain][key] = true;
   }
 
-  attachVersion(payl) {
-    payl['whitelist'] = persist.getValue('tokenWhitelistVersion', '');
-    payl['safeKey'] = persist.getValue('safeKeyExtVersion', '');
-    payl['unsafeKey'] = persist.getValue('unsafeKeyExtVersion', '');
-    payl['trackerDomains'] = persist.getValue('trackerDomainsVersion', '');
-    return payl;
+  getVersion() {
+    return {
+      whitelist: persist.getValue('tokenWhitelistVersion', ''),
+      safeKey: persist.getValue('safeKeyExtVersion', ''),
+      unsafeKey: persist.getValue('unsafeKeyExtVersion', ''),
+      trackerDomains: persist.getValue('trackerDomainsVersion', '')
+    };
   }
 
   _loadRemoteTokenWhitelist() {
