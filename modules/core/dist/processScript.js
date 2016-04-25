@@ -211,13 +211,17 @@ function onDOMWindowCreated(ev) {
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
 
+    if (!lang) {
+      return;
+    }
+
     send({
       windowId: windowId,
       payload: {
         module: "core",
         action: "recordLang",
         args: [
-          currentURL,
+          currentURL(),
           lang
         ]
       }
