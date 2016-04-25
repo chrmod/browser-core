@@ -6,7 +6,6 @@ import * as datetime from 'antitracking/time';
 import CliqzAttrack from 'antitracking/attrack';
 import CliqzHumanWeb from 'human-web/human-web';
 
-
 const DAYS_EXPIRE = 7;
 
 class TokenDomain {
@@ -181,7 +180,7 @@ class BlockLog {
 
   sendTelemetry() {
     if (Object.keys(this.blocked.value).length > 0) {
-      var payl = CliqzAttrack.generatePayload(this.blocked.value, datetime.getHourTimestamp(), false, true);
+      var payl = CliqzAttrack.generateAttrackPayload(this.blocked.value);
       CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.blocked', 'payload': payl});
       // reset the state
       this.blocked.clear();
@@ -324,7 +323,7 @@ export default class {
       'wrongPage': countWrongPage,
       'loadedPage': countLoadedPage
     };
-    var payl = CliqzAttrack.generatePayload(data, wrongTokenLastSent, false, true);
+    var payl = CliqzAttrack.generateAttrackPayload(data, wrongTokenLastSent);
     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.FP', 'payload': payl});
     persist.setValue('wrongTokenLastSent', day);
     this._updated = {};

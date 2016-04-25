@@ -2,13 +2,8 @@ import Ember from "ember";
 import News from "../models/news";
 import SpeedDials from "../models/speed-dials";
 
-var focusTotalTime = 0,
-    displayTotalTime = 0,
-    start = 0,
-    focusStart,
-    blurStart = 0,
-    focusTime = 0,
-    blurCount = 0;
+var displayTotalTime = 0,
+    start = 0;
 
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
@@ -24,6 +19,7 @@ export default Ember.Route.extend({
   },
 
   afterModel(model) {
+
     this.get('cliqz').getNews().then( news => {
       model.set('news.model', news);
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,
@@ -44,42 +40,17 @@ export default Ember.Route.extend({
         });
 
         start = new Date().getTime();
-        focusStart = start;
+
 
         window.addEventListener("beforeunload", function() {
           displayTotalTime = new Date().getTime() - start;
-          focusTotalTime += new Date().getTime() - focusStart;
           this.get('cliqz').sendTelemetry({
             type: 'home',
             action: 'hide',
             display_time: displayTotalTime,
-            focus_time: focusTotalTime,
-            blur_count: blurCount,
             home_id: tabIndex
           });
         }.bind(this), false);
-
-        window.addEventListener('blur', function() {
-          blurStart = new Date().getTime();
-          focusTotalTime += blurStart - focusStart;
-          focusTime = blurStart - focusStart;
-          blurCount++;
-          this.get('cliqz').sendTelemetry({
-            type: 'home',
-            action: 'blur',
-            focus_time: focusTime,
-            home_id: tabIndex
-          });
-        }.bind(this));
-
-        window.addEventListener('focus', function() {
-          focusStart = new Date().getTime();
-          this.get('cliqz').sendTelemetry({
-            type: 'home',
-            action: 'focus',
-            home_id: tabIndex
-          });
-        }.bind(this));
 
       }.bind(this));
     });

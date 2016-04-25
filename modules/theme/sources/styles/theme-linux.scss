@@ -38,7 +38,7 @@
 
 .tab-content {
     border-color: #d0d0d0;
-    border-width: 1px 1px 0px 1px;
+    border-width: 1px 2px 0px 2px; /* EX-2244 */
     border-style: solid;
     border-radius: 3px 3px 0 0;
 }
@@ -77,6 +77,28 @@
     border-radius: 0px;
     background-color: transparent !important;
 }
+
+/* BEGIN EX-2246 */
+
+:-moz-any(#back-button, #forward-button) > .toolbarbutton-icon {
+    border: none !important;
+}
+
+:-moz-any(#TabsToolbar, #nav-bar) .toolbarbutton-1:-moz-any([open], [checked], :hover:active):not([disabled="true"]) > .toolbarbutton-icon {
+    background: none;
+    box-shadow: unset;
+}
+
+:-moz-any(#TabsToolbar, #nav-bar) .toolbarbutton-1 > .toolbarbutton-menubutton-button > .toolbarbutton-icon {
+    border: none;
+}
+
+#back-button,
+#forward-button {
+    list-style-image: url("../images/browser/linux/Toolbar.png");
+}
+
+/* END EX-2246 */ 
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     -moz-margin-start: 0px;
@@ -137,9 +159,35 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #fff !important;
 }
 
+/* BEGIN EX-2243*/
+
 .tab-label:not([visuallyselected="true"]) {
     opacity: 1 !important;
+    color: #333;
 }
+
+.tab-label:not([selected="true"]) {
+    opacity: 0.8 !important;
+}
+
+/* END EX-2243 */
+
+/* BEGIN EX-2255 */
+
+.tab-label[selected="true"] {
+    opacity: 1 !important;
+    color: #333;
+}
+
+.textbox-input-box {
+    color: #333;
+}
+
+.textbox-input-box::-moz-placeholder {
+    color: #999;
+}
+
+/* END EX-2255*/
 
 .tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
 .tabs-newtab-button:hover {
@@ -195,6 +243,15 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     padding-top: 3px;
 }
 
+/* BEGIN EX-2245 */
+
+.tabs-newtab-button {
+    list-style-image: url("../images/browser/linux/newtab.png");
+    -moz-image-region: auto;
+}
+
+/* END EX-2245 */
+
 /*========== Tabs undeer window buttons*/
 
 /*#titlebar-placeholder-on-TabsToolbar-for-captions-buttons {*/
@@ -236,3 +293,50 @@ notification[type="warning"] .messageText {
     font-weight: normal;
     color: black;
 }
+
+/* BEGIN EX-2247*/
+
+#cliqz_menupopup .menuitem-iconic .menu-iconic-icon {
+    visibility: visible !important;
+}
+
+/* END EX-2247 */
+
+/* BEGIN EX-2251 */
+
+.close-icon {
+    list-style-image: url("../images/browser/mac/close.png");
+    -moz-image-region: rect(0, 16px, 16px, 0);
+}
+
+.close-icon:hover {
+    -moz-image-region: rect(0, 32px, 16px, 16px);
+}
+
+/* END EX-2251 */
+
+/* BEGIN EX-2254 */
+
+.urlbar-input-box {
+    padding: 3px 0 2px;
+}
+
+/* END EX-2254 */
+
+/* BEGIN EX-2256 */
+
+.arrowscrollbox-scrollbox {
+    background-color: #e0e0e0;
+}
+
+/* END EX-2256 */
+
+/* BEGIN EX-2255 */ /* Ref: fresh-tab-frontend/../app.scss */
+
+.cqz-ez-search-box-input {
+    background-color: #fff;
+    border: none;
+    color: #333;
+}
+
+/* END EX-2255 */
