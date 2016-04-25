@@ -57,6 +57,58 @@ function onUrlbarFocus(){
     countReload = true;
 }
 
+/**
+ * Add padding characters to the left of the given string.
+ *
+ * @param {string} str  - original string.
+ * @param {string} char - char used for padding the string.
+ * @param {number} size - desired size of the resulting string (after padding)
+**/
+function leftpad(str, char, size) {
+  // This function only makes sens if `char` is a character.
+  if (char.length != 1) {
+    throw new Error("`char` argument must only contain one character");
+  }
+
+  if (str.length >= size) {
+    return str;
+  }
+  else {
+    return (char.repeat(size - str.length) + str);
+  }
+}
+
+/**
+ * Remove any trace of source domains, or hashes of source domains
+ * from the data to be sent to the backend. This is made to ensure
+ * there is no way to backtrack to user's history using data sent to
+ * the backend.
+ *
+ * Replace all the keys of `trackerData` (which are 16-chars prefixes of
+ * hash of the source domain) by unique random strings of size 16 (which is
+ * expected by backend). We don't have to make them unique among all data,
+ * it is enough to ensure unicity on a per-tracker basis.
+ *
+ * @param {Object} trackerData - associate source domains to key/value pairs.
+**/
+function anonymizeTrackerTokens(trackerData) {
+  // Random base id
+  const min = 1;
+  const max = Number.MAX_SAFE_INTEGER;
+  let randId = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Anonymize the given tracker data
+  let anonymizedTrackerData = {};
+
+  for (let originalKey in trackerData) {
+    const newRandomKey = leftpad(randId.toString().substr(0, 16), '0', 16);
+    randId = (randId + 1) % max;
+    anonymizedTrackerData[newRandomKey] = trackerData[originalKey];
+  }
+
+  return anonymizedTrackerData;
+}
+
 var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"]
         .getService(Components.interfaces.mozIAsyncFavicons);
 
@@ -1477,8 +1529,8 @@ var CliqzAttrack = {
 
             let tokenData = CliqzAttrack.tokens[tracker];
             if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-                data[tracker] = tokenData;
-                delete(data[tracker].lastSent);
+                delete(tokenData.lastSent);
+                data[tracker] = anonymizeTrackerTokens(tokenData);
                 delete(CliqzAttrack.tokens[tracker]);
             }
         }
