@@ -633,6 +633,7 @@ var CliqzAttrack = {
                 requestContext = new HttpRequestContext(subject),
                 isPrivate = requestContext.isChannelPrivate(),
                 url = requestContext.url;
+
             if (!url || url == '') return;
             var visitor = new HeaderInfoVisitor(aChannel);
             var headers = visitor.visitRequest();
@@ -703,6 +704,7 @@ var CliqzAttrack = {
                 if (req_log) {
                     tp_events.incrementStat(req_log, 'resp_ob');
                     tp_events.incrementStat(req_log, 'content_length', parseInt(requestContext.getResponseHeader('Content-Length')) || 0);
+                    tp_events.incrementStat(req_log, `status_${requestContext.channel.responseStatus}`);
                     Object.keys(stats).forEach(function(key) {
                         tp_events.incrementStat(req_log, 'header.' + key, stats[key] || 0);
                     });
