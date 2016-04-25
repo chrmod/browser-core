@@ -10,13 +10,8 @@
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 
-		{% if amo != 'True' %}
-		{# Not working with CDN. It needs to be a https but our certificate is broken on the CDN. #}
-		{% if beta == 'True' %}
-		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
-		{% else %}
-		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/browser/latest.rdf</em:updateURL>
-		{% endif %}
+		{% if updateURL == 'True' %}
+    <em:updateURL>https://s3.amazonaws.com/cdncliqz/update/{{ folder }}/latest.rdf</em:updateURL>
 		{% endif %}
 
 		<em:description>
