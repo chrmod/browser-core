@@ -66,7 +66,7 @@ function onUrlbarFocus(){
 function leftpad(str, char, size) {
   // This function only makes sens if `char` is a character.
   if (char.length != 1) {
-    return str;
+    throw new Error("`char` argument must only contain one character");
   }
 
   if (str.length >= size) {
