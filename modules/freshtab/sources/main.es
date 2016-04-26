@@ -6,11 +6,11 @@ Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
-    //CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/freshtab/freshtab.html",
     CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/fresh-tab-frontend/index.html",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
+    CLIQZ_STARTUP_PREF = 1, //http://kb.mozillazine.org/Browser.startup.page
     BAK_HOMEPAGE = "backup.homepage",
     BAK_NEWTAB = "backup.newtab",
     BAK_STARTUP = "backup.startup",
@@ -177,7 +177,7 @@ function activate(){
       // https://dxr.mozilla.org/mozilla-central/source/browser/modules/NewTabURL.jsm
       if(firstStart){
         CliqzUtils.setPref(BAK_STARTUP, CliqzUtils.getPref(DEF_STARTUP, null, ''));
-        CliqzUtils.setPref(DEF_STARTUP, 1, ''); // set the startup page to be the homepage
+        CliqzUtils.setPref(DEF_STARTUP, CLIQZ_STARTUP_PREF, ''); // set the startup page to be the homepage
       }
 
       if(versionChecker.compare(appInfo.version, "44.0") < 0){
@@ -208,7 +208,11 @@ function deactivate(){
         const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
         aboutNewTabService.resetNewTabURL();
       }
-      CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), ''); // set the startup page to be the homepage
+
+      if(CliqzUtils.getPref(DEF_STARTUP, '', '') == CLIQZ_STARTUP_PREF){
+        // reset the startup page if the user didnt change it
+        CliqzUtils.setPref(DEF_STARTUP, CliqzUtils.getPref(BAK_STARTUP), '');
+      }
   }
   else {//FF40 and older
       CLiqzUtils.setPref(DEF_NEWTAB, CliqzUtils.getPref(BAK_NEWTAB), '');
