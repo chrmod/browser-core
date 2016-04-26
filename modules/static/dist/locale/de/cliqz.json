@@ -1019,6 +1019,15 @@
     "mobile_reconnecting_msg": {
       "message": "Internetverbindung wird wieder hergestellt"
     },
+    "mobile_no_history": {
+      "message": "Hier findest Du in Zukunft Deine Suchen und besuchten Seiten.<br />Bisher hast Du noch nicht gesucht und warst auf keinen Webseiten."
+    },
+    "mobile_no_favorites": {
+      "message": "Hier findest Du in Zukunft Deine Favoriten.<br />Tippe lange auf einen Eintrag im Verlauf, um Favoriten anzulegen."
+    },
+    "mobile_history_title": {
+      "message": "Besuchte Seiten"
+    },
     "mobile_history_title": {
       "message": "Besuchte Seiten"
     },

@@ -1,10 +1,18 @@
 'use strict';
+/* global document, CLIQZEnvironment, CliqzUtils, CliqzHandlebars, CLIQZ, osAPI */
+
+
+var touchTimer, isTapBlocked, historyTimer;
+var editMode = false, showOnlyFavorite = false, unfavoriteMode = false;
+var allHistory = [];
+var selectedQueries = [];
+var selectedHistory = [];
 
 function showHistory(history) {
   clearTimeout(historyTimer);
   var data = [];
   allHistory = history.results;
-  var queries = getListFromStorage("recentQueries");
+  var queries = getListFromStorage('recentQueries');
 
   for(var i=0; i < allHistory.length; i++) {
     allHistory[i].domain = allHistory[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
@@ -14,7 +22,7 @@ function showHistory(history) {
   queries.reverse();
   var hi = 0;
   var qi = 0;
-  var date = "";
+  var date = '';
   while(true) {
     if(hi >= allHistory.length || qi >= queries.length) {
       break;
@@ -67,54 +75,56 @@ function displayFavorites(data) {
     return item.date || item.favorite; // filter all unfavorite records
   }).filter(function(item, index, arr){
     return !item.date || (arr[index + 1] && !arr[index + 1].date); // filter empty days
-  }));
+  }), true);
 
-  document.getElementById("show_history").className = "";
-  document.getElementById("show_favorites_only").className = "active";
+  document.getElementById('show_history').className = '';
+  document.getElementById('show_favorites_only').className = 'active';
 }
 
-function displayData(data) {
-  if(!CliqzHandlebars.tplCache["conversations"] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
+function displayData(data, isFavorite = false) {
+  if(!CliqzHandlebars.tplCache['conversations'] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
     return setTimeout(displayData, 100, data);
   }
 
-  document.body.innerHTML = CliqzHandlebars.tplCache["conversations"]({data: data});
+  var emptyMsg = CliqzUtils.getLocalizedString(isFavorite ? 'mobile_no_favorites' : 'mobile_no_history');
 
-  document.getElementById("show_favorites_only").className = "";
-  document.getElementById("show_history").className = "active";
+  document.body.innerHTML = CliqzHandlebars.tplCache['conversations']({data: data, emptyMsg: emptyMsg});
+
+  document.getElementById('show_favorites_only').className = '';
+  document.getElementById('show_history').className = 'active';
 
   var B = document.body,
       H = document.documentElement,
-      height
+      height;
 
   if (typeof document.height !== 'undefined') {
-      height = document.height // For webkit browsers
+      height = document.height; // For webkit browsers
   } else {
       height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
   }
 
   document.body.scrollTop = height + 100;
 
-  document.getElementById("search_input").addEventListener("keyup", function() {
+  document.getElementById('search_input').addEventListener('keyup', function() {
       filterHistory(this.value);
   });
 
-  CLIQZEnvironment.addEventListenerToElements(".question, .answer", "click", function () {
-    var targeType = this.className === "question" ? "query" : "url";
+  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'click', function () {
+    var targeType = this.className === 'question' ? 'query' : 'url';
     CliqzUtils.telemetry({
-      type: "history",
-      action: "click",
+      type: 'history',
+      action: 'click',
       target_type: targeType,
       target_index: parseInt(this.dataset.index),
-      target_length: this.querySelector("." + targeType).textContent.length,
+      target_length: this.querySelector('.' + targeType).textContent.length,
       target_ts: parseInt(this.dataset.timestamp)
     });
   });
   var queryCount = data.filter(function (item) { return item.query; }).length,
       urlCount = data.filter(function (item) { return item.url; }).length;
   CliqzUtils.telemetry({
-    type: "history",
-    action: "show",
+    type: 'history',
+    action: 'show',
     active_day_count: data.length - queryCount - urlCount,
     query_count: queryCount,
     url_count: urlCount
@@ -172,7 +182,11 @@ function launchEditMode(element) {
 
 function endEditMode() {
   var framers = [].slice.call(document.getElementsByClassName('framer'));
-  framers.forEach(function(item) {item.setAttribute('class', 'framer')});
+  framers.forEach(
+    function(item) {
+      item.setAttribute('class', 'framer');
+    }
+  );
 
   var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
   checkboxes.forEach(function(element){
@@ -192,10 +206,10 @@ function getDateFromTimestamp(time) {
     var d = new Date(time);
 
     var days = d.getDate();
-    days = days > 9 ? days : '0' + days
+    days = days > 9 ? days : '0' + days;
 
     var months = d.getMonth()+1;
-    months = months > 9 ? months : '0' + months
+    months = months > 9 ? months : '0' + months;
 
     var year = d.getFullYear();
 
@@ -203,23 +217,21 @@ function getDateFromTimestamp(time) {
     return formatedDate;
 }
 function filterHistory(value) {
-    var framers = document.getElementsByClassName("framer");
+    var framers = document.getElementsByClassName('framer');
     for(var i=0;i<framers.length;i++) {
         if(framers[i].childNodes[1].firstChild.textContent.toLowerCase().match(value.toLowerCase())) {
-            framers[i].parentNode.style.display = "block";
+            framers[i].parentNode.style.display = 'block';
         } else {
-            framers[i].parentNode.style.display = "none";
+            framers[i].parentNode.style.display = 'none';
         }
     }
 }
 
-var selectedQueries = [];
-var selectedHistory = [];
 
 function favoriteSelected() {
   setQueryFavorite();
   if(selectedHistory.length > 0) {
-    osAPI.setHistoryFavorite(selectedHistory, !unfavoriteMode)
+    osAPI.setHistoryFavorite(selectedHistory, !unfavoriteMode);
   }
   endEditMode();
   getHistory(showOnlyFavorite);
@@ -228,7 +240,7 @@ function favoriteSelected() {
 function setQueryFavorite() {
   var allQueries = getListFromStorage('recentQueries');
 
-  var index = 0, id;
+  var index = 0;
   allQueries.forEach(function(item) {
     if(index >= selectedQueries.length) {
       return;
@@ -243,13 +255,13 @@ function setQueryFavorite() {
 }
 
 function removeQueries() {
-  var queries = getListFromStorage("recentQueries");
+  var queries = getListFromStorage('recentQueries');
 
   var index = 0;
   queries = queries.filter(function(query) {
     return index >= selectedQueries.length || selectedQueries[index] !== query.id || (index++ && false);
-  })
-  CLIQZ.CliqzStorage.setItem("recentQueries", JSON.stringify(queries));
+  });
+  CLIQZ.CliqzStorage.setItem('recentQueries', JSON.stringify(queries));
 }
 
 function removeSelected() {
@@ -295,7 +307,7 @@ function selectItem(item) {
   var selectAction = item.getAttribute('class').indexOf('question') >= 0 ? selectQuery : selectHistory;
   var id = parseInt(item.getAttribute('data-id'));
   selectAction(id);
-  setUnfavoriteMode()
+  setUnfavoriteMode();
   if(unfavoriteMode) {
     document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_unstar');
   } else {
@@ -307,7 +319,7 @@ function selectItem(item) {
   } else {
     framer.setAttribute('class', 'framer selected');
   }
-  if(selectedQueries.length + selectedHistory.length == 0) {
+  if(selectedQueries.length + selectedHistory.length === 0) {
     endEditMode();
   }
 }
@@ -327,12 +339,9 @@ function getSelectedFavorite(list, selectedList) {
 function getHistory(onlyFavorites) {
   showOnlyFavorite = onlyFavorites;
   historyTimer = setTimeout(showHistory, 200, {results: []});
-  osAPI.searchHistory("", "History.showHistory");
+  osAPI.searchHistory('', 'History.showHistory');
 }
 
-var touchTimer, isTapBlocked, historyTimer;
-var editMode = false, showOnlyFavorite = false, unfavoriteMode = false;
-var allHistory = [];
 
 function clearQueries(removeFavorites) {
   if(removeFavorites) {
@@ -355,7 +364,7 @@ function getListFromStorage(listName) {
 }
 
 
-History = {
+var History = {
   init: function(){
     getHistory(showOnlyFavorite);
   },
@@ -365,6 +374,6 @@ History = {
   favoriteSelected: favoriteSelected,
   removeSelected: removeSelected,
   endEditMode: endEditMode
-}
+};
 
 export default History;
