@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
+TESTS.Mixer = function(Mixer, CliqzUtils) {
   describe('Mixer', function() {
 
     beforeEach(function() {
@@ -104,117 +104,6 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
           expect(params.i).to.equal(i);
         });
       });
-    });
-
-    describe('persistTitlesDescriptions', function() {
-      var dbTitlesDescriptions,
-        callbackTime,
-        callbackFunction,
-        setTimeout;
-
-      beforeEach(function() {
-        dbTitlesDescriptions = {};
-        setTimeout = CliqzUtils.setTimeout;
-        CliqzUtils.setTimeout = function(f, time, titlesDescriptions) {
-          dbTitlesDescriptions = titlesDescriptions;
-          callbackTime = time;
-          callbackFunction = f;
-        };
-      });
-
-      afterEach(function() {
-        CliqzUtils.setTimeout = setTimeout;
-      });
-
-      it('should call CliqzHistory.updateTitlesDescriptions after timeout', function() {
-        Mixer._persistTitlesDescriptions([]);
-        expect(callbackTime).to.equal(25);
-        expect(callbackFunction).to.equal(CliqzHistory.updateTitlesDescriptions);
-      });
-
-      it('should set title', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              title: 'hello',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-
-        expect(dbTitlesDescriptions.URL1.title).to.equal('hello');
-        expect(dbTitlesDescriptions.URL1.desc).to.not.exist;
-      });
-
-      it('should set description', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              desc: 'hello',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions.URL1.desc).to.equal('hello');
-        expect(dbTitlesDescriptions.URL1.title).to.not.exist;
-      });
-
-      it('should set both', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              title: 'title1',
-              desc: 'hello',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions.URL1.title).to.equal('title1');
-        expect(dbTitlesDescriptions.URL1.desc).to.equal('hello');
-      });
-
-      it('should set both x 2', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              title: 'title1',
-              desc: 'hello1',
-            },
-          },
-          {
-            url: 'URL2',
-            snippet: {
-              title: 'title2',
-              desc: 'hello2',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions.URL1.title).to.equal('title1');
-        expect(dbTitlesDescriptions.URL1.desc).to.equal('hello1');
-        expect(dbTitlesDescriptions.URL2.title).to.equal('title2');
-        expect(dbTitlesDescriptions.URL2.desc).to.equal('hello2');
-      });
-
-      it('should do nothing', function() {
-        var input = [
-          {
-            url: 'URL1',
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions).to.deep.equal({});
-      });
-
     });
 
     describe('isValidQueryForEZ', function() {

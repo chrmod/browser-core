@@ -116,25 +116,51 @@ function onDOMWindowCreated(ev) {
     }), "*");
   }
 
+  var fns = {
+    getHTML: function () {
+      return window.document.documentElement.outerHTML;
+    },
+    queryHTML: function (selector, attribute) {
+      var attributes = attribute.split(",");
+
+      return Array.prototype.map.call(
+        window.document.querySelectorAll(selector),
+        function (el) {
+          if (attributes.length > 1) {
+            return attributes.reduce( function (hash, attr) {
+              hash[attr] = el[attr];
+              return hash;
+            }, {});
+          } else {
+            return el[attribute];
+          }
+        }
+      );
+    },
+    getCookie: function () {
+      return window.document.cookie;
+    }
+  };
+
   function onCore(msg) {
-    // we handle only getHTML ATM
-    if ( msg.data.action !== "getHTML" ) {
+    var payload;
+
+    if ( msg.data.url !== currentURL() ) {
       return;
     }
 
-    if ( msg.data.args[0] !== currentURL() ) {
+    if ( !(msg.data.action in fns) ) {
       return;
     }
 
-    var html;
     try {
-      html = window.document.documentElement.outerHTML;
+      payload = fns[msg.data.action].apply(null, msg.data.args || []);
     } catch (e) {
-      console.error("cliqz framescript:", e);
+      window.console.error("cliqz framescript:", e);
     }
 
     send({
-      payload: html,
+      payload: payload,
       requestId: msg.data.requestId
     });
   }
@@ -181,6 +207,27 @@ function onDOMWindowCreated(ev) {
     });
   };
 
+  var onReady = function () {
+    var lang = window.document.getElementsByTagName('html')
+      .item(0).getAttribute('lang');
+
+    if (!lang) {
+      return;
+    }
+
+    send({
+      windowId: windowId,
+      payload: {
+        module: "core",
+        action: "recordLang",
+        args: [
+          currentURL(),
+          lang
+        ]
+      }
+    });
+  };
+
   var onKeyPress = proxyWindowEvent("recordKeyPress");
   var onMouseMove = proxyWindowEvent("recordMouseMove");
   var onScroll = proxyWindowEvent("recordScroll");
@@ -192,6 +239,7 @@ function onDOMWindowCreated(ev) {
   window.addEventListener("mousedown", onMouseDown);
   window.addEventListener("scroll", onScroll);
   window.addEventListener("copy", onCopy);
+  window.addEventListener("DOMContentLoaded", onReady);
   startListening("window-"+windowId, onCallback);
   startListening("cliqz:core", onCore);
 
@@ -202,6 +250,7 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
+    window.removeEventListener("DOMContentLoaded", onReady);
     stopListening("window-"+windowId, onCallback);
     stopListening("cliqz:core", onCore);
   });

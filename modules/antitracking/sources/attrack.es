@@ -21,10 +21,12 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import {ChannelListener} from 'antitracking/channel-listener';
 import ResourceLoader from 'core/resource-loader';
-import { cookieChecker } from 'antitracking/cookie-checker';
+import core from 'core/background';
+import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 //import {PrivacyScore} from 'antitracking/privacy-score';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
+
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -156,7 +158,7 @@ var CliqzAttrack = {
     localBlockExpire: 24,
     shortTokenLength: 8,
     safekeyValuesThreshold: 4,
-    cChecker: new cookieChecker(),
+    cChecker: new CookieChecker(),
     qsBlockRule: null,  // list of domains should be blocked instead of shuffling
     blocked: null,  // log what's been blocked
     placeHolder: '',
@@ -383,16 +385,9 @@ var CliqzAttrack = {
 
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname'], isPrivate, CliqzAttrack.saveKeyTokens);
-                try{
-                    let source = getRefToSource(subject, referrer);
-                    if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
-                        var doc = source.lc.topWindow.document;
-                        if (doc.URL == source_url) {
-                            CliqzAttrack.storeDomData(doc);
-                        }
-                    }
-                }
-                catch(ee){};
+
+                CliqzAttrack.recordLinksForURL(source_url);
+
                 var reflinks = CliqzAttrack.linksFromDom[source_url] || {};
 
                 // @konarkm : Just iterating, hence commenting.
@@ -401,13 +396,14 @@ var CliqzAttrack = {
                     CliqzUtils.log('known url from reflinks: ' + url, 'tokk-kown-url');
                 }
                 */
+                // work around for https://github.com/cliqz/navigation-extension/issues/1230
+                if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
+                    CliqzAttrack.recentlyModified.delete(source_tab + url);
+                    subject.cancel(Components.results.NS_BINDING_ABORTED);
+                    return;
+                }
                 if (url in reflinks) {
-                    // work around for https://github.com/cliqz/navigation-extension/issues/1230
-                    if (CliqzAttrack.recentlyModified.contains(source_tab + url)) {
-                        subject.cancel(Components.results.NS_BINDING_ABORTED);
-                        return;
-                    }
-                    // CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
+                    CliqzAttrack.tp_events.incrementStat(req_log, "url_in_reflinks");
                     // return;
                 }
 
@@ -675,14 +671,9 @@ var CliqzAttrack = {
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) return;
                 CliqzAttrack.extractHeaderTokens(url_parts, source_url_parts['hostname'], headers, isPrivate, CliqzAttrack.saveKeyTokens);
-                try{
-                    if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
-                        var doc = source.lc.topWindow.document;
-                        if (doc.URL == source_url) {
-                            CliqzAttrack.storeDomData(doc);
-                        }
-                    }
-                } catch (e) {}
+
+                CliqzAttrack.recordLinksForURL(source_url);
+
                 var cookievalue = {},
                     docCookie = '';
                 if (source_url in CliqzAttrack.cookiesFromDom && CliqzAttrack.cookiesFromDom[source_url]) {
@@ -1102,22 +1093,24 @@ var CliqzAttrack = {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
+            var url = aURI.spec;
 
-            CliqzAttrack.linksFromDom[aURI.spec] = {};
+            CliqzAttrack.linksFromDom[url] = {};
+
             if (aProgress.isLoadingDocument) {
                 // when a new page is loaded, try to extract internal links and cookies
                 var doc = aProgress.document;
-                // Throws an error doc -- in undefined.
-                CliqzAttrack.loadedTabs[aURI.spec] = false;
+                CliqzAttrack.loadedTabs[url] = false;
+
                 if(doc) {
                     if (doc.body) {
-                        CliqzAttrack.storeDomData(doc);
+                        CliqzAttrack.recordLinksForURL(url);
                     }
                     doc.addEventListener(
                         'DOMContentLoaded',
                         function(ev) {
                             CliqzAttrack.loadedTabs[aURI.spec] = true;
-                            CliqzAttrack.storeDomData(doc);
+                            CliqzAttrack.recordLinksForURL(url);
                         });
                     CliqzAttrack.clearDomLinks();
                 }
@@ -1432,7 +1425,6 @@ var CliqzAttrack = {
         window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
 
         CliqzAttrack.getPrivateValues(window);
-        CliqzAttrack.cChecker.addListeners(window);
     },
     unload: function() {
         // don't need to unload if disabled
@@ -1473,7 +1465,6 @@ var CliqzAttrack = {
         if (window.CLIQZ) {
             window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
         }
-        CliqzAttrack.cChecker.removeListeners(window);
     },
     checkInstalledAddons: function() {
         CliqzAttrack.similarAddon = false;
@@ -1911,32 +1902,33 @@ var CliqzAttrack = {
         }
         CliqzAttrack._tokens.setDirty();
     },
-    storeDomData: function(dom) {
-        // cookies
-        var url = dom.URL;
-        CliqzAttrack.cookiesFromDom[url] = dom.cookie;
+    recordLinksForURL(url) {
+      if (CliqzAttrack.loadedTabs[url]) {
+        return;
+      }
 
-        // links
-        // TODO: keep only 3rd party links
-        var reflinks = {};
-        if (dom.links) {
-            for (var i = 0; i < dom.links.length; i++) {
-                reflinks[dom.links[i].href] = true;
-            }
-        }
-        if (dom.scripts) {
-            for (var i = 0; i < dom.scripts.length; i++) {
-                var s = dom.scripts[i].src;
-                if (s.indexOf('http') == 0) {
-                    reflinks[s] = true;
-                }
-            }
-        }
-        var links = dom.getElementsByTagName('link');
-        for (var i = 0; i < links.length; i++) {
-            reflinks[links[i].href] = true;
-        }
-        CliqzAttrack.linksFromDom[url] = reflinks;
+      return Promise.all([
+
+        core.getCookie(url).then(
+          cookie => CliqzAttrack.cookiesFromDom[url] = cookie
+        ),
+
+        Promise.all([
+          core.queryHTML(url, 'a[href]', 'href'),
+          core.queryHTML(url, 'link[href]', 'href'),
+          core.queryHTML(url, 'script[src]', 'src').then(function (hrefs) {
+            return hrefs.filter( href => href.indexOf('http') === 0 );
+          }),
+        ]).then(function (reflinks) {
+          var hrefSet = reflinks.reduce((hrefSet, hrefs) => {
+            hrefs.forEach( href => hrefSet[href] = true );
+            return hrefSet;
+          }, {});
+
+          CliqzAttrack.linksFromDom[url] = hrefSet;
+        })
+
+      ]);
     },
     clearDomLinks: function() {
         for (var url in CliqzAttrack.linksFromDom) {
@@ -2162,9 +2154,10 @@ var CliqzAttrack = {
       var tabId, urlForTab;
       try {
         var gBrowser = CliqzUtils.getWindow().gBrowser,
-            selectedTab = gBrowser.selectedTab;
-        tabId = selectedTab.linkedBrowser._loadContext.DOMWindowID;
-        urlForTab = '' + gBrowser.getBrowserForTab(selectedTab).contentDocument.location;
+            selectedBrowser = gBrowser.selectedBrowser;
+
+        tabId = selectedBrowser.outerWindowID;
+        urlForTab = selectedBrowser.currentURI.spec;
       } catch (e) {
       }
       return CliqzAttrack.getTabBlockingInfo(tabId, urlForTab);

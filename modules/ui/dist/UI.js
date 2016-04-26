@@ -1478,11 +1478,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
         positionType: action.position_type
       });
     }
-    //LUCIAN: TODO - decouple CliqzHistory
     if(!window.gBrowser)return;
-
-    CliqzHistory.updateQuery(query, autocompleteUrl);
-    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
 // user scroll event
@@ -1857,7 +1853,6 @@ function onEnter(ev, item){
     //publish google event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
-    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.customizeQuery(input);
@@ -1924,7 +1919,7 @@ function enginesClick(ev){
                 CLIQZEnvironment.openLink(window, url, true);
                 action.new_tab = true;
             } else {
-                gBrowser.selectedBrowser.contentDocument.location = url;
+                gBrowser.selectedBrowser.loadURI(url);
                 CLIQZ.Core.popup.closePopup();
                 action.new_tab = false;
             }

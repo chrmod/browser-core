@@ -18,9 +18,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
-
 CliqzUtils.init();
 var CliqzSmartCliqzCache;
 
@@ -133,25 +130,6 @@ var Mixer = {
   // Prepare history results for mixing
   _prepareHistoryResults: function(results) {
     return results.map(Result.clone);
-  },
-
-  // Record all titles and descriptions found in cliqz results.
-  // To be used later when displaying history entries.
-  _persistTitlesDescriptions: function(results) {
-    var titlesDescriptions = results.reduce(function(descs, result) {
-      if (!result.snippet) { return descs; }
-
-      descs[result.url] = {
-        title: result.snippet.title,
-        desc: result.snippet.desc,
-      };
-
-      return descs;
-    }, {});
-
-    // postpone this operation until after this result set is rendered
-    CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25,
-                          titlesDescriptions);
   },
 
   // Is query valid for triggering an EZ?
@@ -401,9 +379,6 @@ var Mixer = {
                    ' history:' + history.length +
                    ' cliqz:' + cliqz.length +
                    ' extra:' + cliqzExtra.length, 'Mixer');
-
-    // Save titles and description from cliqz results into DB
-    Mixer._persistTitlesDescriptions(cliqz);
 
     // Were any history results also available as a cliqz result?
     //  if so, remove from backend list and combine sources in history result

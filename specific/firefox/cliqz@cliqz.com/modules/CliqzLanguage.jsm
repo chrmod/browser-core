@@ -41,39 +41,6 @@ var CliqzLanguage = {
         }
         return CliqzLanguage._locale;
     },
-    listener: {
-        currURL: undefined,
-        QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
-
-        onLocationChange: function(aBrowser, aProgress, aRequest, aURI) {
-            if (!aURI || aURI.spec == this.currentURL ||
-                !CliqzAutocomplete.lastResult) return;
-
-            this.currentURL = aURI.spec;
-
-            // now the language detection
-            CliqzLanguage.window.setTimeout(function(currURLAtTime) {
-                try {
-                    if(CliqzLanguage){ //might be called after the extension is disabled
-                        var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
-                        if (''+currURLAtTime == ''+currURL) {
-                            // the person has stayed at least READING_THRESHOLD at the URL, now let's try
-                            // to fetch the locale
-                            // CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
-                            var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
-                                .getElementsByTagName('html').item(0).getAttribute('lang');
-                            if (locale) CliqzLanguage.addLocale(''+currURL,locale);
-                        }
-                    }
-               }
-               catch(ee) {
-                // silent fail
-                //CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
-               }
-
-            }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
-        },
-    },
 
     // load from the about:config settings
     init: function(window) {
