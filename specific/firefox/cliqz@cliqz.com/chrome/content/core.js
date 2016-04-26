@@ -336,6 +336,8 @@ window.CLIQZ.Core = {
                 language: navigator.language,
                 width: window.document.width,
                 height: window.document.height,
+                inner_height: window.content.innerHeight,
+                inner_width: window.content.innerWidth,
                 screen_width: screenWidth.value,
                 screen_height: screenHeight.value,
                 version: CliqzUtils.extensionVersion,

@@ -182,7 +182,6 @@ export default {
     },
 
     getNews() {
-      let underline = utils.getPref('freshTabNewsUnderline');
 
       return News.getNews().then(function(news) {
         News.init();
@@ -210,10 +209,9 @@ export default {
           version: news.top_news_version,
           news: topNews.concat(hbNewsAll).map( r => ({
             title: r.title,
-            displayUrl: utils.getDetailsFromUrl(r.url).domain || r.title,
+            displayUrl: utils.getDetailsFromUrl(r.url).cleanHost || r.title,
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,
-            underline: underline,
             personalized: r.personalized,
           }))
         };
@@ -249,6 +247,11 @@ export default {
     revertBack() {
       FreshTab.toggleState();
       utils.getWindow().CLIQZ.Core.refreshButtons();
-    }
+    },
+
+    getTabIndex() {
+      return Promise.resolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
+    },
+
   }
 };

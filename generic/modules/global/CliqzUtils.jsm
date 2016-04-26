@@ -224,7 +224,7 @@ var CliqzUtils = {
     if(base.length == 0)
       return result;
 
-    if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
+    if (base == "IP") result = { text: "IP", backgroundColor: "9077e3" }
 
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
@@ -485,6 +485,11 @@ var CliqzUtils = {
     var friendly_url = cleanHost + extra;
     //remove trailing slash from the end
     friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
+
+    //Handle case where we have only tld for example http://cliqznas
+    if(cleanHost === tld) {
+      name = tld;
+    }
 
     var urlDetails = {
               scheme: scheme,

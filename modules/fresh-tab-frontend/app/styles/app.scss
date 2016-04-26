@@ -45,6 +45,7 @@ a:hover, a:active, a:focus {
   max-width: 1024px;
   min-width: 800px;
   margin: 0px auto;
+  outline: none;
 }
 
 /* search */
@@ -359,10 +360,6 @@ a:hover, a:active, a:focus {
   text-decoration: none;
 }
 
-#freshTabPage #newsContainer .underline .title {
-  text-decoration: underline;
-}
-
 #freshTabPage #newsContainer li .url {
   font-size: 14px;
   color: #999999;
@@ -398,16 +395,21 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #newsContainer .logo {
   float: left;
-  width: 40px;
-  margin-right: 20px;
+  width: 2em;
+  height: 2em;
+  font-size: 20px;
+  padding: 0.3em; /* 6px / 20px */
+  line-height: 1.25em; /* 25px / 20px */
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  overflow: hidden;
   background-origin:content-box;
   background-position: center center;
   background-repeat: no-repeat;
   background-size: contain;
   border-radius: 50%;
   box-sizing: border-box;
-  height: 40px;
-  padding: 6px;
 }
 
 #freshTabPage #yourNewsBox ul {
@@ -655,3 +657,17 @@ a:hover, a:active, a:focus {
     max-width: 100%;
   }
 }
+
+/* EX-2255 */ /* Ref: theme-linux.scss */
+
+#freshTabPage #urlbar {
+    background-color: #fff !important;
+    color: #333;
+}
+
+#freshTabPage #urlbar::-moz-placeholder {
+    color: #999;
+}
+
+/* END EX-2255*/
+
