@@ -38,7 +38,7 @@
 
 .tab-content {
     border-color: #d0d0d0;
-    border-width: 1px 2px 0px 2px; /* EX-2244 */
+    border-width: 1px 1px 0px 1px;
     border-style: solid;
     border-radius: 3px 3px 0 0;
 }
@@ -189,6 +189,15 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 /* END EX-2255*/
 
+/* BEGIN EX-2270 */
+
+.tab-label {
+    font-size: 11px;
+    text-align: center;
+}
+
+/* END EX-2270  */
+
 .tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
 .tabs-newtab-button:hover {
     background: rgba(255, 255, 255, 1) !important;
@@ -216,7 +225,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 #nav-bar {
     margin-top: 0 !important;
-    border-top-color: #99B3C9 !important;
     background: #fff !important;
 }
 
@@ -300,6 +308,35 @@ notification[type="warning"] .messageText {
     visibility: visible !important;
 }
 
+
+#cliqz_menupopup {
+    menuitem[_moz-menuactive="true"], menu[_moz-menuactive="true"] {
+        -moz-appearance: none !important;
+        background-color: #4899fb;
+    }
+
+    menuitem[_moz-menuactive="true"] {
+        .menu-iconic-text {
+            color: #fff !important;
+        }                                                                                                                                                                                                                                                          
+    }
+
+    menu[_moz-menuactive="true"] {
+        .menu-text {
+            color: #fff !important;
+        }                                                                                                                                                                                                                                                          
+    }
+
+    menuitem, menu {
+        -moz-appearance: none !important;
+        padding: 5px;
+    }
+
+    .menu-iconic-text, .menu-text {
+        color: #000;
+    }
+}
+
 /* END EX-2247 */
 
 /* BEGIN EX-2251 */
@@ -311,6 +348,11 @@ notification[type="warning"] .messageText {
 
 .close-icon:hover {
     -moz-image-region: rect(0, 32px, 16px, 16px);
+    background-image: none;
+}
+
+#TabsToolbar[brighttext] .tab-close-button:not([visuallyselected]):not(:hover) {
+    background-image: none;
 }
 
 /* END EX-2251 */
@@ -340,3 +382,28 @@ notification[type="warning"] .messageText {
 }
 
 /* END EX-2255 */
+
+/* BEGIN EX-2271 */
+
+.tab-throbber[progress] {
+    list-style-image: url("../images/browser/linux/loading.png");
+}
+
+/* END EX-2271 */
+
+/* BEGIN EX-2273 */
+
+toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #webide-button, #pocket-button) {
+    list-style-image: url(chrome://browser/skin/Toolbar.png);
+    background-color: #e0e0e0;
+}
+
+/* END EX-2273 */
+
+/* BEGIN EX-2244 */
+
+#TabsToolbar:not([collapsed="true"]) + #nav-bar {
+    border-top: 1px solid #99b3c9 !important;
+}
+
+/* END EX-2244 */
