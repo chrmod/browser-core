@@ -137,6 +137,12 @@ var CliqzCalculator = {
       return ''; // Don't trigger calculator yet if the query is just a number
     }
     var operators = ['+', '-', '*', '/', '^', '='];
+    if(CliqzUtils.getLocalizedString('locale_lang_code') === 'de-DE') {
+      q = q.replace(/.(\d{3})/g, '$1'); // remove thousand marks
+      q = q.replace(/(\d),(\d)/g, '$1.$2'); // commas are separators to german ppl
+    } else {
+      q = q.replace(/,(\d{3})/g, '$1'); // remove thousand marks
+    }
     q = q.replace(/ /g, ''); // Remove all spaces
     for (var i = 0; i < operators.length; i++) {
       if (q[q.length - 1] == operators[i]) {
