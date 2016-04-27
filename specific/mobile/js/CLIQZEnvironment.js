@@ -230,15 +230,6 @@ CLIQZEnvironment = {
 
     function isMixerUrl(url) { return url.indexOf(CliqzUtils.RESULTS_PROVIDER) === 0; }
 
-    if(isMixerUrl(url)) {
-      if(!window.navigator.onLine) {
-        if(typeof CustomEvent !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('disconnected', { 'detail': 'browser is offline' }));
-        }
-        CliqzUtils.log( 'request ' + url + ' will be deferred until the browser is online', 'CLIQZEnvironment.httphandler');
-        return;
-      }
-    }
     var req = new XMLHttpRequest();
     if (asynchronous === undefined) {
       req.open(method, url, true);
