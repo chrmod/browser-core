@@ -155,8 +155,6 @@ CLIQZEnvironment = {
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
 
-    CLIQZEnvironment.setCurrentQuery(r._searchString);
-
     renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
 
     CLIQZEnvironment.lastResults = renderedResults.results;
@@ -175,6 +173,9 @@ CLIQZEnvironment = {
       CLIQZEnvironment.lastResults = null;
       return;
     }
+
+    CLIQZEnvironment.setCurrentQuery(e);
+
     e = e.toLowerCase().trim();
 
     CLIQZEnvironment.lastSearch = e;
@@ -431,17 +432,17 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',JSON.stringify(recentItems));
+    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
   else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',JSON.stringify(recentItems));
+    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
   else {
     recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',JSON.stringify(recentItems));
+    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
 };
 
@@ -450,6 +451,6 @@ CLIQZEnvironment.getRecentQueries = function() {
   if(CLIQZEnvironment.getLocalStorage().getItem('recentQueries') == null) {
     CLIQZEnvironment.getLocalStorage().setItem('recentQueries','[]');
   }
-  return JSON.parse(CLIQZEnvironment.getLocalStorage().getItem('recentQueries'));
+  return CLIQZEnvironment.getLocalStorage().getObject('recentQueries');
 };
 
