@@ -162,7 +162,7 @@ var CliqzUtils = {
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
-        baseCore = base.replace(/[^0-9a-z]/gi,""),
+        baseCore = base.replace(/[-]/g, ""),
         check = function(host,rule){
           var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "$" + host.substr(address + base.length)
 
@@ -194,10 +194,8 @@ var CliqzUtils = {
         }
       }
     }
-
     result.text = result.text || (baseCore.length > 1 ? ((baseCore[0].toUpperCase() + baseCore[1].toLowerCase())) : "")
     result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
-
     var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
         buttonClass = BRANDS_DATABASE.buttons && colorID != -1 && BRANDS_DATABASE.buttons[colorID]?BRANDS_DATABASE.buttons[colorID]:10
 
@@ -402,6 +400,7 @@ var CliqzUtils = {
     isIPv4 = ipv4_regex.test(host);
     isIPv6 = ipv6_regex.test(host);
     var isLocalhost = CliqzUtils.isLocalhost(host, isIPv4, isIPv6);
+
     // find parts of hostname
     if (!isIPv4 && !isIPv6 && !isLocalhost) {
       try {
@@ -957,6 +956,13 @@ var CliqzUtils = {
     // avoide error from decodeURIComponent('%2')
     try {
       return decodeURIComponent(s);
+    } catch(e) {
+      return s;
+    }
+  },
+  tryEncodeURIComponent: function(s) {
+    try {
+      return encodeURIComponent(s);
     } catch(e) {
       return s;
     }
