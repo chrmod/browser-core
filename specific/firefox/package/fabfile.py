@@ -147,7 +147,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
 
     folder = get_folder_name(beta=='True', channel)
 
-    path_to_s3 = PATH_TO_S3_BUCKET + folder + ('_pre' if pre == 'True' else '')
+    path_to_s3 = PATH_TO_S3_BUCKET + folder + ('_pre' if pre == 'True' else '') + '/'
 
     local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
@@ -157,8 +157,8 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     if version is None:
         version = get_version(beta)
 
-    download_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (channel, output_file_name)
-    download_link_latest_html = "http://cdn2.cliqz.com/update/%s/%s" % (channel, output_file_name)
+    download_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (folder, output_file_name)
+    download_link_latest_html = "http://cdn2.cliqz.com/update/%s/%s" % (folder, output_file_name)
 
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
