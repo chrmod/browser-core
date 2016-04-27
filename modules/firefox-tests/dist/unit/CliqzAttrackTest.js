@@ -187,8 +187,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                     beforeEach(function() {
                         var wait = waitFor( function() {
-                          var tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
-                          return CliqzAttrack.tp_events._active[tab_id].url === "http://cliqztest.de/"
+                          return gBrowser.getBrowserForTab(tabs[0]).currentURI.spec === "http://cliqztest.de/"
                         });
                         gBrowser.getBrowserForTab(tabs[0]).loadURI("http://cliqztest.de/");
                         return wait;
@@ -207,8 +206,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
                             chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com/');
 
                             // check active tabs
-                            tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
-                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://cliqztest.de/");
+                            var tabUrls = Object.keys(CliqzAttrack.tp_events._active).map(function(tab_id) {
+                              return CliqzAttrack.tp_events._active[tab_id].url;
+                            });
+                            chai.expect(tabUrls).to.contain("http://cliqztest.de/");
+                            chai.expect(tabUrls).to.contain("http://cliqztest.com/privacy#saferWeb");
                         });
                     });
 

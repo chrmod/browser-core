@@ -9,6 +9,7 @@
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
+    <em:multiprocessCompatible>true</em:multiprocessCompatible>
 
 		{% if updateURL == 'True' %}
     <em:updateURL>https://s3.amazonaws.com/cdncliqz/update/{{ folder }}/latest.rdf</em:updateURL>

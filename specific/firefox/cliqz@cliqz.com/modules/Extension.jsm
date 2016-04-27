@@ -51,6 +51,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
         CliqzUtils.initPlatform(System)
 
@@ -138,14 +139,6 @@ var Extension = {
 
         Extension.cliqzPrefsObserver.unregister();
 
-        // Remove this observer here to correct bug in 0.5.57
-        // - if you don't do this, the extension will crash on upgrade to a new version
-        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
-        try {
-            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
-        } catch(e) {}
-
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
 
@@ -205,7 +198,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -226,7 +218,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistory.jsm');
         // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
     },
     restart: function(){

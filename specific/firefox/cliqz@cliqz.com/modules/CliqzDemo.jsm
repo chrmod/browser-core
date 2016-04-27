@@ -36,7 +36,7 @@ function _log(msg) {
 function _sendTelemetrySignal(action) {
 	var signal = {
 		type: "demo",
-		url: CliqzUtils.getWindow().gBrowser.contentDocument.location.toString(),
+		url: CliqzUtils.getWindow().gBrowser.selectedBrowser.currentURI.spec,
 		action: action
 	};
 

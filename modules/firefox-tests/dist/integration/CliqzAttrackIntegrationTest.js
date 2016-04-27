@@ -52,12 +52,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       console.log(r_obj);
 
       // send an appropriate response
-      if ('accept' in headers && headers['accept'].indexOf('image') > -1) {
+      if (request.path.indexOf('.gif') > 0) {
         var imgFile = ['firefox-tests', 'mockserver', 'Transparent.gif'];
         // prevent img caching
         response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.setHeader('Pragma', 'no-cache');
         response.setHeader('Expires', '0');
+        console.log('send image');
         // send actual gif file
         testServer.writeFileResponse(request, imgFile, response);
       } else {
@@ -88,15 +89,19 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       testServer.registerDirectory('/bower_components/', ['bower_components']);
       // add specific handler for /test which will collect request parameters for testing.
       testServer.registerPathHandler('/test', collect_request_parameters);
-      testServer.registerPathHandler('/tracker302', function(request, response) {
+      testServer.registerPathHandler('/test.gif', collect_request_parameters);
+
+      var redirect302 = function(request, response) {
         response.setStatusLine('1.1', 302);
         response.setHeader('Access-Control-Allow-Origin', '*');
         response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.setHeader('Pragma', 'no-cache');
         response.setHeader('Expires', '0');
-        response.setHeader('Location', 'http://127.0.0.1:'+ testServer.port +'/test?'+ request.queryString);
-        console.log('tracker302');
-      });
+        var path = request.path.indexOf('.gif') > 0 ? 'test.gif' : 'test';
+        response.setHeader('Location', 'http://127.0.0.1:'+ testServer.port +'/' + path + '?'+ request.queryString);
+      };
+      testServer.registerPathHandler('/tracker302', redirect302);
+      testServer.registerPathHandler('/tracker302.gif', redirect302);
     }
 
     beforeEach(function() {
@@ -267,7 +272,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_2': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               }
             }
           }
@@ -282,7 +288,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_2': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               }
             }
           }
@@ -292,12 +299,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         base_tps: function() {
           return {
             '127.0.0.1': {
-              '/test': {
+              '/test.gif': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_3': 1,
-                'content_length': 42
+                'content_length': 42,
+                'status_200': 1
               }
             }
           }
@@ -312,7 +320,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_11': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               }
             }
           }
@@ -325,19 +334,22 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
               '/iframe.html': {
                 'c': 1,
                 'cookie_set': 1,
-                'type_7': 1
+                'type_7': 1,
+                'status_200': 1
               },
               '/test': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_11': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
                 'type_2': 1,
-                'cookie_set': 1
+                'cookie_set': 1,
+                'status_200': 1
               }
             }
           }
@@ -347,12 +359,13 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         base_tps: function() {
           return {
             '127.0.0.1': {
-              '/test': {
+              '/test.gif': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_3': 1,
-                'content_length': 42
+                'content_length': 42,
+                'status_200': 1
               }
             }
           }
@@ -365,25 +378,29 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
               '/iframe.html': {
                 'c': 1,
                 'cookie_set': 1,
-                'type_7': 1
+                'type_7': 1,
+                'status_200': 1
               },
               '/test': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_11': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
                 'type_2': 1,
-                'cookie_set': 1
+                'cookie_set': 1,
+                'status_200': 1
               }
             },
             'cliqztest.de': {
               '/proxyiframe.html': {
                 'c': 1,
-                'type_7': 1
+                'type_7': 1,
+                'status_200': 1
               }
             }
           }
@@ -877,84 +894,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         });
       });
 
-    });
-
-    describe('Referer Tracking Protection', function() {
-
-      var testpage = 'referertest.html';
-
-      describe('disabled', function() {
-
-        it('full referer is sent to third parties', function(done) {
-          openTestPage(testpage);
-
-          expectNRequests(2).assertEach(function(m) {
-            chai.expect(m.headers['referer']).to.contain("http://localhost:"+ testServer.port);
-          }, done);
-
-        });
-      });
-
-      describe('enabled', function() {
-
-        beforeEach(function() {
-          CliqzUtils.setPref('attrackRefererTracking', true);
-          CliqzAttrack.initialiseAntiRefererTracking();
-        });
-
-        afterEach(function() {
-          CliqzUtils.setPref('attrackRefererTracking', false);
-          CliqzAttrack.initialiseAntiRefererTracking();
-        });
-
-        it('does not send referer to anyone', function(done) {
-          openTestPage(testpage);
-
-          expectNRequests(2).assertEach(function(m) {
-            chai.expect(m.headers).to.not.have.property('referer');
-          }, done);
-        });
-
-        it('sends referer on link click to same domain', function(done) {
-          this.timeout(10000);
-
-          openTestPage(testpage);
-
-          expectNRequests(2).assertEach(function(m) {}, function(e) {
-            if(e) {
-              done(e);
-            } else {
-              var tab = gBrowser.getBrowserForTab(tabs[0]);
-              echoed = [];
-              tab.contentDocument.getElementById('local_link').click();
-              expectNRequests(1).assertEach(function(m) {
-                chai.expect(m.headers).to.have.property('referer');
-                chai.expect(m.headers['referer']).to.contain(testpage);
-              }, done);
-            }
-          });
-        });
-
-        it('blocks referer on link click to different domain', function(done) {
-          this.timeout(10000);
-
-          openTestPage(testpage);
-
-          expectNRequests(2).assertEach(function(m) {}, function(e) {
-            if(e) {
-              done(e);
-            } else {
-              var tab = gBrowser.getBrowserForTab(tabs[0]);
-              echoed = [];
-              tab.contentDocument.getElementById('remote_link').click();
-              expectNRequests(1).assertEach(function(m) {
-                chai.expect(m.headers).to.not.have.property('referer');
-              }, done);
-            }
-          });
-        });
-
-      });
     });
 
   }); // describe integration test
