@@ -117,7 +117,7 @@ CLIQZEnvironment = {
         // CliqzUtils.log('jsBridge autocomplete value:'+val,'osAPI1');
         osAPI.autocomplete(val);
       } else {
-        var ls = JSON.parse(CLIQZ.CliqzStorage.recentQueries || '[]');
+        var ls = JSON.parse(CLIQZEnvironment.getLocalStorage().recentQueries || '[]');
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osAPI.autocomplete(ls[i].query.toLowerCase());
@@ -198,7 +198,7 @@ CLIQZEnvironment = {
   },
   getPref: function(pref, notFound){
     var mypref;
-    if(mypref = CLIQZ.CliqzStorage.getItem(pref)) {
+    if(mypref = CLIQZEnvironment.getLocalStorage().getItem(pref)) {
       return mypref;
     } else {
       return notFound;
@@ -206,7 +206,7 @@ CLIQZEnvironment = {
   },
   setPref: function(pref, val){
     //CliqzUtils.log('setPrefs',arguments);
-    CLIQZ.CliqzStorage.setItem(pref,val);
+    CLIQZEnvironment.getLocalStorage().setItem(pref,val);
   },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
@@ -423,10 +423,10 @@ CLIQZEnvironment = {
     return result;
   },
   setDefaultSearchEngine: function(engine) {
-    CLIQZ.CliqzStorage.setObject('defaultSearchEngine', engine);
+    CLIQZEnvironment.getLocalStorage().setObject('defaultSearchEngine', engine);
   },
   getDefaultSearchEngine: function() {
-    return CLIQZ.CliqzStorage.getObject('defaultSearchEngine') || GOOGLE_ENGINE;
+    return CLIQZEnvironment.getLocalStorage().getObject('defaultSearchEngine') || GOOGLE_ENGINE;
   },
 };
 
@@ -440,25 +440,25 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
-    CLIQZ.CliqzStorage.setItem('recentQueries',JSON.stringify(recentItems));
+    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',JSON.stringify(recentItems));
   }
   else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
-    CLIQZ.CliqzStorage.setItem('recentQueries',JSON.stringify(recentItems));
+    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',JSON.stringify(recentItems));
   }
   else {
     recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
-    CLIQZ.CliqzStorage.setItem('recentQueries',JSON.stringify(recentItems));
+    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',JSON.stringify(recentItems));
   }
 };
 
 
 CLIQZEnvironment.getRecentQueries = function() {
-  if(CLIQZ.CliqzStorage.getItem('recentQueries') == null) {
-    CLIQZ.CliqzStorage.setItem('recentQueries','[]');
+  if(CLIQZEnvironment.getLocalStorage().getItem('recentQueries') == null) {
+    CLIQZEnvironment.getLocalStorage().setItem('recentQueries','[]');
   }
-  return JSON.parse(CLIQZ.CliqzStorage.getItem('recentQueries'));
+  return JSON.parse(CLIQZEnvironment.getLocalStorage().getItem('recentQueries'));
 };
 
