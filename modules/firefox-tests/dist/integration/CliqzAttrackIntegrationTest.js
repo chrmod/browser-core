@@ -272,7 +272,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_2': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               }
             }
           }
@@ -287,7 +288,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_2': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               }
             }
           }
@@ -302,7 +304,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_3': 1,
-                'content_length': 42
+                'content_length': 42,
+                'status_200': 1
               }
             }
           }
@@ -317,7 +320,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_11': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               }
             }
           }
@@ -330,19 +334,22 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
               '/iframe.html': {
                 'c': 1,
                 'cookie_set': 1,
-                'type_7': 1
+                'type_7': 1,
+                'status_200': 1
               },
               '/test': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_11': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
                 'type_2': 1,
-                'cookie_set': 1
+                'cookie_set': 1,
+                'status_200': 1
               }
             }
           }
@@ -357,7 +364,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_3': 1,
-                'content_length': 42
+                'content_length': 42,
+                'status_200': 1
               }
             }
           }
@@ -370,25 +378,29 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
               '/iframe.html': {
                 'c': 1,
                 'cookie_set': 1,
-                'type_7': 1
+                'type_7': 1,
+                'status_200': 1
               },
               '/test': {
                 'c': 1,
                 'cookie_set': 1,
                 'has_qs': 1,
                 'type_11': 1,
-                'content_length': 2
+                'content_length': 2,
+                'status_200': 1
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
                 'type_2': 1,
-                'cookie_set': 1
+                'cookie_set': 1,
+                'status_200': 1
               }
             },
             'cliqztest.de': {
               '/proxyiframe.html': {
                 'c': 1,
-                'type_7': 1
+                'type_7': 1,
+                'status_200': 1
               }
             }
           }
