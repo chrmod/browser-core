@@ -116,7 +116,7 @@ describe('Search View', function() {
   });
 
   afterEach(function () {
-  	contentWindow.localStorage.clear();
+  	contentWindow.CLIQZ.CliqzStorage.clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
   });
@@ -164,7 +164,7 @@ describe('Search View', function() {
       cliqzResponse(query, [], [ extraResult ]);
       newsResponse([]);
 
-      contentWindow.search_mobile(query, true, 48.151753799999994, 11.620054999999999);
+      contentWindow.jsAPI.search(query, true, 48.151753799999994, 11.620054999999999);
     });
 
     it("has one local result", function () {
@@ -262,11 +262,11 @@ describe('Search View', function() {
         }
       ]);
 
-      contentWindow.search_mobile(query);
+      contentWindow.jsAPI.search(query);
     });
 
     it("should render generic template", function () {
-      expect($("#cliqz-results")[0].innerHTML).to.contain('<!-- entity-generic -->');
+      expect($("#cliqz-results")[0].innerHTML).to.contain('<!-- generic.tpl -->');
     });
   });
 
@@ -296,7 +296,7 @@ describe('Search View', function() {
         }
       ], []);
 
-      contentWindow.search_mobile(query);
+      contentWindow.jsAPI.search(query);
     });
 
     it("should filter all results", function () {
@@ -394,7 +394,7 @@ describe('Search View', function() {
         }
       ]);
 
-      contentWindow.search_mobile(query);
+      contentWindow.jsAPI.search(query);
     });
 
     it("should have the weather card", function () {
@@ -474,7 +474,7 @@ describe('Search View', function() {
         },
       ]);
 
-      contentWindow.search_mobile(query);
+      contentWindow.jsAPI.search(query);
     });
 
     it("should have the latest results smart card", function () {

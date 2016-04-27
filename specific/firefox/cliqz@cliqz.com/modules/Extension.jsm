@@ -33,14 +33,12 @@ function newMajorVersion(oldV, newV){
 }
 
 var Extension = {
-    BASE_URI: 'chrome://cliqz/content/',
     modules: [],
     init: function(){
         Extension.unloadJSMs();
 
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
         Extension.System = System;
-        Extension.System.baseURL = this.BASE_URI;
 
         // Cu.import('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
@@ -232,7 +230,7 @@ var Extension = {
         CliqzUtils.clearPref('news-toggle-trending');
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
+        Services.scriptloader.loadSubScript(CLIQZEnvironment.SYSTEM_BASE_URL + src + '.js', win);
     },
     cleanPossibleOldVersions: function(win){
         //

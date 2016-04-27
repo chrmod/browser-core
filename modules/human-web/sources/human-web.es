@@ -2639,7 +2639,6 @@ var CliqzHumanWeb = {
     },
     _telemetry_req: null,
     _telemetry_sending: [],
-    _telemetry_start: undefined,
     telemetry_MAX_SIZE: 500,
     previousDataPost: null,
     pushTelemetry: function() {
@@ -2656,7 +2655,6 @@ var CliqzHumanWeb = {
         // CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
 
         CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
-        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
         var data = JSON.stringify(CliqzHumanWeb._telemetry_sending);
         if (data.length > 10) {
             if (CliqzHumanWeb.previousDataPost && data == CliqzHumanWeb.previousDataPost) {

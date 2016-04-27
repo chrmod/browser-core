@@ -18,7 +18,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-CliqzUtils.init();
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
+  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+
 var CliqzSmartCliqzCache;
 
 function objectExtend(target, obj) {
@@ -55,14 +57,15 @@ var Mixer = {
   ],
 
   init: function() {
+    //TODO: remove this dependency
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
       CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
         CliqzSmartCliqzCache = module.default.smartCliqzCache;
       }).catch(function(error) {
-        CliqzUtils.log('Failed loading SmartCliqzCache');
+        CliqzUtils.log('Failed loading SmartCliqzCache', "Mixer");
       });
-    }, 0);
+    }, 1000);
   },
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
@@ -131,13 +134,12 @@ var Mixer = {
   _prepareHistoryResults: function(results) {
     return results.map(Result.clone);
   },
-
   // Is query valid for triggering an EZ?
   // Must have more than 2 chars and not in blacklist
   //  - avoids many unexpected EZ triggerings
   _isValidQueryForEZ: function(q) {
     var trimmed = q.trim();
-    if (trimmed.length <= 2) {
+    if (trimmed.length <= CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ) {
       return false;
     }
 

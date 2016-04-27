@@ -12,38 +12,15 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
-var TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = [
-      'footer-message',
-      'onboarding-callout',
-      'onboarding-callout-extended',
-      'slow_connection',
-      'partials/missing_location_2',
-      'partials/location/no-locale-data',
-      'partials/no-locale-data'
-    ],
-    PARTIALS = [
-        'url',
-        'logo',
-        'EZ-category',
-        'partials/ez-title',
-        'partials/ez-url',
-        'partials/ez-history',
-        'partials/ez-description',
-        'partials/ez-generic-buttons',
-        'EZ-history',
-        'rd-h3-w-rating',
-        'pcgame_movie_side_snippet',
-        'partials/location/local-data',
-        'partials/missing_location_1',
-        'partials/timetable-cinema',
-        'partials/timetable-movie'
-    ],
+var TEMPLATES = CLIQZEnvironment.TEMPLATES,
+    MESSAGE_TEMPLATES = CLIQZEnvironment.MESSAGE_TEMPLATES || [],
+    PARTIALS = CLIQZEnvironment.PARTIALS,
     AGO_CEILINGS = [
         [0            , '',1],
         [120          , 'ago1Minute' , 1],
@@ -480,5 +457,85 @@ function registerHelpers(){
         } catch(e){
           return ''
         }
+    });
+
+
+    /* mobile helpers */
+    Handlebars.registerHelper("debug", function(optionalValue) {
+      console.log("%c Template Data " + this.vertical + " ","color:#fff;background:green",this);
+    });
+
+
+    Handlebars.registerHelper("trimNumbers", function(number) {
+      return Math.round(number);
+    });
+
+
+    Handlebars.registerHelper('conversationsTime', function(time) {
+        var d = new Date(time);
+        var hours = d.getHours();
+        hours = hours > 9 ? hours : '0' + hours
+        var minutes = d.getMinutes();
+        minutes = minutes > 9 ? minutes : '0' + minutes
+        var formatedDate = hours + ':' + minutes;
+        return formatedDate;
+    });
+
+    Handlebars.registerHelper('uriEncode', function(uriComponent) {
+        return encodeURIComponent(uriComponent);
+    });
+
+    Handlebars.registerHelper('timeOrCalculator', function(ezType) {
+        if(ezType=="time") {
+          return Handlebars.helpers.local("time");
+        } else {
+          return Handlebars.helpers.local("calculator");
+        }
+    });
+
+
+    Handlebars.registerHelper('ifShowSearch', function(results, options) { // if equal
+      if(!results[0] || results[0].data.template !== "noResult") {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
+    });
+
+
+    Handlebars.registerHelper('mobileWikipediaUrls', function(url) {
+        return url.replace("http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki");
+    });
+
+    Handlebars.registerHelper('eachIncludeParent', function ( context, options ) {
+        var fn = options.fn,
+            inverse = options.inverse,
+            ret = "",
+            _context = [];
+
+        $.each(context, function (index, object) {
+            var _object = $.extend({}, object);
+            _context.push(_object);
+        });
+
+        if ( _context && _context.length > 0 ) {
+            for ( var i = 0, j = _context.length; i < j; i++ ) {
+                _context[i]["parentContext"] = options.hash.parent;
+                ret = ret + fn(_context[i]);
+            }
+        } else {
+            ret = inverse(this);
+        }
+        return ret;
+    });
+
+    Handlebars.registerHelper('conversationsTime', function(time) {
+        var d = new Date(time);
+        var hours = d.getHours();
+        hours = hours > 9 ? hours : '0' + hours
+        var minutes = d.getMinutes();
+        minutes = minutes > 9 ? minutes : '0' + minutes
+        var formatedDate = hours + ':' + minutes;
+        return formatedDate;
     });
 }
