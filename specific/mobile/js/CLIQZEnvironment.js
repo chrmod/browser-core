@@ -433,8 +433,10 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
-  }
-  else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
+  } else if (recentItems[0].query === query && Date.now() - recentItems[0].timestamp < 10 * 1000 * 60) { 
+    // DO NOTHING
+    // temporary work around repetitive queries coming from iOS
+  } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
