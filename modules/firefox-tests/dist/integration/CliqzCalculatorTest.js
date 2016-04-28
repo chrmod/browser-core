@@ -31,45 +31,15 @@ TESTS.CliqzCalculatorTest = function(CliqzCalculator) {
       });
     });
 
-    context("Calculator with thousand marks EN", function() {
-      var lang;
+    context("Calculator simple DE format - 2*3222,2", function() {
       beforeEach(function() {
         respondWith({result: []});
-        lang = CliqzUtils.locale["default"].locale_lang_code.message;
-        CliqzUtils.locale["default"].locale_lang_code.message = 'en-US';
-        fillIn("2*3,222.2");
+        fillIn("2*3222,2");
         return waitForPopup();
-      });
-
-      afterEach(function() {
-        CliqzUtils.locale["default"].locale_lang_code.message = lang;
       });
 
       it('Results should have ID calc-answer, in localized format', function() {
         expect(getResultString()).to.equal(getLocaliseString({'de': '6.444,4', 'default': '6,444.4'}));
-      });
-
-      it('Should have copy message', function() {
-        expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
-      });
-    });
-
-    context("Calculator with thousand marks DE", function() {
-      var lang;
-      beforeEach(function() {
-        respondWith({result: []});
-        lang = CliqzUtils.locale["en-US"].locale_lang_code.message;
-        CliqzUtils.locale["en-US"].locale_lang_code.message = 'de-DE';
-        fillIn("2*3.222,2");
-        return waitForPopup();
-      });
-
-      afterEach(function() {
-        CliqzUtils.locale["en-US"].locale_lang_code.message = lang;
-      });
-
-      it('Results should have ID calc-answer, in localized format', function() {
-        expect(getResultString()).to.equal(getLocaliseString({'en': '6,444.4', 'default': '6.444,4'}));
       });
 
       it('Should have copy message', function() {
