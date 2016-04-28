@@ -31,9 +31,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzDemo',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
-  'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
@@ -146,7 +143,6 @@ window.CLIQZ.Core = {
               this.propagateEvents("core:tab_select", window.gBrowser.tabContainer, "TabSelect");
           }
 
-          CliqzExtOnboarding.init(window);
           CLIQZEnvironment.updateGeoLocation();
           //this.whoAmI(true); //startup
           //CliqzUtils.log('Initialized', 'CORE');
@@ -217,7 +213,6 @@ window.CLIQZ.Core = {
         gBrowser.removeTabsProgressListener(tabsProgressListener);
 
         CliqzRedirect.unload();
-        CliqzExtOnboarding.unload(window);
 
 
         // remove listeners
@@ -235,7 +230,6 @@ window.CLIQZ.Core = {
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.CliqzDemo;
-            delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
