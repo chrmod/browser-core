@@ -1,6 +1,6 @@
 import Ember from "ember";
-import News from "../models/news";
-import SpeedDials from "../models/speed-dials";
+import News from "../../models/news";
+import SpeedDials from "../../models/speed-dials";
 
 var displayTotalTime = 0,
     start = 0;
