@@ -10,7 +10,7 @@ export default class {
   constructor(msg) {
     var keySet = CliqzUtils.getPref('userPKTest',false,'extensions.cliqz_hpn.');
     if(!keySet) {
-       // Using 2048 as 4096 is pretty compute intensive.
+       // Using 2048 as 4096 is compute intensive.
        this.genKey().then(e=> CliqzUtils.log("Key generated"));
     }
     else{
@@ -23,14 +23,14 @@ export default class {
   }
 
   /**
-   * Method to encrypt messages using long live public key.
+   * Method to encrypt messages using long lived public key.
   */
   encrypt(msg){
     return this.keyGen.encrypt(msg);
   }
 
   /**
-  * Method to decrypt messages using long live public key.
+  * Method to decrypt messages using long lived public key.
   */
   decrypt(msg){
     return this.keyGen.decrypt(msg);
@@ -79,7 +79,7 @@ export default class {
     var upk = this.publicKeyB64;
 
     var promise = new Promise(function(resolve, reject){
-      CliqzUtils.log("Setting public Key","XXXX");
+      CliqzUtils.log("Setting public Key","user-pk");
       _http("http://hpn-sign.cliqz.com/register")
         .post(JSON.stringify({"pk": upk}))
         .then(e=> resolve(true))

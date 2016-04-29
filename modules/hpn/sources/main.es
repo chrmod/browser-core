@@ -1,7 +1,6 @@
 'use strict';
 /*
- * This module is use for sending the events for purpose of human-web, anti-tracking via a secure channel.
- * This solves purpose like anti-duplicates, rate-limiting etc.
+ * This module is used for sending the events for purpose of human-web, anti-tracking via a secure channel.
 */
 
 import messageContext from "hpn/message-context";
@@ -22,17 +21,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/bigint.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/crypto.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/helperFunctions.js');
-/*
-var crypt = {
-  crypto: Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash)
-}
-*/
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/jsencrypt.js');
 Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/sha256.js');
 
-
-// var JSEncrypt = crypt.JSEncrypt;
-// export { JSEncrypt };
 /* Global variables
 */
 var proxyCounter = 0;
@@ -166,7 +157,7 @@ var CliqzSecureMessage = {
   			});
   	},
   	fetchSecureKeys: function(){
-  		// This will fetch the route table from local file, will move it to webservice later.
+  		// This will fetch the public keys for signer and collector.
   		CliqzUtils.httpGet(CliqzSecureMessage.KEYS_PROVIDER,
   			function success(res){
   				try{
@@ -226,12 +217,9 @@ var CliqzSecureMessage = {
     },
     initAtWindow: function(window){
     	Services.scriptloader.loadSubScript('chrome://cliqz/content/hpn/content/extern/crypto-kjur.js', window);
-    	// Services.scriptloader.loadSubScript('chrome://cliqzres/content/content/hpn/content/extern/rsa-sign.js', window);
-    	// Services.scriptloader.loadSubScript('chrome://cliqz/content/extern/peerjs.js', window)(6);
     	CliqzSecureMessage.RSAKey = window.RSAKey;
     	CliqzSecureMessage.sha1 = window.CryptoJS.SHA1;
     	overRideCliqzResults();
-    	// overRideHumanWebTelemetry();
     },
     init: function(){
     	// Doing it here, because this lib. uses navigator and window objects.
@@ -242,8 +230,6 @@ var CliqzSecureMessage = {
     	}
       if(!CliqzSecureMessage.dbConn) CliqzSecureMessage.initDB();
 
-    	// Get sourceMap
-    	// fetchRouteTable();
     	CliqzSecureMessage.fetchRouteTable();
     	CliqzSecureMessage.fetchProxyList();
     	fetchSourceMapping();
@@ -254,9 +240,6 @@ var CliqzSecureMessage = {
     	// Backup if we were not able to load from the webservice, pick the last one.
     	if(!CliqzSecureMessage.proxyList) loadLocalProxyList();
     	if(!CliqzSecureMessage.routeTable) loadLocalRouteTable();
-    	// CliqzSecureMessage.proxyIP();
-    	// overRideCliqzResults();
-    	// overRideHumanWebTelemetry();
     },
     initDB: function() {
     	if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
@@ -283,7 +266,7 @@ var CliqzSecureMessage = {
 
     	if(proxyCounter >= CliqzSecureMessage.proxyList.length) proxyCounter = 0;
     	var url = createHttpUrl(CliqzSecureMessage.proxyList[proxyCounter]);
-      CliqzSecureMessage.queryProxyIP = url;//"http://54.145.178.227/verify" ; //url;
+      CliqzSecureMessage.queryProxyIP = url;
       proxyCounter += 1;
     },
     stats: function(proxyIP, statName, value){
