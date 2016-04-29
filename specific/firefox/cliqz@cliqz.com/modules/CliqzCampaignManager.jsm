@@ -91,7 +91,7 @@ CliqzCampaignManager.prototype = {
   updateCampaigns: function () {
       this.log('updating campaigns');
       CliqzUtils.httpGet(this.getEndpoint(),
-          this._updateCampaignsCallback.bind(this),
+          this._onCampaignsUpdate.bind(this),
           function error(e) {
               this.log('error updating campaigns: ' + e);
           });
@@ -122,7 +122,6 @@ CliqzCampaignManager.prototype = {
               this.log('campaign ' + campaign.id + ': ' + action);
               this.telemetry(campaign, action);
 
-              // TODO: use mapping
               if (action === 'confirm') {
                   CliqzUtils.httpGet(this.getEndpoint('click', campaign));
               } else if (action === 'postpone') {
@@ -133,7 +132,6 @@ CliqzCampaignManager.prototype = {
 
               // open URL in new tab if specified for this action
               var gBrowser = CliqzUtils.getWindow().gBrowser;
-              // TODO: use some()
               campaign.message.options.forEach(function (option) {
                   if (option.action === action && option.url) {
                       gBrowser.selectedTab = gBrowser.addTab(option.url);
@@ -195,8 +193,7 @@ CliqzCampaignManager.prototype = {
           campaign.save();
       }
   },
-  // TODO: rename to onUpdate...
-  _updateCampaignsCallback: function (req) {
+  _onCampaignsUpdate: function (req) {
       try {
           var clientCampaigns = this._campaigns,
               serverCampaigns = JSON.parse(req.response).campaigns,
