@@ -482,6 +482,11 @@ window.CLIQZ.Core = {
             item.addEventListener('command', (function(event) {
                 CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
                 CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+                CliqzUtils.telemetry({
+                  type: 'activity',
+                  action: 'cliqz_menu_button',
+                  button_name: 'search_engine_change_' + event.currentTarget.engineName
+                });
             }).bind(this), false);
 
             menupopup.appendChild(item);
@@ -512,6 +517,11 @@ window.CLIQZ.Core = {
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
             CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+            CliqzUtils.telemetry({
+              type: 'activity',
+              action: 'cliqz_menu_button',
+              button_name: 'adult_filter_change_' + this.filter_level
+            });
           }, false);
 
           menupopup.appendChild(item);
@@ -543,6 +553,11 @@ window.CLIQZ.Core = {
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
             CLIQZEnvironment.setLocationPermission(window, this.filter_level.toString());
+            CliqzUtils.telemetry({
+              type: 'activity',
+              action: 'cliqz_menu_button',
+              button_name: 'location_change_' + this.filter_level
+            });
         }, false);
 
         menupopup.appendChild(item);
@@ -603,6 +618,11 @@ window.CLIQZ.Core = {
             } else {
                 CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
             }
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'cliqz_menu_button',
+                button_name: key
+            });
 
             btn.style.listStyleImage = optInOut();
         }, false);
