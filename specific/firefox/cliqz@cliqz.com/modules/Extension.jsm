@@ -328,6 +328,11 @@ var Extension = {
 
         menupopup.addEventListener('popupshowing', function(){
             Extension.createMenuifEmpty(win, menupopup);
+            CliqzUtils.telemetry({
+              type: 'activity',
+              action: 'cliqz_menu_button',
+              button_name: 'main_menu'
+            });
         });
         button.addEventListener('command', function(ev) {
             Extension.createMenuifEmpty(win, menupopup);
