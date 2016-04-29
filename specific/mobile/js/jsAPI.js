@@ -57,7 +57,9 @@ var jsAPI = {
       }
     }
   },
-  clearQueries: History.clearQueries,
+  clearQueries: function(includeFavs) {
+    History.clearQueries(includeFavs);
+  },
   setDefaultSearchEngine: function(engine) {
     CLIQZEnvironment.setDefaultSearchEngine(engine);
     CLIQZ.UI.updateSearchCard(engine);

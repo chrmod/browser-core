@@ -71,8 +71,7 @@
         </div>
         {{#unless data}}
 			<div class="nohistoryyet">
-				<p>Hier findest Du in Zukunft Deine Suchen und besuchten Seiten.</p>
-				<p>Bisher hast Du noch nicht gesucht und warst auf keinen Webseiten.</p>
+                <p>{{{emptyMsg}}}</p>
 			</div>
 		{{/unless}}
 

@@ -137,6 +137,7 @@ var CliqzCalculator = {
       return ''; // Don't trigger calculator yet if the query is just a number
     }
     var operators = ['+', '-', '*', '/', '^', '='];
+    q = q.replace(/(\d),(\d)/g, '$1.$2'); // commas are separators to german ppl
     q = q.replace(/ /g, ''); // Remove all spaces
     for (var i = 0; i < operators.length; i++) {
       if (q[q.length - 1] == operators[i]) {
