@@ -69,7 +69,6 @@ function verifyBlindSignature(signedMessage, hashedOriginalMessage){
         return true;
     }
     else{
-        // Need to replace this with reject.
         return false;
     }
     /*
@@ -277,7 +276,7 @@ blindSignContext.prototype.verify = function(){
 
 }
 
-// Using this function is easier to see if the push of message failed (for testing purposes)
+// Using this function it is easier to see if the push of message failed.
 var sendMessage = function(m) {
     return new Promise((resolve, reject) => {
         try{
@@ -402,7 +401,7 @@ var sendMessage = function(m) {
 /*
 This will send the messages inside the trk one at a time. This uses a generator expression.
 
-Will return a Promise which resolves to an array, one for each sent message: 
+Will return a Promise which resolves to an array, one for each sent message:
 its value will be null if everything was ok, and a string indicating the error message otherwise (useful for testing)
 */
 var sendM = function (m, sent=[]) {
@@ -418,7 +417,7 @@ var sendM = function (m, sent=[]) {
             saveLocalCheckTable();
             return sent;
         }
-        
+
     })
     .catch(e => { // Message sending KO
         sent.push(e);

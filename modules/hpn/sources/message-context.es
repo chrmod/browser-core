@@ -1,5 +1,5 @@
 /**
-* Method to create object for message recieved+
+* Creates object for message recieved+
 * Only excepts valid JSON messages with the following fields:
 * Type : Humanweb / Antitracking etc.
 * Actions : Valid actions like Page, query etc.
@@ -42,7 +42,7 @@ export default class {
 	 	this.sha256 = sha256_digest(this.orgMessage);
 	 	this.signed = null;
 	 	this.encrypted = null;
-	 	this.routeHash = null;// "http://54.157.18.130/verify"; // Default : null;
+	 	this.routeHash = null;
 	 	this.type = this.jMessage.type || null;
 	 	this.action = this.jMessage.action || null;
 	 	this.interval = this.action ? CliqzSecureMessage.sourceMap[this.action]["interval"] : null;
@@ -53,8 +53,8 @@ export default class {
 	 	this.mP = null;
 	 	this.dm = null;
 	 	this.dmC =  this.calculateRouteHash(this.jMessage);
-	 	this.proxyCoordinator = this.getProxyIP(this.dmC);//"http://54.157.18.130/verify";
-	 	this.proxyValidators = null;//["http://54.157.18.130:81/verify"];
+	 	this.proxyCoordinator = this.getProxyIP(this.dmC);
+	 	this.proxyValidators = null;
 	 	CliqzSecureMessage.secureLogger = new secureEventLoggerContext();
 	}
 
@@ -66,7 +66,7 @@ export default class {
 	createPayloadBlindSignature(){
 		var payload = {};
 		payload["uPK"] = "";
-		payload["encrypted"] = this.eventID + ":" + this.aes + ":"; // This needs to be replaces with encrypted.
+		payload["encrypted"] = this.eventID + ":" + this.aes + ":";
 		payload["sm"] = this.signed;
 		payload["routeHash"] = this.routeHash;
 		return JSON.stringify(payload);
