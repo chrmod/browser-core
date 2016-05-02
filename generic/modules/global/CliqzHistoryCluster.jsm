@@ -561,7 +561,7 @@ var CliqzHistoryCluster = {
         var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
         instant.comment += ' (history generic)!';
         instant.data.kind = ['H'];
-        promises.push(CliqzHistoryCluster._getDescription(instant));
+        //promises.push(CliqzHistoryCluster._getDescription(instant));
         instant_results.push(instant);
       }
     } else {
