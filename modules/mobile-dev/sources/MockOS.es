@@ -41,12 +41,20 @@ var MockOS = {
         break;
 
     }
-    message.callback && eval(message.callback + "(" + JSON.stringify(dataBack) + ")");
+    clbk(message.callback, dataBack, window.self !== window.top);
   }
 }
 
 var mockedHistory = [];
 
+function clbk(f, args, test){
+  if(test && !window.sinonLoaded){
+    console.log('in test');
+    setTimeout(clbk, 100, f, args, test);
+  } else {
+    f && eval(f + "(" + JSON.stringify(args) + ")");
+  }
+};
 function searchHistory(q) {
   return {results:mockedHistory, query:q};
 

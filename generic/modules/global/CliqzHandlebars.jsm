@@ -471,4 +471,11 @@ function registerHelpers(){
         var formatedDate = hours + ':' + minutes;
         return formatedDate;
     });
+
+    Handlebars.registerHelper('sendTelemetry', function(nResults) {
+      CliqzUtils.telemetry({
+        type: 'Results Rendered',
+        nResults: nResults
+      });
+    });
 }

@@ -47,7 +47,7 @@ var mockedTopSites =
         }];
 
 var News = {
-
+  GENERIC_NEWS_URL: "https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de",
   _recentHistory: {},
   getNews: function(newsDomains) {
     log("loading news");
@@ -117,7 +117,6 @@ var News = {
 
     // temporary freshtab replacement for mobile
     var method = "GET",
-    url = "https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de",
     callback = function(data) {
         try {
             var sResponse = JSON.parse(data.responseText);
@@ -136,7 +135,7 @@ var News = {
     },
     data = null,
     asynchronous = true;
-    CLIQZEnvironment.httpHandler(method, url, callback, onerror, timeout, data, asynchronous);
+    CLIQZEnvironment.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data, asynchronous);
 
   },
 

@@ -180,6 +180,14 @@
             </div>
         {{/each}}
 
+        {{#each data.actions}}
+            <div url="{{url}}" extra="action-{{@index}}" class="cards__item links">
+                <h2 class="cards__title__secondary">
+                    {{title}}
+                </h2>
+            </div>
+        {{/each}}
+
 
 		{{#each data.richData.internal_links}}
             <div url="{{mobileWikipediaUrls url}}" class="cards__item internal_links">

@@ -1,5 +1,5 @@
 <!-- results.tpl -->
-
+{{sendTelemetry results.length}}
 {{#each results}}
 	{{#unless invalid}}
 		<div class="frame" {{#if ../frameWidth }} style="width: {{ ../frameWidth }}px; left: {{ left }}px" {{/if}}>
