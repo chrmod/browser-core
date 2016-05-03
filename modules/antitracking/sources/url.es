@@ -267,10 +267,74 @@ URLInfo.prototype = {
   }
 };
 
+function shuffle(s) {
+  var a = s.split(""),
+      n = a.length;
+
+  for(var i = n - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+  }
+  return a.join("");
+};
+
+function parseQuery(qstr) {
+  var query = {};
+  var a = qstr.split('&');
+  for (var i in a)
+  {
+    var b = a[i].split('=');
+    query[dURIC(b[0])] = dURIC(b[1]);
+  }
+  return query;
+};
+
+function findOauth(url, url_parts) {
+  try {
+    var value = null;
+
+    if ((url_parts.path.length < 50) && url_parts.query_string && (url_parts.path.indexOf('oauth')!=-1)) {
+
+      var qso = parseQuery(url_parts.query_string);
+      var k = Object.keys(qso);
+      for(var i=0;i<k.length;i++) {
+        if (k[i].indexOf('callback')!=-1 || k[i].indexOf('redirect')!=-1) {
+          value = dURIC(qso[k[i]]);
+        }
+        else {
+          if ((qso[k[i]].indexOf('http')==0) && (qso[k[i]].indexOf('/oauth')!=-1)) {
+
+            var url_parts2 = CliqzHumanWeb.parseURL(qso[k[i]]);
+            if (url_parts2 && url_parts2.path && url_parts2.path.indexOf('oauth')) {
+              if (url_parts.query_string) {
+                var qso2 = parseQuery(url_parts2.query_string);
+                var k2 = Object.keys(qso2);
+                for(var i2=0;i2<k2.length;i2++) {
+                  if (k2[i2].indexOf('callback')!=-1 || k2[i2].indexOf('redirect')!=-1) {
+                    value = dURIC(qso2[k2[i2]]);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return value;
+
+  } catch(ee) {
+    return null;
+  }
+};
+
 export {
   parseURL,
   getParametersQS,
   dURIC,
   getHeaderMD5,
-  URLInfo
+  URLInfo,
+  shuffle,
+  findOauth
 };
