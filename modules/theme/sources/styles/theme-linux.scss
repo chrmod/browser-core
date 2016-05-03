@@ -260,6 +260,24 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 
 /* END EX-2245 */
 
+/* BEGIN EX-2298 */
+
+#new-tab-button {
+    list-style-image: url("../images/browser/linux/newtab.png") !important;
+}
+
+/* END EX-2298 */
+
+/* BEGIN EX-2300 */
+
+#TabsToolbar[brighttext] > #tabbrowser-tabs > .tabbrowser-arrowscrollbox > .scrollbutton-down,
+#TabsToolbar[brighttext] > #tabbrowser-tabs > .tabbrowser-arrowscrollbox > .scrollbutton-up,
+#TabsToolbar[brighttext] > #alltabs-button {
+    background-color: #e0e0e0;
+}
+
+/* END EX-2300 */
+
 /*========== Tabs undeer window buttons*/
 
 /*#titlebar-placeholder-on-TabsToolbar-for-captions-buttons {*/
