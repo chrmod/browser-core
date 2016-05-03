@@ -418,14 +418,6 @@ var CLIQZEnvironment = {
         _removeTimerRef(timer);
     },
     clearInterval: this.clearTimeout,
-    getVersion: function(callback){
-        var wm = Cc['@mozilla.org/appshell/window-mediator;1']
-                         .getService(Ci.nsIWindowMediator),
-            win = wm.getMostRecentWindow("navigator:browser");
-          win.Application.getExtensions(function(extensions) {
-                callback(extensions.get('cliqz@cliqz.com').version);
-          });
-    },
     getWindow: function(){
         var wm = Cc['@mozilla.org/appshell/window-mediator;1']
                             .getService(Ci.nsIWindowMediator);
@@ -787,9 +779,7 @@ var CLIQZEnvironment = {
                   subType: JSON.stringify({empty:true})
               }
           )
-    },
-
-    // END from CliqzAutocomplete
+    }
 }
 function urlbar(){
   return CliqzUtils.getWindow().CLIQZ.Core.urlbar;

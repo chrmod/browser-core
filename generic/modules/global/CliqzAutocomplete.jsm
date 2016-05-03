@@ -470,7 +470,7 @@ var CliqzAutocomplete = {
                 return parts[0];
             },
             //FF entry point
-            //Lucian: to be moved to Environment!
+            //TODO: to be moved to Environment!
             startSearch: function(searchString, searchParam, previousResult, listener){
                 this.search(searchString, function(results, ctx){
                     listener.onSearchResult(ctx, results);

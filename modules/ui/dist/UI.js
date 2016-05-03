@@ -1850,7 +1850,6 @@ function onEnter(ev, item){
       current_position: -1
     });
 
-    //publish google event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
     CLIQZ.Core.triggerLastQ = true;
@@ -1872,7 +1871,6 @@ function onEnter(ev, item){
     }, urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
 
-    //publish alternative search event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
   // Result
@@ -1883,7 +1881,6 @@ function onEnter(ev, item){
       new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
 
-    //publish result_enter event (loyalty)
     CliqzEvents.pub("result_enter", {"position_type": getResultKind(UI.keyboardSelection)}, {'vertical_list': Object.keys(VERTICALS)});
   }
 

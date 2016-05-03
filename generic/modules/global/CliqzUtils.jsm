@@ -54,25 +54,16 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
-  IFRAME_SHOW:                    false,
-  HOST:                           'https://cliqz.com',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
-  RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   LOG:                            'https://logging.cliqz.com',
-  CLIQZ_URL:                      'https://cliqz.com/',
-  UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/support',
-  PREF_STRING:                    32,
-  PREF_INT:                       64,
-  PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
@@ -91,8 +82,6 @@ var CliqzUtils = {
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   init: function(win){
-
-
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -651,7 +640,7 @@ var CliqzUtils = {
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
 
-    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
+    var url = CliqzUtils.RESULTS_PROVIDER +
               encodeURIComponent(q) +
               CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
@@ -694,9 +683,6 @@ var CliqzUtils = {
   encodeCountry: function() {
     //international result not supported
     return '&force_country=true';
-
-    //var flag = 'forceCountry';
-    //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeFilter: function() {
     var data = {
@@ -830,15 +816,6 @@ var CliqzUtils = {
   setTimeout: CLIQZEnvironment.setTimeout,
   clearTimeout: CLIQZEnvironment.clearTimeout,
   clearInterval: CLIQZEnvironment.clearTimeout,
-  loadFile: function (fileName, callback) {
-    var self = this;
-    $.ajax({
-        url: fileName,
-        dataType: 'text',
-        success: callback,
-        error: function(data){ callback(data.responseText); }
-    });
-  },
   locale: {},
   currLocale: null,
   loadLocale : function(lang_locale){
@@ -924,7 +901,6 @@ var CliqzUtils = {
         el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
-  version: CLIQZEnvironment.getVersion,
   extensionRestart: function(changes){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
@@ -961,15 +937,6 @@ var CliqzUtils = {
   hasClass: function(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
   },
-  clone: function(obj) {
-    if (null == obj || "object" != typeof obj) return obj;
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
-    }
-    return copy;
-  },
-
   /**
    * Bind functions contexts to a specified object.
    * @param {Object} from - An object, whose function properties will be processed.

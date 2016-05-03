@@ -42,9 +42,8 @@ var CliqzSpellCheck = {
             CliqzAutocomplete.spellCorrectionDict[wrong] = right;
         }
     },
-    //Lucian: TODO
-    initSpellCorrection: function() {
-        if (CliqzUtils.getPref("config_location", "") == "de" && CliqzUtils.getPref("localSpellCheck", true) && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
+    init: function() {
+        if (CliqzUtils.getPref("config_location", "") == "de" && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
             CliqzUtils.log('loading dict', 'spellcorr');
             CliqzUtils.loadResource('chrome://cliqz/content/spell_check.list', CliqzSpellCheck.loadRecords);
         }

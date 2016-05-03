@@ -40,8 +40,6 @@ var Extension = {
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
         Extension.System = System;
 
-        // Cu.import('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
-
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
@@ -217,22 +215,15 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
-        // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
     },
     restart: function(){
         CliqzUtils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        //basic solution for having consistent preferences between updates
-        //0.5.02 - 0.5.04
-        CliqzUtils.clearPref('analysis');
-        CliqzUtils.clearPref('news-toggle-trending');
+      //TODO: cleaning prefs?
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(CLIQZEnvironment.SYSTEM_BASE_URL + src + '.js', win);
-    },
-    cleanPossibleOldVersions: function(win){
-        //
     },
     setupCliqzGlobal: function (win) {
       if(win.CLIQZ === undefined) {

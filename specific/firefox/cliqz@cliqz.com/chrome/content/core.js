@@ -79,20 +79,16 @@ var tabsProgressListener = {
 }
 
 window.CLIQZ.Core = {
-    ITEM_HEIGHT: 50,
-    POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keypress'],
-    _messageOFF: true, // no message shown
-    _updateAvailable: false,
     windowModules: [],
     eventListeners: [],
     init: function(){
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
 
-        CliqzSpellCheck.initSpellCorrection();
+        CliqzSpellCheck.init();
 
         var windowModuleConfig = {
           onInstall: !this.checkSession(),
@@ -128,12 +124,6 @@ window.CLIQZ.Core = {
           this._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
           urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + this._urlbarGoButtonClick);
 
-          // preferences
-          //this._popupMaxHeight = this.popup.style.maxHeight;
-          //this.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
-
-
-          // detecting the languages that the person speak
           if ('gBrowser' in window) {
               CliqzLanguage.init(window);
               CliqzDemo.init(window);
@@ -144,12 +134,8 @@ window.CLIQZ.Core = {
           }
 
           CLIQZEnvironment.updateGeoLocation();
-          //this.whoAmI(true); //startup
-          //CliqzUtils.log('Initialized', 'CORE');
-
         }.bind(this));
     },
-    responsiveClasses: function(){}, //tmp 15.09.2015 - some older version do not correctly deregister a resize handler
     addCSS: function(doc, path){
         var stylesheet = doc.createElementNS('http://www.w3.org/1999/xhtml', 'h:link');
         stylesheet.rel = 'stylesheet';
@@ -366,7 +352,6 @@ window.CLIQZ.Core = {
         // No autocomplete
         if(!autocomplete.autocomplete ||
            !CliqzUtils.getPref("browser.urlbar.autoFill", false, '') || // user has disabled autocomplete
-           (autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)) || // types other than 'url' are experimental
            (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
             CLIQZ.UI.clearAutocomplete();
             CliqzAutocomplete.lastAutocomplete = null;
