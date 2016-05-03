@@ -272,14 +272,16 @@ window.CLIQZ.Core = {
         } catch(e) { }
 
         CliqzHistoryManager.getStats(function(history){
+            // do not access content document for e10s reasons
+            var browserContainer = document.getElementById('browser');
             var info = {
                 type: 'environment',
                 agent: navigator.userAgent,
                 language: navigator.language,
                 width: window.document.width,
                 height: window.document.height,
-                inner_height: window.content.innerHeight,
-                inner_width: window.content.innerWidth,
+                inner_height: browserContainer.clientHeight,
+                inner_width: browserContainer.clientWidth,
                 screen_width: screenWidth.value,
                 screen_height: screenHeight.value,
                 version: CliqzUtils.extensionVersion,
