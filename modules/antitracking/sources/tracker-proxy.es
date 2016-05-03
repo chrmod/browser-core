@@ -1,6 +1,7 @@
 import { utils, events } from 'core/cliqz';
 import { URLInfo } from 'antitracking/url';
 import ResourceLoader from 'core/resource-loader';
+import { getGeneralDomain } from 'antitracking/domain';
 
 const ENABLE_PREF = 'attrackProxyTrackers';
 
@@ -22,7 +23,7 @@ export default class {
     if ( this.isEnabled() ) {
       this.pps.registerFilter(this, 2);
       this._loader = new ResourceLoader( ['antitracking', 'tracker_proxy_conf.json'], {
-        remoteURL: 'https://cdn.cliqz.com/anti-tracking/tracker_proxy_conf.json',
+        remoteURL:  'https://cdn.cliqz.com/anti-tracking/tracker_proxy_conf.json',
         cron: 24 * 60 * 60 * 1000
       });
       this._loader.load().then(this._loadProxyConfiguration.bind(this));
@@ -68,12 +69,21 @@ export default class {
   }
 
   checkShouldProxy(url) {
-    if ( this.initialised && this.trackerDomains.has( URLInfo.get(url).hostname )) {
-      this.proxyOnce(url);
-      return true;
-    } else {
-      return false;
+    // Check if a url should be proxied. We have to do two lookups in the
+    // set of domains `trackerDomains`, one for the full hostname, and one
+    // for the general domain (the list contains several general domains for
+    // which we shall proxy every queries).
+    if (this.initialised) {
+      const hostname = URLInfo.get(url).hostname;
+      if (this.trackerDomains.has(hostname) ||
+          this.trackerDomains.has(getGeneralDomain(hostname))) {
+            dump(`Proxy ${url}\n`);
+            this.proxyOnce(url);
+            return true;
+      }
     }
+
+    return false;
   }
 
   proxyOnce(url) {
@@ -81,7 +91,9 @@ export default class {
   }
 
   applyFilter(pps, url, default_proxy) {
-    if ( this.proxyUrls.has(url.asciiSpec) ) {
+    dump(`applyFilter proxy for ${url.asciiSpec}\n`);
+    if (this.proxyUrls.has(url.asciiSpec)) {
+      dump(`use ${this.proxy} proxy\n`)
       this.proxyUrls.delete(url.asciiSpec);
       return this.proxy;
     }
