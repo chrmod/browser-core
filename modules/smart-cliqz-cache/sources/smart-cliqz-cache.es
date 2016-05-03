@@ -1,58 +1,23 @@
+import { getSmartCliqz } from 'smart-cliqz-cache/rich-header'
 import { utils } from 'core/cliqz';
 import { mkdir } from 'core/fs';
 import Cache from 'smart-cliqz-cache/cache';
 
-Components.utils.import('chrome://cliqzmodules/content/Result.jsm');
-
-const URL_PREPARSING_RULES = {
-  'amazon.de':     /(node=\d+)/,                  // node id
-  'otto.de':       /otto.de\/([\w|-]{3,})/,           // first part of URL
-  'zalando.de':    /zalando.de\/([\w|-]{3,})/,          // first part of URL
-  'skygo.sky.de':  /sky.de\/([\w|-]{3,})/,            // first part of URL
-  'strato.de':     /strato.de\/([\w|-]{3,})/,           // first part of URL
-  'bonprix.de':    /bonprix.de\/kategorie\/([\w|-]{3,})/,     // first part of URL after 'kategorie'
-  'expedia.de':    /(?:expedia.de\/([\w|-]{3,})|([\w|-]{4,})\.expedia.de)/,
-                                  // first part of URL or subdomain
-  'linguee.de':    /linguee.de\/[\?]?([\w|-]{3,})/,       // first part of URL, also allowing for parameters
-  'tvspielfilm.de':/tvspielfilm.de\/(?:tv-programm\/)?(?:sendungen\/)?([\w|-]{3,})/,
-                                  // first part of URL, ignoring some paths
-  'kino.de':     /kino.de\/(?:filme|trailer)?\/?([\w|-]{3,})/,  // first part of URL, ignoring some paths
-  'ricardo.ch':    /(\w{4,})?\.?ricardo.ch\/(?:kaufen)?\/?([\w|-]{3,})?/,
-                                  // first part of URL, ignoring some paths, or subdomain
-  'kabeldeutschland.de':
-          /kabeldeutschland.de\/(?:csc\/produkte\/)?([\w|-]{3,})/,
-                                  // first part of URL, ignoring some paths
-  'tchibo.de':    /(\w{4,})?\.?tchibo.de\/([\w|-]{3,})?/,     // first part of URL or subdomain
-  'holidaycheck.de':
-          /holidaycheck.de\/([\w|-]{3,})/,        // first part of URL
-  'chefkoch.de':  /chefkoch\-?(blog)?.de\/([\w|-]{3,})?/,     // first part of URL or blog (FIXME: won't get fetched from history since different domain)
-  '1und1.de':   /(?:hosting\.)?(\w{4,})?\.?1und1.de\/([\w|-]{3,})?/,
-                                  // first part of URL or subdomain (ignoring some)
-  'immowelt.de':  /immowelt.de\/(?:immobilien|wohnen)?\/?([\w|-]{3,})?/,
-                                  // first part of URL, ignoring some paths
-  'mediamarkt.de':/mediamarkt.de\/mcs\/productlist\/([\w|-]{3,})?/,
-                                  // product list name
-  'saturn.de':    /saturn.de\/mcs\/productlist\/([\w|-]{3,})?/  // product list name
-  // 'zdf.de':    /(\w{4,})?\.de/,              // won't work since all links are from different domains
-};
 const SMART_CLIQZ_ENDPOINT = 'http://newbeta.cliqz.com/api/v1/rich-header?path=/id_to_snippet&q=';
 const CUSTOM_DATA_CACHE_FOLDER = 'cliqz';
-const CUSTOM_DATA_CACHE_FILE = 'smartcliqz-custom-data-cache.json';
+const CUSTOM_DATA_CACHE_FILE = CUSTOM_DATA_CACHE_FOLDER + '/smartcliqz-custom-data-cache.json';
 // maximum number of items (e.g., categories or links) to keep
 const MAX_ITEMS = 5;
 
 /*
  * This module caches SmartCliqz results in the extension. It
- * also customizes news SmartCliqz and a set of selected domains
- * by re-ordering categories and links based on the user's browsing
- * history.
+ * also customizes news SmartCliqz by re-ordering categories and\
+ * links based on the user's browsing history.
  *
  * author: Dominik Schmidt (cliqz)
  */
 export default class {
   constructor() {
-    this.TRIGGER_URLS_CACHE_FILE = 'cliqz/smartcliqz-trigger-urls-cache.json';
-
     this._smartCliqzCache = new Cache();
     // re-customize after an hour
     this._customDataCache = new Cache(3600);
@@ -68,76 +33,8 @@ export default class {
       this._log('init: unable to create cache folder:' + e);
     });
 
-    this.triggerUrls = new Cache(false);
-    this.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
-
-    // run every 24h at most
-    const ts = utils.getPref('smart-cliqz-last-clean-ts');
-    let delay = 0;
-    if (ts) {
-      const lastRun = new Date(Number(ts));
-      delay = Math.max(0, 86400000 - (Date.now() - lastRun));
-    }
-    this._log('scheduled SmartCliqz trigger URL cleaning in ' + (delay / 1000 / 60) + ' min');
-    this.cleanTriggerUrls = this.cleanTriggerUrls.bind(this);
-    this._cleanTriggerUrlsTimeout = utils.setTimeout(this.cleanTriggerUrls, delay + 5000);
-
     this._isInitialized = true;
     this._log('init: initialized');
-  }
-
-  // clean trigger URLs that are no longer valid
-  cleanTriggerUrls() {
-    const deleteIfWithoutTriggerUrl = function(id, cachedUrl) {
-      if (!this._cleanTriggerUrlsTimeout) {
-        return;
-      }
-      try {
-        this._fetchSmartCliqz(id).then((smartCliqz) => {
-          if (smartCliqz.data && smartCliqz.data.trigger_urls) {
-            let found = false;
-            for (let i = 0; i < smartCliqz.data.trigger_urls.length; i++) {
-              if (cachedUrl === smartCliqz.data.trigger_urls[i]) {
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              this._log('SmartCliqz trigger URL cache: deleting ' + cachedUrl);
-              this.triggerUrls.delete(cachedUrl);
-              this.triggerUrls.save(this.TRIGGER_URLS_CACHE_FILE);
-            }
-          }
-        }).catch((e) => {
-          if (e.type && e.type === 'ID_NOT_FOUND') {
-            this._log('ID ' + id + ' not found on server: removing SmartCliqz from cache');
-            this.triggerUrls.delete(cachedUrl);
-            this.triggerUrls.save(this.TRIGGER_URLS_CACHE_FILE);
-          } else {
-            this._log('error fetching SmartCliqz: ' + e);
-          }
-        });
-      } catch (e) {
-        this._log('error during cleaning trigger URLs: ' + e);
-      }
-    };
-
-    this._log('cleaning SmartCliqz trigger URLs...');
-    let delay = 1;
-    for (let cachedUrl in this.triggerUrls._cache) {
-      const id = this.triggerUrls.retrieve(cachedUrl);
-      if (id) {
-        utils.setTimeout(
-          deleteIfWithoutTriggerUrl.bind(this, id, cachedUrl),
-          (delay++) * 1000);
-      }
-    }
-    utils.setTimeout((function() {
-      this._log('done cleaning SmartCliqz trigger URLs');
-      utils.setPref('smart-cliqz-last-clean-ts', Date.now().toString());
-      // next cleaning in 24h
-      this._cleanTriggerUrlsTimeout = utils.setTimeout(this.cleanTriggerUrls, 86400000);
-    }).bind(this), delay * 1000);
   }
 
   // stores SmartCliqz if newer than chached version
@@ -149,7 +46,7 @@ export default class {
 
     try {
       if (this.isCustomizationEnabled() &&
-        (this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz)) &&
+         this.isNews(smartCliqz) &&
          this._customDataCache.isStale(id)) {
 
         this._log('store: found stale data for id ' + id);
@@ -168,7 +65,7 @@ export default class {
 
     this._log('fetchAndStore: for id ' + id);
     this._fetchLock[id] = true;
-    this._fetchSmartCliqz(id).then((smartCliqz) => {
+    getSmartCliqz(id).then((smartCliqz) => {
       // limit number of categories/links
       if (smartCliqz.hasOwnProperty('data')) {
         if (smartCliqz.data.hasOwnProperty('links')) {
@@ -193,7 +90,7 @@ export default class {
     const smartCliqz = this._smartCliqzCache.retrieve(id);
 
     if (this.isCustomizationEnabled() && smartCliqz &&
-      (this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz))) {
+      this.isNews(smartCliqz)) {
       try {
         this._customizeSmartCliqz(smartCliqz);
       } catch (e) {
@@ -228,11 +125,6 @@ export default class {
   // returns true this is a news SmartCliqz
   isNews(smartCliqz) {
     return (typeof smartCliqz.data.news !== 'undefined');
-  }
-
-  // returns true if there are pre-parsing rules available for the SmartCliqz's domain
-  isDomainSupported(smartCliqz) {
-    return URL_PREPARSING_RULES.hasOwnProperty(this.getDomain(smartCliqz));
   }
 
   // returns true if the user enabled customization
@@ -291,7 +183,7 @@ export default class {
     const oldCustomData = this._customDataCache.retrieve(id);
 
     // (1) fetch template from rich header
-    this._fetchSmartCliqz(id)
+    getSmartCliqz(id)
       .then((smartCliqz) => {
         const domain = this.getDomain(smartCliqz);
         return Promise.all([Promise.resolve(smartCliqz), this._fetchVisitedUrls(domain)]);
@@ -310,14 +202,14 @@ export default class {
 
         // add some information to facilitate re-ordering
         for (let j = 0; j < categories.length; j++) {
-          categories[j].genUrl = this._preparseUrl(categories[j].url, domain);
+          categories[j].genUrl = utils.generalizeUrl(categories[j].url);
           categories[j].matchCount = 0;
           categories[j].originalOrder = j;
         }
 
         // count category-visit matches (visit url contains category url)
         for (let i = 0; i < urls.length; i++) {
-          const url = this._preparseUrl(urls[i], domain);
+          const url = utils.generalizeUrl(urls[i]);
           for (let j = 0; j < categories.length; j++) {
             if (this._isMatch(url, categories[j].genUrl)) {
               categories[j].matchCount++;
@@ -355,38 +247,7 @@ export default class {
         this._log('_prepareCustomData: done preparing for id ' + id);
         this._customDataCache.save(CUSTOM_DATA_CACHE_FILE);
       })
-      .catch(e => this._log('_prepareCustomData: error while fetching data: ' + e));
-  }
-
-  // extracts relevant information to base matching on
-  _preparseUrl(url, domain) {
-    url = utils.generalizeUrl(url);
-
-    // domain-specific preparations
-    if (domain) {
-      const rule = URL_PREPARSING_RULES[domain];
-      if (rule) {
-        const match = rule.exec(url);
-        if (match) {
-          // this._log('_preparseUrl: match '' + match[1] + '' for url ' + url);
-          // find first match
-          for (let i = 1; i < match.length; i++) {
-            if (match[i]) {
-              url = match[i];
-              break;
-            }
-          }
-        } else {
-          // leave URL untouched
-          // this._log('_preparseUrl: no match for url ' + url);
-        }
-      } else {
-        // no rule found (e.g., for news domains)
-        // this._log('_preparseUrl: no rule found for domain ' + domain);
-      }
-    }
-
-    return url;
+      .catch(e => this._log('_prepareCustomData: error while fetching data: ' + e.message));
   }
 
   // checks if URL from history matches a category URL
@@ -396,44 +257,6 @@ export default class {
     //     thus such entries are counted twice, for 'Sozialez',
     //     but also for 'Wirtschaft'
     return historyUrl.indexOf(categoryUrl) > -1;
-  }
-
-  // fetches SmartCliqz from rich-header's id_to_snippet API (async.)
-  _fetchSmartCliqz(id) {
-    this._log('_fetchSmartCliqz: start fetching for id ' + id);
-
-    return new Promise((resolve, reject) => {
-      const endpointUrl = SMART_CLIQZ_ENDPOINT + id;
-
-      utils.httpGet(endpointUrl, (function success(req) {
-        try {
-          const smartCliqzData = JSON.parse(req.response).extra.results[0];
-          const smartCliqzIdExists = (typeof smartCliqzData !== 'undefined');
-          let smartCliqz;
-
-          if (!smartCliqzIdExists) {
-            reject({
-              type: 'ID_NOT_FOUND',
-              message: id + ' not found on server'
-            });
-          } else {
-            smartCliqz = Result.cliqzExtra(smartCliqzData);
-            this._log('_fetchSmartCliqz: done fetching for id ' + id);
-            resolve(smartCliqz);
-          }
-        } catch (e) {
-          reject({
-            type: 'UNKNOWN_ERROR',
-            message: e
-          });
-        }
-      }).bind(this), function error() {
-        reject({
-          type: 'HTTP_REQUEST_ERROR',
-          message: ''
-        });
-      });
-    });
   }
 
   // from history, fetches all visits to given domain within 30 days from now (async.)
@@ -479,7 +302,7 @@ export default class {
       type: 'activity',
       action: 'smart_cliqz_customization',
       // SmartCliqz id
-      id: id,
+      id: 'na',
       // total number of URLs retrieved from history
       urlCandidateCount: urls.length,
       // number of URLs that produced a match within shown categories (currently 5)
@@ -537,6 +360,5 @@ export default class {
   }
 
   unload() {
-    utils.clearTimeout(this._cleanTriggerUrlsTimeout);
   }
 }

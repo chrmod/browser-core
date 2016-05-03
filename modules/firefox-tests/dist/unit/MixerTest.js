@@ -525,7 +525,10 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
           urls = {},
           ezs = {},
           smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
-          urlTriggerUrls = smartCliqzCache.triggerUrls,
+          triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache,
+          triggerUrlCacheRetrieve = triggerUrlCache.retrieve,
+          triggerUrlCacheStore = triggerUrlCache.store,
+          triggerUrlCacheSave = triggerUrlCache.save,
           ezStore = smartCliqzCache.store;
 
       // Mock CliqzSmartCliqzCache
@@ -556,23 +559,19 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         urls = {};
         ezs = {};
 
-        smartCliqzCache.triggerUrls = {
-          retrieve: function(url) {
-            if (!(url in urls)) {
-              return urls[url];
-            } else {
-              return false;
-            }
-          },
-
-          store: function(url, eztype) {
-            urls[url] = eztype;
-            saved = false;
-          },
-
-          save: function() {
-            saved = true;
-          },
+        triggerUrlCache.retrieve = function (url) {
+          if (!(url in urls)) {
+            return urls[url];
+          } else {
+            return false;
+          }
+        };
+        triggerUrlCache.store = function (url, eztype) {
+          urls[url] = eztype;
+          saved = false;
+        };
+        triggerUrlCache.save = function () {
+          saved = true;
         };
 
         smartCliqzCache.store = function(ezData) {
@@ -582,8 +581,11 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
 
       afterEach(function() {
         var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
-        smartCliqzCache.triggerUrls = urlTriggerUrls;
         smartCliqzCache.store = ezStore;
+
+        triggerUrlCache.retrieve = triggerUrlCacheRetrieve;
+        triggerUrlCache.store = triggerUrlCacheStore;
+        triggerUrlCache.save = triggerUrlCacheSave;
       });
 
       it('should cache 1 entry given 1', function() {
@@ -630,7 +632,10 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
           urls = {},
           ezs = {},
           smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
-          urlTriggerUrls = smartCliqzCache.triggerUrls,
+          triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache,
+          triggerUrlCacheIsCached = triggerUrlCache.isCached,
+          triggerUrlCacheRetrieve = triggerUrlCache.retrieve,
+          triggerUrlCacheIsStale = triggerUrlCache.isStale,
           ezFetchStore = smartCliqzCache.fetchAndStore,
           ezRetrieve = smartCliqzCache.retrieve;
 
@@ -677,18 +682,16 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
 
         fetching = undefined;
 
-        smartCliqzCache.triggerUrls = {
-          isCached: function(url) {
-            return urls[url] ? true : false;
-          },
+        triggerUrlCache.isCached = function (url) {
+          return urls[url] ? true : false;
+        };
 
-          retrieve: function(url) {
-            return urls[url];
-          },
+        triggerUrlCache.retrieve = function (url) {
+          return urls[url];
+        };
 
-          isStale: function() {
-            return false;
-          },
+        triggerUrlCache.isStale = function() {
+          return false;
         };
 
         smartCliqzCache.fetchAndStore = function(ezId) {
@@ -702,9 +705,12 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
 
       afterEach(function() {
         var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
-        smartCliqzCache.triggerUrls = urlTriggerUrls;
+        var triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache;
         smartCliqzCache.fetchAndStore = ezFetchStore;
         smartCliqzCache.retrieve = ezRetrieve;
+        triggerUrlCache.isCached = triggerUrlCacheIsCached;
+        triggerUrlCache.retrieve = triggerUrlCacheRetrieve;
+        triggerUrlCache.isStale = triggerUrlCacheIsStale;
       });
 
       it('should trigger ez', function() {
