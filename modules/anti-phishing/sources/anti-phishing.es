@@ -156,7 +156,7 @@ function notifyHumanWeb(p) {
     var url = p.url;
     var status = p.status;
     CliqzHumanWeb.state['v'][url]['isMU'] = status;
-    // @konarkm: Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
+    // Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
     // CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
     CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
 }
