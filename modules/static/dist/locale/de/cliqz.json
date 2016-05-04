@@ -1013,6 +1013,12 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "JETZT abonnieren"
     },
+    "mobile_freshtab_edit_done": {
+      "message": "Fertig"
+    },
+    "mobile_freshtab_no_topsites": {
+      "message": "Hier werden Deine Topseiten erscheinen."
+    },
     "mobile_share_card": {
       "message": "Diese Karte teilen"
     },

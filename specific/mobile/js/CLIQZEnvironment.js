@@ -390,7 +390,7 @@ CLIQZEnvironment = {
       var start = document.getElementById('resetState');
       start && (start.style.display = 'none');
     }
-    osAPI.getTopSites('News.displayTopSites', 20);
+    osAPI.getTopSites('News.startPageHandler', 15);
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
@@ -428,7 +428,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     return;
   }
 
-  var recentItems = CLIQZEnvironment.getRecentQueries();
+  var recentItems = CLIQZEnvironment.getLocalStorage().getList('recentQueries');
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
@@ -446,13 +446,5 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     recentItems = recentItems.slice(0,60);
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
-};
-
-
-CLIQZEnvironment.getRecentQueries = function() {
-  if(CLIQZEnvironment.getLocalStorage().getItem('recentQueries') == null) {
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries','[]');
-  }
-  return CLIQZEnvironment.getLocalStorage().getObject('recentQueries');
 };
 

@@ -1,8 +1,9 @@
 'use strict';
 /* global document, CLIQZEnvironment, CliqzUtils, CliqzHandlebars, CLIQZ, osAPI */
 
+import LongPress from "mobile-touch/longpress"
 
-var touchTimer, isTapBlocked, historyTimer;
+var historyTimer;
 var editMode = false, showOnlyFavorite = false, unfavoriteMode = false;
 var allHistory = [];
 var selectedQueries = [];
@@ -131,37 +132,19 @@ function displayData(data, isFavorite = false) {
   });
 
 
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchstart', function () {
-    touchTimer = setTimeout(launchEditMode, 500, this);
-  });
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchend', function () {
-    var type = this.getAttribute('class');
+  function tap(element) {
+    var type = element.getAttribute('class');
     var clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
-    if(touchTimer) {
-      clearTimeout(touchTimer);
-      touchTimer = null;
-    } else {
-      return;
-    }
-    if(isTapBlocked) {
-      isTapBlocked = false;
-      return;
-    }
     if(editMode) {
-      selectItem(this);
+      selectItem(element);
     } else {
-      clickAction(this.getAttribute('data'));
+      clickAction(element.getAttribute('data'));
     }
-  });
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchmove', function () {
-    isTapBlocked = true;
-    clearTimeout(touchTimer);
-  });
+  }
+  new LongPress('.question, .answer', launchEditMode, tap);
 }
 
 function launchEditMode(element) {
-  clearTimeout(touchTimer);
-  touchTimer = null;
 
   if(editMode) {
     endEditMode();
