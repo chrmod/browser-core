@@ -177,6 +177,7 @@ var News = {
         style: logo.style
       };
     });
+    top_news = top_news.splice(0, 2);
     var dependencyStatus = News.getDependencyStatus('topnews');
     if(dependencyStatus === DEPENDENCY_STATUS.NOT_LOADED) {
       return setTimeout(News.displayTopNews, 100, top_news);

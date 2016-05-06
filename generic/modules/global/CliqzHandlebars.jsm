@@ -198,7 +198,7 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
+    Handlebars.registerHelper('limit', function(idx, max_idx){
         return idx < max_idx;
     });
 
