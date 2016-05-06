@@ -1,69 +1,63 @@
 /*--------------- Local EZ ----------- */
 
-.cqz-local-result {
-    .cqz-zone-holder { width: calc(100% - 90px); max-width: $zones-max-width; }
-    .cqz-local-top-blk { height: auto; margin-bottom: 0; }
-    .cqz-local-top-blk .cqz-rd-h3img-div { height: 100%; margin-bottom: 5px; }
+.cqz-local-top-blk {
+    height: auto;
+    margin-top: 2em;
+    margin-bottom: 0;
 
-    .cqz-local-hr {
-        width: 100%;
-        height: 1px;
-        padding: 0;
-        margin: 10px 0 0;
-        border: none;
-        background-color: #cccccc;
-    }
-
-    .cqz-local-des-blk { width: 100%; max-width: 100%; }
-
-    .cqz-local-info-box {
-        float: left;
-        width: calc(50% - 20px);
-        margin-right: 39px;
-
-        * { @extend .cqz-ellipsis; }
-        &:last-child { margin: 0; }
+    .cqz-image-round img.local-data-img {
+        width: 144px;
+        height: 144px;
+        border-radius: 3px;
+        cursor: pointer;
     }
 
     .cqz-local-info {
-        margin-top: 18px;
-        line-height: 1.3em;
 
-        p { margin: 0; }
-        .cqz-local-address { margin-bottom: 10px; color: #506bb8; cursor:pointer; }
-        .cqz-local-time {
-            padding-left: 24px;
-            color: #506bb8;
+        margin-top: -12px;
 
-            .cqz-local-time-title {
-                margin-left: -24px;
-            }
-            .cqz-local-icon {
-                float: left;
-                width: 14px;
-                height: 14px;
-                margin-right: 10px;
-                transform: translateY(1px);
-            }
+        ul.cqz-local-info-box {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
         }
-    }
 
-    .local-data-img { cursor:pointer; }
+        ul.cqz-local-info-box > li {
+            padding: 9px 0;
+        }
 
-    .cqz-local-img-container {
-         cursor: pointer;
-         float: left;
-         height: 80px;
-         width: 80px;
-         margin-right: 10px;
-    }
+        ul.cqz-local-info-box > li:first_child {
+            margin-top: 0;
+        }
 
-    .local-sc-data-container { overflow: hidden; }
-    .cqz-local-result-descr {
-        @extend .cqz-ellipsis;
+        ul.cqz-local-info-box > li:last_child {
+            margin-bottom: 0;
+        }
 
-        clear: both;
-        margin: 18px 0 0;
+        .cqz-local-rating {
+            margin-top: -9px;
+        }
+
+        .cqz-local-address {
+            color: #506bb8;
+            line-height: 18px;
+            cursor: pointer;
+        }
+
+        .cqz-local-phone {
+            line-height: 14px;
+            margin: -5px 0 1px 0;
+        }
+
+        .cqz-local-time-title {
+            line-height: 14px;
+            margin-bottom: 4px;
+        }
+
+        .cqz-local-time-open-hour {
+            color: #506bb8;
+            line-height: 18px;
+        }
     }
 }
 

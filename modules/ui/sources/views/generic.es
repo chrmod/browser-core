@@ -1,6 +1,12 @@
-export default class {
+import localData from 'ui/views/local-data-sc';
+
+export default class GenericView extends localData {
 
   enhanceResults(data) {
+
+    if(data["__subType__"] && data["__subType__"]["class"] == "EntityLocal") {
+        super.enhanceResults(data);
+    }
 
     var partialSizeCounter = 0,
         partialsPath = [];
@@ -36,18 +42,25 @@ export default class {
         'path': 'partials/ez-generic-buttons'
       },
       'local-data-sc': {
-        'space-count': 3,
+        'space-count': 4,
         'path': 'partials/location/local-data'
       },
       'missing_location_1': {
         'space-count': 3,
-        'path': 'partials/missing_location_1'
+        'path': 'partials/location/missing_location_1'
       }
     }
 
     // If we have more than 5 history results we extent the result to full height.
     if (data.urls && data.urls.length > 5) {
       partialsBank['history']['space-count'] = 6;
+    }
+
+    if(data.partials.indexOf('local-data-sc') != -1) {
+      var historyIndex = data.partials.indexOf('history');
+      if (historyIndex != -1) {
+        data.partials.splice(historyIndex, 1);
+      }
     }
 
     for (var ii = 0; ii < data.partials.length; ii++) {
@@ -109,4 +122,4 @@ export default class {
     }
 
   }
-};
+}
