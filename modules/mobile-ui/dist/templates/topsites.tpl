@@ -2,20 +2,20 @@
 
 {{#if list}}
 
-  <div class="main" style="margin-bottom: 20px;">
-    <table>
-      <tr>
-        {{#each list}}
-            <td align="center" valign="top">
-                <div class="blockTopsite" url="{{mainDomain}}" {{#unless ../isEditMode}} style="display: none;" {{/unless}}>X</div>
-                <div class="topSitesLink" url="{{baseDomain}}">
-                    <div class="topsites__item"
-                     style="{{style}}"
-                     show-status=""
-                     extra="{{extra}}"
-                     >{{ text }}
-                    </div>
-                </div>
+<div class="main noselect" style="margin-bottom: 20px;">
+  <table>
+    <tr>
+      {{#each list}}
+          <td align="center" valign="top">
+            {{#if this}}
+              <div class="blockTopsite" mainDomain="{{mainDomain}}" {{#unless ../isEditMode}} style="display: none;" {{/unless}}>X</div>
+              <div class="topSitesLink" url="{{baseDomain}}">
+                  <div class="topsites__item"
+                   style="{{style}}"
+                   show-status=""
+                   extra="{{extra}}"
+                   >{{ text }}
+                  </div>
               </div>
             {{else}}
               <div class="topsites__item" style="background-color:#eee"></div>

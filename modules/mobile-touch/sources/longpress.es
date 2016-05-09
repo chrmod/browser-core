@@ -27,7 +27,6 @@ export default class {
 		      tapCallback(this);
 		    } else if(self.isTapBlocked) {
 		      self.isTapBlocked = false;
-		      return;
 		    }
 		});
 

@@ -14,14 +14,11 @@ export default class {
 		this.storage.setItem(key, JSON.stringify(object));
 	}
 
-	getObject(key) {
+	getObject(key, notFound = false) {
 	  const o = storage.getItem(key);
-	  return o && JSON.parse(o);
-	}
-
-	getList(key) {
-		var list = storage.getItem(key);
-		list = list ? JSON.parse(list) : [];
-		return list;
+	  if (o) {
+	  	return JSON.parse(o);
+	  }
+	  return notFound;
 	}
 }
