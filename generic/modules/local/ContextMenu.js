@@ -14,11 +14,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
   function telemetry(type){
     var signal = {
-      type: 'activity',
-      action: 'context_menu'
+      type: 'context_menu'
     };
 
-    if(type) signal.menu_open = type;
+    if(type) {
+      signal.action = "click";
+      signal.target = type;
+    } else {
+      signal.action = "open";
+      signal.context = "dropdown";
+    }
 
     CliqzUtils.telemetry(signal);
   }
