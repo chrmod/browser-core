@@ -932,6 +932,11 @@ function setPartialTemplates(data) {
     partials.push('description');
   }
 
+  // Music
+  if (data.music) {
+    partials.push('music-data-sc');
+  }
+
   // Local data
   var localTemplate = data.superTemplate;
   if (localTemplate) {

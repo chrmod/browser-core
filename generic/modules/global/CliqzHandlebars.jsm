@@ -478,4 +478,10 @@ function registerHelpers(){
         nResults: nResults
       });
     });
+
+    Handlebars.registerHelper('generate_background_color', function(url) {
+        var urlDetails = CliqzUtils.getDetailsFromUrl(url);
+        var logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+        return "#" + logoDetails.backgroundColor;
+    });
 }

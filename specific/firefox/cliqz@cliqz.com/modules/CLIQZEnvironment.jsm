@@ -153,7 +153,8 @@ var CLIQZEnvironment = {
         'partials/location/local-data',
         'partials/missing_location_1',
         'partials/timetable-cinema',
-        'partials/timetable-movie'
+        'partials/timetable-movie',
+        'partials/music-data-sc'
     ],
     init: function(){
         CLIQZEnvironment.loadSearch();
