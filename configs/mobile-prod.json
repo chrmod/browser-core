@@ -6,6 +6,7 @@
     "mobile-ui",
     "mobile-freshtab",
     "mobile-history",
+    "mobile-touch",
     "static"
   ]
 }
