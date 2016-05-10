@@ -21,8 +21,9 @@ var resultsBox = null,
     currentResults = null,
     imgLoader = null,
     progressBarInterval = null,
-    PEEK = 20,
-    PADDING = 16,
+    LEFT_PEEK = 15,
+    RIGHT_PEEK = 25,
+    PADDING = 16, // CONNECTED TO CSS VALUE (DON'T CHANGE)
     currentResultsCount = 0,
     FRAME = 'frame';
 
@@ -38,7 +39,7 @@ var UI = {
         resultsBox.addEventListener('click', resultClick);
     },
     setDimensions: function() {
-      UI.CARD_WIDTH = window.innerWidth - PADDING - 2 * PEEK;
+      UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
     },
     results: function(r){
       UI.setDimensions();
@@ -432,7 +433,7 @@ function setResultNavigation(results) {
   }
 
   resultsBox.style.width = (window.innerWidth * (results.length + showGooglethis)) + 'px';
-  resultsBox.style.marginLeft = PEEK + 'px';
+  resultsBox.style.marginLeft = LEFT_PEEK + 'px';
 
 
   var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
