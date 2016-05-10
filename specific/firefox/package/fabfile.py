@@ -194,7 +194,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     )
 
     submitter = Submitter(
-        release_name="SystemAddons-"+channel,
+        release_name="SystemAddons-"+folder,
         auth=auth,
         api_root="http://balrog-admin.10e99.net/api",
         addon_id="cliqz@cliqz.com",
