@@ -1141,5 +1141,11 @@
     },
     "context-menu-search-item": {
       "message": "CLIQZ-Suche nach \"$1\""
+    },
+    "streaming": {
+      "message": "Stream Jetzt: "
+    },
+    "lyrics": {
+      "message": "Lyrics: "
     }
 }

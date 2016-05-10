@@ -154,7 +154,9 @@ var CLIQZEnvironment = {
         'partials/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie',
-        'partials/music-data-sc'
+        'partials/music-data-sc',
+        'partials/streaming',
+        'partials/lyrics'
     ],
     init: function(){
         CLIQZEnvironment.loadSearch();
