@@ -1,3 +1,5 @@
+import { utils } from 'core/cliqz';
+
 function trim(text) {
   text = text.trim();
 
@@ -36,6 +38,11 @@ export default class {
   }
 
   onPopupShowing(ev) {
+    utils.telemetry({
+      "type": "context_menu",
+      "action": "open",
+      "context": "webpage"
+    });
     if (ev.target !== this.contextMenu) {
       return;
     }
@@ -74,6 +81,11 @@ export default class {
   }
 
   clickHandler(query) {
+    utils.telemetry({
+      "type": "context_menu",
+      "action": "search",
+      "query_length": query.length
+    });
     // opens a new empty tab
     CLIQZEnvironment.openTabInWindow(this.window, '')
 
