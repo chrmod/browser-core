@@ -189,7 +189,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     credentials = {}
     execfile("../../fern/release-creds.txt", credentials)
     auth = (
-        options.username,
+        'balrogadmin',
         credentials['balrog_credentials']['balrogadmin']
     )
 
