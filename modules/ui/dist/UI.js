@@ -932,11 +932,6 @@ function setPartialTemplates(data) {
     partials.push('description');
   }
 
-  // Music
-  if (data.music) {
-    partials.push('music-data-sc');
-  }
-
   // Local data
   var localTemplate = data.superTemplate;
   if (localTemplate) {
@@ -965,6 +960,11 @@ function setPartialTemplates(data) {
   // Smart CLIQZ buttons
   if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
+  }
+
+  // Music
+  if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
+    partials.push('music-data-sc');
   }
 
   return partials;

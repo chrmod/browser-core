@@ -1421,15 +1421,9 @@
     max-width: 100px;
 }
 
-#music_btn_region .music-no-lyrics-wrapper {
-    height: 50px;
-    vertical-align: bottom;
-    display: inline-block;
-}
-
 .music-btns-container {
     display: table-cell;
-    vertical-align: bottom;
+    vertical-align: bottom !important;
     width: 720px;
     height: 90px;
 }
