@@ -1367,3 +1367,65 @@
 .cqz-results .clz_link p {
     cursor: pointer;
 }
+
+/*** BEGIN MUSIC DATA SC ***/
+
+#music_btn_region {
+    margin-top: 20px;
+}
+
+#music_btn_region .music-label {
+    float: left;
+    margin-right: 10px;
+    line-height: 26px;
+    color: #999999;
+    width: 80px;
+}
+
+#music_btn_region .music-btns-wrapper {
+    vertical-align: bottom;
+}
+
+#music_btn_region .music-btns {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#music_btn_region .music-btn {
+    margin-right: 10px;
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 0px;
+}
+
+#music_btn_region .music-btn-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 3px 10px 10px 10px;
+    border-radius: 3px;
+    display: inline-block;
+    text-align: center;
+    text-transform: capitalize;
+
+    max-height: 26px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+#music_btn_region .music-btn img {
+    max-height: 26px;
+    max-width: 100px;
+}
+
+.music-btns-container {
+    display: table-cell;
+    vertical-align: bottom !important;
+    width: 720px;
+    height: 90px;
+}
+
+/*** END MUSIC DATA SC ***/

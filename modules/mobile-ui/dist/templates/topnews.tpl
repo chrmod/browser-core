@@ -1,10 +1,7 @@
 <!-- topnews.tpl -->
 
 {{#if this}}
-  <div class="heading">
-      <h2><span>{{ local 'freshtab_top_news' }}</span></h2>
-  </div>
-  <div class="main" style="margin-bottom: 20px;">
+  <div class="main">
     <ul>
         {{#each this}}
             <li class="item" onclick="osAPI.openLink('{{url}}')">

@@ -14,6 +14,10 @@ from jinja2 import Environment, FileSystemLoader
 
 import jsstrip
 
+import sys
+sys.path.append("../..")
+from fern.submitter import Submitter
+
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
@@ -181,6 +185,23 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     local("aws s3 cp latest.xpi %s --acl public-read" % path_to_s3)
 
     local("rm  %s" % latest_html_file_name)
+
+    credentials = {}
+    execfile("../../fern/release-creds.txt", credentials)
+    auth = (
+        'balrogadmin',
+        credentials['balrog_credentials']['balrogadmin']
+    )
+
+    submitter = Submitter(
+        release_name="SystemAddons-"+folder,
+        auth=auth,
+        api_root="http://balrog-admin.10e99.net/api",
+        addon_id="cliqz@cliqz.com",
+        addon_version=version,
+        addon_url=download_link
+    )
+    submitter.submit()
 
 
 @task

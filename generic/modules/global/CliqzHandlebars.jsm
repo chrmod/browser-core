@@ -59,8 +59,10 @@ function compileTemplates(){
 function fetchTemplate(tName, isPartial) {
     try {
         CliqzUtils.httpGet(CliqzUtils.TEMPLATES_PATH + tName + '.tpl', function(res){
-            if(isPartial === true)
-                Handlebars.registerPartial(tName, res.response);
+            if(isPartial === true) {
+              Handlebars.registerPartial(tName, res.response);
+              CliqzHandlebars.tplCache[tName] = Handlebars.compile(res.response);
+            }
             else
                 CliqzHandlebars.tplCache[tName] = Handlebars.compile(res.response);
         });
@@ -72,7 +74,7 @@ function fetchTemplate(tName, isPartial) {
 
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
-        var template = CliqzHandlebars.tplCache[name] || CliqzHandlebars.tplCache.empty;
+        var template = CliqzHandlebars.tplCache[name] || CliqzHandlebars.tplCache["partials/"+name] || CliqzHandlebars.tplCache.empty;
         return new Handlebars.SafeString(template(this));
     });
 
@@ -198,7 +200,7 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
+    Handlebars.registerHelper('limit', function(idx, max_idx){
         return idx < max_idx;
     });
 
@@ -477,5 +479,11 @@ function registerHelpers(){
         type: 'Results Rendered',
         nResults: nResults
       });
+    });
+
+    Handlebars.registerHelper('generate_background_color', function(url) {
+        var urlDetails = CliqzUtils.getDetailsFromUrl(url);
+        var logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+        return "#" + logoDetails.backgroundColor;
     });
 }

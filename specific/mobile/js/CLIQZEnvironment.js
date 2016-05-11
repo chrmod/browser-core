@@ -359,7 +359,7 @@ CLIQZEnvironment = {
     }
 
     var R = 6371; // Radius of the earth in km
-    if(!lon2 || !lon1 || !lat2 || !lat1) { return 0; }
+    if(!lon2 || !lon1 || !lat2 || !lat1) { return -1; }
     var dLat = degreesToRad(lat2-lat1);  // Javascript functions in radians
     var dLon = degreesToRad(lon2-lon1);
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -390,7 +390,7 @@ CLIQZEnvironment = {
       var start = document.getElementById('resetState');
       start && (start.style.display = 'none');
     }
-    osAPI.getTopSites('News.displayTopSites', 20);
+    osAPI.getTopSites('News.startPageHandler', 15);
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
@@ -428,7 +428,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     return;
   }
 
-  var recentItems = CLIQZEnvironment.getRecentQueries();
+  var recentItems = CLIQZEnvironment.getLocalStorage().getObject('recentQueries', []);
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
@@ -446,13 +446,5 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     recentItems = recentItems.slice(0,60);
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
-};
-
-
-CLIQZEnvironment.getRecentQueries = function() {
-  if(CLIQZEnvironment.getLocalStorage().getItem('recentQueries') == null) {
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries','[]');
-  }
-  return CLIQZEnvironment.getLocalStorage().getObject('recentQueries');
 };
 

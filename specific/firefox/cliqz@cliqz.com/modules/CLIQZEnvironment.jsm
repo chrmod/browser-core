@@ -153,7 +153,10 @@ var CLIQZEnvironment = {
         'partials/location/local-data',
         'partials/missing_location_1',
         'partials/timetable-cinema',
-        'partials/timetable-movie'
+        'partials/timetable-movie',
+        'partials/music-data-sc',
+        'partials/streaming',
+        'partials/lyrics'
     ],
     init: function(){
         CLIQZEnvironment.loadSearch();
@@ -375,9 +378,12 @@ var CLIQZEnvironment = {
     },
     tldExtractor: function(host){
         var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
-                                    .getService(Ci.nsIEffectiveTLDService);
+                            .getService(Ci.nsIEffectiveTLDService),
+            idnService = Cc["@mozilla.org/network/idn-service;1"]
+                            .getService(Ci.nsIIDNService),
+            utf8str = idnService.convertACEtoUTF8(encodeURIComponent(host));
 
-        return eTLDService.getPublicSuffixFromHost(host);
+        return decodeURIComponent(eTLDService.getPublicSuffixFromHost(utf8str));
     },
     getBrandsDBUrl: function(version){
       return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'

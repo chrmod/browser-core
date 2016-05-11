@@ -42,7 +42,11 @@ export default class {
       'missing_location_1': {
         'space-count': 3,
         'path': 'partials/missing_location_1'
-      }
+      },
+      'music-data-sc': {
+        'space-count': 3,
+        'path': 'partials/music-data-sc'
+       }
     }
 
     // If we have more than 5 history results we extent the result to full height.

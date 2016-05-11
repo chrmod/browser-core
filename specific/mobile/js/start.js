@@ -8,6 +8,7 @@ System.import("core/startup").then(function (startupModule) {
     "mobile-ui",
     "mobile-dev",
     "mobile-freshtab",
+    "mobile-touch",
     "static"
   ]);
 }).then(function () {

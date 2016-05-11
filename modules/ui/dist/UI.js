@@ -962,6 +962,11 @@ function setPartialTemplates(data) {
     partials.push('buttons');
   }
 
+  // Music
+  if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
+    partials.push('music-data-sc');
+  }
+
   return partials;
 }
 
