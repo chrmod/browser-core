@@ -51,7 +51,7 @@ a:hover, a:active, a:focus {
 /* search */
 #freshTabPage #searchContainer {
   position: relative;
-  margin: 0px 0px 100px;
+  margin: 0px 0px 50px;
   width: 100%;
 }
 
@@ -88,7 +88,7 @@ a:hover, a:active, a:focus {
 
 /* top visited */
 #freshTabPage #topVisited {
-  margin: 60px 0px 80px 0px;
+  margin: 20px 0px 75px 0px;
   text-align: center;
 }
 
@@ -116,6 +116,10 @@ a:hover, a:active, a:focus {
   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
   border-radius: 3px;
   transition: box-shadow 0.25s ease;
+}
+
+#freshTabPage #historyTiles li {
+  box-shadow: none;
 }
 
 #freshTabPage #topVisited li:hover .delete {
@@ -272,9 +276,8 @@ a:hover, a:active, a:focus {
 }
 
 #freshTabPage #newsContainer .heading {
-  border-bottom: 1px solid #d8d8d8;
   padding-bottom: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
 }
 
@@ -296,18 +299,33 @@ a:hover, a:active, a:focus {
   width: 45px;
 }
 
+#freshTabPage #newsContainer #sliderBtns div {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #cccccc;
+  background-color: #ffffff;
+}
+
+#freshTabPage #newsContainer #sliderBtns div.active {
+  background-color: #999999;
+  border: 0px;
+}
+
+#freshTabPage .optinContent .onboardingNav a {
+  width: 8px;
+  height: 8px;
+  background-color: #cccccc;
+}
+
 #freshTabPage #newsContainer #sliderBtns div,
 #freshTabPage .optinContent .onboardingNav a {
     float: left;
     border-radius: 50%;
-    width: 8px;
-    height: 8px;
     text-align: center;
     margin-right: 5px;
-    background-color: #cccccc;
+
 }
 
-#freshTabPage #newsContainer #sliderBtns div.active,
 #freshTabPage .optinContent .onboardingNav .active {
   background-color: #999999
 }
@@ -329,10 +347,13 @@ a:hover, a:active, a:focus {
   width: 388px;
 }
 
-#freshTabPage #newsContainer .newsBox.onlyTopNews {
+#freshTabPage #newsContainer .newsBox.allNews {
   float: none;
   width: auto;
-  margin-right: 20px;
+}
+
+#freshTabPage #newsContainer .description {
+  display: none;
 }
 
 #freshTabPage #newsContainer #yourNewsBox {
@@ -348,8 +369,6 @@ a:hover, a:active, a:focus {
   font-size: 18px;
   margin-bottom: 8px;
   color: #333333;
-  overflow: hidden;
-  max-height: 66px;
 }
 
 #freshTabPage #newsContainer li .title:hover {
@@ -379,27 +398,31 @@ a:hover, a:active, a:focus {
 
 /***** Only top news *****/
 
-#freshTabPage #newsContainer .onlyTopNews .newsContent {
-  padding-left: 0px;
+#freshTabPage #newsContainer .allNews .newsContent {
+  padding: 10px;
 }
 
-#freshTabPage #newsContainer .onlyTopNews li {
+#freshTabPage #newsContainer .allNews li {
   float: left;
-  width: 233px;
-  margin-right: 40px;
+  width: 260px;
+  margin-right: 10px;
+  border-radius: 3px;
+  padding: 10px;
+  box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
 }
 
-#freshTabPage #newsContainer .onlyTopNews li:nth-last-child(3n+1) {
+#freshTabPage #newsContainer .allNews li:nth-last-child(3n+1) {
   margin-right: 0px;
 }
 
 #freshTabPage #newsContainer .logo {
   float: left;
-  width: 2em;
-  height: 2em;
+  width: 1.8em;
+  height: 1.8em;
   font-size: 20px;
-  padding: 0.3em; /* 6px / 20px */
+  padding: 0.2em; /* 4px / 20px */
   line-height: 1.25em; /* 25px / 20px */
+  margin-right: 10px;
   font-weight: bold;
   color: #ffffff;
   text-align: center;
@@ -621,10 +644,6 @@ a:hover, a:active, a:focus {
     margin: 0px auto;
   }
 
-  #freshTabPage #searchContainer {
-    margin: 0px 0px 75px 0px;
-  }
-
   #freshTabPage .wrap {
     width: auto;
     padding: 20px;
@@ -634,7 +653,7 @@ a:hover, a:active, a:focus {
     margin-top: 20px;
   }
 
-  #freshTabPage #newsContainer .onlyTopNews li{
+  #freshTabPage #newsContainer .allNews li{
     float: none;
     width: 100%;
   }
