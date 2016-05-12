@@ -4,7 +4,7 @@
     {{#each links}}
         <li class="music-btn"
                 url="{{ url }}"
-                extra="{{ domain }}" arrow="false" arrow-if-visible="true"
+                extra="{{ extra.domain }}" arrow="false" arrow-if-visible="true"
         >
             {{#if image}}
                 <img class="music-btn-img" src="{{ image }}" alt="{{ extra.domain }}" onerror="this.style.display='none';"/>
