@@ -2621,7 +2621,7 @@ var CliqzHumanWeb = {
         CliqzHumanWeb._telemetry_req = null;
     },
     // ************************ Database ***********************
-    // Stolen from modules/CliqzHistory
+    // source modules/CliqzHistory
     // *********************************************************
     initDB: function() {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {

@@ -72,10 +72,10 @@ CLIQZEnvironment = {
         "weatherEZ": true
   },
   KNOWN_TEMPLATES: {
-      'entity-portal': true, //TODO check with Tomas
+      'entity-portal': true,
       'entity-generic': true,
       'entity-video-1': true,
-      'recipe': true, //TODO check with Thuy
+      'recipe': true,
       'ez-generic-2': true,
       'vod': true
   },
@@ -213,7 +213,7 @@ CLIQZEnvironment = {
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
   clearTimeout: function(){ clearTimeout.apply(null, arguments); },
   tldExtractor: function(host){
-    //lucian: temp - FIX IT
+    //temp
     return host.split('.').splice(-1)[0];
   },
   getLocalStorage: function(url) {
@@ -433,7 +433,7 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
-  } else if (recentItems[0].query === query && Date.now() - recentItems[0].timestamp < 10 * 1000 * 60) { 
+  } else if (recentItems[0].query === query && Date.now() - recentItems[0].timestamp < 10 * 1000 * 60) {
     // DO NOTHING
     // temporary work around repetitive queries coming from iOS
   } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&

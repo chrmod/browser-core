@@ -12,7 +12,6 @@
  *		 onclick="cliqzDemoProxy.demoQuery('wetter in frankfurt');"
  *		 style="visibility: collapse;">DEMO</a>
  *
- * author: Dominik Schmidt (cliqz)
  */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;

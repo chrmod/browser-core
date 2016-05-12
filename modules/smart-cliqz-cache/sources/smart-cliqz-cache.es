@@ -14,7 +14,6 @@ const MAX_ITEMS = 5;
  * also customizes news SmartCliqz by re-ordering categories and\
  * links based on the user's browsing history.
  *
- * author: Dominik Schmidt (cliqz)
  */
 export default class {
   constructor() {

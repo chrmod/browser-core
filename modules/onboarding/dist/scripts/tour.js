@@ -3,7 +3,6 @@
  * Interactive onboarding for new UI.
  *
  *
- * author: Dominik Schmidt (cliqz)
  */
 
 // TODO: destroy?

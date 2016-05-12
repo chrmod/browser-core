@@ -92,7 +92,6 @@ function PageLoadData(url) {
                 });
             }
         }
-        // CliqzUtils.log("Data for url: " + this.hostname + " : " + JSON.stringify(obj),"XOXOX");
         // This was added to collect data for experiment, safe to stop collecting it now.
         // checkBlackList(this.url, obj);
         // checkFingerPrinting(this.url, obj);

@@ -2,8 +2,6 @@ var backup, lang = 'de';
 
 TESTS.VodScreenshotDeTest = prepareScreenshotTest({
     emails: [
-        'harry@cliqz.com', 'thuy@cliqz.com',
-        'roberto@cliqz.com', 'dominik.s@cliqz.com'
     ],
     subject: '[testing] de VOD screenshots',
     width: 1024,
