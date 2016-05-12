@@ -194,7 +194,7 @@ def send_emails(args, config):
 
     handler = EMAIL_TEMPLATES[template]
     msg = handler(args, config)
-    msg['From'] = 'dominik.s@cliqz.com'
+    msg['From'] = 'info@cliqz.com'
     msg['To'] = ','.join(config['emails'])
     if 'subject' in config:
         msg['Subject'] = config['subject']
@@ -202,8 +202,7 @@ def send_emails(args, config):
         msg['Subject'] = 'Test results for %s (%s)' % (args.timestamp, config['name'])
 
     conn = SESConnection(
-        aws_access_key_id='AKIAJFBODEFNZWT3PITQ',
-        aws_secret_access_key='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'
+        #credentials!
     )
     conn.send_raw_email(msg.as_string())
     log.debug('Sent "%s" mail for test %s to %s',

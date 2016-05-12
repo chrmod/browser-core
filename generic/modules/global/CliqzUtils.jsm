@@ -320,12 +320,6 @@ var CliqzUtils = {
 
     return url;
   },
-  removeWww: function(url) {
-    if(url.toLowerCase().indexOf('www.') == 0) {
-      url = url.slice(4);
-    }
-    return url;
-  },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
@@ -680,7 +674,7 @@ var CliqzUtils = {
     return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
-    //international result not supported
+    //international results not supported
     return '&force_country=true';
   },
   encodeFilter: function() {
@@ -781,10 +775,6 @@ var CliqzUtils = {
 
     var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
     return internal + " " + cliqz_sources
-  },
-  shouldLoad: function(window){
-    //always loads, even in private windows
-    return true;
   },
   isPrivate: CLIQZEnvironment.isPrivate,
   telemetry: CLIQZEnvironment.telemetry,

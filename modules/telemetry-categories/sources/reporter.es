@@ -1,3 +1,13 @@
+/*
+*
+*  Gets an idea of the categories a user is interested in.
+*  Categories are lists of domains and we should never aggregate very specifically to avoid privacy issues
+*  eg:  - one category can be shopping and the domains: amazon, ebay, zalando, ...
+*       - we will only send to the backend information related with the category and not with any particular domain
+*
+*/
+
+
 import { utils } from 'core/cliqz';
 import { readFile } from 'core/fs';
 
@@ -50,11 +60,12 @@ export default class {
     //we can add more tests, eg - with path
 
     for(var k in tests){
+        // only aggregate on category level to avoid privacy leaks !!
         var c = this.categories[utils.hash(k)];
         if(c){
             var t = JSON.parse(utils.getPref('cat', '{}'))
             t[c] = t[c] || { v:0, d:0 };
-            if(t[c].d + 5000 < Date.now()){ //only update if the last update was more than 1 second ago
+            if(t[c].d + 5000 < Date.now()){ //only update if the last update was more than 5 seconds ago
                 t[c].v++;
                 t[c].d = Date.now();
                 utils.setPref('cat', JSON.stringify(t))

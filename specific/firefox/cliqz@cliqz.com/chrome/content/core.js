@@ -83,7 +83,6 @@ var tabsProgressListener = {
 window.CLIQZ.Core = {
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keypress'],
     windowModules: [],
     eventListeners: [],
     init: function(){

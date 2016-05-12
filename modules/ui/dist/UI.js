@@ -1526,7 +1526,8 @@ function resultClick(ev) {
 
             var url = CliqzUtils.cleanMozillaActions(url);
             CLIQZEnvironment.openLink(window, url, newTab);
-            //Lucian: decouple!
+
+            //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if (!newTab) CLIQZ.Core.popup.hidePopup();
             break;
