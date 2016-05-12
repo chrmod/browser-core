@@ -10,6 +10,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 (function(ctx) {
 
   var contextMenu,
+      activeArea,
       CONTEXT_MENU_ITEMS;
 
   function telemetry(type){
@@ -50,19 +51,25 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
   var ContextMenu = {
     enableContextMenu: function(box) {
-      CONTEXT_MENU_ITEMS = [
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),         'command': openNewTab,            'displayInDebug': true },
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),      'command': openNewWindow,         'displayInDebug': true },
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInPrivateWindow'),  'command': openInPrivateWindow,   'displayInDebug': false },
-        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),             'command': openFeedback,          'displayInDebug': true }
-      ];
-
-      contextMenu = CLIQZEnvironment.createContextMenu(box, CONTEXT_MENU_ITEMS);
-      box.addEventListener('contextmenu', rightClick);
+      activeArea = box;
+      activeArea.addEventListener('contextmenu', rightClick);
     }
   };
 
+  function initContextMenu(){
+    CONTEXT_MENU_ITEMS = [
+      { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),         'command': openNewTab,            'displayInDebug': true },
+      { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),      'command': openNewWindow,         'displayInDebug': true },
+      { 'label': CliqzUtils.getLocalizedString('cMenuOpenInPrivateWindow'),  'command': openInPrivateWindow,   'displayInDebug': false },
+      { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),             'command': openFeedback,          'displayInDebug': true }
+    ];
+
+    return CLIQZEnvironment.createContextMenu(activeArea, CONTEXT_MENU_ITEMS);
+  }
+
   function rightClick(ev) {
+    contextMenu = contextMenu || initContextMenu(); //lazy initialization
+
     var children,
         url = CLIQZ.UI.getResultOrChildAttr(ev.target, 'url');
 
