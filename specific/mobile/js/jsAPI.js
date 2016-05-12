@@ -59,5 +59,8 @@ var jsAPI = {
   setDefaultSearchEngine: function(engine) {
     CLIQZEnvironment.setDefaultSearchEngine(engine);
     CLIQZ.UI.updateSearchCard(engine);
+  },
+  restoreBlockedTopSites: function () {
+    CLIQZEnvironment.getLocalStorage().setObject('blockedTopSites', []);
   }
 }
