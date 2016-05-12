@@ -29,6 +29,8 @@ var resultsBox = null,
 
 var UI = {
     CARD_WIDTH: 0,
+    nCardsPerPage: 1,
+    nPages: 1,
     init: function(){
         //check if loading is done
         if(!CliqzHandlebars.tplCache.main)return;
@@ -40,8 +42,12 @@ var UI = {
     },
     setDimensions: function() {
       UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
+      UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
     results: function(r){
+      
+      setCardCountPerPage(window.innerWidth);
+
       UI.setDimensions();
 
       var engine = CLIQZEnvironment.getDefaultSearchEngine();
@@ -74,7 +80,7 @@ var UI = {
         var asyncResults = currentResults.results.filter(assessAsync(true));
         currentResults.results = currentResults.results.filter(assessAsync(false));
 
-        //TODO copy async
+        
         redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
 
         if(asyncResults.length > 0) loadAsyncResult(asyncResults, query);
@@ -90,7 +96,7 @@ var UI = {
         return currentResults;
     },
     VIEWS: {},
-    initViewpager: function(numberPages) {
+    initViewpager: function() {
         var views = {},
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
@@ -99,14 +105,13 @@ var UI = {
         crossTransform(resultsBox, Math.min((offset * innerWidth), (innerWidth * currentResultsCount)));
 
         return new ViewPager(resultsBox, {
-          pages: numberPages,
           dragSize: window.innerWidth,
           prevent_all_native_scrolling: false,
           vertical: false,
           anim_duration:400,
           onPageScroll : function (scrollInfo) {
             offset = -scrollInfo.totalOffset;
-            crossTransform(resultsBox, (offset * UI.CARD_WIDTH));
+            crossTransform(resultsBox, (offset * UI.CARD_WIDTH * UI.nCardsPerPage));
           },
 
           onPageChange : function (page) {
@@ -168,6 +173,11 @@ var UI = {
       document.getElementById('progress').style.width = '0px';
     }
 };
+
+function setCardCountPerPage(windowWidth) {
+  UI.nCardsPerPage = ~~(windowWidth / 320) || 1;
+}
+
 
 function loadAsyncResult(res, query) {
     for (var i in res) {
@@ -440,13 +450,12 @@ function setResultNavigation(results) {
 
   currentResultsCount = lastResultOffset / UI.CARD_WIDTH + showGooglethis + 1;
 
-  if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
-    CLIQZEnvironment.vp.destroy();
-  }
-  CLIQZEnvironment.currentPage = 0;
-  CLIQZEnvironment.vp = UI.initViewpager(currentResultsCount);
+  // get number of pages according to number of cards per page
+  UI.nPages = Math.ceil(currentResultsCount / UI.nCardsPerPage);
 
-  // CLIQZEnvironment.vp.goToIndex(1,0);
+  if(!CLIQZEnvironment.vp) {
+    CLIQZEnvironment.vp = UI.initViewpager();
+  }
 
   if(document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
@@ -460,19 +469,23 @@ function isSearch() {
 
 var resizeTimeout;
 window.addEventListener('resize', function () {
-  if(!isSearch()) return;
+  if (!isSearch()) return;
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function () {
+    const lastnCardsPerPage = UI.nCardsPerPage;
+    setCardCountPerPage(window.innerWidth);
     UI.setDimensions();
-    var w = window.innerWidth;
-    var frames = document.getElementsByClassName(FRAME);
-    var i;
-    for(i=0;i<frames.length;i++) {
-      frames[i].style.left = (UI.CARD_WIDTH*i) +"px";
-      frames[i].style.width = UI.CARD_WIDTH+"px";
+    const w = window.innerWidth;
+    const frames = document.getElementsByClassName(FRAME);
+    for (let i = 0; i < frames.length; i++) {
+      let left = UI.CARD_WIDTH * i;
+      frames[i].style.left = left + 'px';
+      CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
+      frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
-
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
+    setResultNavigation(CLIQZEnvironment.lastResults);
+    CLIQZEnvironment.currentPage = ~~(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
+    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage, 0);
 
     setCardsHeight();
     }, 50);

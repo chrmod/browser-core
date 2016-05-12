@@ -128,6 +128,9 @@ CLIQZEnvironment = {
     }
   },
   renderResults: function(r) {
+
+    CLIQZEnvironment.currentPage = 0;
+    CLIQZEnvironment.vp && CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage);
     var renderedResults = CLIQZ.UI.results(r);
 
     CLIQZ.UI.stopProgressBar();
