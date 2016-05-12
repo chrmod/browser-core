@@ -91,7 +91,6 @@ var UI = {
         imgLoader.start();
 
         crossTransform(resultsBox, 0);
-        setCardsHeight();
 
         setResultNavigation(currentResults.results);
 
@@ -177,7 +176,7 @@ var UI = {
 };
 
 function setCardCountPerPage(windowWidth) {
-  UI.nCardsPerPage = ~~(windowWidth / 320) || 1;
+  UI.nCardsPerPage = Math.floor(windowWidth / 320) || 1;
 }
 
 
@@ -364,27 +363,6 @@ function crossTransform (element, x) {
   });
 }
 
-function setCardsHeight() {
-  var ezs = document.getElementsByClassName('cqz-result-box');
-
-  var body = document.body,
-      documentElement = document.documentElement,
-      height;
-
-  if (typeof document.height !== 'undefined') {
-    height = document.height; // For webkit browsers
-  } else {
-    height = Math.max( body.scrollHeight, body.offsetHeight,documentElement.clientHeight, documentElement.scrollHeight, documentElement.offsetHeight );
-  }
-
-  for(var i=0; i < ezs.length; i++) {
-    ezs[i].style.height = null;
-    if (ezs[i].clientHeight + 40 < height) {
-      ezs[i].style.height = height - 40 + 'px';
-    }
-  }
-}
-
 function getResultKind(el) {
     return getResultOrChildAttr(el, 'kind').split(';');
 }
@@ -509,11 +487,9 @@ window.addEventListener('resize', function () {
       frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
     setResultNavigation(CLIQZEnvironment.lastResults);
-    CLIQZEnvironment.currentPage = ~~(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
+    CLIQZEnvironment.currentPage = Math.floor(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage, 0);
-
-    setCardsHeight();
-    }, 50);
+    }, 200);
 
 });
 
