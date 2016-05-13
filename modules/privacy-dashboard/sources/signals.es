@@ -1,13 +1,11 @@
 "use strict";
 
 /*
-  Functions to handle collecting to selecting / preparing signals for the dashboard
-  thuy@cliqz.com
-  26Feb2016
+ * Functions to handle collecting to selecting / preparing signals for the dashboard
  */
 
 import { utils, events } from "core/cliqz";
-import CliqzHumanWeb from "human-web/human-web";  // todo: can this in try catch?
+import CliqzHumanWeb from "human-web/human-web";
 
 var streamMode = false;
 
@@ -146,11 +144,6 @@ var SignalListener = {
 
 
 var HumanwebSignal = {
-  /*
-    More info about humanweb data:
-      1. https://github.com/cliqz/event-log/blob/ucrawl/README.md
-      2. publication on humanweb -> contact josep@cliqz.com
-   */
   dataKey: "payload",
   dataSubKey: ["c", "r", "e", "x", "red"],
   dataSubKeyDes: {

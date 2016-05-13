@@ -31,6 +31,22 @@ TESTS.CliqzCalculatorTest = function(CliqzCalculator) {
       });
     });
 
+    context("Calculator simple DE format - 2*3222,2", function() {
+      beforeEach(function() {
+        respondWith({result: []});
+        fillIn("2*3222,2");
+        return waitForPopup();
+      });
+
+      it('Results should have ID calc-answer, in localized format', function() {
+        expect(getResultString()).to.equal(getLocaliseString({'de': '6.444,4', 'default': '6,444.4'}));
+      });
+
+      it('Should have copy message', function() {
+        expect($cliqzResults().find(".cqz-result-box").find("#calc-copy-msg")[0].textContent.trim()).to.exist;
+      });
+    });
+
     context("Unit converter simple - 1m to mm", function() {
       beforeEach(function() {
         respondWith({result: []});

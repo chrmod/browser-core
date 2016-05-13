@@ -1,6 +1,6 @@
-import { utils } from "core/cliqz";
+import { language, utils } from "core/cliqz";
 import config from "core/config";
-import ProcessScriptManager from "core/process-script-manager";
+import ProcessScriptManager from "platform/process-script-manager";
 
 var lastRequestId = 0;
 var callbacks = {};
@@ -9,10 +9,6 @@ export default {
 
   init(settings) {
     this.dispatchMessage = this.dispatchMessage.bind(this);
-
-  	Object.keys(settings).forEach( key => {
-  		config[key] = settings[key];
-  	});
 
     utils.bindObjectFunctions(this.actions, this);
 
@@ -24,13 +20,38 @@ export default {
     this.mm.unload();
   },
 
+  queryHTML(url, selector, attribute) {
+    const requestId = lastRequestId++,
+          documents = [];
+
+    this.mm.broadcast("cliqz:core", {
+      action: "queryHTML",
+      url,
+      args: [selector, attribute],
+      requestId
+    });
+
+    return new Promise( (resolve, reject) => {
+      callbacks[requestId] = function (attributeValues) {
+        delete callbacks[requestId];
+        resolve(attributeValues);
+      };
+
+      utils.setTimeout(function () {
+        delete callbacks[requestId];
+        reject();
+      }, 1000);
+    });
+  },
+
   getHTML(url, timeout = 1000) {
     const requestId = lastRequestId++,
           documents = [];
 
     this.mm.broadcast("cliqz:core", {
       action: "getHTML",
-      args: [ url ],
+      url,
+      args: [],
       requestId
     });
 
@@ -46,9 +67,35 @@ export default {
     });
   },
 
+  getCookie(url) {
+    const requestId = lastRequestId++,
+          documents = [];
+
+    this.mm.broadcast("cliqz:core", {
+      action: "getCookie",
+      url,
+      args: [],
+      requestId
+    });
+
+    return new Promise( (resolve, reject) => {
+      callbacks[requestId] = function (attributeValues) {
+        delete callbacks[requestId];
+        resolve(attributeValues);
+      };
+
+      utils.setTimeout(function () {
+        delete callbacks[requestId];
+        reject();
+      }, 1000);
+    });
+  },
+
   dispatchMessage(msg) {
-    if (msg.data.requestId in callbacks) {
-      this.handleResponse(msg);
+    if (msg.data.requestId) {
+      if (msg.data.requestId in callbacks) {
+        this.handleResponse(msg);
+      }
     } else {
       this.handleRequest(msg);
     }
@@ -66,7 +113,7 @@ export default {
         response,
         action: msg.data.payload.action
       });
-    }).catch( e => utils.log(e.toString(), "Problem with frameScript") );
+    }).catch( e => utils.log(`${module}/${action}`+e.toString()+'---'+e.stack, "Problem with frameScript") );
   },
 
   handleResponse(msg) {
@@ -84,6 +131,12 @@ export default {
       urlBar.mInputField.focus();
       urlBar.mInputField.setUserInput(value);
       //utils.getWindow().CLIQZ.Core.urlbar.focus("ss");
+    },
+    recordLang(url, lang) {
+      if (lang) {
+        language.addLocale(url, lang);
+      }
+      return Promise.resolve();
     }
   }
 };

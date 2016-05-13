@@ -159,6 +159,20 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #urlbar .urlbar-input::-moz-selection {
   background: #7bebf5;
 }
+
+/* BEGIN EX-2290 */
+
+#urlbar .urlbar-input::-moz-placeholder {
+  font-style: normal;
+}
+
+.tab-label {
+    font-size: 11px;
+    text-align: center;
+}
+
+/* END EX-2290 */
+
 /*==== FF Color */
 
 #titlebar,

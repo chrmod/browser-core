@@ -52,7 +52,6 @@ CliqzMsgCenter.prototype = {
 		this._messageHandlers[id] = handler;
 	},
 
-  // TODO: add auto hide option
   showMessage: function (message, handlerId, callback) {
     var handler = this._messageHandlers[handlerId];
     if (handler) {
@@ -63,8 +62,7 @@ CliqzMsgCenter.prototype = {
   },
 
   hideMessage: function (message, handlerId) {
-    var handler =
-    this._messageHandlers[handlerId];
+    var handler = this._messageHandlers[handlerId];
     if (handler) {
       handler.dequeueMessage(message);
     } else {

@@ -3,26 +3,6 @@ import CliqzBloomFilter from "human-web/bloom-filter";
 import core from "core/background";
 import { utils } from "core/cliqz";
 
-/*
-Changes :
-* DropLongURL
-* SuspiciousURL
-* Triplefetch
-* Msgsanitize:
-    * Check title is suspicious
-    * Final check to see if URL is drop long URL, check if canonical is long or not.
-    * Check if url is a url shortner.
-    * Remove if query contains a number longer than 7 digits, email.
-    * probHashThreshold in query
-* parseURL additions: Parse ; and & for query strings.
-* Change double fetch arguments, add urlpagedoc pair
-'use strict';
-/*
- * This module determines the language of visited pages and
- * creates a list of known languages for a user
- *
- */
-
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
@@ -42,6 +22,10 @@ var bloomFilterSize = 500001;
 var falsePositive = 0.01;
 var bloomFilterNHashes = 7;
 
+/*
+We need a faster implementaiton of MD5 in JS.
+http://www.myersdaily.org/joseph/javascript/md5-text.html
+*/
 function md5cycle(x, k) {
     var a = x[0], b = x[1], c = x[2], d = x[3];
 
@@ -220,17 +204,6 @@ function add32(a, b) {
     return (a + b) & 0xFFFFFFFF;
 }
 
-/* Telemetry signals to send for :
-1. Reason of double-fetch failure.
-2. URLs altered such as canonical replaced, marked protected.
-*/
-
-function dfTelemetry(action, reason){
-    var payl = {};
-    payl["reason"] = reason;
-    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': action, 'payload': payl});
-}
-
 function _log(msg){
     try{
         if(CliqzHumanWeb.debug) {
@@ -293,7 +266,7 @@ var CliqzHumanWeb = {
     },
     activeUsage : 0,
     activeUsageThreshold : 2,
-    pageStatusCountSent: null, // Used for sending a signal only once a user, to track count of pages marked as private.
+    pageStatusCountSent: null,
     actionStats: null,
     actionStatsLastSent: null,
     bloomFilter: null,
@@ -627,7 +600,6 @@ var CliqzHumanWeb = {
               } catch(ee){};
         }
     },
-    // Extract earliest and latest entry of Firefox history
     historyTimeFrame: function(callback) {
         Cu.import('resource://gre/modules/PlacesUtils.jsm');
         var history = [];
@@ -777,8 +749,6 @@ var CliqzHumanWeb = {
         else{
             return false;
         }
-
-
     },
     userSearchTransition: function(rq){
         // now let's manage the userTransitions.search
@@ -1130,15 +1100,11 @@ var CliqzHumanWeb = {
             // this should not happen, but it does. Need to debug why the 'x' field gets lost
             // right now, let's set is a private to avoid any risk
             //
-            // SPT - r1 => X is null;
-            // dfTelemetry('hw.telemetry.doublefetch.mp',"r1");
             isok = false
         }
 
         if (page_doc && page_doc['x'] && page_doc['x']['iall'] == false) {
                 // the url is marked as noindex
-                // SPT - r2 => noindex;
-                // dfTelemetry('hw.telemetry.doublefetch.mp',"r2");
                 isok = false;
         }
 
@@ -1153,8 +1119,6 @@ var CliqzHumanWeb = {
                 // the url is to be drop, but it has a canonical URL so it should be public
                 if (CliqzHumanWeb.dropLongURL(page_doc['x']['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
-                    // SPT - r3 => canonical is long.;
-                    // dfTelemetry('hw.telemetry.doublefetch.mp',"r3");
                     _log("The canonical url: " + page_doc['x']['canonical_url'] + " is also long");
                     isok = false;
                 }
@@ -1602,50 +1566,6 @@ var CliqzHumanWeb = {
         */
         return doc;
       });
-    },
-    getCDByURL: function(url) {
-        var dd_url = url;
-
-        try {
-            dd_url = decodeURI(decodeURI(url));
-        } catch(ee) {}
-
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
-            var gBrowser = win.gBrowser;
-            if (gBrowser.tabContainer) {
-                var numTabs = gBrowser.tabContainer.childNodes.length;
-                for (var i=0; i<numTabs; i++) {
-                    var currentTab = gBrowser.tabContainer.childNodes[i];
-                    var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                    var cd = currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'];
-                    var currURL=''+cd.location;
-
-                    if (CliqzHumanWeb.debug) {
-                        _log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL);
-                    }
-
-                    if (currURL==''+url) {
-                        return cd;
-                    }
-                    else {
-                        // silent fail is currURL is invalid, we need to ignore that element otherwise
-                        // one bad url would prevent any other url to be found
-                        //
-                        try {
-                            if (decodeURI(decodeURI(currURL))==dd_url) return cd;
-                            else {
-                                if (url == decodeURIComponent(currURL)) return currentBrowser.contentDocument;
-                            }
-                        }
-                        catch(ee) {}
-                    }
-                }
-            }
-        }
-
-        return null;
     },
     captureJSRefresh: function(aRequest, aURI){
 
@@ -2154,9 +2074,7 @@ var CliqzHumanWeb = {
     currentURL: function() {
         var currwin = CliqzUtils.getWindow(), ret = null;
         if (currwin && currwin.gBrowser) {
-            // http://mikeconley.github.io/e10s-MM-CPOW-talk/#slide-54
-            // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/browser.js#2395
-            ret = ''+currwin.gBrowser.selectedBrowser[currwin.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'].location;
+            ret = currwin.gBrowser.selectedBrowser.currentURI.spec;
         }
         return CliqzHumanWeb.cleanCurrentUrl(ret);
     },
@@ -2362,7 +2280,7 @@ var CliqzHumanWeb = {
                     for (var i=0; i<numTabs; i++) {
                         var currentTab = gBrowser.tabContainer.childNodes[i];
                         var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-                        var currURL=''+currentBrowser[win.gMultiProcessBrowser ? 'contentDocumentAsCPOW' : 'contentDocument'].location;
+                        var currURL = currentBrowser.selectedBrowser.currentURI.spec;
                         if (currURL.indexOf('about:')!=0) {
                             res.push(decodeURIComponent(currURL));
                         }
@@ -2420,23 +2338,9 @@ var CliqzHumanWeb = {
 
         CliqzHumanWeb.loadContentExtraction();
         CliqzHumanWeb.fetchAndStoreConfig();
-        // CliqzHumanWeb.sendpageStatusCount();
 
         if (CliqzHumanWeb.actionStats==null) CliqzHumanWeb.loadActionStats();
         if (CliqzHumanWeb.actionStatsLastSent==null) CliqzHumanWeb.loadActionStatsLastSent();
-
-        /*
-        var status = CliqzHumanWeb.loadpageStatusCount();
-        if(!status){
-            CliqzHumanWeb.getPageStatusCount(function(res){
-                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'hw.telemetry.statuscount', 'payload':res[0]});
-                CliqzHumanWeb.saveRecord('pageStatusCountSent', JSON.stringify(res[0]));
-            })
-        }
-        else{
-            _log("No Need to send");
-        }
-        */
 
         // Load bloom filter
         if(!CliqzHumanWeb.bloomFilter){
@@ -2482,7 +2386,7 @@ var CliqzHumanWeb = {
             delete msg.payload.tin;
 
             // Check for fields which have urls like ref.
-            // Check is they are suspicious.
+            // Check if they are suspicious.
             // Check if they are marked private.
             if(msg.payload.ref){
                 if(CliqzHumanWeb.isSuspiciousURL(msg.payload['ref'])){
@@ -2685,36 +2589,13 @@ var CliqzHumanWeb = {
     },
     _telemetry_req: null,
     _telemetry_sending: [],
-    _telemetry_start: undefined,
     telemetry_MAX_SIZE: 500,
-    previousDataPost: null,
     pushTelemetry: function() {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        // Changing the slice and empty array function to splice.
-
-        //CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
-        //CliqzHumanWeb.trk = [];
-
-        // Check if track has duplicate messages.
-        // Generate a telemetry signal, with base64 endocing of data and respective count.
-        // CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
-
         CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
-        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
         var data = JSON.stringify(CliqzHumanWeb._telemetry_sending);
-        if (data.length > 10) {
-            if (CliqzHumanWeb.previousDataPost && data == CliqzHumanWeb.previousDataPost) {
-                // duplicated , send telemetry notification.
-                var notificationMsg = {};
-                notificationMsg['reason'] = "duplicate payload";
-                notificationMsg['payload'] = data;
-                // CliqzHumanWeb.notification(notificationMsg);
-            }
-            CliqzHumanWeb.previousDataPost = data;
-        }
-
         CliqzHumanWeb._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.SAFE_BROWSING, data, 60000, true);
         CliqzHumanWeb._telemetry_req.then( CliqzHumanWeb.pushTelemetryCallback );
         CliqzHumanWeb._telemetry_req.catch( CliqzHumanWeb.pushTelemetryError );
@@ -2740,7 +2621,7 @@ var CliqzHumanWeb = {
         CliqzHumanWeb._telemetry_req = null;
     },
     // ************************ Database ***********************
-    // Stolen from modules/CliqzHistory
+    // source modules/CliqzHistory
     // *********************************************************
     initDB: function() {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {
@@ -3072,8 +2953,6 @@ var CliqzHumanWeb = {
                             st.params.reason = 'empty page data';
                             setPrivate = true;
                             _log("Setting private because empty page data");
-
-                            // SPT
                         }
                         else if (CliqzHumanWeb.isSuspiciousURL(url)) {
                             // if the url looks private already add it already as checked and private
@@ -3082,7 +2961,6 @@ var CliqzHumanWeb = {
                             st.params.reason = 'susp. url';
                             setPrivate = true;
                             _log("Setting private because suspiciousURL");
-                            // SPT
                         }
                         else {
                             if (CliqzHumanWeb.httpCache401[url]) {
@@ -3091,7 +2969,6 @@ var CliqzHumanWeb = {
                                 st.params.reason = '401';
                                 setPrivate = true;
                                 _log("Setting private because of 401");
-                                // SPT
                             }
                             else {
                                 st.params.checked = 0;
@@ -3305,15 +3182,6 @@ var CliqzHumanWeb = {
     },
     processUnchecks: function(listOfUncheckedUrls) {
         var url_pagedocPair = {};
-        if(listOfUncheckedUrls.length > 1){
-            // Notify is the list of unchecked urls recieved is more than one
-            // Generate a telemetry signal.
-            var notificationMsg = {};
-            notificationMsg['reason'] = "listOfUncheckedUrls greater than one";
-            notificationMsg['count'] = listOfUncheckedUrls.length;
-            // CliqzHumanWeb.notification(notificationMsg);
-
-        }
 
         for(var i=0;i<listOfUncheckedUrls.length;i++) {
             var url = listOfUncheckedUrls[i][0];
@@ -3340,7 +3208,6 @@ var CliqzHumanWeb = {
                             }
                         }
                     });
-                    // SPT
                     _log("Marking as private via is private");
                     CliqzHumanWeb.setAsPrivate(url);
                 }
@@ -3353,7 +3220,6 @@ var CliqzHumanWeb = {
     },
     // to invoke in console: CliqzHumanWeb.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
     forceDoubleFetch: function(url) {
-        // Generate a telemetry signal.
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
     outOfABTest: function() {
@@ -3371,7 +3237,7 @@ var CliqzHumanWeb = {
                         "debugInterface", null, null);}catch(ee){_log(ee)}
     },
     loadContentExtraction: function(){
-        //Check health
+        //Load content extraction.
         CliqzUtils.httpGet(CliqzHumanWeb.patternsURL,
           function success(req){
             if(!CliqzHumanWeb) return;
@@ -3426,7 +3292,7 @@ var CliqzHumanWeb = {
 
     },
     fetchAndStoreConfig: function(){
-        //Check health
+        //Load latest config.
         CliqzUtils.httpGet(CliqzHumanWeb.configURL,
           function success(req){
             if(!CliqzHumanWeb) return;
@@ -3527,13 +3393,11 @@ var CliqzHumanWeb = {
                     }
                     else if(rules[key][each_key]['type'] == 'searchQuery'){
                         urlArray = CliqzHumanWeb._getAttribute(cd,key,rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'],(rules[key][each_key]['functionsApplied'] || null))
-                        //console.log(urlArray);
                         innerDict[each_key] = urlArray;
                         CliqzHumanWeb.searchCache[ind] = {'q' : urlArray[0], 't' : CliqzHumanWeb.idMappings[ind]};
                     }
                     else{
                         urlArray = CliqzHumanWeb._getAttribute(cd,key,rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'],(rules[key][each_key]['functionsApplied'] || null))
-                        //console.log(urlArray);
                         innerDict[each_key] = urlArray;
                     }
             })
@@ -3718,21 +3582,7 @@ var CliqzHumanWeb = {
         var result = CliqzHumanWeb.maskURL(url);
         return result;
     },
-    /*
     getTabID: function(){
-        try{
-            var enumerator = Services.wm.getEnumerator('navigator:browser');
-            var win = enumerator.getNext();
-            var currWindID = win.__SSi.split('window')[1];
-
-            return win.__SSi + ":" + win.gBrowser.mCurrentTab._tPos;
-        }
-        catch(e){
-            return null;
-        }
-    },*/
-    getTabID: function(){
-        // @Konark: Please check if this is fine
         try {
             var win = CliqzUtils.getWindow();
             var gBrowser = win.gBrowser;
@@ -3827,7 +3677,6 @@ var CliqzHumanWeb = {
         // h[i] = k : there are k bins (letter) with i balls (repetitions) on it,
         // h[2] = 1 : there is one letter that is repeated twice
 
-        // _log("aggregates: "+h);
 
         if (h[1] == s)  {
             // recursion stop condition
@@ -3895,8 +3744,6 @@ var CliqzHumanWeb = {
         }
 
         h = h.slice(0, max_freq+1);
-
-        // _log("pre aggregates: "+h);
 
         var cache = {};
         var prob_conf = CliqzHumanWeb.auxProbString(h, p, s, cache);
@@ -3993,47 +3840,6 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.activeUsage = 0;
         CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
         CliqzUtils.setPref('config_activeUsageCount', 0);
-    }
-  },
-  duplicateEvents: function(arr){
-    var duplicate = {};
-    var duplicates = {};
-
-    // Calculate duplicates
-    arr.forEach(function(i, idx) {
-        if (typeof(i) == 'object' && i.action == 'page'){
-            var d = JSON.stringify(i);
-            duplicate[d] = (duplicate[d]||0)+1;
-        }
-    });
-
-    Object.keys(duplicate).forEach(function(key){
-        if(duplicate[key] > 1){
-            duplicates[key] = duplicate[key];
-
-        }
-
-    })
-
-    if (Object.keys(duplicates).length > 0) {
-        _log("duplicate: " + JSON.stringify(duplicates));
-        // If count greater than one, then add and post
-        var notificationMsg = {};
-        notificationMsg['reason'] = "duplicate elements in trk";
-        notificationMsg['payload'] = duplicates;
-        // CliqzHumanWeb.notification(notificationMsg);
-    }
-
-  },
-  notification: function(payload){
-    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-    if(payload && typeof(payload) == 'object'){
-        payload['ctry'] = location;
-        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
-
-    }
-    else{
-        _log("Not a valid object, not sent to notification");
     }
   },
   insertCanUrl: function(canUrl){
@@ -4136,22 +3942,6 @@ var CliqzHumanWeb = {
             }
         });
     },
-    sendpageStatusCount: function() {
-        CliqzHumanWeb.loadRecord('pageStatusCountSent', function(data) {
-            if (data==null) {
-                _log("Count of pages marked as Public / Private not sent yet.");
-                CliqzHumanWeb.getPageStatusCount(function(res){
-                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'hw.telemetry.statuscount', 'payload':res[0]});
-                    CliqzHumanWeb.saveRecord('pageStatusCountSent', JSON.stringify(res[0]));
-                })
-                return false;
-            }
-            else {
-                _log("Count of pages marked as Public / Private already sent.");
-                return true;
-            }
-        });
-    },
     loadActionStats: function() {
         CliqzHumanWeb.loadRecord('actionStats', function(data) {
             if (data==null) {
@@ -4178,7 +3968,6 @@ var CliqzHumanWeb = {
         });
     },
     incrActionStats: function(action) {
-        // anything here should already be hash
         if(!CliqzHumanWeb.actionStats) return;
         if (CliqzHumanWeb.actionStats[action] == null) CliqzHumanWeb.actionStats[action] = 0;
         if (CliqzHumanWeb.actionStats['total'] == null) CliqzHumanWeb.actionStats['total'] = 0;
@@ -4208,8 +3997,9 @@ var CliqzHumanWeb = {
     },
     sendActionStatsIfNeeded: function() {
         // Send action stats once per day.
+        // Day resolution.
         var timestamp = CliqzHumanWeb.getTime().slice(0,8);
-        // hour resolution,
+
 
         if (timestamp != CliqzHumanWeb.actionStatsLastSent) {
             // it's not the same timestamp (hour) of the last time that was sent

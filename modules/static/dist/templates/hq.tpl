@@ -9,7 +9,7 @@
           {{/if}}
 
           {{#each data.richData.images}}
-            {{#if (limit_images_shown @index 5)}}
+            {{#if (limit @index 5)}}
             <img src='{{this}}' class='cqz-celeb-image' onerror="this.style.display='none';"/>
             {{/if}}
           {{/each}}

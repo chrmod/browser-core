@@ -1,6 +1,7 @@
 <!-- pattern-h1 -->
 <div class='cqz-result-h1 cqz-result-padding cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title-h1 overflow'>
+      <div class='cqz-ez-title cliqz-pattern-title-h1 overflow'
+           dont-remove='true'>
           {{ data.title }}
       </div>
       <div class='cliqz-pattern'>

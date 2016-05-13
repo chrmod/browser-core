@@ -91,7 +91,7 @@ describe('removeCampaign', function() {
 
 describe('updateCampaigns', function() {
   it('should add campaign from server', function() {
-    campaignManager._updateCampaignsCallback({response: JSON.stringify(campaigns)});
+    campaignManager._onCampaignsUpdate({response: JSON.stringify(campaigns)});
 
     chai.expect(Object.keys(campaignManager._campaigns).length).to.equal(1);
   });
@@ -100,7 +100,7 @@ describe('updateCampaigns', function() {
     chai.expect(campaignManager._campaigns.TEST002.handlerId).to.
     equal('xyz');
 
-    campaignManager._updateCampaignsCallback({response: JSON.stringify({campaigns: {}})});
+    campaignManager._onCampaignsUpdate({response: JSON.stringify({campaigns: {}})});
     chai.expect(Object.keys(campaignManager._campaigns).length).to.equal(0);
   });
   it('should not overwrite local campaign', function() {
@@ -108,7 +108,7 @@ describe('updateCampaigns', function() {
     chai.expect(campaignManager._campaigns.TEST001.handlerId).to.
     equal('xyz');
 
-    campaignManager._updateCampaignsCallback({response: JSON.stringify(campaigns)});
+    campaignManager._onCampaignsUpdate({response: JSON.stringify(campaigns)});
     chai.expect(Object.keys(campaignManager._campaigns).length).to.equal(1);
     chai.expect(campaignManager._campaigns.TEST001.handlerId).to.
     equal('xyz');

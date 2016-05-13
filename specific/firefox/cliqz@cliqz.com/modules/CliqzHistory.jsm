@@ -22,9 +22,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
-  'chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
-
 
 
 var CliqzHistory = {
@@ -745,11 +742,6 @@ var CliqzHistory = {
 
     // Delete thumbnails if limit is reached
     CliqzHistory.cleanUpThumbnails();
-
-    // Analyse data
-    CliqzUtils.setTimeout(function() {
-      CliqzHistoryAnalysis.startAnalysis();
-    }, 0);
   },
   addColumn: function(table, col, type) {
     CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,

@@ -746,6 +746,12 @@
     "cMenuFeedback": {
       "message": "Feedback for CLIQZ"
     },
+    "cMenuRemoveFromHistory": {
+      "message": "Remove from History"
+    },
+    "cMenuRemoveFromBookmarksAndHistory": {
+      "message": "Remove from Bookmarks and History"
+    },
     "myQuery": {
         "message": "query"
     },
@@ -1013,11 +1019,23 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "Subscribe NOW"
     },
+    "mobile_freshtab_edit_done": {
+      "message": "Done"
+    },
+    "mobile_freshtab_no_topsites": {
+      "message": "You will see your topsites here."
+    },
     "mobile_share_card": {
       "message": "Share this card"
     },
     "mobile_reconnecting_msg": {
       "message": "Re-establishing lost internet connection"
+    },
+    "mobile_no_history": {
+      "message": "Here you will find your history.<br />You still haven't searched or navigated to websites."
+    },
+    "mobile_no_favorites": {
+      "message": "Here you will find your favorites.<br />Long tap on history items to create favorites."
     },
     "mobile_history_title": {
       "message": "History"
@@ -1129,5 +1147,11 @@
     },
     "context-menu-search-item": {
       "message": "Search CLIQZ for \"$1\""
+    },
+    "streaming": {
+      "message": "Stream Now: "
+    },
+    "lyrics": {
+      "message": "Lyrics: "
     }
 }

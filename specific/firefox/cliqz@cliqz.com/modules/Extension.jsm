@@ -33,16 +33,12 @@ function newMajorVersion(oldV, newV){
 }
 
 var Extension = {
-    BASE_URI: 'chrome://cliqz/content/',
     modules: [],
     init: function(){
         Extension.unloadJSMs();
 
         Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
         Extension.System = System;
-        Extension.System.baseURL = this.BASE_URI;
-
-        // Cu.import('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -53,6 +49,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
         CliqzUtils.initPlatform(System)
 
@@ -82,6 +79,8 @@ var Extension = {
 
       // Load Config - Synchronous!
       this.config = {{CONFIG}};
+      CliqzUtils.RICH_HEADER = this.config.settings['richheader-url'] || CliqzUtils.RICH_HEADER;
+      CliqzUtils.RESULTS_PROVIDER = this. config.settings['resultsprovider-url'] || CliqzUtils.RESULTS_PROVIDER;
 
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
@@ -139,14 +138,6 @@ var Extension = {
         Services.ww.unregisterNotification(Extension.windowWatcher);
 
         Extension.cliqzPrefsObserver.unregister();
-
-        // Remove this observer here to correct bug in 0.5.57
-        // - if you don't do this, the extension will crash on upgrade to a new version
-        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
-        try {
-            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
-        } catch(e) {}
 
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
@@ -207,7 +198,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -226,25 +216,16 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistory.jsm');
-        // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
     },
     restart: function(){
         CliqzUtils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        //basic solution for having consistent preferences between updates
-        //0.5.02 - 0.5.04
-        CliqzUtils.clearPref('analysis');
-        CliqzUtils.clearPref('news-toggle-trending');
+      //TODO: cleaning prefs?
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
-    },
-    cleanPossibleOldVersions: function(win){
-        //
+        Services.scriptloader.loadSubScript(CLIQZEnvironment.SYSTEM_BASE_URL + src + '.js', win);
     },
     setupCliqzGlobal: function (win) {
       if(win.CLIQZ === undefined) {
@@ -340,6 +321,11 @@ var Extension = {
 
         menupopup.addEventListener('popupshowing', function(){
             Extension.createMenuifEmpty(win, menupopup);
+            CliqzUtils.telemetry({
+              type: 'activity',
+              action: 'cliqz_menu_button',
+              button_name: 'main_menu'
+            });
         });
         button.addEventListener('command', function(ev) {
             Extension.createMenuifEmpty(win, menupopup);

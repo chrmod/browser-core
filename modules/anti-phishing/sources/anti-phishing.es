@@ -1,4 +1,5 @@
 import CliqzHumanWeb from "human-web/human-web";
+import core from "core/background";
 
 /*
  * This module injects warning message when user visit a phishing site
@@ -46,27 +47,25 @@ function alert(doc, md5, tp) {
     doc.body.appendChild(els);
 }
 
-function checkPassword(doc, callback) {
-    var inputs = doc.querySelectorAll('input');
-    for (var i=0; i<inputs.length; i++) {
-        if (inputs[i].type == 'password' ||
-            inputs[i].value == 'password' && inputs[i].name == 'password' ||
-            inputs[i].value == 'passwort' && inputs[i].name == 'passwort') {
-            callback(doc.URL, 'password');
-            return;
-        }
-    }
+function checkPassword(url, callback) {
+  const suspicious = core.queryHTML(url, "input", "type,value,name").then(
+    inputs => inputs.some(
+      input => Object.keys(input).some(
+        attr => attr === "password" || attr === "passwort"
+      )
+    )
+  );
 
-    var html = domSerializer.serializeToString(doc);
-    if (html.indexOf('security') > -1 &&
-        html.indexOf('update') > -1 &&
-        html.indexOf('account') > -1) {
-        callback(doc.URL, 'password');
-        return;
-    }
+  if (suspicious) {
+    callback(url, 'password');
+  }
 }
 
 function checkSingleScript(script) {
+    if (!script) {
+      return;
+    }
+
     // if someone try to get the current date
     if (script.indexOf('getTime') > -1 &&
         script.indexOf('getDay') > -1 &&
@@ -82,32 +81,63 @@ function checkSingleScript(script) {
     return false;
 }
 
-function checkCheat(doc, callback){
-    var html = domSerializer.serializeToString(doc);
-    if (html.indexOf('progress-bar-warning') > -1 && html.indexOf('progress-bar-success') > -1 ||
-        html.indexOf('play-progress') > -1 && html.indexOf('buffer-progress') > -1)
-        callback(doc.URL, 'cheat');
+function checkHTML(url, callback){
+  core.getHTML(url).then( htmls => {
+    var html = htmls[0];
+
+    if (!html) {
+      return;
+    }
+
+    if (html.indexOf('progress-bar-warning') > -1
+        && html.indexOf('progress-bar-success') > -1
+        || html.indexOf('play-progress') > -1
+        && html.indexOf('buffer-progress') > -1) {
+
+      callback(url, 'cheat');
+      return;
+    }
+
+    if (html.indexOf('security') > -1 &&
+        html.indexOf('update') > -1 &&
+        html.indexOf('account') > -1) {
+
+      callback(doc.URL, 'password');
+    }
+  });
 }
 
-function checkScript(doc, callback) {
-    var scripts = doc.querySelectorAll('script');
-    var domain = doc.URL.replace('http://', '').replace('https://', '').split("/")[0];
-    for (var i=0; i<scripts.length; i++) {
-        var script = '';
-        if (scripts[i].src) {
-            // if the script is from the same domain, fetch it
-            var dm = scripts[i].src.replace('http://', '').replace('https://', '').split("/")[0];
-            if (dm == domain) {
-                var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-                req.open('GET', scripts[i].src, false);
-                req.send('null');
-                script = req.responseText;
-            }
-        } else
-            script = scripts[i].innerHTML;
-        if (checkSingleScript(script))
-            callback(doc.URL, 'script');
+function checkScript(url, callback) {
+  const domain = url.replace('http://', '')
+    .replace('https://', '').split("/")[0];
+
+  core.queryHTML(url, "script", "src").then( srcs => {
+    const suspicious = srcs.filter( src => src ).some( src => {
+      // if the script is from the same domain, fetch it
+      var dm = src.replace('http://', '').replace('https://', '').split("/")[0];
+
+      if (dm !== domain) {
+        return;
+      }
+
+      var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+      req.open('GET', src, false);
+      req.send('null');
+
+      var script = req.responseText;
+      return checkSingleScript(script);
+    });
+
+    if (suspicious) {
+      callback(url, 'script');
     }
+  });
+
+  core.queryHTML(url, "script", "innerHTML").then( scripts => {
+    if (scripts.some( checkSingleScript )) {
+      callback(url, 'script');
+    };
+  });
 }
 
 function getDomainMd5(url) {
@@ -126,7 +156,7 @@ function notifyHumanWeb(p) {
     var url = p.url;
     var status = p.status;
     CliqzHumanWeb.state['v'][url]['isMU'] = status;
-    // @konarkm: Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
+    // Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
     // CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
     CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
 }
@@ -160,25 +190,23 @@ function updateBlackWhiteStatus(req, md5Prefix) {
     }
 }
 
-function checkSuspicious(doc, callback) {
-    CliqzUtils.log('check ' + doc.URL, 'antiphishing');
-    checkScript(doc, callback);
-    checkCheat(doc, callback);
-    checkPassword(doc, callback);
+function checkSuspicious(url, callback) {
+  CliqzUtils.log('check ' + url, 'antiphishing');
+  checkScript(url, callback);
+  checkHTML(url, callback);
+  checkPassword(url, callback);
 }
 
 function checkStatus(url, md5Prefix, md5Surfix) {
-    var doc = CliqzHumanWeb.getCDByURL(url);
     var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
     if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
-            // alert(doc, md5Prefix + md5Surfix, bw[md5Surfix]);
         }
     } else {
         CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
         // alert humanweb if it is suspicious
-        checkSuspicious(doc, updateSuspiciousStatus);
+        checkSuspicious(url, updateSuspiciousStatus);
     }
 }
 

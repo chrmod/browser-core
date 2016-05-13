@@ -16,9 +16,6 @@ Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
@@ -423,7 +420,6 @@ var CliqzHistoryCluster = {
     if (urlbar == 'www.' || urlbar == 'http://' || urlbar.substr(urlbar.indexOf('://') + 3) == 'www.' || urlbar === '')
       return {};
 
-    var type = null;
     var url = CliqzUtils.simplifyUrl(pattern.url);
     url = CliqzUtils.generalizeUrl(url, true);
     var input = CliqzUtils.generalizeUrl(urlbar);
@@ -441,7 +437,6 @@ var CliqzHistoryCluster = {
       autocomplete = true;
       highlight = true;
       urlbarCompleted = urlbar + url.substring(url.indexOf(input) + input.length);
-      type = 'url';
     }
 
     if (autocomplete) {
@@ -461,8 +456,7 @@ var CliqzHistoryCluster = {
       autocomplete: autocomplete,
       urlbar: urlbarCompleted,
       selectionStart: selectionStart,
-      highlight: highlight,
-      type: type
+      highlight: highlight
     };
   },
 
@@ -511,7 +505,7 @@ var CliqzHistoryCluster = {
       var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString, res);
       instant.comment += ' (history rules cluster)';
       // override with any titles we have saved
-      promises.push(CliqzHistoryCluster._getTitle(instant));
+      //promises.push(CliqzHistoryCluster._getTitle(instant));
 
       instant.data.template = 'pattern-h2';
       instant.data.cluster = true; // a history cluster based on a destination bet
@@ -540,11 +534,11 @@ var CliqzHistoryCluster = {
       }
       instant.data.title = title;
       // override with any titles we have saved
-      promises.push(CliqzHistoryCluster._getTitle(instant));
+      //promises.push(CliqzHistoryCluster._getTitle(instant));
 
       // get description in case we need it
       //(if this cluster is converted back to simple history)
-      promises.push(CliqzHistoryCluster._getDescription(instant));
+      //promises.push(CliqzHistoryCluster._getDescription(instant));
 
       instant.data.url = results[0].url;
       instant.comment += ' (history domain cluster)!';
@@ -564,7 +558,7 @@ var CliqzHistoryCluster = {
         var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
         instant.comment += ' (history generic)!';
         instant.data.kind = ['H'];
-        promises.push(CliqzHistoryCluster._getDescription(instant));
+        //promises.push(CliqzHistoryCluster._getDescription(instant));
         instant_results.push(instant);
       }
     } else {
@@ -586,27 +580,6 @@ var CliqzHistoryCluster = {
     } else {
       Promise.all(promises).then(function(data) {
         callback(instant_results);
-      });
-    }
-  },
-  // Retrieve description and save in instant results
-  _getDescription: function(instant) {
-    var instant_data = instant.data;
-    var promise = CliqzHistory && CliqzHistory.getDescription && CliqzHistory.getDescription(instant.val);
-    if (promise) {
-      return promise.then(function(desc) {
-        instant_data.description = desc;
-      });
-    }
-  },
-  // Retrieve title and save in instant reuslt
-  _getTitle: function(instant) {
-    var instant_data = instant.data;
-    var promise = CliqzHistory && CliqzHistory.getTitle && CliqzHistory.getTitle(instant.val);
-    if (promise) {
-      return promise.then(function(title) {
-        if (title)
-          instant_data.title = title;
       });
     }
   },

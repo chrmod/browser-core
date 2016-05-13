@@ -2,6 +2,7 @@ import { utils } from "core/cliqz";
 import background from "core/base/background";
 import HumanWeb from "human-web/human-web";
 import hs from "core/history-service";
+import Attrack from "antitracking/attrack";
 
 export default background({
   enabled(settings) {
@@ -45,6 +46,7 @@ export default background({
     },
     recordMouseDown() {
       HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);
+      Attrack.cChecker.setContextFromEvent.apply(Attrack.cChecker, arguments);
     },
     recordScroll() {
       HumanWeb.captureScrollPage.apply(HumanWeb, arguments);

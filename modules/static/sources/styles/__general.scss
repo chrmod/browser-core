@@ -998,29 +998,6 @@
     font-weight: 500;
 }
 
-#cliqzExtOnboardingCallout .onboarding-callout {
-    font-weight: 300;
-    padding: 0px;
-}
-
-#cliqzExtOnboardingCallout .panel-arrowcontent {
-    padding-top: 0px;
-}
-
-#cliqzExtOnboardingCallout .panel-arrowcontent {
-    background: #FD544F;
-    color: white;
-}
-
-#cliqzExtOnboardingCallout .panel-arrow[side="top"],
-#cliqzExtOnboardingCallout .panel-arrow[side="bottom"] {
-    list-style-image: url(../../skin/panelarrow-red-horizontal.svg);
-}
-
-#cliqzExtOnboardingCallout .panel-arrow[side="left"],
-#cliqzExtOnboardingCallout .panel-arrow[side="right"] {
-    list-style-image: url(../../skin/panelarrow-red-vertical.svg);
-}
 
 .onboarding-callout .msg-container {
     position: relative;
@@ -1028,18 +1005,6 @@
     white-space: pre-line;
     max-width: 300px;
     line-height: 1.4;
-}
-
-#cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .msg-container {
-    max-width: 200px;
-}
-
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .msg-container {
-    max-width: 600px;
-}
-
-#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .msg-container {
-    max-width: 400px;
 }
 
 .onboarding-callout .btn-container,
@@ -1063,17 +1028,6 @@
     margin-top: 10px;
 }
 
-#cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .btn-container-extended {
-    text-align: center;
-    width: 100%;
-}
-
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended,
-#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .btn-container-extended {
-    text-align: right;
-    width: 100%;
-}
-
 .onboarding-callout .btn-container .cqz-btn,
 .onboarding-callout .btn-container-extended .cqz-btn {
     margin: 0px;
@@ -1087,17 +1041,6 @@
     margin-left: auto;
     margin-right: auto;
     font-weight: 500;
-}
-
-#cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .btn-container-extended .cqz-btn {
-    display: block;
-    max-width: 160px;
-}
-
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended .cqz-btn,
-#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .btn-container-extended .cqz-btn {
-    display: inline;
-    max-width: 160px;
 }
 
 .onboarding-callout .btn-container .cqz-btn-ok {
@@ -1122,24 +1065,6 @@
     font-size: 12px;
     font-weight: 300;
     margin-top: 5px;
-}
-
-#cliqzExtOnboardingCallout .cliqz-logo {
-    background-image: url(../../skin/img/cliqz.svg);
-    background-repeat: no-repeat;
-    height: 20px;
-    width: 100px;
-}
-
-#cliqzExtOnboardingCallout[msg_type="same_result"] .cliqz-logo {
-    margin-left: 20px;
-    margin-top: 30px;
-}
-
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .cliqz-logo,
-#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .cliqz-logo {
-    margin: 0px;
-    float: left;
 }
 
 /* ------- END onboarding */
@@ -1442,3 +1367,65 @@
 .cqz-results .clz_link p {
     cursor: pointer;
 }
+
+/*** BEGIN MUSIC DATA SC ***/
+
+#music_btn_region {
+    margin-top: 20px;
+}
+
+#music_btn_region .music-label {
+    float: left;
+    margin-right: 10px;
+    line-height: 26px;
+    color: #999999;
+    width: 82px;
+}
+
+#music_btn_region .music-btns-wrapper {
+    vertical-align: bottom;
+}
+
+#music_btn_region .music-btns {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#music_btn_region .music-btn {
+    margin-right: 10px;
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 0px;
+}
+
+#music_btn_region .music-btn-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 3px 10px 10px 10px;
+    border-radius: 3px;
+    display: inline-block;
+    text-align: center;
+    text-transform: capitalize;
+
+    max-height: 26px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+#music_btn_region .music-btn img {
+    max-height: 26px;
+    max-width: 100px;
+}
+
+.music-btns-container {
+    display: table-cell;
+    vertical-align: bottom !important;
+    width: 720px;
+    height: 90px;
+}
+
+/*** END MUSIC DATA SC ***/

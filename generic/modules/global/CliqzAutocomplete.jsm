@@ -208,7 +208,7 @@ var CliqzAutocomplete = {
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
                             // override the template if the superTemplate is known
-                            if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
+                            if(CLIQZEnvironment.isUnknownTemplate(r.data.template)){
                                 // unexpected/unknown template
                                 continue;
                             }
@@ -392,7 +392,7 @@ var CliqzAutocomplete = {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
-                
+
                 // be sure this is not a delayed result
                 if(q != this.searchString) {
                     this.discardedResults += 1; // count results discarded from backend because they were out of date
@@ -401,7 +401,7 @@ var CliqzAutocomplete = {
                     var results = [];
                     var json = JSON.parse(req.response);
 
-                    CliqzUtils.log(json.result ? json.result.length : 0,"BM response");
+                    CliqzUtils.log(json.result ? json.result.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
 
                     results = json.result || [];
 
@@ -470,7 +470,7 @@ var CliqzAutocomplete = {
                 return parts[0];
             },
             //FF entry point
-            //Lucian: to be moved to Environment!
+            //TODO: to be moved to Environment!
             startSearch: function(searchString, searchParam, previousResult, listener){
                 this.search(searchString, function(results, ctx){
                     listener.onSearchResult(ctx, results);
@@ -517,7 +517,8 @@ var CliqzAutocomplete = {
 
                 // spell correction
                 var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
-                if (!CliqzAutocomplete.spellCorr.override &&
+                if (urlbar && //we do not have urlbar on mobile TODO - fix it better!
+                    !CliqzAutocomplete.spellCorr.override &&
                     urlbar.selectionEnd == urlbar.selectionStart &&
                     urlbar.selectionEnd == urlbar.value.length) {
                     var parts = CliqzSpellCheck.check(searchString);
@@ -574,11 +575,10 @@ var CliqzAutocomplete = {
 
                 CliqzHistoryCluster.historyCallback = this.historyPatternCallback;
 
-                CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
-                    // start fetching results 
+                    // start fetching results
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    
+
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;
@@ -591,7 +591,9 @@ var CliqzAutocomplete = {
                         this.cliqzSuggestions = [searchString, this.wrongSearchString];
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
-                        urlbar.mInputField.value = searchString;
+
+                        //TODO: extract spell corrector out of CliqzAutocomplete
+                        if(urlbar)urlbar.mInputField.value = searchString;
                     } else {
                         //CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }

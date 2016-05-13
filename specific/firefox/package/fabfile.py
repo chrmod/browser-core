@@ -14,15 +14,20 @@ from jinja2 import Environment, FileSystemLoader
 
 import jsstrip
 
+import sys
+sys.path.append("../..")
+from fern.submitter import Submitter
+
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
-PATH_TO_S3_BUCKET = "s3://cdncliqz/update/browser/"
-PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
-PATH_TO_S3_PRE_BUCKET = "s3://cdncliqz/update/pre-release/"
+PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
 
+
+def get_folder_name(beta, channel):
+    return channel + ('_beta' if beta else '')
 
 def get_version(beta='True'):
     """Returns the extension's version string.
@@ -51,19 +56,20 @@ def get_version(beta='True'):
 
 
 @task
-def package(beta='True', version=None, sign='False', amo='False'):
+def package(beta='True', version=None, sign='False', channel='browser'):
     """Package the extension as a .xpi file."""
 
-    checkout = True # Checkout the tag if we are not doing a beta package
     if not (beta == 'True') and version is not None:
         print 'WARNING: This will not take the %s tag from git. It packages the '\
               'commit that HEAD is pointing to.\n'\
               'If you want to package a specific tag check it out first with:\n'\
               'git checkout <tag>\n'\
               'or for latest tag just omit the version argument.' % version
-        checkout = False
+
     if version is None:
         version = get_version(beta)
+
+    folder = get_folder_name(beta=='True', channel)
 
     # Generate temporary manifest
     install_manifest_path = "cliqz@cliqz.com/install.rdf"
@@ -71,8 +77,8 @@ def package(beta='True', version=None, sign='False', amo='False'):
     template = env.get_template('install.rdf')
     output_from_parsed_template = template.render(name=NAME,
                                                   version=version,
-                                                  beta=beta,
-                                                  amo=amo)
+                                                  folder=folder,
+                                                  updateURL=('False' if channel == 'amo' else 'True'))
     with open(install_manifest_path, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
 
@@ -85,7 +91,7 @@ def package(beta='True', version=None, sign='False', amo='False'):
             exclude_files = "--exclude=*.DS_Store*"
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
 
-            if amo == 'True':
+            if channel == 'amo':
                 # remove files which migth cause problems on AMO
                 local("rm chrome/content/abtests.html")
 
@@ -128,48 +134,36 @@ def install_in_browser(beta='True', version=None):
 
 
 @task
-def publish(beta='True', version=None, pre='True'):
+def publish(beta='True', version=None, channel='browser', pre='True'):
     """Upload extension to s3 (credentials in ~/.s3cfg need to be set to primary)"""
     if not (beta == 'True') and version is not None:
         abort("You should never publish a non-beta package with a fixed version.\n"\
               "Always use git tags (and push them to upstream) so we can keep "\
               "track of all live versions.")
 
-    ''' TODO: move confirmation at grunt level
-    if beta == 'True':
-        if not console.confirm('You are going to update the extension '\
-                               'for BETA users. Do you want to continue?'):
-            return
-    else:
-        if not console.confirm('You are going to update the extension '\
-                               'for ALL users. Do you want to continue?'):
-            return
-    '''
+
+
     update_manifest_file_name = "latest.rdf"
     latest_html_file_name = "latest.html"
     icon_name = "icon.png"
-    output_file_name = package(beta, version, "True") # !!!! we must publish only signed versions !!!!
+    output_file_name = package(beta, version, "True", channel) # !!!! we must publish only signed versions !!!!
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
 
-    # use a different folder for each channel:
-    #        BETA:     beta        extensions which update from beta    channel (used by our beta browser users)
-    #        RELEASE:  release     extensions which update from release channel (used by our production browser users )
-    #        PRE:      pre-release extensions which update from release channel (used for pre-resease testing)
-    path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else \
-                 PATH_TO_S3_PRE_BUCKET if pre == 'True' else PATH_TO_S3_BUCKET
+    folder = get_folder_name(beta=='True', channel)
+
+    path_to_s3 = PATH_TO_S3_BUCKET + folder + ('_pre' if pre == 'True' else '') + '/'
 
     local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))
     manifest_template = env.get_template(update_manifest_file_name)
+
     if version is None:
         version = get_version(beta)
-    if beta == 'True':
-        download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
-        download_link_latest_html = "http://cdn2.cliqz.com/update/beta/%s" % output_file_name
-    else:
-        download_link = "https://s3.amazonaws.com/cdncliqz/update/browser/%s" % output_file_name
-        download_link_latest_html = "http://cdn2.cliqz.com/update/browser/%s" % output_file_name
+
+    download_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (folder, output_file_name)
+    download_link_latest_html = "http://cdn2.cliqz.com/update/%s/%s" % (folder, output_file_name)
+
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
@@ -191,6 +185,23 @@ def publish(beta='True', version=None, pre='True'):
     local("aws s3 cp latest.xpi %s --acl public-read" % path_to_s3)
 
     local("rm  %s" % latest_html_file_name)
+
+    credentials = {}
+    execfile("../../fern/release-creds.txt", credentials)
+    auth = (
+        'balrogadmin',
+        credentials['balrog_credentials']['balrogadmin']
+    )
+
+    submitter = Submitter(
+        release_name="SystemAddons-"+folder,
+        auth=auth,
+        api_root="http://balrog-admin.10e99.net/api",
+        addon_id="cliqz@cliqz.com",
+        addon_version=version,
+        addon_url=download_link
+    )
+    submitter.submit()
 
 
 @task

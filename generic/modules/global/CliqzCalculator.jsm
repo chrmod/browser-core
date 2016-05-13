@@ -27,11 +27,6 @@ function getEqualOperator(val, localizedStr){
   return valStr === normLocalizedStr ? "=" : "\u2248";
 }
 
-//var basics = "[\\\(\\)\\+\\/\\*\\%\\^\\-\\.\\s0123456789]",
-//    utils = "|km|cm|meter|mm|m|inch|inches|foot|yard|mile|gr|rad|grad|celsius|fahrenheit|kelvin|to",
-//    mathExp = "|log|exp|sin|cos|tan|asin|acos|atan|sqrt|log|abs|ceil|floor|round|exp",
-//    REG_CALC = new RegExp( "^([" + basics + mathExp + utils +"|\s])*$");
-
 var CliqzCalculator = {
   CALCULATOR_RES: 0,
   UNIT_RES: '',
@@ -40,11 +35,6 @@ var CliqzCalculator = {
   FLOAT_DEC: [100000, 100, 1],
   FLOAT_DEC_THRESHOLD: [99, 99999],
   ACCEPT_ERROR: 1e-8,
-
-//    UNIT_CONVERT_OPERATORS: ['to', 'in', 'im', 'zu', 'into'], // ref.: http://mathjs.org/docs/expressions/syntax.html
-  //       http://mathjs.org/docs/reference/units.html
-
-
   UNIT_CONVERSION_DATA: {  // http://en.wikipedia.org/wiki/Conversion_of_units
     // http://www.convert-me.com/en/convert/length/
     'LOCALIZE_KEYS': {'de-DE': 'names_de', 'en-US': 'names_en', 'default': 'names_de'},
@@ -52,9 +42,7 @@ var CliqzCalculator = {
     'length': {
       'base': 'm',
       'units': [
-//                {'val': 0.0000000001, 'names': ['Å', 'ångström', 'angstrom', 'angstroms']},
         {'val': 4828, 'names': ['lea', 'leuge', 'league', 'leagues']},
-//                {'val': 1e-15, 'names': ['fm', 'fermi', 'femtometre', 'femtometres', 'femtometer', 'femtometers']},
         {'val': 0.3048006096012192, // this is US foot, there're IDIAN, CLA, BEN,...
           'names': ['ft', 'foot', 'feet', 'fu\u00DF'],
           'names_en': {'s': 'foot', 'p': 'feet'},
@@ -92,7 +80,6 @@ var CliqzCalculator = {
         {'val': 1e9, 'names': ['kt', 'kilotonne', 'kilotonnes', 'kilotonnen']},
         {'val': 1e6, 'names': ['t', 'tonne', 'tonnes', 'tonnen', 'metric ton', 'metric tons']},
         {'val': 1e6, 'names': ['Mg', 'megagram', 'megagrams']},
-//                {'val': 100000, 'names': ['Ztr', 'ztr', 'q', 'centner', 'quintal', 'centners', 'quintals', 'zentner', 'zentners']},  // this is the Italien, Austria, .. versino. German version = 50kg
         {'val': 1000, 'names': ['kg', 'kilogram', 'kilograms', 'kilogramme', 'kilogrammes', 'kilogramm', 'kilogramms']},
         {'val': 100, 'names': ['hg', 'hectogram', 'hectograms', 'hectogramme', 'hectogrammes', 'hectogramm', 'hectogramms']},
         {'val': 10, 'names': ['dag', 'decagram', 'decagrams', 'decagramme', 'decagrammes', 'decagramm', 'decagramms']},
@@ -108,8 +95,6 @@ var CliqzCalculator = {
       ]
     }
   },
-
-
   shortenNumber: function(){
     // shorten numbers when needed
     try {
@@ -137,6 +122,7 @@ var CliqzCalculator = {
       return ''; // Don't trigger calculator yet if the query is just a number
     }
     var operators = ['+', '-', '*', '/', '^', '='];
+    q = q.replace(/(\d),(\d)/g, '$1.$2'); // commas are separators to german ppl
     q = q.replace(/ /g, ''); // Remove all spaces
     for (var i = 0; i < operators.length; i++) {
       if (q[q.length - 1] == operators[i]) {
@@ -160,12 +146,10 @@ var CliqzCalculator = {
         type: "cliqz-extra",
         subType: JSON.stringify({type: 'calculator'}),
         data: {
-          template: 'calculator', //calculator_bck',
+          template: 'calculator',
           expression: expandedExpression,
           answer: this.CALCULATOR_RES,
-          //prefix_answer: resultSign,
           is_calculus: true,
-//                              is_calculus: !this.IS_UNIT_CONVERTER,
           // TODO: support_copy_ans should be platform specific
           support_copy_ans: true
         }
@@ -177,7 +161,6 @@ var CliqzCalculator = {
     var self = this,
       unit = unit_.toLowerCase(),
       unitFound = null;
-//            name_lists = ['names', 'names_en', 'names_de'];
 
     self.UNIT_CONVERSION_DATA.types.some(function(type) {
       return self.UNIT_CONVERSION_DATA[type].units.some(function(item) {
@@ -261,10 +244,6 @@ var CliqzCalculator = {
   },
 
   isCalculatorSearch: function(q) {
-    // thuy@cliqz.com
-    // + Feb2015
-    // + 10Mar2015: separate unit conversion from the calculation, e.g. build a unit conversion instead of using the math.js package
-
     // filter out:
     // + too short query (avoid answering e, pi)
     // + automatically convert queries like '10cm

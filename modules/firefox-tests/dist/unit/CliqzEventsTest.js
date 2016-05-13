@@ -1,7 +1,3 @@
-/**
- * thuy@cliqz.com 22/09/15.
- */
-
 'use strict';
 
 var expect = chai.expect,

@@ -1,9 +1,0 @@
-{
-  "platform": "mobile",
-  "settings": {},
-  "modules": [
-    "core",
-    "ui",
-    "static"
-  ]
-}

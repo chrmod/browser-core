@@ -5,8 +5,8 @@ var expect = chai.expect;
 TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage, CLIQZEnvironment) {
   describe('CliqzUtils', function(){
 
-    it('HOST should be set to cliqz.com', function(){
-      expect(CliqzUtils.HOST).to.equal('https://cliqz.com');
+    it('RESULTS_PROVIDER should be set to the right mixer endpoint', function(){
+      expect(CliqzUtils.RESULTS_PROVIDER).to.equal('https://newbeta.cliqz.com/api/v1/results?q=');
     });
 
     describe('GetDetailsFromUrl', function() {

@@ -16,10 +16,20 @@ export default Ember.Component.extend({
   },
 
   mouseEnter(ev) {
+
     this.set('startEnter', new Date().getTime());
+    ev.preventDefault();
+    var $target = $(ev.target),
+        $description = $target.closest('li').find('.description'),
+        $li = $target.closest('li');
+
+      $('.allNews').find('.description').stop().slideUp(200);
+      $description.stop().slideDown(500);
+
   },
 
   mouseLeave(ev) {
+    $('.allNews').find('.description').stop().slideUp(200);
     this.set('elapsed', new Date().getTime() - this.get('startEnter'));
     if(this.get('elapsed') > 2000) {
       this.get('cliqz').sendTelemetry({

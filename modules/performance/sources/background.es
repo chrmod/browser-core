@@ -59,8 +59,6 @@ export default {
         let cliqzUrl = utils.generalizeUrl(r.val);
 
         if (cliqzUrl === googleUrl) {
-          // TODO: send this signal via CliqzEvents
-          // CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
           cliqzResultType = utils.encodeResultType(r.style || r.type);
           cliqzResultIndex = i;
           return true;

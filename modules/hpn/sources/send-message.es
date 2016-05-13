@@ -69,27 +69,8 @@ function verifyBlindSignature(signedMessage, hashedOriginalMessage){
         return true;
     }
     else{
-        // Need to replace this with reject.
         return false;
     }
-    /*
-    var _this = this;
-    return new Promise(function(resolve, reject){
-        var message_signed = bigInt2str(powMod(str2bigInt(signedMessage,10,0), str2bigInt(CliqzSecureMessage.dsPK.e, 10), str2bigInt(CliqzSecureMessage.dsPK.n, 10)),10);
-        var original_message = bigInt2str(str2bigInt(_this.hashedMessage,16),10);
-        // var original_message = _this.hashedMessage;
-        _this.log("Org message:" + original_message);
-        _this.log("Sign message:" + message_signed);
-        if(original_message === message_signed.toLowerCase()){
-            resolve(true);
-        }
-        else{
-            // Need to replace this with reject.
-            resolve(false);
-        }
-
-    })
-*/
 }
 // Set the context for blind signatures right.
 var blindSignContext = function (msg) {
@@ -113,23 +94,6 @@ var blindSignContext = function (msg) {
     CliqzSecureMessage.dsPK = new directoryServicePK();
 }
 
-/*
-blindSignContext.prototype.fetchSignerKey = function(){
-    // This will fetch the Public key of the signer from local file.
-    var publicKeyPath = this.publicKeyPath;
-    var _this = this;
-    _http(publicKeyPath)
-    .get()
-    .then(function(response){
-        var parseKey = _this.keyObj.parseKeyValues(response);
-        _this.publicKey = response;
-        _this.n = parseKey['mod'];
-        _this.log("Key parsed and loaded");
-    })
-    .catch(_this.log("Error occurred while fetch signing key: "));
-}
-*/
-
 blindSignContext.prototype.exponent = function(){
     // Return the public exponent
     return this.e;
@@ -152,16 +116,6 @@ blindSignContext.prototype.hashMessage = function(){
     var msg = this.msg;
     this.hashedMessage = sha256_digest(msg);
     return this.hashedMessage;
-
-    /*
-    // var _this = this;
-    return new Promise(function(resolve, reject){
-        var hashM = sha256_digest(msg);
-        _this.log("Hash: " + hashM);
-        _this.hashedMessage = hashM;
-        resolve(hashM);
-    });
-*/
 }
 
 blindSignContext.prototype.getBlindingNonce = function(){
@@ -170,39 +124,14 @@ blindSignContext.prototype.getBlindingNonce = function(){
     var randomNumber = randBigInt(this.keySize,1);
     this.blindingNonce = randomNumber
     return randomNumber;
-    /*
-    var _this = this;
-    var promise = new Promise(function(resolve, reject){
-        try{
-            var randomNumber = randBigInt(_this.keySize,1);
-            _this.blindingNonce = randomNumber;
-            resolve(randomNumber);
-        } catch(e) {
-            reject(_this.log("Error in generating random number: " + e));
-        }
-    });
-    return promise;
-    */
 }
 
 blindSignContext.prototype.getBlinder = function(){
     // Calculate blinder.
     // b = r ^ e mod n
     var b = powMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.e, 10), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
-    // var u = inverseMod(this.blindingNonce, str2bigInt(CliqzSecureMessage.dsPK.n, 10));
     this.blinder = b;
-    // this.unblinder = u;
     return b;
-    /*
-    var _this = this;
-    return new Promise(function(resolve, reject){
-        var b = powMod(_this.blindingNonce, str2bigInt(_this.e, 10), str2bigInt(_this.n, 10));
-        var u = inverseMod(_this.blindingNonce, str2bigInt(_this.n, 10));
-        _this.blinder = b;
-        _this.unblinder = u;
-        resolve(b);
-    });
-*/
 }
 
 blindSignContext.prototype.getUnBlinder = function(){
@@ -222,16 +151,6 @@ blindSignContext.prototype.blindMessage = function(){
     var bm = multMod(blinder, str2bigInt(hashMessage, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
     this.bm = bigInt2str(bm, 10);
     return this.bm;
-    /*
-    var _this = this;
-    return new Promise(function(resolve, reject){
-        // _this.log(_this.hashedMessage);
-        var bm = multMod(_this.blinder, str2bigInt(_this.hashedMessage, 16), str2bigInt(_this.n, 10));
-        _this.bm = bigInt2str(bm, 10);
-        resolve(bm);
-    })
-*/
-
 }
 
 
@@ -244,15 +163,6 @@ blindSignContext.prototype.unBlindMessage = function(blindSignedMessage){
     var us = bigInt2str(_us,10, 0)
     this.signedMessage = us;
     return us;
-    /*
-    return new Promise(function(resolve, reject){
-        var _us = multMod(_this.unblinder, str2bigInt(bs, 16), str2bigInt(CliqzSecureMessage.dsPK.n, 10));
-        var us = bigInt2str(_us,10, 0)
-        _this.signedMessage = us;
-        resolve(us);
-    })
-*/
-
 }
 
 blindSignContext.prototype.verify = function(){
@@ -277,7 +187,7 @@ blindSignContext.prototype.verify = function(){
 
 }
 
-// Using this function is easier to see if the push of message failed (for testing purposes)
+// Using this function it is easier to see if the push of message failed.
 var sendMessage = function(m) {
     return new Promise((resolve, reject) => {
         try{
@@ -402,7 +312,7 @@ var sendMessage = function(m) {
 /*
 This will send the messages inside the trk one at a time. This uses a generator expression.
 
-Will return a Promise which resolves to an array, one for each sent message: 
+Will return a Promise which resolves to an array, one for each sent message:
 its value will be null if everything was ok, and a string indicating the error message otherwise (useful for testing)
 */
 var sendM = function (m, sent=[]) {
@@ -418,7 +328,7 @@ var sendM = function (m, sent=[]) {
             saveLocalCheckTable();
             return sent;
         }
-        
+
     })
     .catch(e => { // Message sending KO
         sent.push(e);

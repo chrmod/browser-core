@@ -5,7 +5,6 @@ Load Directory Service Public key.
 */
 export default class{
   constructor(){
-    // This certainly needs to find a better place.
     this.dsPubKey = "-----BEGIN PUBLIC KEY-----\
     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwXo4hXvboKHCggNJ0UNF\
     vZQfDWi0jNcF1kBHthxilMu6LB/hFrSMQ+/FgTqVE36cCezWE0K1UcwmYGVsuqxc\
@@ -15,7 +14,7 @@ export default class{
     6HFNPcmtUgLwgtUtRwMhSnya6q/O06euouNi1h0m5eRrWeMRlJSdUnelLSU8QNy7\
     LQIDAQAB\
     -----END PUBLIC KEY-----"
-    this.endPoint = CliqzSecureMessage.BLIND_SIGNER;//"http://10.10.73.207/sign";
+    this.endPoint = CliqzSecureMessage.BLIND_SIGNER;
     this.loadKey = new CliqzSecureMessage.JSEncrypt();
     this.loadKey.setPublicKey(CliqzSecureMessage.signerKey || this.dsPubKey);
     this.n = this.loadKey.parseKeyValues(this.dsPubKey)['mod'];

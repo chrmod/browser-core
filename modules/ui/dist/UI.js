@@ -7,7 +7,7 @@
 
 function load(ctx) {
 
-var TEMPLATES = CliqzUtils.TEMPLATES,
+var TEMPLATES = CLIQZEnvironment.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
     IC = 'cqz-result-box', // result item class
@@ -646,7 +646,7 @@ var UI = {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
       }
-      if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
         r.data.template = r.data.superTemplate;
       }
 
@@ -658,6 +658,7 @@ var UI = {
     closeResults: closeResults,
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
+    getElementByAttr: getElementByAttr,
     enhanceResults: enhanceResults
 };
 
@@ -960,6 +961,11 @@ function setPartialTemplates(data) {
   // Smart CLIQZ buttons
   if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
+  }
+
+  // Music
+  if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
+    partials.push('music-data-sc');
   }
 
   return partials;
@@ -1291,6 +1297,16 @@ function getResultOrChildAttr(el, attr){
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
+function getElementByAttr(el, attr, val) {
+  if (el && el.getAttribute(attr) === val) {
+    return el;
+  }
+  if (el === null) return null;
+  if (el.className === IC) return null;
+
+  return getElementByAttr(el.parentNode, attr, val);
+}
+
 function urlIndexInHistory(url, urlList) {
     var index = 0;
     for(var key in urlList) {
@@ -1478,11 +1494,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
         positionType: action.position_type
       });
     }
-    //LUCIAN: TODO - decouple CliqzHistory
     if(!window.gBrowser)return;
-
-    CliqzHistory.updateQuery(query, autocompleteUrl);
-    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
 // user scroll event
@@ -1525,7 +1537,8 @@ function resultClick(ev) {
 
             var url = CliqzUtils.cleanMozillaActions(url);
             CLIQZEnvironment.openLink(window, url, newTab);
-            //Lucian: decouple!
+
+            //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if (!newTab) CLIQZ.Core.popup.hidePopup();
             break;
@@ -1854,10 +1867,8 @@ function onEnter(ev, item){
       current_position: -1
     });
 
-    //publish google event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
-    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.customizeQuery(input);
@@ -1877,7 +1888,6 @@ function onEnter(ev, item){
     }, urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
 
-    //publish alternative search event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
   // Result
@@ -1888,7 +1898,6 @@ function onEnter(ev, item){
       new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
 
-    //publish result_enter event (loyalty)
     CliqzEvents.pub("result_enter", {"position_type": getResultKind(UI.keyboardSelection)}, {'vertical_list': Object.keys(VERTICALS)});
   }
 
@@ -1924,7 +1933,7 @@ function enginesClick(ev){
                 CLIQZEnvironment.openLink(window, url, true);
                 action.new_tab = true;
             } else {
-                gBrowser.selectedBrowser.contentDocument.location = url;
+                gBrowser.selectedBrowser.loadURI(url);
                 CLIQZ.Core.popup.closePopup();
                 action.new_tab = false;
             }
@@ -1965,7 +1974,7 @@ function snippetQualityTelemetry(results){
     // push empty data for EZones and history
     else data.push({});
 
-    slots += CliqzUtils.TEMPLATES[r.vertical];
+    slots += CLIQZEnvironment.TEMPLATES[r.vertical];
 
     // entity generic can be 3 slots height
     if(r.vertical == 'entity-generic' && r.data.urls) slots++;

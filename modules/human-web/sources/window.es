@@ -70,7 +70,7 @@ export default class {
         function(){
           utils.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
         },
-        'safe_search_desc')
+        'human_web_desc')
     );
 
     menu.appendChild(menuPopup);

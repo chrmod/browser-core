@@ -11,7 +11,6 @@ CLIQZ.Core = {
 }
 urlbar.addEventListener('keydown', function(e){
 	setTimeout(function(){
-		CLIQZ.UI.main(resultsBox);
 		item_container = document.getElementById('cliqz-results');
 		var currentScrollInfo = {
 			page: 0,

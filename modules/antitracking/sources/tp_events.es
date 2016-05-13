@@ -92,8 +92,7 @@ function PageLoadData(url) {
                 });
             }
         }
-        // CliqzUtils.log("Data for url: " + this.hostname + " : " + JSON.stringify(obj),"XOXOX");
-        // @konarkm : This was added to collect data for experiment, safe to stop collecting it now.
+        // This was added to collect data for experiment, safe to stop collecting it now.
         // checkBlackList(this.url, obj);
         // checkFingerPrinting(this.url, obj);
         return obj;
@@ -120,7 +119,7 @@ var tp_events = {
     _staged: [],
     _last_clean: 0,
     _clean_interval: 1000*10, // 10s
-    _push_interval: 1000*60*20, // 20 minutes @konarkm: Decreasing the frequency from 5 minutes to 20 minutes.
+    _push_interval: 1000*60*20, // 20 minutes decreasing the frequency from 5 minutes to 20 minutes.
     _last_push: 0,
     ignore: new Set(['self-repair.mozilla.org']),
     // Called when a url is loaded on windowID source.
@@ -227,9 +226,9 @@ var tp_events = {
                 var enabled = {
                     'qs': CliqzAttrack.isQSEnabled(),
                     'cookie': CliqzAttrack.isCookieEnabled(),
-                    'post': CliqzAttrack.isPostEnabled(),
                     'bloomFilter': CliqzAttrack.isBloomFilterEnabled(),
                     'trackTxt': CliqzAttrack.isTrackerTxtEnabled(),
+                    'forceBlock': CliqzAttrack.isForceBlockEnabled(),
                     'ui': background.buttonEnabled
                 };
                 for (var i = 0; i < payload_data.length; i++) {

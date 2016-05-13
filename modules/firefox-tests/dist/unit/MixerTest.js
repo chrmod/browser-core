@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
+TESTS.Mixer = function(Mixer, CliqzUtils) {
   describe('Mixer', function() {
 
     beforeEach(function() {
@@ -104,117 +104,6 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
           expect(params.i).to.equal(i);
         });
       });
-    });
-
-    describe('persistTitlesDescriptions', function() {
-      var dbTitlesDescriptions,
-        callbackTime,
-        callbackFunction,
-        setTimeout;
-
-      beforeEach(function() {
-        dbTitlesDescriptions = {};
-        setTimeout = CliqzUtils.setTimeout;
-        CliqzUtils.setTimeout = function(f, time, titlesDescriptions) {
-          dbTitlesDescriptions = titlesDescriptions;
-          callbackTime = time;
-          callbackFunction = f;
-        };
-      });
-
-      afterEach(function() {
-        CliqzUtils.setTimeout = setTimeout;
-      });
-
-      it('should call CliqzHistory.updateTitlesDescriptions after timeout', function() {
-        Mixer._persistTitlesDescriptions([]);
-        expect(callbackTime).to.equal(25);
-        expect(callbackFunction).to.equal(CliqzHistory.updateTitlesDescriptions);
-      });
-
-      it('should set title', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              title: 'hello',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-
-        expect(dbTitlesDescriptions.URL1.title).to.equal('hello');
-        expect(dbTitlesDescriptions.URL1.desc).to.not.exist;
-      });
-
-      it('should set description', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              desc: 'hello',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions.URL1.desc).to.equal('hello');
-        expect(dbTitlesDescriptions.URL1.title).to.not.exist;
-      });
-
-      it('should set both', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              title: 'title1',
-              desc: 'hello',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions.URL1.title).to.equal('title1');
-        expect(dbTitlesDescriptions.URL1.desc).to.equal('hello');
-      });
-
-      it('should set both x 2', function() {
-        var input = [
-          {
-            url: 'URL1',
-            snippet: {
-              title: 'title1',
-              desc: 'hello1',
-            },
-          },
-          {
-            url: 'URL2',
-            snippet: {
-              title: 'title2',
-              desc: 'hello2',
-            },
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions.URL1.title).to.equal('title1');
-        expect(dbTitlesDescriptions.URL1.desc).to.equal('hello1');
-        expect(dbTitlesDescriptions.URL2.title).to.equal('title2');
-        expect(dbTitlesDescriptions.URL2.desc).to.equal('hello2');
-      });
-
-      it('should do nothing', function() {
-        var input = [
-          {
-            url: 'URL1',
-          },
-        ];
-
-        Mixer._persistTitlesDescriptions(input);
-        expect(dbTitlesDescriptions).to.deep.equal({});
-      });
-
     });
 
     describe('isValidQueryForEZ', function() {
@@ -636,7 +525,10 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
           urls = {},
           ezs = {},
           smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
-          urlTriggerUrls = smartCliqzCache.triggerUrls,
+          triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache,
+          triggerUrlCacheRetrieve = triggerUrlCache.retrieve,
+          triggerUrlCacheStore = triggerUrlCache.store,
+          triggerUrlCacheSave = triggerUrlCache.save,
           ezStore = smartCliqzCache.store;
 
       // Mock CliqzSmartCliqzCache
@@ -667,23 +559,19 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
         urls = {};
         ezs = {};
 
-        smartCliqzCache.triggerUrls = {
-          retrieve: function(url) {
-            if (!(url in urls)) {
-              return urls[url];
-            } else {
-              return false;
-            }
-          },
-
-          store: function(url, eztype) {
-            urls[url] = eztype;
-            saved = false;
-          },
-
-          save: function() {
-            saved = true;
-          },
+        triggerUrlCache.retrieve = function (url) {
+          if (!(url in urls)) {
+            return urls[url];
+          } else {
+            return false;
+          }
+        };
+        triggerUrlCache.store = function (url, eztype) {
+          urls[url] = eztype;
+          saved = false;
+        };
+        triggerUrlCache.save = function () {
+          saved = true;
         };
 
         smartCliqzCache.store = function(ezData) {
@@ -693,8 +581,11 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
 
       afterEach(function() {
         var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
-        smartCliqzCache.triggerUrls = urlTriggerUrls;
         smartCliqzCache.store = ezStore;
+
+        triggerUrlCache.retrieve = triggerUrlCacheRetrieve;
+        triggerUrlCache.store = triggerUrlCacheStore;
+        triggerUrlCache.save = triggerUrlCacheSave;
       });
 
       it('should cache 1 entry given 1', function() {
@@ -741,7 +632,10 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
           urls = {},
           ezs = {},
           smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
-          urlTriggerUrls = smartCliqzCache.triggerUrls,
+          triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache,
+          triggerUrlCacheIsCached = triggerUrlCache.isCached,
+          triggerUrlCacheRetrieve = triggerUrlCache.retrieve,
+          triggerUrlCacheIsStale = triggerUrlCache.isStale,
           ezFetchStore = smartCliqzCache.fetchAndStore,
           ezRetrieve = smartCliqzCache.retrieve;
 
@@ -788,18 +682,16 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
 
         fetching = undefined;
 
-        smartCliqzCache.triggerUrls = {
-          isCached: function(url) {
-            return urls[url] ? true : false;
-          },
+        triggerUrlCache.isCached = function (url) {
+          return urls[url] ? true : false;
+        };
 
-          retrieve: function(url) {
-            return urls[url];
-          },
+        triggerUrlCache.retrieve = function (url) {
+          return urls[url];
+        };
 
-          isStale: function() {
-            return false;
-          },
+        triggerUrlCache.isStale = function() {
+          return false;
         };
 
         smartCliqzCache.fetchAndStore = function(ezId) {
@@ -813,9 +705,12 @@ TESTS.Mixer = function(Mixer, CliqzHistory, CliqzUtils) {
 
       afterEach(function() {
         var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
-        smartCliqzCache.triggerUrls = urlTriggerUrls;
+        var triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache;
         smartCliqzCache.fetchAndStore = ezFetchStore;
         smartCliqzCache.retrieve = ezRetrieve;
+        triggerUrlCache.isCached = triggerUrlCacheIsCached;
+        triggerUrlCache.retrieve = triggerUrlCacheRetrieve;
+        triggerUrlCache.isStale = triggerUrlCacheIsStale;
       });
 
       it('should trigger ez', function() {
