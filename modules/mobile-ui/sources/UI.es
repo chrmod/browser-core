@@ -45,6 +45,8 @@ var UI = {
       UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
     results: function(r){
+
+      setMobileBasedUrls(r);
       
       setCardCountPerPage(window.innerWidth);
 
@@ -462,6 +464,18 @@ function setResultNavigation(results) {
   }
 
 }
+
+function setMobileBasedUrls(o) {
+  if (!o) return;
+  if (o.url && o.m_url) {
+    o.url = o.m_url;
+  }
+  for (let i in o) {
+    if (typeof(o[i]) == 'object') {
+        setMobileBasedUrls(o[i]);
+    }
+  }
+}  
 
 function isSearch() {
   return resultsBox && resultsBox.style.display === 'block';
