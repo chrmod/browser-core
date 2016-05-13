@@ -235,6 +235,8 @@ function loadAsyncResult(res, query) {
                   else {
                     redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                   }
+                  imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
+                  imgLoader.start();
               }
             }
           }
