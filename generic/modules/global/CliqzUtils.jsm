@@ -136,6 +136,15 @@ var CliqzUtils = {
   getKnownType: function(type){
     return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
   },
+
+  /**
+   * Construct a uri from a url
+   * @param {string}  aUrl - url
+   * @param {string}  aOriginCharset - optional character set for the URI
+   * @param {nsIURI}  aBaseURI - base URI for the spec
+   */
+  makeUri: CLIQZEnvironment.makeUri,
+
   //move this out of CliqzUtils!
   setSupportInfo: function(status){
     var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
