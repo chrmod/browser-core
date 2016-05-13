@@ -77,7 +77,6 @@ export default class {
       const hostname = URLInfo.get(url).hostname;
       if (this.trackerDomains.has(hostname) ||
           this.trackerDomains.has(getGeneralDomain(hostname))) {
-            dump(`Proxy ${url}\n`);
             this.proxyOnce(url);
             return true;
       }
@@ -91,9 +90,7 @@ export default class {
   }
 
   applyFilter(pps, url, default_proxy) {
-    dump(`applyFilter proxy for ${url.asciiSpec}\n`);
     if (this.proxyUrls.has(url.asciiSpec)) {
-      dump(`use ${this.proxy} proxy\n`)
       this.proxyUrls.delete(url.asciiSpec);
       return this.proxy;
     }
