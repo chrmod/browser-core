@@ -90,8 +90,7 @@ function populateDOM() {
           return sum + (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
         }, 0);
 
-        if (trackerCount > 0)
-          companies.push({name: company, count: trackerCount});
+        companies.push({name: company, count: trackerCount});
       };
 
       // sort companies by tracking
