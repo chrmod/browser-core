@@ -283,7 +283,11 @@ function enhanceResults(results){
 
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-        r.vertical = (r.data.template && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.template)) ? r.data.template : 'generic';
+        if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
+          r.vertical = 'pattern-h1'
+        } else {
+          r.vertical = (r.data.template && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.template)) ? r.data.template : 'generic';
+        }
 
         //extract debug info from title
         var _tmp = getDebugMsg(r.title);

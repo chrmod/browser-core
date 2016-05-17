@@ -1025,6 +1025,9 @@
     "mobile_freshtab_no_topsites": {
       "message": "You will see your topsites here."
     },
+    "mobile_history_card_title": {
+      "message": "History Results"
+    },
     "mobile_share_card": {
       "message": "Share this card"
     },
