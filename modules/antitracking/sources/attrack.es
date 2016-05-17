@@ -1734,7 +1734,8 @@ var CliqzAttrack = {
         trackers = Object.keys(tab_data.tps).filter(function(domain) {
           return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16));
         }),
-        plain_data = tab_data.asPlainObject();
+        plain_data = tab_data.asPlainObject(),
+        firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tab_data.hostname)];
       result.hostname = tab_data.hostname;
 
       trackers.forEach(function(dom) {
@@ -1749,7 +1750,9 @@ var CliqzAttrack = {
 
         let tld = getGeneralDomain(dom),
           company = tld;
-        if (tld in CliqzAttrack.tracker_companies) {
+        // find the company behind this tracker. I
+        // If the first party is from a tracker company, then do not add the company so that the actual tlds will be shown in the list
+        if (tld in CliqzAttrack.tracker_companies && CliqzAttrack.tracker_companies[tld] !== firstPartyCompany) {
           company = CliqzAttrack.tracker_companies[tld];
         }
         if (!(company in result.companies)) {
