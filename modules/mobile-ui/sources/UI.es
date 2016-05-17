@@ -219,7 +219,7 @@ function loadAsyncResult(res, query) {
               r.data.kind = kind;
               r.data.subType = resp.subType;
               r.data.trigger_urls = resp.trigger_urls;
-              r.vertical = r.data.template;
+              r.vertical = getVertical(r.data.template);
               r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
               r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
@@ -269,6 +269,10 @@ function redrawDropdown(newHTML){
     resultsBox.innerHTML = newHTML;
 }
 
+function getVertical(dataTemplate) {
+  return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic'
+}
+
 function enhanceResults(results){
     for(var i=0; i<results.length; i++) {
         var r = results[i];
@@ -286,7 +290,7 @@ function enhanceResults(results){
         if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
           r.vertical = 'pattern-h1'
         } else {
-          r.vertical = (r.data.template && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.template)) ? r.data.template : 'generic';
+          r.vertical = getVertical(r.data.template);
         }
 
         //extract debug info from title
