@@ -291,7 +291,7 @@ function getNewsDistributionUrlBased(topic_db, records_number){
         added_at_level += added_at_sub_level;
         var r = records_to_add - added_at_sub_level;
         if (((1 - addedRatio) > subDomainRatioThreshold)&&(r > 0)){
-          res_list.push([cur_path_list, r]);
+          res_list.push([cur_path_list, r, 1]);
           added_at_level += r;
         }
       }
@@ -534,6 +534,17 @@ function composeList(responsesList, historyCache){
     return list.sort(sortFunct);
   }
 
+  function getDomainNumberInList(list){
+    var domains = {};
+
+    list.forEach(function(d){
+      if (d[0]){
+          domains[CliqzUtils.getDetailsFromUrl(d[0]).domain] = true;
+      }
+    });
+    return Object.keys(domains).length;
+  }
+
   function hbAppendToNewsList(val, history_data, news_results, add_intersts = false){
     var hbased_dict = val.res.results[0].news,
         list_to_merge = [];
@@ -574,8 +585,8 @@ function composeList(responsesList, historyCache){
 
           hbAppendToNewsList(val, history_data, news_results, true);
 
-          // extend the list in case if there is more than one  frequent news domain from history
-          if (news_results.hb_news && history_data.length > 2){
+          // extend the list in case if there is more than one frequent news domain from history
+          if (news_results.hb_news && getDomainNumberInList(history_data) > 1){
             while (news_results.hb_news.length < 9){
               hbAppendToNewsList(val, history_data, news_results, false);
             }
