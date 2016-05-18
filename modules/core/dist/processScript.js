@@ -105,6 +105,10 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCallback(msg) {
+    if (isDead()) {
+      return;
+    }
+
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
       return;
     }
@@ -165,6 +169,10 @@ function onDOMWindowCreated(ev) {
 
   function onCore(msg) {
     var payload;
+
+    if (isDead()) {
+      return;
+    }
 
     if ( msg.data.url !== currentURL() ) {
       return;
@@ -264,6 +272,21 @@ function onDOMWindowCreated(ev) {
   startListening("window-"+windowId, onCallback);
   startListening("cliqz:core", onCore);
 
+  function stop() {
+    stopListening("window-"+windowId, onCallback);
+    stopListening("cliqz:core", onCore);
+  }
+
+  function isDead() {
+    try {
+      currentURL();
+      return false;
+    } catch(e) {
+      stop();
+      return true;
+    }
+  }
+
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
     window.removeEventListener("keypress", onKeyPress);
@@ -272,8 +295,7 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
     window.removeEventListener("DOMContentLoaded", onReady);
-    stopListening("window-"+windowId, onCallback);
-    stopListening("cliqz:core", onCore);
+    stop();
   });
 
 }
