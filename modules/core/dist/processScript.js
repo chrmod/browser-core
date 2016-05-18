@@ -116,6 +116,27 @@ function onDOMWindowCreated(ev) {
     }), "*");
   }
 
+  function throttle(fn, threshhold) {
+    var last, timer;
+    return function() {
+      var context = this;
+
+      var now = +new Date,
+          args = arguments;
+      if (last && now < last + threshhold) {
+        // reset timeout
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          last = now;
+          fn.apply(context, args);
+        }, threshhold);
+      } else {
+        last = now;
+        fn.apply(context, args);
+      }
+    };
+  }
+
   var fns = {
     getHTML: function () {
       return window.document.documentElement.outerHTML;
@@ -228,10 +249,10 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  var onKeyPress = proxyWindowEvent("recordKeyPress");
-  var onMouseMove = proxyWindowEvent("recordMouseMove");
-  var onScroll = proxyWindowEvent("recordScroll");
-  var onCopy = proxyWindowEvent("recordCopy");
+  var onKeyPress = throttle(proxyWindowEvent("recordKeyPress"), 250);
+  var onMouseMove = throttle(proxyWindowEvent("recordMouseMove"), 250);
+  var onScroll = throttle(proxyWindowEvent("recordScroll"), 250);
+  var onCopy = throttle(proxyWindowEvent("recordCopy"), 250);
 
   window.addEventListener("message", onMessage);
   window.addEventListener("keypress", onKeyPress);
