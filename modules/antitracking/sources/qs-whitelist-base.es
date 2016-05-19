@@ -125,7 +125,7 @@ export default class {
       }
     }
     if(Object.keys(dts).length > 0) {
-      var payl = CliqzAttrack.generatePayload(dts, hour, false, true);
+      var payl = CliqzAttrack.generateAttrackPayload(dts, hour, false, true);
       CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
     }
   }
