@@ -11,8 +11,8 @@
 
 ## Running / Development
 
-* `ember server`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+* `ember server -p 3000`
+* Visit your app at [http://localhost:3000](http://localhost:3000).
 
 
 ### Building
