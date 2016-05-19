@@ -22,6 +22,7 @@ export default class {
     this.proxy_service = null;
     this.request_listener = null;
     this.on_block_cb = null;
+    this.notification_cb = null;
     this.initialized = false;
   }
 
@@ -29,12 +30,13 @@ export default class {
     return url.indexOf("https://www.youtube.com") > -1;
   }
 
-  init(proxy_manager, proxy_service, request_listener, on_block_cb) {
+  init(proxy_manager, proxy_service, request_listener, on_block_cb, notification_cb) {
     var self = this;
     this.proxy_manager = proxy_manager;
     this.proxy_service = proxy_service;
     this.request_listener = request_listener;
     this.on_block_cb = on_block_cb;
+    this.notification_cb = notification_cb;
 
     this.request_listener.subscribe({
       text: 'https://www.youtube.com/watch',
@@ -92,9 +94,10 @@ export default class {
   pageObserver(url) {
     var vid = this.getVideoID(url),
       proxied = this.video_info[vid] && this.video_info[vid].proxy_region,
-      blocking_detected = this.video_info[vid] && this.video_info.is_blocked;
+      blocking_detected = this.video_info[vid] && this.video_info[vid].is_blocked,
+      waitOnRefresh = this.video_info[vid] && this.video_info[vid].refreshed && Date.now() - this.video_info[vid].refreshed < 500;
 
-    if(vid != undefined) {
+    if(vid != undefined && !waitOnRefresh) {
 
       if(!proxied) {
         // detect user locale from youtube logo
@@ -111,7 +114,7 @@ export default class {
       }
 
       this.isVideoBlocked(url).then((isBlocked) => {
-        if (!blocking_detected && isBlocked) {
+        if (isBlocked) {
           let allowed_regions = [];
           if (!proxied) {
             // normal block, add blocked entry and reload page
@@ -142,6 +145,9 @@ export default class {
               'region': this.video_info[vid].proxy_region || '',
               'remaining': allowed_regions.size
             });
+            if (allowed_regions.size == 0) {
+              this.notification_cb(url, 'Sorry, it seems we cannot unblock this for you.');
+            }
           }
 
           // reload if we have a useable proxy region
@@ -155,6 +161,7 @@ export default class {
                 'regions': Array.from(allowed_regions)
               });
               self.updateProxyRule(vid);
+              self.video_info[vid].refreshed = Date.now();
               self.refreshPageForVideo(url);
             });
           }
@@ -225,7 +232,7 @@ export default class {
     return new Promise( (resolve, reject) => {
       core.queryHTML(url, this.conf.blocked_video_element, 'offsetParent').then((offsetParent) => {
         try {
-          resolve(offsetParent[0] !== null);
+          resolve(offsetParent.length > 0 && offsetParent[0] !== null);
         } catch(e) {
           reject();
         }
@@ -286,6 +293,7 @@ export default class {
               self.on_block_cb(url, function() {
                 // try to refresh page
                 self.updateProxyRule(vid);
+                self.video_info[vid].refreshed = Date.now();
                 self.refreshPageForVideo(vid);
               });
             }, 100);

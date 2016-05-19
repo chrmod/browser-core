@@ -69,7 +69,7 @@ export default {
       this.request_listener = new RequestListener();
 
       this.unblockers.forEach(function(b) {
-        b.init(this.proxy_manager, this.proxy_service, this.request_listener, this.handleBlock.bind(this));
+        b.init(this.proxy_manager, this.proxy_service, this.request_listener, this.handleBlock.bind(this), this.handleUnblockSuccess.bind(this));
       }.bind(this));
     }
   },
@@ -112,6 +112,11 @@ export default {
     }
     // else never
   },
+  handleUnblockNotification: function(url, message) {
+    if (this.ui_enabled) {
+      this.unblockNotification(url, message);
+    }
+  },
   waiting_prompts: [],
   tabSelectListener: function(event) {
     // filter old entries - older than 5 minutes
@@ -127,7 +132,7 @@ export default {
     if (ind >= 0) {
       // if found, remove from waiting list and prompt
       let prompt = this.waiting_prompts.splice(ind, 1)[0];
-      this.unblockPrompt(prompt.url, prompt.callback);
+      prompt.callback();
     }
   },
   unblockPrompt: function(url, cb) {
@@ -139,7 +144,11 @@ export default {
 
     if (!on_active_tab) {
       // wait until tab is activated
-      this.waiting_prompts.push({url: url, callback: cb, timestamp: (new Date()).getTime()});
+      this.waiting_prompts.push({
+        url: url,
+        callback: () => { this.unblockPrompt(url, cb) }.bind(this),
+        timestamp: (new Date()).getTime()
+      });
       return;
     }
 
@@ -185,6 +194,31 @@ export default {
       notification = box.appendNotification(message, 'geo-blocking-prevented',
                       'chrome://cliqz/content/static/skin/cliqz_btn.png',
                        box.PRIORITY_WARNING_MEDIUM, buttons);
+    }
+  },
+  unblockNotification: function(url, label) {
+    var gBrowser = utils.getWindow().gBrowser,
+      message = label,
+      box = gBrowser.getNotificationBox(),
+      notification = box.getNotificationWithValue('geo-blocking-notification'),
+      on_active_tab = url.indexOf(gBrowser.currentURI.spec) == 0;
+
+    if (!on_active_tab) {
+      // wait until tab is activated
+      this.waiting_prompts.push({
+        url: url,
+        callback: () => { this.unblockNotification(url, label) }.bind(this),
+        timestamp: (new Date()).getTime()
+      });
+      return;
+    }
+
+    if (notification) {
+      notification.label = message;
+    } else {
+      notification = box.appendNotification(message, 'geo-blocking-notification',
+                      'chrome://cliqz/content/static/skin/cliqz_btn.png',
+                       box.PRIORITY_WARNING_MEDIUM);
     }
   }
 };
