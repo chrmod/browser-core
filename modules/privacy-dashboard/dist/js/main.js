@@ -1,7 +1,3 @@
-/**
- * thuy@cliqz.com on 25/02/16.
- */
-
 Components.utils.import("chrome://cliqzmodules/content/CliqzHandlebars.jsm");
 Components.utils.import("chrome://cliqzmodules/content/CliqzUtils.jsm");
 Components.utils.import("chrome://cliqzmodules/content/CliqzEvents.jsm");

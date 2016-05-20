@@ -41,7 +41,9 @@
                       </div>
                       <div extra="distance">
                           {{#unless no_location}}
+                            {{#if (logic distance '>' -1)}}
                               {{distance distance}}
+                            {{/if}}
                           {{/unless}}
                       </div>
                     </div>

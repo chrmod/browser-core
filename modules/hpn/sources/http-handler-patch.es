@@ -8,8 +8,8 @@ export function overRideCliqzResults(){
 
   if(!CLIQZEnvironment._httpHandler) CLIQZEnvironment._httpHandler = CLIQZEnvironment.httpHandler;
   CLIQZEnvironment.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
-    if(url.indexOf(CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) > -1 && CliqzUtils.getPref('hpn-query', false)) {
-      var _q = url.replace((CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER),"")
+    if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) > -1 && CliqzUtils.getPref('hpn-query', false)) {
+      var _q = url.replace((CliqzUtils.RESULTS_PROVIDER),"")
       var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ts": "", "ver": "1.5", "payload":_q });
       var proxyIP = CliqzSecureMessage.queryProxyIP;
       mc.aesEncrypt()

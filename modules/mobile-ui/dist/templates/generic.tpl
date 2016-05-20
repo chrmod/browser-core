@@ -75,7 +75,7 @@
 
 		<div class="card__gallery">
 			{{#each data.richData.images}}
-				{{#if (limit_images_shown @index 3)}}
+				{{#if (limit @index 3)}}
 					<div class="image" data-style="background-image: url({{this}})">Image</div>
 				{{/if}}
 			{{/each}}
@@ -178,6 +178,16 @@
                     {{title}}
                 </h2>
             </div>
+        {{/each}}
+
+        {{#each data.actions}}
+        	{{#if (limit @index 10)}}
+	            <div url="{{url}}" extra="action-{{@index}}" class="cards__item links">
+	                <h2 class="cards__title__secondary">
+	                    {{title}}
+	                </h2>
+	            </div>
+            {{/if}}
         {{/each}}
 
 

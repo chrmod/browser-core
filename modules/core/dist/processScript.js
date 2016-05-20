@@ -105,6 +105,10 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCallback(msg) {
+    if (isDead()) {
+      return;
+    }
+
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
       return;
     }
@@ -114,6 +118,27 @@ function onDOMWindowCreated(ev) {
       response: msg.data.response,
       action: msg.data.action
     }), "*");
+  }
+
+  function throttle(fn, threshhold) {
+    var last, timer;
+    return function() {
+      var context = this;
+
+      var now = +new Date,
+          args = arguments;
+      if (last && now < last + threshhold) {
+        // reset timeout
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          last = now;
+          fn.apply(context, args);
+        }, threshhold);
+      } else {
+        last = now;
+        fn.apply(context, args);
+      }
+    };
   }
 
   var fns = {
@@ -144,6 +169,10 @@ function onDOMWindowCreated(ev) {
 
   function onCore(msg) {
     var payload;
+
+    if (isDead()) {
+      return;
+    }
 
     if ( msg.data.url !== currentURL() ) {
       return;
@@ -228,10 +257,10 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  var onKeyPress = proxyWindowEvent("recordKeyPress");
-  var onMouseMove = proxyWindowEvent("recordMouseMove");
-  var onScroll = proxyWindowEvent("recordScroll");
-  var onCopy = proxyWindowEvent("recordCopy");
+  var onKeyPress = throttle(proxyWindowEvent("recordKeyPress"), 250);
+  var onMouseMove = throttle(proxyWindowEvent("recordMouseMove"), 250);
+  var onScroll = throttle(proxyWindowEvent("recordScroll"), 250);
+  var onCopy = throttle(proxyWindowEvent("recordCopy"), 250);
 
   window.addEventListener("message", onMessage);
   window.addEventListener("keypress", onKeyPress);
@@ -243,6 +272,21 @@ function onDOMWindowCreated(ev) {
   startListening("window-"+windowId, onCallback);
   startListening("cliqz:core", onCore);
 
+  function stop() {
+    stopListening("window-"+windowId, onCallback);
+    stopListening("cliqz:core", onCore);
+  }
+
+  function isDead() {
+    try {
+      currentURL();
+      return false;
+    } catch(e) {
+      stop();
+      return true;
+    }
+  }
+
   window.addEventListener("unload", function () {
     window.removeEventListener("message", onMessage);
     window.removeEventListener("keypress", onKeyPress);
@@ -251,8 +295,7 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
     window.removeEventListener("DOMContentLoaded", onReady);
-    stopListening("window-"+windowId, onCallback);
-    stopListening("cliqz:core", onCore);
+    stop();
   });
 
 }

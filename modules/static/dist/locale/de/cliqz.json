@@ -746,6 +746,12 @@
     "cMenuFeedback": {
       "message": "Feedback an CLIQZ"
     },
+    "cMenuRemoveFromHistory": {
+      "message": "Aus Chronik entfernen"
+    },
+    "cMenuRemoveFromBookmarksAndHistory": {
+      "message": "Aus Bookmarks und Lesezeichen entfernen"
+    },
     "myQuery": {
         "message": "Suchbegriff"
     },
@@ -1013,6 +1019,12 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "JETZT abonnieren"
     },
+    "mobile_freshtab_edit_done": {
+      "message": "Fertig"
+    },
+    "mobile_freshtab_no_topsites": {
+      "message": "Hier werden Deine Topseiten erscheinen."
+    },
     "mobile_share_card": {
       "message": "Diese Karte teilen"
     },
@@ -1135,5 +1147,11 @@
     },
     "context-menu-search-item": {
       "message": "CLIQZ-Suche nach \"$1\""
+    },
+    "streaming": {
+      "message": "Stream Jetzt: "
+    },
+    "lyrics": {
+      "message": "Lyrics: "
     }
 }

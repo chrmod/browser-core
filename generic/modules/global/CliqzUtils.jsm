@@ -54,25 +54,16 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
-  IFRAME_SHOW:                    false,
-  HOST:                           'https://cliqz.com',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
-  RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   LOG:                            'https://logging.cliqz.com',
-  CLIQZ_URL:                      'https://cliqz.com/',
-  UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/support',
-  PREF_STRING:                    32,
-  PREF_INT:                       64,
-  PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
@@ -91,8 +82,6 @@ var CliqzUtils = {
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   init: function(win){
-
-
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -147,6 +136,15 @@ var CliqzUtils = {
   getKnownType: function(type){
     return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
   },
+
+  /**
+   * Construct a uri from a url
+   * @param {string}  aUrl - url
+   * @param {string}  aOriginCharset - optional character set for the URI
+   * @param {nsIURI}  aBaseURI - base URI for the spec
+   */
+  makeUri: CLIQZEnvironment.makeUri,
+
   //move this out of CliqzUtils!
   setSupportInfo: function(status){
     var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
@@ -173,7 +171,7 @@ var CliqzUtils = {
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
-        baseCore = base.replace(/[^0-9a-z]/gi,""),
+        baseCore = base.replace(/[-]/g, ""),
         check = function(host,rule){
           var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "$" + host.substr(address + base.length)
 
@@ -205,10 +203,8 @@ var CliqzUtils = {
         }
       }
     }
-
     result.text = result.text || (baseCore.length > 1 ? ((baseCore[0].toUpperCase() + baseCore[1].toLowerCase())) : "")
     result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
-
     var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
         buttonClass = BRANDS_DATABASE.buttons && colorID != -1 && BRANDS_DATABASE.buttons[colorID]?BRANDS_DATABASE.buttons[colorID]:10
 
@@ -333,12 +329,6 @@ var CliqzUtils = {
 
     return url;
   },
-  removeWww: function(url) {
-    if(url.toLowerCase().indexOf('www.') == 0) {
-      url = url.slice(4);
-    }
-    return url;
-  },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
@@ -413,6 +403,7 @@ var CliqzUtils = {
     isIPv4 = ipv4_regex.test(host);
     isIPv6 = ipv6_regex.test(host);
     var isLocalhost = CliqzUtils.isLocalhost(host, isIPv4, isIPv6);
+
     // find parts of hostname
     if (!isIPv4 && !isIPv6 && !isLocalhost) {
       try {
@@ -651,7 +642,7 @@ var CliqzUtils = {
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
 
-    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
+    var url = CliqzUtils.RESULTS_PROVIDER +
               encodeURIComponent(q) +
               CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
@@ -692,11 +683,8 @@ var CliqzUtils = {
     return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
-    //international result not supported
+    //international results not supported
     return '&force_country=true';
-
-    //var flag = 'forceCountry';
-    //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeFilter: function() {
     var data = {
@@ -797,10 +785,6 @@ var CliqzUtils = {
     var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
     return internal + " " + cliqz_sources
   },
-  shouldLoad: function(window){
-    //always loads, even in private windows
-    return true;
-  },
   isPrivate: CLIQZEnvironment.isPrivate,
   telemetry: CLIQZEnvironment.telemetry,
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
@@ -830,15 +814,6 @@ var CliqzUtils = {
   setTimeout: CLIQZEnvironment.setTimeout,
   clearTimeout: CLIQZEnvironment.clearTimeout,
   clearInterval: CLIQZEnvironment.clearTimeout,
-  loadFile: function (fileName, callback) {
-    var self = this;
-    $.ajax({
-        url: fileName,
-        dataType: 'text',
-        success: callback,
-        error: function(data){ callback(data.responseText); }
-    });
-  },
   locale: {},
   currLocale: null,
   loadLocale : function(lang_locale){
@@ -924,7 +899,6 @@ var CliqzUtils = {
         el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
-  version: CLIQZEnvironment.getVersion,
   extensionRestart: function(changes){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
@@ -961,15 +935,6 @@ var CliqzUtils = {
   hasClass: function(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
   },
-  clone: function(obj) {
-    if (null == obj || "object" != typeof obj) return obj;
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
-    }
-    return copy;
-  },
-
   /**
    * Bind functions contexts to a specified object.
    * @param {Object} from - An object, whose function properties will be processed.
@@ -990,6 +955,13 @@ var CliqzUtils = {
     // avoide error from decodeURIComponent('%2')
     try {
       return decodeURIComponent(s);
+    } catch(e) {
+      return s;
+    }
+  },
+  tryEncodeURIComponent: function(s) {
+    try {
+      return encodeURIComponent(s);
     } catch(e) {
       return s;
     }

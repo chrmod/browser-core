@@ -53,7 +53,7 @@ function newsResponse(articles) {
 
   fakeServer.respondWith(
     "GET",
-    "/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&locale=en-US",
+    new RegExp(".*rich-header.*"),
     [ 200, { "Content-Type": "application/json" }, response ]
   );
 }
@@ -85,7 +85,7 @@ describe('Search View', function() {
   beforeEach(function () {
     // startup can be quite slow for the first time. Maybe there is better way
     // to warm it up.
-    this.timeout(5000);
+    this.timeout(10000);
     testBox = document.createElement("iframe");
     testBox.setAttribute("class", "testFrame")
     testBox.src = 	"/build/mobile/search/index.html";
@@ -104,14 +104,17 @@ describe('Search View', function() {
       contentWindow.onload = resolve;
     }).then(function () {
       return Promise.all([
-        injectSinon(contentWindow),
-        waitForWindow(contentWindow)
+        injectSinon(contentWindow)
       ])
     }).then(function () {
       fakeServer = sinon.fakeServer.create({
         autoRespond: true,
         respondImmediately: true
       });
+      newsResponse([]);
+
+      contentWindow.sinonLoaded = true;
+      return waitForWindow(contentWindow);
     });
   });
 
@@ -126,7 +129,7 @@ describe('Search View', function() {
         extraResult;
 
     beforeEach(function (done) {
-      this.timeout(4000);
+      this.timeout(10000);
 
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
@@ -162,7 +165,6 @@ describe('Search View', function() {
       };
 
       cliqzResponse(query, [], [ extraResult ]);
-      newsResponse([]);
 
       contentWindow.jsAPI.search(query, true, 48.151753799999994, 11.620054999999999);
     });
@@ -192,6 +194,8 @@ describe('Search View', function() {
     var query = "amazon";
 
     beforeEach(function (done) {
+      this.timeout(10000);
+
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [], [
@@ -274,6 +278,8 @@ describe('Search View', function() {
     var query = "titten";
 
     beforeEach(function (done) {
+      this.timeout(10000);
+
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [
@@ -308,6 +314,8 @@ describe('Search View', function() {
     var query = "wetter münchen";
 
     beforeEach(function (done) {
+      this.timeout(10000);
+
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [], [
@@ -407,6 +415,8 @@ describe('Search View', function() {
     var query = "fcbayern";
 
     beforeEach(function (done) {
+      this.timeout(10000);
+
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       cliqzResponse(query, [], [

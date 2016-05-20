@@ -420,7 +420,6 @@ var CliqzHistoryCluster = {
     if (urlbar == 'www.' || urlbar == 'http://' || urlbar.substr(urlbar.indexOf('://') + 3) == 'www.' || urlbar === '')
       return {};
 
-    var type = null;
     var url = CliqzUtils.simplifyUrl(pattern.url);
     url = CliqzUtils.generalizeUrl(url, true);
     var input = CliqzUtils.generalizeUrl(urlbar);
@@ -438,7 +437,6 @@ var CliqzHistoryCluster = {
       autocomplete = true;
       highlight = true;
       urlbarCompleted = urlbar + url.substring(url.indexOf(input) + input.length);
-      type = 'url';
     }
 
     if (autocomplete) {
@@ -458,8 +456,7 @@ var CliqzHistoryCluster = {
       autocomplete: autocomplete,
       urlbar: urlbarCompleted,
       selectionStart: selectionStart,
-      highlight: highlight,
-      type: type
+      highlight: highlight
     };
   },
 
@@ -561,7 +558,7 @@ var CliqzHistoryCluster = {
         var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
         instant.comment += ' (history generic)!';
         instant.data.kind = ['H'];
-        promises.push(CliqzHistoryCluster._getDescription(instant));
+        //promises.push(CliqzHistoryCluster._getDescription(instant));
         instant_results.push(instant);
       }
     } else {

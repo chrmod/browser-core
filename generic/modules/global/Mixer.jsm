@@ -22,6 +22,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 var CliqzSmartCliqzCache;
+var SmartCliqzTriggerUrlCache;
 
 function objectExtend(target, obj) {
   Object.keys(obj).forEach(function(key) {
@@ -57,13 +58,13 @@ var Mixer = {
   ],
 
   init: function() {
-    //TODO: remove this dependency
     CliqzUtils.setTimeout(function() {
       CliqzUtils.log('Init', 'Mixer');
-      CliqzUtils.importModule("smart-cliqz-cache/background").then(function(module) {
+      CliqzUtils.importModule('smart-cliqz-cache/background').then(function(module) {
         CliqzSmartCliqzCache = module.default.smartCliqzCache;
+        SmartCliqzTriggerUrlCache = module.default.triggerUrlCache;
       }).catch(function(error) {
-        CliqzUtils.log('Failed loading SmartCliqzCache', "Mixer");
+        CliqzUtils.log('Failed loading SmartCliqzCache', 'Mixer');
       });
     }, 1000);
   },
@@ -260,6 +261,9 @@ var Mixer = {
   // Find any entity zone in the results and cache them for later use.
   // Go backwards to prioritize the newest, which will be first in the list.
   _cacheEZs: function(extraResults) {
+    if (!CliqzSmartCliqzCache || !SmartCliqzTriggerUrlCache) {
+      return;
+    }
 
     // slice creates a shallow copy, so we don't reverse existing array.
     extraResults.slice().reverse().forEach(function(r) {
@@ -268,14 +272,14 @@ var Mixer = {
       var wasCacheUpdated = false;
 
       trigger_urls.forEach(function(url) {
-        if (CliqzSmartCliqzCache.triggerUrls.retrieve(url) != ezId) {
-          CliqzSmartCliqzCache.triggerUrls.store(url, ezId);
+        if (SmartCliqzTriggerUrlCache.retrieve(url) != ezId) {
+          SmartCliqzTriggerUrlCache.store(url, ezId);
           wasCacheUpdated = true;
         }
       });
 
       if (wasCacheUpdated) {
-        CliqzSmartCliqzCache.triggerUrls.save(CliqzSmartCliqzCache.TRIGGER_URLS_CACHE_FILE);
+        SmartCliqzTriggerUrlCache.save();
       }
 
       CliqzSmartCliqzCache.store(r);
@@ -291,14 +295,18 @@ var Mixer = {
       return undefined;
     }
 
+    if (!CliqzSmartCliqzCache || !SmartCliqzTriggerUrlCache) {
+      return undefined;
+    }
+
     var url = CliqzUtils.generalizeUrl(result.val, true),
       ez;
 
-    if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
-      var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
+    if (SmartCliqzTriggerUrlCache.isCached(url)) {
+      var ezId = SmartCliqzTriggerUrlCache.retrieve(url);
       // clear dirty data that got into the data base
       if (ezId === 'deprecated') {
-        CliqzSmartCliqzCache.triggerUrls.delete(url);
+        SmartCliqzTriggerUrlCache.delete(url);
         return undefined;
       }
       ez = CliqzSmartCliqzCache.retrieve(ezId);
@@ -319,8 +327,8 @@ var Mixer = {
         CliqzSmartCliqzCache.fetchAndStore(ezId);
       }
 
-      if (CliqzSmartCliqzCache.triggerUrls.isStale(url)) {
-        CliqzSmartCliqzCache.triggerUrls.delete(url);
+      if (SmartCliqzTriggerUrlCache.isStale(url)) {
+        SmartCliqzTriggerUrlCache.delete(url);
       }
     }
 
@@ -368,9 +376,7 @@ var Mixer = {
       }
 
       // Cache any EZs found
-      if (CliqzSmartCliqzCache) {
-        Mixer._cacheEZs(cliqzExtra);
-      }
+      Mixer._cacheEZs(cliqzExtra);
     }
 
     // Prepare other incoming data
@@ -390,11 +396,9 @@ var Mixer = {
     var results = r.first.concat(r.second);
 
     // Trigger EZ with first entry
-    if (CliqzSmartCliqzCache) {
-      var historyEZ = Mixer._historyTriggerEZ(results[0]);
-      if (historyEZ) {
-        cliqzExtra = [historyEZ];
-      }
+    var historyEZ = Mixer._historyTriggerEZ(results[0]);
+    if (historyEZ) {
+      cliqzExtra = [historyEZ];
     }
 
     // Filter conflicting EZs

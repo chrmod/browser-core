@@ -109,24 +109,22 @@ var UI = {
           },
 
           onPageChange : function (page) {
-
             page = Math.abs(page);
+            if(page === CLIQZEnvironment.currentPage || !isSearch()) return;
 
-            views[page] =
-              (views[page] || 0) + 1;
+            views[page] = (views[page] || 0) + 1;
 
-            if(Number.isInteger(page) && page !== CLIQZEnvironment.currentPage) {
-              CliqzUtils.telemetry({
-                type: 'activity',
-                action: 'swipe',
-                swipe_direction:
-                  page > CLIQZEnvironment.currentPage ? 'right' : 'left',
-                current_position: page,
-                views: views[page],
-                prev_position: CLIQZEnvironment.currentPage,
-                prev_display_time: Date.now() - pageShowTs
-              });
-            }
+
+            CliqzUtils.telemetry({
+              type: 'activity',
+              action: 'swipe',
+              swipe_direction:
+                page > CLIQZEnvironment.currentPage ? 'right' : 'left',
+              current_position: page,
+              views: views[page],
+              prev_position: CLIQZEnvironment.currentPage,
+              prev_display_time: Date.now() - pageShowTs
+            });
 
             pageShowTs = Date.now();
 
@@ -455,8 +453,15 @@ function setResultNavigation(results) {
 
 }
 
+function isSearch() {
+  return resultsBox && resultsBox.style.display === 'block';
+};
+
+var resizeTimeout;
 window.addEventListener('resize', function () {
-  setTimeout(function () {
+  if(!isSearch()) return;
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(function () {
     UI.setDimensions();
     var w = window.innerWidth;
     var frames = document.getElementsByClassName(FRAME);
@@ -466,16 +471,11 @@ window.addEventListener('resize', function () {
       frames[i].style.width = UI.CARD_WIDTH+"px";
     }
 
-    if(CLIQZEnvironment.vp) {
-      CLIQZEnvironment.vp.destroy();
-    }
-
-    crossTransform(document.getElementById("results"), 0);
-    CLIQZEnvironment.vp = UI.initViewpager();
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
-    }, 50);
 
     setCardsHeight();
+    }, 50);
+
 });
 
 window.addEventListener('disconnected', function() {

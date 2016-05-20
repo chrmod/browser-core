@@ -29,7 +29,6 @@ PrivacyScore.prototype.getPrivacyScore = function() {
   this.datetime = datetime.getTime();
   utils.httpGet(reqURL, function(req) {
     var res = JSON.parse(req.response);
-    utils.log(res);
     if (suffix in res) {
       this.score = res[suffix];
     }

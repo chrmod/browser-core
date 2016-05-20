@@ -746,6 +746,12 @@
     "cMenuFeedback": {
       "message": "Feedback for CLIQZ"
     },
+    "cMenuRemoveFromHistory": {
+      "message": "Remove from History"
+    },
+    "cMenuRemoveFromBookmarksAndHistory": {
+      "message": "Remove from Bookmarks and History"
+    },
     "myQuery": {
         "message": "query"
     },
@@ -1013,6 +1019,12 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "Subscribe NOW"
     },
+    "mobile_freshtab_edit_done": {
+      "message": "Done"
+    },
+    "mobile_freshtab_no_topsites": {
+      "message": "You will see your topsites here."
+    },
     "mobile_share_card": {
       "message": "Share this card"
     },
@@ -1135,5 +1147,11 @@
     },
     "context-menu-search-item": {
       "message": "Search CLIQZ for \"$1\""
+    },
+    "streaming": {
+      "message": "Stream Now: "
+    },
+    "lyrics": {
+      "message": "Lyrics: "
     }
 }

@@ -10,6 +10,15 @@
        {{ emphasis data.name text 2 true }}
     </h1>
 
+    <div extra="url" class="card__meta">
+
+      {{#if data.richData.discovery_timestamp}}
+        <div class="timestamp">{{ agoline data.richData.discovery_timestamp }}</div>
+      {{else}}
+        {{urlDetails.friendly_url}}
+      {{/if}}
+    </div>
+
     <div class="primary card__description">
         <div class="main mulitple">
           {{#each data.news}}

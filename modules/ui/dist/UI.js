@@ -658,6 +658,7 @@ var UI = {
     closeResults: closeResults,
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
+    getElementByAttr: getElementByAttr,
     enhanceResults: enhanceResults
 };
 
@@ -960,6 +961,11 @@ function setPartialTemplates(data) {
   // Smart CLIQZ buttons
   if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
+  }
+
+  // Music
+  if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
+    partials.push('music-data-sc');
   }
 
   return partials;
@@ -1291,6 +1297,16 @@ function getResultOrChildAttr(el, attr){
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
+function getElementByAttr(el, attr, val) {
+  if (el && el.getAttribute(attr) === val) {
+    return el;
+  }
+  if (el === null) return null;
+  if (el.className === IC) return null;
+
+  return getElementByAttr(el.parentNode, attr, val);
+}
+
 function urlIndexInHistory(url, urlList) {
     var index = 0;
     for(var key in urlList) {
@@ -1521,7 +1537,8 @@ function resultClick(ev) {
 
             var url = CliqzUtils.cleanMozillaActions(url);
             CLIQZEnvironment.openLink(window, url, newTab);
-            //Lucian: decouple!
+
+            //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if (!newTab) CLIQZ.Core.popup.hidePopup();
             break;
@@ -1850,7 +1867,6 @@ function onEnter(ev, item){
       current_position: -1
     });
 
-    //publish google event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
     CLIQZ.Core.triggerLastQ = true;
@@ -1872,7 +1888,6 @@ function onEnter(ev, item){
     }, urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
 
-    //publish alternative search event (loyalty)
     CliqzEvents.pub("alternative_search", {});
 
   // Result
@@ -1883,7 +1898,6 @@ function onEnter(ev, item){
       new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
 
-    //publish result_enter event (loyalty)
     CliqzEvents.pub("result_enter", {"position_type": getResultKind(UI.keyboardSelection)}, {'vertical_list': Object.keys(VERTICALS)});
   }
 

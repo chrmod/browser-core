@@ -23,9 +23,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 var CliqzEvents = CliqzEvents || {
   //use a javascript object to push the message ids and the callbacks
   cache: {},
-//    /*
-//     * Publish events of interest with a specific id
-//     */
+  /*
+   * Publish events of interest with a specific id
+   */
   pub: function (id) {
     var args = Array.prototype.slice.call(arguments, 1);
     (CliqzEvents.cache[id] || []).forEach(function (ev) {

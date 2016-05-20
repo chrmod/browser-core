@@ -10,6 +10,9 @@ Cu.import('resource://gre/modules/PlacesUtils.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+var browserHistory = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Components.interfaces.nsIBrowserHistory),
+    bookmarkService = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].getService(Components.interfaces.nsINavBookmarksService);
+
 var CliqzHistoryManager = {
   getStats: function(callback) {
     let historysize = 0;
@@ -213,5 +216,15 @@ var CliqzHistoryManager = {
       });
       return promiseMock;
     }
+  },
+  removeFromHistory: function(uri) {
+    browserHistory.removePage(uri);
+  },
+  removeFromBookmarks: function(uri) {
+    var itemId = PlacesUtils.getBookmarksForURI(uri);
+    bookmarkService.removeItem(itemId[0]);
+  },
+  isBookmarked: function(uri) {
+    return bookmarkService.isBookmarked(uri);
   }
 };

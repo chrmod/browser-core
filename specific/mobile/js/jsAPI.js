@@ -26,10 +26,7 @@ var jsAPI = {
     CLIQZEnvironment.initHomepage();
     var start = document.getElementById("resetState");
     var resetStateContent = document.getElementById("resetStateContent");
-    var resultsBox = document.getElementById("results");
-    if(resultsBox) {
-      resultsBox.style.display = 'none';
-    }
+    CLIQZ.UI.hideResultsBox();
     if(cfg.url && cfg.url.length > 0) {
       start.style.display = "block";
       window.document.getElementById("startingpoint").style.display = 'block';

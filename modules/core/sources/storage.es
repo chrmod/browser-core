@@ -14,8 +14,11 @@ export default class {
 		this.storage.setItem(key, JSON.stringify(object));
 	}
 
-	getObject(key) {
+	getObject(key, notFound = false) {
 	  const o = storage.getItem(key);
-	  return o && JSON.parse(o);
+	  if (o) {
+	  	return JSON.parse(o);
+	  }
+	  return notFound;
 	}
 }

@@ -36,8 +36,6 @@ var TEMPLATES = CLIQZEnvironment.TEMPLATES,
     ],
     ZERO_CLICK_INFO_PRIO = [["Phone", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/phone.svg"],
                             ["BIC", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/BIC.svg"],
-//                            ["BLZ"],
-//                            ["Sperrnummer"],
                             ["E-Mail", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/emaill.svg"]
                            ];
 
@@ -61,8 +59,10 @@ function compileTemplates(){
 function fetchTemplate(tName, isPartial) {
     try {
         CliqzUtils.httpGet(CliqzUtils.TEMPLATES_PATH + tName + '.tpl', function(res){
-            if(isPartial === true)
-                Handlebars.registerPartial(tName, res.response);
+            if(isPartial === true) {
+              Handlebars.registerPartial(tName, res.response);
+              CliqzHandlebars.tplCache[tName] = Handlebars.compile(res.response);
+            }
             else
                 CliqzHandlebars.tplCache[tName] = Handlebars.compile(res.response);
         });
@@ -73,14 +73,8 @@ function fetchTemplate(tName, isPartial) {
 
 
 function registerHelpers(){
-    Handlebars.registerHelper('show_main_iframe', function(){
-        if (CliqzUtils.IFRAME_SHOW)
-            return "inherit";
-        return "none";
-    });
-
     Handlebars.registerHelper('partial', function(name, options) {
-        var template = CliqzHandlebars.tplCache[name] || CliqzHandlebars.tplCache.empty;
+        var template = CliqzHandlebars.tplCache[name] || CliqzHandlebars.tplCache["partials/"+name] || CliqzHandlebars.tplCache.empty;
         return new Handlebars.SafeString(template(this));
     });
 
@@ -112,11 +106,6 @@ function registerHelpers(){
             return null;
         }
     });
-
-    Handlebars.registerHelper('generate_logo', function(url, options) {
-        return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
-    });
-
 
     Handlebars.registerHelper('distance', function(meters) {
         if(meters < 1000) {
@@ -179,7 +168,7 @@ function registerHelpers(){
 
         var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
-        // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
+
         return (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
     });
 
@@ -211,7 +200,7 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
+    Handlebars.registerHelper('limit', function(idx, max_idx){
         return idx < max_idx;
     });
 
@@ -332,10 +321,6 @@ function registerHelpers(){
         else return str[0].toUpperCase() + str.slice(1);
     });
 
-    Handlebars.registerHelper('reduce_width', function(width, reduction) {
-        return width - reduction;
-    });
-
     Handlebars.registerHelper('kind_printer', function(kind) {
         //we need to join with semicolon to avoid conflicting with the comma from json objects
         return kind ? kind.join(';'): '';
@@ -349,33 +334,6 @@ function registerHelpers(){
         return CliqzUtils.getPref(key, false);
     });
 
-    Handlebars.registerHelper('isLatest', function(data) {
-        // default setting is determined by latest-vs-trending AB test (50-50)
-        // or is "latest" if not part of the AB test
-        var defaultSetting = CliqzUtils.getPref('news-default-latest', true);
-
-        // news-toggle not active
-        if(!data.trending ||
-            data.trending.length == 0 ||
-            CliqzUtils.getPref('news-toggle', false) == false) {
-                return defaultSetting;
-        }
-
-        try {
-          var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
-              ezID = JSON.parse(data.subType).ez;
-          // user-defined setting exists for EZ:
-          if (trending.hasOwnProperty(ezID)) {
-            return !trending[ezID];
-          } else {
-            // no user-defined setting, use default value
-            return defaultSetting;
-          }
-        } catch(e){
-          return defaultSetting;
-        }
-    });
-
     Handlebars.registerHelper('repeat', function(num, block) {
       var accum = '';
       for(var i = 0; i < num; i++) {
@@ -383,29 +341,6 @@ function registerHelpers(){
       }
       return accum;
     });
-
-    /* Math comparisons */
-    Handlebars.registerHelper('ifeq', function(v1, v2, options) { // if equal
-      return v1 == v2 ? options.fn(this) : options.inverse(this);
-    });
-
-    Handlebars.registerHelper('ifleq', function(v1, v2, options) { // if less than or equal
-      return v1 <= v2 ? options.fn(this) : options.inverse(this);
-    });
-
-    Handlebars.registerHelper('iflt', function(v1, v2, options) {  // if less than
-      return v1 < v2 ? options.fn(this) : options.inverse(this);
-    });
-
-    Handlebars.registerHelper('ifgeq', function(v1, v2, options) { // if greater than or equal
-      return v1 >= v2 ? options.fn(this) : options.inverse(this);
-    });
-
-    Handlebars.registerHelper('ifgt', function(v1, v2, options) { // if geater than
-      return v1 > v2 ? options.fn(this) : options.inverse(this);
-    });
-
-    /* End Math comparisons */
 
     /* If conditions on preferences */
     Handlebars.registerHelper('ifpref', function(name, val, options) {
@@ -537,5 +472,18 @@ function registerHelpers(){
         minutes = minutes > 9 ? minutes : '0' + minutes
         var formatedDate = hours + ':' + minutes;
         return formatedDate;
+    });
+
+    Handlebars.registerHelper('sendTelemetry', function(nResults) {
+      CliqzUtils.telemetry({
+        type: 'Results Rendered',
+        nResults: nResults
+      });
+    });
+
+    Handlebars.registerHelper('generate_background_color', function(url) {
+        var urlDetails = CliqzUtils.getDetailsFromUrl(url);
+        var logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+        return "#" + logoDetails.backgroundColor;
     });
 }

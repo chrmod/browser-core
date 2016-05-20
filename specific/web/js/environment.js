@@ -23,7 +23,7 @@ CLIQZEnvironment = {
     setTimeout: function(){ return setTimeout.apply(null, arguments) },
     clearTimeout: function(){ clearTimeout.apply(null, arguments) },
     tldExtractor: function(host){
-    	//lucian: temp - FIX IT
+    	//temp
     	return host.split('.').splice(-1)[0];
     },
     OS: 'darwin',
@@ -202,8 +202,7 @@ CLIQZEnvironment = {
     }
 }
 
-
-//Lucian: temp hopefully
+// shimming FF specific stuff
 CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }

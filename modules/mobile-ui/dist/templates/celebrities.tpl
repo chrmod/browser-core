@@ -12,7 +12,7 @@
 		</div>
 		<div class="card__gallery">			
 			{{#each images}}
-				{{#if (limit_images_shown @index 3)}}
+				{{#if (limit @index 3)}}
 					<div extra="image-{{@index}}" class="image" data-style="background-image: url({{this}})">Image</div>
 				{{/if}}
 			{{/each}}

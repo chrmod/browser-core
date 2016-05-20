@@ -24,7 +24,7 @@
         </div>
         <div class="weather__gallery">
         {{#each forecast}}
-            {{#if (limit_images_shown @index 4)}}
+            {{#if (limit @index 4)}}
                 <div class='EZ-weather-container'>
                     <div class='EZ-weather-date'>{{ weekday }}</div>
                     <div class="EZ-weather-temp"><span>max.</span> {{max}}<span> / min.</span>{{min}}</div>
