@@ -104,7 +104,7 @@ def package(beta='True', version=None, sign='False', channel='browser'):
 
         # look for xpi-sign report on the same level as navigation-extension
         local( ("python ../../xpi-sign/xpisign.py "
-                "-k ../../certs/xpisign-cliqz\@cliqz.com "
+                "-k ../../certs/CliqzFrontend/xpisign-cliqz\@cliqz.com "
                 "--signer openssl "
                 "--passin file:../../certs/pass "
                 "UNSIGNED_%s %s ") % (output_file_name, output_file_name))
