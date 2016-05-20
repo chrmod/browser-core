@@ -454,7 +454,7 @@ function setResultNavigation(results) {
     showGooglethis = 0;
   }
 
-  resultsBox.style.width = (window.innerWidth * (results.length + showGooglethis)) + 'px';
+  resultsBox.style.width = window.innerWidth + 'px';
   resultsBox.style.marginLeft = LEFT_PEEK + 'px';
 
 
