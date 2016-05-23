@@ -41,7 +41,16 @@ a:hover, a:active, a:focus {
 }
 
 /* containers */
-#freshTabPage #container{
+#freshTabPage #center {
+  position: absolute;
+  min-height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+}
+
+#freshTabPage #container {
   max-width: 1024px;
   min-width: 800px;
   margin: 0px auto;
@@ -270,6 +279,7 @@ a:hover, a:active, a:focus {
 /* news container */
 #freshTabPage #newsContainer {
   width: 100%;
+  height: 300px;
   box-sizing: border-box;
   margin-top: 40px;
   margin-bottom: 40px;
