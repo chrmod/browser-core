@@ -1025,6 +1025,9 @@
     "mobile_freshtab_no_topsites": {
       "message": "Hier werden Deine Topseiten erscheinen."
     },
+    "mobile_history_card_title": {
+      "message": "Verlauf-Ergebnisse"
+    },
     "mobile_share_card": {
       "message": "Diese Karte teilen"
     },

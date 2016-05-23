@@ -84,7 +84,8 @@ CLIQZEnvironment = {
       'logo',
       'EZ-category',
       'EZ-history',
-      'rd-h3-w-rating'
+      'rd-h3-w-rating',
+      'pattern-h1'
   ],
   GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
   log: function(msg, key){
@@ -128,6 +129,9 @@ CLIQZEnvironment = {
     }
   },
   renderResults: function(r) {
+
+    CLIQZEnvironment.currentPage = 0;
+    CLIQZEnvironment.vp && CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage);
     var renderedResults = CLIQZ.UI.results(r);
 
     CLIQZ.UI.stopProgressBar();

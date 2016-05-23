@@ -21,13 +21,16 @@ var resultsBox = null,
     currentResults = null,
     imgLoader = null,
     progressBarInterval = null,
-    PEEK = 20,
-    PADDING = 16,
+    LEFT_PEEK = 15,
+    RIGHT_PEEK = 25,
+    PADDING = 16, // CONNECTED TO CSS VALUE (DON'T CHANGE)
     currentResultsCount = 0,
     FRAME = 'frame';
 
 var UI = {
     CARD_WIDTH: 0,
+    nCardsPerPage: 1,
+    nPages: 1,
     init: function(){
         //check if loading is done
         if(!CliqzHandlebars.tplCache.main)return;
@@ -38,9 +41,15 @@ var UI = {
         resultsBox.addEventListener('click', resultClick);
     },
     setDimensions: function() {
-      UI.CARD_WIDTH = window.innerWidth - PADDING - 2 * PEEK;
+      UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
+      UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
     results: function(r){
+
+      setMobileBasedUrls(r);
+      
+      setCardCountPerPage(window.innerWidth);
+
       UI.setDimensions();
 
       var engine = CLIQZEnvironment.getDefaultSearchEngine();
@@ -73,7 +82,7 @@ var UI = {
         var asyncResults = currentResults.results.filter(assessAsync(true));
         currentResults.results = currentResults.results.filter(assessAsync(false));
 
-        //TODO copy async
+        
         redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
 
         if(asyncResults.length > 0) loadAsyncResult(asyncResults, query);
@@ -89,7 +98,7 @@ var UI = {
         return currentResults;
     },
     VIEWS: {},
-    initViewpager: function(numberPages) {
+    initViewpager: function() {
         var views = {},
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
@@ -98,14 +107,13 @@ var UI = {
         crossTransform(resultsBox, Math.min((offset * innerWidth), (innerWidth * currentResultsCount)));
 
         return new ViewPager(resultsBox, {
-          pages: numberPages,
           dragSize: window.innerWidth,
           prevent_all_native_scrolling: false,
           vertical: false,
           anim_duration:400,
           onPageScroll : function (scrollInfo) {
             offset = -scrollInfo.totalOffset;
-            crossTransform(resultsBox, (offset * UI.CARD_WIDTH));
+            crossTransform(resultsBox, (offset * UI.CARD_WIDTH * UI.nCardsPerPage));
           },
 
           onPageChange : function (page) {
@@ -168,6 +176,11 @@ var UI = {
     }
 };
 
+function setCardCountPerPage(windowWidth) {
+  UI.nCardsPerPage = ~~(windowWidth / 320) || 1;
+}
+
+
 function loadAsyncResult(res, query) {
     for (var i in res) {
       var r = res[i];
@@ -206,7 +219,7 @@ function loadAsyncResult(res, query) {
               r.data.kind = kind;
               r.data.subType = resp.subType;
               r.data.trigger_urls = resp.trigger_urls;
-              r.vertical = r.data.template;
+              r.vertical = getVertical(r.data.template);
               r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
               r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
@@ -222,6 +235,8 @@ function loadAsyncResult(res, query) {
                   else {
                     redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                   }
+                  imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
+                  imgLoader.start();
               }
             }
           }
@@ -254,6 +269,10 @@ function redrawDropdown(newHTML){
     resultsBox.innerHTML = newHTML;
 }
 
+function getVertical(dataTemplate) {
+  return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic'
+}
+
 function enhanceResults(results){
     for(var i=0; i<results.length; i++) {
         var r = results[i];
@@ -268,7 +287,11 @@ function enhanceResults(results){
 
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-        r.vertical = (r.data.template && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.template)) ? r.data.template : 'generic';
+        if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
+          r.vertical = 'pattern-h1'
+        } else {
+          r.vertical = getVertical(r.data.template);
+        }
 
         //extract debug info from title
         var _tmp = getDebugMsg(r.title);
@@ -431,21 +454,20 @@ function setResultNavigation(results) {
     showGooglethis = 0;
   }
 
-  resultsBox.style.width = (window.innerWidth * (results.length + showGooglethis)) + 'px';
-  resultsBox.style.marginLeft = PEEK + 'px';
+  resultsBox.style.width = window.innerWidth + 'px';
+  resultsBox.style.marginLeft = LEFT_PEEK + 'px';
 
 
   var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
 
   currentResultsCount = lastResultOffset / UI.CARD_WIDTH + showGooglethis + 1;
 
-  if( typeof CLIQZEnvironment.vp !== 'undefined' ) {
-    CLIQZEnvironment.vp.destroy();
-  }
-  CLIQZEnvironment.currentPage = 0;
-  CLIQZEnvironment.vp = UI.initViewpager(currentResultsCount);
+  // get number of pages according to number of cards per page
+  UI.nPages = Math.ceil(currentResultsCount / UI.nCardsPerPage);
 
-  // CLIQZEnvironment.vp.goToIndex(1,0);
+  if(!CLIQZEnvironment.vp) {
+    CLIQZEnvironment.vp = UI.initViewpager();
+  }
 
   if(document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
@@ -453,25 +475,41 @@ function setResultNavigation(results) {
 
 }
 
+function setMobileBasedUrls(o) {
+  if (!o) return;
+  if (o.url && o.m_url) {
+    o.url = o.m_url;
+  }
+  for (let i in o) {
+    if (typeof(o[i]) == 'object') {
+        setMobileBasedUrls(o[i]);
+    }
+  }
+}  
+
 function isSearch() {
   return resultsBox && resultsBox.style.display === 'block';
 };
 
 var resizeTimeout;
 window.addEventListener('resize', function () {
-  if(!isSearch()) return;
+  if (!isSearch()) return;
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function () {
+    const lastnCardsPerPage = UI.nCardsPerPage;
+    setCardCountPerPage(window.innerWidth);
     UI.setDimensions();
-    var w = window.innerWidth;
-    var frames = document.getElementsByClassName(FRAME);
-    var i;
-    for(i=0;i<frames.length;i++) {
-      frames[i].style.left = (UI.CARD_WIDTH*i) +"px";
-      frames[i].style.width = UI.CARD_WIDTH+"px";
+    const w = window.innerWidth;
+    const frames = document.getElementsByClassName(FRAME);
+    for (let i = 0; i < frames.length; i++) {
+      let left = UI.CARD_WIDTH * i;
+      frames[i].style.left = left + 'px';
+      CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
+      frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
-
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage,0);
+    setResultNavigation(CLIQZEnvironment.lastResults);
+    CLIQZEnvironment.currentPage = ~~(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
+    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage, 0);
 
     setCardsHeight();
     }, 50);
