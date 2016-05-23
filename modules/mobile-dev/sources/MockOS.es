@@ -65,6 +65,7 @@ function isReady() {
     incognito: false,
     showConsoleLogs: true
   });
+  jsAPI.restoreBlockedTopSites();
   return -1;
 };
 function openLink(url) {
