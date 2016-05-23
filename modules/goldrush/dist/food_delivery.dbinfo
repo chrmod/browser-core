@@ -1,0 +1,113 @@
+{
+   "datetime_db": {
+      "day_data": {
+         "0": 14, 
+         "1": 36, 
+         "2": 34, 
+         "3": 21, 
+         "4": 50, 
+         "5": 35, 
+         "6": 24
+      }, 
+      "hour_data": {
+         "3": 1, 
+         "11": 10, 
+         "12": 11, 
+         "13": 7, 
+         "14": 8, 
+         "15": 6, 
+         "16": 15, 
+         "17": 23, 
+         "18": 38, 
+         "19": 43, 
+         "20": 21, 
+         "21": 21, 
+         "22": 7, 
+         "23": 3
+      }, 
+      "month_data": {}, 
+      "total_signals": 214
+   }, 
+   "domain_info_db": {
+      "checkout_regex": {
+         "73": "#!payment/cart", 
+         "74": "/checkout/", 
+         "79": "/shop_bestellen.php", 
+         "80": "/checkout/\\w*/payment", 
+         "83": "#Bestellen"
+      }, 
+      "top_sellers": [
+         [
+            80, 
+            3
+         ], 
+         [
+            73, 
+            133
+         ], 
+         [
+            74, 
+            59
+         ], 
+         [
+            83, 
+            16
+         ], 
+         [
+            79, 
+            3
+         ]
+      ], 
+      "total_signals": 214
+   }, 
+   "general_db": {
+      "avg_evts_per_avg_sessions": 14, 
+      "avg_num_events_per_buying": 17, 
+      "avg_num_sessions_per_buying": 1, 
+      "avg_time_between_sessions": 618.1553738317757, 
+      "avg_total_buying_time": 84356.55140186916, 
+      "top_referrers": [
+         [
+            "", 
+            22
+         ], 
+         [
+            "lieferheld", 
+            59
+         ], 
+         [
+            "sofort", 
+            2
+         ], 
+         [
+            "lieferando", 
+            114
+         ], 
+         [
+            "bringbutler", 
+            9
+         ], 
+         [
+            "paypal", 
+            1
+         ], 
+         [
+            "nudelland", 
+            1
+         ], 
+         [
+            "google", 
+            2
+         ], 
+         [
+            "online-pizza", 
+            3
+         ], 
+         [
+            "foodora", 
+            1
+         ]
+      ], 
+      "total_buy_signals": 214
+   }
+}
