@@ -98,7 +98,7 @@
     list-style-image: url("../images/browser/linux/Toolbar.png");
 }
 
-/* END EX-2246 */ 
+/* END EX-2246 */
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     -moz-margin-start: 0px;
@@ -336,13 +336,13 @@ notification[type="warning"] .messageText {
     menuitem[_moz-menuactive="true"] {
         .menu-iconic-text {
             color: #fff !important;
-        }                                                                                                                                                                                                                                                          
+        }
     }
 
     menu[_moz-menuactive="true"] {
         .menu-text {
             color: #fff !important;
-        }                                                                                                                                                                                                                                                          
+        }
     }
 
     menuitem, menu {
@@ -360,7 +360,7 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2251 */
 
 .close-icon {
-    list-style-image: url("../images/browser/mac/close.png");
+    list-style-image: url("../images/browser/linux/close.png");
     -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
@@ -425,3 +425,11 @@ toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #prin
 }
 
 /* END EX-2244 */
+
+/* BEGIN EX-2326 */
+
+#main-window[privatebrowsingmode="temporary"] #private-browsing-indicator {
+    background-color: #e0e0e0;
+}
+
+/* END EX-2326 */
