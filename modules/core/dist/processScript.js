@@ -174,7 +174,9 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
-    if ( msg.data.url !== currentURL() ) {
+    if ( msg.data.url !== currentURL() &&
+      // TEMP: Human web decodes the URI for internal storage
+      (msg.data.action == "getHTML" && msg.data.url !== decodeURIComponent(currentURL()))) {
       return;
     }
 
