@@ -5,6 +5,13 @@ export default Ember.Component.extend({
   elapsed: 0,
   cliqz: Ember.inject.service(),
 
+  maxHeight: 0,
+
+  calculateHeight: function() {
+    var height = this.$().css('height');
+    this.sendAction("calculateHeightAction", height);
+  }.on('didInsertElement'),
+
   click(ev) {
     this.get('cliqz').sendTelemetry({
       type: 'home',
@@ -21,7 +28,11 @@ export default Ember.Component.extend({
     ev.preventDefault();
     var $target = $(ev.target),
         $description = $target.closest('li').find('.description'),
-        $li = $target.closest('li');
+        $li = $target.closest('li'),
+        height = $li.css('height');
+
+      $li.css('height', 'auto')
+      this.set('maxHeight', parseInt(height, 10) + 10);
 
       $('.allNews').find('.description').stop().slideUp(200);
       $description.stop().slideDown(500);
@@ -29,6 +40,7 @@ export default Ember.Component.extend({
   },
 
   mouseLeave(ev) {
+    $(ev.target).closest('li').css('height', this.get('maxHeight') - 10);
     $('.allNews').find('.description').stop().slideUp(200);
     this.set('elapsed', new Date().getTime() - this.get('startEnter'));
     if(this.get('elapsed') > 2000) {

@@ -3,6 +3,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   cliqz: Ember.inject.service(),
   pageNum: 0,
+  maxHeight: 0,
 
   isOnePage: Ember.computed.equal("pages.length", 1),
 
@@ -62,6 +63,21 @@ export default Ember.Component.extend({
         target_index: num
       });
       this.autoRotate();
+     },
+
+     calculateHeight(height) {
+
+      var height = height.slice(0, height.length -2),
+          maxHeight = this.get('maxHeight'),
+          $newsItems = $('#newsContainer li');
+      if(height > maxHeight) {
+        maxHeight = height;
+        height = parseInt(height, 10) + 10;
+        this.set('maxHeight', height);
+      }
+      $newsItems.each(function(key, item) {
+        $(item).css('height', maxHeight);
+      })
      }
   },
 
