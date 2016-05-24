@@ -1106,6 +1106,9 @@
     "unblock_never": {
       "message": "No, never"
     },
+    "unblock_youtube_fail": {
+      "message": "OK, we tried, but it seems we cannot unblock this video for you at this time"
+    },
     "cliqz-onboarding-title": {
       "message": "Woohoo! CLIQZ was successfully installed."
     },

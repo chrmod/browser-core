@@ -146,7 +146,7 @@ export default class {
               'remaining': allowed_regions.size
             });
             if (allowed_regions.size == 0) {
-              this.notification_cb(url, 'Sorry, it seems we cannot unblock this for you.');
+              this.notification_cb(url, utils.getLocalizedString('unblock_youtube_fail'));
             }
           }
 

@@ -69,7 +69,7 @@ export default {
       this.request_listener = new RequestListener();
 
       this.unblockers.forEach(function(b) {
-        b.init(this.proxy_manager, this.proxy_service, this.request_listener, this.handleBlock.bind(this), this.handleUnblockSuccess.bind(this));
+        b.init(this.proxy_manager, this.proxy_service, this.request_listener, this.handleBlock.bind(this), this.unblockNotification.bind(this));
       }.bind(this));
     }
   },
