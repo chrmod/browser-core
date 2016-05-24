@@ -35,6 +35,37 @@ a:hover, a:active, a:focus {
   visibility: hidden;
 }
 
+.multiline-ellipsis {
+  overflow: hidden;
+  position: relative;
+  line-height: 1.2em;
+  max-height: 4.8em;
+  margin-right: -0.6em;
+  padding-right: 1em;
+  word-break: break-all;
+}
+
+.multiline-ellipsis:before {
+  content: '...';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  /*padding-left: -60px;*/
+  width: 1em;
+  height: 1.2em;
+}
+
+.multiline-ellipsis:after {
+  content: '';
+  position: absolute;
+  right: 0;
+  width: 1em;
+  height: 1em;
+  margin-top: 0.2em;
+  background: white;
+}
+
 #freshTabPage a {
   text-decoration: none;
   color: #333333;
@@ -372,7 +403,6 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #newsContainer li {
   list-style: none;
-  margin-bottom: 20px;
 }
 
 #freshTabPage #newsContainer li .title {
@@ -387,6 +417,7 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #newsContainer div.title {
   text-decoration: none;
+  /*max-height: 90px;*/
 }
 
 #freshTabPage #newsContainer li .url {
@@ -396,6 +427,7 @@ a:hover, a:active, a:focus {
   white-space: nowrap;
   overflow: hidden;
   max-width: 320px;
+  padding-top: 8px;
 }
 
 #freshTabPage #newsContainer a.topnews {
