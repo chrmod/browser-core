@@ -398,10 +398,10 @@ function getTopicBasedOnUrl(url_desc, visit_count, topic_dict){
 
 function requestNews(hcache, callback){
   // 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
-  var NEWS_PROVIDER = CliqzUtils.RICH_HEADER + '?bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
+  var NEWS_PROVIDER = CliqzUtils.RICH_HEADER + '&bmresult=rotated-top-news.cliqz.com', //url humanly made list of top news
       top_news_url = NEWS_PROVIDER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(),
       // 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com'
-      RICH_HEADER = CliqzUtils.RICH_HEADER + '?bmresult=hb-news.cliqz.com',
+      RICH_HEADER = CliqzUtils.RICH_HEADER + '&bmresult=hb-news.cliqz.com',
       topic_news_url = RICH_HEADER + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeLocale(), // news by domain and topik
       topic_news_url = topic_news_url + '&q=',
       news_urls = [],
