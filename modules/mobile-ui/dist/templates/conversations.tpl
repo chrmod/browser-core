@@ -3,10 +3,10 @@
 <div class="main">
     <div class='cqz-result-title overflow' arrow-override=''>
         <h1 class="main__headline">
-       		<div id="historysub">
-       				<span id="show_favorites_only" style="float: left" onclick="History.getHistory(true)">Favoriten</span>
-       				<span class="active" id="show_history" style="float: right" onclick="History.getHistory(false)">Besuchte Seiten</span>
-			</div>
+            <div id="historysub">
+                    <span id="show_favorites_only" style="float: left" onclick="History.getHistory(true)">{{local 'mobile_favorites_title'}}</span>
+                    <span class="active" id="show_history" style="float: right" onclick="History.getHistory(false)">{{local 'mobile_history_title'}}</span>
+            </div>
             <!-- <a extra="title">THE PAST</a> -->
         </h1>
     </div>
