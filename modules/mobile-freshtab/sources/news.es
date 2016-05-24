@@ -271,7 +271,7 @@ var News = {
     if(DEPENDENCY_STATUS.retryCount[template] === undefined) {
       DEPENDENCY_STATUS.retryCount[template] = 0;
     }
-    if(!CliqzUtils.BRANDS_DATABASE.buttons || !CliqzHandlebars.tplCache[template] || CliqzUtils.getLocalizedString('freshtab_top_sites') === 'freshtab_top_sites') {
+    if(!CliqzUtils.BRANDS_DATABASE.buttons || !CliqzHandlebars.tplCache[template]) {
       return DEPENDENCY_STATUS.retryCount[template]++ < DEPENDENCY_STATUS.RETRY_LIMIT ? DEPENDENCY_STATUS.NOT_LOADED : DEPENDENCY_STATUS.GIVE_UP;
     }
     DEPENDENCY_STATUS.retryCount[template] = 0;

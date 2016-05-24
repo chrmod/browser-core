@@ -83,7 +83,7 @@ function displayFavorites(data) {
 }
 
 function displayData(data, isFavorite = false) {
-  if (!CliqzHandlebars.tplCache['conversations'] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
+  if (!CliqzHandlebars.tplCache['conversations']) {
     return setTimeout(displayData, 100, data);
   }
 
