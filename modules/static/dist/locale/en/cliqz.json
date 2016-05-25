@@ -752,6 +752,12 @@
     "cMenuRemoveFromBookmarksAndHistory": {
       "message": "Remove from Bookmarks and History"
     },
+    "cMenuRemoveFromHistoryAndCloseTab": {
+      "message": "Remove from History and close open tab"
+    },
+    "cMenuRemoveFromHistoryAndBookmarksAndCloseTab": {
+      "message": "Remove from Bookmarks and History and close open tab"
+    },
     "myQuery": {
         "message": "query"
     },
