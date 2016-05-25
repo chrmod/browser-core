@@ -174,6 +174,11 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
+    if (msg.data === "unload") {
+      stop();
+      return;
+    }
+
     if ( msg.data.url !== currentURL() &&
       // TEMP: Human web decodes the URI for internal storage
       (msg.data.action == "getHTML" && msg.data.url !== decodeURIComponent(currentURL()))) {
@@ -277,6 +282,13 @@ function onDOMWindowCreated(ev) {
   function stop() {
     stopListening("window-"+windowId, onCallback);
     stopListening("cliqz:core", onCore);
+    window.removeEventListener("message", onMessage);
+    window.removeEventListener("keypress", onKeyPress);
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mousedown", onMouseDown);
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("copy", onCopy);
+    window.removeEventListener("DOMContentLoaded", onReady);
   }
 
   function isDead() {
@@ -289,17 +301,7 @@ function onDOMWindowCreated(ev) {
     }
   }
 
-  window.addEventListener("unload", function () {
-    window.removeEventListener("message", onMessage);
-    window.removeEventListener("keypress", onKeyPress);
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mousedown", onMouseDown);
-    window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("copy", onCopy);
-    window.removeEventListener("DOMContentLoaded", onReady);
-    stop();
-  });
-
+  window.addEventListener("unload", stop);
 }
 
 var DocumentManager = {
@@ -328,3 +330,13 @@ var DocumentManager = {
 }
 
 DocumentManager.init();
+
+/**
+ * make sure to unload propertly
+ */
+startListening("cliqz:process-script", function ps(msg) {
+  if (msg.data === "unload") {
+    DocumentManager.uninit();
+    stopListening("cliqz:process-script", ps);
+  }
+});
