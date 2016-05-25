@@ -6,6 +6,11 @@ export default function (background) {
         bgEvents = background.events;
   let enabled;
 
+  // bind actions to background object
+  Object.keys(background.actions).forEach( action => {
+    background.actions[action] = background.actions[action].bind(background);
+  });
+
   background.init = function init() {
     enabled = background.enabled.apply(background, arguments);
 

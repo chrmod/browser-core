@@ -370,3 +370,13 @@ notification[type="warning"] .notification-inner {
         list-style-image: url("../images/browser/win/Toolbar@2x.png");
     }
 }
+
+vbox[sidebarcommand=historybroadcaster] {
+  #sidebar {
+    background-color: white;
+  }
+
+  sidebarheader {
+    display: none;
+  }
+}

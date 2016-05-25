@@ -351,3 +351,13 @@ notification[type="warning"] .messageText {
     font-weight: normal;
     color: black;
 }
+
+vbox[sidebarcommand=historybroadcaster] {
+  #sidebar {
+    background-color: white;
+  }
+
+  sidebarheader {
+    display: none;
+  }
+}
