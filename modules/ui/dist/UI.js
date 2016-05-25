@@ -1419,7 +1419,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         clearMessage('bottom');
                         UI.handleResults();
-                        if (user_location != "de" && !ignored_location_warning)
+                        if (user_location != "de" && user_location != "" && !ignored_location_warning)
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });
