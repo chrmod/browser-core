@@ -2,7 +2,7 @@
 
 {{#if list}}
 
-<div class="main noselect" style="margin-bottom: 20px;">
+<div class="main noselect">
   <table>
     <tr>
       {{#each list}}
