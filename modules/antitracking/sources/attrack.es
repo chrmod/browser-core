@@ -431,6 +431,13 @@ var CliqzAttrack = {
                                 }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             }
+
+                            // In case unsafe tokens were in the hostname, the URI is not valid
+                            // anymore and we can cancel the request.
+                            if (!tmp_url.startsWith(aChannel.URI.prePath)) {
+                                subject.cancel(Components.results.NS_BINDING_ABORTED);
+                            }
+
                             if (rule != 'same') {
                                 aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
                                 cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
