@@ -1601,13 +1601,10 @@ var CliqzAttrack = {
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
             // check flags for started request
             if(this.wplFlag['STATE_START'] & aFlag && this.wplFlag['STATE_IS_DOCUMENT'] & aFlag) {
-                var win = aWebProgress.DOMWindow;
                 if(aRequest) {
                     try {
-                        var aChannel = aRequest.QueryInterface(nsIHttpChannel);
-                        var url = '' + aChannel.URI.spec;
-                        var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-                        var windowID = util.outerWindowID;
+                        var url = '' + aRequest.URI.spec;
+                        var windowID = aWebProgress.DOMWindowID;
                         // add window -> url pair to tab cache.
                         this._tabsStatus[windowID] = url;
                         var _key = windowID + ":" + url;
@@ -1690,18 +1687,6 @@ var CliqzAttrack = {
                 }
             }
             return false;
-        },
-
-        // Return the set of open tabs by their windowIDs.
-        getActiveWindowIDs: function() {
-            var ids = Object.keys(this._tabsStatus);
-            // clean tab cache
-            for(let i=0; i<ids.length; i++) {
-                if(!this.isWindowActive(ids[i])) {
-                    delete this._tabsStatus[ids[i]];
-                }
-            }
-            return Object.keys(this._tabsStatus);
         }
     },
     /** Get info about trackers and blocking done in a specified tab.
