@@ -52,6 +52,7 @@ function displayTopSites (list, isEditMode = false) {
   CLIQZEnvironment.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
     const blockedTopSites = CLIQZEnvironment.getLocalStorage().getObject('blockedTopSites', []);
     CLIQZEnvironment.getLocalStorage().setObject('blockedTopSites', blockedTopSites.concat(tempBlockedTopSites));
+    tempBlockedTopSites = [];
     displayTopSites(topSitesList);
   });
 
@@ -241,30 +242,20 @@ var News = {
       return;
     }
 
-    osAPI.searchHistory('', 'News.getRecentHistory');
+    News.getNews();
 
-    let indexList = {}, myList = [], domain, domainArr, mainDomain, newsDomainList = [];
+    topSitesList = [];
+    let domain, domainArr, mainDomain;
     for(var i=0; i<list.length; i++) {
       domain = list[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
       domainArr = domain.split('.');
-      newsDomainList.push(domainArr[domainArr.length-2] + '.' + domainArr[domainArr.length-1]);
       mainDomain = domainArr[domainArr.length-2].substr(0, 10);
       mainDomain = mainDomain.charAt(0).toUpperCase() + mainDomain.slice(1);
       list[i].mainDomain = mainDomain;
-      indexList[mainDomain] = list[i];
+      topSitesList.push(list[i]);
     }
 
-    // kick out history based news
-    // News.getNews(newsDomainList);
-    News.getNews();
-
-    for(i in indexList) {
-      myList.push(indexList[i]);
-    }
-    list = myList;
-
-    topSitesList = list;
-    displayTopSites(list);
+    displayTopSites(topSitesList);
   },
   // wait for logos, templates, and locale to be loaded
   getDependencyStatus: function(template) {
