@@ -2,7 +2,6 @@ import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 
-var assert = require('assert')
 
 function log(s){
   utils.log(s, 'GOLDRUSH - ID');
@@ -129,8 +128,8 @@ function parseRuleString(ruleString, fidsMap) {
   var strTestExpr = replaceStrArgs(newStr, dummyValues);
   log('evaluating rule to see if it is possible: \n' + strTestExpr);
   try {
-    result = eval(strTestExpr);
-    log('evaluated and the result is: ' + result);
+    let tmpResult = eval(strTestExpr);
+    log('evaluated and the result is: ' + tmpResult);
   } catch(e) {
     log('error evaluating the test expression, error: ' + e);
     return null;
@@ -147,11 +146,18 @@ function parseRuleString(ruleString, fidsMap) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-export function IntentDetector(sessionTimeSecs = 30*60) {
+export function IntentDetector(clusterID, mappings, dbMaps, fidsMap) {
+  this.clusterID = clusterID;
+  this.mappings = mappings;
+  this.dbMap = dbMaps;
+  this.fidsMap = fidsMap;
+  this.originalRuleStr = '';
+  this.ruleData = null;
+};
 
-}
+IntentDetector.prototype.loadDataBases = function(event) {
 
-
+};
 
 
 

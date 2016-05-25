@@ -5,7 +5,7 @@ export default class {
     this.window = settings.window;
     this.settings = settings.settings;
 
-    document.style.border = '5px solid red';
+    //this.window.document.style.border = '5px solid red';
   }
 
   init() {
