@@ -160,7 +160,7 @@ export default {
       const urlToAdd = utils.stripTrailingSlash(url);
       //history returns most frequest 15 results, but we display up to 5
       //so we need to validate only against visible results
-      return this.actions.getVisibleDials().then((result) => {
+      return this.actions.getVisibleDials(5).then((result) => {
         const isDuplicate = result.some(function(dialup) {
           return urlToAdd === utils.stripTrailingSlash(dialup.url);
         });
