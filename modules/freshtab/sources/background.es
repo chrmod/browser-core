@@ -55,7 +55,7 @@ export default {
           historyDialups = [],
           customDialups = dialUps.custom ? dialUps.custom : [];
 
-      historyDialups = History.getTopUrls(5).then(function(results){
+      historyDialups = History.getTopUrls().then(function(results){
         utils.log("History", JSON.stringify(results));
         //hash history urls
         results = results.map(function(r) {
@@ -63,7 +63,8 @@ export default {
             title: r.title,
             url: r.url,
             hashedUrl: utils.hash(r.url),
-            total_count: r.total_count
+            total_count: r.total_count,
+            custom: false
           }
         });
 
@@ -140,15 +141,27 @@ export default {
 
       utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
     },
+
+    /**
+    * @return all visible speedDials
+    *
+    */
+    getVisibleDials(historyLimit) {
+      return this.actions.getSpeedDials().then((results) => {
+        return results.speedDials.filter(function(item, index) {
+          return (!item.custom && index < historyLimit) || item.custom;
+        });
+      })
+    },
     /**
      * @param String url
      */
     addSpeedDial(url) {
       const urlToAdd = utils.stripTrailingSlash(url);
-      //validate existing urls
-      return this.actions.getSpeedDials().then((result) => {
-        utils.log(result, "!!getSpeedDials")
-        const isDuplicate = result.speedDials.some(function(dialup) {
+      //history returns most frequest 15 results, but we display up to 5
+      //so we need to validate only against visible results
+      return this.actions.getVisibleDials().then((result) => {
+        const isDuplicate = result.some(function(dialup) {
           return urlToAdd === utils.stripTrailingSlash(dialup.url);
         });
 
