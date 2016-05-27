@@ -273,7 +273,7 @@ function onDOMWindowCreated(ev) {
     send({
       windowId: windowId,
       payload: {
-        module: "history",
+        module: "core",
         action: "recordMeta",
         args: [
           currentURL(),

@@ -1,4 +1,4 @@
-import { language, utils } from "core/cliqz";
+import { language, utils, events } from "core/cliqz";
 import config from "core/config";
 import ProcessScriptManager from "platform/process-script-manager";
 
@@ -92,7 +92,7 @@ export default {
   },
 
   dispatchMessage(msg) {
-    if (msg.data.requestId) {
+    if (typeof msg.data.requestId === "number") {
       if (msg.data.requestId in callbacks) {
         this.handleResponse(msg);
       }
@@ -141,6 +141,9 @@ export default {
         language.addLocale(url, lang);
       }
       return Promise.resolve();
+    },
+    recordMeta(url, meta) {
+      events.pub("core:url-meta", url, meta);
     }
   }
 };
