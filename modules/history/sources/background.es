@@ -34,7 +34,10 @@ export default background({
   events: {
     "ui:click-on-url": function (data) {
       this.actions.recordQuery(data.query, data.url);
-    }
+    },
+    "core:url-meta": function (url, meta) {
+      this.actions.recordMeta(url, meta);
+    },
   },
 
   actions: {
