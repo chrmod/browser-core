@@ -36,33 +36,40 @@ a:hover, a:active, a:focus {
 
 .multiline-ellipsis {
   overflow: hidden;
-  position: relative;
+  white-space: normal;
   line-height: 1.2em;
   max-height: 4.8em;
-  margin-right: -0.6em;
-  padding-right: 1em;
-  word-break: break-all;
 }
 
 .multiline-ellipsis:before {
-  content: '...';
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  background-color: #fff;
-  /*padding-left: -60px;*/
-  width: 1em;
-  height: 1.2em;
+  content: "";
+  float: left;
+  width: 5px;
+  height: 4.8em;
+  white-space: normal;
 }
 
 .multiline-ellipsis:after {
-  content: '';
-  position: absolute;
-  right: 0;
-  width: 1em;
-  height: 1em;
-  margin-top: 0.2em;
-  background: white;
+  white-space: normal;
+  content: "\02026";
+  float: right;
+  position: relative;
+  top: -1.3em;
+  left: 100%;
+  width: 21px;
+  margin-left: -20px;
+  padding-right: 4px;
+  text-align: right;
+  line-height: 1.3em;
+}
+
+.multiline-ellipsis > * {
+  float: right;
+  width: 100%;
+  margin: 0 0 0 -5px;
+  white-space: normal;
+  line-height: 1.2em;
+  margin-bottom: 0;
 }
 
 #freshTabPage a {
@@ -416,7 +423,8 @@ a:hover, a:active, a:focus {
 
 #freshTabPage #newsContainer div.title {
   text-decoration: none;
-  /*max-height: 90px;*/
+  max-height: 83px;
+  overflow: hidden;
 }
 
 #freshTabPage #newsContainer li .url {
