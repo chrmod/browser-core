@@ -127,15 +127,18 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 var tab_id = 0,
                     page_load;
 
-                beforeEach(function() {
+                beforeEach(function(done) {
                     testServer.registerPathHandler('/', function(req, res) {
                         res.write('<html><body><p>Hello world</p></body></html');
                     });
                     testServer.registerPathHandler('/privacy', function(req, res) {
                         res.write('<html><body><p>Hello private world</p></body></html');
                     });
-                    tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
-                    tabs.push(gBrowser.addTab("http://cliqztest.com:60508/privacy#saferWeb"));
+                    setTimeout(function() {
+                      tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
+                      tabs.push(gBrowser.addTab("http://cliqztest.com:60508/privacy#saferWeb"));
+                      done();
+                    }, 100);
                 });
 
                 it('should add tabs to _active', function(done) {
