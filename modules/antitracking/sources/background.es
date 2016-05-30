@@ -120,6 +120,7 @@ export default {
         delete msg.includeUnsafeCount
         let info = CliqzAttrack.getCurrentTabBlockingInfo();
         msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
+        msg.special = info.error !== undefined;
       }
       msg.type = 'antitracking';
       utils.telemetry(msg);

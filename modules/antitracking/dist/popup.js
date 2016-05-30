@@ -177,4 +177,3 @@ function expandPopUp (command) {
 }
 
 populateDOM();
-chrome.runtime.sendMessage({ functionName: "telemetry", args: { action: "click", target: "popup", includeUnsafeCount: true } });
