@@ -752,6 +752,12 @@
     "cMenuRemoveFromBookmarksAndHistory": {
       "message": "Aus Bookmarks und Lesezeichen entfernen"
     },
+    "cMenuRemoveFromHistoryAndCloseTab": {
+      "message": "Aus Chronik entfernen und offenen Tab schließen"
+    },
+    "cMenuRemoveFromHistoryAndBookmarksAndCloseTab": {
+      "message": "Aus Bookmarks und Chronik entfernen und offenen Tab schließen"
+    },
     "myQuery": {
         "message": "Suchbegriff"
     },

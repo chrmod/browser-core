@@ -356,7 +356,7 @@ var CLIQZEnvironment = {
 
         win.CLIQZ.Core.triggerLastQ = true;
         if(newTab) {
-            win.gBrowser.addTab(url);
+           return win.gBrowser.addTab(url);
         } else if(newWindow) {
             win.open(url, '_blank');
         } else if(newPrivateWindow) {

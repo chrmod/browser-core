@@ -662,5 +662,6 @@ function normalizeUrlBasedCount(topic_dict){
   return topic_dict;
 }
 
+export { news_domains as NEWS_DOMAINS };
 export default CliqzFreshTabNews;
 

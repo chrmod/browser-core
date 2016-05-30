@@ -1,6 +1,13 @@
 import Ember from 'ember';
 import DS from 'ember-data';
 
+function nextId() {
+  if(!nextId.id) {
+    nextId.id = 1;
+  }
+  return nextId.id++;
+}
+
 export default Ember.Service.extend({
   init() {
     this._super(...arguments);
@@ -18,9 +25,108 @@ export default Ember.Service.extend({
 
       if (message.type === "response") {
         const action = this.callbacks[message.action];
-        action && action.call(null, message.response);
+        const requestId = message.requestId;
+
+        if (requestId) {
+          action && action[requestId] && action[requestId].call(null, message.response);
+        } else {
+          action && action.call(null, message.response);
+        }
       }
     });
+  },
+
+  redoQuery(query) {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'core',
+      action: 'queryCliqz',
+      args: [
+        query
+      ]
+    }), '*');
+  },
+
+  selectTabAtIndex(index) {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'history',
+      action: 'selectTabAtIndex',
+      args: [
+        index
+      ]
+    }), '*');
+  },
+
+  openUrl(url) {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'history',
+      action: 'openUrl',
+      args: [
+        url
+      ]
+    }), '*');
+  },
+
+  getQueries() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getQueries = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'history',
+      action: 'getQueries',
+      args: [
+      ]
+    }), '*');
+
+    return DS.PromiseObject.create({ promise });
+  },
+
+  getQuery(query) {
+    let promise = new Promise( resolve => {
+      this.callbacks.getQuery = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'history',
+      action: 'getQuery',
+      args: [
+        query
+      ]
+    }), '*');
+
+    return DS.PromiseObject.create({ promise });
+  },
+
+  getHistory(params) {
+    const requestId = nextId();
+
+    let promise = new Promise( resolve => {
+      this.callbacks.getHistory = this.callbacks.getHistory || {};
+      this.callbacks.getHistory[requestId] = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      requestId,
+      target: 'cliqz',
+      module: 'history',
+      action: 'getHistory',
+      args: [ params ],
+    }), '*');
+
+    return DS.PromiseObject.create({ promise });
+  },
+
+  openNewTab() {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'history',
+      action: 'newTab'
+    }), '*');
   },
 
   getConfig() {
