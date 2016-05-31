@@ -82,11 +82,12 @@ var CliqzUtils = {
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   init: function(win){
+    var localePromise;
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
-        CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
-        CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
+        CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
+        localePromise = CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
 
     if(!brand_loaded){
@@ -114,6 +115,7 @@ var CliqzUtils = {
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
     CliqzUtils.log('Initialized', 'CliqzUtils');
+    return localePromise;
   },
 
   initPlatform: function(System) {
@@ -816,39 +818,37 @@ var CliqzUtils = {
   clearInterval: CLIQZEnvironment.clearTimeout,
   locale: {},
   currLocale: null,
-  loadLocale : function(lang_locale){
+  loadLocale: function (lang_locale) {
+    var promises = [];
     // The default language
     if (!CliqzUtils.locale.hasOwnProperty('default')) {
-        CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + 'de/cliqz.json',
-            function(req){
-                if(CliqzUtils) CliqzUtils.locale['default'] = JSON.parse(req.response);
-            });
+      promises.push(CliqzUtils.getLocaleFile('de', 'default'));
     }
     if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
-        CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + encodeURIComponent(lang_locale) + '/cliqz.json',
-            function(req) {
-                if(CliqzUtils){
-                  CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
-                  CliqzUtils.currLocale = lang_locale;
-                }
-            },
-            function() {
-                // We did not find the full locale (e.g. en-GB): let's try just the
-                // language!
-                var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
-                if(CliqzUtils){
-                  CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + loc + '/cliqz.json',
-                      function(req) {
-                        if(CliqzUtils){
-                          CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
-                          CliqzUtils.currLocale = lang_locale;
-                        }
-                      }
-                  );
-                }
-            }
-        );
+      promises.push(CliqzUtils.getLocaleFile(encodeURIComponent(lang_locale), lang_locale).catch(function() {
+        // We did not find the full locale (e.g. en-GB): let's try just the
+        // language!
+        var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
+        return CliqzUtils.getLocaleFile(loc, lang_locale);
+      }));
     }
+    return Promise.all(promises);
+  },
+  getLocaleFile: function (locale_path, locale_key) {
+    return new Promise (function (resolve, reject) {
+      CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + locale_path + '/cliqz.json',
+        function(req) {
+            if (CliqzUtils){
+              if (locale_key !== 'default') {
+                CliqzUtils.currLocale = locale_key;
+              }
+              CliqzUtils.locale[locale_key] = JSON.parse(req.response);
+              resolve();
+            } 
+        },
+        reject
+      );
+    });
   },
   getLanguageFromLocale: function(locale){
     return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];

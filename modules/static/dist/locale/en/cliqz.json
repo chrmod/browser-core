@@ -1028,6 +1028,9 @@
     "mobile_freshtab_edit_done": {
       "message": "Done"
     },
+    "mobile_freshtab_edit_cancel": {
+      "message": "Cancel"
+    },
     "mobile_freshtab_no_topsites": {
       "message": "You will see your topsites here."
     },
