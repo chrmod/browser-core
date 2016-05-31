@@ -1,4 +1,4 @@
-import { DB } from 'goldrush/dbs/db';
+aaimport { DB } from 'goldrush/dbs/db';
 import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';

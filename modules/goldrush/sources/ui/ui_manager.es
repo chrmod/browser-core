@@ -1,0 +1,70 @@
+import { utils } from 'core/cliqz';
+//import Reporter from 'goldrush/reporter';
+//import ResourceLoader from 'core/resource-loader';
+
+function log(s){
+  utils.log(s, 'GOLDRUSH - FID');
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+export function UIManager() {
+
+}
+
+// TODO_QUESTION: check how is the best way to implement all those methods.
+
+
+// TODO: we should add here all the methods to get the callbacks and to track the
+// information (like mouse over / ticket clicked / etc)
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief configure callbacks
+// @param
+//
+UIManager.prototype.configureCallbacks = function(show) {
+  // TODO: configure all the callbacks and also set the internal callbacks of
+  //       the popup, that will re-call all the internal callbacks as well.
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief add a coupon to the list of the pop up
+// @param couponInfo is the coupon object containing the information of it.
+//
+UIManager.prototype.addCoupon = function(couponInfo) {
+  // TODO: this method should show a particular coupon in in the popup.
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief change the state of a coupon in the list (used / not used)
+// @param couponID the coupon we want to modify
+//
+UIManager.prototype.changeCouponState = function(couponID, newState) {
+  // TODO:
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief remove a coupon from the list
+// @param couponID
+//
+UIManager.prototype.removeCoupon = function(couponID) {
+  // TODO: remove coupon from the list
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief show / hide the popup to the user
+// @param show if true => will show, if false => hide
+//
+UIManager.prototype.showPopup = function(show) {
+  // TODO: show / hide the popup
+};
+
+
+
+

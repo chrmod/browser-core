@@ -2,7 +2,7 @@ import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 
-var assert = require('assert');
+const assert = require('assert');
 
 
 function log(s){
@@ -11,22 +11,124 @@ function log(s){
 
 
 ////////////////////////////////////////////////////////////////////////////////
-export function IntentInput(sessionTimeSecs = 30*60) {
-  // internal structures to be filled in with user events
-  this. buyAction = [];
-  this.sessions = [];
-  this.rawActivity = [];
-  this.currentSessionsEvents = [];
-  this.currentBuyAction = [];
-  // helper variables
-  this.currentEventID = 0;
-  this.currentSessionID = 0;
-  this.lastBuyEventIndex = -1;
-  // seconds between sessions?
+// buy intent session
+function BuyIntentSession(id, sessionTimeSecs) {
+  this.id = id;
   this.sessionTimeSecs = sessionTimeSecs;
+  this.rawEvents = [];
+  this.sessions = [];
+  this.currentSession = [];
+  this.visitedDomainsIDs = new Set();
+  this.checkoutEvents = [];
+}
+
+BuyIntentSession.prototype.ID = function() {
+  return this.id;
+}
+
+BuyIntentSession.prototype.startedTimestamp = function() {
+  return this.rawEvents.length == 0 ? -1 : this.rawEvents[this.rawEvents.length - 1];
+}
+
+BuyIntentSession.prototype.totalNumOfEvents = function() {
+  return this.rawEvents.length;
+}
+
+BuyIntentSession.prototype.numOfSessions = function() {
+  return this.sessions.length + (this.currentSession.length > 0 ? 1 : 0);
+}
+
+BuyIntentSession.prototype.numOfDifferentDomains = function() {
+  return this.visitedDomainsIDs.size();
+}
+
+BuyIntentSession.prototype.currentSession = function() {
+  return this.currentSession;
+}
+
+BuyIntentSession.prototype.sessionList = function() {
+  return this.sessions;
+}
+
+BuyIntentSession.prototype.lastEvent = function() {
+  return (this.rawEvents.length == 0) ? null : this.rawEvents[this.rawEvents.length-1];
+}
+
+BuyIntentSession.prototype.firstIntentEvent = function() {
+  return this.rawEvents.length == 0 ? null : this.rawEvents[0];
+}
+
+BuyIntentSession.prototype.firstCurrSessionEvent = function() {
+  return this.currentSession.length == 0 ? null : this.currentSession[this.currentSession.length - 1];
+}
+
+BuyIntentSession.prototype.checkTimestampIsInCurrSession = function(ts) {
+  if (this.currentSession.length == 0) {
+    return true;
+  }
+  let firstEventInSession = this.firstCurrSessionEvent();
+  let difftime = ts - firstEventInSession.ts;
+  return difftime > this.sessionTimeSecs;
+}
+
+BuyIntentSession.prototype.thereWasACheckout = function() {
+  return this.checkoutEvents.length > 0;
+}
+
+BuyIntentSession.prototype.lastCheckoutEvent = function() {
+  return this.checkoutEvents.length == 0 ? null : this.checkoutEvents[this.checkoutEvents.length - 1];
+}
+
+BuyIntentSession.prototype.checkoutEvents = function() {
+  return this.checkoutEvents;
+}
+
+BuyIntentSession.prototype.addEvent = function(event) {
+  let isCheckoutEvent = event.checkout_flag;
+  let domID = event.dom_id;
+  let currTimestamp = event.ts;
+
+  this.visitedDomainsIDs.add(domID);
+  this.rawEvents.push(event);
+
+  if (!this.checkTimestampIsInCurrSession(currTimestamp)) {
+    this.sessions.push(this.currentSession);
+    this.currentSession = [];
+  }
+
+  this.currentSession.push(event);
+  if (isCheckoutEvent) {
+    this.checkoutEvents.push(event);
+  }
+
+}
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
+  this.sessionTimeSecs = sessionTimeSecs;
+  this.buyIntentTimeSecs = buyIntentThresholdSecs;
+
+  this.buyIntentIDCount = 0;
+
+  this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeSecs);
+  this.BuyIntentSessions = [];
   // needed for filtering
   this.isNewEvent = true;
+  this.lastTimestamp = -1.;
+
 };
+
+IntentInput.prototype.thereIsNewEvent = function() {
+  return this.isNewEvent;
+}
 
 //
 // @brief This method should be called whenever we got a new event or when we
@@ -52,52 +154,42 @@ IntentInput.prototype.feedWithEvent = function(event) {
   assert(event['referrer_url'] !== undefined);
   assert(event['extra'] !== undefined);
 
-  event['id'] = this.currentEventID++;
-  this.rawActivity.push(event);
+  // reset the flag
   this.isNewEvent = true;
 
-  if (this.currentSessionsEvents.length === 0) {
-    // we just need to add this and return
-    this.currentSessionsEvents.push(event);
-    return;
-  }
-
-  // check if there is a new session or still in the last
-  assert(this.rawActivity.length >= 2);
-  let lastEvent = this.rawActivity[this.rawActivity.length - 2];
-  let timeDiff = event['ts'] - lastEvent['ts'];
-  assert(timeDiff >= 0);
-  if (timeDiff === 0) {
-    // skip this one? duplicated, cannot be...
+  // check if we should track the event or not
+  let currTimestamp = event.ts;
+  let timeDiff = currTimestamp - this.lastTimestamp;
+  if (timeDiff == 0.) {
     this.isNewEvent = false;
     return;
   }
 
-  // check if the user bought
-  if (event.checkout_flag) {
-    this.lastBuyEventIndex = event.id;
+  this.lastTimestamp = currTimestamp;
+
+  // now we need to check if we need to add a new buy intent session or not
+  let beginBuyIntentTime = this.currBuyIntent.startedTimestamp();
+  let beginBuyIntentTime = (beginBuyIntentTime >= 0) ? beginBuyIntentTime : currTimestamp;
+  let buyIntentDuration = currTimestamp - beginBuyIntentTime;
+
+  // check now if we need to start a new buy intent:
+  // this will happen if:
+  // 1) this event is a new session and the last session has event bought flag
+  // or
+  // 2) the buyIntentDuration > threshold
+  let isNewBuyIntentSession = buyIntentDuration > this.buyIntentTimeSecs;
+  let isNewBuyIntentSession = isNewBuyIntentSession || (this.currBuyIntent.thereWasACheckout() &&
+                          this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
+
+  if (isNewBuyIntentSession) {
+    // then we need to create a new one and replace the last one
+    this.buyIntentSessions.push(this.currBuyIntent);
+    this.buyIntentIDCount++;
+    this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeSecs);
   }
 
-  if (timeDiff >= this.sessionTimeSecs) {
-    // it is a new session
-    this.sessions.push(this.currentSessionsEvents);
-    this.currentBuyAction.push(this.currentSessionsEvents);
-
-    // check if the we have to buy in the last session
-    let sessionEvtBegIndex = this.currentEventID - this.currentSessionsEvents.length + 1;
-    if (this.lastBuyEventIndex >= sessionEvtBegIndex) {
-      // we buy in this session, so we need to add this and clear the lists
-      this.buyAction.push(this.currentBuyAction);
-      this.currentBuyAction = [];
-    }
-    this.currentSessionsEvents = [];
-    this.currentSessionID += 1;
-    this.currentSessionsEvents.push(event);
-    return;
-  }
-
-  // this is an old session
-  this.currentSessionsEvents.push(event);
+  // now we just push the event there and thats all
+  this.currBuyIntent.addEvent(newEvent);
 
 };
 

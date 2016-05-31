@@ -4,6 +4,7 @@ import {DateTimeDB} from 'goldrush/dbs/datetime_db';
 import ResourceLoader from 'core/resource-loader';
 import {CliqzPopupButton} from 'goldrush/ui/popup-button';
 //import {OfferFetcher} from 'goldrush/offer_fetcher';
+import {OfferManager} from 'goldrush/offer_manager';
 
 function log(s){
   utils.log(s, 'GOLDRUSH');
@@ -92,6 +93,7 @@ export default {
      // TODO: remove this test
     log('test testHttpRequest');
     testHttpRequest();
+    let offerManager = new OfferManager();
 
     this.reporter.start();
     events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );

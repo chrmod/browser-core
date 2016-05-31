@@ -155,9 +155,24 @@ export function IntentDetector(clusterID, mappings, dbMaps, fidsMap) {
   this.ruleData = null;
 };
 
-IntentDetector.prototype.loadDataBases = function(event) {
-
+//
+// @brief load the databases from a raw db file (json)
+//
+IntentDetector.prototype.loadDataBases = function(rawDatabase) {
+  // TODO
 };
 
+//
+// @brief load and parse the rule
+//
+IntentDetector.prototype.loadRule = function(ruleString) {
+  // TODO
+};
 
+//
+// @brief evaluateInput
+//
+IntentDetector.prototype.evaluateInput = function(intentInput, mappings) {
+  // TODO
+};
 

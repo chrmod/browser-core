@@ -71,9 +71,10 @@ export function OfferFetcher(backendAddr, mappings = null) {
 //
 // @brief get a list of available coupons for a particular domain.
 // @param domainName  The domain name to check to (without .de or anything)
-// @returns a list of coupons structure (check )
+// @param callback    The callback to be called on success if we could get vouchers
+// @returns a list of coupons structure on the callback
 //
-OfferFetcher.prototype.checkForCoupons = function(domainName) {
+OfferFetcher.prototype.checkForCoupons = function(domainName, callback) {
   assert(this.beAddr.length > 0);
   assert(this.mappings !== null);
 
@@ -100,6 +101,13 @@ OfferFetcher.prototype.checkForCoupons = function(domainName) {
   CliqzUtils.httpGet(destURL, function success(resp) {
       vouchers = parseHttpResponse(resp.response);
       log('voucher received: ' + vouchers);
+
+      // TODO: here we need to call a callback here so we can notify that the
+      //       results are ready
+      if (callback) {
+        callback(vouchers);
+      }
+
     }, function error(resp) {
       // TODO: will be gut if we can track this information
       // TODO_QUESTION: how do we can track this information and report it back?
@@ -117,16 +125,47 @@ OfferFetcher.prototype.checkForCoupons = function(domainName) {
 // @param couponID the coupon we want to mark as used
 //
 OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
-  // TODO
+  let argNames = ['coupon_id'];
+  let argValues = [couponID];
+  let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
+  log('marking a coupon as used: ' + destURL);
+
+  CliqzUtils.httpGet(destURL, function success(resp) {
+      // nothing to do
+      log('coupon ' + String(couponID) + ' marked as used');
+    }, function error(resp) {
+      // TODO: will be gut if we can track this information
+      log('error marking a coupon as used: ' + destURL);
+    }
+  );
+
 };
 
 //
 // @brief Check if a coupon is already used or not.
-// @param couponID the coupon id to check
+// @param couponsID the coupons ids to check (a list)
+// @param callback the callback to be called on success after we check if a coupon
+//                 is used or not (return <couponID, value> where value = t§rue if used
+//                 or false otherwise)
 // @return true if it used or false otherwise
 //
-OfferFetcher.prototype.isCouponUsed = function(couponID) {
-  // TODO
+OfferFetcher.prototype.isCouponUsed = function(couponsID, callback) {
+  let argNames = ['coupon_id'];
+  for (let i = 0; i < couponsID.length; ++i) {
+    let argValues = [couponID];
+    let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
+    log('checking coupon status: ' + destURL);
+
+    CliqzUtils.httpGet(destURL, function success(resp) {
+        // TODO: parse the resp && construct the result pair here to call the callback.
+        let result = true;
+        callback && callback(result);
+      }, function error(resp) {
+        // TODO: will be gut if we can track this information
+        log('error checking coupon status');
+      }
+    );
+  }
 };
 
 

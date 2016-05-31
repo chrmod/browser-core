@@ -9,12 +9,20 @@
   Also how to track this events
 - ask how we can get an event when a form is sent (or when a submit button is pressed)
   so we can get a callback (to check if the coupon code is used or not)
+- how is better to implement the popup (we need to show the user the coupons and)
+  (the users should be able to open the pop up with a list of already shown coupons).
+- how to test and debug? show the current way I'm doing it and see if there is a faster
+  or better way to do it.
+
 
 TO TOMAS:
 - how we can store the information in redis using the following formatting (the
   one defined below: grouped by clusters id and then by domains...) There will be
   collisions if we use just cid as key? or for each entity we have our own redis "context".?
 
+
+TODOS:
+- remove the logs everywhere we don't need
 
 
 # Backend API
