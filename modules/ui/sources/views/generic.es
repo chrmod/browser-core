@@ -42,11 +42,11 @@ export default class GenericView extends localData {
         'path': 'partials/ez-generic-buttons'
       },
       'local-data-sc': {
-        'space-count': 4,
+        'space-count': 2,
         'path': 'partials/location/local-data'
       },
       'missing_location_1': {
-        'space-count': 3,
+        'space-count': 2,
         'path': 'partials/location/missing_location_1'
       }
     }
@@ -55,13 +55,22 @@ export default class GenericView extends localData {
     if (data.urls && data.urls.length > 5) {
       partialsBank['history']['space-count'] = 6;
     }
-
+	
+	// Remove the history if there is local result
     if(data.partials.indexOf('local-data-sc') != -1) {
       var historyIndex = data.partials.indexOf('history');
       if (historyIndex != -1) {
         data.partials.splice(historyIndex, 1);
       }
     }
+	
+	// Remove buttons at the bottom if we're asking for permission
+    if(data.partials.indexOf('missing_location_1') != -1) {
+        var btnsIndex = data.partials.indexOf('buttons');
+        if (btnsIndex != -1) {
+          data.partials.splice(btnsIndex, 1);
+        }
+	}
 
     for (var ii = 0; ii < data.partials.length; ii++) {
       var prName = data.partials[ii];
@@ -92,7 +101,14 @@ export default class GenericView extends localData {
       };
       partialDescr = 'description-m';
     }
+	
+	//Use 1-line description if there is local result
+    if(data.partials.indexOf('local-data-sc') != -1) {
+		partialDescr = 'description';
 
+        data.genericZone.class += ' cqz-local-data-holder';
+	}
+	
     data.genericZone.partials = partialsPath;
 
     //Push the description classes

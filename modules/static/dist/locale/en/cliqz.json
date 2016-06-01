@@ -863,6 +863,9 @@
     "show_local_results": {
       "message": "No, show me local info"
     },
+    "local_result_vertical_title": {
+      "message": "NEAR BY"
+    },
     "extended_forecast": {
         "message": "Extended Forecast"
     },

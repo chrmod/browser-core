@@ -863,6 +863,9 @@
     "show_local_results": {
       "message": "Nein, zeige mir lokale Informationen."
     },
+    "local_result_vertical_title": {
+      "message": "IN DEINER NÄHE"
+    },
     "extended_forecast": {
         "message": "Detailiertere Vorhersage"
     },
