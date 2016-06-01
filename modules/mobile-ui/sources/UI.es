@@ -31,7 +31,7 @@ var UI = {
     CARD_WIDTH: 0,
     nCardsPerPage: 1,
     nPages: 1,
-    init: function(){
+    init: function () {
         //check if loading is done
         if(!CliqzHandlebars.tplCache.main)return;
         var box = document.getElementById('results');
@@ -40,11 +40,11 @@ var UI = {
         resultsBox = document.getElementById('cliqz-results', box);
         resultsBox.addEventListener('click', resultClick);
     },
-    setDimensions: function() {
+    setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
       UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
-    results: function(r){
+    results: function (r) {
 
       setMobileBasedUrls(r);
       
@@ -98,7 +98,7 @@ var UI = {
         return currentResults;
     },
     VIEWS: {},
-    initViewpager: function() {
+    initViewpager: function () {
         var views = {},
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
@@ -118,7 +118,7 @@ var UI = {
 
           onPageChange : function (page) {
             page = Math.abs(page);
-            if(page === CLIQZEnvironment.currentPage || !isSearch()) return;
+            if(page === CLIQZEnvironment.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
 
@@ -140,10 +140,10 @@ var UI = {
           }
         });
     },
-    hideResultsBox: function() {
+    hideResultsBox: function () {
           resultsBox.style.display = 'none';
     },
-    updateSearchCard: function(engine) {
+    updateSearchCard: function (engine) {
       var engineDiv = document.getElementById('defaultEngine');
       if(engineDiv && CliqzAutocomplete.lastSearch) {
         engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
@@ -153,14 +153,14 @@ var UI = {
         noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
       }
     },
-    startProgressBar: function() {
+    startProgressBar: function () {
       if(progressBarInterval) {
         clearInterval(progressBarInterval);
       }
       var multiplier = parseInt(Math.ceil(window.innerWidth/100)),
       progress = document.getElementById('progress'),
       i = 0;
-      progressBarInterval = setInterval(function() {
+      progressBarInterval = setInterval(function () {
         i++;
         progress.style.width = (i*multiplier)+'px';
       },20);
@@ -168,11 +168,14 @@ var UI = {
       setTimeout(UI.stopProgressBar,4000);
     },
 
-    stopProgressBar: function() {
+    stopProgressBar: function () {
       if(progressBarInterval) {
         clearInterval(progressBarInterval);
       }
       document.getElementById('progress').style.width = '0px';
+    },
+    isSearch: function () {
+      return resultsBox && resultsBox.style.display === 'block';
     }
 };
 
@@ -189,7 +192,7 @@ function loadAsyncResult(res, query) {
       CliqzUtils.log(r,"LOADINGASYNC");
       CliqzUtils.log(query,"loadAsyncResult");
       var loop_count = 0;
-      var async_callback = function(req) {
+      var async_callback = function (req) {
           CliqzUtils.log(query,"async_callback");
           var resp = null;
           try {
@@ -204,7 +207,7 @@ function loadAsyncResult(res, query) {
             if ("__callback_url__" in resp.data) {
                 // If the result is again a promise, retry.
                 if (loop_count < 10 /*smartCliqzMaxAttempts*/) {
-                  setTimeout(function() {
+                  setTimeout(function () {
                     loop_count += 1;
                     CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                   }, 100 /*smartCliqzWaitTime*/);
@@ -225,7 +228,7 @@ function loadAsyncResult(res, query) {
 
               if(resultsBox && CliqzAutocomplete.lastSearch == query) {
                   // Remove all existing extra results
-                  currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
+                  currentResults.results = currentResults.results.filter(function (r) { return r.type != "cliqz-extra"; } );
                   // add the current one on top of the list
                   currentResults.results.unshift(r);
 
@@ -256,14 +259,14 @@ function loadAsyncResult(res, query) {
 }
 
 
-function assessAsync(getAsync){
-    return function(result){
+function assessAsync(getAsync) {
+    return function (result) {
         var isAsync = result.type == "cliqz-extra" && result.data && "__callback_url__" in result.data ;
         return getAsync ? isAsync : !isAsync;
     }
 }
 
-function redrawDropdown(newHTML){
+function redrawDropdown(newHTML) {
     resultsBox.style.display = 'block';
 
     resultsBox.innerHTML = newHTML;
@@ -273,7 +276,7 @@ function getVertical(dataTemplate) {
   return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic'
 }
 
-function enhanceResults(results){
+function enhanceResults(results) {
     for(var i=0; i<results.length; i++) {
         var r = results[i];
         r.type = r.style;
@@ -300,10 +303,10 @@ function enhanceResults(results){
 
 
     }
-    var filteredResults = results.filter(function(r){ return !(r.data && r.data.adult); });
+    var filteredResults = results.filter(function (r) { return !(r.data && r.data.adult); });
 
     // if there no results after adult filter - show no results entry
-    if(filteredResults.length == 0){
+    if(filteredResults.length == 0) {
       filteredResults.push(CliqzUtils.getNoResults());
       filteredResults[0].vertical = 'noResult';
     }
@@ -312,7 +315,7 @@ function enhanceResults(results){
 }
 
 // debug message are at the end of the title like this: "title (debug)!"
-function getDebugMsg(fullTitle){
+function getDebugMsg(fullTitle) {
     // regex matches two parts:
     // 1) the title, can be anything ([\s\S] is more inclusive than '.' as it includes newline)
     // followed by:
@@ -343,7 +346,7 @@ function enhanceSpecificResult(r) {
     }
 
     if(r.data.news) {
-      r.data.news.forEach(function(article) {
+      r.data.news.forEach(function (article) {
         var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
         logoDetails = CliqzUtils.getLogoDetails(urlDetails);
         article.logo = logoDetails;
@@ -353,7 +356,7 @@ function enhanceSpecificResult(r) {
 
 function crossTransform (element, x) {
   var platforms = ['', '-webkit-', '-ms-'];
-  platforms.forEach(function(platform) {
+  platforms.forEach(function (platform) {
     element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
   });
 }
@@ -379,12 +382,12 @@ function setCardsHeight() {
   }
 }
 
-function getResultKind(el){
+function getResultKind(el) {
     return getResultOrChildAttr(el, 'kind').split(';');
 }
 
 // bubbles up maximum to the result container
-function getResultOrChildAttr(el, attr){
+function getResultOrChildAttr(el, attr) {
   if(el == null) return '';
   if(el.className == FRAME) return el.getAttribute(attr) || '';
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
@@ -487,13 +490,9 @@ function setMobileBasedUrls(o) {
   }
 }  
 
-function isSearch() {
-  return resultsBox && resultsBox.style.display === 'block';
-};
-
 var resizeTimeout;
 window.addEventListener('resize', function () {
-  if (!isSearch()) return;
+  if (!UI.isSearch()) return;
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function () {
     const lastnCardsPerPage = UI.nCardsPerPage;
@@ -516,12 +515,12 @@ window.addEventListener('resize', function () {
 
 });
 
-window.addEventListener('disconnected', function() {
+window.addEventListener('disconnected', function () {
   var elem = document.getElementById("reconnecting");
   elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
 });
 
-window.addEventListener('connected', function() {
+window.addEventListener('connected', function () {
   var elem = document.getElementById("reconnecting");
   elem && (elem.innerHTML = '');
 });
@@ -535,7 +534,7 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
     if (module) {
       UI.VIEWS[templateName] = new module.default(window);
 
-      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click) {
         Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
           UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
         });
