@@ -14,7 +14,7 @@ import { readFile } from 'core/fs';
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
 function log(s){
-	utils.log(s, 'GOLDRUSH');
+	utils.log(s, 'GOLDRUSH - Reporter');
 }
 
 export default class {

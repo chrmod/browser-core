@@ -4,10 +4,10 @@ import {DateTimeDB} from 'goldrush/dbs/datetime_db';
 import ResourceLoader from 'core/resource-loader';
 import {CliqzPopupButton} from 'goldrush/ui/popup-button';
 //import {OfferFetcher} from 'goldrush/offer_fetcher';
-import {OfferManager} from 'goldrush/offer_manager';
+// import {OfferManager} from 'goldrush/offer_manager';
 
 function log(s){
-  utils.log(s, 'GOLDRUSH');
+  utils.log(s, 'GOLDRUSH - background');
 }
 
 
@@ -27,7 +27,7 @@ function parseHttpResponse(httpResp) {
 }
 
 function testHttpRequest() {
-  let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&' + 'q=' + 'amazon.de';
+  let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&' + 'q=' + 'get|cluster_id=0';
 
   // perform the call and wait for the response
   log('we will hit the endpoint: ' + destURL);
@@ -116,7 +116,7 @@ export default {
     executePromiseAll();
     log('test testHttpRequest');
     testHttpRequest();
-    let offerManager = new OfferManager();
+    // let offerManager = new OfferManager();
 
     this.reporter.start();
     events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
