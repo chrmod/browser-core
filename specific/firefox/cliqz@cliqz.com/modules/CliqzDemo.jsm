@@ -97,15 +97,22 @@ function _dropdownHiddenListener() {
 	}
 }
 
+var initialized = false;
 
 var CliqzDemo = {
 	init: function (win) {
+    if(CliqzUtils.getPref("cliqz_core_disabled", false)) return;
+
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);
 		win.CLIQZ.Core.popup.
 			addEventListener("popuphidden", _dropdownHiddenListener, false);
 		_createFakeCursor(win);
+
+    initialized = true;
 	},
 	unload: function (win) {
+    if(!initialized) return;
+
 		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);
 		win.CLIQZ.Core.popup.
 			removeEventListener("popuphidden", _dropdownHiddenListener, false);
