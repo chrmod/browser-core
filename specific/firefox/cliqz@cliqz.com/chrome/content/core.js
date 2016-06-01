@@ -429,12 +429,13 @@ window.CLIQZ.Core = {
 
         //feedback and FAQ
         menupopup.appendChild(this.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnFeedbackFaq'), feedback_FAQ, 'feedback'));
+
+      if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(this.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnTipsTricks'), function(){
           CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-      if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(this.createSearchOptions(doc));
         menupopup.appendChild(this.createAdultFilterOptions(doc));
         menupopup.appendChild(this.createLocationPermOptions(win));
@@ -624,7 +625,7 @@ window.CLIQZ.Core = {
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
-            win.this.init();
+            win.CLIQZ.Core.init();
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
         CLIQZ.Core.refreshButtons();
