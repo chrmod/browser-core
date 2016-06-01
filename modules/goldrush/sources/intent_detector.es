@@ -153,7 +153,7 @@ export function IntentDetector(clusterID, mappings = null, dbMaps = null, fidsMa
   this.fidsMap = fidsMap;
   this.originalRuleStr = '';
   this.ruleData = null;
-};
+}
 
 //
 // @brief load the databases from a raw db file (json)
@@ -196,8 +196,8 @@ IntentDetector.prototype.loadRule = function(ruleString) {
   this.ruleData = parseRuleString(ruleString, this.fidsMap);
 
   if (this.ruleData === null) {
-    log('Something happened when parsing the rule: ' + ruleString +\
-        '\nfor IntentDetector with cluster: ' + this.clusterID);
+    log('Something happened when parsing the rule: ' + ruleString +
+        '\n for IntentDetector with cluster: ' + this.clusterID);
     return false;
   }
 
