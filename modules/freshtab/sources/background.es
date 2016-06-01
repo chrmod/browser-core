@@ -17,12 +17,22 @@ const isWithinNDaysAfterInstallation = function(days) {
   return getInstallationDate() + ONE_DAY * days > Date.now();
 }
 
+/**
+* @namespace freshtab
+* @class Background
+*/
+
 export default {
+  /**
+  * @method init
+  */
   init(settings) {
     utils.bindObjectFunctions(this.actions, this);
     FreshTab.startup(settings.freshTabABtest, settings.freshTabButton, settings.cliqzOnboarding, settings.channel);
   },
-
+  /**
+  * @method unload
+  */
   unload() {
     News.unload();
     FreshTab.shutdown();
@@ -52,7 +62,10 @@ export default {
     _isBrowser() {
       return FreshTab.isBrowser;
     },
-
+    /**
+    * Get history based & user defined speedDials
+    * @method getSpeedDials
+    */
     getSpeedDials() {
       var dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : [],
           historyDialups = [],
@@ -118,12 +131,10 @@ export default {
     },
 
     /**
-    * @param Object item
-    * {
-    *   custom: true,
-    *   url: https://www.cliqz.com
-    *  }
-    */
+     * Remove a speedDial
+     * @method removeSpeedDial
+     * @param {item}  The item to be removed.
+     */
     removeSpeedDial(item) {
       var isCustom = item.custom,
           url = isCustom ? item.url : utils.hash(item.url),
@@ -147,7 +158,6 @@ export default {
 
     /**
     * @return all visible speedDials
-    *
     */
     getVisibleDials(historyLimit) {
       return this.actions.getSpeedDials().then((results) => {
@@ -157,8 +167,10 @@ export default {
       })
     },
     /**
-     * @param String url
-     */
+    * Add a new speedDial to be appeared in the 2nd row
+    * @method addSpeedDial
+    * @param url {string}
+    */
     addSpeedDial(url) {
       const urlToAdd = utils.stripTrailingSlash(url);
       //history returns most frequest 15 results, but we display up to 5
@@ -198,6 +210,10 @@ export default {
       }).catch(reason => ({ error: true, reason }));
     },
 
+    /**
+    * Get list with top & personalized news
+    * @method getNews
+    */
     getNews() {
 
       return News.getNews().then(function(news) {
@@ -230,7 +246,10 @@ export default {
       });
 
     },
-
+    /**
+    * Get configuration regarding locale, onBoarding and browser
+    * @method getConfig
+    */
     getConfig() {
       var self = this;
 
@@ -243,7 +262,9 @@ export default {
       };
       return Promise.resolve(config);
     },
-
+    /**
+    * @method takeFullTour
+    */
     takeFullTour() {
       var onboardingWindow = utils.getWindow().CLIQZ.System.get("onboarding/window").default;
       new onboardingWindow({settings: {}, window: utils.getWindow()}).fullTour();
@@ -256,7 +277,10 @@ export default {
         "version": 1.0
       });
     },
-
+    /**
+    * revert back to old "new tab"
+    * @method revertBack
+    */
     revertBack() {
       FreshTab.toggleState();
       utils.getWindow().CLIQZ.Core.refreshButtons();

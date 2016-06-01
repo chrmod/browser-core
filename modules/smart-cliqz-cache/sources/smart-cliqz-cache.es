@@ -9,12 +9,16 @@ const CUSTOM_DATA_CACHE_FILE = CUSTOM_DATA_CACHE_FOLDER + '/smartcliqz-custom-da
 const MAX_ITEMS = 5;
 
 /*
- * This module caches SmartCliqz results in the extension. It
- * also customizes news SmartCliqz by re-ordering categories and
- * links based on the user's browsing history.
- *
+ * @namespace smart-cliqz-cache
  */
 export default class {
+  /**
+  * This module caches SmartCliqz results in the extension. It
+  * also customizes news SmartCliqz by re-ordering categories and
+  * links based on the user's browsing history.
+  * @class SmartCliqzCache
+  * @constructor
+  */
   constructor() {
     this._smartCliqzCache = new Cache();
     // re-customize after an hour
@@ -35,7 +39,11 @@ export default class {
     this._log('init: initialized');
   }
 
-  // stores SmartCliqz if newer than chached version
+  /*
+  * stores SmartCliqz if newer than chached version
+  * @method store
+  * @param smartCliqz
+  */
   store(smartCliqz) {
     const url = this.getUrl(smartCliqz);
 
@@ -54,7 +62,10 @@ export default class {
       this._log('store: error while customizing data: ' + e);
     }
   }
-
+  /**
+  * @method fetchAndStore
+  * @param id
+  */
   fetchAndStore(url) {
     if (this._fetchLock.hasOwnProperty(url)) {
       this._log('fetchAndStore: fetching already in progress for ' + url);
@@ -82,8 +93,12 @@ export default class {
     });
   }
 
-  // returns SmartCliqz from cache (false if not found);
-  // customizes SmartCliqz if news or domain supported, and user preference is set
+  /**
+  * customizes SmartCliqz if news or domain supported, and user preference is set
+  * @method retrieve
+  * @param id
+  * @returns SmartCliqz from cache (false if not found)
+  */
   retrieve(url) {
     const smartCliqz = this._smartCliqzCache.retrieve(url);
 
@@ -98,7 +113,11 @@ export default class {
     return smartCliqz;
   }
 
-  // extracts domain from SmartCliqz
+  /**
+  * extracts domain from SmartCliqz
+  * @method getDomain
+  * @param smartCliqz
+  */
   getDomain(smartCliqz) {
     // TODO: define one place to store domain
     if (smartCliqz.data.domain) {
@@ -110,27 +129,45 @@ export default class {
     }
   }
 
-  // extracts id from SmartCliqz
+  /**
+  * extracts id from SmartCliqz
+  * @method getId
+  * @param smartCliqz
+  */
   getId(smartCliqz) {
     return smartCliqz.data.__subType__.id;
   }
 
-  // extracts URL from SmartCliqz
+  /**
+  * extracts URL from SmartCliqz
+  * @method getUrl
+  * @param smartCliqz
+  */
   getUrl(smartCliqz) {
     return utils.generalizeUrl(smartCliqz.val, true);
   }
 
-  // extracts timestamp from SmartCliqz
+  /**
+  * extracts timestamp from SmartCliqz
+  * @method getTimestamp
+  * @param smartCliqz
+  */
   getTimestamp(smartCliqz) {
     return smartCliqz.data.ts;
   }
-
-  // returns true this is a news SmartCliqz
+  /**
+  * @method isNews
+  * @param smartCliqz
+  * returns true this is a news SmartCliqz
+  */
   isNews(smartCliqz) {
     return (typeof smartCliqz.data.news !== 'undefined');
   }
 
-  // returns true if the user enabled customization
+  /**
+  * @method isCustomizationEnabled
+  * @returns true if the user enabled customization
+  */
   isCustomizationEnabled() {
     try {
       const isEnabled = utils.getPref('enableSmartCliqzCustomization', undefined);

@@ -7,9 +7,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 const REFRESH_RETRIES = 2;
 
-// DNS Filter for unblocking YT videos
 export default class {
-
+  /**
+  * DNS Filter for unblocking YT videos
+  * @class Youtube
+  * @namespace unblock
+  * @constructor
+  */
   constructor() {
     this.current_region = '';
     this.video_info = {};
@@ -26,10 +30,22 @@ export default class {
     this.initialized = false;
   }
 
+  /**
+  * @method canFilter
+  * @param url {string}
+  */
   canFilter(url) {
     return url.indexOf("https://www.youtube.com") > -1;
   }
 
+  /**
+  * @method init
+  * @param proxy_manager
+  * @param proxy_service
+  * @param request_listener
+  * @param on_block_cb
+  * @param notification_cb
+  */
   init(proxy_manager, proxy_service, request_listener, on_block_cb, notification_cb) {
     var self = this;
     this.proxy_manager = proxy_manager;
@@ -58,15 +74,25 @@ export default class {
     this.initialized = true;
   }
 
+  /**
+  * @method unload
+  */
   unload() {
     this._loader.stop();
   }
 
+  /**
+  * @method refresh
+  */
   refresh() {
     // reset internal caches
     this.video_info = {};
   }
 
+  /**
+  * @method updateProxyRule
+  * @param vid {Number} Video id
+  */
   updateProxyRule(vid) {
     var block_info = this.video_info[vid];
     let regex = this.getURLRegex(vid);
@@ -87,10 +113,18 @@ export default class {
     }
   }
 
+  /**
+  * @method getURLRegex
+  * @param vid {Number} Video id
+  */
   getURLRegex(vid) {
     return new RegExp("^https://www.youtube.com/watch\\?.*v="+vid);
   }
 
+  /**
+  * @method pageObserver
+  * @param doc
+  */
   pageObserver(url) {
     var vid = this.getVideoID(url),
       proxied = this.video_info[vid] && this.video_info[vid].proxy_region,
@@ -187,6 +221,11 @@ export default class {
     }
   }
 
+  /**
+  * @method checkLoadError
+  * @param url {string}
+  * @param t
+  */
   checkLoadError(url, t) {
     // see if error message is visible
     core.queryHTML(url, '.ytp-error', 'offsetParent').then((offsetParent) => {
@@ -215,7 +254,10 @@ export default class {
       }
     });
   }
-
+  /**
+  * @method getVideoID
+  * @param url {string}
+  */
   getVideoID(url) {
     let url_parts = CliqzUtils.getDetailsFromUrl(url),
       query = getParametersQS(url_parts.query);
@@ -227,6 +269,10 @@ export default class {
     }
   }
 
+  /**
+  * @method isVideoBlocked
+  * @param doc
+  */
   isVideoBlocked(url) {
     // check for block message
     return new Promise( (resolve, reject) => {
@@ -239,7 +285,10 @@ export default class {
       });
     });
   }
-
+  /**
+  * @method shouldProxy
+  * @param url {string}
+  */
   shouldProxy(url) {
     if (url.indexOf("https://www.youtube.com/watch") == -1) {
       return false;
@@ -305,6 +354,9 @@ export default class {
   }
 
   /** Adapted from getCDByURL on CliqzHumanWeb. Finds the tab(s) which have this video in them, and refreshes.
+   * @method refreshPageForVideo
+   * @param vid {Number} Video id
+   * @param retry_count {Number} Number of retries
    */
   refreshPageForVideo(vid, retry_count) {
     var enumerator = Services.wm.getEnumerator('navigator:browser'),

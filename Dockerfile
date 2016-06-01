@@ -3,7 +3,8 @@ FROM node:5.11.1
 RUN npm install -g \
   bower \
   broccoli-cli \
-  ember-cli
+  ember-cli \
+  yuidocjs
 
 RUN apt-get update && \
   apt-get install -y \
