@@ -92,7 +92,7 @@ export default {
   },
 
   dispatchMessage(msg) {
-    if (msg.data.requestId) {
+    if (typeof msg.data.requestId === "number") {
       if (msg.data.requestId in callbacks) {
         this.handleResponse(msg);
       }
