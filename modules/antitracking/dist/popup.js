@@ -1,4 +1,4 @@
- var attPopUp = document.querySelector(".cqz-antitracking-popup"),
+var attPopUp = document.querySelector(".cqz-antitracking-popup"),
     enableButton = document.querySelector("#cqz-antrc-power-btn"),
     whitelistButton = document.querySelector("#cqz-whitelist-btn"),
     privacyScore = document.querySelector(".cqz-dog-score-holder"),
@@ -82,12 +82,14 @@ function populateDOM() {
     var general_msg_trnsl = document.querySelector(".cqz-general-trackers-msg");
     var general_trackers_count = data.cookiesCount + data.requestsCount;
     var have_bad_trackers_bool = general_trackers_count > 0;
-    var have_any_trackers_bool = Object.keys(data.trakersList.trackers).length > 0;
+    var have_any_trackers_bool = Object.keys(data.trakersList.trackers).length > 0 || 0;
 
     // Whatch Dog SCORE and LINK
-    var wdScore = Math.round(data.ps.score / 20);
-    privacyScore.classList.add("cqz-score-" + wdScore);
-    privacyScoreLink.setAttribute("href",privacyScoreLink.getAttribute("href") + hostname);
+    if(data.ps && data.ps.score ) {
+      var wdScore = Math.round(data.ps.score / 20);
+      privacyScore.classList.add("cqz-score-" + wdScore);
+      privacyScoreLink.setAttribute("href",privacyScoreLink.getAttribute("href") + hostname);
+    }
 
     //Display Trackers list
     var counterTrackers = 0;
@@ -172,6 +174,7 @@ function populateDOM() {
       have_bad_trackers: have_bad_trackers_bool,
       have_trackers: have_any_trackers_bool
     });
+
 
     localizeDocument();
   });
