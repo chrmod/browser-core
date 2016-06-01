@@ -156,6 +156,8 @@ export function OfferManager() {
   // load the clusters and create the
   let clusterFilesMap = getClustersFilesMap();
 
+  // TODO: we should use Promise here to ensure sync of the mappings being loaded
+  //       before creating any other thing (since they deppends of this mappings).
   //
 }
 
@@ -283,6 +285,8 @@ OfferManager.prototype.detectCouponField = function(url) {
   // 2) modify a button form field to link a callback so we can get the event?
   // 3) read the content of the post request or the form fields when the button is
   //    pressed?
+  // IMPORTANT how we can read the content of the html???? document.?
+
 
   // TODO: this method will check a map: url_domain -> url_regex
   //       to check if we are on the site where each url_domain has associated a
