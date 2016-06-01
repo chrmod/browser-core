@@ -161,7 +161,7 @@ export function IntentDetector(clusterID, mappings = null, dbMaps = null, fidsMa
 //
 IntentDetector.prototype.loadDataBases = function(rawDatabase) {
   if (this.dbMap === null) {
-    log('no databases map found!');
+    log('no databases map found! for IntentDetector: ' + this.clusterID);
     return false;
   }
   for (var dbName in rawDatabase) {
@@ -175,6 +175,7 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
     db.loadFromDict(rawDatabase[dbName]);
   }
 
+  log('databases loaded for intent detector of cluster ' + this.clusterID);
 
   return true;
 };
@@ -183,13 +184,70 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
 // @brief load and parse the rule
 //
 IntentDetector.prototype.loadRule = function(ruleString) {
-  // TODO
+  if (this.fidsMap === null) {
+    log('no fids map found for IntentDetector: ' + this.clusterID);
+    return false;
+  }
+  if (!ruleString || ruleString.length === 0) {
+    log('we cannot load an empty rule for IntentDetector: ' + this.clusterID);
+    return false;
+  }
+  this.originalRuleStr = ruleString;
+  this.ruleData = parseRuleString(ruleString, this.fidsMap);
+
+  if (this.ruleData === null) {
+    log('Something happened when parsing the rule: ' + ruleString +\
+        '\nfor IntentDetector with cluster: ' + this.clusterID);
+    return false;
+  }
+
+  for (var fidName in this.fidsMap) {
+    if (!this.fidsMap.hasOwnProperty(fidName)) {
+      continue;
+    }
+    let fid = this.fidsMap[fidName];
+    fid.configureDataBases(this.dbMap);
+  }
+
+  return true;
 };
 
 //
 // @brief evaluateInput
 //
 IntentDetector.prototype.evaluateInput = function(intentInput, mappings) {
-  // TODO
+  if (this.ruleData === null) {
+    log('cannot evaluate we have a null rule data: ' + this.clusterID);
+    return 0;
+  }
+  var resultValues = [];
+  var exps = this.rulesData['fids_to_calculate'];
+  var extras = {'mappings' : this.mappings};
+
+  for (var ex in exps) {
+    if (!exps.hasOwnProperty(ex)) {
+      // TODO: mark an error here...?
+      continue;
+    }
+    let exName = ex[0];
+    let argsMap = ex[1];
+    let fid = this.fidsMap[exName];
+    if (fid === undefined) {
+      log('this cannot happen, we dont have the fid with name ' + exName);
+      continue;
+    }
+    fid.configureArgs(argsMap);
+    let rvalue = fid.evaluate(intentInput, extras);
+    resultValues.push(rvalue);
+  }
+  let strToEvaluate = replaceStrArgs(this.ruleData['new_rule_string'] , resultValues);
+  let result = eval(strToEvaluate);
+  if (typeof(result) !== 'number') {
+    log('the eval method of the rule ' + this.originalRuleStr + ' is not a number?: ' + result);
+    return 0;
+  }
+
+  // else alles gut
+  return result;
 };
 
