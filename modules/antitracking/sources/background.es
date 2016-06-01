@@ -1,5 +1,7 @@
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
+import {PrivacyScore} from 'antitracking/privacy-score';
+import md5 from 'antitracking/md5';
 import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { utils, events } from 'core/cliqz';
 
@@ -66,7 +68,12 @@ export default {
 
   popupActions: {
     getPopupData(args, cb) {
-      var info = CliqzAttrack.getCurrentTabBlockingInfo();
+
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+          ps = info.ps;
+      // var ps = PrivacyScore.get(md5(info.hostname).substring(0, 16)  'site');
+
+      // ps.getPrivacyScore();
 
       cb({
         url: info.hostname,
@@ -75,7 +82,8 @@ export default {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
-        trakersList: info
+        trakersList: info,
+        ps: ps
       });
     },
 
