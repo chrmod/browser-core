@@ -508,7 +508,6 @@ function composeList(responsesList, historyCache){
     query.endTimeReference = query.TIME_RELATIVE_NOW;
     query.endTime = 0; // now
     query.uri = CliqzHistoryManager.makeURI(url);
-    query.uriIsPrefix = true;
 
     var options = CliqzHistoryManager.getHistoryService().getNewQueryOptions();
     var result = CliqzHistoryManager.getHistoryService().executeQuery(query, options);
