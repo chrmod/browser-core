@@ -49,7 +49,22 @@ function testHttpRequest() {
   return vouchers;
 }
 
-
+function executePromiseAll() {
+  var counter = 0;
+  var p1 = new Promise(function(resolve, reject) {
+    log('counter p1 executing');
+    counter++;
+    resolve(3);
+  });
+  var p2 = new Promise(function(resolve, reject) {
+    log('counter p2 executing');
+    counter++;
+    resolve(4);
+  });
+  Promise.all([p1,p2]).then(function(values) {
+    log('values of promise: ' + values + ' and value of counter: ' + counter);
+  });
+}
 
 // TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 //////////////////////////////////////////////////////////////////////////////
@@ -65,14 +80,21 @@ export default {
     this.db = new DateTimeDB();
     log('DateTimeDB: ' + this.db.databaseName());
 
+  // TODO remove all this temporary code
     this.loader = new ResourceLoader(
-      [ 'goldrush', 'food_delivery.dbinfo' ],
+      [ 'goldrush', 'clusters', 'food_delivery.dbinfo' ],
       {}
     );
 
+    log('reading food_delivery');
+    let foodDelivery = this.loader.load();
     this.loader.load().then( categories => {
       this.db.loadFromDict(categories);
+      log('done reading food_delivery');
+      log(categories);
     });
+    log('after reading food_delivery ' + foodDelivery);
+    log(foodDelivery);
 
     // load the popup button
     utils.bindObjectFunctions(this.popupActions, this);
@@ -91,6 +113,7 @@ export default {
     this.reporter = new Reporter(0);
 
      // TODO: remove this test
+    executePromiseAll();
     log('test testHttpRequest');
     testHttpRequest();
     let offerManager = new OfferManager();

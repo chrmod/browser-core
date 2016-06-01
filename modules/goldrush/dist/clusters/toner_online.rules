@@ -1,0 +1,1 @@
+{topHour_topN=1} and {topDomain_topN=1} and {topDay_topN=1} and {currTime_deltaTimeSecs=10} and {sessionLength_deltaTimeSecs=10} and {entryPoint_topN=1}

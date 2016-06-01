@@ -4,7 +4,7 @@ import { utils } from 'core/cliqz';
 
 
 function log(s){
-  utils.log(s, 'GOLDRUSH - ID');
+  utils.log(s, 'GOLDRUSH - INTENT DETECTOR');
 }
 
 
@@ -146,7 +146,7 @@ function parseRuleString(ruleString, fidsMap) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-export function IntentDetector(clusterID, mappings, dbMaps, fidsMap) {
+export function IntentDetector(clusterID, mappings = null, dbMaps = null, fidsMap = null) {
   this.clusterID = clusterID;
   this.mappings = mappings;
   this.dbMap = dbMaps;
@@ -157,9 +157,26 @@ export function IntentDetector(clusterID, mappings, dbMaps, fidsMap) {
 
 //
 // @brief load the databases from a raw db file (json)
+// @returns true on success | false otherwise
 //
 IntentDetector.prototype.loadDataBases = function(rawDatabase) {
-  // TODO
+  if (this.dbMap === null) {
+    log('no databases map found!');
+    return false;
+  }
+  for (var dbName in rawDatabase) {
+    if (!this.dbMap.hasOwnProperty(dbName)) {
+      log('we couldnt find the database with name ' + dbName + ' in the map');
+      false;
+    }
+
+    // initialize all the databases
+    let db = this.dbMap[dbName];
+    db.loadFromDict(rawDatabase[dbName]);
+  }
+
+
+  return true;
 };
 
 //

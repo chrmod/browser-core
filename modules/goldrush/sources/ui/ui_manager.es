@@ -3,7 +3,7 @@ import { utils } from 'core/cliqz';
 //import ResourceLoader from 'core/resource-loader';
 
 function log(s){
-  utils.log(s, 'GOLDRUSH - FID');
+  utils.log(s, 'GOLDRUSH - UI MANAGER');
 }
 
 

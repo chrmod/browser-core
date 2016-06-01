@@ -151,6 +151,9 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
 //
 OfferFetcher.prototype.isCouponUsed = function(couponsID, callback) {
   let argNames = ['coupon_id'];
+
+  // TODO_QUESTION: how we can do this better?
+  //
   for (let i = 0; i < couponsID.length; ++i) {
     let argValues = [couponID];
     let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);

@@ -13,6 +13,7 @@
   (the users should be able to open the pop up with a list of already shown coupons).
 - how to test and debug? show the current way I'm doing it and see if there is a faster
   or better way to do it.
+- how to run synchronous resource loading
 
 
 TO TOMAS:

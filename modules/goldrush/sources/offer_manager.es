@@ -1,4 +1,6 @@
 import { utils } from 'core/cliqz';
+import {IntentDetector} from 'goldrush/intent_detector';
+import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
 
 
@@ -49,7 +51,38 @@ function getClustersFilesMap() {
   // }
   //
   // for now we will hardcode this.
-
+  return result = {
+    'car_parts' : {
+      'domains_file' : 'car_parts.cluster',
+      'db_file' : 'car_parts.dbinfo',
+      'patterns_file' : 'car_parts.patterns',
+      'rules_file' : 'car_parts.rules'
+    },
+    'food_delivery' : {
+      'domains_file' : 'food_delivery.cluster',
+      'db_file' : 'food_delivery.dbinfo',
+      'patterns_file' : 'food_delivery.patterns',
+      'rules_file' : 'food_delivery.rules'
+    },
+    'online_tickets' : {
+      'domains_file' : 'online_tickets.cluster',
+      'db_file' : 'online_tickets.dbinfo',
+      'patterns_file' : 'online_tickets.patterns',
+      'rules_file' : 'online_tickets.rules'
+    },
+    'toner_online' : {
+      'domains_file' : 'toner_online.cluster',
+      'db_file' : 'toner_online.dbinfo',
+      'patterns_file' : 'toner_online.patterns',
+      'rules_file' : 'toner_online.rules'
+    },
+    'travel' : {
+      'domains_file' : 'travel.cluster',
+      'db_file' : 'travel.dbinfo',
+      'patterns_file' : 'travel.patterns',
+      'rules_file' : 'travel.rules'
+    }
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +91,16 @@ function getClustersFilesMap() {
 //
 function generateFidsMap(fidsNamesList) {
   // TODO: return the map fid_name -> fid instance
+  var result = {};
+  for (var fidName in fidsNamesList) {
+    switch (fidName) {
+      case 'name1':
+        //result[fidName] = new FidType();
+        break;
+    }
+  }
+
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +109,31 @@ function generateFidsMap(fidsNamesList) {
 //
 function generateDBMap(dbsNamesList) {
   // TODO:
+  var result = {};
+  for (var dbName in dbsNamesList) {
+    switch (dbName) {
+      case 'name1':
+        //result[dbName] = new DBType1();
+        break;
+    }
+  }
+
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief this method will extract the db names we have in the file and
+//        will return them in a set
+function getDBsNamesFromJSON(json) {
+  var result = new Set();
+  for (var k in json) {
+    if (!json.hasOwnProperty(k)) {
+      continue;
+    }
+    result.add(json[k]);
+  }
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +144,10 @@ function generateDBMap(dbsNamesList) {
 export function OfferManager() {
   // the mappings we will use
   this.mappings = null;
+  // the intent detectors mapping (clusterID -> intent detector)
+  this.intentDetectorsMap = {};
+  // the intent input maps (clusterID -> intentInput)
+  this.intentInputMap = {};
   // the cluster information
 
 
@@ -84,18 +156,106 @@ export function OfferManager() {
   // load the clusters and create the
   let clusterFilesMap = getClustersFilesMap();
 
+  //
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//                        "PRIVATE" METHODS
+////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief this method will generate the intent detection system with the current
 //        data we have. It will load all the intent detector and also generate
 //        the map from cluster_id -> intent_detector.
+//        we will also generate the cluster_id -> intentInput
 //
-OfferManager.prototype.generateIntentsDetector = function() {
-  // TODO
+OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
+  check(this.mappings != null, 'mappings is not properly initialized');
+
+  // TODO: read the values from the config maybe? for the following variables
+  var sessionThresholdTimeSecs = 30*60;
+  var buyIntentThresholdSecs = 60*60*24*10; // 10 days? TODO: change this with a proper value
+
+  for (var clusterName in clusterFilesMap) {
+    // get the given cluster ID from the name.
+    let clusterID = this.mappings['cname_to_cid'][clusterName];
+    check(clusterID >= 0, 'cluster with name ' + clusterName + ' was not found?, we should');
+
+    if (!clusterFilesMap.hasOwnProperty(clusterName)) {
+      // ???
+      log('we dont have the cluster with name: ' + clusterName + ' in the map?');
+      continue;
+    }
+
+    // generate the intent input
+    this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
+
+    // we need to build the current cluster system.
+    let dbFilePath = clusterFilesMap[clusterName]['db_file'];
+    let rulesFilePath = clusterFilesMap[clusterName]['rules_file'];
+
+    check(dbFilePath != undefined, 'dbFilePath is undefined?');
+    check(rulesFilePath != undefined, 'rulesFilePath is undefined?');
+
+    // we need to read the db file and the rule file and then we are able
+    // to fully build the intentDetector for this particular cluster.
+
+    var dbFilePromise = new Promise(function(resolve, reject) {
+      // read the resource
+      let rscLoader = new ResourceLoader(['goldrush/clusters', dbFilePath], {});
+      rscLoader.load().then(json => {resolve(json)});
+    });
+    var rulesFilePromise = new Promise(function(resolve, reject) {
+      // read the resource
+      let rscLoader = new ResourceLoader(['goldrush/clusters', rulesFilePath], {});
+      rscLoader.load().then(str => {resolve(str)});
+    })
+
+    // get all the data and then construct the intent detector and push it into
+    // the map
+    Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
+      // we need now to build the intent detector
+      let dbsJson = results[0];
+      let dbsNames = getDBsNamesFromJSON(dbsJson);
+      let dbInstancesMap = generateDBMap(dbsNames);
+
+      // get the rules information
+      let rulesStr = results[1];
+      for (let i = 0; i < rulesStr.length; ++i) {
+        if (rulesStr[i] == '\n') {
+          rulesStr[i] = ' ';
+        }
+      }
+      // TODO: here we may want to get the FIDS names, but for now we will get
+      // a map for all the fids and then we can remove the objects (nasty because)
+      // we allocate them and then we remove it...
+      let rulesNames = new Set();
+      let rulesInstancesMap = generateFidsMap(rulesNames);
+
+      let intentDetector =  new IntentDetector(clusterID, this.mappings, dbInstancesMap, rulesInstancesMap);
+
+      // try to load everything now
+      try {
+        intentDetector.loadDataBases(dbsJson);
+        intentDetector.loadRule(rulesStr);
+        this.intentDetectorsMap[clusterID] = intentDetector;
+      } catch (e) {
+        log('something happened when configuring the intent detector for cluster ' + clusterName);
+        log('error: ' + e);
+      }
+    }, function(errMsg) {
+      log('Some error happened when reading and parsing the files for the cluster ' + clusterName);
+      log('error: ' + errMsg);
+    })
+  }
 };
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                          PUBLIC INTERFACE
+////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 //
