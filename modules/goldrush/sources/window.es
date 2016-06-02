@@ -9,7 +9,8 @@ export default class {
   }
 
   init() {
-    background.start();
+    debugger;
+    background.test();
   }
 
   unload() {

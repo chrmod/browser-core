@@ -17,23 +17,27 @@ function check(expression, message) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-function parseMappingsFile(filename, varToSet) {
-  let rscLoader = new ResourceLoader(
-    [ 'goldrush', filename ],
-    {}
-  );
+function parseMappingsFileAsPromise(filename, varToSet=null) {
+  return new Promise(function(resolve, reject) {
+    let rscLoader = new ResourceLoader(
+      [ 'goldrush', filename ],
+      {}
+    );
 
-  rscLoader.load().then(json => {
-    // now we parse the data and return this
-    log(json);
-    check(json['cid_to_cname'] !== undefined, 'cid_to_cname not defined');
-    check(json['cname_to_cid'] !== undefined, 'cname_to_cid not defined');
-    check(json['did_to_dname'] !== undefined, 'did_to_dname not defined');
-    check(json['dname_to_did'] !== undefined, 'dname_to_did not defined');
-    check(json['dname_to_cid'] !== undefined, 'dname_to_cid not defined');
+    rscLoader.load().then(json => {
+      // now we parse the data and return this
+      log(json);
+      check(json['cid_to_cname'] !== undefined, 'cid_to_cname not defined');
+      check(json['cname_to_cid'] !== undefined, 'cname_to_cid not defined');
+      check(json['did_to_dname'] !== undefined, 'did_to_dname not defined');
+      check(json['dname_to_did'] !== undefined, 'dname_to_did not defined');
+      check(json['dname_to_cid'] !== undefined, 'dname_to_cid not defined');
 
-    varToSet = json;
+      // varToSet = json;
+      resolve(json)
+    });
   });
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,11 +155,16 @@ export function OfferManager() {
   this.intentInputMap = {};
   // the cluster information
 
-
-  parseMappingsFile('mappings.json', this.mappings);
-
-  // load the clusters and create the
-  let clusterFilesMap = getClustersFilesMap();
+  // let promise = new Promise(function(resolve, reject) {
+  //   log('parseMappingsFile');
+  //   parseMappingsFile('mappings.json', this.mappings);
+  //   resolve(0);
+  // });
+  // promise.then(function(values) {
+  //   log('load the clusters and create the');
+  //   var clusterFilesMap = getClustersFilesMap();
+  // });
+  // this.clusterFilesMap = clusterFilesMap;
 
   // TODO: we should use Promise here to ensure sync of the mappings being loaded
   //       before creating any other thing (since they deppends of this mappings).
@@ -293,6 +302,11 @@ OfferManager.prototype.detectCouponField = function(url) {
   //       to check if we are on the site where each url_domain has associated a
   //       coupon (active ones).
 };
+
+OfferManager.prototype.parseMappingsFileAsPromise = function(filename) {
+  return parseMappingsFileAsPromise(filename);
+};
+
 
 
 

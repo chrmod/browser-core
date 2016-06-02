@@ -116,16 +116,23 @@ export default {
     executePromiseAll();
     log('test testHttpRequest');
     testHttpRequest();
-    // let offerManager = new OfferManager();
-    let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&'
-    let offerFetcher = new OfferFetcher(destURL);
-    log("offerFetcher created");
 
     this.reporter.start();
     events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
     log('show the popup');
     this.popup.showPopUp();
 
+    return;
+  },
+
+  test() {
+    let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
+    let offerManager = new OfferManager();
+    offerManager.parseMappingsFileAsPromise('mappings.json').then(function(values) {
+      let offerFetcher = new OfferFetcher(destURL, values);
+      log(offerFetcher.beAddr);
+      log(offerFetcher.mappings);
+    });
     return;
   },
 
