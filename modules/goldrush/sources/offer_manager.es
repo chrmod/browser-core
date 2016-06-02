@@ -1,12 +1,12 @@
 import { utils } from 'core/cliqz';
 import {IntentDetector} from 'goldrush/intent_detector';
-import {IntentInput} from 'goldrush/intent_input';
+// import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
 
 
 function log(s){
   utils.log(s, 'GOLDRUSH - OFFER MANAGER');
-};
+}
 
 // TODO: remove this and the usage of this method
 //
@@ -51,6 +51,7 @@ function getClustersFilesMap() {
   // }
   //
   // for now we will hardcode this.
+  var result = {};
   return result = {
     'car_parts' : {
       'domains_file' : 'car_parts.cluster',
@@ -172,86 +173,86 @@ export function OfferManager() {
 //        the map from cluster_id -> intent_detector.
 //        we will also generate the cluster_id -> intentInput
 //
-OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
-  check(this.mappings != null, 'mappings is not properly initialized');
+// OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
+//   check(this.mappings != null, 'mappings is not properly initialized');
 
-  // TODO: read the values from the config maybe? for the following variables
-  var sessionThresholdTimeSecs = 30*60;
-  var buyIntentThresholdSecs = 60*60*24*10; // 10 days? TODO: change this with a proper value
+//   // TODO: read the values from the config maybe? for the following variables
+//   var sessionThresholdTimeSecs = 30*60;
+//   var buyIntentThresholdSecs = 60*60*24*10; // 10 days? TODO: change this with a proper value
 
-  for (var clusterName in clusterFilesMap) {
-    // get the given cluster ID from the name.
-    let clusterID = this.mappings['cname_to_cid'][clusterName];
-    check(clusterID >= 0, 'cluster with name ' + clusterName + ' was not found?, we should');
+//   for (var clusterName in clusterFilesMap) {
+//     // get the given cluster ID from the name.
+//     let clusterID = this.mappings['cname_to_cid'][clusterName];
+//     check(clusterID >= 0, 'cluster with name ' + clusterName + ' was not found?, we should');
 
-    if (!clusterFilesMap.hasOwnProperty(clusterName)) {
-      // ???
-      log('we dont have the cluster with name: ' + clusterName + ' in the map?');
-      continue;
-    }
+//     if (!clusterFilesMap.hasOwnProperty(clusterName)) {
+//       // ???
+//       log('we dont have the cluster with name: ' + clusterName + ' in the map?');
+//       continue;
+//     }
 
-    // generate the intent input
-    this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
+//     // generate the intent input
+//     this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
 
-    // we need to build the current cluster system.
-    let dbFilePath = clusterFilesMap[clusterName]['db_file'];
-    let rulesFilePath = clusterFilesMap[clusterName]['rules_file'];
+//     // we need to build the current cluster system.
+//     let dbFilePath = clusterFilesMap[clusterName]['db_file'];
+//     let rulesFilePath = clusterFilesMap[clusterName]['rules_file'];
 
-    check(dbFilePath != undefined, 'dbFilePath is undefined?');
-    check(rulesFilePath != undefined, 'rulesFilePath is undefined?');
+//     check(dbFilePath !== undefined, 'dbFilePath is undefined?');
+//     check(rulesFilePath !== undefined, 'rulesFilePath is undefined?');
 
-    // we need to read the db file and the rule file and then we are able
-    // to fully build the intentDetector for this particular cluster.
+//     // we need to read the db file and the rule file and then we are able
+//     // to fully build the intentDetector for this particular cluster.
 
-    var dbFilePromise = new Promise(function(resolve, reject) {
-      // read the resource
-      let rscLoader = new ResourceLoader(['goldrush/clusters', dbFilePath], {});
-      rscLoader.load().then(json => {resolve(json)});
-    });
-    var rulesFilePromise = new Promise(function(resolve, reject) {
-      // read the resource
-      let rscLoader = new ResourceLoader(['goldrush/clusters', rulesFilePath], {});
-      rscLoader.load().then(str => {resolve(str)});
-    })
+//     var dbFilePromise = new Promise(function(resolve, reject) {
+//       // read the resource
+//       let rscLoader = new ResourceLoader(['goldrush/clusters', dbFilePath], {});
+//       rscLoader.load().then(json => {resolve(json);});
+//     });
+//     var rulesFilePromise = new Promise(function(resolve, reject) {
+//       // read the resource
+//       let rscLoader = new ResourceLoader(['goldrush/clusters', rulesFilePath], {});
+//       rscLoader.load().then(str => {resolve(str);});
+//     });
 
-    // get all the data and then construct the intent detector and push it into
-    // the map
-    Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
-      // we need now to build the intent detector
-      let dbsJson = results[0];
-      let dbsNames = getDBsNamesFromJSON(dbsJson);
-      let dbInstancesMap = generateDBMap(dbsNames);
+//     // get all the data and then construct the intent detector and push it into
+//     // the map
+//     Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
+//       // we need now to build the intent detector
+//       let dbsJson = results[0];
+//       let dbsNames = getDBsNamesFromJSON(dbsJson);
+//       let dbInstancesMap = generateDBMap(dbsNames);
 
-      // get the rules information
-      let rulesStr = results[1];
-      for (let i = 0; i < rulesStr.length; ++i) {
-        if (rulesStr[i] == '\n') {
-          rulesStr[i] = ' ';
-        }
-      }
-      // TODO: here we may want to get the FIDS names, but for now we will get
-      // a map for all the fids and then we can remove the objects (nasty because)
-      // we allocate them and then we remove it...
-      let rulesNames = new Set();
-      let rulesInstancesMap = generateFidsMap(rulesNames);
+//       // get the rules information
+//       let rulesStr = results[1];
+//       for (let i = 0; i < rulesStr.length; ++i) {
+//         if (rulesStr[i] === '\n') {
+//           rulesStr[i] = ' ';
+//         }
+//       }
+//       // TODO: here we may want to get the FIDS names, but for now we will get
+//       // a map for all the fids and then we can remove the objects (nasty because)
+//       // we allocate them and then we remove it...
+//       let rulesNames = new Set();
+//       let rulesInstancesMap = generateFidsMap(rulesNames);
 
-      let intentDetector =  new IntentDetector(clusterID, this.mappings, dbInstancesMap, rulesInstancesMap);
+//       let intentDetector =  new IntentDetector(clusterID, this.mappings, dbInstancesMap, rulesInstancesMap);
 
-      // try to load everything now
-      try {
-        intentDetector.loadDataBases(dbsJson);
-        intentDetector.loadRule(rulesStr);
-        this.intentDetectorsMap[clusterID] = intentDetector;
-      } catch (e) {
-        log('something happened when configuring the intent detector for cluster ' + clusterName);
-        log('error: ' + e);
-      }
-    }, function(errMsg) {
-      log('Some error happened when reading and parsing the files for the cluster ' + clusterName);
-      log('error: ' + errMsg);
-    })
-  }
-};
+//       // try to load everything now
+//       try {
+//         intentDetector.loadDataBases(dbsJson);
+//         intentDetector.loadRule(rulesStr);
+//         this.intentDetectorsMap[clusterID] = intentDetector;
+//       } catch (e) {
+//         log('something happened when configuring the intent detector for cluster ' + clusterName);
+//         log('error: ' + e);
+//       }
+//     }, function(errMsg) {
+//       log('Some error happened when reading and parsing the files for the cluster ' + clusterName);
+//       log('error: ' + errMsg);
+//     });
+//   }
+// };
 
 
 

@@ -4,7 +4,7 @@ import {DateTimeDB} from 'goldrush/dbs/datetime_db';
 import ResourceLoader from 'core/resource-loader';
 import {CliqzPopupButton} from 'goldrush/ui/popup-button';
 import {OfferFetcher} from 'goldrush/offer_fetcher';
-// import {OfferManager} from 'goldrush/offer_manager';
+import {OfferManager} from 'goldrush/offer_manager';
 
 function log(s){
   utils.log(s, 'GOLDRUSH - background');
@@ -117,8 +117,9 @@ export default {
     log('test testHttpRequest');
     testHttpRequest();
     // let offerManager = new OfferManager();
-
-    // let offerFetcher = new OfferFetcher("");
+    let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&'
+    let offerFetcher = new OfferFetcher(destURL);
+    log("offerFetcher created");
 
     this.reporter.start();
     events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
