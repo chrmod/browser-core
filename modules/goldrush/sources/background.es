@@ -1,6 +1,7 @@
 import { utils, events } from 'core/cliqz';
 import Reporter from 'goldrush/reporter';
 import {DateTimeDB} from 'goldrush/dbs/datetime_db';
+import {GeneralDB} from 'goldrush/dbs/general_db';
 import ResourceLoader from 'core/resource-loader';
 import {CliqzPopupButton} from 'goldrush/ui/popup-button';
 import {OfferFetcher} from 'goldrush/offer_fetcher';
@@ -145,6 +146,25 @@ export default {
       offerFetcher.markCouponAsUsed('0-1-10');
       offerFetcher.markCouponAsUsed('0-1-0');
     });
+    return;
+  },
+
+  testDBs() {
+    // nothing to do for now
+    log('testDBs');
+    this.db = new GeneralDB();
+    log('GeneralDB: ' + this.db.databaseName());
+
+  // TODO remove all this temporary code
+    this.loader = new ResourceLoader(
+      [ 'goldrush', 'clusters', 'food_delivery.dbinfo' ],
+      {}
+    );
+
+    this.loader.load().then( categories => {
+      this.db.loadFromDict(categories['general_db']);
+    });
+
     return;
   },
 
