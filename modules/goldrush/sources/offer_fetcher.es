@@ -147,11 +147,7 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
       log('voucher received:');
       log(vouchersObj);
 
-      // TODO: here we need to call a callback here so we can notify that the
-      //       results are ready
-      if (callback) {
-        callback(vouchersObj);
-      }
+      callback && callback(vouchersObj);
 
     }, function error(resp) {
       // TODO: will be gut if we can track this information
