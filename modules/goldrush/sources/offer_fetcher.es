@@ -1,6 +1,6 @@
 import { utils } from 'core/cliqz';
 
-var assert = require('assert');
+// var assert = require('assert');
 
 function log(s){
   utils.log(s, 'GOLDRUSH - OFFER_FETCHER');
@@ -17,7 +17,7 @@ var BE_ACTION = {
 };
 
 function getQueryString(action, argsNames, argsValues) {
-  assert(argsNames.length === argsValues.length);
+  // assert(argsNames.length === argsValues.length);
 
   // TODO: better to do some checking here that is formatted properly?
   let result = action;
@@ -56,9 +56,9 @@ function parseHttpResponse(httpResp) {
 // @param mappings is the mappings for the clusters and domains (same than python model)
 //
 export function OfferFetcher(backendAddr, mappings = null) {
-  assert(mappings !== null);
-  assert(mappings['dname_to_did'] !== undefined);
-  assert(mappings['dname_to_cid'] !== undefined);
+  // assert(mappings !== null);
+  // assert(mappings['dname_to_did'] !== undefined);
+  // assert(mappings['dname_to_cid'] !== undefined);
 
   this.beAddr = backendAddr;
   this.mappings = mappings;
@@ -75,8 +75,8 @@ export function OfferFetcher(backendAddr, mappings = null) {
 // @returns a list of coupons structure on the callback
 //
 OfferFetcher.prototype.checkForCoupons = function(domainName, callback) {
-  assert(this.beAddr.length > 0);
-  assert(this.mappings !== null);
+  // assert(this.beAddr.length > 0);
+  // assert(this.mappings !== null);
 
   var result = {};
 
@@ -89,7 +89,7 @@ OfferFetcher.prototype.checkForCoupons = function(domainName, callback) {
   let clusterID = this.mappings['dname_to_did'][domainName];
 
   // it should exists for sure (mappings is wrong if not and cannot happen).
-  assert(clusterID !== undefined && clusterID >= 0);
+  // assert(clusterID !== undefined && clusterID >= 0);
   let argNames = ['cluster_id', 'domain_id'];
   let argValues = [clusterID, domainID];
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.GET, argNames, argValues);
@@ -98,7 +98,7 @@ OfferFetcher.prototype.checkForCoupons = function(domainName, callback) {
   log('we will hit the endpoint: ' + destURL);
 
   var vouchers = null;
-  CliqzUtils.httpGet(destURL, function success(resp) {
+  utils.httpGet(destURL, function success(resp) {
       vouchers = parseHttpResponse(resp.response);
       log('voucher received: ' + vouchers);
 
@@ -130,7 +130,7 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
   log('marking a coupon as used: ' + destURL);
 
-  CliqzUtils.httpGet(destURL, function success(resp) {
+  utils.httpGet(destURL, function success(resp) {
       // nothing to do
       log('coupon ' + String(couponID) + ' marked as used');
     }, function error(resp) {
@@ -149,26 +149,21 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
 //                 or false otherwise)
 // @return true if it used or false otherwise
 //
-OfferFetcher.prototype.isCouponUsed = function(couponsID, callback) {
-  let argNames = ['coupon_id'];
+OfferFetcher.prototype.isCouponUsed = function(couponID, callback) {
+  let argName = ['coupon_id'];
+  let argValue = couponID;
+  let destURL = this.beAddr + 'q=' + 'is_used|' +'coupon_id=' + couponID;
+  log('checking coupon status: ' + destURL);
 
-  // TODO_QUESTION: how we can do this better?
-  //
-  for (let i = 0; i < couponsID.length; ++i) {
-    let argValues = [couponID];
-    let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
-    log('checking coupon status: ' + destURL);
-
-    CliqzUtils.httpGet(destURL, function success(resp) {
-        // TODO: parse the resp && construct the result pair here to call the callback.
-        let result = true;
-        callback && callback(result);
-      }, function error(resp) {
-        // TODO: will be gut if we can track this information
-        log('error checking coupon status');
-      }
-    );
-  }
+  utils.httpGet(destURL, function success(resp) {
+      // TODO: parse the resp && construct the result pair here to call the callback.
+      let result = true;
+      callback && callback(result);
+    }, function error(resp) {
+      // TODO: will be gut if we can track this information
+      log('error checking coupon status');
+    }
+  );
 };
 
 

@@ -3,7 +3,7 @@ import Reporter from 'goldrush/reporter';
 import {DateTimeDB} from 'goldrush/dbs/datetime_db';
 import ResourceLoader from 'core/resource-loader';
 import {CliqzPopupButton} from 'goldrush/ui/popup-button';
-//import {OfferFetcher} from 'goldrush/offer_fetcher';
+import {OfferFetcher} from 'goldrush/offer_fetcher';
 // import {OfferManager} from 'goldrush/offer_manager';
 
 function log(s){
@@ -117,6 +117,8 @@ export default {
     log('test testHttpRequest');
     testHttpRequest();
     // let offerManager = new OfferManager();
+
+    // let offerFetcher = new OfferFetcher("");
 
     this.reporter.start();
     events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
