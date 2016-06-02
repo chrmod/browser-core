@@ -1,6 +1,10 @@
 @import 'freshtab';
 @import 'history-sidebar';
 
+html {
+  overflow-y: scroll;
+}
+
 body {
   background-color: white;
 }

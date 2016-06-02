@@ -950,6 +950,12 @@
     "attrack-headline-general-title": {
       "message": "Privacy Protection"
     },
+    "attrack-headline-general-title-protection-off": {
+      "message": "Your Privacy is not protected !"
+    },
+    "attrack-score-text": {
+      "message": "Privacy Score:"
+    },
     "attrack-headline-general-trackers": {
       "message": "Data points neutralized"
     },
@@ -972,7 +978,7 @@
       "message": "Activate privacy protection"
     },
     "attrack-btn-power-off": {
-      "message": "Turn off Privacy Protection"
+      "message": "Deactivate"
     },
     "attrack-btn-white-list": {
       "message": "Turn off Protection for this site!"
@@ -987,7 +993,7 @@
       "message": "See Less"
     },
     "attrack-help": {
-      "message": "Help"
+      "message": "Learn more"
     },
     "attrack-force-block-setting": {
       "message": "Anti-Tracking Behaviour"
@@ -999,10 +1005,10 @@
       "message": "Strict"
     },
     "attrack-trackers-info-msg": {
-      "message": "List of tracking companies"
+        "message": "List of tracking companies"
     },
     "attrack-trackers-count-info-msg": {
-      "message": "Private data points"
+        "message": "Data Protected"
     },
     "freshtab_learn_more": {
       "message": "Learn more"
@@ -1027,6 +1033,9 @@
     },
     "mobile_freshtab_edit_done": {
       "message": "Done"
+    },
+    "mobile_freshtab_edit_cancel": {
+      "message": "Cancel"
     },
     "mobile_freshtab_no_topsites": {
       "message": "You will see your topsites here."
@@ -1096,6 +1105,9 @@
     },
     "unblock_never": {
       "message": "No, never"
+    },
+    "unblock_youtube_fail": {
+      "message": "OK, we tried, but it seems we cannot unblock this video for you at this time"
     },
     "cliqz-onboarding-title": {
       "message": "Woohoo! CLIQZ was successfully installed."
