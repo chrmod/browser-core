@@ -130,8 +130,9 @@ export default {
     let offerManager = new OfferManager();
     offerManager.parseMappingsFileAsPromise('mappings.json').then(function(values) {
       let offerFetcher = new OfferFetcher(destURL, values);
-      log(offerFetcher.beAddr);
-      log(offerFetcher.mappings);
+      offerFetcher.checkForCouponsByCluster(0, function(vouchers) {
+        log('received vouchers');
+      });
     });
     return;
   },

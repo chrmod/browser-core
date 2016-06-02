@@ -39,7 +39,7 @@ function parseHttpResponse(httpResp) {
   var vouchers = null;
   try {
       var jResp = JSON.parse(httpResp);
-      vouchers = jResp[0]['data']['vouchers'][0];
+      vouchers = jResp['results'][0]['data']['vouchers'];
     } catch (e) {
       log('Error parsing the httpResp:\n' + httpResp + '\nwith error: ' + e);
     }
@@ -74,7 +74,7 @@ export function OfferFetcher(backendAddr, mappings = null) {
 // @param callback    The callback to be called on success if we could get vouchers
 // @returns a list of coupons structure on the callback
 //
-OfferFetcher.prototype.checkForCoupons = function(domainName, callback) {
+OfferFetcher.prototype.checkForCouponsByDomain = function(domainName, callback) {
   // assert(this.beAddr.length > 0);
   // assert(this.mappings !== null);
 
@@ -118,6 +118,50 @@ OfferFetcher.prototype.checkForCoupons = function(domainName, callback) {
 
   log('http request end');
   return vouchers;
+};
+
+//
+// @brief get a list of available coupons for a cluster
+// @param clusterID  The cluster id to check to
+// @param callback    The callback to be called on success if we could get vouchers
+// @returns a list of coupons structure on the callback
+//
+OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) {
+  // assert(this.beAddr.length > 0);
+  // assert(this.mappings !== null);
+
+  var result = {};
+
+  // it should exists for sure (mappings is wrong if not and cannot happen).
+  // assert(clusterID !== undefined && clusterID >= 0);
+  let argNames = ['cluster_id'];
+  let argValues = [clusterID];
+  let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.GET, argNames, argValues);
+
+  // perform the call and wait for the response
+  log('we will hit the endpoint: ' + destURL);
+
+  var vouchers = null;
+  utils.httpGet(destURL, function success(resp) {
+      vouchers = parseHttpResponse(resp.response);
+      log('voucher received:');
+      log(vouchers);
+
+      // TODO: here we need to call a callback here so we can notify that the
+      //       results are ready
+      if (callback) {
+        callback(vouchers);
+      }
+
+    }, function error(resp) {
+      // TODO: will be gut if we can track this information
+      // TODO_QUESTION: how do we can track this information and report it back?
+      //                or any error in general?
+      log('error getting the coupongs from the backend?');
+    }
+  );
+
+  log('http request end');
 };
 
 //
