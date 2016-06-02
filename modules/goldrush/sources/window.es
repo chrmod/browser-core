@@ -10,7 +10,7 @@ export default class {
 
   init() {
     debugger;
-    background.test();
+    background.testOfferFetcher();
   }
 
   unload() {

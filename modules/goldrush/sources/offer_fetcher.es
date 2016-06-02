@@ -187,27 +187,30 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
 
 //
 // @brief Check if a coupon is already used or not.
-// @param couponsID the coupons ids to check (a list)
+// @param couponID the coupons id to check
 // @param callback the callback to be called on success after we check if a coupon
-//                 is used or not (return <couponID, value> where value = t§rue if used
-//                 or false otherwise)
+//                 is used or not
 // @return true if it used or false otherwise
 //
 OfferFetcher.prototype.isCouponUsed = function(couponID, callback) {
-  let argName = ['coupon_id'];
-  let argValue = couponID;
-  let destURL = this.beAddr + 'q=' + 'is_used|' +'coupon_id=' + couponID;
+  let argNames = ['coupon_id'];
+  let argValues = [couponID];
+  let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.IS_USED, argNames, argValues);
   log('checking coupon status: ' + destURL);
 
   utils.httpGet(destURL, function success(resp) {
-      // TODO: parse the resp && construct the result pair here to call the callback.
-      let result = true;
-      callback && callback(result);
-    }, function error(resp) {
-      // TODO: will be gut if we can track this information
-      log('error checking coupon status');
+    try {
+      var jResp = JSON.parse(resp.response);
+      var isUsed = jResp['results'][0]['data']['vouchers']['is_used'];
+      callback && callback(isUsed);
+    } catch (e) {
+      log('Error parsing the httpResp:\n' + resp.response + '\nwith error: ' + e);
     }
-  );
+  }, function error(resp) {
+      // TODO: will be gut if we can track this information
+      log('error checking coupon status:\n' + resp.response);
+    }
+    );
 };
 
 

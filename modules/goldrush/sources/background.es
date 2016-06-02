@@ -125,13 +125,22 @@ export default {
     return;
   },
 
-  test() {
+  testOfferFetcher() {
     let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
     let offerManager = new OfferManager();
     offerManager.parseMappingsFileAsPromise('mappings.json').then(function(values) {
       let offerFetcher = new OfferFetcher(destURL, values);
+      offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
+        log('received vouchers');
+      });
       offerFetcher.checkForCouponsByCluster(0, function(vouchers) {
         log('received vouchers');
+      });
+      offerFetcher.isCouponUsed('0-1-0', function(isUsed) {
+        log('coupon: 0-1-0 is_used: ' + isUsed);
+      });
+      offerFetcher.isCouponUsed('0-1-10', function(isUsed) {
+        log('coupon: 0-1-10 is_used: ' + isUsed);
       });
     });
     return;
