@@ -174,9 +174,14 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
   log('marking a coupon as used: ' + destURL);
 
+  var vouchersObj = null;
   utils.httpGet(destURL, function success(resp) {
-      // nothing to do
-      log('coupon ' + String(couponID) + ' marked as used');
+      vouchersObj = parseHttpResponse(resp.response);
+      if (vouchersObj['mark_used'] === true) {
+        log('coupon ' + String(couponID) + ' marked as used');
+      } else {
+        log('coupon ' + String(couponID) + ' was already marked as used');
+      }
     }, function error(resp) {
       // TODO: will be gut if we can track this information
       log('error marking a coupon as used: ' + destURL);

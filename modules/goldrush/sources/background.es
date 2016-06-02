@@ -142,6 +142,8 @@ export default {
       offerFetcher.isCouponUsed('0-1-10', function(isUsed) {
         log('coupon: 0-1-10 is_used: ' + isUsed);
       });
+      offerFetcher.markCouponAsUsed('0-1-10');
+      offerFetcher.markCouponAsUsed('0-1-0');
     });
     return;
   },
