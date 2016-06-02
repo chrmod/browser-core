@@ -141,16 +141,16 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   // perform the call and wait for the response
   log('we will hit the endpoint: ' + destURL);
 
-  var vouchers = null;
+  var vouchersObj = null;
   utils.httpGet(destURL, function success(resp) {
-      vouchers = parseHttpResponse(resp.response);
+      vouchersObj = parseHttpResponse(resp.response);
       log('voucher received:');
-      log(vouchers);
+      log(vouchersObj);
 
       // TODO: here we need to call a callback here so we can notify that the
       //       results are ready
       if (callback) {
-        callback(vouchers);
+        callback(vouchersObj);
       }
 
     }, function error(resp) {
@@ -198,14 +198,10 @@ OfferFetcher.prototype.isCouponUsed = function(couponID, callback) {
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.IS_USED, argNames, argValues);
   log('checking coupon status: ' + destURL);
 
+  var vouchersObj = null;
   utils.httpGet(destURL, function success(resp) {
-    try {
-      var jResp = JSON.parse(resp.response);
-      var isUsed = jResp['results'][0]['data']['vouchers']['is_used'];
-      callback && callback(isUsed);
-    } catch (e) {
-      log('Error parsing the httpResp:\n' + resp.response + '\nwith error: ' + e);
-    }
+    vouchersObj = parseHttpResponse(resp.response);
+    callback && callback(vouchersObj['is_used']);
   }, function error(resp) {
       // TODO: will be gut if we can track this information
       log('error checking coupon status:\n' + resp.response);
