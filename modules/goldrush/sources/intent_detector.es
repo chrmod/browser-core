@@ -198,6 +198,7 @@ IntentDetector.prototype.loadRule = function(ruleString) {
   if (this.ruleData === null) {
     log('Something happened when parsing the rule: ' + ruleString +
         '\n for IntentDetector with cluster: ' + this.clusterID);
+
     return false;
   }
 
