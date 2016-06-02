@@ -2,6 +2,7 @@ import { utils, events } from 'core/cliqz';
 import Reporter from 'goldrush/reporter';
 import {DateTimeDB} from 'goldrush/dbs/datetime_db';
 import {GeneralDB} from 'goldrush/dbs/general_db';
+import {DomainInfoDB} from 'goldrush/dbs/domain_info_db';
 import ResourceLoader from 'core/resource-loader';
 import {CliqzPopupButton} from 'goldrush/ui/popup-button';
 import {OfferFetcher} from 'goldrush/offer_fetcher';
@@ -152,7 +153,7 @@ export default {
   testDBs() {
     // nothing to do for now
     log('testDBs');
-    this.db = new GeneralDB();
+    this.db = new DomainInfoDB();
     log('GeneralDB: ' + this.db.databaseName());
 
   // TODO remove all this temporary code
@@ -162,7 +163,7 @@ export default {
     );
 
     this.loader.load().then( categories => {
-      this.db.loadFromDict(categories['general_db']);
+      this.db.loadFromDict(categories['domain_info_db']);
     });
 
     return;
