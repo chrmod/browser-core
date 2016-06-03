@@ -19,7 +19,6 @@ var BE_ACTION = {
 function getQueryString(action, argsNames, argsValues) {
   // assert(argsNames.length === argsValues.length);
 
-  // TODO: better to do some checking here that is formatted properly?
   let result = action;
   for (let i = 0; i < argsNames.length; ++i) {
     result += '|' + String(argsNames[i]) + '=' + String(argsValues[i]);
@@ -68,57 +67,6 @@ export function OfferFetcher(backendAddr, mappings = null) {
   // destURL = backendAddr + q=set_coupon-ID
 }
 
-//
-// @brief get a list of available coupons for a particular domain.
-// @param domainName  The domain name to check to (without .de or anything)
-// @param callback    The callback to be called on success if we could get vouchers
-// @returns a list of coupons structure on the callback
-//
-OfferFetcher.prototype.checkForCouponsByDomain = function(domainName, callback) {
-  // assert(this.beAddr.length > 0);
-  // assert(this.mappings !== null);
-
-  var result = {};
-
-  // we need first to get the associated cluster and
-  let domainID = this.mappings['dname_to_cid'][domainName];
-  if (domainID === undefined) {
-    log('we cannot get the coupons for a domain that is not registerd: domainName:' + domainName);
-    return {};
-  }
-  let clusterID = this.mappings['dname_to_did'][domainName];
-
-  // it should exists for sure (mappings is wrong if not and cannot happen).
-  // assert(clusterID !== undefined && clusterID >= 0);
-  let argNames = ['cluster_id', 'domain_id'];
-  let argValues = [clusterID, domainID];
-  let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.GET, argNames, argValues);
-
-  // perform the call and wait for the response
-  log('we will hit the endpoint: ' + destURL);
-
-  var vouchers = null;
-  utils.httpGet(destURL, function success(resp) {
-      vouchers = parseHttpResponse(resp.response);
-      log('voucher received: ' + vouchers);
-
-      // TODO: here we need to call a callback here so we can notify that the
-      //       results are ready
-      if (callback) {
-        callback(vouchers);
-      }
-
-    }, function error(resp) {
-      // TODO: will be gut if we can track this information
-      // TODO_QUESTION: how do we can track this information and report it back?
-      //                or any error in general?
-      log('error getting the coupongs from the backend?');
-    }
-  );
-
-  log('http request end');
-  return vouchers;
-};
 
 //
 // @brief get a list of available coupons for a cluster
@@ -130,8 +78,7 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   // assert(this.beAddr.length > 0);
   // assert(this.mappings !== null);
 
-  var result = {};
-
+  let vouchersObj = null;
   // it should exists for sure (mappings is wrong if not and cannot happen).
   // assert(clusterID !== undefined && clusterID >= 0);
   let argNames = ['cluster_id'];
@@ -141,7 +88,6 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   // perform the call and wait for the response
   log('we will hit the endpoint: ' + destURL);
 
-  var vouchersObj = null;
   utils.httpGet(destURL, function success(resp) {
       vouchersObj = parseHttpResponse(resp.response);
       log('voucher received:');
@@ -153,7 +99,7 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
       // TODO: will be gut if we can track this information
       // TODO_QUESTION: how do we can track this information and report it back?
       //                or any error in general?
-      log('error getting the coupongs from the backend?');
+      log('error getting the coupongs from the backend:\n' + resp.response);
     }
   );
 
@@ -165,12 +111,12 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
 // @param couponID the coupon we want to mark as used
 //
 OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
+  let vouchersObj = null;
   let argNames = ['coupon_id'];
   let argValues = [couponID];
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
   log('marking a coupon as used: ' + destURL);
 
-  var vouchersObj = null;
   utils.httpGet(destURL, function success(resp) {
       vouchersObj = parseHttpResponse(resp.response);
       if (vouchersObj['mark_used'] === true) {
@@ -180,7 +126,7 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
       }
     }, function error(resp) {
       // TODO: will be gut if we can track this information
-      log('error marking a coupon as used: ' + destURL);
+      log('error marking a coupon as used:\n' + resp.response);
     }
   );
 
@@ -194,12 +140,12 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
 // @return true if it used or false otherwise
 //
 OfferFetcher.prototype.isCouponUsed = function(couponID, callback) {
+  let vouchersObj = null;
   let argNames = ['coupon_id'];
   let argValues = [couponID];
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.IS_USED, argNames, argValues);
   log('checking coupon status: ' + destURL);
 
-  var vouchersObj = null;
   utils.httpGet(destURL, function success(resp) {
     vouchersObj = parseHttpResponse(resp.response);
     callback && callback(vouchersObj['is_used']);
