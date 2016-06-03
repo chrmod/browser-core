@@ -91,7 +91,7 @@ export default {
     log('reading food_delivery');
     let foodDelivery = this.loader.load();
     this.loader.load().then( categories => {
-      this.db.loadFromDict(categories);
+      this.db.loadFromDict(categories['datetime_db']);
       log('done reading food_delivery');
       log(categories);
     });

@@ -4,7 +4,7 @@ import { utils } from 'core/cliqz';
 //import ResourceLoader from 'core/resource-loader';
 
 function log(s){
-  utils.log(s, 'GOLDRUSH - DB');
+  utils.log(s, 'GOLDRUSH - DateTimeDB');
 }
 
 
@@ -54,11 +54,12 @@ DateTimeDB.prototype.getHourValue = function(k) {
 // Load from dict
 //
 DateTimeDB.prototype.loadFromDict = function(dict) {
-  log('TO BE IMPLEMENTED, dict' + dict);
-  log('dict[domain_info_db]: ' + dict['domain_info_db']);
-  log('dict[datetime_db]: ' + dict['datetime_db']);
-  log('dict[nothing]: ' + dict['nothing']);
-  return false;
+  this.totalNumSignals = dict['total_signals'];
+  this.dayData = dict['day_data'];
+  this.hourData = dict['hour_data'];
+  this.monthData = dict['month_data'];
+  log('DateTimeDB: loadFromDict');
+  log(this);
 };
 
 
