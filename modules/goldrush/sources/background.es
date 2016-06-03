@@ -1,12 +1,14 @@
 import { utils, events } from 'core/cliqz';
 import Reporter from 'goldrush/reporter';
-import {DateTimeDB} from 'goldrush/dbs/datetime_db';
-import {GeneralDB} from 'goldrush/dbs/general_db';
-import {DomainInfoDB} from 'goldrush/dbs/domain_info_db';
+import { DateTimeDB } from 'goldrush/dbs/datetime_db';
+import { GeneralDB } from 'goldrush/dbs/general_db';
+import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import ResourceLoader from 'core/resource-loader';
-import {CliqzPopupButton} from 'goldrush/ui/popup-button';
-import {OfferFetcher} from 'goldrush/offer_fetcher';
-import {OfferManager} from 'goldrush/offer_manager';
+import { CliqzPopupButton } from 'goldrush/ui/popup-button';
+import { OfferFetcher } from 'goldrush/offer_fetcher';
+import { OfferManager } from 'goldrush/offer_manager';
+import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
+//import { FID } from 'goldrush/fids/fid';
 
 function log(s){
   utils.log(s, 'GOLDRUSH - background');
@@ -167,6 +169,12 @@ export default {
     });
 
     return;
+  },
+
+  testFIDs() {
+    log('testFIDs');
+    let fids = new TopHourFID();
+    log(fids.detectorName);
   },
 
   unload() {

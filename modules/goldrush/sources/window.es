@@ -9,9 +9,8 @@ export default class {
   }
 
   init() {
-    debugger;
     // background.testOfferFetcher();
-    background.testDBs();
+    background.testFIDs();
   }
 
   unload() {
