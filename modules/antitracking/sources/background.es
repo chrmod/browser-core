@@ -8,6 +8,10 @@ import { utils, events } from 'core/cliqz';
 export default {
 
   init(settings) {
+    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+      return;
+    }
+
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
 
     // fix for users without pref properly set: set to value from build config
@@ -54,6 +58,10 @@ export default {
   },
 
   unload() {
+    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+      return;
+    }
+
     if ( this.popup ) {
       this.popup.destroy();
     }
