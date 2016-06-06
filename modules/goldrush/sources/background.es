@@ -79,6 +79,13 @@ function executePromiseAll() {
 
 export default {
   init(settings) {
+    // define all the variables here
+    this.db = null;
+    this.offerManager = null;
+
+    // construct the offer manager
+    this.offerManager = new OfferManager();
+
     // nothing to do for now
     log('Initializing the background script');
     this.db = new DateTimeDB();
@@ -109,9 +116,11 @@ export default {
     this.popup.attach();
     this.popup.updateState(utils.getWindow(), false);
     log('popup created:' + this.popup);
+
   },
 
   start() {
+
     // nothing to do
     log('starting the background script');
     this.reporter = new Reporter(0);
@@ -120,6 +129,7 @@ export default {
     executePromiseAll();
     log('test testHttpRequest');
     testHttpRequest();
+
 
     this.reporter.start();
     events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
@@ -131,7 +141,7 @@ export default {
 
   testOfferFetcher() {
     let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
-    let offerManager = new OfferManager();
+    let offerManager = this.offerManager;
     offerManager.parseMappingsFileAsPromise('mappings.json').then(function(values) {
       let offerFetcher = new OfferFetcher(destURL, values);
       offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
@@ -216,7 +226,7 @@ export default {
     //        We need to provide the coupon ID.
     //
     onCouponClicked(args, cb) {
-      // TODO
+      // TODO?
     },
 
     //
@@ -235,7 +245,12 @@ export default {
 
   //////////////////////////////////////////////////////////////////////////////
   // old
-    getPopupData(args, cb) {
+    getPopupCouponsData(args, cb) {
+      log('getPopupCouponsData: getting the coupons from the offer manager: ' + this.offerManager);
+      if (!this.offerManager) {
+        return;
+      }
+      cb(this.offerManager.getCurrentCoupons());
       /*var info = CliqzAttrack.getCurrentTabBlockingInfo();
 
       cb({

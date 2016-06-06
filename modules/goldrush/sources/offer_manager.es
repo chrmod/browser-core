@@ -2,6 +2,7 @@ import { utils } from 'core/cliqz';
 import {IntentDetector} from 'goldrush/intent_detector';
 // import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
+import { OfferFetcher } from 'goldrush/offer_fetcher';
 
 
 function log(s){
@@ -34,7 +35,7 @@ function parseMappingsFileAsPromise(filename, varToSet=null) {
       check(json['dname_to_cid'] !== undefined, 'dname_to_cid not defined');
 
       // varToSet = json;
-      resolve(json)
+      resolve(json);
     });
   });
 
@@ -153,7 +154,25 @@ export function OfferManager() {
   this.intentDetectorsMap = {};
   // the intent input maps (clusterID -> intentInput)
   this.intentInputMap = {};
+  this.offerFetcher = null;
+  // the list of current coupons we have
+  this.couponsList = null;
+
   // the cluster information
+
+  // the fetcher
+  //TODO: use a globar variable here in the config maybe
+  var destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
+  var self = this;
+  parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
+    self.mappings = mappings;
+    self.offerFetcher = new OfferFetcher(destURL, mappings);
+    log('setting the mappings to the offer manager');
+  });
+
+  // TODO: remove this and put it where it should
+
+
 
   // let promise = new Promise(function(resolve, reject) {
   //   log('parseMappingsFile');
@@ -301,11 +320,25 @@ OfferManager.prototype.detectCouponField = function(url) {
   // TODO: this method will check a map: url_domain -> url_regex
   //       to check if we are on the site where each url_domain has associated a
   //       coupon (active ones).
+  OfferManager.prototype.getCurrentCoupons = function() {
+    log('getCurrentCoupons called');
+    if (!this.offerFetcher) {
+      log('offerFetcher is null still');
+      return;
+    }
+
+    // TODO: remove this from here since we should add it later, this function
+    // will be called from outside whenever we need to get the coupons.
+    this.offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
+      // TODO: add the field that has not being used here maybe.
+        this.couponsList = vouchers;
+      });
+    log('returning the coupons list:' + this.couponsList);
+    return this.couponsList;
+  };
+
 };
 
-OfferManager.prototype.parseMappingsFileAsPromise = function(filename) {
-  return parseMappingsFileAsPromise(filename);
-};
 
 
 

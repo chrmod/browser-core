@@ -9,7 +9,7 @@ export default class {
   }
 
   init() {
-    // background.testOfferFetcher();
+    //background.testOfferFetcher();
     background.testFIDs();
   }
 

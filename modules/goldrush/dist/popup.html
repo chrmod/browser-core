@@ -4,14 +4,14 @@
     <script src="../webextensions-shim.js"></script>
     <script src="chrome://cliqz/content/bower_components/handlebars/handlebars.js"></script>
     <link rel="stylesheet" href="popup.css">
-    <script id="trackersListTemplate" type="text/x-handlebars-template">
+    <script id="couponListTemplate" type="text/x-handlebars-template">
         {{#each this}}
             <li>
                 <span class='cqz-title-holder'>
-                    <a href='https://cliqz.com/whycliqz/anti-tracking/tracker#{{nameCleaner name}}' class='cqz-trackers-info' target='_blank'> i </a>
-                    <span class='cqz-title'> {{ name }} </span>
+                    <a href='{{nameCleaner coupon_link }}' class='cqz-coupon-link' target='{{coupon_link}}'> {{ name }}</a>
                 </span>
-                <span  class='cqz-number'><i>{{ count }}</i></span>
+                <span class='cqz-price'> {{ price }} </span>
+                <span class='cqz-code'> {{ code }} </span>
             </li>
         {{/each}}
     </script>
@@ -65,12 +65,8 @@
 
             <!-- ======= Tacking List =========-->
 
-            <div class="cqz-tracking-list-holder">
-                <p class="cqz-trackers-info-msg">
-                    <span class="cqz-cell" data-i18n="attrack-trackers-info-msg"></span>
-                    <span class="cqz-cell" data-i18n="attrack-trackers-count-info-msg"></span>
-                </p>
-                <ul class="cqz-trackers-blocked"></ul>
+            <div class="cqz-coupon-list-holder">
+                <ul class="cqz-coupons"></ul>
             </div>
 
             <!-- ======= Buttons List =========-->
