@@ -4,7 +4,9 @@ function log(s){
   utils.log(s, 'GOLDRUSH - POPUP');
 }
 
-export function CliqzPopupButton(options) {
+export default CliqzGoldrushPopupButton;
+
+function CliqzGoldrushPopupButton(options) {
   this.CustomizableUI = Components.utils.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
 
   this.name = options.name;
@@ -20,6 +22,7 @@ export function CliqzPopupButton(options) {
     init: null,
     codePath: ''
   };
+  log('poup button ' + this.name + ' created');
 
   function populatePanel(doc, panel) {
     panel.setAttribute('id', tbb.viewId);
@@ -106,33 +109,33 @@ export function CliqzPopupButton(options) {
 
 // TODO_QUESTION: will show the popup to the user (like if he clicked it).
 //
-CliqzPopupButton.prototype.showPopUp = function () {
+CliqzGoldrushPopupButton.prototype.showPopUp = function () {
   log('showPopUp called');
 
 };
 
 // TODO_QUESTION: this
 
-CliqzPopupButton.prototype.updateView = function (win, clientHeight) {
+CliqzGoldrushPopupButton.prototype.updateView = function (win, clientHeight) {
   log('updateView called');
   var panel = win.document.getElementById(this.tbb.viewId);
   var iframe = panel.querySelector('iframe');
 
-    function toPx(pixels) {
-      return pixels.toString() + 'px';
-    }
+  function toPx(pixels) {
+    return pixels.toString() + 'px';
+  }
 
-    function onPopupReady() {
-      if (!iframe || !iframe.contentDocument) { return; }
+  function onPopupReady() {
+    if (!iframe || !iframe.contentDocument) { return; }
 
-      iframe.style.height = toPx(clientHeight);
-      panel.style.height = toPx(clientHeight + panel.boxObject.height - panel.clientHeight );
-    }
+    iframe.style.height = toPx(clientHeight);
+    panel.style.height = toPx(clientHeight + panel.boxObject.height - panel.clientHeight );
+  }
 
   onPopupReady();
 };
 
-CliqzPopupButton.prototype.updateState = function (win, turnOn) {
+CliqzGoldrushPopupButton.prototype.updateState = function (win, turnOn) {
   if (!win) {
     return;
   }
@@ -147,7 +150,7 @@ CliqzPopupButton.prototype.updateState = function (win, turnOn) {
   log('updateView called');
 };
 
-CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
+CliqzGoldrushPopupButton.prototype.setBadge = function (win, badgeText) {
   var button = win.document.getElementById(this.tbb.id);
   log('setBadge called: ' + badgeText);
 
@@ -177,26 +180,28 @@ CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
   }, 250);
 };
 
-CliqzPopupButton.prototype.attach = function () {
+CliqzGoldrushPopupButton.prototype.attach = function () {
   this.CustomizableUI.createWidget(this.tbb);
   this.setupCommunicationChannel();
 };
 
-CliqzPopupButton.prototype.destroy = function () {
+CliqzGoldrushPopupButton.prototype.destroy = function () {
   this.CustomizableUI.destroyWidget(this.tbb.id);
 };
 
-CliqzPopupButton.prototype.setupCommunicationChannel = function () {
+CliqzGoldrushPopupButton.prototype.setupCommunicationChannel = function () {
   Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
 
   var channelName = this.name,
       actions = this.actions;
 
+  log('setupCommunicationChannel ' + channelName + ' and actions: ' + String(actions));
+
   function popupMessageHandler(msg) {
-    log('popupMessageHandler called');
     var functionName = msg.message.functionName,
         functionArgs = msg.message.args,
         handler = actions[functionName];
+        utils.log('CliqzGoldrushPopupButton::popupMessageHandler [' + channelName + '] ' + functionName, 'goldrush');
 
     function callback(res) {
       log('callback called: ' + res);
@@ -212,4 +217,6 @@ CliqzPopupButton.prototype.setupCommunicationChannel = function () {
   }
 
   CliqzEvents.sub(channelName+'-popup', popupMessageHandler);
+
+  utils.log('setupCommunicationChannel: [' + channelName+'-popup', 'goldrush');
 };

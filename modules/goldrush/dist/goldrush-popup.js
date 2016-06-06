@@ -1,7 +1,4 @@
-var attPopUp = document.querySelector(".cqz-antitracking-popup"),
-    enableButton = document.querySelector("#cqz-antrc-power-btn"),
-    whitelistButton = document.querySelector("#cqz-whitelist-btn"),
-    seeDetailsButton = document.querySelector("#cqz-see-details"),
+var attPopUp = document.querySelector(".cqz-goldrush-popup"),
     couponsElements = document.querySelector(".cqz-coupons"),
     hostname;
 
@@ -24,8 +21,9 @@ function localizeDocument() {
 }
 
 function populateDOM() {
-  chrome.runtime.sendMessage({ functionName: "getPopupData" }, function (couponsMap) {
-    if (!couponsMap) {
+  chrome.runtime.sendMessage({ functionName: "getPopupCouponsData" }, function (couponsMap) {
+    alert('callback called');
+    /*if (!couponsMap) {
       // nothing to show
       return;
     }
@@ -57,10 +55,11 @@ function populateDOM() {
       expandPopUp('small');
     }
 
-    localizeDocument();
+    localizeDocument();*/
   });
 }
 
+/*
 enableButton.addEventListener("click", function () {
   chrome.runtime.sendMessage({ functionName: "toggleAttrack" }, populateDOM);
 }, false);
@@ -68,7 +67,7 @@ enableButton.addEventListener("click", function () {
 whitelistButton.addEventListener("click", function () {
   chrome.runtime.sendMessage({ functionName: "toggleWhiteList", args: {hostname: hostname} }, populateDOM);
 }, false);
-
+*/
 function expandPopUp (command) {
   var height;
 

@@ -4,7 +4,7 @@ import { DateTimeDB } from 'goldrush/dbs/datetime_db';
 import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import ResourceLoader from 'core/resource-loader';
-import { CliqzPopupButton } from 'goldrush/ui/popup-button';
+import CliqzGoldrushPopupButton from 'goldrush/ui/popup-button';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { OfferManager } from 'goldrush/offer_manager';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
@@ -108,14 +108,14 @@ export default {
     log(foodDelivery);
 
     // load the popup button
-    utils.bindObjectFunctions(this.popupActions, this);
-    this.popup = new CliqzPopupButton({
+    utils.bindObjectFunctions(this.couponPopupActions, this);
+    this.popup = new CliqzGoldrushPopupButton({
         name: 'goldrush',
-        actions: this.popupActions
+        actions: this.couponPopupActions
       });
     this.popup.attach();
     this.popup.updateState(utils.getWindow(), false);
-    log('popup created:' + this.popup);
+    log('popup button created');
 
   },
 
@@ -203,11 +203,11 @@ export default {
   //////////////////////////////////////////////////////////////////////////////
   // Popup button actions
   //
-  popupActions: {
+  couponPopupActions: {
     ////////////////////////////////////////////////////////////////////////////
     // goldrush
     //
-
+/*
 
     // TODO: maybe we want to move part of this logic to somewhere else (like OfferManager?)
 
@@ -239,18 +239,21 @@ export default {
       // TODO_QUESTION: ask how we can implement the popup.js to call this methods
       //                (mouse over and more...)
     },
-
+*/
 
 
 
   //////////////////////////////////////////////////////////////////////////////
   // old
     getPopupCouponsData(args, cb) {
-      log('getPopupCouponsData: getting the coupons from the offer manager: ' + this.offerManager);
-      if (!this.offerManager) {
-        return;
-      }
-      cb(this.offerManager.getCurrentCoupons());
+      log('getPopupCouponsData: getting the coupons from the offer manager: ');
+      //cb({});
+      // if (!this.offerManager) {
+      //   return;
+      // }
+      // cb(this.offerManager.getCurrentCoupons());
+
+
       /*var info = CliqzAttrack.getCurrentTabBlockingInfo();
 
       cb({
@@ -262,57 +265,6 @@ export default {
         reload: info.reload || false,
         trakersList: info
       });*/
-    },
-
-    toggleAttrack(args, cb) {
-      /*var currentState = utils.getPref('antiTrackTest');
-
-      if (currentState) {
-        CliqzAttrack.disableModule();
-      } else {
-        CliqzAttrack.enableModule();
-      }
-
-      this.popup.updateState(utils.getWindow(), !currentState);
-
-      cb();
-
-      this.popupActions.telemetry( {action: 'click', 'target': (currentState ? 'deactivate' : 'activate')} )*/
-    },
-
-    closePopup(_, cb) {
-      this.popup.tbb.closePopup();
-      cb();
-    },
-
-    toggleWhiteList(args, cb) {
-      /*
-      var hostname = args.hostname;
-      if (CliqzAttrack.isSourceWhitelisted(hostname)) {
-        CliqzAttrack.removeSourceDomainFromWhitelist(hostname);
-        this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
-      } else {
-        CliqzAttrack.addSourceDomainToWhitelist(hostname);
-        this.popupActions.telemetry( { action: 'click', target: 'whitelist_domain'} );
-      }
-      cb();*/
-    },
-    updateHeight(args, cb) {
-      log('updateHeight called');
-      this.popup.updateView(utils.getWindow(), args[0]);
-    },
-
-    telemetry(msg) {
-      /*
-      if ( msg.includeUnsafeCount ) {
-        delete msg.includeUnsafeCount
-        let info = CliqzAttrack.getCurrentTabBlockingInfo();
-        msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
-      }
-      msg.type = 'antitracking';
-      utils.telemetry(msg);
-      */
     }
   }
-
 };

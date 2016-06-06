@@ -3,6 +3,7 @@ import {IntentDetector} from 'goldrush/intent_detector';
 // import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
+import {UIManager} from 'goldrush/ui/ui_manager';
 
 
 function log(s){
@@ -18,7 +19,7 @@ function check(expression, message) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-function parseMappingsFileAsPromise(filename, varToSet=null) {
+function parseMappingsFileAsPromise(filename) {
   return new Promise(function(resolve, reject) {
     let rscLoader = new ResourceLoader(
       [ 'goldrush', filename ],
@@ -34,7 +35,6 @@ function parseMappingsFileAsPromise(filename, varToSet=null) {
       check(json['dname_to_did'] !== undefined, 'dname_to_did not defined');
       check(json['dname_to_cid'] !== undefined, 'dname_to_cid not defined');
 
-      // varToSet = json;
       resolve(json);
     });
   });
@@ -157,6 +157,11 @@ export function OfferManager() {
   this.offerFetcher = null;
   // the list of current coupons we have
   this.couponsList = null;
+  // the ui manager (we need to provide UI data for this)
+  this.uiManager = new UIManager();
+
+  // TODO: remove this
+  this.uiManager.addCoupon({'id':'adasda', 'used_state' : true});
 
   // the cluster information
 

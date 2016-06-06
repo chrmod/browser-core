@@ -9,7 +9,8 @@ function log(s){
 
 ////////////////////////////////////////////////////////////////////////////////
 export function UIManager() {
-
+  // the list of coupons we have
+  this.couponsMap = {};
 }
 
 // TODO_QUESTION: check how is the best way to implement all those methods.
@@ -35,7 +36,32 @@ UIManager.prototype.configureCallbacks = function(show) {
 // @param couponInfo is the coupon object containing the information of it.
 //
 UIManager.prototype.addCoupon = function(couponInfo) {
-  // TODO: this method should show a particular coupon in in the popup.
+  if (this.couponsMap.hasOwnProperty(couponInfo['id'])) {
+    // nothing to do
+    log('we already have this coupon: ' + couponInfo['id']);
+    return;
+  }
+
+  // the coupon should have the state
+  if (!couponInfo.hasOwnProperty('used_state')) {
+    log('state has no \'used_state\', we will set it to false');
+    couponInfo['used_state'] = false;
+  }
+
+  // else we need to add it here
+  this.couponsMap[couponInfo['id']] = couponInfo;
+
+  // TODO: here we need to update the UI
+  var currWindow = CliqzUtils.getWindow();
+  if (!currWindow) {
+    return;
+  }
+  const toolbar = currWindow.document.createElement('toolbar');
+  const iframe = currWindow.document.createElement('iframe');
+  const bottomBox = currWindow.document.querySelector('#browser-bottombox');
+  bottomBox.appendChild(toolbar);
+  iframe.setAttribute('src', 'chrome://cliqz/content/goldrush/ad1.html');
+  toolbar.appendChild(iframe);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,7 +70,19 @@ UIManager.prototype.addCoupon = function(couponInfo) {
 // @param couponID the coupon we want to modify
 //
 UIManager.prototype.changeCouponState = function(couponID, newState) {
-  // TODO:
+  if (!this.couponsMap.hasOwnProperty[couponID]) {
+    log('warning: we dont have the coupon to update its state with ID: ' + couponID);
+    return;
+  }
+
+  // we have the coupon so we modify it and update the ui
+  let currState = this.couponsMap[couponID]['used_state'];
+  if (currState === newState) {
+    return;
+  }
+  this.couponsMap[couponID]['used_state'] = newState;
+
+  // TODO: update the ui here to show the new state of the coupons.
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -53,7 +91,14 @@ UIManager.prototype.changeCouponState = function(couponID, newState) {
 // @param couponID
 //
 UIManager.prototype.removeCoupon = function(couponID) {
-  // TODO: remove coupon from the list
+  if (!this.couponsMap.hasOwnProperty[couponID]) {
+    log('warning: we dont have the coupon to remove it with ID: ' + couponID);
+    return;
+  }
+
+  delete this.couponsMap[couponID];
+
+  // TODO: update the ui here to show the new state of the coupons.
 };
 
 //////////////////////////////////////////////////////////////////////////////

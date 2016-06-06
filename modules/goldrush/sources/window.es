@@ -9,8 +9,16 @@ export default class {
   }
 
   init() {
-    //background.testOfferFetcher();
+    background.testOfferFetcher();
     background.testFIDs();
+    /*
+    const toolbar = this.window.document.createElement("toolbar");
+    const iframe = this.window.document.createElement("iframe");
+    const bottomBox = this.window.document.querySelector("#browser-bottombox");
+    bottomBox.appendChild(toolbar);
+    iframe.setAttribute("src", "chrome://cliqz/content/goldrush/ad1.html");
+    toolbar.appendChild(iframe);
+    */
   }
 
   unload() {
