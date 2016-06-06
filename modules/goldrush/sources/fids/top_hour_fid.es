@@ -9,7 +9,7 @@ function log(s){
 
 export class TopHourFID extends FID {
   constructor() {
-    super('TopHourFID');
+    super('topHour');
     this.datetimeDB = null;
     this.args = {};
     this.topHours = new Set();
