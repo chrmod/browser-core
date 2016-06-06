@@ -323,7 +323,7 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2247*/
 
 #cliqz_menupopup .menuitem-iconic .menu-iconic-icon {
-visibility: visible !important;
+    visibility: visible !important;
 }
 
 
@@ -385,8 +385,8 @@ padding: 3px 0 2px;
 
 /* BEGIN EX-2256 */
 
-.arrowscrollbox-scrollbox {
-background-color: #e0e0e0;
+#TabsToolbar #tabbrowser-tabs .arrowscrollbox-scrollbox {
+    background-color: #e0e0e0;
 }
 
 /* END EX-2256 */
@@ -394,9 +394,9 @@ background-color: #e0e0e0;
 /* BEGIN EX-2255 */ /* Ref: fresh-tab-frontend/../app.scss */
 
 .cqz-ez-search-box-input {
-background-color: #fff;
-border: none;
-color: #333;
+    background-color: #fff;
+    border: none;
+    color: #333;
 }
 
 /* END EX-2255 */
