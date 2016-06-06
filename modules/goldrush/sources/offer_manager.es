@@ -7,6 +7,7 @@ import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { DateTimeDB } from 'goldrush/dbs/datetime_db';
 import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
+import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 
 
 function log(s){
@@ -110,10 +111,10 @@ function getClustersFilesMap() {
 function generateFidsMap(fidsNamesList) {
   // TODO: return the map fid_name -> fid instance
   var result = {};
-  for (var fidName in fidsNamesList) {
+  for (let fidName of fidsNamesList) {
     switch (fidName) {
-      case 'name1':
-        //result[fidName] = new FidType();
+      case 'top_hour_fid':
+        result[fidName] = new TopHourFID();
         break;
     }
   }
@@ -247,18 +248,19 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       let dbInstancesMap = generateDBMap(dbsNames);
       log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
-      // // get the rules information
-      // let rulesStr = results[1];
-      // for (let i = 0; i < rulesStr.length; ++i) {
-      //   if (rulesStr[i] === '\n') {
-      //     rulesStr[i] = ' ';
-      //   }
-      // }
-      // // TODO: here we may want to get the FIDS names, but for now we will get
-      // // a map for all the fids and then we can remove the objects (nasty because)
-      // // we allocate them and then we remove it...
-      // let rulesNames = new Set();
-      // let rulesInstancesMap = generateFidsMap(rulesNames);
+      // get the rules information
+      let rulesStr = results[1];
+      for (let i = 0; i < rulesStr.length; ++i) {
+        if (rulesStr[i] === '\n') {
+          rulesStr[i] = ' ';
+        }
+      }
+
+      // TODO: here we may want to get the FIDS names, but for now we will get
+      // a map for all the fids and then we can remove the objects (nasty because)
+      // we allocate them and then we remove it...
+      let rulesNames = new Set('top_hour_fid');
+      let rulesInstancesMap = generateFidsMap(rulesNames);
 
       // let intentDetector =  new IntentDetector(clusterID, this.mappings, dbInstancesMap, rulesInstancesMap);
 
