@@ -114,7 +114,7 @@ function generateFidsMap(fidsNamesList) {
      var result = {};
      for (let fidName of fidsNamesList) {
       switch (fidName) {
-        case 'top_hour_fid':
+        case 'topHour':
         result[fidName] = new TopHourFID();
         break;
       }
@@ -268,7 +268,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       // TODO: here we may want to get the FIDS names, but for now we will get
       // a map for all the fids and then we can remove the objects (nasty because)
       // we allocate them and then we remove it...
-      let rulesNames = ['top_hour_fid'];
+      let rulesNames = ['topHour'];
       return generateFidsMap(rulesNames);
     }).then(function(rulesInstancesMapResult) {
       rulesInstancesMap = rulesInstancesMapResult;
