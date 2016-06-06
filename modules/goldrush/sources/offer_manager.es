@@ -109,17 +109,18 @@ function getClustersFilesMap() {
 // @brief create the FIDS map (fid name -> FID object) from a list of names
 //
 function generateFidsMap(fidsNamesList) {
-  // TODO: return the map fid_name -> fid instance
-  var result = {};
-  for (let fidName of fidsNamesList) {
-    switch (fidName) {
-      case 'top_hour_fid':
+  return new Promise(function(resolve, reject) {
+     // return the map fid_name -> fid instance
+     var result = {};
+     for (let fidName of fidsNamesList) {
+      switch (fidName) {
+        case 'top_hour_fid':
         result[fidName] = new TopHourFID();
         break;
+      }
     }
-  }
-
-  return result;
+    resolve(result);
+  });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,22 +128,24 @@ function generateFidsMap(fidsNamesList) {
 // @brief generate a list of databases from db_name to db instance (from a list of names)
 //
 function generateDBMap(dbsNamesList) {
-  var result = {};
-  for (let dbName of dbsNamesList) {
-    log(dbName);
-    switch (dbName) {
-      case 'datetime_db':
-        result[dbName] = new DateTimeDB();
-        break;
-      case 'domain_info_db':
-        result[dbName] = new DomainInfoDB();
-        break;
-      case 'general_db':
-        result[dbName] = new GeneralDB();
-        break;
+  return new Promise(function(resolve, reject) {
+    var result = {};
+    for (let dbName of dbsNamesList) {
+      log(dbName);
+      switch (dbName) {
+        case 'datetime_db':
+          result[dbName] = new DateTimeDB();
+          break;
+        case 'domain_info_db':
+          result[dbName] = new DomainInfoDB();
+          break;
+        case 'general_db':
+          result[dbName] = new GeneralDB();
+          break;
+      }
     }
-  }
-  return result;
+    resolve(result);
+  });
 }
 
 
@@ -239,17 +242,23 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 
     // get all the data and then construct the intent detector and push it into
     // the map
+    let dbInstancesMap = null;
+    let rulesInstancesMap = null;
+    let dbsJson = null;
+    let rulesStr  = null;
     Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
       log('result from dbFilePromise and rulesFilePromise');
       log(results);
       // we need now to build the intent detector
-      let dbsJson = results[0];
+      dbsJson = results[0];
+      rulesStr = results[1];
       let dbsNames = Object.keys(dbsJson); // extract keys from json object
-      let dbInstancesMap = generateDBMap(dbsNames);
+      return generateDBMap(dbsNames);
+    }).then(dbInstancesMapResult => {
+      dbInstancesMap = dbInstancesMapResult;
       log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
       // get the rules information
-      let rulesStr = results[1];
       for (let i = 0; i < rulesStr.length; ++i) {
         if (rulesStr[i] === '\n') {
           rulesStr[i] = ' ';
@@ -259,8 +268,13 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       // TODO: here we may want to get the FIDS names, but for now we will get
       // a map for all the fids and then we can remove the objects (nasty because)
       // we allocate them and then we remove it...
-      let rulesNames = new Set('top_hour_fid');
-      let rulesInstancesMap = generateFidsMap(rulesNames);
+      let rulesNames = ['top_hour_fid'];
+      return generateFidsMap(rulesNames);
+    }).then(rulesInstancesMapResult => {
+      rulesInstancesMap = rulesInstancesMapResult;
+      log('rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
+    })
+
 
       // let intentDetector =  new IntentDetector(clusterID, this.mappings, dbInstancesMap, rulesInstancesMap);
 
@@ -273,7 +287,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       //   log('something happened when configuring the intent detector for cluster ' + clusterName);
       //   log('error: ' + e);
       // }
-    }).catch(function(errMsg) {
+    .catch(function(errMsg) {
       log('Some error happened when reading and parsing the files for the cluster ' + clusterName);
       log('error: ' + errMsg);
     });
