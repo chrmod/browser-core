@@ -13,6 +13,8 @@ export class FID {
     this.name = name;
   }
 
+ // The get syntax binds an object property to a
+ // function that will be called when that property is looked up.
   get detectorName() {
     return this.name;
   }
