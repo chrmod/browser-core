@@ -4,6 +4,9 @@ import {IntentDetector} from 'goldrush/intent_detector';
 // import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
+import { DateTimeDB } from 'goldrush/dbs/datetime_db';
+import { GeneralDB } from 'goldrush/dbs/general_db';
+import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 
 
 function log(s){
@@ -123,30 +126,20 @@ function generateFidsMap(fidsNamesList) {
 // @brief generate a list of databases from db_name to db instance (from a list of names)
 //
 function generateDBMap(dbsNamesList) {
-  // TODO:
   var result = {};
-  for (var dbName in dbsNamesList) {
+  for (let dbName of dbsNamesList) {
+    log(dbName);
     switch (dbName) {
-      case 'name1':
-        //result[dbName] = new DBType1();
+      case 'datetime_db':
+        result[dbName] = new DateTimeDB();
+        break;
+      case 'domain_info_db':
+        result[dbName] = new DomainInfoDB();
+        break;
+      case 'general_db':
+        result[dbName] = new GeneralDB();
         break;
     }
-  }
-
-  return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// @brief this method will extract the db names we have in the file and
-//        will return them in a set
-function getDBsNamesFromJSON(json) {
-  var result = new Set();
-  for (var k in json) {
-    if (!json.hasOwnProperty(k)) {
-      continue;
-    }
-    result.add(json[k]);
   }
   return result;
 }
@@ -243,20 +236,16 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       readRawFile(resourceName).then(str => { resolve(str); });
     });
 
-
-
-
-
-
     // get all the data and then construct the intent detector and push it into
     // the map
     Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
       log('result from dbFilePromise and rulesFilePromise');
       log(results);
-      // // we need now to build the intent detector
-      // let dbsJson = results[0];
-      // let dbsNames = getDBsNamesFromJSON(dbsJson);
-      // let dbInstancesMap = generateDBMap(dbsNames);
+      // we need now to build the intent detector
+      let dbsJson = results[0];
+      let dbsNames = Object.keys(dbsJson); // extract keys from json object
+      let dbInstancesMap = generateDBMap(dbsNames);
+      log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
       // // get the rules information
       // let rulesStr = results[1];
