@@ -254,7 +254,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       rulesStr = results[1];
       let dbsNames = Object.keys(dbsJson); // extract keys from json object
       return generateDBMap(dbsNames);
-    }).then(dbInstancesMapResult => {
+    }).then(function(dbInstancesMapResult) {
       dbInstancesMap = dbInstancesMapResult;
       log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
@@ -270,24 +270,22 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       // we allocate them and then we remove it...
       let rulesNames = ['top_hour_fid'];
       return generateFidsMap(rulesNames);
-    }).then(rulesInstancesMapResult => {
+    }).then(function(rulesInstancesMapResult) {
       rulesInstancesMap = rulesInstancesMapResult;
       log('rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
-    })
+    }).then(function() {
+      let intentDetector =  new IntentDetector(clusterID, self.mappings, dbInstancesMap, rulesInstancesMap);
 
-
-      // let intentDetector =  new IntentDetector(clusterID, this.mappings, dbInstancesMap, rulesInstancesMap);
-
-      // // try to load everything now
-      // try {
-      //   intentDetector.loadDataBases(dbsJson);
-      //   intentDetector.loadRule(rulesStr);
-      //   this.intentDetectorsMap[clusterID] = intentDetector;
-      // } catch (e) {
-      //   log('something happened when configuring the intent detector for cluster ' + clusterName);
-      //   log('error: ' + e);
-      // }
-    .catch(function(errMsg) {
+      // try to load everything now
+      try {
+        intentDetector.loadDataBases(dbsJson);
+        intentDetector.loadRule(rulesStr);
+        self.intentDetectorsMap[clusterID] = intentDetector;
+      } catch (e) {
+        log('something happened when configuring the intent detector for cluster ' + clusterName);
+        log('error: ' + e);
+      }
+    }).catch(function(errMsg) {
       log('Some error happened when reading and parsing the files for the cluster ' + clusterName);
       log('error: ' + errMsg);
     });
