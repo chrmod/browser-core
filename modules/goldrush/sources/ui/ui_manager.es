@@ -11,6 +11,8 @@ function log(s){
 export function UIManager() {
   // the list of coupons we have
   this.couponsMap = {};
+  // the callbacks list
+  this.callbacks = null;
 }
 
 // TODO_QUESTION: check how is the best way to implement all those methods.
@@ -22,11 +24,16 @@ export function UIManager() {
 //////////////////////////////////////////////////////////////////////////////
 //
 // @brief configure callbacks
-// @param
+// @param callbacks: an object with the following properties.
+//  {
+//    'show_coupon': callback, -> will show the coupon and redirect to web.
+//    'save_coupon': callback, -> will show a message to the user or redirect to some other special web.
+//    'not_interested': callback -> will just cancel this and maybe don't show it again for a while.
+//    'stop_forever': callback -> when the user don't want to see this any more in his current and future lifes.
+//  }
 //
-UIManager.prototype.configureCallbacks = function(show) {
-  // TODO: configure all the callbacks and also set the internal callbacks of
-  //       the popup, that will re-call all the internal callbacks as well.
+UIManager.prototype.configureCallbacks = function(callbacks) {
+  this.callbacks = callbacks;
 };
 
 
@@ -37,6 +44,11 @@ UIManager.prototype.configureCallbacks = function(show) {
 // @return true if we were able to show or not the coupon | false otherwise
 //
 UIManager.prototype.addCoupon = function(couponInfo) {
+  if (!this.callbacks) {
+    log('no callbacks set yet... we cannot add any coupon to the UI');
+    return false;
+  }
+
   if (this.couponsMap.hasOwnProperty(couponInfo['coupon_id'])) {
     // nothing to do
     log('we already have this coupon: ' + couponInfo['coupon_id']);
@@ -59,30 +71,60 @@ UIManager.prototype.addCoupon = function(couponInfo) {
     return false;
   }
 
-  const toolbar = currWindow.document.createElement('toolbar');
-  const iframe = currWindow.document.createElement('iframe');
-  const bottomBox = currWindow.document.querySelector('#browser-bottombox');
-  bottomBox.appendChild(toolbar);
-
+  const code = couponInfo['code'];
   const title = couponInfo['title'];
   const price = couponInfo['price'];
   const redirectURL = couponInfo['redirect_url'];
+  const imageURL = couponInfo['image_url'];
+  const description = couponInfo['desc'];
 
+  // get the notification box and build whatever we want to show (style) here.
+  // TODO: we need to style this, for now we will not, only in a nasty way.
+  var notificationContent = 'Hey there, there is a coupon for you (bla bla): ';
+  notificationContent += 'Coupon: ' + title;
+  notificationContent += '\tPrice: ' + price;
 
-  var htmlContent = '<h1>' + title + '</h1> ';
-  htmlContent += '<p>Price: ' + '<b>' + price + '</b></p>';
-  htmlContent += '<a href=\"' + redirectURL + '\">Check it out</a>';
+  // build the buttons callbacks
+  // TODO_QUESTION: localize buttons and content?
+  var buttons = [];
 
-  //iframe.setAttribute('src', 'chrome://cliqz/content/goldrush/ad1.html');
-  iframe.setAttribute('id', couponInfo['coupon_id']);
-  iframe.setAttribute('width', 400);
+  // show coupon
+  buttons.push({
+    label : 'Show Coupon',
+    accessKey : '1',
+    callback : this.callbacks['show_coupon']
+  });
 
-  iframe.setAttribute('src', 'data:text/html;charset=utf-8,' + escape(htmlContent));
-  //iframe.contentDocument.documentElement.innerHTML = htmlContent;
-  toolbar.appendChild(iframe);
+  // save coupon
+  buttons.push({
+    label : 'Save Coupon',
+    accessKey : '2',
+    callback : this.callbacks['save_coupon']
+  });
 
+  // not interested in this
+  buttons.push({
+    label : 'Not interested',
+    accessKey : '3',
+    callback : this.callbacks['not_interested']
+  });
 
+  // go and fu** urself
+  buttons.push({
+    label : 'Stop bothering me',
+    accessKey : '4',
+    callback : this.callbacks['stop_forever']
+  });
 
+  // now get the notification box and create it
+  // TODO_QUESTION: modify the priority? which one we should use + icon?
+  var gBrowser = currWindow.gBrowser;
+  var box = gBrowser.getNotificationBox();
+  var notification = box.appendNotification(notificationContent,
+                                            'goldrush-ad',
+                                            'chrome://cliqz/content/static/skin/cliqz_btn.png',
+                                            box.PRIORITY_WARNING_MEDIUM,
+                                            buttons);
 
   // we show the coupon properly
   return true;
