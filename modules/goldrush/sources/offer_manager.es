@@ -228,7 +228,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     });
     var rulesFilePromise = new Promise(function(resolve, reject) {
       // read the resource
-      let rscLoader = new ResourceLoader(['goldrush/clusters', dbFilePath], {dataType: 'raw'});
+      let rscLoader = new ResourceLoader(['goldrush/clusters', rulesFilePath], {dataType: 'raw'});
       rscLoader.load().then(str => {resolve(str);});
     });
 
