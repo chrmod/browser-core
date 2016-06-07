@@ -28,7 +28,11 @@ export default class {
         return this.persist(data);
       });
     }).then( data => {
-      return JSON.parse(data);
+      if(this.dataType === 'raw') {
+        return data;
+      } else {
+        return JSON.parse(data);
+      }
     });
   }
 

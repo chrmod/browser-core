@@ -1,7 +1,6 @@
 import { utils } from 'core/cliqz';
-import { readFile } from 'core/fs';
 import {IntentDetector} from 'goldrush/intent_detector';
-// import {IntentInput} from 'goldrush/intent_input';
+import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { DateTimeDB } from 'goldrush/dbs/datetime_db';
@@ -43,14 +42,6 @@ function parseMappingsFileAsPromise(filename) {
     });
   });
 
-}
-
-function readRawFile(resourceName) {
-  let filePath = [ 'cliqz', ...resourceName ];
-  return readFile(filePath).then( data => {
-      let parsedData = ( new TextDecoder() ).decode( data );
-      return parsedData;
-    });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +211,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     }
 
     // // generate the intent input
-    // this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
+    this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
 
     // we need to build the current cluster system.
     let dbFilePath = clusterFilesMap[clusterName]['db_file'];
@@ -239,8 +230,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     });
     var rulesFilePromise = new Promise(function(resolve, reject) {
       // read the resource
-      let resourceName = [ 'goldrush/clusters', rulesFilePath ];
-      readRawFile(resourceName).then(str => { resolve(str); });
+      let rscLoader = new ResourceLoader(['goldrush/clusters', rulesFilePath], {dataType: 'raw'});
+      rscLoader.load().then(str => {resolve(str);});
     });
 
     // get all the data and then construct the intent detector and push it into
@@ -251,7 +242,6 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     let rulesStr  = null;
     Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
       log('result from dbFilePromise and rulesFilePromise');
-      log('SR - latest version');
       log(results);
       // we need now to build the intent detector
       dbsJson = results[0];
