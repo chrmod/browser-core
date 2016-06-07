@@ -26,14 +26,17 @@ class ProcessScriptManager extends BaseProcessScriptLoader {
     this.mm = Cc["@mozilla.org/parentprocessmessagemanager;1"]
         .getService(Ci.nsIProcessScriptLoader);
 
-    this.mm.loadProcessScript(PROCESS_SCRIPT_URL, true);
+    this.processScriptUrl = PROCESS_SCRIPT_URL + "?" + Date.now();
+    this.mm.loadProcessScript(this.processScriptUrl, true);
 
     super.init();
   }
 
   unload() {
     super.unload();
-    this.mm.removeDelayedProcessScript(PROCESS_SCRIPT_URL);
+    this.broadcast("cliqz:core", "unload");
+    this.broadcast("cliqz:process-script", "unload");
+    this.mm.removeDelayedProcessScript(this.processScriptUrl);
   }
 
   broadcast(channel, msg) {

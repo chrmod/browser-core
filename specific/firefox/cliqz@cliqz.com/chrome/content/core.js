@@ -68,20 +68,21 @@ var tabsProgressListener = {
   },
 
   onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
-    //we do not consider local files
-    if(aStatus == 0) return;
-
-    CliqzEvents.pub("core.tab_state_change", {
-      url: aRequest && aRequest.name,
-      isValid: (aStateFlag & Components.interfaces.nsIWebProgressListener.STATE_START) && !aStatus,
-    });
+    if (aRequest) {
+      try {
+        CliqzEvents.pub("core.tab_state_change", {
+          url: aRequest && aRequest.name,
+          isValid: (aStateFlag & Components.interfaces.nsIWebProgressListener.STATE_START) && !aStatus
+        });
+      } catch (e) {
+      }
+    }
   }
-}
+};
 
 window.CLIQZ.Core = {
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keypress'],
     windowModules: [],
     eventListeners: [],
     init: function(){

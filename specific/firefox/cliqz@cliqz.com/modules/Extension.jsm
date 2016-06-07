@@ -79,6 +79,8 @@ var Extension = {
 
       // Load Config - Synchronous!
       this.config = {{CONFIG}};
+      CliqzUtils.RICH_HEADER = this.config.settings['richheader-url'] || CliqzUtils.RICH_HEADER;
+      CliqzUtils.RESULTS_PROVIDER = this. config.settings['resultsprovider-url'] || CliqzUtils.RESULTS_PROVIDER;
 
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(

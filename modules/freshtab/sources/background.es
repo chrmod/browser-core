@@ -55,7 +55,7 @@ export default {
           historyDialups = [],
           customDialups = dialUps.custom ? dialUps.custom : [];
 
-      historyDialups = History.getTopUrls(5).then(function(results){
+      historyDialups = History.getTopUrls().then(function(results){
         utils.log("History", JSON.stringify(results));
         //hash history urls
         results = results.map(function(r) {
@@ -63,7 +63,8 @@ export default {
             title: r.title,
             url: r.url,
             hashedUrl: utils.hash(r.url),
-            total_count: r.total_count
+            total_count: r.total_count,
+            custom: false
           }
         });
 
@@ -80,7 +81,7 @@ export default {
 
             dialUps.custom.some(function(dialup) {
 
-              if(utils.stripTrailingSlash(dialup.url) === url) {
+              if(utils.stripTrailingSlash(utils.tryDecodeURIComponent(dialup.url)) === url) {
                 isCustom = true;
                 return true;
               }
@@ -101,7 +102,7 @@ export default {
       if(customDialups.length > 0) {
         utils.log(customDialups, "custom dialups");
         customDialups = customDialups.map(function(dialup) {
-          return new SpeedDial(dialup.url, true);
+          return new SpeedDial(utils.tryDecodeURIComponent(dialup.url), true);
         });
       }
 
@@ -129,7 +130,7 @@ export default {
 
       if(isCustom) {
         dialUps.custom = dialUps.custom.filter(function(dialup) {
-          return dialup.url !== url
+          return utils.tryDecodeURIComponent(dialup.url) !== url
         });
       } else {
         if(!dialUps.history) {
@@ -140,14 +141,27 @@ export default {
 
       utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
     },
+
+    /**
+    * @return all visible speedDials
+    *
+    */
+    getVisibleDials(historyLimit) {
+      return this.actions.getSpeedDials().then((results) => {
+        return results.speedDials.filter(function(item, index) {
+          return (!item.custom && index < historyLimit) || item.custom;
+        });
+      })
+    },
     /**
      * @param String url
      */
     addSpeedDial(url) {
       const urlToAdd = utils.stripTrailingSlash(url);
-      //validate existing urls
-      return this.actions.getSpeedDials().then((result) => {
-        const isDuplicate = result.speedDials.some(function(dialup) {
+      //history returns most frequest 15 results, but we display up to 5
+      //so we need to validate only against visible results
+      return this.actions.getVisibleDials(5).then((result) => {
+        const isDuplicate = result.some(function(dialup) {
           return urlToAdd === utils.stripTrailingSlash(dialup.url);
         });
 
@@ -166,17 +180,17 @@ export default {
         ** looks like concurrency issues of messaging framework could lead to race conditions
         */
         const isPresent = dialUps.custom.some(function(dialup) {
-          return urlToAdd === utils.stripTrailingSlash(dialup.url);
+          return utils.tryEncodeURIComponent(urlToAdd) === utils.stripTrailingSlash(dialup.url);
         });
 
         if(isPresent) {
           throw "duplicate";
         } else {
           dialUps.custom.push({
-            url: url
+            url: utils.tryEncodeURIComponent(urlToAdd)
           });
           utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
-          return new SpeedDial(url, true);
+          return new SpeedDial(urlToAdd, true);
         }
       }).catch(reason => ({ error: true, reason }));
     },
@@ -185,14 +199,8 @@ export default {
 
       return News.getNews().then(function(news) {
         News.init();
-        //utils.log('Start getting news', news);
-        var topNews = news.top_h_news,
-            hbNews = news.hb_news || {},
-            hbNewsAll = [];
-
-        Object.keys(hbNews).forEach(function(domain) {
-          hbNewsAll = hbNewsAll.concat(hbNews[domain]);
-        });
+        var topNews = news.top_h_news || [],
+            hbNews = news.hb_news || [];
 
         topNews = topNews.map(function(r){
           r.title = r.short_title;
@@ -200,15 +208,16 @@ export default {
           return r;
         });
 
-        hbNewsAll = hbNewsAll.map( r => {
+        hbNews = hbNews.map( r => {
           r.personalized = true;
-          return r;
+         return r;
         });
 
         return {
           version: news.top_news_version,
-          news: topNews.concat(hbNewsAll).map( r => ({
+          news: topNews.concat(hbNews).map( r => ({
             title: r.title,
+            description: r.description,
             displayUrl: utils.getDetailsFromUrl(r.url).cleanHost || r.title,
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,

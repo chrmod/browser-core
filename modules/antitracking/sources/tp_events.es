@@ -92,7 +92,6 @@ function PageLoadData(url) {
                 });
             }
         }
-        // CliqzUtils.log("Data for url: " + this.hostname + " : " + JSON.stringify(obj),"XOXOX");
         // This was added to collect data for experiment, safe to stop collecting it now.
         // checkBlackList(this.url, obj);
         // checkFingerPrinting(this.url, obj);
@@ -227,9 +226,9 @@ var tp_events = {
                 var enabled = {
                     'qs': CliqzAttrack.isQSEnabled(),
                     'cookie': CliqzAttrack.isCookieEnabled(),
-                    'post': CliqzAttrack.isPostEnabled(),
                     'bloomFilter': CliqzAttrack.isBloomFilterEnabled(),
                     'trackTxt': CliqzAttrack.isTrackerTxtEnabled(),
+                    'forceBlock': CliqzAttrack.isForceBlockEnabled(),
                     'ui': background.buttonEnabled
                 };
                 for (var i = 0; i < payload_data.length; i++) {

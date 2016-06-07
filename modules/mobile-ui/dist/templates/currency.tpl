@@ -5,13 +5,13 @@
  {{/with}}
 
 <div id="currency-tpl" class='cqz-result-h3 currency' >
-    <section class="primary">
+    <section cliqz-action='copy-calc-answer' class="primary">
 
       <div class="card__meta">
           {{local 'no_legal_disclaimer'}}
       </div>
 
-      <h1 cliqz-action='copy-calc-answer' class="card__title">
+      <h1 class="card__title">
          <div class="main__headline">
             {{data.toSymbol}} <i id="calc-answer">{{numberFormat data.toAmount.main}}</i> {{data.toCurrency}}
           </div>

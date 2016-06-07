@@ -1,43 +1,66 @@
 'use strict';
-/* global document, CLIQZEnvironment, CliqzUtils, CliqzHandlebars, CLIQZ, osAPI */
+/* global document, CLIQZEnvironment, CliqzUtils, CliqzHandlebars, osAPI */
 
+import LongPress from 'mobile-touch/longpress';
 
-var touchTimer, isTapBlocked, historyTimer;
-var editMode = false, showOnlyFavorite = false, unfavoriteMode = false;
-var allHistory = [];
+var historyTimer;
+var editMode = false, showOnlyFavorite = false;
 var selectedQueries = [];
 var selectedHistory = [];
+var allHistory = [];
+var allFavorites = [];
 
 function showHistory(history) {
   clearTimeout(historyTimer);
-  var data = [];
-  allHistory = history.results;
-  var queries = getListFromStorage('recentQueries');
 
-  for(var i=0; i < allHistory.length; i++) {
-    allHistory[i].domain = allHistory[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  allHistory = history;
+  const queries = CLIQZEnvironment.getLocalStorage().getObject('recentQueries', []).reverse();
+
+  for (let i = 0; i < history.length; i++) {
+    history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
 
-  allHistory.reverse();
-  queries.reverse();
-  var hi = 0;
-  var qi = 0;
-  var date = '';
-  while(true) {
-    if(hi >= allHistory.length || qi >= queries.length) {
+  const data = mixHistoryWithQueries(queries, history);
+  displayData(data, showOnlyFavorite);
+}
+
+function showFavorites(favorites) {
+  clearTimeout(historyTimer);
+
+  allFavorites = favorites;
+  const favoriteHistory = favorites;
+
+  const favoriteQueries = CLIQZEnvironment.getLocalStorage().getObject('favoriteQueries', []);
+
+  for (let i = 0; i < favoriteHistory.length; i++) {
+    favoriteHistory[i].domain = favoriteHistory[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  }
+
+  const data = mixHistoryWithQueries(favoriteQueries, favoriteHistory);
+  displayData(data, showOnlyFavorite);
+}
+
+
+function mixHistoryWithQueries(queries, history) {
+  let data = [];
+  let hi = 0;
+  let qi = 0;
+  let date = '';
+  while (true) {
+    if (hi >= history.length || qi >= queries.length) {
       break;
     }
 
-    if(allHistory[hi].timestamp <= queries[qi].timestamp) {
-      if(getDateFromTimestamp(allHistory[hi].timestamp) !== date) {
-        data.push({date: getDateFromTimestamp(allHistory[hi].timestamp)});
-        date = getDateFromTimestamp(allHistory[hi].timestamp);
+    if (history[hi].timestamp <= queries[qi].timestamp) {
+      if (getDateFromTimestamp(history[hi].timestamp) !== date) {
+        data.push({date: getDateFromTimestamp(history[hi].timestamp)});
+        date = getDateFromTimestamp(history[hi].timestamp);
       }
-      data.push(allHistory[hi]);
+      data.push(history[hi]);
 
       hi++;
     } else {
-      if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
+      if (getDateFromTimestamp(queries[qi].timestamp) !== date) {
         data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
         date = getDateFromTimestamp(queries[qi].timestamp);
       }
@@ -45,16 +68,16 @@ function showHistory(history) {
       qi++;
     }
   }
-  while(hi < allHistory.length) {
-    if(getDateFromTimestamp(allHistory[hi].timestamp) !== date) {
-      data.push({date: getDateFromTimestamp(allHistory[hi].timestamp)});
-      date = getDateFromTimestamp(allHistory[hi].timestamp);
+  while (hi < history.length) {
+    if (getDateFromTimestamp(history[hi].timestamp) !== date) {
+      data.push({date: getDateFromTimestamp(history[hi].timestamp)});
+      date = getDateFromTimestamp(history[hi].timestamp);
     }
-    data.push(allHistory[hi]);
+    data.push(history[hi]);
     hi++;
   }
-  while(qi < queries.length) {
-    if(getDateFromTimestamp(queries[qi].timestamp) !== date) {
+  while (qi < queries.length) {
+    if (getDateFromTimestamp(queries[qi].timestamp) !== date) {
       data.push({date: getDateFromTimestamp(queries[qi].timestamp)});
       date = getDateFromTimestamp(queries[qi].timestamp);
     }
@@ -62,40 +85,20 @@ function showHistory(history) {
     qi++;
   }
 
-  if(showOnlyFavorite) {
-    displayFavorites(data);
-  } else {
-    displayData(data);
-  }
-
-}
-
-function displayFavorites(data) {
-  displayData(data.filter(function(item) {
-    return item.date || item.favorite; // filter all unfavorite records
-  }).filter(function(item, index, arr){
-    return !item.date || (arr[index + 1] && !arr[index + 1].date); // filter empty days
-  }), true);
-
-  document.getElementById('show_history').className = '';
-  document.getElementById('show_favorites_only').className = 'active';
+  return data;
 }
 
 function displayData(data, isFavorite = false) {
-  if(!CliqzHandlebars.tplCache['conversations'] || CliqzUtils.getLocalizedString('mobile_history_title') === 'mobile_history_title') {
+  if (!CliqzHandlebars.tplCache['conversations']) {
     return setTimeout(displayData, 100, data);
   }
 
-  var emptyMsg = CliqzUtils.getLocalizedString(isFavorite ? 'mobile_no_favorites' : 'mobile_no_history');
+  document.body.innerHTML = CliqzHandlebars.tplCache['conversations']({data: data, isFavorite});
 
-  document.body.innerHTML = CliqzHandlebars.tplCache['conversations']({data: data, emptyMsg: emptyMsg});
-
-  document.getElementById('show_favorites_only').className = '';
-  document.getElementById('show_history').className = 'active';
-
-  var B = document.body,
-      H = document.documentElement,
-      height;
+  const B = document.body,
+      H = document.documentElement;
+  
+  let height;
 
   if (typeof document.height !== 'undefined') {
       height = document.height; // For webkit browsers
@@ -110,7 +113,7 @@ function displayData(data, isFavorite = false) {
   });
 
   CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'click', function () {
-    var targeType = this.className === 'question' ? 'query' : 'url';
+    const targeType = this.className === 'question' ? 'query' : 'url';
     CliqzUtils.telemetry({
       type: 'history',
       action: 'click',
@@ -120,7 +123,7 @@ function displayData(data, isFavorite = false) {
       target_ts: parseInt(this.dataset.timestamp)
     });
   });
-  var queryCount = data.filter(function (item) { return item.query; }).length,
+  const queryCount = data.filter(function (item) { return item.query; }).length,
       urlCount = data.filter(function (item) { return item.url; }).length;
   CliqzUtils.telemetry({
     type: 'history',
@@ -131,47 +134,29 @@ function displayData(data, isFavorite = false) {
   });
 
 
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchstart', function () {
-    touchTimer = setTimeout(launchEditMode, 500, this);
-  });
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchend', function () {
-    var type = this.getAttribute('class');
-    var clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
-    if(touchTimer) {
-      clearTimeout(touchTimer);
-      touchTimer = null;
+  function onTap(element) {
+    const type = element.getAttribute('class');
+    const clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
+    if (editMode) {
+      selectItem(element);
     } else {
-      return;
+      clickAction(element.getAttribute('data'));
     }
-    if(isTapBlocked) {
-      isTapBlocked = false;
-      return;
-    }
-    if(editMode) {
-      selectItem(this);
-    } else {
-      clickAction(this.getAttribute('data'));
-    }
-  });
-  CLIQZEnvironment.addEventListenerToElements('.question, .answer', 'touchmove', function () {
-    isTapBlocked = true;
-    clearTimeout(touchTimer);
-  });
+  }
+  new LongPress('.question, .answer', launchEditMode, onTap);
 }
 
 function launchEditMode(element) {
-  clearTimeout(touchTimer);
-  touchTimer = null;
 
-  if(editMode) {
+  if (editMode) {
     endEditMode();
     launchEditMode(element);
   } else {
-    var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
+    let checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
     checkboxes.forEach(function(checkbox){
       checkbox.style.display = 'block';
     });
-    var div = document.getElementById('control');
+    let div = document.getElementById('control');
     div.style.display = 'block';
     editMode = true;
     selectedQueries = [];
@@ -181,21 +166,17 @@ function launchEditMode(element) {
 }
 
 function endEditMode() {
-  var framers = [].slice.call(document.getElementsByClassName('framer'));
-  framers.forEach(
-    function(item) {
-      item.setAttribute('class', 'framer');
-    }
-  );
+  const framers = [].slice.call(document.getElementsByClassName('framer'));
+  framers.forEach(item => item.setAttribute('class', 'framer'));
 
-  var checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
+  const checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
   checkboxes.forEach(function(element){
-    var checkbox = element.querySelector('input');
+    let checkbox = element.querySelector('input');
     checkbox.checked = false;
     element.style.display = 'none';
   });
 
-  var div = document.getElementById('control');
+  let div = document.getElementById('control');
   div.style.display = 'none';
   editMode = false;
   selectedQueries = [];
@@ -203,23 +184,23 @@ function endEditMode() {
 }
 
 function getDateFromTimestamp(time) {
-    var d = new Date(time);
+    const d = new Date(time);
 
-    var days = d.getDate();
+    let days = d.getDate();
     days = days > 9 ? days : '0' + days;
 
-    var months = d.getMonth()+1;
+    let months = d.getMonth()+1;
     months = months > 9 ? months : '0' + months;
 
-    var year = d.getFullYear();
+    const year = d.getFullYear();
 
-    var formatedDate = days + '.' + months + '.' + year;
+    const formatedDate = days + '.' + months + '.' + year;
     return formatedDate;
 }
 function filterHistory(value) {
     var framers = document.getElementsByClassName('framer');
-    for(var i=0;i<framers.length;i++) {
-        if(framers[i].childNodes[1].firstChild.textContent.toLowerCase().match(value.toLowerCase())) {
+    for (let i = 0; i < framers.length; i++) {
+        if (framers[i].childNodes[1].firstChild.textContent.toLowerCase().match(value.toLowerCase())) {
             framers[i].parentNode.style.display = 'block';
         } else {
             framers[i].parentNode.style.display = 'none';
@@ -230,146 +211,134 @@ function filterHistory(value) {
 
 function favoriteSelected() {
   setQueryFavorite();
-  if(selectedHistory.length > 0) {
-    osAPI.setHistoryFavorite(selectedHistory, !unfavoriteMode);
+  if (selectedHistory.length > 0) {
+    setHistoryFavorite();
   }
   endEditMode();
-  getHistory(showOnlyFavorite);
+  update();
 }
 
 function setQueryFavorite() {
-  var allQueries = getListFromStorage('recentQueries');
-
-  var index = 0;
-  allQueries.forEach(function(item) {
-    if(index >= selectedQueries.length) {
-      return;
+  let favoriteQueries = CLIQZEnvironment.getLocalStorage().getObject('favoriteQueries', []);
+  selectedQueries.forEach((item) => {
+    for (let i = 0; i < favoriteQueries.length; i++) {
+      if (item.query === favoriteQueries[i].query) {
+        favoriteQueries.splice(i, 1);
+        break;
+      }
     }
-    if(item.id === selectedQueries[index]) {
-      item.favorite = !unfavoriteMode;
-      index++;
+    if (!showOnlyFavorite) {
+      favoriteQueries.push({query: item.query, timestamp: item.timestamp});
     }
   });
 
-  CLIQZEnvironment.getLocalStorage().setItem('recentQueries', JSON.stringify(allQueries));
+  CLIQZEnvironment.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
+}
+
+function setHistoryFavorite() {
+  selectedHistory.forEach((item) => {
+    for (let i = 0; i < allFavorites.length; i++) {
+      if (item.url === allFavorites[i].url) {
+        allFavorites.splice(i, 1);
+        break;
+      }
+    }
+    if (!showOnlyFavorite) {
+      allFavorites.push({url: item.url, timestamp: item.timestamp, title:item.title});
+    }
+  });
+  osAPI.setFavorites(selectedHistory, !showOnlyFavorite);
 }
 
 function removeQueries() {
-  var queries = getListFromStorage('recentQueries');
+  let queries = CLIQZEnvironment.getLocalStorage().getObject('recentQueries', []);
 
-  var index = 0;
-  queries = queries.filter(function(query) {
-    return index >= selectedQueries.length || selectedQueries[index] !== query.id || (index++ && false);
-  });
-  CLIQZEnvironment.getLocalStorage().setItem('recentQueries', JSON.stringify(queries));
+  const queryIds = selectedQueries.map(query => query.id);
+  queries = queries.filter(query => queryIds.indexOf(query.id) === -1);
+  CLIQZEnvironment.getLocalStorage().setObject('recentQueries', queries);
+}
+
+function removeHistoryItems(ids) {
+  allHistory = allHistory.filter(history => ids.indexOf(history.id) === -1);
+  osAPI.removeHistoryItems(ids);
 }
 
 function removeSelected() {
-  if(selectedQueries.length > 0) {
+  if (selectedQueries.length > 0) {
     removeQueries();
   }
-  if(selectedHistory.length > 0) {
-    osAPI.removeHistory(selectedHistory);
+  if (selectedHistory.length > 0) {
+    removeHistoryItems(selectedHistory.map(item => item.id));
   }
   endEditMode();
-  getHistory(showOnlyFavorite);
+  update();
 }
 
-function selectQuery(id) {
-  for(var i = 0; i < selectedQueries.length; i++) {
-    if(selectedQueries[i] === id) {
+function selectQuery(item) {
+  for (let i = 0; i < selectedQueries.length; i++) {
+    if (selectedQueries[i].id === item.id) {
       selectedQueries.splice(i, 1);
       return;
-    } else if(selectedQueries[i] < id) {
-      selectedQueries.splice(i, 0, id);
-      return;
     }
   }
-  selectedQueries.push(id);
+  selectedQueries.push(item);
 }
 
-function selectHistory(id) {
-  for(var i = 0; i < selectedHistory.length; i++) {
-    if(selectedHistory[i] === id) {
+function selectHistory(item) {
+  for (let i = 0; i < selectedHistory.length; i++) {
+    if (selectedHistory[i].id === item.id) {
       selectedHistory.splice(i, 1);
-      return;
-    } else if(selectedHistory[i] < id) {
-      selectedHistory.splice(i, 0, id);
       return;
     }
   }
-  selectedHistory.push(id);
+  selectedHistory.push(item);
 }
 
 function selectItem(item) {
-  var checkbox = item.querySelector('input');
+  let checkbox = item.querySelector('input');
   checkbox.checked = !checkbox.checked;
-  var selectAction = item.getAttribute('class').indexOf('question') >= 0 ? selectQuery : selectHistory;
-  var id = parseInt(item.getAttribute('data-id'));
-  selectAction(id);
-  setUnfavoriteMode();
-  if(unfavoriteMode) {
-    document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_unstar');
-  } else {
-    document.getElementById('control_star').innerText = CliqzUtils.getLocalizedString('mobile_history_star');
-  }
-  var framer = item.getElementsByClassName('framer')[0];
-  if(framer.getAttribute('class').indexOf('selected') >= 0) {
+  
+  const id = parseInt(item.dataset.id);
+  const data = item.getAttribute('data');
+  const title = item.dataset.title;
+  const timestamp = Date.now();
+  item.getAttribute('class').indexOf('question') >= 0 ? selectQuery({id, query:data, title, timestamp}) : selectHistory({id, url:data, title, timestamp});
+  
+  let framer = item.getElementsByClassName('framer')[0];
+  if (framer.getAttribute('class').indexOf('selected') >= 0) {
     framer.setAttribute('class', 'framer');
   } else {
     framer.setAttribute('class', 'framer selected');
   }
-  if(selectedQueries.length + selectedHistory.length === 0) {
+  if (selectedQueries.length + selectedHistory.length === 0) {
     endEditMode();
   }
 }
 
-function setUnfavoriteMode() {
-  var selectedFavoriteQueries = getSelectedFavorite(getListFromStorage('recentQueries'), selectedQueries);
-  var selectedFavoriteHistory = getSelectedFavorite(allHistory, selectedHistory);
-  unfavoriteMode = selectedFavoriteQueries.length + selectedFavoriteHistory.length > 0;
-}
-
-function getSelectedFavorite(list, selectedList) {
-  return list.filter(function(item) {
-    return item.favorite && selectedList.indexOf(item.id) > -1;
-  });
-}
-
-function getHistory(onlyFavorites) {
+function init(onlyFavorites = showOnlyFavorite) {
   showOnlyFavorite = onlyFavorites;
-  historyTimer = setTimeout(showHistory, 200, {results: []});
-  osAPI.searchHistory('', 'History.showHistory');
+  const callback = onlyFavorites ? showFavorites : showHistory;
+  historyTimer = setTimeout(callback, 200, {results: []});
+  onlyFavorites ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
+}
+
+function update() {
+  showOnlyFavorite ? showFavorites(allFavorites) : showHistory(allHistory);
 }
 
 
 function clearQueries(removeFavorites) {
-  if(removeFavorites) {
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries', '[]');
-  } else {
-    var recentQueries = getListFromStorage('recentQueries');
-    CLIQZEnvironment.getLocalStorage().setItem('recentQueries',
-      JSON.stringify(
-        recentQueries.filter(function (item) {
-          return item.favorite;
-        })
-      )
-    );
+  CLIQZEnvironment.getLocalStorage().setObject('recentQueries', []);
+  if (removeFavorites) {
+    CLIQZEnvironment.getLocalStorage().setObject('favoriteQueries', []);
   }
-}
-
-function getListFromStorage(listName) {
-  var list = CLIQZEnvironment.getLocalStorage().getItem(listName);
-  return list ? JSON.parse(list) : [];
 }
 
 
 var History = {
-  init: function(){
-    getHistory(showOnlyFavorite);
-  },
+  init: init,
   showHistory: showHistory,
-  getHistory: getHistory,
+  showFavorites: showFavorites,
   clearQueries: clearQueries,
   favoriteSelected: favoriteSelected,
   removeSelected: removeSelected,

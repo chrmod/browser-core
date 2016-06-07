@@ -7,6 +7,11 @@
 
 function load(ctx) {
 
+function isValidURL(str) {
+  var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  return pattern.test(str);
+}
+
 var TEMPLATES = CLIQZEnvironment.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
@@ -658,6 +663,7 @@ var UI = {
     closeResults: closeResults,
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
+    getElementByAttr: getElementByAttr,
     enhanceResults: enhanceResults
 };
 
@@ -961,15 +967,20 @@ function setPartialTemplates(data) {
   if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
   }
-
-  if (data.deepResults) {
-    data.deepResults.forEach(function(item){
+  else if (data.deepResults) {
+    data.deepResults.forEach(function (item) {
       if (item.type == 'buttons') {
         data.btns = item.links;
         delete item.links;
         partials.push('buttons');
       }
-    });
+    })
+  }
+    
+  // Music
+  if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
+    partials.push('music-data-sc');
+
   }
 
   return partials;
@@ -1301,6 +1312,16 @@ function getResultOrChildAttr(el, attr){
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
+function getElementByAttr(el, attr, val) {
+  if (el && el.getAttribute(attr) === val) {
+    return el;
+  }
+  if (el === null) return null;
+  if (el.className === IC) return null;
+
+  return getElementByAttr(el.parentNode, attr, val);
+}
+
 function urlIndexInHistory(url, urlList) {
     var index = 0;
     for(var key in urlList) {
@@ -1413,7 +1434,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         clearMessage('bottom');
                         UI.handleResults();
-                        if (user_location != "de" && !ignored_location_warning)
+                        if (user_location != "de" && user_location != "" && !ignored_location_warning)
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });
@@ -1480,13 +1501,14 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.telemetry(action);
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
-
-      CliqzEvents.pub("ui:click-on-url", {
-        url: decodeURIComponent(url),
-        query: CliqzAutocomplete.lastSearch,
-        type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
-        positionType: action.position_type
-      });
+      if (!CLIQZEnvironment.isPrivate() && isValidURL(url)) {
+        CliqzEvents.pub("ui:click-on-url", {
+          url: decodeURIComponent(url),
+          query: CliqzAutocomplete.lastSearch,
+          type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+          positionType: action.position_type
+        });
+      }
     }
     if(!window.gBrowser)return;
 }
@@ -1531,7 +1553,8 @@ function resultClick(ev) {
 
             var url = CliqzUtils.cleanMozillaActions(url);
             CLIQZEnvironment.openLink(window, url, newTab);
-            //Lucian: decouple!
+
+            //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if (!newTab) CLIQZ.Core.popup.hidePopup();
             break;

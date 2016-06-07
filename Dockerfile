@@ -17,6 +17,9 @@ RUN apt-get install -y zip
 RUN pip install fabric
 RUN pip install jinja2
 RUN pip install awscli
+RUN pip install requests
+RUN pip install pycrypto
+RUN pip install argparse
 
 RUN wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8zg.tar.gz
 RUN tar zxf openssl-0.9.8zg.tar.gz

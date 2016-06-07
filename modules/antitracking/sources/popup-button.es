@@ -3,7 +3,6 @@ import { utils } from "core/cliqz";
 
 export default CliqzPopupButton;
 
-// stolen mostly from: https://github.com/gorhill/uBlock/blob/master/platform/firefox/vapi-background.js#L2863
 function CliqzPopupButton(options) {
   this.CustomizableUI = Components.utils.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
 
@@ -41,6 +40,9 @@ function CliqzPopupButton(options) {
 
       iframe.style.height = toPx(clientHeight);
       panel.style.height = toPx(clientHeight + panel.boxObject.height - panel.clientHeight );
+
+      // triggered when popup is opened
+      options.actions.telemetry({ action: 'click', target: 'popup', includeUnsafeCount: true });
     }
     iframe.addEventListener('load', onPopupReady, true);
   }

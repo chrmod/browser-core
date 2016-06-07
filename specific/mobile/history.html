@@ -19,10 +19,12 @@
             "core",
             "mobile-dev", //only available in mobile-dev config
             "mobile-history",
+            "mobile-touch",
             "static"
           ]);
         }).then(function () {
-          CliqzUtils.init(window);
+          return CliqzUtils.init(window);
+        }).then(function () {
           osAPI.init();
           History.init();
         });

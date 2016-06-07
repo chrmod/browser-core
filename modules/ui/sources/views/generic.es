@@ -48,7 +48,11 @@ export default class GenericView extends localData {
       'missing_location_1': {
         'space-count': 2,
         'path': 'partials/location/missing_location_1'
-      }
+      },
+      'music-data-sc': {
+        'space-count': 3,
+        'path': 'partials/music-data-sc'
+       }
     }
 
     // If we have more than 5 history results we extent the result to full height.

@@ -5,7 +5,6 @@
 #
 # in the extension: change CliqzUtils.LOG to 'http://localhost:PORT'
 #
-# author: Dominik Schmidt (cliqz)
 
 PORT=3333
 FILE_NAME="logs/track_$(date "+%Y_%m_%d-%H_%M_%S")"
@@ -31,7 +30,7 @@ case "$1" in
 		kill $(cat $PID_FILE)
 		rm $PID_FILE
 
-		echo "stopped client"		
+		echo "stopped client"
 		;;
 	*)
 		echo "Usage: $0 start|stop"

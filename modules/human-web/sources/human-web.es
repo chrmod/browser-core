@@ -214,7 +214,7 @@ function _log(msg){
 }
 
 var CliqzHumanWeb = {
-    VERSION: '2.0',
+    VERSION: '2.1',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -2621,7 +2621,7 @@ var CliqzHumanWeb = {
         CliqzHumanWeb._telemetry_req = null;
     },
     // ************************ Database ***********************
-    // Stolen from modules/CliqzHistory
+    // source modules/CliqzHistory
     // *********************************************************
     initDB: function() {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {

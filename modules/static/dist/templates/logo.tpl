@@ -5,6 +5,7 @@
             url="{{logo_url}}"
         {{/if}}
         style="{{ style }};"
+        dont-remove="true"
     >
         {{ text }}
     </div>

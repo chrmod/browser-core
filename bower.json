@@ -2,12 +2,13 @@
   "name": "navigation-extension",
   "description": "",
   "authors": [],
-  "homepage": "https://github.com/chrmod/navigation-extension",
+  "homepage": "https://github.com/cliqz/navigation-extension",
   "moduleType": [],
   "private": true,
   "dependencies": {
     "handlebars": "~4.0.5",
-    "loader.js": "ember-cli/loader.js#3.2.1"
+    "loader.js": "ember-cli/loader.js#3.2.1",
+    "pouchdb": "~5.3.2"
   },
   "devDependencies": {
     "mocha": "cliqz-oss/mocha#2.5.0",

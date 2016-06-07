@@ -152,7 +152,10 @@ var CLIQZEnvironment = {
         'partials/location/local-data',
         'partials/location/missing_location_1',
         'partials/timetable-cinema',
-        'partials/timetable-movie'
+        'partials/timetable-movie',
+        'partials/music-data-sc',
+        'partials/streaming',
+        'partials/lyrics'
     ],
     init: function(){
         CLIQZEnvironment.loadSearch();
@@ -352,7 +355,7 @@ var CLIQZEnvironment = {
 
         win.CLIQZ.Core.triggerLastQ = true;
         if(newTab) {
-            win.gBrowser.addTab(url);
+           return win.gBrowser.addTab(url);
         } else if(newWindow) {
             win.open(url, '_blank');
         } else if(newPrivateWindow) {
@@ -374,9 +377,12 @@ var CLIQZEnvironment = {
     },
     tldExtractor: function(host){
         var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
-                                    .getService(Ci.nsIEffectiveTLDService);
+                            .getService(Ci.nsIEffectiveTLDService),
+            idnService = Cc["@mozilla.org/network/idn-service;1"]
+                            .getService(Ci.nsIIDNService),
+            utf8str = idnService.convertACEtoUTF8(encodeURIComponent(host));
 
-        return eTLDService.getPublicSuffixFromHost(host);
+        return decodeURIComponent(eTLDService.getPublicSuffixFromHost(utf8str));
     },
     getBrandsDBUrl: function(version){
       return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
@@ -674,10 +680,12 @@ var CLIQZEnvironment = {
       var doc = CliqzUtils.getWindow().document,
           contextMenu = doc.createElement('menupopup');
       box.appendChild(contextMenu);
+      contextMenu.setAttribute('id', "dropdownContextMenu");
 
       for(var item = 0; item < menuItems.length; item++) {
           var menuItem = doc.createElement('menuitem');
           menuItem.setAttribute('label', menuItems[item].label);
+          menuItem.setAttribute('functionality', menuItems[item].functionality);
           menuItem.addEventListener("command", menuItems[item].command, false);
           if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
             menuItem.setAttribute('class', 'menuitem-iconic');
@@ -686,6 +694,21 @@ var CLIQZEnvironment = {
           contextMenu.appendChild(menuItem);
       }
       return contextMenu
+    },
+    /**
+     * Construct a uri from a url
+     * @param {string}  aUrl - url
+     * @param {string}  aOriginCharset - optional character set for the URI
+     * @param {nsIURI}  aBaseURI - base URI for the spec
+     */
+    makeUri: function(aUrl, aOriginCharset, aBaseURI) {
+      var uri;
+      try {
+        uri = Services.io.newURI(aUrl, aOriginCharset, aBaseURI);
+      } catch(e) {
+        uri = null
+      }
+      return uri;
     },
     // lazy init
     // callback called multiple times

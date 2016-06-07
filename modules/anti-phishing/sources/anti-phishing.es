@@ -202,7 +202,6 @@ function checkStatus(url, md5Prefix, md5Surfix) {
     if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
-            // alert(doc, md5Prefix + md5Surfix, bw[md5Surfix]);
         }
     } else {
         CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
