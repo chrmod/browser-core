@@ -295,29 +295,17 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 // @note check the intent input to see which is the expected format
 //
 OfferManager.prototype.formatEvent = function(originalURL) {
+  log('formatEvent');
   if (!this.mappings) {
     return null;
   }
 
-  // scheme: scheme,
-  // name: name,
-  // domain: tld ? name + '.' + tld : '',
-  // tld: tld,
-  // subdomains: subdomains,
-  // path: path,
-  // query: query,
-  // fragment: fragment,
-  // extra: extra,
-  // host: host,
-  // cleanHost: cleanHost,
-  // ssl: ssl,
-  // port: port,
-  // friendly_url: friendly_url
-  var u = utils.getDetailsFromUrl(originalURL);
 
   // we need to detect if we are in a domain of some cluster.
-  const domainName = u.host;
+  const domainName = originalURL['name'];
   const domainID = this.mappings['dname_to_did'][domainName];
+  log('domainName' + domainName);
+  log('domainID' + domainID);
   if (!domainID) {
     // skip this one
     return null;
@@ -326,9 +314,11 @@ OfferManager.prototype.formatEvent = function(originalURL) {
   // TODO: get all the fields we need here.
 
   // TODO_QUESTION: get the full url?
-  const fullURL = CliqzUtils.cleanMozillaActions(originalURL);
-  // TODO_QUESTION: how to get the current timestamp (assume that the event happened now?)
-  const timestamp = 0;
+  const fullURL = originalURL['domain'] + originalURL['path'] ;
+
+
+  // This is how the other modules at cliqz does it
+  const timestamp = Date.now();
   // check if we are in a checkout page?
   // TODO implement this
   const checkoutFlag = false;
@@ -414,10 +404,11 @@ OfferManager.prototype.trackCoupon = function(coupon, originalURL) {
 //        Here we will get a specific value for the given event and we should do
 //        all the logic of showing a coupong if our system detects a coupon or not.
 //
-OfferManager.prototype.processNewEvent = function(originalURL) {
+OfferManager.prototype.processNewEvent = function(urlObject) {
   // TODO for now we will use a url event (asses), we can add or get extra
   //      information in this method an use it
 
+  log('processNewEvent');
   // here we need to:
   // 1) parse the url information and format it in a way that the intent intput
   //    can handle
@@ -436,9 +427,11 @@ OfferManager.prototype.processNewEvent = function(originalURL) {
   //    used it or not.
 
   // (1) & (2)
-  var event = this.formatEvent(originalURL);
+  var event = this.formatEvent(urlObject);
+  log('event' + JSON.stringify(event, null, 4));
   if (!event) {
     // we skip this event.
+    log('skipping event has domain relevant');
     return;
   }
 

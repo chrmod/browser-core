@@ -76,6 +76,11 @@ export default {
   onLocationChangeHandler(url) {
     var u = utils.getDetailsFromUrl(url);
     log('location changed to ' + u.host);
+    if (this.offerManager) {
+      this.offerManager.processNewEvent(u);
+    } else {
+      log('no offerManager object');
+    }
     // TODO: remove this is temporary
 
     // this.offerManager.uiManager.addCoupon({
