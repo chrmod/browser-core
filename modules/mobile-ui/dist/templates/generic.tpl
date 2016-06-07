@@ -28,30 +28,38 @@
 			<!-- main images -->
 
 			<div class="card__gallery">
-			{{#if data.richData.image}}
-	            <div class="image big" data-style="background-image: url({{ data.richData.image }});">
-	                Image
-	            </div>
-	        {{else}}
+				{{#if data.richData.image}}
+		            <div class="image big" data-style="background-image: url({{ data.richData.image }});">
+		                Image
+		            </div>
+		        {{else}}
 
-				{{#if data.media}}
-					<div class="image big" data-style="background-image: url({{ data.media }});">
-						Image
-					</div>
-				{{else}}
-					{{#if image.src}}
-						<div class="image big" data-style="background-image: url({{ image.src }})">
+					{{#if data.media}}
+						<div class="image big" data-style="background-image: url({{ data.media }});">
 							Image
 						</div>
+					{{else}}
+						{{#if image.src}}
+							<div class="image big" data-style="background-image: url({{ image.src }})">
+								Image
+							</div>
+						{{/if}}
+						{{#if data.i}}
+							<div class="image big" data-style="background-image: url({{ data.i }})">
+								Image
+							</div>
+						{{/if}}
 					{{/if}}
-					{{#if data.i}}
-						<div class="image big" data-style="background-image: url({{ data.i }})">
-							Image
-						</div>
-					{{/if}}
+
 				{{/if}}
+			</div>
 
-			{{/if}}
+			<div class="card__gallery">
+				{{#if data.image}}
+		            <div class="image big" data-style="background-image: url({{ data.image.src }});">
+		                Image
+		            </div>
+				{{/if}}
 			</div>
 
 	        <!-- end main images -->
