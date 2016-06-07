@@ -9,7 +9,7 @@
           <td align="center" valign="top">
             {{#if this}}
               <div class="blockTopsite" mainDomain="{{mainDomain}}" {{#unless ../isEditMode}} style="display: none;" {{/unless}}>X</div>
-              <div class="topSitesLink" url="{{baseDomain}}">
+              <div class="topSitesLink" url="{{url}}">
                   <div class="topsites__item"
                    style="{{style}}"
                    show-status=""

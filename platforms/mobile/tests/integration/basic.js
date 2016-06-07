@@ -549,8 +549,8 @@ describe("Freshtab", function () {
     it("display 2 top sites from history", function () {
       const topsites = $('.topSitesLink');
       expect(topsites).to.have.length(2);
-      expect(topsites[0].getAttribute('url')).to.equal('http://www.manager-magazin.de');
-      expect(topsites[1].getAttribute('url')).to.equal('http://www.tagesschau.de');
+      expect(topsites[0].getAttribute('url')).to.equal('http://www.manager-magazin.de/unternehmen/artikel/bayer-uebernahmepoker-mit-monsanto-geht-weiter-a-1094026.html');
+      expect(topsites[1].getAttribute('url')).to.equal('http://www.tagesschau.de/eilmeldung/eilmeldung-1203.html');
     });
   });
 
@@ -567,7 +567,7 @@ describe("Freshtab", function () {
     it("should display 1 website", function () {
       const topsites = $('.topSitesLink');
       expect(topsites).to.have.length(1);
-      expect(topsites[0].getAttribute('url')).to.equal('http://www.tagesschau.de');
+      expect(topsites[0].getAttribute('url')).to.equal('http://www.tagesschau.de/eilmeldung/eilmeldung-1203.html');
     });
   });
 
@@ -585,7 +585,7 @@ describe("Freshtab", function () {
     it("should not display the blocked topsite again", function () {
       const topsites = $('.topSitesLink');
       expect(topsites).to.have.length(1);
-      expect(topsites[0].getAttribute('url')).to.equal('http://www.tagesschau.de');
+      expect(topsites[0].getAttribute('url')).to.equal('http://www.tagesschau.de/eilmeldung/eilmeldung-1203.html');
     });
   });
 
@@ -603,8 +603,8 @@ describe("Freshtab", function () {
     it("should not deleted the blocked topsite again", function () {
       const topsites = $('.topSitesLink');
       expect(topsites).to.have.length(2);
-      expect(topsites[0].getAttribute('url')).to.equal('http://www.manager-magazin.de');
-      expect(topsites[1].getAttribute('url')).to.equal('http://www.tagesschau.de');
+      expect(topsites[0].getAttribute('url')).to.equal('http://www.manager-magazin.de/unternehmen/artikel/bayer-uebernahmepoker-mit-monsanto-geht-weiter-a-1094026.html');
+      expect(topsites[1].getAttribute('url')).to.equal('http://www.tagesschau.de/eilmeldung/eilmeldung-1203.html');
     });
   });
 
@@ -622,8 +622,8 @@ describe("Freshtab", function () {
     it("should display the restored topsites", function () {
       const topsites = $('.topSitesLink');
       expect(topsites).to.have.length(2);
-      expect(topsites[0].getAttribute('url')).to.equal('http://www.manager-magazin.de');
-      expect(topsites[1].getAttribute('url')).to.equal('http://www.tagesschau.de');
+      expect(topsites[0].getAttribute('url')).to.equal('http://www.manager-magazin.de/unternehmen/artikel/bayer-uebernahmepoker-mit-monsanto-geht-weiter-a-1094026.html');
+      expect(topsites[1].getAttribute('url')).to.equal('http://www.tagesschau.de/eilmeldung/eilmeldung-1203.html');
     });
   });
 
