@@ -63,5 +63,14 @@ var jsAPI = {
   },
   restoreBlockedTopSites: function () {
     CLIQZEnvironment.getLocalStorage().setObject('blockedTopSites', []);
+  },
+  onShow: function () {
+    if (CLIQZ.UI) { // search view
+      if (!CLIQZ.UI.isSearch()) { // freshtab
+        CLIQZEnvironment.initHomepage();
+      }
+    } else { // history view
+      History.init();
+    }
   }
 }
