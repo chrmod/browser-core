@@ -216,7 +216,7 @@ IntentDetector.prototype.loadRule = function(ruleString) {
 //
 // @brief evaluateInput
 //
-IntentDetector.prototype.evaluateInput = function(intentInput, mappings) {
+IntentDetector.prototype.evaluateInput = function(intentInput) {
   if (this.ruleData === null) {
     log('cannot evaluate we have a null rule data: ' + this.clusterID);
     return 0;

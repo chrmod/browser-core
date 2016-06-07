@@ -114,7 +114,6 @@ CliqzGoldrushPopupButton.prototype.showPopUp = function () {
 
 };
 
-// TODO_QUESTION: this
 
 CliqzGoldrushPopupButton.prototype.updateView = function (win, clientHeight) {
   log('updateView called');

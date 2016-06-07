@@ -34,19 +34,20 @@ UIManager.prototype.configureCallbacks = function(show) {
 //
 // @brief add a coupon to the list of the pop up
 // @param couponInfo is the coupon object containing the information of it.
+// @return true if we were able to show or not the coupon | false otherwise
 //
 UIManager.prototype.addCoupon = function(couponInfo) {
   if (this.couponsMap.hasOwnProperty(couponInfo['coupon_id'])) {
     // nothing to do
     log('we already have this coupon: ' + couponInfo['coupon_id']);
-    return;
+    return false;
   }
 
   // the coupon should have the state
-  if (!couponInfo.hasOwnProperty('used_state')) {
-    log('state has no \'used_state\', we will set it to false');
-    couponInfo['used_state'] = false;
-  }
+  // if (!couponInfo.hasOwnProperty('used_state')) {
+  //   log('state has no \'used_state\', we will set it to false');
+  //   couponInfo['used_state'] = false;
+  // }
 
   // else we need to add it here
   this.couponsMap[couponInfo['coupon_id']] = couponInfo;
@@ -55,7 +56,7 @@ UIManager.prototype.addCoupon = function(couponInfo) {
   // REMOVE THIS LATER
   var currWindow = CliqzUtils.getWindow();
   if (!currWindow) {
-    return;
+    return false;
   }
 
   const toolbar = currWindow.document.createElement('toolbar');
@@ -79,6 +80,12 @@ UIManager.prototype.addCoupon = function(couponInfo) {
   iframe.setAttribute('src', 'data:text/html;charset=utf-8,' + escape(htmlContent));
   //iframe.contentDocument.documentElement.innerHTML = htmlContent;
   toolbar.appendChild(iframe);
+
+
+
+
+  // we show the coupon properly
+  return true;
 };
 
 //////////////////////////////////////////////////////////////////////////////

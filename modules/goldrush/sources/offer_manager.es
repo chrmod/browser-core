@@ -148,6 +148,8 @@ function generateDBMap(dbsNamesList) {
 }
 
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief This class will be in charge of handling the offers and almost everything
@@ -202,7 +204,7 @@ export function OfferManager() {
 //
 OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   let self = this;
-  log('inside generateIntentsDetector');
+  log('inside generateIntentsDetector222');
   check(this.mappings != null, 'mappings is not properly initialized');
 
   // TODO: read the values from the config maybe? for the following variables
@@ -294,7 +296,123 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   }
 };
 
+////////////////////////////////////////////////////////////////////////////////
 
+//
+// @brief this method will format an event into the struct we need to call the
+//        intent input.
+//        will return null if the event is not related with any cluster.
+// @note check the intent input to see which is the expected format
+//
+OfferManager.prototype.formatEvent = function(originalURL) {
+  if (!this.mappings) {
+    return null;
+  }
+
+  // scheme: scheme,
+  // name: name,
+  // domain: tld ? name + '.' + tld : '',
+  // tld: tld,
+  // subdomains: subdomains,
+  // path: path,
+  // query: query,
+  // fragment: fragment,
+  // extra: extra,
+  // host: host,
+  // cleanHost: cleanHost,
+  // ssl: ssl,
+  // port: port,
+  // friendly_url: friendly_url
+  var u = utils.getDetailsFromUrl(originalURL);
+
+  // we need to detect if we are in a domain of some cluster.
+  const domainName = u.host;
+  const domainID = this.mappings['dname_to_did'][domainName];
+  if (!domainID) {
+    // skip this one
+    return null;
+  }
+
+  // TODO: get all the fields we need here.
+
+  // TODO_QUESTION: get the full url?
+  const fullURL = CliqzUtils.cleanMozillaActions(originalURL);
+  // TODO_QUESTION: how to get the current timestamp (assume that the event happened now?)
+  const timestamp = 0;
+  // check if we are in a checkout page?
+  // TODO implement this
+  const checkoutFlag = false;
+  // TODO_QUESTION: how to get the last url?
+  const lastURL = '';
+  // TODO_QUESTION: how to get the referrer url?
+  const referrerURL = '';
+
+  // for now we don't have anything here
+  const eventType = null;
+
+  // full event info:
+  //
+  // 'event_type'
+  // 'full_url'
+  // 'ts'
+  // 'domain_id'
+  // 'checkout_flag'
+  // 'last_url'
+  // 'referrer_url
+  // 'extra'
+
+  return {
+    'event_type' : eventType,
+    'full_url' : fullURL,
+    'ts' : timestamp,
+    'domain_id' : domainID,
+    'checkout_flag' : checkoutFlag,
+    'last_url' : lastURL,
+    'referrer_url' : referrerURL,
+    'extra' : null
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief This method will check if we need to evaluate the intent system for
+//        a particular cluster / event.
+// @return true if we should | false otherwise
+//
+OfferManager.prototype.shouldEvaluateEvent = function(clusterID, event) {
+  // TODO: implement this logic here
+  return (clusterID >= 0) ? true : false;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief Get the best coupon from the backend response and the given cluster.
+// @return the coupon | null if there are no coupon
+//
+OfferManager.prototype.getBestCoupon = function(vouchers) {
+  if (!vouchers) {
+    return null;
+  }
+
+  for (var did in vouchers) {
+    if (!vouchers.hasOwnProperty(did)) {
+      continue;
+    }
+    let coupons = vouchers[did];
+    if (coupons.length > 0) {
+      return coupons[0];
+    }
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief This method will add all the mechanism to start tracking a particular
+//        coupon so we can detect some events.
+//
+OfferManager.prototype.trackCoupon = function(coupon, originalURL) {
+  // TODO: here we need to init all the system to track the coupon
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //                          PUBLIC INTERFACE
@@ -306,7 +424,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 //        Here we will get a specific value for the given event and we should do
 //        all the logic of showing a coupong if our system detects a coupon or not.
 //
-OfferManager.prototype.processNewEvent = function(url) {
+OfferManager.prototype.processNewEvent = function(originalURL) {
   // TODO for now we will use a url event (asses), we can add or get extra
   //      information in this method an use it
 
@@ -327,6 +445,83 @@ OfferManager.prototype.processNewEvent = function(url) {
   //    we can identify and detect the coupon field to verify if the user
   //    used it or not.
 
+  // (1) & (2)
+  var event = this.formatEvent(originalURL);
+  if (!event) {
+    // we skip this event.
+    return;
+  }
+
+  // get the associated cluster
+  const domainName = this.mappings['did_to_dname'][event['domain_id']];
+  const clusterID = this.mappings['dname_to_cid'][domainName];
+  if (!clusterID || clusterID < 0) {
+    // this cannot happen since we got a valid domainID from the mappings but
+    // we don't have the given cluster ID in the mappings? this is not gut
+    log('ERROR: invalid cluster id!: ' + domainName);
+    return;
+  }
+
+  // get the associated intent system
+  let intentSystem = this.intentDetectorsMap[clusterID];
+  let intentInput = this.intentInputMap[clusterID];
+  if (!intentSystem || !intentInput) {
+    log('WARNING: we still dont have a intent system for cluster ID: ' + clusterID);
+    return;
+  }
+
+  // (3)
+  intentInput.feedWithEvent(event);
+
+  // (4)
+  if (!this.shouldEvaluateEvent(clusterID, event)) {
+    // skip it
+    return;
+  }
+
+  // (5)
+  const intentValue = intentSystem.evaluateInput(intentInput);
+
+  // (6)
+  const thereIsAnIntention = intentValue >= 1.0;
+  if (!thereIsAnIntention) {
+    // nothing to do, we skip this
+    return;
+  }
+
+  // we have an intention so we need to get the coupons from the fetcher
+  if (!this.offerFetcher) {
+    log('WARNING: we dont have still the offerFetcher, we then skip this event?');
+    return;
+  }
+
+  var self = this;
+  this.offerFetcher.checkForCouponsByCluster(0, function(vouchers) {
+    if (!vouchers) {
+      // nothing to do.
+      return;
+    }
+    // (7)
+    // else get the best coupon for this
+    var bestCoupon = self.getBestCoupon(vouchers);
+    if (!bestCoupon) {
+      log('we dont have vouchers for this particular cluser ID: ' + clusterID);
+      return;
+    }
+
+    // we have a cluster, show it into the UI for the user
+    if (!self.uiManager.addCoupon(bestCoupon)) {
+      // nothing else to do...
+      return;
+    }
+
+    // (9) start tracking the coupon (this will be done mainly from the callbacks)
+    //     from the UI to this class.
+    self.trackCoupon(bestCoupon);
+  });
+
+
+
 };
 
 
@@ -345,28 +540,27 @@ OfferManager.prototype.detectCouponField = function(url) {
   // 3) read the content of the post request or the form fields when the button is
   //    pressed?
   // IMPORTANT how we can read the content of the html???? document.?
+};
 
 
-  // TODO: this method will check a map: url_domain -> url_regex
-  //       to check if we are on the site where each url_domain has associated a
-  //       coupon (active ones).
-  OfferManager.prototype.getCurrentCoupons = function() {
-    log('getCurrentCoupons called');
-    if (!this.offerFetcher) {
-      log('offerFetcher is null still');
-      return;
-    }
+// TODO: this method will check a map: url_domain -> url_regex
+//       to check if we are on the site where each url_domain has associated a
+//       coupon (active ones).
+OfferManager.prototype.getCurrentCoupons = function() {
+  log('getCurrentCoupons called');
+  if (!this.offerFetcher) {
+    log('offerFetcher is null still');
+    return;
+  }
 
-    // TODO: remove this from here since we should add it later, this function
-    // will be called from outside whenever we need to get the coupons.
-    this.offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
-      // TODO: add the field that has not being used here maybe.
-        this.couponsList = vouchers;
-      });
-    log('returning the coupons list:' + this.couponsList);
-    return this.couponsList;
-  };
-
+  // TODO: remove this from here since we should add it later, this function
+  // will be called from outside whenever we need to get the coupons.
+  this.offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
+    // TODO: add the field that has not being used here maybe.
+      this.couponsList = vouchers;
+    });
+  log('returning the coupons list:' + this.couponsList);
+  return this.couponsList;
 };
 
 
