@@ -380,12 +380,20 @@ window.CLIQZ.Core = {
 
         menupopup.appendChild(this.createAdultFilterOptions(doc));
         menupopup.appendChild(this.createLocationPermOptions(win));
-      }
 
-      this.windowModules.forEach(function (mod) {
-        var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
-        if (buttonItem) { menupopup.appendChild(buttonItem); }
-      });
+        this.windowModules.forEach(function (mod) {
+          var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
+          if (buttonItem) {
+            if (Array.isArray(buttonItem)) {
+              for (let b of buttonItem) {
+                menupopup.appendChild(b);
+              }
+            } else {
+              menupopup.appendChild(buttonItem);
+            }
+          }
+        });
+      }
 
       if (CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(doc.createElement('menuseparator'));
@@ -497,9 +505,14 @@ window.CLIQZ.Core = {
 
         return item
     },
-    createCheckBoxItem: function(doc, key, label, activeState, onChange){
+    // TODO - improve the API of this function
+    createCheckBoxItem: function(doc, key, label, activeState, onChange, state) {
         function optInOut(){
-            return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
+            const active = state !== undefined ?
+                          state :
+                          CliqzUtils.getPref(key, false) === (activeState == 'undefined' ? true : activeState);
+
+            return active ?
                'url(' + CLIQZEnvironment.SKIN_PATH + 'opt-in.svg)':
                'url(' + CLIQZEnvironment.SKIN_PATH + 'opt-out.svg)';
         }
@@ -508,6 +521,7 @@ window.CLIQZ.Core = {
         btn.setAttribute('label', label || key);
         btn.setAttribute('class', 'menuitem-iconic');
         btn.style.listStyleImage = optInOut();
+
         btn.addEventListener('command', function(event) {
             if(onChange){
                 onChange();
