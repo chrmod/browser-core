@@ -249,6 +249,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     let rulesStr  = null;
     Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
       log('result from dbFilePromise and rulesFilePromise');
+      log('SR - latest version');
       log(results);
       // we need now to build the intent detector
       dbsJson = results[0];
