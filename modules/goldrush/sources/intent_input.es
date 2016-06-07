@@ -2,11 +2,8 @@ import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 
-const assert = require('assert');
-
-
 function log(s){
-  utils.log(s, 'GOLDRUSH - II');
+  utils.log(s, 'GOLDRUSH - IntentInput');
 }
 
 
@@ -113,13 +110,14 @@ BuyIntentSession.prototype.addEvent = function(event) {
 
 ////////////////////////////////////////////////////////////////////////////////
 export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
+  log('Created new IntentInput object');
   this.sessionTimeSecs = sessionTimeSecs;
   this.buyIntentTimeSecs = buyIntentThresholdSecs;
 
   this.buyIntentIDCount = 0;
 
   this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeSecs);
-  this.BuyIntentSessions = [];
+  this.buyIntentSessions = [];
   // needed for filtering
   this.isNewEvent = true;
   this.lastTimestamp = -1.0;
@@ -171,7 +169,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
   // now we need to check if we need to add a new buy intent session or not
   let beginBuyIntentTime = this.currBuyIntent.startedTimestamp();
   beginBuyIntentTime = (beginBuyIntentTime >= 0) ? beginBuyIntentTime : currTimestamp;
-  buyIntentDuration = currTimestamp - beginBuyIntentTime;
+  let buyIntentDuration = currTimestamp - beginBuyIntentTime;
 
   // check now if we need to start a new buy intent:
   // this will happen if:

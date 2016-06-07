@@ -1,6 +1,6 @@
 import { utils } from 'core/cliqz';
 import {IntentDetector} from 'goldrush/intent_detector';
-// import {IntentInput} from 'goldrush/intent_input';
+import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { DateTimeDB } from 'goldrush/dbs/datetime_db';
@@ -209,7 +209,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     }
 
     // // generate the intent input
-    // this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
+    this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
 
     // we need to build the current cluster system.
     let dbFilePath = clusterFilesMap[clusterName]['db_file'];
