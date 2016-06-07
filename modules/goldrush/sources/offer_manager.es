@@ -158,6 +158,12 @@ export function OfferManager() {
   this.couponsList = null;
   // the ui manager (we need to provide UI data for this)
   this.uiManager = new UIManager();
+  this.uiManager.configureCallbacks({
+    'show_coupon': this.checkButtonUICallback.bind(this),
+    'save_coupon': this.saveCouponUICallback.bind(this),
+    'not_interested': this.notInterestedUICallback.bind(this),
+    'stop_forever': this.stopBotheringForeverUICallback.bind(this)
+  });
 
   // the cluster information
 
@@ -287,7 +293,6 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
 //
 // @brief this method will format an event into the struct we need to call the
 //        intent input.
@@ -505,9 +510,9 @@ OfferManager.prototype.processNewEvent = function(originalURL) {
       return;
     }
 
-    // (9) start tracking the coupon (this will be done mainly from the callbacks)
-    //     from the UI to this class.
-    self.trackCoupon(bestCoupon);
+    // (9) we need to track it on the callback of the button since the user
+    //     can cancel the coupon -> we don't care about it.
+
   });
 
 
@@ -554,6 +559,48 @@ OfferManager.prototype.getCurrentCoupons = function() {
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+//                          CALLBACKS FROM THE UI
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when the user press on the "check coupon or view coupon"
+//
+OfferManager.prototype.checkButtonUICallback = function() {
+  // TODO: implement here all the needed logic and the
+  log('checkButtonUICallback');
+
+  // track it (get the current coupon from the ui manager)
+  //self.trackCoupon(bestCoupon);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when the user press on the "save coupon callback"
+//
+OfferManager.prototype.saveCouponUICallback = function() {
+  // TODO: implement here all the needed logic and the
+  log('saveCouponUICallback');
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when the user press on the "not interested coupon callback"
+//
+OfferManager.prototype.notInterestedUICallback = function() {
+  // TODO: implement here all the needed logic and the
+  log('notInterestedUICallback');
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when the user press on the "stop bothering forever"
+//
+OfferManager.prototype.stopBotheringForeverUICallback = function() {
+  // TODO: implement here all the needed logic and the
+  log('stopBotheringForeverUICallback');
+};
 
 
 
