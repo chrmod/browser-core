@@ -166,9 +166,6 @@ export function OfferManager() {
   // the ui manager (we need to provide UI data for this)
   this.uiManager = new UIManager();
 
-  // TODO: remove this
-  this.uiManager.addCoupon({'id':'adasda', 'used_state' : true});
-
   // the cluster information
 
   // the fetcher
@@ -311,6 +308,24 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 OfferManager.prototype.processNewEvent = function(url) {
   // TODO for now we will use a url event (asses), we can add or get extra
   //      information in this method an use it
+
+  // here we need to:
+  // 1) parse the url information and format it in a way that the intent intput
+  //    can handle
+  // 2) check if we are in a cluster or not and if we are then we evaluate the
+  //    intention value.
+  // 3) feed the intent input from the given cluster.
+  // 4) Filter by any logic if we need or want to show an ad for this cluster
+  //    or not (external checker / filter).
+  // 5) If we don't need to filter then we evaluate the intent detector system
+  //    and check if we have or not an intention
+  // 6) if we have an intention -> get a coupon from the backend.
+  // 7) Select the "best" coupon (first one, or whatever).
+  // 8) execute the UIManager to show a coupon to the user.
+  // 9) Activate tracking system to see if the user clicked or not in a link so
+  //    we can identify and detect the coupon field to verify if the user
+  //    used it or not.
+
 };
 
 

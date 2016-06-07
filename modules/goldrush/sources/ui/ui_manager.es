@@ -36,9 +36,9 @@ UIManager.prototype.configureCallbacks = function(show) {
 // @param couponInfo is the coupon object containing the information of it.
 //
 UIManager.prototype.addCoupon = function(couponInfo) {
-  if (this.couponsMap.hasOwnProperty(couponInfo['id'])) {
+  if (this.couponsMap.hasOwnProperty(couponInfo['coupon_id'])) {
     // nothing to do
-    log('we already have this coupon: ' + couponInfo['id']);
+    log('we already have this coupon: ' + couponInfo['coupon_id']);
     return;
   }
 
@@ -49,18 +49,35 @@ UIManager.prototype.addCoupon = function(couponInfo) {
   }
 
   // else we need to add it here
-  this.couponsMap[couponInfo['id']] = couponInfo;
+  this.couponsMap[couponInfo['coupon_id']] = couponInfo;
 
   // TODO: here we need to update the UI
+  // REMOVE THIS LATER
   var currWindow = CliqzUtils.getWindow();
   if (!currWindow) {
     return;
   }
+
   const toolbar = currWindow.document.createElement('toolbar');
   const iframe = currWindow.document.createElement('iframe');
   const bottomBox = currWindow.document.querySelector('#browser-bottombox');
   bottomBox.appendChild(toolbar);
-  iframe.setAttribute('src', 'chrome://cliqz/content/goldrush/ad1.html');
+
+  const title = couponInfo['title'];
+  const price = couponInfo['price'];
+  const redirectURL = couponInfo['redirect_url'];
+
+
+  var htmlContent = '<h1>' + title + '</h1> ';
+  htmlContent += '<p>Price: ' + '<b>' + price + '</b></p>';
+  htmlContent += '<a href=\"' + redirectURL + '\">Check it out</a>';
+
+  //iframe.setAttribute('src', 'chrome://cliqz/content/goldrush/ad1.html');
+  iframe.setAttribute('id', couponInfo['coupon_id']);
+  iframe.setAttribute('width', 400);
+
+  iframe.setAttribute('src', 'data:text/html;charset=utf-8,' + escape(htmlContent));
+  //iframe.contentDocument.documentElement.innerHTML = htmlContent;
   toolbar.appendChild(iframe);
 };
 

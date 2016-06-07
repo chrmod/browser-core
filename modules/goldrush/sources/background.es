@@ -1,5 +1,4 @@
 import { utils, events } from 'core/cliqz';
-import Reporter from 'goldrush/reporter';
 import { DateTimeDB } from 'goldrush/dbs/datetime_db';
 import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
@@ -19,56 +18,25 @@ function log(s){
 // TODO: remove all this test code
 // TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 
-function parseHttpResponse(httpResp) {
-  var vouchers = null;
-  try {
-      var jResp = JSON.parse(httpResp);
-      vouchers = jResp['results'][0]['data']['vouchers'];
-    } catch (e) {
-      log('Error parsing the httpResp:\n' + httpResp + '\nwith error: ' + e);
-    }
-    return vouchers;
+
+////////////////////////////////////////////////////////////////////////////////
+function parseMappingsFileAsPromise(filename) {
+  return new Promise(function(resolve, reject) {
+    let rscLoader = new ResourceLoader(
+      [ 'goldrush', filename ],
+      {}
+    );
+
+    rscLoader.load().then(json => {
+      // now we parse the data and return this
+      log(json);
+
+      resolve(json);
+    });
+  });
+
 }
 
-function testHttpRequest() {
-  let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&' + 'q=' + 'get|cluster_id=0';
-
-  // perform the call and wait for the response
-  log('we will hit the endpoint: ' + destURL);
-
-  var vouchers = null;
-  CliqzUtils.httpGet(destURL, function success(res) {
-      vouchers = parseHttpResponse(res.response);
-      log('voucher received: ');
-      log(vouchers);
-    }, function error(_) {
-      // TODO: will be gut if we can track this information
-      // TODO_QUESTION: how do we can track this information and report it back?
-      //                or any error in general?
-      log('error getting the coupongs from the backend?');
-    }
-  );
-
-  log('http request end');
-  return vouchers;
-}
-
-function executePromiseAll() {
-  var counter = 0;
-  var p1 = new Promise(function(resolve, reject) {
-    log('counter p1 executing');
-    counter++;
-    resolve(3);
-  });
-  var p2 = new Promise(function(resolve, reject) {
-    log('counter p2 executing');
-    counter++;
-    resolve(4);
-  });
-  Promise.all([p1,p2]).then(function(values) {
-    log('values of promise: ' + values + ' and value of counter: ' + counter);
-  });
-}
 
 // TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 //////////////////////////////////////////////////////////////////////////////
@@ -84,38 +52,16 @@ export default {
     this.offerManager = null;
 
     // construct the offer manager
+    log('init');
     this.offerManager = new OfferManager();
+    log('after offer manager');
 
     // nothing to do for now
-    log('Initializing the background script');
-    this.db = new DateTimeDB();
-    log('DateTimeDB: ' + this.db.databaseName());
 
-  // TODO remove all this temporary code
-    this.loader = new ResourceLoader(
-      [ 'goldrush', 'clusters', 'food_delivery.dbinfo' ],
-      {}
-    );
-
-    log('reading food_delivery');
-    let foodDelivery = this.loader.load();
-    this.loader.load().then( categories => {
-      this.db.loadFromDict(categories['datetime_db']);
-      log('done reading food_delivery');
-      log(categories);
-    });
-    log('after reading food_delivery ' + foodDelivery);
-    log(foodDelivery);
+    // subscribe this method also
+    events.sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
 
     // load the popup button
-    utils.bindObjectFunctions(this.couponPopupActions, this);
-    this.popup = new CliqzGoldrushPopupButton({
-        name: 'goldrush',
-        actions: this.couponPopupActions
-      });
-    this.popup.attach();
-    this.popup.updateState(utils.getWindow(), false);
-    log('popup button created');
 
   },
 
@@ -123,31 +69,54 @@ export default {
 
     // nothing to do
     log('starting the background script');
-    this.reporter = new Reporter(0);
-
-     // TODO: remove this test
-    executePromiseAll();
-    log('test testHttpRequest');
-    testHttpRequest();
-
-
-    this.reporter.start();
-    events.sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
-    log('show the popup');
-    this.popup.showPopUp();
 
     return;
   },
 
+  onLocationChangeHandler(url) {
+    var u = utils.getDetailsFromUrl(url);
+    log('location changed to ' + u.host);
+    // TODO: remove this is temporary
+
+    // this.offerManager.uiManager.addCoupon({
+    //   'coupon_id':u.host,
+    //   'used_state' : true,
+    //   'title': u.host,
+    //   'price': Math.random(),
+    //   'redirect_url' : u.host
+    // });
+
+  },
+
   testOfferFetcher() {
     let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
-    let offerManager = this.offerManager;
-    offerManager.parseMappingsFileAsPromise('mappings.json').then(function(values) {
+    var offerManager = this.offerManager;
+    log('reading the mappings file to fetch vouchers');
+    parseMappingsFileAsPromise('mappings.json').then(function(values) {
+      log('checking for vouchers in the backend');
       let offerFetcher = new OfferFetcher(destURL, values);
-      offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
-        log('received vouchers');
-      });
       offerFetcher.checkForCouponsByCluster(0, function(vouchers) {
+        log('received vouchers');
+        // TODO: remove this
+        // we will pick the first or any one here.
+        var coupon = null;
+        for (var did in vouchers) {
+          if (!vouchers.hasOwnProperty(did)) {
+            continue;
+          }
+          if (coupon !== null) {
+            break;
+          }
+          var vouchersList = vouchers[did];
+          if (vouchersList.length > 0) {
+            coupon = vouchersList[0];
+          }
+        }
+        if (coupon) {
+          offerManager.uiManager.addCoupon(coupon);
+        }
+      });
+      offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
         log('received vouchers');
       });
       offerFetcher.isCouponUsed('0-1-0', function(isUsed) {
@@ -189,15 +158,9 @@ export default {
 
   unload() {
     log('unloading the background script');
-    if ( this.reporter ) {
-      events.un_sub( 'core.location_change', this.reporter.assess.bind(this.reporter) );
-      this.reporter.stop();
-    }
 
-    // unload popup button
-    if (this.popup) {
-      this.popup.destroy();
-    }
+    // unsubscribe this class
+    events.un_sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
   },
 
   //////////////////////////////////////////////////////////////////////////////
