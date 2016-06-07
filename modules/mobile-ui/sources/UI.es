@@ -111,6 +111,7 @@ var UI = {
           prevent_all_native_scrolling: false,
           vertical: false,
           anim_duration:400,
+          tipping_point:0.4,
           onPageScroll : function (scrollInfo) {
             offset = -scrollInfo.totalOffset;
             crossTransform(resultsBox, (offset * UI.CARD_WIDTH * UI.nCardsPerPage));
