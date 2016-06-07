@@ -17,7 +17,7 @@ node {
     docker.image(imgName).inside("-u 0:0") {
       sh 'su travis; /bin/bash -l -c "npm install"'
       sh 'su travis; /bin/bash -l -c "bower install --allow-root"'
-      sh 'su travis; /bin/bash -l -c "./fern.js build ./configs/browser.json"'
+      sh 'su travis; /bin/bash -l -c "./fern.js build ./configs/'+CLIQZ_CHANNEL+'.json"'
       sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:channel='+CLIQZ_CHANNEL+',pre=False"'
     }
 

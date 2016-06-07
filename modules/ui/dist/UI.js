@@ -7,6 +7,11 @@
 
 function load(ctx) {
 
+function isValidURL(str) {
+  var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  return pattern.test(str);
+}
+
 var TEMPLATES = CLIQZEnvironment.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
@@ -1419,7 +1424,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         clearMessage('bottom');
                         UI.handleResults();
-                        if (user_location != "de" && !ignored_location_warning)
+                        if (user_location != "de" && user_location != "" && !ignored_location_warning)
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });
@@ -1486,13 +1491,14 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.telemetry(action);
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
-
-      CliqzEvents.pub("ui:click-on-url", {
-        url: decodeURIComponent(url),
-        query: CliqzAutocomplete.lastSearch,
-        type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
-        positionType: action.position_type
-      });
+      if (!CLIQZEnvironment.isPrivate() && isValidURL(url)) {
+        CliqzEvents.pub("ui:click-on-url", {
+          url: decodeURIComponent(url),
+          query: CliqzAutocomplete.lastSearch,
+          type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+          positionType: action.position_type
+        });
+      }
     }
     if(!window.gBrowser)return;
 }

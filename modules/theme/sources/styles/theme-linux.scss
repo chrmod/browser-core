@@ -98,7 +98,7 @@
     list-style-image: url("../images/browser/linux/Toolbar.png");
 }
 
-/* END EX-2246 */ 
+/* END EX-2246 */
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     -moz-margin-start: 0px;
@@ -323,7 +323,7 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2247*/
 
 #cliqz_menupopup .menuitem-iconic .menu-iconic-icon {
-    visibility: visible !important;
+visibility: visible !important;
 }
 
 
@@ -336,13 +336,13 @@ notification[type="warning"] .messageText {
     menuitem[_moz-menuactive="true"] {
         .menu-iconic-text {
             color: #fff !important;
-        }                                                                                                                                                                                                                                                          
+        }
     }
 
     menu[_moz-menuactive="true"] {
         .menu-text {
             color: #fff !important;
-        }                                                                                                                                                                                                                                                          
+        }
     }
 
     menuitem, menu {
@@ -360,7 +360,7 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2251 */
 
 .close-icon {
-    list-style-image: url("../images/browser/mac/close.png");
+    list-style-image: url("../images/browser/linux/close.png");
     -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
@@ -378,7 +378,7 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2254 */
 
 .urlbar-input-box {
-    padding: 3px 0 2px;
+padding: 3px 0 2px;
 }
 
 /* END EX-2254 */
@@ -386,7 +386,7 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2256 */
 
 .arrowscrollbox-scrollbox {
-    background-color: #e0e0e0;
+background-color: #e0e0e0;
 }
 
 /* END EX-2256 */
@@ -394,9 +394,9 @@ notification[type="warning"] .messageText {
 /* BEGIN EX-2255 */ /* Ref: fresh-tab-frontend/../app.scss */
 
 .cqz-ez-search-box-input {
-    background-color: #fff;
-    border: none;
-    color: #333;
+background-color: #fff;
+border: none;
+color: #333;
 }
 
 /* END EX-2255 */
@@ -425,3 +425,21 @@ toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #prin
 }
 
 /* END EX-2244 */
+
+vbox[sidebarcommand=historybroadcaster] {
+  #sidebar {
+    background-color: white;
+  }
+
+  sidebarheader {
+    display: none;
+  }
+}
+
+/* BEGIN EX-2326 */
+
+#main-window[privatebrowsingmode="temporary"] #private-browsing-indicator {
+    background-color: #e0e0e0;
+}
+
+/* END EX-2326 */

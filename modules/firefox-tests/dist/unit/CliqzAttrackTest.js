@@ -53,8 +53,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     tab_id;
 
                 beforeEach(function(done) {
+                    testServer.registerPathHandler('/', function(req, res) {
+                        res.write('<html><body><p>Hello world</p></body></html');
+                    });
                     CliqzAttrack.tp_events._active = {};
-                    tabs.push(gBrowser.addTab("https://cliqz.com"));
+                    tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
                     // get tab id from tp_events (assumption that this is correct)
                     waitIfNotReady(function() {
                         return Object.keys(CliqzAttrack.tp_events._active).length > 0;
@@ -72,9 +75,9 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 });
 
                 it('returns true for open tab id', function() {
-                    return waitFor(function() {
-                        return CliqzAttrack.tab_listener.isWindowActive(tab_id) === true;
-                    });
+                  waitIfNotReady(function() {
+                    return CliqzAttrack.tab_listener.isWindowActive(tab_id) === true;
+                  });
                 });
 
                 describe('when tab is closed', function() {
@@ -124,15 +127,18 @@ TESTS.AttrackTest = function (CliqzUtils) {
                 var tab_id = 0,
                     page_load;
 
-                beforeEach(function() {
+                beforeEach(function(done) {
                     testServer.registerPathHandler('/', function(req, res) {
                         res.write('<html><body><p>Hello world</p></body></html');
                     });
                     testServer.registerPathHandler('/privacy', function(req, res) {
                         res.write('<html><body><p>Hello private world</p></body></html');
                     });
-                    tabs.push(gBrowser.addTab("http://cliqztest.com"));
-                    tabs.push(gBrowser.addTab("http://cliqztest.com/privacy#saferWeb"));
+                    setTimeout(function() {
+                      tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
+                      tabs.push(gBrowser.addTab("http://cliqztest.com:60508/privacy#saferWeb"));
+                      done();
+                    }, 100);
                 });
 
                 it('should add tabs to _active', function(done) {
@@ -146,7 +152,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
                         tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
                         page_load = CliqzAttrack.tp_events._active[tab_id];
                         chai.expect(page_load).to.include.keys('hostname', 'url', 'path');
-                        chai.expect(page_load.url).to.equal('http://cliqztest.com/');
+                        chai.expect(page_load.url).to.equal('http://cliqztest.com:60508/');
                         chai.expect(page_load.hostname).to.equal('cliqztest.com');
                         // md5('/')
                         chai.expect(page_load.path).to.equal('6666cd76f96956469e7be39d750cc7d9'.substring(0, 16));
@@ -173,11 +179,11 @@ TESTS.AttrackTest = function (CliqzUtils) {
                             chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(1);
                             // check staged tab
                             chai.expect(CliqzAttrack.tp_events._staged).to.have.length(1);
-                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com/');
+                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com:60508/');
 
                             // check active tab
                             tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
-                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://cliqztest.com/privacy#saferWeb");
+                            chai.expect(CliqzAttrack.tp_events._active[tab_id].url).to.equal("http://cliqztest.com:60508/privacy#saferWeb");
                         });
                     });
 
@@ -187,9 +193,9 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                     beforeEach(function() {
                         var wait = waitFor( function() {
-                          return gBrowser.getBrowserForTab(tabs[0]).currentURI.spec === "http://cliqztest.de/"
+                          return gBrowser.getBrowserForTab(tabs[0]).currentURI.spec === "http://cliqztest.de:60508/"
                         });
-                        gBrowser.getBrowserForTab(tabs[0]).loadURI("http://cliqztest.de/");
+                        gBrowser.getBrowserForTab(tabs[0]).loadURI("http://cliqztest.de:60508/");
                         return wait;
                     });
 
@@ -203,14 +209,14 @@ TESTS.AttrackTest = function (CliqzUtils) {
                             chai.expect(Object.keys(CliqzAttrack.tp_events._active)).to.have.length(2);
                             // check staged tab
                             chai.expect(CliqzAttrack.tp_events._staged).to.have.length(1);
-                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com/');
+                            chai.expect(CliqzAttrack.tp_events._staged[0].url).to.equal('http://cliqztest.com:60508/');
 
                             // check active tabs
                             var tabUrls = Object.keys(CliqzAttrack.tp_events._active).map(function(tab_id) {
                               return CliqzAttrack.tp_events._active[tab_id].url;
                             });
-                            chai.expect(tabUrls).to.contain("http://cliqztest.de/");
-                            chai.expect(tabUrls).to.contain("http://cliqztest.com/privacy#saferWeb");
+                            chai.expect(tabUrls).to.contain("http://cliqztest.de:60508/");
+                            chai.expect(tabUrls).to.contain("http://cliqztest.com:60508/privacy#saferWeb");
                         });
                     });
 

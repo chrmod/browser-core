@@ -1,11 +1,17 @@
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
+import {PrivacyScore} from 'antitracking/privacy-score';
+import md5 from 'antitracking/md5';
 import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { utils, events } from 'core/cliqz';
 
 export default {
 
   init(settings) {
+    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+      return;
+    }
+
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
 
     // fix for users without pref properly set: set to value from build config
@@ -52,6 +58,10 @@ export default {
   },
 
   unload() {
+    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+      return;
+    }
+
     if ( this.popup ) {
       this.popup.destroy();
     }
@@ -66,7 +76,12 @@ export default {
 
   popupActions: {
     getPopupData(args, cb) {
-      var info = CliqzAttrack.getCurrentTabBlockingInfo();
+
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+          ps = info.ps;
+      // var ps = PrivacyScore.get(md5(info.hostname).substring(0, 16)  'site');
+
+      // ps.getPrivacyScore();
 
       cb({
         url: info.hostname,
@@ -75,7 +90,8 @@ export default {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
-        trakersList: info
+        trakersList: info,
+        ps: ps
       });
     },
 
@@ -120,6 +136,7 @@ export default {
         delete msg.includeUnsafeCount
         let info = CliqzAttrack.getCurrentTabBlockingInfo();
         msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
+        msg.special = info.error !== undefined;
       }
       msg.type = 'antitracking';
       utils.telemetry(msg);

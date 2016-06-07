@@ -24,6 +24,7 @@ import core from 'core/background';
 import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
+import {PrivacyScore} from 'antitracking/privacy-score';
 
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
@@ -96,12 +97,6 @@ function anonymizeTrackerTokens(trackerData) {
   return anonymizedTrackerData;
 }
 
-var getBrowserMajorVersion = function() {
-    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                    .getService(Components.interfaces.nsIXULAppInfo);
-    return parseInt(appInfo.version.split('.')[0]);
-};
-
 var CliqzAttrack = {
     VERSION: '0.96',
     MIN_BROWSER_VERSION: 35,
@@ -173,6 +168,11 @@ var CliqzAttrack = {
     linksFromDom: {},
     cookiesFromDom: {},
     loadedTabs: {},
+    getBrowserMajorVersion: function() {
+        var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                        .getService(Components.interfaces.nsIXULAppInfo);
+        return parseInt(appInfo.version.split('.')[0]);
+    },
     getPrivateValues: function(window) {
         // creates a list of return values of functions may leak private info
         var p = {};
@@ -431,6 +431,13 @@ var CliqzAttrack = {
                                 }
                                 tmp_url = tmp_url.replace(badTokens[i], CliqzAttrack.obfuscate(badTokens[i], rule, CliqzAttrack.replacement));
                             }
+
+                            // In case unsafe tokens were in the hostname, the URI is not valid
+                            // anymore and we can cancel the request.
+                            if (!tmp_url.startsWith(aChannel.URI.prePath)) {
+                                subject.cancel(Components.results.NS_BINDING_ABORTED);
+                            }
+
                             if (rule != 'same') {
                                 aChannel.setRequestHeader(CliqzAttrack.cliqzHeader, ' ', false);
                                 cListener = new ChannelListener(CliqzAttrack.cliqzHeader);
@@ -1008,7 +1015,7 @@ var CliqzAttrack = {
      */
     init: function() {
         // disable for older browsers
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
 
@@ -1098,7 +1105,7 @@ var CliqzAttrack = {
     /** Per-window module initialisation
      */
     initWindow: function(window) {
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         // Load listerners:
@@ -1110,7 +1117,7 @@ var CliqzAttrack = {
     },
     unload: function() {
         // don't need to unload if disabled
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         //Check is active usage, was sent
@@ -1594,13 +1601,10 @@ var CliqzAttrack = {
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
             // check flags for started request
             if(this.wplFlag['STATE_START'] & aFlag && this.wplFlag['STATE_IS_DOCUMENT'] & aFlag) {
-                var win = aWebProgress.DOMWindow;
                 if(aRequest) {
                     try {
-                        var aChannel = aRequest.QueryInterface(nsIHttpChannel);
-                        var url = '' + aChannel.URI.spec;
-                        var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-                        var windowID = util.outerWindowID;
+                        var url = '' + aRequest.URI.spec;
+                        var windowID = aWebProgress.DOMWindowID;
                         // add window -> url pair to tab cache.
                         this._tabsStatus[windowID] = url;
                         var _key = windowID + ":" + url;
@@ -1683,18 +1687,6 @@ var CliqzAttrack = {
                 }
             }
             return false;
-        },
-
-        // Return the set of open tabs by their windowIDs.
-        getActiveWindowIDs: function() {
-            var ids = Object.keys(this._tabsStatus);
-            // clean tab cache
-            for(let i=0; i<ids.length; i++) {
-                if(!this.isWindowActive(ids[i])) {
-                    delete this._tabsStatus[ids[i]];
-                }
-            }
-            return Object.keys(this._tabsStatus);
         }
     },
     /** Get info about trackers and blocking done in a specified tab.
@@ -1711,7 +1703,8 @@ var CliqzAttrack = {
           cookies: {allowed: 0, blocked: 0},
           requests: {safe: 0, unsafe: 0},
           trackers: {},
-          companies: {}
+          companies: {},
+          ps: null
         };
 
       // ignore special tabs
@@ -1737,6 +1730,10 @@ var CliqzAttrack = {
         plain_data = tab_data.asPlainObject(),
         firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tab_data.hostname)];
       result.hostname = tab_data.hostname;
+      result.ps = PrivacyScore.get(md5(getGeneralDomain(result.hostname)).substr(0, 16) + 'site');
+      if (!result.ps.score) {
+        result.ps.getPrivacyScore();
+      }
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};

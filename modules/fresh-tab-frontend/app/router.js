@@ -8,6 +8,15 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('freshtab', { path: '/' }, function () {
   });
+  this.route('history-sidebar', function () {
+    this.route('queries', function () {
+      this.route('query', { path: ':query' });
+    });
+    this.route('domain', { path: ':domain' }, function () {
+      this.route('query', { path: ':query' });
+      this.route('news');
+    });
+  });
 });
 
 export default Router;
