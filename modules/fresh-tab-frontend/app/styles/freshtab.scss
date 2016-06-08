@@ -18,7 +18,7 @@
   font-family: "Lato", sans-serif;
   font-weight: 400;
   font-size: 14px;
-  line-height: 1.2
+  line-height: 1.2em;
 }
 
 a:hover, a:active, a:focus {
@@ -402,6 +402,7 @@ a:hover, a:active, a:focus {
         text-decoration: none;
         max-height: 83px;
         overflow: hidden;
+        line-height: 1.2em;
       }
 
       .title:hover {
