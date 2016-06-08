@@ -134,3 +134,17 @@ coupons_usage : {
 ```
 
 We will change the backend on the future for sure so..
+
+
+
+
+# Things to be improved
+
+- The backend should not be implemented as it is in rich header (should be a proper anonymous
+  backend with some how credentials (to avoid mark coupons as used or query raondom
+  coupons from outside for example).
+- The clusters files should be optimized into one normal format (json with different
+  keys, instead of having 4 or N files per cluster).
+- Some information could be fetch from the backend (like data bases).
+- We can handle errors much better.
+

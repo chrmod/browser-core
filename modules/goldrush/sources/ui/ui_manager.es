@@ -9,8 +9,8 @@ function log(s){
 
 ////////////////////////////////////////////////////////////////////////////////
 export function UIManager() {
-  // the list of coupons we have
-  this.couponsMap = {};
+  // the current coupon
+  this.currentCoupon = null;
   // the callbacks list
   this.callbacks = null;
 }
@@ -29,7 +29,7 @@ export function UIManager() {
 //    'show_coupon': callback, -> will show the coupon and redirect to web.
 //    'save_coupon': callback, -> will show a message to the user or redirect to some other special web.
 //    'not_interested': callback -> will just cancel this and maybe don't show it again for a while.
-//    'stop_forever': callback -> when the user don't want to see this any more in his current and future lifes.
+//    'information': callback -> when the user clicks on the information icon
 //    'extra_events': callback -> any other extra events from the notification bar
 //  }
 //
@@ -50,11 +50,11 @@ UIManager.prototype.addCoupon = function(couponInfo) {
     return false;
   }
 
-  if (this.couponsMap.hasOwnProperty(couponInfo['coupon_id'])) {
-    // nothing to do
-    log('we already have this coupon: ' + couponInfo['coupon_id']);
-    return false;
-  }
+  // if (this.currentCoupon && this.currentCoupon['coupon_id'] === couponInfo['coupon_id']) {
+  //   // nothing to do
+  //   log('we already have this coupon: ' + couponInfo['coupon_id']);
+  //   return false;
+  // }
 
   // the coupon should have the state
   // if (!couponInfo.hasOwnProperty('used_state')) {
@@ -63,10 +63,26 @@ UIManager.prototype.addCoupon = function(couponInfo) {
   // }
 
   // else we need to add it here
-  this.couponsMap[couponInfo['coupon_id']] = couponInfo;
+  this.currentCoupon = couponInfo;
 
   // TODO: here we need to update the UI
   // REMOVE THIS LATER
+
+
+  // we show the coupon properly
+  return this.showCurrentCouponAdd();
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief this method will show the add of the current coupon if any
+//
+UIManager.prototype.showCurrentCouponAdd = function() {
+  var couponInfo = this.currentCoupon;
+  if (!couponInfo) {
+    return false;
+  }
+
   var currWindow = CliqzUtils.getWindow();
   if (!currWindow) {
     return false;
@@ -128,6 +144,9 @@ UIManager.prototype.addCoupon = function(couponInfo) {
     box.removeNotification(currentNotification);
   }
 
+  // TODO: also remove the second notification box if we are showing it (the second)
+  //
+
   var notification = box.appendNotification(notificationContent,
                                             'goldrush-ad',
                                             'chrome://cliqz/content/static/skin/cliqz_btn.png',
@@ -135,8 +154,81 @@ UIManager.prototype.addCoupon = function(couponInfo) {
                                             buttons,
                                             this.callbacks['extra_events']);
 
-  // we show the coupon properly
   return true;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief return the current coupon | null if none
+//
+UIManager.prototype.getCurrentCoupon = function() {
+  return this.currentCoupon;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// @brief show the current coupon information in the second notification box.
+//
+UIManager.prototype.showCouponInfo = function(couponInfo) {
+  if (!this.currentCoupon) {
+    log('we dont have a coupon to show so we will just do nothing');
+    return;
+  }
+
+  var currWindow = CliqzUtils.getWindow();
+  if (!currWindow) {
+    return false;
+  }
+
+  // we have a coupon to show here so we will just show the dummy thing
+  var buttons = [];
+  // TODO: hacky thing
+  var self = this;
+
+  // show coupon
+  buttons.push({
+    label : 'Save Coupon',
+    accessKey : '1',
+    callback : function() {
+      self.showCurrentCouponAdd();
+    }
+  });
+
+  // save coupon
+  buttons.push({
+    label : 'Go to offer',
+    accessKey : '2',
+    callback : function() {
+      self.showCurrentCouponAdd();
+    }
+  });
+
+  // now get the notification box and create it
+  // TODO_QUESTION: modify the priority? which one we should use + icon?
+  var gBrowser = currWindow.gBrowser;
+  var box = gBrowser.getNotificationBox();
+
+  // try first to remove the current one if we have one so we only show one element
+  let currentNotification = box.getNotificationWithValue('goldrush-coupon');
+  if (currentNotification) {
+    box.removeNotification(currentNotification);
+  }
+
+  // TODO: also remove the second notification box if we are showing it (the second)
+  //
+
+  var notification = box.appendNotification('BRAND | PICTURE | TEXT | CODE',
+                                            'goldrush-coupon',
+                                            'chrome://cliqz/content/static/skin/cliqz_btn.png',
+                                            box.PRIORITY_WARNING_MEDIUM,
+                                            buttons,
+                                            function(reason) {
+                                              if (reason === 'removed') {
+                                                self.showCurrentCouponAdd();
+                                              }
+                                            });
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -145,17 +237,17 @@ UIManager.prototype.addCoupon = function(couponInfo) {
 // @param couponID the coupon we want to modify
 //
 UIManager.prototype.changeCouponState = function(couponID, newState) {
-  if (!this.couponsMap.hasOwnProperty[couponID]) {
+  if (!this.currentCoupon || this.currentCoupon['coupon_id'] !== couponID) {
     log('warning: we dont have the coupon to update its state with ID: ' + couponID);
     return;
   }
 
   // we have the coupon so we modify it and update the ui
-  let currState = this.couponsMap[couponID]['used_state'];
+  let currState = this.currentCoupon['used_state'];
   if (currState === newState) {
     return;
   }
-  this.couponsMap[couponID]['used_state'] = newState;
+  this.currentCoupon['used_state'] = newState;
 
   // TODO: update the ui here to show the new state of the coupons.
 };
@@ -166,12 +258,13 @@ UIManager.prototype.changeCouponState = function(couponID, newState) {
 // @param couponID
 //
 UIManager.prototype.removeCoupon = function(couponID) {
-  if (!this.couponsMap.hasOwnProperty[couponID]) {
+  if (!this.currentCoupon || this.currentCoupon['coupon_id'] !== couponID) {
     log('warning: we dont have the coupon to remove it with ID: ' + couponID);
     return;
   }
 
-  delete this.couponsMap[couponID];
+  delete this.currentCoupon;
+  this.currentCoupon = null;
 
   // TODO: update the ui here to show the new state of the coupons.
 };

@@ -162,7 +162,7 @@ export function OfferManager() {
     'show_coupon': this.checkButtonUICallback.bind(this),
     'save_coupon': this.saveCouponUICallback.bind(this),
     'not_interested': this.notInterestedUICallback.bind(this),
-    'stop_forever': this.stopBotheringForeverUICallback.bind(this),
+    'information': this.informationUICallback.bind(this),
     'extra_events': this.extraEventsUICallback  .bind(this)
   });
 
@@ -576,6 +576,7 @@ OfferManager.prototype.checkButtonUICallback = function() {
   log('checkButtonUICallback');
 
   // track it (get the current coupon from the ui manager)
+  this.uiManager.showCouponInfo(this.uiManager.getCurrentCoupon());
   //self.trackCoupon(bestCoupon);
 };
 
@@ -599,9 +600,9 @@ OfferManager.prototype.notInterestedUICallback = function() {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// @brief when the user press on the "stop bothering forever"
+// @brief when the user press on the "information"
 //
-OfferManager.prototype.stopBotheringForeverUICallback = function() {
+OfferManager.prototype.informationUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('stopBotheringForeverUICallback');
 };
@@ -613,7 +614,7 @@ OfferManager.prototype.stopBotheringForeverUICallback = function() {
 //
 OfferManager.prototype.extraEventsUICallback = function(reason) {
   // TODO: implement here all the needed logic and the
-  log('extraEventsUICallback');
+  log('extraEventsUICallback: ' + reason);
 };
 
 

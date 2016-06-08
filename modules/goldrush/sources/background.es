@@ -119,7 +119,7 @@ export default {
     parseMappingsFileAsPromise('mappings.json').then(function(values) {
       log('checking for vouchers in the backend');
       let offerFetcher = new OfferFetcher(destURL, values);
-      offerFetcher.checkForCouponsByCluster(0, function(vouchers) {
+      offerFetcher.checkForCouponsByCluster(4, function(vouchers) {
         log('received vouchers');
         // TODO: remove this
         // we will pick the first or any one here.
