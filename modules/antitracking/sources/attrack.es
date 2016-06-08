@@ -97,12 +97,6 @@ function anonymizeTrackerTokens(trackerData) {
   return anonymizedTrackerData;
 }
 
-var getBrowserMajorVersion = function() {
-    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                    .getService(Components.interfaces.nsIXULAppInfo);
-    return parseInt(appInfo.version.split('.')[0]);
-};
-
 var CliqzAttrack = {
     VERSION: '0.96',
     MIN_BROWSER_VERSION: 35,
@@ -174,6 +168,11 @@ var CliqzAttrack = {
     linksFromDom: {},
     cookiesFromDom: {},
     loadedTabs: {},
+    getBrowserMajorVersion: function() {
+        var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                        .getService(Components.interfaces.nsIXULAppInfo);
+        return parseInt(appInfo.version.split('.')[0]);
+    },
     getPrivateValues: function(window) {
         // creates a list of return values of functions may leak private info
         var p = {};
@@ -1016,7 +1015,7 @@ var CliqzAttrack = {
      */
     init: function() {
         // disable for older browsers
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
 
@@ -1106,7 +1105,7 @@ var CliqzAttrack = {
     /** Per-window module initialisation
      */
     initWindow: function(window) {
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         // Load listerners:
@@ -1118,7 +1117,7 @@ var CliqzAttrack = {
     },
     unload: function() {
         // don't need to unload if disabled
-        if (getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+        if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
         //Check is active usage, was sent

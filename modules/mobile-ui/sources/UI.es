@@ -5,17 +5,17 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
-import DelayedImageLoader from "mobile-ui/DelayedImageLoader";
+import DelayedImageLoader from 'mobile-ui/DelayedImageLoader';
 
 //TODO: improve loading of these views!
-import v1 from "mobile-ui/views/currency";
-import v2 from "mobile-ui/views/entity-generic";
-import v3 from "mobile-ui/views/generic";
-import v4 from "mobile-ui/views/hq";
-import v6 from "mobile-ui/views/local-data-sc";
-import v7 from "mobile-ui/views/stocks";
-import v8 from "mobile-ui/views/weatherAlert";
-import v9 from "mobile-ui/views/weatherEZ";
+import v1 from 'mobile-ui/views/currency';
+import v2 from 'mobile-ui/views/entity-generic';
+import v3 from 'mobile-ui/views/generic';
+import v4 from 'mobile-ui/views/hq';
+import v6 from 'mobile-ui/views/local-data-sc';
+import v7 from 'mobile-ui/views/stocks';
+import v8 from 'mobile-ui/views/weatherAlert';
+import v9 from 'mobile-ui/views/weatherEZ';
 
 var resultsBox = null,
     currentResults = null,
@@ -31,20 +31,20 @@ var UI = {
     CARD_WIDTH: 0,
     nCardsPerPage: 1,
     nPages: 1,
-    init: function(){
+    init: function () {
         //check if loading is done
-        if(!CliqzHandlebars.tplCache.main)return;
-        var box = document.getElementById('results');
+        if (!CliqzHandlebars.tplCache.main) return;
+        let box = document.getElementById('results');
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
         resultsBox = document.getElementById('cliqz-results', box);
         resultsBox.addEventListener('click', resultClick);
     },
-    setDimensions: function() {
+    setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
       UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
-    results: function(r){
+    results: function (r) {
 
       setMobileBasedUrls(r);
       
@@ -73,7 +73,7 @@ var UI = {
           searchEngineUrl: engine.url,
           logo: logo
         }
-      }
+      };
         var query = currentResults.searchString || '';
 
         if (imgLoader) imgLoader.stop();
@@ -85,7 +85,7 @@ var UI = {
         
         redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
 
-        if(asyncResults.length > 0) loadAsyncResult(asyncResults, query);
+        if (asyncResults.length) loadAsyncResult(asyncResults, query);
 
         imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
         imgLoader.start();
@@ -98,7 +98,7 @@ var UI = {
         return currentResults;
     },
     VIEWS: {},
-    initViewpager: function() {
+    initViewpager: function () {
         var views = {},
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
@@ -118,7 +118,7 @@ var UI = {
 
           onPageChange : function (page) {
             page = Math.abs(page);
-            if(page === CLIQZEnvironment.currentPage || !isSearch()) return;
+            if (page === CLIQZEnvironment.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
 
@@ -140,12 +140,12 @@ var UI = {
           }
         });
     },
-    hideResultsBox: function() {
+    hideResultsBox: function () {
           resultsBox.style.display = 'none';
     },
-    updateSearchCard: function(engine) {
+    updateSearchCard: function (engine) {
       var engineDiv = document.getElementById('defaultEngine');
-      if(engineDiv && CliqzAutocomplete.lastSearch) {
+      if (engineDiv && CliqzAutocomplete.lastSearch) {
         engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
         var moreResults = document.getElementById('moreResults');
         moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
@@ -153,14 +153,14 @@ var UI = {
         noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
       }
     },
-    startProgressBar: function() {
-      if(progressBarInterval) {
+    startProgressBar: function () {
+      if (progressBarInterval) {
         clearInterval(progressBarInterval);
       }
       var multiplier = parseInt(Math.ceil(window.innerWidth/100)),
       progress = document.getElementById('progress'),
       i = 0;
-      progressBarInterval = setInterval(function() {
+      progressBarInterval = setInterval(function () {
         i++;
         progress.style.width = (i*multiplier)+'px';
       },20);
@@ -168,11 +168,14 @@ var UI = {
       setTimeout(UI.stopProgressBar,4000);
     },
 
-    stopProgressBar: function() {
-      if(progressBarInterval) {
+    stopProgressBar: function () {
+      if (progressBarInterval) {
         clearInterval(progressBarInterval);
       }
       document.getElementById('progress').style.width = '0px';
+    },
+    isSearch: function () {
+      return resultsBox && resultsBox.style.display === 'block';
     }
 };
 
@@ -189,7 +192,7 @@ function loadAsyncResult(res, query) {
       CliqzUtils.log(r,"LOADINGASYNC");
       CliqzUtils.log(query,"loadAsyncResult");
       var loop_count = 0;
-      var async_callback = function(req) {
+      var async_callback = function (req) {
           CliqzUtils.log(query,"async_callback");
           var resp = null;
           try {
@@ -198,18 +201,18 @@ function loadAsyncResult(res, query) {
           catch(err) {
             res.splice(i,1);
           }
-          if (resp &&  CliqzAutocomplete.lastSearch == query) {
+          if (resp &&  CliqzAutocomplete.lastSearch === query) {
 
             var kind = r.data.kind;
             if ("__callback_url__" in resp.data) {
                 // If the result is again a promise, retry.
                 if (loop_count < 10 /*smartCliqzMaxAttempts*/) {
-                  setTimeout(function() {
+                  setTimeout(function () {
                     loop_count += 1;
                     CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                   }, 100 /*smartCliqzWaitTime*/);
                 }
-                else if (currentResults.results.length == 0) {
+                else if (!currentResults.results.length) {
                   redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                 }
             }
@@ -223,13 +226,13 @@ function loadAsyncResult(res, query) {
               r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
               r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
-              if(resultsBox && CliqzAutocomplete.lastSearch == query) {
+              if (resultsBox && CliqzAutocomplete.lastSearch === query) {
                   // Remove all existing extra results
-                  currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
+                  currentResults.results = currentResults.results.filter(function (r) { return r.type !== 'cliqz-extra'; } );
                   // add the current one on top of the list
                   currentResults.results.unshift(r);
 
-                  if (currentResults.results.length > 0) {
+                  if (currentResults.results.length) {
                     redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
                   }
                   else {
@@ -246,8 +249,9 @@ function loadAsyncResult(res, query) {
           }
           else {
             res.splice(i,1);
-            if (currentResults.results.length == 0)
+            if (!currentResults.results.length) {
               redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+            }
           }
 
       };
@@ -256,24 +260,24 @@ function loadAsyncResult(res, query) {
 }
 
 
-function assessAsync(getAsync){
-    return function(result){
-        var isAsync = result.type == "cliqz-extra" && result.data && "__callback_url__" in result.data ;
+function assessAsync(getAsync) {
+    return function (result) {
+        var isAsync = result.type === 'cliqz-extra' && result.data && '__callback_url__' in result.data ;
         return getAsync ? isAsync : !isAsync;
-    }
+    };
 }
 
-function redrawDropdown(newHTML){
+function redrawDropdown(newHTML) {
     resultsBox.style.display = 'block';
 
     resultsBox.innerHTML = newHTML;
 }
 
 function getVertical(dataTemplate) {
-  return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic'
+  return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic';
 }
 
-function enhanceResults(results){
+function enhanceResults(results) {
     for(var i=0; i<results.length; i++) {
         var r = results[i];
         r.type = r.style;
@@ -288,7 +292,7 @@ function enhanceResults(results){
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
         if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
-          r.vertical = 'pattern-h1'
+          r.vertical = 'pattern-h1';
         } else {
           r.vertical = getVertical(r.data.template);
         }
@@ -300,40 +304,42 @@ function enhanceResults(results){
 
 
     }
-    var filteredResults = results.filter(function(r){ return !(r.data && r.data.adult); });
+    var filteredResults = results.filter(function (r) { return !(r.data && r.data.adult); });
 
     // if there no results after adult filter - show no results entry
-    if(filteredResults.length == 0){
+    if (!filteredResults.length) {
       filteredResults.push(CliqzUtils.getNoResults());
       filteredResults[0].vertical = 'noResult';
     }
 
-    return filteredResults
+    return filteredResults;
 }
 
 // debug message are at the end of the title like this: "title (debug)!"
-function getDebugMsg(fullTitle){
+function getDebugMsg(fullTitle) {
     // regex matches two parts:
     // 1) the title, can be anything ([\s\S] is more inclusive than '.' as it includes newline)
     // followed by:
     // 2) a debug string like this " (debug)!"
-    if(fullTitle === null) {
+    if (fullTitle === null) {
       return [null, null];
     }
-    var r = fullTitle.match(/^([\s\S]+) \((.*)\)!$/)
-    if(r && r.length >= 3)
-        return [r[1], r[2]]
-    else
-        return [fullTitle, null]
+    const r = fullTitle.match(/^([\s\S]+) \((.*)\)!$/);
+    if (r && r.length >= 3) {
+      return [r[1], r[2]];
+    }
+    else {
+      return [fullTitle, null];
+    }
 }
 
 function enhanceSpecificResult(r) {
     var specificView;
     if (r.subType && JSON.parse(r.subType).ez) {
         // Indicate that this is a RH result.
-        r.type = "cliqz-extra";
+        r.type = 'cliqz-extra';
     }
-    if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+    if (r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
         r.data.template = r.data.superTemplate;
     }
 
@@ -342,8 +348,8 @@ function enhanceSpecificResult(r) {
         specificView.enhanceResults(r.data);
     }
 
-    if(r.data.news) {
-      r.data.news.forEach(function(article) {
+    if (r.data.news) {
+      r.data.news.forEach(function (article) {
         var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
         logoDetails = CliqzUtils.getLogoDetails(urlDetails);
         article.logo = logoDetails;
@@ -353,7 +359,7 @@ function enhanceSpecificResult(r) {
 
 function crossTransform (element, x) {
   var platforms = ['', '-webkit-', '-ms-'];
-  platforms.forEach(function(platform) {
+  platforms.forEach(function (platform) {
     element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
   });
 }
@@ -373,20 +379,20 @@ function setCardsHeight() {
 
   for(var i=0; i < ezs.length; i++) {
     ezs[i].style.height = null;
-    if(ezs[i].clientHeight+40 < height) {
-      ezs[i].style.height = height-40 + 'px';
+    if (ezs[i].clientHeight + 40 < height) {
+      ezs[i].style.height = height - 40 + 'px';
     }
   }
 }
 
-function getResultKind(el){
+function getResultKind(el) {
     return getResultOrChildAttr(el, 'kind').split(';');
 }
 
 // bubbles up maximum to the result container
-function getResultOrChildAttr(el, attr){
-  if(el == null) return '';
-  if(el.className == FRAME) return el.getAttribute(attr) || '';
+function getResultOrChildAttr(el, attr) {
+  if (el === null) return '';
+  if (el.className === FRAME) return el.getAttribute(attr) || '';
   return el.getAttribute(attr) || getResultOrChildAttr(el.parentElement, attr);
 }
 
@@ -396,18 +402,18 @@ function resultClick(ev) {
         action;
 
     while (el) {
-        extra = extra || el.getAttribute("extra");
+        extra = extra || el.getAttribute('extra');
         url = el.getAttribute('url');
         action = el.getAttribute('cliqz-action');
 
-        if (url && url != "#") {
+        if (url && url !== '#') {
 
             var card = document.getElementsByClassName('card')[CLIQZEnvironment.currentPage];
             var cardPosition = card.getBoundingClientRect();
             var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
 
             var signal = {
-                action: "result_click",
+                action: 'result_click',
                 extra: extra,
                 mouse: coordinate,
                 position_type: getResultKind(el)
@@ -423,13 +429,13 @@ function resultClick(ev) {
                     return;
                 case 'copy-calc-answer':
                     CLIQZEnvironment.copyResult(document.getElementById('calc-answer').innerHTML);
-                    document.getElementById('calc-copied-msg').style.display = "";
-                    document.getElementById('calc-copy-msg').style.display = "none";
+                    document.getElementById('calc-copied-msg').style.display = '';
+                    document.getElementById('calc-copy-msg').style.display = 'none';
                     break;
             }
         }
 
-        if (el.className == FRAME) break; // do not go higher than a result
+        if (el.className === FRAME) break; // do not go higher than a result
         el = el.parentElement;
     }
 }
@@ -450,7 +456,7 @@ function shiftResults() {
 function setResultNavigation(results) {
 
   var showGooglethis = 1;
-  if(!results[0] || results[0].data.template === 'noResult') {
+  if (!results[0] || results[0].data.template === 'noResult') {
     showGooglethis = 0;
   }
 
@@ -465,11 +471,11 @@ function setResultNavigation(results) {
   // get number of pages according to number of cards per page
   UI.nPages = Math.ceil(currentResultsCount / UI.nCardsPerPage);
 
-  if(!CLIQZEnvironment.vp) {
+  if (!CLIQZEnvironment.vp) {
     CLIQZEnvironment.vp = UI.initViewpager();
   }
 
-  if(document.getElementById('currency-tpl')) {
+  if (document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
   }
 
@@ -481,25 +487,20 @@ function setMobileBasedUrls(o) {
     o.url = o.m_url;
   }
   for (let i in o) {
-    if (typeof(o[i]) == 'object') {
+    if (typeof(o[i]) === 'object') {
         setMobileBasedUrls(o[i]);
     }
   }
 }  
 
-function isSearch() {
-  return resultsBox && resultsBox.style.display === 'block';
-};
-
 var resizeTimeout;
 window.addEventListener('resize', function () {
-  if (!isSearch()) return;
+  if (!UI.isSearch()) return;
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function () {
     const lastnCardsPerPage = UI.nCardsPerPage;
     setCardCountPerPage(window.innerWidth);
     UI.setDimensions();
-    const w = window.innerWidth;
     const frames = document.getElementsByClassName(FRAME);
     for (let i = 0; i < frames.length; i++) {
       let left = UI.CARD_WIDTH * i;
@@ -516,13 +517,13 @@ window.addEventListener('resize', function () {
 
 });
 
-window.addEventListener('disconnected', function() {
-  var elem = document.getElementById("reconnecting");
+window.addEventListener('disconnected', function () {
+  let elem = document.getElementById('reconnecting');
   elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
 });
 
-window.addEventListener('connected', function() {
-  var elem = document.getElementById("reconnecting");
+window.addEventListener('connected', function () {
+  let elem = document.getElementById('reconnecting');
   elem && (elem.innerHTML = '');
 });
 
@@ -531,11 +532,11 @@ UI.clickHandlers = {};
 Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
   UI.VIEWS[templateName] = Object.create(null);
   try {
-    var module = System.get("mobile-ui/views/"+templateName);
+    let module = System.get('mobile-ui/views/' + templateName);
     if (module) {
       UI.VIEWS[templateName] = new module.default(window);
 
-      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+      if (UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click) {
         Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
           UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
         });
