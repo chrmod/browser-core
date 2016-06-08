@@ -670,7 +670,7 @@ a:hover, a:active, a:focus {
   }
 
   #freshTabPage .wrap {
-    width: auto;
+    width: 100%;
     padding: 20px;
   }
 
@@ -686,7 +686,6 @@ a:hover, a:active, a:focus {
   #freshTabPage #newsContainer .newsBox {
     float: none;
     width: auto;
-    margin-left: 20px;
   }
 
   #freshTabPage #newsContainer #yourNewsBox {
