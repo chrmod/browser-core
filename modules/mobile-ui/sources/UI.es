@@ -271,6 +271,9 @@ function redrawDropdown(newHTML) {
 }
 
 function getVertical(dataTemplate) {
+  if (dataTemplate === 'pattern-h3') {
+    return 'history';
+  }
   return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic';
 }
 

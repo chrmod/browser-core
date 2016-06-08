@@ -4,139 +4,141 @@
 	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
 
-	{{#if data.title}}
-		<section class="primary">
+	<section class="primary">
 
-			<h1 extra="title" class="card__title">
-				{{#if data.richData.full_name}}
-					{{data.richData.full_name}}
-				{{else}}
+		<h1 extra="title" class="card__title">
+			{{#if data.richData.full_name}}
+				{{data.richData.full_name}}
+			{{else}}
+				{{#if data.title}}
 					{{data.title}}
-				{{/if}}
-				{{#if data.richData.under_name}}<span>{{data.richData.under_name}}</span>{{/if}}
-			</h1>
-
-			<div extra="url" class="card__meta">
-
-				{{#if data.richData.discovery_timestamp}}
-					<div class="timestamp">{{ agoline data.richData.discovery_timestamp }}</div>
 				{{else}}
-					{{urlDetails.friendly_url}}
+					{{title}}
 				{{/if}}
-			</div>
+			{{/if}}
+			{{#if data.richData.under_name}}<span>{{data.richData.under_name}}</span>{{/if}}
+		</h1>
 
-			<!-- main images -->
+		<div extra="url" class="card__meta">
 
-			<div class="card__gallery">
-				{{#if data.richData.image}}
-		            <div class="image big" data-style="background-image: url({{ data.richData.image }});">
-		                Image
-		            </div>
-		        {{else}}
+			{{#if data.richData.discovery_timestamp}}
+				<div class="timestamp">{{ agoline data.richData.discovery_timestamp }}</div>
+			{{else}}
+				{{urlDetails.friendly_url}}
+			{{/if}}
+		</div>
 
-					{{#if data.media}}
-						<div class="image big" data-style="background-image: url({{ data.media }});">
+		<!-- main images -->
+
+		<div class="card__gallery">
+			{{#if data.richData.image}}
+	            <div class="image big" data-style="background-image: url({{ data.richData.image }});">
+	                Image
+	            </div>
+	        {{else}}
+
+				{{#if data.media}}
+					<div class="image big" data-style="background-image: url({{ data.media }});">
+						Image
+					</div>
+				{{else}}
+					{{#if image.src}}
+						<div class="image big" data-style="background-image: url({{ image.src }})">
 							Image
 						</div>
-					{{else}}
-						{{#if image.src}}
-							<div class="image big" data-style="background-image: url({{ image.src }})">
-								Image
-							</div>
-						{{/if}}
-						{{#if data.i}}
-							<div class="image big" data-style="background-image: url({{ data.i }})">
-								Image
-							</div>
-						{{/if}}
 					{{/if}}
-
-				{{/if}}
-			</div>
-
-			<div class="card__gallery">
-				{{#if data.image}}
-		            <div class="image big" data-style="background-image: url({{ data.image.src }});">
-		                Image
-		            </div>
-				{{/if}}
-			</div>
-
-	        <!-- end main images -->
-
-			<!-- for videos -->
-			{{#if data.items}}
-				<div class="ez-video">
-					{{#each data.items}}
-
-						<div class="item" url="{{link}}">
-						  <div class="main__image" data-style="background-image: url({{ thumbnail }})">
-							  {{#if (sec_to_duration duration)}}<span> {{ sec_to_duration duration}}</span>{{/if}}
-						  </div>
-						  <h1 class="main__headline">{{ title }}</h1>
-						  <!--<div class="main__meta">{{ views_helper views}}</div>-->
+					{{#if data.i}}
+						<div class="image big" data-style="background-image: url({{ data.i }})">
+							Image
 						</div>
-
-					{{/each}}
-				</div>
-			{{/if}}
-			<!--end for videos -->
-
-			<div class="card__gallery">
-				{{#each data.richData.images}}
-					{{#if (limit @index 3)}}
-						<div class="image" data-style="background-image: url({{this}})">Image</div>
 					{{/if}}
+				{{/if}}
+
+			{{/if}}
+		</div>
+
+		<div class="card__gallery">
+			{{#if data.image}}
+	            <div class="image big" data-style="background-image: url({{ data.image.src }});">
+	                Image
+	            </div>
+			{{/if}}
+		</div>
+
+        <!-- end main images -->
+
+		<!-- for videos -->
+		{{#if data.items}}
+			<div class="ez-video">
+				{{#each data.items}}
+
+					<div class="item" url="{{link}}">
+					  <div class="main__image" data-style="background-image: url({{ thumbnail }})">
+						  {{#if (sec_to_duration duration)}}<span> {{ sec_to_duration duration}}</span>{{/if}}
+					  </div>
+					  <h1 class="main__headline">{{ title }}</h1>
+					  <!--<div class="main__meta">{{ views_helper views}}</div>-->
+					</div>
+
 				{{/each}}
 			</div>
+		{{/if}}
+		<!--end for videos -->
 
-			<div extra="des" class="card__description">
+		<div class="card__gallery">
+			{{#each data.richData.images}}
+				{{#if (limit @index 3)}}
+					<div class="image" data-style="background-image: url({{this}})">Image</div>
+				{{/if}}
+			{{/each}}
+		</div>
 
-				<div class="main__rating">
-					{{#if data.richData.url_ratingimg}}
-						<img data-src="{{data.richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
-					{{/if}}
+		<div extra="des" class="card__description">
 
-					{{#if data.richData.rating.img}}
-						{{#if data.richData.rating.val}}
-							<img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
-						{{/if}}
-					{{/if}}
+			<div class="main__rating">
+				{{#if data.richData.url_ratingimg}}
+					<img data-src="{{data.richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
+				{{/if}}
 
-					{{#if data.r.img}}
-						{{#if data.r.val}}
-							<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/>
-							{{numberFormat data.r.val}}/{{data.r.scale}} <!--({{data.r.nVote}} Stimmen)-->
-						{{/if}}
-					{{/if}}
-				</div>
-
-				{{#with data.richData.director}}
-					<div url="{{info.url}}" class="main__director">
-						{{title}}: {{info.name}}
-					</div>
-				{{/with}}
-
-				{{#if data.des}}
-					{{{data.des}}}
-				{{else}}
-					{{#if data.richData.current_company}}
-					{{else}}
-						{{ emphasis data.description query 2 true }}
+				{{#if data.richData.rating.img}}
+					{{#if data.richData.rating.val}}
+						<img data-src="{{data.richData.rating.img}}" class="cqz-rd-rateimg"/>
 					{{/if}}
 				{{/if}}
 
-				<!-- people data -->
-					{{#with data.richData}}
-						{{#if current_job_title}}<br />{{current_job_title}}{{/if}}
-						{{#if current_company}}<br />{{current_company}}{{/if}}
-						{{#if since}}<br />seit {{since}}{{/if}}
-					{{/with}}
-				<!-- end people data -->
+				{{#if data.r.img}}
+					{{#if data.r.val}}
+						<img data-src="{{data.r.img}}" class="cqz-rd-rateimg"/>
+						{{numberFormat data.r.val}}/{{data.r.scale}} <!--({{data.r.nVote}} Stimmen)-->
+					{{/if}}
+				{{/if}}
 			</div>
 
-		</section>
-	{{/if}}
+			{{#with data.richData.director}}
+				<div url="{{info.url}}" class="main__director">
+					{{title}}: {{info.name}}
+				</div>
+			{{/with}}
+
+			{{#if data.des}}
+				{{{data.des}}}
+			{{else}}
+				{{#if data.richData.current_company}}
+				{{else}}
+					{{ emphasis data.description query 2 true }}
+				{{/if}}
+			{{/if}}
+
+			<!-- people data -->
+				{{#with data.richData}}
+					{{#if current_job_title}}<br />{{current_job_title}}{{/if}}
+					{{#if current_company}}<br />{{current_company}}{{/if}}
+					{{#if since}}<br />seit {{since}}{{/if}}
+				{{/with}}
+			<!-- end people data -->
+		</div>
+
+	</section>
 
 	<section class="secondary">
 
