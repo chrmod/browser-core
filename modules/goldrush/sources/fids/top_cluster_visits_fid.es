@@ -25,7 +25,7 @@ export class TopClusterVisitsFID extends FID {
     this.configParams = {
       'N' : {
         description: 'N means the number of visits where we will activate this FID and return 1',
-        value: 3
+        value: 1
       },
       'delta' : {
         description: 'The delta number of visits to check',
@@ -40,12 +40,13 @@ export class TopClusterVisitsFID extends FID {
 
   configureArgs(configArgs) {
     // set default values
+    for(let k in this.configParams) {
+      this.args[k] = this.configParams[k]['value'];
+    }
+
+    // Overwrite values with the once specified in the rule files
     for (let arg_idx in configArgs) {
-      if (arg_idx in this.configParams) {
-        this.args[arg_idx] = this.configParams[arg_idx]['value'];
-      } else {
         this.args[arg_idx] = configArgs[arg_idx];
-      }
     }
 
     // log('configArgs' + JSON.stringify(configArgs));
