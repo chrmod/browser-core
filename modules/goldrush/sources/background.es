@@ -66,7 +66,6 @@ export default {
   },
 
   start() {
-
     // nothing to do
     log('starting the background script');
 
@@ -87,6 +86,26 @@ export default {
     // });
 
   },
+
+  unload() {
+    log('unloading the background script');
+
+    // unsubscribe this class
+    events.un_sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
+
+    // destroy classes
+    if (this.offerManager) {
+      this.offerManager.destroy();
+      delete this.offerManager;
+      this.offerManager = null;
+    }
+  },
+
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  //                          TESTS
+  //////////////////////////////////////////////////////////////////////////////
 
   testOfferFetcher() {
     let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
@@ -113,6 +132,9 @@ export default {
           }
         }
         if (coupon) {
+          offerManager.uiManager.addCoupon(coupon);
+          coupon['title'] = 'this is the second';
+          coupon['coupon_id'] = 'second';
           offerManager.uiManager.addCoupon(coupon);
         }
       });
@@ -156,78 +178,4 @@ export default {
     log(fids.detectorName);
   },
 
-  unload() {
-    log('unloading the background script');
-
-    // unsubscribe this class
-    events.un_sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
-  },
-
-  //////////////////////////////////////////////////////////////////////////////
-  // Popup button actions
-  //
-  couponPopupActions: {
-    ////////////////////////////////////////////////////////////////////////////
-    // goldrush
-    //
-/*
-
-    // TODO: maybe we want to move part of this logic to somewhere else (like OfferManager?)
-
-    //
-    // @brief called when someone clicks on the cupon to show the coupon code
-    //        (to track more events from the user)
-    //
-    onShowCouponCode(args, cb) {
-
-      // TODO_QUESTION: why is this cb needed?
-      cb();
-    },
-
-    //
-    // @brief when the user clicked on the coupon link.
-    //        We need to provide the coupon ID.
-    //
-    onCouponClicked(args, cb) {
-      // TODO?
-    },
-
-    //
-    // @brief when user perfom some operation on the coupon we want to track
-    //        (mouse over? whatever we want to track).
-    //        We need to provide the coupon ID.
-    //
-    onCouponEventHappened(args, cb) {
-      // TODO: we need to also implement all the js in the client.
-      // TODO_QUESTION: ask how we can implement the popup.js to call this methods
-      //                (mouse over and more...)
-    },
-*/
-
-
-
-  //////////////////////////////////////////////////////////////////////////////
-  // old
-    getPopupCouponsData(args, cb) {
-      log('getPopupCouponsData: getting the coupons from the offer manager: ');
-      //cb({});
-      // if (!this.offerManager) {
-      //   return;
-      // }
-      // cb(this.offerManager.getCurrentCoupons());
-
-
-      /*var info = CliqzAttrack.getCurrentTabBlockingInfo();
-
-      cb({
-        url: info.hostname,
-        cookiesCount: info.cookies.blocked,
-        requestsCount: info.requests.unsafe,
-        enabled: utils.getPref('antiTrackTest'),
-        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
-        reload: info.reload || false,
-        trakersList: info
-      });*/
-    }
-  }
 };

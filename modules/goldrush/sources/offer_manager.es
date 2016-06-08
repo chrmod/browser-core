@@ -162,8 +162,11 @@ export function OfferManager() {
     'show_coupon': this.checkButtonUICallback.bind(this),
     'save_coupon': this.saveCouponUICallback.bind(this),
     'not_interested': this.notInterestedUICallback.bind(this),
-    'stop_forever': this.stopBotheringForeverUICallback.bind(this)
+    'stop_forever': this.stopBotheringForeverUICallback.bind(this),
+    'extra_events': this.extraEventsUICallback  .bind(this)
   });
+
+  // subscribe to the
 
   // the cluster information
 
@@ -290,6 +293,14 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       log('error: ' + errMsg);
     });
   }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief Unload all the class
+//
+OfferManager.prototype.destroy = function() {
+  // TODO: maybe if we need to destroy something
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -600,6 +611,16 @@ OfferManager.prototype.notInterestedUICallback = function() {
 OfferManager.prototype.stopBotheringForeverUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('stopBotheringForeverUICallback');
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief any other type of events from the bar
+// @note https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/appendNotification#Notification_box_events
+//
+OfferManager.prototype.extraEventsUICallback = function(reason) {
+  // TODO: implement here all the needed logic and the
+  log('extraEventsUICallback');
 };
 
 

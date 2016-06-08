@@ -30,6 +30,7 @@ export function UIManager() {
 //    'save_coupon': callback, -> will show a message to the user or redirect to some other special web.
 //    'not_interested': callback -> will just cancel this and maybe don't show it again for a while.
 //    'stop_forever': callback -> when the user don't want to see this any more in his current and future lifes.
+//    'extra_events': callback -> any other extra events from the notification bar
 //  }
 //
 UIManager.prototype.configureCallbacks = function(callbacks) {
@@ -120,11 +121,19 @@ UIManager.prototype.addCoupon = function(couponInfo) {
   // TODO_QUESTION: modify the priority? which one we should use + icon?
   var gBrowser = currWindow.gBrowser;
   var box = gBrowser.getNotificationBox();
+
+  // try first to remove the current one if we have one so we only show one element
+  let currentNotification = box.getNotificationWithValue('goldrush-ad');
+  if (currentNotification) {
+    box.removeNotification(currentNotification);
+  }
+
   var notification = box.appendNotification(notificationContent,
                                             'goldrush-ad',
                                             'chrome://cliqz/content/static/skin/cliqz_btn.png',
                                             box.PRIORITY_WARNING_MEDIUM,
-                                            buttons);
+                                            buttons,
+                                            this.callbacks['extra_events']);
 
   // we show the coupon properly
   return true;
