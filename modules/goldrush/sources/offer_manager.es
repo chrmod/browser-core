@@ -140,7 +140,6 @@ function generateDBMap(dbsNamesList) {
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief This class will be in charge of handling the offers and almost everything
@@ -318,15 +317,11 @@ OfferManager.prototype.formatEvent = function(originalURL) {
 
   // TODO: get all the fields we need here.
 
-  // TODO_QUESTION: get the full url?
   const fullURL = originalURL['domain'] + originalURL['path'] ;
-
-
   // This is how the other modules at cliqz does it
   const timestamp = Date.now();
   // check if we are in a checkout page?
-  // TODO implement this
-  const checkoutFlag = false;
+  const checkoutFlag = this.isCheckoutPage(fullURL);
   // TODO_QUESTION: how to get the last url?
   const lastURL = '';
   // TODO_QUESTION: how to get the referrer url?
@@ -594,6 +589,16 @@ OfferManager.prototype.stopBotheringForeverUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('stopBotheringForeverUICallback');
 };
+
+OfferManager.prototype.isCheckoutPage = function(url) {
+  // TODO implement this
+  // if (this.mappings['dname_to_checkout_regex']){
+  //   log('checkoutFlag' + JSON.stringify(this.mappings['dname_to_checkout_regex']));
+  //   return true;
+  // }
+  return false;
+};
+
 
 
 
