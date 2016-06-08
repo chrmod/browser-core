@@ -7,6 +7,7 @@ import { DateTimeDB } from 'goldrush/dbs/datetime_db';
 import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
+import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import {UIManager} from 'goldrush/ui/ui_manager';
 
 function log(s){
@@ -107,6 +108,9 @@ function generateFidsMap(fidsNamesList) {
         case 'topHour':
         result[fidName] = new TopHourFID();
         break;
+        case 'topClusterVisits':
+        result[fidName] = new TopClusterVisitsFID();
+        break;
       }
     }
     resolve(result);
@@ -137,7 +141,6 @@ function generateDBMap(dbsNamesList) {
     resolve(result);
   });
 }
-
 
 
 
@@ -214,7 +217,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   for (var clusterName in clusterFilesMap) {
     // get the given cluster ID from the name.
     let clusterID = this.mappings['cname_to_cid'][clusterName];
-    if (clusterID === 0) {
+    if (typeof clusterID === 'undefined') {
       log('cluster with name ' + clusterName + ' was not found');
       continue;
     }
@@ -262,23 +265,17 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
       // get the rules information
-      for (let i = 0; i < rulesStr.length; ++i) {
-        if (rulesStr[i] === '\n') {
-          rulesStr[i] = ' ';
-        }
-      }
-
+      rulesStr = rulesStr.replace(/(\n)+/g, ' ');
       // TODO: here we may want to get the FIDS names, but for now we will get
       // a map for all the fids and then we can remove the objects (nasty because)
       // we allocate them and then we remove it...
-      let rulesNames = ['topHour'];
+      let rulesNames = ['topHour', 'topClusterVisits'];
       return generateFidsMap(rulesNames);
     }).then(function(rulesInstancesMapResult) {
       rulesInstancesMap = rulesInstancesMapResult;
       log('rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
     }).then(function() {
       let intentDetector =  new IntentDetector(clusterID, self.mappings, dbInstancesMap, rulesInstancesMap);
-
       // try to load everything now
       try {
         intentDetector.loadDataBases(dbsJson);
@@ -329,15 +326,11 @@ OfferManager.prototype.formatEvent = function(originalURL) {
 
   // TODO: get all the fields we need here.
 
-  // TODO_QUESTION: get the full url?
   const fullURL = originalURL['domain'] + originalURL['path'] ;
-
-
   // This is how the other modules at cliqz does it
   const timestamp = Date.now();
   // check if we are in a checkout page?
-  // TODO implement this
-  const checkoutFlag = false;
+  const checkoutFlag = this.isCheckoutPage(fullURL);
   // TODO_QUESTION: how to get the last url?
   const lastURL = '';
   // TODO_QUESTION: how to get the referrer url?
@@ -480,6 +473,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // (5)
   const intentValue = intentSystem.evaluateInput(intentInput);
+  log('intentValue: ' + intentValue);
 
   // (6)
   const thereIsAnIntention = intentValue >= 1.0;
@@ -605,6 +599,19 @@ OfferManager.prototype.notInterestedUICallback = function() {
 OfferManager.prototype.informationUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('stopBotheringForeverUICallback');
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief flag is the user is on a checkout page
+//
+OfferManager.prototype.isCheckoutPage = function(url) {
+  // TODO implement this
+  // if (this.mappings['dname_to_checkout_regex']){
+  //   log('checkoutFlag' + JSON.stringify(this.mappings['dname_to_checkout_regex']));
+  //   return true;
+  // }
+  return false;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

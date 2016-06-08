@@ -58,8 +58,8 @@ DateTimeDB.prototype.loadFromDict = function(dict) {
   this.dayData = dict['day_data'];
   this.hourData = dict['hour_data'];
   this.monthData = dict['month_data'];
-  log('DateTimeDB: loadFromDict');
-  log(this);
+  // log('DateTimeDB: loadFromDict');
+  // log(this);
 };
 
 

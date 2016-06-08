@@ -50,12 +50,15 @@ UIManager.prototype.addCoupon = function(couponInfo) {
     return false;
   }
 
+<<<<<<< HEAD
   // if (this.currentCoupon && this.currentCoupon['coupon_id'] === couponInfo['coupon_id']) {
   //   // nothing to do
   //   log('we already have this coupon: ' + couponInfo['coupon_id']);
   //   return false;
   // }
 
+=======
+>>>>>>> 86520f9dc88b65fe8d57226bc4ba8b2ae7fba799
   // the coupon should have the state
   // if (!couponInfo.hasOwnProperty('used_state')) {
   //   log('state has no \'used_state\', we will set it to false');

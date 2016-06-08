@@ -55,6 +55,7 @@ fids_to_calculate -> will be a list of maps from fid_name -> {argName: argValue}
                      replaced in the new_rule_string with the evaluated value.
 */
 function parseRuleString(ruleString, fidsMap) {
+  log('SR' + ' parseRuleString');
   var q = [];
   var indices = [];
   var firstPos = -1;
@@ -140,7 +141,7 @@ function parseRuleString(ruleString, fidsMap) {
     new_rule_string : newStr,
     fids_to_calculate : expressions
   };
-
+  log('SR ' + JSON.stringify(result, null, 4) );
   return result;
 }
 
@@ -161,13 +162,11 @@ export function IntentDetector(clusterID, mappings = null, dbMaps = null, fidsMa
 //
 IntentDetector.prototype.loadDataBases = function(rawDatabase) {
   if (this.dbMap === null) {
-    log('no databases map found! for IntentDetector: ' + this.clusterID);
-    return false;
+    throw new Error('no databases map found! for IntentDetector: ' + this.clusterID);
   }
   for (var dbName in rawDatabase) {
     if (!this.dbMap.hasOwnProperty(dbName)) {
-      log('we couldnt find the database with name ' + dbName + ' in the map');
-      false;
+      throw new Error('we couldnt find the database with name ' + dbName + ' in the map');
     }
 
     // initialize all the databases
@@ -185,21 +184,17 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
 //
 IntentDetector.prototype.loadRule = function(ruleString) {
   if (this.fidsMap === null) {
-    log('no fids map found for IntentDetector: ' + this.clusterID);
-    return false;
+    throw new Error('no fids map found for IntentDetector: ' + this.clusterID);
   }
   if (!ruleString || ruleString.length === 0) {
-    log('we cannot load an empty rule for IntentDetector: ' + this.clusterID);
-    return false;
+    throw new Error('we cannot load an empty rule for IntentDetector: ' + this.clusterID);
   }
   this.originalRuleStr = ruleString;
   this.ruleData = parseRuleString(ruleString, this.fidsMap);
 
   if (this.ruleData === null) {
-    log('Something happened when parsing the rule: ' + ruleString +
+    throw new Error('Something happened when parsing the rule: ' + ruleString +
         '\n for IntentDetector with cluster: ' + this.clusterID);
-
-    return false;
   }
 
   for (var fidName in this.fidsMap) {
@@ -222,16 +217,21 @@ IntentDetector.prototype.evaluateInput = function(intentInput) {
     return 0;
   }
   var resultValues = [];
-  var exps = this.rulesData['fids_to_calculate'];
+  var exps = this.ruleData['fids_to_calculate'];
   var extras = {'mappings' : this.mappings};
 
-  for (var ex in exps) {
+  log('exps' + JSON.stringify(exps));
+
+  for (let ex in exps) {
     if (!exps.hasOwnProperty(ex)) {
       // TODO: mark an error here...?
       continue;
     }
-    let exName = ex[0];
-    let argsMap = ex[1];
+    log('ex' + JSON.stringify(ex));
+    let exName = exps[ex][0];
+    let argsMap = exps[ex][1];
+    log(exName);
+    log(argsMap);
     let fid = this.fidsMap[exName];
     if (fid === undefined) {
       log('this cannot happen, we dont have the fid with name ' + exName);
@@ -239,10 +239,13 @@ IntentDetector.prototype.evaluateInput = function(intentInput) {
     }
     fid.configureArgs(argsMap);
     let rvalue = fid.evaluate(intentInput, extras);
+    log('rvalue ' + rvalue);
     resultValues.push(rvalue);
   }
   let strToEvaluate = replaceStrArgs(this.ruleData['new_rule_string'] , resultValues);
+  log('strToEvaluate ' + strToEvaluate);
   let result = eval(strToEvaluate);
+  log('result ' + result);
   if (typeof(result) !== 'number') {
     log('the eval method of the rule ' + this.originalRuleStr + ' is not a number?: ' + result);
     return 0;
