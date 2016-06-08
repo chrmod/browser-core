@@ -266,12 +266,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
       // get the rules information
-      for (let i = 0; i < rulesStr.length; ++i) {
-        if (rulesStr[i] === '\n') {
-          rulesStr[i] = ' ';
-        }
-      }
-
+      rulesStr = rulesStr.replace(/(\n)+/g, ' ');
       // TODO: here we may want to get the FIDS names, but for now we will get
       // a map for all the fids and then we can remove the objects (nasty because)
       // we allocate them and then we remove it...
