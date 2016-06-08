@@ -141,13 +141,15 @@ CLIQZEnvironment = {
   },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   putHistoryFirst: function(r) {
-    for(var i = 0; i < r._results.length; i++) {
-      if(r._results[i].style === 'cliqz-pattern' || r._results[i].style === 'favicon') {
-        r._results.unshift(r._results.splice(i, 1)[0]);
-        return 1;
+    var history = [], backend = [];
+    r._results.forEach(function (res) {
+      if(res.style === 'cliqz-pattern' || res.style === 'favicon') {
+        history.push(res);
+      } else {
+        backend.push(res);
       }
-    }
-    return 0;
+    });
+    r._results = history.concat(backend);
   },
   resultsHandler: function (r) {
 
@@ -156,11 +158,11 @@ CLIQZEnvironment = {
       return;
     }
 
-    var historyCount = CLIQZEnvironment.putHistoryFirst(r);
+    CLIQZEnvironment.putHistoryFirst(r);
 
-    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
+    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT);
 
-    renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
+    renderedResults = CLIQZEnvironment.renderResults(r);
 
     CLIQZEnvironment.lastResults = renderedResults.results;
 
