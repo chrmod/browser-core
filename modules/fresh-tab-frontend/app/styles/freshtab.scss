@@ -18,7 +18,7 @@
   font-family: "Lato", sans-serif;
   font-weight: 400;
   font-size: 14px;
-  line-height: 1.2
+  line-height: 1.2em;
 }
 
 a:hover, a:active, a:focus {
@@ -283,10 +283,12 @@ a:hover, a:active, a:focus {
         border-top: 0px;
         border-left: 0px;
         border-right: 0px;
+        border-bottom: 2px solid #F3F3F3;
         color: #666666;
         width: 100%;
-        padding-top: 0;
+        padding: 0 0 1px 0;
         height: auto;
+        line-height: 1.2em;
       }
 
       button {
@@ -402,6 +404,7 @@ a:hover, a:active, a:focus {
         text-decoration: none;
         max-height: 83px;
         overflow: hidden;
+        line-height: 1.2em;
       }
 
       .title:hover {
@@ -614,7 +617,6 @@ a:hover, a:active, a:focus {
     bottom: 0px;
     right: 20px;
     padding: 20px;
-    background-color: #ffffff;
 
     .options {
       float: right;
@@ -667,7 +669,7 @@ a:hover, a:active, a:focus {
   }
 
   #freshTabPage .wrap {
-    width: auto;
+    width: 100%;
     padding: 20px;
   }
 
@@ -683,7 +685,6 @@ a:hover, a:active, a:focus {
   #freshTabPage #newsContainer .newsBox {
     float: none;
     width: auto;
-    margin-left: 20px;
   }
 
   #freshTabPage #newsContainer #yourNewsBox {
