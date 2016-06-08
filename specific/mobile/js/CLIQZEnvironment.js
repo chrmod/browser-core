@@ -164,9 +164,7 @@ CLIQZEnvironment = {
 
     CLIQZEnvironment.lastResults = renderedResults.results;
 
-    if(renderedResults.results.length > historyCount) {
-      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
-    }
+    CLIQZEnvironment.autoComplete(renderedResults.results[0].val,r._searchString);
   },
   search: function(e, location_enabled, latitude, longitude) {
     if(!e || e === '') {
