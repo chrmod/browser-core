@@ -134,9 +134,8 @@ var CLIQZEnvironment = {
       'onboarding-callout',
       'onboarding-callout-extended',
       'slow_connection',
-      'partials/missing_location_2',
-      'partials/location/no-locale-data',
-      'partials/no-locale-data'
+      'partials/location/missing_location_2',
+      'partials/location/no-locale-data'
     ],
     PARTIALS: [
         'url',
@@ -151,7 +150,7 @@ var CLIQZEnvironment = {
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
         'partials/location/local-data',
-        'partials/missing_location_1',
+        'partials/location/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie',
         'partials/music-data-sc',

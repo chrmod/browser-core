@@ -651,7 +651,7 @@ var UI = {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
       }
-      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate) && r.data["__subType__"]["class"] != "EntityLocal") {
         r.data.template = r.data.superTemplate;
       }
 
@@ -967,10 +967,20 @@ function setPartialTemplates(data) {
   if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
   }
-
+  else if (data.deepResults) {
+    data.deepResults.forEach(function (item) {
+      if (item.type == 'buttons') {
+        data.btns = item.links;
+        delete item.links;
+        partials.push('buttons');
+      }
+    })
+  }
+    
   // Music
   if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
     partials.push('music-data-sc');
+
   }
 
   return partials;
