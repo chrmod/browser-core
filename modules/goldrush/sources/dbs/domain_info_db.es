@@ -60,8 +60,8 @@ DomainInfoDB.prototype.loadFromDict = function(dict) {
   this.data['total_signals'] = dict['total_signals'];
   this.setTopSellersList(dict['top_sellers']);
   this.setCheckoutRegexMap(dict['checkout_regex']);
-  log('DomainInfoDB: loadFromDict');
-  log(this.data);
+  // log('DomainInfoDB: loadFromDict');
+  // log(this.data);
 };
 
 

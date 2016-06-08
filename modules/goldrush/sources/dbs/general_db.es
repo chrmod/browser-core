@@ -50,8 +50,8 @@ GeneralDB.prototype.loadFromDict = function(dict) {
       log('Key not found in the list of valid keys');
     }
   }
-  log('GeneralDB: loadFromDict');
-  log(this.data);
+  // log('GeneralDB: loadFromDict');
+  // log(this.data);
 };
 
 
