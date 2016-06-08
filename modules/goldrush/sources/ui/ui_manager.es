@@ -50,12 +50,6 @@ UIManager.prototype.addCoupon = function(couponInfo) {
     return false;
   }
 
-  if (this.couponsMap.hasOwnProperty(couponInfo['coupon_id'])) {
-    // nothing to do
-    log('we already have this coupon: ' + couponInfo['coupon_id']);
-    return false;
-  }
-
   // the coupon should have the state
   // if (!couponInfo.hasOwnProperty('used_state')) {
   //   log('state has no \'used_state\', we will set it to false');
