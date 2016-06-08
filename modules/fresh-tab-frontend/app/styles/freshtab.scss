@@ -283,10 +283,12 @@ a:hover, a:active, a:focus {
         border-top: 0px;
         border-left: 0px;
         border-right: 0px;
+        border-bottom: 2px solid #F3F3F3;
         color: #666666;
         width: 100%;
-        padding-top: 0;
+        padding: 0 0 1px 0;
         height: auto;
+        line-height: 1.2em;
       }
 
       button {
