@@ -1365,6 +1365,7 @@ function urlIndexInHistory(url, urlList) {
                             win.CLIQZ.Core.unload(true);
                         }
                         CLIQZ.Core.refreshButtons();
+                        CliqzAutocomplete.isPopupOpen = false;
                         break;
                     case 'keep-cliqz':
                         clearMessage('bottom');

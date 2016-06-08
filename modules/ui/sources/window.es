@@ -4,6 +4,7 @@ export default class {
   constructor(settings) {
     this.window = settings.window;
     this.urlbarGoClick = this.urlbarGoClick.bind(this);
+    this.initialzied = false;
 
     this.urlbarEventHandlers = {}
     Object.keys(urlbarEventHandlers).forEach( ev => {
@@ -22,6 +23,9 @@ export default class {
   }
 
   init() {
+    // do not initialize the UI if the user decided to turn off search
+    if(CliqzUtils.getPref("cliqz_core_disabled", false)) return;
+
     Services.scriptloader.loadSubScript(this.window.CLIQZ.System.baseURL + 'ui/UI.js', this.window);
     //create a new panel for cliqz to avoid inconsistencies at FF startup
     var document = this.window.document,
@@ -77,6 +81,7 @@ export default class {
 
     this.window.addEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
 
+    this.initialzied = true;
   }
 
   // trigger component reload at install/uninstall
@@ -126,6 +131,8 @@ export default class {
   }
 
   unload() {
+    if(!this.initialzied) return;
+
     this.window.CLIQZ.UI.unload();
 
     for(var i in this.window.CLIQZ.Core.elem){
