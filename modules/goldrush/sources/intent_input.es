@@ -128,6 +128,15 @@ IntentInput.prototype.thereIsNewEvent = function() {
 };
 
 //
+// @brief return the current buy intent session
+//
+IntentInput.prototype.currentBuyIntentSession = function() {
+  return this.currBuyIntent;
+};
+
+
+
+//
 // @brief This method should be called whenever we got a new event or when we
 //        read events from the past.
 // @param event This event is a structure (object) with the following elements:
