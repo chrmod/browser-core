@@ -218,7 +218,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   for (var clusterName in clusterFilesMap) {
     // get the given cluster ID from the name.
     let clusterID = this.mappings['cname_to_cid'][clusterName];
-    if (clusterID === 0) {
+    if (typeof clusterID === 'undefined') {
       log('cluster with name ' + clusterName + ' was not found');
       continue;
     }
@@ -282,7 +282,6 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       log('rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
     }).then(function() {
       let intentDetector =  new IntentDetector(clusterID, self.mappings, dbInstancesMap, rulesInstancesMap);
-
       // try to load everything now
       try {
         intentDetector.loadDataBases(dbsJson);
