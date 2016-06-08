@@ -110,7 +110,6 @@ function generateFidsMap(fidsNamesList) {
         break;
         case 'topClusterVisits':
         result[fidName] = new TopClusterVisitsFID();
-        result[fidName].configureArgs({'N': {}, 'delta': {}});
         break;
       }
     }
@@ -474,6 +473,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // (5)
   const intentValue = intentSystem.evaluateInput(intentInput);
+  log('intentValue: ' + intentValue);
 
   // (6)
   const thereIsAnIntention = intentValue >= 1.0;
