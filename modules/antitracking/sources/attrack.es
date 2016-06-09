@@ -762,51 +762,42 @@ var CliqzAttrack = {
         if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie REMOVED (" + reason + "): "  + req_metadata['dst'] + " >>> " + url, CliqzAttrack.LOG_KEY);
         CliqzAttrack.blockedCache[req_metadata['dst']] = req_metadata['ts'];
     },
-    listener: {
-        tmpURL: undefined,
-        QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+    onTabLocationChange: function(evnt) {
+        var url = evnt.url;
 
-        onLocationChange: function(aProgress, aRequest, aURI) {
-            var url = aURI.spec;
+        CliqzAttrack.linksFromDom[url] = {};
 
-            CliqzAttrack.linksFromDom[url] = {};
+        if (evnt.isLoadingDocument) {
+            // when a new page is loaded, try to extract internal links and cookies
+            var doc = evnt.document;
+            CliqzAttrack.loadedTabs[url] = false;
 
-            if (aProgress.isLoadingDocument) {
-                // when a new page is loaded, try to extract internal links and cookies
-                var doc = aProgress.document;
-                CliqzAttrack.loadedTabs[url] = false;
-
-                if(doc) {
-                    if (doc.body) {
+            if(doc) {
+                if (doc.body) {
+                    CliqzAttrack.recordLinksForURL(url);
+                }
+                doc.addEventListener(
+                    'DOMContentLoaded',
+                    function(ev) {
+                        CliqzAttrack.loadedTabs[url] = true;
                         CliqzAttrack.recordLinksForURL(url);
-                    }
-                    doc.addEventListener(
-                        'DOMContentLoaded',
-                        function(ev) {
-                            CliqzAttrack.loadedTabs[aURI.spec] = true;
-                            CliqzAttrack.recordLinksForURL(url);
-                        });
-                    CliqzAttrack.clearDomLinks();
-                }
+                    });
+                CliqzAttrack.clearDomLinks();
             }
+        }
 
-            // New location, means a page loaded on the top window, visible tab
-            var activeURL = CliqzHumanWeb.currentURL();
-            var curr_time = Date.now();
+        // New location, means a page loaded on the top window, visible tab
+        var activeURL = browser.currentURL();
+        var curr_time = Date.now();
 
-            if ((activeURL.indexOf('about:')!=0) && (activeURL.indexOf('chrome:')!=0)) {
+        if ((activeURL.indexOf('about:')!=0) && (activeURL.indexOf('chrome:')!=0)) {
 
-                var url_parts = CliqzHumanWeb.parseURL(activeURL);
+            var url_parts = parseURL(activeURL);
 
-                if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                    var host = getGeneralDomain(url_parts.hostname);
-                    CliqzAttrack.visitCache[host] = curr_time;
-                }
+            if (url_parts && url_parts.hostname && url_parts.hostname!='') {
+                var host = getGeneralDomain(url_parts.hostname);
+                CliqzAttrack.visitCache[host] = curr_time;
             }
-
-        },
-        onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-
         }
     },
     getDefaultRule: function() {
@@ -1046,8 +1037,6 @@ var CliqzAttrack = {
             return;
         }
         // Load listerners:
-        window.gBrowser.addProgressListener(CliqzAttrack.listener);
-        window.gBrowser.addProgressListener(CliqzAttrack.tab_listener);
         window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
 
         CliqzAttrack.getPrivateValues(window);
@@ -1078,8 +1067,6 @@ var CliqzAttrack = {
         CliqzAttrack.trackerProxy.destroy();
     },
     unloadWindow: function(window) {
-        window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
-        window.gBrowser.removeProgressListener(CliqzAttrack.listener);
         if (window.CLIQZ) {
             window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
         }
@@ -1491,46 +1478,27 @@ var CliqzAttrack = {
     // Listens for requests initiated in tabs.
     // Allows us to track tab windowIDs to urls.
     tab_listener: {
-        // nsIWebProgressListener
-        QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener",
-                                               "nsISupportsWeakReference"]),
-        wplFlag: { //nsIWebProgressListener state transition flags
-            STATE_START: Ci.nsIWebProgressListener.STATE_START,
-            STATE_IS_DOCUMENT: Ci.nsIWebProgressListener.STATE_IS_DOCUMENT,
-        },
-
         _tabsStatus: {},
 
-        /*  nsiWebProgressListener interface method. Called when the state of a tab changes.
-            The START and IS_DOCUMENT flags indicate a new page request. We extract the page URL
-            being loaded, and the windowID of the originating tab. We cache these values, as well
-            as sending an event to tp_events.
-         */
-        onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
+        onStateChange: function(evnt) {
+            let {urlSpec, isNewPage, windowID} = evnt;
             // check flags for started request
-            if(this.wplFlag['STATE_START'] & aFlag && this.wplFlag['STATE_IS_DOCUMENT'] & aFlag) {
-                if(aRequest) {
-                    try {
-                        var url = '' + aRequest.URI.spec;
-                        var windowID = aWebProgress.DOMWindowID;
-                        // add window -> url pair to tab cache.
-                        this._tabsStatus[windowID] = url;
-                        var _key = windowID + ":" + url;
-                        if(!(CliqzAttrack.trackReload[_key])) {
-                            CliqzAttrack.trackReload[_key] = new Date();
-                        }
-                        else{
-                            var t2 = new Date();
-                            var dur = (t2 -  CliqzAttrack.trackReload[_key]) / 1000;
-                            if(dur < 30000 && countReload){
-                                CliqzAttrack.tp_events['_active'][windowID]['ra'] = 1;
-                                CliqzAttrack.reloadWhiteList[_key] = t2;
-                            }
-                        }
-                        countReload = false;
-
-                    } catch(e) {}
+            if (isNewPage && urlSpec && windowID) {
+                // add window -> url pair to tab cache.
+                this._tabsStatus[windowID] = urlSpec;
+                var _key = windowID + ":" + urlSpec;
+                if(!(CliqzAttrack.trackReload[_key])) {
+                    CliqzAttrack.trackReload[_key] = new Date();
                 }
+                else{
+                    var t2 = new Date();
+                    var dur = (t2 -  CliqzAttrack.trackReload[_key]) / 1000;
+                    if(dur < 30000 && countReload){
+                        CliqzAttrack.tp_events['_active'][windowID]['ra'] = 1;
+                        CliqzAttrack.reloadWhiteList[_key] = t2;
+                    }
+                }
+                countReload = false;
             }
         },
 
