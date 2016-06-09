@@ -1,5 +1,11 @@
-node {
+try {
+  CLIQZ_PRE_RELEASE
+} catch (all) {
+  CLIQZ_PRE_RELEASE = "False"
+}
 
+node {
+  
   stage 'checkout'
   checkout([
     $class: 'GitSCM',
@@ -30,7 +36,7 @@ node {
       sh 'su travis; /bin/bash -l -c "npm install"'
       sh 'su travis; /bin/bash -l -c "bower install --allow-root"'
       sh 'su travis; /bin/bash -l -c "./fern.js build ./configs/'+CLIQZ_CHANNEL+'.json"'
-      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:channel='+CLIQZ_CHANNEL+',pre=False"'
+      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:channel='+CLIQZ_CHANNEL+',pre='+CLIQZ_PRE_RELEASE+'"'
     }
 
     sh 'rm -rf certs'
