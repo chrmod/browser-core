@@ -50,15 +50,12 @@ UIManager.prototype.addCoupon = function(couponInfo) {
     return false;
   }
 
-<<<<<<< HEAD
   // if (this.currentCoupon && this.currentCoupon['coupon_id'] === couponInfo['coupon_id']) {
   //   // nothing to do
   //   log('we already have this coupon: ' + couponInfo['coupon_id']);
   //   return false;
   // }
 
-=======
->>>>>>> 86520f9dc88b65fe8d57226bc4ba8b2ae7fba799
   // the coupon should have the state
   // if (!couponInfo.hasOwnProperty('used_state')) {
   //   log('state has no \'used_state\', we will set it to false');
@@ -100,9 +97,7 @@ UIManager.prototype.showCurrentCouponAdd = function() {
 
   // get the notification box and build whatever we want to show (style) here.
   // TODO: we need to style this, for now we will not, only in a nasty way.
-  var notificationContent = 'Hey there, there is a coupon for you (bla bla): ';
-  notificationContent += 'Coupon: ' + title;
-  notificationContent += '\tPrice: ' + price;
+  var notificationContent = 'Save money with voucher for ' + title + '.';
 
   // build the buttons callbacks
   // TODO_QUESTION: localize buttons and content?
@@ -131,9 +126,9 @@ UIManager.prototype.showCurrentCouponAdd = function() {
 
   // go and fu** urself
   buttons.push({
-    label : 'Stop bothering me',
+    label : 'More Info',
     accessKey : '4',
-    callback : this.callbacks['stop_forever']
+    callback : this.callbacks['information']
   });
 
   // now get the notification box and create it

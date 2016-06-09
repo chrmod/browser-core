@@ -138,9 +138,6 @@ export default {
         }
         if (coupon) {
           offerManager.uiManager.addCoupon(coupon);
-          coupon['title'] = 'this is the second';
-          coupon['coupon_id'] = 'second';
-          offerManager.uiManager.addCoupon(coupon);
         }
       });
       offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
