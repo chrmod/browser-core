@@ -14,7 +14,6 @@ import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracke
 import { AttrackBloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import TrackingTable from 'antitracking/local-tracking-table';
-import CliqzHumanWeb from 'human-web/human-web';
 import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
@@ -24,7 +23,9 @@ import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
 import {PrivacyScore} from 'antitracking/privacy-score';
+import * as browser from 'platform/browser';
 import WebRequest from 'core/webrequest';
+import telemetry from 'antitracking/telemetry';
 
 var countReload = false;
 
@@ -652,8 +653,8 @@ var CliqzAttrack = {
                     if (CliqzAttrack.contextOauth.html.indexOf(pu)!=-1) {
                         // the url is in pu
                         if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-
-                            if (CliqzHumanWeb.contextFromEvent && CliqzHumanWeb.contextFromEvent && CliqzHumanWeb.contextFromEvent.html.indexOf(pu)!=-1) {
+                            let contextFromEvent = browser.contextFromEvent();
+                            if (contextFromEvent && contextFromEvent.html && contextFromEvent.html.indexOf(pu)!=-1) {
 
                                 if (CliqzAttrack.debug) CliqzUtils.log("OAUTH and click " + url, CliqzAttrack.LOG_KEY);
                                 var host = getGeneralDomain(url_parts.hostname);
@@ -850,7 +851,7 @@ var CliqzAttrack = {
             if (fidelity == "day") fidelity = 8;
             else if(fidelity == "hour") fidelity = 10;
             return function (task) {
-                var timestamp = CliqzHumanWeb.getTime().slice(0, fidelity),
+                var timestamp = datetime.getTime().slice(0, fidelity),
                     lastHour = persist.getValue(name + "lastRun") || timestamp;
                 persist.setValue(name +"lastRun", timestamp);
                 return timestamp != lastHour;
@@ -934,8 +935,8 @@ var CliqzAttrack = {
                                     'c': table_size
                                 }
                             };
-                            CliqzHumanWeb.telemetry({
-                                'type': CliqzHumanWeb.msgType,
+                            telemetry.telemetry({
+                                'type': telemetry.msgType,
                                 'action': 'attrack.tracked',
                                 'payload': payl
                             });
@@ -1065,14 +1066,7 @@ var CliqzAttrack = {
         CliqzAttrack.blockLog.destroy();
         CliqzAttrack.qs_whitelist.destroy();
 
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            try{
-                var win = enumerator.getNext();
-                CliqzAttrack.unloadWindow(win);
-            }
-            catch(e){}
-        }
+        browser.forEachWindow(CliqzAttrack.unloadWindow);
 
         WebRequest.onBeforeRequest.removeListener(CliqzAttrack.httpopenObserver.observe);
         WebRequest.onBeforeSendHeaders.removeListener(CliqzAttrack.httpmodObserver.observe);
@@ -1135,7 +1129,7 @@ var CliqzAttrack = {
             splitTelemetryData(data, 20000).map((d) => {
                 const payl = CliqzAttrack.generateAttrackPayload(d);
                 const msg = {
-                    'type': CliqzHumanWeb.msgType,
+                    'type': telemetry.msgType,
                     'action': 'attrack.tokens',
                     'payload': payl
                 };
@@ -1143,7 +1137,7 @@ var CliqzAttrack = {
                     msg.compressed = true;
                     msg.payload = compressJSONToBase64(payl);
                 }
-                CliqzHumanWeb.telemetry(msg);
+                telemetry.telemetry(msg);
             });
         }
         CliqzAttrack._tokens.setDirty();
@@ -1552,56 +1546,8 @@ var CliqzAttrack = {
             return tabs;
         },
 
-        // Returns true if the give windowID represents an open browser tab's windowID.
-        isWindowActive: function(windowID) {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-            var browserEnumerator = wm.getEnumerator("navigator:browser");
-            // ensure an integer as getBrowserForOuterWindowID() is type sensitive
-            var int_id = parseInt(windowID);
-            if(int_id <= 0) return false;
+        isWindowActive: browser.isWindowActive
 
-            while (browserEnumerator.hasMoreElements()) {
-                var browserWin = browserEnumerator.getNext();
-                var tabbrowser = browserWin.gBrowser;
-
-                // check if tab is open in this window
-                // on FF>=39 wm.getOuterWindowWithId() behaves differently to on FF<=38 for closed tabs so we first try
-                // gBrowser.getBrowserForOuterWindowID which works on FF>=39, and fall back to wm.getOuterWindowWithId()
-                // for older versions.
-                try {
-                    var win = tabbrowser.getBrowserForOuterWindowID(int_id)
-                    // check for http URI.
-                    if (win !== undefined) {
-                        return win.currentURI && (win.currentURI.schemeIs('http') || win.currentURI.schemeIs('https'))
-                    }
-                } catch(e) {
-                    let tabwindow;
-                    try {
-                      tabwindow = wm.getOuterWindowWithId(int_id);
-                    } catch(e) {
-                      // if getOuterWindowWithId randomly fails, keep the tab
-                      return true;
-                    }
-                    if(tabwindow == null) {
-                        return false;
-                    } else {
-                        try {
-                            // check for http URI.
-                            if (tabwindow.document.documentURI.substring(0, 4) === 'http') {
-                                let contents = tabwindow._content;
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        } catch(ee) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
     },
     /** Get info about trackers and blocking done in a specified tab.
      *
@@ -1630,7 +1576,7 @@ var CliqzAttrack = {
       if (! (tab_id in CliqzAttrack.tp_events._active) ) {
         // no tp event, but 'active' tab = must reload for data
         // otherwise -> system tab
-        if ( CliqzAttrack.tab_listener.isWindowActive(tab_id) ) {
+        if ( browser.isWindowActive(tab_id) ) {
             result.reload = true;
         }
         result.error = 'No Data';
@@ -1728,8 +1674,8 @@ var CliqzAttrack = {
     addSourceDomainToWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.add(domain);
       // also send domain to humanweb
-      CliqzHumanWeb.telemetry({
-        'type': CliqzHumanWeb.msgType,
+      telemetry.telemetry({
+        'type': telemetry.msgType,
         'action': 'attrack.whitelistDomain',
         'payload': domain
       });

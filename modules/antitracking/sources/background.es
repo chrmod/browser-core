@@ -32,6 +32,9 @@ export default {
       this.popup.updateState(utils.getWindow(), false);
     }
 
+    // inject configured telemetry module
+    telemetry.loadFromProvider(settings.telemetryProvider || 'human-web/human-web');
+
     this.onPrefChange = function(pref) {
       if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
         let isEnabled = CliqzAttrack.isEnabled();

@@ -1,7 +1,7 @@
 import MapCache from 'antitracking/fixed-size-cache';
-import CliqzHumanWeb from 'human-web/human-web';
+import { md5 } from 'platform/md5'
 
-var md5Cache = new MapCache(CliqzHumanWeb._md5, 1000);
+var md5Cache = new MapCache(md5, 1000);
 
 export default function(s) {
     if (!s) return "";
