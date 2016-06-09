@@ -32,12 +32,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import("resource://gre/modules/AddonManager.jsm");
 
 var countReload = false;
 var nsIHttpChannel = Ci.nsIHttpChannel;
-var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
-        .getService(Components.interfaces.nsIPrefBranch);
 
 var cListener = new ChannelListener();
 
@@ -116,14 +113,6 @@ var CliqzAttrack = {
     whitelist: null,
     obsCounter: {},
     similarAddon: false,
-    similarAddonNames: {
-        "Adblock Plus": true,
-        "Ghostery": true,
-        "Lightbeam": true,
-        "Disconnect": true,
-        "BetterPrivacy": true,
-        "NoScript": true
-    },
     blockingFailed:{},
     trackReload:{},
     reloadWhiteList:{},
@@ -875,33 +864,6 @@ var CliqzAttrack = {
     isForceBlockEnabled: function() {
         return CliqzUtils.getPref('attrackForceBlock', false);
     },
-    initialiseAntiRefererTracking: function() {
-        if (CliqzUtils.getPref('attrackRefererTracking', false)) {
-            // check that the user has not already set values here
-            if (!genericPrefs.prefHasUserValue('network.http.referer.XOriginPolicy') &&
-                !genericPrefs.prefHasUserValue('network.http.referer.trimmingPolicy') &&
-                !genericPrefs.prefHasUserValue('network.http.sendRefererHeader')) {
-                //Setting prefs for mitigating data leaks via referrers:
-                // Send only send if hosts match.
-                genericPrefs.setIntPref('network.http.referer.XOriginPolicy',2);
-                // // Send scheme+host+port+path
-                genericPrefs.setIntPref('network.http.referer.trimmingPolicy',1);
-                // // Send only when links are clicked
-                genericPrefs.setIntPref('network.http.sendRefererHeader',1);
-
-                // remember that we changed these
-                CliqzUtils.setPref('attrackRefererPreferences', true);
-            }
-        } else {
-            if (CliqzUtils.getPref('attrackRefererPreferences', false)) {
-                // reset the settings we changed
-                genericPrefs.clearUserPref('network.http.referer.XOriginPolicy');
-                genericPrefs.clearUserPref('network.http.referer.trimmingPolicy');
-                genericPrefs.clearUserPref('network.http.sendRefererHeader');
-                CliqzUtils.clearPref('attrackRefererPreferences');
-            }
-        }
-    },
     initPacemaker: function() {
         let two_mins = 2 * 60 * 1000;
 
@@ -1018,8 +980,6 @@ var CliqzAttrack = {
         if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
-
-        CliqzAttrack.initialiseAntiRefererTracking();
 
         // Replace getWindow functions with window object used in init.
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
@@ -1156,32 +1116,11 @@ var CliqzAttrack = {
         }
     },
     checkInstalledAddons: function() {
-        CliqzAttrack.similarAddon = false;
-        if (genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
-            CliqzAttrack.similarAddon = 'Firefox';
-        }
-        AddonManager.getAllAddons(function(aAddons) {
-            aAddons.forEach(function(a) {
-                if (a.isActive === true && a.name in CliqzAttrack.similarAddonNames){
-                    if (CliqzAttrack.similarAddon == false) {
-                        CliqzAttrack.similarAddon = a.name;
-                    } else {
-                        CliqzAttrack.similarAddon = true;
-                    }
-                }
-            });
+        System.import('platform/antitracking/addon-check').then( (addons) => {
+            CliqzAttrack.similarAddon = addons.checkInstalledAddons();
+        }).catch( (e) => {
+            utils.log("Error loading addon checker", "attrack");
         });
-        // count the number of observers
-        ['http-on-modify-request', 'http-on-opening-request', 'http-on-examine-response', 'http-on-examine-cached-response', 'http-on-examine-merged-response'].forEach(
-            function(x) {
-                var obs = CliqzAttrack.observerService.enumerateObservers(x),
-                    counter = 0;
-                while (obs.hasMoreElements()) {
-                    counter += 1;
-                    obs.getNext();
-                }
-                CliqzAttrack.obsCounter[x] = counter;
-            });
     },
     generateAttrackPayload: function(data, ts) {
         const extraAttrs = CliqzAttrack.qs_whitelist.getVersion();
