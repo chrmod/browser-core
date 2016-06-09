@@ -54,9 +54,7 @@ export class SignalDetectedFilterFID extends FID {
   evaluate(intentInput, extras) {
     // we check if the variable exists, if not then we don't have nothing
     // to check
-    log('called!');
     if (!this.userDB['last_ad_shown']) {
-      log('not database found');
       return 1.0;
     }
 

@@ -9,7 +9,8 @@ import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
-import {UIManager} from 'goldrush/ui/ui_manager';
+import { UIManager } from 'goldrush/ui/ui_manager';
+import { StatsHandler } from 'goldrush/stats_handler';
 
 function log(s){
   utils.log(s, 'GOLDRUSH - OFFER MANAGER');
@@ -174,6 +175,9 @@ export function OfferManager() {
   });
 
   this.userDB = null;
+
+  // create the stats handler
+  this.statsHandler = new StatsHandler();
 
 
   // subscribe to the
@@ -413,19 +417,80 @@ OfferManager.prototype.trackCoupon = function(coupon, originalURL) {
   // TODO: here we need to init all the system to track the coupon
 };
 
+//
+// @brief This method should be called when we stop tracking a coupon for any reason
+//        so we can remove the handlers and whatever we need.
+// @param coupon is the coupon we will not track anymore
+// @param reason is a value saying why we stop tracking the coupon
+//
+OfferManager.prototype.stopTrackingCoupon = function(coupon, reason) {
+  // TODO: implement this method
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief this method should be called everytime we show an add for a given domain
 //        in a given cluster and the associated url + timestamp
 //
-OfferManager.prototype.addShown = function(clusterID, domainID, timestamp) {
+OfferManager.prototype.adShown = function(coupon, clusterID, domainID, timestamp) {
   if (!this.userDB) {
     return;
   }
 
   // for now we will only add the last ad shown for a given cid and timestamp
   this.userDB[clusterID]['last_ad_shown'] = timestamp;
+
+  // track this into stats (telemetry later)
+  if (this.statsHandler) {
+    this.statsHandler.advertiseDisplayed(coupon);
+  }
 };
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief flag is the user is on a checkout page
+//
+OfferManager.prototype.isCheckoutPage = function(url) {
+  // TODO implement this
+  // if (this.mappings['dname_to_checkout_regex']){
+  //   log('checkoutFlag' + JSON.stringify(this.mappings['dname_to_checkout_regex']));
+  //   return true;
+  // }
+  return false;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief ...
+//
+OfferManager.prototype.getUserDB = function(mappings) {
+  return new Promise(function (resolve, reject) {
+      log('inside getUserDB');
+      let rscLoader = new ResourceLoader(
+        [ 'goldrush', 'user_db.json' ],
+        {}
+      );
+      rscLoader.load().then(function(json) {
+        // file exist so return it
+        log('userDB already exist. So loading it');
+        resolve(json);
+      }).catch(function(errMsg) {
+        //w we need to creat file as it doenst exist
+        if(errMsg === undefined) {
+          let userDB = {};
+          for (let cid in mappings['cid_to_cname']) {
+            userDB[cid] = {};
+          }
+          rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
+            log('userDB successfully created: ' + JSON.stringify(data, null, 4));
+            resolve(data);
+          });
+        }
+      });
+  });
+};
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -507,6 +572,11 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     return;
   }
 
+  // we detect an intention, we track this now
+  if (this.statsHandler) {
+    this.statsHandler.systemIntentionDetected(event['domain_id'], clusterID);
+  }
+
   // we have an intention so we need to get the coupons from the fetcher
   if (!this.offerFetcher) {
     log('WARNING: we dont have still the offerFetcher, we then skip this event?');
@@ -527,6 +597,10 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
       return;
     }
 
+    // add some extra info to the coupon itself for later
+    bestCoupon['shown_on_did'] = event['domain_id'];
+    bestCoupon['shown_on_cid'] = clusterID;
+
     // we have a cluster, show it into the UI for the user
     if (!self.uiManager.addCoupon(bestCoupon)) {
       // nothing else to do...
@@ -537,7 +611,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     //     can cancel the coupon -> we don't care about it.
 
     // we call this method to notify that we just show an ad
-    self.addShown(clusterID, event['domain_id'], Date.now());
+    self.adShown(bestCoupon, clusterID, event['domain_id'], Date.now());
   });
 
 
@@ -597,8 +671,13 @@ OfferManager.prototype.checkButtonUICallback = function() {
   log('checkButtonUICallback');
 
   // track it (get the current coupon from the ui manager)
-  this.uiManager.showCouponInfo(this.uiManager.getCurrentCoupon());
+  let currentCoupon = this.uiManager.getCurrentCoupon();
+  this.uiManager.showCouponInfo(currentCoupon);
   //self.trackCoupon(bestCoupon);
+
+  if (this.statsHandler) {
+    this.statsHandler.couponDisplayed(currentCoupon);
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -608,6 +687,12 @@ OfferManager.prototype.checkButtonUICallback = function() {
 OfferManager.prototype.saveCouponUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('saveCouponUICallback');
+
+  let currentCoupon = this.uiManager.getCurrentCoupon();
+
+  if (this.statsHandler) {
+    this.statsHandler.couponSaved(currentCoupon);
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -617,6 +702,12 @@ OfferManager.prototype.saveCouponUICallback = function() {
 OfferManager.prototype.notInterestedUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('notInterestedUICallback');
+
+  let currentCoupon = this.uiManager.getCurrentCoupon();
+
+  if (this.statsHandler) {
+    this.statsHandler.couponRejected(currentCoupon);
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -633,53 +724,22 @@ OfferManager.prototype.informationUICallback = function() {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// @brief flag is the user is on a checkout page
-//
-OfferManager.prototype.isCheckoutPage = function(url) {
-  // TODO implement this
-  // if (this.mappings['dname_to_checkout_regex']){
-  //   log('checkoutFlag' + JSON.stringify(this.mappings['dname_to_checkout_regex']));
-  //   return true;
-  // }
-  return false;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // @brief any other type of events from the bar
 // @note https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/appendNotification#Notification_box_events
 //
 OfferManager.prototype.extraEventsUICallback = function(reason) {
   // TODO: implement here all the needed logic and the
   log('extraEventsUICallback: ' + reason);
+
+  let currentCoupon = this.uiManager.getCurrentCoupon();
+
+  if (reason === 'removed') {
+      if (this.statsHandler) {
+        this.statsHandler.advertiseClosed(currentCoupon);
+      }
+  }
 };
 
-OfferManager.prototype.getUserDB = function(mappings) {
-  return new Promise(function (resolve, reject) {
-      log('inside getUserDB');
-      let rscLoader = new ResourceLoader(
-        [ 'goldrush', 'user_db.json' ],
-        {}
-      );
-      rscLoader.load().then(function(json) {
-        // file exist so return it
-        log('userDB already exist. So loading it');
-        resolve(json);
-      }).catch(function(errMsg) {
-        //w we need to creat file as it doenst exist
-        if(errMsg === undefined) {
-          let userDB = {};
-          for (let cid in mappings['cid_to_cname']) {
-            userDB[cid] = {};
-          }
-          rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
-            log('userDB successfully created: ' + JSON.stringify(data, null, 4));
-            resolve(data);
-          });
-        }
-      });
-  });
-};
 
 
 
