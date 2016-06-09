@@ -8,6 +8,7 @@ import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
+import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
 import {UIManager} from 'goldrush/ui/ui_manager';
 
 function log(s){
@@ -111,6 +112,9 @@ function generateFidsMap(fidsNamesList) {
         case 'topClusterVisits':
         result[fidName] = new TopClusterVisitsFID();
         break;
+        case 'signalDetectedFilter':
+        result[fidName] = new SignalDetectedFilterFID();
+        break;
       }
     }
     resolve(result);
@@ -170,6 +174,7 @@ export function OfferManager() {
   });
 
   this.userDB = null;
+
 
   // subscribe to the
 
@@ -282,7 +287,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       // TODO: here we may want to get the FIDS names, but for now we will get
       // a map for all the fids and then we can remove the objects (nasty because)
       // we allocate them and then we remove it...
-      let rulesNames = ['topHour', 'topClusterVisits'];
+      let rulesNames = ['topHour', 'topClusterVisits', 'signalDetectedFilter'];
       return generateFidsMap(rulesNames);
     }).then(function(rulesInstancesMapResult) {
       rulesInstancesMap = rulesInstancesMapResult;
