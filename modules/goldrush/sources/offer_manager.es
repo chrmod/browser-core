@@ -414,6 +414,21 @@ OfferManager.prototype.trackCoupon = function(coupon, originalURL) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+//
+// @brief this method should be called everytime we show an add for a given domain
+//        in a given cluster and the associated url + timestamp
+//
+OfferManager.prototype.addShown = function(clusterID, domainID, timestamp) {
+  if (!this.userDB) {
+    return;
+  }
+
+  // for now we will only add the last ad shown for a given cid and timestamp
+  this.userDB[clusterID]['last_ad_shown'] = timestamp;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
 //                          PUBLIC INTERFACE
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -521,6 +536,8 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     // (9) we need to track it on the callback of the button since the user
     //     can cancel the coupon -> we don't care about it.
 
+    // we call this method to notify that we just show an ad
+    self.addShown(clusterID, event['domain_id'], Date.now());
   });
 
 

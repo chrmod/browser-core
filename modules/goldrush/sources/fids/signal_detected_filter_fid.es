@@ -32,28 +32,31 @@ export class SignalDetectedFilterFID extends FID {
     // 'last_ad_shown' is the name of the key -> ts (number)
     //
     if (dbsMap['user_db']) {
-      this.datetimeDB = dbsMap['user_db'];
+      log(dbsMap['user_db']);
+      this.userDB = dbsMap['user_db'];
     } else {
-      throw new Error("dbsMap doesn't have key: user_db");
+      throw new Error('dbsMap doesnt have key: user_db');
     }
   }
 
   configureArgs(configArgs) {
     // set default values
     for(let k in this.configParams) {
-      this.args[k] = Number(this.configParams[k]['value']);
+      this.args[k] = Number(this.configParams[k]['value']) * 1000;
     }
 
     // Overwrite values with the once specified in the rule files
     for (let arg_idx in configArgs) {
-        this.args[arg_idx] = Number(configArgs[arg_idx]);
+        this.args[arg_idx] = Number(configArgs[arg_idx]) * 1000;
     }
 }
 
   evaluate(intentInput, extras) {
     // we check if the variable exists, if not then we don't have nothing
     // to check
+    log('called!');
     if (!this.userDB['last_ad_shown']) {
+      log('not database found');
       return 1.0;
     }
 
@@ -63,7 +66,9 @@ export class SignalDetectedFilterFID extends FID {
     const eventTimestamp = intentSession.lastEvent()['ts'];
     const lastAdShownTimestamp = Number(this.userDB['last_ad_shown']);
     const diffTime = eventTimestamp - lastAdShownTimestamp;
-
+    log('eventTimestamp: ' + eventTimestamp);
+    log('lastAdShownTimestamp: ' + lastAdShownTimestamp);
+    log('diffTime: ' + diffTime);
     return (diffTime >= this.args['deltaSecs']) ? 1.0 : 0.0;
   }
 }
