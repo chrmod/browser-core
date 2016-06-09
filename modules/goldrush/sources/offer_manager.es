@@ -187,20 +187,12 @@ export function OfferManager() {
   parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
     self.mappings = mappings;
     log('setting the mappings to the offer manager');
-
     self.offerFetcher = new OfferFetcher(destURL, mappings);
-    self.offerFetcher.isCouponUsed('0-1-10', function(result) {
-      log('Testing offerFetcher reference\nis coupon used: ' + result);
-    });
   }).then(function() {
-      self.getUserDB().then(function(json) {
-        log('userDB - json: ' + JSON.stringify(json));
-        self.userDB = json;
-      }).catch(function(errMsg) {
-        // if errMsg === undefined then we need to create the file
-       return self.createUserDB(self.mappings);
-      });
-  }).then(json => {self.userDB = json;}).then(function() {
+      return self.getUserDB(self.mappings);
+  }).then(function(userDB) {
+      self.userDB = userDB;
+  }).then(function() {
         log('load the clusters and create the');
         self.clusterFilesMap = getClustersFilesMap();
         log(self.clusterFilesMap);
@@ -645,7 +637,7 @@ OfferManager.prototype.extraEventsUICallback = function(reason) {
   log('extraEventsUICallback: ' + reason);
 };
 
-OfferManager.prototype.getUserDB = function() {
+OfferManager.prototype.getUserDB = function(mappings) {
   return new Promise(function (resolve, reject) {
       log('inside getUserDB');
       let rscLoader = new ResourceLoader(
@@ -656,28 +648,26 @@ OfferManager.prototype.getUserDB = function() {
         // file exist so return it
         log('userDB already exist. So loading it');
         resolve(json);
-      }).catch(errMsg => {reject(errMsg);});
+      }).catch(function(errMsg) {
+        //w we need to creat file as it doenst exist
+        if(errMsg === undefined) {
+          let userDB = {};
+          for (let cid in mappings['cid_to_cname']) {
+            userDB[cid] = {};
+          }
+          rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
+            log('userDB successfully created: ' + JSON.stringify(data, null, 4));
+            resolve(data);
+          });
+        }
+      });
   });
 };
 
-OfferManager.prototype.createUserDB = function(mappings) {
-  return new Promise(function (resolve, reject) {
-    log('inside createUserDB');
-    let rscLoader = new ResourceLoader(
-      [ 'goldrush', 'user_db.json' ],
-      {}
-    );
 
-    let userDB = {};
-    for (let cid in mappings['cid_to_cname']) {
-      userDB[cid] = {};
-    }
-    rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
-      log('userDB successfully created: ' + JSON.stringify(data, null, 4));
-      resolve(data);
-    });
-  });
-};
+
+
+
 
 
 
