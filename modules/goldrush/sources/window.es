@@ -9,9 +9,9 @@ export default class {
   }
 
   init() {
-    // background.testOfferFetcher();
-    // background.testFIDs();
-    background.testWritingFile();
+    background.testOfferFetcher();
+    background.testFIDs();
+    // background.testWritingFile();
     /*
     const toolbar = this.window.document.createElement("toolbar");
     const iframe = this.window.document.createElement("iframe");

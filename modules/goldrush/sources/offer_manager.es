@@ -169,6 +169,8 @@ export function OfferManager() {
     'extra_events': this.extraEventsUICallback  .bind(this)
   });
 
+  this.userDB = null;
+
   // subscribe to the
 
   // the cluster information
@@ -180,11 +182,20 @@ export function OfferManager() {
   parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
     self.mappings = mappings;
     log('setting the mappings to the offer manager');
+
     self.offerFetcher = new OfferFetcher(destURL, mappings);
     self.offerFetcher.isCouponUsed('0-1-10', function(result) {
       log('Testing offerFetcher reference\nis coupon used: ' + result);
     });
   }).then(function() {
+      self.getUserDB().then(function(json) {
+        log('userDB - json: ' + JSON.stringify(json));
+        self.userDB = json;
+      }).catch(function(errMsg) {
+        // if errMsg === undefined then we need to create the file
+       return self.createUserDB(self.mappings);
+      });
+  }).then(json => {self.userDB = json;}).then(function() {
         log('load the clusters and create the');
         self.clusterFilesMap = getClustersFilesMap();
         log(self.clusterFilesMap);
@@ -262,6 +273,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       return generateDBMap(dbsNames);
     }).then(function(dbInstancesMapResult) {
       dbInstancesMap = dbInstancesMapResult;
+      //add cluster related section of userDB to instacen
+      dbInstancesMap['user_db'] = self.userDB[clusterID];
       log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
       // get the rules information
@@ -622,6 +635,40 @@ OfferManager.prototype.isCheckoutPage = function(url) {
 OfferManager.prototype.extraEventsUICallback = function(reason) {
   // TODO: implement here all the needed logic and the
   log('extraEventsUICallback: ' + reason);
+};
+
+OfferManager.prototype.getUserDB = function() {
+  return new Promise(function (resolve, reject) {
+      log('inside getUserDB');
+      let rscLoader = new ResourceLoader(
+        [ 'goldrush', 'user_db.json' ],
+        {}
+      );
+      rscLoader.load().then(function(json) {
+        // file exist so return it
+        log('userDB already exist. So loading it');
+        resolve(json);
+      }).catch(errMsg => {reject(errMsg);});
+  });
+};
+
+OfferManager.prototype.createUserDB = function(mappings) {
+  return new Promise(function (resolve, reject) {
+    log('inside createUserDB');
+    let rscLoader = new ResourceLoader(
+      [ 'goldrush', 'user_db.json' ],
+      {}
+    );
+
+    let userDB = {};
+    for (let cid in mappings['cid_to_cname']) {
+      userDB[cid] = {};
+    }
+    rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
+      log('userDB successfully created: ' + JSON.stringify(data, null, 4));
+      resolve(data);
+    });
+  });
 };
 
 
