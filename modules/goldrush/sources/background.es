@@ -180,4 +180,15 @@ export default {
     log(fids.detectorName);
   },
 
+  testWritingFile() {
+    log('testWritingFile');
+    let rscLoader = new ResourceLoader(
+      [ 'goldrush', 'saqib', 'user_info.json' ],
+      {}
+    );
+    rscLoader.persist(JSON.stringify({name: 'saqib', ads_shown: true}, null, 4)).then(data => {
+      log('data successfully persisted');
+    })
+  }
+
 };
