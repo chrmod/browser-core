@@ -32,9 +32,9 @@ export class TopHourFID extends FID {
   configureArgs(configArgs) {
     for (let arg in configArgs) {
       if (arg['name'] in this.configParams) {
-        this.args[arg['name']] = this.configParams[arg['name']]['value'];
+        this.args[arg['name']] = Number(this.configParams[arg['name']]['value']);
       } else {
-        this.args[arg['name']] = arg['value'];
+        this.args[arg['name']] = Number(arg['value']);
       }
     }
     if (this.args['topN'] <= 0) {
