@@ -4,7 +4,7 @@ try {
   CLIQZ_PRE_RELEASE = "False"
 }
 
-node {
+node(NODE_LABELS) {
   
   stage 'checkout'
   checkout([
