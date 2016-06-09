@@ -4,6 +4,12 @@ try {
   CLIQZ_PRE_RELEASE = "False"
 }
 
+try {
+  CLIQZ_BETA
+} catch (all) {
+  CLIQZ_BETA = "True"
+}
+
 node(NODE_LABELS) {
   
   stage 'checkout'
@@ -36,7 +42,7 @@ node(NODE_LABELS) {
       sh 'su travis; /bin/bash -l -c "npm install"'
       sh 'su travis; /bin/bash -l -c "bower install --allow-root"'
       sh 'su travis; /bin/bash -l -c "./fern.js build ./configs/'+CLIQZ_CHANNEL+'.json"'
-      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:channel='+CLIQZ_CHANNEL+',pre='+CLIQZ_PRE_RELEASE+'"'
+      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:beta='+CLIQZ_BETA+',channel='+CLIQZ_CHANNEL+',pre='+CLIQZ_PRE_RELEASE+'"'
     }
 
     sh 'rm -rf certs'
