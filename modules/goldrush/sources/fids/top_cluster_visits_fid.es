@@ -41,12 +41,12 @@ export class TopClusterVisitsFID extends FID {
   configureArgs(configArgs) {
     // set default values
     for(let k in this.configParams) {
-      this.args[k] = this.configParams[k]['value'];
+      this.args[k] = Number(this.configParams[k]['value']);
     }
 
     // Overwrite values with the once specified in the rule files
     for (let arg_idx in configArgs) {
-        this.args[arg_idx] = configArgs[arg_idx];
+        this.args[arg_idx] = Number(configArgs[arg_idx]);
     }
 
     // log('configArgs' + JSON.stringify(configArgs));
@@ -69,10 +69,10 @@ export class TopClusterVisitsFID extends FID {
     let totalNumEvents = intentSession.totalNumOfEvents();
     let lowerBound = this.args['N'] - this.args['delta'];
     let upperBound = this.args['N'] + this.args['delta'];
-    log('intentSession' + intentSession);
-    log('lowerBound' + lowerBound);
-    log('totalNumEvents' + totalNumEvents);
-    log('upperBound' + upperBound);
+    log('intentSession: ' + intentSession);
+    log('lowerBound: ' + lowerBound);
+    log('totalNumEvents: ' + totalNumEvents);
+    log('upperBound: ' + upperBound);
     if (totalNumEvents >= lowerBound && totalNumEvents <= upperBound) {
       return 1.0;
     }
