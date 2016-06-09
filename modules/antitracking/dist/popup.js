@@ -89,7 +89,7 @@ function populateDOM() {
       if(data.ps.score >= 0 ) {
         var wdScore = Math.round(data.ps.score / 20);
         privacyScore.classList.add("cqz-score-" + wdScore);
-        privacyScoreLink.setAttribute("href",privacyScoreLink.getAttribute("href") + hostname);
+        privacyScoreLink.setAttribute("data-href",privacyScoreLink.getAttribute("data-href") + hostname);
       } else {
         document.querySelector(".cqz-watchdog-score").style = "display: none;";
       }
