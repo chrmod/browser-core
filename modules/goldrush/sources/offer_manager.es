@@ -617,6 +617,9 @@ OfferManager.prototype.notInterestedUICallback = function() {
 OfferManager.prototype.informationUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('stopBotheringForeverUICallback');
+
+  // avoid closing the notification
+  return true;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
