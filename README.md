@@ -24,13 +24,7 @@ Node version required: is >= 4.x
 
 (use  [nvm](https://github.com/creationix/nvm) to manage multiple node versions)
 
-```bash
-npm install -g bower
-npm install -g broccoli-cli
-
-npm install   # to satisfy package.json
-bower install # to satisfy bower.json
-```
+`./fern.js install`
 
 ## Development
 

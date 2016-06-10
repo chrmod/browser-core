@@ -25,3 +25,6 @@ npm.err
 
 /certs
 /xpi-sign
+
+# fresh-tab-frontend dist folder
+modules/fresh-tab-frontend/dist
