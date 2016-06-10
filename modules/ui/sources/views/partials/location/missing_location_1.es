@@ -147,7 +147,7 @@ export default class {
         });
     } else if (el.id == "cqz_location_once") {
         container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/no-locale-data"]({
-          "display_msg": "location-permission-ask"
+          "display_msg": "location-sorry"
         });
     }
   }
