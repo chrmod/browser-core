@@ -56,7 +56,6 @@ var observer = {
           blockingResponse.requestHeaders.forEach((h) => {
             aChannel.setRequestHeader(h.name, h.value, false);
           });
-          aChannel.notificationCallbacks = new ChannelListener(blockingResponse.requestHeaders);
         }
 
         if ( blockingResponse.redirectUrl ) {
@@ -64,6 +63,10 @@ var observer = {
             aChannel.URI.spec = blockingResponse.redirectUrl;
           } catch(error) {
             aChannel.redirectTo(Services.io.newURI(blockingResponse.redirectUrl, null, null));
+          }
+          // ensure header changes follow redirected url
+          if ( blockingResponse.requestHeaders ) {
+            aChannel.notificationCallbacks = new ChannelListener(blockingResponse.requestHeaders);
           }
         }
       }
