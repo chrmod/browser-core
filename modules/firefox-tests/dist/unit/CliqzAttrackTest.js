@@ -134,16 +134,30 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     testServer.registerPathHandler('/privacy', function(req, res) {
                         res.write('<html><body><p>Hello private world</p></body></html');
                     });
-                    setTimeout(function() {
+                    // wait till server is set up
+                    function wait_until_server_up(count, callback) {
+                      if ( count <= 0 ) {
+                        done("Failed to start server");
+                        return;
+                      }
+                      CliqzUtils.httpGet('http://cliqztest.com:60508/', callback, function() {
+                        console.log("level "+ count);
+                        setTimeout( function() {
+                          wait_until_server_up(count - 1, callback);
+                        }, 100);
+                      }, 1000);
+                    }
+
+                    wait_until_server_up(5, function() {
                       tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
                       tabs.push(gBrowser.addTab("http://cliqztest.com:60508/privacy#saferWeb"));
                       done();
-                    }, 100);
+                    });
                 });
 
                 it('should add tabs to _active', function(done) {
 
-                    this.timeout(3000);
+                    this.timeout(10000);
 
                     waitIfNotReady(function() {
                         return Object.keys(CliqzAttrack.tp_events._active).length > 0;
