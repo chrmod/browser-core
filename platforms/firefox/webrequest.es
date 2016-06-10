@@ -1,4 +1,4 @@
-import { HttpRequestContext } from 'antitracking/http-request-context';
+import { HttpRequestContext } from 'platform/antitracking/http-request-context';
 import { ChannelListener } from 'platform/antitracking/channel-listener';
 import { utils } from 'core/cliqz';
 
@@ -37,6 +37,7 @@ var observer = {
     // use getters for headers
     requestInfo.getRequestHeader = requestContext.getRequestHeader.bind(requestContext);
     requestInfo.getResponseHeader = requestContext.getResponseHeader.bind(requestContext);
+    requestInfo.getPostData = requestContext.getPostData.bind(requestContext);
 
     for (let listener of webRequest[event].listeners) {
       // ignore filter for the moment

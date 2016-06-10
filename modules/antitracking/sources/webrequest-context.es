@@ -40,7 +40,7 @@ export default class {
   }
 
   getReferrer() {
-    return this.getRequestHeader('Referer')
+    return this.getRequestHeader('Referer');
   }
 
   getRequestHeader(header) {
@@ -57,6 +57,10 @@ export default class {
 
   isChannelPrivate() {
     return this.details.isPrivate;
+  }
+
+  getPostData() {
+    return this.details.getPostData();
   }
 
 }
