@@ -67,7 +67,7 @@
 /*}*/
 
 #tabbrowser-tabs {
-    min-height: 27px;
+    min-height: 29px;
 }
 
 .tab-background {
@@ -214,11 +214,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 /*========== End Tabs =========*/
 
-
-#PersonalToolbar {
-    padding-top: 7px;
-    border-top: 1px solid #e0e0e0;
-}
 
 #nav-bar {
     margin-top: 0 !important;
@@ -383,13 +378,15 @@ notification[type="warning"] .notification-inner {
     border-top-style: solid !important;
     background-color: #f6f6f6 !important;
 
-    box-shadow: inset 0 1px 0 hsla(0,0%,100%,.01); /*Remove the white line at the bottom of active tab*/
+    box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
 }
 
 #urlbar {
     padding: 2px 0px;
     margin: 0.33em !important;
-    box-shadow: 0 0 0.15em #D5D5D5 inset !important;
+	
+	box-shadow: 0 1px 0.05em rgba(0,0,0, 0.1) inset !important;
+	border-color: #d1d1d1 !important;
 }
 
 #urlbar, .searchbar-textbox {
@@ -414,10 +411,6 @@ notification[type="warning"] .notification-inner {
 
 #urlbar-container {
     min-width: 300px; /*Later*//*Unused for Windows*/
-}
-
-window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box {
-    border-radius: 3px 0 0 3px;
 }
 
 #PanelUI-button {
@@ -446,18 +439,45 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 
 
 #navigator-toolbox::after {
-    background-image: none;
+    /*background-image: none;
     box-shadow: 0 0.2em 0.1em 0 rgba(0, 0, 0, 0.14);
     -moz-box-ordinal-group: 101;
     content: "";
     display: -moz-box;
     height: 2px;
     margin-top: -4px;
-    position: relative;
+    position: relative;*/
     background-color: #f6f6f6;
 }
 
+#notification-popup-box {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box {
+    border-radius: 3px 0 0 3px;
+}
+
+#identity-box.verifiedIdentity:not(:-moz-lwtheme):not(:hover):not([open="true"]) {
+    background-color: rgba(255, 255, 255, 0);
+}
+
 /* END URL BAR */
+
+/* BEGIN TOOLBAR */
+
+#PersonalToolbar {
+	border-top: 1px solid #fcfcfc !important;
+    box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
+    z-index: 1;
+    -moz-box-ordinal-group: 101;
+    content: "";
+    display: -moz-box;
+    position: relative;
+	background-color: #f6f6f6 !important;
+}
+
+/* END TOOLBAR */
 
 /* BEGIN TAB */
 
@@ -472,7 +492,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 .tabbrowser-tab[visuallyselected="true"] .tab-content {
     border-color: #d1d0d3; /*Unused*/
     border-top: 0; /*Unused*/
-    background-color: #f6f6f6 !important;
+    background: -moz-linear-gradient(top, #ffffff 0%, #f6f6f6 100%) !important;
 }
 
 .tab-label {
@@ -591,6 +611,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 50px; /*Reserve some space for dragging the window*/
         }
+		
+	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	        margin-left: 15px; /*Remove the line on the left of allowscroll-up button*/
+	    }
+	
+	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	        margin-inline-start: 36px;
+	    }
 
         :-moz-system-metric(windows-default-theme) {
             #titlebar-buttonbox {
@@ -621,8 +649,12 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         margin-top: -2px;
         margin-bottom: -2px;
     }
-
-    #main-window[sizemode="normal"] #browser-border-start, #main-window[sizemode="normal"] #browser-border-end {
+	
+	#tabbrowser-tabs {
+	    min-height: 31px;
+	}
+	
+	#main-window[sizemode="normal"] #browser-border-start, #main-window[sizemode="normal"] #browser-border-end {
         background: none !important;
     }
 
@@ -636,6 +668,20 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 60px; /*Reserve some space for dragging the window*/
         }
+		
+	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	        margin-left: 15px; /*Remove the line on the left of allowscroll-up button*/
+	    }
+	
+	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	        margin-inline-start: 36px;
+	    }
+		
+		#PersonalToolbar {
+		    margin: 0px 1px;
+		    border-left: none !important;
+		    border-right: none !important;
+		}
 
 		#navigator-toolbox::after {
 			border: none !important;
@@ -686,14 +732,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         padding-right: 3px !important;
     }
 
-    .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
-        margin-left: -4px; /*Move all tabs left by removing the padding left - one more pixel on windows 10*/
-    }
-
-    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
-        margin-left: -1px; /*Remove the line on the left of allowscroll-up button*/
-    }
-
     #main-window:not([sizemode="maximized"]) {
         #titlebar-buttonbox {
             padding: 0;
@@ -702,6 +740,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 60px; /*Reserve some space for dragging the window*/
         }
+		
+	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	        margin-left: 15px; /*Remove the line on the left of allowscroll-up button*/
+	    }
+	
+	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	        margin-inline-start: 35px;
+	    }
     }
 
     #main-window[sizemode="maximized"] {

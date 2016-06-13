@@ -223,7 +223,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 /*=== Bookmarks */
 #PersonalToolbar {
-    padding-top: 7px;
+    padding-top: 5px;
     border-top: none;
 }
 
@@ -363,8 +363,8 @@ notification[type="warning"] .messageText {
     margin: 4px 2.5em !important;
     border: 1px solid #ddd !important;
 
-    box-shadow: 0 0 0.15em #D5D5D5 inset !important;
-    border-color: #d8d8d8 !important;
+	box-shadow: 0 1px 0.05em rgba(0,0,0, 0.1) inset !important;
+	border-color: #d1d1d1 !important;
     -moz-border-start: 1px solid #d8d8d8 !important;
 
     padding: 1px 0px;
@@ -387,12 +387,12 @@ notification[type="warning"] .messageText {
     padding: 0;
     background: #f6f6f6 !important;
     box-shadow: inset 0 1px 0 hsla(0,0%,100%,.01);
+	box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
 }
 
 
 #navigator-toolbox::after {
     background-image: none;
-    box-shadow: 0 0.1em 0.1em 0 rgba(0, 0, 0, 0.14);
 }
 
 #main-window:not([chromehidden~="toolbar"]) {
@@ -433,12 +433,31 @@ notification[type="warning"] .messageText {
     margin-top: 2px; /*Remove space (padding) inside nav-bar*/
     margin-bottom: 2px;
 }
+
+#notification-popup-box {
+	background-color: rgba(255, 255, 255, 0);
+}
 /* END URL BAR */
+
+/* BEGIN TOOLBAR */
+
+#PersonalToolbar {
+	border-top: 1px solid #fcfcfc !important;
+    box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
+    z-index: 1;
+    -moz-box-ordinal-group: 101;
+    content: "";
+    display: -moz-box;
+    position: relative;
+	background-color: #f6f6f6 !important;
+}
+
+/* END TOOLBAR */
 
 /* BEGIN TAB */
 
 #titlebar {
-    margin-bottom: -44px !important;
+    margin-bottom: -43px !important;
 }
 
 #titlebar, #tab-view-deck, #titlebar-content {
@@ -451,7 +470,7 @@ notification[type="warning"] .messageText {
 
 .titlebar-placeholder[type="caption-buttons"], #titlebar-buttonbox {
     margin-right: -6px;
-    margin-top: -6px;
+    margin-top: -5px;
     margin-left: 10px;
 }
 
@@ -476,7 +495,7 @@ notification[type="warning"] .messageText {
     border-color: #d1d0d3;
     border-top: none;
     margin-top: 1px; /*Prevent tab jumping up when active*/
-    background-color: #f6f6f6 !important;
+	background: -moz-linear-gradient(top, #ffffff 0%, #f6f6f6 100%) !important;
 }
 
 .tab-label {
@@ -527,6 +546,10 @@ notification[type="warning"] .messageText {
 
 .tabbrowser-arrowscrollbox > .scrollbutton-up, .tabbrowser-arrowscrollbox > .scrollbutton-down {
     padding-top: 5px;
+}
+
+#navigator-toolbox:not([inFullscreen="true"]) #tabbrowser-tabs .tabbrowser-arrowscrollbox {
+    margin-inline-start: 64px;
 }
 /* END TAB */
 
