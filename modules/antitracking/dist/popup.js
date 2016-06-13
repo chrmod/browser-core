@@ -129,7 +129,7 @@ function populateDOM() {
         }
 
         if (trackerCount > 0)
-          companies.push({name: company, count: trackerCount, trackers: companyBadTracker});
+          companies.push({name: company, count: trackerCount, trackers: companyBadTracker, watchDogName: company.replace(/ /g,"-")});
       };
 
 
@@ -146,7 +146,7 @@ function populateDOM() {
       trackersListElement.addEventListener('click', function (e) {
         var el = closest(e.target, ".cqz-company-holder");
         if(e) {
-          el.parentElement.classList.toggle('active');
+          //el.parentElement.classList.toggle('active');
         }
       });
 

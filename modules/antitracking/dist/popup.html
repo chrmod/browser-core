@@ -7,14 +7,14 @@
     <script id="trackersListTemplate" type="text/x-handlebars-template">
         {{#each this}}
             <li>
-                <div class='cqz-company-holder'>
+                <a href="https://cliqz.com/whycliqz/anti-tracking/tracker#{{ watchDogName }}" class='cqz-company-holder' target="_blank">
                     <span class='cqz-title-holder'>
                         <span class='cqz-title'> {{ name }} </span>
                     </span>
                     <span  class='cqz-number'><i>{{ count }}</i></span>
-                </div>
+                </a>
 
-                <ul class='cqz-company-trackers'>
+                <ul class='cqz-company-trackers' style="display: none;">
                     {{#each this.trackers}}
                         <li>
                             <a data-href="https://cliqz.com/tracking-monitor/tracking-monitor-tracker?tracker={{domain_name}}" target="_blank">
@@ -53,7 +53,7 @@
                 </div>
 
                 <!--======= Watch Dog =======-->
-                <div class="cqz-watchdog-score">
+                <div class="cqz-watchdog-score" style="display: none;">
                     <a data-href="https://cliqz.com/tracking-monitor/tracking-monitor-site?domain=" class="cqz-watchdog-text" target="_blank" data-i18n="attrack-score-text"></a>
                     <div class="cqz-dog-score-holder">
                         <span>
