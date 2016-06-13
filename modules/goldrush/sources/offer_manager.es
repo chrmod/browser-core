@@ -311,7 +311,10 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 // @brief Unload all the class
 //
 OfferManager.prototype.destroy = function() {
-  // TODO: maybe if we need to destroy something
+  // TODO: ensure this function is being called from the parent class
+  if (this.statsHandler) {
+    this.statsHandler.destroy();
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -432,7 +435,7 @@ OfferManager.prototype.stopTrackingCoupon = function(coupon, reason) {
 // @brief this method should be called everytime we show an add for a given domain
 //        in a given cluster and the associated url + timestamp
 //
-OfferManager.prototype.adShown = function(coupon, clusterID, domainID, timestamp) {
+OfferManager.prototype.offerShown = function(coupon, clusterID, domainID, timestamp) {
   if (!this.userDB) {
     return;
   }
@@ -471,7 +474,7 @@ OfferManager.prototype.getUserDB = function(mappings) {
         [ 'goldrush', 'user_db.json' ],
         {}
       );
-      rscLoader.load().then(function(json) {
+        rscLoader.load().then(function(json) {
         // file exist so return it
         log('userDB already exist. So loading it');
         resolve(json);
@@ -489,6 +492,17 @@ OfferManager.prototype.getUserDB = function(mappings) {
         }
       });
   });
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief this method will check if we currently have an offer or not. This
+//        will determine if we need to show the offer or not for this particular
+//        window.
+//
+OfferManager.prototype.weHaveAnOffer = function() {
+  // if we have a coupon in the list then we should show it
+  return this.uiManager.getCurrentCoupon() ? true : false;
 };
 
 
@@ -584,7 +598,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   }
 
   var self = this;
-  this.offerFetcher.checkForCouponsByCluster(0, function(vouchers) {
+  this.offerFetcher.checkForCouponsByCluster(clusterID, function(vouchers) {
     if (!vouchers) {
       // nothing to do.
       return;
@@ -611,7 +625,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     //     can cancel the coupon -> we don't care about it.
 
     // we call this method to notify that we just show an ad
-    self.adShown(bestCoupon, clusterID, event['domain_id'], Date.now());
+    self.offerShown(bestCoupon, clusterID, event['domain_id'], Date.now());
   });
 
 
@@ -708,6 +722,12 @@ OfferManager.prototype.notInterestedUICallback = function() {
   if (this.statsHandler) {
     this.statsHandler.couponRejected(currentCoupon);
   }
+
+  // stop tracking the coupon
+  this.stopTrackingCoupon(currentCoupon);
+
+  // remove the coupon from the list
+  this.uiManager.removeCoupon(currentCoupon);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -737,6 +757,13 @@ OfferManager.prototype.extraEventsUICallback = function(reason) {
       if (this.statsHandler) {
         this.statsHandler.advertiseClosed(currentCoupon);
       }
+
+      // stop tracking the coupon
+      this.stopTrackingCoupon(currentCoupon);
+
+      // remove the coupon from the list
+      this.uiManager.removeCoupon(currentCoupon);
+
   }
 };
 

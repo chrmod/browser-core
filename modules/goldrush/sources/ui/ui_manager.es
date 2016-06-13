@@ -15,11 +15,50 @@ export function UIManager() {
   this.callbacks = null;
 }
 
-// TODO_QUESTION: check how is the best way to implement all those methods.
 
 
+
+//////////////////////////////////////////////////////////////////////////////
+//                          "PRIVATE" METHODS
+//////////////////////////////////////////////////////////////////////////////
+
+
+//
+// @brief this method will create the string / document fragment we need to
+//        construct for the coupon itself
+//
+UIManager.prototype.createCouponDisplay = function(couponInfo) {
+  // var notificationContent = 'Save money with voucher for ' + title + '.';
+  // return notificationContent;
+
+  var document = CliqzUtils.getWindow().document;
+  if (!document) {
+    return false;
+  }
+  var messageContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+  var documentFragment = document.createDocumentFragment();
+
+
+  messageContainer.innerHTML =
+      "<style>                               " +
+      ".motto {                              " +  //the whole CSS should be loaded only once at the start of the browser
+      "  background-color: red;              " +  // https://github.com/cliqz/navigation-extension/blob/master/modules/ui/sources/window.es#L34
+      "}                                     " +
+      "</style>                              " +
+
+      "<div>Hello</div><p class='motto'>motto</p>"; //this could be a handlebars template eg: https://github.com/cliqz/navigation-extension/blob/master/modules/antitracking/dist/popup.js#L17
+
+  documentFragment.appendChild(messageContainer);
+
+  return documentFragment;
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////////
 // TODO: we should add here all the methods to get the callbacks and to track the
 // information (like mouse over / ticket clicked / etc)
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -97,7 +136,11 @@ UIManager.prototype.showCurrentCouponAdd = function() {
 
   // get the notification box and build whatever we want to show (style) here.
   // TODO: we need to style this, for now we will not, only in a nasty way.
-  var notificationContent = 'Save money with voucher for ' + title + '.';
+  var notificationContent = this.createCouponDisplay(couponInfo);
+  if (!notificationContent) {
+    log('we couldnt create the coupon display');
+    return false;
+  }
 
   // build the buttons callbacks
   // TODO_QUESTION: localize buttons and content?
@@ -142,8 +185,12 @@ UIManager.prototype.showCurrentCouponAdd = function() {
     box.removeNotification(currentNotification);
   }
 
-  // TODO: also remove the second notification box if we are showing it (the second)
-  //
+  // remove the coupon notification if there is one
+  let couponNotification = box.getNotificationWithValue('goldrush-coupon');
+  if (couponNotification) {
+    // TODO: make sure the close callback is not calling this method again (recursion loop)
+    box.removeNotification(couponNotification);
+  }
 
   var notification = box.appendNotification(notificationContent,
                                             'goldrush-ad',
