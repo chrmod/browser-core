@@ -316,6 +316,7 @@ function selectItem(item) {
 }
 
 function init(onlyFavorites = showOnlyFavorite) {
+  migrateQueries();
   showOnlyFavorite = onlyFavorites;
   const callback = onlyFavorites ? showFavorites : showHistory;
   historyTimer = setTimeout(callback, 200, {results: []});
@@ -332,6 +333,28 @@ function clearQueries(removeFavorites) {
   if (removeFavorites) {
     CLIQZEnvironment.getLocalStorage().setObject('favoriteQueries', []);
   }
+}
+
+/**
+  This function is for migration of history and favorite queries
+  to extension version Mobile Extension 3.5.2
+**/
+function migrateQueries() {
+  if (CLIQZEnvironment.getLocalStorage().getItem('isFavoritesRefactored')) {
+    return;
+  }
+  let queries = CLIQZEnvironment.getLocalStorage().getObject('recentQueries', []);
+  let favoriteQueries = CLIQZEnvironment.getLocalStorage().getObject('favoriteQueries', []);
+  queries = queries.map(query => {
+    if (query.favorite) {
+      favoriteQueries.unshift({query: query.query, timestamp: query.timestamp});
+    }
+    delete query.favorite;
+    return query;
+  });
+  CLIQZEnvironment.getLocalStorage().setObject('recentQueries', queries);
+  CLIQZEnvironment.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
+  CLIQZEnvironment.getLocalStorage().setItem('isFavoritesRefactored', true);
 }
 
 
