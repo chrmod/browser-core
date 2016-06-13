@@ -125,9 +125,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
             });
 
             afterEach(function() {
-                tabs.forEach(function(t) {
-                    gBrowser.removeTab(t);
-                });
+                closeAllTabs(gBrowser);
                 tabs = [];
             });
 
