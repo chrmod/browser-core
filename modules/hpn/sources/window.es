@@ -19,7 +19,7 @@ export default class {
   }
 
 	createButtonItem(win){
-		if(background.CliqzSecureMessage){
+		if(background.CliqzSecureMessage && !CliqzUtils.getPref("cliqz_core_disabled", false)){
 		    var doc = win.document,
 		        menu = doc.createElement('menu'),
 		        menuPopup = doc.createElement('menupopup');

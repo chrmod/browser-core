@@ -50,7 +50,7 @@ var events = {
           el = ev.target,
           localType = el.getAttribute("local_sc_type") || "default";
 
-      container.innerHTML = this.CliqzHandlebars.tplCache["partials/missing_location_2"]({
+      container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/missing_location_2"]({
           friendly_url: el.getAttribute("bm_url"),
           trans_str: messages[localType].trans_str
       });
@@ -75,7 +75,7 @@ var events = {
     "cqz_location_yes_confirm": function(ev) {
       CLIQZEnvironment.setLocationPermission(this.window, "yes");
       var container = this.CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-      if (container) container.innerHTML = this.CliqzHandlebars.tplCache["partials/no-locale-data"]({
+      if (container) container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/no-locale-data"]({
         "display_msg": "location-thank-you"
       });
     }
@@ -95,11 +95,18 @@ export default class {
 
   loadLocalResults(el) {
     this.CLIQZ.Core.popup.cliqzBox.querySelector(".location_permission_prompt").classList.add("loading");
+    var bmUrl = el.getAttribute("bm_url");
+    CliqzUtils.log(bmUrl, "We are before");
+    if (!bmUrl) {
+      CliqzUtils.log("We are here");
+      this.failedToLoadResults(el);
+      return;
+    }
     CLIQZEnvironment.getGeo(true, (loc) => {
         CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
             "&q=" + this.CLIQZ.Core.urlbar.value +
             CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
-            "&bmresult=" + el.getAttribute("bm_url"),
+            "&bmresult=" + bmUrl,
             this.handleNewLocalResults(el));
     }, () => {
         this.failedToLoadResults(el);
@@ -109,15 +116,14 @@ export default class {
 
   handleNewLocalResults(el) {
     return (req) => {
-      //CliqzUtils.log(req, "RESPONSE FROM RH");
       var resp,
           container = el,
           r;
 
       try {
         resp = JSON.parse(req.response);
-        CliqzUtils.log(resp, "RH RESPONSE");
-      } catch (ex) {
+        } catch (ex) {
+        this.failedToLoadResults(el);
       }
       if (resp && resp.results && resp.results.length > 0) {
         while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
@@ -136,11 +142,11 @@ export default class {
   failedToLoadResults(el) {
     var container = this.CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
     if (el.id === "cqz_location_yes") {
-        container.innerHTML = this.CliqzHandlebars.tplCache["partials/no-locale-data"]({
+        container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/no-locale-data"]({
           "display_msg": "location-sorry"
         });
     } else if (el.id == "cqz_location_once") {
-        container.innerHTML = this.CliqzHandlebars.tplCache["partials/no-locale-data"]({
+        container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/no-locale-data"]({
           "display_msg": "location-permission-ask"
         });
     }
@@ -148,7 +154,7 @@ export default class {
 
   displayMessageForNoPermission() {
     var container = this.CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
-    if (container) container.innerHTML = this.CliqzHandlebars.tplCache["partials/no-locale-data"]({
+    if (container) container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/no-locale-data"]({
       "display_msg": "location-no"
     });
   }
