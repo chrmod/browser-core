@@ -441,7 +441,8 @@ var CliqzAutocomplete = {
                 });
                 return url;
             },
-            getUserLanguages(factor=2){
+            getUserLanguages(factor){
+                factor = typeof factor !== 'undefined' ? factor : false;
                 let availableLangs = CliqzLanguage.state(true);
                 let langs = [];
                 let lastValue = null;
@@ -493,6 +494,12 @@ var CliqzAutocomplete = {
 
                     }, this);
 
+                    CliqzUtils.telemetry({
+                        type: 'user_reranking',
+                        action: 'wiki_available_languages',
+                        value: Object.keys(wikiLangs).length
+                    });
+
                     if (Object.keys(wikiLangs).length > 1) {
                         // we have wikipedia with different langs, try possible dedup
                         let bestUrl = this.chooseUrlByLang(wikiLangs, allUrls, userLangs);
@@ -514,34 +521,48 @@ var CliqzAutocomplete = {
                                 delete dedups[originalUrl];
                             }
                         }, this);
-
-                        // backward structure with link where deduped url is pointing
-                        let invertedUrls = {};
-                        Object.keys(dedups).forEach(function (k) {
-                            dedups[k].forEach(function (url) {
-                                invertedUrls[url] = k;
-                            });
+                        let deduped = wikiUrls.length - Object.keys(dedups).length;
+                        CliqzUtils.telemetry({
+                            type: 'user_reranking',
+                            action: 'wiki_total_urls',
+                            value: wikiUrls.length
                         });
-                        var dedupResponse = [];
-                        for (let i = 0; i < response.length; i++) {
-                            let responseObj = response[i];
-                            if (responseObj != undefined) {
-                                // responseObj might be undefined if we already deleted it
-                                if (responseObj.url in invertedUrls) {
-                                    // this url should be replaced by main url
-                                    let mainInd = allUrls.indexOf(invertedUrls[responseObj.url]);
-                                    let mainObj = response[mainInd];
-                                    if (mainObj != undefined) {
-                                        dedupResponse.push(mainObj);
-                                        delete response[mainInd];
+
+                        CliqzUtils.telemetry({
+                            type: 'user_reranking',
+                            action: 'wiki_dedupped_urls',
+                            value: deduped
+                        });
+
+                        if(deduped > 0) {
+                            // backward structure with link where deduped url is pointing
+                            let invertedUrls = {};
+                            Object.keys(dedups).forEach(function (k) {
+                                dedups[k].forEach(function (url) {
+                                    invertedUrls[url] = k;
+                                });
+                            });
+                            var dedupResponse = [];
+                            for (let i = 0; i < response.length; i++) {
+                                let responseObj = response[i];
+                                if (responseObj != undefined) {
+                                    // responseObj might be undefined if we already deleted it
+                                    if (responseObj.url in invertedUrls) {
+                                        // this url should be replaced by main url
+                                        let mainInd = allUrls.indexOf(invertedUrls[responseObj.url]);
+                                        let mainObj = response[mainInd];
+                                        if (mainObj != undefined) {
+                                            dedupResponse.push(mainObj);
+                                            delete response[mainInd];
+                                        }
+                                    }
+                                    else {
+                                        dedupResponse.push(responseObj);
                                     }
                                 }
-                                else {
-                                    dedupResponse.push(responseObj);
-                                }
                             }
+                            return dedupResponse;
                         }
-                        return dedupResponse;
                     }
                 }
                 // if no dedups found
