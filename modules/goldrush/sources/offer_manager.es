@@ -937,18 +937,6 @@ OfferManager.prototype.notInterestedUICallback = function() {
     this.removeAndUntrackOffer(offer.offer_id);
   }
 
-  // TODO:
-  // let currentCoupon = this.uiManager.getCurrentCoupon();
-
-  // if (this.statsHandler) {
-  //   this.statsHandler.couponRejected(currentCoupon);
-  // }
-
-  // // stop tracking the coupon
-  // this.stopTrackingCoupon(currentCoupon);
-
-  // // remove the coupon from the list
-  // this.uiManager.removeCoupon(currentCoupon);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

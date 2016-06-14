@@ -217,12 +217,8 @@ export class StatsHandler {
   //
   // @brief when a coupon rejected by the main button
   //
-  couponRejected(offerInfo) {
-    // TODO: we can get the domain id and cluster id from:
-    // offerInfo['appear_on_did']
-    // offerInfo['appear_on_cid']
+  couponRejected(clusterID) {
     log('couponRejected');
-    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_rejected', 1);
   }
 
