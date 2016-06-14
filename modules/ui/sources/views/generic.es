@@ -105,14 +105,17 @@ export default class GenericView extends localData {
       };
       partialDescr = 'description-m';
     }
-	
-	//Use 1-line description if there is local result
-    if(data.partials.indexOf('local-data-sc') != -1) {
-		partialDescr = 'description';
 
-        data.genericZone.class += ' cqz-local-data-holder';
-	}
-	
+    //Use 1-line description if there is local result
+    if(data.partials.indexOf('local-data-sc') != -1) {
+      partialDescr = 'description';
+
+      partialsPath.shift();
+      partialsPath.shift();
+
+      data.genericZone.class += ' cqz-local-data-holder';
+    }
+
     data.genericZone.partials = partialsPath;
 
     //Push the description classes

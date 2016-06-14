@@ -2,13 +2,11 @@
 
 .cqz-local-data-holder {
     .cqz-zone-holder {
-        & > .cqz-result-title,
-        & > .cqz-ez-subtitle,
-        & > .cqz-ez-subtitle + .cqz-generic-desc {
+        & > .cqz-generic-desc:first-child {
             display: none;
         }
     }
-}
+ }
 
 .cqz-local-data {
     height: auto;
