@@ -369,15 +369,14 @@ OfferManager.prototype.destroy = function() {
 //        will return null if the event is not related with any cluster.
 // @note check the intent input to see which is the expected format
 //
-OfferManager.prototype.formatEvent = function(originalURL) {
+OfferManager.prototype.formatEvent = function(urlObj) {
   log('formatEvent');
   if (!this.mappings) {
     return null;
   }
 
-
   // we need to detect if we are in a domain of some cluster.
-  const domainName = originalURL['name'];
+  const domainName = urlObj['name'];
   const domainID = this.mappings['dname_to_did'][domainName];
   log('domainName' + domainName);
   log('domainID' + domainID);
@@ -386,13 +385,11 @@ OfferManager.prototype.formatEvent = function(originalURL) {
     return null;
   }
 
-  // TODO: get all the fields we need here.
-
-  const fullURL = originalURL['domain'] + originalURL['path'] ;
+  const fullURL = urlObj['domain'] + urlObj['path'] ;
   // This is how the other modules at cliqz does it
   const timestamp = Date.now();
   // check if we are in a checkout page?
-  const checkoutFlag = this.isCheckoutPage(fullURL);
+  const checkoutFlag = this.isCheckoutPage(urlObj);
   // TODO_QUESTION: how to get the last url?
   const lastURL = '';
   // TODO_QUESTION: how to get the referrer url?
@@ -603,12 +600,18 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID) {
 //
 // @brief flag is the user is on a checkout page
 //
-OfferManager.prototype.isCheckoutPage = function(url) {
-  // TODO implement this
-  // if (this.mappings['dname_to_checkout_regex']){
-  //   log('checkoutFlag' + JSON.stringify(this.mappings['dname_to_checkout_regex']));
-  //   return true;
-  // }
+OfferManager.prototype.isCheckoutPage = function(urlObj) {
+  if (this.mappings['dname_to_checkout_regex']){
+    // log('isCheckoutPage' + JSON.stringify(urlObj, null, 4));
+    let regexForDomain = this.mappings['dname_to_checkout_regex'][urlObj['name']];
+    log('isCheckoutPage#regexForDomain\t' + regexForDomain);
+    log('isCheckoutPage#friendly_url\t' + urlObj['friendly_url']);
+    if (regexForDomain && urlObj['friendly_url'].match(regexForDomain)) {
+      log('isCheckoutPage#true');
+      return true;
+    }
+  }
+  log('isCheckoutPage#false');
   return false;
 };
 
