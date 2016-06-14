@@ -15,8 +15,6 @@ function injectTestHelpers(CliqzUtils) {
       rejecter = rej;
     });
 
-    chai.expect(fn()).to.equal(false);
-
     function check() {
       CliqzUtils.log("!!", fn());
       if(fn()) {

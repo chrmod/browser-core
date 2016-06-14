@@ -10,6 +10,19 @@ function waitIfNotReady(fn) {
         return fn();
     });
 }
+// wait till server is set up
+var wait_until_server_up = function (testUrl, count, callback) {
+  if ( count <= 0 ) {
+    callback("Failed to start server");
+    return;
+  }
+  CliqzUtils.httpGet(testUrl, callback, function() {
+    console.log("level "+ count);
+    setTimeout( function(testUrl) {
+      wait_until_server_up(testUrl, count - 1, callback);
+    }, 100);
+  })
+};
 
 TESTS.AttrackTest = function (CliqzUtils) {
     var System = CliqzUtils.getWindow().CLIQZ.System,
@@ -57,13 +70,16 @@ TESTS.AttrackTest = function (CliqzUtils) {
                         res.write('<html><body><p>Hello world</p></body></html');
                     });
                     CliqzAttrack.tp_events._active = {};
-                    tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
+
                     // get tab id from tp_events (assumption that this is correct)
-                    waitIfNotReady(function() {
+                    wait_until_server_up('http://cliqztest.com:60508/', 5, function() {
+                      tabs.push(gBrowser.addTab("http://cliqztest.com:60508"));
+                      waitIfNotReady(function() {
                         return Object.keys(CliqzAttrack.tp_events._active).length > 0;
-                    }).then(function() {
+                      }).then(function() {
                         tab_id = Object.keys(CliqzAttrack.tp_events._active)[0];
                         done();
+                      });
                     });
                 });
 
@@ -98,19 +114,6 @@ TESTS.AttrackTest = function (CliqzUtils) {
     describe('CliqzAttrack.tp_events', function() {
 
         var urlInfo = CliqzUtils.getWindow().CLIQZ.System.get('antitracking/url').URLInfo;
-        // wait till server is set up
-        var wait_until_server_up = function (testUrl, count, callback) {
-          if ( count <= 0 ) {
-            done("Failed to start server");
-            return;
-          }
-          CliqzUtils.httpGet(testUrl, callback, function() {
-            console.log("level "+ count);
-            setTimeout( function(testUrl) {
-              wait_until_server_up(testUrl, count - 1, callback);
-            }, 100);
-          })
-        };
 
         describe('Integration', function() {
             var win = CliqzUtils.getWindow(),
