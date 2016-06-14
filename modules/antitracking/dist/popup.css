@@ -414,6 +414,10 @@ a.cqz-watchdog-text:hover:before { background: #3786C0; }
     font-size: 14px;
     text-align: left;
 }
+.cqz-trackers-blocked > li .cqz-company-holder {
+    color: #333;
+    text-decoration: none;
+}
 
 .cqz-trackers-blocked > li.active {
     height: auto;

@@ -7,17 +7,17 @@
     <script id="trackersListTemplate" type="text/x-handlebars-template">
         {{#each this}}
             <li>
-                <div class='cqz-company-holder'>
+                <a href="https://cliqz.com/whycliqz/anti-tracking/tracker#{{ watchDogName }}" class='cqz-company-holder' target="_blank">
                     <span class='cqz-title-holder'>
                         <span class='cqz-title'> {{ name }} </span>
                     </span>
                     <span  class='cqz-number'><i>{{ count }}</i></span>
-                </div>
+                </a>
 
-                <ul class='cqz-company-trackers'>
+                <ul class='cqz-company-trackers' style="display: none;">
                     {{#each this.trackers}}
                         <li>
-                            <a href="https://cliqz.com/tracking-monitor/tracking-monitor-tracker?tracker={{domain_name}}" target="_blank">
+                            <a data-href="https://cliqz.com/tracking-monitor/tracking-monitor-tracker?tracker={{domain_name}}" target="_blank">
                             <span class="cqz-title-holder">
                                 <span class='cqz-title'> {{ name }}</span>
                             </span>
@@ -53,8 +53,8 @@
                 </div>
 
                 <!--======= Watch Dog =======-->
-                <div class="cqz-watchdog-score">
-                    <a href="https://cliqz.com/tracking-monitor/tracking-monitor-site?domain=" class="cqz-watchdog-text" target="_blank" data-i18n="attrack-score-text"></a>
+                <div class="cqz-watchdog-score" style="display: none;">
+                    <a data-href="https://cliqz.com/tracking-monitor/tracking-monitor-site?domain=" class="cqz-watchdog-text" target="_blank" data-i18n="attrack-score-text"></a>
                     <div class="cqz-dog-score-holder">
                         <span>
                             <svg width="11px" height="13px" viewBox="0 0 11 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
