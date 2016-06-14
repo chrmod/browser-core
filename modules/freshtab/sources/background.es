@@ -5,6 +5,9 @@ import { utils } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
+const ONE_DAY = 24 * 60 * 60 * 1000;
+const FIVE_DAYS = 5 * ONE_DAY;
+const PREF_ONBOARDING = 'freshtabOnboarding';
 
 export default {
   init(settings) {
@@ -27,11 +30,21 @@ export default {
         return showOnboarding;
     },
 
+    _showHelp() {
+      var showHelp = true,
+          now = Date.now(),
+          isFifthDayAfterInstallation = parseInt(utils.getPref(PREF_ONBOARDING, '0')) + FIVE_DAYS > now;
+
+      if (isFifthDayAfterInstallation) {
+        showHelp = false;
+      }
+
+      return showHelp;
+    },
+
     _showMiniOnboarding() {
        var miniOnboarding = false,
            now = Date.now(),
-           ONE_DAY = 24 * 60 * 60 * 1000,
-           PREF_ONBOARDING = 'freshtabOnboarding',
            isUserFirstTimeAtFreshTab = parseInt(utils.getPref(PREF_ONBOARDING, '0')) === 0;
 
       if (isUserFirstTimeAtFreshTab){
@@ -235,6 +248,7 @@ export default {
         locale: utils.PREFERRED_LANGUAGE,
         showOnboarding: self.actions._showOnboarding(),
         miniOnboarding: self.actions._showMiniOnboarding(),
+        showHelp: self.actions._showHelp(),
         isBrowser: self.actions._isBrowser()
       };
       return Promise.resolve(config);
