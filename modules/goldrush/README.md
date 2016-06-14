@@ -18,12 +18,6 @@
   to the profile location?.
 
 
-TO TOMAS:
-- how we can store the information in redis using the following formatting (the
-  one defined below: grouped by clusters id and then by domains...) There will be
-  collisions if we use just cid as key? or for each entity we have our own redis "context".?
-
-
 TODOS:
 - remove the logs everywhere we don't need
 
