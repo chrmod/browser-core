@@ -96,5 +96,14 @@ export default class {
                         data.lat,
                       CLIQZEnvironment.USER_LNG,
                       CLIQZEnvironment.USER_LAT)*1000;
+    if (data.deepResults) {
+      let deepResults = [];
+      data.deepResults.forEach(item => {
+        if (item.type === 'buttons') {
+          deepResults = item.links;
+        }
+      });
+      data.deepResults = deepResults;
+    }
   }
 };

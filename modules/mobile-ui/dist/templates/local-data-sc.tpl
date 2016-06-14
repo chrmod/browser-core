@@ -109,5 +109,14 @@
         {{/if}}
       </div>
   </section>
+  <section class="secondary">
+      {{#each data.deepResults}}
+          <div url="{{url}}" extra="link-{{@index}}" class="cards__item links">
+              <h2 class="cards__title__secondary">
+                  {{title}}
+              </h2>
+          </div>
+      {{/each}}
+  </section>
 
 <!-- end local-data-sc.tpl -->
