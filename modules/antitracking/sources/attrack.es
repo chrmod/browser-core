@@ -1492,8 +1492,8 @@ var CliqzAttrack = {
                 else{
                     var t2 = new Date();
                     var dur = (t2 -  CliqzAttrack.trackReload[_key]) / 1000;
-                    if(dur < 30000 && countReload){
-                        CliqzAttrack.tp_events['_active'][windowID]['ra'] = 1;
+                    if(dur < 30000 && countReload && windowID in CliqzAttrack.tp_events._active){
+                        CliqzAttrack.tp_events._active[windowID]['ra'] = 1;
                         CliqzAttrack.reloadWhiteList[_key] = t2;
                     }
                 }
