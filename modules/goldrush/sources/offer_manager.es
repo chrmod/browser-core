@@ -12,6 +12,27 @@ import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fi
 import { UIManager } from 'goldrush/ui/ui_manager';
 import { StatsHandler } from 'goldrush/stats_handler';
 
+// TODO: review if this is fine
+Components.utils.import("resource://gre/modules/Services.jsm");
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Consts
+//
+
+// TODO: specify this values before the release
+
+// the number of events outside of a particular cluster after we decide to hide
+// the current offer (UI).
+const OM_NUM_EVTS_DISABLE_OFFER = 3;
+// the number of milliseconds we want to wait till we hide the add
+const OM_HIDE_OFFER_MS = 1000 * 10;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 function log(s){
   utils.log(s, 'GOLDRUSH - OFFER MANAGER');
 }
@@ -22,6 +43,19 @@ function check(expression, message) {
   if (!expression) {
     log(message);
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function openNewTabAndSelect(url) {
+  var currWindow = CliqzUtils.getWindow();
+  var gBrowser = currWindow.gBrowser;
+  if (!currWindow || !gBrowser) {
+    return false;
+  }
+
+  gBrowser.selectedTab = gBrowser.addTab(url);
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,10 +202,11 @@ export function OfferManager() {
   this.uiManager = new UIManager();
   this.uiManager.configureCallbacks({
     'show_coupon': this.checkButtonUICallback.bind(this),
-    'save_coupon': this.saveCouponUICallback.bind(this),
     'not_interested': this.notInterestedUICallback.bind(this),
     'information': this.informationUICallback.bind(this),
-    'extra_events': this.extraEventsUICallback  .bind(this)
+    'extra_events': this.extraEventsUICallback.bind(this),
+    'on_offer_shown': this.offerShownUICallback.bind(this),
+    'on_offer_hide': this.offerHideUICallback.bind(this)
   });
 
   this.userDB = null;
@@ -179,10 +214,17 @@ export function OfferManager() {
   // create the stats handler
   this.statsHandler = new StatsHandler();
 
-
-  // subscribe to the
-
-  // the cluster information
+  // create the ID counter we will use to handle the offers, we need to be able
+  // to identify each offer uniquely since we need to track them with these ids.
+  this.offerIDCounter = 0;
+  // this map will contain the list of offers and the given data for each offer
+  this.currentOfferMap = {};
+  // the clusterID -> offerID map.
+  this.cidToOfferMap = {};
+  // track the number of events of all the clusters and also the global num of events
+  this.eventsCounts = {total: 0};
+  // track the current cluster
+  this.currentCluster = -1;
 
   // the fetcher
   //TODO: use a globar variable here in the config maybe
@@ -233,6 +275,9 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       log('cluster with name ' + clusterName + ' was not found');
       continue;
     }
+
+    // init the this.eventsCounts to 0
+    this.eventsCounts[clusterID] = 0;
 
     // // generate the intent input
     this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
@@ -431,23 +476,127 @@ OfferManager.prototype.stopTrackingCoupon = function(coupon, reason) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
 //
-// @brief this method should be called everytime we show an add for a given domain
-//        in a given cluster and the associated url + timestamp
+// @brief this method will be called when the system detects a new offer and
+//        we need to track it with the given coupon.
+// @param coupon is the coupon object that will be modified and added the offer_id
+//        and maintain all the fields
+// @return the new offer created (couponInfo + offer_id)
 //
-OfferManager.prototype.offerShown = function(coupon, clusterID, domainID, timestamp) {
-  if (!this.userDB) {
+OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clusterID, domainID) {
+  // for simplicity we will also get the domain ID (if any) from the coupon redirect_url
+  // so we can simply later check if we are in the current domain or not when
+  // showing the add
+  var redirectUrl = utils.getDetailsFromUrl(coupon.redirect_url);
+  const redirectDomID = this.mappings['dname_to_did'][redirectUrl.name];
+
+  // generate a new offer with a new id
+  const offerID = this.offerIDCounter++;
+  var offer = {
+    voucher_data: coupon,
+    offer_id: offerID,
+    appear_on_did: domainID,
+    appear_on_cid: clusterID,
+    active: true,
+    redirect_url_did: (redirectDomID === undefined) ? -1 : redirectDomID
+  };
+
+  log('creating and tracking offer with ID: ' + offerID);
+  log('redirectDOM: ' + coupon.redirect_url  + ' - ' + redirectUrl.name + ' - ' + redirectDomID);
+
+  // add to the maps
+  this.currentOfferMap[offerID] = offer;
+  this.cidToOfferMap[clusterID] = offerID;
+
+  // set the timeout to disable this add
+  offer.timerID = CliqzUtils.setTimeout(function () {
+    // check if we are showing the add, if not we just remove it
+    this.removeAndUntrackOffer(offerID);
+  }.bind(this), OM_HIDE_OFFER_MS);
+
+  return offer;
+};
+
+//
+// @brief removes a particular offer with a given id
+//
+OfferManager.prototype.removeAndUntrackOffer = function(offerID) {
+  // TODO:
+  // - search for the offer on the maps and remove it
+  // - disable the disabler timer
+  log('removing and untracking offer with ID: ' + offerID);
+
+  var offer = this.currentOfferMap[offerID];
+  if (!offer) {
+    log('offer no longer valid with id: ' + offerID);
     return;
   }
 
-  // for now we will only add the last ad shown for a given cid and timestamp
-  this.userDB[clusterID]['last_ad_shown'] = timestamp;
+  // make the offer inactive
+  offer.active = false;
 
-  // track this into stats (telemetry later)
-  if (this.statsHandler) {
-    this.statsHandler.advertiseDisplayed(coupon);
+  // disable the timeout
+  CliqzUtils.clearTimeout(offer.timerID);
+
+  const clusterID = offer.appear_on_cid;
+
+  // remove it from the UI if we are showing it
+  if (this.uiManager.isOfferForClusterShownInCurrentWindow(clusterID)) {
+    this.uiManager.hideOfferOfClusterFromCurrentWindow(clusterID);
   }
+
+  if (this.cidToOfferMap[clusterID] === undefined) {
+    log('ERROR: we couldnt find the offer for cluster ID: ' + clusterID);
+  } else {
+    delete this.cidToOfferMap[clusterID];
+  }
+
+  delete this.currentOfferMap[offerID];
 };
+
+
+//
+// @brief this method will be called everytime we got an event for a particular
+//        site and we will do all the logic here to show the offer if needed
+//        in the given window
+//
+// OfferManager.prototype.handleUILogic = function(clusterID) {
+//   // TODO:
+//   // check if we have an offer related with this cluster.
+//   // check if the offer is still valid (number of visits to the cluster).
+//   //
+//   let currentOffer = cidToOfferMap[clusterID];
+//   if (currentOffer === undefined) {
+//     // nothing to do
+//     return;
+//   }
+
+//   // check for all the offers that are not related with this cluster
+//   for (var did in this.cidToOfferMap) {
+//     if (did === clusterID) {
+//       continue;
+//     }
+//     // here we need to check if the number of events then is bigger than the
+//     // threshold
+//     const offerID = this.cidToOfferMap[did];
+//     const offer = this.currentOfferMap[offerID];
+//     if (!offer) {
+//       log('ERROR: this cannot happen.');
+//       continue;
+//     }
+//     const totalDiffEvts = this.eventsCounts.total - offer.totalEvents;
+//     const clusterDiffEvents = this.eventsCounts[did] - offer.clusterEvents;
+//     const totalOutsideEvents = totalDiffEvts - clusterDiffEvents;
+//     if (totalOutsideEvents >= OM_NUM_EVTS_DISABLE_OFFER) {
+//       // TODO: emit some event here maybe if it is not already tracked over
+//       // the ui callbacks...
+//       // we need to hide this offer and remove it (stop tracking it)
+//       this.removeAndUntrackOffer(offer);
+//     }
+
+//   }
+// };
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -496,13 +645,39 @@ OfferManager.prototype.getUserDB = function(mappings) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// @brief this method will check if we currently have an offer or not. This
-//        will determine if we need to show the offer or not for this particular
-//        window.
+// @brief this method will show (if needed) an offer for this particular cluster
+//        If we need to show it then we will do it here
 //
-OfferManager.prototype.weHaveAnOffer = function() {
-  // if we have a coupon in the list then we should show it
-  return this.uiManager.getCurrentCoupon() ? true : false;
+OfferManager.prototype.showOfferIfNeeded = function(clusterID, domainID) {
+  // we check if we have an offer for this particular cluster
+  const offerID = this.cidToOfferMap[clusterID];
+  if (offerID === undefined) {
+    // nothing related with this cluster
+    // TODO: here still could be the case that we are showing and old
+    // ad and we need to close it... if the ui has an offer from this cluster
+    // but we don't have any => hide it.
+    // remove it from the UI if we are showing it
+    if (this.uiManager.isOfferForClusterShownInCurrentWindow(clusterID)) {
+      this.uiManager.hideOfferOfClusterFromCurrentWindow(clusterID);
+    }
+    return;
+  }
+
+  // we have an offer, check if we are showing this one in particular
+  const offer = this.currentOfferMap[offerID];
+  if (!offer) {
+    log('ERROR: this cannot happen here... there is inconsistent data');
+    return;
+  }
+
+  // we show the offer now in this tab if it is not being shown already
+  if (this.uiManager.isOfferForClusterShownInCurrentWindow(clusterID)) {
+    // nothing to do
+    return;
+  }
+
+  // else we need to show the current offer in this window
+  this.uiManager.showOfferInCurrentWindow(offer, offer.redirect_url_did === domainID);
 };
 
 
@@ -518,9 +693,6 @@ OfferManager.prototype.weHaveAnOffer = function() {
 //        all the logic of showing a coupong if our system detects a coupon or not.
 //
 OfferManager.prototype.processNewEvent = function(urlObject) {
-  // TODO for now we will use a url event (asses), we can add or get extra
-  //      information in this method an use it
-
   log('processNewEvent');
   // here we need to:
   // 1) parse the url information and format it in a way that the intent intput
@@ -551,12 +723,20 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   // get the associated cluster
   const domainName = this.mappings['did_to_dname'][event['domain_id']];
   const clusterID = this.mappings['dname_to_cid'][domainName];
+  const domainID = event['domain_id'];
   if (!clusterID || clusterID < 0) {
     // this cannot happen since we got a valid domainID from the mappings but
     // we don't have the given cluster ID in the mappings? this is not gut
     log('ERROR: invalid cluster id!: ' + domainName);
     return;
   }
+
+  this.eventsCounts.total += 1;
+  this.eventsCounts[clusterID] += 1;
+  this.currentCluster = clusterID;
+
+  // check if we need to show something in this cluster
+  this.showOfferIfNeeded(clusterID, domainID);
 
   // get the associated intent system
   let intentSystem = this.intentDetectorsMap[clusterID];
@@ -591,6 +771,14 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     this.statsHandler.systemIntentionDetected(event['domain_id'], clusterID);
   }
 
+  // check if we have an offer already for this particular cluster, in that case
+  // we don't show any other one since we can only show one per cluster
+  if (this.cidToOfferMap[clusterID] !== undefined) {
+    // skip this particular one
+    log('we already have an offer for clusterID: ' + clusterID + ' so we dont show another one');
+    return;
+  }
+
   // we have an intention so we need to get the coupons from the fetcher
   if (!this.offerFetcher) {
     log('WARNING: we dont have still the offerFetcher, we then skip this event?');
@@ -611,21 +799,19 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
       return;
     }
 
-    // add some extra info to the coupon itself for later
-    bestCoupon['shown_on_did'] = event['domain_id'];
-    bestCoupon['shown_on_cid'] = clusterID;
-
-    // we have a cluster, show it into the UI for the user
-    if (!self.uiManager.addCoupon(bestCoupon)) {
-      // nothing else to do...
-      return;
-    }
-
     // (9) we need to track it on the callback of the button since the user
     //     can cancel the coupon -> we don't care about it.
 
-    // we call this method to notify that we just show an ad
-    self.offerShown(bestCoupon, clusterID, event['domain_id'], Date.now());
+    // create and track this new offer now, and show it in the UI
+    const timestamp = Date.now();
+    var offer = self.createAndTrackNewOffer(bestCoupon, timestamp, clusterID, domainID);
+    if (!offer) {
+      log('we couldnt create the offer??');
+      return;
+    }
+
+    // we have a offer, show it into the UI for the user
+    self.uiManager.showOfferInCurrentWindow(offer, offer.redirect_url_did === domainID);
   });
 
 
@@ -684,29 +870,43 @@ OfferManager.prototype.checkButtonUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('checkButtonUICallback');
 
+  // track the signal
+  if (this.statsHandler) {
+    this.statsHandler.couponClicked(this.currentCluster);
+  }
+
+  // get the current offer
+  let offer = this.cidToOfferMap[this.currentCluster];
+  offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
+  if (!offer) {
+    // nothing to do, close the offer :(
+    return false;
+  }
+
+  // we will remove the timer here so the person can see the offer until he
+  // close it
+  CliqzUtils.clearTimeout(offer.timerID);
+
+  // we will get the url to redirect from the coupon here
+  const urlToGo = offer.voucher_data.redirect_url;
+  if (!urlToGo) {
+    log('ERROR: no redirect_url found in the voucher/coupon?');
+    // close the offer
+    return false;
+  }
+
+  // redirect to there
+  openNewTabAndSelect(urlToGo);
+
+  return true;
+
   // track it (get the current coupon from the ui manager)
-  let currentCoupon = this.uiManager.getCurrentCoupon();
-  this.uiManager.showCouponInfo(currentCoupon);
-  //self.trackCoupon(bestCoupon);
+  // TODO:
+  // let currentCoupon = this.uiManager.getCurrentCoupon();
+  // this.uiManager.showCouponInfo(currentCoupon);
+  // //self.trackCoupon(bestCoupon);
 
-  if (this.statsHandler) {
-    this.statsHandler.couponDisplayed(currentCoupon);
-  }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// @brief when the user press on the "save coupon callback"
-//
-OfferManager.prototype.saveCouponUICallback = function() {
-  // TODO: implement here all the needed logic and the
-  log('saveCouponUICallback');
-
-  let currentCoupon = this.uiManager.getCurrentCoupon();
-
-  if (this.statsHandler) {
-    this.statsHandler.couponSaved(currentCoupon);
-  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -717,17 +917,35 @@ OfferManager.prototype.notInterestedUICallback = function() {
   // TODO: implement here all the needed logic and the
   log('notInterestedUICallback');
 
-  let currentCoupon = this.uiManager.getCurrentCoupon();
+  // if the user explicetly says it doesnt want to see the add anymore then
+  // we will close it here and everywhere
+  //
+  let offer = this.cidToOfferMap[this.currentCluster];
+  offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
 
-  if (this.statsHandler) {
-    this.statsHandler.couponRejected(currentCoupon);
+  // if user closed this then we should stop tracking this add
+  if (offer) {
+    // track the stats
+    if (this.statsHandler) {
+      this.statsHandler.couponRejected(offer.appear_on_cid);
+    }
+
+    // remove the offer
+    this.removeAndUntrackOffer(offer.offer_id);
   }
 
-  // stop tracking the coupon
-  this.stopTrackingCoupon(currentCoupon);
+  // TODO:
+  // let currentCoupon = this.uiManager.getCurrentCoupon();
 
-  // remove the coupon from the list
-  this.uiManager.removeCoupon(currentCoupon);
+  // if (this.statsHandler) {
+  //   this.statsHandler.couponRejected(currentCoupon);
+  // }
+
+  // // stop tracking the coupon
+  // this.stopTrackingCoupon(currentCoupon);
+
+  // // remove the coupon from the list
+  // this.uiManager.removeCoupon(currentCoupon);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -749,25 +967,66 @@ OfferManager.prototype.informationUICallback = function() {
 //
 OfferManager.prototype.extraEventsUICallback = function(reason) {
   // TODO: implement here all the needed logic and the
+
   log('extraEventsUICallback: ' + reason);
 
-  let currentCoupon = this.uiManager.getCurrentCoupon();
-
+  // check if the current cluster we have an active offer or not, if not then
+  // this is being close by the system itself otherwise by the user.
   if (reason === 'removed') {
-      if (this.statsHandler) {
-        this.statsHandler.advertiseClosed(currentCoupon);
+    let offer = this.cidToOfferMap[this.currentCluster];
+    offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
+    const userClosed = (offer !== undefined && offer.active == true);
+
+    log('extraEventsUICallback: userClosed: ' + userClosed);
+
+    // track stats
+    if (this.statsHandler) {
+      if (userClosed) {
+        this.statsHandler.advertiseClosedByUser(offer.appear_on_cid);
+      } else {
+        this.statsHandler.advertiseClosed(this.currentCluster);
       }
+    }
 
-      // stop tracking the coupon
-      this.stopTrackingCoupon(currentCoupon);
+    if (userClosed) {
+      // remove the offer
+      this.removeAndUntrackOffer(offer.offer_id);
+    }
+  }
+  return true;
+};
 
-      // remove the coupon from the list
-      this.uiManager.removeCoupon(currentCoupon);
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when an offer is shown
+//
+OfferManager.prototype.offerShownUICallback = function(offerInfo) {
+  // TODO: implement here all the needed logic and the
+  log('offerShownUICallback');
+  if (!this.userDB) {
+    return;
+  }
+  // get the needed fields
+  const clusterID = offerInfo['appear_on_cid'];
+  const timestamp = Date.now();
 
+  // for now we will only add the last ad shown for a given cid and timestamp
+  this.userDB[clusterID]['last_ad_shown'] = timestamp;
+
+  // track this into stats (telemetry later)
+  if (this.statsHandler) {
+    this.statsHandler.advertiseDisplayed(offerInfo);
   }
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when an offer is hiden
+//
+OfferManager.prototype.offerHideUICallback = function(offerInfo) {
+  // we are getting this event already on the extraEventsUICallback...
+};
 
 
 

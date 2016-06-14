@@ -137,6 +137,20 @@ export class StatsHandler {
     // TODO:
     log('sending over telemetry');
 
+    if (!this.currentData) {
+      return;
+    }
+
+    var signal = {
+      type: 'offers',
+      offers_data: this.currentData
+    };
+
+    // send it over telemetry
+    log(signal); // TODO: remove this log
+
+    // TODO: uncomment this
+    // CliqzUtils.telemetry(signal);
   }
 
   //
@@ -172,82 +186,72 @@ export class StatsHandler {
   //
   // @brief collect that a new coupon has being used.
   //
-  couponUsed(couponInfo) {
+  couponUsed(offerInfo) {
     // TODO: we can get the domain id and cluster id from:
-    // couponInfo['shown_on_did']
-    // couponInfo['shown_on_cid']
+    // offerInfo['appear_on_did']
+    // offerInfo['appear_on_cid']
     log('couponUsed');
-    const clusterID = couponInfo['shown_on_cid'];
+    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_used', 1);
   }
 
   //
   // @brief coupon being clicked
   //
-  couponClicked(couponInfo) {
-    // TODO: we can get the domain id and cluster id from:
-    // couponInfo['shown_on_did']
-    // couponInfo['shown_on_cid']
+  couponClicked(clusterID) {
     log('couponClicked');
-    const clusterID = couponInfo['shown_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_opened', 1);
   }
 
   //
   // @brief when a coupon is clicked to save
   //
-  couponSaved(couponInfo) {
+  couponSaved(offerInfo) {
     // TODO: we can get the domain id and cluster id from:
-    // couponInfo['shown_on_did']
-    // couponInfo['shown_on_cid']
+    // offerInfo['appear_on_did']
+    // offerInfo['appear_on_cid']
     log('couponSaved');
-    const clusterID = couponInfo['shown_on_cid'];
+    const clusterID = offerInfo['appear_on_cid'];
   }
 
   //
   // @brief when a coupon rejected by the main button
   //
-  couponRejected(couponInfo) {
+  couponRejected(offerInfo) {
     // TODO: we can get the domain id and cluster id from:
-    // couponInfo['shown_on_did']
-    // couponInfo['shown_on_cid']
+    // offerInfo['appear_on_did']
+    // offerInfo['appear_on_cid']
     log('couponRejected');
-    const clusterID = couponInfo['shown_on_cid'];
+    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_rejected', 1);
   }
 
   //
   // @brief when the ad is closed by the user on the X button
   //
-  advertiseClosed(couponInfo) {
-    // TODO: we can get the domain id and cluster id from:
-    // couponInfo['shown_on_did']
-    // couponInfo['shown_on_cid']
+  advertiseClosedByUser(clusterID) {
+    log('advertiseClosedByUser');
+    generateOrAddField(this.currentData['data'], clusterID, 'offers_closed_by_user', 1);
+  }
+
+  //
+  // @brief when the offer is closed by some other reason
+  //
+  advertiseClosed(clusterID) {
     log('advertiseClosed');
-    const clusterID = couponInfo['shown_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_closed', 1);
   }
 
   //
   // @brief an ad has being desplayed
   //
-  advertiseDisplayed(couponInfo) {
+  advertiseDisplayed(offerInfo) {
     // TODO: we can get the domain id and cluster id from:
-    // couponInfo['shown_on_did']
-    // couponInfo['shown_on_cid']
+    // offerInfo['appear_on_did']
+    // offerInfo['appear_on_cid']
     log('advertiseDisplayed');
-    const clusterID = couponInfo['shown_on_cid'];
+    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_displayed', 1);
-  }
-
-  //
-  // @brief coupon has being desplayed
-  //
-  couponDisplayed(couponInfo) {
-    // TODO
-    log('couponDisplayed');
-    const clusterID = couponInfo['shown_on_cid'];
-    generateOrAddField(this.currentData['data'], clusterID, 'coupons_shown', 1);
   }
 
   //

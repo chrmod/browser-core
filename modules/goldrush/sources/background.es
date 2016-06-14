@@ -82,7 +82,7 @@ export default {
     }
     // TODO: remove this is temporary
 
-    // this.offerManager.uiManager.addCoupon({
+    // this.offerManager.uiManager.setCoupon({
     //   'coupon_id':u.host,
     //   'used_state' : true,
     //   'title': u.host,
@@ -137,7 +137,7 @@ export default {
           }
         }
         if (coupon) {
-          offerManager.uiManager.addCoupon(coupon);
+          offerManager.uiManager.setCoupon(coupon);
         }
       });
       offerFetcher.checkForCouponsByCluster(1, function(vouchers) {

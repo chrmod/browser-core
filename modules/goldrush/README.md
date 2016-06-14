@@ -142,27 +142,35 @@ We will gather the information before send it over telemetry in the following wa
 
 ```
 {
-  cluster\_id: {
-    // the number of coupons that the user used (whatever it means) a coupon.
-    coupons\_used: N,
-    // the number of coupons rejected by the user (explicitly clicked on not interested)
-    coupons\_rejected: N,
-    // the number offers closed (x button)
-    offers\_closed: N,
-    // number of offers displayed (unique offers)
-    offers\_displayed: N,
-    // the number of coupons shown (clicked on show coupon if valid)
-    coupons\_shown: N,
-    // the number of checkout detected (probably boughts from the user side)
-    checkouts: N,
-    // # of times the system detected a intent
-    system_intents: N,
-    // the numbers the user visited a particular cluster.
-    visits: N,
-    // number of unique visits?
-    unique_visits: N,
-  },
-  ...
+  // the ID for our project goldrush
+  type : 'offers',
+
+  // the data itself is easy to parse if we add it into another nested level
+  offers_data : {
+    cluster\_id: {
+      // the number of coupons that the user used (whatever it means) a coupon.
+      coupons\_used: N,
+      // the number of coupons shown (clicked on show coupon if valid)
+      coupons\_shown: N,
+      // coupons opened (go to offer)
+      coupons\_opened: N,
+      // the number of coupons rejected by the user (explicitly clicked on not interested)
+      coupons\_rejected: N,
+      // the number offers closed (x button)
+      offers\_closed: N,
+      // number of offers displayed (unique offers)
+      offers\_displayed: N,
+      // the number of checkout detected (probably boughts from the user side)
+      checkouts: N,
+      // # of times the system detected a intent
+      system_intents: N,
+      // the numbers the user visited a particular cluster.
+      visits: N,
+      // number of unique visits?
+      unique_visits: N,
+    },
+    ...
+  }
 }
 
 ```
