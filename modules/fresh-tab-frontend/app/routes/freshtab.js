@@ -74,7 +74,7 @@ export default Ember.Route.extend({
       }
 
       return this.render(modalName, {
-        into: "application",
+        into: "freshtab",
         outlet: "modal"
       });
     },
@@ -90,7 +90,7 @@ export default Ember.Route.extend({
 
       return this.disconnectOutlet({
         outlet: "modal",
-        parentView: "application"
+        parentView: "freshtab"
       });
     },
 
