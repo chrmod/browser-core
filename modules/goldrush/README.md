@@ -64,27 +64,43 @@ The results will be a json file with the following information:
 
 ```
 {
-	"results": [{
-		"trigger_urls": [],
-		"subType": "{\"class\": \"EntityVoucher\", \"ez\": \"deprecated\"}",
-		"url": "vouchers.cliqz.com",
-		"ts": 1464165279,
-		"q": "amazon.de",
-		"result_trigger": "url",
-		"data": {
-			"__subType__": {
-				"id": "-3372520458018208663",
-				"name": "Vouchers",
-				"class": "EntityVoucher"
-			},
-			"vouchers": {
-				domain1: [{full_coupon_info },{full_coupon_info }] // check below for more info how it will look
-                ...
-			},
-			"template": "vouchers",
-			"friendly_url": "vouchers.cliqz.com"
-		}
-	}]
+    "results": [
+        {
+            "trigger_urls": [ ],
+            "subType": "{\"class\": \"EntityVoucher\", \"ez\": \"deprecated\"}",
+            "url": "vouchers.cliqz.com",
+            "ts": 1465896897,
+            "q": "get|cluster_id=1",
+            "result_trigger": "url",
+            "data": {
+                "__subType__": {
+                    "id": "-3372520458018208663",
+                    "name": "Vouchers",
+                    "class": "EntityVoucher"
+                },
+                "vouchers": {
+                    "29": [
+                        {
+                            "valid_until": "30.12.2016",
+                            "code": "GSH-26-ULI-07",
+                            "title": "Holidaycheck",
+                            "value": 50,
+                            "valid_for": "all",
+                            "image_url": "www.holidaycheck.de",
+                            "redirect_url": "www.holidaycheck.de",
+                            "min_order_value": 700,
+                            "cluster_id": 1,
+                            "coupon_id": "1-29-0",
+                            "domain_id": 29,
+                            "desc": "50 Euro geschenkt mit Holidaycheck Gutschein"
+                        }
+                    ]
+                },
+                "template": "empty",
+                "friendly_url": "vouchers.cliqz.com"
+            }
+        }
+    ]
 }
 ```
 
@@ -100,7 +116,11 @@ The coupons will contain the following information:
 - **desc**: the description if we have one.
 - **image_url**: the url to the image if we have one.
 - **redirect_url**: the redirection url where we should move the user to.
-- **price**: how much money you can save?
+- **value**: how much money you can save?
+- **valid_for**: if the coupon is valid for everyone or only new customers
+- **min_order_value**: min order value that user has to buy
+- **code**: the coupon code
+- **valid_until**: how long is the coupon valid
 
 The database of the coupons will be a json file looking like this:
 
@@ -109,11 +129,18 @@ The database of the coupons will be a json file looking like this:
     cid1: {
         domain1: [{
         	'coupon_id': X-Y-Z,
-                'title': the title,
-                'desc' : the description,
-                'image_url' : http://tosomewhere.com,
-                'redirect_url' : http://page_to_the_coupon.com,
-                'price' : 5,
+                valid_until": "30.12.2016",
+                "code": "GSH-26-ULI-07",
+                "title": "Holidaycheck",
+                "value": 50,
+                "valid_for": "all",
+                "image_url": "www.holidaycheck.de",
+                "redirect_url": "www.holidaycheck.de",
+                "min_order_value": 700,
+                "cluster_id": 1,
+                "coupon_id": "1-29-0",
+                "domain_id": 29,
+                "desc": "50 Euro geschenkt mit Holidaycheck Gutschein"
             }, {...}]
             ...
         },
