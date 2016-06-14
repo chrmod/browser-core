@@ -157,9 +157,12 @@ TESTS.AttrackTest = function (CliqzUtils) {
                     });
                 });
 
+                it('skip first', function() {
+                });
+
                 it('should add tabs to _active', function(done) {
 
-                    this.timeout(10000);
+                    this.timeout(3000);
 
                     waitIfNotReady(function() {
                         return Object.keys(CliqzAttrack.tp_events._active).length > 0;
