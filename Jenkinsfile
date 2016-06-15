@@ -28,23 +28,41 @@ node(NODE_LABELS) {
     ]]
   ])
   
-  stage 'build'
-
   def imgName = "cliqz/navigation-extension:${env.BUILD_TAG}"
 
   dir("../workspace@script") {
-    sh 'rm -fr certs'
-    sh 'cp -R /cliqz certs'
-
+    sh '''#!/bin/bash +x
+      rm -fr certs
+      cp -R /cliqz certs
+    '''
+    
+    stage 'docker build'
     docker.build(imgName, ".")
 
-    docker.image(imgName).inside("-u 0:0") {
-      sh 'su travis; /bin/bash -l -c "npm install"'
-      sh 'su travis; /bin/bash -l -c "bower install --allow-root"'
-      sh 'su travis; /bin/bash -l -c "./fern.js build ./configs/'+CLIQZ_CHANNEL+'.json"'
-      sh 'su travis; cd build/firefox; /bin/bash -l -c "source ../../certs/beta-upload-creds.sh ; PATH=/openssl-0.9.8zg/apps/:$PATH fab publish:beta='+CLIQZ_BETA+',channel='+CLIQZ_CHANNEL+',pre='+CLIQZ_PRE_RELEASE+'"'
-    }
+    try {
 
-    sh 'rm -rf certs'
+      docker.image(imgName).inside() {
+        stage 'npm install'
+        sh 'npm install'
+        
+        stage 'bower install'
+        sh 'bower install'
+        
+        stage 'fern build'
+        sh "./fern.js build ./configs/${CLIQZ_CHANNEL}.json"
+
+        stage 'fab publish'
+        sh """
+          cd build/firefox
+          set +x
+          source ../../certs/beta-upload-creds.sh
+          set -x
+          fab publish:beta=${CLIQZ_BETA},channel=${CLIQZ_CHANNEL},pre=${CLIQZ_PRE_RELEASE}
+        """
+      }
+    
+    } finally {
+      sh 'rm -rf certs'
+    }
   }
 }
