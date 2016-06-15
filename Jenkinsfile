@@ -52,7 +52,7 @@ node(NODE_LABELS) {
         sh "./fern.js build ./configs/${CLIQZ_CHANNEL}.json"
 
         stage 'fab publish'
-        sh """
+        sh """#!/bin/bash
           cd build/firefox
           set +x
           source ../../certs/beta-upload-creds.sh
