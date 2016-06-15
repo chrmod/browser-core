@@ -1,4 +1,4 @@
-import { language, utils } from "core/cliqz";
+import { language, utils, events } from "core/cliqz";
 import config from "core/config";
 import ProcessScriptManager from "platform/process-script-manager";
 
@@ -137,6 +137,9 @@ export default {
         language.addLocale(url, lang);
       }
       return Promise.resolve();
+    },
+    recordCoupon(coupon) {
+      events.pub("core:coupon-recorded", coupon);
     }
   }
 };

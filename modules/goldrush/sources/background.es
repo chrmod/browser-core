@@ -7,6 +7,8 @@ import CliqzGoldrushPopupButton from 'goldrush/ui/popup-button';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { OfferManager } from 'goldrush/offer_manager';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
+import background from "core/base/background";
+
 //import { FID } from 'goldrush/fids/fid';
 
 function log(s){
@@ -45,7 +47,11 @@ function parseMappingsFileAsPromise(filename) {
 
 
 
-export default {
+export default background({
+  enabled() {
+    return true;
+  },
+
   init(settings) {
     // define all the variables here
     this.db = null;
@@ -189,6 +195,12 @@ export default {
     rscLoader.persist(JSON.stringify({name: 'saqib', ads_shown: true}, null, 4)).then(data => {
       log('data successfully persisted');
     })
+  },
+
+  events: {
+    "core:coupon-recorded": function (coupon) {
+      log(`GOT A COUPON ${coupon}`)
+    }
   }
 
-};
+});
