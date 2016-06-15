@@ -16,7 +16,7 @@
 .cqz-popup {
     overflow: hidden;
     position: relative;
-    min-width: 500px;
+    min-width: 800px;
     padding: 0;
     margin: 0;
     color: #333333;
@@ -27,6 +27,7 @@
 }
 
 .cqz-results {
+    min-width: 800px;
     height: 350px;
     position: relative;
     overflow-x: hidden;
