@@ -28,6 +28,9 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 const OM_NUM_EVTS_DISABLE_OFFER = 3;
 // the number of milliseconds we want to wait till we hide the add
 const OM_HIDE_OFFER_MS = 1000 * 10;
+// pref name for AB test
+// TODO: ask how to add this pref in the AB test OM_AB_SUBC_SWITCH_KEY
+const OM_AB_SUBC_SWITCH_KEY = 'offer_subc_switch';
 
 
 
@@ -182,7 +185,6 @@ function generateDBMap(dbsNamesList) {
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief This class will be in charge of handling the offers and almost everything
@@ -226,12 +228,19 @@ export function OfferManager() {
   // track the current cluster
   this.currentCluster = -1;
 
+  // the offers subclusters info (A|B): clusterID -> {}
+  this.offerSubclusterInfo = null;
+
   // the fetcher
   //TODO: use a globar variable here in the config maybe
   let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
   let self = this;
   parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
     self.mappings = mappings;
+
+    // create the subcluster information
+    self.loadOfferSubclusters();
+
     log('setting the mappings to the offer manager');
     self.offerFetcher = new OfferFetcher(destURL, mappings);
   }).then(function() {
@@ -364,12 +373,79 @@ OfferManager.prototype.destroy = function() {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// @brief this method will load the groups (A|B for now) for the clusters (if we have)
+//        to check what kind of logic we need to apply when selection the offer
+//        to show.
+// Expected format of the file:
+//  {
+//    cluster_id: {
+//      'A': [dom1, dom2, ...],
+//      'B': [domN+1, domN+2, ...],
+//    }
+//  }
+// we will generate the this.offerSubclusterInfo structure with the following
+// (transforming them into domain IDs)
+// information:
+//  {
+//    cluster_id: {
+//      'A': Set(dom_ID, dom_ID2, ...),
+//      'B': set(dom_IDN+1, dom_IDN+2, ...),
+//    }
+//  }
+//
+OfferManager.prototype.loadOfferSubclusters = function() {
+  log('calling loadOfferSubclusters');
+  let rscLoader = new ResourceLoader(
+    [ 'goldrush', 'offer_subclusters.json' ],
+    {}
+  );
+  rscLoader.load().then(json => {
+    log('loading the json for loadOfferSubclusters');
+    // we now load all the clusters and all the domains and we convert the domains
+    // into domains ids
+    this.offerSubclusterInfo = {};
+    for (let cid in json) {
+      if (!json.hasOwnProperty(cid)) {
+        continue;
+      }
+
+      // now convert 'A' and 'B' into sets
+      var currentCluster = json[cid];
+      if (!currentCluster['A'] || !currentCluster['B']) {
+        log('it is missing A or B in the file?... we will skip this one');
+        continue;
+      }
+
+      this.offerSubclusterInfo[cid] = {};
+      for (let tag in ['A', 'B']) {
+        // iterate over the list and generate the set with domains IDS
+        this.offerSubclusterInfo[cid][tag] = new Set();
+        for (let domName in currentCluster[tag]) {
+          const domID = this.mappings['dname_to_did'][domName];
+          if (domID === undefined) {
+            log('ERROR: there is a domain in the subclusters that is not listed in the ' +
+                'global cluster file? or in the mappings? domName: ' + domName +
+                ' - clusterID: ' + cid);
+            continue;
+          }
+          this.offerSubclusterInfo[cid][tag].add(domID);
+        }
+      }
+    }
+    log('loadOfferSubclusters: ' + JSON.stringify(this.offerSubclusterInfo));
+  }.bind(this)).catch(function(e) {
+    log('ERROR: loading the OfferSubclusters: ' + e);
+  });
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // @brief this method will format an event into the struct we need to call the
 //        intent input.
 //        will return null if the event is not related with any cluster.
 // @note check the intent input to see which is the expected format
 //
-OfferManager.prototype.formatEvent = function(urlObj, timestamp) {
+OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
   log('formatEvent');
   if (!this.mappings) {
     return null;
@@ -387,7 +463,7 @@ OfferManager.prototype.formatEvent = function(urlObj, timestamp) {
 
   const fullURL = urlObj['domain'] + urlObj['path'] ;
   // This is how the other modules at cliqz does it
-  const timestamp = timestamp;
+  const timestamp = aTimestamp;
   // check if we are in a checkout page?
   const checkoutFlag = this.isCheckoutPage(urlObj);
   // TODO_QUESTION: how to get the last url?
@@ -437,20 +513,100 @@ OfferManager.prototype.shouldEvaluateEvent = function(clusterID, event) {
 // @brief Get the best coupon from the backend response and the given cluster.
 // @return the coupon | null if there are no coupon
 //
-OfferManager.prototype.getBestCoupon = function(vouchers) {
+OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers) {
   if (!vouchers) {
     return null;
   }
 
+  // we need to apply the new A|B logic here and also add the new telemetry
+  // signals
+  // The following logic will be applied depending of the switch flag:
+  // We have 2 subclusters: A, B.
+  // if switchFlag == true => A->B and B->A
+  // else => A -> A and B -> B
+  //
+  // for those clusters that we don't have this subclusters we always follow
+  // the next logic:
+  // - We always show a voucher.
+  // - if we are in a domain and we have a voucher from another domain we show
+  //   that first
+  // - otherwise we show the voucher of the same domain.
+  // - track this with a counter in stats (voucher_on_same_domain or whatever).
+  //
+
+  // get the global flag if we need to switch or not
+  const switchFlag = CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
+
+  // check if we have a subcluster mapping
+  const subclusterMap = (this.offerSubclusterInfo !== null) ? this.offerSubclusterInfo[evtClusterID]
+                                                            : undefined;
+
+  // get a default voucher just in case
+  var voucher = null;
   for (var did in vouchers) {
     if (!vouchers.hasOwnProperty(did)) {
       continue;
     }
     let coupons = vouchers[did];
     if (coupons.length > 0) {
-      return coupons[0];
+      voucher = coupons[0];
+      break;
     }
   }
+
+  // this function will select from the list of vouchers and a set of domains ids
+  // the one that "best" matches. If set of domains is empty then any will be chosen
+  function selectBestVoucher(voucherMap, domSet, currentDomID) {
+    var rvoucher = null;
+    for (var did in voucherMap) {
+      if (!voucherMap.hasOwnProperty(did) || (domSet.size > 0 && !domSet.has(did))) {
+        continue;
+      }
+      // this domain is good for us, still we need to check if there is a better
+      // one
+      const checkForMoreOptions = did === currentDomID;
+      let coupons = voucherMap[did];
+      if (coupons.length > 0) {
+        rvoucher = coupons[0];
+        if (!checkForMoreOptions) {
+          break;
+        }
+      }
+    }
+    return rvoucher;
+  }
+
+  // apply the main logic
+  if (subclusterMap) {
+    // we need to use the cluster thing to get the best voucher
+    const userOnSubcluster = subclusterMap['A'][clusterID] ? 'A' : 'B';
+    if (!subclusterMap[userOnSubcluster][clusterID]) {
+      log('ERROR: the user is not nor in A or B subcluster, this is an error.');
+      return voucher;
+    }
+    // now check if we need to switch or not
+    if (switchFlag) {
+      // we need to get a coupon from the other side
+      const oppositeSubcluster = userOnSubcluster === 'A' ? 'B' : 'A';
+      // search in this
+      const domainsToSearch = subclusterMap[oppositeSubcluster];
+      let localVoucher = selectBestVoucher(vouchers, domainsToSearch, evtDomID);
+
+      // check if we found a voucher we want
+      if (!localVoucher) {
+        log('ERROR: we didnt find a voucher for the cluster we were looking for ' +
+            'so we will return the default one');
+        return voucher;
+      }
+
+      // we found one, just return it
+      return localVoucher;
+    }
+  } else {
+    // we just need to get any voucher that is not evtDomID if possible
+    return selectBestVoucher(vouchers, new Set(), evtDomID);
+  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -812,7 +968,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     }
     // (7)
     // else get the best coupon for this
-    var bestCoupon = self.getBestCoupon(vouchers);
+    var bestCoupon = self.getBestCoupon(event['domain_id'], clusterID, vouchers);
     if (!bestCoupon) {
       log('we dont have vouchers for this particular cluser ID: ' + clusterID);
       return;
@@ -982,7 +1138,7 @@ OfferManager.prototype.extraEventsUICallback = function(reason) {
   if (reason === 'removed') {
     let offer = this.cidToOfferMap[this.currentCluster];
     offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
-    const userClosed = (offer !== undefined && offer.active == true);
+    const userClosed = (offer !== undefined && offer.active === true);
 
     log('extraEventsUICallback: userClosed: ' + userClosed);
 
