@@ -59,15 +59,15 @@ export default class GenericView extends localData {
     if (data.urls && data.urls.length > 5) {
       partialsBank['history']['space-count'] = 6;
     }
-	
+
 	// Remove the history if there is local result
-    if(data.partials.indexOf('local-data-sc') != -1) {
+    if(data.partials.indexOf('local-data-sc') != -1 || data.partials.indexOf('missing_location_1') != -1) {
       var historyIndex = data.partials.indexOf('history');
       if (historyIndex != -1) {
         data.partials.splice(historyIndex, 1);
       }
     }
-	
+
 	// Remove buttons at the bottom if we're asking for permission
     if(data.partials.indexOf('missing_location_1') != -1) {
         var btnsIndex = data.partials.indexOf('buttons');
