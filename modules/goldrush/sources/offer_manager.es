@@ -499,12 +499,14 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
     redirect_url_did: (redirectDomID === undefined) ? -1 : redirectDomID
   };
 
-  log('creating and tracking offer with ID: ' + offerID);
-  log('redirectDOM: ' + coupon.redirect_url  + ' - ' + redirectUrl.name + ' - ' + redirectDomID);
-
   // add to the maps
   this.currentOfferMap[offerID] = offer;
   this.cidToOfferMap[clusterID] = offerID;
+
+  // notify the stats handler
+  if (this.statsHandler) {
+    this.statsHandler.offerCreated(offer);
+  }
 
   // set the timeout to disable this add
   offer.timerID = CliqzUtils.setTimeout(function () {
@@ -734,6 +736,12 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     return;
   }
 
+  // track in the stats
+  if (this.statsHandler) {
+    this.statsHandler.userVisitedCluster(clusterID);
+  }
+
+  // count the number of visits
   this.eventsCounts.total += 1;
   this.eventsCounts[clusterID] += 1;
   this.currentCluster = clusterID;
@@ -758,6 +766,14 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     return;
   }
 
+  // here we check if there is a new bought or not, we will only send one signal
+  // per buying activity
+  if (intentInput.currentBuyIntentSession().checkoutsCount() === 1) {
+    if (this.statsHandler) {
+      this.statsHandler.userProbablyBought(domainID, clusterID);
+    }
+  }
+
   // (5)
   const intentValue = intentSystem.evaluateInput(intentInput);
   log('intentValue: ' + intentValue);
@@ -771,7 +787,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // we detect an intention, we track this now
   if (this.statsHandler) {
-    this.statsHandler.systemIntentionDetected(event['domain_id'], clusterID);
+    this.statsHandler.systemIntentionDetected(domainID, clusterID);
   }
 
   // check if we have an offer already for this particular cluster, in that case

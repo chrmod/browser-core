@@ -203,16 +203,6 @@ export class StatsHandler {
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_opened', 1);
   }
 
-  //
-  // @brief when a coupon is clicked to save
-  //
-  couponSaved(offerInfo) {
-    // TODO: we can get the domain id and cluster id from:
-    // offerInfo['appear_on_did']
-    // offerInfo['appear_on_cid']
-    log('couponSaved');
-    const clusterID = offerInfo['appear_on_cid'];
-  }
 
   //
   // @brief when a coupon rejected by the main button
@@ -220,14 +210,6 @@ export class StatsHandler {
   couponRejected(clusterID) {
     log('couponRejected');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_rejected', 1);
-  }
-
-  //
-  // @brief when the ad is closed by the user on the X button
-  //
-  advertiseClosedByUser(clusterID) {
-    log('advertiseClosedByUser');
-    generateOrAddField(this.currentData['data'], clusterID, 'offers_closed_by_user', 1);
   }
 
   //
@@ -239,22 +221,35 @@ export class StatsHandler {
   }
 
   //
+  // @brief when the ad is closed by the user on the X button
+  //
+  advertiseClosedByUser(clusterID) {
+    log('advertiseClosedByUser');
+    generateOrAddField(this.currentData['data'], clusterID, 'offers_closed_by_user', 1);
+  }
+
+  //
   // @brief an ad has being desplayed
   //
   advertiseDisplayed(offerInfo) {
-    // TODO: we can get the domain id and cluster id from:
-    // offerInfo['appear_on_did']
-    // offerInfo['appear_on_cid']
     log('advertiseDisplayed');
     const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_displayed', 1);
   }
 
   //
+  // @brief when the offer is created by the first time
+  //
+  offerCreated(offerInfo) {
+    log('offerCreated');
+    const clusterID = offerInfo['appear_on_cid'];
+    generateOrAddField(this.currentData['data'], clusterID, 'offer_created', 1);
+  }
+
+  //
   // @brief user bought or is in the checkout page
   //
   userProbablyBought(domainID, clusterID) {
-    // TODO
     log('userProbablyBought');
     generateOrAddField(this.currentData['data'], clusterID, 'checkouts', 1);
   }
@@ -263,9 +258,16 @@ export class StatsHandler {
   // @brief system intention detected
   //
   systemIntentionDetected(domainID, clusterID) {
-    // TODO
     log('systemIntentionDetected');
     generateOrAddField(this.currentData['data'], clusterID, 'system_intents', 1);
+  }
+
+  //
+  // @brief user visited the cluster
+  //
+  userVisitedCluster(clusterID) {
+    log('userVisitedCluster');
+    generateOrAddField(this.currentData['data'], clusterID, 'visits', 1);
   }
 
 }
