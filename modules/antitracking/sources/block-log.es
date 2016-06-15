@@ -4,7 +4,7 @@ import md5 from 'antitracking/md5';
 import { utils, events } from 'core/cliqz';
 import * as datetime from 'antitracking/time';
 import CliqzAttrack from 'antitracking/attrack';
-import * as telemetry from 'antitracking/telemetry';
+import telemetry from 'antitracking/telemetry';
 
 const DAYS_EXPIRE = 7;
 

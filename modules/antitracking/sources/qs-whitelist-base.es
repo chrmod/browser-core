@@ -3,7 +3,7 @@ import * as datetime from 'antitracking/time';
 import { events } from 'core/cliqz';
 import CliqzAttrack from 'antitracking/attrack';
 import pacemaker from 'antitracking/pacemaker';
-import * as telemetry from 'antitracking/telemetry';
+import telemetry  from 'antitracking/telemetry';
 
 const safeKeyExpire = 7;
 
