@@ -1,12 +1,12 @@
 import { utils } from 'core/cliqz';
-import ResourceLoader from 'core/resource-loader';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 
-const STATS_DB_FILENAME = 'stats_db.json';
 const STATS_SENT_PERIODISITY_MS = 1000 * (60 * 60 * 24);
 
+// storage address
+const STATS_LOCAL_STORAGE_URL = 'chrome://cliqz/content/goldrush/stats_db.json';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,23 +36,24 @@ export class StatsHandler {
       'data' : {},
       'last_ts_sent' : Date.now()
     };
-    var self = this;
-    // load the current data if we have one
-    this.readFromDB().then(function(json) {
-      if (!json) {
-        log('error reading the db, maybe doesnt exists');
-        self.generateNewDataStructure();
-        // save the new db.
-        self.saveToDB();
-        return;
+
+    // we will use the CliqzStorage here
+    var localStorage = CLIQZEnvironment.getLocalStorage(STATS_LOCAL_STORAGE_URL);
+    var cache = localStorage.getItem('stats_data');
+    if (!cache) {
+      // we need to write this then
+      log('no db found, creating new one');
+      this.generateNewDataStructure();
+      localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+    } else {
+      log('db found, loading it: ' + cache);
+      // we have data, load it
+      this.currentData = JSON.parse(cache);
+      if (this.shouldWeNeedToSendCurrenData()) {
+        this.sendOverTelemetry();
+        this.generateNewDataStructure();
       }
-      // else we assign this one to the current data
-      self.currentData = json;
-      if (self.shouldWeNeedToSendCurrenData()) {
-        self.sendOverTelemetry();
-        self.generateNewDataStructure();
-      }
-    });
+    }
 
     // TODO: here we can re-set properly the timer but we will just set it
     // to the time specified above
@@ -80,54 +81,16 @@ export class StatsHandler {
         this.generateNewDataStructure();
       }
     }
+
     // at any case we store the current data
-    this.saveToDB();
+    var localStorage = CLIQZEnvironment.getLocalStorage(STATS_LOCAL_STORAGE_URL);
+    localStorage.setItem('stats_data', JSON.stringify(this.currentData));
   }
 
 
   //////////////////////////////////////////////////////////////////////////////
   //                            "Private" methods
   //////////////////////////////////////////////////////////////////////////////
-
-  //
-  // @brief read from the database the current values.
-  //
-  readFromDB() {
-    return new Promise(function (resolve, reject) {
-      // check if we have the data base or not
-      let rscLoader = new ResourceLoader(
-        [ 'goldrush', STATS_DB_FILENAME ],
-        {}
-      );
-      log('reading database from file')
-      rscLoader.load().then(function(json) {
-        // assigning the json to the object
-        log('stats handler database loaded properly: ' + JSON.stringify(json));
-        resolve(json);
-      }).catch(function(reason) {
-        log('error loading the data from the file, maybe doesnt exists yet: ' + reason);
-        reject(null);
-      });
-    });
-  }
-
-  //
-  // @brief save the current data into the db
-  //
-  saveToDB() {
-    if (!this.currentData) {
-      // nothing to save
-      return;
-    }
-
-    log('saving current data');
-    let rscLoader = new ResourceLoader(
-      [ 'goldrush', STATS_DB_FILENAME ],
-      {}
-    );
-
-    return rscLoader.persist(JSON.stringify(this.currentData, null, 4));
-  }
 
   //
   // @brief this method will sent the current data over telemtry.
