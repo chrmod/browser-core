@@ -369,7 +369,7 @@ OfferManager.prototype.destroy = function() {
 //        will return null if the event is not related with any cluster.
 // @note check the intent input to see which is the expected format
 //
-OfferManager.prototype.formatEvent = function(urlObj) {
+OfferManager.prototype.formatEvent = function(urlObj, timestamp) {
   log('formatEvent');
   if (!this.mappings) {
     return null;
@@ -387,7 +387,7 @@ OfferManager.prototype.formatEvent = function(urlObj) {
 
   const fullURL = urlObj['domain'] + urlObj['path'] ;
   // This is how the other modules at cliqz does it
-  const timestamp = Date.now();
+  const timestamp = timestamp;
   // check if we are in a checkout page?
   const checkoutFlag = this.isCheckoutPage(urlObj);
   // TODO_QUESTION: how to get the last url?
@@ -691,6 +691,22 @@ OfferManager.prototype.showOfferIfNeeded = function(clusterID, domainID) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// @brief This method will get events from the history and will fill in the
+//        intent input systems if we have. This way we can have real longer
+//        sessions
+//
+OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
+  // TODO:
+  // - parse the url and format the event.
+  // - check if the event belongs to any cluster we are tracking
+  // - check if we have an intent system
+  // - feed it with the event.
+  // - update the events counters...
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // @brief this method will evaluate a new event from the user.
 //        Here we will get a specific value for the given event and we should do
 //        all the logic of showing a coupong if our system detects a coupon or not.
@@ -715,7 +731,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   //    used it or not.
 
   // (1) & (2)
-  var event = this.formatEvent(urlObject);
+  var event = this.formatEvent(urlObject, Date.now());
   log('event' + JSON.stringify(event, null, 4));
   if (!event) {
     // we skip this event.
