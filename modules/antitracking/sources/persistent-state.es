@@ -1,9 +1,7 @@
 import pacemaker from "antitracking/pacemaker";
-import Storage from "core/storage";
+import sto from "platform/antitracking/storage";
 
 const LOG_KEY = "attrack-persist";
-
-var sto = new Storage();
 
 /** Load data from the attrack sqlite table.
     From CliqzAttrack.loadRecord
