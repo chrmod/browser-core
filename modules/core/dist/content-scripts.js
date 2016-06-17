@@ -26,7 +26,7 @@ function wildcardMatch(find, source) {
 
 var getContentScript = function (window, url) {
   var CONTENT_SCRIPTS = {
-    "https://cliqz.com/": function (window, send) {
+    "*cliqz.com/??": function (window, send) {
       window.console.log("Hello World!!!!")
       function onLoad() {
         window.console.log("LOADED 2!!!!");
@@ -74,9 +74,21 @@ var getContentScript = function (window, url) {
       window.console.log("Lieferando");
       function onLoad() {
         window.console.log("SR-DOMContentLoadedLoaded");
-        window.console.log(JSON.stringify(window.document.innerHTML));
         let elements = window.document.getElementsByClassName("yd-jig-discount-add-check yd-btn-s yd-btn-link");
-        window.console.log("SR-elements\t" + JSON.stringify(elements));
+        window.console.log("SR-elements\t", elements);
+        if(elements.length > 0) {
+          let btn = elements[0];
+          btn.addEventListener("click", function() {
+            let inputFields = window.document.getElementsByClassName("yd-jig-discount-add-input");
+            window.console.log("SR-inputfields\t", inputFields);
+            if(inputFields.length > 0) {
+              send({
+                action: "goldrushEM",
+                args: [inputFields[0].value]
+              });
+            }
+          });
+        }
       }
 
       window.addEventListener("DOMContentLoaded", onLoad);
@@ -86,14 +98,19 @@ var getContentScript = function (window, url) {
       // });
     },
 
-    "*holidaycheck.de/bookingtt*": function(window, send) {
+    "*holidaycheck.de/bookingtt.html": function(window, send) {
       window.console.log("Holidaycheck");
       function onLoad() {
-        window.setTimeout(function() {
-          window.console.log("SR-DOMContentLoadedLoaded");
-          let couponField = window.document.getElementById("bonusCode1");
-          window.console.log("SR-couponFiled:\t" + JSON.stringify(couponField));
-        }, 5000);
+          //debugger
+        window.console.log("SR-DOMContentLoadedLoaded");
+        let couponField = window.document.getElementById("bonusCode1");
+        window.console.log("SR-couponFiled:\t" , couponField);
+        if(couponField){
+            send({
+              action: "goldrushEM",
+              args: [couponField]
+            })
+          }
       }
       window.addEventListener("DOMContentLoaded", onLoad);
 
