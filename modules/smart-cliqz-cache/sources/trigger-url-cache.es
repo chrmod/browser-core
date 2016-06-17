@@ -1,4 +1,4 @@
-import { getSmartCliqz } from 'smart-cliqz-cache/rich-header'
+import { getSmartCliqz } from 'smart-cliqz-cache/rich-header';
 import { utils } from 'core/cliqz';
 import Cache from 'smart-cliqz-cache/cache';
 
@@ -49,23 +49,22 @@ export default class extends Cache {
       utils.log('start cleaning SmartCliqz trigger URLs');
 
       const cleaners = Object.keys(this._cache).map((url, idx) => () => {
-        const id = this.retrieve(url);
         return new Promise((resolve, reject) => {
           utils.setTimeout(() => {
             if (this.isUnloaded) {
               reject('unloaded');
               return;
             }
-            getSmartCliqz(id).then((smartCliqz) => {
+            getSmartCliqz(url).then((smartCliqz) => {
               if (!smartCliqz.data.trigger_urls.some(u => u === url)) {
-                utils.log(`unknown trigger URL: deleting SmartCliqz ${id}`);
+                utils.log(`unknown trigger URL: deleting SmartCliqz ${url}`);
                 this.delete(url);
                 this.save();
               }
               resolve();
             }).catch((e) => {
-              if (e.type && e.type === 'ID_NOT_FOUND') {
-                utils.log(`unkown ID: deleting SmartCliqz ${id}`);
+              if (e.type && e.type === 'URL_NOT_FOUND') {
+                utils.log(`unkown URL: deleting SmartCliqz ${url}`);
                 this.delete(url);
                 this.save();
               }
@@ -76,10 +75,10 @@ export default class extends Cache {
       });
       // final action: resolve
       cleaners.push(() => {
-        utils.log('done cleaning SmartCliqz trigger URLs')
+        utils.log('done cleaning SmartCliqz trigger URLs');
         resolve();
         return Promise.resolve();
-      });;
+      });
       // execute sequentually
       cleaners.reduce((current, next) =>
         current.then(_ => next(), e => { reject(e); return Promise.reject(); }), Promise.resolve());
