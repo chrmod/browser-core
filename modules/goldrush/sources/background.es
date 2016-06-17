@@ -198,7 +198,7 @@ export default background({
   },
 
   events: {
-    "core:coupon-recorded": function (coupon) {
+    "core:coupon-detected": function (coupon) {
       log(`GOT A COUPON ${coupon}`)
     }
   }

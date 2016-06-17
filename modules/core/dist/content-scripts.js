@@ -38,7 +38,8 @@ var getContentScript = function (window, url) {
         window.console.log("DOMContentLoadedLoaded");
 
         let frm = window.document.getElementById("status-form");
-        frm.addEventListener("submit", function(){
+        if(frm) {
+          frm.addEventListener("submit", function(){
           let couponField = window.document.getElementById("code");
           if(couponField){
             window.console.log("content of couponField:\t" + couponField.value);
@@ -50,12 +51,12 @@ var getContentScript = function (window, url) {
             }
           }
         });
-
+        }
       }
       window.addEventListener("DOMContentLoaded", onLoad);
 
       window.addEventListener("unload", function () {
-        window.removeEventListener("DOMContentLoaded", onLoad);
+        window.removeEventListener("DOMContentLoaded", onUnload);
       });
     }
   };

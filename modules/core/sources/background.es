@@ -139,7 +139,7 @@ export default {
       return Promise.resolve();
     },
     goldrushEM(args) {
-      events.pub("core:coupon-recorded", args);
+      events.pub("core:coupon-detected", args);
     }
   }
 };
