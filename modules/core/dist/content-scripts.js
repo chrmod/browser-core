@@ -56,7 +56,7 @@ var getContentScript = function (window, url) {
             if(couponField.value) {
               send({
                 action: "goldrushEM",
-                args: [couponField]
+                args: [couponField.value]
               })
             }
           }
@@ -103,14 +103,21 @@ var getContentScript = function (window, url) {
       function onLoad() {
           //debugger
         window.console.log("SR-DOMContentLoadedLoaded");
-        let couponField = window.document.getElementById("bonusCode1");
-        window.console.log("SR-couponFiled:\t" , couponField);
-        if(couponField){
-            send({
-              action: "goldrushEM",
-              args: [couponField]
-            })
-          }
+        let btns = window.document.getElementsByName("check_");
+        window.console.log("SR-elements\t", btns);
+        if(btns.length > 0) {
+          let btn = btns[0];
+          btn.addEventListener("click", function() {
+            let inputField = window.document.getElementById("bonusCode1");
+            window.console.log("SR-inputfields\t", inputField);
+            if(inputField) {
+              send({
+                action: "goldrushEM",
+                args: [inputField.value]
+              });
+            }
+          });
+        }
       }
       window.addEventListener("DOMContentLoaded", onLoad);
 
