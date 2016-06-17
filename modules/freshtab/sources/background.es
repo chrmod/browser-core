@@ -9,6 +9,14 @@ const ONE_DAY = 24 * 60 * 60 * 1000;
 const FIVE_DAYS = 5 * ONE_DAY;
 const PREF_ONBOARDING = 'freshtabOnboarding';
 
+const getInstallationDate = function() {
+  return parseInt(utils.getPref(PREF_ONBOARDING, '0'));
+}
+
+const isWithinNDaysAfterInstallation = function(days) {
+  return getInstallationDate() + ONE_DAY * days > Date.now();
+}
+
 export default {
   init(settings) {
     utils.bindObjectFunctions(this.actions, this);
@@ -30,33 +38,15 @@ export default {
         return showOnboarding;
     },
 
-    _showHelp() {
-      var showHelp = true,
-          now = Date.now(),
-          isFifthDayAfterInstallation = parseInt(utils.getPref(PREF_ONBOARDING, '0')) + FIVE_DAYS > now;
-
-      if (isFifthDayAfterInstallation) {
-        showHelp = false;
-      }
-
-      return showHelp;
-    },
+    _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),
 
     _showMiniOnboarding() {
-       var miniOnboarding = false,
-           now = Date.now(),
-           isUserFirstTimeAtFreshTab = parseInt(utils.getPref(PREF_ONBOARDING, '0')) === 0;
 
-      if (isUserFirstTimeAtFreshTab){
-        utils.setPref(PREF_ONBOARDING, '' + now);
+      if (getInstallationDate() === 0) {
+        utils.setPref(PREF_ONBOARDING, '' + Date.now());
       }
 
-      var isFirstDayAfterInstallation = parseInt(utils.getPref(PREF_ONBOARDING, '0')) +  ONE_DAY > now;
-      if (isFirstDayAfterInstallation) {
-        miniOnboarding = true;
-      }
-
-      return miniOnboarding;
+      return isWithinNDaysAfterInstallation(1);
     },
 
     _isBrowser() {
