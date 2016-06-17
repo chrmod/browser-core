@@ -834,7 +834,7 @@
       "message": "Nein"
     },
     "no_local_data_msg": {
-      "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe."
+      "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe. Können wir in Zukunft deinen Standort benutzten?"
     },
     "location_sorry_msg": {
       "message": "Oh nein, leider ist etwas schief gegangen. Passiert nicht noch einmal!"
