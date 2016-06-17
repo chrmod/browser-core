@@ -369,7 +369,7 @@ OfferManager.prototype.destroy = function() {
 //        will return null if the event is not related with any cluster.
 // @note check the intent input to see which is the expected format
 //
-OfferManager.prototype.formatEvent = function(urlObj, timestamp) {
+OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
   log('formatEvent');
   if (!this.mappings) {
     return null;
@@ -387,7 +387,7 @@ OfferManager.prototype.formatEvent = function(urlObj, timestamp) {
 
   const fullURL = urlObj['domain'] + urlObj['path'] ;
   // This is how the other modules at cliqz does it
-  const timestamp = timestamp;
+  const timestamp = aTimestamp;
   // check if we are in a checkout page?
   const checkoutFlag = this.isCheckoutPage(urlObj);
   // TODO_QUESTION: how to get the last url?

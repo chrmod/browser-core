@@ -9,6 +9,7 @@ import { OfferManager } from 'goldrush/offer_manager';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 //import { FID } from 'goldrush/fids/fid';
 
+
 function log(s){
   utils.log(s, 'GOLDRUSH - background');
 }
@@ -45,6 +46,7 @@ function parseMappingsFileAsPromise(filename) {
 
 
 
+
 export default {
   init(settings) {
     // define all the variables here
@@ -55,13 +57,6 @@ export default {
     log('init');
     this.offerManager = new OfferManager();
     log('after offer manager');
-
-    // nothing to do for now
-
-    // subscribe this method also
-    events.sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
-
-    // load the popup button
 
   },
 
@@ -94,9 +89,6 @@ export default {
 
   unload() {
     log('unloading the background script');
-
-    // unsubscribe this class
-    events.un_sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
 
     // destroy classes
     if (this.offerManager) {
