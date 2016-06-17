@@ -3,7 +3,8 @@ import { utils } from 'core/cliqz';
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 
-const STATS_SENT_PERIODISITY_MS = 1000 * (60 * 60 * 24);
+// TODO: define this constant
+const STATS_SENT_PERIODISITY_MS = 1000 * 3000; /*1000 * (60 * 60 * 24);*/
 
 // storage address
 const STATS_LOCAL_STORAGE_URL = 'chrome://cliqz/content/goldrush/stats_db.json';
@@ -50,8 +51,12 @@ export class StatsHandler {
       // we have data, load it
       this.currentData = JSON.parse(cache);
       if (this.shouldWeNeedToSendCurrenData()) {
-        this.sendOverTelemetry();
-        this.generateNewDataStructure();
+        log('after loading it pass more than N seconds so we will send it now');
+        if (this.sendOverTelemetry()) {
+          this.generateNewDataStructure();
+          // reset the current data in the database to avoid inconsistences
+          localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+        }
       }
     }
 
@@ -64,6 +69,7 @@ export class StatsHandler {
         if (this.sendOverTelemetry()) {
           // reset only if we are able to send it over telemetry
           this.generateNewDataStructure();
+          localStorage.setItem('stats_data', JSON.stringify(this.currentData));
         }
       }
     }.bind(this), STATS_SENT_PERIODISITY_MS);
@@ -73,14 +79,6 @@ export class StatsHandler {
     // TODO: check if the best option is calling this here
     // remove the interval update method
     CliqzUtils.clearInterval(this.interval);
-
-    // check if we need to send this data or not
-    if (this.shouldWeNeedToSendCurrenData()) {
-      if (this.sendOverTelemetry()) {
-        // reset only if we are able to send it over telemetry
-        this.generateNewDataStructure();
-      }
-    }
 
     // at any case we store the current data
     var localStorage = CLIQZEnvironment.getLocalStorage(STATS_LOCAL_STORAGE_URL);
@@ -100,20 +98,22 @@ export class StatsHandler {
     // TODO:
     log('sending over telemetry');
 
-    if (!this.currentData) {
-      return;
+    if (!this.currentData || !this.currentData['data']) {
+      return false;
     }
 
     var signal = {
       type: 'offers',
-      offers_data: this.currentData
+      data: this.currentData['data']
     };
 
     // send it over telemetry
-    log(signal); // TODO: remove this log
+    log('Signal to send: ' + JSON.stringify(signal)); // TODO: remove this log
 
     // TODO: uncomment this
-    // CliqzUtils.telemetry(signal);
+    CliqzUtils.telemetry(signal);
+
+    return true;
   }
 
   //
@@ -134,8 +134,11 @@ export class StatsHandler {
   //
   shouldWeNeedToSendCurrenData() {
     // TODO: this will check the timestamp of the last telemetry data sent.
-    const lastTimeSent = this.currentData['last_ts_sent'];
+    const lastTimeSent = Number(this.currentData['last_ts_sent']);
     const diffTime = Date.now() - lastTimeSent;
+    log('shouldWeNeedToSendCurrenData: lastTimeSent: ' + lastTimeSent +
+        ' - diffTime: ' + diffTime +
+        ' - STATS_SENT_PERIODISITY_MS: ' + STATS_SENT_PERIODISITY_MS);
     return (diffTime >= STATS_SENT_PERIODISITY_MS);
   }
 
