@@ -41,15 +41,74 @@ var getContentScript = function (window, url) {
         window.removeEventListener("DOMContentLoaded", onLoad);
       });
     },
+
     "*deliveroo.??/??/checkout": function(window, send) {
       window.console.log("Deliveroo");
       function onLoad() {
-        window.console.log("DOMContentLoadedLoaded");
+        window.console.log("SR-DOMContentLoadedLoaded");
 
         let frm = window.document.getElementById("status-form");
         if(frm) {
           frm.addEventListener("submit", function(){
           let couponField = window.document.getElementById("code");
+          if(couponField){
+            window.console.log("content of couponField:\t" + couponField.value);
+            if(couponField.value) {
+              send({
+                action: "goldrushEM",
+                args: [1]
+              })
+            }
+          }
+        });
+        }
+      }
+      window.addEventListener("DOMContentLoaded", onLoad);
+
+      window.addEventListener("unload", function () {
+        window.removeEventListener("DOMContentLoaded", onUnload);
+      });
+    },
+
+    "*lieferando.de/*": function(window, send) {
+      window.console.log("Lieferando");
+      function onLoad() {
+        window.console.log("SR-DOMContentLoadedLoaded");
+        let elements = window.document.getElementsByClassName("yd-jig-discount-add-check yd-btn-s yd-btn-link");
+        if(elements.length > 0) {
+          let btn = elements[0];
+          btn.addEventListener("click", function() {
+            let couponField = window.document.getElementsByClassName("yd-jig-discount-add-input");
+            if(couponField){
+              window.console.log("content of couponField:\t" + couponField.value);
+              if(couponField.value) {
+                send({
+                  action: "goldrushEM",
+                  args: [1]
+                })
+              }
+            }
+          });
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", onLoad);
+
+      window.addEventListener("unload", function () {
+        window.removeEventListener("DOMContentLoaded", onUnload);
+      });
+    },
+
+    "*holidaycheck.de/bookingtt*": function(window, send) {
+      window.console.log("Holidaycheck");
+      function onLoad() {
+        window.console.log("SR-DOMContentLoadedLoaded");
+
+        let btn = window.document.getElementsByName("check_");
+        window.console.log("SR-btn: \t" + JSON.stringify(btn));
+        if(btn) {
+          btn.addEventListener("click", function(){
+          let couponField = window.document.getElementById("bonusCode1");
           if(couponField){
             window.console.log("content of couponField:\t" + couponField.value);
             if(couponField.value) {
@@ -76,11 +135,10 @@ var getContentScript = function (window, url) {
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
   for (var prop in CONTENT_SCRIPTS) {
     if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
-      window.console.log("SR-prop: " + prop);
     // or if (Object.prototype.hasOwnProperty.call(obj,prop)) for safety...
       if(wildcardMatch(prop, url)){
         window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
-        //return CONTENT_SCRIPTS[prop];
+        return CONTENT_SCRIPTS[prop];
       }
     }
   }
