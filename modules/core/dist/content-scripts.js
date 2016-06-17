@@ -37,9 +37,9 @@ var getContentScript = function (window, url) {
       }
       window.addEventListener("DOMContentLoaded", onLoad);
 
-      window.addEventListener("unload", function () {
-        window.removeEventListener("DOMContentLoaded", onLoad);
-      });
+      // window.addEventListener("unload", function () {
+      //   window.removeEventListener("DOMContentLoaded", onLoad);
+      // });
     },
 
     "*deliveroo.??/??/checkout": function(window, send) {
@@ -56,7 +56,7 @@ var getContentScript = function (window, url) {
             if(couponField.value) {
               send({
                 action: "goldrushEM",
-                args: [1]
+                args: [couponField]
               })
             }
           }
@@ -65,67 +65,41 @@ var getContentScript = function (window, url) {
       }
       window.addEventListener("DOMContentLoaded", onLoad);
 
-      window.addEventListener("unload", function () {
-        window.removeEventListener("DOMContentLoaded", onUnload);
-      });
+      // window.addEventListener("unload", function () {
+      //   window.removeEventListener("DOMContentLoaded", onUnload);
+      // });
     },
 
     "*lieferando.de/*": function(window, send) {
       window.console.log("Lieferando");
       function onLoad() {
         window.console.log("SR-DOMContentLoadedLoaded");
+        window.console.log(JSON.stringify(window.document.innerHTML));
         let elements = window.document.getElementsByClassName("yd-jig-discount-add-check yd-btn-s yd-btn-link");
-        if(elements.length > 0) {
-          let btn = elements[0];
-          btn.addEventListener("click", function() {
-            let couponField = window.document.getElementsByClassName("yd-jig-discount-add-input");
-            if(couponField){
-              window.console.log("content of couponField:\t" + couponField.value);
-              if(couponField.value) {
-                send({
-                  action: "goldrushEM",
-                  args: [1]
-                })
-              }
-            }
-          });
-        }
+        window.console.log("SR-elements\t" + JSON.stringify(elements));
       }
 
       window.addEventListener("DOMContentLoaded", onLoad);
 
-      window.addEventListener("unload", function () {
-        window.removeEventListener("DOMContentLoaded", onUnload);
-      });
+      // window.addEventListener("unload", function () {
+      //   window.removeEventListener("DOMContentLoaded", onUnload);
+      // });
     },
 
     "*holidaycheck.de/bookingtt*": function(window, send) {
       window.console.log("Holidaycheck");
       function onLoad() {
-        window.console.log("SR-DOMContentLoadedLoaded");
-
-        let btn = window.document.getElementsByName("check_");
-        window.console.log("SR-btn: \t" + JSON.stringify(btn));
-        if(btn) {
-          btn.addEventListener("click", function(){
+        window.setTimeout(function() {
+          window.console.log("SR-DOMContentLoadedLoaded");
           let couponField = window.document.getElementById("bonusCode1");
-          if(couponField){
-            window.console.log("content of couponField:\t" + couponField.value);
-            if(couponField.value) {
-              send({
-                action: "goldrushEM",
-                args: [1]
-              })
-            }
-          }
-        });
-        }
+          window.console.log("SR-couponFiled:\t" + JSON.stringify(couponField));
+        }, 5000);
       }
       window.addEventListener("DOMContentLoaded", onLoad);
 
-      window.addEventListener("unload", function () {
-        window.removeEventListener("DOMContentLoaded", onUnload);
-      });
+      // window.addEventListener("unload", function () {
+      //   window.removeEventListener("DOMContentLoaded", onUnload);
+      // });
     }
   };
 
