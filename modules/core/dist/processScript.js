@@ -230,7 +230,7 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  var contentScript = getContentScript(currentURL());
+  var contentScript = getContentScript(window, currentURL());
   if (contentScript) {
     contentScript(window, function (msg) {
       send({

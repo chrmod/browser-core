@@ -138,8 +138,8 @@ export default {
       }
       return Promise.resolve();
     },
-    recordCoupon(coupon) {
-      events.pub("core:coupon-recorded", coupon);
+    goldrushEM(args) {
+      events.pub("core:coupon-recorded", args);
     }
   }
 };
