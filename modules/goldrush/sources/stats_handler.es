@@ -111,7 +111,7 @@ export class StatsHandler {
     log('Signal to send: ' + JSON.stringify(signal)); // TODO: remove this log
 
     // TODO: uncomment this
-    CliqzUtils.telemetry(signal);
+    //CliqzUtils.telemetry(signal);
 
     return true;
   }
