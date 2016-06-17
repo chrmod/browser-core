@@ -23,7 +23,8 @@ export default Ember.Route.extend({
     const config = this.get('config');
     return Ember.Object.create({
       miniOnboarding: config.miniOnboarding,
-      isBrowser: config.isBrowser
+      isBrowser: config.isBrowser,
+      showHelp: config.showHelp
     });
   },
 
