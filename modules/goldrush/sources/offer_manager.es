@@ -554,9 +554,11 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
     }
   }
 
+  log('getBestCoupon: selecting best coupon for switch: ' + switchFlag + ' - subclusterMap: ' + subclusterMap);
+
   // this function will select from the list of vouchers and a set of domains ids
   // the one that "best" matches. If set of domains is empty then any will be chosen
-  function selectBestVoucher(voucherMap, domSet, currentDomID) {
+  function selectBestVoucher(voucherMap, domSet) {
     var rvoucher = null;
     for (var did in voucherMap) {
       if (!voucherMap.hasOwnProperty(did) || (domSet.size > 0 && !domSet.has(did))) {
@@ -564,11 +566,10 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
       }
       // this domain is good for us, still we need to check if there is a better
       // one
-      const checkForMoreOptions = did === currentDomID;
       let coupons = voucherMap[did];
       if (coupons.length > 0) {
         rvoucher = coupons[0];
-        if (!checkForMoreOptions) {
+        if (rvoucher) {
           break;
         }
       }
@@ -589,8 +590,9 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
       // we need to get a coupon from the other side
       const oppositeSubcluster = userOnSubcluster === 'A' ? 'B' : 'A';
       // search in this
+      log('getBestCoupon: selecting voucher for subcluster: ' + oppositeSubcluster);
       const domainsToSearch = subclusterMap[oppositeSubcluster];
-      let localVoucher = selectBestVoucher(vouchers, domainsToSearch, evtDomID);
+      let localVoucher = selectBestVoucher(vouchers, domainsToSearch);
 
       // check if we found a voucher we want
       if (!localVoucher) {
@@ -604,7 +606,8 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
     }
   } else {
     // we just need to get any voucher that is not evtDomID if possible
-    return selectBestVoucher(vouchers, new Set(), evtDomID);
+    log('getBestCoupon: selectiong the best voucher from all (no A|B logic)');
+    return selectBestVoucher(vouchers, new Set());
   }
 
 };
@@ -984,6 +987,10 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
       log('we couldnt create the offer??');
       return;
     }
+
+    // TODO: if we were able to create an offer then we track here the new telemetry
+    // value: if the user is in the same domain than the offer or not.
+
 
     // we have a offer, show it into the UI for the user
     self.uiManager.showOfferInCurrentWindow(offer, offer.redirect_url_did === domainID);
