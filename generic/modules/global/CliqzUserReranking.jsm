@@ -17,8 +17,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var CliqzWikipediaDeduplication = {
     LOG_KEY: 'CliqzWikipediaDeduplication',
-    telemetrySignal: {},
-    name: 'reranking',
+    name: 'lang_deduplication',
 
     /* choose best url from list based on original order (reranking)*/
     chooseUrlByIndex: function(searchedUrls, originalUrls){
@@ -91,7 +90,7 @@ var CliqzWikipediaDeduplication = {
     // dedup of languages for wikipedia case
     doRerank: function (response) {
         //reset telemetry
-        this.telemetrySignal = {};
+        var telemetrySignal = {};
         let userLangs = this.getUserLanguages();
 
         // dict of wiki languages to urls
@@ -124,7 +123,7 @@ var CliqzWikipediaDeduplication = {
             allUrls.push(r.url);
 
         }, this);
-        this.telemetrySignal['available_languages'] = Object.keys(wikiLangs).length;
+        telemetrySignal['available_languages'] = Object.keys(wikiLangs).length;
         if (Object.keys(wikiLangs).length > 1) {
             // we have wikipedia with different langs, try possible dedup
             let bestUrl = this.chooseUrlByLang(wikiLangs, allUrls, userLangs);
@@ -147,8 +146,8 @@ var CliqzWikipediaDeduplication = {
                 }
             }, this);
             let deduped = wikiUrls.length - Object.keys(dedups).length;
-            this.telemetrySignal['total_urls'] = wikiUrls.length;
-            this.telemetrySignal['dedupped_urls'] = deduped;
+            telemetrySignal['total_urls'] = wikiUrls.length;
+            telemetrySignal['removed_urls'] = deduped;
 
             if(deduped > 0) {
                 // backward structure with link where deduped url is pointing
@@ -179,7 +178,10 @@ var CliqzWikipediaDeduplication = {
             }
         }
         // if no dedups found
-        return response;
+        return {
+            telemetrySignal: telemetrySignal,
+            response: response
+        };
     }
     
 };

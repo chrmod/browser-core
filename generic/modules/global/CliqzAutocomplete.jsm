@@ -402,10 +402,15 @@ var CliqzAutocomplete = {
                     var results = [];
                     var json = JSON.parse(req.response);
 
+                    // apply rerankers
                     for (var i = 0; i < CLIQZEnvironment.RERANKERS.length; i++){
                         var reranker = CLIQZEnvironment.RERANKERS[i];
                         if (reranker != null){
-                            json.result = reranker.doRerank(json.result);
+                            var rerankerResults = reranker.doRerank(json.result);
+                            json.result = rerankerResults.response;
+                            if (Object.keys(rerankerResults.telemetrySignal).length > 0){
+                                this.user_rerankers[reranker.name] = rerankerResults.telemetrySignal;
+                            }
                         }
 
                     }
@@ -499,6 +504,7 @@ var CliqzAutocomplete = {
                     mixed: null,
                     all: null
                 };
+                this.user_rerankers = {};
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
@@ -649,14 +655,9 @@ var CliqzAutocomplete = {
                     latency_mixed: obj.latency.mixed,
                     latency_all: obj.startTime? Date.now() - obj.startTime : null,
                     discarded: obj.discardedResults,
+                    user_rerankers: obj.user_rerankers,
                     v: 1
                 };
-                for (var i = 0; i < CLIQZEnvironment.RERANKERS.length; i++){
-                    var reranker = CLIQZEnvironment.RERANKERS[i];
-                    if (Object.keys(reranker.telemetrySignal).length > 0) {
-                        action[reranker.name] = reranker.telemetrySignal;
-                    }
-                }
 
                 // reset count of discarded backend results
                 obj.discardedResults = 0;
