@@ -402,7 +402,13 @@ var CliqzAutocomplete = {
                     var results = [];
                     var json = JSON.parse(req.response);
 
-                    json.result = this.dedupLang(json.result);
+                    for (var i = 0; i < CLIQZEnvironment.RERANKERS.length; i++){
+                        var reranker = CLIQZEnvironment.RERANKERS[i];
+                        if (reranker != null){
+                            json.result = reranker.doRerank(json.result);
+                        }
+
+                    }
 
                     CliqzUtils.log(json.result ? json.result.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
 
