@@ -30,9 +30,6 @@ function generateOrAddField(d, f1, f2, val) {
 export class StatsHandler {
 
   constructor(name) {
-    // TODO: construct the data properly here
-    // DATA LAYOUT:
-    //
     this.currentData = {
       'data' : {},
       'last_ts_sent' : Date.now()
@@ -162,6 +159,19 @@ export class StatsHandler {
   }
 
   //
+  // @brief when another coupon has being used by the user and we couldn't track
+  //        it for any reason (could be ours or not... most probably not).
+  //
+  externalCouponUsed(offerInfo) {
+    // TODO: we can get the domain id and cluster id from:
+    // offerInfo['appear_on_did']
+    // offerInfo['appear_on_cid']
+    log('externalCouponUsed');
+    const clusterID = offerInfo['appear_on_cid'];
+    generateOrAddField(this.currentData['data'], clusterID, 'external_coupons_used', 1);
+  }
+
+  //
   // @brief coupon being clicked
   //
   couponClicked(clusterID) {
@@ -169,6 +179,21 @@ export class StatsHandler {
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_opened', 1);
   }
 
+  //
+  // @brief when the offer is shown in the same domain where the user is
+  //
+  offerOnSameDomain(clusterID) {
+    log('offerOnSameDomain');
+    generateOrAddField(this.currentData['data'], clusterID, 'same_domain', 1);
+  }
+
+  //
+  // @brief when the user comes from the group A (subcluster)
+  //
+  offerOnUserFromSubcluster(clusterID, subclusterID) {
+    log('offerOnUserFromSubcluster ' + subclusterID);
+    generateOrAddField(this.currentData['data'], clusterID, 'subcluster_' + subclusterID, 1);
+  }
 
   //
   // @brief when a coupon rejected by the main button
