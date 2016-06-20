@@ -23,14 +23,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-function prefixPref(pref, prefix) {
-    if ( !(typeof prefix === 'string') ) {
-      prefix = 'extensions.cliqz.';
-    }
-    return prefix + pref;
-}
-
-
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     // references to all the timers to avoid garbage collection before firing
     // automatically removed when fired
@@ -190,8 +182,14 @@ var CLIQZEnvironment = {
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
     },
+    __prefixPref: function (pref, prefix) {
+        if ( !(typeof prefix === 'string') ) {
+          prefix = 'extensions.cliqz.';
+        }
+        return prefix + pref;
+    },
     getPref: function(pref, defaultValue, prefix) {
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         var prefs = CLIQZEnvironment.prefs;
 
@@ -207,7 +205,7 @@ var CLIQZEnvironment = {
         }
     },
     setPref: function(pref, value, prefix){
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         var prefs = CLIQZEnvironment.prefs;
 
@@ -218,12 +216,12 @@ var CLIQZEnvironment = {
         }
     },
     hasPref: function (pref, prefix) {
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
     },
     clearPref: function (pref, prefix) {
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         CLIQZEnvironment.prefs.clearUserPref(pref);
     },
