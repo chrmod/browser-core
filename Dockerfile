@@ -2,7 +2,8 @@ FROM node:5.11.1
 
 RUN npm install -g \
   bower \
-  broccoli-cli
+  broccoli-cli \
+  ember-cli
 
 RUN apt-get update && \
   apt-get install -y \
