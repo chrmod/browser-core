@@ -149,35 +149,23 @@ export class StatsHandler {
   //
   // @brief collect that a coupon provided by us was used
   //
-  ourCouponUsed(clusterID) {
+  couponUsed(clusterID) {
     // TODO: we can get the domain id and cluster id from:
     // offerInfo['appear_on_did']
     // offerInfo['appear_on_cid']
     log('ourCouponUsed');
-    generateOrAddField(this.currentData['data'], clusterID, 'our_coupons_used', 1);
-  }
-
-  //
-  // @brief collect that a unrecognized coupon was used.
-  //
-  unrecognizedCouponUsed(clusterID) {
-    // TODO: we can get the domain id and cluster id from:
-    // offerInfo['appear_on_did']
-    // offerInfo['appear_on_cid']
-    log('unrecognizedCouponUsed');
-    generateOrAddField(this.currentData['data'], clusterID, 'unrecognized_coupons_used', 1);
+    generateOrAddField(this.currentData['data'], clusterID, 'coupons_used', 1);
   }
 
   //
   // @brief when another coupon has being used by the user and we couldn't track
   //        it for any reason (could be ours or not... most probably not).
   //
-  externalCouponUsed(offerInfo) {
+  externalCouponUsed(clusterID) {
     // TODO: we can get the domain id and cluster id from:
     // offerInfo['appear_on_did']
     // offerInfo['appear_on_cid']
     log('externalCouponUsed');
-    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'external_coupons_used', 1);
   }
 

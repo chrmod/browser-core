@@ -876,11 +876,11 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
   if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
     this.offersShownCounterMap[coupon] -= 1;
     let cid = this.mappings['dname_to_cid'][domain];
-    this.statsHandler.ourCouponUsed(cid);
+    this.statsHandler.couponUsed(cid);
     log("Our coupon used :\t cid: " + cid +  " \t domain: " + domain + " \tcoupon: " + coupon);
   } else {
     let cid = this.mappings['dname_to_cid'][domain];
-    this.statsHandler.unrecognizedCouponUsed(cid);
+    this.statsHandler.externalCouponUsed(cid);
     log("Unrecognized coupon used :\t cid: " + cid  + " \t domain: " + domain + " \tcoupon: " + coupon);
   }
   log("SR  " + JSON.stringify(this.offersShownCounterMap));
