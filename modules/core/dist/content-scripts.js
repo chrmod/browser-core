@@ -24,6 +24,15 @@ function globsMatch(find, source) {
     return regEx.test(source);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief this method should be called everytime we change the url so we can
+//        track if a coupon has been used or not. Basically here we will need
+//        to check the content of the page and trigger an event when a button of
+//        the checkout form is being used and analyze the content to search for
+//        the associated coupon ID.
+//
 var getContentScript = function (window, url) {
   var CONTENT_SCRIPTS = {
     "*cliqz.com/??": function (window, send) {
@@ -56,7 +65,7 @@ var getContentScript = function (window, url) {
             if(couponField.value) {
               send({
                 action: "goldrushEM",
-                args: [couponField.value]
+                args: [{"domain": "deliveroo", "code":couponField.value}]
               })
             }
           }
@@ -73,7 +82,7 @@ var getContentScript = function (window, url) {
     "*lieferando.de/*": function(window, send) {
       window.console.log("Lieferando");
       function onLoad() {
-        window.console.log("SR-DOMContentLoadedLoaded");
+        window.console.log("SR-DOMContentLoaded");
         let elements = window.document.getElementsByClassName("yd-jig-discount-add-check yd-btn-s yd-btn-link");
         window.console.log("SR-elements\t", elements);
         if(elements.length > 0) {
@@ -84,7 +93,7 @@ var getContentScript = function (window, url) {
             if(inputFields.length > 0) {
               send({
                 action: "goldrushEM",
-                args: [inputFields[0].value]
+                args: [{"domain": "lieferando", "code": inputFields[0].value}]
               });
             }
           });
@@ -102,7 +111,7 @@ var getContentScript = function (window, url) {
       window.console.log("Holidaycheck");
       function onLoad() {
           //debugger
-        window.console.log("SR-DOMContentLoadedLoaded");
+        window.console.log("SR-DOMContentLoaded");
         let btns = window.document.getElementsByName("check_");
         window.console.log("SR-elements\t", btns);
         if(btns.length > 0) {
@@ -113,7 +122,7 @@ var getContentScript = function (window, url) {
             if(inputField) {
               send({
                 action: "goldrushEM",
-                args: [inputField.value]
+                args: [{"domain": "holidaycheck", "code": inputField.value}]
               });
             }
           });

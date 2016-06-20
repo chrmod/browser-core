@@ -194,12 +194,14 @@ export default background({
     );
     rscLoader.persist(JSON.stringify({name: 'saqib', ads_shown: true}, null, 4)).then(data => {
       log('data successfully persisted');
-    })
+    });
   },
 
   events: {
-    "core:coupon-detected": function (coupon) {
-      log(`GOT A COUPON ${coupon}`)
+    "core:coupon-detected": function(args) {
+      if(this.offerManager){
+        this.offerManager.isOurCouponUsed(args['domain'], args['code']);
+      }
     }
   }
 
