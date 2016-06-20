@@ -42,11 +42,8 @@ node(NODE_LABELS) {
     try {
 
       docker.image(imgName).inside() {
-        stage 'npm install'
-        sh 'npm install'
-        
-        stage 'bower install'
-        sh 'bower install'
+        stage 'fern install'
+        sh './fern.js install'
         
         stage 'fern build'
         sh "./fern.js build ./configs/${CLIQZ_CHANNEL}.json"
