@@ -188,7 +188,10 @@ function generateDBMap(dbsNamesList) {
 // @brief This class will be in charge of handling the offers and almost everything
 //        else. This is the main class.
 //
-export function OfferManager() {
+export function OfferManager(onReadyCallback = null) {
+  // the callback to be called when the offer manager is ready to be used (all data)
+  // loaded
+  this.onReadyCallback = onReadyCallback;
   // the mappings we will use
   this.mappings = null;
   // the intent detectors mapping (clusterID -> intent detector)
@@ -340,6 +343,11 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
         intentDetector.loadDataBases(dbsJson);
         intentDetector.loadRule(rulesStr);
         self.intentDetectorsMap[clusterID] = intentDetector;
+
+        // call the onReadyCallback if we have one
+        if (self.onReadyCallback) {
+          self.onReadyCallback();
+        }
       } catch (e) {
         log('something happened when configuring the intent detector for cluster ' + clusterName);
         log('error: ' + e);
@@ -709,12 +717,43 @@ OfferManager.prototype.showOfferIfNeeded = function(clusterID, domainID) {
 //        sessions
 //
 OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
-  // TODO:
   // - parse the url and format the event.
   // - check if the event belongs to any cluster we are tracking
   // - check if we have an intent system
   // - feed it with the event.
   // - update the events counters...
+
+  var event = this.formatEvent(urlObject, timestamp);
+  if (!event) {
+    // we skip this event.
+    return;
+  }
+
+  // get the associated cluster
+  const domainName = this.mappings['did_to_dname'][event['domain_id']];
+  const clusterID = this.mappings['dname_to_cid'][domainName];
+  const domainID = event['domain_id'];
+  if (!clusterID || clusterID < 0) {
+    // this cannot happen since we got a valid domainID from the mappings but
+    // we don't have the given cluster ID in the mappings? this is not gut
+    log('ERROR: invalid cluster id!: ' + domainName);
+    return;
+  }
+
+  // count the number of visits
+  this.eventsCounts.total += 1;
+  this.eventsCounts[clusterID] += 1;
+  this.currentCluster = clusterID;
+
+  // get the associated intent system
+  let intentInput = this.intentInputMap[clusterID];
+  if (!intentInput) {
+    log('WARNING: we still dont have a intent system for cluster ID: ' + clusterID);
+    return;
+  }
+
+  // feed with the event
+  intentInput.feedWithEvent(event);
 };
 
 
