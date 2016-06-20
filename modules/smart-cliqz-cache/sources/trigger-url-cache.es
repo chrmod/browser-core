@@ -4,25 +4,41 @@ import Cache from 'smart-cliqz-cache/cache';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = 24 * HOUR;
-
+/**
+* @namespace smart-cliqz-cache
+*/
 export default class extends Cache {
+  /**
+  * @class TriggerUrlCache
+  * @constructor
+  */
   constructor(file = 'cliqz/smartcliqz-trigger-urls-cache.json') {
     super(false);
     this.file = file;
   }
-
+  /**
+  * @method init
+  */
   init() {
     this.load();
     this.scheduleRecurringClean();
   }
-
+  /**
+  * @method load
+  */
   load() {
     return super.load(this.file);
   }
+  /**
+  * @method save
+  */
   save() {
     return super.save(this.file);
   }
-
+  /**
+  * @method scheduleRecurringClean
+  * @param delay
+  */
   scheduleRecurringClean(delay) {
     if (!delay) {
       const lastCleanTime = utils.getPref('smart-cliqz-last-clean-ts');
@@ -43,7 +59,11 @@ export default class extends Cache {
     utils.log(`scheduled SmartCliqz trigger URLs cleaning in ${Math.round(delay / 1000 / 60)} minutes`);
   }
 
-  // clean trigger URLs that are no longer valid
+  /**
+  * clean trigger URLs that are no longer valid
+  * @method clean
+  * @param delay {Number}
+  */
   clean(delay = 1000) {
     return new Promise((resolve, reject) => {
       utils.log('start cleaning SmartCliqz trigger URLs');
@@ -84,7 +104,9 @@ export default class extends Cache {
         current.then(_ => next(), e => { reject(e); return Promise.reject(); }), Promise.resolve());
     });
   }
-
+  /**
+  * @method unload
+  */
   unload() {
     this.isUnloaded = true;
     utils.clearTimeout(this.cleanTimeout);

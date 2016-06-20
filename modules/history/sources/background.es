@@ -9,12 +9,17 @@ import Database from "history/database";
 
 import MixerProxy from "history/mixer-proxy";
 import RichHeaderProxy from "history/rich-header-proxy";
-
+/**
+* @namespace history
+* @class Background
+*/
 export default background({
   enabled() {
     return true;
   },
-
+  /**
+  * @method init
+  */
   init() {
     const queryDB = new Database("cliqz-queries"),
           metaDB = new Database("cliqz-metas");
@@ -32,9 +37,18 @@ export default background({
   },
 
   events: {
+    /**
+    * @event ui:click-on-url
+    * @param data
+    */
     "ui:click-on-url": function (data) {
       this.actions.recordQuery(data.query, data.url);
     },
+    /**
+    * @event core:url-meta
+    * @param url {string}
+    * @param meta
+    */
     "core:url-meta": function (url, meta) {
       this.actions.recordMeta(url, meta);
     },
