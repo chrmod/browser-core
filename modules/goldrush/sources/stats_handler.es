@@ -186,10 +186,10 @@ export class StatsHandler {
   }
 
   //
-  // @brief when the user comes from the group A (subcluster)
+  // @brief when the offer is shown in a particular subcluster ({A,B}) if any.
   //
-  offerOnUserFromSubcluster(clusterID, subclusterID) {
-    log('offerOnUserFromSubcluster ' + subclusterID);
+  offerShownOnSubcluster(clusterID, subclusterID) {
+    log('offerShownOnSubcluster ' + subclusterID);
     generateOrAddField(this.currentData['data'], clusterID, 'subcluster_' + subclusterID, 1);
   }
 

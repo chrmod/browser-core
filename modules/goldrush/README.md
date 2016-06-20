@@ -178,7 +178,7 @@ We will gather the information before send it over telemetry in the following wa
       coupons\_opened: N,
       // when the offer is shown in the same domain where the user is
       same\_domain: N,
-      // when the user comes from the group {A,B} (subclusters)
+      // when the offer is shown in a particular subcluster ({A,B}) if any.
       subcluster\_A: N,
       subcluster\_B: N,
       // the number of coupons rejected by the user (explicitly clicked on not interested)
