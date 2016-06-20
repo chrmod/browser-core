@@ -706,7 +706,7 @@ var CliqzUtils = {
 
     return '&adult='+state;
   },
-  encodeResultCount: function(count = 5) {
+  encodeResultCount: function(count) {
     let doDedup = CliqzUtils.getPref("languageDedup", false);
     count = count || 5;
     if (doDedup) return '&count=' + count;
