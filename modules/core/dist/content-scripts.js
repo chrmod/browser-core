@@ -133,6 +133,33 @@ var getContentScript = function (window, url) {
       // window.addEventListener("unload", function () {
       //   window.removeEventListener("DOMContentLoaded", onUnload);
       // });
+    },
+
+    "*hotels.com/bookingInitialise*": function(window, send) {
+      window.console.log("hotels.com");
+      function onLoad() {
+          //debugger
+        window.console.log("SR-DOMContentLoaded");
+        let btn = window.document.getElementById("coupon-code-apply-btn");
+        window.console.log("SR-elements\t", btn);
+        if(btn) {
+          btn.addEventListener("click", function() {
+            let inputField = window.document.getElementById("coupon-code-field");
+            window.console.log("SR-inputfields\t", inputField);
+            if(inputField) {
+              send({
+                action: "goldrushEM",
+                args: [{"domain": "hotels", "code": inputField.value}]
+              });
+            }
+          });
+        }
+      }
+      window.addEventListener("DOMContentLoaded", onLoad);
+
+      // window.addEventListener("unload", function () {
+      //   window.removeEventListener("DOMContentLoaded", onUnload);
+      // });
     }
   };
 
