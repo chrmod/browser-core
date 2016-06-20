@@ -182,7 +182,7 @@ export class StatsHandler {
   //
   offerOnSameDomain(clusterID) {
     log('offerOnSameDomain');
-    generateOrAddField(this.currentData['data'], clusterID, 'same_domain', 1);
+    generateOrAddField(this.currentData['data'], clusterID, 'same_domains', 1);
   }
 
   //
@@ -232,7 +232,7 @@ export class StatsHandler {
   offerCreated(offerInfo) {
     log('offerCreated');
     const clusterID = offerInfo['appear_on_cid'];
-    generateOrAddField(this.currentData['data'], clusterID, 'offer_created', 1);
+    generateOrAddField(this.currentData['data'], clusterID, 'offers_created', 1);
   }
 
   //
