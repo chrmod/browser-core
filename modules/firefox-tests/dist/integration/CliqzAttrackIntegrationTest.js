@@ -117,7 +117,6 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       CliqzUtils.setPref('attrackAlterPostdataTracking', false);
       CliqzUtils.setPref('attrackCanvasFingerprintTracking', false);
       CliqzUtils.setPref('attrackRefererTracking', false);
-      CliqzAttrack.initialiseAntiRefererTracking();
       // clean tp_events
       CliqzAttrack.tp_events.commit(true);
       CliqzAttrack.tp_events._active = {};
@@ -633,7 +632,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 // with an img tag we fallback to redirect, otherwise we just rewrite the channel URI.
                 // with redirect we also see the cookie twice!
                 if(testpage == "imgtest.html") {
-                  tp_event_expectation.if('has_qs', 1).set('token_red_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
+                  tp_event_expectation.if('has_qs', 1).set('token_blocked_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
                 } else {
                   tp_event_expectation.if('has_qs', 1).set('token_blocked_replace', 1);
                 }
@@ -712,7 +711,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 var tp_event_expectation = new tp_events_expectations(testpage);
                 tp_event_expectation.if('cookie_set', 1).set('bad_cookie_sent', 1);
                 if(testpage == "imgtest.html") {
-                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_red_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
+                  tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_blocked_replace', 1).set('cookie_set', 2).set('bad_cookie_sent', 2);
                 }
                 else {
                   tp_event_expectation.if('has_qs', 1).set('bad_qs', 1).set('bad_tokens', 1).set('token_blocked_replace', 1);

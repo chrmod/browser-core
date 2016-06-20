@@ -1,11 +1,13 @@
+import background from "core/base/background";
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
 import {PrivacyScore} from 'antitracking/privacy-score';
 import md5 from 'antitracking/md5';
 import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { utils, events } from 'core/cliqz';
+import telemetry from 'antitracking/telemetry';
 
-export default {
+export default background({
 
   init(settings) {
     if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
@@ -32,6 +34,9 @@ export default {
       this.popup.updateState(utils.getWindow(), false);
     }
 
+    // inject configured telemetry module
+    telemetry.loadFromProvider(settings.telemetryProvider || 'human-web/human-web');
+
     this.onPrefChange = function(pref) {
       if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
         let isEnabled = CliqzAttrack.isEnabled();
@@ -55,6 +60,10 @@ export default {
 
     this.onPrefChange(CliqzAttrack.ENABLE_PREF);
     events.sub('prefchange', this.onPrefChange);
+  },
+
+  enabled() {
+    return this.enabled;
   },
 
   unload() {
@@ -141,5 +150,11 @@ export default {
       msg.type = 'antitracking';
       utils.telemetry(msg);
     }
-  }
-};
+  },
+
+  events: {
+    "core.tab_location_change": CliqzAttrack.onTabLocationChange,
+    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener)
+  },
+
+});

@@ -1,5 +1,7 @@
-export function ChannelListener(headerName) {
-  this.headerName = headerName;
+import { utils } from 'core/cliqz';
+
+export function ChannelListener(headers) {
+  this.headers = headers;
 }
 
 ChannelListener.prototype = {
@@ -24,11 +26,15 @@ ChannelListener.prototype = {
   asyncOnChannelRedirect: function (aOldChannel, aNewChannel, aFlags, callback) {
     aOldChannel.QueryInterface(Components.interfaces.nsIHttpChannel)
     aNewChannel.QueryInterface(Components.interfaces.nsIHttpChannel)
-    try {
-      aOldChannel.getRequestHeader(this.headerName);  // make sure the old channel has cliqz header
-      aNewChannel.setRequestHeader(this.headerName, ' ', false);
-    }
-    catch(e) {}
+
+    this.headers.forEach((h) => {
+      try {
+        aOldChannel.getRequestHeader(h.name);  // make sure the old channel has cliqz header
+        aNewChannel.setRequestHeader(h.name, h.value, false);
+      }
+      catch(e) {}
+    });
+
     callback.onRedirectVerifyCallback(Components.results.NS_OK);
   },
 };

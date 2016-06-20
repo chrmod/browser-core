@@ -1,5 +1,7 @@
 // TODO dependency on CliqzAttrack.tab_listener
 import CliqzAttrack from 'antitracking/attrack';
+import HeaderInfoVisitor from 'platform/antitracking/header-info-visitor';
+import * as browser from 'platform/browser';
 
 // An abstraction layer for extracting contextual information
 // from the HttpChannel on various Firefox versions.
@@ -42,7 +44,7 @@ HttpRequestContext.initCleaner = function() {
   if (!HttpRequestContext._cleaner) {
     HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
       for (let t in HttpRequestContext._tabs) {
-        if(HttpRequestContext._tabs[t].top && !CliqzAttrack.tab_listener.isWindowActive(t)) {
+        if(HttpRequestContext._tabs[t].top && !browser.isWindowActive(t)) {
           HttpRequestContext.deleteTab(t);
         }
       }
@@ -156,6 +158,11 @@ HttpRequestContext.prototype = {
   },
   isChannelPrivate() {
     return this.channel.QueryInterface(Ci.nsIPrivateBrowsingChannel).isChannelPrivate;
+  },
+  getPostData() {
+    let visitor = new HeaderInfoVisitor(this.channel);
+    let requestHeaders = visitor.visitRequest();
+    return visitor.getPostData();
   },
   _legacyGetSource: function() {
     if (this._legacy_source === undefined) {
