@@ -47,7 +47,6 @@ function lg(msg){
 var UI = {
     showDebug: false,
     preventAutocompleteHighlight: false,
-    autocompleteEl: 0,
     lastInputTime: 0,
     lastInput: "",
     lastSelectedUrl: null,
@@ -976,7 +975,7 @@ function setPartialTemplates(data) {
       }
     })
   }
-    
+
   // Music
   if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
     partials.push('music-data-sc');
