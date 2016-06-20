@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "git rm -rf dist; ember build --output-path=dist --env=production; git add dist",
+    "build": "rm -rf dist; ember build --output-path=dist --env=production;",
     "start": "ember server",
     "test": "ember test"
   },
