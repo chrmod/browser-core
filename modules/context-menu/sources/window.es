@@ -47,7 +47,13 @@ export default class {
       return;
     }
 
-    let selection = this.getSelection();
+    let isLink = CliqzUtils.getWindow().gContextMenu.onLink;
+    let selection;
+    if (isLink) {
+      selection = CliqzUtils.getWindow().gContextMenu.target.textContent;
+    } else {
+      selection = this.getSelection();
+    }
 
     if (selection) {
       this.menuItem = this.window.document.createElement('menuitem');
@@ -55,8 +61,12 @@ export default class {
       this.menuItem.setAttribute('label',
         CliqzUtils.getLocalizedString('context-menu-search-item',
           trim(selection)));
+
+      const isFreshtab = CliqzUtils.getWindow().content.document.URL === 'about:cliqz';
       this.menuItem.addEventListener(
-          'click', this.clickHandler.bind(this, selection));
+          'click', this.clickHandler.bind(this, selection, {
+            openInNewTab: !isFreshtab
+          }));
 
       this.contextMenu.insertBefore(this.menuItem, this._builtInSearchItem);
       // Can't do once in constructor, because it's dynamic.
@@ -64,6 +74,7 @@ export default class {
     } else {
       this.menuItem = null;
     }
+
   }
 
   onPopupHiding(ev) {
@@ -80,14 +91,16 @@ export default class {
     }
   }
 
-  clickHandler(query) {
+  clickHandler(query, options) {
     utils.telemetry({
       "type": "context_menu",
       "action": "search",
       "query_length": query.length
     });
     // opens a new empty tab
-    CLIQZEnvironment.openTabInWindow(this.window, '')
+    if(options.openInNewTab) {
+      CLIQZEnvironment.openTabInWindow(this.window, '')
+    }
 
     var urlbar = this.window.document.getElementById('urlbar');
 
