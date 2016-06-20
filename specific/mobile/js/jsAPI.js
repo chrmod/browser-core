@@ -60,5 +60,17 @@ var jsAPI = {
   setDefaultSearchEngine: function(engine) {
     CLIQZEnvironment.setDefaultSearchEngine(engine);
     CLIQZ.UI.updateSearchCard(engine);
+  },
+  restoreBlockedTopSites: function () {
+    CLIQZEnvironment.getLocalStorage().setObject('blockedTopSites', []);
+  },
+  onShow: function () {
+    if (CLIQZ.UI) { // search view
+      if (!CLIQZ.UI.isSearch()) { // freshtab
+        CLIQZEnvironment.initHomepage();
+      }
+    } else { // history view
+      History.init();
+    }
   }
 }

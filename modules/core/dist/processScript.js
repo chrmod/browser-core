@@ -105,6 +105,10 @@ function onDOMWindowCreated(ev) {
   };
 
   function onCallback(msg) {
+    if (isDead()) {
+      return;
+    }
+
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
       return;
     }
@@ -112,8 +116,30 @@ function onDOMWindowCreated(ev) {
       target: "cliqz",
       type: "response",
       response: msg.data.response,
-      action: msg.data.action
+      action: msg.data.action,
+      requestId: msg.data.requestId,
     }), "*");
+  }
+
+  function throttle(fn, threshhold) {
+    var last, timer;
+    return function() {
+      var context = this;
+
+      var now = +new Date,
+          args = arguments;
+      if (last && now < last + threshhold) {
+        // reset timeout
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          last = now;
+          fn.apply(context, args);
+        }, threshhold);
+      } else {
+        last = now;
+        fn.apply(context, args);
+      }
+    };
   }
 
   var fns = {
@@ -145,7 +171,18 @@ function onDOMWindowCreated(ev) {
   function onCore(msg) {
     var payload;
 
-    if ( msg.data.url !== currentURL() ) {
+    if (isDead()) {
+      return;
+    }
+
+    if (msg.data === "unload") {
+      stop();
+      return;
+    }
+
+    if ( msg.data.url !== currentURL() &&
+      // TEMP: Human web decodes the URI for internal storage
+      (msg.data.action == "getHTML" && msg.data.url !== decodeURIComponent(currentURL()))) {
       return;
     }
 
@@ -208,30 +245,54 @@ function onDOMWindowCreated(ev) {
   };
 
   var onReady = function () {
+    // ReportLang
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
 
-    if (!lang) {
-      return;
+    if (lang) {
+      send({
+        windowId: windowId,
+        payload: {
+          module: "core",
+          action: "recordLang",
+          args: [
+            currentURL(),
+            lang
+          ]
+        }
+      });
     }
+
+    // ReportMeta
+    var title = window.document.querySelector("title"),
+        description = window.document.querySelector("meta[name=description]"),
+        ogTitle = window.document.querySelector("meta[property='og:title']"),
+        ogDescription = window.document.querySelector("meta[property='og:description']"),
+        ogImage = window.document.querySelector("meta[property='og:image']");
 
     send({
       windowId: windowId,
       payload: {
         module: "core",
-        action: "recordLang",
+        action: "recordMeta",
         args: [
           currentURL(),
-          lang
+          {
+            title: title && title.innerHTML,
+            description: description && description.content,
+            ogTitle: ogTitle && ogTitle.content,
+            ogDescription: ogDescription && ogDescription.content,
+            ogImage: ogImage && ogImage.content
+          }
         ]
       }
     });
   };
 
-  var onKeyPress = proxyWindowEvent("recordKeyPress");
-  var onMouseMove = proxyWindowEvent("recordMouseMove");
-  var onScroll = proxyWindowEvent("recordScroll");
-  var onCopy = proxyWindowEvent("recordCopy");
+  var onKeyPress = throttle(proxyWindowEvent("recordKeyPress"), 250);
+  var onMouseMove = throttle(proxyWindowEvent("recordMouseMove"), 250);
+  var onScroll = throttle(proxyWindowEvent("recordScroll"), 250);
+  var onCopy = throttle(proxyWindowEvent("recordCopy"), 250);
 
   window.addEventListener("message", onMessage);
   window.addEventListener("keypress", onKeyPress);
@@ -243,7 +304,9 @@ function onDOMWindowCreated(ev) {
   startListening("window-"+windowId, onCallback);
   startListening("cliqz:core", onCore);
 
-  window.addEventListener("unload", function () {
+  function stop() {
+    stopListening("window-"+windowId, onCallback);
+    stopListening("cliqz:core", onCore);
     window.removeEventListener("message", onMessage);
     window.removeEventListener("keypress", onKeyPress);
     window.removeEventListener("mousemove", onMouseMove);
@@ -251,10 +314,19 @@ function onDOMWindowCreated(ev) {
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("copy", onCopy);
     window.removeEventListener("DOMContentLoaded", onReady);
-    stopListening("window-"+windowId, onCallback);
-    stopListening("cliqz:core", onCore);
-  });
+  }
 
+  function isDead() {
+    try {
+      currentURL();
+      return false;
+    } catch(e) {
+      stop();
+      return true;
+    }
+  }
+
+  window.addEventListener("unload", stop);
 }
 
 var DocumentManager = {
@@ -283,3 +355,13 @@ var DocumentManager = {
 }
 
 DocumentManager.init();
+
+/**
+ * make sure to unload propertly
+ */
+startListening("cliqz:process-script", function ps(msg) {
+  if (msg.data === "unload") {
+    DocumentManager.uninit();
+    stopListening("cliqz:process-script", ps);
+  }
+});

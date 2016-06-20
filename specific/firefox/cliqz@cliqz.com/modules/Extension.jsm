@@ -251,10 +251,9 @@ var Extension = {
           Extension.addButtons(win);
 
           try {
-            if ( !CliqzUtils.getPref("cliqz_core_disabled", false) ) {
-              win.CLIQZ.Core.init();
-              CliqzUtils.log('Initialized', 'CORE');
-            }
+            win.CLIQZ.Core.init();
+            CliqzUtils.log('Initialized', 'CORE');
+
             // Always set urlbar and start whoAmI
             // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
             win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
@@ -349,9 +348,6 @@ var Extension = {
     },
     unloadFromWindow: function(win){
         //unload core even if the window closes to allow all modules to do their cleanup
-        if ( CliqzUtils.getPref("cliqz_core_disabled", false) ) {
-            return;
-        }
         if (win.location.href !== 'chrome://browser/content/browser.xul') {
             return;
         }

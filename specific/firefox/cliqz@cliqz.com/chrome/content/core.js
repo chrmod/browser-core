@@ -62,9 +62,17 @@ var locationListener = {
 
 var tabsProgressListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+  wplFlag: { //nsIWebProgressListener state transition flags
+    STATE_START: Components.interfaces.nsIWebProgressListener.STATE_START,
+    STATE_IS_DOCUMENT: Components.interfaces.nsIWebProgressListener.STATE_IS_DOCUMENT,
+  },
 
   onLocationChange: function (aBrowser, aProgress, aRequest, aURI) {
-    CliqzEvents.pub("core.tab_location_change", { url: aURI && aURI.spec });
+    CliqzEvents.pub("core.tab_location_change", {
+      url: aURI && aURI.spec,
+      isLoadingDocument: aProgress.isLoadingDocument,
+      document: aProgress.document
+    });
   },
 
   onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
@@ -72,7 +80,10 @@ var tabsProgressListener = {
       try {
         CliqzEvents.pub("core.tab_state_change", {
           url: aRequest && aRequest.name,
-          isValid: (aStateFlag & Components.interfaces.nsIWebProgressListener.STATE_START) && !aStatus
+          urlSpec: aRequest && aRequest.URI && aRequest.URI.spec,
+          isValid: (aStateFlag & this.wplFlag.STATE_START) && !aStatus,
+          isNewPage: (this.wplFlag.STATE_START & aStateFlag) && (this.wplFlag.STATE_IS_DOCUMENT & aStateFlag),
+          windowID: aWebProgress.DOMWindowID
         });
       } catch (e) {
       }
@@ -135,6 +146,11 @@ window.CLIQZ.Core = {
           }
 
           CLIQZEnvironment.updateGeoLocation();
+
+          // make sure the Qbutton popup is clean
+          var menupopup = document.getElementById('cliqz-button').children.cliqz_menupopup;
+          while(menupopup.lastChild) menupopup.removeChild(menupopup.lastChild);
+
         }.bind(this));
     },
     addCSS: function(doc, path){
@@ -429,22 +445,26 @@ window.CLIQZ.Core = {
 
         //feedback and FAQ
         menupopup.appendChild(this.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnFeedbackFaq'), feedback_FAQ, 'feedback'));
+
+      // hide search prefs if the user decided to disable CLIQZ search
+      if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(this.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnTipsTricks'), function(){
           CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-      if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(this.createSearchOptions(doc));
         menupopup.appendChild(this.createAdultFilterOptions(doc));
         menupopup.appendChild(this.createLocationPermOptions(win));
-
-        this.windowModules.forEach(function (mod) {
-          var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
-          if (buttonItem) { menupopup.appendChild(buttonItem); }
-        });
       }
-      else {
+
+      this.windowModules.forEach(function (mod) {
+        var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
+        if (buttonItem) { menupopup.appendChild(buttonItem); }
+      });
+
+      if (CliqzUtils.getPref("cliqz_core_disabled", false)) {
+        menupopup.appendChild(doc.createElement('menuseparator'));
         menupopup.appendChild(this.createActivateButton(doc));
       }
     },
@@ -621,13 +641,13 @@ window.CLIQZ.Core = {
       var button = doc.createElement('menuitem');
       button.setAttribute('label', CliqzUtils.getLocalizedString('btnActivateCliqz'));
       button.addEventListener('command', (function(event) {
+        CliqzUtils.setPref("cliqz_core_disabled", false);
+
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
-            win.this.init();
+            win.CLIQZ.Core.init();
         }
-        CliqzUtils.setPref("cliqz_core_disabled", false);
-        CLIQZ.Core.refreshButtons();
 
         CliqzUtils.telemetry({
           type: 'setting',

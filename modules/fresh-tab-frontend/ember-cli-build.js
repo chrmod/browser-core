@@ -7,6 +7,14 @@ module.exports = function(defaults) {
     // Add options here
   });
 
+  app.import(app.bowerDirectory + '/ionic/release/css/ionic.css');
+  app.import(app.bowerDirectory + '/ionic/release/fonts/ionicons.eot',  {destDir: 'fonts'});
+  app.import(app.bowerDirectory + '/ionic/release/fonts/ionicons.svg',  {destDir: 'fonts'});
+  app.import(app.bowerDirectory + '/ionic/release/fonts/ionicons.ttf',  {destDir: 'fonts'});
+  app.import(app.bowerDirectory + '/ionic/release/fonts/ionicons.woff', {destDir: 'fonts'});
+  app.import(app.bowerDirectory + '/iscroll/build/iscroll.js');
+
+
   // Use `app.import` to add additional libraries to the generated
   // output files.
   //

@@ -23,14 +23,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-function prefixPref(pref, prefix) {
-    if ( !(typeof prefix === 'string') ) {
-      prefix = 'extensions.cliqz.';
-    }
-    return prefix + pref;
-}
-
-
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     // references to all the timers to avoid garbage collection before firing
     // automatically removed when fired
@@ -134,9 +126,8 @@ var CLIQZEnvironment = {
       'onboarding-callout',
       'onboarding-callout-extended',
       'slow_connection',
-      'partials/missing_location_2',
-      'partials/location/no-locale-data',
-      'partials/no-locale-data'
+      'partials/location/missing_location_2',
+      'partials/location/no-locale-data'
     ],
     PARTIALS: [
         'url',
@@ -151,7 +142,7 @@ var CLIQZEnvironment = {
         'rd-h3-w-rating',
         'pcgame_movie_side_snippet',
         'partials/location/local-data',
-        'partials/missing_location_1',
+        'partials/location/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie',
         'partials/music-data-sc',
@@ -191,8 +182,14 @@ var CLIQZEnvironment = {
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
     },
+    __prefixPref: function (pref, prefix) {
+        if ( !(typeof prefix === 'string') ) {
+          prefix = 'extensions.cliqz.';
+        }
+        return prefix + pref;
+    },
     getPref: function(pref, defaultValue, prefix) {
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         var prefs = CLIQZEnvironment.prefs;
 
@@ -208,7 +205,7 @@ var CLIQZEnvironment = {
         }
     },
     setPref: function(pref, value, prefix){
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         var prefs = CLIQZEnvironment.prefs;
 
@@ -219,12 +216,12 @@ var CLIQZEnvironment = {
         }
     },
     hasPref: function (pref, prefix) {
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
     },
     clearPref: function (pref, prefix) {
-        pref = prefixPref(pref, prefix);
+        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
 
         CLIQZEnvironment.prefs.clearUserPref(pref);
     },
@@ -356,7 +353,7 @@ var CLIQZEnvironment = {
 
         win.CLIQZ.Core.triggerLastQ = true;
         if(newTab) {
-            win.gBrowser.addTab(url);
+           return win.gBrowser.addTab(url);
         } else if(newWindow) {
             win.open(url, '_blank');
         } else if(newPrivateWindow) {
@@ -434,9 +431,9 @@ var CLIQZEnvironment = {
         var util = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
         return util.outerWindowID;
     },
-    openTabInWindow: function(win, url){
+    openTabInWindow: function(win, url, relatedToCurrent = false){
         var tBrowser = win.document.getElementById('content');
-        var tab = tBrowser.addTab(url);
+        var tab = tBrowser.addTab(url, {relatedToCurrent: relatedToCurrent});
         tBrowser.selectedTab = tab;
     },
     // TODO: move this

@@ -7,6 +7,11 @@
 
 function load(ctx) {
 
+function isValidURL(str) {
+  var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  return pattern.test(str);
+}
+
 var TEMPLATES = CLIQZEnvironment.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
@@ -646,7 +651,7 @@ var UI = {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
       }
-      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
+      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate) && r.data["__subType__"]["class"] != "EntityLocal") {
         r.data.template = r.data.superTemplate;
       }
 
@@ -962,10 +967,20 @@ function setPartialTemplates(data) {
   if (data.actions && data.actions.length > 0) {
     partials.push('buttons');
   }
-
+  else if (data.deepResults) {
+    data.deepResults.forEach(function (item) {
+      if (item.type == 'buttons') {
+        data.btns = item.links;
+        delete item.links;
+        partials.push('buttons');
+      }
+    })
+  }
+    
   // Music
   if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
     partials.push('music-data-sc');
+
   }
 
   return partials;
@@ -1350,6 +1365,7 @@ function urlIndexInHistory(url, urlList) {
                             win.CLIQZ.Core.unload(true);
                         }
                         CLIQZ.Core.refreshButtons();
+                        CliqzAutocomplete.isPopupOpen = false;
                         break;
                     case 'keep-cliqz':
                         clearMessage('bottom');
@@ -1419,7 +1435,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         clearMessage('bottom');
                         UI.handleResults();
-                        if (user_location != "de" && !ignored_location_warning)
+                        if (user_location != "de" && user_location != "" && !ignored_location_warning)
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });
@@ -1486,13 +1502,14 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.telemetry(action);
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
-
-      CliqzEvents.pub("ui:click-on-url", {
-        url: decodeURIComponent(url),
-        query: CliqzAutocomplete.lastSearch,
-        type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
-        positionType: action.position_type
-      });
+      if (!CLIQZEnvironment.isPrivate() && isValidURL(url)) {
+        CliqzEvents.pub("ui:click-on-url", {
+          url: decodeURIComponent(url),
+          query: CliqzAutocomplete.lastSearch,
+          type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+          positionType: action.position_type
+        });
+      }
     }
     if(!window.gBrowser)return;
 }
