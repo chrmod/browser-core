@@ -72,6 +72,10 @@ BuyIntentSession.prototype.thereWasACheckout = function() {
   return this.checkoutEvents.length > 0;
 };
 
+BuyIntentSession.prototype.checkoutsCount = function() {
+  return this.checkoutEvents.length;
+};
+
 BuyIntentSession.prototype.lastCheckoutEvent = function() {
   return this.checkoutEvents.length === 0 ? null : this.checkoutEvents[this.checkoutEvents.length - 1];
 };
