@@ -12,7 +12,8 @@ System.import("core/startup").then(function (startupModule) {
     "static"
   ]);
 }).then(function () {
-  CliqzUtils.init(window);
+  return CliqzUtils.init(window);
+}).then(function () {
   osAPI.init();
   CLIQZEnvironment.initHomepage(true);
 });

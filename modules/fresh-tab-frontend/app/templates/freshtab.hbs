@@ -1,5 +1,8 @@
-<div id="container" tabindex="0">
-  {{outlet}}
+<div id="freshTabPage">
+<div id="center" tabindex="0">
+  <div id="container">
+    {{outlet}}
+  </div>
 </div>
 
 <div id="cliqzOnboarding">
@@ -10,8 +13,11 @@
   {{#if model.miniOnboarding}}
     {{mini-onboarding isBrowser=model.isBrowser freshTabLearnMoreAction="freshTabLearnMore" revertBackAction="revertBack"}}
   {{else}}
-    <div id="learnMore">
-      <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>
-    </div>
+    {{#if model.showHelp}}
+      <div id="learnMore">
+        <a href="https://cliqz.com/aboutus/blog/new-startpage" title="Learn more" target="_blank" class="learnBtn">Learn more</a>
+      </div>
+    {{/if}}
   {{/if}}
+</div>
 </div>

@@ -92,7 +92,7 @@ export default {
   },
 
   dispatchMessage(msg) {
-    if (msg.data.requestId) {
+    if (typeof msg.data.requestId === "number") {
       if (msg.data.requestId in callbacks) {
         this.handleResponse(msg);
       }
@@ -102,7 +102,7 @@ export default {
   },
 
   handleRequest(msg) {
-    const { action, module, args } = msg.data.payload,
+    const { action, module, args, requestId } = msg.data.payload,
           windowId = msg.data.windowId;
 
     utils.importModule(`${module}/background`).then( module => {
@@ -111,9 +111,10 @@ export default {
     }).then( response => {
       this.mm.broadcast(`window-${windowId}`, {
         response,
-        action: msg.data.payload.action
+        action: msg.data.payload.action,
+        requestId,
       });
-    }).catch( e => utils.log(`${module}/${action}`+e.toString()+'---'+e.stack, "Problem with frameScript") );
+    }).catch( e => utils.log(`${e.toString()}--${e.stack}`, "Problem with frameScript") );
   },
 
   handleResponse(msg) {
@@ -125,12 +126,15 @@ export default {
       utils.telemetry(msg);
       return Promise.resolve();
     },
-    getUrlbar(value) {
+    queryCliqz(query) {
       let urlBar = utils.getWindow().document.getElementById("urlbar")
       urlBar.focus();
       urlBar.mInputField.focus();
-      urlBar.mInputField.setUserInput(value);
+      urlBar.mInputField.setUserInput(query);
       //utils.getWindow().CLIQZ.Core.urlbar.focus("ss");
+    },
+    getUrlbar(value) {
+      return this.actions.queryCliqz(value);
     },
     recordLang(url, lang) {
       if (lang) {
@@ -140,6 +144,9 @@ export default {
     },
     goldrushEM(args) {
       events.pub("core:coupon-detected", args);
+    },
+    recordMeta(url, meta) {
+      events.pub("core:url-meta", url, meta);
     }
   }
 };

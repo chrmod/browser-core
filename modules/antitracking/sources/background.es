@@ -1,11 +1,26 @@
+import background from "core/base/background";
 import CliqzPopupButton from 'antitracking/popup-button';
 import CliqzAttrack from 'antitracking/attrack';
+import {PrivacyScore} from 'antitracking/privacy-score';
+import md5 from 'antitracking/md5';
 import { DEFAULT_ACTION_PREF, updateDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { utils, events } from 'core/cliqz';
+import telemetry from 'antitracking/telemetry';
 
-export default {
-
+/**
+* @namespace antitracking
+* @class Background
+*/
+export default background({
+  /**
+  * @method init
+  * @param settings
+  */
   init(settings) {
+    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+      return;
+    }
+
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
 
     // fix for users without pref properly set: set to value from build config
@@ -25,6 +40,9 @@ export default {
       this.popup.attach();
       this.popup.updateState(utils.getWindow(), false);
     }
+
+    // inject configured telemetry module
+    telemetry.loadFromProvider(settings.telemetryProvider || 'human-web/human-web');
 
     this.onPrefChange = function(pref) {
       if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
@@ -51,7 +69,18 @@ export default {
     events.sub('prefchange', this.onPrefChange);
   },
 
+  enabled() {
+    return this.enabled;
+  },
+
+  /**
+  * @method unload
+  */
   unload() {
+    if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
+      return;
+    }
+
     if ( this.popup ) {
       this.popup.destroy();
     }
@@ -65,8 +94,18 @@ export default {
   },
 
   popupActions: {
+    /**
+    * @method popupActions.getPopupData
+    * @param args
+    * @param cb Callback
+    */
     getPopupData(args, cb) {
-      var info = CliqzAttrack.getCurrentTabBlockingInfo();
+
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+          ps = info.ps;
+      // var ps = PrivacyScore.get(md5(info.hostname).substring(0, 16)  'site');
+
+      // ps.getPrivacyScore();
 
       cb({
         url: info.hostname,
@@ -75,10 +114,15 @@ export default {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
-        trakersList: info
+        trakersList: info,
+        ps: ps
       });
     },
-
+    /**
+    * @method popupActions.toggleAttrack
+    * @param args
+    * @param cb Callback
+    */
     toggleAttrack(args, cb) {
       var currentState = utils.getPref('antiTrackTest');
 
@@ -94,12 +138,18 @@ export default {
 
       this.popupActions.telemetry( {action: 'click', 'target': (currentState ? 'deactivate' : 'activate')} )
     },
-
+    /**
+    * @method popupActions.closePopup
+    */
     closePopup(_, cb) {
       this.popup.tbb.closePopup();
       cb();
     },
-
+    /**
+    * @method popupActions.toggleWhiteList
+    * @param args
+    * @param cb Callback
+    */
     toggleWhiteList(args, cb) {
       var hostname = args.hostname;
       if (CliqzAttrack.isSourceWhitelisted(hostname)) {
@@ -111,6 +161,11 @@ export default {
       }
       cb();
     },
+    /**
+    * @method popupActions.updateHeight
+    * @param args
+    * @param cb Callback
+    */
     updateHeight(args, cb) {
       this.popup.updateView(utils.getWindow(), args[0]);
     },
@@ -120,9 +175,16 @@ export default {
         delete msg.includeUnsafeCount
         let info = CliqzAttrack.getCurrentTabBlockingInfo();
         msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
+        msg.special = info.error !== undefined;
       }
       msg.type = 'antitracking';
       utils.telemetry(msg);
     }
-  }
-};
+  },
+
+  events: {
+    "core.tab_location_change": CliqzAttrack.onTabLocationChange,
+    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener)
+  },
+
+});

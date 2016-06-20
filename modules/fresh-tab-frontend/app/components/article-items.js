@@ -3,6 +3,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   cliqz: Ember.inject.service(),
   pageNum: 0,
+  maxHeight: Ember.computed.max("heights"),
 
   isOnePage: Ember.computed.equal("pages.length", 1),
 
@@ -62,7 +63,16 @@ export default Ember.Component.extend({
         target_index: num
       });
       this.autoRotate();
-     }
+     },
+
+    calculateHeight(height) {
+      let heights = this.getWithDefault("heights", [])
+      if (heights.length === 3) {
+        heights = [];
+      }
+      heights.push(height)
+      this.set("heights", heights)
+    }
   },
 
   animate: function(setNextPage) {

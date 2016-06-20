@@ -1,4 +1,12 @@
+/**
+* @namespace ui.views
+* @class LocalDataSc
+*/
 export default class {
+  /**
+  * @method enhanceResults
+  * @param data
+  */
   enhanceResults(data) {
 
     function parseTime(timeStr) {  // e.g. timeStr: 10.30

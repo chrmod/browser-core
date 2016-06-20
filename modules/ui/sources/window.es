@@ -1,9 +1,18 @@
 import { utils } from "core/cliqz";
 
+/**
+  @namespace ui
+*/
 export default class {
+
+  /**
+  * @class Window
+  * @constructor
+  */
   constructor(settings) {
     this.window = settings.window;
     this.urlbarGoClick = this.urlbarGoClick.bind(this);
+    this.initialzied = false;
 
     this.urlbarEventHandlers = {}
     Object.keys(urlbarEventHandlers).forEach( ev => {
@@ -21,7 +30,13 @@ export default class {
     })
   }
 
+  /**
+  * @method init
+  */
   init() {
+    // do not initialize the UI if the user decided to turn off search
+    if(CliqzUtils.getPref("cliqz_core_disabled", false)) return;
+
     Services.scriptloader.loadSubScript(this.window.CLIQZ.System.baseURL + 'ui/UI.js', this.window);
     //create a new panel for cliqz to avoid inconsistencies at FF startup
     var document = this.window.document,
@@ -77,9 +92,12 @@ export default class {
 
     this.window.addEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
 
+    this.initialzied = true;
   }
-
-  // trigger component reload at install/uninstall
+  /**
+  * triggers component reload at install/uninstall
+  * @method reloadUrlbar
+  */
   reloadUrlbar (el) {
     var oldVal = el.value;
     if(el && el.parentNode) {
@@ -88,6 +106,9 @@ export default class {
     }
   }
 
+  /**
+  * @method urlbarGoClick
+  */
   urlbarGoClick (){
     //we somehow break default FF -> on goclick the autocomplete doesnt get considered
     this.urlbar.value = this.urlbar.mInputField.value;
@@ -126,6 +147,8 @@ export default class {
   }
 
   unload() {
+    if(!this.initialzied) return;
+
     this.window.CLIQZ.UI.unload();
 
     for(var i in this.window.CLIQZ.Core.elem){
@@ -162,6 +185,10 @@ export default class {
 
 
 const urlbarEventHandlers = {
+  /**
+  * Urlbar focus event
+  * @event focus
+  */
   focus: function(ev) {
     //try to 'heat up' the connection
     CliqzUtils.pingCliqzResults();
@@ -185,7 +212,11 @@ const urlbarEventHandlers = {
       this.urlbar.mInputField.value = urlbar;
     }
   },
-
+  /**
+  * Urlbar blur event
+  * @event blur
+  * @param ev
+  */
   blur: function(ev) {
     CliqzAutocomplete.resetSpellCorr();
 
@@ -198,7 +229,11 @@ const urlbarEventHandlers = {
     CliqzAutocomplete.resetSpellCorr();
     this.window.CLIQZ.UI.sessionEnd();
   },
-
+  /**
+  * Urlbar keypress event
+  * @event keypress
+  * @param ev
+  */
   keypress: function(ev) {
     if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       var urlbar = this.urlbar;
@@ -216,7 +251,11 @@ const urlbarEventHandlers = {
       }
     }
   },
-
+  /**
+  * Urlbar drop event
+  * @event drop
+  * @param ev
+  */
   drop: function(ev){
   var dTypes = ev.dataTransfer.types;
     if (dTypes.indexOf && dTypes.indexOf("text/plain") !== -1 ||
@@ -232,7 +271,11 @@ const urlbarEventHandlers = {
       });
     }
   },
-
+  /**
+  * Urlbar paste event
+  * @event paste
+  * @param ev
+  */
   paste: function(ev){
     //wait for the value to change
     this.window.setTimeout(function(){
@@ -248,12 +291,18 @@ const urlbarEventHandlers = {
 };
 
 const popupEventHandlers = {
+  /**
+  * @event popupOpen
+  */
   popupOpen: function(){
     CliqzAutocomplete.isPopupOpen = true;
     this.popupEvent(true);
     this.window.CLIQZ.UI.popupClosed = false;
   },
-
+  /**
+  * @event popupClose
+  * @param e
+  */
   popupClose: function(e){
     CliqzAutocomplete.isPopupOpen = false;
     CliqzAutocomplete.markResultsDone(null);
