@@ -20,6 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWikipediaDeduplication',
+    'chrome://cliqzmodules/content/CliqzUserReranking.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
@@ -74,6 +77,7 @@ var CLIQZEnvironment = {
     LAST_GEOLOCATION_UPDATE: 0,
     GEOLOCATION_UPDATE_MIN_WAIT: 3600 * 1000, // If the computer wakes up from a sleep that was longer than this many milliseconds, we update geolocation.
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
+    RERANKERS: [CliqzWikipediaDeduplication],
     OBSERVERS: [
       {
         notifications: ['wake_notification', 'sleep_notification'],
