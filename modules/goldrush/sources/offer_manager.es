@@ -27,7 +27,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 // the current offer (UI).
 const OM_NUM_EVTS_DISABLE_OFFER = 3;
 // the number of milliseconds we want to wait till we hide the add
-const OM_HIDE_OFFER_MS = 1000 * 10;
+const OM_HIDE_OFFER_MS = 1000 * 60;
 
 
 
@@ -196,8 +196,6 @@ export function OfferManager() {
   // the intent input maps (clusterID -> intentInput)
   this.intentInputMap = {};
   this.offerFetcher = null;
-  // the list of current coupons we have
-  this.couponsList = null;
   // the ui manager (we need to provide UI data for this)
   this.uiManager = new UIManager();
   this.uiManager.configureCallbacks({
@@ -225,6 +223,8 @@ export function OfferManager() {
   this.eventsCounts = {total: 0};
   // track the current cluster
   this.currentCluster = -1;
+  // track shown offers
+  this.offersShownCounterMap = {};
 
   // the fetcher
   //TODO: use a globar variable here in the config maybe
@@ -505,6 +505,17 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
   // add to the maps
   this.currentOfferMap[offerID] = offer;
   this.cidToOfferMap[clusterID] = offerID;
+
+  // Every time we show a offer add it to this maps. It will help us track
+  // is our coupon where used or not
+  let couponCode = coupon.code;
+  if(this.offersShownCounterMap.hasOwnProperty(couponCode)) {
+    this.offersShownCounterMap[couponCode] += 1;
+  } else {
+    this.offersShownCounterMap[couponCode] = 1;
+  }
+  log("offersShownCounterMap content: ");
+  log(JSON.stringify(this.offersShownCounterMap));
 
   // set the timeout to disable this add
   offer.timerID = CliqzUtils.setTimeout(function () {
@@ -824,40 +835,23 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// @brief this method should be called everytime we change the url so we can
-//        track if a coupon has been used or not. Basically here we will need
-//        to check the content of the page and trigger an event when a button of
-//        the checkout form is being used and analyze the content to search for
-//        the associated coupon ID.
+// @brief this method will be called everytime we detect that a coupon
+//        was used on the page (This is done using content-scripts). This method
+//        should then check if the coupon used was one we provided or not
 //
-OfferManager.prototype.detectCouponField = function(url) {
-  // TODO_QUESTION: ask how it is better to:
-  // 1) read the content of the webpage to detect a field?
-  // 2) modify a button form field to link a callback so we can get the event?
-  // 3) read the content of the post request or the form fields when the button is
-  //    pressed?
-  // IMPORTANT how we can read the content of the html???? document.?
-};
-
-
-// TODO: this method will check a map: url_domain -> url_regex
-//       to check if we are on the site where each url_domain has associated a
-//       coupon (active ones).
-OfferManager.prototype.getCurrentCoupons = function() {
-  log('getCurrentCoupons called');
-  if (!this.offerFetcher) {
-    log('offerFetcher is null still');
-    return;
+OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
+  log("SR  " + JSON.stringify(this.offersShownCounterMap));
+  if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
+    this.offersShownCounterMap[coupon] -= 1;
+    let cid = this.mappings['dname_to_cid'][domain];
+    this.statsHandler.ourCouponUsed(cid);
+    log("Our coupon used :\t cid: " + cid +  " \t domain: " + domain + " \tcoupon: " + coupon);
+  } else {
+    let cid = this.mappings['dname_to_cid'][domain];
+    this.statsHandler.unrecognizedCouponUsed(cid);
+    log("Unrecognized coupon used :\t cid: " + cid  + " \t domain: " + domain + " \tcoupon: " + coupon);
   }
-
-  // TODO: remove this from here since we should add it later, this function
-  // will be called from outside whenever we need to get the coupons.
-  this.offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
-    // TODO: add the field that has not being used here maybe.
-      this.couponsList = vouchers;
-    });
-  log('returning the coupons list:' + this.couponsList);
-  return this.couponsList;
+  log("SR  " + JSON.stringify(this.offersShownCounterMap));
 };
 
 

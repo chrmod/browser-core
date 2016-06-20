@@ -184,15 +184,25 @@ export class StatsHandler {
 
 
   //
-  // @brief collect that a new coupon has being used.
+  // @brief collect that a coupon provided by us was used
   //
-  couponUsed(offerInfo) {
+  ourCouponUsed(clusterID) {
     // TODO: we can get the domain id and cluster id from:
     // offerInfo['appear_on_did']
     // offerInfo['appear_on_cid']
-    log('couponUsed');
-    const clusterID = offerInfo['appear_on_cid'];
-    generateOrAddField(this.currentData['data'], clusterID, 'coupons_used', 1);
+    log('ourCouponUsed');
+    generateOrAddField(this.currentData['data'], clusterID, 'our_coupons_used', 1);
+  }
+
+  //
+  // @brief collect that a unrecognized coupon was used.
+  //
+  unrecognizedCouponUsed(clusterID) {
+    // TODO: we can get the domain id and cluster id from:
+    // offerInfo['appear_on_did']
+    // offerInfo['appear_on_cid']
+    log('unrecognizedCouponUsed');
+    generateOrAddField(this.currentData['data'], clusterID, 'unrecognized_coupons_used', 1);
   }
 
   //

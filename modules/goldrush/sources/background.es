@@ -200,7 +200,7 @@ export default background({
   events: {
     "core:coupon-detected": function(args) {
       if(this.offerManager){
-        this.offerManager.isOurCouponUsed(args['domain'], args['code']);
+        this.offerManager.addCouponAsUsedStats(args['domain'], args['code']);
       }
     }
   }
