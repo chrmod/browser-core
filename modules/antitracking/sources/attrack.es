@@ -1061,7 +1061,6 @@ var CliqzAttrack = {
         WebRequest.onHeadersReceived.removeListener(CliqzAttrack.httpResponseObserver.observe);
 
         pacemaker.stop();
-        HttpRequestContext.unloadCleaner();
 
         CliqzAttrack.trackerProxy.destroy();
     },
