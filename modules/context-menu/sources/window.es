@@ -10,8 +10,14 @@ function trim(text) {
   }
 }
 
+/**
+* @namespace context-menu
+*/
 export default class {
-
+  /**
+  * @class ContextMenu
+  * @constructor
+  */
   constructor(settings) {
     this.window = settings.window;
     this.contextMenu = this.window.document.getElementById(
@@ -23,6 +29,10 @@ export default class {
     this.menuItem = null;
   }
 
+  /**
+  * Adds listeners to the context menu
+  * @method init
+  */
   init() {
     this.contextMenu.addEventListener(
         'popupshowing', this.onPopupShowing, false);
@@ -30,6 +40,10 @@ export default class {
         'popuphiding', this.onPopupHiding, false);
   }
 
+  /**
+  * Unloads context menu
+  * @method unload
+  */
   unload() {
     this.removeMenuItem();
     this.contextMenu.removeEventListener('popupshowing', this.onPopupShowing);
@@ -37,6 +51,10 @@ export default class {
     this._builtInSearchItem.removeAttribute('hidden');
   }
 
+  /**
+  * @event onPopupShowing
+  * @param ev
+  */
   onPopupShowing(ev) {
     utils.telemetry({
       "type": "context_menu",
@@ -77,6 +95,10 @@ export default class {
 
   }
 
+  /**
+  * @event onPopupHiding
+  * @param ev
+  */
   onPopupHiding(ev) {
     if (ev.target !== this.contextMenu) {
       return;
@@ -99,7 +121,7 @@ export default class {
     });
     // opens a new empty tab
     if(options.openInNewTab) {
-      CLIQZEnvironment.openTabInWindow(this.window, '')
+      CLIQZEnvironment.openTabInWindow(this.window, '', true)
     }
 
     var urlbar = this.window.document.getElementById('urlbar');

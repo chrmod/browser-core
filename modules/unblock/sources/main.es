@@ -1,6 +1,3 @@
-/*
- * This module bypasses Youtube region blocks
- */
 import ProxyService from 'unblock/proxy';
 import RequestListener from 'unblock/request-listener';
 import ProxyManager from 'unblock/proxy-manager';
@@ -11,6 +8,11 @@ const MODE_ALWAYS = "always";
 const MODE_NEVER = "never";
 const MODES = [MODE_ASK, MODE_ALWAYS, MODE_NEVER];
 
+/**
+* This module bypasses Youtube region blocks
+* @class Main
+* @namespace unblock
+*/
 export default {
   proxy_manager: null,
   proxy_service: null,

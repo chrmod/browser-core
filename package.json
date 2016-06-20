@@ -9,11 +9,13 @@
     "publish-pre-release": "cd build/firefox; fab publish:beta=False,pre=True; cp latest.xpi ../../; cd ../..",
     "publish-release": "cd build/firefox; fab publish:beta=False,pre=False; cp latest.xpi ../../; cd ../..",
     "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
-    "deploy-mobile-beta": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta"
+    "deploy-mobile-beta": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta",
+    "doc": "yuidoc"
   },
   "author": "Cliqz GmbH",
   "dependencies": {
-    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-2"
+    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-2",
+    "yuidoc-bootstrap-theme": "^1.0.6"
   },
   "devDependencies": {
     "amd-name-resolver": "0.0.2",
@@ -44,6 +46,7 @@
     "testem": "^1.6.0",
     "walk": "^2.3.9",
     "walk-sync": "0.2.5",
-    "wrench": "^1.5.8"
+    "wrench": "^1.5.8",
+    "yuidoc-lucid-theme": "^0.1.2"
   }
 }

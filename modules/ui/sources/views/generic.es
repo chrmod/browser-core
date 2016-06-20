@@ -1,7 +1,14 @@
 import localData from 'ui/views/local-data-sc';
 
+/**
+* @namespace ui.views
+* @class Generic
+*/
 export default class GenericView extends localData {
-
+  /**
+  * @method enhanceResults
+  * @param data
+  */
   enhanceResults(data) {
 
     if(data["__subType__"] && data["__subType__"]["class"] == "EntityLocal") {
