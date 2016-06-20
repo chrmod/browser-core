@@ -33,6 +33,7 @@
 
 .tab-background-middle {
     margin: 0;
+	min-height: var(--tab-min-height);
 }
 .tab-background-middle[visuallyselected="true"] { background: none; }
 
@@ -600,6 +601,10 @@ toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #prin
 
 .tabbrowser-tab .tab-stack {
     margin: 0 -5px 0 0; /*Remove space between tabs*/
+}
+
+#tabbrowser-tabs[overflow="true"] .tabbrowser-tab[pinned="true"] .tab-stack {
+    margin: 0 0 0 -1px;
 }
 
 .tabbrowser-tab[visuallyselected="true"] .tab-content {

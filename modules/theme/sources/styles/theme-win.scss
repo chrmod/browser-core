@@ -82,6 +82,7 @@
 
 .tab-background-middle {
     margin: 0;
+	min-height: var(--tab-min-height);
 }
 .tab-background-middle[visuallyselected="true"] { background: none; }
 
@@ -529,6 +530,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     margin: 0 -4px 0 0; /*Remove space between tabs*/
 }
 
+#tabbrowser-tabs[overflow="true"] .tabbrowser-tab[pinned="true"] .tab-stack {
+    margin: 0 0 0 -1px;
+}
+
 .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
     -moz-padding-start: 0; /*move all tabs left by removing the padding left*/
     margin-left: -3px;
@@ -611,14 +616,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 50px; /*Reserve some space for dragging the window*/
         }
-		
-	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
-	        margin-left: 15px; /*Remove the line on the left of allowscroll-up button*/
-	    }
-	
+			
 	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	        margin-inline-start: 36px;
-	    }
+		}
+		
+	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	    	margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
+		}
 
         :-moz-system-metric(windows-default-theme) {
             #titlebar-buttonbox {
@@ -669,13 +674,13 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
             padding-right: 60px; /*Reserve some space for dragging the window*/
         }
 		
-	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
-	        margin-left: 15px; /*Remove the line on the left of allowscroll-up button*/
-	    }
-	
 	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	        margin-inline-start: 36px;
-	    }
+		}
+		
+	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	    	margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
+		}
 		
 		#PersonalToolbar {
 		    margin: 0px 1px;
@@ -741,13 +746,13 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
             padding-right: 60px; /*Reserve some space for dragging the window*/
         }
 		
-	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
-	        margin-left: 15px; /*Remove the line on the left of allowscroll-up button*/
-	    }
-	
 	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	        margin-inline-start: 35px;
-	    }
+		}
+		
+	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+	    	margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
+		}
     }
 
     #main-window[sizemode="maximized"] {

@@ -62,9 +62,17 @@ var locationListener = {
 
 var tabsProgressListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+  wplFlag: { //nsIWebProgressListener state transition flags
+    STATE_START: Components.interfaces.nsIWebProgressListener.STATE_START,
+    STATE_IS_DOCUMENT: Components.interfaces.nsIWebProgressListener.STATE_IS_DOCUMENT,
+  },
 
   onLocationChange: function (aBrowser, aProgress, aRequest, aURI) {
-    CliqzEvents.pub("core.tab_location_change", { url: aURI && aURI.spec });
+    CliqzEvents.pub("core.tab_location_change", {
+      url: aURI && aURI.spec,
+      isLoadingDocument: aProgress.isLoadingDocument,
+      document: aProgress.document
+    });
   },
 
   onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
@@ -72,7 +80,10 @@ var tabsProgressListener = {
       try {
         CliqzEvents.pub("core.tab_state_change", {
           url: aRequest && aRequest.name,
-          isValid: (aStateFlag & Components.interfaces.nsIWebProgressListener.STATE_START) && !aStatus
+          urlSpec: aRequest && aRequest.URI && aRequest.URI.spec,
+          isValid: (aStateFlag & this.wplFlag.STATE_START) && !aStatus,
+          isNewPage: (this.wplFlag.STATE_START & aStateFlag) && (this.wplFlag.STATE_IS_DOCUMENT & aStateFlag),
+          windowID: aWebProgress.DOMWindowID
         });
       } catch (e) {
       }

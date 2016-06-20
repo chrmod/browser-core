@@ -1,4 +1,3 @@
-import { notImplemented } from "core/platform";
 import storage from "platform/storage";
 
 export default class {

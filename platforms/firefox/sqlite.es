@@ -3,9 +3,9 @@ Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 var dbConn;
 
-export default function getDbConn () {
+export default function getDbConn (databaseName) {
   if (!dbConn) {
-    dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbattrack"]));
+    dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", [databaseName]));
   }
   return dbConn;
 }

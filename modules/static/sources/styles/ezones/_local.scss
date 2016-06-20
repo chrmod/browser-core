@@ -2,17 +2,16 @@
 
 .cqz-local-data-holder {
     .cqz-zone-holder {
-        & > .cqz-result-title,
-        & > .cqz-ez-subtitle,
-        & > .cqz-ez-subtitle + .cqz-generic-desc {
+        & > .cqz-generic-desc:first-child {
             display: none;
         }
     }
-}
+ }
 
 .cqz-local-data {
     height: auto;
     margin-bottom: 0;
+    width: 75%;
 
     .local-img-holder {
         max-width: 135px;
@@ -36,6 +35,7 @@
 
         ul.cqz-local-info-box > li {
             margin: 10px 0;
+            white-space: nowrap;
 
 			& div {
 				display: inline-block;

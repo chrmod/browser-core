@@ -150,8 +150,9 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
 
     folder = get_folder_name(beta=='True', channel)
+    upload_folder = folder + ('_pre' if pre == 'True' else '')
 
-    path_to_s3 = PATH_TO_S3_BUCKET + folder + ('_pre' if pre == 'True' else '') + '/'
+    path_to_s3 = PATH_TO_S3_BUCKET + upload_folder + '/'
 
     local("aws s3 cp %s %s --acl public-read" % (output_file_name, path_to_s3))
 
@@ -194,7 +195,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     )
 
     submitter = Submitter(
-        release_name="SystemAddons-"+folder,
+        release_name="SystemAddons-"+upload_folder,
         auth=auth,
         api_root="http://balrog-admin.10e99.net/api",
         addon_id="cliqz@cliqz.com",

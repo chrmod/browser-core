@@ -3,7 +3,6 @@ import { utils } from 'core/cliqz';
 import { mkdir } from 'core/fs';
 import Cache from 'smart-cliqz-cache/cache';
 
-const SMART_CLIQZ_ENDPOINT = 'http://newbeta.cliqz.com/api/v1/rich-header?path=/id_to_snippet&q=';
 const CUSTOM_DATA_CACHE_FOLDER = 'cliqz';
 const CUSTOM_DATA_CACHE_FILE = CUSTOM_DATA_CACHE_FOLDER + '/smartcliqz-custom-data-cache.json';
 // maximum number of items (e.g., categories or links) to keep
@@ -11,7 +10,7 @@ const MAX_ITEMS = 5;
 
 /*
  * This module caches SmartCliqz results in the extension. It
- * also customizes news SmartCliqz by re-ordering categories and\
+ * also customizes news SmartCliqz by re-ordering categories and
  * links based on the user's browsing history.
  *
  */
@@ -38,33 +37,33 @@ export default class {
 
   // stores SmartCliqz if newer than chached version
   store(smartCliqz) {
-    const id = this.getId(smartCliqz);
+    const url = this.getUrl(smartCliqz);
 
-    this._smartCliqzCache.store(id, smartCliqz,
+    this._smartCliqzCache.store(url, smartCliqz,
       this.getTimestamp(smartCliqz));
 
     try {
       if (this.isCustomizationEnabled() &&
          this.isNews(smartCliqz) &&
-         this._customDataCache.isStale(id)) {
+         this._customDataCache.isStale(url)) {
 
-        this._log('store: found stale data for id ' + id);
-        this._prepareCustomData(id);
+        this._log('store: found stale data for url ' + url);
+        this._prepareCustomData(url);
       }
     } catch (e) {
       this._log('store: error while customizing data: ' + e);
     }
   }
 
-  fetchAndStore(id) {
-    if (this._fetchLock.hasOwnProperty(id)) {
-      this._log('fetchAndStore: fetching already in progress for id ' + id);
+  fetchAndStore(url) {
+    if (this._fetchLock.hasOwnProperty(url)) {
+      this._log('fetchAndStore: fetching already in progress for ' + url);
       return;
     }
 
-    this._log('fetchAndStore: for id ' + id);
-    this._fetchLock[id] = true;
-    getSmartCliqz(id).then((smartCliqz) => {
+    this._log('fetchAndStore: for ' + url);
+    this._fetchLock[url] = true;
+    getSmartCliqz(url).then((smartCliqz) => {
       // limit number of categories/links
       if (smartCliqz.hasOwnProperty('data')) {
         if (smartCliqz.data.hasOwnProperty('links')) {
@@ -75,18 +74,18 @@ export default class {
         }
       }
       this.store(smartCliqz);
-      delete this._fetchLock[id];
+      delete this._fetchLock[url];
     }, (e) => {
       this._log('fetchAndStore: error while fetching data: ' +
                  e.type + ' ' + e.message);
-      delete this._fetchLock[id];
+      delete this._fetchLock[url];
     });
   }
 
   // returns SmartCliqz from cache (false if not found);
   // customizes SmartCliqz if news or domain supported, and user preference is set
-  retrieve(id) {
-    const smartCliqz = this._smartCliqzCache.retrieve(id);
+  retrieve(url) {
+    const smartCliqz = this._smartCliqzCache.retrieve(url);
 
     if (this.isCustomizationEnabled() && smartCliqz &&
       this.isNews(smartCliqz)) {
@@ -116,6 +115,11 @@ export default class {
     return smartCliqz.data.__subType__.id;
   }
 
+  // extracts URL from SmartCliqz
+  getUrl(smartCliqz) {
+    return utils.generalizeUrl(smartCliqz.val, true);
+  }
+
   // extracts timestamp from SmartCliqz
   getTimestamp(smartCliqz) {
     return smartCliqz.data.ts;
@@ -139,50 +143,50 @@ export default class {
 
   // re-orders categories based on visit frequency
   _customizeSmartCliqz(smartCliqz) {
-    const id = this.getId(smartCliqz);
-    if (this._customDataCache.isCached(id)) {
-      this._injectCustomData(smartCliqz, this._customDataCache.retrieve(id));
+    const url = this.getUrl(smartCliqz);
+    if (this._customDataCache.isCached(url)) {
+      this._injectCustomData(smartCliqz, this._customDataCache.retrieve(url));
 
-      if (this._customDataCache.isStale(id)) {
-        this._log('_customizeSmartCliqz: found stale data for ' + id);
-        this._prepareCustomData(id);
+      if (this._customDataCache.isStale(url)) {
+        this._log('_customizeSmartCliqz: found stale data for ' + url);
+        this._prepareCustomData(url);
       }
     } else {
-      this._log('_customizeSmartCliqz: custom data not yet ready for ' + id);
+      this._log('_customizeSmartCliqz: custom data not yet ready for ' + url);
     }
   }
 
   // replaces all keys from custom data in SmartCliqz data
   _injectCustomData(smartCliqz, customData) {
-    const id = this.getId(smartCliqz);
-    this._log('_injectCustomData: injecting for id ' + id);
+    const url = this.getUrl(smartCliqz);
+    this._log('_injectCustomData: injecting for ' + url);
     for (let key in customData) {
       if (customData.hasOwnProperty(key)) {
         smartCliqz.data[key] = customData[key];
         this._log('_injectCustomData: injecting key ' + key);
       }
     }
-    this._log('_injectCustomData: done injecting for id ' + id);
+    this._log('_injectCustomData: done injecting for ' + url);
   }
 
-  // prepares and stores custom data for SmartCliqz with given id (async.),
+  // prepares and stores custom data for SmartCliqz with given URL (async.),
   // (if custom data has not been prepared before and has not expired)
-  _prepareCustomData(id) {
-    if (this._customDataCache.isStale(id)) {
+  _prepareCustomData(url) {
+    if (this._customDataCache.isStale(url)) {
       // update time so that this method is not executed multiple
       // times while not yet finished (runs asynchronously)
-      this._customDataCache.refresh(id);
-      this._log('_prepareCustomData: preparing for id ' + id);
+      this._customDataCache.refresh(url);
+      this._log('_prepareCustomData: preparing for ' + url);
     } else {
-      this._log('_prepareCustomData: already updated or in update progress ' + id);
+      this._log('_prepareCustomData: already updated or in update progress ' + url);
       return;
     }
 
     // for stats
-    const oldCustomData = this._customDataCache.retrieve(id);
+    const oldCustomData = this._customDataCache.retrieve(url);
 
     // (1) fetch template from rich header
-    getSmartCliqz(id)
+    getSmartCliqz(url)
       .then((smartCliqz) => {
         const domain = this.getDomain(smartCliqz);
         return Promise.all([Promise.resolve(smartCliqz), this._fetchVisitedUrls(domain)]);
@@ -234,16 +238,16 @@ export default class {
           smartCliqz.data.categories;
 
         // send some stats
-        this._sendStats(id, oldCategories, categories, oldCustomData ? true : false, urls);
+        this._sendStats(oldCategories, categories, oldCustomData ? true : false, urls);
 
         // TODO: define per SmartCliqz what the data field to be customized is called
         if (this.isNews(smartCliqz)) {
-          this._customDataCache.store(id, { categories: categories });
+          this._customDataCache.store(url, { categories: categories });
         } else {
-          this._customDataCache.store(id, { links: categories });
+          this._customDataCache.store(url, { links: categories });
         }
 
-        this._log('_prepareCustomData: done preparing for id ' + id);
+        this._log('_prepareCustomData: done preparing for ' + url);
         this._customDataCache.save(CUSTOM_DATA_CACHE_FILE);
       })
       .catch(e => this._log('_prepareCustomData: error while fetching data: ' + e.message));
@@ -296,7 +300,7 @@ export default class {
     });
   }
 
-  _sendStats(id, oldCategories, newCategories, isRepeatedCustomization, urls) {
+  _sendStats(oldCategories, newCategories, isRepeatedCustomization, urls) {
     const stats = {
       type: 'activity',
       action: 'smart_cliqz_customization',
