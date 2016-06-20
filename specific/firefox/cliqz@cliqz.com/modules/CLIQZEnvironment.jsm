@@ -431,9 +431,9 @@ var CLIQZEnvironment = {
         var util = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
         return util.outerWindowID;
     },
-    openTabInWindow: function(win, url){
+    openTabInWindow: function(win, url, relatedToCurrent = false){
         var tBrowser = win.document.getElementById('content');
-        var tab = tBrowser.addTab(url);
+        var tab = tBrowser.addTab(url, {relatedToCurrent: relatedToCurrent});
         tBrowser.selectedTab = tab;
     },
     // TODO: move this
