@@ -16,7 +16,7 @@ function matchRuleExpl(str, rule) {
 }
 
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
-function wildcardMatch(find, source) {
+function globsMatch(find, source) {
     find = find.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
     find = find.replace(/\*/g, ".*");
     find = find.replace(/\?/g, ".");
@@ -128,13 +128,12 @@ var getContentScript = function (window, url) {
   };
 
 
-
   // TODO: find proper content scrip using glob pattern specification
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
   for (var prop in CONTENT_SCRIPTS) {
     if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
     // or if (Object.prototype.hasOwnProperty.call(obj,prop)) for safety...
-      if(wildcardMatch(prop, url)){
+      if(globsMatch(prop, url)){
         window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
         return CONTENT_SCRIPTS[prop];
       }
