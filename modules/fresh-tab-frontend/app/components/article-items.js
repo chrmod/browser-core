@@ -23,6 +23,14 @@ export default Ember.Component.extend({
     return ret;
   }),
 
+  setupHeights: function () {
+    this.set("heights", []);
+  }.on("init"),
+
+  clearHeights: function () {
+    const heights = this.get("heights");
+    heights.clear();
+  }.observes("pageNum"),
 
   nextPage() {
     const pageNum = this.get("pageNum");
@@ -66,12 +74,8 @@ export default Ember.Component.extend({
      },
 
     calculateHeight(height) {
-      let heights = this.getWithDefault("heights", [])
-      if (heights.length === 3) {
-        heights = [];
-      }
-      heights.push(height)
-      this.set("heights", heights)
+      const heights = this.get("heights");
+      heights.pushObject(height);
     }
   },
 
