@@ -11,10 +11,12 @@ import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
 import { UIManager } from 'goldrush/ui/ui_manager';
 import { StatsHandler } from 'goldrush/stats_handler';
-import  GoldrushConfigs  from 'goldrush/goldrush_configs'
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 // TODO: review if this is fine
 Components.utils.import("resource://gre/modules/Services.jsm");
+// needed for the history
+Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
 
 
@@ -239,6 +241,7 @@ export function OfferManager() {
 
       // now here we need to check the history of the user so we can load the
       // old events and more
+      self.loadHistoryEvents();
   });
 
 }
@@ -246,6 +249,61 @@ export function OfferManager() {
 ////////////////////////////////////////////////////////////////////////////////
 //                        "PRIVATE" METHODS
 ////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief This method will read the history of the user and will feed the intent
+//        input with the events
+//
+OfferManager.prototype.loadHistoryEvents = function() {
+  if (!GoldrushConfigs.LOAD_HISTORY_EVENTS) {
+    log('skipping the LOAD_HISTORY_EVENTS since flag is false');
+    return;
+  }
+
+  // here we need to get all the visits (moz_historyvisits) in the last N days
+  // and join them with the moz_places table to get the urls.
+  //
+  // \ref: http://softholmsyndrome.com/2014/10/27/places-sqlite.html
+  // CREATE INDEX moz_historyvisits_placedateindex ON moz_historyvisits (place_id, visit_date);
+  // CREATE UNIQUE INDEX moz_places_url_uniqueindex ON moz_places (url);
+  //
+  // the SQL should look something like this:
+  // SELECT url, visit_date FROM moz_historyvisits INNER JOIN moz_places ON
+  //  moz_historyvisits.place_id = moz_places.id WHERE visit_date > "1466499090175383"
+  //  ORDER BY visit_date ASC;
+  //
+
+  var self = this;
+
+  // calculate the delta time to fetch the data from
+  const currentTs = Date.now();
+  const absoluteTimestamp = currentTs -
+    (GoldrushConfigs.HISTORY_EVENTS_TIME_DAYS * GoldrushConfigs.DAY * 1000);
+  const sqlQuery = 'SELECT url, visit_date FROM moz_historyvisits INNER JOIN moz_places ON ' +
+                   'moz_historyvisits.place_id = moz_places.id WHERE visit_date > ' +
+                   absoluteTimestamp + ' ORDER BY visit_date ASC;';
+
+  log('loading the history events now with query: ' + sqlQuery);
+  // execute the query now
+  let eventCounts = 0;
+  CliqzHistoryManager.PlacesInterestsStorage._execute(sqlQuery,
+                                                      ['url', 'visit_date'],
+                                                      function(result) {
+      var urlObj = CliqzUtils.getDetailsFromUrl(result.url);
+      const timestamp = Number(result.visit_date) / 1000; // convert microseconds to ms
+      self.feedWithHistoryEvent(urlObj, timestamp);
+      //log('feeding the intent input with ' + result.url + ' - ' + timestamp);
+      eventCounts += 1;
+    },
+    null,
+    ).then(function() {
+      // nothing to do
+      log('finishing feeding from history. Number of events: ' + eventCounts);
+    }
+  );
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -366,7 +424,6 @@ OfferManager.prototype.destroy = function() {
 // @note check the intent input to see which is the expected format
 //
 OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
-  log('formatEvent');
   if (!this.mappings) {
     return null;
   }
@@ -374,8 +431,6 @@ OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
   // we need to detect if we are in a domain of some cluster.
   const domainName = urlObj['name'];
   const domainID = this.mappings['dname_to_did'][domainName];
-  log('domainName' + domainName);
-  log('domainID' + domainID);
   if (!domainID) {
     // skip this one
     return null;
@@ -1019,7 +1074,7 @@ OfferManager.prototype.extraEventsUICallback = function(reason) {
   if (reason === 'removed') {
     let offer = this.cidToOfferMap[this.currentCluster];
     offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
-    const userClosed = (offer !== undefined && offer.active == true);
+    const userClosed = (offer !== undefined && offer.active === true);
 
     log('extraEventsUICallback: userClosed: ' + userClosed);
 
