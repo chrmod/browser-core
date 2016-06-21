@@ -188,10 +188,7 @@ function generateDBMap(dbsNamesList) {
 // @brief This class will be in charge of handling the offers and almost everything
 //        else. This is the main class.
 //
-export function OfferManager(onReadyCallback = null) {
-  // the callback to be called when the offer manager is ready to be used (all data)
-  // loaded
-  this.onReadyCallback = onReadyCallback;
+export function OfferManager() {
   // the mappings we will use
   this.mappings = null;
   // the intent detectors mapping (clusterID -> intent detector)
@@ -242,11 +239,14 @@ export function OfferManager(onReadyCallback = null) {
   }).then(function(userDB) {
       self.userDB = userDB;
   }).then(function() {
-        log('load the clusters and create the');
-        self.clusterFilesMap = getClustersFilesMap();
-        log(self.clusterFilesMap);
-        log('calling generateIntentsDetector');
-        self.generateIntentsDetector(self.clusterFilesMap);
+      log('load the clusters and create the');
+      self.clusterFilesMap = getClustersFilesMap();
+      log(self.clusterFilesMap);
+      log('calling generateIntentsDetector');
+      self.generateIntentsDetector(self.clusterFilesMap);
+
+      // now here we need to check the history of the user so we can load the
+      // old events and more
   });
 
 }
@@ -343,11 +343,6 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
         intentDetector.loadDataBases(dbsJson);
         intentDetector.loadRule(rulesStr);
         self.intentDetectorsMap[clusterID] = intentDetector;
-
-        // call the onReadyCallback if we have one
-        if (self.onReadyCallback) {
-          self.onReadyCallback();
-        }
       } catch (e) {
         log('something happened when configuring the intent detector for cluster ' + clusterName);
         log('error: ' + e);
@@ -357,6 +352,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       log('error: ' + errMsg);
     });
   }
+
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
