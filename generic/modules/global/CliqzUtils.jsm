@@ -692,7 +692,7 @@ var CliqzUtils = {
   },
   disableWikiDedup: function() {
     // disable wikipedia deduplication on the backend side
-    let doDedup = CliqzUtils.getPref("languageDedup", false);
+    var doDedup = CliqzUtils.getPref("languageDedup", false);
     if (doDedup) return '&ddl=0';
     else return ""
   },  
@@ -707,7 +707,7 @@ var CliqzUtils = {
     return '&adult='+state;
   },
   encodeResultCount: function(count) {
-    let doDedup = CliqzUtils.getPref("languageDedup", false);
+    var doDedup = CliqzUtils.getPref("languageDedup", false);
     count = count || 5;
     if (doDedup) return '&count=' + count;
     else return ""
