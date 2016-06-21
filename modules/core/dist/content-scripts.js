@@ -1,20 +1,3 @@
-//Explanation code
-function matchRuleExpl(str, rule) {
-  // "."  => Find a single character, except newline or line terminator
-  // ".*" => Matches any string that contains zero or more characters
-  rule = rule.split("*").join(".*");
-
-  // "^"  => Matches any string with the following at the beginning of it
-  // "$"  => Matches any string with that in front at the end of it
-  rule = "^" + rule + "$"
-
-  //Create a regular expression object for matching string
-  var regex = new RegExp(rule);
-
-  //Returns true if it finds a match, otherwise it returns false
-  return regex.test(str);
-}
-
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
 function globsMatch(find, source) {
     find = find.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
@@ -35,22 +18,6 @@ function globsMatch(find, source) {
 //
 var getContentScript = function (window, url) {
   var CONTENT_SCRIPTS = {
-    "*cliqz.com/??": function (window, send) {
-      window.console.log("Hello World!!!!")
-      function onLoad() {
-        window.console.log("LOADED 2!!!!");
-        send({
-          action: "recordCoupon",
-          args: ["XYZ"]
-        })
-      }
-      window.addEventListener("DOMContentLoaded", onLoad);
-
-      // window.addEventListener("unload", function () {
-      //   window.removeEventListener("DOMContentLoaded", onLoad);
-      // });
-    },
-
     "*deliveroo.??/??/checkout": function(window, send) {
       window.console.log("Deliveroo");
       function onLoad() {
@@ -164,16 +131,13 @@ var getContentScript = function (window, url) {
   };
 
 
-  // TODO: find proper content scrip using glob pattern specification
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
   for (var prop in CONTENT_SCRIPTS) {
     if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
-    // or if (Object.prototype.hasOwnProperty.call(obj,prop)) for safety...
       if(globsMatch(prop, url)){
         window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
         return CONTENT_SCRIPTS[prop];
       }
     }
   }
-  // return CONTENT_SCRIPTS[url];
 };
