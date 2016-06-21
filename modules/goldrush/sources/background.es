@@ -1,13 +1,10 @@
 import { utils, events } from 'core/cliqz';
-import { DateTimeDB } from 'goldrush/dbs/datetime_db';
-import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import ResourceLoader from 'core/resource-loader';
-import CliqzGoldrushPopupButton from 'goldrush/ui/popup-button';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { OfferManager } from 'goldrush/offer_manager';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
-import background from "core/base/background";
+import background from 'core/base/background';
 
 //import { FID } from 'goldrush/fids/fid';
 
@@ -185,7 +182,7 @@ export default background({
   },
 
   events: {
-    "core:coupon-detected": function(args) {
+    'core:coupon-detected': function(args) {
       if(this.offerManager){
         this.offerManager.addCouponAsUsedStats(args['domain'], args['code']);
       }
