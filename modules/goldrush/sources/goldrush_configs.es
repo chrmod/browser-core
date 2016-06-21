@@ -32,6 +32,10 @@ var GoldrushConfigs = {
   // the intent input system
   HISTORY_EVENTS_TIME_DAYS: 10,
 
+  // get the global flag if we need to switch or not
+  // TODO: this we can read it from the pref CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
+  OFFER_SUBCLUSTER_SWITCH: false,
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Stats handler

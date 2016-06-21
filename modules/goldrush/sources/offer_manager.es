@@ -598,7 +598,7 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
   //
 
   // get the global flag if we need to switch or not
-  const switchFlag = CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
+  const switchFlag = GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH;
 
   // check if we have a subcluster mapping
   var subclusterMap = (this.offerSubclusterInfo !== null) ? this.offerSubclusterInfo[evtClusterID]
@@ -654,26 +654,29 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
       return voucher;
     }
     // now check if we need to switch or not
+    var oppositeSubcluster = '';
     if (switchFlag) {
       // we need to get a coupon from the other side
-      const oppositeSubcluster = userOnSubcluster === 'A' ? 'B' : 'A';
-      // search in this
-      log('getBestCoupon: selecting voucher for subcluster: ' + oppositeSubcluster +
-          ' - user on subcluster: ' + userOnSubcluster +
-          ' - userDomainID: ' + evtDomID);
-      const domainsToSearch = subclusterMap[oppositeSubcluster];
-      let localVoucher = selectBestVoucher(vouchers, domainsToSearch);
-
-      // check if we found a voucher we want
-      if (!localVoucher) {
-        log('ERROR: we didnt find a voucher for the cluster we were looking for ' +
-            'so we will return the default one');
-        return voucher;
-      }
-
-      // we found one, just return it
-      return localVoucher;
+      oppositeSubcluster = userOnSubcluster === 'A' ? 'B' : 'A';
+    } else  {
+      oppositeSubcluster = userOnSubcluster;
     }
+    // search in this
+    log('getBestCoupon: selecting voucher for subcluster: ' + oppositeSubcluster +
+        ' - user on subcluster: ' + userOnSubcluster +
+        ' - userDomainID: ' + evtDomID);
+    const domainsToSearch = subclusterMap[oppositeSubcluster];
+    let localVoucher = selectBestVoucher(vouchers, domainsToSearch);
+
+    // check if we found a voucher we want
+    if (!localVoucher) {
+      log('ERROR: we didnt find a voucher for the cluster we were looking for ' +
+          'so we will return the default one');
+      return voucher;
+    }
+
+    // we found one, just return it
+    return localVoucher;
   } else {
     // we just need to get any voucher that is not evtDomID if possible
     log('getBestCoupon: selectiong the best voucher from all (no A|B logic)');
