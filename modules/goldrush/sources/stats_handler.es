@@ -1,13 +1,5 @@
 import { utils } from 'core/cliqz';
-
-////////////////////////////////////////////////////////////////////////////////
-// Consts
-
-// TODO: define this constant
-const STATS_SENT_PERIODISITY_MS = 1000 * 3000; /*1000 * (60 * 60 * 24);*/
-
-// storage address
-const STATS_LOCAL_STORAGE_URL = 'chrome://cliqz/content/goldrush/stats_db.json';
+import  GoldrushConfigs  from 'goldrush/goldrush_configs'
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +28,7 @@ export class StatsHandler {
     };
 
     // we will use the CliqzStorage here
-    var localStorage = CLIQZEnvironment.getLocalStorage(STATS_LOCAL_STORAGE_URL);
+    var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.STATS_LOCAL_STORAGE_URL);
     var cache = localStorage.getItem('stats_data');
     if (!cache) {
       // we need to write this then
@@ -69,7 +61,7 @@ export class StatsHandler {
           localStorage.setItem('stats_data', JSON.stringify(this.currentData));
         }
       }
-    }.bind(this), STATS_SENT_PERIODISITY_MS);
+    }.bind(this), GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
   }
 
   destroy() {
@@ -78,7 +70,7 @@ export class StatsHandler {
     CliqzUtils.clearInterval(this.interval);
 
     // at any case we store the current data
-    var localStorage = CLIQZEnvironment.getLocalStorage(STATS_LOCAL_STORAGE_URL);
+    var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.STATS_LOCAL_STORAGE_URL);
     localStorage.setItem('stats_data', JSON.stringify(this.currentData));
   }
 
@@ -135,8 +127,8 @@ export class StatsHandler {
     const diffTime = Date.now() - lastTimeSent;
     log('shouldWeNeedToSendCurrenData: lastTimeSent: ' + lastTimeSent +
         ' - diffTime: ' + diffTime +
-        ' - STATS_SENT_PERIODISITY_MS: ' + STATS_SENT_PERIODISITY_MS);
-    return (diffTime >= STATS_SENT_PERIODISITY_MS);
+        ' - GoldrushConfigs.STATS_SENT_PERIODISITY_MS: ' + GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
+    return (diffTime >= GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
   }
 
 

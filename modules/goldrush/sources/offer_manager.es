@@ -11,6 +11,7 @@ import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
 import { UIManager } from 'goldrush/ui/ui_manager';
 import { StatsHandler } from 'goldrush/stats_handler';
+import  GoldrushConfigs  from 'goldrush/goldrush_configs'
 
 // TODO: review if this is fine
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -20,15 +21,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 //
-
-// TODO: specify this values before the release
-
-// the number of events outside of a particular cluster after we decide to hide
-// the current offer (UI).
-const OM_NUM_EVTS_DISABLE_OFFER = 3;
-// the number of milliseconds we want to wait till we hide the add
-const OM_HIDE_OFFER_MS = 1000 * 60;
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,9 +256,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   log('inside generateIntentsDetector222');
   check(this.mappings != null, 'mappings is not properly initialized');
 
-  // TODO: read the values from the config maybe? for the following variables
-  var sessionThresholdTimeSecs = 30*60;
-  var buyIntentThresholdSecs = 60*60*24*10; // 10 days? TODO: change this with a proper value
+  var sessionThresholdTimeSecs = GoldrushConfigs.INTENT_SESSION_THRESHOLD_SECS;
+  var buyIntentThresholdSecs = GoldrushConfigs.BUY_INTENT_SESSION_THRESHOLD_SECS;
 
   for (var clusterName in clusterFilesMap) {
     // get the given cluster ID from the name.
@@ -523,7 +514,7 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
   offer.timerID = CliqzUtils.setTimeout(function () {
     // check if we are showing the add, if not we just remove it
     this.removeAndUntrackOffer(offerID);
-  }.bind(this), OM_HIDE_OFFER_MS);
+  }.bind(this), GoldrushConfigs.HIDE_OFFER_MS);
 
   return offer;
 };
