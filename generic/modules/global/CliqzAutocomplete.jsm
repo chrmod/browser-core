@@ -409,7 +409,7 @@ var CliqzAutocomplete = {
                             var rerankerResults = reranker.doRerank(json.result);
                             json.result = rerankerResults.response;
                             if (Object.keys(rerankerResults.telemetrySignal).length > 0){
-                                this.user_rerankers[reranker.name] = rerankerResults.telemetrySignal;
+                                this.userRerankers[reranker.name] = rerankerResults.telemetrySignal;
                             }
                         }
 
@@ -504,7 +504,7 @@ var CliqzAutocomplete = {
                     mixed: null,
                     all: null
                 };
-                this.user_rerankers = {};
+                this.userRerankers = {};
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
@@ -655,7 +655,7 @@ var CliqzAutocomplete = {
                     latency_mixed: obj.latency.mixed,
                     latency_all: obj.startTime? Date.now() - obj.startTime : null,
                     discarded: obj.discardedResults,
-                    user_rerankers: obj.user_rerankers,
+                    user_rerankers: obj.userRerankers,
                     v: 1
                 };
 

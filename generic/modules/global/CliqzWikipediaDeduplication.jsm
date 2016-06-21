@@ -91,90 +91,93 @@ var CliqzWikipediaDeduplication = {
     doRerank: function (response) {
         //reset telemetry
         var telemetrySignal = {};
-        var userLangs = this.getUserLanguages();
+        if (typeof response != 'undefined') {
 
-        // dict of wiki languages to urls
-        var wikiLangs = {};
+            var userLangs = this.getUserLanguages();
 
-        // list of all wiki urls
-        var wikiUrls = [];
+            // dict of wiki languages to urls
+            var wikiLangs = {};
 
-        // list of candidates to dedup with back link to original url
-        // {"de.wikipedia.org/url": "Https://de.wikipedia.org/URL"}
-        var candidates = {};
+            // list of all wiki urls
+            var wikiUrls = [];
 
-        // list of all urls in response
-        var allUrls = [];
+            // list of candidates to dedup with back link to original url
+            // {"de.wikipedia.org/url": "Https://de.wikipedia.org/URL"}
+            var candidates = {};
 
-        // dedup result
-        var dedups = {};
+            // list of all urls in response
+            var allUrls = [];
 
-        // process response and fill all structures
-        response.forEach(function (r) {
-            var obj = CliqzUtils.getDetailsFromUrl(r.url);
-            if (obj.domain == "wikipedia.org" && obj.subdomains.length) {
-                var lang = obj.subdomains[0];
-                if (wikiLangs[lang] == null) wikiLangs[lang] = [];
-                wikiLangs[lang].push(r.url);
-                candidates[this.urlStripProtocol(r.url).toLowerCase()] = r.url;
-                wikiUrls.push(r.url);
-                dedups[r.url] = [];
-            }
-            allUrls.push(r.url);
+            // dedup result
+            var dedups = {};
 
-        }, this);
-        telemetrySignal['available_languages'] = Object.keys(wikiLangs).length;
-        if (Object.keys(wikiLangs).length > 1) {
-            // we have wikipedia with different langs, try possible dedup
-            var bestUrl = this.chooseUrlByLang(wikiLangs, allUrls, userLangs);
-
-            var ind = allUrls.indexOf(bestUrl);
-            var bestUrlData = response[ind];
-            var langlinks = [];
-            try {
-                langlinks = bestUrlData.snippet.rich_data.langlinks;
-            } catch (e) {
-            }
-            langlinks.forEach(function (langlink) {
-                var stripUrl = this.urlStripProtocol(langlink).toLowerCase();
-                var stripLang = stripUrl.split(".")[0];
-                if ((stripUrl in candidates) && (userLangs.indexOf(stripLang) == -1)) {
-                    var originalUrl = candidates[stripUrl];
-                    dedups[bestUrl].push(originalUrl);
-                    dedups[bestUrl].concat(dedups[originalUrl]);
-                    delete dedups[originalUrl];
+            // process response and fill all structures
+            response.forEach(function (r) {
+                var obj = CliqzUtils.getDetailsFromUrl(r.url);
+                if (obj.domain == "wikipedia.org" && obj.subdomains.length) {
+                    var lang = obj.subdomains[0];
+                    if (wikiLangs[lang] == null) wikiLangs[lang] = [];
+                    wikiLangs[lang].push(r.url);
+                    candidates[this.urlStripProtocol(r.url).toLowerCase()] = r.url;
+                    wikiUrls.push(r.url);
+                    dedups[r.url] = [];
                 }
-            }, this);
-            var deduped = wikiUrls.length - Object.keys(dedups).length;
-            telemetrySignal['total_urls'] = wikiUrls.length;
-            telemetrySignal['removed_urls'] = deduped;
+                allUrls.push(r.url);
 
-            if(deduped > 0) {
-                // backward structure with link where deduped url is pointing
-                var invertedUrls = {};
-                Object.keys(dedups).forEach(function (k) {
-                    dedups[k].forEach(function (url) {
-                        invertedUrls[url] = k;
+            }, this);
+            telemetrySignal['available_languages'] = Object.keys(wikiLangs).length;
+            if (Object.keys(wikiLangs).length > 1) {
+                // we have wikipedia with different langs, try possible dedup
+                var bestUrl = this.chooseUrlByLang(wikiLangs, allUrls, userLangs);
+
+                var ind = allUrls.indexOf(bestUrl);
+                var bestUrlData = response[ind];
+                var langlinks = [];
+                try {
+                    langlinks = bestUrlData.snippet.rich_data.langlinks;
+                } catch (e) {
+                }
+                langlinks.forEach(function (langlink) {
+                    var stripUrl = this.urlStripProtocol(langlink).toLowerCase();
+                    var stripLang = stripUrl.split(".")[0];
+                    if ((stripUrl in candidates) && (userLangs.indexOf(stripLang) == -1)) {
+                        var originalUrl = candidates[stripUrl];
+                        dedups[bestUrl].push(originalUrl);
+                        dedups[bestUrl].concat(dedups[originalUrl]);
+                        delete dedups[originalUrl];
+                    }
+                }, this);
+                var deduped = wikiUrls.length - Object.keys(dedups).length;
+                telemetrySignal['total_urls'] = wikiUrls.length;
+                telemetrySignal['removed_urls'] = deduped;
+
+                if (deduped > 0) {
+                    // backward structure with link where deduped url is pointing
+                    var invertedUrls = {};
+                    Object.keys(dedups).forEach(function (k) {
+                        dedups[k].forEach(function (url) {
+                            invertedUrls[url] = k;
+                        });
                     });
-                });
-                var dedupResponse = [];
-                for (var i = 0; i < response.length; i++) {
-                    var responseObj = response[i];
-                    if (responseObj.url in invertedUrls) {
-                        // this url should be replaced by main url
-                        var mainInd = allUrls.indexOf(invertedUrls[responseObj.url]);
-                        if (mainInd != -1) {
-                            var mainObj = response[mainInd];
-                            dedupResponse.push(mainObj);
-                            delete allUrls[mainInd];
+                    var dedupResponse = [];
+                    for (var i = 0; i < response.length; i++) {
+                        var responseObj = response[i];
+                        if (responseObj.url in invertedUrls) {
+                            // this url should be replaced by main url
+                            var mainInd = allUrls.indexOf(invertedUrls[responseObj.url]);
+                            if (mainInd != -1) {
+                                var mainObj = response[mainInd];
+                                dedupResponse.push(mainObj);
+                                delete allUrls[mainInd];
+                            }
+                        }
+                        else {
+                            dedupResponse.push(responseObj);
+                            delete allUrls[i];
                         }
                     }
-                    else {
-                        dedupResponse.push(responseObj);
-                        delete allUrls[i];
-                    }
+                    response = dedupResponse;
                 }
-                response = dedupResponse;
             }
         }
         // if no dedups found
