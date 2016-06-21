@@ -49,22 +49,17 @@ export default background({
   init(settings) {
     // define all the variables here
     this.db = null;
-    this.offerManager = null;
-
-    // construct the offer manager
-    log('init');
+    // offer manager
     this.offerManager = new OfferManager();
-    log('after offer manager');
 
   },
 
+  //////////////////////////////////////////////////////////////////////////////
   start() {
     // nothing to do
-    log('starting the background script');
-
-    return;
   },
 
+  //////////////////////////////////////////////////////////////////////////////
   onLocationChangeHandler(url) {
     var u = utils.getDetailsFromUrl(url);
     log('location changed to ' + u.host);
@@ -85,6 +80,7 @@ export default background({
 
   },
 
+  //////////////////////////////////////////////////////////////////////////////
   unload() {
     log('unloading the background script');
 
