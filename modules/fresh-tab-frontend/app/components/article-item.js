@@ -5,6 +5,11 @@ export default Ember.Component.extend({
   elapsed: 0,
   cliqz: Ember.inject.service(),
 
+  calculateHeight: function() {
+    var height = this.$(".article-content").height();
+    this.sendAction("calculateHeightAction", height);
+  }.on('didInsertElement'),
+
   click(ev) {
     this.get('cliqz').sendTelemetry({
       type: 'home',
@@ -15,29 +20,34 @@ export default Ember.Component.extend({
     });
   },
 
-  mouseEnter(ev) {
+  adjustHeight: function () {
+    let height = this.get("height");
+    if(height) {
+      this.$(".article-content").css("min-height", height);
+    }
+  }.observes("height").on("didRender"),
 
-    this.set('startEnter', new Date().getTime());
-    ev.preventDefault();
-    var $target = $(ev.target),
-        $description = $target.closest('li').find('.description'),
-        $li = $target.closest('li');
+  mouseEnter() {
+    this.set('startEnter', Date.now());
+    var $target = this.$(".article-content"),
+        $description = $target.find('.description');
 
-      $('.allNews').find('.description').stop().slideUp(200);
-      $description.stop().slideDown(500);
-
+    $description.stop().slideDown(500);
   },
 
   mouseLeave(ev) {
-    $('.allNews').find('.description').stop().slideUp(200);
-    this.set('elapsed', new Date().getTime() - this.get('startEnter'));
-    if(this.get('elapsed') > 2000) {
+
+    this.$('.description').stop().slideUp(500);
+
+    const elapsed = Date.now() - this.get('startEnter');
+    this.set('startEnter', 0);
+    if(elapsed > 2000) {
       this.get('cliqz').sendTelemetry({
         type: 'home',
         action: 'hover',
         target_type: this.get('target-type'),
         extra: Ember.$(ev.target).attr('extra'),
-        hover_time: this.get('elapsed'),
+        hover_time: elapsed,
         target_index: this.get('index')
       });
     }

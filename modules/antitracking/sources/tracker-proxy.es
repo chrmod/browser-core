@@ -8,11 +8,13 @@ const ENABLE_PREF = 'attrackProxyTrackers';
 export default class {
 
   constructor() {
-    this.pps = Components.classes['@mozilla.org/network/protocol-proxy-service;1']
-      .getService(Components.interfaces.nsIProtocolProxyService);
-    this.proxy = null;
-    this.trackerDomains = new Set();
-    this.proxyUrls = new Set();
+    if (this.isEnabled() ) {
+      this.pps = Components.classes['@mozilla.org/network/protocol-proxy-service;1']
+        .getService(Components.interfaces.nsIProtocolProxyService);
+      this.proxy = null;
+      this.trackerDomains = new Set();
+      this.proxyUrls = new Set();
+    }
   }
 
   isEnabled() {
@@ -65,7 +67,7 @@ export default class {
   }
 
   get initialised() {
-    return this.proxy !== null;
+    return this.proxy && this.proxy !== null;
   }
 
   checkShouldProxy(url) {

@@ -252,7 +252,7 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage,
               chai.expect(hitCtr).to.eql(1);
               chai.expect(resp.response).to.eql(responseTest);
               chai.expect(contentEncodingHeader).to.eql('gzip');
-              let postData = gzip.decompress(binaryStringToUint8Array(requestData));
+              var postData = gzip.decompress(binaryStringToUint8Array(requestData));
               chai.expect(postData).to.eql(postDataSent);
             });
           });

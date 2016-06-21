@@ -1,13 +1,13 @@
 import { utils, events } from 'core/cliqz';
-import { DateTimeDB } from 'goldrush/dbs/datetime_db';
-import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import ResourceLoader from 'core/resource-loader';
-import CliqzGoldrushPopupButton from 'goldrush/ui/popup-button';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { OfferManager } from 'goldrush/offer_manager';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
+import background from 'core/base/background';
+
 //import { FID } from 'goldrush/fids/fid';
+
 
 function log(s){
   utils.log(s, 'GOLDRUSH - background');
@@ -41,11 +41,11 @@ function parseMappingsFileAsPromise(filename) {
 // TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 //////////////////////////////////////////////////////////////////////////////
 
+export default background({
+  enabled() {
+    return true;
+  },
 
-
-
-
-export default {
   init(settings) {
     // define all the variables here
     this.db = null;
@@ -55,13 +55,6 @@ export default {
     log('init');
     this.offerManager = new OfferManager();
     log('after offer manager');
-
-    // nothing to do for now
-
-    // subscribe this method also
-    events.sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
-
-    // load the popup button
 
   },
 
@@ -94,9 +87,6 @@ export default {
 
   unload() {
     log('unloading the background script');
-
-    // unsubscribe this class
-    events.un_sub( 'core.location_change', this.onLocationChangeHandler.bind(this) );
 
     // destroy classes
     if (this.offerManager) {
@@ -188,7 +178,15 @@ export default {
     );
     rscLoader.persist(JSON.stringify({name: 'saqib', ads_shown: true}, null, 4)).then(data => {
       log('data successfully persisted');
-    })
+    });
+  },
+
+  events: {
+    'core:coupon-detected': function(args) {
+      if(this.offerManager){
+        this.offerManager.addCouponAsUsedStats(args['domain'], args['code']);
+      }
+    }
   }
 
-};
+});

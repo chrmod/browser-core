@@ -167,28 +167,38 @@ We will gather the information before send it over telemetry in the following wa
   type : 'offers',
 
   // the data itself is easy to parse if we add it into another nested level
-  offers_data : {
+  data : {
     cluster\_id: {
       // the number of coupons that the user used (whatever it means) a coupon.
       coupons\_used: N,
-      // the number of coupons shown (clicked on show coupon if valid)
-      coupons\_shown: N,
+      // when another coupon has being used by the user and we couldn't track
+      // it for any reason (could be ours or not... most probably not).
+      external\_coupons\_used: N,
       // coupons opened (go to offer)
       coupons\_opened: N,
+      // when the offer is shown in the same domain where the user is
+      same\_domains: N,
+      // when the offer is shown in a particular subcluster ({A,B}) if any.
+      subcluster\_A: N,
+      subcluster\_B: N,
       // the number of coupons rejected by the user (explicitly clicked on not interested)
       coupons\_rejected: N,
-      // the number offers closed (x button)
+      // the number offers closed (the offer is not shown anymore)
       offers\_closed: N,
-      // number of offers displayed (unique offers)
+      // the number offers closed by the user (x button)
+      offers\_closed\_by\_user: N,
+      // number of offers displayed (could be multiple times the same offer)
       offers\_displayed: N,
+      // number of offers created (unique offers, this is created once independently of how many we show)
+      offers\_created: N,
       // the number of checkout detected (probably boughts from the user side)
+      // this is only one per buying activity (not all the times we detect a checkout page)
       checkouts: N,
       // # of times the system detected a intent
       system_intents: N,
-      // the numbers the user visited a particular cluster.
+      // the numbers the user visited a particular cluster (everytime we get an event
+      // in the givin cluster we increment the counter).
       visits: N,
-      // number of unique visits?
-      unique_visits: N,
     },
     ...
   }

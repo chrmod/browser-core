@@ -62,6 +62,9 @@ export function OfferFetcher(backendAddr, mappings = null) {
   this.beAddr = backendAddr;
   this.mappings = mappings;
 
+  // temporary cache to avoid multiple queries
+  this.cache = {};
+
   // to send something we need to:
   // destURL = backendAddr + q=get_amazon.de
   // destURL = backendAddr + q=set_coupon-ID
@@ -77,6 +80,18 @@ export function OfferFetcher(backendAddr, mappings = null) {
 OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) {
   // assert(this.beAddr.length > 0);
   // assert(this.mappings !== null);
+  let self = this;
+
+  const TS_THRESHOLD = 1000 * 60;
+  if(this.cache.hasOwnProperty(clusterID)) {
+    let tsDiff = Date.now() - this.cache[clusterID]['ts']
+    if (tsDiff <= TS_THRESHOLD) {
+      log('using cached vouchers');
+      callback && callback(this.cache[clusterID]['vouchers']);
+      return;
+    }
+  }
+
 
   let vouchersObj = null;
   // it should exists for sure (mappings is wrong if not and cannot happen).
@@ -91,7 +106,14 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   utils.httpGet(destURL, function success(resp) {
       vouchersObj = parseHttpResponse(resp.response);
       log('voucher received:');
-      log(vouchersObj);
+
+      // temporary cache to avoid multiple queries
+      if(!self.cache.hasOwnProperty(clusterID)) {
+        self.cache[clusterID] = {};
+      }
+      self.cache[clusterID]['ts'] = Date.now();
+      self.cache[clusterID]['vouchers'] = vouchersObj;
+      log('updated cached vouchers as time expired');
 
       callback && callback(vouchersObj);
 

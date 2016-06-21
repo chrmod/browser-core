@@ -11,6 +11,7 @@ import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
 import { UIManager } from 'goldrush/ui/ui_manager';
 import { StatsHandler } from 'goldrush/stats_handler';
+import  GoldrushConfigs  from 'goldrush/goldrush_configs'
 
 // TODO: review if this is fine
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -20,18 +21,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 //
-
-// TODO: specify this values before the release
-
-// the number of events outside of a particular cluster after we decide to hide
-// the current offer (UI).
-const OM_NUM_EVTS_DISABLE_OFFER = 3;
-// the number of milliseconds we want to wait till we hide the add
-const OM_HIDE_OFFER_MS = 1000 * 10;
-// pref name for AB test
-// TODO: ask how to add this pref in the AB test OM_AB_SUBC_SWITCH_KEY
-const OM_AB_SUBC_SWITCH_KEY = 'offer_subc_switch';
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,8 +197,6 @@ export function OfferManager() {
   // the intent input maps (clusterID -> intentInput)
   this.intentInputMap = {};
   this.offerFetcher = null;
-  // the list of current coupons we have
-  this.couponsList = null;
   // the ui manager (we need to provide UI data for this)
   this.uiManager = new UIManager();
   this.uiManager.configureCallbacks({
@@ -237,6 +224,8 @@ export function OfferManager() {
   this.eventsCounts = {total: 0};
   // track the current cluster
   this.currentCluster = -1;
+  // track shown offers
+  this.offersShownCounterMap = {};
 
   // the offers subclusters info (A|B): clusterID -> {}
   this.offerSubclusterInfo = null;
@@ -283,9 +272,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   log('inside generateIntentsDetector222');
   check(this.mappings != null, 'mappings is not properly initialized');
 
-  // TODO: read the values from the config maybe? for the following variables
-  var sessionThresholdTimeSecs = 30*60;
-  var buyIntentThresholdSecs = 60*60*24*10; // 10 days? TODO: change this with a proper value
+  var sessionThresholdTimeSecs = GoldrushConfigs.INTENT_SESSION_THRESHOLD_SECS;
+  var buyIntentThresholdSecs = GoldrushConfigs.BUY_INTENT_SESSION_THRESHOLD_SECS;
 
   for (var clusterName in clusterFilesMap) {
     // get the given cluster ID from the name.
@@ -680,18 +668,31 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
     redirect_url_did: (redirectDomID === undefined) ? -1 : redirectDomID
   };
 
-  log('creating and tracking offer with ID: ' + offerID);
-  log('redirectDOM: ' + coupon.redirect_url  + ' - ' + redirectUrl.name + ' - ' + redirectDomID);
-
   // add to the maps
   this.currentOfferMap[offerID] = offer;
   this.cidToOfferMap[clusterID] = offerID;
+
+  // notify the stats handler
+  if (this.statsHandler) {
+    this.statsHandler.offerCreated(offer);
+  }
+
+  // Every time we show a offer add it to this maps. It will help us track
+  // is our coupon where used or not
+  let couponCode = coupon.code;
+  if(this.offersShownCounterMap.hasOwnProperty(couponCode)) {
+    this.offersShownCounterMap[couponCode] += 1;
+  } else {
+    this.offersShownCounterMap[couponCode] = 1;
+  }
+  log("offersShownCounterMap content: ");
+  log(JSON.stringify(this.offersShownCounterMap));
 
   // set the timeout to disable this add
   offer.timerID = CliqzUtils.setTimeout(function () {
     // check if we are showing the add, if not we just remove it
     this.removeAndUntrackOffer(offerID);
-  }.bind(this), OM_HIDE_OFFER_MS);
+  }.bind(this), GoldrushConfigs.HIDE_OFFER_MS);
 
   return offer;
 };
@@ -931,6 +932,12 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     return;
   }
 
+  // track in the stats
+  if (this.statsHandler) {
+    this.statsHandler.userVisitedCluster(clusterID);
+  }
+
+  // count the number of visits
   this.eventsCounts.total += 1;
   this.eventsCounts[clusterID] += 1;
   this.currentCluster = clusterID;
@@ -955,6 +962,14 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     return;
   }
 
+  // here we check if there is a new bought or not, we will only send one signal
+  // per buying activity
+  if (intentInput.currentBuyIntentSession().checkoutsCount() === 1) {
+    if (this.statsHandler) {
+      this.statsHandler.userProbablyBought(domainID, clusterID);
+    }
+  }
+
   // (5)
   const intentValue = intentSystem.evaluateInput(intentInput);
   log('intentValue: ' + intentValue);
@@ -968,7 +983,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // we detect an intention, we track this now
   if (this.statsHandler) {
-    this.statsHandler.systemIntentionDetected(event['domain_id'], clusterID);
+    this.statsHandler.systemIntentionDetected(domainID, clusterID);
   }
 
   // check if we have an offer already for this particular cluster, in that case
@@ -1025,40 +1040,23 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// @brief this method should be called everytime we change the url so we can
-//        track if a coupon has been used or not. Basically here we will need
-//        to check the content of the page and trigger an event when a button of
-//        the checkout form is being used and analyze the content to search for
-//        the associated coupon ID.
+// @brief this method will be called everytime we detect that a coupon
+//        was used on the page (This is done using content-scripts). This method
+//        should then check if the coupon used was one we provided or not
 //
-OfferManager.prototype.detectCouponField = function(url) {
-  // TODO_QUESTION: ask how it is better to:
-  // 1) read the content of the webpage to detect a field?
-  // 2) modify a button form field to link a callback so we can get the event?
-  // 3) read the content of the post request or the form fields when the button is
-  //    pressed?
-  // IMPORTANT how we can read the content of the html???? document.?
-};
-
-
-// TODO: this method will check a map: url_domain -> url_regex
-//       to check if we are on the site where each url_domain has associated a
-//       coupon (active ones).
-OfferManager.prototype.getCurrentCoupons = function() {
-  log('getCurrentCoupons called');
-  if (!this.offerFetcher) {
-    log('offerFetcher is null still');
-    return;
+OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
+  log("SR  " + JSON.stringify(this.offersShownCounterMap));
+  if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
+    this.offersShownCounterMap[coupon] -= 1;
+    let cid = this.mappings['dname_to_cid'][domain];
+    this.statsHandler.couponUsed(cid);
+    log("Our coupon used :\t cid: " + cid +  " \t domain: " + domain + " \tcoupon: " + coupon);
+  } else {
+    let cid = this.mappings['dname_to_cid'][domain];
+    this.statsHandler.externalCouponUsed(cid);
+    log("Unrecognized coupon used :\t cid: " + cid  + " \t domain: " + domain + " \tcoupon: " + coupon);
   }
-
-  // TODO: remove this from here since we should add it later, this function
-  // will be called from outside whenever we need to get the coupons.
-  this.offerFetcher.checkForCouponsByCluster(1, function(vouchers) {
-    // TODO: add the field that has not being used here maybe.
-      this.couponsList = vouchers;
-    });
-  log('returning the coupons list:' + this.couponsList);
-  return this.couponsList;
+  log("SR  " + JSON.stringify(this.offersShownCounterMap));
 };
 
 
