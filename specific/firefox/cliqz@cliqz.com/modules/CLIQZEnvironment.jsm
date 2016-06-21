@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWikipediaDeduplication',
-    'chrome://cliqzmodules/content/CliqzUserReranking.jsm');
+    'chrome://cliqzmodules/content/CliqzWikipediaDeduplication.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
