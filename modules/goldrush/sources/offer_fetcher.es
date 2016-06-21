@@ -1,4 +1,5 @@
 import { utils } from 'core/cliqz';
+import  GoldrushConfigs  from 'goldrush/goldrush_configs';
 
 // var assert = require('assert');
 
@@ -82,10 +83,9 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   // assert(this.mappings !== null);
   let self = this;
 
-  const TS_THRESHOLD = 1000 * 60;
   if(this.cache.hasOwnProperty(clusterID)) {
     let tsDiff = Date.now() - this.cache[clusterID]['ts']
-    if (tsDiff <= TS_THRESHOLD) {
+    if (tsDiff <= GoldrushConfigs.TS_THRESHOLD) {
       log('using cached vouchers');
       callback && callback(this.cache[clusterID]['vouchers']);
       return;

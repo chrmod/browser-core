@@ -24,6 +24,9 @@ var GoldrushConfigs = {
   // the local storage file path to store the stats
   STATS_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/stats_db.json',
 
+  // offer fetcher temp cache
+  TS_THRESHOLD: 1000 * 60
+
 };
 
 
