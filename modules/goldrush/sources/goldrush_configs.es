@@ -26,7 +26,7 @@ var GoldrushConfigs = {
   BUY_INTENT_SESSION_THRESHOLD_SECS: 60 * 60 * 24 * 10,
 
   // the flag indicating if we should load the history or not
-  LOAD_HISTORY_EVENTS: true,
+  LOAD_HISTORY_EVENTS: false, // TODO: set it to true
 
   // how many days / hours of history we should load into the system to feed
   // the intent input system
