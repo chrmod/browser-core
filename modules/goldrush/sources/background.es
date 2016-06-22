@@ -3,8 +3,10 @@ import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
 import ResourceLoader from 'core/resource-loader';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { OfferManager } from 'goldrush/offer_manager';
+// TODO remove the import are not needed from here after removing the tests
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 import background from 'core/base/background';
+import LoggingHandler from 'goldrush/logging_handler';
 
 //import { FID } from 'goldrush/fids/fid';
 
@@ -47,6 +49,9 @@ export default background({
   },
 
   init(settings) {
+    // init the logging
+    LoggingHandler.init();
+
     // define all the variables here
     this.db = null;
     // offer manager
@@ -61,6 +66,7 @@ export default background({
 
   //////////////////////////////////////////////////////////////////////////////
   onLocationChangeHandler(url) {
+
     var u = utils.getDetailsFromUrl(url);
     log('location changed to ' + u.host);
     if (this.offerManager) {
@@ -90,6 +96,9 @@ export default background({
       delete this.offerManager;
       this.offerManager = null;
     }
+
+    // uninit the logging
+    LoggingHandler.uninit();
   },
 
 
