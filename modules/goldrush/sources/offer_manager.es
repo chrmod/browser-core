@@ -654,18 +654,18 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
       return voucher;
     }
     // now check if we need to switch or not
-    var oppositeSubcluster = '';
+    var subclusterToSearch = '';
     if (switchFlag) {
       // we need to get a coupon from the other side
-      oppositeSubcluster = userOnSubcluster === 'A' ? 'B' : 'A';
+      subclusterToSearch = userOnSubcluster === 'A' ? 'B' : 'A';
     } else  {
-      oppositeSubcluster = userOnSubcluster;
+      subclusterToSearch = userOnSubcluster;
     }
     // search in this
-    log('getBestCoupon: selecting voucher for subcluster: ' + oppositeSubcluster +
+    log('getBestCoupon: selecting voucher for subcluster: ' + subclusterToSearch +
         ' - user on subcluster: ' + userOnSubcluster +
         ' - userDomainID: ' + evtDomID);
-    const domainsToSearch = subclusterMap[oppositeSubcluster];
+    const domainsToSearch = subclusterMap[subclusterToSearch];
     let localVoucher = selectBestVoucher(vouchers, domainsToSearch);
 
     // check if we found a voucher we want
@@ -675,7 +675,8 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
       return voucher;
     }
 
-    // we found one, just return it
+    // we found one, add the subcluster flag and just return it
+    localVoucher['subcluster_tag'] = subclusterToSearch;
     return localVoucher;
   } else {
     // we just need to get any voucher that is not evtDomID if possible
@@ -738,6 +739,14 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
   // notify the stats handler
   if (this.statsHandler) {
     this.statsHandler.offerCreated(offer);
+    // notify the telemetry now with the A|B flags
+    const voucherShownOnSameDomain = (coupon.domain_id === domainID);
+    if (voucherShownOnSameDomain) {
+      this.statsHandler.offerOnSameDomain(clusterID);
+    }
+    if (coupon.hasOwnProperty('subcluster_tag')) {
+      this.statsHandler.offerShownOnSubcluster(clusterID, coupon.subcluster_tag);
+    }
   }
 
   // Every time we show a offer add it to this maps. It will help us track

@@ -17,7 +17,7 @@ var GoldrushConfigs = {
   // Offer Manager
 
   // the number of milliseconds we want to wait till we hide the add
-  HIDE_OFFER_MS: 60 * 1000,
+  HIDE_OFFER_MS: 600 * 1000,
   // the session threshold time in secs (this will split the sessions for the
   // intent input system)
   INTENT_SESSION_THRESHOLD_SECS: 60 * 30,
@@ -34,7 +34,7 @@ var GoldrushConfigs = {
 
   // get the global flag if we need to switch or not
   // TODO: this we can read it from the pref CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
-  OFFER_SUBCLUSTER_SWITCH: false,
+  OFFER_SUBCLUSTER_SWITCH: true,
 
 
   //////////////////////////////////////////////////////////////////////////////
