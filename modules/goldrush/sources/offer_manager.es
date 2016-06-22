@@ -988,6 +988,31 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   intentInput.feedWithEvent(event);
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief This method should be called everytime the tab of the browser has
+//        changed or the window itself. This method will be used mainly
+//        to remove all the offers that are not longer valid in the tabs.
+//        (nasty but temporary).
+//
+OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
+  if (!this.mappings || !currUrl || !currUrl.name) {
+    log('onTabOrWinChanged: null something');
+    // nothing to do
+    return;
+  }
+
+  // get the cluster ID if we have one
+  const domainID = this.mappings['dname_to_did'][currUrl.name];
+  if (!domainID) {
+    return;
+  }
+  const clusterID = this.mappings['dname_to_cid'][currUrl.name];
+
+  // now we need to check if we have to show or not the
+  this.showOfferIfNeeded(clusterID, domainID);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1044,7 +1069,10 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   this.eventsCounts[clusterID] += 1;
 
   // check if we need to show something in this cluster
-  this.showOfferIfNeeded(clusterID, domainID);
+  // the following line is commented
+  //    this.showOfferIfNeeded(clusterID, domainID);
+  // because of TODO: GR-137 && GR-140: temporary fix. now we track this in other
+  // method
 
   // get the associated intent system
   let intentSystem = this.intentDetectorsMap[clusterID];

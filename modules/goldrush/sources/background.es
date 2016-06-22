@@ -52,6 +52,9 @@ export default background({
     // offer manager
     this.offerManager = new OfferManager();
 
+    // TODO: GR-137 && GR-140: temporary fix
+    events.sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
+
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -81,6 +84,20 @@ export default background({
   },
 
   //////////////////////////////////////////////////////////////////////////////
+  onTabOrWinChangedHandler(url) {
+    if (!this.offerManager) {
+      return;
+    }
+
+    try {
+      var u = utils.getDetailsFromUrl(url);
+      this.offerManager.onTabOrWinChanged(u);
+    } catch (e) {
+      log('error: exception catched: ' + e);
+    }
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
   unload() {
     log('unloading the background script');
 
@@ -90,6 +107,9 @@ export default background({
       delete this.offerManager;
       this.offerManager = null;
     }
+
+    // TODO: GR-137 && GR-140: temporary fix
+    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
   },
 
 
