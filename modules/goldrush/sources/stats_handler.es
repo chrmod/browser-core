@@ -212,18 +212,16 @@ export class StatsHandler {
   //
   // @brief an ad has being desplayed
   //
-  advertiseDisplayed(offerInfo) {
+  advertiseDisplayed(clusterID) {
     log('advertiseDisplayed');
-    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_displayed', 1);
   }
 
   //
   // @brief when the offer is created by the first time
   //
-  offerCreated(offerInfo) {
+  offerCreated(clusterID) {
     log('offerCreated');
-    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_created', 1);
   }
 

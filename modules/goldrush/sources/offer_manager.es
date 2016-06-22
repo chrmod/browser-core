@@ -206,6 +206,7 @@ export function OfferManager() {
     'not_interested': this.notInterestedUICallback.bind(this),
     'information': this.informationUICallback.bind(this),
     'extra_events': this.extraEventsUICallback.bind(this),
+    'close_btn_clicked': this.onCloseBtnClickedUICallback.bind(this),
     'on_offer_shown': this.offerShownUICallback.bind(this),
     'on_offer_hide': this.offerHideUICallback.bind(this),
     'cp_to_clipboard': this.copyToClipboardUICallback.bind(this)
@@ -225,8 +226,6 @@ export function OfferManager() {
   this.cidToOfferMap = {};
   // track the number of events of all the clusters and also the global num of events
   this.eventsCounts = {total: 0};
-  // track the current cluster
-  this.currentCluster = -1;
   // track shown offers
   this.offersShownCounterMap = {};
 
@@ -739,7 +738,7 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
 
   // notify the stats handler
   if (this.statsHandler) {
-    this.statsHandler.offerCreated(offer);
+    this.statsHandler.offerCreated(clusterID);
     // notify the telemetry now with the A|B flags
     const voucherShownOnSameDomain = (coupon.domain_id === domainID);
     if (voucherShownOnSameDomain) {
@@ -977,7 +976,6 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   // count the number of visits
   this.eventsCounts.total += 1;
   this.eventsCounts[clusterID] += 1;
-  this.currentCluster = clusterID;
 
   // get the associated intent system
   let intentInput = this.intentInputMap[clusterID];
@@ -1044,7 +1042,6 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   // count the number of visits
   this.eventsCounts.total += 1;
   this.eventsCounts[clusterID] += 1;
-  this.currentCluster = clusterID;
 
   // check if we need to show something in this cluster
   this.showOfferIfNeeded(clusterID, domainID);
@@ -1172,21 +1169,19 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
 //
 // @brief when the user press on the "check coupon or view coupon"
 //
-OfferManager.prototype.checkButtonUICallback = function() {
+OfferManager.prototype.checkButtonUICallback = function(offerID) {
   // TODO: implement here all the needed logic and the
   log('checkButtonUICallback');
 
-  // track the signal
-  if (this.statsHandler) {
-    this.statsHandler.couponClicked(this.currentCluster);
+  const offer = this.currentOfferMap[offerID];
+  if (!offer) {
+    log('error: this is not good here');
+    return;
   }
 
-  // get the current offer
-  let offer = this.cidToOfferMap[this.currentCluster];
-  offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
-  if (!offer) {
-    // nothing to do, close the offer :(
-    return false;
+  // track the signal
+  if (this.statsHandler) {
+    this.statsHandler.couponClicked(offer.appear_on_cid);
   }
 
   // we will remove the timer here so the person can see the offer until he
@@ -1205,29 +1200,19 @@ OfferManager.prototype.checkButtonUICallback = function() {
   openNewTabAndSelect(urlToGo);
 
   return true;
-
-  // track it (get the current coupon from the ui manager)
-  // TODO:
-  // let currentCoupon = this.uiManager.getCurrentCoupon();
-  // this.uiManager.showCouponInfo(currentCoupon);
-  // //self.trackCoupon(bestCoupon);
-
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief when the user press on the "not interested coupon callback"
 //
-OfferManager.prototype.notInterestedUICallback = function() {
-  // TODO: implement here all the needed logic and the
+OfferManager.prototype.notInterestedUICallback = function(offerID) {
   log('notInterestedUICallback');
 
   // if the user explicetly says it doesnt want to see the add anymore then
   // we will close it here and everywhere
   //
-  let offer = this.cidToOfferMap[this.currentCluster];
-  offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
+  const offer = this.currentOfferMap[offerID];
 
   // if user closed this then we should stop tracking this add
   if (offer) {
@@ -1246,9 +1231,11 @@ OfferManager.prototype.notInterestedUICallback = function() {
 //
 // @brief when the user press on the "information"
 //
-OfferManager.prototype.informationUICallback = function() {
+OfferManager.prototype.informationUICallback = function(offerID) {
   // TODO: implement here all the needed logic and the
   log('stopBotheringForeverUICallback');
+
+  // TODO: check GR-138
 
   // avoid closing the notification
   return true;
@@ -1259,32 +1246,20 @@ OfferManager.prototype.informationUICallback = function() {
 // @brief any other type of events from the bar
 // @note https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/appendNotification#Notification_box_events
 //
-OfferManager.prototype.extraEventsUICallback = function(reason) {
+OfferManager.prototype.extraEventsUICallback = function(reason, offerID) {
   // TODO: implement here all the needed logic and the
 
   log('extraEventsUICallback: ' + reason);
 
-  // check if the current cluster we have an active offer or not, if not then
-  // this is being close by the system itself otherwise by the user.
   if (reason === 'removed') {
-    let offer = this.cidToOfferMap[this.currentCluster];
-    offer = (offer === undefined) ? undefined : this.currentOfferMap[offer];
-    const userClosed = (offer !== undefined && offer.active === true);
-
-    log('extraEventsUICallback: userClosed: ' + userClosed);
-
+    const offer = this.currentOfferMap[offerID];
+    if (!offer) {
+      log('error: this is not good here');
+      return;
+    }
     // track stats
     if (this.statsHandler) {
-      if (userClosed) {
-        this.statsHandler.advertiseClosedByUser(offer.appear_on_cid);
-      } else {
-        this.statsHandler.advertiseClosed(this.currentCluster);
-      }
-    }
-
-    if (userClosed) {
-      // remove the offer
-      this.removeAndUntrackOffer(offer.offer_id);
+        this.statsHandler.advertiseClosed(offer.appear_on_cid);
     }
   }
   return true;
@@ -1292,24 +1267,79 @@ OfferManager.prototype.extraEventsUICallback = function(reason) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// @brief when the close button is clicked
+//
+OfferManager.prototype.onCloseBtnClickedUICallback = function(offerID) {
+  log('onCloseBtnClickedUICallback');
+
+  const offer = this.currentOfferMap[offerID];
+  if (!offer) {
+    log('error: this is not right');
+    return;
+  }
+  log('offer.appear_on_cid: ' + offer.appear_on_cid);
+
+  // track stats
+  if (this.statsHandler) {
+    this.statsHandler.advertiseClosedByUser(offer.appear_on_cid);
+  }
+
+  // remove the offer
+  this.removeAndUntrackOffer(offer.offer_id);
+  return true;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when the user press on the code to copy it to the clipboard
+//
+OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
+  // TODO: implement here all the needed logic and the
+  log('copyToClipboardUICallback');
+  const offer = this.currentOfferMap[offerID];
+  if (!offer) {
+    log('error: this is not right');
+    return;
+  }
+
+  const clusterID = offer['appear_on_cid'];
+  // track this into stats (telemetry later)
+  if (this.statsHandler) {
+    this.statsHandler.copyToClipboardClicked(clusterID);
+  }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // @brief when an offer is shown
 //
-OfferManager.prototype.offerShownUICallback = function(offerInfo) {
+OfferManager.prototype.offerShownUICallback = function(offerID) {
   // TODO: implement here all the needed logic and the
   log('offerShownUICallback');
   if (!this.userDB) {
     return;
   }
+
+  const offer = this.currentOfferMap[offerID];
+  if (!offer) {
+    log('error: this is not right');
+    return;
+  }
+
   // get the needed fields
-  const clusterID = offerInfo['appear_on_cid'];
+  const clusterID = offer['appear_on_cid'];
   const timestamp = Date.now();
+
+  log('offerShownUICallback: clusterID: ' + clusterID);
 
   // for now we will only add the last ad shown for a given cid and timestamp
   this.userDB[clusterID]['last_ad_shown'] = timestamp;
 
   // track this into stats (telemetry later)
   if (this.statsHandler) {
-    this.statsHandler.advertiseDisplayed(offerInfo);
+    this.statsHandler.advertiseDisplayed(clusterID);
   }
 };
 
@@ -1318,24 +1348,10 @@ OfferManager.prototype.offerShownUICallback = function(offerInfo) {
 //
 // @brief when an offer is hiden
 //
-OfferManager.prototype.offerHideUICallback = function(offerInfo) {
+OfferManager.prototype.offerHideUICallback = function(offerID) {
   // we are getting this event already on the extraEventsUICallback...
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// @brief when the user press on the code to copy it to the clipboard
-//
-OfferManager.prototype.copyToClipboardUICallback = function(offerInfo) {
-  // TODO: implement here all the needed logic and the
-  log('copyToClipboardUICallback');
-
-  const clusterID = offerInfo['appear_on_cid'];
-  // track this into stats (telemetry later)
-  if (this.statsHandler) {
-    this.statsHandler.copyToClipboardClicked(clusterID);
-  }
-};
 
 
 
