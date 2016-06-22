@@ -98,6 +98,7 @@ UIManager.prototype.createCouponDisplay = function(offerInfo) {
 //    // internal callbacks
 //    'on_offer_shown' : callback(offerInfo) -> when we actually show an offer
 //    'on_offer_hide' : callback(offerInfo) -> when the offer is hiden
+//    'cp_to_clipboard' : callback(offerInfo) -> when the coupon is clicked to save it on the clipboard
 //  }
 //
 UIManager.prototype.configureCallbacks = function(callbacks) {
@@ -207,15 +208,16 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
 
   notification.style.backgroundColor = "#f6f6f6";
   notification.style.borderBottom = "1px solid #dedede";
-  // call the callback that we are showing the offer here
 
-  var couponElement = currWindow.document.getElementById('coupon');
-
-if (couponElement) {
+  // get the coupon element and set the callback when the user click on it
+  var couponElement = currWindow.document.getElementById('cliqz-coupon');
+  var self = this;
+  if (couponElement) {
     couponElement.onclick = function () {
-      //var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
-      //gClipboardHelper.copyString(this.innerHTML);
       CLIQZEnvironment.copyResult(this.innerHTML);
+      if (self.callbacks.cp_to_clipboard) {
+        self.callbacks.cp_to_clipboard(offerInfo);
+      }
     };
   }
 

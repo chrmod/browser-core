@@ -236,6 +236,14 @@ export class StatsHandler {
   }
 
   //
+  // @brief user clicked on the coupon code (copy to clipboard)
+  //
+  copyToClipboardClicked(clusterID) {
+    log('copyToClipboardClicked');
+    generateOrAddField(this.currentData['data'], clusterID, 'cp_to_clipboards', 1);
+  }
+
+  //
   // @brief system intention detected
   //
   systemIntentionDetected(domainID, clusterID) {
