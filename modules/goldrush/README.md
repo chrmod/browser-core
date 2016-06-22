@@ -194,6 +194,8 @@ We will gather the information before send it over telemetry in the following wa
       // the number of checkout detected (probably boughts from the user side)
       // this is only one per buying activity (not all the times we detect a checkout page)
       checkouts: N,
+      // user clicked on the coupon code (copy to clipboard)
+      cp\_to\_clipboards: N,
       // # of times the system detected a intent
       system_intents: N,
       // the numbers the user visited a particular cluster (everytime we get an event
