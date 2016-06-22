@@ -221,12 +221,17 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
     };
   }
 
-  // closing button
-  let notificationBox = currWindow.gBrowser.getNotificationBox().getElementsByTagName("notification")[0];
-  let notificationBoxClosing = notificationBox.boxObject.firstChild.getElementsByTagName("xul:toolbarbutton")[0];
-  notificationBoxClosing.addEventListener("click", function(){
-    log("user clicked");
-  });
+  try{
+    // closing button
+    let notificationBox = currWindow.gBrowser.getNotificationBox().getElementsByTagName("notification")[0];
+    let notificationBoxClosing = notificationBox.boxObject.firstChild.getElementsByTagName("xul:toolbarbutton")[0];
+    notificationBoxClosing.addEventListener("click", function(){
+      log("user clicked");
+    });
+  } catch (e) {
+    log(e);
+  }
+
 
   // call the callback that we are showing the offer here
   if (this.callbacks.on_offer_shown) {
