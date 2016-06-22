@@ -45,9 +45,7 @@ var LoggingHandler = {
       const filePath = OS.Path.join(OS.Constants.Path.profileDir, ...LoggingHandler.LOG_FILE_NAME);
 
       // check https://developer.mozilla.org/es/docs/Mozilla/JavaScript_code_modules/OSFile.jsm/OS.File_for_the_main_thread#Example: Append to File
-      utils.log('checking if file exists', '[goldrush]');
       OS.File.exists(filePath).then(exists => {
-        utils.log('file exists: ' + exists, '[goldrush]');
         if (!exists) {
           OS.File.open(filePath, {create: true}).then(fileObject => {
             self.fileObj = fileObject;
