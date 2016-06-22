@@ -109,7 +109,7 @@ var CliqzLanguage = {
         while (i < max_len)
         {
             // random hash value: [-100, 100]
-            let r = Math.floor(Math.random() * 200) - 100;
+            let r = Math.floor(Math.random() * 512) - 256;
             if (hashes.indexOf(r) == -1){
                 hashes.push(r);
                 i+=1;
