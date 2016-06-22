@@ -41,7 +41,8 @@ function parseHttpResponse(httpResp) {
       var jResp = JSON.parse(httpResp);
       vouchers = jResp['results'][0]['data']['vouchers'];
     } catch (e) {
-      log('Error parsing the httpResp:\n' + httpResp + '\nwith error: ' + e);
+      log('Error parsing the httpResp:\n' + JSON.stringify(httpResp) + '\nwith error: ' + e);
+      utils.getWindow().console.log("offer fetcher: Error parsing the httpResp ", httpResp);
     }
     return vouchers;
 }
@@ -84,7 +85,7 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   let self = this;
 
   if(this.cache.hasOwnProperty(clusterID)) {
-    let tsDiff = Date.now() - this.cache[clusterID]['ts']
+    let tsDiff = Date.now() - this.cache[clusterID]['ts'];
     if (tsDiff <= GoldrushConfigs.TS_THRESHOLD) {
       log('using cached vouchers');
       callback && callback(this.cache[clusterID]['vouchers']);
@@ -105,15 +106,18 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
 
   utils.httpGet(destURL, function success(resp) {
       vouchersObj = parseHttpResponse(resp.response);
-      log('voucher received:');
-
-      // temporary cache to avoid multiple queries
-      if(!self.cache.hasOwnProperty(clusterID)) {
-        self.cache[clusterID] = {};
+      if(vouchersObj) {
+        log('voucher received:');
+        // temporary cache to avoid multiple queries
+        if(!self.cache.hasOwnProperty(clusterID)) {
+          self.cache[clusterID] = {};
+        }
+        self.cache[clusterID]['ts'] = Date.now();
+        self.cache[clusterID]['vouchers'] = vouchersObj;
+        log('updated cached vouchers as time expired');
+      } else {
+        utils.getWindow().console.log("offer fetcher: Error parsing the resp ", resp);
       }
-      self.cache[clusterID]['ts'] = Date.now();
-      self.cache[clusterID]['vouchers'] = vouchersObj;
-      log('updated cached vouchers as time expired');
 
       callback && callback(vouchersObj);
 
