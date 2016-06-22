@@ -80,6 +80,12 @@ var CliqzUtils = {
       CliqzUtils.log('error: cannot load CliqzLanguage');
     });
 
+    CliqzUtils.importModule('core/events').then(function(events) {
+      CLIQZEnvironment.CliqzEvents = events.default;
+    }).catch(function () {
+      CliqzUtils.log('error: cannot load CliqzEvents');
+    });
+
     // cutting cyclic dependency
     CLIQZEnvironment.getLogoDetails = CliqzUtils.getLogoDetails.bind(CliqzUtils);
     CLIQZEnvironment.getDetailsFromUrl = CliqzUtils.getDetailsFromUrl.bind(CliqzUtils);

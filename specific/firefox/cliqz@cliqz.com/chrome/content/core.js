@@ -147,7 +147,9 @@ window.CLIQZ.Core = {
     checkSession: function() {
         if (!CliqzUtils.hasPref('session')) {
             var source = CLIQZ.config.settings.channel;
-            CliqzUtils.setPref('session', CLIQZ.Core.generateSession(source));
+            var session = CLIQZ.Core.generateSession(source);
+            CliqzUtils.setPref('session', session);
+            CliqzUtils.setPref('install_date', session.split('|')[1]);
             return false;
         }
         // Session is set already
@@ -271,8 +273,8 @@ window.CLIQZ.Core = {
                 private_window: CliqzUtils.isPrivate(window),
                 distribution: CliqzUtils.getPref('distribution', ''),
                 version_host: CliqzUtils.getPref('gecko.mstone', '', ''),
-                version_dist: CliqzUtils.getPref('distribution.version', '', '')
-
+                version_dist: CliqzUtils.getPref('distribution.version', '', ''),
+                install_date: CliqzUtils.getPref('install_date'),
             };
 
             CliqzUtils.telemetry(info);

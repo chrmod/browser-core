@@ -36,6 +36,7 @@
     "offers",
     "adblocker",
     "https-everywhere"
+    "telemetry"
   ],
   "subprojects": [
     "fresh-tab-frontend"

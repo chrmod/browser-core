@@ -410,6 +410,11 @@ var CLIQZEnvironment = {
       return function(msg, instantPush) {
         if(msg.type != 'environment' && CLIQZEnvironment.isPrivate()) return; // no telemetry in private windows
 
+        // don't insert summary reports
+        if (!('_report' in msg && msg._report)) {
+          CLIQZEnvironment.CliqzEvents.pub('telemetry:log', Object.assign(Object.create(null), msg));
+        }
+
         CLIQZEnvironment.log(msg, 'Utils.telemetry');
         if(!CLIQZEnvironment.getPref('telemetry', true))return;
         msg.session = CLIQZEnvironment.getPref('session');
