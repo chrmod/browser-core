@@ -207,7 +207,8 @@ export function OfferManager() {
     'information': this.informationUICallback.bind(this),
     'extra_events': this.extraEventsUICallback.bind(this),
     'on_offer_shown': this.offerShownUICallback.bind(this),
-    'on_offer_hide': this.offerHideUICallback.bind(this)
+    'on_offer_hide': this.offerHideUICallback.bind(this),
+    'cp_to_clipboard': this.copyToClipboardUICallback.bind(this)
   });
 
   this.userDB = null;
@@ -1321,6 +1322,20 @@ OfferManager.prototype.offerHideUICallback = function(offerInfo) {
   // we are getting this event already on the extraEventsUICallback...
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// @brief when the user press on the code to copy it to the clipboard
+//
+OfferManager.prototype.copyToClipboardUICallback = function(offerInfo) {
+  // TODO: implement here all the needed logic and the
+  log('copyToClipboardUICallback');
+
+  const clusterID = offerInfo['appear_on_cid'];
+  // track this into stats (telemetry later)
+  if (this.statsHandler) {
+    this.statsHandler.copyToClipboardClicked(clusterID);
+  }
+};
 
 
 
