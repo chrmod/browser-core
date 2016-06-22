@@ -211,13 +211,20 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
 
   var couponElement = currWindow.document.getElementById('coupon');
 
-  if (couponElement) {
+if (couponElement) {
     couponElement.onclick = function () {
       //var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
       //gClipboardHelper.copyString(this.innerHTML);
       CLIQZEnvironment.copyResult(this.innerHTML);
     };
-}
+  }
+
+  // closing button
+  let notificationBox = currWindow.gBrowser.getNotificationBox().getElementsByTagName("notification")[0];
+  let notificationBoxClosing = notificationBox.boxObject.firstChild.getElementsByTagName("xul:toolbarbutton")[0];
+  notificationBoxClosing.addEventListener("click", function(){
+    log("user clicked");
+  });
 
   // call the callback that we are showing the offer here
   if (this.callbacks.on_offer_shown) {
