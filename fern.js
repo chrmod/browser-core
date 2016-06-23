@@ -96,7 +96,7 @@ program.command('build [file]')
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
           console.log("Starting build");
-          buildEmberAppSync('modules/fresh-tab-frontend/');
+          buildEmberAppSync('modules/fresh-tab-frontend/', configPath);
           let child = spaws('broccoli', ['build', OUTPUT_PATH]);
           child.stderr.on('data', data => console.log(data.toString()));
           child.stdout.on('data', data => console.log(data.toString()));
