@@ -9,7 +9,8 @@ System.import("core/startup").then(function (startupModule) {
     "mobile-dev",
     "mobile-freshtab",
     "mobile-touch",
-    "static"
+    "static",
+    "yt-downloader"
   ]);
 }).then(function () {
   return CliqzUtils.init(window);
