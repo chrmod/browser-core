@@ -29,6 +29,7 @@ export default background({
     }
 
     this.enabled = false;
+    this.clickCache = {};
 
     utils.bindObjectFunctions( this.popupActions, this );
 
@@ -170,10 +171,33 @@ export default background({
       this.popup.updateView(utils.getWindow(), args[0]);
     },
 
+    _isDuplicate(info) {
+      const now = Date.now();
+      const key = info.tab + info.hostname + info.path;
+
+      // clean old entries
+      for (let k of Object.keys(this.clickCache)) {
+        if (now - this.clickCache[k] > 60000) {
+          delete this.clickCache[k];
+        }
+      }
+
+      if (key in this.clickCache) {
+        return true;
+      } else {
+        this.clickCache[key] = now;
+        return false;
+      }
+    },
+
     telemetry(msg) {
-      if ( msg.includeUnsafeCount ) {
+      if (msg.includeUnsafeCount) {
         delete msg.includeUnsafeCount
         let info = CliqzAttrack.getCurrentTabBlockingInfo();
+        // drop duplicated messages
+        if (this.popupActions._isDuplicate(info)) {
+          return;
+        }
         msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
         msg.special = info.error !== undefined;
       }
