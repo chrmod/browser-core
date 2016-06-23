@@ -1260,10 +1260,15 @@ OfferManager.prototype.notInterestedUICallback = function(offerID) {
 // @brief when the user press on the "information"
 //
 OfferManager.prototype.informationUICallback = function(offerID) {
-  // TODO: implement here all the needed logic and the
-  log('stopBotheringForeverUICallback');
+  log('informationUICallback');
 
-  // TODO: check GR-138
+  const offer = this.currentOfferMap[offerID];
+  if (offer) {
+    // track the stats
+    if (this.statsHandler) {
+      this.statsHandler.showMoreInfoClicked(offer.appear_on_cid);
+    }
+  }
 
   // avoid closing the notification
   return true;
@@ -1275,8 +1280,6 @@ OfferManager.prototype.informationUICallback = function(offerID) {
 // @note https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/appendNotification#Notification_box_events
 //
 OfferManager.prototype.extraEventsUICallback = function(reason, offerID) {
-  // TODO: implement here all the needed logic and the
-
   log('extraEventsUICallback: ' + reason);
 
   if (reason === 'removed') {

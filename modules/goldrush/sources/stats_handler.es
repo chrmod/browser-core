@@ -170,6 +170,14 @@ export class StatsHandler {
   }
 
   //
+  // @brief when the user press on "show more info" button
+  //
+  showMoreInfoClicked(clusterID) {
+    log('showMoreInfoClicked');
+    generateOrAddField(this.currentData['data'], clusterID, 'more_infos', 1);
+  }
+
+  //
   // @brief when the offer is shown in the same domain where the user is
   //
   offerOnSameDomain(clusterID) {
