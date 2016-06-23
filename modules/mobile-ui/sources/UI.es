@@ -277,41 +277,40 @@ function getVertical(dataTemplate) {
 }
 
 function enhanceResults(results) {
-    for(var i=0; i<results.length; i++) {
-        var r = results[i];
-        r.type = r.style;
-        r.left = (UI.CARD_WIDTH * i);
-        r.url = r.val || '';
-        r.title = r.comment || '';
+  for(var i=0; i<results.length; i++) {
+    var r = results[i];
+    r.type = r.style;
+    r.left = (UI.CARD_WIDTH * i);
+    r.url = r.val || '';
+    r.title = r.comment || '';
+    r.data = r.data || {};
 
-        r.data = r.data || {};
+    enhanceSpecificResult(r);
 
-        enhanceSpecificResult(r);
-
-        r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-        r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-        if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
-          r.vertical = 'pattern-h1';
-        } else {
-          r.vertical = getVertical(r.data.template);
-        }
-
-        //extract debug info from title
-        var _tmp = getDebugMsg(r.title);
-        r.title = _tmp[0];
-        r.debug = _tmp[1];
-
-
-    }
-    var filteredResults = results.filter(function (r) { return !(r.data && r.data.adult); });
-
-    // if there no results after adult filter - show no results entry
-    if (!filteredResults.length) {
-      filteredResults.push(CliqzUtils.getNoResults());
-      filteredResults[0].vertical = 'noResult';
+    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+    if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
+      r.vertical = 'pattern-h1';
+    } else {
+      r.vertical = getVertical(r.data.template);
     }
 
-    return filteredResults;
+    //extract debug info from title
+    var _tmp = getDebugMsg(r.title);
+    r.title = _tmp[0];
+    r.debug = _tmp[1];
+
+
+  }
+  var filteredResults = results.filter(function (r) { return !(r.data && r.data.adult); });
+
+  // if there no results after adult filter - show no results entry
+  if (!filteredResults.length) {
+    filteredResults.push(CliqzUtils.getNoResults());
+    filteredResults[0].vertical = 'noResult';
+  }
+
+  return filteredResults;
 }
 
 // debug message are at the end of the title like this: "title (debug)!"
@@ -333,27 +332,31 @@ function getDebugMsg(fullTitle) {
 }
 
 function enhanceSpecificResult(r) {
-    var specificView;
-    if (r.subType && JSON.parse(r.subType).ez) {
-        // Indicate that this is a RH result.
-        r.type = 'cliqz-extra';
-    }
-    if (r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
-        r.data.template = r.data.superTemplate;
-    }
+  const contentArea = {
+    width: UI.CARD_WIDTH,
+    height: window.screen.height
+  };
+  var specificView;
+  if (r.subType && JSON.parse(r.subType).ez) {
+      // Indicate that this is a RH result.
+      r.type = 'cliqz-extra';
+  }
+  if (CLIQZEnvironment.TEMPLATES[r.data.superTemplate]) {
+      r.data.template = r.data.superTemplate;
+  }
 
-    specificView = UI.VIEWS[r.data.template] || UI.VIEWS.generic;
-    if (specificView && specificView.enhanceResults) {
-        specificView.enhanceResults(r.data);
-    }
+  specificView = UI.VIEWS[r.data.template] || UI.VIEWS.generic;
+  if (specificView && specificView.enhanceResults) {
+      specificView.enhanceResults(r.data, contentArea);
+  }
 
-    if (r.data.news) {
-      r.data.news.forEach(function (article) {
-        var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
-        logoDetails = CliqzUtils.getLogoDetails(urlDetails);
-        article.logo = logoDetails;
-      });
-    }
+  if (r.data.news) {
+    r.data.news.forEach(function (article) {
+      var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
+      logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+      article.logo = logoDetails;
+    });
+  }
 }
 
 function crossTransform (element, x) {
