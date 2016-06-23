@@ -86,7 +86,7 @@ var CliqzUtils = {
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
-        CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
+        CliqzUtils.PREFERRED_LANGUAGE = CliqzUtils.getPref('general.useragent.locale', nav.language || nav.userLanguage || 'en', '');
         localePromise = CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
 
@@ -844,7 +844,7 @@ var CliqzUtils = {
               }
               CliqzUtils.locale[locale_key] = JSON.parse(req.response);
               resolve();
-            } 
+            }
         },
         reject
       );

@@ -90,7 +90,7 @@ var CliqzLanguage = {
 
         var ll = CliqzLanguage.getLocale();
         if (ll && CliqzLanguage.currentState[ll]==null) {
-            // we found new locale 
+            // we found new locale
             CliqzLanguage.currentState[ll] = CliqzLanguage.createHashes(CliqzLanguage.DOMAIN_THRESHOLD + 1);
             // add 'locale' hash
             CliqzLanguage.currentState[ll][0] = CliqzLanguage.LOCALE_HASH;
@@ -109,7 +109,7 @@ var CliqzLanguage = {
         while (i < max_len)
         {
             // random hash value: [-100, 100]
-            let r = Math.floor(Math.random() * 200) - 100;
+            let r = Math.floor(Math.random() * 512) - 256;
             if (hashes.indexOf(r) == -1){
                 hashes.push(r);
                 i+=1;
@@ -140,7 +140,6 @@ var CliqzLanguage = {
     // do random delete of hash with prob 0.05 (5%)
     removeHash: function () {
         let changed = false;
-        CliqzUtils.log("entering removeHash...", "trisch");
         for (let lang in CliqzLanguage.currentState) {
             if (CliqzLanguage.currentState[lang].length > (CliqzLanguage.DOMAIN_THRESHOLD + 1)){
                 let prob = Math.random();
