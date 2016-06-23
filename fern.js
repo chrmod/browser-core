@@ -40,13 +40,24 @@ function setConfigPath(configPath) {
   process.env['CLIQZ_CONFIG_PATH'] = configPath;
 }
 
-function buildEmberAppSync(appPath) {
+function buildEmberAppSync(appPath, configPath) {
+  var app = appPath.substring(8).substring(0, appPath.substring(8).length - 1),
+      cliqzConfig = JSON.parse(fs.readFileSync(configPath)),
+      shouldBuild = cliqzConfig.modules.some(function(module) {
+        return module === app;
+      });
+  if(!shouldBuild) {
+    return
+  }
   isPackageInstalled('ember', '-v', 'npm ember-cli package is missing, to install it run `npm install ember-cli -g`');
 
   rimraf.sync(appPath + 'dist', []);
-  var app = appPath.substring(8).substring(0, appPath.substring(8).length - 1);
   console.log(`Building Ember app: ${app}`);
-  spaws.sync('ember', ['build', '--output-path=dist', '--env=production'], { stdio: 'inherit', stderr: 'inherit', cwd: appPath});
+  var spawed = spaws.sync('ember', ['build', '--output-path=dist', '--env=production'], { stdio: 'inherit', stderr: 'inherit', cwd: appPath});
+  if(spawed.status === 1) {
+    console.log(chalk.red('*** RUN `./fern.js install` to install missing Freshtab ember dependencies'));
+    process.exit(1);
+  }
 }
 
 function isPackageInstalled(pkg, options, msg) {
@@ -95,7 +106,7 @@ program.command('build [file]')
 program.command('serve [file]')
        .action(configPath => {
           setConfigPath(configPath);
-          buildEmberAppSync('modules/fresh-tab-frontend/');
+          buildEmberAppSync('modules/fresh-tab-frontend/', configPath);
           let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
 
        });
