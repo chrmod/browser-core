@@ -58,8 +58,8 @@ export default background({
 
         if(this.popup){
           this.popup.updateState(utils.getWindow(), isEnabled);
-          this.enabled = isEnabled;
         }
+        this.enabled = isEnabled;
       } else if (pref === DEFAULT_ACTION_PREF) {
         updateDefaultTrackerTxtRule();
       }
