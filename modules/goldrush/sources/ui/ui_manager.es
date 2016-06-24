@@ -97,9 +97,9 @@ UIManager.prototype.createCouponDisplay = function(offerInfo) {
 //    'extra_events': callback(offerID) -> any other extra events from the notification bar
 //    'close_btn_clicked': callback(offerID) -> when user closed on the X button
 //    // internal callbacks
-//    'on_offer_shown' : callback(offerInfo) -> when we actually show an offer
-//    'on_offer_hide' : callback(offerInfo) -> when the offer is hiden
-//    'cp_to_clipboard' : callback(offerInfo) -> when the coupon is clicked to save it on the clipboard
+//    'on_offer_shown' : callback(offerID) -> when we actually show an offer
+//    'on_offer_hide' : callback(offerID) -> when the offer is hiden
+//    'cp_to_clipboard' : callback(offerID) -> when the coupon is clicked to save it on the clipboard
 //  }
 //
 UIManager.prototype.configureCallbacks = function(callbacks) {

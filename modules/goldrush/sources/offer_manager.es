@@ -14,7 +14,7 @@ import { StatsHandler } from 'goldrush/stats_handler';
 import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 // TODO: review if this is fine
-Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import('resource://gre/modules/Services.jsm');
 // needed for the history
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
@@ -502,7 +502,7 @@ OfferManager.prototype.loadOfferSubclusters = function() {
   }.bind(this)).catch(function(e) {
     log('ERROR: loading the OfferSubclusters: ' + e);
   });
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -757,7 +757,7 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
   } else {
     this.offersShownCounterMap[couponCode] = 1;
   }
-  log("offersShownCounterMap content: ");
+  log('offersShownCounterMap content: ');
   log(JSON.stringify(this.offersShownCounterMap));
 
   // set the timeout to disable this add
@@ -1011,7 +1011,7 @@ OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
 
   // now we need to check if we have to show or not the
   this.showOfferIfNeeded(clusterID, domainID);
-}
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1174,18 +1174,18 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 //        should then check if the coupon used was one we provided or not
 //
 OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
-  log("SR  " + JSON.stringify(this.offersShownCounterMap));
+  log('SR  ' + JSON.stringify(this.offersShownCounterMap));
   if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
     this.offersShownCounterMap[coupon] -= 1;
     let cid = this.mappings['dname_to_cid'][domain];
     this.statsHandler.couponUsed(cid);
-    log("Our coupon used :\t cid: " + cid +  " \t domain: " + domain + " \tcoupon: " + coupon);
+    log('Our coupon used :\t cid: ' + cid +  ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
   } else {
     let cid = this.mappings['dname_to_cid'][domain];
     this.statsHandler.externalCouponUsed(cid);
-    log("Unrecognized coupon used :\t cid: " + cid  + " \t domain: " + domain + " \tcoupon: " + coupon);
+    log('Unrecognized coupon used :\t cid: ' + cid  + ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
   }
-  log("SR  " + JSON.stringify(this.offersShownCounterMap));
+  log('SR  ' + JSON.stringify(this.offersShownCounterMap));
 };
 
 
@@ -1356,7 +1356,8 @@ OfferManager.prototype.offerShownUICallback = function(offerID) {
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('error: this is not right');
+    log('error: this is not right: offerID: ' + JSON.stringify(offerID));
+    log('this.currentOfferMap: ' + JSON.stringify(this.currentOfferMap));
     return;
   }
 
