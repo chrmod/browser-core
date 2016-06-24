@@ -1,5 +1,4 @@
 import background from 'goldrush/background';
-import { utils, events } from 'core/cliqz';
 import LoggingHandler from 'goldrush/logging_handler';
 
 // to be able to get the events on page change
@@ -40,7 +39,7 @@ export default class {
     // Check issue https://cliqztix.atlassian.net/projects/GR/issues/GR-117
     //
     this.tabsProgressListener = {
-      QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+      QueryInterface: XPCOMUtils.generateQI(['nsIWebProgressListener', 'nsISupportsWeakReference']),
 
       onLocationChange: function (aBrowser, aProgress, aRequest, aURI, aFlags) {
         // skip the event if is the same document here
