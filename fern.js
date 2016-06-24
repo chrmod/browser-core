@@ -40,7 +40,8 @@ function setConfigPath(configPath) {
   process.env['CLIQZ_CONFIG_PATH'] = configPath;
 }
 
-function buildEmberAppSync(appPath, configPath) {
+function buildEmberAppSync(appPath) {
+  const configPath = process.env['CLIQZ_CONFIG_PATH'];
   var app = appPath.substring(8).substring(0, appPath.substring(8).length - 1),
       cliqzConfig = JSON.parse(fs.readFileSync(configPath)),
       shouldBuild = cliqzConfig.modules.some(function(module) {
@@ -96,7 +97,7 @@ program.command('build [file]')
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
           console.log("Starting build");
-          buildEmberAppSync('modules/fresh-tab-frontend/', configPath);
+          buildEmberAppSync('modules/fresh-tab-frontend/');
           let child = spaws('broccoli', ['build', OUTPUT_PATH]);
           child.stderr.on('data', data => console.log(data.toString()));
           child.stdout.on('data', data => console.log(data.toString()));
@@ -106,7 +107,7 @@ program.command('build [file]')
 program.command('serve [file]')
        .action(configPath => {
           setConfigPath(configPath);
-          buildEmberAppSync('modules/fresh-tab-frontend/', configPath);
+          buildEmberAppSync('modules/fresh-tab-frontend/');
           let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
 
        });
