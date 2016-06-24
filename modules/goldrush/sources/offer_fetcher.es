@@ -1,12 +1,11 @@
 import { utils } from 'core/cliqz';
 import  GoldrushConfigs  from 'goldrush/goldrush_configs';
+import LoggingHandler from 'goldrush/logging_handler';
 
 // var assert = require('assert');
 
-function log(s){
-  utils.log(s, 'GOLDRUSH - OFFER_FETCHER');
-}
 
+const MODULE_NAME = 'Offer Fetcher';
 
 ////////////////////////////////////////////////////////////////////////////////
 // api function builder
@@ -38,11 +37,12 @@ function getQueryString(action, argsNames, argsValues) {
 function parseHttpResponse(httpResp) {
   var vouchers = null;
   try {
-      var jResp = JSON.parse(httpResp);
+      var jResp = JSON.parse(httpResp.responseText);
       vouchers = jResp['results'][0]['data']['vouchers'];
     } catch (e) {
-      log('Error parsing the httpResp:\n' + JSON.stringify(httpResp) + '\nwith error: ' + e);
-      utils.getWindow().console.log("offer fetcher: Error parsing the httpResp ", httpResp);
+      LoggingHandler.error(MODULE_NAME, 'Error parsing the httpResp:\n' +
+         httpResp.responseText + '\nwith error: ' + e,
+         LoggingHandler.ERR_JSON_PARSE);
     }
     return vouchers;
 }
@@ -67,9 +67,6 @@ export function OfferFetcher(backendAddr, mappings = null) {
   // temporary cache to avoid multiple queries
   this.cache = {};
 
-  // to send something we need to:
-  // destURL = backendAddr + q=get_amazon.de
-  // destURL = backendAddr + q=set_coupon-ID
 }
 
 
@@ -87,7 +84,7 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   if(this.cache.hasOwnProperty(clusterID)) {
     let tsDiff = Date.now() - this.cache[clusterID]['ts'];
     if (tsDiff <= GoldrushConfigs.TS_THRESHOLD) {
-      log('using cached vouchers');
+      LoggingHandler.info(MODULE_NAME, 'using cached vouchers');
       callback && callback(this.cache[clusterID]['vouchers']);
       return;
     }
@@ -102,34 +99,30 @@ OfferFetcher.prototype.checkForCouponsByCluster = function(clusterID, callback) 
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.GET, argNames, argValues);
 
   // perform the call and wait for the response
-  log('we will hit the endpoint: ' + destURL);
+  LoggingHandler.info(MODULE_NAME, 'we will hit the endpoint: ' + destURL);
 
   utils.httpGet(destURL, function success(resp) {
-      vouchersObj = parseHttpResponse(resp.response);
+      vouchersObj = parseHttpResponse(resp);
       if(vouchersObj) {
-        log('voucher received:');
+        LoggingHandler.info(MODULE_NAME, 'voucher received');
         // temporary cache to avoid multiple queries
         if(!self.cache.hasOwnProperty(clusterID)) {
           self.cache[clusterID] = {};
         }
         self.cache[clusterID]['ts'] = Date.now();
         self.cache[clusterID]['vouchers'] = vouchersObj;
-        log('updated cached vouchers as time expired');
-      } else {
-        utils.getWindow().console.log("offer fetcher: Error parsing the resp ", resp);
+        LoggingHandler.info(MODULE_NAME, 'updated cached vouchers as time expired');
       }
 
       callback && callback(vouchersObj);
 
     }, function error(resp) {
-      // TODO: will be gut if we can track this information
-      // TODO_QUESTION: how do we can track this information and report it back?
-      //                or any error in general?
-      log('error getting the coupongs from the backend:\n' + resp.response);
+      LoggingHandler.error(MODULE_NAME,
+        'error getting the coupongs from the backend:\n' + resp.responseText,
+         LoggingHandler.ERR_BACKEND);
     }
   );
 
-  log('http request end');
 };
 
 //
@@ -141,18 +134,20 @@ OfferFetcher.prototype.markCouponAsUsed = function(couponID) {
   let argNames = ['coupon_id'];
   let argValues = [couponID];
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.MARK_USED, argNames, argValues);
-  log('marking a coupon as used: ' + destURL);
+
+  LoggingHandler.info(MODULE_NAME, 'marking a coupon as used: ' + destURL);
 
   utils.httpGet(destURL, function success(resp) {
-      vouchersObj = parseHttpResponse(resp.response);
+      vouchersObj = parseHttpResponse(resp);
       if (vouchersObj['mark_used'] === true) {
-        log('coupon ' + String(couponID) + ' marked as used');
+        LoggingHandler.info(MODULE_NAME, 'coupon ' + String(couponID) + ' marked as used');
       } else {
-        log('coupon ' + String(couponID) + ' was already marked as used');
+        LoggingHandler.warning(MODULE_NAME, 'coupon ' + String(couponID) + ' was already marked as used');
       }
     }, function error(resp) {
-      // TODO: will be gut if we can track this information
-      log('error marking a coupon as used:\n' + resp.response);
+      LoggingHandler.error(MODULE_NAME,
+        'error marking a coupon as used:\n' + resp.responseText,
+        LoggingHandler.ERR_BACKEND);
     }
   );
 
@@ -170,14 +165,16 @@ OfferFetcher.prototype.isCouponUsed = function(couponID, callback) {
   let argNames = ['coupon_id'];
   let argValues = [couponID];
   let destURL = this.beAddr + 'q=' + getQueryString(BE_ACTION.IS_USED, argNames, argValues);
-  log('checking coupon status: ' + destURL);
+
+  LoggingHandler.info(MODULE_NAME, 'checking coupon status: ' + destURL);
 
   utils.httpGet(destURL, function success(resp) {
-    vouchersObj = parseHttpResponse(resp.response);
+    vouchersObj = parseHttpResponse(resp);
     callback && callback(vouchersObj['is_used']);
   }, function error(resp) {
-      // TODO: will be gut if we can track this information
-      log('error checking coupon status:\n' + resp.response);
+      LoggingHandler.error(MODULE_NAME,
+        'error checking coupon status:\n' + resp.responseText,
+        LoggingHandler.ERR_BACKEND);
     }
     );
 };

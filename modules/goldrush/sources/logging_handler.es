@@ -29,6 +29,10 @@ var LoggingHandler = {
   ERR_BACKEND: 2,
   // reading / writing error (local files)
   ERR_IO: 3,
+  // JSON parsing error
+  ERR_JSON_PARSE: 4,
+  ERR_FILE_PARSE: 5,
+  ERR_RULE_FILE: 6,
 
 
 

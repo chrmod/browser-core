@@ -1,12 +1,9 @@
-import { utils } from 'core/cliqz';
+import LoggingHandler from 'goldrush/logging_handler';
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 
 
-function log(s){
-  utils.log(s, 'GOLDRUSH - INTENT DETECTOR');
-}
-
+const MODULE_NAME = 'INTENT DETECTOR';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helper string methods
@@ -55,7 +52,6 @@ fids_to_calculate -> will be a list of maps from fid_name -> {argName: argValue}
                      replaced in the new_rule_string with the evaluated value.
 */
 function parseRuleString(ruleString, fidsMap) {
-  log('SR' + ' parseRuleString');
   var q = [];
   var indices = [];
   var firstPos = -1;
@@ -67,14 +63,18 @@ function parseRuleString(ruleString, fidsMap) {
       firstPos = i;
       q.push(char);
       if (q.length > 1) {
-        log('The format of the rule is not valid, 2 \'{\' where found:\n' + ruleString);
+        LoggingHandler.error(MODULE_NAME,
+          'The format of the rule is not valid, 2 \'{\' where found:\n' + ruleString,
+          LoggingHandler.ERR_RULE_FILE);
         return null;
       }
     } else if (char === '}') {
         sndPos = i;
         indices.push([firstPos, sndPos]);
         if (q.length === 0 || q.pop() !== '{') {
-          log('The format of the rule is not valid, \'}\' not expected?\n' + ruleString);
+          LoggingHandler.error(MODULE_NAME,
+            'The format of the rule is not valid, \'}\' not expected?\n' + ruleString,
+            LoggingHandler.ERR_RULE_FILE);
           return null;
         }
     }
@@ -82,7 +82,9 @@ function parseRuleString(ruleString, fidsMap) {
 
   // now here we have the indices of all the expressions, replace them.
   if (indices.length === 0) {
-    log('There are no expressions in the rule:\n' + ruleString);
+    LoggingHandler.error(MODULE_NAME,
+     'There are no expressions in the rule:\n' + ruleString,
+     LoggingHandler.ERR_RULE_FILE);
     return null;
   }
 
@@ -100,20 +102,26 @@ function parseRuleString(ruleString, fidsMap) {
     var strExpr = ruleString.slice(firstPos+1, sndPos);
     var parts = strExpr.split('_');
     if (parts.length === 0) {
-      log('the expression ' + strExpr + ' is not properly formatted in rule: \n' + ruleString);
+      LoggingHandler.error(MODULE_NAME,
+        'the expression ' + strExpr + ' is not properly formatted in rule: \n' + ruleString,
+          LoggingHandler.ERR_RULE_FILE);
       return null;
     }
     var args = {};
     var exprName = parts[0].trim();
     var fid = fidsMap[exprName];
     if (fid === undefined) {
-      log('we couldnt find the fid with name ' + exprName + ' on the rule:\n' + ruleString);
+      LoggingHandler.error(MODULE_NAME,
+        'we couldnt find the fid with name ' + exprName + ' on the rule:\n' + ruleString,
+          LoggingHandler.ERR_RULE_FILE);
       return null;
     }
     for (let j = 1; j < parts.length; ++j) {
       var aparts = parts[j].split('=');
       if (aparts.length !== 2) {
-        log('some of the arguments in ' + strExpr + ' are wrong formatted in rule:\n' + ruleString);
+        LoggingHandler.error(MODULE_NAME,
+        'some of the arguments in ' + strExpr + ' are wrong formatted in rule:\n' + ruleString,
+          LoggingHandler.ERR_RULE_FILE);
         return null;
       }
       args[aparts[0].trim()] = aparts[1].trim();
@@ -127,12 +135,16 @@ function parseRuleString(ruleString, fidsMap) {
     dummyValues.push(0.5);
   }
   var strTestExpr = replaceStrArgs(newStr, dummyValues);
-  log('evaluating rule to see if it is possible: \n' + strTestExpr);
+  LoggingHandler.info(MODULE_NAME,
+    'evaluating rule to see if it is possible: \n' + strTestExpr);
   try {
     let tmpResult = eval(strTestExpr);
-    log('evaluated and the result is: ' + tmpResult);
+    LoggingHandler.info(MODULE_NAME,
+      'evaluated and the result is: ' + tmpResult);
   } catch(e) {
-    log('error evaluating the test expression, error: ' + e);
+    LoggingHandler.error(MODULE_NAME,
+      'error evaluating the test expression, error: ' + e,
+        LoggingHandler.ERR_RULE_FILE);
     return null;
   }
 
@@ -141,7 +153,6 @@ function parseRuleString(ruleString, fidsMap) {
     new_rule_string : newStr,
     fids_to_calculate : expressions
   };
-  log('SR ' + JSON.stringify(result, null, 4) );
   return result;
 }
 
@@ -174,7 +185,8 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
     db.loadFromDict(rawDatabase[dbName]);
   }
 
-  log('databases loaded for intent detector of cluster ' + this.clusterID);
+  LoggingHandler.info(MODULE_NAME,
+    'databases loaded for intent detector of cluster ' + this.clusterID);
 
   return true;
 };
@@ -213,41 +225,46 @@ IntentDetector.prototype.loadRule = function(ruleString) {
 //
 IntentDetector.prototype.evaluateInput = function(intentInput) {
   if (this.ruleData === null) {
-    log('cannot evaluate we have a null rule data: ' + this.clusterID);
+    LoggingHandler.error(MODULE_NAME,
+      'cannot evaluate we have a null rule data: ' + this.clusterID,
+      LoggingHandler.ERR_RULE_FILE);
     return 0;
   }
   var resultValues = [];
   var exps = this.ruleData['fids_to_calculate'];
   var extras = {'mappings' : this.mappings};
 
-  log('exps' + JSON.stringify(exps));
+  LoggingHandler.info(MODULE_NAME,
+    'exps' + JSON.stringify(exps));
 
   for (let ex in exps) {
     if (!exps.hasOwnProperty(ex)) {
       // TODO: mark an error here...?
       continue;
     }
-    log('ex' + JSON.stringify(ex));
+    LoggingHandler.info(MODULE_NAME,
+      'ex' + JSON.stringify(ex));
     let exName = exps[ex][0];
     let argsMap = exps[ex][1];
-    log(exName);
-    log(argsMap);
     let fid = this.fidsMap[exName];
     if (fid === undefined) {
-      log('this cannot happen, we dont have the fid with name ' + exName);
+      LoggingHandler.error(MODULE_NAME,
+        'this cannot happen, we dont have the fid with name ' + exName,
+          LoggingHandler.ERR_RULE_FILE);
       continue;
     }
     fid.configureArgs(argsMap);
     let rvalue = fid.evaluate(intentInput, extras);
-    log('rvalue ' + rvalue);
+    LoggingHandler.info(MODULE_NAME, 'rvalue ' + rvalue);
     resultValues.push(rvalue);
   }
   let strToEvaluate = replaceStrArgs(this.ruleData['new_rule_string'] , resultValues);
-  log('strToEvaluate ' + strToEvaluate);
+  LoggingHandler.info(MODULE_NAME, 'strToEvaluate ' + strToEvaluate);
   let result = eval(strToEvaluate);
-  log('result ' + result);
+  LoggingHandler.info(MODULE_NAME, 'result ' + result);
   if (typeof(result) !== 'number') {
-    log('the eval method of the rule ' + this.originalRuleStr + ' is not a number?: ' + result);
+    LoggingHandler.warning(MODULE_NAME,
+      'the eval method of the rule ' + this.originalRuleStr + ' is not a number?: ' + result);
     return 0;
   }
 

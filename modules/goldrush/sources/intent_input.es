@@ -1,10 +1,8 @@
-import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
+import LoggingHandler from 'goldrush/logging_handler';
 
-function log(s){
-  utils.log(s, 'GOLDRUSH - IntentInput');
-}
+const MODULE_NAME = 'Intent Input';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +112,7 @@ BuyIntentSession.prototype.addEvent = function(event) {
 
 ////////////////////////////////////////////////////////////////////////////////
 export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
-  log('Created new IntentInput object');
+  LoggingHandler.info(MODULE_NAME, 'Created new IntentInput object');
   this.sessionTimeMs = sessionTimeSecs * 1000;
   this.buyIntentTimeMs = buyIntentThresholdSecs * 1000;
 
@@ -172,7 +170,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
   // check if we should track the event or not
   let currTimestamp = event.ts;
   let timeDiff = currTimestamp - this.lastTimestamp;
-  if (timeDiff == 0) {
+  if (timeDiff === 0) {
     this.isNewEvent = false;
     return;
   }
@@ -192,12 +190,14 @@ IntentInput.prototype.feedWithEvent = function(event) {
   let isNewBuyIntentSession = buyIntentDuration > this.buyIntentTimeMs;
   isNewBuyIntentSession = isNewBuyIntentSession || (this.currBuyIntent.thereWasACheckout() &&
                                                     this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
-  log('isNewBuyIntentSession: ' + isNewBuyIntentSession +
-      ' - beginBuyIntentTime: ' + beginBuyIntentTime +
-      ' - currTimestamp: ' + currTimestamp +
-      ' - buyIntentDuration: ' +  buyIntentDuration +
-      ' - this.buyIntentTimeMs: ' + this.buyIntentTimeMs +
-      ' - timeDiff: ' + timeDiff);
+
+  LoggingHandler.info(MODULE_NAME,
+    'isNewBuyIntentSession: ' + isNewBuyIntentSession +
+    ' - beginBuyIntentTime: ' + beginBuyIntentTime +
+    ' - currTimestamp: ' + currTimestamp +
+    ' - buyIntentDuration: ' +  buyIntentDuration +
+    ' - this.buyIntentTimeMs: ' + this.buyIntentTimeMs +
+    ' - timeDiff: ' + timeDiff);
 
   if (isNewBuyIntentSession) {
     // then we need to create a new one and replace the last one
@@ -208,7 +208,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
     //
     this.buyIntentIDCount++;
     this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeMs);
-    log('generating new buy intent session!');
+    LoggingHandler.info(MODULE_NAME, 'generating new buy intent session!');
   }
 
   // now we just push the event there and thats all
