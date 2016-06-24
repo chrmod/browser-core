@@ -163,6 +163,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
         version = get_version(beta)
 
     download_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (folder, output_file_name)
+    upload_folder_link = "https://s3.amazonaws.com/cdncliqz/update/%s/%s" % (upload_folder, output_file_name)
     download_link_latest_html = "http://cdn2.cliqz.com/update/%s/%s" % (folder, output_file_name)
 
     output_from_parsed_template = manifest_template.render(version=version,
@@ -200,7 +201,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
         api_root="http://balrog-admin.10e99.net/api",
         addon_id="cliqz@cliqz.com",
         addon_version=version,
-        addon_url=download_link
+        addon_url=upload_folder_link
     )
     submitter.submit()
 
