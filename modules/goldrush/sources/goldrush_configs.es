@@ -36,6 +36,11 @@ var GoldrushConfigs = {
   // TODO: this we can read it from the pref CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
   OFFER_SUBCLUSTER_SWITCH: true,
 
+  // the redirect url to where we should point to when the user sees the offer
+  // and click on "more info"
+  // TODO: define this url to the correct place.
+  OFFER_INFORMATION_URL: 'https://cliqz.com/aboutus/team',
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Stats handler

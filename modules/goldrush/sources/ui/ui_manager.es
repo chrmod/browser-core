@@ -91,10 +91,11 @@ UIManager.prototype.createCouponDisplay = function(offerInfo) {
 // @brief configure callbacks
 // @param callbacks: an object with the following properties.
 //  {
-//    'show_coupon': callback, -> will show the coupon and redirect to web.
-//    'not_interested': callback -> will just cancel this and maybe don't show it again for a while.
-//    'information': callback -> when the user clicks on the information icon
-//    'extra_events': callback -> any other extra events from the notification bar
+//    'show_coupon': callback(offerID), -> will show the coupon and redirect to web.
+//    'not_interested': callback(offerID) -> will just cancel this and maybe don't show it again for a while.
+//    'information': callback(offerID) -> when the user clicks on the information icon
+//    'extra_events': callback(offerID) -> any other extra events from the notification bar
+//    'close_btn_clicked': callback(offerID) -> when user closed on the X button
 //    // internal callbacks
 //    'on_offer_shown' : callback(offerInfo) -> when we actually show an offer
 //    'on_offer_hide' : callback(offerInfo) -> when the offer is hiden
@@ -163,12 +164,19 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   // TODO_QUESTION: localize buttons and content?
   var buttons = [];
 
+  // store the current offer id we want to track
+  const offerID = offerInfo.offer_id;
+
   if (!filterGoToOffer) {
     // show coupon
     buttons.push({
       label : 'Go to Offer',
       accessKey : '1',
-      callback : this.callbacks['show_coupon']
+      callback : function () {
+        if (self.callbacks.show_coupon) {
+          return self.callbacks.show_coupon(offerID);
+        }
+      }
     });
   }
 
@@ -176,14 +184,22 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   buttons.push({
     label : 'Not interested',
     accessKey : '3',
-    callback : this.callbacks['not_interested']
+    callback : function () {
+        if (self.callbacks.not_interested) {
+          return self.callbacks.not_interested(offerID);
+        }
+      }
   });
 
   // go and fu** urself
   buttons.push({
     label : 'More Info',
     accessKey : '4',
-    callback : this.callbacks['information']
+    callback : function () {
+        if (self.callbacks.information) {
+          return self.callbacks.information(offerID);
+        }
+      }
   });
 
   // now get the notification box and create it
@@ -204,7 +220,11 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
                                             null,
                                             box.PRIORITY_WARNING_MEDIUM,
                                             buttons,
-                                            this.callbacks['extra_events']);
+                                            function(reason) {
+                                              if (self.callbacks.extra_events) {
+                                                return self.callbacks.extra_events(reason, offerID);
+                                              }
+                                            });
 
   notification.style.backgroundColor = "#f6f6f6";
   notification.style.borderBottom = "1px solid #dedede";
@@ -216,14 +236,28 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
     couponElement.onclick = function () {
       CLIQZEnvironment.copyResult(this.innerHTML);
       if (self.callbacks.cp_to_clipboard) {
-        self.callbacks.cp_to_clipboard(offerInfo);
+        self.callbacks.cp_to_clipboard(offerID);
       }
     };
-}
+  }
+
+  try {
+    // closing button
+    let notificationBox = currWindow.gBrowser.getNotificationBox().getElementsByTagName("notification")[0];
+    let notificationBoxClosing = notificationBox.boxObject.firstChild.getElementsByTagName("xul:toolbarbutton")[0];
+    notificationBoxClosing.addEventListener("click", function(){
+      if (self.callbacks.close_btn_clicked) {
+        self.callbacks.close_btn_clicked(offerID);
+      }
+    });
+  } catch (e) {
+    log(e);
+  }
+
 
   // call the callback that we are showing the offer here
   if (this.callbacks.on_offer_shown) {
-    this.callbacks.on_offer_shown(offerInfo);
+    this.callbacks.on_offer_shown(offerID);
   }
 
   return true;

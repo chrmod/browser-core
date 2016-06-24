@@ -176,6 +176,8 @@ We will gather the information before send it over telemetry in the following wa
       external\_coupons\_used: N,
       // coupons opened (go to offer)
       coupons\_opened: N,
+      // when the user press on "show more info" button
+      more\_infos: N,
       // when the offer is shown in the same domain where the user is
       same\_domains: N,
       // when the offer is shown in a particular subcluster ({A,B}) if any.
@@ -197,7 +199,7 @@ We will gather the information before send it over telemetry in the following wa
       // user clicked on the coupon code (copy to clipboard)
       cp\_to\_clipboards: N,
       // # of times the system detected a intent
-      system_intents: N,
+      system\_intents: N,
       // the numbers the user visited a particular cluster (everytime we get an event
       // in the givin cluster we increment the counter).
       visits: N,

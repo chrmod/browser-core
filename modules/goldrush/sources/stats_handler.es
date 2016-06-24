@@ -170,6 +170,14 @@ export class StatsHandler {
   }
 
   //
+  // @brief when the user press on "show more info" button
+  //
+  showMoreInfoClicked(clusterID) {
+    log('showMoreInfoClicked');
+    generateOrAddField(this.currentData['data'], clusterID, 'more_infos', 1);
+  }
+
+  //
   // @brief when the offer is shown in the same domain where the user is
   //
   offerOnSameDomain(clusterID) {
@@ -212,18 +220,16 @@ export class StatsHandler {
   //
   // @brief an ad has being desplayed
   //
-  advertiseDisplayed(offerInfo) {
+  advertiseDisplayed(clusterID) {
     log('advertiseDisplayed');
-    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_displayed', 1);
   }
 
   //
   // @brief when the offer is created by the first time
   //
-  offerCreated(offerInfo) {
+  offerCreated(clusterID) {
     log('offerCreated');
-    const clusterID = offerInfo['appear_on_cid'];
     generateOrAddField(this.currentData['data'], clusterID, 'offers_created', 1);
   }
 
