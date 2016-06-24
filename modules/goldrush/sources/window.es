@@ -26,12 +26,6 @@ export default class {
   }
 
   init() {
-    // TODO: remove TESTS?
-    //background.testOfferFetcher();
-    //background.testFIDs();
-    //background.testWritingFile();
-
-
     // We need to subscribe here to get events everytime the location is
     // changing and is the a new url. We had issues since everytime we switch
     // the tabs we got the event from core.locaiton_change and this is not correct

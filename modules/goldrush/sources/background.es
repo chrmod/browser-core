@@ -1,6 +1,5 @@
 import { utils, events } from 'core/cliqz';
 import { OfferManager } from 'goldrush/offer_manager';
-// TODO remove the import are not needed from here after removing the tests
 import background from 'core/base/background';
 import LoggingHandler from 'goldrush/logging_handler';
 

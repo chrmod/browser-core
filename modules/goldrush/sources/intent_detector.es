@@ -177,6 +177,10 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
   }
   for (var dbName in rawDatabase) {
     if (!this.dbMap.hasOwnProperty(dbName)) {
+      LoggingHandler.error(MODULE_NAME,
+                           'The databasemap is missing the database with name: ' + dbName,
+                           LoggingHandler.ERR_INTERNAL);
+
       throw new Error('we couldnt find the database with name ' + dbName + ' in the map');
     }
 
@@ -239,7 +243,6 @@ IntentDetector.prototype.evaluateInput = function(intentInput) {
 
   for (let ex in exps) {
     if (!exps.hasOwnProperty(ex)) {
-      // TODO: mark an error here...?
       continue;
     }
     LoggingHandler.info(MODULE_NAME,

@@ -41,6 +41,10 @@ var GoldrushConfigs = {
   // TODO: define this url to the correct place.
   OFFER_INFORMATION_URL: 'https://cliqz.com/aboutus/team',
 
+  //////////////////////////////////////////////////////////////////////////////
+  // Offer Fetcher
+
+  OFFER_FETCHER_DEST_URL: 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&',
 
   //////////////////////////////////////////////////////////////////////////////
   // Stats handler

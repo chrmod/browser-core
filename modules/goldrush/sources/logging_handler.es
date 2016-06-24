@@ -62,8 +62,6 @@ var LoggingHandler = {
           });
         }
       });
-
-
     }
 
   },
@@ -77,7 +75,6 @@ var LoggingHandler = {
 
   //////////////////////////////////////////////////////////////////////////////
   doLogging(messageType, moduleName, message, errorCode = LoggingHandler.ERR_NONE) {
-    // TODO: build the string we want to log in the proper format
     var strToLog = '[goldrush][' + messageType + '][' + moduleName +']';
     if (errorCode !== LoggingHandler.ERR_NONE) {
       strToLog += '[ErrCode: ' + errorCode + ']: ';
@@ -88,8 +85,7 @@ var LoggingHandler = {
 
     // log in the file if we have one
     if (this.fileObj) {
-      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {
-        // TODO: try to re open it here?
+      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {z
         utils.log('error logging to the file! something happened?: ' + ee, '[goldrush]');
       });
     }

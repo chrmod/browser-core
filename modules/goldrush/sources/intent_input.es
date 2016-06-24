@@ -153,17 +153,6 @@ IntentInput.prototype.currentBuyIntentSession = function() {
 //        id: will be filled in in this function
 //
 IntentInput.prototype.feedWithEvent = function(event) {
-  /*
-  TODO: remove this if we cannot use assert
-  assert(event['event_type'] !== undefined);
-  assert(event['full_url'] !== undefined);
-  assert(event['ts'] !== undefined);
-  assert(event['domain_id'] !== undefined);
-  assert(event['checkout_flag'] !== undefined);
-  assert(event['last_url'] !== undefined);
-  assert(event['referrer_url'] !== undefined);
-  assert(event['extra'] !== undefined);
-  */
   // reset the flag
   this.isNewEvent = true;
 
