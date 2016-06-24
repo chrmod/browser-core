@@ -137,7 +137,6 @@ window.CLIQZ.Core = {
           urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + this._urlbarGoButtonClick);
 
           if ('gBrowser' in window) {
-              CliqzLanguage.init(window);
               CliqzDemo.init(window);
 
               // CliqzEvents listeners

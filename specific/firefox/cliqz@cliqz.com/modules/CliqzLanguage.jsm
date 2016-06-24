@@ -28,6 +28,10 @@ var CliqzLanguage = {
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
     _locale: null,
+    cron: 24*60 * 60 * 1000, // default one day
+    checkInterval: 5 * 60 * 1000, // default 5 min
+    removeHashId: null,
+
     getLocale: function(){
         if(!CliqzLanguage._locale){
             var locale = null;
@@ -47,6 +51,9 @@ var CliqzLanguage = {
     init: function(window) {
 
         CliqzLanguage.window = window;
+        if (this.removeHashId == null){
+            this.removeHashId = CliqzUtils.setInterval(this.updateTicker.bind(this), this.checkInterval);
+        }
 
         if(CliqzUtils.hasPref('data','extensions.cliqz-lang.')) {
             try {
@@ -102,13 +109,36 @@ var CliqzLanguage = {
         CliqzUtils.log(CliqzLanguage.stateToQueryString(), CliqzLanguage.LOG_KEY);
 
     },
+    unload: function () {
+        if (this.removeHashId != null){
+            CliqzUtils.clearInterval(this.removeHashId);
+            this.removeHashId = null;
+        }
+
+    },
+    updateTicker: function(){
+        var lastUpdate = 0;
+        if(CliqzUtils.hasPref('lastUpdate','extensions.cliqz-lang.')) {
+            try {
+                lastUpdate = parseInt(CliqzUtils.getPref('lastUpdate', 0, 'extensions.cliqz-lang.'));
+            }
+            catch(e){
+                lastUpdate = 0;
+            }
+        }
+        var currentTime = Date.now();
+        if ( currentTime > this.cron + lastUpdate ) {
+            this.removeHash();
+            CliqzUtils.setPref('lastUpdate', String(currentTime), 'extensions.cliqz-lang.');
+        }
+    },
     // create array of unique hashes
     createHashes: function(max_len){
         let hashes = [];
         let i = 0;
         while (i < max_len)
         {
-            // random hash value: [-100, 100]
+            // random hash value: [-256, 255]
             let r = Math.floor(Math.random() * 512) - 256;
             if (hashes.indexOf(r) == -1){
                 hashes.push(r);
