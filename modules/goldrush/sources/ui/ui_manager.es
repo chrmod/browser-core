@@ -4,9 +4,11 @@ import ResourceLoader from 'core/resource-loader';
 
 Components.utils.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-function log(s){
-  utils.log(s, 'GOLDRUSH - UI MANAGER');
-}
+
+////////////////////////////////////////////////////////////////////////////////
+// consts
+
+const MODULE_NAME = 'ui_manager';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +49,7 @@ export function UIManager() {
 UIManager.prototype.createCouponDisplay = function(offerInfo) {
   if (!this.htmlHandlebarTemplate) {
     // nothing to do here..
-    log('we still dont have the handlebar template here...');
+    LoggingHandler.info(MODULE_NAME, 'we still dont have the handlebar template here...');
     return;
   }
 
@@ -139,7 +141,7 @@ UIManager.prototype.isOfferForClusterShownInCurrentWindow = function(clusterID) 
 //
 UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOffer=false) {
   if (!this.callbacks) {
-    log('no callbacks set yet... we cannot add any coupon to the UI');
+    LoggingHandler.info(MODULE_NAME, 'no callbacks set yet... we cannot add any coupon to the UI');
     return false;
   }
 
@@ -156,7 +158,9 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   // TODO: we need to style this, for now we will not, only in a nasty way.
   var notificationContent = this.createCouponDisplay(offerInfo);
   if (!notificationContent) {
-    log('we couldnt create the coupon display');
+    LoggingHandler.error(MODULE_NAME,
+                         'we couldnt create the coupon display',
+                         LoggingHandler.ERR_INTERNAL);
     return false;
   }
 
@@ -251,7 +255,10 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
       }
     });
   } catch (e) {
-    log(e);
+    LoggingHandler.error(MODULE_NAME,
+                         'We couldnt get the code button from the ui to link it with ' +
+                         'the copyToClipboard feature. Description: ' + e,
+                         LoggingHandler.ERR_INTERNAL);
   }
 
 
