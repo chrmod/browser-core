@@ -82,12 +82,6 @@ UIManager.prototype.createCouponDisplay = function(offerInfo) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-
-//////////////////////////////////////////////////////////////////////////////
-// TODO: we should add here all the methods to get the callbacks and to track the
-// information (like mouse over / ticket clicked / etc)
-
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // @brief configure callbacks
@@ -155,7 +149,6 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   }
 
   // get the notification box and build whatever we want to show (style) here.
-  // TODO: we need to style this, for now we will not, only in a nasty way.
   var notificationContent = this.createCouponDisplay(offerInfo);
   if (!notificationContent) {
     LoggingHandler.error(MODULE_NAME,
@@ -165,7 +158,6 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   }
 
   // build the buttons callbacks
-  // TODO_QUESTION: localize buttons and content?
   var buttons = [];
 
   // store the current offer id we want to track
@@ -207,16 +199,8 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   });
 
   // now get the notification box and create it
-  // TODO_QUESTION: modify the priority? which one we should use + icon?
   var gBrowser = currWindow.gBrowser;
   var box = gBrowser.getNotificationBox();
-
-  // remove the coupon notification if there is one
-  // let couponNotification = box.getNotificationWithValue('goldrush-coupon');
-  // if (couponNotification) {
-  //   // TODO: make sure the close callback is not calling this method again (recursion loop)
-  //   box.removeNotification(couponNotification);
-  // }
 
   const offerNameID = getIDNameFromOfferID(offerInfo['offer_id']);
   var notification = box.appendNotification(notificationContent,

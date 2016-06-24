@@ -87,7 +87,6 @@ function parseMappingsFileAsPromise(filename) {
 //        to be used later.
 //
 function getClustersFilesMap() {
-  // TODO: return a map:
   // cluster_name -> {
   //    'domains_file' : filepath,
   //    'db_file' : filepath,
@@ -228,8 +227,7 @@ export function OfferManager() {
   this.offerSubclusterInfo = null;
 
   // the fetcher
-  //TODO: use a globar variable here in the config maybe
-  let destURL = 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&';
+  let destURL = GoldrushConfigs.OFFER_FETCHER_DEST_URL;
   let self = this;
   parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
     self.mappings = mappings;
@@ -701,25 +699,6 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// @brief This method will add all the mechanism to start tracking a particular
-//        coupon so we can detect some events.
-//
-OfferManager.prototype.trackCoupon = function(coupon, originalURL) {
-  // TODO: here we need to init all the system to track the coupon
-};
-
-//
-// @brief This method should be called when we stop tracking a coupon for any reason
-//        so we can remove the handlers and whatever we need.
-// @param coupon is the coupon we will not track anymore
-// @param reason is a value saying why we stop tracking the coupon
-//
-OfferManager.prototype.stopTrackingCoupon = function(coupon, reason) {
-  // TODO: implement this method
-};
-
-////////////////////////////////////////////////////////////////////////////////
 
 //
 // @brief this method will be called when the system detects a new offer and
@@ -787,7 +766,6 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
 // @brief removes a particular offer with a given id
 //
 OfferManager.prototype.removeAndUntrackOffer = function(offerID) {
-  // TODO:
   // - search for the offer on the maps and remove it
   // - disable the disabler timer
   LoggingHandler.info(MODULE_NAME, 'removing and untracking offer with ID: ' + offerID);
@@ -1146,10 +1124,6 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
       return;
     }
 
-    // TODO: if we were able to create an offer then we track here the new telemetry
-    // value: if the user is in the same domain than the offer or not.
-
-
     // we have a offer, show it into the UI for the user
     self.uiManager.showOfferInCurrentWindow(offer, offer.redirect_url_did === domainID);
   });
@@ -1195,7 +1169,6 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
 // @brief when the user press on the "check coupon or view coupon"
 //
 OfferManager.prototype.checkButtonUICallback = function(offerID) {
-  // TODO: implement here all the needed logic and the
   LoggingHandler.info(MODULE_NAME, 'checkButtonUICallback');
 
   const offer = this.currentOfferMap[offerID];
@@ -1330,7 +1303,6 @@ OfferManager.prototype.onCloseBtnClickedUICallback = function(offerID) {
 // @brief when the user press on the code to copy it to the clipboard
 //
 OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
-  // TODO: implement here all the needed logic and the
   LoggingHandler.info(MODULE_NAME, 'copyToClipboardUICallback');
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
@@ -1352,7 +1324,6 @@ OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
 // @brief when an offer is shown
 //
 OfferManager.prototype.offerShownUICallback = function(offerID) {
-  // TODO: implement here all the needed logic and the
   LoggingHandler.info(MODULE_NAME, 'offerShownUICallback');
   if (!this.userDB) {
     return;

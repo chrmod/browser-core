@@ -71,7 +71,6 @@ export class StatsHandler {
   }
 
   destroy() {
-    // TODO: check if the best option is calling this here
     // remove the interval update method
     CliqzUtils.clearInterval(this.interval);
 
@@ -90,7 +89,6 @@ export class StatsHandler {
   // @return true on success | false otherwise
   //
   sendOverTelemetry() {
-    // TODO:
     LoggingHandler.info(MODULE_NAME, 'sending over telemetry');
 
     if (!this.currentData || !this.currentData['data']) {
@@ -128,7 +126,6 @@ export class StatsHandler {
   //        the telemetry or not
   //
   shouldWeNeedToSendCurrenData() {
-    // TODO: this will check the timestamp of the last telemetry data sent.
     const lastTimeSent = Number(this.currentData['last_ts_sent']);
     const diffTime = Date.now() - lastTimeSent;
     LoggingHandler.info(MODULE_NAME,
