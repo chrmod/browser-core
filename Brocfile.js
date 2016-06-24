@@ -20,6 +20,9 @@ var buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 // source maps
 var sourceMaps = process.env.CLIQZ_SOURCE_MAPS == 'false' ? false : true;
 
+// extension version
+const EXTENSION_VERSION = process.env.EXTENSION_VERSION;
+
 // input trees
 var bowerComponents = new Funnel('bower_components');
 var nodeModules    = new Funnel('node_modules');
@@ -44,6 +47,8 @@ if (buildEnv === 'development') {
   cliqzConfig.settings.frameScriptWhitelist.push('http://localhost:3000/');
 }
 // end
+
+cliqzConfig.EXTENSION_VERSION = EXTENSION_VERSION;
 
 
 var platform = new Funnel('platforms/'+cliqzConfig.platform, {
@@ -278,6 +283,7 @@ var web = new MergeTrees([
 
 var mobile = new MergeTrees([
   mobileSpecific,
+  new Funnel(config),
   new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),

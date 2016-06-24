@@ -69,7 +69,21 @@ function isPackageInstalled(pkg, options, msg) {
   }
 }
 
-program.version('0.1.0');
+function getExtensionVersion(version) {
+  return new Promise(resolve => {
+    switch (version) {
+      case 'tag':
+        const git = require('git-rev');
+        git.tag(resolve);
+        break;
+      case 'package':
+        fs.readFile('package.json', (err, data) => resolve(JSON.parse(data).version));
+        break;
+      default:
+        resolve(version);
+    }
+  });
+}
 
 program.command('install')
        .action(() => {
@@ -90,18 +104,22 @@ program.command('install')
 
 program.command('build [file]')
        .option('--no-maps', 'disables source maps')
+       .option('--version [version]', 'sets extension version', 'package')
        .action((configPath, options) => {
           var buildStart = Date.now();
           setConfigPath(configPath);
 
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
-          console.log("Starting build");
-          buildEmberAppSync('modules/fresh-tab-frontend/');
-          let child = spaws('broccoli', ['build', OUTPUT_PATH]);
-          child.stderr.on('data', data => console.log(data.toString()));
-          child.stdout.on('data', data => console.log(data.toString()));
-          child.on('close', code => console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : ''));
+          console.log('Starting build');
+          buildEmberAppSync('modules/fresh-tab-frontend/', configPath);
+          getExtensionVersion(options.version).then(tag => {
+            process.env.EXTENSION_VERSION = tag;            
+            let child = spaws('broccoli', ['build', OUTPUT_PATH]);
+            child.stderr.on('data', data => console.log(data.toString()));
+            child.stdout.on('data', data => console.log(data.toString()));
+            child.on('close', code => console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : ''));
+          });
        });
 
 program.command('serve [file]')
@@ -109,7 +127,6 @@ program.command('serve [file]')
           setConfigPath(configPath);
           buildEmberAppSync('modules/fresh-tab-frontend/');
           let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
-
        });
 
 program.command('test <file>')
