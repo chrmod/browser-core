@@ -5,6 +5,13 @@ import background from 'core/base/background';
 import LoggingHandler from 'goldrush/logging_handler';
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+// consts
+
+const MODULE_NAME = 'background';
+
+
 export default background({
   enabled() {
     return true;
@@ -35,13 +42,13 @@ export default background({
       return;
     }
     var u = utils.getDetailsFromUrl(url);
-    LoggingHandler.info('background', 'location changed to ' + u.host);
+    LoggingHandler.info(MODULE_NAME, 'location changed to ' + u.host);
 
     try {
       this.offerManager.processNewEvent(u);
     } catch (e) {
       // log this error, is nasty, something went wrong
-      LoggingHandler.error('background',
+      LoggingHandler.error(MODULE_NAME,
                            'Exception catched when processing a new event: ' + e,
                            LoggingHandler.ERR_INTERNAL);
     }
@@ -57,7 +64,7 @@ export default background({
       var u = utils.getDetailsFromUrl(url);
       this.offerManager.onTabOrWinChanged(u);
     } catch (e) {
-      LoggingHandler.error('background',
+      LoggingHandler.error(MODULE_NAME,
                            'Exception catched on onTabOrWinChangedHandler: ' + e,
                            LoggingHandler.ERR_INTERNAL);
     }

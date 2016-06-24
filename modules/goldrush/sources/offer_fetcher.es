@@ -5,7 +5,7 @@ import LoggingHandler from 'goldrush/logging_handler';
 // var assert = require('assert');
 
 
-const MODULE_NAME = 'Offer Fetcher';
+const MODULE_NAME = 'offer_fetcher';
 
 ////////////////////////////////////////////////////////////////////////////////
 // api function builder

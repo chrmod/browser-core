@@ -2,7 +2,7 @@
 //import ResourceLoader from 'core/resource-loader';
 import LoggingHandler from 'goldrush/logging_handler';
 
-const MODULE_NAME = 'Intent Input';
+const MODULE_NAME = 'intent_input';
 
 
 ////////////////////////////////////////////////////////////////////////////////

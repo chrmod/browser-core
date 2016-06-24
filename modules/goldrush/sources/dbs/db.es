@@ -1,10 +1,4 @@
 import { utils } from 'core/cliqz';
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
-
-function log(s){
-  utils.log(s, 'GOLDRUSH - DB');
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////

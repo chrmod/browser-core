@@ -1,13 +1,9 @@
 import { DB } from 'goldrush/dbs/db';
 import { utils } from 'core/cliqz';
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
-
-function log(s){
-  utils.log(s, 'GOLDRUSH - GeneralDB');
-}
+import LoggingHandler from 'goldrush/logging_handler';
 
 
+const MODULE_NAME = 'general_db';
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -47,11 +43,9 @@ GeneralDB.prototype.loadFromDict = function(dict) {
     if (this.validKeys.includes(key)) {
       this.addValue(key, dict[key]);
     }else {
-      log('Key not found in the list of valid keys');
+      LoggingHandler.info(MODULE_NAME, 'Key not found in the list of valid keys');
     }
   }
-  // log('GeneralDB: loadFromDict');
-  // log(this.data);
 };
 
 

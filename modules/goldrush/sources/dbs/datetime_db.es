@@ -1,11 +1,5 @@
 import { DB } from 'goldrush/dbs/db';
 import { utils } from 'core/cliqz';
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
-
-function log(s){
-  utils.log(s, 'GOLDRUSH - DateTimeDB');
-}
 
 
 
@@ -58,8 +52,6 @@ DateTimeDB.prototype.loadFromDict = function(dict) {
   this.dayData = dict['day_data'];
   this.hourData = dict['hour_data'];
   this.monthData = dict['month_data'];
-  // log('DateTimeDB: loadFromDict');
-  // log(this);
 };
 
 

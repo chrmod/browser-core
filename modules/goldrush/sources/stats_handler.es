@@ -1,11 +1,15 @@
 import { utils } from 'core/cliqz';
-import  GoldrushConfigs  from 'goldrush/goldrush_configs'
+import  GoldrushConfigs  from 'goldrush/goldrush_configs';
+import LoggingHandler from 'goldrush/logging_handler';
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
-function log(s){
-  utils.log(s, 'GOLDRUSH - StatsHandler');
-}
+// Consts
+
+const MODULE_NAME = 'stats_handler';
+
+////////////////////////////////////////////////////////////////////////////////
 
 function generateOrAddField(d, f1, f2, val) {
   if (!d[f1]) {
@@ -32,15 +36,17 @@ export class StatsHandler {
     var cache = localStorage.getItem('stats_data');
     if (!cache) {
       // we need to write this then
-      log('no db found, creating new one');
+      LoggingHandler.info(MODULE_NAME, 'no db found, creating new one');
       this.generateNewDataStructure();
       localStorage.setItem('stats_data', JSON.stringify(this.currentData));
     } else {
-      log('db found, loading it: ' + cache);
+      LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
       // we have data, load it
       this.currentData = JSON.parse(cache);
       if (this.shouldWeNeedToSendCurrenData()) {
-        log('after loading it pass more than N seconds so we will send it now');
+        LoggingHandler.info(MODULE_NAME,
+                           'after loading it pass more than N ' +
+                           'seconds so we will send it now');
         if (this.sendOverTelemetry()) {
           this.generateNewDataStructure();
           // reset the current data in the database to avoid inconsistences
@@ -85,7 +91,7 @@ export class StatsHandler {
   //
   sendOverTelemetry() {
     // TODO:
-    log('sending over telemetry');
+    LoggingHandler.info(MODULE_NAME, 'sending over telemetry');
 
     if (!this.currentData || !this.currentData['data']) {
       return false;
@@ -97,7 +103,7 @@ export class StatsHandler {
     };
 
     // send it over telemetry
-    log('Signal to send: ' + JSON.stringify(signal)); // TODO: remove this log
+    LoggingHandler.info(MODULE_NAME, 'Signal to send: ' + JSON.stringify(signal)); // TODO: remove this log
 
     // TODO: uncomment this
     //CliqzUtils.telemetry(signal);
@@ -110,7 +116,7 @@ export class StatsHandler {
   //        data to start filling it again
   //
   generateNewDataStructure() {
-    log('generating a new empty structure');
+    LoggingHandler.info(MODULE_NAME, 'generating a new empty structure');
     this.currentData = {
       'data' : {},
       'last_ts_sent' : Date.now()
@@ -125,9 +131,11 @@ export class StatsHandler {
     // TODO: this will check the timestamp of the last telemetry data sent.
     const lastTimeSent = Number(this.currentData['last_ts_sent']);
     const diffTime = Date.now() - lastTimeSent;
-    log('shouldWeNeedToSendCurrenData: lastTimeSent: ' + lastTimeSent +
-        ' - diffTime: ' + diffTime +
-        ' - GoldrushConfigs.STATS_SENT_PERIODISITY_MS: ' + GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
+    LoggingHandler.info(MODULE_NAME,
+                       'shouldWeNeedToSendCurrenData: lastTimeSent: ' + lastTimeSent +
+                       ' - diffTime: ' + diffTime +
+                       ' - GoldrushConfigs.STATS_SENT_PERIODISITY_MS: ' +
+                       GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
     return (diffTime >= GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
   }
 
@@ -142,10 +150,7 @@ export class StatsHandler {
   // @brief collect that a coupon provided by us was used
   //
   couponUsed(clusterID) {
-    // TODO: we can get the domain id and cluster id from:
-    // offerInfo['appear_on_did']
-    // offerInfo['appear_on_cid']
-    log('ourCouponUsed');
+    LoggingHandler.info(MODULE_NAME, 'ourCouponUsed');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_used', 1);
   }
 
@@ -154,10 +159,7 @@ export class StatsHandler {
   //        it for any reason (could be ours or not... most probably not).
   //
   externalCouponUsed(clusterID) {
-    // TODO: we can get the domain id and cluster id from:
-    // offerInfo['appear_on_did']
-    // offerInfo['appear_on_cid']
-    log('externalCouponUsed');
+    LoggingHandler.info(MODULE_NAME, 'externalCouponUsed');
     generateOrAddField(this.currentData['data'], clusterID, 'external_coupons_used', 1);
   }
 
@@ -165,7 +167,7 @@ export class StatsHandler {
   // @brief coupon being clicked
   //
   couponClicked(clusterID) {
-    log('couponClicked');
+    LoggingHandler.info(MODULE_NAME, 'couponClicked');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_opened', 1);
   }
 
@@ -173,7 +175,7 @@ export class StatsHandler {
   // @brief when the user press on "show more info" button
   //
   showMoreInfoClicked(clusterID) {
-    log('showMoreInfoClicked');
+    LoggingHandler.info(MODULE_NAME, 'showMoreInfoClicked');
     generateOrAddField(this.currentData['data'], clusterID, 'more_infos', 1);
   }
 
@@ -181,7 +183,7 @@ export class StatsHandler {
   // @brief when the offer is shown in the same domain where the user is
   //
   offerOnSameDomain(clusterID) {
-    log('offerOnSameDomain');
+    LoggingHandler.info(MODULE_NAME, 'offerOnSameDomain');
     generateOrAddField(this.currentData['data'], clusterID, 'same_domains', 1);
   }
 
@@ -189,7 +191,7 @@ export class StatsHandler {
   // @brief when the offer is shown in a particular subcluster ({A,B}) if any.
   //
   offerShownOnSubcluster(clusterID, subclusterID) {
-    log('offerShownOnSubcluster ' + subclusterID);
+    LoggingHandler.info(MODULE_NAME, 'offerShownOnSubcluster ' + subclusterID);
     generateOrAddField(this.currentData['data'], clusterID, 'subcluster_' + subclusterID, 1);
   }
 
@@ -197,7 +199,7 @@ export class StatsHandler {
   // @brief when a coupon rejected by the main button
   //
   couponRejected(clusterID) {
-    log('couponRejected');
+    LoggingHandler.info(MODULE_NAME, 'couponRejected');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_rejected', 1);
   }
 
@@ -205,7 +207,7 @@ export class StatsHandler {
   // @brief when the offer is closed by some other reason
   //
   advertiseClosed(clusterID) {
-    log('advertiseClosed');
+    LoggingHandler.info(MODULE_NAME, 'advertiseClosed');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_closed', 1);
   }
 
@@ -213,7 +215,7 @@ export class StatsHandler {
   // @brief when the ad is closed by the user on the X button
   //
   advertiseClosedByUser(clusterID) {
-    log('advertiseClosedByUser');
+    LoggingHandler.info(MODULE_NAME, 'advertiseClosedByUser');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_closed_by_user', 1);
   }
 
@@ -221,7 +223,7 @@ export class StatsHandler {
   // @brief an ad has being desplayed
   //
   advertiseDisplayed(clusterID) {
-    log('advertiseDisplayed');
+    LoggingHandler.info(MODULE_NAME, 'advertiseDisplayed');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_displayed', 1);
   }
 
@@ -229,7 +231,7 @@ export class StatsHandler {
   // @brief when the offer is created by the first time
   //
   offerCreated(clusterID) {
-    log('offerCreated');
+    LoggingHandler.info(MODULE_NAME, 'offerCreated');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_created', 1);
   }
 
@@ -237,7 +239,7 @@ export class StatsHandler {
   // @brief user bought or is in the checkout page
   //
   userProbablyBought(domainID, clusterID) {
-    log('userProbablyBought');
+    LoggingHandler.info(MODULE_NAME, 'userProbablyBought');
     generateOrAddField(this.currentData['data'], clusterID, 'checkouts', 1);
   }
 
@@ -245,7 +247,7 @@ export class StatsHandler {
   // @brief user clicked on the coupon code (copy to clipboard)
   //
   copyToClipboardClicked(clusterID) {
-    log('copyToClipboardClicked');
+    LoggingHandler.info(MODULE_NAME, 'copyToClipboardClicked');
     generateOrAddField(this.currentData['data'], clusterID, 'cp_to_clipboards', 1);
   }
 
@@ -253,7 +255,7 @@ export class StatsHandler {
   // @brief system intention detected
   //
   systemIntentionDetected(domainID, clusterID) {
-    log('systemIntentionDetected');
+    LoggingHandler.info(MODULE_NAME, 'systemIntentionDetected');
     generateOrAddField(this.currentData['data'], clusterID, 'system_intents', 1);
   }
 
@@ -261,7 +263,7 @@ export class StatsHandler {
   // @brief user visited the cluster
   //
   userVisitedCluster(clusterID) {
-    log('userVisitedCluster');
+    LoggingHandler.info(MODULE_NAME, 'userVisitedCluster');
     generateOrAddField(this.currentData['data'], clusterID, 'visits', 1);
   }
 

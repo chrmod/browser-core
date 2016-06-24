@@ -1,11 +1,6 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
 
-function log(s){
-  utils.log(s, 'GOLDRUSH - TopClusterVisitsFID');
-}
 
 //
 // @brief This class will be in charge of checking how many visits to the cluster
@@ -49,11 +44,6 @@ export class TopClusterVisitsFID extends FID {
         this.args[arg_idx] = Number(configArgs[arg_idx]);
     }
 
-    // log('configArgs' + JSON.stringify(configArgs));
-    // log('N ', this.args['N']);
-    // log('delta ', this.args['delta']);
-    // log('args' + JSON.stringify(this.args));
-
     if (this.args['N'] <= 0 || this.args['delta'] <= 0) {
       return;
     }
@@ -63,16 +53,10 @@ export class TopClusterVisitsFID extends FID {
     // if we are being called is because there we are visiting the cluster again
     // so we just need to increment a counter or even easier, just count the
     // number of events
-    // log('N ', this.args['N']);
-    // log('delta ', this.args['delta']);
     let intentSession = intentInput.currentBuyIntentSession();
     let totalNumEvents = intentSession.totalNumOfEvents();
     let lowerBound = this.args['N'] - this.args['delta'];
     let upperBound = this.args['N'] + this.args['delta'];
-    log('intentSession: ' + intentSession);
-    log('lowerBound: ' + lowerBound);
-    log('totalNumEvents: ' + totalNumEvents);
-    log('upperBound: ' + upperBound);
     if (totalNumEvents >= lowerBound && totalNumEvents <= upperBound) {
       return 1.0;
     }

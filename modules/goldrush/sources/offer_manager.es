@@ -12,6 +12,7 @@ import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fi
 import { UIManager } from 'goldrush/ui/ui_manager';
 import { StatsHandler } from 'goldrush/stats_handler';
 import GoldrushConfigs from 'goldrush/goldrush_configs';
+import LoggingHandler from 'goldrush/logging_handler';
 
 // TODO: review if this is fine
 Components.utils.import('resource://gre/modules/Services.jsm');
@@ -23,14 +24,10 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm')
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 //
-
+const MODULE_NAME = 'offer_manager';
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-function log(s){
-  utils.log(s, 'GOLDRUSH - OFFER MANAGER');
-}
-
 // TODO: remove this method and the usage of it
 function printSet(setName, s) {
   let str = '{';
@@ -38,14 +35,14 @@ function printSet(setName, s) {
     str += v + ', ';
   });
   str += '}';
-  log('SET ' + setName + ': ' + str);
+  LoggingHandler.info(MODULE_NAME, 'SET ' + setName + ': ' + str);
 }
 
 // TODO: remove this and the usage of this method
 //
 function check(expression, message) {
   if (!expression) {
-    log(message);
+    LoggingHandler.error(MODULE_NAME, message, LoggingHandler.ERR_INTERNAL);
   }
 }
 
@@ -72,7 +69,6 @@ function parseMappingsFileAsPromise(filename) {
 
     rscLoader.load().then(json => {
       // now we parse the data and return this
-      log(json);
       check(json['cid_to_cname'] !== undefined, 'cid_to_cname not defined');
       check(json['cname_to_cid'] !== undefined, 'cname_to_cid not defined');
       check(json['did_to_dname'] !== undefined, 'did_to_dname not defined');
@@ -168,7 +164,6 @@ function generateDBMap(dbsNamesList) {
   return new Promise(function(resolve, reject) {
     var result = {};
     for (let dbName of dbsNamesList) {
-      log(dbName);
       switch (dbName) {
         case 'datetime_db':
           result[dbName] = new DateTimeDB();
@@ -242,17 +237,17 @@ export function OfferManager() {
     // create the subcluster information
     self.loadOfferSubclusters();
 
-    log('setting the mappings to the offer manager');
+    LoggingHandler.info(MODULE_NAME, 'setting the mappings to the offer manager');
     self.offerFetcher = new OfferFetcher(destURL, mappings);
   }).then(function() {
       return self.getUserDB(self.mappings);
   }).then(function(userDB) {
       self.userDB = userDB;
   }).then(function() {
-      log('load the clusters and create the');
+      LoggingHandler.info(MODULE_NAME, 'load the clusters and create the');
       self.clusterFilesMap = getClustersFilesMap();
-      log(self.clusterFilesMap);
-      log('calling generateIntentsDetector');
+      LoggingHandler.info(MODULE_NAME, 'self.clusterFilesMap: ' + JSON.stringify(self.clusterFilesMap));
+      LoggingHandler.info(MODULE_NAME, 'calling generateIntentsDetector');
       self.generateIntentsDetector(self.clusterFilesMap);
 
       // now here we need to check the history of the user so we can load the
@@ -273,7 +268,7 @@ export function OfferManager() {
 //
 OfferManager.prototype.loadHistoryEvents = function() {
   if (!GoldrushConfigs.LOAD_HISTORY_EVENTS) {
-    log('skipping the LOAD_HISTORY_EVENTS since flag is false');
+    LoggingHandler.info(MODULE_NAME, 'skipping the LOAD_HISTORY_EVENTS since flag is false');
     return;
   }
 
@@ -300,7 +295,7 @@ OfferManager.prototype.loadHistoryEvents = function() {
                    'moz_historyvisits.place_id = moz_places.id WHERE visit_date > ' +
                    absoluteTimestamp + ' ORDER BY visit_date ASC;';
 
-  log('loading the history events now with query: ' + sqlQuery);
+  LoggingHandler.info(MODULE_NAME, 'loading the history events now with query: ' + sqlQuery);
   // execute the query now
   let eventCounts = 0;
   CliqzHistoryManager.PlacesInterestsStorage._execute(sqlQuery,
@@ -309,13 +304,13 @@ OfferManager.prototype.loadHistoryEvents = function() {
       var urlObj = CliqzUtils.getDetailsFromUrl(result.url);
       const timestamp = Number(result.visit_date) / 1000; // convert microseconds to ms
       self.feedWithHistoryEvent(urlObj, timestamp);
-      //log('feeding the intent input with ' + result.url + ' - ' + timestamp);
       eventCounts += 1;
     },
     null,
     ).then(function() {
       // nothing to do
-      log('finishing feeding from history. Number of events: ' + eventCounts);
+      LoggingHandler.info(MODULE_NAME,
+                         'finishing feeding from history. Number of events: ' + eventCounts);
     }
   );
 };
@@ -330,7 +325,6 @@ OfferManager.prototype.loadHistoryEvents = function() {
 //
 OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   let self = this;
-  log('inside generateIntentsDetector222');
   check(this.mappings != null, 'mappings is not properly initialized');
 
   var sessionThresholdTimeSecs = GoldrushConfigs.INTENT_SESSION_THRESHOLD_SECS;
@@ -340,7 +334,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     // get the given cluster ID from the name.
     let clusterID = this.mappings['cname_to_cid'][clusterName];
     if (typeof clusterID === 'undefined') {
-      log('cluster with name ' + clusterName + ' was not found');
+      LoggingHandler.info(MODULE_NAME, 'cluster with name ' + clusterName + ' was not found');
       continue;
     }
 
@@ -378,8 +372,6 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     let dbsJson = null;
     let rulesStr  = null;
     Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
-      log('result from dbFilePromise and rulesFilePromise');
-      log(results);
       // we need now to build the intent detector
       dbsJson = results[0];
       rulesStr = results[1];
@@ -389,7 +381,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       dbInstancesMap = dbInstancesMapResult;
       //add cluster related section of userDB to instacen
       dbInstancesMap['user_db'] = self.userDB[clusterID];
-      log('dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
+      LoggingHandler.info(MODULE_NAME, 'dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
 
       // get the rules information
       rulesStr = rulesStr.replace(/(\n)+/g, ' ');
@@ -400,7 +392,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       return generateFidsMap(rulesNames);
     }).then(function(rulesInstancesMapResult) {
       rulesInstancesMap = rulesInstancesMapResult;
-      log('rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
+      LoggingHandler.info(MODULE_NAME, 'rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
     }).then(function() {
       let intentDetector =  new IntentDetector(clusterID, self.mappings, dbInstancesMap, rulesInstancesMap);
       // try to load everything now
@@ -409,12 +401,18 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
         intentDetector.loadRule(rulesStr);
         self.intentDetectorsMap[clusterID] = intentDetector;
       } catch (e) {
-        log('something happened when configuring the intent detector for cluster ' + clusterName);
-        log('error: ' + e);
+        LoggingHandler.error(MODULE_NAME,
+                             'something happened when configuring the intent ' +
+                             'detector for cluster ' + clusterName +
+                             '. Error: ' + e,
+                             LoggingHandler.ERR_INTERNAL);
       }
     }).catch(function(errMsg) {
-      log('Some error happened when reading and parsing the files for the cluster ' + clusterName);
-      log('error: ' + errMsg);
+      LoggingHandler.error(MODULE_NAME,
+                           'Some error happened when reading and parsing the ' +
+                           'files for the cluster ' + clusterName +
+                           '. Error: ' + errMsg,
+                           LoggingHandler.ERR_JSON_PARSE);
     });
   }
 
@@ -455,13 +453,14 @@ OfferManager.prototype.destroy = function() {
 //  }
 //
 OfferManager.prototype.loadOfferSubclusters = function() {
-  log('calling loadOfferSubclusters');
   let rscLoader = new ResourceLoader(
     [ 'goldrush', 'offer_subclusters.json' ],
     {}
   );
   rscLoader.load().then(json => {
-    log('loading the json for loadOfferSubclusters json stringify: ' + JSON.stringify(json));
+    LoggingHandler.info(MODULE_NAME,
+                       'loading the json for loadOfferSubclusters json stringify: ' +
+                       JSON.stringify(json));
     // we now load all the clusters and all the domains and we convert the domains
     // into domains ids
     this.offerSubclusterInfo = {};
@@ -474,7 +473,9 @@ OfferManager.prototype.loadOfferSubclusters = function() {
       // now convert 'A' and 'B' into sets
       var currentCluster = json[cid];
       if (!currentCluster['A'] || !currentCluster['B']) {
-        log('it is missing A or B in the file?... we will skip this one');
+        LoggingHandler.warning(MODULE_NAME,
+                               'it is missing A or B in the ' +
+                               'file?... we will skip this one');
         continue;
       }
 
@@ -488,19 +489,25 @@ OfferManager.prototype.loadOfferSubclusters = function() {
           const domName = currentCluster[tag][domNameIndex];
           const domID = this.mappings['dname_to_did'][domName];
           if (domID === undefined) {
-            log('ERROR: there is a domain in the subclusters that is not listed in the ' +
-                'global cluster file? or in the mappings? domName: ' + domName +
-                ' - clusterID: ' + cid);
+            LoggingHandler.error(MODULE_NAME,
+                                 'There is a domain in the subclusters that is not ' +
+                                 'listed in the global cluster file? or in the ' +
+                                 'mappings? domName: ' + domName + ' - clusterID: ' + cid,
+                                 LoggingHandler.ERR_INTERNAL);
             continue;
           }
           this.offerSubclusterInfo[cid][tag].add(Number(domID));
-          log('adding domain: ' + domName + ' - ' + domID + ' to tag ' + tag);
+          LoggingHandler.info(MODULE_NAME,
+                             'adding domain: ' + domName + ' - ' + domID + ' to tag ' + tag);
         }
       }
     }
-    log('loadOfferSubclusters: ' + JSON.stringify(this.offerSubclusterInfo));
+    LoggingHandler.info(MODULE_NAME,
+                       'loadOfferSubclusters: ' + JSON.stringify(this.offerSubclusterInfo));
   }.bind(this)).catch(function(e) {
-    log('ERROR: loading the OfferSubclusters: ' + e);
+    LoggingHandler.error(MODULE_NAME,
+                         'Loading the OfferSubclusters: ' + e,
+                         LoggingHandler.ERR_JSON_PARSE);
   });
 };
 
@@ -617,7 +624,9 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
     }
   }
 
-  log('getBestCoupon: selecting best coupon for switch: ' + switchFlag + ' - subclusterMap: ' + subclusterMap);
+  LoggingHandler.info(MODULE_NAME,
+                     'getBestCoupon: selecting best coupon for switch: ' + switchFlag +
+                     ' - subclusterMap: ' + subclusterMap);
 
   // this function will select from the list of vouchers and a set of domains ids
   // the one that "best" matches. If set of domains is empty then any will be chosen
@@ -642,15 +651,16 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
 
   // apply the main logic
   if (subclusterMap) {
-    log('------------------------------------------------------------------------------------------');
     printSet('A', subclusterMap['A']);
     printSet('B', subclusterMap['B']);
     // we need to use the cluster thing to get the best voucher
     const userOnSubcluster = (subclusterMap['A'].has(evtDomID)) ? 'A' : 'B';
     if (!subclusterMap[userOnSubcluster].has(evtDomID)) {
-      log('ERROR: the user is not nor in A or B subcluster, this is an error. ' +
-          'userEvtID: ' + evtDomID + '\ttag: ' + userOnSubcluster +
-          '\tsubclusterMap: ' + JSON.stringify(subclusterMap));
+      LoggingHandler.error(MODULE_NAME,
+                           'The user is not nor in A or B subcluster, this is an error. ' +
+                           'userEvtID: ' + evtDomID + '\ttag: ' + userOnSubcluster +
+                           '\tsubclusterMap: ' + JSON.stringify(subclusterMap),
+                           LoggingHandler.ERR_INTERNAL);
       return voucher;
     }
     // now check if we need to switch or not
@@ -662,16 +672,19 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
       subclusterToSearch = userOnSubcluster;
     }
     // search in this
-    log('getBestCoupon: selecting voucher for subcluster: ' + subclusterToSearch +
-        ' - user on subcluster: ' + userOnSubcluster +
-        ' - userDomainID: ' + evtDomID);
+    LoggingHandler.info(MODULE_NAME,
+                       'getBestCoupon: selecting voucher for subcluster: ' + subclusterToSearch +
+                       ' - user on subcluster: ' + userOnSubcluster +
+                       ' - userDomainID: ' + evtDomID);
     const domainsToSearch = subclusterMap[subclusterToSearch];
     let localVoucher = selectBestVoucher(vouchers, domainsToSearch);
 
     // check if we found a voucher we want
     if (!localVoucher) {
-      log('ERROR: we didnt find a voucher for the cluster we were looking for ' +
-          'so we will return the default one');
+      LoggingHandler.error(MODULE_NAME,
+                           'We didnt find a voucher for the cluster we were looking for ' +
+                           'so we will return the default one',
+                           LoggingHandler.ERR_INTERNAL);
       return voucher;
     }
 
@@ -680,7 +693,8 @@ OfferManager.prototype.getBestCoupon = function(evtDomID, evtClusterID, vouchers
     return localVoucher;
   } else {
     // we just need to get any voucher that is not evtDomID if possible
-    log('getBestCoupon: selectiong the best voucher from all (no A|B logic)');
+    LoggingHandler.info(MODULE_NAME,
+                       'getBestCoupon: selectiong the best voucher from all (no A|B logic)');
     return selectBestVoucher(vouchers, new Set());
   }
 
@@ -757,8 +771,8 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
   } else {
     this.offersShownCounterMap[couponCode] = 1;
   }
-  log('offersShownCounterMap content: ');
-  log(JSON.stringify(this.offersShownCounterMap));
+  LoggingHandler.info(MODULE_NAME,
+                     'offersShownCounterMap content: ' + JSON.stringify(this.offersShownCounterMap));
 
   // set the timeout to disable this add
   offer.timerID = CliqzUtils.setTimeout(function () {
@@ -776,11 +790,11 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID) {
   // TODO:
   // - search for the offer on the maps and remove it
   // - disable the disabler timer
-  log('removing and untracking offer with ID: ' + offerID);
+  LoggingHandler.info(MODULE_NAME, 'removing and untracking offer with ID: ' + offerID);
 
   var offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('offer no longer valid with id: ' + offerID);
+    LoggingHandler.info(MODULE_NAME, 'offer no longer valid with id: ' + offerID);
     return;
   }
 
@@ -798,7 +812,9 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID) {
   }
 
   if (this.cidToOfferMap[clusterID] === undefined) {
-    log('ERROR: we couldnt find the offer for cluster ID: ' + clusterID);
+    LoggingHandler.error(MODULE_NAME,
+                         'ERROR: we couldnt find the offer for cluster ID: ' + clusterID,
+                         LoggingHandler.ERR_INTERNAL);
   } else {
     delete this.cidToOfferMap[clusterID];
   }
@@ -807,65 +823,21 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID) {
 };
 
 
-//
-// @brief this method will be called everytime we got an event for a particular
-//        site and we will do all the logic here to show the offer if needed
-//        in the given window
-//
-// OfferManager.prototype.handleUILogic = function(clusterID) {
-//   // TODO:
-//   // check if we have an offer related with this cluster.
-//   // check if the offer is still valid (number of visits to the cluster).
-//   //
-//   let currentOffer = cidToOfferMap[clusterID];
-//   if (currentOffer === undefined) {
-//     // nothing to do
-//     return;
-//   }
-
-//   // check for all the offers that are not related with this cluster
-//   for (var did in this.cidToOfferMap) {
-//     if (did === clusterID) {
-//       continue;
-//     }
-//     // here we need to check if the number of events then is bigger than the
-//     // threshold
-//     const offerID = this.cidToOfferMap[did];
-//     const offer = this.currentOfferMap[offerID];
-//     if (!offer) {
-//       log('ERROR: this cannot happen.');
-//       continue;
-//     }
-//     const totalDiffEvts = this.eventsCounts.total - offer.totalEvents;
-//     const clusterDiffEvents = this.eventsCounts[did] - offer.clusterEvents;
-//     const totalOutsideEvents = totalDiffEvts - clusterDiffEvents;
-//     if (totalOutsideEvents >= OM_NUM_EVTS_DISABLE_OFFER) {
-//       // TODO: emit some event here maybe if it is not already tracked over
-//       // the ui callbacks...
-//       // we need to hide this offer and remove it (stop tracking it)
-//       this.removeAndUntrackOffer(offer);
-//     }
-
-//   }
-// };
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // @brief flag is the user is on a checkout page
 //
 OfferManager.prototype.isCheckoutPage = function(urlObj) {
   if (this.mappings['dname_to_checkout_regex']){
-    // log('isCheckoutPage' + JSON.stringify(urlObj, null, 4));
     let regexForDomain = this.mappings['dname_to_checkout_regex'][urlObj['name']];
-    log('isCheckoutPage#regexForDomain\t' + regexForDomain);
-    log('isCheckoutPage#friendly_url\t' + urlObj['friendly_url']);
+    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
+    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + urlObj['friendly_url']);
     if (regexForDomain && urlObj['friendly_url'].match(regexForDomain)) {
-      log('isCheckoutPage#true');
+      LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
       return true;
     }
   }
-  log('isCheckoutPage#false');
+  LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: false');
   return false;
 };
 
@@ -875,14 +847,14 @@ OfferManager.prototype.isCheckoutPage = function(urlObj) {
 //
 OfferManager.prototype.getUserDB = function(mappings) {
   return new Promise(function (resolve, reject) {
-      log('inside getUserDB');
+      LoggingHandler.info(MODULE_NAME, 'inside getUserDB');
       let rscLoader = new ResourceLoader(
         [ 'goldrush', 'user_db.json' ],
         {}
       );
         rscLoader.load().then(function(json) {
         // file exist so return it
-        log('userDB already exist. So loading it');
+        LoggingHandler.info(MODULE_NAME, 'userDB already exist. So loading it');
         resolve(json);
       }).catch(function(errMsg) {
         //w we need to creat file as it doenst exist
@@ -892,7 +864,8 @@ OfferManager.prototype.getUserDB = function(mappings) {
             userDB[cid] = {};
           }
           rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
-            log('userDB successfully created: ' + JSON.stringify(data, null, 4));
+            LoggingHandler.info(MODULE_NAME,
+                               'userDB successfully created: ' + JSON.stringify(data, null, 4));
             resolve(data);
           });
         }
@@ -923,7 +896,9 @@ OfferManager.prototype.showOfferIfNeeded = function(clusterID, domainID) {
   // we have an offer, check if we are showing this one in particular
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('ERROR: this cannot happen here... there is inconsistent data');
+    LoggingHandler.error(MODULE_NAME,
+                         'This cannot happen here... there is inconsistent data',
+                         LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -969,7 +944,9 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   if (!clusterID || clusterID < 0) {
     // this cannot happen since we got a valid domainID from the mappings but
     // we don't have the given cluster ID in the mappings? this is not gut
-    log('ERROR: invalid cluster id!: ' + domainName);
+    LoggingHandler.error(MODULE_NAME,
+                         'Invalid cluster id!: ' + domainName,
+                         LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -980,7 +957,10 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   // get the associated intent system
   let intentInput = this.intentInputMap[clusterID];
   if (!intentInput) {
-    log('WARNING: we still dont have a intent system for cluster ID: ' + clusterID);
+    LoggingHandler.warning(MODULE_NAME,
+                           'WARNING: we still dont have a intent system for ' +
+                           'cluster ID: ' + clusterID,
+                           LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -997,7 +977,7 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
 //
 OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
   if (!this.mappings || !currUrl || !currUrl.name) {
-    log('onTabOrWinChanged: null something');
+    LoggingHandler.warning(MODULE_NAME, 'onTabOrWinChanged: null something');
     // nothing to do
     return;
   }
@@ -1021,7 +1001,7 @@ OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
 //        all the logic of showing a coupong if our system detects a coupon or not.
 //
 OfferManager.prototype.processNewEvent = function(urlObject) {
-  log('processNewEvent');
+  LoggingHandler.info(MODULE_NAME, 'processNewEvent');
   // here we need to:
   // 1) parse the url information and format it in a way that the intent intput
   //    can handle
@@ -1041,10 +1021,10 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // (1) & (2)
   var event = this.formatEvent(urlObject, Date.now());
-  log('event' + JSON.stringify(event, null, 4));
+  LoggingHandler.info(MODULE_NAME, 'event' + JSON.stringify(event, null, 4));
   if (!event) {
     // we skip this event.
-    log('skipping event has domain relevant');
+    LoggingHandler.info(MODULE_NAME, 'skipping event has domain relevant');
     return;
   }
 
@@ -1055,7 +1035,9 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   if (!clusterID || clusterID < 0) {
     // this cannot happen since we got a valid domainID from the mappings but
     // we don't have the given cluster ID in the mappings? this is not gut
-    log('ERROR: invalid cluster id!: ' + domainName);
+    LoggingHandler.error(MODULE_NAME,
+                         'Invalid cluster id!: ' + domainName,
+                         LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -1078,7 +1060,8 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   let intentSystem = this.intentDetectorsMap[clusterID];
   let intentInput = this.intentInputMap[clusterID];
   if (!intentSystem || !intentInput) {
-    log('WARNING: we still dont have a intent system for cluster ID: ' + clusterID);
+    LoggingHandler.info(MODULE_NAME,
+                       'WARNING: we still dont have a intent system for cluster ID: ' + clusterID);
     return;
   }
 
@@ -1101,7 +1084,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // (5)
   const intentValue = intentSystem.evaluateInput(intentInput);
-  log('intentValue: ' + intentValue);
+  LoggingHandler.info(MODULE_NAME, 'intentValue: ' + intentValue);
 
   // (6)
   const thereIsAnIntention = intentValue >= 1.0;
@@ -1119,13 +1102,17 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   // we don't show any other one since we can only show one per cluster
   if (this.cidToOfferMap[clusterID] !== undefined) {
     // skip this particular one
-    log('we already have an offer for clusterID: ' + clusterID + ' so we dont show another one');
+    LoggingHandler.info(MODULE_NAME,
+                       'we already have an offer for clusterID: ' + clusterID +
+                       ' so we dont show another one');
     return;
   }
 
   // we have an intention so we need to get the coupons from the fetcher
   if (!this.offerFetcher) {
-    log('WARNING: we dont have still the offerFetcher, we then skip this event?');
+    LoggingHandler.warning(MODULE_NAME,
+                           'We dont have still the offerFetcher, we then skip this event?',
+                           LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -1139,7 +1126,10 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     // else get the best coupon for this
     var bestCoupon = self.getBestCoupon(domainID, clusterID, vouchers);
     if (!bestCoupon) {
-      log('we dont have vouchers for this particular cluser ID: ' + clusterID);
+      LoggingHandler.warning(MODULE_NAME,
+                             'we dont have vouchers for this particular cluser ' +
+                             'ID: ' + clusterID,
+                             LoggingHandler.ERR_INTERNAL);
       return;
     }
 
@@ -1150,7 +1140,9 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     const timestamp = Date.now();
     var offer = self.createAndTrackNewOffer(bestCoupon, timestamp, clusterID, domainID);
     if (!offer) {
-      log('we couldnt create the offer??');
+      LoggingHandler.error(MODULE_NAME,
+                           'we couldnt create the offer?? for clusterID: ' + clusterID,
+                           LoggingHandler.ERR_INTERNAL);
       return;
     }
 
@@ -1174,18 +1166,23 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 //        should then check if the coupon used was one we provided or not
 //
 OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
-  log('SR  ' + JSON.stringify(this.offersShownCounterMap));
+  LoggingHandler.info(MODULE_NAME, 'SR  ' + JSON.stringify(this.offersShownCounterMap));
+
   if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
     this.offersShownCounterMap[coupon] -= 1;
     let cid = this.mappings['dname_to_cid'][domain];
     this.statsHandler.couponUsed(cid);
-    log('Our coupon used :\t cid: ' + cid +  ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
+    LoggingHandler.info(MODULE_NAME,
+                       'Our coupon used :\t cid: ' + cid +  ' \t domain: ' +
+                       domain + ' \tcoupon: ' + coupon);
   } else {
     let cid = this.mappings['dname_to_cid'][domain];
     this.statsHandler.externalCouponUsed(cid);
-    log('Unrecognized coupon used :\t cid: ' + cid  + ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
+    LoggingHandler.info(MODULE_NAME,
+                       'Unrecognized coupon used :\t cid: ' + cid  +
+                       ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
   }
-  log('SR  ' + JSON.stringify(this.offersShownCounterMap));
+  LoggingHandler.info(MODULE_NAME, 'SR  ' + JSON.stringify(this.offersShownCounterMap));
 };
 
 
@@ -1199,11 +1196,13 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
 //
 OfferManager.prototype.checkButtonUICallback = function(offerID) {
   // TODO: implement here all the needed logic and the
-  log('checkButtonUICallback');
+  LoggingHandler.info(MODULE_NAME, 'checkButtonUICallback');
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('error: this is not good here');
+    LoggingHandler.error(MODULE_NAME,
+                         'there is no related offer with id ' + offerID,
+                         LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -1219,7 +1218,9 @@ OfferManager.prototype.checkButtonUICallback = function(offerID) {
   // we will get the url to redirect from the coupon here
   const urlToGo = offer.voucher_data.redirect_url;
   if (!urlToGo) {
-    log('ERROR: no redirect_url found in the voucher/coupon?');
+    LoggingHandler.error(MODULE_NAME,
+                         'No redirect_url found in the voucher/coupon?',
+                         LoggingHandler.ERR_INTERNAL);
     // close the offer
     return false;
   }
@@ -1235,7 +1236,7 @@ OfferManager.prototype.checkButtonUICallback = function(offerID) {
 // @brief when the user press on the "not interested coupon callback"
 //
 OfferManager.prototype.notInterestedUICallback = function(offerID) {
-  log('notInterestedUICallback');
+  LoggingHandler.info(MODULE_NAME, 'notInterestedUICallback');
 
   // if the user explicetly says it doesnt want to see the add anymore then
   // we will close it here and everywhere
@@ -1260,7 +1261,7 @@ OfferManager.prototype.notInterestedUICallback = function(offerID) {
 // @brief when the user press on the "information"
 //
 OfferManager.prototype.informationUICallback = function(offerID) {
-  log('informationUICallback');
+  LoggingHandler.info(MODULE_NAME, 'informationUICallback');
 
   const offer = this.currentOfferMap[offerID];
   if (offer) {
@@ -1281,12 +1282,14 @@ OfferManager.prototype.informationUICallback = function(offerID) {
 // @note https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/appendNotification#Notification_box_events
 //
 OfferManager.prototype.extraEventsUICallback = function(reason, offerID) {
-  log('extraEventsUICallback: ' + reason);
+  LoggingHandler.info(MODULE_NAME, 'extraEventsUICallback: ' + reason);
 
   if (reason === 'removed') {
     const offer = this.currentOfferMap[offerID];
     if (!offer) {
-      log('error: this is not good here');
+      LoggingHandler.error(MODULE_NAME,
+                           'The offer is not valid with ID: ', offerID,
+                           LoggingHandler.ERR_INTERNAL);
       return;
     }
     // track stats
@@ -1302,14 +1305,14 @@ OfferManager.prototype.extraEventsUICallback = function(reason, offerID) {
 // @brief when the close button is clicked
 //
 OfferManager.prototype.onCloseBtnClickedUICallback = function(offerID) {
-  log('onCloseBtnClickedUICallback');
+  LoggingHandler.info(MODULE_NAME, 'onCloseBtnClickedUICallback');
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('error: this is not right');
+    LoggingHandler.error(MODULE_NAME,
+                        'Missing offer?? this is not possible: ' + offerID);
     return;
   }
-  log('offer.appear_on_cid: ' + offer.appear_on_cid);
 
   // track stats
   if (this.statsHandler) {
@@ -1328,10 +1331,11 @@ OfferManager.prototype.onCloseBtnClickedUICallback = function(offerID) {
 //
 OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
   // TODO: implement here all the needed logic and the
-  log('copyToClipboardUICallback');
+  LoggingHandler.info(MODULE_NAME, 'copyToClipboardUICallback');
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('error: this is not right');
+    LoggingHandler.error(MODULE_NAME,
+                         'We are missing the offer that we just clicked?: ' + offerID);
     return;
   }
 
@@ -1349,15 +1353,16 @@ OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
 //
 OfferManager.prototype.offerShownUICallback = function(offerID) {
   // TODO: implement here all the needed logic and the
-  log('offerShownUICallback');
+  LoggingHandler.info(MODULE_NAME, 'offerShownUICallback');
   if (!this.userDB) {
     return;
   }
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    log('error: this is not right: offerID: ' + JSON.stringify(offerID));
-    log('this.currentOfferMap: ' + JSON.stringify(this.currentOfferMap));
+    LoggingHandler.error(MODULE_NAME,
+                         'We are showing and offer that we dont have?: ' + offerID,
+                         LoggingHandler.ERR_INTERNAL);
     return;
   }
 
@@ -1365,7 +1370,7 @@ OfferManager.prototype.offerShownUICallback = function(offerID) {
   const clusterID = offer['appear_on_cid'];
   const timestamp = Date.now();
 
-  log('offerShownUICallback: clusterID: ' + clusterID);
+  LoggingHandler.info(MODULE_NAME, 'offerShownUICallback: clusterID: ' + clusterID);
 
   // for now we will only add the last ad shown for a given cid and timestamp
   this.userDB[clusterID]['last_ad_shown'] = timestamp;

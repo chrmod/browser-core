@@ -1,11 +1,7 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
 
-function log(s){
-  utils.log(s, 'GOLDRUSH - TopHourFID');
-}
+
 
 export class TopHourFID extends FID {
   constructor() {
@@ -54,8 +50,6 @@ export class TopHourFID extends FID {
     for (let i = 0; i <  Math.min(hourList.length, this.args['topN']); i++) {
       this.topHours.add(hourList[i][0]);
     }
-    log(hourList);
-    log(this.topHours);
   }
 
   evaluate(intentInput, extras) {

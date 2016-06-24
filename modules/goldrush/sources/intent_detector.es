@@ -3,7 +3,7 @@ import LoggingHandler from 'goldrush/logging_handler';
 //import ResourceLoader from 'core/resource-loader';
 
 
-const MODULE_NAME = 'INTENT DETECTOR';
+const MODULE_NAME = 'intent_detector';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helper string methods

@@ -1,14 +1,17 @@
 import background from 'goldrush/background';
 import { utils, events } from 'core/cliqz';
+import LoggingHandler from 'goldrush/logging_handler';
 
 // to be able to get the events on page change
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
-function log(s){
-  utils.log(s, 'GOLDRUSH - window');
-}
+// Consts
+//
+const MODULE_NAME = 'window';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,13 +46,12 @@ export default class {
         // skip the event if is the same document here
         // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIWebProgressListener
         //
-        log('new event with location: ' + aURI.spec);
+        LoggingHandler.info(MODULE_NAME, 'new event with location: ' + aURI.spec);
         if (aFlags === Components.interfaces.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT) {
-          log('discarding event since it is repeated');
+          LoggingHandler.info(MODULE_NAME, 'discarding event since it is repeated');
           return;
         }
         // else we emit the event here
-        log('sending to the background');
         background.onLocationChangeHandler(aURI.spec);
       },
     };

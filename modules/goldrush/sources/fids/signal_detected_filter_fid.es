@@ -1,11 +1,5 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
-
-function log(s){
-  utils.log(s, 'GOLDRUSH - SignalDetectedFilterFID');
-}
 
 //
 // @brief This FID will be used to filter (return 1/0) depending if we detected
@@ -32,7 +26,6 @@ export class SignalDetectedFilterFID extends FID {
     // 'last_ad_shown' is the name of the key -> ts (number)
     //
     if (dbsMap['user_db']) {
-      log(dbsMap['user_db']);
       this.userDB = dbsMap['user_db'];
     } else {
       throw new Error('dbsMap doesnt have key: user_db');
@@ -64,9 +57,6 @@ export class SignalDetectedFilterFID extends FID {
     const eventTimestamp = intentSession.lastEvent()['ts'];
     const lastAdShownTimestamp = Number(this.userDB['last_ad_shown']);
     const diffTime = eventTimestamp - lastAdShownTimestamp;
-    log('eventTimestamp: ' + eventTimestamp);
-    log('lastAdShownTimestamp: ' + lastAdShownTimestamp);
-    log('diffTime: ' + diffTime);
     return (diffTime >= this.args['deltaSecs']) ? 1.0 : 0.0;
   }
 }
