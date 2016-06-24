@@ -13,7 +13,6 @@ import { HashProb } from 'antitracking/hash';
 import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { AttrackBloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
-import TrackingTable from 'antitracking/local-tracking-table';
 import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
@@ -954,14 +953,18 @@ var CliqzAttrack = {
         // Replace getWindow functions with window object used in init.
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
 
-        CliqzAttrack.hashProb = new HashProb();
+        if (!CliqzAttrack.hashProb) {
+          CliqzAttrack.hashProb = new HashProb();
+        }
 
         // load all caches:
         // Large dynamic caches are loaded via the persist module, which will lazily propegate changes back
         // to the browser's sqlite database.
         // Large static caches (e.g. token whitelist) are loaded from sqlite
         // Smaller caches (e.g. update timestamps) are kept in prefs
-        this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
+        if (!this._tokens) {
+          this._tokens = new persist.AutoPersistentObject("tokens", (v) => CliqzAttrack.tokens = v, 60000);
+        }
         //this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
         CliqzAttrack.qs_whitelist = CliqzAttrack.isBloomFilterEnabled() ? new AttrackBloomFilter() : new QSWhitelist();
@@ -969,7 +972,9 @@ var CliqzAttrack = {
         CliqzAttrack.blockLog = new BlockLog(CliqzAttrack.qs_whitelist);
         CliqzAttrack.blockLog.init();
 
-        this._requestKeyValue = new persist.AutoPersistentObject("requestKeyValue", (v) => CliqzAttrack.requestKeyValue = v, 60000);
+        if (!this._requestKeyValue) {
+          this._requestKeyValue = new persist.AutoPersistentObject("requestKeyValue", (v) => CliqzAttrack.requestKeyValue = v, 60000);
+        }
         // force clean requestKeyValue
         events.sub("attrack:safekeys_updated", (version, forceClean) => {
             if (forceClean) {
@@ -1014,9 +1019,6 @@ var CliqzAttrack = {
         } catch(e) {
             CliqzAttrack.disabled_sites = new Set();
         }
-
-        CliqzAttrack.local_tracking = new TrackingTable();
-
 
         // note: if a 0 value were to be saved, the default would be preferred. This is ok because these options
         // cannot have 0 values.
@@ -1063,6 +1065,11 @@ var CliqzAttrack = {
         pacemaker.stop();
 
         CliqzAttrack.trackerProxy.destroy();
+
+        this._trackerLoader.stop();
+        this._cookieWhitelistLoader.stop();
+
+        events.un_sub("attrack:safekeys_updated");
     },
     unloadWindow: function(window) {
         if (window.CLIQZ) {
