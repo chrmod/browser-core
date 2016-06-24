@@ -174,7 +174,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
       accessKey : '1',
       callback : function () {
         if (self.callbacks.show_coupon) {
-          self.callbacks.show_coupon(offerID);
+          return self.callbacks.show_coupon(offerID);
         }
       }
     });
@@ -186,7 +186,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
     accessKey : '3',
     callback : function () {
         if (self.callbacks.not_interested) {
-          self.callbacks.not_interested(offerID);
+          return self.callbacks.not_interested(offerID);
         }
       }
   });
@@ -197,7 +197,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
     accessKey : '4',
     callback : function () {
         if (self.callbacks.information) {
-          self.callbacks.information(offerID);
+          return self.callbacks.information(offerID);
         }
       }
   });
@@ -222,7 +222,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
                                             buttons,
                                             function(reason) {
                                               if (self.callbacks.extra_events) {
-                                                self.callbacks.extra_events(reason, offerID);
+                                                return self.callbacks.extra_events(reason, offerID);
                                               }
                                             });
 

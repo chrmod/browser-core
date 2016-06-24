@@ -1271,6 +1271,7 @@ OfferManager.prototype.informationUICallback = function(offerID) {
   }
 
   // avoid closing the notification
+  openNewTabAndSelect(GoldrushConfigs.OFFER_INFORMATION_URL);
   return true;
 };
 
