@@ -74,6 +74,7 @@ var CLIQZEnvironment = {
     LAST_GEOLOCATION_UPDATE: 0,
     GEOLOCATION_UPDATE_MIN_WAIT: 3600 * 1000, // If the computer wakes up from a sleep that was longer than this many milliseconds, we update geolocation.
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
+    SHARE_LOCATION_ONCE: false,
     OBSERVERS: [
       {
         notifications: ['wake_notification', 'sleep_notification'],
@@ -645,7 +646,7 @@ var CLIQZEnvironment = {
     updateGeoLocation: function() {
       var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
 
-      if (CLIQZEnvironment.getPref('share_location') == 'yes') {
+      if (CLIQZEnvironment.getPref('share_location') == 'yes' || CLIQZEnvironment.SHARE_LOCATION_ONCE) {
         // Get current position
         geoService.getCurrentPosition(function(p) {
           // the callback might come late if the extension gets disabled very fast

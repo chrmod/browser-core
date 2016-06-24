@@ -708,6 +708,11 @@ function selectWord(input, direction) {
 //called on urlbarBlur
 function sessionEnd(){
     adultMessage = 0; //show message in the next session
+    if (CLIQZEnvironment.SHARE_LOCATION_ONCE) {
+      CLIQZEnvironment.USER_LAT = null;
+      CLIQZEnvironment.USER_LNG = null;
+      CLIQZEnvironment.SHARE_LOCATION_ONCE = false;
+    }
 }
 
 var allowDDtoClose = false;
