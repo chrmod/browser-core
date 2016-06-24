@@ -47,7 +47,6 @@ function lg(msg){
 var UI = {
     showDebug: false,
     preventAutocompleteHighlight: false,
-    autocompleteEl: 0,
     lastInputTime: 0,
     lastInput: "",
     lastSelectedUrl: null,
@@ -709,6 +708,11 @@ function selectWord(input, direction) {
 //called on urlbarBlur
 function sessionEnd(){
     adultMessage = 0; //show message in the next session
+    if (CLIQZEnvironment.SHARE_LOCATION_ONCE) {
+      CLIQZEnvironment.USER_LAT = null;
+      CLIQZEnvironment.USER_LNG = null;
+      CLIQZEnvironment.SHARE_LOCATION_ONCE = false;
+    }
 }
 
 var allowDDtoClose = false;
@@ -976,7 +980,7 @@ function setPartialTemplates(data) {
       }
     })
   }
-    
+
   // Music
   if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
     partials.push('music-data-sc');

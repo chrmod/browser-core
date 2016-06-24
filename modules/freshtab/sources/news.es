@@ -585,6 +585,7 @@ function composeList(responsesList, historyCache){
           hbAppendToNewsList(val, history_data, news_results, true);
 
           // extend the list in case if there is more than one frequent news domain from history
+          /*
           if (news_results.hb_news && getDomainNumberInList(history_data) > 1){
             while (news_results.hb_news.length < 9){
               hbAppendToNewsList(val, history_data, news_results, false);
@@ -593,6 +594,7 @@ function composeList(responsesList, historyCache){
             // take sort the last 6 articles based on score
             news_results.hb_news = news_results.hb_news.slice(0, 3).concat(sortByScore(news_results.hb_news.slice(3, 9)));
           }
+          */
         }
         else if (val.news_type == 'top_h_news') {
           top_news_list_to_merge = val.res.results[0].articles;

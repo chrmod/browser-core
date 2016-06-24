@@ -56,6 +56,7 @@ var Extension = {
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();
+        CliqzLanguage.init();
         if(Services.search.init != null){
           Services.search.init(function(){
             CliqzResultProviders.init();
@@ -141,6 +142,7 @@ var Extension = {
 
         CLIQZEnvironment.unload();
         CliqzABTests.unload();
+        CliqzLanguage.unload();
 
         Extension.unloadJSMs();
     },
