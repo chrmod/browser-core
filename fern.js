@@ -112,7 +112,7 @@ program.command('build [file]')
 
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
-          console.log('Starting build');
+          console.log("Starting build");
           buildEmberAppSync('modules/fresh-tab-frontend/');
           cleanupDefaultBuild();
 
@@ -153,7 +153,8 @@ program.command('serve [file]')
           watcher.on('change', function() {
             notifier.notify({
               title: "Fern",
-              message: "Build complete"
+              message: "Build complete",
+              time: 1500
             });
           });
        });
@@ -188,18 +189,27 @@ program.command('test <file>')
               });
             });
           } else {
-            let testem = new Testem();
-            let started = false;
-
+            let server;
             watcher.on('change', function() {
-              if (started) {
-                testem.restart();
-              } else {
-                started = true;
-                testem.startDev({
-                  host: 'localhost',
-                  port: '4200'
+              notifier.notify({
+                title: "Fern",
+                message: "Build complete",
+                time: 1500
+              });
+              if (!server) {
+                server = childProcess.fork(path.join(__dirname, 'fern/testemProcess.js'));
+                server.send({
+                  cmd: 'start',
+                  options: {
+                    host: 'localhost',
+                    port: '4200'
+                  }
                 });
+                server.on('exit', function() {
+                  process.emit('SIGINT')
+                });
+              } else {
+                server.send({cmd: 'restart'});
               }
             });
           }
