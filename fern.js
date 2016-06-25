@@ -14,6 +14,7 @@ const path = require('path')
 const childProcess = require('child_process');
 const rimraf = require('rimraf');
 const chalk = require('chalk');
+const notifier = require('node-notifier');
 
 const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
@@ -112,9 +113,11 @@ program.command('build [file]')
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
           console.log('Starting build');
-          buildEmberAppSync('modules/fresh-tab-frontend/', configPath);
+          buildEmberAppSync('modules/fresh-tab-frontend/');
+          cleanupDefaultBuild();
+
           getExtensionVersion(options.version).then(tag => {
-            process.env.EXTENSION_VERSION = tag;            
+            process.env.EXTENSION_VERSION = tag;
             let child = spaws('broccoli', ['build', OUTPUT_PATH]);
             child.stderr.on('data', data => console.log(data.toString()));
             child.stdout.on('data', data => console.log(data.toString()));
@@ -122,27 +125,45 @@ program.command('build [file]')
           });
        });
 
+function cleanupDefaultBuild() {
+  if (OUTPUT_PATH === 'build') {
+    rimraf.sync('build');
+  }
+}
+
+function createBuildWatcher() {
+  cleanupDefaultBuild();
+  const node = broccoli.loadBrocfile();
+  const builder = new broccoli.Builder(node, {
+    outputDir: 'build'
+  });
+  // maybe we can run watcher without server
+  // but then we will have to copy build artifacts to 'output' folder
+  const server = broccoli.server.serve(builder, {
+    port: 4300,
+    host: 'localhost'
+  });
+  return server.watcher;
+}
 program.command('serve [file]')
        .action(configPath => {
           setConfigPath(configPath);
           buildEmberAppSync('modules/fresh-tab-frontend/');
-          let child = spaws('broccoli', ['serve', '--output', OUTPUT_PATH], { stdio: 'inherit', stderr: 'inherit'});
+          const watcher = createBuildWatcher();
+          watcher.on('change', function() {
+            notifier.notify({
+              title: "Fern",
+              message: "Build complete"
+            });
+          });
        });
 
 program.command('test <file>')
        .option('--ci [output]', 'Starts Testem in CI mode')
        .action( (configPath, options) => {
+          "use strict";
           setConfigPath(configPath);
-          let node = broccoli.loadBrocfile();
-          let builder = new broccoli.Builder(node);
-          // maybe we can run watcher without server
-          // but then we will have to copy build artifacts to 'output' folder
-          let server = broccoli.server.serve(builder, {
-            port: 4300,
-            host: 'localhost',
-            output: 'build'
-          });
-          let watcher = server.watcher;
+          const watcher = createBuildWatcher();
 
           if (options.ci) {
             watcher.on('change', function() {
