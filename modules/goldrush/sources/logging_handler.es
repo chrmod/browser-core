@@ -43,6 +43,7 @@ var LoggingHandler = {
   init() {
     // create the createWriteStream into a variable
     this.fileObj = null;
+    this.tmpBuff = '';
     // get the full path
     var self = this;
     if (LoggingHandler.SAVE_TO_FILE) {
@@ -85,9 +86,21 @@ var LoggingHandler = {
 
     // log in the file if we have one
     if (this.fileObj) {
+      // GR-145: logging system is not working properly, not saving all the data from the beginning
+      if (this.tmpBuff) {
+        utils.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ writing tempBuff: ' + this.tmpBuff);
+        this.fileObj.write(new TextEncoder().encode(this.tmpBuff));
+        delete this.tmpBuff;
+        this.tmpBuff = null;
+      }
       this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {z
         utils.log('error logging to the file! something happened?: ' + ee, '[goldrush]');
       });
+    } else {
+      // GR-145: logging system is not working properly, not saving all the data from the beginning
+      if (this.tmpBuff !== null) {
+        this.tmpBuff += strToLog;
+      }
     }
     // log to the console
     utils.log(strToLog, '');
