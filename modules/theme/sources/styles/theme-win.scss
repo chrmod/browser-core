@@ -385,7 +385,7 @@ notification[type="warning"] .notification-inner {
 #urlbar {
     padding: 2px 0px;
     margin: 0.33em !important;
-	
+
 	box-shadow: 0 1px 0.05em rgba(0,0,0, 0.1) inset !important;
 	border-color: #d1d1d1 !important;
 }
@@ -526,6 +526,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     padding-bottom: 1px;
 }
 
+@media (min-resolution: 2dppx) {
+    .close-icon { list-style-image: url("../images/browser/win/close@2x.png");  }
+}
+
 .tabbrowser-tab .tab-stack {
     margin: 0 -4px 0 0; /*Remove space between tabs*/
 }
@@ -616,11 +620,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 50px; /*Reserve some space for dragging the window*/
         }
-			
+
 	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	        margin-inline-start: 36px;
 		}
-		
+
 	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	    	margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
 		}
@@ -654,11 +658,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         margin-top: -2px;
         margin-bottom: -2px;
     }
-	
+
 	#tabbrowser-tabs {
 	    min-height: 31px;
 	}
-	
+
 	#main-window[sizemode="normal"] #browser-border-start, #main-window[sizemode="normal"] #browser-border-end {
         background: none !important;
     }
@@ -673,15 +677,15 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 60px; /*Reserve some space for dragging the window*/
         }
-		
+
 	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	        margin-inline-start: 36px;
 		}
-		
+
 	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	    	margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
 		}
-		
+
 		#PersonalToolbar {
 		    margin: 0px 1px;
 		    border-left: none !important;
@@ -745,11 +749,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         #TabsToolbar {
             padding-right: 60px; /*Reserve some space for dragging the window*/
         }
-		
+
 	    #tabbrowser-tabs .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	        margin-inline-start: 35px;
 		}
-		
+
 	    #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
 	    	margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
 		}
