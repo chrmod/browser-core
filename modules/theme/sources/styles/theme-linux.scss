@@ -329,6 +329,9 @@ notification[type="warning"] .messageText {
     visibility: visible !important;
 }
 
+#cliqz_menupopup menuitem[label="Take part"] .menu-iconic-icon {
+    background-color: rgba(223, 219, 210, 0.8);
+}
 
 #cliqz_menupopup,
 #contentAreaContextMenu {
@@ -449,14 +452,6 @@ toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #prin
 }
 
 #navigator-toolbox::after {
-    /*background-image: none;
-    box-shadow: 0 0.18em 0.08em 0 rgba(0, 0, 0, 0.14);
-    -moz-box-ordinal-group: 101;
-    content: "";
-    display: -moz-box;
-    height: 2px;
-    margin-top: -4px;
-    position: relative;*/
     background-color: #f6f6f6;
 }
 
