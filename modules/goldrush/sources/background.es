@@ -34,8 +34,28 @@ export default background({
   },
 
   //////////////////////////////////////////////////////////////////////////////
+  unload() {
+    // nothing to do, this is on hard unload, we want beforeBrowserShutdown
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
   start() {
     // nothing to do
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  beforeBrowserShutdown() {
+    LoggingHandler.info(MODULE_NAME, 'background script unloaded');
+
+    // destroy classes
+    if (this.offerManager) {
+      this.offerManager.destroy();
+      delete this.offerManager;
+      this.offerManager = null;
+    }
+
+    // TODO: GR-137 && GR-140: temporary fix
+    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -79,21 +99,6 @@ export default background({
                            LoggingHandler.ERR_INTERNAL);
     }
   },
-
-  //////////////////////////////////////////////////////////////////////////////
-  unload() {
-    // destroy classes
-    if (this.offerManager) {
-      this.offerManager.destroy();
-      delete this.offerManager;
-      this.offerManager = null;
-    }
-
-    // TODO: GR-137 && GR-140: temporary fix
-    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
-  },
-
-
 
   //////////////////////////////////////////////////////////////////////////////
   events: {
