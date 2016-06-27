@@ -146,8 +146,12 @@ function createBuildWatcher() {
   return server.watcher;
 }
 program.command('serve [file]')
-       .action(configPath => {
+       .option('--no-maps', 'disables source maps')
+       .option('--version [version]', 'sets extension version', 'package')
+       .action((configPath, options) => {
           setConfigPath(configPath);
+          process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
+
           buildEmberAppSync('modules/fresh-tab-frontend/');
 
           getExtensionVersion(options.version).then(tag => {
