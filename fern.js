@@ -149,12 +149,18 @@ program.command('serve [file]')
        .action(configPath => {
           setConfigPath(configPath);
           buildEmberAppSync('modules/fresh-tab-frontend/');
-          const watcher = createBuildWatcher();
-          watcher.on('change', function() {
-            notifier.notify({
-              title: "Fern",
-              message: "Build complete",
-              time: 1500
+
+          getExtensionVersion(options.version).then(tag => {
+            process.env.EXTENSION_VERSION = tag;
+
+            const watcher = createBuildWatcher();
+
+            watcher.on('change', function() {
+              notifier.notify({
+                title: "Fern",
+                message: "Build complete",
+                time: 1500
+              });
             });
           });
        });
