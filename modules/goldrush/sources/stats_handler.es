@@ -104,7 +104,11 @@ export class StatsHandler {
     LoggingHandler.info(MODULE_NAME, 'Signal to send: ' + JSON.stringify(signal)); // TODO: remove this log
 
     // TODO: uncomment this
-    //CliqzUtils.telemetry(signal);
+    try {
+      CliqzUtils.telemetry(signal);
+    } catch (ee) {
+      LoggingHandler.error(MODULE_NAME, 'Error sending the telemtry data: ' + ee);
+    }
 
     return true;
   }
