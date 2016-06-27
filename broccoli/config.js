@@ -11,4 +11,6 @@ cliqzConfig.buildEnv = process.env.CLIQZ_BUILD_ENV || 'development';
 // source maps
 cliqzConfig.sourceMaps = process.env.CLIQZ_SOURCE_MAPS == 'false' ? false : true;
 
+cliqzConfig.EXTENSION_VERSION = process.env.EXTENSION_VERSION;
+
 module.exports = cliqzConfig;

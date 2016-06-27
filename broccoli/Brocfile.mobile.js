@@ -71,6 +71,7 @@ var libsConcated = concat(libs, {
 
 var mobile = new MergeTrees([
   mobileSpecific,
+  new Funnel(config),
   new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
