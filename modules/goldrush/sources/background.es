@@ -4,6 +4,9 @@ import background from 'core/base/background';
 import LoggingHandler from 'goldrush/logging_handler';
 
 
+var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // consts
@@ -31,17 +34,45 @@ export default background({
   },
 
   //////////////////////////////////////////////////////////////////////////////
+  unload() {
+    // nothing to do, this is on hard unload, we want beforeBrowserShutdown
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
   start() {
     // nothing to do
   },
 
   //////////////////////////////////////////////////////////////////////////////
-  onLocationChangeHandler(url) {
+  beforeBrowserShutdown() {
+    LoggingHandler.info(MODULE_NAME, 'background script unloaded');
+
+    // destroy classes
+    if (this.offerManager) {
+      this.offerManager.destroy();
+      delete this.offerManager;
+      this.offerManager = null;
+    }
+
+    // TODO: GR-137 && GR-140: temporary fix
+    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  onLocationChangeHandler(url, referrer) {
     if (!this.offerManager) {
       return;
     }
     var u = utils.getDetailsFromUrl(url);
     LoggingHandler.info(MODULE_NAME, 'location changed to ' + u.host);
+
+    // now we add the referrer to the url
+    if (referrer) {
+      var referrerUrlDetails = utils.getDetailsFromUrl(referrer);
+      u['referrer'] = referrerUrlDetails.name;
+    } else {
+      u['referrer'] = '';
+    }
 
     try {
       this.offerManager.processNewEvent(u);
@@ -68,21 +99,6 @@ export default background({
                            LoggingHandler.ERR_INTERNAL);
     }
   },
-
-  //////////////////////////////////////////////////////////////////////////////
-  unload() {
-    // destroy classes
-    if (this.offerManager) {
-      this.offerManager.destroy();
-      delete this.offerManager;
-      this.offerManager = null;
-    }
-
-    // TODO: GR-137 && GR-140: temporary fix
-    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
-  },
-
-
 
   //////////////////////////////////////////////////////////////////////////////
   events: {
