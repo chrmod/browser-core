@@ -16,6 +16,8 @@ export class TopClusterVisitsFID extends FID {
   constructor() {
     super('topClusterVisits');
     this.args = {};
+    this.lowerBound = 0;
+    this.upperBound = 0;
 
     this.configParams = {
       'N' : {
@@ -47,6 +49,9 @@ export class TopClusterVisitsFID extends FID {
     if (this.args['N'] <= 0 || this.args['delta'] <= 0) {
       return;
     }
+
+    this.lowerBound = this.args['N'] - this.args['delta'];
+    this.upperBound = this.args['N'] + this.args['delta'];
 }
 
   evaluate(intentInput, extras) {
@@ -55,9 +60,7 @@ export class TopClusterVisitsFID extends FID {
     // number of events
     let intentSession = intentInput.currentBuyIntentSession();
     let totalNumEvents = intentSession.totalNumOfEvents();
-    let lowerBound = this.args['N'] - this.args['delta'];
-    let upperBound = this.args['N'] + this.args['delta'];
-    if (totalNumEvents >= lowerBound && totalNumEvents <= upperBound) {
+    if (totalNumEvents >= this.lowerBound && totalNumEvents <= this.upperBound) {
       return 1.0;
     }
     return 0.0;
