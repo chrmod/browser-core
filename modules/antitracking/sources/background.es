@@ -24,7 +24,7 @@ export default background({
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
 
     // fix for users without pref properly set: set to value from build config
-    if ( !utils.hasPref('attrackRemoveQueryStringTracking') ) {
+    if (!utils.hasPref('attrackRemoveQueryStringTracking')) {
       utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
     }
 
@@ -33,7 +33,7 @@ export default background({
 
     utils.bindObjectFunctions( this.popupActions, this );
 
-    if ( this.buttonEnabled ) {
+    if (this.buttonEnabled) {
       this.popup = new CliqzPopupButton({
         name: 'antitracking',
         actions: this.popupActions
@@ -47,7 +47,7 @@ export default background({
 
     this.onPrefChange = function(pref) {
       if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
-        let isEnabled = CliqzAttrack.isEnabled();
+        const isEnabled = CliqzAttrack.isEnabled();
 
         if (isEnabled) {
           // now enabled, initialise module
@@ -193,7 +193,7 @@ export default background({
     telemetry(msg) {
       if (msg.includeUnsafeCount) {
         delete msg.includeUnsafeCount
-        let info = CliqzAttrack.getCurrentTabBlockingInfo();
+        const info = CliqzAttrack.getCurrentTabBlockingInfo();
         // drop duplicated messages
         if (this.popupActions._isDuplicate(info)) {
           return;
