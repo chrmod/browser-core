@@ -4,6 +4,9 @@ import background from 'core/base/background';
 import LoggingHandler from 'goldrush/logging_handler';
 
 
+var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // consts
@@ -36,12 +39,20 @@ export default background({
   },
 
   //////////////////////////////////////////////////////////////////////////////
-  onLocationChangeHandler(url) {
+  onLocationChangeHandler(url, referrer) {
     if (!this.offerManager) {
       return;
     }
     var u = utils.getDetailsFromUrl(url);
     LoggingHandler.info(MODULE_NAME, 'location changed to ' + u.host);
+
+    // now we add the referrer to the url
+    if (referrer) {
+      var referrerUrlDetails = utils.getDetailsFromUrl(referrer);
+      u['referrer'] = referrerUrlDetails.name;
+    } else {
+      u['referrer'] = '';
+    }
 
     try {
       this.offerManager.processNewEvent(u);

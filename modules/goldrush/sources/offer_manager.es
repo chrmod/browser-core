@@ -537,7 +537,7 @@ OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
   // TODO_QUESTION: how to get the last url?
   const lastURL = '';
   // TODO_QUESTION: how to get the referrer url?
-  const referrerURL = '';
+  const referrerURL = urlObj.referrer;
 
   // for now we don't have anything here
   const eventType = null;

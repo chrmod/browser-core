@@ -6,7 +6,6 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 //
@@ -36,16 +35,20 @@ export default class {
       QueryInterface: XPCOMUtils.generateQI(['nsIWebProgressListener', 'nsISupportsWeakReference']),
 
       onLocationChange: function (aBrowser, aProgress, aRequest, aURI, aFlags) {
+        // get the referer if we have one
+        let referrer = ((aRequest.referrer) && (aRequest.referrer.asciiSpec)) ?
+                        aRequest.referrer.asciiSpec :
+                        '';
         // skip the event if is the same document here
         // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIWebProgressListener
         //
-        LoggingHandler.info(MODULE_NAME, 'new event with location: ' + aURI.spec);
+        LoggingHandler.info(MODULE_NAME, 'new event with location: ' + aURI.spec + ' - referrer: ' + referrer);
         if (aFlags === Components.interfaces.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT) {
           LoggingHandler.info(MODULE_NAME, 'discarding event since it is repeated');
           return;
         }
         // else we emit the event here
-        background.onLocationChangeHandler(aURI.spec);
+        background.onLocationChangeHandler(aURI.spec, referrer);
       },
     };
     this.window.gBrowser.addTabsProgressListener(this.tabsProgressListener);
