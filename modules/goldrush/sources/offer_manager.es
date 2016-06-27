@@ -1050,8 +1050,8 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   let intentSystem = this.intentDetectorsMap[clusterID];
   let intentInput = this.intentInputMap[clusterID];
   if (!intentSystem || !intentInput) {
-    LoggingHandler.info(MODULE_NAME,
-                       'WARNING: we still dont have a intent system for cluster ID: ' + clusterID);
+    LoggingHandler.error(MODULE_NAME,
+                       'we still dont have a intent system for cluster ID: ' + clusterID);
     return;
   }
 
