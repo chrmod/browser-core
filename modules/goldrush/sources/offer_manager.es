@@ -426,6 +426,18 @@ OfferManager.prototype.destroy = function() {
   if (this.statsHandler) {
     this.statsHandler.destroy();
   }
+  // save userdb
+  if(this.userDB) {
+    let rscLoader = new ResourceLoader(
+        [ 'goldrush', 'user_db.json' ],
+        {}
+    );
+    rscLoader.persist(JSON.stringify(this.userDB, null, 4)).then(data => {
+            LoggingHandler.info(MODULE_NAME,
+                               'userDB successfully updated: ' + JSON.stringify(data, null, 4));
+          });
+  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
