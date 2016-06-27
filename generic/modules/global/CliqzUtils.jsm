@@ -652,7 +652,9 @@ var CliqzUtils = {
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter() +
-              CliqzUtils.encodeLocation();
+              CliqzUtils.encodeLocation() +
+              CliqzUtils.encodeResultCount(7) +
+              CliqzUtils.disableWikiDedup();
 
     var req = CliqzUtils.httpGet(url, function (res) {
       callback && callback(res, q);
@@ -688,6 +690,12 @@ var CliqzUtils = {
     //international results not supported
     return '&force_country=true';
   },
+  disableWikiDedup: function() {
+    // disable wikipedia deduplication on the backend side
+    var doDedup = CliqzUtils.getPref("languageDedup", false);
+    if (doDedup) return '&ddl=0';
+    else return ""
+  },  
   encodeFilter: function() {
     var data = {
       'conservative': 3,
@@ -697,6 +705,12 @@ var CliqzUtils = {
     state = data[CliqzUtils.getPref('adultContentFilter', 'moderate')];
 
     return '&adult='+state;
+  },
+  encodeResultCount: function(count) {
+    var doDedup = CliqzUtils.getPref("languageDedup", false);
+    count = count || 5;
+    if (doDedup) return '&count=' + count;
+    else return ""
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
