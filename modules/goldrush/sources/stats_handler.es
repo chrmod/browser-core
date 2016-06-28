@@ -117,13 +117,15 @@ export class StatsHandler {
       return false;
     }
 
+    // GR-149: we will add the version here
     var signal = {
       type: 'offers',
+      v : GoldrushConfigs.CURRENT_VERSION,
       data: this.currentData['data']
     };
 
     // send it over telemetry
-    LoggingHandler.info(MODULE_NAME, 'Signal to send: ' + JSON.stringify(signal)); // TODO: remove this log
+    LoggingHandler.info(MODULE_NAME, 'Signal to send: ' + JSON.stringify(signal));
 
     // TODO: uncomment this
     try {
@@ -152,7 +154,7 @@ export class StatsHandler {
     }
 
     this.dataDirty = true;
-    }
+  }
 
   //
   // @brief this method will check if we need to send the current data over
