@@ -1,6 +1,6 @@
 {
   "platform": "firefox",
-  "testsBasePath": "./build/firefox/cliqz@cliqz.com/chrome/content",
+  "testsBasePath": "./build/cliqz@cliqz.com/chrome/content",
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,
