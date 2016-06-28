@@ -440,14 +440,6 @@ notification[type="warning"] .notification-inner {
 
 
 #navigator-toolbox::after {
-    /*background-image: none;
-    box-shadow: 0 0.2em 0.1em 0 rgba(0, 0, 0, 0.14);
-    -moz-box-ordinal-group: 101;
-    content: "";
-    display: -moz-box;
-    height: 2px;
-    margin-top: -4px;
-    position: relative;*/
     background-color: #f6f6f6;
 }
 
@@ -508,7 +500,8 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     background: rgba(255, 255, 255, 0.35) !important;
 }
 
-.tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-content, .tabs-newtab-button:hover {
+.tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-content,
+.tabs-newtab-button:hover {
     background-color: #f6f6f6 !important;
 }
 
@@ -516,18 +509,24 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     max-width: 250px; /*Increase tab max width*/
 }
 
-.tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
+.tabs-newtab-button,
+#TabsToolbar > #new-tab-button,
+#TabsToolbar > toolbarpaletteitem > #new-tab-button {
     padding-bottom: 2px;
     margin-left: 3px; /*To have some space (line) between new-tab button and opened tabs*/
 }
 
-.close-icon, .tab-close-button:-moz-lwtheme-brighttext, #TabsToolbar[brighttext] .tab-close-button:not([visuallyselected="true"]) {
-    list-style-image: url("../images/browser/win/close.png"); /*New icon close tab*/
+.close-icon,
+.tab-close-button:-moz-lwtheme-brighttext,
+#TabsToolbar[brighttext] .tab-close-button:not([visuallyselected="true"]) {
     padding-bottom: 1px;
 }
 
-@media (min-resolution: 2dppx) {
-    .close-icon { list-style-image: url("../images/browser/win/close@2x.png");  }
+.close-icon > .button-icon,
+.close-icon > .button-box > .button-icon,
+.close-icon > .toolbarbutton-icon {
+    width: auto;
+	max-width: 20px;
 }
 
 .tabbrowser-tab .tab-stack {
@@ -650,10 +649,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 	    padding: 3px 0 !important;
 	}
 
-    .close-icon > .button-icon, .close-icon > .button-box > .button-icon, .close-icon > .toolbarbutton-icon {
-        width: auto;
-    }
-
     #identity-box {
         margin-top: -2px;
         margin-bottom: -2px;
@@ -718,10 +713,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 
     #TabsToolbar {
         margin-bottom: -1px; /*Remove the border bottom of active tab*/
-    }
-
-    .close-icon > .button-icon, .close-icon > .button-box > .button-icon, .close-icon > .toolbarbutton-icon {
-        width: auto;
     }
 
     #toolbar-menubar[autohide="false"] {
