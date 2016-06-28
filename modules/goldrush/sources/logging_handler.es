@@ -93,7 +93,7 @@ var LoggingHandler = {
         delete this.tmpBuff;
         this.tmpBuff = null;
       }
-      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {z
+      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {
         utils.log('error logging to the file! something happened?: ' + ee, '[goldrush]');
       });
     } else {
