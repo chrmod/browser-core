@@ -97,8 +97,8 @@ program.command('install')
           spaws.sync('bower', ['install'], { stdio: 'inherit', stderr: 'inherit'});
 
           console.log(chalk.green('Installing ember freshtab dependencies'));
-          spaws.sync('npm', ['install'], { stdio: 'inherit', stderr: 'inherit', cwd: 'modules/fresh-tab-frontend'});
-          spaws.sync('bower', ['install'], { stdio: 'inherit', stderr: 'inherit', cwd: 'modules/fresh-tab-frontend'});
+          spaws.sync('npm', ['install'], { stdio: 'inherit', stderr: 'inherit', cwd: 'subprojects/fresh-tab-frontend'});
+          spaws.sync('bower', ['install'], { stdio: 'inherit', stderr: 'inherit', cwd: 'subprojects/fresh-tab-frontend'});
           console.log(chalk.green('DONE!'))
        });
 
