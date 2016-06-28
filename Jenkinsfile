@@ -50,9 +50,9 @@ node(NODE_LABELS) {
 
         stage 'fab publish'
         sh """#!/bin/bash
-          cd build/firefox
+          cd build/
           set +x
-          source ../../certs/beta-upload-creds.sh
+          source ../certs/beta-upload-creds.sh
           set -x
           fab publish:beta=${CLIQZ_BETA},channel=${CLIQZ_CHANNEL},pre=${CLIQZ_PRE_RELEASE}
         """
