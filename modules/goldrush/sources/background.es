@@ -4,8 +4,6 @@ import background from 'core/base/background';
 import LoggingHandler from 'goldrush/logging_handler';
 import GoldrushConfigs from 'goldrush/goldrush_configs';
 
-var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +101,7 @@ export default background({
   onWindowClosed(data) {
     LoggingHandler.info(MODULE_NAME, 'window closed!!: remaining: ' + data.remaining);
     // GR-147: if this is the last window then we just save everything here
-    if (data.remaining == 0) {
+    if (data.remaining === 0) {
       // save alles here
       if (this.offerManager) {
         this.offerManager.savePersistentData();
