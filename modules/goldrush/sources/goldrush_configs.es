@@ -13,6 +13,8 @@ var GoldrushConfigs = {
   HOUR: 60 * 60,
   DAY: 60 * 60 * 24,
 
+  CURRENT_VERSION: 0.1,
+
   //////////////////////////////////////////////////////////////////////////////
   // Offer Manager
 
@@ -50,7 +52,7 @@ var GoldrushConfigs = {
   // Stats handler
 
   // how often we want to push the stats to the backend
-  STATS_SENT_PERIODISITY_MS: 1000 * 3000, // 1000 * (60 * 60 * 24);
+  STATS_SENT_PERIODISITY_MS: 1000 * 20, // 1000 * (60 * 60 * 24);
   // the local storage file path to store the stats
   STATS_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/stats_db.json',
 
