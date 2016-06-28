@@ -419,6 +419,28 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// @brief save all the current data that should persist on disk
+//
+OfferManager.prototype.savePersistentData = function() {
+  if (this.statsHandler) {
+    this.statsHandler.savePersistentData();
+  }
+  // save userdb
+  if (this.userDB) {
+    let rscLoader = new ResourceLoader(
+        [ 'goldrush', 'user_db.json' ],
+        {}
+    );
+    rscLoader.persist(JSON.stringify(this.userDB, null, 4)).then(data => {
+            LoggingHandler.info(MODULE_NAME,
+                               'userDB successfully updated: ' + JSON.stringify(data, null, 4));
+          });
+  }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // @brief Unload all the class
 //
 OfferManager.prototype.destroy = function() {

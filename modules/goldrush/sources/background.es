@@ -101,6 +101,13 @@ export default background({
   //////////////////////////////////////////////////////////////////////////////
   onWindowClosed(data) {
     LoggingHandler.info(MODULE_NAME, 'window closed!!: remaining: ' + data.remaining);
+    // GR-147: if this is the last window then we just save everything here
+    if (data.remaining == 0) {
+      // save alles here
+      if (this.offerManager) {
+        this.offerManager.savePersistentData();
+      }
+    }
   },
 
   //////////////////////////////////////////////////////////////////////////////

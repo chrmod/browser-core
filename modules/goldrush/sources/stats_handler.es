@@ -26,6 +26,7 @@ function generateOrAddField(d, f1, f2, val) {
 export class StatsHandler {
 
   constructor(name) {
+    this.dataDirty = true;
     this.currentData = {
       'data' : {},
       'last_ts_sent' : Date.now()
@@ -38,11 +39,12 @@ export class StatsHandler {
       // we need to write this then
       LoggingHandler.info(MODULE_NAME, 'no db found, creating new one');
       this.generateNewDataStructure();
-      localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+      this.savePersistentData();
     } else {
       LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
       // we have data, load it
       this.currentData = JSON.parse(cache);
+      this.dataDirty = true;
       if (this.shouldWeNeedToSendCurrenData()) {
         LoggingHandler.info(MODULE_NAME,
                            'after loading it pass more than N ' +
@@ -50,7 +52,7 @@ export class StatsHandler {
         if (this.sendOverTelemetry()) {
           this.generateNewDataStructure();
           // reset the current data in the database to avoid inconsistences
-          localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+          this.savePersistentData();
         }
       }
     }
@@ -64,19 +66,31 @@ export class StatsHandler {
         if (this.sendOverTelemetry()) {
           // reset only if we are able to send it over telemetry
           this.generateNewDataStructure();
-          localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+          this.savePersistentData();
         }
       }
     }.bind(this), GoldrushConfigs.STATS_SENT_PERIODISITY_MS);
   }
 
+
+  //////////////////////////////////////////////////////////////////////////////
+  savePersistentData() {
+    if (!this.dataDirty) {
+      return;
+    }
+    var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.STATS_LOCAL_STORAGE_URL);
+    localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+    LoggingHandler.info(MODULE_NAME, 'Saving data into local storage');
+    this.dataDirty = false;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
   destroy() {
     // remove the interval update method
     CliqzUtils.clearInterval(this.interval);
 
     // at any case we store the current data
-    var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.STATS_LOCAL_STORAGE_URL);
-    localStorage.setItem('stats_data', JSON.stringify(this.currentData));
+    this.savePersistentData();
   }
 
 
@@ -92,6 +106,12 @@ export class StatsHandler {
     LoggingHandler.info(MODULE_NAME, 'sending over telemetry');
 
     if (!this.currentData || !this.currentData['data']) {
+      return false;
+    }
+
+    // if the data is not dirty we don't need to send anything?
+    if (!this.dataDirty) {
+      LoggingHandler.info(MODULE_NAME, 'data is not dirty so we will not send anything');
       return false;
     }
 
@@ -123,6 +143,7 @@ export class StatsHandler {
       'data' : {},
       'last_ts_sent' : Date.now()
     };
+    this.dataDirty = true;
   }
 
   //
@@ -153,6 +174,7 @@ export class StatsHandler {
   couponUsed(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'ourCouponUsed');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_used', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -162,6 +184,7 @@ export class StatsHandler {
   externalCouponUsed(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'externalCouponUsed');
     generateOrAddField(this.currentData['data'], clusterID, 'external_coupons_used', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -170,6 +193,7 @@ export class StatsHandler {
   couponClicked(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'couponClicked');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_opened', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -178,6 +202,7 @@ export class StatsHandler {
   showMoreInfoClicked(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'showMoreInfoClicked');
     generateOrAddField(this.currentData['data'], clusterID, 'more_infos', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -186,6 +211,7 @@ export class StatsHandler {
   offerOnSameDomain(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'offerOnSameDomain');
     generateOrAddField(this.currentData['data'], clusterID, 'same_domains', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -194,6 +220,7 @@ export class StatsHandler {
   offerShownOnSubcluster(clusterID, subclusterID) {
     LoggingHandler.info(MODULE_NAME, 'offerShownOnSubcluster ' + subclusterID);
     generateOrAddField(this.currentData['data'], clusterID, 'subcluster_' + subclusterID, 1);
+    this.dataDirty = true;
   }
 
   //
@@ -202,6 +229,7 @@ export class StatsHandler {
   couponRejected(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'couponRejected');
     generateOrAddField(this.currentData['data'], clusterID, 'coupons_rejected', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -210,6 +238,7 @@ export class StatsHandler {
   advertiseClosed(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'advertiseClosed');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_closed', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -218,6 +247,7 @@ export class StatsHandler {
   advertiseClosedByUser(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'advertiseClosedByUser');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_closed_by_user', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -226,6 +256,7 @@ export class StatsHandler {
   advertiseDisplayed(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'advertiseDisplayed');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_displayed', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -234,6 +265,7 @@ export class StatsHandler {
   offerCreated(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'offerCreated');
     generateOrAddField(this.currentData['data'], clusterID, 'offers_created', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -242,6 +274,7 @@ export class StatsHandler {
   userProbablyBought(domainID, clusterID) {
     LoggingHandler.info(MODULE_NAME, 'userProbablyBought');
     generateOrAddField(this.currentData['data'], clusterID, 'checkouts', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -250,6 +283,7 @@ export class StatsHandler {
   copyToClipboardClicked(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'copyToClipboardClicked');
     generateOrAddField(this.currentData['data'], clusterID, 'cp_to_clipboards', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -258,6 +292,7 @@ export class StatsHandler {
   systemIntentionDetected(domainID, clusterID) {
     LoggingHandler.info(MODULE_NAME, 'systemIntentionDetected');
     generateOrAddField(this.currentData['data'], clusterID, 'system_intents', 1);
+    this.dataDirty = true;
   }
 
   //
@@ -266,6 +301,7 @@ export class StatsHandler {
   userVisitedCluster(clusterID) {
     LoggingHandler.info(MODULE_NAME, 'userVisitedCluster');
     generateOrAddField(this.currentData['data'], clusterID, 'visits', 1);
+    this.dataDirty = true;
   }
 
 }
