@@ -2,7 +2,7 @@ import { utils, events } from 'core/cliqz';
 import { OfferManager } from 'goldrush/offer_manager';
 import background from 'core/base/background';
 import LoggingHandler from 'goldrush/logging_handler';
-
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
@@ -30,7 +30,17 @@ export default background({
 
     // TODO: GR-137 && GR-140: temporary fix
     events.sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
+    events.sub('core.window_closed', this.onWindowClosed.bind(this));
 
+    // print the timestamp
+    LoggingHandler.info(MODULE_NAME,
+      '\n\n' +
+      '------------------------------------------------------------------------\n' +
+      '                           NEW SESSION STARTED\n' +
+      'Version: ' + GoldrushConfigs.CURRENT_VERSION + '\n' +
+      'timestamp: ' + Date.now() + '\n' +
+      '------------------------------------------------------------------------\n'
+      );
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +55,7 @@ export default background({
 
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
-    LoggingHandler.info(MODULE_NAME, 'background script unloaded');
+    LoggingHandler.info(MODULE_NAME, 'unloading background');
 
     // destroy classes
     if (this.offerManager) {
@@ -56,6 +66,10 @@ export default background({
 
     // TODO: GR-137 && GR-140: temporary fix
     events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
+
+    events.un_sub('core.window_closed', this.onWindowClosed.bind(this));
+
+    LoggingHandler.info(MODULE_NAME, 'background script unloaded');
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -82,6 +96,11 @@ export default background({
                            'Exception catched when processing a new event: ' + e,
                            LoggingHandler.ERR_INTERNAL);
     }
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  onWindowClosed(data) {
+    LoggingHandler.info(MODULE_NAME, 'window closed!!: remaining: ' + data.remaining);
   },
 
   //////////////////////////////////////////////////////////////////////////////
