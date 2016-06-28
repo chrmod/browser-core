@@ -251,7 +251,6 @@ export function OfferManager() {
         localStorage.setItem('user_data', JSON.stringify(userDB));
       } else {
         LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
-        // we have data, load it
         self.userDB = JSON.parse(cache);
       }
   }).then(function() {
@@ -438,17 +437,6 @@ OfferManager.prototype.destroy = function() {
   // TODO: ensure this function is being called from the parent class
   if (this.statsHandler) {
     this.statsHandler.destroy();
-  }
-  // save userdb
-  if(this.userDB) {
-    let rscLoader = new ResourceLoader(
-        [ 'goldrush', 'user_db.json' ],
-        {}
-    );
-    rscLoader.persist(JSON.stringify(this.userDB, null, 4)).then(data => {
-            LoggingHandler.info(MODULE_NAME,
-                               'userDB successfully updated: ' + JSON.stringify(data, null, 4));
-          });
   }
 
   if(this.userDB) {
@@ -849,37 +837,6 @@ OfferManager.prototype.isCheckoutPage = function(urlObj) {
   return false;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// @brief ...
-//
-OfferManager.prototype.getUserDB = function(mappings) {
-  return new Promise(function (resolve, reject) {
-      LoggingHandler.info(MODULE_NAME, 'inside getUserDB');
-      let rscLoader = new ResourceLoader(
-        [ 'goldrush', 'user_db.json' ],
-        {}
-      );
-      rscLoader.load().then(function(json) {
-        // file exist so return it
-        LoggingHandler.info(MODULE_NAME, 'userDB already exist. So loading it');
-        resolve(json);
-      }).catch(function(errMsg) {
-        //w we need to creat file as it doenst exist
-        LoggingHandler.warning(MODULE_NAME, errMsg);
-        LoggingHandler.info(MODULE_NAME, 'userDB not found. Creating it...');
-        let userDB = {};
-        for (let cid in mappings['cid_to_cname']) {
-          userDB[cid] = {};
-        }
-        rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
-          LoggingHandler.info(MODULE_NAME,
-                             'userDB successfully created: ' + JSON.stringify(data, null, 4));
-          resolve(data);
-        });
-      });
-  });
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
