@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader
 import jsstrip
 
 import sys
-sys.path.append("../..")
+sys.path.append("..")
 from fern.submitter import Submitter
 
 NAME = "Cliqz"
@@ -41,7 +41,7 @@ def get_version(beta='True'):
     # full_version = 'images'
     version_parts = full_version.split("-")
 
-    with open('../../package.json') as package_json_file:
+    with open('../package.json') as package_json_file:
         package_json = json.load(package_json_file)
         version = package_json['version']
 
@@ -189,7 +189,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     local("rm  %s" % latest_html_file_name)
 
     credentials = {}
-    execfile("../../fern/release-creds.txt", credentials)
+    execfile("../fern/release-creds.txt", credentials)
     auth = (
         'balrogadmin',
         credentials['balrog_credentials']['balrogadmin']
