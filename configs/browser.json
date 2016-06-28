@@ -29,7 +29,7 @@
     "smart-cliqz-cache",
     "privacy-dashboard"
   ],
-  "rawModules": [
+  "subprojects": [
     "fresh-tab-frontend"
   ]
 }

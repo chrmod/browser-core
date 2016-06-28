@@ -21,7 +21,6 @@
     "context-menu",
     "onboarding",
     "freshtab",
-    "fresh-tab-frontend",
     "unblock",
     "theme",
     "telemetry-categories",
@@ -32,5 +31,8 @@
     "privacy-dashboard",
     "history",
     "history-ui-desktop"
+  ],
+  "subprojects": [
+    "fresh-tab-frontend"
   ]
 }

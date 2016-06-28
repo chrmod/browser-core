@@ -28,7 +28,7 @@
     "hpn",
     "smart-cliqz-cache"
   ],
-  "rawModules": [
+  "subprojects": [
     "fresh-tab-frontend"
   ]
 }

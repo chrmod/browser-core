@@ -1,18 +1,23 @@
 "use strict";
 var Funnel = require('broccoli-funnel');
 var MergeTrees = require('broccoli-merge-trees');
+var broccoliSource = require('broccoli-source');
 var concat = require('broccoli-sourcemap-concat');
 var writeFile = require('broccoli-file-creator');
+
+var WatchedDir = broccoliSource.WatchedDir;
+var UnwatchedDir = broccoliSource.UnwatchedDir;
 
 var util = require('./util');
 var cliqzConfig = require('./config');
 var modules = require('./modules-tree');
 
 // input trees
-var nodeModules    = new Funnel('node_modules');
-var firefoxSpecific = new Funnel('specific/firefox/cliqz@cliqz.com');
-var firefoxPackage  = new Funnel('specific/firefox/package');
-var generic         = new Funnel('generic');
+var nodeModules     = new UnwatchedDir('node_modules');
+var specific        = new WatchedDir('specific');
+var firefoxSpecific = new Funnel(specific, { srcDir: 'firefox/cliqz@cliqz.com' });
+var firefoxPackage  = new Funnel(specific, { srcDir: 'firefox/package' });
+var generic         = new WatchedDir('generic');
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
 var local           = new Funnel(generic, { srcDir: 'modules/local', exclude: ['views/**/*'] });

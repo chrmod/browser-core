@@ -6,12 +6,15 @@ var MergeTrees = require('broccoli-merge-trees');
 var Babel = require('broccoli-babel-transpiler');
 var JSHinter = require('broccoli-jshint');
 var compileSass = require('broccoli-sass-source-maps');
-
+var broccoliSource = require('broccoli-source');
+var WatchedDir = broccoliSource.WatchedDir;
+var UnwatchedDir = broccoliSource.UnwatchedDir;
 
 var cliqzConfig = require('./config');
 
-var bowerComponents = new Funnel('bower_components');
-
+const bowerComponents = new UnwatchedDir('bower_components');
+const modulesTree = new WatchedDir('modules');
+const subprojectsTree = new UnwatchedDir('subprojects');
 
 var babelOptions = {
   sourceMaps: cliqzConfig.sourceMaps ? 'inline' : false,
@@ -22,7 +25,7 @@ var babelOptions = {
 };
 
 function getPlatformTree() {
-  let platform = new Funnel('platforms/'+cliqzConfig.platform, {
+  let platform = new Funnel(new WatchedDir('platforms/'+cliqzConfig.platform), {
     exclude: ['tests/**/*']
   });
   platform = Babel(platform, Object.assign({}, babelOptions, {moduleIds: false}));
@@ -54,14 +57,14 @@ moduleConfigs.forEach( config => {
 });
 
 function getSourceTree() {
-  let sources = new Funnel('modules', {
+  let sources = new Funnel(modulesTree, {
     include: cliqzConfig.modules.map(name => `${name}/sources/**/*.es`),
     getDestinationPath(path) {
       return path.replace("/sources", "");
     }
   });
 
-  const moduleTestsTree = new Funnel('modules', {
+  const moduleTestsTree = new Funnel(modulesTree, {
     include: cliqzConfig.modules.map(name =>  `${name}/tests/**/*.es`),
     getDestinationPath(path) {
       return path.replace("/tests", "");
@@ -134,22 +137,25 @@ function getSassTree() {
 }
 
 function getDistTree() {
-  console.log(cliqzConfig.modules.concat(cliqzConfig.rawModules));
-  return new Funnel("modules", {
-    include: cliqzConfig.modules.concat(cliqzConfig.rawModules).map( name => `${name}/dist/**/*` ),
+  const distTrees = new MergeTrees([
+    modulesTree,
+    subprojectsTree
+  ]);
+  return new Funnel(distTrees, {
+    include: cliqzConfig.modules.concat(cliqzConfig.subprojects).map( name => `${name}/dist/**/*` ),
     getDestinationPath(path) {
       return path.replace("/dist", "");
     }
   });
 }
 
-let modules = new MergeTrees([
+const modules = new MergeTrees([
   getPlatformTree(),
   getDistTree(),
   getSassTree(),
   getSourceTree(),
 ]);
-let bowerTree = new MergeTrees([
+const bowerTree = new MergeTrees([
   new Funnel(bowerComponents, { include: Array.from(requiredBowerComponents) })
 ]);
 
