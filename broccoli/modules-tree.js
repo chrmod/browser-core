@@ -32,8 +32,6 @@ function getPlatformTree() {
 // Attach subprojects
 var requiredBowerComponents = new Set();
 
-cliqzConfig.rawModules = [];
-
 const moduleConfigs = cliqzConfig.modules.map(name => {
   let configJson;
 
@@ -50,7 +48,6 @@ const moduleConfigs = cliqzConfig.modules.map(name => {
 
   return config;
 });
-const transpilableModuleNames = moduleConfigs.filter(config => config.transpile).map(config => config.name);
 
 moduleConfigs.forEach( config => {
   (config.bower_components || []).forEach(Set.prototype.add.bind(requiredBowerComponents));
@@ -58,14 +55,14 @@ moduleConfigs.forEach( config => {
 
 function getSourceTree() {
   let sources = new Funnel('modules', {
-    include: transpilableModuleNames.map(name => `${name}/sources/**/*.es`),
+    include: cliqzConfig.modules.map(name => `${name}/sources/**/*.es`),
     getDestinationPath(path) {
       return path.replace("/sources", "");
     }
   });
 
   const moduleTestsTree = new Funnel('modules', {
-    include: transpilableModuleNames.map(name =>  `${name}/tests/**/*.es`),
+    include: cliqzConfig.modules.map(name =>  `${name}/tests/**/*.es`),
     getDestinationPath(path) {
       return path.replace("/tests", "");
     }
@@ -102,7 +99,7 @@ function getSourceTree() {
 
 function getSassTree() {
   const sassTrees = [];
-  transpilableModuleNames.filter( name => {
+  cliqzConfig.modules.filter( name => {
     let modulePath = `modules/${name}`;
 
     try {
@@ -137,8 +134,9 @@ function getSassTree() {
 }
 
 function getDistTree() {
+  console.log(cliqzConfig.modules.concat(cliqzConfig.rawModules));
   return new Funnel("modules", {
-    include: cliqzConfig.modules.map( name => `${name}/dist/**/*` ),
+    include: cliqzConfig.modules.concat(cliqzConfig.rawModules).map( name => `${name}/dist/**/*` ),
     getDestinationPath(path) {
       return path.replace("/dist", "");
     }

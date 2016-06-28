@@ -45,7 +45,7 @@ function buildEmberAppSync(appPath) {
   const configPath = process.env['CLIQZ_CONFIG_PATH'];
   var app = appPath.substring(8).substring(0, appPath.substring(8).length - 1),
       cliqzConfig = JSON.parse(fs.readFileSync(configPath)),
-      shouldBuild = cliqzConfig.modules.some(function(module) {
+      shouldBuild = (cliqzConfig.rawModules || []).some(function(module) {
         return module === app;
       });
   if(!shouldBuild) {

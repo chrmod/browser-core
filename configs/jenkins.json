@@ -15,7 +15,6 @@
     "ui",
     "context-menu",
     "freshtab",
-    "fresh-tab-frontend",
     "unblock",
     "theme",
     "firefox-tests",
@@ -28,5 +27,8 @@
     "performance",
     "hpn",
     "smart-cliqz-cache"
+  ],
+  "rawModules": [
+    "fresh-tab-frontend"
   ]
 }
