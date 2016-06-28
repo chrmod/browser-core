@@ -59,6 +59,7 @@ export default background({
 
     // destroy classes
     if (this.offerManager) {
+      this.offerManager.savePersistentData();
       this.offerManager.destroy();
       delete this.offerManager;
       this.offerManager = null;
