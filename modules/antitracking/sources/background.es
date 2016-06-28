@@ -24,15 +24,16 @@ export default background({
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
 
     // fix for users without pref properly set: set to value from build config
-    if ( !utils.hasPref('attrackRemoveQueryStringTracking') ) {
+    if (!utils.hasPref('attrackRemoveQueryStringTracking')) {
       utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
     }
 
     this.enabled = false;
+    this.clickCache = {};
 
     utils.bindObjectFunctions( this.popupActions, this );
 
-    if ( this.buttonEnabled ) {
+    if (this.buttonEnabled) {
       this.popup = new CliqzPopupButton({
         name: 'antitracking',
         actions: this.popupActions
@@ -46,7 +47,7 @@ export default background({
 
     this.onPrefChange = function(pref) {
       if (pref === CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() !== this.enabled) {
-        let isEnabled = CliqzAttrack.isEnabled();
+        const isEnabled = CliqzAttrack.isEnabled();
 
         if (isEnabled) {
           // now enabled, initialise module
@@ -170,10 +171,33 @@ export default background({
       this.popup.updateView(utils.getWindow(), args[0]);
     },
 
+    _isDuplicate(info) {
+      const now = Date.now();
+      const key = info.tab + info.hostname + info.path;
+
+      // clean old entries
+      for (let k of Object.keys(this.clickCache)) {
+        if (now - this.clickCache[k] > 60000) {
+          delete this.clickCache[k];
+        }
+      }
+
+      if (key in this.clickCache) {
+        return true;
+      } else {
+        this.clickCache[key] = now;
+        return false;
+      }
+    },
+
     telemetry(msg) {
-      if ( msg.includeUnsafeCount ) {
+      if (msg.includeUnsafeCount) {
         delete msg.includeUnsafeCount
-        let info = CliqzAttrack.getCurrentTabBlockingInfo();
+        const info = CliqzAttrack.getCurrentTabBlockingInfo();
+        // drop duplicated messages
+        if (this.popupActions._isDuplicate(info)) {
+          return;
+        }
         msg.unsafe_count = info.cookies.blocked + info.requests.unsafe;
         msg.special = info.error !== undefined;
       }

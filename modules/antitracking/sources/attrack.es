@@ -1530,9 +1530,11 @@ var CliqzAttrack = {
      *    trackers: more detailed information about each tracker. Object with keys being tracker domain and values
      *        more detailed blocking data.
      */
-    getTabBlockingInfo: function(tab_id, url) {
+    getTabBlockingInfo: function(tabId, url) {
       var result = {
+          tab: tabId,
           hostname: '',
+          path: '',
           cookies: {allowed: 0, blocked: 0},
           requests: {safe: 0, unsafe: 0},
           trackers: {},
@@ -1541,28 +1543,29 @@ var CliqzAttrack = {
         };
 
       // ignore special tabs
-      if (url && (url.indexOf('about') == 0 || url.indexOf('chrome') == 0) ) {
+      if (url && (url.indexOf('about') == 0 || url.indexOf('chrome') == 0)) {
         result.error = 'Special tab';
         return result;
       }
 
-      if (! (tab_id in CliqzAttrack.tp_events._active) ) {
+      if (!(tabId in CliqzAttrack.tp_events._active)) {
         // no tp event, but 'active' tab = must reload for data
         // otherwise -> system tab
-        if ( browser.isWindowActive(tab_id) ) {
-            result.reload = true;
+        if (browser.isWindowActive(tabId)) {
+          result.reload = true;
         }
         result.error = 'No Data';
         return result;
       }
 
-      var tab_data = CliqzAttrack.tp_events._active[tab_id],
-        trackers = Object.keys(tab_data.tps).filter(function(domain) {
+      var tabData = CliqzAttrack.tp_events._active[tabId],
+        trackers = Object.keys(tabData.tps).filter(function(domain) {
           return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(getGeneralDomain(domain)).substring(0, 16));
         }),
-        plain_data = tab_data.asPlainObject(),
-        firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tab_data.hostname)];
-      result.hostname = tab_data.hostname;
+        plain_data = tabData.asPlainObject(),
+        firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tabData.hostname)];
+      result.hostname = tabData.hostname;
+      result.path = tabData.path;
       result.ps = PrivacyScore.get(md5(getGeneralDomain(result.hostname)).substr(0, 16) + 'site');
       if (!result.ps.score) {
         result.ps.getPrivacyScore();
