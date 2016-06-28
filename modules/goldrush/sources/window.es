@@ -36,7 +36,7 @@ export default class {
 
       onLocationChange: function (aBrowser, aProgress, aRequest, aURI, aFlags) {
         // get the referer if we have one
-        let referrer = ((aRequest.referrer) && (aRequest.referrer.asciiSpec)) ?
+        let referrer = (aRequest && (aRequest.referrer) && (aRequest.referrer.asciiSpec)) ?
                         aRequest.referrer.asciiSpec :
                         '';
         // skip the event if is the same document here

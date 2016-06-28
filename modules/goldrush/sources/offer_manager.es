@@ -304,7 +304,7 @@ OfferManager.prototype.loadHistoryEvents = function() {
       self.feedWithHistoryEvent(urlObj, timestamp);
       eventCounts += 1;
     },
-    null,
+    null
     ).then(function() {
       // nothing to do
       LoggingHandler.info(MODULE_NAME,
@@ -842,12 +842,13 @@ OfferManager.prototype.getUserDB = function(mappings) {
         [ 'goldrush', 'user_db.json' ],
         {}
       );
-        rscLoader.load().then(function(json) {
+      rscLoader.load().then(function(json) {
         // file exist so return it
         LoggingHandler.info(MODULE_NAME, 'userDB already exist. So loading it');
         resolve(json);
       }).catch(function(errMsg) {
         //w we need to creat file as it doenst exist
+        LoggingHandler.info(MODULE_NAME, 'userDB not found. Creating it...');
         if(errMsg === undefined) {
           let userDB = {};
           for (let cid in mappings['cid_to_cname']) {
