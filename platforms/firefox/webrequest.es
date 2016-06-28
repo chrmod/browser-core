@@ -25,7 +25,7 @@ var observer = {
     let requestInfo = {
       url: requestContext.url,
       method: requestContext.method,
-      frameId: requestContext.getInnerWindowID(),
+      frameId: requestContext.getOuterWindowID(),
       parentFrameId: requestContext.getParentWindowID() || -1,
       tabId: requestContext.getOriginWindowID() || -1,
       type: requestContext.getContentPolicyType(),

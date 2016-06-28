@@ -300,6 +300,24 @@ var CliqzAttrack = {
                     } else {
                         CliqzAttrack.tp_events.incrementStat(req_log, "type_" + content_type);
                     }
+
+                    // log protocol (secure or not)
+                    const isHTTP = protocol => protocol === "http" || protocol === "https"
+                    const scheme = isHTTP(urls_parts.protocol) ? urls_parts.protocol : "other";
+                    tp_events.incrementStat(req_log, 'scheme_' + scheme);
+
+                    // find frame depth
+                    let windowDepth = 0;
+                    if (requestContext.getInnerWindowID() !== requestContext.getOriginWindowID()) {
+                      if (requestContext.getOriginWindowID() === requestContext.getParentWindowID()) {
+                        // frame in document
+                        windowDepth = 1;
+                      } else {
+                        // deeper than 1st level iframe
+                        windowDepth = 2;
+                      }
+                    }
+                    tp_events.incrementStat(req_log, 'window_depth_' + windowDepth);
                 }
 
                 // get cookie data
@@ -882,6 +900,7 @@ var CliqzAttrack = {
                     delete CliqzAttrack.trackReload[keys[i]];
                 }
             }
+            CliqzAttrack.tab_listener.cleanTabsStatus();
         }, two_mins);
 
         pacemaker.register(function clean_blockedCache(curr_time) {
@@ -1135,13 +1154,6 @@ var CliqzAttrack = {
         CliqzAttrack._tokens.setDirty();
     },
     hourChanged: function() {
-        // clear the tokens if the hour changed
-        if (CliqzAttrack.tokens && Object.keys(CliqzAttrack.tokens).length > 0) {
-            if (CliqzAttrack.local_tracking.isEnabled()) {
-                CliqzAttrack.local_tracking.loadTokens(CliqzAttrack.tokens);
-            }
-        }
-
         // trigger other hourly events
         events.pub("attrack:hour_changed");
     },
@@ -1488,14 +1500,13 @@ var CliqzAttrack = {
         onStateChange: function(evnt) {
             let {urlSpec, isNewPage, windowID} = evnt;
             // check flags for started request
-            if (isNewPage && urlSpec && windowID) {
+            if (isNewPage && urlSpec && windowID && urlSpec.startsWith('http')) {
                 // add window -> url pair to tab cache.
                 this._tabsStatus[windowID] = urlSpec;
                 var _key = windowID + ":" + urlSpec;
                 if(!(CliqzAttrack.trackReload[_key])) {
                     CliqzAttrack.trackReload[_key] = new Date();
-                }
-                else{
+                } else {
                     var t2 = new Date();
                     var dur = (t2 -  CliqzAttrack.trackReload[_key]) / 1000;
                     if(dur < 30000 && countReload && windowID in CliqzAttrack.tp_events._active){
@@ -1517,6 +1528,14 @@ var CliqzAttrack = {
                 }
             }
             return tabs;
+        },
+
+        cleanTabsStatus: function() {
+          for (let tabId of Object.keys(this._tabsStatus)) {
+            if (! this.isWindowActive(tabId) ) {
+              delete this._tabsStatus[tabId];
+            }
+          }
         },
 
         isWindowActive: browser.isWindowActive

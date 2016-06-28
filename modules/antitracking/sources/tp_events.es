@@ -17,6 +17,7 @@ function PageLoadData(url) {
     this.url = url.toString();
     this.hostname = url.hostname;
     this.path = this._shortHash(url.path);
+    this.scheme = url.protocol
     this.c = 1;
     this.s = (new Date()).getTime();
     this.e = null;
@@ -61,6 +62,7 @@ function PageLoadData(url) {
             obj = {
                 hostname: this._shortHash(this.hostname),
                 path: this.path,
+                scheme: this.scheme,
                 c: this.c,
                 t: this.e - this.s,
                 ra: this.ra || 0,
