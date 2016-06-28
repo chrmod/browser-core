@@ -238,9 +238,22 @@ export function OfferManager() {
     LoggingHandler.info(MODULE_NAME, 'setting the mappings to the offer manager');
     self.offerFetcher = new OfferFetcher(destURL, mappings);
   }).then(function() {
-      return self.getUserDB(self.mappings);
-  }).then(function(userDB) {
-      self.userDB = userDB;
+      // we will use the CliqzStorage here
+      let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
+      let cache = localStorage.getItem('user_data');
+      if (!cache) {
+        // we need to write this then
+        LoggingHandler.info(MODULE_NAME, 'no db found, creating new one');
+        let userDB = {};
+        for (let cid in self.mappings['cid_to_cname']) {
+          userDB[cid] = {};
+        }
+        localStorage.setItem('user_data', JSON.stringify(userDB));
+      } else {
+        LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
+        // we have data, load it
+        self.userDB = JSON.parse(cache);
+      }
   }).then(function() {
       LoggingHandler.info(MODULE_NAME, 'load the clusters and create the');
       self.clusterFilesMap = getClustersFilesMap();
@@ -436,6 +449,11 @@ OfferManager.prototype.destroy = function() {
             LoggingHandler.info(MODULE_NAME,
                                'userDB successfully updated: ' + JSON.stringify(data, null, 4));
           });
+  }
+
+  if(this.userDB) {
+    let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
+    localStorage.setItem('user_data', JSON.stringify(this.userDB));
   }
 
 };
