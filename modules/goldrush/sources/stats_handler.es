@@ -25,7 +25,7 @@ function generateOrAddField(d, f1, f2, val) {
 ////////////////////////////////////////////////////////////////////////////////
 export class StatsHandler {
 
-  constructor(name) {
+  constructor() {
     this.dataDirty = true;
     this.currentData = {
       'data' : {},
@@ -109,6 +109,8 @@ export class StatsHandler {
       return false;
     }
 
+    LoggingHandler.info(MODULE_NAME, 'Current telemetry data: ' + JSON.stringify(signal)); // TODO: remove this log
+
     // if the data is not dirty we don't need to send anything?
     if (!this.dataDirty) {
       LoggingHandler.info(MODULE_NAME, 'data is not dirty so we will not send anything');
@@ -138,13 +140,19 @@ export class StatsHandler {
   //        data to start filling it again
   //
   generateNewDataStructure() {
-    LoggingHandler.info(MODULE_NAME, 'generating a new empty structure');
-    this.currentData = {
-      'data' : {},
-      'last_ts_sent' : Date.now()
-    };
+    // GR-148: change telemetry signal to be incremental (not reseting all the values)
+    LoggingHandler.info(MODULE_NAME, 'reseting the timestamp');
+    if (!this.currentData) {
+      this.currentData = {
+        'data' : {},
+        'last_ts_sent' : Date.now()
+      };
+    } else {
+      this.currentData['last_ts_sent'] = Date.now();
+    }
+
     this.dataDirty = true;
-  }
+    }
 
   //
   // @brief this method will check if we need to send the current data over
