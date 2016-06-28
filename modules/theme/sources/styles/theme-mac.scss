@@ -437,6 +437,27 @@ notification[type="warning"] .messageText {
 #notification-popup-box {
 	background-color: rgba(255, 255, 255, 0);
 }
+
+#navigator-toolbox[on_private_tab="true"] {
+    #notification-popup-box {
+        border-image: url("../images/browser/mac/urlbar-arrow.png") 0 8 0 0 fill;
+    }
+
+    @media (min-resolution: 1.1dppx) {
+        #notification-popup-box {
+            border-image: url("../images/browser/mac/urlbar-arrow@2x.png") 0 16 0 0 fill;
+        }
+    }
+
+    #identity-box:hover {
+        background-color: rgba(255, 255, 255, 0);
+    }
+
+    #identity-box:hover:active, #identity-box[open="true"] {
+        background-color: rgba(255, 255, 255, 0);
+    }
+}
+
 /* END URL BAR */
 
 /* BEGIN TOOLBAR */

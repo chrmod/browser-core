@@ -38,6 +38,7 @@ var events = {
     },
     "cqz_location_once": function(ev) {
       ev.preventDefault();
+      CLIQZEnvironment.SHARE_LOCATION_ONCE = true;
       this.loadLocalResults(ev.target);
       CliqzUtils.telemetry({
         type: 'setting',
@@ -96,13 +97,13 @@ export default class {
   loadLocalResults(el) {
     this.CLIQZ.Core.popup.cliqzBox.querySelector(".location_permission_prompt").classList.add("loading");
     var bmUrl = el.getAttribute("bm_url");
-    CliqzUtils.log(bmUrl, "We are before");
     if (!bmUrl) {
-      CliqzUtils.log("We are here");
       this.failedToLoadResults(el);
       return;
     }
     CLIQZEnvironment.getGeo(true, (loc) => {
+        CLIQZEnvironment.USER_LAT = loc.lat;
+        CLIQZEnvironment.USER_LNG = loc.lng;
         CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
             "&q=" + this.CLIQZ.Core.urlbar.value +
             CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +

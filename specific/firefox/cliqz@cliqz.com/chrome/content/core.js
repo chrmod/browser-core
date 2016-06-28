@@ -137,7 +137,6 @@ window.CLIQZ.Core = {
           urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + this._urlbarGoButtonClick);
 
           if ('gBrowser' in window) {
-              CliqzLanguage.init(window);
               CliqzDemo.init(window);
 
               // CliqzEvents listeners
@@ -358,18 +357,11 @@ window.CLIQZ.Core = {
 
         // Detect autocomplete
         var autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[0], true);
-        if(!autocomplete.autocomplete && results.length > 1 &&
-          CliqzUtils.generalizeUrl(results[0].url) != CliqzUtils.generalizeUrl(urlBar.value)) {
-          autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[1], true);
-          CLIQZ.UI.autocompleteEl = 1;
-        } else {
-          CLIQZ.UI.autocompleteEl = 0;
-        }
 
         // No autocomplete
         if(!autocomplete.autocomplete ||
            !CliqzUtils.getPref("browser.urlbar.autoFill", false, '') || // user has disabled autocomplete
-           (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
+           (autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
             CLIQZ.UI.clearAutocomplete();
             CliqzAutocomplete.lastAutocomplete = null;
             CliqzAutocomplete.lastAutocompleteType = null;

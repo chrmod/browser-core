@@ -211,5 +211,19 @@ var osAPI = {
       data: cardUrl
     };
     osAPI.OS.postMessage(message);
+  },
+
+  /**
+    function: notifyYoutubeVideoUrls
+    description: sends the video urls fetched via ytdownloader
+    params: an array of objects
+    message data: an array of objects
+  */
+  notifyYoutubeVideoUrls: function(urls) {
+    var message = {
+      action: "notifyYoutubeVideoUrls",
+      data: urls
+    };
+    osAPI.OS.postMessage(message);
   }
 };

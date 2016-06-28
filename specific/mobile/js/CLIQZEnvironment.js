@@ -38,6 +38,7 @@ CLIQZEnvironment = {
   RESULTS_LIMIT: 3,
   MIN_QUERY_LENGHT_FOR_EZ: 0,
   storeQueryTimeout: null,
+  RERANKERS: [],
   TEMPLATES: {
         "Cliqz": true,
         "EZ-category": true,

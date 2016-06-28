@@ -22,11 +22,16 @@ var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
     LOG_KEY: 'CliqzLanguage',
+    LOCALE_HASH: 333,
     currentState: {},
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
     _locale: null,
+    cron: 24*60 * 60 * 1000, // default one day
+    checkInterval: 5 * 60 * 1000, // default 5 min
+    removeHashId: null,
+
     getLocale: function(){
         if(!CliqzLanguage._locale){
             var locale = null;
@@ -46,6 +51,9 @@ var CliqzLanguage = {
     init: function(window) {
 
         CliqzLanguage.window = window;
+        if (this.removeHashId == null){
+            this.removeHashId = CliqzUtils.setInterval(this.updateTicker.bind(this), this.checkInterval);
+        }
 
         if(CliqzUtils.hasPref('data','extensions.cliqz-lang.')) {
             try {
@@ -56,23 +64,43 @@ var CliqzLanguage = {
             catch (e) {
             }
         }
-
+        let localeLangs = [];
+        let max_value = 0;
         // transform legacy data
         for (let lang in CliqzLanguage.currentState) {
-            if (CliqzLanguage.currentState[lang]=='locale') {
-                let i = 256;
-                CliqzLanguage.currentState[lang] = Array.apply(null, Array(CliqzLanguage.DOMAIN_THRESHOLD + 1)).map(function () {
-                    return ++i;
-                })
+            if (CliqzLanguage.currentState[lang] == 'locale' || CliqzLanguage.currentState[lang].indexOf(257)!=-1) {
+                localeLangs.push(lang);
+            }
+            if (CliqzLanguage.currentState[lang] instanceof Array){
+                max_value = Math.max(max_value, CliqzLanguage.currentState[lang].length);
+            }
+        }
+        if (localeLangs.length) {
+            let max_len = Math.max(CliqzLanguage.DOMAIN_THRESHOLD + 1, max_value);
+
+            for (let locale of localeLangs) {
+                var original_array = CliqzLanguage.currentState[locale];
+                if (original_array == "locale"){
+
+                    CliqzLanguage.currentState[locale] = CliqzLanguage.createHashes(max_len);
+                }
+                else
+                    if (original_array.length < max_len) {
+                        CliqzLanguage.currentState[locale] = CliqzLanguage.createHashes(max_len);
+                    }
+
+                // add 'locale' hash
+                CliqzLanguage.currentState[locale][0] = CliqzLanguage.LOCALE_HASH;
+
             }
         }
 
         var ll = CliqzLanguage.getLocale();
         if (ll && CliqzLanguage.currentState[ll]==null) {
-            let i = 256;
-            CliqzLanguage.currentState[ll] = Array.apply(null, Array(CliqzLanguage.DOMAIN_THRESHOLD + 1)).map(function(){
-                return ++i;
-            });
+            // we found new locale
+            CliqzLanguage.currentState[ll] = CliqzLanguage.createHashes(CliqzLanguage.DOMAIN_THRESHOLD + 1);
+            // add 'locale' hash
+            CliqzLanguage.currentState[ll][0] = CliqzLanguage.LOCALE_HASH;
         }
 
         CliqzLanguage.cleanCurrentState();
@@ -80,6 +108,44 @@ var CliqzLanguage = {
 
         CliqzUtils.log(CliqzLanguage.stateToQueryString(), CliqzLanguage.LOG_KEY);
 
+    },
+    unload: function () {
+        if (this.removeHashId != null){
+            CliqzUtils.clearInterval(this.removeHashId);
+            this.removeHashId = null;
+        }
+
+    },
+    updateTicker: function(){
+        var lastUpdate = 0;
+        if(CliqzUtils.hasPref('lastUpdate','extensions.cliqz-lang.')) {
+            try {
+                lastUpdate = parseInt(CliqzUtils.getPref('lastUpdate', 0, 'extensions.cliqz-lang.'));
+            }
+            catch(e){
+                lastUpdate = 0;
+            }
+        }
+        var currentTime = Date.now();
+        if ( currentTime > this.cron + lastUpdate ) {
+            this.removeHash();
+            CliqzUtils.setPref('lastUpdate', String(currentTime), 'extensions.cliqz-lang.');
+        }
+    },
+    // create array of unique hashes
+    createHashes: function(max_len){
+        let hashes = [];
+        let i = 0;
+        while (i < max_len)
+        {
+            // random hash value: [-256, 255]
+            let r = Math.floor(Math.random() * 512) - 256;
+            if (hashes.indexOf(r) == -1){
+                hashes.push(r);
+                i+=1;
+            }
+        }
+        return hashes;
     },
     // add locale, this is the function hook that will be called for every page load that
     // stays more than 5 seconds active
@@ -101,6 +167,26 @@ var CliqzLanguage = {
             CliqzLanguage.saveCurrentState();
         }
     },
+    // do random delete of hash with prob 0.05 (5%)
+    removeHash: function () {
+        let changed = false;
+        for (let lang in CliqzLanguage.currentState) {
+            if (CliqzLanguage.currentState[lang].length > (CliqzLanguage.DOMAIN_THRESHOLD + 1)){
+                let prob = Math.random();
+                if (prob <= 0.05){
+                    let ind = Math.floor(Math.random() * CliqzLanguage.currentState[lang].length);
+                    if (CliqzLanguage.currentState[lang][ind] != CliqzLanguage.LOCALE_HASH)
+                    {
+                        if (!changed) changed = !changed;
+                        CliqzUtils.log("Removing hash " + CliqzLanguage.currentState[lang][ind] +
+                            " for the language " + lang);
+                        CliqzLanguage.currentState[lang].splice(ind, 1);
+                    }
+                }
+            }
+        }
+        if (changed) CliqzLanguage.saveCurrentState();
+    },
     // returns hash of the string
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
@@ -111,7 +197,8 @@ var CliqzLanguage = {
         else return str;
     },
     // the function that decided which languages the person understands
-    state: function(distribution = false) {
+    state: function(distribution) {
+        distribution = typeof distribution !== 'undefined' ? distribution : false;
         var lang_vec = [];
         for (var lang in CliqzLanguage.currentState) {
             var len = Object.keys(CliqzLanguage.currentState[lang]).length;

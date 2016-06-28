@@ -329,20 +329,25 @@ notification[type="warning"] .messageText {
     visibility: visible !important;
 }
 
+#cliqz_menupopup menuitem[label="Take part"] .menu-iconic-icon {
+    background-color: rgba(223, 219, 210, 0.8);
+}
 
-#cliqz_menupopup {
-    menuitem[_moz-menuactive="true"], menu[_moz-menuactive="true"] {
+#cliqz_menupopup,
+#contentAreaContextMenu {
+    menuitem[_moz-menuactive="true"]:not([disabled="true"]),
+    menu[_moz-menuactive="true"]:not([disabled="true"]) {
         -moz-appearance: none !important;
         background-color: #4899fb;
     }
 
-    menuitem[_moz-menuactive="true"] {
+    menuitem[_moz-menuactive="true"]:not([disabled="true"]) {
         .menu-iconic-text {
             color: #fff !important;
         }
     }
 
-    menu[_moz-menuactive="true"] {
+    menu[_moz-menuactive="true"]:not([disabled="true"]) {
         .menu-text {
             color: #fff !important;
         }
@@ -351,10 +356,6 @@ notification[type="warning"] .messageText {
     menuitem, menu {
         -moz-appearance: none !important;
         padding: 5px;
-    }
-
-    .menu-iconic-text, .menu-text {
-        color: #000;
     }
 }
 
@@ -451,14 +452,6 @@ toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #prin
 }
 
 #navigator-toolbox::after {
-    /*background-image: none;
-    box-shadow: 0 0.18em 0.08em 0 rgba(0, 0, 0, 0.14);
-    -moz-box-ordinal-group: 101;
-    content: "";
-    display: -moz-box;
-    height: 2px;
-    margin-top: -4px;
-    position: relative;*/
     background-color: #f6f6f6;
 }
 

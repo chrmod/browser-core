@@ -58,7 +58,7 @@ var CliqzEvents = CliqzEvents || {
     } else {
       index = CliqzEvents.cache[id].indexOf(fn);
       if (index > -1) {
-        CliqzEvents.cache[id].splice(index);
+        CliqzEvents.cache[id].splice(index, 1);
       }
     }
   },
