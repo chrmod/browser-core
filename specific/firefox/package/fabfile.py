@@ -103,10 +103,10 @@ def package(beta='True', version=None, sign='False', channel='browser'):
         # signs the XPI with the CLIQZ certificate
 
         # look for xpi-sign report on the same level as navigation-extension
-        local( ("python ../../xpi-sign/xpisign.py "
-                "-k ../../certs/CliqzFrontend/xpisign-cliqz\@cliqz.com "
+        local( ("python ../xpi-sign/xpisign.py "
+                "-k ../certs/CliqzFrontend/xpisign-cliqz\@cliqz.com "
                 "--signer openssl "
-                "--passin file:../../certs/pass "
+                "--passin file:../certs/pass "
                 "UNSIGNED_%s %s ") % (output_file_name, output_file_name))
 
     # creates a copy to the current build in case we need to upload it to S3
