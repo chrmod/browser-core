@@ -5,6 +5,7 @@ try {
 } catch(e) { }
 // to log in console
 import { utils } from 'core/cliqz';
+import ResourceLoader from 'core/resource-loader';
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,10 +53,18 @@ var LoggingHandler = {
       // check https://developer.mozilla.org/es/docs/Mozilla/JavaScript_code_modules/OSFile.jsm/OS.File_for_the_main_thread#Example: Append to File
       OS.File.exists(filePath).then(exists => {
         if (!exists) {
-          OS.File.open(filePath, {create: true}).then(fileObject => {
+          let rscLoader = new ResourceLoader([ 'goldrush', 'user_db.json' ], {});
+          rscLoader.persist('').then(data => {
+            utils.log('logging file created successfully: ', '[goldrush]');
+
+            // now assign the file descriptor to it
+            OS.File.open(filePath, {write: true, append: true}).then(fileObject => {
             self.fileObj = fileObject;
-          }).catch(function(ee){
-            utils.log('error creating the file that doesnt exists: ' + ee, '[goldrush]');
+            }).catch(function(ee){
+              utils.log('error opening the file to write and append: ' + ee, '[goldrush]');
+            });
+          }).catch(function(errMsg) {
+            utils.log('error creating the file that doesnt exists: ' + errMsg, '[goldrush]');
           });
         } else {
           OS.File.open(filePath, {write: true, append: true}).then(fileObject => {
@@ -76,7 +85,7 @@ var LoggingHandler = {
 
   //////////////////////////////////////////////////////////////////////////////
   doLogging(messageType, moduleName, message, errorCode = LoggingHandler.ERR_NONE) {
-    var strToLog = '[goldrush][' + messageType + '][' + moduleName +']';
+    var strToLog = String(Date.now()) + ' - [goldrush][' + messageType + '][' + moduleName +']';
     if (errorCode !== LoggingHandler.ERR_NONE) {
       strToLog += '[ErrCode: ' + errorCode + ']: ';
     } else {
@@ -93,7 +102,7 @@ var LoggingHandler = {
         delete this.tmpBuff;
         this.tmpBuff = null;
       }
-      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {
+      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {z
         utils.log('error logging to the file! something happened?: ' + ee, '[goldrush]');
       });
     } else {
