@@ -97,7 +97,6 @@ var LoggingHandler = {
     if (this.fileObj) {
       // GR-145: logging system is not working properly, not saving all the data from the beginning
       if (this.tmpBuff) {
-        utils.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ writing tempBuff: ' + this.tmpBuff);
         this.fileObj.write(new TextEncoder().encode(this.tmpBuff));
         delete this.tmpBuff;
         this.tmpBuff = null;
