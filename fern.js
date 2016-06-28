@@ -45,7 +45,7 @@ function buildEmberAppSync(appPath) {
   const configPath = process.env['CLIQZ_CONFIG_PATH'];
   var app = appPath.substring(8).substring(0, appPath.substring(8).length - 1),
       cliqzConfig = JSON.parse(fs.readFileSync(configPath)),
-      shouldBuild = cliqzConfig.modules.some(function(module) {
+      shouldBuild = (cliqzConfig.subprojects || []).some(function(module) {
         return module === app;
       });
   if(!shouldBuild) {
@@ -113,7 +113,7 @@ program.command('build [file]')
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
           console.log("Starting build");
-          buildEmberAppSync('modules/fresh-tab-frontend/');
+          buildEmberAppSync('subprojects/fresh-tab-frontend/');
           cleanupDefaultBuild();
 
           getExtensionVersion(options.version).then(tag => {
@@ -135,7 +135,7 @@ function createBuildWatcher() {
   cleanupDefaultBuild();
   const node = broccoli.loadBrocfile();
   const builder = new broccoli.Builder(node, {
-    outputDir: 'build'
+    outputDir: OUTPUT_PATH
   });
   // maybe we can run watcher without server
   // but then we will have to copy build artifacts to 'output' folder
@@ -152,7 +152,7 @@ program.command('serve [file]')
           setConfigPath(configPath);
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
 
-          buildEmberAppSync('modules/fresh-tab-frontend/');
+          buildEmberAppSync('subprojects/fresh-tab-frontend/');
 
           getExtensionVersion(options.version).then(tag => {
             process.env.EXTENSION_VERSION = tag;

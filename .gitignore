@@ -26,5 +26,5 @@ npm.err
 /certs
 /xpi-sign
 
-modules/fresh-tab-frontend/dist
+subprojects/**/dist
 /docs
