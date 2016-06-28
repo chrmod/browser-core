@@ -848,18 +848,17 @@ OfferManager.prototype.getUserDB = function(mappings) {
         resolve(json);
       }).catch(function(errMsg) {
         //w we need to creat file as it doenst exist
+        LoggingHandler.warning(MODULE_NAME, errMsg);
         LoggingHandler.info(MODULE_NAME, 'userDB not found. Creating it...');
-        if(errMsg === undefined) {
-          let userDB = {};
-          for (let cid in mappings['cid_to_cname']) {
-            userDB[cid] = {};
-          }
-          rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
-            LoggingHandler.info(MODULE_NAME,
-                               'userDB successfully created: ' + JSON.stringify(data, null, 4));
-            resolve(data);
-          });
+        let userDB = {};
+        for (let cid in mappings['cid_to_cname']) {
+          userDB[cid] = {};
         }
+        rscLoader.persist(JSON.stringify(userDB, null, 4)).then(data => {
+          LoggingHandler.info(MODULE_NAME,
+                             'userDB successfully created: ' + JSON.stringify(data, null, 4));
+          resolve(data);
+        });
       });
   });
 };
