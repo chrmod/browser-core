@@ -249,6 +249,7 @@ export function OfferManager() {
           userDB[cid] = {};
         }
         localStorage.setItem('user_data', JSON.stringify(userDB));
+        self.userDB = userDB;
       } else {
         LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
         self.userDB = JSON.parse(cache);
@@ -438,16 +439,12 @@ OfferManager.prototype.savePersistentData = function() {
     this.statsHandler.savePersistentData();
   }
   // save userdb
-  if (this.userDB) {
-    let rscLoader = new ResourceLoader(
-        [ 'goldrush', 'user_db.json' ],
-        {}
-    );
-    rscLoader.persist(JSON.stringify(this.userDB, null, 4)).then(data => {
-            LoggingHandler.info(MODULE_NAME,
-                               'userDB successfully updated: ' + JSON.stringify(data, null, 4));
-          });
+  if(this.userDB) {
+    let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
+    localStorage.setItem('user_data', JSON.stringify(this.userDB));
+    LoggingHandler.info(MODULE_NAME, 'Saving data into local storage');
   }
+
 };
 
 
@@ -459,11 +456,6 @@ OfferManager.prototype.destroy = function() {
   // TODO: ensure this function is being called from the parent class
   if (this.statsHandler) {
     this.statsHandler.destroy();
-  }
-
-  if(this.userDB) {
-    let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
-    localStorage.setItem('user_data', JSON.stringify(this.userDB));
   }
 
 };
