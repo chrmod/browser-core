@@ -1,6 +1,6 @@
 {
   "platform": "firefox",
-  "testsBasePath": "./build/firefox/cliqz@cliqz.com/chrome/content",
+  "testsBasePath": "./build/cliqz@cliqz.com/chrome/content",
   "settings": {
     "history-ui-url": "http://localhost:3000/#/history-sidebar",
     "freshTabButton": false,
