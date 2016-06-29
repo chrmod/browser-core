@@ -102,6 +102,35 @@ var getContentScript = function (window, url) {
       // });
     },
 
+    "*holidaycheck.de/wbf/*": function(window, send) {
+      window.console.log("Holidaycheck");
+      window.addEventListener("DOMContentLoaded", onLoad);
+
+      function onLoad() {
+        window.console.log("Waiting...");
+        window.setTimeout(function() {
+          window.console.log("DOMContentLoaded");
+
+          let btns = window.document.getElementsByClassName("js-redeem-coupon");
+          window.console.log("elements found: \t", btns);
+          if(btns.length > 0) {
+            let btn = btns[0];
+            btn.addEventListener("click", function() {
+              let inputFields = window.document.getElementsByName("coupon_code");
+              if(inputFields.length > 0) {
+                let inputField = inputFields[0];
+                window.console.log("inputfield value: \t", inputField.value);
+                send({
+                  action: "goldrushEM",
+                  args: [{"domain": "holidaycheck", "code": inputField.value}]
+              });
+              }
+            });
+        }
+        }, 7000);
+      }
+    },
+
     "*hotels.com/bookingInitialise*": function(window, send) {
       window.console.log("hotels.com");
       function onLoad() {
