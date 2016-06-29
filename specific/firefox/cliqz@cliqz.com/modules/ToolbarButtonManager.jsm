@@ -58,8 +58,9 @@ ToolbarButtonManager.setDefaultPosition = function(buttonID, toolbarID, beforeID
  * @param {XULElement} button button element.
  */
 ToolbarButtonManager.restorePosition = function(doc, button) {
-  function $(sel, all)
-    doc[all ? "querySelectorAll" : "getElementById"](sel);
+  function $(sel, all){
+    return doc[all ? "querySelectorAll" : "getElementById"](sel);
+  }
 
   ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(button);
 
@@ -120,8 +121,9 @@ function getCurrentset(toolbar) {
 
 // cliqz
 ToolbarButtonManager.hideToolbarElement = function(doc, id){
-  function $(sel, all)
-    doc[all ? "querySelectorAll" : "getElementById"](sel);
+  function $(sel, all){
+    return doc[all ? "querySelectorAll" : "getElementById"](sel);
+  }
 
   let toolbar, currentset, idx, next,
       toolbars = $("toolbar", true);
