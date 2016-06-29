@@ -166,6 +166,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #urlbar .urlbar-input::-moz-selection {
   background: #b1d6ff;
 }
+
+#urlbar .urlbar-input-box {
+    overflow: hidden;
+}
 /*==== FF Color */
 
 #titlebar,

@@ -394,6 +394,10 @@ notification[type="warning"] .notification-inner {
     font-size: 1.3em;
 }
 
+#urlbar .urlbar-input-box {
+    overflow: hidden;
+}
+
 .cliqz-urlbar-Last-search-container {
     margin: -1px 3px -1px 0 !important;
 }
