@@ -1,4 +1,6 @@
 import { utils } from 'core/cliqz';
+import {RulesBuilder} from 'goldrush/rules/rules_builder';
+import {FIDsBuilder} from 'goldrush/fids/fids_builder';
 import {IntentDetector} from 'goldrush/intent_detector';
 import {IntentInput} from 'goldrush/intent_input';
 import ResourceLoader from 'core/resource-loader';
@@ -6,9 +8,6 @@ import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { DateTimeDB } from 'goldrush/dbs/datetime_db';
 import { GeneralDB } from 'goldrush/dbs/general_db';
 import { DomainInfoDB } from 'goldrush/dbs/domain_info_db';
-import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
-import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
-import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
 import { UIManager } from 'goldrush/ui/ui_manager';
 import { StatsHandler } from 'goldrush/stats_handler';
 import GoldrushConfigs from 'goldrush/goldrush_configs';
@@ -130,30 +129,6 @@ function getClustersFilesMap() {
   };
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// @brief create the FIDS map (fid name -> FID object) from a list of names
-//
-function generateFidsMap(fidsNamesList) {
-  return new Promise(function(resolve, reject) {
-     // return the map fid_name -> fid instance
-     var result = {};
-     for (let fidName of fidsNamesList) {
-      switch (fidName) {
-        case 'topHour':
-        result[fidName] = new TopHourFID();
-        break;
-        case 'topClusterVisits':
-        result[fidName] = new TopClusterVisitsFID();
-        break;
-        case 'signalDetectedFilter':
-        result[fidName] = new SignalDetectedFilterFID();
-        break;
-      }
-    }
-    resolve(result);
-  });
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -341,6 +316,9 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   var sessionThresholdTimeSecs = GoldrushConfigs.INTENT_SESSION_THRESHOLD_SECS;
   var buyIntentThresholdSecs = GoldrushConfigs.BUY_INTENT_SESSION_THRESHOLD_SECS;
 
+  var rulesBuilder = new RulesBuilder();
+  var fidsBuilder = new FIDsBuilder();
+
   for (var clusterName in clusterFilesMap) {
     // get the given cluster ID from the name.
     let clusterID = this.mappings['cname_to_cid'][clusterName];
@@ -370,22 +348,14 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       let rscLoader = new ResourceLoader(['goldrush/clusters', dbFilePath], {});
       rscLoader.load().then(json => {resolve(json);});
     });
-    var rulesFilePromise = new Promise(function(resolve, reject) {
-      // read the resource
-      let rscLoader = new ResourceLoader(['goldrush/clusters', rulesFilePath], {dataType: 'raw'});
-      rscLoader.load().then(str => {resolve(str);});
-    });
 
     // get all the data and then construct the intent detector and push it into
     // the map
     let dbInstancesMap = null;
-    let rulesInstancesMap = null;
     let dbsJson = null;
-    let rulesStr  = null;
-    Promise.all([dbFilePromise, rulesFilePromise]).then(function(results) {
+    Promise.all([dbFilePromise]).then(function(results) {
       // we need now to build the intent detector
       dbsJson = results[0];
-      rulesStr = results[1];
       let dbsNames = Object.keys(dbsJson); // extract keys from json object
       return generateDBMap(dbsNames);
     }).then(function(dbInstancesMapResult) {
@@ -393,23 +363,13 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       //add cluster related section of userDB to instacen
       dbInstancesMap['user_db'] = self.userDB[clusterID];
       LoggingHandler.info(MODULE_NAME, 'dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
-
-      // get the rules information
-      rulesStr = rulesStr.replace(/(\n)+/g, ' ');
-      // TODO: here we may want to get the FIDS names, but for now we will get
-      // a map for all the fids and then we can remove the objects (nasty because)
-      // we allocate them and then we remove it...
-      let rulesNames = ['topHour', 'topClusterVisits', 'signalDetectedFilter'];
-      return generateFidsMap(rulesNames);
-    }).then(function(rulesInstancesMapResult) {
-      rulesInstancesMap = rulesInstancesMapResult;
-      LoggingHandler.info(MODULE_NAME, 'rulesInstancesMap' + JSON.stringify(rulesInstancesMap, null, 4));
+      return;
     }).then(function() {
-      let intentDetector =  new IntentDetector(clusterID, self.mappings, dbInstancesMap, rulesInstancesMap);
+      let intentDetector =  new IntentDetector(clusterID, self.mappings, dbInstancesMap);
       // try to load everything now
       try {
         intentDetector.loadDataBases(dbsJson);
-        intentDetector.loadRule(rulesStr);
+        intentDetector.loadRule(rulesBuilder, fidsBuilder);
         self.intentDetectorsMap[clusterID] = intentDetector;
       } catch (e) {
         LoggingHandler.error(MODULE_NAME,
@@ -421,8 +381,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     }).catch(function(errMsg) {
       LoggingHandler.error(MODULE_NAME,
                            'Some error happened when reading and parsing the ' +
-                           'files for the cluster ' + clusterName +
                            '. Error: ' + errMsg,
+                           'files for the cluster ' + clusterName +
                            LoggingHandler.ERR_JSON_PARSE);
     });
   }

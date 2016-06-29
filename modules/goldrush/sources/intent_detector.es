@@ -1,170 +1,20 @@
-import LoggingHandler from 'goldrush/logging_handler';
 //import Reporter from 'goldrush/reporter';
+import LoggingHandler from 'goldrush/logging_handler';
 //import ResourceLoader from 'core/resource-loader';
 
 
 const MODULE_NAME = 'intent_detector';
 
-////////////////////////////////////////////////////////////////////////////////
-// Helper string methods
-//
-function replaceStrArgs(str, args) {
-  if (args === undefined || args.length === 0) {
-    return str;
-  }
-  return str.replace(/{(\d+)}/g, function(match, number) {
-    return typeof args[number] !== 'undefined' ? args[number] : match;
-  });
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
-The rules will be defined as a mathematical expression that can be supported by
-python (eval) method in the following way:
-({exp1} op {exp2}) op {exp3} ....
-where op could be any mathematical symbol. We can also use functions like
-max({exp1}, {exp2})....
-We need to use the characters '{' and '}' to be able to easily identify the
-expressions in the file.
-
-Our parser will get the expressions and evaluate them with the associated FID.
-an expression will look like:
-
-nameOfFID_argName1=val1_argName2=val2_...
-
-where nameOfFID is the name of the specific FeatureIntentDetector and the
-argName1,argName2.... are the arguments we can provide to it with the given
-values val1 and val2 respectively.
-
-for example:
-    DateTimeFID_dayWeight=0.1_hourWeight=0.5 means it will use DateTimeFID detector with params:
-        0.1 for the day and 0.5 for the hour weights.
-*/
-////////////////////////////////////////////////////////////////////////////////
-/*
-This method will parse a string and will return 2 things:
-new_rule_string -> will be the same rul expression but replacing each {exp} with
-                   a %f value that will be filled in later with the resulting
-                   value after calculating the FID.
-fids_to_calculate -> will be a list of maps from fid_name -> {argName: argValue}
-                     and where each position of the fid_name should then be
-                     replaced in the new_rule_string with the evaluated value.
-*/
-function parseRuleString(ruleString, fidsMap) {
-  var q = [];
-  var indices = [];
-  var firstPos = -1;
-  var sndPos = -1;
-  ruleString = ruleString.replace(/\n/g, ' ');
-  for (let i = 0; i < ruleString.length; ++i) {
-    var char = ruleString[i];
-    if (char === '{') {
-      firstPos = i;
-      q.push(char);
-      if (q.length > 1) {
-        LoggingHandler.error(MODULE_NAME,
-          'The format of the rule is not valid, 2 \'{\' where found:\n' + ruleString,
-          LoggingHandler.ERR_RULE_FILE);
-        return null;
-      }
-    } else if (char === '}') {
-        sndPos = i;
-        indices.push([firstPos, sndPos]);
-        if (q.length === 0 || q.pop() !== '{') {
-          LoggingHandler.error(MODULE_NAME,
-            'The format of the rule is not valid, \'}\' not expected?\n' + ruleString,
-            LoggingHandler.ERR_RULE_FILE);
-          return null;
-        }
-    }
-  }
-
-  // now here we have the indices of all the expressions, replace them.
-  if (indices.length === 0) {
-    LoggingHandler.error(MODULE_NAME,
-     'There are no expressions in the rule:\n' + ruleString,
-     LoggingHandler.ERR_RULE_FILE);
-    return null;
-  }
-
-  var newStr = '';
-  var expressions = [];
-  var lastPos = 0;
-  var currentIndex = 0;
-  for (let i = 0; i < indices.length; ++i) {
-    var it = indices[i];
-    firstPos = it[0];
-    sndPos = it[1];
-    newStr += ruleString.slice(lastPos, firstPos) + ' {' + String(currentIndex++) + '} ';
-    lastPos = sndPos + 1;
-
-    var strExpr = ruleString.slice(firstPos+1, sndPos);
-    var parts = strExpr.split('_');
-    if (parts.length === 0) {
-      LoggingHandler.error(MODULE_NAME,
-        'the expression ' + strExpr + ' is not properly formatted in rule: \n' + ruleString,
-          LoggingHandler.ERR_RULE_FILE);
-      return null;
-    }
-    var args = {};
-    var exprName = parts[0].trim();
-    var fid = fidsMap[exprName];
-    if (fid === undefined) {
-      LoggingHandler.error(MODULE_NAME,
-        'we couldnt find the fid with name ' + exprName + ' on the rule:\n' + ruleString,
-          LoggingHandler.ERR_RULE_FILE);
-      return null;
-    }
-    for (let j = 1; j < parts.length; ++j) {
-      var aparts = parts[j].split('=');
-      if (aparts.length !== 2) {
-        LoggingHandler.error(MODULE_NAME,
-        'some of the arguments in ' + strExpr + ' are wrong formatted in rule:\n' + ruleString,
-          LoggingHandler.ERR_RULE_FILE);
-        return null;
-      }
-      args[aparts[0].trim()] = aparts[1].trim();
-    }
-    expressions.push([exprName, args]);
-  }
-
-  // test the expression if it is valid to be evaluated (this is test code)
-  var dummyValues = [];
-  for (let i = 0; i < expressions.length; ++i) {
-    dummyValues.push(0.5);
-  }
-  var strTestExpr = replaceStrArgs(newStr, dummyValues);
-  LoggingHandler.info(MODULE_NAME,
-    'evaluating rule to see if it is possible: \n' + strTestExpr);
-  try {
-    let tmpResult = eval(strTestExpr);
-    LoggingHandler.info(MODULE_NAME,
-      'evaluated and the result is: ' + tmpResult);
-  } catch(e) {
-    LoggingHandler.error(MODULE_NAME,
-      'error evaluating the test expression, error: ' + e,
-        LoggingHandler.ERR_RULE_FILE);
-    return null;
-  }
-
-  // build the result object:
-  var result = {
-    new_rule_string : newStr,
-    fids_to_calculate : expressions
-  };
-  return result;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-export function IntentDetector(clusterID, mappings = null, dbMaps = null, fidsMap = null) {
+export function IntentDetector(clusterID, mappings = null, dbMaps = null) {
   this.clusterID = clusterID;
   this.mappings = mappings;
   this.dbMap = dbMaps;
-  this.fidsMap = fidsMap;
-  this.originalRuleStr = '';
-  this.ruleData = null;
+  this.rule = null;
+  this.processedRuleData = null;
+
 }
 
 //
@@ -198,80 +48,103 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
 //
 // @brief load and parse the rule
 //
-IntentDetector.prototype.loadRule = function(ruleString) {
-  if (this.fidsMap === null) {
-    throw new Error('no fids map found for IntentDetector: ' + this.clusterID);
-  }
-  if (!ruleString || ruleString.length === 0) {
-    throw new Error('we cannot load an empty rule for IntentDetector: ' + this.clusterID);
-  }
-  this.originalRuleStr = ruleString;
-  this.ruleData = parseRuleString(ruleString, this.fidsMap);
-
-  if (this.ruleData === null) {
-    throw new Error('Something happened when parsing the rule: ' + ruleString +
-        '\n for IntentDetector with cluster: ' + this.clusterID);
+IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
+  // TODO:
+  // get the rule from the builder
+  this.rule = rulesBuilder.buildRule(this.clusterID);
+  if (!this.rule) {
+    LoggingHandler.error(MODULE_NAME,
+                         'We couldnt build a rule for the cluster id: ' + this.clusterID,
+                         LoggingHandler.ERR_INTERNAL);
+    throw new Error('We couldnt build a rule for the cluster id: ' + this.clusterID);
   }
 
-  for (var fidName in this.fidsMap) {
-    if (!this.fidsMap.hasOwnProperty(fidName)) {
+  // get the fidsMappings from the rule and parse it.
+  var fidsMapping = this.rule.fidsMappings();
+  if (!fidsMapping) {
+    LoggingHandler.error(MODULE_NAME,
+                         'We couldnt get a valid fidsMappings for the rule with '+
+                         'clusterID: ' + this.clusterID,
+                         LoggingHandler.ERR_INTERNAL);
+    throw new Error('We couldnt get a valid fidsMappings for the rule with ' +
+                    'clusterID: ' + this.clusterID);
+  }
+
+  LoggingHandler.info(MODULE_NAME, 'Reading fidMappings: ' + JSON.stringify(fidsMapping));
+
+  // build all the needed fids for the rule itself (ensure we are not repeating this)
+  this.processedRuleData = {};
+  for (var id in fidsMapping) {
+    if (!fidsMapping.hasOwnProperty(id)) {
       continue;
     }
-    let fid = this.fidsMap[fidName];
-    fid.configureDataBases(this.dbMap);
-  }
 
-  return true;
+    // get the fid name and the arguments maps
+    var fidMap = fidsMapping[id];
+    var fidName = ((fidMap) && (fidMap.hasOwnProperty('name'))) ? fidMap['name'] : null;
+    var fidArgs = ((fidMap) && (fidMap.hasOwnProperty('args'))) ? fidMap['args'] : null;
+    if (!fidName || !fidArgs) {
+      LoggingHandler.error(MODULE_NAME,
+                           'The rule has invalid format for the fids map, for ' +
+                           'clusterID: ' + this.clusterID +
+                           ' - fidMap: ' + JSON.stringify(fidMap),
+                           LoggingHandler.ERR_INTERNAL);
+      throw new Error('The rule has invalid format for the fids map, for ' +
+                      'clusterID: ' + this.clusterID);
+    }
+
+    // now build the fid for this
+    var fidInstance = fidsBuilder.buildFID(fidName);
+    if (!fidInstance) {
+      LoggingHandler.error(MODULE_NAME,
+                           'We dont have fid with name ' + fidName + 'for ' +
+                           'clusterID: ' + this.clusterID,
+                           LoggingHandler.ERR_INTERNAL);
+      throw new Error('We dont have fid with name ' + fidName + 'for ' +
+                      'clusterID: ' + this.clusterID);
+    }
+
+    // add this to the processed rule
+    this.processedRuleData[id] = [fidInstance, fidArgs];
+
+    // load the databases and configure the args right away
+    fidInstance.configureDataBases(this.dbMap);
+    fidInstance.configureArgs(fidArgs);
+  }
+  // TODO check consistency (cannot have the same fid with exactly the same args).
+
+  // TODO: do a evaluation test here with values
+  var testResultData = {};
+  for (var id in this.processedRuleData) {
+    testResultData[id] = 1;
+  }
+  const testResult = this.rule.evaluate(testResultData);
+  LoggingHandler.info(MODULE_NAME,
+                      'evaluating rule for clusterID: ' + this.clusterID + ' with '+
+                      '\n fidsMapping: ' + JSON.stringify(fidsMapping) +
+                      '\n testData: ' + JSON.stringify(testResultData) +
+                      '\n and result: ' + testResult);
 };
 
 //
 // @brief evaluateInput
 //
 IntentDetector.prototype.evaluateInput = function(intentInput) {
-  if (this.ruleData === null) {
+  if (!this.rule || !this.processedRuleData) {
     LoggingHandler.error(MODULE_NAME,
-      'cannot evaluate we have a null rule data: ' + this.clusterID,
-      LoggingHandler.ERR_RULE_FILE);
-    return 0;
-  }
-  var resultValues = [];
-  var exps = this.ruleData['fids_to_calculate'];
-  var extras = {'mappings' : this.mappings};
-
-  LoggingHandler.info(MODULE_NAME,
-    'exps' + JSON.stringify(exps));
-
-  for (let ex in exps) {
-    if (!exps.hasOwnProperty(ex)) {
-      continue;
-    }
-    LoggingHandler.info(MODULE_NAME,
-      'ex' + JSON.stringify(ex));
-    let exName = exps[ex][0];
-    let argsMap = exps[ex][1];
-    let fid = this.fidsMap[exName];
-    if (fid === undefined) {
-      LoggingHandler.error(MODULE_NAME,
-        'this cannot happen, we dont have the fid with name ' + exName,
-          LoggingHandler.ERR_RULE_FILE);
-      continue;
-    }
-    fid.configureArgs(argsMap);
-    let rvalue = fid.evaluate(intentInput, extras);
-    LoggingHandler.info(MODULE_NAME, 'rvalue ' + rvalue);
-    resultValues.push(rvalue);
-  }
-  let strToEvaluate = replaceStrArgs(this.ruleData['new_rule_string'] , resultValues);
-  LoggingHandler.info(MODULE_NAME, 'strToEvaluate ' + strToEvaluate);
-  let result = eval(strToEvaluate);
-  LoggingHandler.info(MODULE_NAME, 'result ' + result);
-  if (typeof(result) !== 'number') {
-    LoggingHandler.warning(MODULE_NAME,
-      'the eval method of the rule ' + this.originalRuleStr + ' is not a number?: ' + result);
-    return 0;
+                         'We cannot process rule for cid: ' + this.clusterID,
+                         LoggingHandler.ERR_INTERNAL);
+    return 0.0;
   }
 
-  // else alles gut
-  return result;
+  // evaluate the rule here after evaluating the fids
+  var evalData = {};
+  for (var id in this.processedRuleData) {
+    var fid = this.processedRuleData[id][0];
+    evalData[id] = fid.evaluate(intentInput);
+  }
+  return this.rule.evaluate(evalData);
 };
+
+
 
