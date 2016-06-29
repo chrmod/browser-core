@@ -72,7 +72,7 @@ var CliqzWikipediaDeduplication = {
     },
     /*get most used user languages*/
     getUserLanguages(factor){
-        factor = typeof factor !== 'undefined' ? factor : false;
+        factor = typeof factor !== 'undefined' ? factor : 1.5;
         var availableLangs = CliqzLanguage.state(true);
         var langs = [];
         var lastValue = null;
@@ -91,7 +91,8 @@ var CliqzWikipediaDeduplication = {
     doRerank: function (response) {
         //reset telemetry
         var telemetrySignal = {};
-        if (typeof response != 'undefined') {
+        var doDedup = CliqzUtils.getPref("languageDedup", false);
+        if (doDedup && response != null) {
 
             var userLangs = this.getUserLanguages();
 
@@ -172,10 +173,14 @@ var CliqzWikipediaDeduplication = {
                             }
                         }
                         else {
-                            dedupResponse.push(responseObj);
-                            delete allUrls[i];
+                            var maybeDeleted = allUrls.indexOf(responseObj.url);
+                            if (maybeDeleted != -1) {
+                                dedupResponse.push(responseObj);
+                                delete allUrls[i];
+                            }
                         }
                     }
+
                     response = dedupResponse;
                 }
             }
