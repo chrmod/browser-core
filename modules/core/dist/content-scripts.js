@@ -102,6 +102,10 @@ var getContentScript = function (window, url) {
       // });
     },
 
+    "*holidaycheck.de/wbf/*": function(window, send) {
+      window.console.log("Holidaycheck");
+    },
+
     "*hotels.com/bookingInitialise*": function(window, send) {
       window.console.log("hotels.com");
       function onLoad() {
