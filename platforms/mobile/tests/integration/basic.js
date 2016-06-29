@@ -88,7 +88,7 @@ describe('Search View', function() {
     this.timeout(10000);
     testBox = document.createElement("iframe");
     testBox.setAttribute("class", "testFrame")
-    testBox.src = 	"/build/mobile/search/index.html";
+    testBox.src = 	"/build/index.html";
     document.body.appendChild(testBox);
 
 
@@ -503,7 +503,7 @@ describe("Freshtab", function () {
     this.timeout(10000);
     testBox = document.createElement("iframe");
     testBox.setAttribute("class", "testFrame");
-    testBox.src =   "/build/mobile/search/index.html";
+    testBox.src =   "/build/index.html";
     document.body.appendChild(testBox);
 
 
