@@ -2,6 +2,7 @@ import LoggingHandler from 'goldrush/logging_handler';
 // rules
 import { Rule } from 'goldrush/rules/rule';
 import { FoodDeliveryRule } from 'goldrush/rules/food_delivery_rule';
+import { TravelRule } from 'goldrush/rules/travel_rule';
 
 
 const MODULE_NAME = 'rules_builder';
@@ -23,7 +24,9 @@ export class RulesBuilder {
       // toner
       case 0: break;
       // travel
-      case 1: break;
+      case 1:
+        rule = new TravelRule();
+      break;
       // car parts
       case 2: break;
       // online tickets
@@ -37,6 +40,8 @@ export class RulesBuilder {
     }
     if (!rule) {
       LoggingHandler.error(MODULE_NAME, 'We dont have the rule for clusterid: ' + cidNum);
+    } else {
+      rule.setClusterID(clusterID);
     }
 
     // TODO: init or whatever we need

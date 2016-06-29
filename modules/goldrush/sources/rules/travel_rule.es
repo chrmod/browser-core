@@ -1,24 +1,23 @@
+import { Rule } from 'goldrush/rules/rule';
+import LoggingHandler from 'goldrush/logging_handler';
+
+
+
+const MODULE_NAME = 'travel_rule';
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
-// Generic Rule class
-export class Rule {
-  constructor(clusterID = -1) {
-    this.cid = clusterID;
-  }
+// define local FIDS ids for the internal map
+//
+const FID_topClusterVisits_N3_delta1 = 0;
 
-  //
-  // @brief set the associated cluster
-  //
-  setClusterID(clusterID) {
-    this.cid = clusterID;
-  }
 
-  //
-  // @brief return the current associated cluster ID. We assume that we will
-  //        have one (or multiple) rules per cluster.
-  //
-  clusterID() {
-    return this.cid;
+////////////////////////////////////////////////////////////////////////////////
+// Generic TravelRule class
+export class TravelRule extends Rule {
+  constructor() {
+    super();
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -36,7 +35,12 @@ export class Rule {
   // (in the future we can automatically check this.)
   //
   fidsMappings() {
-    throw new Error('The Rule::fidsMappings for ' + this.cid + ' should be implemented!');
+    return {
+      FID_topClusterVisits_N3_delta1 : {
+        name : 'topClusterVisits',
+        args : {'N' : 2, 'delta' : 0}
+      }
+    };
   }
 
   //
@@ -54,7 +58,10 @@ export class Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
-    throw new Error('The Rule::evaluate for ' + this.cid + ' should be implemented!');
+    LoggingHandler.error(MODULE_NAME,
+                         'returning only the value of the fid: ' +
+                         fidsValuesMapping.FID_topClusterVisits_N3_delta1);
+    return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
   }
 
 
