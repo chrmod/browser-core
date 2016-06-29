@@ -3,6 +3,7 @@ import LoggingHandler from 'goldrush/logging_handler';
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
+import { CheckoutDetectedFilterFID } from 'goldrush/fids/checkout_detected_filter_fid';
 
 
 const MODULE_NAME = 'fids_builder';
@@ -21,16 +22,19 @@ export class FIDsBuilder {
 
     var fid = null;
     switch (fidIDName) {
-      case 'topHour':
+    case 'topHour':
       fid = new TopHourFID();
       break;
-      case 'topClusterVisits':
+    case 'topClusterVisits':
       fid = new TopClusterVisitsFID();
       break;
-      case 'signalDetectedFilter':
+    case 'signalDetectedFilter':
       fid = new SignalDetectedFilterFID();
       break;
-      default:
+    case 'checkoutDetectedFilter':
+      fid = new CheckoutDetectedFilterFID();
+      break;
+    default:
       // nothing to do
       break;
     }

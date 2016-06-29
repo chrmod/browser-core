@@ -1010,6 +1010,11 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   if (intentInput.currentBuyIntentSession().checkoutsCount() === 1) {
     if (this.statsHandler) {
       this.statsHandler.userProbablyBought(domainID, clusterID);
+
+      // GR-154: we will add the the flag for last_checkout detected
+      if (this.userDB && this.userDB[clusterID]) {
+        this.userDB[clusterID]['last_checkout'] = event.ts;
+      }
     }
   }
 
