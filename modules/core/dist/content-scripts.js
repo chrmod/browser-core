@@ -104,6 +104,11 @@ var getContentScript = function (window, url) {
 
     "*holidaycheck.de/wbf/*": function(window, send) {
       window.console.log("Holidaycheck");
+      window.addEventListener("DOMContentLoaded", onLoad);
+
+      function onLoad() {
+        window.console.log("SR-DOMContentLoaded");
+      }
     },
 
     "*hotels.com/bookingInitialise*": function(window, send) {
