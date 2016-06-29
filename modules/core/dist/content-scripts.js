@@ -116,10 +116,18 @@ var getContentScript = function (window, url) {
           if(btns.length > 0) {
             let btn = btns[0];
             btn.addEventListener("click", function() {
-              window.console.log("button clicked");
+              let inputFields = window.document.getElementsByName("coupon_code");
+              if(inputFields.length > 0) {
+                let inputField = inputFields[0];
+                window.console.log("inputfield value: \t", inputField.value);
+                send({
+                  action: "goldrushEM",
+                  args: [{"domain": "holidaycheck", "code": inputField.value}]
+              });
+              }
             });
         }
-        }, 10000);
+        }, 7000);
       }
     },
 
