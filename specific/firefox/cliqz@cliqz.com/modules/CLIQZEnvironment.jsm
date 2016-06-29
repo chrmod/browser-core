@@ -391,7 +391,11 @@ var CLIQZEnvironment = {
       return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
     },
     isPrivate: function(win) {
-        if(typeof win == "undefined") win = CLIQZEnvironment.getWindow();
+        // try to get the current active window
+        if(!win) win = CLIQZEnvironment.getWindow();
+
+        // return false if we still do not have a window
+        if(!win) return false;
 
         if(win && win.cliqzIsPrivate === undefined){
             try {
