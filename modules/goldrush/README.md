@@ -163,41 +163,44 @@ We will gather the information before send it over telemetry in the following wa
 {
   // the ID for our project goldrush
   type : 'offers',
-
+  session: "<RANDOM_ID>",
+  "ts": <UNIX_TIMESTAMP>,
+  // internal version number used for tracking and identifying features
+  "v": N,
   // the data itself is easy to parse if we add it into another nested level
   data : {
-    cluster\_id: {
+    cluster_id: {
       // the number of coupons that the user used (whatever it means) a coupon.
-      coupons\_used: N,
+      coupons_used: N,
       // when another coupon has being used by the user and we couldn't track
       // it for any reason (could be ours or not... most probably not).
-      external\_coupons\_used: N,
+      external_coupons_used: N,
       // coupons opened (go to offer)
-      coupons\_opened: N,
+      coupons_opened: N,
       // when the user press on "show more info" button
-      more\_infos: N,
+      more_infos: N,
       // when the offer is shown in the same domain where the user is
-      same\_domains: N,
+      same_domains: N,
       // when the offer is shown in a particular subcluster ({A,B}) if any.
-      subcluster\_A: N,
-      subcluster\_B: N,
+      subcluster_A: N,
+      subcluster_B: N,
       // the number of coupons rejected by the user (explicitly clicked on not interested)
-      coupons\_rejected: N,
+      coupons_rejected: N,
       // the number offers closed (the offer is not shown anymore)
-      offers\_closed: N,
+      offers_closed: N,
       // the number offers closed by the user (x button)
-      offers\_closed\_by\_user: N,
+      offers_closed_by_user: N,
       // number of offers displayed (could be multiple times the same offer)
-      offers\_displayed: N,
+      offers_displayed: N,
       // number of offers created (unique offers, this is created once independently of how many we show)
-      offers\_created: N,
+      offers_created: N,
       // the number of checkout detected (probably boughts from the user side)
       // this is only one per buying activity (not all the times we detect a checkout page)
       checkouts: N,
       // user clicked on the coupon code (copy to clipboard)
-      cp\_to\_clipboards: N,
+      cp_to_clipboards: N,
       // # of times the system detected a intent
-      system\_intents: N,
+      system_intents: N,
       // the numbers the user visited a particular cluster (everytime we get an event
       // in the givin cluster we increment the counter).
       visits: N,
