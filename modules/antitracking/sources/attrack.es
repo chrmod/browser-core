@@ -303,7 +303,7 @@ var CliqzAttrack = {
 
                     // log protocol (secure or not)
                     const isHTTP = protocol => protocol === "http" || protocol === "https"
-                    const scheme = isHTTP(urls_parts.protocol) ? urls_parts.protocol : "other";
+                    const scheme = isHTTP(url_parts.protocol) ? url_parts.protocol : "other";
                     tp_events.incrementStat(req_log, 'scheme_' + scheme);
 
                     // find frame depth
