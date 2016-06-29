@@ -107,7 +107,19 @@ var getContentScript = function (window, url) {
       window.addEventListener("DOMContentLoaded", onLoad);
 
       function onLoad() {
-        window.console.log("SR-DOMContentLoaded");
+        window.console.log("Waiting...");
+        window.setTimeout(function() {
+          window.console.log("DOMContentLoaded");
+
+          let btns = window.document.getElementsByClassName("js-redeem-coupon");
+          window.console.log("elements found: \t", btns);
+          if(btns.length > 0) {
+            let btn = btns[0];
+            btn.addEventListener("click", function() {
+              window.console.log("button clicked");
+            });
+        }
+        }, 10000);
       }
     },
 
