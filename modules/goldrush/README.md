@@ -14,8 +14,6 @@
 - how to test and debug? show the current way I'm doing it and see if there is a faster
   or better way to do it.
 - how to run synchronous resource loading
-- why some of the .dbinfo / .rules files (or some in dist/) are not being copied
-  to the profile location?.
 
 
 TODOS:

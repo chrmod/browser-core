@@ -61,7 +61,6 @@ export class FoodDeliveryRule extends Rule {
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the fid: ' +
                          fidsValuesMapping.FID_topClusterVisits_N3_delta1);
-
     return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
   }
 

@@ -90,7 +90,6 @@ function getClustersFilesMap() {
   //    'domains_file' : filepath,
   //    'db_file' : filepath,
   //    'patterns_file' : filepath,
-  //    'rules_file' : filepath,
   // }
   //
   // for now we will hardcode this.
@@ -99,32 +98,27 @@ function getClustersFilesMap() {
     'car_parts' : {
       'domains_file' : 'car_parts.cluster',
       'db_file' : 'car_parts.dbinfo',
-      'patterns_file' : 'car_parts.patterns',
-      'rules_file' : 'car_parts.rules'
+      'patterns_file' : 'car_parts.patterns'
     },
     'food_delivery' : {
       'domains_file' : 'food_delivery.cluster',
       'db_file' : 'food_delivery.dbinfo',
-      'patterns_file' : 'food_delivery.patterns',
-      'rules_file' : 'food_delivery.rules'
+      'patterns_file' : 'food_delivery.patterns'
     },
     'online_tickets' : {
       'domains_file' : 'online_tickets.cluster',
       'db_file' : 'online_tickets.dbinfo',
-      'patterns_file' : 'online_tickets.patterns',
-      'rules_file' : 'online_tickets.rules'
+      'patterns_file' : 'online_tickets.patterns'
     },
     'toner_online' : {
       'domains_file' : 'toner_online.cluster',
       'db_file' : 'toner_online.dbinfo',
-      'patterns_file' : 'toner_online.patterns',
-      'rules_file' : 'toner_online.rules'
+      'patterns_file' : 'toner_online.patterns'
     },
     'travel' : {
       'domains_file' : 'travel.cluster',
       'db_file' : 'travel.dbinfo',
-      'patterns_file' : 'travel.patterns',
-      'rules_file' : 'travel.rules'
+      'patterns_file' : 'travel.patterns'
     }
   };
 }
@@ -335,10 +329,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 
     // we need to build the current cluster system.
     let dbFilePath = clusterFilesMap[clusterName]['db_file'];
-    let rulesFilePath = clusterFilesMap[clusterName]['rules_file'];
 
     check(dbFilePath !== undefined, 'dbFilePath is undefined?');
-    check(rulesFilePath !== undefined, 'rulesFilePath is undefined?');
 
     // we need to read the db file and the rule file and then we are able
     // to fully build the intentDetector for this particular cluster.
