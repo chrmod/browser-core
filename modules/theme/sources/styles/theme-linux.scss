@@ -333,32 +333,6 @@ notification[type="warning"] .messageText {
     background-color: rgba(223, 219, 210, 0.8);
 }
 
-#cliqz_menupopup,
-#contentAreaContextMenu {
-    menuitem[_moz-menuactive="true"]:not([disabled="true"]),
-    menu[_moz-menuactive="true"]:not([disabled="true"]) {
-        -moz-appearance: none !important;
-        background-color: #4899fb;
-    }
-
-    menuitem[_moz-menuactive="true"]:not([disabled="true"]) {
-        .menu-iconic-text {
-            color: #fff !important;
-        }
-    }
-
-    menu[_moz-menuactive="true"]:not([disabled="true"]) {
-        .menu-text {
-            color: #fff !important;
-        }
-    }
-
-    menuitem, menu {
-        -moz-appearance: none !important;
-        padding: 5px;
-    }
-}
-
 /* END EX-2247 */
 
 /* BEGIN EX-2251 */
