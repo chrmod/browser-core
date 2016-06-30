@@ -97,11 +97,13 @@ var LoggingHandler = {
     if (this.fileObj) {
       // GR-145: logging system is not working properly, not saving all the data from the beginning
       if (this.tmpBuff) {
-        this.fileObj.write(new TextEncoder().encode(this.tmpBuff));
+        let encoder = new TextEncoder();
+        this.fileObj.write(encoder.encode(this.tmpBuff));
         delete this.tmpBuff;
         this.tmpBuff = null;
       }
-      this.fileObj.write(new TextEncoder().encode(strToLog)).catch(function(ee) {
+      let encoder = new TextEncoder();
+      this.fileObj.write(encoder.encode(strToLog)).catch(function(ee) {
         utils.log('error logging to the file! something happened?: ' + ee, '[goldrush]');
       });
     } else {
