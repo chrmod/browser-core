@@ -381,8 +381,9 @@ notification[type="warning"] .messageText {
 
 /* BEGIN EX-2254 */
 
-.urlbar-input-box {
+#urlbar .urlbar-input-box {
     padding: 2px 0;
+    overflow: hidden;
 }
 
 /* END EX-2254 */
