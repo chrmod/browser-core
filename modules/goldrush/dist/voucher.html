@@ -84,15 +84,15 @@
                 <p style="font-size: 20px">Offered by <b>{{title}}</b></p>
             {{/if}}
             {{#if desc}}
-                <p><b>Description:</b> {{desc}}</p>
+                <p>{{desc}}</p>
             {{/if}}
             <div style="font-size: 8px">
-                <span><b>Terms and conditions: </b></span>
+                <span><b>Allgemeine Nutzungsbedingungen: </b></span>
                 {{#if min_order_value}}
-                    <span>Minimum value: {{min_order_value}},</span>
+                    <span>Mindestbestellwert: {{min_order_value}},</span>
                 {{/if}}
                 {{#if valid_for}}
-                    <span>Valid for: {{valid_for}}</span>
+                    <span>Gültig für: {{valid_for}}</span>
                 {{/if}}
             </div>
         </div>
