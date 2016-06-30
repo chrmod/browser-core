@@ -1,3 +1,24 @@
+NODE_LABELS_DEFAULT = 'docker'
+properties([
+  [
+    $class: 'ParametersDefinitionProperty',
+    parameterDefinitions: [
+      [
+        $class: 'StringParameterDefinition',
+        defaultValue: NODE_LABELS_DEFAULT,
+        description: '',
+        name: 'NODE_LABELS'
+      ]
+    ]
+  ]
+])
+
+try {
+  NODE_LABELS
+} catch(all) {
+  NODE_LABELS = NODE_LABELS_DEFAULT
+}
+
 try {
   CLIQZ_PRE_RELEASE
 } catch (all) {
@@ -10,56 +31,77 @@ try {
   CLIQZ_BETA = "True"
 }
 
+try {
+  TEST_ONLY
+} catch (all) {
+  TEST_ONLY = true
+}
+
+try {
+  CLIQZ_CHANNEL
+} catch(all) {
+  CLIQZ_CHANNEL = 'browser'
+}
+
 node(NODE_LABELS) {
-  
   stage 'checkout'
-  checkout([
-    $class: 'GitSCM',
-    branches: [[name: '*/cliqz-ci']],
-    doGenerateSubmoduleConfigurations: false,
-    extensions: [[
-      $class: 'RelativeTargetDirectory',
-      relativeTargetDir: '../workspace@script/xpi-sign'
-    ]],
-    submoduleCfg: [],
-    userRemoteConfigs: [[
-      credentialsId: XPI_SIGN_CREDENTIALS,
-      url: XPI_SIGN_REPO_URL
-    ]]
-  ])
-  
+  checkout scm
+
   def imgName = "cliqz/navigation-extension:${env.BUILD_TAG}"
 
-  dir("../workspace@script") {
-    sh '''#!/bin/bash +x
-      rm -fr certs
-      cp -R /cliqz certs
-    '''
-    
-    stage 'docker build'
-    docker.build(imgName, ".")
+  stage 'docker build'
+  sh "docker build -t ${imgName} --build-arg UID=`id -u` --build-arg GID=`id -g` ."
+  dockerFingerprintFrom dockerfile: "./Dockerfile", image: imgName, toolName: env.DOCKER_TOOL_NAME
 
-    try {
+  docker.image(imgName).inside() {
+    withEnv(["CLIQZ_CONFIG_PATH=./configs/${CLIQZ_CHANNEL}.json"]) {
+      stage 'fern install'
+      sh './fern.js install'
 
-      docker.image(imgName).inside() {
-        stage 'fern install'
-        sh './fern.js install'
-        
+      if ( !TEST_ONLY ) {
+        stage 'checkout xpi-sign'
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: '*/cliqz-ci']],
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [[
+            $class: 'RelativeTargetDirectory',
+            relativeTargetDir: '../workspace@script/xpi-sign'
+          ]],
+          submoduleCfg: [],
+          userRemoteConfigs: [[
+            credentialsId: XPI_SIGN_CREDENTIALS,
+            url: XPI_SIGN_REPO_URL
+          ]]
+        ])
+
         stage 'fern build'
-        sh "./fern.js build ./configs/${CLIQZ_CHANNEL}.json"
+        sh './fern.js build'
 
         stage 'fab publish'
-        sh """#!/bin/bash
-          cd build/
-          set +x
-          source ../certs/beta-upload-creds.sh
-          set -x
-          fab publish:beta=${CLIQZ_BETA},channel=${CLIQZ_CHANNEL},pre=${CLIQZ_PRE_RELEASE}
-        """
+        try {
+          sh '''#!/bin/bash +x
+            rm -fr certs
+            cp -R /cliqz certs
+          '''
+
+          sh """#!/bin/bash -l
+            cd build/
+            set +x
+            source ../certs/beta-upload-creds.sh
+            set -x
+            fab publish:beta=${CLIQZ_BETA},channel=${CLIQZ_CHANNEL},pre=${CLIQZ_PRE_RELEASE}
+          """
+
+        } finally {
+          sh 'rm -rf certs'
+        }
+      } else {
+        stage 'fern test'
+        sh 'rm -rf tests.xml'
+        sh './fern.js test --ci tests.xml'
+        step([$class: 'JUnitResultArchiver', allowEmptyResults: false, testResults: 'tests.xml'])
       }
-    
-    } finally {
-      sh 'rm -rf certs'
     }
   }
 }

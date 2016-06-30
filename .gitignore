@@ -4,6 +4,7 @@
 *#
 tmp
 tests.tap
+tests.xml
 
 # ignore invisible files
 .Trashes
