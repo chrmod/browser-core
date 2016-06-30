@@ -167,7 +167,7 @@ CLIQZEnvironment = {
 
     CLIQZEnvironment.lastResults = renderedResults.results;
 
-    renderedResults.results[0] && CLIQZEnvironment.autoComplete(renderedResults.results[0].val,r._searchString);
+    renderedResults.results[0] && CLIQZEnvironment.autoComplete(renderedResults.results[0].url, r._searchString);
   },
   search: function(e, location_enabled, latitude, longitude) {
     if(!e || e === '') {
