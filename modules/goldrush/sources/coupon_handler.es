@@ -48,6 +48,43 @@ export class CouponHandler {
     LoggingHandler.info(MODULE_NAME, 'init properly');
   }
 
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  //
+  // @brief save to file
+  //
+  savePersistentData() {
+    // TODO: this flag is to let us test easier the things
+    if (!GoldrushConfigs.COUPON_HANDLER_LOAD_FILE_FLAG) {
+      return;
+    }
+    var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
+    if (localStorage) {
+      localStorage.setItem('coupons_data', JSON.stringify(this.couponData));
+      LoggingHandler.info(MODULE_NAME, 'saving coupons_data db: ' + JSON.stringify(this.couponData));
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // @brief load from file
+  //
+  loadPersistentData() {
+    // TODO: this flag is to let us test easier the things
+    if (!GoldrushConfigs.COUPON_HANDLER_LOAD_FILE_FLAG) {
+      return;
+    }
+    var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
+    var cache = localStorage.getItem('coupons_data');
+    if (cache) {
+      this.couponData = JSON.parse(cache);
+      LoggingHandler.info(MODULE_NAME, 'coupons_data db found, loading data: ' + JSON.stringify(this.couponData));
+    } else {
+      LoggingHandler.info(MODULE_NAME, 'coupons_data db NOT found');
+    }
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   //
   // @brief Get the best coupon from the backend response and the given cluster.

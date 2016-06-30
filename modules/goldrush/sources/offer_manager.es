@@ -195,6 +195,7 @@ export function OfferManager() {
 
     // create the subcluster information
     self.couponHandler = new CouponHandler(self.mappings);
+    self.couponHandler.loadPersistentData();
 
     LoggingHandler.info(MODULE_NAME, 'setting the mappings to the offer manager');
     self.offerFetcher = new OfferFetcher(destURL, mappings);
@@ -389,6 +390,9 @@ OfferManager.prototype.savePersistentData = function() {
     LoggingHandler.info(MODULE_NAME, 'Saving data into local storage');
   }
 
+  if (this.couponHandler) {
+    this.couponHandler.savePersistentData();
+  }
 };
 
 
