@@ -38,7 +38,7 @@ export class TravelRule extends Rule {
     return {
       FID_topClusterVisits_N3_delta1 : {
         name : 'topClusterVisits',
-        args : {'N' : 2, 'delta' : 0}
+        args : {'N' : 3, 'delta' : 1}
       }
     };
   }
