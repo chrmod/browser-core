@@ -11,6 +11,8 @@ const MODULE_NAME = 'food_delivery_rule';
 // define local FIDS ids for the internal map
 //
 const FID_topClusterVisits_N3_delta1 = 0;
+const FID_hour_range_4_8 = 1;
+const FID_day_range_5_6 = 2;
 
 
 ////////////////////////////////////////////////////////////////////////////////

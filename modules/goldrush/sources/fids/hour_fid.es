@@ -1,5 +1,6 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
+import LoggingHandler from 'goldrush/logging_handler';
 
 
 const MODULE_NAME = 'hour_fid';
@@ -12,7 +13,7 @@ const MODULE_NAME = 'hour_fid';
 export class HourFID extends FID {
   constructor() {
     super('hour');
-    this.args = {};
+    this.args = {}
 
     this.configParams = {
       'range' : {
@@ -38,6 +39,8 @@ export class HourFID extends FID {
     for (let arg_idx in configArgs) {
         this.args[arg_idx] = configArgs[arg_idx];
     }
+
+    LoggingHandler.info(MODULE_NAME, 'this.args: ' + JSON.stringify(this.args));
   }
 
   evaluate(intentInput, extras) {
@@ -46,16 +49,17 @@ export class HourFID extends FID {
     let intentSession = intentInput.currentBuyIntentSession();
     const eventTimestamp = intentSession.lastEvent()['ts'];
 
-    // Create a new JavaScript Date object based on the timestamp
-    // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-    let date = new Date(eventTimestamp*1000);
+    let date = new Date(eventTimestamp);
     // Hours part from the timestamp
-    let hours = date.getHours();
+    let hour = date.getHours();
 
     LoggingHandler.info(MODULE_NAME,
-                        'current_hour: ' + hours +
-                        ' range ' + this.configArgs['range']['value']);
+                        'current_hour: ' + hour +
+                        ' range ' + JSON.stringify(this.args));
 
-    return (hours in this.configArgs['range']['value']) ? 1.0 : 0.0;
+    if (this.args['range'].indexOf(hour) > -1) {
+      return 1.0;
+    }
+    return 0.0;
   }
 }

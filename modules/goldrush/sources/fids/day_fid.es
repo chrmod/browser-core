@@ -1,5 +1,6 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
+import LoggingHandler from 'goldrush/logging_handler';
 
 
 const MODULE_NAME = 'day_fid';
@@ -48,14 +49,17 @@ export class DayFID extends FID {
 
     // Create a new JavaScript Date object based on the timestamp
     // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-    let date = new Date(eventTimestamp*1000);
+    let date = new Date(eventTimestamp);
     // Hours part from the timestamp
-    let day = date.getDays();
+    let day = date.getDay();
 
     LoggingHandler.info(MODULE_NAME,
                         'current_day: ' + day +
-                        ' range ' + this.configArgs['range']['value']);
+                        ' range ' + this.args['range']);
 
-    return (day in this.configArgs['range']['value']) ? 1.0 : 0.0;
+    if (this.args['range'].indexOf(day) > -1) {
+      return 1.0;
+    }
+    return 0.0;
   }
 }
