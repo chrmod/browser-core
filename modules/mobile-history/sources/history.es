@@ -327,12 +327,12 @@ function update() {
   showOnlyFavorite ? showFavorites(allFavorites) : showHistory(allHistory);
 }
 
-
-function clearQueries(removeFavorites) {
+function clearHistory() {
   CLIQZEnvironment.getLocalStorage().setObject('recentQueries', []);
-  if (removeFavorites) {
-    CLIQZEnvironment.getLocalStorage().setObject('favoriteQueries', []);
-  }
+}
+
+function clearFavorites() {
+  CLIQZEnvironment.getLocalStorage().setObject('favoriteQueries', []);
 }
 
 /**
@@ -362,7 +362,8 @@ var History = {
   init: init,
   showHistory: showHistory,
   showFavorites: showFavorites,
-  clearQueries: clearQueries,
+  clearHistory: clearHistory,
+  clearFavorites: clearFavorites,
   favoriteSelected: favoriteSelected,
   removeSelected: removeSelected,
   endEditMode: endEditMode

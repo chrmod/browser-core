@@ -91,7 +91,6 @@ var UI = {
         imgLoader.start();
 
         crossTransform(resultsBox, 0);
-        setCardsHeight();
 
         setResultNavigation(currentResults.results);
 
@@ -111,6 +110,7 @@ var UI = {
           prevent_all_native_scrolling: false,
           vertical: false,
           anim_duration:400,
+          tipping_point:0.4,
           onPageScroll : function (scrollInfo) {
             offset = -scrollInfo.totalOffset;
             crossTransform(resultsBox, (offset * UI.CARD_WIDTH * UI.nCardsPerPage));
@@ -147,10 +147,6 @@ var UI = {
       var engineDiv = document.getElementById('defaultEngine');
       if (engineDiv && CliqzAutocomplete.lastSearch) {
         engineDiv.setAttribute('url', engine.url + encodeURIComponent(CliqzAutocomplete.lastSearch));
-        var moreResults = document.getElementById('moreResults');
-        moreResults && (moreResults.innerHTML = CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name));
-        var noResults = document.getElementById('noResults');
-        noResults && (noResults.innerHTML = CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name));
       }
     },
     startProgressBar: function () {
@@ -180,14 +176,13 @@ var UI = {
 };
 
 function setCardCountPerPage(windowWidth) {
-  UI.nCardsPerPage = ~~(windowWidth / 320) || 1;
+  UI.nCardsPerPage = Math.floor(windowWidth / 320) || 1;
 }
 
 
 function loadAsyncResult(res, query) {
     for (var i in res) {
       var r = res[i];
-      var query = r.text || r.query;
       var qt = query + ": " + new Date().getTime();
       CliqzUtils.log(r,"LOADINGASYNC");
       CliqzUtils.log(query,"loadAsyncResult");
@@ -222,7 +217,7 @@ function loadAsyncResult(res, query) {
               r.data.kind = kind;
               r.data.subType = resp.subType;
               r.data.trigger_urls = resp.trigger_urls;
-              r.vertical = getVertical(r.data.template);
+              r.vertical = getVertical(r);
               r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
               r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
@@ -273,46 +268,49 @@ function redrawDropdown(newHTML) {
     resultsBox.innerHTML = newHTML;
 }
 
-function getVertical(dataTemplate) {
-  return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic';
+function getVertical(result) {
+  // if history records are less than 3 it goes to generic
+  let template;
+  if (result.data.template === 'pattern-h3') {
+    template = 'history';
+  } else if (CLIQZEnvironment.TEMPLATES[result.data.superTemplate]) {
+      template = result.data.superTemplate;
+  } else if(CLIQZEnvironment.TEMPLATES[result.data.template]) {
+    template = result.data.template
+  } else {
+    template = 'generic';
+  }
+  return template;
 }
 
 function enhanceResults(results) {
-    for(var i=0; i<results.length; i++) {
-        var r = results[i];
-        r.type = r.style;
-        r.left = (UI.CARD_WIDTH * i);
-        r.url = r.val || '';
-        r.title = r.comment || '';
+  let enhancedResults = [];
+  results.forEach((r, index) => {
+    const _tmp = getDebugMsg(r.comment || '');
+    const url = r.val || '';
+    const urlDetails = CliqzUtils.getDetailsFromUrl(url);
 
-        r.data = r.data || {};
+    enhancedResults.push(enhanceSpecificResult({
+      type: r.style,
+      left: (UI.CARD_WIDTH * index),
+      data: r.data || {},
+      url,
+      urlDetails,
+      logo: CliqzUtils.getLogoDetails(urlDetails),
+      title: _tmp[0],
+      debug: _tmp[1]
+    }));
+  });
 
-        enhanceSpecificResult(r);
+  let filteredResults = enhancedResults.filter(function (r) { return !(r.data && r.data.adult); });
 
-        r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-        r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-        if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
-          r.vertical = 'pattern-h1';
-        } else {
-          r.vertical = getVertical(r.data.template);
-        }
+  // if there no results after adult filter - show no results entry
+  if (!filteredResults.length) {
+    filteredResults.push(CliqzUtils.getNoResults());
+    filteredResults[0].vertical = 'noResult';
+  }
 
-        //extract debug info from title
-        var _tmp = getDebugMsg(r.title);
-        r.title = _tmp[0];
-        r.debug = _tmp[1];
-
-
-    }
-    var filteredResults = results.filter(function (r) { return !(r.data && r.data.adult); });
-
-    // if there no results after adult filter - show no results entry
-    if (!filteredResults.length) {
-      filteredResults.push(CliqzUtils.getNoResults());
-      filteredResults[0].vertical = 'noResult';
-    }
-
-    return filteredResults;
+  return filteredResults;
 }
 
 // debug message are at the end of the title like this: "title (debug)!"
@@ -334,27 +332,23 @@ function getDebugMsg(fullTitle) {
 }
 
 function enhanceSpecificResult(r) {
-    var specificView;
-    if (r.subType && JSON.parse(r.subType).ez) {
-        // Indicate that this is a RH result.
-        r.type = 'cliqz-extra';
-    }
-    if (r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate)) {
-        r.data.template = r.data.superTemplate;
-    }
+  const contentArea = {
+    width: UI.CARD_WIDTH,
+    height: window.screen.height
+  };
+  
+  if (r.subType && JSON.parse(r.subType).ez) {
+      // Indicate that this is a RH result.
+      r.type = 'cliqz-extra';
+  }
 
-    specificView = UI.VIEWS[r.data.template] || UI.VIEWS.generic;
-    if (specificView && specificView.enhanceResults) {
-        specificView.enhanceResults(r.data);
-    }
+  const template = r.vertical = getVertical(r);
 
-    if (r.data.news) {
-      r.data.news.forEach(function (article) {
-        var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
-        logoDetails = CliqzUtils.getLogoDetails(urlDetails);
-        article.logo = logoDetails;
-      });
-    }
+  const specificView = UI.VIEWS[template] || UI.VIEWS.generic;
+  specificView.enhanceResults && specificView.enhanceResults(r.data, contentArea);
+
+  return r;
+
 }
 
 function crossTransform (element, x) {
@@ -362,27 +356,6 @@ function crossTransform (element, x) {
   platforms.forEach(function (platform) {
     element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
   });
-}
-
-function setCardsHeight() {
-  var ezs = document.getElementsByClassName('cqz-result-box');
-
-  var body = document.body,
-      documentElement = document.documentElement,
-      height;
-
-  if (typeof document.height !== 'undefined') {
-    height = document.height; // For webkit browsers
-  } else {
-    height = Math.max( body.scrollHeight, body.offsetHeight,documentElement.clientHeight, documentElement.scrollHeight, documentElement.offsetHeight );
-  }
-
-  for(var i=0; i < ezs.length; i++) {
-    ezs[i].style.height = null;
-    if (ezs[i].clientHeight + 40 < height) {
-      ezs[i].style.height = height - 40 + 'px';
-    }
-  }
 }
 
 function getResultKind(el) {
@@ -509,11 +482,9 @@ window.addEventListener('resize', function () {
       frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
     setResultNavigation(CLIQZEnvironment.lastResults);
-    CLIQZEnvironment.currentPage = ~~(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
+    CLIQZEnvironment.currentPage = Math.floor(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
     CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage, 0);
-
-    setCardsHeight();
-    }, 50);
+    }, 200);
 
 });
 

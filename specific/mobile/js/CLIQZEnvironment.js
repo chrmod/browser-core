@@ -29,6 +29,39 @@ var latestUrl;
 ////
 
 // END TEMP
+const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
+  "Cliqz": true,
+  "EZ-category": true,
+  "EZ-history": true,
+  "calculator": true,
+  "celebrities": true,
+  "conversations": true,
+  "currency": true,
+  "emphasis": true,
+  "empty": true,
+  "entity-news-1": true,
+  "entity-search-1": true,
+  "flightStatusEZ-2": true,
+  "generic": true,
+  "history": true,
+  "ligaEZ1Game": true,
+  "ligaEZTable": true,
+  "ligaEZUpcomingGames": true,
+  "local-cinema-sc": true,
+  "local-data-sc": true,
+  "local-movie-sc": true,
+  "logo": true,
+  "main": true,
+  "noResult": true,
+  "rd-h3-w-rating": true,
+  "results": true,
+  "stocks": true,
+  "topnews": true,
+  "topsites": true,
+  "url": true,
+  "weatherAlert": true,
+  "weatherEZ": true
+}));
 
 CLIQZEnvironment = {
   BRANDS_DATA_URL: 'static/brands_database.json',
@@ -39,39 +72,7 @@ CLIQZEnvironment = {
   MIN_QUERY_LENGHT_FOR_EZ: 0,
   storeQueryTimeout: null,
   RERANKERS: [],
-  TEMPLATES: {
-        "Cliqz": true,
-        "EZ-category": true,
-        "EZ-history": true,
-        "calculator": true,
-        "celebrities": true,
-        "conversations": true,
-        "currency": true,
-        "emphasis": true,
-        "empty": true,
-        "entity-news-1": true,
-        "entity-search-1": true,
-        "flightStatusEZ-2": true,
-        "generic": true,
-        "history": true,
-        "ligaEZ1Game": true,
-        "ligaEZTable": true,
-        "ligaEZUpcomingGames": true,
-        "local-cinema-sc": true,
-        "local-data-sc": true,
-        "local-movie-sc": true,
-        "logo": true,
-        "main": true,
-        "noResult": true,
-        "rd-h3-w-rating": true,
-        "results": true,
-        "stocks": true,
-        "topnews": true,
-        "topsites": true,
-        "url": true,
-        "weatherAlert": true,
-        "weatherEZ": true
-  },
+  TEMPLATES,
   KNOWN_TEMPLATES: {
       'entity-portal': true,
       'entity-generic': true,
@@ -100,8 +101,8 @@ CLIQZEnvironment = {
   isUnknownTemplate: function(template){
      // in case an unknown template is required
      return template &&
-            CLIQZEnvironment.TEMPLATES.hasOwnProperty(template) == false &&
-            CLIQZEnvironment.KNOWN_TEMPLATES.hasOwnProperty(template) == false;
+            !CLIQZEnvironment.TEMPLATES[template] &&
+            !CLIQZEnvironment.KNOWN_TEMPLATES.hasOwnProperty(template);
   },
   getBrandsDBUrl: function(version){
     //TODO - consider the version !!
@@ -141,13 +142,15 @@ CLIQZEnvironment = {
   },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   putHistoryFirst: function(r) {
-    for(var i = 0; i < r._results.length; i++) {
-      if(r._results[i].style === 'cliqz-pattern' || r._results[i].style === 'favicon') {
-        r._results.unshift(r._results.splice(i, 1)[0]);
-        return 1;
+    var history = [], backend = [];
+    r._results.forEach(function (res) {
+      if(res.style === 'cliqz-pattern' || res.style === 'favicon') {
+        history.push(res);
+      } else {
+        backend.push(res);
       }
-    }
-    return 0;
+    });
+    r._results = history.concat(backend);
   },
   resultsHandler: function (r) {
 
@@ -156,17 +159,15 @@ CLIQZEnvironment = {
       return;
     }
 
-    var historyCount = CLIQZEnvironment.putHistoryFirst(r);
+    CLIQZEnvironment.putHistoryFirst(r);
 
-    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT + historyCount);
+    r._results.splice(CLIQZEnvironment.RESULTS_LIMIT);
 
-    renderedResults = CLIQZEnvironment.renderResults(r, historyCount);
+    renderedResults = CLIQZEnvironment.renderResults(r);
 
     CLIQZEnvironment.lastResults = renderedResults.results;
 
-    if(renderedResults.results.length > historyCount) {
-      CLIQZEnvironment.autoComplete(renderedResults.results[historyCount].val,r._searchString);
-    }
+    renderedResults.results[0] && CLIQZEnvironment.autoComplete(renderedResults.results[0].val,r._searchString);
   },
   search: function(e, location_enabled, latitude, longitude) {
     if(!e || e === '') {
