@@ -912,7 +912,7 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
     if (offerID) {
       const offer = this.currentOfferMap[offerID];
       if (offer) {
-        this.couponHandler.markCouponAsShown(offer.voucher_data, Date.now());
+        this.couponHandler.markCouponAsUsed(offer.voucher_data, Date.now());
       }
     }
   } else {
