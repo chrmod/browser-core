@@ -39,6 +39,14 @@ export class FoodDeliveryRule extends Rule {
       FID_topClusterVisits_N3_delta1 : {
         name : 'topClusterVisits',
         args : {'N' : 2, 'delta' : 0}
+      },
+      FID_hour_range_4_8 : {
+        name : 'hour',
+        args: {'range': [4,5,6,7,8]}
+      },
+      FID_day_range_5_6 : {
+        name : 'day',
+        args: {'range': [5,6]}
       }
     };
   }
@@ -59,8 +67,14 @@ export class FoodDeliveryRule extends Rule {
   //
   evaluate(fidsValuesMapping) {
     LoggingHandler.error(MODULE_NAME,
-                         'returning only the value of the fid: ' +
+                         'returning only the value of the visits fid: ' +
                          fidsValuesMapping.FID_topClusterVisits_N3_delta1);
+    LoggingHandler.error(MODULE_NAME,
+                     'returning only the value of the hour fid: ' +
+                     fidsValuesMapping.FID_hour_range_4_8);
+    LoggingHandler.error(MODULE_NAME,
+                     'returning only the value of the day fid: ' +
+                       fidsValuesMapping.FID_day_range_5_6);
     return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
   }
 

@@ -4,6 +4,8 @@ import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
 import { SignalDetectedFilterFID } from 'goldrush/fids/signal_detected_filter_fid';
 import { CheckoutDetectedFilterFID } from 'goldrush/fids/checkout_detected_filter_fid';
+import { HourFID } from 'goldrush/fids/hour_fid';
+import { DayFID } from 'goldrush/fids/day_fid';
 
 
 const MODULE_NAME = 'fids_builder';
@@ -22,9 +24,6 @@ export class FIDsBuilder {
 
     var fid = null;
     switch (fidIDName) {
-    case 'topHour':
-      fid = new TopHourFID();
-      break;
     case 'topClusterVisits':
       fid = new TopClusterVisitsFID();
       break;
@@ -33,6 +32,12 @@ export class FIDsBuilder {
       break;
     case 'checkoutDetectedFilter':
       fid = new CheckoutDetectedFilterFID();
+      break;
+    case 'hour':
+      fid = new HourFID();
+      break;
+    case 'day':
+      fid = new DayFID();
       break;
     default:
       // nothing to do
