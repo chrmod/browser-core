@@ -183,7 +183,6 @@ function setCardCountPerPage(windowWidth) {
 function loadAsyncResult(res, query) {
     for (var i in res) {
       var r = res[i];
-      var query = r.text || r.query;
       var qt = query + ": " + new Date().getTime();
       CliqzUtils.log(r,"LOADINGASYNC");
       CliqzUtils.log(query,"loadAsyncResult");
@@ -218,7 +217,7 @@ function loadAsyncResult(res, query) {
               r.data.kind = kind;
               r.data.subType = resp.subType;
               r.data.trigger_urls = resp.trigger_urls;
-              r.vertical = getVertical(r.data.template);
+              r.vertical = getVertical(r);
               r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
               r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
@@ -269,40 +268,41 @@ function redrawDropdown(newHTML) {
     resultsBox.innerHTML = newHTML;
 }
 
-function getVertical(dataTemplate) {
-  if (dataTemplate === 'pattern-h3') {
-    return 'history';
+function getVertical(result) {
+  // if history records are less than 3 it goes to generic
+  let template;
+  if (result.data.template === 'pattern-h3') {
+    template = 'history';
+  } else if (CLIQZEnvironment.TEMPLATES[result.data.superTemplate]) {
+      template = result.data.superTemplate;
+  } else if(CLIQZEnvironment.TEMPLATES[result.data.template]) {
+    template = result.data.template
+  } else {
+    template = 'generic';
   }
-  return (dataTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(dataTemplate)) ? dataTemplate : 'generic';
+  return template;
 }
 
 function enhanceResults(results) {
-  for(var i=0; i<results.length; i++) {
-    var r = results[i];
-    r.type = r.style;
-    r.left = (UI.CARD_WIDTH * i);
-    r.url = r.val || '';
-    r.title = r.comment || '';
-    r.data = r.data || {};
+  let enhancedResults = [];
+  results.forEach((r, index) => {
+    const _tmp = getDebugMsg(r.comment || '');
+    const url = r.val || '';
+    const urlDetails = CliqzUtils.getDetailsFromUrl(url);
 
-    enhanceSpecificResult(r);
+    enhancedResults.push(enhanceSpecificResult({
+      type: r.style,
+      left: (UI.CARD_WIDTH * index),
+      data: r.data || {},
+      url,
+      urlDetails,
+      logo: CliqzUtils.getLogoDetails(urlDetails),
+      title: _tmp[0],
+      debug: _tmp[1]
+    }));
+  });
 
-    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-    if (!r.data.template && r.data.kind && r.data.kind[0] === 'H') {
-      r.vertical = 'pattern-h1';
-    } else {
-      r.vertical = getVertical(r.data.template);
-    }
-
-    //extract debug info from title
-    var _tmp = getDebugMsg(r.title);
-    r.title = _tmp[0];
-    r.debug = _tmp[1];
-
-
-  }
-  var filteredResults = results.filter(function (r) { return !(r.data && r.data.adult); });
+  let filteredResults = enhancedResults.filter(function (r) { return !(r.data && r.data.adult); });
 
   // if there no results after adult filter - show no results entry
   if (!filteredResults.length) {
@@ -336,27 +336,19 @@ function enhanceSpecificResult(r) {
     width: UI.CARD_WIDTH,
     height: window.screen.height
   };
-  var specificView;
+  
   if (r.subType && JSON.parse(r.subType).ez) {
       // Indicate that this is a RH result.
       r.type = 'cliqz-extra';
   }
-  if (CLIQZEnvironment.TEMPLATES[r.data.superTemplate]) {
-      r.data.template = r.data.superTemplate;
-  }
 
-  specificView = UI.VIEWS[r.data.template] || UI.VIEWS.generic;
-  if (specificView && specificView.enhanceResults) {
-      specificView.enhanceResults(r.data, contentArea);
-  }
+  const template = r.vertical = getVertical(r);
 
-  if (r.data.news) {
-    r.data.news.forEach(function (article) {
-      var urlDetails = CliqzUtils.getDetailsFromUrl(article.url),
-      logoDetails = CliqzUtils.getLogoDetails(urlDetails);
-      article.logo = logoDetails;
-    });
-  }
+  const specificView = UI.VIEWS[template] || UI.VIEWS.generic;
+  specificView.enhanceResults && specificView.enhanceResults(r.data, contentArea);
+
+  return r;
+
 }
 
 function crossTransform (element, x) {

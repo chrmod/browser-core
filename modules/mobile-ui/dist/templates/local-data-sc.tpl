@@ -110,7 +110,7 @@
       </div>
   </section>
   <section class="secondary">
-      {{#each data.deepResults}}
+      {{#each data.deepLinks}}
           <div url="{{url}}" extra="link-{{@index}}" class="cards__item links">
               <h2 class="cards__title__secondary">
                   {{title}}

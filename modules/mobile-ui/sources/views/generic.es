@@ -21,9 +21,10 @@ export default class {
       }
     }
 
-    for(var i in data.news) {
-      data.news[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.news[i].url));
-    }
+    (data.news || []).forEach(article => {
+      const urlDetails = CliqzUtils.getDetailsFromUrl(article.url);
+      article.logo = CliqzUtils.getLogoDetails(urlDetails);
+    });
 
     if(data.actions && data.external_links) {
       data.actionsExternalMixed = data.actions.concat(data.external_links);

@@ -31,6 +31,13 @@
 		<!-- main images -->
 
 		<div class="card__gallery">
+			
+			{{#each data.richData.images}}
+				{{#if (limit @index 3)}}
+					<div class="image" data-style="background-image: url({{this}})">Image</div>
+				{{/if}}
+			{{/each}}
+
 			{{#if data.richData.image}}
 	            <div class="image big" data-style="background-image: url({{ data.richData.image }});">
 	                Image
@@ -42,8 +49,8 @@
 						Image
 					</div>
 				{{else}}
-					{{#if image.src}}
-						<div class="image big" data-style="background-image: url({{ image.src }})">
+					{{#if data.image.src}}
+						<div class="image big" data-style="background-image: url({{ data.image.src }})">
 							Image
 						</div>
 					{{/if}}
@@ -54,14 +61,6 @@
 					{{/if}}
 				{{/if}}
 
-			{{/if}}
-		</div>
-
-		<div class="card__gallery">
-			{{#if data.image}}
-	            <div class="image big" data-style="background-image: url({{ data.image.src }});">
-	                Image
-	            </div>
 			{{/if}}
 		</div>
 
@@ -84,14 +83,6 @@
 			</div>
 		{{/if}}
 		<!--end for videos -->
-
-		<div class="card__gallery">
-			{{#each data.richData.images}}
-				{{#if (limit @index 3)}}
-					<div class="image" data-style="background-image: url({{this}})">Image</div>
-				{{/if}}
-			{{/each}}
-		</div>
 
 		<div extra="des" class="card__description">
 
