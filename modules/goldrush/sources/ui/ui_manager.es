@@ -166,7 +166,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   if (!filterGoToOffer) {
     // show coupon
     buttons.push({
-      label : 'Go to Offer',
+      label : 'Zum Angebot',
       accessKey : '1',
       callback : function () {
         if (self.callbacks.show_coupon) {
@@ -178,7 +178,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
 
   // not interested in this
   buttons.push({
-    label : 'Not interested',
+    label : 'Kein Interesse',
     accessKey : '3',
     callback : function () {
         if (self.callbacks.not_interested) {
@@ -189,7 +189,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
 
   // go and fu** urself
   buttons.push({
-    label : 'More Info',
+    label : 'Weitere Informationen',
     accessKey : '4',
     callback : function () {
         if (self.callbacks.information) {
