@@ -56,8 +56,15 @@ var GoldrushConfigs = {
   // the local storage file path to store the stats
   STATS_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/stats_db.json',
 
+  //////////////////////////////////////////////////////////////////////////////
+
   // store user stats
   USER_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/user_db.json',
+
+  // coupon information storage
+  COUPONS_DATA_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/coupons_data.json',
+  // coupon handler load old data (TODO: change this in the release to true)
+  COUPON_HANDLER_LOAD_FILE_FLAG: false,
 
   // offer fetcher temp cache
   TS_THRESHOLD: 1000 * 60

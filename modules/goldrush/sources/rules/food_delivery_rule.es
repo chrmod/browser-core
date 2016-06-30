@@ -44,7 +44,7 @@ export class FoodDeliveryRule extends Rule {
       },
       FID_hour_range_4_8 : {
         name : 'hour',
-        args: {'range': [4,5,6,7,8]}
+        args: {'range': [17,18,19,20]}
       },
       FID_day_range_5_6 : {
         name : 'day',
