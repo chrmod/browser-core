@@ -1,4 +1,5 @@
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 // fids
 import { TopHourFID }  from 'goldrush/fids/top_hour_fid';
 import { TopClusterVisitsFID } from 'goldrush/fids/top_cluster_visits_fid';
@@ -35,6 +36,7 @@ export class FIDsBuilder {
       break;
     }
     if (!fid) {
+      GoldrushConfigs.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME, 'We dont have the fid for name: ' + fidIDName);
     }
 
