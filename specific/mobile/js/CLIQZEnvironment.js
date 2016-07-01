@@ -65,9 +65,9 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
 
 CLIQZEnvironment = {
   BRANDS_DATA_URL: 'static/brands_database.json',
-  TEMPLATES_PATH: 'modules/mobile-ui/templates/',
-  LOCALE_PATH: 'modules/static/locale/',
-  SYSTEM_BASE_URL: 'modules/',
+  TEMPLATES_PATH: 'mobile-ui/templates/',
+  LOCALE_PATH: 'static/locale/',
+  SYSTEM_BASE_URL: './',
   RESULTS_LIMIT: 3,
   MIN_QUERY_LENGHT_FOR_EZ: 0,
   storeQueryTimeout: null,

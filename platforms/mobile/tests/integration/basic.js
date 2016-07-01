@@ -87,7 +87,7 @@ describe('Search View', function() {
     // to warm it up.
     this.timeout(10000);
     testBox = document.createElement("iframe");
-    testBox.setAttribute("class", "testFrame")
+    testBox.setAttribute("class", "testFrame");
     testBox.src = 	"/build/index.html";
     document.body.appendChild(testBox);
 
