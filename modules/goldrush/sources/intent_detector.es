@@ -1,6 +1,6 @@
 //import Reporter from 'goldrush/reporter';
 import LoggingHandler from 'goldrush/logging_handler';
-//import ResourceLoader from 'core/resource-loader';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 const MODULE_NAME = 'intent_detector';
@@ -27,6 +27,7 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
   }
   for (var dbName in rawDatabase) {
     if (!this.dbMap.hasOwnProperty(dbName)) {
+      GoldrushConfigs.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'The databasemap is missing the database with name: ' + dbName,
                            LoggingHandler.ERR_INTERNAL);
@@ -39,6 +40,7 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
     db.loadFromDict(rawDatabase[dbName]);
   }
 
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME,
     'databases loaded for intent detector of cluster ' + this.clusterID);
 
@@ -53,6 +55,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
   // get the rule from the builder
   this.rule = rulesBuilder.buildRule(this.clusterID);
   if (!this.rule) {
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'We couldnt build a rule for the cluster id: ' + this.clusterID,
                          LoggingHandler.ERR_INTERNAL);
@@ -62,6 +65,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
   // get the fidsMappings from the rule and parse it.
   var fidsMapping = this.rule.fidsMappings();
   if (!fidsMapping) {
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'We couldnt get a valid fidsMappings for the rule with '+
                          'clusterID: ' + this.clusterID,
@@ -70,6 +74,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
                     'clusterID: ' + this.clusterID);
   }
 
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'Reading fidMappings: ' + JSON.stringify(fidsMapping));
 
   // build all the needed fids for the rule itself (ensure we are not repeating this)
@@ -84,6 +89,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
     var fidName = ((fidMap) && (fidMap.hasOwnProperty('name'))) ? fidMap['name'] : null;
     var fidArgs = ((fidMap) && (fidMap.hasOwnProperty('args'))) ? fidMap['args'] : null;
     if (!fidName || !fidArgs) {
+      GoldrushConfigs.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'The rule has invalid format for the fids map, for ' +
                            'clusterID: ' + this.clusterID +
@@ -96,6 +102,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
     // now build the fid for this
     var fidInstance = fidsBuilder.buildFID(fidName);
     if (!fidInstance) {
+      GoldrushConfigs.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'We dont have fid with name ' + fidName + 'for ' +
                            'clusterID: ' + this.clusterID,
@@ -119,6 +126,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
     testResultData[id] = 1;
   }
   const testResult = this.rule.evaluate(testResultData);
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME,
                       'evaluating rule for clusterID: ' + this.clusterID + ' with '+
                       '\n fidsMapping: ' + JSON.stringify(fidsMapping) +
@@ -131,6 +139,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
 //
 IntentDetector.prototype.evaluateInput = function(intentInput) {
   if (!this.rule || !this.processedRuleData) {
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'We cannot process rule for cid: ' + this.clusterID,
                          LoggingHandler.ERR_INTERNAL);

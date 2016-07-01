@@ -13,7 +13,13 @@ var GoldrushConfigs = {
   HOUR: 60 * 60,
   DAY: 60 * 60 * 24,
 
-  CURRENT_VERSION: 0.1,
+  CURRENT_VERSION: 0.2,
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Logging system
+
+  // nasty approach to "simulate macros :("
+  LOG_ENABLED: true,
 
   //////////////////////////////////////////////////////////////////////////////
   // Offer Manager
@@ -35,7 +41,6 @@ var GoldrushConfigs = {
   HISTORY_EVENTS_TIME_DAYS: 10,
 
   // get the global flag if we need to switch or not
-  // TODO: this we can read it from the pref CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
   OFFER_SUBCLUSTER_SWITCH: true,
 
   // the redirect url to where we should point to when the user sees the offer
