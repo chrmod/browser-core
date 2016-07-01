@@ -21,16 +21,16 @@ export class NumEventsCurrSessionFID extends FID {
     this.lowerBound = 0;
     this.upperBound = 0;
 
-    this.configParams = {
-      'N' : {
-        description: 'N means the number of visits where we will activate this FID and return 1',
-        value: 1
-      },
-      'delta' : {
-        description: 'The delta number of visits to check',
-        value: 1
-      }
-    };
+    // this.configParams = {
+    //   'N' : {
+    //     description: 'N means the number of visits where we will activate this FID and return 1',
+    //     value: 1
+    //   },
+    //   'delta' : {
+    //     description: 'The delta number of visits to check',
+    //     value: 1
+    //   }
+    // };
   }
 
   configureDataBases(dbsMap) {
@@ -41,10 +41,6 @@ export class NumEventsCurrSessionFID extends FID {
     // set default values
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
-
-    // Set default values
-    this.lowerBound = this.configParams['N']['value'] - this.configParams['delta']['value'];
-    this.upperBound = this.configParams['N']['value'] + this.configParams['delta']['value'];
 
     if (configArgs['N'] < 0 || configArgs['delta'] < 0) {
       return;

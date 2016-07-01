@@ -39,9 +39,9 @@ export class FoodDeliveryRule extends Rule {
     // so to be more robust we will do the following
     //
     return {
-      FID_topClusterVisits_N5_delta2 : {
-        name : 'topClusterVisits',
-        args : {'N' : 5, 'delta' : 2}
+      FID_numEventsCurrSession_N5_delta2 : {
+        name : 'numEventsCurrSession',
+        args : {'N' : 5, 'delta': 2}
       },
       FID_offerShownCurrentSession : {
         name : 'offerShownCurrentSession',
@@ -76,8 +76,8 @@ export class FoodDeliveryRule extends Rule {
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'FidsValues: ' +
-                        '\n - fidsValuesMapping.FID_topClusterVisits_N5_delta2: ' +
-                        fidsValuesMapping.FID_topClusterVisits_N5_delta2 +
+                        '\n - fidsValuesMapping.FID_numEventsCurrSession_N5_delta2: ' +
+                        fidsValuesMapping.FID_numEventsCurrSession_N5_delta2 +
                         '\n - fidsValuesMapping.FID_hour_range_18_20: ' +
                          fidsValuesMapping.FID_hour_range_18_20 +
                          '\n - fidsValuesMapping.FID_day_range_5_6: ' +
@@ -100,7 +100,7 @@ export class FoodDeliveryRule extends Rule {
     }
 
     // else we need to check if we have 3 events
-    return (fidsValuesMapping.FID_topClusterVisits_N5_delta2 > 0.0) ? 1.0 : 0.0;
+    return (fidsValuesMapping.FID_numEventsCurrSession_N5_delta2 > 0.0) ? 1.0 : 0.0;
   }
 
 }

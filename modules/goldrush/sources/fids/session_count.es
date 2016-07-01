@@ -7,10 +7,6 @@ import GoldrushConfigs from 'goldrush/goldrush_configs';
 const MODULE_NAME = 'session_count_fid';
 
 //
-// @brief This FID will be used to filter (return 1/0) depending if we detected
-//        a signal in a range of time or not. This way we can stop showing an ad
-//        if we already did it in a N period of time.
-//
 export class SessionCountFID extends FID {
   constructor() {
     super('sessionCount');
