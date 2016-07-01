@@ -36,9 +36,13 @@ export class TravelRule extends Rule {
   //
   fidsMappings() {
     return {
-      FID_numEventsCurrSession_N5_delta0 : {
+      FID_numEventsCurrSession_N7_delta2 : {
         name : 'numEventsCurrSession',
-        args : {'N' : 3, 'delta' : 0}
+        args : {'N' : 7, 'delta' : 2}
+      },
+      FID_offerShownCurrentSession : {
+        name : 'offerShownCurrentSession',
+        args : {}
       },
       FID_sessionCount_range_2: {
         name: 'sessionCount',
@@ -65,15 +69,24 @@ export class TravelRule extends Rule {
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the topClusterVisits fid: ' +
-                         fidsValuesMapping.FID_numEventsCurrSession_N5_delta0);
+                         fidsValuesMapping.FID_numEventsCurrSession_N7_delta2);
 
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the sessionCount fid: ' +
                          fidsValuesMapping.FID_sessionCount_range_2);
 
-    if (fidsValuesMapping.FID_numEventsCurrSession_N5_delta0 == 1 &&
-        fidsValuesMapping.FID_sessionCount_range_2 == 1) {
+    // rule:
+    // (second session or greater) && (5th event or greater)
+
+    // check if we are in the first events
+    if (fidsValuesMapping.FID_offerShownCurrentSession > 0.0) {
+      // then we don't have to show anything here
+      return 0.0;
+    }
+
+    if (fidsValuesMapping.FID_numEventsCurrSession_N7_delta2 > 0.0 &&
+        fidsValuesMapping.FID_sessionCount_range_2 > 0.0) {
       return 1;
     }
     return 0;
