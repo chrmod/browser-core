@@ -16,6 +16,12 @@ var GoldrushConfigs = {
   CURRENT_VERSION: 0.2,
 
   //////////////////////////////////////////////////////////////////////////////
+  // Logging system
+
+  // nasty approach to "simulate macros :("
+  LOG_ENABLED: true,
+
+  //////////////////////////////////////////////////////////////////////////////
   // Offer Manager
 
   // the number of milliseconds we want to wait till we hide the add
@@ -35,13 +41,12 @@ var GoldrushConfigs = {
   HISTORY_EVENTS_TIME_DAYS: 10,
 
   // get the global flag if we need to switch or not
-  // TODO: this we can read it from the pref CliqzUtils.getPref(OM_AB_SUBC_SWITCH_KEY, true);
   OFFER_SUBCLUSTER_SWITCH: true,
 
   // the redirect url to where we should point to when the user sees the offer
   // and click on "more info"
   // TODO: define this url to the correct place.
-  OFFER_INFORMATION_URL: 'https://cliqz.com/aboutus/team',
+  OFFER_INFORMATION_URL: 'https://cliqz.com/products/cliqz-for-desktop/cliqz-angebote',
 
   //////////////////////////////////////////////////////////////////////////////
   // Offer Fetcher
@@ -56,8 +61,15 @@ var GoldrushConfigs = {
   // the local storage file path to store the stats
   STATS_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/stats_db.json',
 
+  //////////////////////////////////////////////////////////////////////////////
+
   // store user stats
   USER_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/user_db.json',
+
+  // coupon information storage
+  COUPONS_DATA_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/coupons_data.json',
+  // coupon handler load old data (TODO: change this in the release to true)
+  COUPON_HANDLER_LOAD_FILE_FLAG: false,
 
   // offer fetcher temp cache
   TS_THRESHOLD: 1000 * 60

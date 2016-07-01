@@ -1,6 +1,7 @@
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 const MODULE_NAME = 'intent_input';
 
@@ -37,7 +38,7 @@ BuyIntentSession.prototype.numOfDifferentDomains = function() {
   return this.visitedDomainsIDs.size();
 };
 
-BuyIntentSession.prototype.currentSession = function() {
+BuyIntentSession.prototype.getCurrentSession = function() {
   return this.currentSession;
 };
 
@@ -54,7 +55,7 @@ BuyIntentSession.prototype.firstIntentEvent = function() {
 };
 
 BuyIntentSession.prototype.firstCurrSessionEvent = function() {
-  return this.currentSession.length === 0 ? null : this.currentSession[this.currentSession.length - 1];
+  return this.currentSession.length === 0 ? null : this.currentSession[0];
 };
 
 BuyIntentSession.prototype.checkTimestampIsInCurrSession = function(ts) {
@@ -63,7 +64,7 @@ BuyIntentSession.prototype.checkTimestampIsInCurrSession = function(ts) {
   }
   let firstEventInSession = this.firstCurrSessionEvent();
   let difftime = ts - firstEventInSession.ts;
-  return difftime > this.sessionTimeMs;
+  return difftime <= this.sessionTimeMs;
 };
 
 BuyIntentSession.prototype.thereWasACheckout = function() {
@@ -91,6 +92,7 @@ BuyIntentSession.prototype.addEvent = function(event) {
   this.rawEvents.push(event);
 
   if (!this.checkTimestampIsInCurrSession(currTimestamp)) {
+    LoggingHandler.info("SR", "creating new session");
     this.sessions.push(this.currentSession);
     this.currentSession = [];
   }
@@ -112,6 +114,7 @@ BuyIntentSession.prototype.addEvent = function(event) {
 
 ////////////////////////////////////////////////////////////////////////////////
 export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'Created new IntentInput object');
   this.sessionTimeMs = sessionTimeSecs * 1000;
   this.buyIntentTimeMs = buyIntentThresholdSecs * 1000;
@@ -180,6 +183,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
   isNewBuyIntentSession = isNewBuyIntentSession || (this.currBuyIntent.thereWasACheckout() &&
                                                     this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
 
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME,
     'isNewBuyIntentSession: ' + isNewBuyIntentSession +
     ' - beginBuyIntentTime: ' + beginBuyIntentTime +
@@ -189,6 +193,8 @@ IntentInput.prototype.feedWithEvent = function(event) {
     ' - timeDiff: ' + timeDiff);
 
   if (isNewBuyIntentSession) {
+    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.info("SR", "creating new buyIntentSessions");
     // then we need to create a new one and replace the last one
     // NOTE: for now we will comment this:
     // this.buyIntentSessions.push(this.currBuyIntent);
@@ -197,6 +203,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
     //
     this.buyIntentIDCount++;
     this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeMs);
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'generating new buy intent session!');
   }
 

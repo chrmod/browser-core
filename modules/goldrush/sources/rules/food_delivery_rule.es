@@ -1,5 +1,6 @@
 import { Rule } from 'goldrush/rules/rule';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 
@@ -10,7 +11,6 @@ const MODULE_NAME = 'food_delivery_rule';
 ////////////////////////////////////////////////////////////////////////////////
 // define local FIDS ids for the internal map
 //
-const FID_topClusterVisits_N3_delta1 = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,10 +35,29 @@ export class FoodDeliveryRule extends Rule {
   // (in the future we can automatically check this.)
   //
   fidsMappings() {
+    // we want to show after the 3th event:
+    // so to be more robust we will do the following
+    //
     return {
-      FID_topClusterVisits_N3_delta1 : {
-        name : 'topClusterVisits',
-        args : {'N' : 3, 'delta' : 1}
+      FID_numEventsCurrSession_N5_delta2 : {
+        name : 'numEventsCurrSession',
+        args : {'N' : 5, 'delta': 2}
+      },
+      FID_offerShownCurrentSession : {
+        name : 'offerShownCurrentSession',
+        args : {}
+      },
+      FID_checkoutCurrIntentSession : {
+        name : 'checkoutCurrIntentSession',
+        args : {}
+      },
+      FID_hour_range_18_20 : {
+        name : 'hour',
+        args: {'range': [18,19,20]}
+      },
+      FID_day_range_5_6 : {
+        name : 'day',
+        args: {'range': [5,6]}
       }
     };
   }
@@ -58,14 +77,35 @@ export class FoodDeliveryRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
-    LoggingHandler.error(MODULE_NAME,
-                         'returning only the value of the fid: ' +
-                         fidsValuesMapping.FID_topClusterVisits_N3_delta1);
-    return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
+    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.info(MODULE_NAME,
+                        'FidsValues: ' +
+                        '\n - fidsValuesMapping.FID_numEventsCurrSession_N5_delta2: ' +
+                        fidsValuesMapping.FID_numEventsCurrSession_N5_delta2 +
+                        '\n - fidsValuesMapping.FID_hour_range_18_20: ' +
+                         fidsValuesMapping.FID_hour_range_18_20 +
+                         '\n - fidsValuesMapping.FID_day_range_5_6: ' +
+                         fidsValuesMapping.FID_day_range_5_6);
+
+    // rule is:
+    // - after third event on the first session
+    // - or friday | sat , between 6-8pm => first event.
+
+    // check if we are in the first events
+    if ((fidsValuesMapping.FID_offerShownCurrentSession > 0.0) ||
+        (fidsValuesMapping.FID_checkoutCurrIntentSession > 0.0)) {
+      // then we don't have to show anything here
+      return 0.0;
+    }
+
+    // now check if the we are in one of the good day / timing
+    if ((fidsValuesMapping.FID_hour_range_18_20 > 0.0) &&
+        (fidsValuesMapping.FID_day_range_5_6 > 0.0)) {
+      return 1.0;
+    }
+
+    // else we need to check if we have 3 events
+    return (fidsValuesMapping.FID_numEventsCurrSession_N5_delta2 > 0.0) ? 1.0 : 0.0;
   }
 
-
 }
-
-
-

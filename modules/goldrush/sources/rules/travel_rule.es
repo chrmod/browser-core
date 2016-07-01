@@ -1,5 +1,6 @@
 import { Rule } from 'goldrush/rules/rule';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 
@@ -10,7 +11,6 @@ const MODULE_NAME = 'travel_rule';
 ////////////////////////////////////////////////////////////////////////////////
 // define local FIDS ids for the internal map
 //
-const FID_topClusterVisits_N3_delta1 = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,9 +36,21 @@ export class TravelRule extends Rule {
   //
   fidsMappings() {
     return {
-      FID_topClusterVisits_N3_delta1 : {
-        name : 'topClusterVisits',
-        args : {'N' : 3, 'delta' : 1}
+      FID_numEventsCurrSession_N7_delta2 : {
+        name : 'numEventsCurrSession',
+        args : {'N' : 7, 'delta' : 2}
+      },
+      FID_offerShownCurrentSession : {
+        name : 'offerShownCurrentSession',
+        args : {}
+      },
+      FID_checkoutCurrIntentSession : {
+        name : 'checkoutCurrIntentSession',
+        args : {}
+      },
+      FID_sessionCount_range_2: {
+        name: 'sessionCount',
+        args: {'range': [2]}
       }
     };
   }
@@ -58,10 +70,31 @@ export class TravelRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
-                         'returning only the value of the fid: ' +
-                         fidsValuesMapping.FID_topClusterVisits_N3_delta1);
-    return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
+                         'returning only the value of the topClusterVisits fid: ' +
+                         fidsValuesMapping.FID_numEventsCurrSession_N7_delta2);
+
+    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.error(MODULE_NAME,
+                         'returning only the value of the sessionCount fid: ' +
+                         fidsValuesMapping.FID_sessionCount_range_2);
+
+    // rule:
+    // (second session or greater) && (5th event or greater)
+
+    // check if we are in the first events
+    if ((fidsValuesMapping.FID_offerShownCurrentSession > 0.0)  ||
+        (fidsValuesMapping.FID_checkoutCurrIntentSession > 0.0)) {
+      // then we don't have to show anything here
+      return 0.0;
+    }
+
+    if (fidsValuesMapping.FID_numEventsCurrSession_N7_delta2 > 0.0 &&
+        fidsValuesMapping.FID_sessionCount_range_2 > 0.0) {
+      return 1;
+    }
+    return 0;
   }
 
 

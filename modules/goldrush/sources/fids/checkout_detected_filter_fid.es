@@ -4,12 +4,12 @@ import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 //
 // @brief This FID will be used to filter (return 1/0) depending if we detected
-//        a signal in a range of time or not. This way we can stop showing an ad
+//        a checkout in a range of time or not. This way we can stop showing an ad
 //        if we already did it in a N period of time.
 //
-export class SignalDetectedFilterFID extends FID {
+export class CheckoutDetectedFilterFID extends FID {
   constructor() {
-    super('signalDetectedFilter');
+    super('checkoutDetectedFilter');
     this.args = {};
     // the user database
     this.userDB = null;
@@ -24,7 +24,7 @@ export class SignalDetectedFilterFID extends FID {
 
   configureDataBases(dbsMap) {
     // user_db is the name of the database
-    // 'last_ad_shown' is the name of the key -> ts (number)
+    // 'last_checkout' is the name of the key -> ts (number)
     //
     if (dbsMap['user_db']) {
       this.userDB = dbsMap['user_db'];
@@ -48,7 +48,7 @@ export class SignalDetectedFilterFID extends FID {
   evaluate(intentInput, extras) {
     // we check if the variable exists, if not then we don't have nothing
     // to check
-    if (!this.userDB['last_ad_shown']) {
+    if (!this.userDB['last_checkout']) {
       return 1.0;
     }
 
@@ -56,8 +56,8 @@ export class SignalDetectedFilterFID extends FID {
     // to return 1
     let intentSession = intentInput.currentBuyIntentSession();
     const eventTimestamp = intentSession.lastEvent()['ts'];
-    const lastAdShownTimestamp = Number(this.userDB['last_ad_shown']);
-    const diffTime = eventTimestamp - lastAdShownTimestamp;
+    const lastCheckoutTimestamp = Number(this.userDB['last_checkout']);
+    const diffTime = eventTimestamp - lastCheckoutTimestamp;
     return (diffTime >= this.args['deltaSecs']) ? 1.0 : 0.0;
   }
 }
