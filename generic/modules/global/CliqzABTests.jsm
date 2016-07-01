@@ -255,6 +255,13 @@ var CliqzABTests = {
             case "1068_B":
                 CliqzUtils.setPref("languageDedup", true);
                 break;
+            case "1069_A":
+                CliqzUtils.setPref("grOfferSwitchFlag", false);
+                break;
+            case "1069_B":
+                CliqzUtils.setPref("grOfferSwitchFlag", true);
+                break;
+
             default:
                 rule_executed = false;
         }
@@ -380,6 +387,10 @@ var CliqzABTests = {
             case "1068_B":
                 CliqzUtils.clearPref("languageDedup");
                 break;
+            case "1069_A":
+            case "1069_B":
+                CliqzUtils.clearPref("grOfferSwitchFlag");
+            break;
             default:
                 rule_executed = false;
         }

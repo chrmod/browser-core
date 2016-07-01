@@ -41,6 +41,7 @@ export default background({
       '                           NEW SESSION STARTED\n' +
       'Version: ' + GoldrushConfigs.CURRENT_VERSION + '\n' +
       'timestamp: ' + Date.now() + '\n' +
+      'switchFlag: ' + GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH + '\n' +
       '------------------------------------------------------------------------\n'
       );
   },
