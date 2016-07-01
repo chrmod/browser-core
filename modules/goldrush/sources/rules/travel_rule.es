@@ -1,5 +1,6 @@
 import { Rule } from 'goldrush/rules/rule';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 
@@ -61,6 +62,7 @@ export class TravelRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the topClusterVisits fid: ' +
                          fidsValuesMapping.FID_numEventsCurrSession_N5_delta0);

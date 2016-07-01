@@ -1,6 +1,7 @@
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 const MODULE_NAME = 'intent_input';
 
@@ -113,6 +114,7 @@ BuyIntentSession.prototype.addEvent = function(event) {
 
 ////////////////////////////////////////////////////////////////////////////////
 export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'Created new IntentInput object');
   this.sessionTimeMs = sessionTimeSecs * 1000;
   this.buyIntentTimeMs = buyIntentThresholdSecs * 1000;
@@ -181,6 +183,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
   isNewBuyIntentSession = isNewBuyIntentSession || (this.currBuyIntent.thereWasACheckout() &&
                                                     this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
 
+  GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME,
     'isNewBuyIntentSession: ' + isNewBuyIntentSession +
     ' - beginBuyIntentTime: ' + beginBuyIntentTime +
@@ -199,6 +202,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
     //
     this.buyIntentIDCount++;
     this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeMs);
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'generating new buy intent session!');
   }
 
