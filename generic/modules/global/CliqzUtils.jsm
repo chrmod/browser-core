@@ -695,7 +695,7 @@ var CliqzUtils = {
     var doDedup = CliqzUtils.getPref("languageDedup", false);
     if (doDedup) return '&ddl=0';
     else return ""
-  },  
+  },
   encodeFilter: function() {
     var data = {
       'conservative': 3,
@@ -804,9 +804,6 @@ var CliqzUtils = {
   isPrivate: CLIQZEnvironment.isPrivate,
   telemetry: CLIQZEnvironment.telemetry,
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
-    var current_window = CliqzUtils.getWindow();
-    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
-
     CliqzUtils.setResultOrder(resultOrder);
     var params = encodeURIComponent(query) +
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
