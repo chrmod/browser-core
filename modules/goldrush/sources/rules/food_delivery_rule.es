@@ -1,4 +1,5 @@
 import { Rule } from 'goldrush/rules/rule';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 import LoggingHandler from 'goldrush/logging_handler';
 
 
@@ -38,7 +39,7 @@ export class FoodDeliveryRule extends Rule {
     return {
       FID_topClusterVisits_N3_delta1 : {
         name : 'topClusterVisits',
-        args : {'N' : 2, 'delta' : 0}
+        args : {'N' : 3, 'delta' : 1}
       }
     };
   }
@@ -58,6 +59,7 @@ export class FoodDeliveryRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the fid: ' +
                          fidsValuesMapping.FID_topClusterVisits_N3_delta1);
