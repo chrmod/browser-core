@@ -76,7 +76,7 @@ var mobile = new MergeTrees([
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
   new Funnel(modules.bowerComponents, { destDir: 'bower_components' }),
-  new Funnel(modules.modules,         { destDir: 'modules' })
+  modules.modules
 ]);
 
 var platformTests = new Funnel('platforms/'+cliqzConfig.platform, {
@@ -100,13 +100,13 @@ if (cliqzConfig.buildEnv === 'production' ) {
 }
 
 var configTree = util.injectConfig(mobile, config, 'cliqz.json', [
-  'modules/core/config.js'
+  'core/config.js'
 ]);
 
 var outputTree = new MergeTrees([
   mobile,
   configTree,
-  new Funnel(testsTree, { destDir: 'modules/tests'})
+  new Funnel(testsTree, { destDir: 'tests'})
 ], { overwrite: true });
 
 // Output
