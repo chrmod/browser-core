@@ -29,6 +29,7 @@ export class SessionCountFID extends FID {
 
   configureArgs(configArgs) {
      // set default values
+     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
     // set default values
@@ -41,6 +42,7 @@ export class SessionCountFID extends FID {
         this.args[arg_idx] = configArgs[arg_idx];
     }
 
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'this.args: ' + JSON.stringify(this.args));
   }
 
@@ -50,6 +52,7 @@ export class SessionCountFID extends FID {
     let intentSession = intentInput.currentBuyIntentSession();
     const numSessions = intentSession.numOfSessions();
 
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'numSessions: ' + numSessions +
                         ' range ' + JSON.stringify(this.args));

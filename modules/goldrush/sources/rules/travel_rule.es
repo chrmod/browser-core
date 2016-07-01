@@ -67,6 +67,7 @@ export class TravelRule extends Rule {
                          'returning only the value of the topClusterVisits fid: ' +
                          fidsValuesMapping.FID_numEventsCurrSession_N5_delta0);
 
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the sessionCount fid: ' +
                          fidsValuesMapping.FID_sessionCount_range_2);

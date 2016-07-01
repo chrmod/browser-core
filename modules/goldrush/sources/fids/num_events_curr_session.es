@@ -38,6 +38,7 @@ export class NumEventsCurrSessionFID extends FID {
 
   configureArgs(configArgs) {
     // set default values
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
     // Set default values
@@ -58,6 +59,7 @@ export class NumEventsCurrSessionFID extends FID {
     // number of events
     let intentSession = intentInput.currentBuyIntentSession();
     const numOfEvents = intentSession.getCurrentSession().length;
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'numOfEvents: ' + numOfEvents +
                         ' - this.lowerBound: ' + this.lowerBound +
