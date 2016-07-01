@@ -85,7 +85,11 @@ export class FoodDeliveryRule extends Rule {
                         '\n - fidsValuesMapping.FID_hour_range_18_20: ' +
                          fidsValuesMapping.FID_hour_range_18_20 +
                          '\n - fidsValuesMapping.FID_day_range_5_6: ' +
-                         fidsValuesMapping.FID_day_range_5_6);
+                         fidsValuesMapping.FID_day_range_5_6 +
+                         '\n - fidsValuesMapping.FID_offerShownCurrentSession:  ' +
+                         fidsValuesMapping.FID_offerShownCurrentSession +
+                         '\n - fidsValuesMapping.FID_checkoutCurrIntentSession: ' +
+                         fidsValuesMapping.FID_checkoutCurrIntentSession);
 
     // rule is:
     // - after third event on the first session

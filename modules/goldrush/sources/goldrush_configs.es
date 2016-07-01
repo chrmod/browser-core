@@ -51,7 +51,7 @@ var GoldrushConfigs = {
   //////////////////////////////////////////////////////////////////////////////
   // Offer Fetcher
 
-  OFFER_FETCHER_DEST_URL: 'http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&',
+  OFFER_FETCHER_DEST_URL: 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=vouchers.cliqz.com&',
 
   //////////////////////////////////////////////////////////////////////////////
   // Stats handler
