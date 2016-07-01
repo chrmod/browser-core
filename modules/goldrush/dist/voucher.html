@@ -54,7 +54,13 @@
         padding: 5px;
         border-radius: 3px;
         background-color: #bbbbbb;
+    }
 
+
+    #copy-coupon {
+        padding: 5px;
+        border-radius: 3px;
+        visibility: hidden;
     }
 
     #cliqz-coupon:hover {
@@ -102,6 +108,7 @@
             {{#if code}}
                 <p><b>CODE:</b></p>
                 <p id="cliqz-coupon" cliqz-action="copy_val">{{code}}</p>
+                <span id="copy-coupon">Code kopiert</span>
             {{/if}}
         </div>
     </div>

@@ -228,6 +228,12 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
     couponElement.onclick = function () {
       CLIQZEnvironment.copyResult(this.innerHTML);
       if (self.callbacks.cp_to_clipboard) {
+        try {
+          var copyText = currWindow.document.getElementById('copy-coupon');
+          copyText.style.visibility = 'visible';
+        } catch (ee) {
+          // nothing here
+        }
         self.callbacks.cp_to_clipboard(offerID);
       }
     };
