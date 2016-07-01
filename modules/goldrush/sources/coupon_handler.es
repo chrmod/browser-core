@@ -80,6 +80,11 @@ export class CouponHandler {
       return;
     }
     var localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
+
+    if (GoldrushConfigs.COUPON_HANDLER_RESET_FILE) {
+      localStorage.setItem('coupons_data', JSON.stringify(this.couponData));
+    }
+
     var cache = localStorage.getItem('coupons_data');
     if (cache) {
       this.couponData = JSON.parse(cache);
