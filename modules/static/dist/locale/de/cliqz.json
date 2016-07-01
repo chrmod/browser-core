@@ -146,6 +146,33 @@
     "btnSafeSearch":{
         "message": "Ich nehme teil"
     },
+    "anti-phishing": {
+        "message": "Phishing Schutz"
+    },
+    "anti-phishing-enabled": {
+        "message": "Aktiviert"
+    },
+    "anti-phishing-txt0": {
+        "message": "Warnung: betrügerische Website!"
+    },
+    "anti-phishing-txt1": {
+        "message": "CLIQZ hat den Zugriff auf ("
+    },
+    "anti-phishing-txt2": {
+        "message": ") blockiert, weil diese Seite als Phishing-Website gemeldet wurde. Phishing-Websites geben vor, vertrauenswürdig zu sein, damit du deine Anmeldedaten, dein Passwort oder andere vertrauliche Informationen preisgibst."
+    },
+    "anti-phishing-txt3": {
+        "message": "Mehr erfahren"
+    },
+    "anti-phishing-txt4": {
+        "message": "Zurück zu sicherer Seite"
+    },
+    "anti-phishing-txt5": {
+        "message": "Diese Seite als sicher melden"
+    },
+    "anti-phishing-txt6": {
+        "message": "Trotz der Warnung fortfahren"
+    },
     "btnSafeSearchDesc":{
         "message": "Was ist das?"
     },
