@@ -10,9 +10,6 @@ const MODULE_NAME = 'food_delivery_rule';
 ////////////////////////////////////////////////////////////////////////////////
 // define local FIDS ids for the internal map
 //
-const FID_topClusterVisits_N3_delta1 = 0;
-const FID_hour_range_4_8 = 1;
-const FID_day_range_5_6 = 2;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,13 +35,13 @@ export class FoodDeliveryRule extends Rule {
   //
   fidsMappings() {
     return {
-      FID_topClusterVisits_N3_delta1 : {
+      FID_topClusterVisits_N3_delta0 : {
         name : 'topClusterVisits',
-        args : {'N' : 2, 'delta' : 0}
+        args : {'N' : 3, 'delta' : 0}
       },
-      FID_hour_range_4_8 : {
+      FID_hour_range_18_20 : {
         name : 'hour',
-        args: {'range': [17,18,19,20]}
+        args: {'range': [18,19,20]}
       },
       FID_day_range_5_6 : {
         name : 'day',
@@ -68,16 +65,21 @@ export class FoodDeliveryRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
-    LoggingHandler.error(MODULE_NAME,
+    LoggingHandler.info(MODULE_NAME,
                          'returning only the value of the visits fid: ' +
                          fidsValuesMapping.FID_topClusterVisits_N3_delta1);
-    LoggingHandler.error(MODULE_NAME,
+    LoggingHandler.info(MODULE_NAME,
                      'returning only the value of the hour fid: ' +
                      fidsValuesMapping.FID_hour_range_4_8);
-    LoggingHandler.error(MODULE_NAME,
+    LoggingHandler.info(MODULE_NAME,
                      'returning only the value of the day fid: ' +
                        fidsValuesMapping.FID_day_range_5_6);
-    return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
+    if(fidsValuesMapping.FID_topClusterVisits_N3_delta0 === 1) {
+      return 1.0;
+    } else if (fidsValuesMapping.FID_hour_range_18_20 === 1 && fidsValuesMapping.FID_day_range_5_6 === 1) {
+      return 1.0;
+    }
+    return 0;
   }
 
 
