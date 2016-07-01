@@ -193,7 +193,8 @@ IntentInput.prototype.feedWithEvent = function(event) {
     ' - timeDiff: ' + timeDiff);
 
   if (isNewBuyIntentSession) {
-    LoggingHandler("SR", "creating new buyIntentSessions");
+    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.info("SR", "creating new buyIntentSessions");
     // then we need to create a new one and replace the last one
     // NOTE: for now we will comment this:
     // this.buyIntentSessions.push(this.currBuyIntent);
