@@ -7,6 +7,7 @@ import { CheckoutDetectedFilterFID } from 'goldrush/fids/checkout_detected_filte
 import { HourFID } from 'goldrush/fids/hour_fid';
 import { DayFID } from 'goldrush/fids/day_fid';
 import { SessionCountFID } from 'goldrush/fids/session_count';
+import { NumEventsCurrSessionFID } from 'goldrush/fids/num_events_curr_session';
 
 
 const MODULE_NAME = 'fids_builder';
@@ -42,6 +43,9 @@ export class FIDsBuilder {
       break;
     case 'sessionCount':
       fid = new SessionCountFID();
+      break;
+    case 'numEventsCurrSession':
+      fid = new NumEventsCurrSessionFID();
       break;
     default:
       // nothing to do

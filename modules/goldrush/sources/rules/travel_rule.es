@@ -35,9 +35,9 @@ export class TravelRule extends Rule {
   //
   fidsMappings() {
     return {
-      FID_topClusterVisits_N5_delta0 : {
-        name : 'topClusterVisits',
-        args : {'N' : 5, 'delta' : 0}
+      FID_numEventsCurrSession_N5_delta0 : {
+        name : 'numEventsCurrSession',
+        args : {'N' : 3, 'delta' : 0}
       },
       FID_sessionCount_range_2: {
         name: 'sessionCount',
@@ -63,13 +63,13 @@ export class TravelRule extends Rule {
   evaluate(fidsValuesMapping) {
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the topClusterVisits fid: ' +
-                         fidsValuesMapping.FID_topClusterVisits_N5_delta0);
+                         fidsValuesMapping.FID_numEventsCurrSession_N5_delta0);
 
     LoggingHandler.error(MODULE_NAME,
                          'returning only the value of the sessionCount fid: ' +
                          fidsValuesMapping.FID_sessionCount_range_2);
 
-    if (fidsValuesMapping.FID_topClusterVisits_N5_delta0 == 1 &&
+    if (fidsValuesMapping.FID_numEventsCurrSession_N5_delta0 == 1 &&
         fidsValuesMapping.FID_sessionCount_range_2 == 1) {
       return 1;
     }

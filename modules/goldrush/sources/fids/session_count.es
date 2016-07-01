@@ -50,8 +50,6 @@ export class SessionCountFID extends FID {
     let intentSession = intentInput.currentBuyIntentSession();
     const numSessions = intentSession.numOfSessions();
 
-    LoggingHandler.info("SR", "session list" + intentSession.sessionList());
-
     LoggingHandler.info(MODULE_NAME,
                         'numSessions: ' + numSessions +
                         ' range ' + JSON.stringify(this.args));
