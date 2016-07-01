@@ -18,6 +18,9 @@ export default background({
   },
 
   init(settings) {
+    // configure the preferences here
+    GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', true);
+
     // init the logging
     LoggingHandler.init();
 
