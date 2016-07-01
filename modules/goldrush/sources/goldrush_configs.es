@@ -31,17 +31,17 @@ var GoldrushConfigs = {
   INTENT_SESSION_THRESHOLD_SECS: 60 * 30,
   // the buying intent threshold time in secs (this will split different buying
   // intention sessions)
-  BUY_INTENT_SESSION_THRESHOLD_SECS: 60 * 60 * 24 * 10,
+  BUY_INTENT_SESSION_THRESHOLD_SECS: 60 * 60 * 24 * 7,
 
   // the flag indicating if we should load the history or not
-  LOAD_HISTORY_EVENTS: false, // TODO: set it to true
+  LOAD_HISTORY_EVENTS: true, // TODO: set it to true
 
   // how many days / hours of history we should load into the system to feed
   // the intent input system
   HISTORY_EVENTS_TIME_DAYS: 7,
 
   // get the global flag if we need to switch or not
-  OFFER_SUBCLUSTER_SWITCH: true,
+  OFFER_SUBCLUSTER_SWITCH: false,
 
   // the redirect url to where we should point to when the user sees the offer
   // and click on "more info"
@@ -70,7 +70,7 @@ var GoldrushConfigs = {
   COUPONS_DATA_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/coupons_data.json',
   // coupon handler load old data (TODO: change this in the release to true)
   COUPON_HANDLER_LOAD_FILE_FLAG: true,
-  COUPON_HANDLER_RESET_FILE: true,
+  COUPON_HANDLER_RESET_FILE: false,
 
   // offer fetcher temp cache
   TS_THRESHOLD: 1000 * 60
