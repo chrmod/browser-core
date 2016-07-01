@@ -20,7 +20,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       md5 = CliqzHumanWeb._md5,
       module_enabled = CliqzUtils.getPref('antiTrackTest', false),
       window = CliqzUtils.getWindow(),
-      hour = datetime.hourString(datetime.newUTCDate());
+      hour = datetime.hourString(datetime.newUTCDate()),
+      versionUnderTest = parseInt(getBrowserVersion().substring(0, 2));
 
     /** Collects metadata from the request and pushes it into the
       echoed array. Also sets cookie and access control headers.
@@ -226,6 +227,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
           //chai.expect(actual_stats).to.include.keys(Object.keys(expected_stats));
           for (var stat_key in actual_stats) {
             if (stat_key == 'paths' || stat_key == 'resp_ob' || stat_key == 'not_cached' || stat_key == 'cached') { continue; }
+            // skip window_depth test for old FF versions
+            if (stat_key.startsWith('window_depth') && versionUnderTest <= 38) { continue; }
             // stat should be 0 unless otherwise specified
             var expected = 0;
             if (stat_key in expected_stats) {
@@ -285,7 +288,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_2': 1,
                 'content_length': 2,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_0': 1
               }
             }
           }
@@ -301,7 +306,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_2': 1,
                 'content_length': 2,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_0': 1
               }
             }
           }
@@ -317,7 +324,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_3': 1,
                 'content_length': 42,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_0': 1
               }
             }
           }
@@ -333,7 +342,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_11': 1,
                 'content_length': 2,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_0': 1
               }
             }
           }
@@ -347,7 +358,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'type_7': 1,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_1': 1
               },
               '/test': {
                 'c': 1,
@@ -355,13 +368,17 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_11': 1,
                 'content_length': 2,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_1': 1
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
                 'type_2': 1,
                 'cookie_set': 1,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_1': 1
               }
             }
           }
@@ -377,7 +394,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_3': 1,
                 'content_length': 42,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_0': 1
               }
             }
           }
@@ -391,7 +410,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'c': 1,
                 'cookie_set': 1,
                 'type_7': 1,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_2': 1
               },
               '/test': {
                 'c': 1,
@@ -399,20 +420,26 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'has_qs': 1,
                 'type_11': 1,
                 'content_length': 2,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_2': 1
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
                 'type_2': 1,
                 'cookie_set': 1,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_2': 1
               }
             },
             'cliqztest.de': {
               '/proxyiframe.html': {
                 'c': 1,
                 'type_7': 1,
-                'status_200': 1
+                'status_200': 1,
+                'scheme_http': 1,
+                'window_depth_1': 1
               }
             }
           }

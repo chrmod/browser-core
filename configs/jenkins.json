@@ -1,5 +1,7 @@
 {
   "platform": "firefox",
+  "testsBasePath": "./build/cliqz@cliqz.com/chrome/content",
+  "testem_launchers": ["Mocha"],
   "settings": {
     "freshTabButton": false,
     "freshTabABtest" : false,

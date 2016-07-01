@@ -80,7 +80,7 @@ export default class {
         CliqzUtils.getLocalizedString('context-menu-search-item',
           trim(selection)));
 
-      const isFreshtab = CliqzUtils.getWindow().content.document.URL === 'about:cliqz';
+      const isFreshtab = CliqzUtils.getWindow().gBrowser.currentURI.spec === 'about:cliqz';
       this.menuItem.addEventListener(
           'click', this.clickHandler.bind(this, selection, {
             openInNewTab: !isFreshtab

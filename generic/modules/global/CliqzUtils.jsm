@@ -695,7 +695,7 @@ var CliqzUtils = {
     var doDedup = CliqzUtils.getPref("languageDedup", false);
     if (doDedup) return '&ddl=0';
     else return ""
-  },  
+  },
   encodeFilter: function() {
     var data = {
       'conservative': 3,
@@ -804,9 +804,6 @@ var CliqzUtils = {
   isPrivate: CLIQZEnvironment.isPrivate,
   telemetry: CLIQZEnvironment.telemetry,
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
-    var current_window = CliqzUtils.getWindow();
-    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
-
     CliqzUtils.setResultOrder(resultOrder);
     var params = encodeURIComponent(query) +
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
@@ -833,20 +830,17 @@ var CliqzUtils = {
   locale: {},
   currLocale: null,
   loadLocale: function (lang_locale) {
-    var promises = [];
-    // The default language
-    if (!CliqzUtils.locale.hasOwnProperty('default')) {
-      promises.push(CliqzUtils.getLocaleFile('de', 'default'));
-    }
-    if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
-      promises.push(CliqzUtils.getLocaleFile(encodeURIComponent(lang_locale), lang_locale).catch(function() {
+    if (!CliqzUtils.locale.hasOwnProperty(lang_locale) && !CliqzUtils.locale.hasOwnProperty('default')) {
+      return CliqzUtils.getLocaleFile(encodeURIComponent(lang_locale), lang_locale).catch(function() {
         // We did not find the full locale (e.g. en-GB): let's try just the
         // language!
         var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
-        return CliqzUtils.getLocaleFile(loc, lang_locale);
-      }));
+        return CliqzUtils.getLocaleFile(loc, lang_locale).catch(function () {
+          // The default language
+          return CliqzUtils.getLocaleFile('de', 'default');
+        });
+      });
     }
-    return Promise.all(promises);
   },
   getLocaleFile: function (locale_path, locale_key) {
     return new Promise (function (resolve, reject) {

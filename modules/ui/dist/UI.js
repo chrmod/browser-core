@@ -175,7 +175,7 @@ var UI = {
           firstResult.url = firstResult.data.urls[0].href;
 
         if(firstResult.url){
-          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title, firstResult.data);
+          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title);
         }
 
         snippetQualityTelemetry(curResAll);
@@ -1504,15 +1504,19 @@ function logUIEvent(el, historyLogType, extraData, query) {
         action[key] = extraData[key];
       }
       CliqzUtils.telemetry(action);
-      CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
-          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
-      if (!CLIQZEnvironment.isPrivate() && isValidURL(url)) {
-        CliqzEvents.pub("ui:click-on-url", {
-          url: decodeURIComponent(url),
-          query: CliqzAutocomplete.lastSearch,
-          type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
-          positionType: action.position_type
-        });
+
+      // no resultTelemetry on private windows
+      if(!CLIQZEnvironment.isPrivate(window)){
+        CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
+            CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
+        if (isValidURL(url)) {
+          CliqzEvents.pub("ui:click-on-url", {
+            url: decodeURIComponent(url),
+            query: CliqzAutocomplete.lastSearch,
+            type: CliqzUtils.isPrivateResultType(action.position_type) ? 'othr' : 'cl',
+            positionType: action.position_type
+          });
+        }
       }
     }
     if(!window.gBrowser)return;

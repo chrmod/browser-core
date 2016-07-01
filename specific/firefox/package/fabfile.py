@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader
 import jsstrip
 
 import sys
-sys.path.append("../..")
+sys.path.append("..")
 from fern.submitter import Submitter
 
 NAME = "Cliqz"
@@ -41,7 +41,7 @@ def get_version(beta='True'):
     # full_version = 'images'
     version_parts = full_version.split("-")
 
-    with open('../../package.json') as package_json_file:
+    with open('../package.json') as package_json_file:
         package_json = json.load(package_json_file)
         version = package_json['version']
 
@@ -103,10 +103,10 @@ def package(beta='True', version=None, sign='False', channel='browser'):
         # signs the XPI with the CLIQZ certificate
 
         # look for xpi-sign report on the same level as navigation-extension
-        local( ("python ../../xpi-sign/xpisign.py "
-                "-k ../../certs/CliqzFrontend/xpisign-cliqz\@cliqz.com "
+        local( ("python ../xpi-sign/xpisign.py "
+                "-k ../certs/CliqzFrontend/xpisign-cliqz\@cliqz.com "
                 "--signer openssl "
-                "--passin file:../../certs/pass "
+                "--passin file:../certs/pass "
                 "UNSIGNED_%s %s ") % (output_file_name, output_file_name))
 
     # creates a copy to the current build in case we need to upload it to S3
@@ -189,7 +189,7 @@ def publish(beta='True', version=None, channel='browser', pre='True'):
     local("rm  %s" % latest_html_file_name)
 
     credentials = {}
-    execfile("../../fern/release-creds.txt", credentials)
+    execfile("../fern/release-creds.txt", credentials)
     auth = (
         'balrogadmin',
         credentials['balrog_credentials']['balrogadmin']

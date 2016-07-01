@@ -194,6 +194,8 @@ export default {
         /* before adding new dialup make sure it is not there already
         ** looks like concurrency issues of messaging framework could lead to race conditions
         */
+
+
         const isPresent = dialUps.custom.some(function(dialup) {
           return utils.tryEncodeURIComponent(urlToAdd) === utils.stripTrailingSlash(dialup.url);
         });
@@ -207,7 +209,7 @@ export default {
           utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
           return new SpeedDial(urlToAdd, true);
         }
-      }).catch(reason => ({ error: true, reason }));
+      }).catch(reason => ({ error: true, reason: typeof reason === 'object' ? reason.toString() : reason }));
     },
 
     /**

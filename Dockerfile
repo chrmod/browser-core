@@ -30,5 +30,7 @@ RUN cd /tmp && \
   make install
 ENV PATH "/usr/local/ssl/bin:$PATH"
 
-RUN groupadd jenkins -g 119 && \
-  useradd -ms /bin/bash jenkins -u 109 -g 119
+ARG UID
+ARG GID
+RUN groupadd jenkins -g $GID && \
+  useradd -ms /bin/bash jenkins -u $UID -g $GID

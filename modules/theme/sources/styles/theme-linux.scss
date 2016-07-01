@@ -333,32 +333,6 @@ notification[type="warning"] .messageText {
     background-color: rgba(223, 219, 210, 0.8);
 }
 
-#cliqz_menupopup,
-#contentAreaContextMenu {
-    menuitem[_moz-menuactive="true"]:not([disabled="true"]),
-    menu[_moz-menuactive="true"]:not([disabled="true"]) {
-        -moz-appearance: none !important;
-        background-color: #4899fb;
-    }
-
-    menuitem[_moz-menuactive="true"]:not([disabled="true"]) {
-        .menu-iconic-text {
-            color: #fff !important;
-        }
-    }
-
-    menu[_moz-menuactive="true"]:not([disabled="true"]) {
-        .menu-text {
-            color: #fff !important;
-        }
-    }
-
-    menuitem, menu {
-        -moz-appearance: none !important;
-        padding: 5px;
-    }
-}
-
 /* END EX-2247 */
 
 /* BEGIN EX-2251 */
@@ -381,8 +355,9 @@ notification[type="warning"] .messageText {
 
 /* BEGIN EX-2254 */
 
-.urlbar-input-box {
+#urlbar .urlbar-input-box {
     padding: 2px 0;
+    overflow: hidden;
 }
 
 /* END EX-2254 */
@@ -523,6 +498,26 @@ toolbar[brighttext] :-moz-any(#back-button, #forward-button, #home-button, #prin
 
 #notification-popup-box {
     background-color: rgba(255, 255, 255, 0);
+}
+
+#navigator-toolbox[on_private_tab="true"] {
+    #notification-popup-box {
+        border-image: url("../images/browser/linux/urlbar-arrow.png") 0 8 0 0 fill;
+    }
+
+    @media (min-resolution: 1.1dppx) {
+        #notification-popup-box {
+            border-image: url("../images/browser/linux/urlbar-arrow@2x.png") 0 16 0 0 fill;
+        }
+    }
+
+    #identity-box:hover {
+        background-color: rgba(255, 255, 255, 0);
+    }
+
+    #identity-box:hover:active, #identity-box[open="true"] {
+        background-color: rgba(255, 255, 255, 0);
+    }
 }
 /* END URL BAR */
 

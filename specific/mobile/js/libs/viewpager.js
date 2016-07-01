@@ -199,7 +199,6 @@ function ViewPager(elem, options) {
       position += change;
       scroller.forceFinished(true);
       handleOnScroll(position);
-      active = PREVENT_ALL_NATIVE_SCROLLING || (DIRECTION_HORIZONTAL ? Math.abs(p.dx) > Math.abs(p.dy) : Math.abs(p.dx) < Math.abs(p.dy));
       if (active) {
         p.event.preventDefault();
       }
@@ -207,6 +206,7 @@ function ViewPager(elem, options) {
 
     onFling: function onFling(p, v) {
       if (!active) { return; }
+      active = false;
       var velo = DIRECTION_HORIZONTAL ? v.vx : v.vy,
           deltaPx = DIRECTION_HORIZONTAL ? p.totaldx : p.totaldy,
           deltaOffset = deltaToPage(determineTargetPage(position, deltaPx, velo));
