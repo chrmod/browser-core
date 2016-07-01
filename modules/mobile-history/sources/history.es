@@ -113,17 +113,6 @@ function displayData(data, isFavorite = false) {
       filterHistory(this.value);
   });
 
-  CliqzUtils.addEventListenerToElements('.question, .answer', 'click', function () {
-    const targeType = this.className === 'question' ? 'query' : 'url';
-    CliqzUtils.telemetry({
-      type: History.showOnlyFavorite ? 'favorites' : 'history',
-      action: 'click',
-      target_type: targeType,
-      target_index: parseInt(this.dataset.index),
-      target_length: this.querySelector('.' + targeType).textContent.length,
-      target_ts: parseInt(this.dataset.timestamp)
-    });
-  });
   const queryCount = data.filter(function (item) { return item.query; }).length,
       urlCount = data.filter(function (item) { return item.url; }).length;
   CliqzUtils.telemetry({
@@ -142,6 +131,7 @@ function displayData(data, isFavorite = false) {
       selectItem(element);
     } else {
       clickAction(element.getAttribute('data'));
+      sendClickTelemetry(element);
     }
   }
   new LongPress('.question, .answer', launchEditMode, onTap);
@@ -334,6 +324,18 @@ function clearHistory() {
 
 function clearFavorites() {
   CliqzUtils.getLocalStorage().setObject('favoriteQueries', []);
+}
+
+function sendClickTelemetry(element) {
+  const targeType = element.className === 'question' ? 'query' : 'url';
+    CliqzUtils.telemetry({
+      type: History.showOnlyFavorite ? 'favorites' : 'history',
+      action: 'click',
+      target_type: targeType,
+      target_index: parseInt(element.dataset.index),
+      target_length: element.querySelector('.' + targeType).textContent.length,
+      target_ts: parseInt(element.dataset.timestamp)
+    });
 }
 
 /**
