@@ -44,6 +44,10 @@ export class TravelRule extends Rule {
         name : 'offerShownCurrentSession',
         args : {}
       },
+      FID_checkoutCurrIntentSession : {
+        name : 'checkoutCurrIntentSession',
+        args : {}
+      },
       FID_sessionCount_range_2: {
         name: 'sessionCount',
         args: {'range': [2]}
@@ -80,7 +84,8 @@ export class TravelRule extends Rule {
     // (second session or greater) && (5th event or greater)
 
     // check if we are in the first events
-    if (fidsValuesMapping.FID_offerShownCurrentSession > 0.0) {
+    if ((fidsValuesMapping.FID_offerShownCurrentSession > 0.0)  ||
+        (fidsValuesMapping.FID_checkoutCurrIntentSession > 0.0)) {
       // then we don't have to show anything here
       return 0.0;
     }

@@ -47,6 +47,10 @@ export class FoodDeliveryRule extends Rule {
         name : 'offerShownCurrentSession',
         args : {}
       },
+      FID_checkoutCurrIntentSession : {
+        name : 'checkoutCurrIntentSession',
+        args : {}
+      },
       FID_hour_range_18_20 : {
         name : 'hour',
         args: {'range': [18,19,20]}
@@ -88,7 +92,8 @@ export class FoodDeliveryRule extends Rule {
     // - or friday | sat , between 6-8pm => first event.
 
     // check if we are in the first events
-    if (fidsValuesMapping.FID_offerShownCurrentSession > 0.0) {
+    if ((fidsValuesMapping.FID_offerShownCurrentSession > 0.0) ||
+        (fidsValuesMapping.FID_checkoutCurrIntentSession > 0.0)) {
       // then we don't have to show anything here
       return 0.0;
     }

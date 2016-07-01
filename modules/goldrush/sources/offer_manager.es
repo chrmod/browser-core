@@ -447,11 +447,11 @@ OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
     return null;
   }
 
-  const fullURL = urlObj['domain'] + urlObj['path'] ;
+  const fullURL = urlObj['domain'] + urlObj['path'];
   // This is how the other modules at cliqz does it
   const timestamp = aTimestamp;
   // check if we are in a checkout page?
-  const checkoutFlag = this.isCheckoutPage(urlObj);
+  const checkoutFlag = this.isCheckoutPage(domainName, fullURL);
   // TODO_QUESTION: how to get the last url?
   const lastURL = '';
   // TODO_QUESTION: how to get the referrer url?
@@ -609,16 +609,16 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = f
 //
 // @brief flag is the user is on a checkout page
 //
-OfferManager.prototype.isCheckoutPage = function(urlObj) {
+OfferManager.prototype.isCheckoutPage = function(domainName, fullUrl) {
   if (this.mappings['dname_to_checkout_regex']){
-    let regexForDomain = this.mappings['dname_to_checkout_regex'][urlObj['name']];
+    let regexForDomain = this.mappings['dname_to_checkout_regex'][domainName];
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
 
     GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + urlObj['friendly_url']);
+    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + fullUrl);
 
-    if (regexForDomain && urlObj['friendly_url'].match(regexForDomain)) {
+    if (regexForDomain && fullUrl.match(regexForDomain)) {
       GoldrushConfigs.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
       return true;

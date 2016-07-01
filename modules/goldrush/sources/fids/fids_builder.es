@@ -10,6 +10,8 @@ import { DayFID } from 'goldrush/fids/day_fid';
 import { SessionCountFID } from 'goldrush/fids/session_count';
 import { NumEventsCurrSessionFID } from 'goldrush/fids/num_events_curr_session';
 import { OfferShownCurrentSessionFID } from 'goldrush/fids/offer_shown_current_session';
+import { CheckoutCurrIntentSessionFID } from 'goldrush/fids/checkout_curr_intent_session_fid';
+
 
 
 const MODULE_NAME = 'fids_builder';
@@ -52,6 +54,10 @@ export class FIDsBuilder {
     case 'offerShownCurrentSession':
       fid = new OfferShownCurrentSessionFID();
       break;
+    case 'checkoutCurrIntentSession':
+      fid = new CheckoutCurrIntentSessionFID();
+      break;
+
     default:
       // nothing to do
       break;
