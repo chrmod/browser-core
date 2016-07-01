@@ -54,7 +54,7 @@ BuyIntentSession.prototype.firstIntentEvent = function() {
 };
 
 BuyIntentSession.prototype.firstCurrSessionEvent = function() {
-  return this.currentSession.length === 0 ? null : this.currentSession[this.currentSession.length - 1];
+  return this.currentSession.length === 0 ? null : this.currentSession[0];
 };
 
 BuyIntentSession.prototype.checkTimestampIsInCurrSession = function(ts) {
@@ -63,7 +63,7 @@ BuyIntentSession.prototype.checkTimestampIsInCurrSession = function(ts) {
   }
   let firstEventInSession = this.firstCurrSessionEvent();
   let difftime = ts - firstEventInSession.ts;
-  return difftime > this.sessionTimeMs;
+  return difftime <= this.sessionTimeMs;
 };
 
 BuyIntentSession.prototype.thereWasACheckout = function() {

@@ -10,7 +10,6 @@ const MODULE_NAME = 'travel_rule';
 ////////////////////////////////////////////////////////////////////////////////
 // define local FIDS ids for the internal map
 //
-const FID_topClusterVisits_N3_delta1 = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,9 +35,13 @@ export class TravelRule extends Rule {
   //
   fidsMappings() {
     return {
-      FID_topClusterVisits_N3_delta1 : {
+      FID_topClusterVisits_N5_delta0 : {
         name : 'topClusterVisits',
-        args : {'N' : 2, 'delta' : 0}
+        args : {'N' : 5, 'delta' : 0}
+      },
+      FID_sessionCount_range_2: {
+        name: 'sessionCount',
+        args: {'range': [2]}
       }
     };
   }
@@ -59,9 +62,18 @@ export class TravelRule extends Rule {
   //
   evaluate(fidsValuesMapping) {
     LoggingHandler.error(MODULE_NAME,
-                         'returning only the value of the fid: ' +
-                         fidsValuesMapping.FID_topClusterVisits_N3_delta1);
-    return fidsValuesMapping.FID_topClusterVisits_N3_delta1;
+                         'returning only the value of the topClusterVisits fid: ' +
+                         fidsValuesMapping.FID_topClusterVisits_N5_delta0);
+
+    LoggingHandler.error(MODULE_NAME,
+                         'returning only the value of the sessionCount fid: ' +
+                         fidsValuesMapping.FID_sessionCount_range_2);
+
+    if (fidsValuesMapping.FID_topClusterVisits_N5_delta0 == 1 &&
+        fidsValuesMapping.FID_sessionCount_range_2 == 1) {
+      return 1;
+    }
+    return 0;
   }
 
 
