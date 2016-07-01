@@ -25,7 +25,7 @@ var GoldrushConfigs = {
   // Offer Manager
 
   // the number of milliseconds we want to wait till we hide the add
-  HIDE_OFFER_MS: 600 * 1000,
+  HIDE_OFFER_MS: 5 * 60 * 1000,
   // the session threshold time in secs (this will split the sessions for the
   // intent input system)
   INTENT_SESSION_THRESHOLD_SECS: 60 * 30,
@@ -38,7 +38,7 @@ var GoldrushConfigs = {
 
   // how many days / hours of history we should load into the system to feed
   // the intent input system
-  HISTORY_EVENTS_TIME_DAYS: 10,
+  HISTORY_EVENTS_TIME_DAYS: 7,
 
   // get the global flag if we need to switch or not
   OFFER_SUBCLUSTER_SWITCH: true,
@@ -57,7 +57,7 @@ var GoldrushConfigs = {
   // Stats handler
 
   // how often we want to push the stats to the backend
-  STATS_SENT_PERIODISITY_MS: 1000 * 20, // 1000 * (60 * 60 * 24);
+  STATS_SENT_PERIODISITY_MS: 1000 * 60, // 1000 * (60 * 60 * 24);
   // the local storage file path to store the stats
   STATS_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/stats_db.json',
 
@@ -69,7 +69,8 @@ var GoldrushConfigs = {
   // coupon information storage
   COUPONS_DATA_LOCAL_STORAGE_URL: 'chrome://cliqz/content/goldrush/coupons_data.json',
   // coupon handler load old data (TODO: change this in the release to true)
-  COUPON_HANDLER_LOAD_FILE_FLAG: false,
+  COUPON_HANDLER_LOAD_FILE_FLAG: true,
+  COUPON_HANDLER_RESET_FILE: true,
 
   // offer fetcher temp cache
   TS_THRESHOLD: 1000 * 60
