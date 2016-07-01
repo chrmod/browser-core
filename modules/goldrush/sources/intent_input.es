@@ -37,7 +37,7 @@ BuyIntentSession.prototype.numOfDifferentDomains = function() {
   return this.visitedDomainsIDs.size();
 };
 
-BuyIntentSession.prototype.currentSession = function() {
+BuyIntentSession.prototype.getCurrentSession = function() {
   return this.currentSession;
 };
 
@@ -91,6 +91,7 @@ BuyIntentSession.prototype.addEvent = function(event) {
   this.rawEvents.push(event);
 
   if (!this.checkTimestampIsInCurrSession(currTimestamp)) {
+    LoggingHandler.info("SR", "creating new session");
     this.sessions.push(this.currentSession);
     this.currentSession = [];
   }
@@ -189,6 +190,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
     ' - timeDiff: ' + timeDiff);
 
   if (isNewBuyIntentSession) {
+    LoggingHandler("SR", "creating new buyIntentSessions");
     // then we need to create a new one and replace the last one
     // NOTE: for now we will comment this:
     // this.buyIntentSessions.push(this.currBuyIntent);
