@@ -175,7 +175,7 @@ var UI = {
           firstResult.url = firstResult.data.urls[0].href;
 
         if(firstResult.url){
-          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title, firstResult.data);
+          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title);
         }
 
         snippetQualityTelemetry(curResAll);
