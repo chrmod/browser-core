@@ -1,5 +1,6 @@
 import { FID } from 'goldrush/fids/fid';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 const MODULE_NAME = 'num_events_curr_session_fid';
