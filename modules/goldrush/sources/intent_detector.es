@@ -138,12 +138,22 @@ IntentDetector.prototype.evaluateInput = function(intentInput) {
   }
 
   // evaluate the rule here after evaluating the fids
-  var evalData = {};
-  for (var id in this.processedRuleData) {
-    var fid = this.processedRuleData[id][0];
-    evalData[id] = fid.evaluate(intentInput);
+  var resultVal = 0.0;
+  try {
+    var evalData = {};
+    for (var id in this.processedRuleData) {
+      var fid = this.processedRuleData[id][0];
+      evalData[id] = fid.evaluate(intentInput);
+    }
+    resultVal = this.rule.evaluate(evalData);
+  } catch (ee) {
+    LoggingHandler.error(MODULE_NAME,
+                         'Error processing the event for cid: ' + this.clusterID +
+                         'error: ' + ee,
+                         LoggingHandler.ERR_INTERNAL);
   }
-  return this.rule.evaluate(evalData);
+
+  return resultVal;
 };
 
 
