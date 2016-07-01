@@ -1,6 +1,7 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 const MODULE_NAME = 'top_cluster_visits_fid';
@@ -40,6 +41,7 @@ export class TopClusterVisitsFID extends FID {
 
   configureArgs(configArgs) {
     // set default values
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
     for(let k in this.configParams) {
@@ -65,6 +67,7 @@ export class TopClusterVisitsFID extends FID {
     // number of events
     let intentSession = intentInput.currentBuyIntentSession();
     let totalNumEvents = intentSession.totalNumOfEvents();
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'totalNumEvents: ' + totalNumEvents +
                         ' - this.lowerBound: ' + this.lowerBound +
