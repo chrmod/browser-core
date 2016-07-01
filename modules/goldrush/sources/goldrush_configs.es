@@ -46,7 +46,7 @@ var GoldrushConfigs = {
   // the redirect url to where we should point to when the user sees the offer
   // and click on "more info"
   // TODO: define this url to the correct place.
-  OFFER_INFORMATION_URL: 'https://cliqz.com/aboutus/team',
+  OFFER_INFORMATION_URL: 'https://cliqz.com/products/cliqz-for-desktop/cliqz-angebote',
 
   //////////////////////////////////////////////////////////////////////////////
   // Offer Fetcher
