@@ -5,7 +5,7 @@ import LongPress from 'mobile-touch/longpress';
 import CliqzHandlebars from "core/templates";
 
 var historyTimer;
-var editMode = false, showOnlyFavorite = false;
+var editMode = false;
 var selectedQueries = [];
 var selectedHistory = [];
 var allHistory = [];
@@ -22,7 +22,7 @@ function showHistory(history) {
   }
 
   const data = mixHistoryWithQueries(queries, history);
-  displayData(data, showOnlyFavorite);
+  displayData(data, History.showOnlyFavorite);
 }
 
 function showFavorites(favorites) {
@@ -38,7 +38,7 @@ function showFavorites(favorites) {
   }
 
   const data = mixHistoryWithQueries(favoriteQueries, favoriteHistory);
-  displayData(data, showOnlyFavorite);
+  displayData(data, History.showOnlyFavorite);
 }
 
 
@@ -116,7 +116,7 @@ function displayData(data, isFavorite = false) {
   CliqzUtils.addEventListenerToElements('.question, .answer', 'click', function () {
     const targeType = this.className === 'question' ? 'query' : 'url';
     CliqzUtils.telemetry({
-      type: 'history',
+      type: History.showOnlyFavorite ? 'favorites' : 'history',
       action: 'click',
       target_type: targeType,
       target_index: parseInt(this.dataset.index),
@@ -127,7 +127,7 @@ function displayData(data, isFavorite = false) {
   const queryCount = data.filter(function (item) { return item.query; }).length,
       urlCount = data.filter(function (item) { return item.url; }).length;
   CliqzUtils.telemetry({
-    type: 'history',
+    type: History.showOnlyFavorite ? 'favorites' : 'history',
     action: 'show',
     active_day_count: data.length - queryCount - urlCount,
     query_count: queryCount,
@@ -228,7 +228,7 @@ function setQueryFavorite() {
         break;
       }
     }
-    if (!showOnlyFavorite) {
+    if (!History.showOnlyFavorite) {
       favoriteQueries.push({query: item.query, timestamp: item.timestamp});
     }
   });
@@ -244,11 +244,11 @@ function setHistoryFavorite() {
         break;
       }
     }
-    if (!showOnlyFavorite) {
+    if (!History.showOnlyFavorite) {
       allFavorites.push({url: item.url, timestamp: item.timestamp, title:item.title});
     }
   });
-  osAPI.setFavorites(selectedHistory, !showOnlyFavorite);
+  osAPI.setFavorites(selectedHistory, !History.showOnlyFavorite);
 }
 
 function removeQueries() {
@@ -316,16 +316,16 @@ function selectItem(item) {
   }
 }
 
-function init(onlyFavorites = showOnlyFavorite) {
+function init(onlyFavorites = History.showOnlyFavorite) {
   migrateQueries();
-  showOnlyFavorite = onlyFavorites;
+  History.showOnlyFavorite = onlyFavorites;
   const callback = onlyFavorites ? showFavorites : showHistory;
   historyTimer = setTimeout(callback, 200, {results: []});
   onlyFavorites ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
 }
 
 function update() {
-  showOnlyFavorite ? showFavorites(allFavorites) : showHistory(allHistory);
+  History.showOnlyFavorite ? showFavorites(allFavorites) : showHistory(allHistory);
 }
 
 function clearHistory() {
@@ -367,7 +367,8 @@ var History = {
   clearFavorites: clearFavorites,
   favoriteSelected: favoriteSelected,
   removeSelected: removeSelected,
-  endEditMode: endEditMode
+  endEditMode: endEditMode,
+  showOnlyFavorite: false
 };
 
 export default History;
