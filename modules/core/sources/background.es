@@ -142,6 +142,9 @@ export default {
       }
       return Promise.resolve();
     },
+    goldrushEM(args) {
+      events.pub("core:coupon-detected", args);
+    },
     recordMeta(url, meta) {
       events.pub("core:url-meta", url, meta);
     }
