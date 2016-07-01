@@ -1,6 +1,6 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
-
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 export class TopHourFID extends FID {

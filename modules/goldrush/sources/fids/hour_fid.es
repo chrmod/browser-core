@@ -1,6 +1,7 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 const MODULE_NAME = 'hour_fid';
@@ -28,6 +29,8 @@ export class HourFID extends FID {
 
   configureArgs(configArgs) {
      // set default values
+    GoldrushConfigs.LOG_ENABLED &&
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
     // set default values
@@ -40,6 +43,8 @@ export class HourFID extends FID {
         this.args[arg_idx] = configArgs[arg_idx];
     }
 
+    GoldrushConfigs.LOG_ENABLED &&
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'this.args: ' + JSON.stringify(this.args));
   }
 
@@ -53,6 +58,8 @@ export class HourFID extends FID {
     // Hours part from the timestamp
     let hour = date.getHours();
 
+    GoldrushConfigs.LOG_ENABLED &&
+    GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'current_hour: ' + hour +
                         ' range ' + JSON.stringify(this.args));

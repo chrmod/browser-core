@@ -1,5 +1,6 @@
 import { Rule } from 'goldrush/rules/rule';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 
@@ -72,14 +73,15 @@ export class FoodDeliveryRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
-    // LoggingHandler.info(MODULE_NAME,
-    //                     'FidsValues: ' +
-    //                     '\n - fidsValuesMapping.FID_topClusterVisits_N5_delta2: ' +
-    //                     fidsValuesMapping.FID_topClusterVisits_N5_delta2 +
-    //                     '\n - fidsValuesMapping.FID_hour_range_18_20: ' +
-    //                      fidsValuesMapping.FID_hour_range_18_20 +
-    //                      '\n - fidsValuesMapping.FID_day_range_5_6: ' +
-    //                      fidsValuesMapping.FID_day_range_5_6);
+    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.info(MODULE_NAME,
+                        'FidsValues: ' +
+                        '\n - fidsValuesMapping.FID_topClusterVisits_N5_delta2: ' +
+                        fidsValuesMapping.FID_topClusterVisits_N5_delta2 +
+                        '\n - fidsValuesMapping.FID_hour_range_18_20: ' +
+                         fidsValuesMapping.FID_hour_range_18_20 +
+                         '\n - fidsValuesMapping.FID_day_range_5_6: ' +
+                         fidsValuesMapping.FID_day_range_5_6);
 
     // rule is:
     // - after third event on the first session
