@@ -57,6 +57,7 @@ export class DayFID extends FID {
                         'current_day: ' + day +
                         ' range ' + this.args['range']);
 
+    // TODO: we can change this with a set instead of list
     if (this.args['range'].indexOf(day) > -1) {
       return 1.0;
     }

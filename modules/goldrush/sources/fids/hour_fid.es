@@ -57,6 +57,7 @@ export class HourFID extends FID {
                         'current_hour: ' + hour +
                         ' range ' + JSON.stringify(this.args));
 
+    // TODO: we can change this with a set instead of list
     if (this.args['range'].indexOf(hour) > -1) {
       return 1.0;
     }
