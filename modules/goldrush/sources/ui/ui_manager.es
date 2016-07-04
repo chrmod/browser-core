@@ -32,7 +32,7 @@ export function UIManager() {
   let rscLoader = new ResourceLoader([ 'goldrush', 'voucher.html' ],
                                      {dataType: 'raw'});
   var self = this;
-  rscLoader.load().then(html => {
+  rscLoader.loadFromDefaultLocation().then(html => {
     self.htmlHandlebarTemplate = CliqzHandlebars.compile(html);
 });
 }
