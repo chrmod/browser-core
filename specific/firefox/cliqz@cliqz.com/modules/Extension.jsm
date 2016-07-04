@@ -200,6 +200,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzWikipediaDeduplication.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -373,7 +374,7 @@ var Extension = {
           var enumerator = Services.wm.getEnumerator('navigator:browser');
           var remainingWin = 0;
           while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
+            var dummyWin = enumerator.getNext();
             remainingWin += 1;
           }
           CliqzEvents.pub('core.window_closed', {remaining: remainingWin});

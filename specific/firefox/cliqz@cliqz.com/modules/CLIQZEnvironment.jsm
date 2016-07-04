@@ -391,7 +391,11 @@ var CLIQZEnvironment = {
       return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
     },
     isPrivate: function(win) {
-        if(typeof win == "undefined") win = CLIQZEnvironment.getWindow();
+        // try to get the current active window
+        if(!win) win = CLIQZEnvironment.getWindow();
+
+        // return false if we still do not have a window
+        if(!win) return false;
 
         if(win && win.cliqzIsPrivate === undefined){
             try {
@@ -716,15 +720,16 @@ var CLIQZEnvironment = {
     // lazy init
     // callback called multiple times
     historySearch: (function(){
-        var hist = {};
-
-        XPCOMUtils.defineLazyServiceGetter(
-            hist,
-            'search',
-            '@mozilla.org/autocomplete/search;1?name=history',
-            'nsIAutoCompleteSearch');
+        var hist = null;
 
         return function(q, callback, sessionStart){
+            if(hist === null) { //lazy
+              // history autocomplete provider is removed
+              // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
+              var provider = Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
+                             Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
+              hist = provider.getService(Ci["nsIAutoCompleteSearch"])
+            }
             // special case: user has deleted text from urlbar
             if(q.length != 0 && urlbar().value.length == 0)
               return;
@@ -735,7 +740,7 @@ var CLIQZEnvironment = {
                 })
             }
             else {
-                hist.search.startSearch(q, 'enable-actions', null, {
+                hist.startSearch(q, 'enable-actions', null, {
                     onSearchResult: function(ctx, result) {
                         var res = [];
                         for (var i = 0; result && i < result.matchCount; i++) {

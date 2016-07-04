@@ -137,16 +137,20 @@ function getSassTree() {
 }
 
 function getDistTree() {
-  const distTrees = new MergeTrees([
-    modulesTree,
-    subprojectsTree
+  return new MergeTrees([
+    new Funnel(modulesTree, {
+      include: cliqzConfig.modules.map( name => `${name}/dist/**/*` ),
+      getDestinationPath(path) {
+        return path.replace("/dist", "");
+      }
+    }),
+    new Funnel(subprojectsTree, {
+      include: (cliqzConfig.subprojects || []).map( name => `${name}/dist/**/*` ),
+      getDestinationPath(path) {
+        return path.replace("/dist", "");
+      }
+    })
   ]);
-  return new Funnel(distTrees, {
-    include: cliqzConfig.modules.concat(cliqzConfig.subprojects).map( name => `${name}/dist/**/*` ),
-    getDestinationPath(path) {
-      return path.replace("/dist", "");
-    }
-  });
 }
 
 const modules = new MergeTrees([

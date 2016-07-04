@@ -70,7 +70,20 @@ function parseMappingsFileAsPromise(filename) {
       resolve(json);
     });
   });
+}
 
+
+////////////////////////////////////////////////////////////////////////////////
+function parseFileASPromise(filename) {
+  return new Promise(function(resolve, reject) {
+    let rscLoader = new ResourceLoader(
+      [ 'goldrush', filename ],
+      {}
+    );
+    rscLoader.load().then(json => {
+      resolve(json);
+    });
+  });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,58 +197,66 @@ export function OfferManager() {
   this.eventsCounts = {total: 0};
   // track shown offers
   this.offersShownCounterMap = {};
-
   // coupon handler
   this.couponHandler = null;
+  // configs
+  this.configs = null;
 
   // the fetcher
   let destURL = GoldrushConfigs.OFFER_FETCHER_DEST_URL;
   let self = this;
-  parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
-    self.mappings = mappings;
-
-    // create the subcluster information
-    self.couponHandler = new CouponHandler(self.mappings);
-    self.couponHandler.loadPersistentData();
-
+  parseFileASPromise('configs.json').then(function(configs) {
+    self.configs = configs;
     GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'setting the mappings to the offer manager');
-    self.offerFetcher = new OfferFetcher(destURL, mappings);
-  }).then(function() {
-      // we will use the CliqzStorage here
-      let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
-      let cache = localStorage.getItem('user_data');
-      if (!cache) {
-        // we need to write this then
-        GoldrushConfigs.LOG_ENABLED &&
-        LoggingHandler.info(MODULE_NAME, 'no db found, creating new one');
-        let userDB = {};
-        for (let cid in self.mappings['cid_to_cname']) {
-          userDB[cid] = {};
+    LoggingHandler.info(MODULE_NAME,
+                        'load the configs.json: ' + JSON.stringify(self.configs));
+
+    parseMappingsFileAsPromise('mappings.json').then(function(mappings) {
+      self.mappings = mappings;
+
+      // create the subcluster information
+      self.couponHandler = new CouponHandler(self.mappings);
+      self.couponHandler.loadPersistentData();
+
+      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.info(MODULE_NAME, 'setting the mappings to the offer manager');
+      self.offerFetcher = new OfferFetcher(destURL, mappings);
+    }).then(function() {
+        // we will use the CliqzStorage here
+        let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
+        let cache = localStorage.getItem('user_data');
+        if (!cache) {
+          // we need to write this then
+          GoldrushConfigs.LOG_ENABLED &&
+          LoggingHandler.info(MODULE_NAME, 'no db found, creating new one');
+          let userDB = {};
+          for (let cid in self.mappings['cid_to_cname']) {
+            userDB[cid] = {};
+          }
+          localStorage.setItem('user_data', JSON.stringify(userDB));
+          self.userDB = userDB;
+        } else {
+          GoldrushConfigs.LOG_ENABLED &&
+          LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
+          self.userDB = JSON.parse(cache);
         }
-        localStorage.setItem('user_data', JSON.stringify(userDB));
-        self.userDB = userDB;
-      } else {
+    }).then(function() {
         GoldrushConfigs.LOG_ENABLED &&
-        LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
-        self.userDB = JSON.parse(cache);
-      }
-  }).then(function() {
-      GoldrushConfigs.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, 'load the clusters and create the');
+        LoggingHandler.info(MODULE_NAME, 'load the clusters and create the');
 
-      self.clusterFilesMap = getClustersFilesMap();
-      GoldrushConfigs.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, 'self.clusterFilesMap: ' + JSON.stringify(self.clusterFilesMap));
+        self.clusterFilesMap = getClustersFilesMap();
+        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.info(MODULE_NAME, 'self.clusterFilesMap: ' + JSON.stringify(self.clusterFilesMap));
 
-      GoldrushConfigs.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, 'calling generateIntentsDetector');
+        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.info(MODULE_NAME, 'calling generateIntentsDetector');
 
-      self.generateIntentsDetector(self.clusterFilesMap);
+        self.generateIntentsDetector(self.clusterFilesMap);
 
-      // now here we need to check the history of the user so we can load the
-      // old events and more
-      self.loadHistoryEvents();
+        // now here we need to check the history of the user so we can load the
+        // old events and more
+        self.loadHistoryEvents();
+    });
   });
 
 }
@@ -313,8 +334,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
   let self = this;
   check(this.mappings != null, 'mappings is not properly initialized');
 
-  var sessionThresholdTimeSecs = GoldrushConfigs.INTENT_SESSION_THRESHOLD_SECS;
-  var buyIntentThresholdSecs = GoldrushConfigs.BUY_INTENT_SESSION_THRESHOLD_SECS;
+
 
   var rulesBuilder = new RulesBuilder();
   var fidsBuilder = new FIDsBuilder();
@@ -329,6 +349,29 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 
     // init the this.eventsCounts to 0
     this.eventsCounts[clusterID] = 0;
+
+    var sessionThresholdTimeSecs = GoldrushConfigs.INTENT_SESSION_THRESHOLD_SECS;
+    var buyIntentThresholdSecs = GoldrushConfigs.BUY_INTENT_SESSION_THRESHOLD_SECS;
+
+    // we check the here if we have a configuration for the current cluster
+    if (this.configs &&
+        this.configs.cluster_thresholds &&
+        this.configs.cluster_thresholds.hasOwnProperty(clusterID)) {
+      // we will use the specific config for this
+      let thresholdConfig = this.configs.cluster_thresholds[clusterID];
+      if (thresholdConfig.hasOwnProperty('session_time_secs')) {
+        sessionThresholdTimeSecs = thresholdConfig['session_time_secs'];
+      }
+      if (thresholdConfig.hasOwnProperty('buy_intent_secs')) {
+        buyIntentThresholdSecs = thresholdConfig['buy_intent_secs'];
+      }
+    }
+
+    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.info(MODULE_NAME,
+                        'using threshold values for cluster ' + clusterID +
+                        '\n - sessionThresholdTimeSecs: ' + sessionThresholdTimeSecs +
+                        '\n - buyIntentThresholdSecs: ' + buyIntentThresholdSecs);
 
     // // generate the intent input
     this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
@@ -612,21 +655,21 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = f
 OfferManager.prototype.isCheckoutPage = function(domainName, fullUrl) {
   if (this.mappings['dname_to_checkout_regex']){
     let regexForDomain = this.mappings['dname_to_checkout_regex'][domainName];
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
+    //GoldrushConfigs.LOG_ENABLED &&
+    //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
 
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + fullUrl);
+    //GoldrushConfigs.LOG_ENABLED &&
+    //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + fullUrl);
 
     if (regexForDomain && fullUrl.match(regexForDomain)) {
-      GoldrushConfigs.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
+      //GoldrushConfigs.LOG_ENABLED &&
+      //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
       return true;
     }
   }
 
-  GoldrushConfigs.LOG_ENABLED &&
-  LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: false');
+  //GoldrushConfigs.LOG_ENABLED &&
+  //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: false');
   return false;
 };
 

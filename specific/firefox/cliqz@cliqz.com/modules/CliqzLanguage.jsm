@@ -159,11 +159,10 @@ var CliqzLanguage = {
         // extract domain from url, hash it and update the value
         var url_hash = CliqzLanguage.hashCode(CliqzUtils.cleanUrlProtocol(url, true).split('/')[0]) % 256;
 
-        CliqzUtils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY + " for url " + url);
-
         if (CliqzLanguage.currentState[locale]==null || CliqzLanguage.currentState[locale].indexOf(url_hash)==-1) {
             if (CliqzLanguage.currentState[locale]==null) CliqzLanguage.currentState[locale] = [];
             CliqzLanguage.currentState[locale].push(url_hash);
+            CliqzUtils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY + " for url " + url);
             CliqzLanguage.saveCurrentState();
         }
     },

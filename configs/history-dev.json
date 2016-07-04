@@ -1,6 +1,7 @@
 {
   "platform": "firefox",
-  "testsBasePath": "./build/firefox/cliqz@cliqz.com/chrome/content",
+  "testem_launchers": ["Mocha"],
+  "testsBasePath": "./build/cliqz@cliqz.com/chrome/content",
   "settings": {
     "history-ui-url": "http://localhost:3000/#/history-sidebar",
     "freshTabButton": false,

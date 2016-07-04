@@ -54,8 +54,11 @@ var jsAPI = {
       }
     }
   },
-  clearQueries: function(includeFavs) {
-    History.clearQueries(includeFavs);
+  clearHistory: function() {
+    History.clearHistory();
+  },
+  clearFavorites: function() {
+    History.clearFavorites();
   },
   setDefaultSearchEngine: function(engine) {
     CLIQZEnvironment.setDefaultSearchEngine(engine);

@@ -2,6 +2,16 @@
 
 'use strict';
 
+const childProcess = require('child_process');
+
+if (process.argv[2] === "install") {
+  const npmInstall = childProcess.spawn('npm', ['install'], { stdio: [0,1,2] });
+  npmInstall.on('exit', function () { fern() });
+} else {
+  fern();
+}
+
+function fern() {
 const program = require('commander');
 const spaws = require('cross-spawn');
 const fs = require('fs');
@@ -11,7 +21,6 @@ const colors = require('colors');
 const broccoli = require('broccoli');
 const Testem = require('testem')
 const path = require('path')
-const childProcess = require('child_process');
 const rimraf = require('rimraf');
 const chalk = require('chalk');
 const notifier = require('node-notifier');
@@ -31,14 +40,18 @@ colors.setTheme({
   error: 'red'
 });
 
+let CONFIG;
+
 // Install git hooks:
 let hookInstaller = spaws('git-hooks/install-hooks.sh');
 hookInstaller.stderr.on('data', data => console.log(data.toString()));
 hookInstaller.stdout.on('data', data => console.log(data.toString()));
 
 function setConfigPath(configPath) {
-  configPath = configPath || './configs/jenkins.json';
+  configPath = configPath || process.env['CLIQZ_CONFIG_PATH'] || './configs/jenkins.json'
   process.env['CLIQZ_CONFIG_PATH'] = configPath;
+  CONFIG = JSON.parse(fs.readFileSync(configPath));
+  CONFIG.subprojects = CONFIG.subprojects || [];
 }
 
 function buildEmberAppSync(appPath) {
@@ -93,7 +106,6 @@ program.command('install')
           isPackageInstalled('ember', '-v', 'npm ember-cli package is missing, to install it run `npm install ember-cli -g`');
 
           console.log(chalk.green('Installing project dependencies'));
-          spaws.sync('npm', ['install'], { stdio: 'inherit', stderr: 'inherit'});
           spaws.sync('bower', ['install'], { stdio: 'inherit', stderr: 'inherit'});
 
           console.log(chalk.green('Installing ember freshtab dependencies'));
@@ -169,7 +181,7 @@ program.command('serve [file]')
           });
        });
 
-program.command('test <file>')
+program.command('test [file]')
        .option('--ci [output]', 'Starts Testem in CI mode')
        .action( (configPath, options) => {
           "use strict";
@@ -178,24 +190,18 @@ program.command('test <file>')
 
           if (options.ci) {
             watcher.on('change', function() {
-              let child = childProcess.execFile('node', [path.join('fern', 'testem-ci.js')]);
+              var Testem  = require('testem');
 
-              let testResults = [];
-              child.stderr.on('data', data => {
-                let result = data.toString();
-                testResults.push(result);
-                console.log(result);
-              });
-              child.stdout.on('data', data => {
-                let result = data.toString();
-                testResults.push(result);
-                console.log(result);
-              });
-              child.on('close', code => {
-                if (typeof options.ci === 'string') {
-                  fs.writeFileSync(options.ci, testResults.join(""));
-                }
-                process.exit()
+              var testem = new Testem();
+
+              var launch_in_ci = process.argv.slice(2, process.argv.length);
+
+              testem.startCI({
+                host: 'localhost',
+                port: '4200',
+                launch_in_ci: CONFIG['testem_launchers'],
+                reporter: 'xunit',
+                report_file: options.ci
               });
             });
           } else {
@@ -212,7 +218,8 @@ program.command('test <file>')
                   cmd: 'start',
                   options: {
                     host: 'localhost',
-                    port: '4200'
+                    port: '4200',
+                    launch_in_dev: CONFIG["testem_launchers"],
                   }
                 });
                 server.on('exit', function() {
@@ -256,3 +263,4 @@ program.command('generate <type> <moduleName>')
        });
 
 program.parse(process.argv);
+}

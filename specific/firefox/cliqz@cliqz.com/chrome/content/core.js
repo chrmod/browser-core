@@ -313,7 +313,7 @@ window.CLIQZ.Core = {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult, firstTitle, data){
+    autocompleteQuery: function(firstResult, firstTitle){
         var urlBar = this.urlbar;
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
@@ -360,8 +360,7 @@ window.CLIQZ.Core = {
 
         // No autocomplete
         if(!autocomplete.autocomplete ||
-           !CliqzUtils.getPref("browser.urlbar.autoFill", false, '') || // user has disabled autocomplete
-           (autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
+           !CliqzUtils.getPref("browser.urlbar.autoFill", false, '')){ // user has disabled autocomplete
             CLIQZ.UI.clearAutocomplete();
             CliqzAutocomplete.lastAutocomplete = null;
             CliqzAutocomplete.lastAutocompleteType = null;

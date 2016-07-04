@@ -135,9 +135,10 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage,
     });
 
     describe("Locale", function () {
-      it("de locale are complete when compared to en", function () {
-        chai.expect(Object.keys(CliqzUtils.locale['default'])).to.eql(
-               Object.keys(CliqzUtils.locale[window.navigator.language]));
+      it("Locale file should be loaded", function () {
+        var locale = CliqzUtils.locale['default'] || CliqzUtils.locale[window.navigator.language];
+        chai.expect(locale).to.be.ok;
+        chai.expect(locale.TEST).to.equal('OK');
       });
     });
 
