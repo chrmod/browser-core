@@ -43,7 +43,7 @@ node('docker') {
         ])
 
         stage 'fab publish'
-        sh """#!/bin/bash -l
+        sh """#!/bin/bash
           cd build/
           set +x
           source ../certs/beta-upload-creds.sh
