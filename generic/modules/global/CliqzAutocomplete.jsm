@@ -461,7 +461,7 @@ var CliqzAutocomplete = {
 
                 // set first history entry as autocompleted if it was
                 if(this.instant.length > 0 &&
-                   CliqzAutocomplete.lastAutocompleteType && !only_instant) {
+                   CliqzAutocomplete.lastAutocompleteActive && !only_instant) {
                   this.instant[0].autocompleted = true;
                 }
 
@@ -662,8 +662,8 @@ var CliqzAutocomplete = {
                 // reset count of discarded backend results
                 obj.discardedResults = 0;
 
-                if (CliqzAutocomplete.lastAutocompleteType) {
-                  action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+                if (CliqzAutocomplete.lastAutocompleteActive) {
+                  action.autocompleted = CliqzAutocomplete.lastAutocompleteActive;
                   action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
 

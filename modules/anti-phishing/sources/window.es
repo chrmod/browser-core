@@ -38,6 +38,17 @@ export default class {
         this.changeAntiPhishingState)
     );
 
+    // learn more
+    menuPopup.appendChild(
+      win.CLIQZ.Core.createSimpleBtn(
+        doc,
+        utils.getLocalizedString('learnMore'),
+        function(){
+          utils.openTabInWindow(win, 'https://cliqz.com/whycliqz/anti-phishing');
+        },
+        'anti_phishing_desc')
+    );
+
     menu.appendChild(menuPopup);
 
     return menu;

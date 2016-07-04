@@ -363,13 +363,13 @@ window.CLIQZ.Core = {
            !CliqzUtils.getPref("browser.urlbar.autoFill", false, '')){ // user has disabled autocomplete
             CLIQZ.UI.clearAutocomplete();
             CliqzAutocomplete.lastAutocomplete = null;
-            CliqzAutocomplete.lastAutocompleteType = null;
+            CliqzAutocomplete.lastAutocompleteActive = null;
             CliqzAutocomplete.selectAutocomplete = false;
             return;
         }
 
         // Apply autocomplete
-        CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
+        CliqzAutocomplete.lastAutocompleteActive = autocomplete.autocomplete;
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
         CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
         CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
