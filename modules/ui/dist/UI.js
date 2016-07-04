@@ -511,7 +511,7 @@ var UI = {
           // Remove autocomplete from urlbar
           urlbar.mInputField.value = urlbar.mInputField.value.substr(0, urlbar.selectionStart);
           CliqzAutocomplete.lastAutocomplete = null;
-          CliqzAutocomplete.lastAutocompleteType = null;
+          CliqzAutocomplete.lastAutocompleteActive = null;
           CliqzAutocomplete.selectAutocomplete = false;
           return null;
         }
@@ -1848,7 +1848,7 @@ function onEnter(ev, item){
     logUIEvent(UI.keyboardSelection, "autocomplete", {
       action: "result_enter",
       urlbar_time: urlbar_time,
-      autocompleted: CliqzAutocomplete.lastAutocompleteType,
+      autocompleted: CliqzAutocomplete.lastAutocompleteActive,
       autocompleted_length: CliqzAutocomplete.lastAutocompleteLength,
       position_type: ['inbar_url'],
       source: getResultKind(item),
@@ -1857,7 +1857,7 @@ function onEnter(ev, item){
     });
 
     //publish autocomplete event
-    CliqzEvents.pub('autocomplete', {"autocompleted": CliqzAutocomplete.lastAutocompleteType});
+    CliqzEvents.pub('autocomplete', {"autocompleted": CliqzAutocomplete.lastAutocompleteActive});
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
