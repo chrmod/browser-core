@@ -9,21 +9,22 @@ function format(currWin, url, md5) {
     doc.getElementById('phishing-url').innerText = url;
     doc.getElementsByClassName('cqz-button-save-out')[0].onclick = function() {
       if (doc.referrer) {
-          currWin.location = doc.referrer;
+          // currWin.location = doc.referrer;
+          currWin.location.replace(doc.referrer);
       } else {
-          currWin.location = 'about:newtab';
+          currWin.location.replace('about:newtab');
       }
     }
     doc.getElementById('report-safe').onclick = function() {
       CliqzHumanWeb.notification({'url': doc.URL, 'action': 'report'});
       CliqzAntiPhishing.forceWhiteList[md5] = 1;
-      currWin.location = url;
+      currWin.location.replace(url);
     };
     let proceedBt = doc.getElementById('proceed');
     proceedBt.onclick = function() {
       CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
       CliqzAntiPhishing.forceWhiteList[md5] = 1;
-      currWin.location = url;
+      currWin.location.replace(url);
     }
 };
 
@@ -31,7 +32,7 @@ function alert(currWin, url, md5) {
     if (!CliqzAntiPhishing.isAntiPhishingActive() || md5 in CliqzAntiPhishing.forceWhiteList) {
         return;
     }
-    currWin.location = WARNING;  // change it to warning page
+    currWin.location.replace(WARNING);  // change it to warning page
     CliqzUtils.setTimeout(function (currWin, url, md5){
         CliqzUtils.currWin = currWin;
         format(currWin, url, md5);
