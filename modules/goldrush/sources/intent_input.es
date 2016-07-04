@@ -117,6 +117,8 @@ export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60
   LoggingHandler.info(MODULE_NAME, 'Created new IntentInput object');
   this.sessionTimeMs = sessionTimeSecs * 1000;
   this.buyIntentTimeMs = buyIntentThresholdSecs * 1000;
+  // timestamp for events that we need to discard:
+  this.discardEvtTs = Date.now() - this.buyIntentTimeMs;
 
   this.buyIntentIDCount = 0;
 
@@ -150,8 +152,6 @@ IntentInput.prototype.flagCurrentBuyIntentSessionAsDone = function() {
   GoldrushConfigs.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'flagCurrentBuyIntentSessionAsDone');
 };
-
-
 
 
 //
@@ -224,6 +224,25 @@ IntentInput.prototype.feedWithEvent = function(event) {
   // now we just push the event there and thats all
   this.currBuyIntent.addEvent(event);
 
+};
+
+//
+// @brief this method will be called to feed the current intent input with an
+//        event from the history so we can filter if need it or if not then
+//        we will call feedWithEvent() function.
+//
+IntentInput.prototype.feedWithHistoryEvent = function(event) {
+  // we heck if we need to discard this event or not
+  if (event.ts < this.discardEvtTs) {
+    // GoldrushConfigs.LOG_ENABLED &&
+    // LoggingHandler.info(MODULE_NAME, 'discarding event: ' + event.ts + ' < ' + this.discardEvtTs);
+    return;
+  }
+  // GoldrushConfigs.LOG_ENABLED &&
+  // LoggingHandler.info(MODULE_NAME, 'using event: ' + event.ts + ' < ' + this.discardEvtTs);
+
+  // else we feed with this event
+  this.feedWithEvent(event);
 };
 
 
