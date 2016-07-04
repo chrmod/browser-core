@@ -678,7 +678,7 @@ describe("Startup", function () {
   context("Language loading", function () {
 
     beforeEach(function () {
-      contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return url.indexOf('/static/locale/') !== -1;});
+      contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return url.indexOf('static/locale/') !== -1;});
       contentWindow.sinon.FakeXMLHttpRequest.useFilters = true;
       contentWindow.CliqzUtils.locale = {};
     });
