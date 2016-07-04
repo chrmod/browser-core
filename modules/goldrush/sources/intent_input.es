@@ -92,7 +92,6 @@ BuyIntentSession.prototype.addEvent = function(event) {
   this.rawEvents.push(event);
 
   if (!this.checkTimestampIsInCurrSession(currTimestamp)) {
-    LoggingHandler.info("SR", "creating new session");
     this.sessions.push(this.currentSession);
     this.currentSession = [];
   }
@@ -183,18 +182,16 @@ IntentInput.prototype.feedWithEvent = function(event) {
   isNewBuyIntentSession = isNewBuyIntentSession || (this.currBuyIntent.thereWasACheckout() &&
                                                     this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
 
-  GoldrushConfigs.LOG_ENABLED &&
-  LoggingHandler.info(MODULE_NAME,
-    'isNewBuyIntentSession: ' + isNewBuyIntentSession +
-    ' - beginBuyIntentTime: ' + beginBuyIntentTime +
-    ' - currTimestamp: ' + currTimestamp +
-    ' - buyIntentDuration: ' +  buyIntentDuration +
-    ' - this.buyIntentTimeMs: ' + this.buyIntentTimeMs +
-    ' - timeDiff: ' + timeDiff);
+  // GoldrushConfigs.LOG_ENABLED &&
+  // LoggingHandler.info(MODULE_NAME,
+  //   'isNewBuyIntentSession: ' + isNewBuyIntentSession +
+  //   ' - beginBuyIntentTime: ' + beginBuyIntentTime +
+  //   ' - currTimestamp: ' + currTimestamp +
+  //   ' - buyIntentDuration: ' +  buyIntentDuration +
+  //   ' - this.buyIntentTimeMs: ' + this.buyIntentTimeMs +
+  //   ' - timeDiff: ' + timeDiff);
 
   if (isNewBuyIntentSession) {
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info("SR", "creating new buyIntentSessions");
     // then we need to create a new one and replace the last one
     // NOTE: for now we will comment this:
     // this.buyIntentSessions.push(this.currBuyIntent);

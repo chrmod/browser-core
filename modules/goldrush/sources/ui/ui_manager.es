@@ -193,7 +193,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
 
   // go and fu** urself
   buttons.push({
-    label : 'Weitere Informationen',
+    label : 'Ueber CLIQZ-Angebote',
     accessKey : '4',
     callback : function () {
         if (self.callbacks.information) {

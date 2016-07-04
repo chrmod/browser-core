@@ -612,21 +612,21 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = f
 OfferManager.prototype.isCheckoutPage = function(domainName, fullUrl) {
   if (this.mappings['dname_to_checkout_regex']){
     let regexForDomain = this.mappings['dname_to_checkout_regex'][domainName];
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
+    //GoldrushConfigs.LOG_ENABLED &&
+    //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
 
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + fullUrl);
+    //GoldrushConfigs.LOG_ENABLED &&
+    //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + fullUrl);
 
     if (regexForDomain && fullUrl.match(regexForDomain)) {
-      GoldrushConfigs.LOG_ENABLED &&
-      LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
+      //GoldrushConfigs.LOG_ENABLED &&
+      //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
       return true;
     }
   }
 
-  GoldrushConfigs.LOG_ENABLED &&
-  LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: false');
+  //GoldrushConfigs.LOG_ENABLED &&
+  //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: false');
   return false;
 };
 
