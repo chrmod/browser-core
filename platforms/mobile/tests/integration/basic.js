@@ -87,7 +87,7 @@ describe('Search View', function() {
     // to warm it up.
     this.timeout(10000);
     testBox = document.createElement("iframe");
-    testBox.setAttribute("class", "testFrame")
+    testBox.setAttribute("class", "testFrame");
     testBox.src = 	"/build/index.html";
     document.body.appendChild(testBox);
 
@@ -678,7 +678,7 @@ describe("Startup", function () {
   context("Language loading", function () {
 
     beforeEach(function () {
-      contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return url.indexOf('/static/locale/') !== -1;});
+      contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return url.indexOf('static/locale/') !== -1;});
       contentWindow.sinon.FakeXMLHttpRequest.useFilters = true;
       contentWindow.CliqzUtils.locale = {};
     });
