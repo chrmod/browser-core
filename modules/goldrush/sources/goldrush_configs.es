@@ -28,9 +28,11 @@ var GoldrushConfigs = {
   HIDE_OFFER_MS: 5 * 60 * 1000,
   // the session threshold time in secs (this will split the sessions for the
   // intent input system)
+  // THIS IS THE DEFAULT VALUE IF WE DONT HAVE IT DEFINED IN configs.json
   INTENT_SESSION_THRESHOLD_SECS: 60 * 30,
   // the buying intent threshold time in secs (this will split different buying
   // intention sessions)
+  // THIS IS THE DEFAULT VALUE IF WE DONT HAVE IT DEFINED IN configs.json
   BUY_INTENT_SESSION_THRESHOLD_SECS: 60 * 60 * 24 * 7,
 
   // the flag indicating if we should load the history or not
@@ -41,7 +43,7 @@ var GoldrushConfigs = {
   HISTORY_EVENTS_TIME_DAYS: 7,
 
   // get the global flag if we need to switch or not
-  OFFER_SUBCLUSTER_SWITCH: false,
+  OFFER_SUBCLUSTER_SWITCH: true,
 
   // the redirect url to where we should point to when the user sees the offer
   // and click on "more info"

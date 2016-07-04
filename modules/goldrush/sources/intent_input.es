@@ -92,7 +92,6 @@ BuyIntentSession.prototype.addEvent = function(event) {
   this.rawEvents.push(event);
 
   if (!this.checkTimestampIsInCurrSession(currTimestamp)) {
-    LoggingHandler.info("SR", "creating new session");
     this.sessions.push(this.currentSession);
     this.currentSession = [];
   }
@@ -126,6 +125,8 @@ export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60
   // needed for filtering
   this.isNewEvent = true;
   this.lastTimestamp = -1.0;
+  // flag to check if we need to finish the current buy intent session or not
+  this.finishCurrentBuyIntentSession = false;
 }
 
 IntentInput.prototype.thereIsNewEvent = function() {
@@ -138,6 +139,18 @@ IntentInput.prototype.thereIsNewEvent = function() {
 IntentInput.prototype.currentBuyIntentSession = function() {
   return this.currBuyIntent;
 };
+
+//
+// @brief flag the current buy intent session as done. This can be useful if
+//        for example we detect that the user used the coupon or any other
+//        coupon.
+//
+IntentInput.prototype.flagCurrentBuyIntentSessionAsDone = function() {
+  this.finishCurrentBuyIntentSession = true;
+  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.info(MODULE_NAME, 'flagCurrentBuyIntentSessionAsDone');
+};
+
 
 
 
@@ -182,19 +195,20 @@ IntentInput.prototype.feedWithEvent = function(event) {
   let isNewBuyIntentSession = buyIntentDuration > this.buyIntentTimeMs;
   isNewBuyIntentSession = isNewBuyIntentSession || (this.currBuyIntent.thereWasACheckout() &&
                                                     this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
+  isNewBuyIntentSession = isNewBuyIntentSession || this.finishCurrentBuyIntentSession;
 
-  GoldrushConfigs.LOG_ENABLED &&
-  LoggingHandler.info(MODULE_NAME,
-    'isNewBuyIntentSession: ' + isNewBuyIntentSession +
-    ' - beginBuyIntentTime: ' + beginBuyIntentTime +
-    ' - currTimestamp: ' + currTimestamp +
-    ' - buyIntentDuration: ' +  buyIntentDuration +
-    ' - this.buyIntentTimeMs: ' + this.buyIntentTimeMs +
-    ' - timeDiff: ' + timeDiff);
+  // GoldrushConfigs.LOG_ENABLED &&
+  // LoggingHandler.info(MODULE_NAME,
+  //   'isNewBuyIntentSession: ' + isNewBuyIntentSession +
+  //   ' - beginBuyIntentTime: ' + beginBuyIntentTime +
+  //   ' - currTimestamp: ' + currTimestamp +
+  //   ' - buyIntentDuration: ' +  buyIntentDuration +
+  //   ' - this.buyIntentTimeMs: ' + this.buyIntentTimeMs +
+  //   ' - timeDiff: ' + timeDiff);
 
   if (isNewBuyIntentSession) {
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.info("SR", "creating new buyIntentSessions");
+    // reset the flag
+    this.finishCurrentBuyIntentSession = false;
     // then we need to create a new one and replace the last one
     // NOTE: for now we will comment this:
     // this.buyIntentSessions.push(this.currBuyIntent);

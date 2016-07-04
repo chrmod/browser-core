@@ -21,6 +21,15 @@ export default background({
     // configure the preferences here
     GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', true);
 
+    // check if we need to set dev flags or not
+    if (CliqzUtils.getPref('goldrushDevFlag', false)) {
+      GoldrushConfigs.LOAD_HISTORY_EVENTS = false;
+      GoldrushConfigs.COUPON_HANDLER_RESET_FILE = true;
+      GoldrushConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
+      // enable logs?
+      GoldrushConfigs.LOG_ENABLED = true;
+    }
+
     // init the logging
     LoggingHandler.init();
 
@@ -42,6 +51,7 @@ export default background({
       'Version: ' + GoldrushConfigs.CURRENT_VERSION + '\n' +
       'timestamp: ' + Date.now() + '\n' +
       'switchFlag: ' + GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH + '\n' +
+      'dev_flag: ' + CliqzUtils.getPref('goldrushDevFlag', false) + '\n' +
       '------------------------------------------------------------------------\n'
       );
   },
