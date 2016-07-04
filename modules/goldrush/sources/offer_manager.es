@@ -988,12 +988,9 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 //        should then check if the coupon used was one we provided or not
 //
 OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
-  GoldrushConfigs.LOG_ENABLED &&
-  LoggingHandler.info(MODULE_NAME, 'SR  ' + JSON.stringify(this.offersShownCounterMap));
-
+  const cid = this.mappings['dname_to_cid'][domain];
   if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
     this.offersShownCounterMap[coupon] -= 1;
-    let cid = this.mappings['dname_to_cid'][domain];
     this.statsHandler.couponUsed(cid);
 
     GoldrushConfigs.LOG_ENABLED &&
@@ -1010,15 +1007,19 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
       }
     }
   } else {
-    let cid = this.mappings['dname_to_cid'][domain];
     this.statsHandler.externalCouponUsed(cid);
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                        'Unrecognized coupon used :\t cid: ' + cid  +
                        ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
   }
-  GoldrushConfigs.LOG_ENABLED &&
-  LoggingHandler.info(MODULE_NAME, 'SR  ' + JSON.stringify(this.offersShownCounterMap));
+
+  // at any case we need to mark the current intent as over since the user used
+  // a coupon
+  var intentInput = this.intentInputMap[cid];
+  if (intentInput) {
+    intentInput.flagCurrentBuyIntentSessionAsDone();
+  }
 };
 
 
