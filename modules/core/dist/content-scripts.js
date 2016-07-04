@@ -156,6 +156,27 @@ var getContentScript = function (window, url) {
       // window.addEventListener("unload", function () {
       //   window.removeEventListener("DOMContentLoaded", onUnload);
       // });
+    },
+
+    "*reisen.de/*/booking/booking*": function(window, send) {
+      window.console.log("reisen.com");
+
+      function onLoad() {
+        window.setTimeout(function() {
+          let btn = window.document.getElementById("submitbutton");
+          btn && btn.addEventListener("click", function(){
+            let couponField = window.document.getElementById("customerCouponCode");
+            if(couponField && couponField.value) {
+              send({
+                  action: "goldrushEM",
+                  args: [{"domain": "reisen", "code": couponField.value}]
+                });
+            }
+          });
+        }, 2000);
+      }
+
+      window.addEventListener("DOMContentLoaded", onLoad);
     }
   };
 
