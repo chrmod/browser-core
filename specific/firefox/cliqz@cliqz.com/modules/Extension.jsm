@@ -374,7 +374,7 @@ var Extension = {
           var enumerator = Services.wm.getEnumerator('navigator:browser');
           var remainingWin = 0;
           while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
+            var dummyWin = enumerator.getNext();
             remainingWin += 1;
           }
           CliqzEvents.pub('core.window_closed', {remaining: remainingWin});
