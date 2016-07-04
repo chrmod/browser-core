@@ -48,9 +48,9 @@ export class TravelRule extends Rule {
         name : 'checkoutCurrIntentSession',
         args : {}
       },
-      FID_sessionCount_range_2: {
+      FID_sessionCount_biggerThan_2: {
         name: 'sessionCount',
-        args: {'range': [2]}
+        args: {'biggerThan': 2}
       }
     };
   }
@@ -72,13 +72,10 @@ export class TravelRule extends Rule {
   evaluate(fidsValuesMapping) {
     GoldrushConfigs.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
-                         'returning only the value of the topClusterVisits fid: ' +
-                         fidsValuesMapping.FID_numEventsCurrSession_N7_delta2);
-
-    GoldrushConfigs.LOG_ENABLED &&
-    LoggingHandler.error(MODULE_NAME,
-                         'returning only the value of the sessionCount fid: ' +
-                         fidsValuesMapping.FID_sessionCount_range_2);
+                         'FID_numEventsCurrSession_N7_delta2: ' +
+                         fidsValuesMapping.FID_numEventsCurrSession_N7_delta2 +
+                         '\n - FID_sessionCount_biggerThan_2: ' +
+                         fidsValuesMapping.FID_sessionCount_biggerThan_2);
 
     // rule:
     // (second session or greater) && (5th event or greater)
@@ -91,7 +88,7 @@ export class TravelRule extends Rule {
     }
 
     if (fidsValuesMapping.FID_numEventsCurrSession_N7_delta2 > 0.0 &&
-        fidsValuesMapping.FID_sessionCount_range_2 > 0.0) {
+        fidsValuesMapping.FID_sessionCount_biggerThan_2 > 0.0) {
       return 1;
     }
     return 0;
