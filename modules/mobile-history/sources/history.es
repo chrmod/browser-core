@@ -1,8 +1,10 @@
 'use strict';
-/* global document, CliqzUtils, CliqzHandlebars, osAPI */
+/* global osAPI */
 
 import LongPress from 'mobile-touch/longpress';
-import CliqzHandlebars from "core/templates";
+import handlebars from "core/templates";
+import utils from "core/utils";
+import { document } from "core/mobile-webview"
 
 var historyTimer;
 var editMode = false;
@@ -15,7 +17,7 @@ function showHistory(history) {
   clearTimeout(historyTimer);
 
   allHistory = history;
-  const queries = CliqzUtils.getLocalStorage().getObject('recentQueries', []).reverse();
+  const queries = utils.getLocalStorage().getObject('recentQueries', []).reverse();
 
   for (let i = 0; i < history.length; i++) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
@@ -31,7 +33,7 @@ function showFavorites(favorites) {
   allFavorites = favorites;
   const favoriteHistory = favorites;
 
-  const favoriteQueries = CliqzUtils.getLocalStorage().getObject('favoriteQueries', []);
+  const favoriteQueries = utils.getLocalStorage().getObject('favoriteQueries', []);
 
   for (let i = 0; i < favoriteHistory.length; i++) {
     favoriteHistory[i].domain = favoriteHistory[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
@@ -90,11 +92,11 @@ function mixHistoryWithQueries(queries, history) {
 }
 
 function displayData(data, isFavorite = false) {
-  if (!CliqzHandlebars.tplCache['conversations']) {
+  if (!handlebars.tplCache['conversations']) {
     return setTimeout(displayData, 100, data);
   }
 
-  document.body.innerHTML = CliqzHandlebars.tplCache['conversations']({data: data, isFavorite});
+  document.body.innerHTML = handlebars.tplCache['conversations']({data: data, isFavorite});
 
   const B = document.body,
       H = document.documentElement;
@@ -115,7 +117,7 @@ function displayData(data, isFavorite = false) {
 
   const queryCount = data.filter(function (item) { return item.query; }).length,
       urlCount = data.filter(function (item) { return item.url; }).length;
-  CliqzUtils.telemetry({
+  utils.telemetry({
     type: History.showOnlyFavorite ? 'favorites' : 'history',
     action: 'show',
     active_day_count: data.length - queryCount - urlCount,
@@ -210,7 +212,7 @@ function favoriteSelected() {
 }
 
 function setQueryFavorite() {
-  let favoriteQueries = CliqzUtils.getLocalStorage().getObject('favoriteQueries', []);
+  let favoriteQueries = utils.getLocalStorage().getObject('favoriteQueries', []);
   selectedQueries.forEach((item) => {
     for (let i = 0; i < favoriteQueries.length; i++) {
       if (item.query === favoriteQueries[i].query) {
@@ -223,7 +225,7 @@ function setQueryFavorite() {
     }
   });
 
-  CliqzUtils.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
+  utils.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
 }
 
 function setHistoryFavorite() {
@@ -242,11 +244,11 @@ function setHistoryFavorite() {
 }
 
 function removeQueries() {
-  let queries = CliqzUtils.getLocalStorage().getObject('recentQueries', []);
+  let queries = utils.getLocalStorage().getObject('recentQueries', []);
 
   const queryIds = selectedQueries.map(query => query.id);
   queries = queries.filter(query => queryIds.indexOf(query.id) === -1);
-  CliqzUtils.getLocalStorage().setObject('recentQueries', queries);
+  utils.getLocalStorage().setObject('recentQueries', queries);
 }
 
 function removeHistoryItems(ids) {
@@ -319,16 +321,16 @@ function update() {
 }
 
 function clearHistory() {
-  CliqzUtils.getLocalStorage().setObject('recentQueries', []);
+  utils.getLocalStorage().setObject('recentQueries', []);
 }
 
 function clearFavorites() {
-  CliqzUtils.getLocalStorage().setObject('favoriteQueries', []);
+  utils.getLocalStorage().setObject('favoriteQueries', []);
 }
 
 function sendClickTelemetry(element) {
   const targeType = element.className === 'question' ? 'query' : 'url';
-    CliqzUtils.telemetry({
+    utils.telemetry({
       type: History.showOnlyFavorite ? 'favorites' : 'history',
       action: 'click',
       target_type: targeType,
@@ -343,11 +345,11 @@ function sendClickTelemetry(element) {
   to extension version Mobile Extension 3.5.2
 **/
 function migrateQueries() {
-  if (CliqzUtils.getLocalStorage().getItem('isFavoritesRefactored')) {
+  if (utils.getLocalStorage().getItem('isFavoritesRefactored')) {
     return;
   }
-  let queries = CliqzUtils.getLocalStorage().getObject('recentQueries', []);
-  let favoriteQueries = CliqzUtils.getLocalStorage().getObject('favoriteQueries', []);
+  let queries = utils.getLocalStorage().getObject('recentQueries', []);
+  let favoriteQueries = utils.getLocalStorage().getObject('favoriteQueries', []);
   queries = queries.map(query => {
     if (query.favorite) {
       favoriteQueries.unshift({query: query.query, timestamp: query.timestamp});
@@ -355,9 +357,9 @@ function migrateQueries() {
     delete query.favorite;
     return query;
   });
-  CliqzUtils.getLocalStorage().setObject('recentQueries', queries);
-  CliqzUtils.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
-  CliqzUtils.getLocalStorage().setItem('isFavoritesRefactored', true);
+  utils.getLocalStorage().setObject('recentQueries', queries);
+  utils.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
+  utils.getLocalStorage().setItem('isFavoritesRefactored', true);
 }
 
 
