@@ -3,7 +3,6 @@ import {RulesBuilder} from 'goldrush/rules/rules_builder';
 import {FIDsBuilder} from 'goldrush/fids/fids_builder';
 import {IntentDetector} from 'goldrush/intent_detector';
 import {IntentInput} from 'goldrush/intent_input';
-import ResourceLoader from 'core/resource-loader';
 import { OfferFetcher } from 'goldrush/offer_fetcher';
 import { DateTimeDB } from 'goldrush/dbs/datetime_db';
 import { GeneralDB } from 'goldrush/dbs/general_db';
@@ -13,6 +12,7 @@ import { StatsHandler } from 'goldrush/stats_handler';
 import { CouponHandler } from 'goldrush/coupon_handler';
 import GoldrushConfigs from 'goldrush/goldrush_configs';
 import LoggingHandler from 'goldrush/logging_handler';
+import { loadFileFromChrome } from 'goldrush/utils';
 
 // TODO: review if this is fine
 Components.utils.import('resource://gre/modules/Services.jsm');
@@ -54,12 +54,8 @@ function openNewTabAndSelect(url) {
 ////////////////////////////////////////////////////////////////////////////////
 function parseMappingsFileAsPromise(filename) {
   return new Promise(function(resolve, reject) {
-    let rscLoader = new ResourceLoader(
-      [ 'goldrush', filename ],
-      {}
-    );
-
-    rscLoader.load().then(json => {
+    loadFileFromChrome([ 'goldrush', filename ]).then(jsonData => {
+      let json = JSON.parse(jsonData);
       // now we parse the data and return this
       check(json['cid_to_cname'] !== undefined, 'cid_to_cname not defined');
       check(json['cname_to_cid'] !== undefined, 'cname_to_cid not defined');
@@ -76,11 +72,8 @@ function parseMappingsFileAsPromise(filename) {
 ////////////////////////////////////////////////////////////////////////////////
 function parseFileASPromise(filename) {
   return new Promise(function(resolve, reject) {
-    let rscLoader = new ResourceLoader(
-      [ 'goldrush', filename ],
-      {}
-    );
-    rscLoader.load().then(json => {
+    loadFileFromChrome([ 'goldrush', filename ]).then(jsonData => {
+      let json = JSON.parse(jsonData);
       resolve(json);
     });
   });
@@ -386,8 +379,11 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
 
     var dbFilePromise = new Promise(function(resolve, reject) {
       // read the resource
-      let rscLoader = new ResourceLoader(['goldrush/clusters', dbFilePath], {});
-      rscLoader.load().then(json => {resolve(json);});
+      loadFileFromChrome(['goldrush/clusters', dbFilePath]).then(
+        jsonData => {
+          let json = JSON.parse(jsonData);
+          resolve(json);
+        });
     });
 
     // get all the data and then construct the intent detector and push it into
