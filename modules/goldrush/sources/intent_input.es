@@ -109,13 +109,22 @@ BuyIntentSession.prototype.addEvent = function(event) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
+export function IntentInput(sessionTimeSecs = 30*60,
+                            buyIntentThresholdSecs = 60*60*24*10,
+                            aClusterID = -1,
+                            aNewIntentLifeCycleCb = undefined) {
+
   LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'Created new IntentInput object');
+
+  this.clusterID = aClusterID;
   this.sessionTimeMs = sessionTimeSecs * 1000;
   this.buyIntentTimeMs = buyIntentThresholdSecs * 1000;
   // timestamp for events that we need to discard:
   this.discardEvtTs = Date.now() - this.buyIntentTimeMs;
+  this.isHistoryEvent = false;
+  // the callback
+  this.newIntentLifeCycleCb = aNewIntentLifeCycleCb;
 
   this.buyIntentIDCount = 0;
 
@@ -221,6 +230,12 @@ IntentInput.prototype.feedWithEvent = function(event) {
   // now we just push the event there and thats all
   this.currBuyIntent.addEvent(event);
 
+  // triggering the event that there is a new session here
+  if (!this.isHistoryEvent &&
+      (this.currBuyIntent.totalNumOfEvents() === 1) &&
+      this.newIntentLifeCycleCb) {
+    this.newIntentLifeCycleCb(this.clusterID);
+  }
 };
 
 //
@@ -239,7 +254,9 @@ IntentInput.prototype.feedWithHistoryEvent = function(event) {
   // LoggingHandler.info(MODULE_NAME, 'using event: ' + event.ts + ' < ' + this.discardEvtTs);
 
   // else we feed with this event
+  this.isHistoryEvent = true;
   this.feedWithEvent(event);
+  this.isHistoryEvent = false;
 };
 
 

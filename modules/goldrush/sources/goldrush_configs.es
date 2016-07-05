@@ -15,6 +15,10 @@ var GoldrushConfigs = {
 
   CURRENT_VERSION: 0.4,
 
+  // TODO: THIS AND THE OCURRENCES OF THIS FLAG SHOULD BE REMOVED ON THE RELEASE
+  //
+  AB_ENABLE_FEATURE_OVERRIDE_FLAG: true,
+
   //////////////////////////////////////////////////////////////////////////////
   // Offer Manager
 

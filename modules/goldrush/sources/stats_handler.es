@@ -357,6 +357,17 @@ export class StatsHandler {
     this.dataDirty = true;
   }
 
+  //
+  // @brief new intent lifecycle has started
+  //
+  newIntentLifeCycleStarted(clusterID) {
+    LoggingHandler.LOG_ENABLED &&
+    LoggingHandler.info(MODULE_NAME, 'newIntentLifeCycleStarted');
+
+    generateOrAddField(this.currentData['data'], clusterID, 'intent_lc', 1);
+    this.dataDirty = true;
+  }
+
 }
 
 
