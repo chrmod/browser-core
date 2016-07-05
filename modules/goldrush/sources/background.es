@@ -19,7 +19,7 @@ export default background({
 
   init(settings) {
     // configure the preferences here
-    GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', true);
+    GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', false);
 
     // check if we need to set dev flags or not
     // extensions.cliqz.goldrushDevFlag
