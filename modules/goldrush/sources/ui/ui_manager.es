@@ -170,7 +170,6 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
     // show coupon
     buttons.push({
       label : 'Zum Angebot',
-      accessKey : '1',
       callback : function () {
         if (self.callbacks.show_coupon) {
           return self.callbacks.show_coupon(offerID);
@@ -182,7 +181,6 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   // not interested in this
   buttons.push({
     label : 'Kein Interesse',
-    accessKey : '3',
     callback : function () {
         if (self.callbacks.not_interested) {
           return self.callbacks.not_interested(offerID);
@@ -190,10 +188,8 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
       }
   });
 
-  // go and fu** urself
   buttons.push({
     label : 'Ueber CLIQZ-Angebote',
-    accessKey : '4',
     callback : function () {
         if (self.callbacks.information) {
           return self.callbacks.information(offerID);
