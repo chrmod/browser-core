@@ -16,12 +16,6 @@ var GoldrushConfigs = {
   CURRENT_VERSION: 0.4,
 
   //////////////////////////////////////////////////////////////////////////////
-  // Logging system
-
-  // nasty approach to "simulate macros :("
-  LOG_ENABLED: true,
-
-  //////////////////////////////////////////////////////////////////////////////
   // Offer Manager
 
   // the number of milliseconds we want to wait till we hide the add

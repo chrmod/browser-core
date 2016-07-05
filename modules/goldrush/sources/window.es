@@ -1,6 +1,5 @@
 import background from 'goldrush/background';
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 // to be able to get the events on page change
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -43,10 +42,10 @@ export default class {
         // skip the event if is the same document here
         // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIWebProgressListener
         //
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.info(MODULE_NAME, 'new event with location: ' + aURI.spec + ' - referrer: ' + referrer);
         if (aFlags === Components.interfaces.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT) {
-          GoldrushConfigs.LOG_ENABLED &&
+          LoggingHandler.LOG_ENABLED &&
           LoggingHandler.info(MODULE_NAME, 'discarding event since it is repeated');
           return;
         }

@@ -1,6 +1,5 @@
 import { Rule } from 'goldrush/rules/rule';
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 
@@ -70,7 +69,7 @@ export class TravelRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'FID_numEventsCurrSession_N7_delta2: ' +
                          fidsValuesMapping.FID_numEventsCurrSession_N7_delta2 +

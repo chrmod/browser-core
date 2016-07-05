@@ -1,7 +1,6 @@
 //import Reporter from 'goldrush/reporter';
 //import ResourceLoader from 'core/resource-loader';
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 const MODULE_NAME = 'intent_input';
 
@@ -113,7 +112,7 @@ BuyIntentSession.prototype.addEvent = function(event) {
 
 ////////////////////////////////////////////////////////////////////////////////
 export function IntentInput(sessionTimeSecs = 30*60, buyIntentThresholdSecs = 60*60*24*10) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'Created new IntentInput object');
   this.sessionTimeMs = sessionTimeSecs * 1000;
   this.buyIntentTimeMs = buyIntentThresholdSecs * 1000;
@@ -149,7 +148,7 @@ IntentInput.prototype.currentBuyIntentSession = function() {
 //
 IntentInput.prototype.flagCurrentBuyIntentSessionAsDone = function() {
   this.finishCurrentBuyIntentSession = true;
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'flagCurrentBuyIntentSessionAsDone');
 };
 
@@ -197,7 +196,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
                                                     this.currBuyIntent.checkTimestampIsInCurrSession(currTimestamp));
   isNewBuyIntentSession = isNewBuyIntentSession || this.finishCurrentBuyIntentSession;
 
-  // GoldrushConfigs.LOG_ENABLED &&
+  // LoggingHandler.LOG_ENABLED &&
   // LoggingHandler.info(MODULE_NAME,
   //   'isNewBuyIntentSession: ' + isNewBuyIntentSession +
   //   ' - beginBuyIntentTime: ' + beginBuyIntentTime +
@@ -217,7 +216,7 @@ IntentInput.prototype.feedWithEvent = function(event) {
     //
     this.buyIntentIDCount++;
     this.currBuyIntent = new BuyIntentSession(this.buyIntentIDCount, this.sessionTimeMs);
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'generating new buy intent session!');
   }
 
@@ -234,11 +233,11 @@ IntentInput.prototype.feedWithEvent = function(event) {
 IntentInput.prototype.feedWithHistoryEvent = function(event) {
   // we heck if we need to discard this event or not
   if (event.ts < this.discardEvtTs) {
-    // GoldrushConfigs.LOG_ENABLED &&
+    // LoggingHandler.LOG_ENABLED &&
     // LoggingHandler.info(MODULE_NAME, 'discarding event: ' + event.ts + ' < ' + this.discardEvtTs);
     return;
   }
-  // GoldrushConfigs.LOG_ENABLED &&
+  // LoggingHandler.LOG_ENABLED &&
   // LoggingHandler.info(MODULE_NAME, 'using event: ' + event.ts + ' < ' + this.discardEvtTs);
 
   // else we feed with this event

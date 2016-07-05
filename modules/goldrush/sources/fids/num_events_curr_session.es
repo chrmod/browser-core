@@ -1,6 +1,5 @@
 import { FID } from 'goldrush/fids/fid';
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 const MODULE_NAME = 'num_events_curr_session_fid';
@@ -39,7 +38,7 @@ export class NumEventsCurrSessionFID extends FID {
 
   configureArgs(configArgs) {
     // set default values
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
     if (configArgs['N'] < 0 || configArgs['delta'] < 0) {
@@ -56,7 +55,7 @@ export class NumEventsCurrSessionFID extends FID {
     // number of events
     let intentSession = intentInput.currentBuyIntentSession();
     const numOfEvents = intentSession.getCurrentSession().length;
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'numOfEvents: ' + numOfEvents +
                         ' - this.lowerBound: ' + this.lowerBound +

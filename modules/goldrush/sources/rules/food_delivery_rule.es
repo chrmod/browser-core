@@ -1,6 +1,5 @@
 import { Rule } from 'goldrush/rules/rule';
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 
@@ -77,7 +76,7 @@ export class FoodDeliveryRule extends Rule {
   // @return a value between [0,1] as intent value.
   //
   evaluate(fidsValuesMapping) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'FidsValues: ' +
                         '\n - fidsValuesMapping.FID_numEventsCurrSession_N5_delta2: ' +

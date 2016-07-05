@@ -28,7 +28,7 @@ export default background({
       GoldrushConfigs.COUPON_HANDLER_RESET_FILE = true;
       GoldrushConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
       // enable logs?
-      GoldrushConfigs.LOG_ENABLED = true;
+      LoggingHandler.LOG_ENABLED = true;
     }
 
     // init the logging
@@ -44,7 +44,7 @@ export default background({
     events.sub('core.window_closed', this.onWindowClosed.bind(this));
 
     // print the timestamp
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
       '\n\n' +
       '------------------------------------------------------------------------\n' +
@@ -69,7 +69,7 @@ export default background({
 
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'unloading background');
 
     // destroy classes
@@ -85,7 +85,7 @@ export default background({
 
     events.un_sub('core.window_closed', this.onWindowClosed.bind(this));
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'background script unloaded');
   },
 
@@ -95,7 +95,7 @@ export default background({
       return;
     }
     var u = utils.getDetailsFromUrl(url);
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'location changed to ' + u.host);
 
     // now we add the referrer to the url
@@ -110,7 +110,7 @@ export default background({
       this.offerManager.processNewEvent(u);
     } catch (e) {
       // log this error, is nasty, something went wrong
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'Exception catched when processing a new event: ' + e,
                            LoggingHandler.ERR_INTERNAL);
@@ -119,7 +119,7 @@ export default background({
 
   //////////////////////////////////////////////////////////////////////////////
   onWindowClosed(data) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'window closed!!: remaining: ' + data.remaining);
     // GR-147: if this is the last window then we just save everything here
     if (data.remaining === 0) {
@@ -140,7 +140,7 @@ export default background({
       var u = utils.getDetailsFromUrl(url);
       this.offerManager.onTabOrWinChanged(u);
     } catch (e) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'Exception catched on onTabOrWinChangedHandler: ' + e,
                            LoggingHandler.ERR_INTERNAL);

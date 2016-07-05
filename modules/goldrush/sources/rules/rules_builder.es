@@ -1,5 +1,4 @@
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 // rules
 import { Rule } from 'goldrush/rules/rule';
 import { FoodDeliveryRule } from 'goldrush/rules/food_delivery_rule';
@@ -40,7 +39,7 @@ export class RulesBuilder {
       default:
     }
     if (!rule) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME, 'We dont have the rule for clusterid: ' + cidNum);
     } else {
       rule.setClusterID(clusterID);

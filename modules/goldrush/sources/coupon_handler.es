@@ -27,7 +27,7 @@ function printSet(setName, s) {
     str += v + ', ';
   });
   str += '}';
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'SET ' + setName + ': ' + str);
 }
 
@@ -46,7 +46,7 @@ export class CouponHandler {
     // load the subclusters
     this.loadOfferSubclusters();
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'init properly');
   }
 
@@ -65,7 +65,7 @@ export class CouponHandler {
     if (localStorage) {
       localStorage.setItem('coupons_data', JSON.stringify(this.couponData));
 
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'saving coupons_data db: ' + JSON.stringify(this.couponData));
     }
   }
@@ -88,10 +88,10 @@ export class CouponHandler {
     var cache = localStorage.getItem('coupons_data');
     if (cache) {
       this.couponData = JSON.parse(cache);
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'coupons_data db found, loading data: ' + JSON.stringify(this.couponData));
     } else {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'coupons_data db NOT found');
     }
   }
@@ -110,7 +110,7 @@ export class CouponHandler {
     var couponIDsToFilter = this.getCouponIDsToFilter(evtClusterID);
     var vouchers = this.filterUsedVouchers(vouchersList, couponIDsToFilter);
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                        'Vouchers before filtering ' + JSON.stringify(vouchersList) +
                        '\n - afterFiltering: ' + JSON.stringify(vouchers) +
@@ -142,7 +142,7 @@ export class CouponHandler {
 
     // get a default voucher just in case
     var voucher = null;
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                        'getBestCoupon: selecting best coupon for switch: ' + switchFlag +
                        ' - subclusterMap: ' + subclusterMap);
@@ -175,7 +175,7 @@ export class CouponHandler {
       // we need to use the cluster thing to get the best voucher
       const userOnSubcluster = (subclusterMap['A'].has(evtDomID)) ? 'A' : 'B';
       if (!subclusterMap[userOnSubcluster].has(evtDomID)) {
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.error(MODULE_NAME,
                              'The user is not nor in A or B subcluster, this is an error. ' +
                              'userEvtID: ' + evtDomID + '\ttag: ' + userOnSubcluster +
@@ -192,7 +192,7 @@ export class CouponHandler {
         subclusterToSearch = userOnSubcluster;
       }
       // search in this
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'getBestCoupon: selecting voucher for subcluster: ' + subclusterToSearch +
                          ' - user on subcluster: ' + userOnSubcluster +
@@ -202,7 +202,7 @@ export class CouponHandler {
 
       // check if we found a voucher we want
       if (!localVoucher) {
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.warning(MODULE_NAME,
                                'We didnt find any coupon to be returned here, ' +
                                'this could be because we already show it before ' +
@@ -216,7 +216,7 @@ export class CouponHandler {
       return localVoucher;
     } else {
       // we just need to get any voucher that is not evtDomID if possible
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'getBestCoupon: selectiong the best voucher from all (no A|B logic)');
       return selectBestVoucher(vouchers, new Set());
@@ -242,7 +242,7 @@ export class CouponHandler {
     }
 
     // nothing else to do
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'trackNewCoupon executed [' + couponID +
                         '] this.couponData: ' + JSON.stringify(this.couponData));
@@ -257,7 +257,7 @@ export class CouponHandler {
     const clusterID = couponInfo.cluster_id;
     if (!this.couponData.hasOwnProperty(clusterID) ||
         !this.couponData[clusterID].hasOwnProperty(couponID)) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'trying to mark a coupon as used but we dont ' +
                            'even have the cluster ID: ' + clusterID +
@@ -269,7 +269,7 @@ export class CouponHandler {
     this.couponData[clusterID][couponID]['last_shown_ts'] = timestamp;
 
     // TODO: remove this log
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsShown properly executed');
   }
 
@@ -278,7 +278,7 @@ export class CouponHandler {
     const clusterID = couponInfo.cluster_id;
     if (!this.couponData.hasOwnProperty(clusterID) ||
         !this.couponData[clusterID].hasOwnProperty(couponID)) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'trying to mark a coupon as used but we dont ' +
                            'even have the cluster ID: ' + clusterID +
@@ -290,7 +290,7 @@ export class CouponHandler {
     this.couponData[clusterID][couponID]['last_used_ts'] = timestamp;
     incCounter(this.couponData[clusterID][couponID],'used_c');
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsUsed properly executed');
   }
 
@@ -299,7 +299,7 @@ export class CouponHandler {
     const clusterID = couponInfo.cluster_id;
     if (!this.couponData.hasOwnProperty(clusterID) ||
         !this.couponData[clusterID].hasOwnProperty(couponID)) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'trying to mark a coupon as used but we dont ' +
                            'even have the cluster ID: ' + clusterID +
@@ -311,7 +311,7 @@ export class CouponHandler {
     this.couponData[clusterID][couponID]['last_ur_ts'] = timestamp;
     incCounter(this.couponData[clusterID][couponID],'ur_c');
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsRejected properly executed');
   }
 
@@ -320,7 +320,7 @@ export class CouponHandler {
     const clusterID = couponInfo.cluster_id;
     if (!this.couponData.hasOwnProperty(clusterID) ||
         !this.couponData[clusterID].hasOwnProperty(couponID)) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'trying to mark a coupon as used but we dont ' +
                            'even have the cluster ID: ' + clusterID +
@@ -333,7 +333,7 @@ export class CouponHandler {
     incCounter(this.couponData[clusterID][couponID],'uc_c');
 
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsClosedByUser properly executed');
   }
 
@@ -342,7 +342,7 @@ export class CouponHandler {
     const clusterID = couponInfo.cluster_id;
     if (!this.couponData.hasOwnProperty(clusterID) ||
         !this.couponData[clusterID].hasOwnProperty(couponID)) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'trying to mark a coupon as used but we dont ' +
                            'even have the cluster ID: ' + clusterID +
@@ -354,7 +354,7 @@ export class CouponHandler {
     this.couponData[clusterID][couponID]['last_cbs_ts'] = timestamp;
     incCounter(this.couponData[clusterID][couponID],'cbs_c');
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsClosedBySystem properly executed');
   }
 
@@ -464,7 +464,7 @@ export class CouponHandler {
     );
     var self = this;
     rscLoader.load().then(json => {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'loading the json for loadOfferSubclusters json stringify: ' +
                          JSON.stringify(json));
@@ -480,7 +480,7 @@ export class CouponHandler {
         // now convert 'A' and 'B' into sets
         var currentCluster = json[cid];
         if (!currentCluster['A'] || !currentCluster['B']) {
-          GoldrushConfigs.LOG_ENABLED &&
+          LoggingHandler.LOG_ENABLED &&
           LoggingHandler.warning(MODULE_NAME,
                                  'it is missing A or B in the ' +
                                  'file?... we will skip self one');
@@ -497,7 +497,7 @@ export class CouponHandler {
             const domName = currentCluster[tag][domNameIndex];
             const domID = self.mappings['dname_to_did'][domName];
             if (domID === undefined) {
-              GoldrushConfigs.LOG_ENABLED &&
+              LoggingHandler.LOG_ENABLED &&
               LoggingHandler.error(MODULE_NAME,
                                    'There is a domain in the subclusters that is not ' +
                                    'listed in the global cluster file? or in the ' +
@@ -506,17 +506,17 @@ export class CouponHandler {
               continue;
             }
             self.offerSubclusterInfo[cid][tag].add(Number(domID));
-            GoldrushConfigs.LOG_ENABLED &&
+            LoggingHandler.LOG_ENABLED &&
             LoggingHandler.info(MODULE_NAME,
                                'adding domain: ' + domName + ' - ' + domID + ' to tag ' + tag);
           }
         }
       }
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'loadOfferSubclusters: ' + JSON.stringify(self.offerSubclusterInfo));
     }.bind(self)).catch(function(e) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'Loading the OfferSubclusters: ' + e,
                            LoggingHandler.ERR_JSON_PARSE);

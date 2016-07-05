@@ -1,7 +1,6 @@
 import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
 import ResourceLoader from 'core/resource-loader';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 Components.utils.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
@@ -50,7 +49,7 @@ export function UIManager() {
 UIManager.prototype.createCouponDisplay = function(offerInfo) {
   if (!this.htmlHandlebarTemplate) {
     // nothing to do here..
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'we still dont have the handlebar template here...');
     return;
   }
@@ -137,7 +136,7 @@ UIManager.prototype.isOfferForClusterShownInCurrentWindow = function(clusterID) 
 //
 UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOffer=false) {
   if (!this.callbacks) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'no callbacks set yet... we cannot add any coupon to the UI');
     return false;
   }
@@ -154,7 +153,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   // get the notification box and build whatever we want to show (style) here.
   var notificationContent = this.createCouponDisplay(offerInfo);
   if (!notificationContent) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'we couldnt create the coupon display',
                          LoggingHandler.ERR_INTERNAL);
@@ -249,7 +248,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
       }
     });
   } catch (e) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'We couldnt get the code button from the ui to link it with ' +
                          'the copyToClipboard feature. Description: ' + e,
