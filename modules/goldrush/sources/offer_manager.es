@@ -583,7 +583,7 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
 
   // Every time we show a offer add it to this maps. It will help us track
   // is our coupon where used or not
-  let couponCode = coupon.code;
+  let couponCode = coupon.code.toLowerCase();
   if(this.offersShownCounterMap.hasOwnProperty(couponCode)) {
     this.offersShownCounterMap[couponCode] += 1;
   } else {
@@ -988,6 +988,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 //        should then check if the coupon used was one we provided or not
 //
 OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
+  coupon = coupon.toLowerCase();
   const cid = this.mappings['dname_to_cid'][domain];
   if(this.offersShownCounterMap.hasOwnProperty(coupon) && this.offersShownCounterMap[coupon] > 0){
     this.offersShownCounterMap[coupon] -= 1;
