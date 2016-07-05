@@ -269,6 +269,12 @@ var CliqzABTests = {
                 CliqzUtils.setPref("cliqz-anti-phishing", true);
                 CliqzUtils.setPref("cliqz-anti-phishing-enabled", true);
                 break;
+            case "1071_A":
+                CliqzUtils.setPref("browser.privatebrowsing.apt", false, '');
+                break;
+            case "1071_B":
+                CliqzUtils.setPref("browser.privatebrowsing.apt", true, '');
+                break;
             default:
                 rule_executed = false;
         }
@@ -391,6 +397,7 @@ var CliqzABTests = {
             case "1067_B":
                 CliqzUtils.clearPref("attrackProxyTrackers");
                 break;
+            case "1068_A":
             case "1068_B":
                 CliqzUtils.clearPref("languageDedup");
                 break;
@@ -403,6 +410,10 @@ var CliqzABTests = {
                 CliqzUtils.clearPref('cliqz-anti-phishing');
                 CliqzUtils.clearPref('cliqz-anti-phishing-enabled');
                 break;
+            case "1071_A":
+            case "1071_B":
+                CliqzUtils.clearPref('browser.privatebrowsing.apt', '');
+                break
             default:
                 rule_executed = false;
         }
