@@ -1,5 +1,3 @@
-//import Reporter from 'goldrush/reporter';
-//import ResourceLoader from 'core/resource-loader';
 import LoggingHandler from 'goldrush/logging_handler';
 
 const MODULE_NAME = 'intent_input';

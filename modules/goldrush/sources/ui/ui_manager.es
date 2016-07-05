@@ -1,6 +1,5 @@
 import { utils } from 'core/cliqz';
 //import Reporter from 'goldrush/reporter';
-import ResourceLoader from 'core/resource-loader';
 import { loadFileFromChrome } from 'goldrush/utils';
 import LoggingHandler from 'goldrush/logging_handler';
 
@@ -30,12 +29,7 @@ export function UIManager() {
   this.htmlHandlebarTemplate = null;
 
   // load the html and compile the handlebars directly here only once
-  // let rscLoader = new ResourceLoader([ 'goldrush', 'voucher.html' ],
-  //                                    {dataType: 'raw'});
   var self = this;
-  // rscLoader.loadFromDefaultLocation().then(html => {
-  //   self.htmlHandlebarTemplate = CliqzHandlebars.compile(html);
-  // });
   loadFileFromChrome(['goldrush', 'voucher.html']).then(html => {
     self.htmlHandlebarTemplate = CliqzHandlebars.compile(html);
   }).catch(err => { LoggingHandler.LOG_ENABLED && LoggingHandler.error(MODULE_NAME, err)});
