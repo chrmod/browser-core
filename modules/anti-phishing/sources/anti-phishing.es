@@ -1,46 +1,43 @@
 import CliqzHumanWeb from "human-web/human-web";
 import core from "core/background";
 
-var BW_URL = "http://antiphishing.clyqz.com/api/bwlist?md5=";
+const BW_URL = "https://antiphishing.cliqz.com/api/bwlist?md5=";
+const WARNING = 'chrome://cliqz/content/anti-phishing/phishing-warning.html';
 
-var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
-        .createInstance(Components.interfaces.nsIDOMSerializer);
+function format(currWin, url, md5) {
+    let doc = currWin.document;
+    doc.getElementById('phishing-url').innerText = url;
+    doc.getElementsByClassName('cqz-button-save-out')[0].onclick = function() {
+      if (doc.referrer) {
+          // currWin.location = doc.referrer;
+          currWin.location.replace(doc.referrer);
+      } else {
+          currWin.location.replace('about:newtab');
+      }
+    }
+    doc.getElementById('report-safe').onclick = function() {
+      CliqzHumanWeb.notification({'url': doc.URL, 'action': 'report'});
+      CliqzAntiPhishing.forceWhiteList[md5] = 1;
+      currWin.location.replace(url);
+    };
+    let proceedBt = doc.getElementById('proceed');
+    proceedBt.onclick = function() {
+      CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
+      CliqzAntiPhishing.forceWhiteList[md5] = 1;
+      currWin.location.replace(url);
+    }
+};
 
-function alert(doc, md5, tp) {
-    if (md5 in CliqzAntiPhishing.forceWhiteList)
+function alert(currWin, url, md5) {
+    if (!CliqzAntiPhishing.isAntiPhishingActive() || md5 in CliqzAntiPhishing.forceWhiteList) {
         return;
-    var fe = doc.querySelector("body>*");
-    var el = doc.createElement("DIV");
-    var els = doc.createElement("SCRIPT");
-    el.setAttribute("style", "width: 100% !important; height: 100%; position: fixed; opacity: 0.95; background: grey;top: 0; left: 0; z-index: 999999999999999999999;");
-    el.onclick = function(e) {
-        e.stopPropagation();
-    };
-    var d = doc.createElement('div');
-    d.align = 'center';
-    var bt = doc.createElement('input');
-    bt.type = 'button';
-    bt.value = "I don't care, take me to it";
-    el.innerHTML = "<div align=\"center\"><h1>This is a phishing site</h1></div>";
-    d.appendChild(bt);
-    var bt2 = doc.createElement('input');
-    bt2.type = 'button';
-    bt2.value = "This is not a phishing site, report to CLIQZ";
-    d.appendChild(bt2);
-    el.appendChild(d);
-    bt.onclick = function() {
-        doc.body.removeChild(el);
-        CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
-    };
-    bt2.onclick = function() {
-        doc.body.removeChild(el);
-        CliqzAntiPhishing.forceWhiteList[md5] = 1;
-        CliqzHumanWeb.notification({'url': doc.URL, 'action': 'report'});
-    };
-    els.innerHTML = "window.onbeforeunload = function () {}";
-    doc.body.insertBefore(el, fe);
-    doc.body.appendChild(els);
-}
+    }
+    currWin.location.replace(WARNING);  // change it to warning page
+    CliqzUtils.setTimeout(function (currWin, url, md5){
+        CliqzUtils.currWin = currWin;
+        format(currWin, url, md5);
+    }, 100, currWin, url, md5)
+};
 
 function checkPassword(url, callback) {
   const suspicious = core.queryHTML(url, "input", "type,value,name").then(
@@ -153,7 +150,7 @@ function notifyHumanWeb(p) {
     CliqzHumanWeb.state['v'][url]['isMU'] = status;
     // Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
     // CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-    CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
+    // CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
 }
 
 function updateSuspiciousStatus(url, status) {
@@ -165,7 +162,7 @@ function updateSuspiciousStatus(url, status) {
         if (CliqzHumanWeb.state['v'][url]) {
             notifyHumanWeb(p);
         } else {
-            CliqzUtils.log("delay notification", "antiphishing");
+            // CliqzUtils.log("delay notification", "antiphishing");
             CliqzUtils.setTimeout(notifyHumanWeb, 1000, p);
         }
     }
@@ -192,11 +189,13 @@ function checkSuspicious(url, callback) {
   checkPassword(url, callback);
 }
 
-function checkStatus(url, md5Prefix, md5Surfix) {
+function checkStatus(url, md5Prefix, md5Surfix, currWin) {
     var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
     if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
+            // show the block html page
+            alert(currWin, url, md5Prefix + md5Surfix);
         }
     } else {
         CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
@@ -207,8 +206,8 @@ function checkStatus(url, md5Prefix, md5Surfix) {
 
 /**
  * This module injects warning message when user visits a phishing site
- * @class AntiPhising
- * @namespace anti-phising
+ * @class AntiPhishing
+ * @namespace anti-phishing
  */
 var CliqzAntiPhishing = {
     forceWhiteList: {},
@@ -217,16 +216,17 @@ var CliqzAntiPhishing = {
     * @method auxOnPageLoad
     * @param url {string}
     */
-    auxOnPageLoad: function(url) {
+    auxOnPageLoad: function(url, currWin) {
         var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
+        // alert(currWin, url, md5Prefix + md5Surfix);
         if (md5Prefix in CliqzAntiPhishing.blackWhiteList)
-            checkStatus(url, md5Prefix, md5Surfix);
+            checkStatus(url, md5Prefix, md5Surfix, currWin);
         else
             CliqzUtils.httpGet(
                 BW_URL + md5Prefix,
                 function success(req) {
                     updateBlackWhiteStatus(req, md5Prefix);
-                    checkStatus(url, md5Prefix, md5Surfix);
+                    checkStatus(url, md5Prefix, md5Surfix, currWin);
                 },
                 function onerror() {
                 },
@@ -252,6 +252,9 @@ var CliqzAntiPhishing = {
             else
                 return [null, null];
         }
+    },
+    isAntiPhishingActive: function() {
+        return CliqzUtils.getPref('cliqz-anti-phishing-enabled', false);
     }
 };
 

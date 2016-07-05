@@ -261,7 +261,14 @@ var CliqzABTests = {
             case "1069_B":
                 CliqzUtils.setPref("grOfferSwitchFlag", true);
                 break;
-
+            case "1070_A":
+                CliqzUtils.setPref("cliqz-anti-phishing", false);
+                CliqzUtils.setPref("cliqz-anti-phishing-enabled", false);
+                break;
+            case "1070_B":
+                CliqzUtils.setPref("cliqz-anti-phishing", true);
+                CliqzUtils.setPref("cliqz-anti-phishing-enabled", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -391,6 +398,11 @@ var CliqzABTests = {
             case "1069_B":
                 CliqzUtils.clearPref("grOfferSwitchFlag");
             break;
+            case "1070_A":
+            case "1070_B":
+                CliqzUtils.clearPref('cliqz-anti-phishing');
+                CliqzUtils.clearPref('cliqz-anti-phishing-enabled');
+                break;
             default:
                 rule_executed = false;
         }

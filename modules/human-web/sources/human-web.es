@@ -1693,7 +1693,7 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
 
-                    AntiPhishing.auxOnPageLoad(activeURL);
+                    AntiPhishing.auxOnPageLoad(activeURL, currwin);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1) {
@@ -2571,6 +2571,16 @@ var CliqzHumanWeb = {
     // ****************************
     trk: [],
     trkTimer: null,
+    notification: function(payload){
+      try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+      if(payload && typeof(payload) === 'object'){
+        payload['ctry'] = location;
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
+      }
+      else{
+        _log("Not a valid object, not sent to notification");
+      }
+    },
     telemetry: function(msg, instantPush) {
         if (!CliqzHumanWeb || //might be called after the module gets unloaded
             CliqzUtils.getPref('dnt', false) ||
