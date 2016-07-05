@@ -16,15 +16,22 @@ const MODULE_NAME = 'window';
 ////////////////////////////////////////////////////////////////////////////////
 export default class {
   constructor(settings) {
+    // check if we have the feature  enabled
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+      return;
+    }
     this.window = settings.window;
     this.settings = settings.settings;
     // GR-117 -> check comment below in init()
     this.tabsProgressListener = null;
-
-    //this.window.document.style.border = '5px solid red';
   }
 
   init() {
+    // check if we have the feature  enabled
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+      return;
+    }
+
     // We need to subscribe here to get events everytime the location is
     // changing and is the a new url. We had issues since everytime we switch
     // the tabs we got the event from core.locaiton_change and this is not correct
@@ -59,6 +66,8 @@ export default class {
 
   unload() {
     // remove the progress listener to not get more events here
-    this.window.gBrowser.removeProgressListener(this.tabsProgressListener);
+    if (this.window) {
+      this.window.gBrowser.removeProgressListener(this.tabsProgressListener);
+    }
   }
 }

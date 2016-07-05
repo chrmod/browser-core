@@ -18,6 +18,12 @@ export default background({
   },
 
   init(settings) {
+
+    // check if we need to do something or not
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+      return;
+    }
+
     // configure the preferences here
     GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', false);
 
@@ -69,6 +75,11 @@ export default background({
 
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
+    // check if we have the feature  enabled
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+      return;
+    }
+
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'unloading background');
 

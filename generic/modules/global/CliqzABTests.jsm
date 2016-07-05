@@ -269,6 +269,11 @@ var CliqzABTests = {
                 CliqzUtils.setPref("cliqz-anti-phishing", true);
                 CliqzUtils.setPref("cliqz-anti-phishing-enabled", true);
                 break;
+            case "1071_A":
+                CliqzUtils.setPref("grFeatureEnabled", false);
+                break;
+            case "1071_B":
+                CliqzUtils.setPref("grFeatureEnabled", true);
             default:
                 rule_executed = false;
         }
@@ -403,6 +408,9 @@ var CliqzABTests = {
                 CliqzUtils.clearPref('cliqz-anti-phishing');
                 CliqzUtils.clearPref('cliqz-anti-phishing-enabled');
                 break;
+            case "1071_A":
+            case "1071_B":
+              CliqzUtils.clearPref('grFeatureEnabled');
             default:
                 rule_executed = false;
         }
