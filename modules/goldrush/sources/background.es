@@ -20,7 +20,8 @@ export default background({
   init(settings) {
 
     // check if we need to do something or not
-    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
+        !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
       return;
     }
 
@@ -76,7 +77,8 @@ export default background({
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
+        !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
       return;
     }
 

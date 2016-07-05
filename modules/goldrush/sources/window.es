@@ -1,5 +1,6 @@
 import background from 'goldrush/background';
 import LoggingHandler from 'goldrush/logging_handler';
+import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 // to be able to get the events on page change
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -17,7 +18,8 @@ const MODULE_NAME = 'window';
 export default class {
   constructor(settings) {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
+        !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
       return;
     }
     this.window = settings.window;
@@ -28,7 +30,8 @@ export default class {
 
   init() {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
+        !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
       return;
     }
 
