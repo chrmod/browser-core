@@ -38,7 +38,7 @@ export function UIManager() {
   // });
   loadFileFromChrome(['goldrush', 'voucher.html']).then(html => {
     self.htmlHandlebarTemplate = CliqzHandlebars.compile(html);
-  }).catch(err => { LoggingHandler.error(MODULE_NAME, err)});
+  }).catch(err => { LoggingHandler.LOG_ENABLED && LoggingHandler.error(MODULE_NAME, err)});
 }
 
 
