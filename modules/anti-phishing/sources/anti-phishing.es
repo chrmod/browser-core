@@ -28,7 +28,24 @@ function format(currWin, url, md5) {
     }
 };
 
+function getErrorCode(doc)
+{
+  var url = doc.documentURI;
+  var error = url.search(/e\=/);
+  var duffUrl = url.search(/\&u\=/);
+  return decodeURIComponent(url.slice(error + 2, duffUrl));
+}
+
 function alert(currWin, url, md5) {
+    const doc = currWin.document;
+    // checking if the FF detected also Phishing on this tab
+    if(doc.documentURI.indexOf("about:blocked?") == 0 &&
+       getErrorCode(doc) == "deceptiveBlocked"){
+
+      CliqzHumanWeb.notification({'url': url, 'action': 'ff_block'});
+      return;
+    }
+
     if (!CliqzAntiPhishing.isAntiPhishingActive()) {
         return;
     }
@@ -207,7 +224,8 @@ function checkStatus(url, md5Prefix, md5Surfix, currWin, first) {
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
             // show the block html page
-            alert(currWin, url, md5Prefix + md5Surfix);
+            // delay the actual show in case FF itself detects this as phishing also
+            CliqzUtils.setTimeout(alert, 1000, currWin, url, md5Prefix + md5Surfix)
         }
     } else {
         // alert humanweb if it is suspicious
