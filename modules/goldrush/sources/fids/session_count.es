@@ -1,7 +1,6 @@
 import { utils } from 'core/cliqz';
 import { FID } from 'goldrush/fids/fid';
 import LoggingHandler from 'goldrush/logging_handler';
-import GoldrushConfigs from 'goldrush/goldrush_configs';
 
 
 const MODULE_NAME = 'session_count_fid';
@@ -25,7 +24,7 @@ export class SessionCountFID extends FID {
 
   configureArgs(configArgs) {
     // set default values
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
     if (configArgs.hasOwnProperty('range')) {
@@ -35,7 +34,7 @@ export class SessionCountFID extends FID {
       this.biggerThan = configArgs['biggerThan'];
     }
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'configured with: ' +
                         '\n - range: ' + ((this.range) ? JSON.stringify(this.range) : 'null') +
@@ -49,16 +48,16 @@ export class SessionCountFID extends FID {
     const numSessions = intentSession.numOfSessions();
 
     // check if it is in the range?
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'numSessions: ' + numSessions);
     if (this.range) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'using range');
       return this.range.has(numSessions) ? 1.0 : 0.0;
     }
 
     // else we need to check the lower bound
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'using lowerBound: ' + this.biggerThan);
     return (numSessions >= this.biggerThan) ? 1.0 : 0.0;
   }

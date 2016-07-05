@@ -33,7 +33,7 @@ const MODULE_NAME = 'offer_manager';
 //
 function check(expression, message) {
   if (!expression) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME, message, LoggingHandler.ERR_INTERNAL);
   }
 }
@@ -207,7 +207,7 @@ export function OfferManager() {
   let self = this;
   parseFileASPromise('configs.json').then(function(configs) {
     self.configs = configs;
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'load the configs.json: ' + JSON.stringify(self.configs));
 
@@ -218,7 +218,7 @@ export function OfferManager() {
       self.couponHandler = new CouponHandler(self.mappings);
       self.couponHandler.loadPersistentData();
 
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'setting the mappings to the offer manager');
       self.offerFetcher = new OfferFetcher(destURL, mappings);
     }).then(function() {
@@ -227,7 +227,7 @@ export function OfferManager() {
         let cache = localStorage.getItem('user_data');
         if (!cache) {
           // we need to write this then
-          GoldrushConfigs.LOG_ENABLED &&
+          LoggingHandler.LOG_ENABLED &&
           LoggingHandler.info(MODULE_NAME, 'no db found, creating new one');
           let userDB = {};
           for (let cid in self.mappings['cid_to_cname']) {
@@ -236,19 +236,19 @@ export function OfferManager() {
           localStorage.setItem('user_data', JSON.stringify(userDB));
           self.userDB = userDB;
         } else {
-          GoldrushConfigs.LOG_ENABLED &&
+          LoggingHandler.LOG_ENABLED &&
           LoggingHandler.info(MODULE_NAME, 'db found, loading it: ' + cache);
           self.userDB = JSON.parse(cache);
         }
     }).then(function() {
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.info(MODULE_NAME, 'load the clusters and create the');
 
         self.clusterFilesMap = getClustersFilesMap();
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.info(MODULE_NAME, 'self.clusterFilesMap: ' + JSON.stringify(self.clusterFilesMap));
 
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.info(MODULE_NAME, 'calling generateIntentsDetector');
 
         self.generateIntentsDetector(self.clusterFilesMap);
@@ -272,7 +272,7 @@ export function OfferManager() {
 //
 OfferManager.prototype.loadHistoryEvents = function() {
   if (!GoldrushConfigs.LOAD_HISTORY_EVENTS) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'skipping the LOAD_HISTORY_EVENTS since flag is false');
     return;
   }
@@ -300,7 +300,7 @@ OfferManager.prototype.loadHistoryEvents = function() {
                    'moz_historyvisits.place_id = moz_places.id WHERE visit_date > ' +
                    absoluteTimestamp + ' ORDER BY visit_date ASC;';
 
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'loading the history events now with query: ' + sqlQuery);
   // execute the query now
   let eventCounts = 0;
@@ -315,7 +315,7 @@ OfferManager.prototype.loadHistoryEvents = function() {
     null
     ).then(function() {
       // nothing to do
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'finishing feeding from history. Number of events: ' + eventCounts);
     }
@@ -367,7 +367,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       }
     }
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'using threshold values for cluster ' + clusterID +
                         '\n - sessionThresholdTimeSecs: ' + sessionThresholdTimeSecs +
@@ -404,7 +404,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
       //add cluster related section of userDB to instacen
       dbInstancesMap['user_db'] = self.userDB[clusterID];
 
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'dbInstancesMap' + JSON.stringify(dbInstancesMap, null, 4));
       return;
     }).then(function() {
@@ -415,7 +415,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
         intentDetector.loadRule(rulesBuilder, fidsBuilder);
         self.intentDetectorsMap[clusterID] = intentDetector;
       } catch (e) {
-        GoldrushConfigs.LOG_ENABLED &&
+        LoggingHandler.LOG_ENABLED &&
         LoggingHandler.error(MODULE_NAME,
                              'something happened when configuring the intent ' +
                              'detector for cluster ' + clusterName +
@@ -423,7 +423,7 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
                              LoggingHandler.ERR_INTERNAL);
       }
     }).catch(function(errMsg) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'Some error happened when reading and parsing the ' +
                            '. Error: ' + errMsg,
@@ -447,7 +447,7 @@ OfferManager.prototype.savePersistentData = function() {
   if(this.userDB) {
     let localStorage = CLIQZEnvironment.getLocalStorage(GoldrushConfigs.USER_LOCAL_STORAGE_URL);
     localStorage.setItem('user_data', JSON.stringify(this.userDB));
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'Saving data into local storage');
   }
 
@@ -589,7 +589,7 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
   } else {
     this.offersShownCounterMap[couponCode] = 1;
   }
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME,
                      'offersShownCounterMap content: ' + JSON.stringify(this.offersShownCounterMap));
 
@@ -608,12 +608,12 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
 OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = false) {
   // - search for the offer on the maps and remove it
   // - disable the disabler timer
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'removing and untracking offer with ID: ' + offerID);
 
   var offer = this.currentOfferMap[offerID];
   if (!offer) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'offer no longer valid with id: ' + offerID);
     return;
   }
@@ -636,7 +636,7 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = f
   }
 
   if (this.cidToOfferMap[clusterID] === undefined) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'ERROR: we couldnt find the offer for cluster ID: ' + clusterID,
                          LoggingHandler.ERR_INTERNAL);
@@ -655,20 +655,20 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = f
 OfferManager.prototype.isCheckoutPage = function(domainName, fullUrl) {
   if (this.mappings['dname_to_checkout_regex']){
     let regexForDomain = this.mappings['dname_to_checkout_regex'][domainName];
-    //GoldrushConfigs.LOG_ENABLED &&
+    //LoggingHandler.LOG_ENABLED &&
     //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#regexForDomain: ' + regexForDomain);
 
-    //GoldrushConfigs.LOG_ENABLED &&
+    //LoggingHandler.LOG_ENABLED &&
     //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage#friendly_url: ' + fullUrl);
 
     if (regexForDomain && fullUrl.match(regexForDomain)) {
-      //GoldrushConfigs.LOG_ENABLED &&
+      //LoggingHandler.LOG_ENABLED &&
       //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: true');
       return true;
     }
   }
 
-  //GoldrushConfigs.LOG_ENABLED &&
+  //LoggingHandler.LOG_ENABLED &&
   //LoggingHandler.info(MODULE_NAME, 'isCheckoutPage: false');
   return false;
 };
@@ -697,7 +697,7 @@ OfferManager.prototype.showOfferIfNeeded = function(clusterID, domainID) {
   // we have an offer, check if we are showing this one in particular
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'This cannot happen here... there is inconsistent data',
                          LoggingHandler.ERR_INTERNAL);
@@ -746,7 +746,7 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   if (!clusterID || clusterID < 0) {
     // this cannot happen since we got a valid domainID from the mappings but
     // we don't have the given cluster ID in the mappings? this is not gut
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'Invalid cluster id!: ' + domainName,
                          LoggingHandler.ERR_INTERNAL);
@@ -760,7 +760,7 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   // get the associated intent system
   let intentInput = this.intentInputMap[clusterID];
   if (!intentInput) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.warning(MODULE_NAME,
                            'WARNING: we still dont have a intent system for ' +
                            'cluster ID: ' + clusterID,
@@ -781,7 +781,7 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
 //
 OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
   if (!this.mappings || !currUrl || !currUrl.name) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.warning(MODULE_NAME, 'onTabOrWinChanged: null something');
     // nothing to do
     return;
@@ -806,7 +806,7 @@ OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
 //        all the logic of showing a coupong if our system detects a coupon or not.
 //
 OfferManager.prototype.processNewEvent = function(urlObject) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'processNewEvent');
   // here we need to:
   // 1) parse the url information and format it in a way that the intent intput
@@ -827,11 +827,11 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // (1) & (2)
   var event = this.formatEvent(urlObject, Date.now());
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'event' + JSON.stringify(event, null, 4));
   if (!event) {
     // we skip this event.
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'skipping event has domain relevant');
     return;
   }
@@ -843,7 +843,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   if (!clusterID || clusterID < 0) {
     // this cannot happen since we got a valid domainID from the mappings but
     // we don't have the given cluster ID in the mappings? this is not gut
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'Invalid cluster id!: ' + domainName,
                          LoggingHandler.ERR_INTERNAL);
@@ -869,7 +869,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   let intentSystem = this.intentDetectorsMap[clusterID];
   let intentInput = this.intentInputMap[clusterID];
   if (!intentSystem || !intentInput) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                        'we still dont have a intent system for cluster ID: ' + clusterID);
     return;
@@ -899,7 +899,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // (5)
   const intentValue = intentSystem.evaluateInput(intentInput);
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'intentValue: ' + intentValue);
 
   // (6)
@@ -918,7 +918,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
   // we don't show any other one since we can only show one per cluster
   if (this.cidToOfferMap[clusterID] !== undefined) {
     // skip this particular one
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                        'we already have an offer for clusterID: ' + clusterID +
                        ' so we dont show another one');
@@ -927,7 +927,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
 
   // we have an intention so we need to get the coupons from the fetcher
   if (!this.offerFetcher) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.warning(MODULE_NAME,
                            'We dont have still the offerFetcher, we then skip this event?',
                            LoggingHandler.ERR_INTERNAL);
@@ -944,7 +944,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     // else get the best coupon for this
     var bestCoupon = self.couponHandler.selectBestCoupon(domainID, clusterID, vouchers);
     if (!bestCoupon) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.warning(MODULE_NAME,
                              'we dont have vouchers for this particular cluser ' +
                              'ID: ' + clusterID,
@@ -959,7 +959,7 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     const timestamp = Date.now();
     var offer = self.createAndTrackNewOffer(bestCoupon, timestamp, clusterID, domainID);
     if (!offer) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'we couldnt create the offer?? for clusterID: ' + clusterID,
                            LoggingHandler.ERR_INTERNAL);
@@ -967,10 +967,10 @@ OfferManager.prototype.processNewEvent = function(urlObject) {
     }
 
     // track the coupon
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'offer created properly calling the trackCoupon');
     self.couponHandler.trackNewCoupon(bestCoupon);
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'trackCoupon proper called');
 
     // we have a offer, show it into the UI for the user
@@ -994,7 +994,7 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
     this.offersShownCounterMap[coupon] -= 1;
     this.statsHandler.couponUsed(cid);
 
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                        'Our coupon used :\t cid: ' + cid +  ' \t domain: ' +
                        domain + ' \tcoupon: ' + coupon);
@@ -1009,7 +1009,7 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
     }
   } else {
     this.statsHandler.externalCouponUsed(cid);
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                        'Unrecognized coupon used :\t cid: ' + cid  +
                        ' \t domain: ' + domain + ' \tcoupon: ' + coupon);
@@ -1033,12 +1033,12 @@ OfferManager.prototype.addCouponAsUsedStats = function(domain, coupon) {
 // @brief when the user press on the "check coupon or view coupon"
 //
 OfferManager.prototype.checkButtonUICallback = function(offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'checkButtonUICallback');
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'there is no related offer with id ' + offerID,
                          LoggingHandler.ERR_INTERNAL);
@@ -1057,7 +1057,7 @@ OfferManager.prototype.checkButtonUICallback = function(offerID) {
   // we will get the url to redirect from the coupon here
   const urlToGo = offer.voucher_data.redirect_url;
   if (!urlToGo) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'No redirect_url found in the voucher/coupon?',
                          LoggingHandler.ERR_INTERNAL);
@@ -1076,7 +1076,7 @@ OfferManager.prototype.checkButtonUICallback = function(offerID) {
 // @brief when the user press on the "not interested coupon callback"
 //
 OfferManager.prototype.notInterestedUICallback = function(offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'notInterestedUICallback');
 
   // if the user explicetly says it doesnt want to see the add anymore then
@@ -1105,7 +1105,7 @@ OfferManager.prototype.notInterestedUICallback = function(offerID) {
 // @brief when the user press on the "information"
 //
 OfferManager.prototype.informationUICallback = function(offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'informationUICallback');
 
   const offer = this.currentOfferMap[offerID];
@@ -1127,13 +1127,13 @@ OfferManager.prototype.informationUICallback = function(offerID) {
 // @note https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/appendNotification#Notification_box_events
 //
 OfferManager.prototype.extraEventsUICallback = function(reason, offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'extraEventsUICallback: ' + reason);
 
   if (reason === 'removed') {
     const offer = this.currentOfferMap[offerID];
     if (!offer) {
-      GoldrushConfigs.LOG_ENABLED &&
+      LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'The offer is not valid with ID: ', offerID,
                            LoggingHandler.ERR_INTERNAL);
@@ -1152,12 +1152,12 @@ OfferManager.prototype.extraEventsUICallback = function(reason, offerID) {
 // @brief when the close button is clicked
 //
 OfferManager.prototype.onCloseBtnClickedUICallback = function(offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'onCloseBtnClickedUICallback');
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                         'Missing offer?? this is not possible: ' + offerID);
     return;
@@ -1181,11 +1181,11 @@ OfferManager.prototype.onCloseBtnClickedUICallback = function(offerID) {
 // @brief when the user press on the code to copy it to the clipboard
 //
 OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'copyToClipboardUICallback');
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'We are missing the offer that we just clicked?: ' + offerID);
     return;
@@ -1204,7 +1204,7 @@ OfferManager.prototype.copyToClipboardUICallback = function(offerID) {
 // @brief when an offer is shown
 //
 OfferManager.prototype.offerShownUICallback = function(offerID) {
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'offerShownUICallback');
   if (!this.userDB) {
     return;
@@ -1212,7 +1212,7 @@ OfferManager.prototype.offerShownUICallback = function(offerID) {
 
   const offer = this.currentOfferMap[offerID];
   if (!offer) {
-    GoldrushConfigs.LOG_ENABLED &&
+    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,
                          'We are showing and offer that we dont have?: ' + offerID,
                          LoggingHandler.ERR_INTERNAL);
@@ -1223,7 +1223,7 @@ OfferManager.prototype.offerShownUICallback = function(offerID) {
   const clusterID = offer['appear_on_cid'];
   const timestamp = Date.now();
 
-  GoldrushConfigs.LOG_ENABLED &&
+  LoggingHandler.LOG_ENABLED &&
   LoggingHandler.info(MODULE_NAME, 'offerShownUICallback: clusterID: ' + clusterID);
 
   // for now we will only add the last ad shown for a given cid and timestamp

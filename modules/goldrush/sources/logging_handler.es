@@ -19,6 +19,9 @@ var LoggingHandler = {
   LOG_FILE_NAME: ['cliqz', 'goldrush', 'logging.log'], // TODO define here
 
 
+  // nasty approach to "simulate macros :("
+  LOG_ENABLED: true,
+
   //////////////////////////////////////////////////////////////////////////////
   // DEFINE THE ERROR CODES HERE
   //
