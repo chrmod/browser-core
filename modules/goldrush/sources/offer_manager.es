@@ -374,7 +374,10 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
                         '\n - buyIntentThresholdSecs: ' + buyIntentThresholdSecs);
 
     // // generate the intent input
-    this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs, buyIntentThresholdSecs);
+    this.intentInputMap[clusterID] = new IntentInput(sessionThresholdTimeSecs,
+                                                     buyIntentThresholdSecs,
+                                                     clusterID,
+                                                     this.intentLifeCycleStarted.bind(this));
 
     // we need to build the current cluster system.
     let dbFilePath = clusterFilesMap[clusterName]['db_file'];
@@ -1250,6 +1253,17 @@ OfferManager.prototype.offerHideUICallback = function(offerID) {
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+//
+// @brief when a new intent lifecycle starts we get a callback here
+//
+OfferManager.prototype.intentLifeCycleStarted = function(clusterID) {
+  if (this.statsHandler) {
+    this.statsHandler.newIntentLifeCycleStarted(clusterID);
+  }
+};
 
 
 
