@@ -116,7 +116,7 @@ export default class {
     var action = {
       type: 'activity',
       position_type: ['inbar_' + (CliqzUtils.isUrl(this.urlbar.mInputField.value)? 'url': 'query')],
-      autocompleted: CliqzAutocomplete.lastAutocompleteType,
+      autocompleted: CliqzAutocomplete.lastAutocompleteActive,
       action: 'urlbar_go_click'
     };
     CliqzUtils.telemetry(action);
