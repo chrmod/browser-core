@@ -1,7 +1,7 @@
 import { utils } from 'core/cliqz';
-import ResourceLoader from 'core/resource-loader';
 import LoggingHandler from 'goldrush/logging_handler';
 import GoldrushConfigs from 'goldrush/goldrush_configs';
+import { loadFileFromChrome } from 'goldrush/utils';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -458,12 +458,9 @@ export class CouponHandler {
   //  }
   //
   loadOfferSubclusters() {
-    let rscLoader = new ResourceLoader(
-      [ 'goldrush', 'offer_subclusters.json' ],
-      {}
-    );
     var self = this;
-    rscLoader.load().then(json => {
+    loadFileFromChrome(['goldrush', 'offer_subclusters.json']).then(jsonData => {
+      let json = JSON.parse(jsonData);
       LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'loading the json for loadOfferSubclusters json stringify: ' +
