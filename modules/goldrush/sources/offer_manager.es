@@ -769,7 +769,7 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
   }
 
   // feed with the event
-  intentInput.feedWithEvent(event);
+  intentInput.feedWithHistoryEvent(event);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

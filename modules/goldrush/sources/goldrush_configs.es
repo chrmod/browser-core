@@ -13,7 +13,7 @@ var GoldrushConfigs = {
   HOUR: 60 * 60,
   DAY: 60 * 60 * 24,
 
-  CURRENT_VERSION: 0.3,
+  CURRENT_VERSION: 0.4,
 
   //////////////////////////////////////////////////////////////////////////////
   // Logging system

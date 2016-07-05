@@ -36,6 +36,13 @@ export default class {
     });
   }
 
+  loadFromDefaultLocation() {
+    // no profile data so fetch from default location
+    return get( this.localURL ).then( data => {
+      return this.persist(data);
+    });
+  }
+
   updateFromRemote() {
     const pref = `resource-loader.lastUpdates.${this.resourceName.join('/')}`;
     let lastUpdate = Number( utils.getPref( pref, 0 ) ),

@@ -22,6 +22,7 @@ export default background({
     GoldrushConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', true);
 
     // check if we need to set dev flags or not
+    // extensions.cliqz.goldrushDevFlag
     if (CliqzUtils.getPref('goldrushDevFlag', false)) {
       GoldrushConfigs.LOAD_HISTORY_EVENTS = false;
       GoldrushConfigs.COUPON_HANDLER_RESET_FILE = true;
