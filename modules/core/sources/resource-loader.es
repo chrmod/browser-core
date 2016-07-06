@@ -28,18 +28,7 @@ export default class {
         return this.persist(data);
       });
     }).then( data => {
-      if(this.dataType === 'raw') {
-        return data;
-      } else {
-        return JSON.parse(data);
-      }
-    });
-  }
-
-  loadFromDefaultLocation() {
-    // no profile data so fetch from default location
-    return get( this.localURL ).then( data => {
-      return this.persist(data);
+      return JSON.parse(data);
     });
   }
 

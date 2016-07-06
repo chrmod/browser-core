@@ -1,3 +1,5 @@
+import GoldrushConfigs from 'goldrush/goldrush_configs';
+
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
 function globsMatch(find, source) {
     find = find.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
@@ -17,6 +19,7 @@ function globsMatch(find, source) {
 //        the associated coupon ID.
 //
 var getContentScript = function (window, url) {
+
   var CONTENT_SCRIPTS = {
     "*deliveroo.??/??/checkout": function(window, send) {
 
@@ -27,7 +30,7 @@ var getContentScript = function (window, url) {
           let couponField = window.document.getElementById("code");
           if(couponField && couponField.value){
             send({
-              action: "goldrushEM",
+              action: "offersEM",
               args: [{"domain": "deliveroo", "code":couponField.value}]
             })
           }
@@ -50,7 +53,7 @@ var getContentScript = function (window, url) {
             let inputFields = window.document.getElementsByClassName("yd-jig-discount-add-input");
             if(inputFields.length > 0) {
               send({
-                action: "goldrushEM",
+                action: "offersEM",
                 args: [{"domain": "lieferando", "code": inputFields[0].value}]
               });
             }
@@ -75,7 +78,7 @@ var getContentScript = function (window, url) {
             let inputField = window.document.getElementById("bonusCode1");
             if(inputField) {
               send({
-                action: "goldrushEM",
+                action: "offersEM",
                 args: [{"domain": "holidaycheck", "code": inputField.value}]
               });
             }
@@ -102,7 +105,7 @@ var getContentScript = function (window, url) {
               if(inputFields.length > 0) {
                 let inputField = inputFields[0];
                 send({
-                  action: "goldrushEM",
+                  action: "offersEM",
                   args: [{"domain": "holidaycheck", "code": inputField.value}]
               });
               }
@@ -121,7 +124,7 @@ var getContentScript = function (window, url) {
             let inputField = window.document.getElementById("coupon-code-field");
             if(inputField) {
               send({
-                action: "goldrushEM",
+                action: "offersEM",
                 args: [{"domain": "hotels", "code": inputField.value}]
               });
             }
@@ -144,7 +147,7 @@ var getContentScript = function (window, url) {
             let couponField = window.document.getElementById("customerCouponCode");
             if(couponField && couponField.value) {
               send({
-                  action: "goldrushEM",
+                  action: "offersEM",
                   args: [{"domain": "reisen", "code": couponField.value}]
                 });
             }
@@ -155,6 +158,12 @@ var getContentScript = function (window, url) {
       window.addEventListener("DOMContentLoaded", onLoad);
     }
   };
+
+  // don't do anything if offers feature is not enabled
+  if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
+      !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    return;
+  }
 
 
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs

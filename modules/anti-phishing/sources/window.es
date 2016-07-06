@@ -3,15 +3,19 @@ import CliqzAntiPhishing from "anti-phishing/anti-phishing";
 
 export default class {
   constructor(settings) {
-
+    this.window = settings.window;
   }
 
   init() {
-
+    if (utils.isPrivate(this.window)) {
+      this.window.gBrowser.addProgressListener(CliqzAntiPhishing.listener);
+    }
   }
 
   unload() {
-
+    if (utils.isPrivate(this.window)) {
+      this.window.gBrowser.removeProgressListener(CliqzAntiPhishing.listener);
+    }
   }
 
   changeAntiPhishingState() {

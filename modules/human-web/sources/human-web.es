@@ -1690,10 +1690,11 @@ var CliqzHumanWeb = {
 
 
             if (activeURL.indexOf('about:')!=0) {
+
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
 
-                    AntiPhishing.auxOnPageLoad(activeURL, currwin);
+                    AntiPhishing.auxOnPageLoad(activeURL, currwin, true);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1) {
@@ -1851,6 +1852,7 @@ var CliqzHumanWeb = {
                     // wops, it exists on the active page, probably it comes from a back button or back
                     // from tab navigation
                     CliqzHumanWeb.state['v'][activeURL]['tend'] = null;
+                    AntiPhishing.auxOnPageLoad(activeURL, currwin, false);
                 }
             }
         },
