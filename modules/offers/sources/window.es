@@ -18,8 +18,7 @@ const MODULE_NAME = 'window';
 export default class {
   constructor(settings) {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-        !OffersConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
       return;
     }
     this.window = settings.window;
@@ -30,8 +29,7 @@ export default class {
 
   init() {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-        !OffersConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
       return;
     }
 

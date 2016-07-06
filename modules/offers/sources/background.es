@@ -20,8 +20,7 @@ export default background({
   init(settings) {
 
     // check if we need to do something or not
-    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-        !OffersConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
       return;
     }
 
@@ -77,8 +76,7 @@ export default background({
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-        !OffersConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
       return;
     }
 
