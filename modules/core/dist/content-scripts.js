@@ -1,3 +1,5 @@
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
 function globsMatch(find, source) {
     find = find.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
@@ -159,13 +161,18 @@ var getContentScript = function (window, url) {
 
 
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
-  for (var prop in CONTENT_SCRIPTS) {
-    if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
-      if(globsMatch(prop, url)){
-       // window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
-        return CONTENT_SCRIPTS[prop];
+  let prefType = Services.prefs.getBranch("").getPrefType("extensions.cliqz.grFeatureEnabled");
+  if (prefType === 128 &&
+    Services.prefs.getBranch("").getBoolPref("extensions.cliqz.grFeatureEnabled") === true) {
+    for (var prop in CONTENT_SCRIPTS) {
+      if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
+        if(globsMatch(prop, url)){
+         // window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
+          return CONTENT_SCRIPTS[prop];
+        }
       }
     }
   }
+
 
 };
