@@ -1,3 +1,5 @@
+import GoldrushConfigs from 'goldrush/goldrush_configs';
+
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
 function globsMatch(find, source) {
     find = find.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
@@ -17,6 +19,7 @@ function globsMatch(find, source) {
 //        the associated coupon ID.
 //
 var getContentScript = function (window, url) {
+
   var CONTENT_SCRIPTS = {
     "*deliveroo.??/??/checkout": function(window, send) {
 
@@ -155,6 +158,12 @@ var getContentScript = function (window, url) {
       window.addEventListener("DOMContentLoaded", onLoad);
     }
   };
+
+  // don't do anything if offers feature is not enabled
+  if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
+      !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    return;
+  }
 
 
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
