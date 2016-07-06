@@ -14,7 +14,6 @@ import OffersConfigs from 'offers/offers_configs';
 import LoggingHandler from 'offers/logging_handler';
 import { loadFileFromChrome } from 'offers/utils';
 
-// TODO: review if this is fine
 Components.utils.import('resource://gre/modules/Services.jsm');
 // needed for the history
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
@@ -461,7 +460,6 @@ OfferManager.prototype.savePersistentData = function() {
 // @brief Unload all the class
 //
 OfferManager.prototype.destroy = function() {
-  // TODO: ensure this function is being called from the parent class
   if (this.statsHandler) {
     this.statsHandler.destroy();
   }
@@ -496,7 +494,6 @@ OfferManager.prototype.formatEvent = function(urlObj, aTimestamp) {
   const checkoutFlag = this.isCheckoutPage(domainName, fullURL);
   // TODO_QUESTION: how to get the last url?
   const lastURL = '';
-  // TODO_QUESTION: how to get the referrer url?
   const referrerURL = urlObj.referrer;
 
   // for now we don't have anything here

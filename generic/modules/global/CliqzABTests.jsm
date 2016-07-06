@@ -423,6 +423,7 @@ var CliqzABTests = {
             case "1072_A":
             case "1072_B":
               CliqzUtils.clearPref('grFeatureEnabled');
+              break;
             default:
                 rule_executed = false;
         }
