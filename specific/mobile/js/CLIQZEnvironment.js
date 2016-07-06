@@ -227,6 +227,7 @@ CLIQZEnvironment = {
   },
   OS: 'mobile',
   isPrivate: function(){ return false; },
+  isOnPrivateTab: function(win) { return false; },
   isScrolling: false,
   getWindow: function(){ return window; },
   getDomNodeContent: function(el) {
