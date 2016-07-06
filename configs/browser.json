@@ -10,7 +10,8 @@
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
     "channel": "40",
-    "antitrackingButton": true
+    "antitrackingButton": true,
+    "helpMenus": true
   },
   "modules": [
     "static",
