@@ -417,12 +417,6 @@ var CLIQZEnvironment = {
 
         return win.cliqzIsPrivate
     },
-
-    getCurrentTabPrivateness: function(window, callback) {
-      let r = window.gBrowser.selectedBrowser.loadContext.usePrivateBrowsing;
-      this.setTimeout(callback, 0, r);
-    },
-
     setInterval: function(func, timeout) {
         return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
     },
