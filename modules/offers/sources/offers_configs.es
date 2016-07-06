@@ -13,7 +13,7 @@ var OffersConfigs = {
   HOUR: 60 * 60,
   DAY: 60 * 60 * 24,
 
-  CURRENT_VERSION: 0.4,
+  CURRENT_VERSION: 0.5,
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,6 @@ var OffersConfigs = {
 
   // the redirect url to where we should point to when the user sees the offer
   // and click on "more info"
-  // TODO: define this url to the correct place.
   OFFER_INFORMATION_URL: 'https://cliqz.com/products/cliqz-for-desktop/cliqz-angebote',
 
   //////////////////////////////////////////////////////////////////////////////
