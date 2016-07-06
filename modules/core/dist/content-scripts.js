@@ -1,5 +1,3 @@
-Components.utils.import("chrome://cliqzmodules/content/CliqzUtils.jsm");
-
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
 function globsMatch(find, source) {
     find = find.replace(/[\-\[\]\/\{\}\(\)\+\.\\\^\$\|]/g, "\\$&");
@@ -159,15 +157,13 @@ var getContentScript = function (window, url) {
     }
   };
 
-  // check if offer module is enabled our not
-  if (CliqzUtils.getPref('grFeatureEnabled', false)) {
-    // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
-    for (var prop in CONTENT_SCRIPTS) {
-      if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
-        if(globsMatch(prop, url)){
-         // window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
-          return CONTENT_SCRIPTS[prop];
-        }
+
+  // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
+  for (var prop in CONTENT_SCRIPTS) {
+    if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
+      if(globsMatch(prop, url)){
+       // window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
+        return CONTENT_SCRIPTS[prop];
       }
     }
   }
