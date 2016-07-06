@@ -280,6 +280,7 @@ var CliqzABTests = {
                 break;
             case "1072_B":
                 CliqzUtils.setPref("grFeatureEnabled", true);
+                break;
             default:
                 rule_executed = false;
         }
