@@ -13,14 +13,8 @@ const MODULE_NAME = 'hour_fid';
 export class HourFID extends FID {
   constructor() {
     super('hour');
-    this.args = {}
+    this.hourSet = null;
 
-    this.configParams = {
-      'range' : {
-        description: 'list of hours for which fid return 1 if current event ts is inside',
-        value: []
-      }
-    };
   }
 
   configureDataBases(dbsMap) {
@@ -29,25 +23,18 @@ export class HourFID extends FID {
   configureArgs(configArgs) {
      // set default values
     LoggingHandler.LOG_ENABLED &&
-    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
-    // set default values
-    for(let k in this.configParams) {
-      this.args[k] = this.configParams[k]['value'];
+    if (configArgs.hasOwnProperty('range')) {
+      this.hourSet = new Set(configArgs['range']);
     }
-
-    // Overwrite values with the once specified in the rule files
-    for (let arg_idx in configArgs) {
-        this.args[arg_idx] = configArgs[arg_idx];
-    }
-
-    LoggingHandler.LOG_ENABLED &&
-    LoggingHandler.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'this.args: ' + JSON.stringify(this.args));
   }
 
   evaluate(intentInput, extras) {
+    if (!this.hourSet) {
+      return 0.0;
+    }
+
     // else we need to check if the current event is far away enough in time
     // to return 1
     let intentSession = intentInput.currentBuyIntentSession();
@@ -55,18 +42,13 @@ export class HourFID extends FID {
 
     let date = new Date(eventTimestamp);
     // Hours part from the timestamp
-    let hour = date.getHours();
+    const hour = date.getHours();
 
-    LoggingHandler.LOG_ENABLED &&
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'current_hour: ' + hour +
-                        ' range ' + JSON.stringify(this.args));
+                        ' - isInSet: ' + this.hourSet.has(hour));
 
-    // TODO: we can change this with a set instead of list
-    if (this.args['range'].indexOf(hour) > -1) {
-      return 1.0;
-    }
-    return 0.0;
+    return this.hourSet.has(hour) ? 1.0 : 0.0;
   }
 }

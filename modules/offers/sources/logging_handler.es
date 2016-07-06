@@ -15,12 +15,12 @@ var LoggingHandler = {
   //////////////////////////////////////////////////////////////////////////////
   // GLOBAL FLAGS
   //
-  SAVE_TO_FILE: true, // TODO this should be disabled before release
-  LOG_FILE_NAME: ['cliqz', 'offers', 'logging.log'], // TODO define here
+  SAVE_TO_FILE: false,
+  LOG_FILE_NAME: ['cliqz', 'offers', 'logging.log'],
 
 
   // nasty approach to "simulate macros :("
-  LOG_ENABLED: true,
+  LOG_ENABLED: false,
 
   //////////////////////////////////////////////////////////////////////////////
   // DEFINE THE ERROR CODES HERE

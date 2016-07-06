@@ -13,14 +13,7 @@ const MODULE_NAME = 'day_fid';
 export class DayFID extends FID {
   constructor() {
     super('day');
-    this.args = {};
-
-    this.configParams = {
-      'range' : {
-        description: 'list of days for which fid return 1 if current event ts is inside',
-        value: []
-      }
-    };
+    this.daysSet = null;
   }
 
   configureDataBases(dbsMap) {
@@ -31,18 +24,16 @@ export class DayFID extends FID {
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'configuring args: ' + JSON.stringify(configArgs));
 
-    // set default values
-    for(let k in this.configParams) {
-      this.args[k] = this.configParams[k]['value'];
-    }
-
-    // Overwrite values with the once specified in the rule files
-    for (let arg_idx in configArgs) {
-        this.args[arg_idx] = configArgs[arg_idx];
+    if (configArgs.hasOwnProperty('range')) {
+      this.daysSet = new Set(configArgs['range']);
     }
   }
 
   evaluate(intentInput, extras) {
+    if (!this.daysSet) {
+      return 0.0;
+    }
+
     // else we need to check if the current event is far away enough in time
     // to return 1
     let intentSession = intentInput.currentBuyIntentSession();
@@ -52,17 +43,13 @@ export class DayFID extends FID {
     // multiplied by 1000 so that the argument is in milliseconds, not seconds.
     let date = new Date(eventTimestamp);
     // Hours part from the timestamp
-    let day = date.getDay();
+    const day = date.getDay();
 
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME,
                         'current_day: ' + day +
-                        ' range ' + this.args['range']);
+                        ' isInSet: ' + this.daysSet.has(day));
 
-    // TODO: we can change this with a set instead of list
-    if (this.args['range'].indexOf(day) > -1) {
-      return 1.0;
-    }
-    return 0.0;
+    return this.daysSet.has(day) ? 1.0 : 0.0;
   }
-}
+};

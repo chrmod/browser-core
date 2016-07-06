@@ -35,6 +35,7 @@ export default background({
       OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
       // enable logs?
       LoggingHandler.LOG_ENABLED = true;
+      LoggingHandler.SAVE_TO_FILE = true;
     }
 
     // init the logging
