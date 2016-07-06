@@ -142,7 +142,7 @@ export default {
       }
       return Promise.resolve();
     },
-    goldrushEM(args) {
+    offersEM(args) {
       events.pub("core:coupon-detected", args);
     },
     recordMeta(url, meta) {

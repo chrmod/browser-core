@@ -30,7 +30,7 @@ var getContentScript = function (window, url) {
           let couponField = window.document.getElementById("code");
           if(couponField && couponField.value){
             send({
-              action: "goldrushEM",
+              action: "offersEM",
               args: [{"domain": "deliveroo", "code":couponField.value}]
             })
           }
@@ -53,7 +53,7 @@ var getContentScript = function (window, url) {
             let inputFields = window.document.getElementsByClassName("yd-jig-discount-add-input");
             if(inputFields.length > 0) {
               send({
-                action: "goldrushEM",
+                action: "offersEM",
                 args: [{"domain": "lieferando", "code": inputFields[0].value}]
               });
             }
@@ -78,7 +78,7 @@ var getContentScript = function (window, url) {
             let inputField = window.document.getElementById("bonusCode1");
             if(inputField) {
               send({
-                action: "goldrushEM",
+                action: "offersEM",
                 args: [{"domain": "holidaycheck", "code": inputField.value}]
               });
             }
@@ -105,7 +105,7 @@ var getContentScript = function (window, url) {
               if(inputFields.length > 0) {
                 let inputField = inputFields[0];
                 send({
-                  action: "goldrushEM",
+                  action: "offersEM",
                   args: [{"domain": "holidaycheck", "code": inputField.value}]
               });
               }
@@ -124,7 +124,7 @@ var getContentScript = function (window, url) {
             let inputField = window.document.getElementById("coupon-code-field");
             if(inputField) {
               send({
-                action: "goldrushEM",
+                action: "offersEM",
                 args: [{"domain": "hotels", "code": inputField.value}]
               });
             }
@@ -147,7 +147,7 @@ var getContentScript = function (window, url) {
             let couponField = window.document.getElementById("customerCouponCode");
             if(couponField && couponField.value) {
               send({
-                  action: "goldrushEM",
+                  action: "offersEM",
                   args: [{"domain": "reisen", "code": couponField.value}]
                 });
             }
