@@ -23,20 +23,46 @@ function format(currWin, url, md5) {
     let proceedBt = doc.getElementById('proceed');
     proceedBt.onclick = function() {
       CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
-      CliqzAntiPhishing.forceWhiteList[md5] = 1;
+      CliqzAntiPhishing.forceWhiteList[md5] = 2;
       currWin.location.replace(url);
     }
 };
 
+function getErrorCode(doc)
+{
+  var url = doc.documentURI;
+  var error = url.search(/e\=/);
+  var duffUrl = url.search(/\&u\=/);
+  return decodeURIComponent(url.slice(error + 2, duffUrl));
+}
+
 function alert(currWin, url, md5) {
-    if (!CliqzAntiPhishing.isAntiPhishingActive() || md5 in CliqzAntiPhishing.forceWhiteList) {
+    const doc = currWin.document;
+    // checking if the FF detected also Phishing on this tab
+    if(doc.documentURI.indexOf("about:blocked?") == 0 &&
+       getErrorCode(doc) == "deceptiveBlocked"){
+
+      CliqzHumanWeb.notification({'url': url, 'action': 'ff_block'});
+      return;
+    }
+
+    if (!CliqzAntiPhishing.isAntiPhishingActive()) {
         return;
+    }
+    if (md5 in CliqzAntiPhishing.forceWhiteList) {
+      if (CliqzAntiPhishing.forceWhiteList[md5] == 2) {
+        CliqzUtils.setTimeout(function() {
+            delete CliqzAntiPhishing.forceWhiteList[md5];
+        }, 1000);
+      }
+      return;
     }
     currWin.location.replace(WARNING);  // change it to warning page
     CliqzUtils.setTimeout(function (currWin, url, md5){
-        CliqzUtils.currWin = currWin;
-        format(currWin, url, md5);
-    }, 100, currWin, url, md5)
+      CliqzUtils.currWin = currWin;
+      format(currWin, url, md5);
+      CliqzUtils.getWindow().document.getElementById('urlbar').value = url;
+    }, 100, currWin, url, md5);
 };
 
 function checkPassword(url, callback) {
@@ -147,7 +173,10 @@ function getSplitDomainMd5(url) {
 function notifyHumanWeb(p) {
     var url = p.url;
     var status = p.status;
-    CliqzHumanWeb.state['v'][url]['isMU'] = status;
+    try {
+        CliqzHumanWeb.state['v'][url]['isMU'] = status;
+    } catch(e) {}
+
     // Commenting this line here, it sends empty payload.x to the humanweb and is marked private.
     // CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
     // CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
@@ -189,18 +218,21 @@ function checkSuspicious(url, callback) {
   checkPassword(url, callback);
 }
 
-function checkStatus(url, md5Prefix, md5Surfix, currWin) {
+function checkStatus(url, md5Prefix, md5Surfix, currWin, first) {
     var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
     if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
             // show the block html page
-            alert(currWin, url, md5Prefix + md5Surfix);
+            // delay the actual show in case FF itself detects this as phishing also
+            CliqzUtils.setTimeout(alert, 1000, currWin, url, md5Prefix + md5Surfix)
         }
     } else {
-        CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
         // alert humanweb if it is suspicious
-        checkSuspicious(url, updateSuspiciousStatus);
+        if (first) {
+          CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
+          checkSuspicious(url, updateSuspiciousStatus);
+        }
     }
 }
 
@@ -216,17 +248,17 @@ var CliqzAntiPhishing = {
     * @method auxOnPageLoad
     * @param url {string}
     */
-    auxOnPageLoad: function(url, currWin) {
+    auxOnPageLoad: function(url, currWin, first) {
         var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
         // alert(currWin, url, md5Prefix + md5Surfix);
         if (md5Prefix in CliqzAntiPhishing.blackWhiteList)
-            checkStatus(url, md5Prefix, md5Surfix, currWin);
+            checkStatus(url, md5Prefix, md5Surfix, currWin, first);
         else
             CliqzUtils.httpGet(
                 BW_URL + md5Prefix,
                 function success(req) {
                     updateBlackWhiteStatus(req, md5Prefix);
-                    checkStatus(url, md5Prefix, md5Surfix, currWin);
+                    checkStatus(url, md5Prefix, md5Surfix, currWin, first);
                 },
                 function onerror() {
                 },
@@ -255,6 +287,13 @@ var CliqzAntiPhishing = {
     },
     isAntiPhishingActive: function() {
         return CliqzUtils.getPref('cliqz-anti-phishing-enabled', false);
+    },
+    listener: {
+        QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+        onLocationChange: function(aProgress, aRequest, aURI) {
+          let currwin = aProgress.DOMWindow.top;
+          CliqzAntiPhishing.auxOnPageLoad(aURI.spec, currwin, false);
+        }
     }
 };
 
