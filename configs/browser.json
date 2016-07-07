@@ -29,7 +29,9 @@
     "performance",
     "hpn",
     "smart-cliqz-cache",
-    "privacy-dashboard"
+    "privacy-dashboard",
+    "offers"
+
   ],
   "subprojects": [
     "fresh-tab-frontend"

@@ -255,6 +255,12 @@ var CliqzABTests = {
             case "1068_B":
                 CliqzUtils.setPref("languageDedup", true);
                 break;
+            case "1069_A":
+                CliqzUtils.setPref("grOfferSwitchFlag", false);
+                break;
+            case "1069_B":
+                CliqzUtils.setPref("grOfferSwitchFlag", true);
+                break;
             case "1070_A":
                 CliqzUtils.setPref("cliqz-anti-phishing", false);
                 CliqzUtils.setPref("cliqz-anti-phishing-enabled", false);
@@ -268,6 +274,12 @@ var CliqzABTests = {
                 break;
             case "1071_B":
                 CliqzUtils.setPref("browser.privatebrowsing.apt", true, '');
+                break;
+            case "1072_A":
+                CliqzUtils.setPref("grFeatureEnabled", false);
+                break;
+            case "1072_B":
+                CliqzUtils.setPref("grFeatureEnabled", true);
                 break;
             default:
                 rule_executed = false;
@@ -395,6 +407,10 @@ var CliqzABTests = {
             case "1068_B":
                 CliqzUtils.clearPref("languageDedup");
                 break;
+            case "1069_A":
+            case "1069_B":
+                CliqzUtils.clearPref("grOfferSwitchFlag");
+            break;
             case "1070_A":
             case "1070_B":
                 CliqzUtils.clearPref('cliqz-anti-phishing');
@@ -404,6 +420,10 @@ var CliqzABTests = {
             case "1071_B":
                 CliqzUtils.clearPref('browser.privatebrowsing.apt', '');
                 break
+            case "1072_A":
+            case "1072_B":
+              CliqzUtils.clearPref('grFeatureEnabled');
+              break;
             default:
                 rule_executed = false;
         }
