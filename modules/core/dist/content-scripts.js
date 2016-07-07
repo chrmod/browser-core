@@ -161,13 +161,13 @@ var getContentScript = function (window, url) {
 
 
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
-  let prefType = Services.prefs.getBranch("").getPrefType("extensions.cliqz.grFeatureEnabled");
-  if (prefType === 128 &&
-    Services.prefs.getBranch("").getBoolPref("extensions.cliqz.grFeatureEnabled") === true) {
+  const branch = Services.prefs.getBranch("");
+  const prefType = branch.getPrefType("extensions.cliqz.grFeatureEnabled");
+  if (prefType === branch.PREF_BOOL &&
+      Services.prefs.getBranch("").getBoolPref("extensions.cliqz.grFeatureEnabled")) {
     for (var prop in CONTENT_SCRIPTS) {
       if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
         if(globsMatch(prop, url)){
-         // window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
           return CONTENT_SCRIPTS[prop];
         }
       }
