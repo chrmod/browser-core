@@ -98,7 +98,7 @@ window.CLIQZ.Core = {
     eventListeners: [],
     init: function(){
         CliqzRedirect.addHttpObserver();
-        CliqzUtils.init(window);
+        var localePromise = CliqzUtils.init(window);
 
         CliqzSpellCheck.init();
 
@@ -131,6 +131,9 @@ window.CLIQZ.Core = {
           });
         }.bind(this));
 
+        // TODO: Refactor locale loading.
+        windowModulePromises.push(localePromise);
+
         return Promise.all(windowModulePromises).then(function () {
           var urlBarGo = document.getElementById('urlbar-go-button');
           this._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
@@ -149,6 +152,30 @@ window.CLIQZ.Core = {
           // make sure the Qbutton popup is clean
           var menupopup = document.getElementById('cliqz-button').children.cliqz_menupopup;
           while(menupopup.lastChild) menupopup.removeChild(menupopup.lastChild);
+
+          // Fill bBrowser Help menu
+          var helpMenu = document.getElementById("menu_HelpPopup");
+          if (helpMenu && CLIQZ.config.settings.helpMenus) {
+            var cliqzButton = document.createElement('toolbarbutton');
+            this.createQbutton(cliqzButton);
+            var list = cliqzButton.children;
+            var cliqzItemClass = "cliqz-item";
+            list[0].classList.add(cliqzItemClass);
+            list[1].classList.add(cliqzItemClass);
+
+            // Tips and Tricks
+            helpMenu.insertBefore(list[1], helpMenu.firstChild);
+            // Cliqz Tour
+            var tourButton = this.createSimpleBtn(document, 'CLIQZ tour',
+                function() {
+                  CLIQZEnvironment.openTabInWindow(document.defaultView,
+                      'chrome://cliqz/content/onboarding/onboarding.html');
+                }, 'tour');
+            tourButton.classList.add(cliqzItemClass);
+            helpMenu.insertBefore(tourButton, helpMenu.firstChild);
+            // Support
+            helpMenu.insertBefore(list[0], helpMenu.firstChild);
+          }
 
         }.bind(this));
     },
@@ -191,6 +218,12 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
+        var helpItems = document.querySelectorAll("#menu_HelpPopup>.cliqz-item");
+        if (helpItems) {
+            while (helpItems.lenght)
+                helpItems[0].parentNode.removeChild(helpItems[0]);
+        }
+
         this.windowModules.slice(0).reverse().forEach(function (mod, index) {
           var moduleIndex = CLIQZ.config.modules.length - 1 - index;
           var moduleName = CLIQZ.config.modules[moduleIndex];
@@ -434,7 +467,12 @@ window.CLIQZ.Core = {
         }
 
         //feedback and FAQ
-        menupopup.appendChild(this.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnFeedbackFaq'), feedback_FAQ, 'feedback'));
+        menupopup.appendChild(
+            this.createSimpleBtn(
+                doc,
+                CliqzUtils.getLocalizedString('btnFeedbackFaq'),
+                feedback_FAQ,
+                'feedback'));
 
       // hide search prefs if the user decided to disable CLIQZ search
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
