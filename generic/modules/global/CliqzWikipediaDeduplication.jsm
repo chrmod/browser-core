@@ -71,7 +71,7 @@ var CliqzWikipediaDeduplication = {
         return url;
     },
     /*get most used user languages*/
-    getUserLanguages(factor){
+    getUserLanguages: function(factor){
         factor = typeof factor !== 'undefined' ? factor : 1.5;
         var availableLangs = CliqzLanguage.state(true);
         var langs = [];
