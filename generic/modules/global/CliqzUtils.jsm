@@ -311,10 +311,10 @@ var CliqzUtils = {
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
-        //var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
-        url = url.match(/^moz-action:([^,]+),(.*)$/)[2];
+        var [, action, url] = url.match(/^moz-action:([^,]+),(.*)$/);
+        //url = url.match(/^moz-action:([^,]+),(.*)$/)[2];
     }
-    return url;
+    return [action, url];
   },
   cleanUrlProtocol: function(url, cleanWWW){
     if(!url) return '';
@@ -332,7 +332,7 @@ var CliqzUtils = {
     return url;
   },
   getDetailsFromUrl: function(originalUrl){
-    originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
+    var [action, originalUrl] = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
     var url = originalUrl,
         name = '',

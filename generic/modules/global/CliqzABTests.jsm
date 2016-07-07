@@ -280,6 +280,11 @@ var CliqzABTests = {
                 break;
             case "1072_B":
                 CliqzUtils.setPref("grFeatureEnabled", true);
+            case "1073_A":
+                CliqzUtils.setPref("history.timeouts", false);
+                break;
+            case "1073_B":
+                CliqzUtils.setPref("history.timeouts", true);
                 break;
             default:
                 rule_executed = false;
@@ -423,6 +428,10 @@ var CliqzABTests = {
             case "1072_A":
             case "1072_B":
               CliqzUtils.clearPref('grFeatureEnabled');
+              break;
+            case "1073_A":
+            case "1073_B":
+              CliqzUtils.clearPref('history.timeouts');
               break;
             default:
                 rule_executed = false;

@@ -175,7 +175,7 @@ var UI = {
           firstResult.url = firstResult.data.urls[0].href;
 
         if(firstResult.url){
-          setTimeout(CLIQZ.Core.autocompleteQuery, 0, urlbar, CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title);
+          setTimeout(CLIQZ.Core.autocompleteQuery, 0, urlbar, CliqzUtils.cleanMozillaActions(firstResult.url)[1], firstResult.title);
         }
 
         snippetQualityTelemetry(curResAll);
@@ -1484,7 +1484,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(typeof el.getAttribute != 'function')
     el.getAttribute = function(k) { return this[k]; };
 
-  let url = CliqzUtils.cleanMozillaActions(el.getAttribute('url') || '');
+  let url = CliqzUtils.cleanMozillaActions(el.getAttribute('url') || '')[1];
   if (!url)
     return;
 
@@ -1578,7 +1578,7 @@ function resultClick(ev) {
             //publish result_click
             CliqzEvents.pub("result_click", signal, {});
 
-            var url = CliqzUtils.cleanMozillaActions(url);
+            var url = CliqzUtils.cleanMozillaActions(url)[1];
             CLIQZEnvironment.openLink(window, url, newTab);
 
             //decouple!

@@ -52,8 +52,15 @@ var CliqzHistoryCluster = {
     // Extract results
     var patterns = [];
     for (var i = 0; i < history.results.length; i++) {
-      var url = CliqzUtils.cleanMozillaActions(history.results[i].value),
+      var parts = CliqzUtils.cleanMozillaActions(history.results[i].value);
+      var url = parts[1],
+          action = parts[0],
           title = history.results[i].comment;
+      // Filters out results with value: "moz-action:searchengine,{"engineName":"Google","input":"awz","searchQuery":"awz"}"
+      // that are returned from the unifiedcomplete history provider that is the only provider from Firefox 49.0 on
+      if (action === 'searchengine'){
+        continue;
+      }
 
       if (!title) {
         title = CliqzUtils.generalizeUrl(url);
