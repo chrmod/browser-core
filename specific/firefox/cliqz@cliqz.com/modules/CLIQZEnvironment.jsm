@@ -263,6 +263,7 @@ var CLIQZEnvironment = {
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.timestamp = + new Date();
         req.open(method, url, !sync);
+        req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS | Ci.nsIRequest.LOAD_BYPASS_CACHE | Ci.nsIRequest.INHIBIT_PERSISTENT_CACHING;
         req.overrideMimeType('application/json');
 
         // headers for compressed data
