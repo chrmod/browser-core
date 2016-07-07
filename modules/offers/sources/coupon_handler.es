@@ -57,7 +57,7 @@ export class CouponHandler {
   // @brief save to file
   //
   savePersistentData() {
-    // TODO: this flag is to let us test easier the things
+    // this flag is to let us test easier the things
     if (!OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG) {
       return;
     }
@@ -75,7 +75,7 @@ export class CouponHandler {
   // @brief load from file
   //
   loadPersistentData() {
-    // TODO: this flag is to let us test easier the things
+    // this flag is to let us test easier the things
     if (!OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG) {
       return;
     }
@@ -268,7 +268,6 @@ export class CouponHandler {
     // add the last shown timestamp
     this.couponData[clusterID][couponID]['last_shown_ts'] = timestamp;
 
-    // TODO: remove this log
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsShown properly executed');
   }
@@ -356,15 +355,6 @@ export class CouponHandler {
 
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'markCouponAsClosedBySystem properly executed');
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // @brief this method will return the associated data for a given coupon if
-  //        we have one or null otherwise
-  //
-  getCouponInfoFromID(clusterID, couponID) {
-
   }
 
 

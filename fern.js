@@ -27,6 +27,8 @@ const notifier = require('node-notifier');
 
 const OUTPUT_PATH = process.env['CLIQZ_OUTPUT_PATH'] || 'build';
 
+let CONFIG;
+
 colors.setTheme({
   silly: 'rainbow',
   input: 'grey',
@@ -40,8 +42,6 @@ colors.setTheme({
   error: 'red'
 });
 
-let CONFIG;
-
 // Install git hooks:
 let hookInstaller = spaws('git-hooks/install-hooks.sh');
 hookInstaller.stderr.on('data', data => console.log(data.toString()));
@@ -54,14 +54,23 @@ function setConfigPath(configPath) {
   CONFIG.subprojects = CONFIG.subprojects || [];
 }
 
-function buildEmberAppSync(appPath) {
+function buildFreshtabFrontEnd() {
   const configPath = process.env['CLIQZ_CONFIG_PATH'];
-  var app = appPath.substring(12).substring(0, appPath.substring(12).length - 1),
-      cliqzConfig = JSON.parse(fs.readFileSync(configPath)),
-      shouldBuild = (cliqzConfig.subprojects || []).some(function(module) {
-        return module === app;
-      });
-  if(!shouldBuild) {
+  var app = 'fresh-tab-frontend',
+      appPath = 'subprojects/' + app,
+      shouldBuild = function() {
+        if(CONFIG.subprojects.indexOf('fresh-tab-frontend') === -1) {
+          return false;
+        }
+        if(!fs.existsSync(path.join(appPath, 'dist'))) {
+          return true;
+        }
+        if(process.env['CLIQZ_FRESHTAB'] !== 'undefined') {
+          return true;
+        }
+        return false;
+      };
+  if(!shouldBuild()) {
     return
   }
   isPackageInstalled('ember', '-v', 'npm ember-cli package is missing, to install it run `npm install ember-cli -g`');
@@ -118,14 +127,17 @@ program.command('install')
 program.command('build [file]')
        .option('--no-maps', 'disables source maps')
        .option('--version [version]', 'sets extension version', 'package')
+       .option('--freshtab', 'enables ember fresh-tab-frontend build')
        .action((configPath, options) => {
           var buildStart = Date.now();
           setConfigPath(configPath);
 
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
+          process.env['CLIQZ_FRESHTAB'] = options.freshtab;
 
           console.log("Starting build");
-          buildEmberAppSync('subprojects/fresh-tab-frontend/');
+
+          buildFreshtabFrontEnd();
           cleanupDefaultBuild();
 
           getExtensionVersion(options.version).then(tag => {
@@ -160,11 +172,12 @@ function createBuildWatcher() {
 program.command('serve [file]')
        .option('--no-maps', 'disables source maps')
        .option('--version [version]', 'sets extension version', 'package')
+       .option('--freshtab', 'disables ember fresh-tab-frontend build')
        .action((configPath, options) => {
           setConfigPath(configPath);
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
-
-          buildEmberAppSync('subprojects/fresh-tab-frontend/');
+          process.env['CLIQZ_FRESHTAB'] = options.freshtab;
+          buildFreshtabFrontEnd();
 
           getExtensionVersion(options.version).then(tag => {
             process.env.EXTENSION_VERSION = tag;

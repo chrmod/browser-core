@@ -117,7 +117,7 @@ export class StatsHandler {
     }
 
     LoggingHandler.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, 'Current telemetry data: ' + JSON.stringify(signal)); // TODO: remove this log
+    LoggingHandler.info(MODULE_NAME, 'Current telemetry data: ' + JSON.stringify(signal));
 
     // if the data is not dirty we don't need to send anything?
     if (!this.dataDirty) {

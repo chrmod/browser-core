@@ -1,4 +1,4 @@
-import GoldrushConfigs from 'goldrush/goldrush_configs';
+Components.utils.import('resource://gre/modules/Services.jsm');
 
 // http://www.rlvision.com/blog/using-wildcard-matching-in-any-programming-language/
 function globsMatch(find, source) {
@@ -159,20 +159,20 @@ var getContentScript = function (window, url) {
     }
   };
 
-  // don't do anything if offers feature is not enabled
-  if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-      !GoldrushConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
-    return;
-  }
-
 
   // https://developer.chrome.com/extensions/content_scripts#match-patterns-globs
-  for (var prop in CONTENT_SCRIPTS) {
-    if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
-      if(globsMatch(prop, url)){
-       // window.console.log("SR-found match:\turl:\t" + url + " prop\t" + prop );
-        return CONTENT_SCRIPTS[prop];
+  const branch = Services.prefs.getBranch("");
+  const prefType = branch.getPrefType("extensions.cliqz.grFeatureEnabled");
+  if (prefType === branch.PREF_BOOL &&
+      Services.prefs.getBranch("").getBoolPref("extensions.cliqz.grFeatureEnabled")) {
+    for (var prop in CONTENT_SCRIPTS) {
+      if (CONTENT_SCRIPTS.hasOwnProperty(prop)) {
+        if(globsMatch(prop, url)){
+          return CONTENT_SCRIPTS[prop];
+        }
       }
     }
   }
+
+
 };

@@ -20,8 +20,7 @@ export default background({
   init(settings) {
 
     // check if we need to do something or not
-    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-        !OffersConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
       return;
     }
 
@@ -36,6 +35,7 @@ export default background({
       OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
       // enable logs?
       LoggingHandler.LOG_ENABLED = true;
+      LoggingHandler.SAVE_TO_FILE = true;
     }
 
     // init the logging
@@ -77,8 +77,7 @@ export default background({
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false) &&
-        !OffersConfigs.AB_ENABLE_FEATURE_OVERRIDE_FLAG) {
+    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
       return;
     }
 

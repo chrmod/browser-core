@@ -45,7 +45,6 @@ export class RulesBuilder {
       rule.setClusterID(clusterID);
     }
 
-    // TODO: init or whatever we need
     return rule;
   }
 

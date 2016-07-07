@@ -50,7 +50,6 @@ IntentDetector.prototype.loadDataBases = function(rawDatabase) {
 // @brief load and parse the rule
 //
 IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
-  // TODO:
   // get the rule from the builder
   this.rule = rulesBuilder.buildRule(this.clusterID);
   if (!this.rule) {
@@ -119,7 +118,7 @@ IntentDetector.prototype.loadRule = function(rulesBuilder, fidsBuilder) {
   }
   // TODO check consistency (cannot have the same fid with exactly the same args).
 
-  // TODO: do a evaluation test here with values
+  // do a evaluation test here with values
   var testResultData = {};
   for (var id in this.processedRuleData) {
     testResultData[id] = 1;
