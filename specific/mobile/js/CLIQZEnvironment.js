@@ -72,7 +72,7 @@ CLIQZEnvironment = {
   MIN_QUERY_LENGHT_FOR_EZ: 0,
   storeQueryTimeout: null,
   RERANKERS: [],
-  TEMPLATES,
+  TEMPLATES: TEMPLATES,
   KNOWN_TEMPLATES: {
       'entity-portal': true,
       'entity-generic': true,
