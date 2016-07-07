@@ -201,7 +201,20 @@ var CLIQZEnvironment = {
         try {
             switch(prefs.getPrefType(pref)) {
                 case 128: return prefs.getBoolPref(pref);
-                case 32:  return prefs.getCharPref(pref);
+                case 32:  {
+                  var charVal = prefs.getCharPref(pref);
+
+                  // it might be a complex value
+                  if(charVal === "chrome://global/locale/intl.properties"){
+                    try {
+                      charVal = prefs.getComplexValue(pref, Components.interfaces.nsIPrefLocalizedString).data;
+                    } catch (e) {
+                      CliqzUtils.log("Error fetching pref: "  + pref);
+                    }
+                  }
+
+                  return charVal;
+                }
                 case 64:  return prefs.getIntPref(pref);
                 default:  return defaultValue;
             }

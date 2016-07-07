@@ -313,8 +313,7 @@ window.CLIQZ.Core = {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult, firstTitle){
-        var urlBar = this.urlbar;
+    autocompleteQuery: function(urlBar, firstResult, firstTitle){
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
             // need to make it compatible with auto suggestion
@@ -341,8 +340,8 @@ window.CLIQZ.Core = {
         var results = lastPattern ? fRes : [];
 
         // try to update misspelings like ',' or '-'
-        if (this.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            urlBar.mInputField.value = this.cleanUrlBarValue(urlBar.value).toLowerCase();
+        if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
+            urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||

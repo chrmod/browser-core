@@ -12,7 +12,7 @@ function format(currWin, url, md5) {
           // currWin.location = doc.referrer;
           currWin.location.replace(doc.referrer);
       } else {
-          currWin.location.replace('about:newtab');
+          currWin.history.back();
       }
     }
     doc.getElementById('report-safe').onclick = function() {
