@@ -573,6 +573,8 @@ var CliqzHumanWeb = {
 
             try {
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
+                // Return if it's a private tab.
+                if(aChannel.isChannelPrivate != undefined && aChannel.isChannelPrivate) return;
                 var url = decodeURIComponent(aChannel.URI.spec);
                 var ho = CliqzHumanWeb.getHeaders(aExtraStringData);
                 var status = ho['status'];
@@ -1589,6 +1591,10 @@ var CliqzHumanWeb = {
 
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
+            // Return if it's a private tab.
+            if(aRequest && aRequest.isChannelPrivate !== undefined && aRequest.isChannelPrivate) {
+                return;
+            }
 
             if(aProgress.isLoadingDocument){
                 CliqzHumanWeb.captureJSRefresh(aRequest, aURI);
