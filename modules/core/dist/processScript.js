@@ -166,7 +166,15 @@ function onDOMWindowCreated(ev) {
       );
     },
     getCookie: function () {
-      return window.document.cookie;
+      try {
+        return window.document.cookie;
+      } catch (e) {
+        if (e instanceof DOMException && e.name == "SecurityError") {
+          return null;
+        } else {
+          throw e; // let others bubble up
+        }
+      }
     }
   };
 
@@ -194,6 +202,9 @@ function onDOMWindowCreated(ev) {
 
     try {
       payload = fns[msg.data.action].apply(null, msg.data.args || []);
+      if (payload === null){
+        return
+      }
     } catch (e) {
       window.console.error("cliqz framescript:", e);
     }
