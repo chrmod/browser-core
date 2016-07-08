@@ -8,20 +8,27 @@ function format(currWin, url, md5) {
     let doc = currWin.document;
     doc.getElementById('phishing-url').innerText = url;
     doc.getElementsByClassName('cqz-button-save-out')[0].onclick = function() {
+      CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'safe_out'});
+      CliqzHumanWeb.notification({'url': doc.URL, 'action': 'safe_out'});
       if (doc.referrer) {
           // currWin.location = doc.referrer;
           currWin.location.replace(doc.referrer);
       } else {
           currWin.history.back();
       }
+    };
+    doc.getElementById('learn-more').onclick = function() {
+      CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'learn_more'});
     }
     doc.getElementById('report-safe').onclick = function() {
+      CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'report'});
       CliqzHumanWeb.notification({'url': doc.URL, 'action': 'report'});
       CliqzAntiPhishing.forceWhiteList[md5] = 1;
       currWin.location.replace(url);
     };
     let proceedBt = doc.getElementById('proceed');
     proceedBt.onclick = function() {
+      CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'ignore'});
       CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
       CliqzAntiPhishing.forceWhiteList[md5] = 2;
       currWin.location.replace(url);
@@ -39,9 +46,9 @@ function getErrorCode(doc)
 function alert(currWin, url, md5) {
     const doc = currWin.document;
     // checking if the FF detected also Phishing on this tab
-    if(doc.documentURI.indexOf("about:blocked?") == 0 &&
-       getErrorCode(doc) == "deceptiveBlocked"){
-
+    if (doc.documentURI.indexOf("about:blocked?") == 0 &&
+        getErrorCode(doc) == "deceptiveBlocked") {
+      CliqzUtils.telemetry({type: 'anti-phishing', action: 'ff_block'});
       CliqzHumanWeb.notification({'url': url, 'action': 'ff_block'});
       return;
     }
@@ -49,6 +56,7 @@ function alert(currWin, url, md5) {
     if (!CliqzAntiPhishing.isAntiPhishingActive()) {
         return;
     }
+
     if (md5 in CliqzAntiPhishing.forceWhiteList) {
       if (CliqzAntiPhishing.forceWhiteList[md5] == 2) {
         CliqzUtils.setTimeout(function() {
@@ -222,6 +230,7 @@ function checkStatus(url, md5Prefix, md5Surfix, currWin, first) {
     var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
     if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
+            CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'show_warning'});
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
             // show the block html page
             // delay the actual show in case FF itself detects this as phishing also
