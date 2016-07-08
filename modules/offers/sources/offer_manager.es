@@ -19,7 +19,6 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Consts
 //

@@ -215,17 +215,18 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   notification.style.borderBottom = "1px solid #dedede";
 
   // get the coupon element and set the callback when the user click on it
-  var couponElement = currWindow.document.getElementById('cliqz-coupon');
-  var self = this;
+  let couponElement = notification.boxObject.firstChild.getElementsByClassName("cliqz-coupon")[0];
+  let self = this;
   if (couponElement) {
     couponElement.onclick = function () {
-      CLIQZEnvironment.copyResult(this.innerHTML);
+      CLIQZEnvironment.copyResult(couponElement.innerHTML);
       if (self.callbacks.cp_to_clipboard) {
         try {
-          var copyText = currWindow.document.getElementById('copy-coupon');
+          let copyText = couponElement.nextElementSibling
           copyText.style.visibility = 'visible';
         } catch (ee) {
-          // nothing here
+          LoggingHandler.LOG_ENABLED &&
+          LoggingHandler.error(MODULE_NAME, "can't attach click listener to couponElement" + ee);
         }
         self.callbacks.cp_to_clipboard(offerID);
       }

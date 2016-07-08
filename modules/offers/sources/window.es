@@ -1,6 +1,7 @@
 import background from 'offers/background';
 import LoggingHandler from 'offers/logging_handler';
 import OffersConfigs from 'offers/offers_configs';
+import {utils} from 'core/cliqz';
 
 // to be able to get the events on page change
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -30,6 +31,13 @@ export default class {
   init() {
     // check if we have the feature  enabled
     if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+      return;
+    }
+
+    // EX-2561: private mode then we don't do anything here
+    if (utils.isPrivate(this.window)) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.info(MODULE_NAME, 'we are in private mode, avoid any logic here');
       return;
     }
 

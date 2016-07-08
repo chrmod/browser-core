@@ -52,7 +52,7 @@
         max-height: 100px;
     }
 
-    #cliqz-coupon {
+    .cliqz-coupon {
         cursor: copy;
         /*-moz-user-select: text;*/
         padding: 5px;
@@ -61,7 +61,7 @@
     }
 
 
-    #copy-coupon {
+    .copy-coupon {
         padding: 5px;
         border-radius: 3px;
         visibility: hidden;
@@ -113,8 +113,8 @@
         <div>
             {{#if code}}
                 <p><b>CODE:</b></p>
-                <p id="cliqz-coupon" cliqz-action="copy_val">{{code}}</p>
-                <p id="copy-coupon">Code kopiert</p>
+                <p class="cliqz-coupon" cliqz-action="copy_val">{{code}}</p>
+                <p class="copy-coupon">Code kopiert</p>
             {{/if}}
         </div>
     </div>

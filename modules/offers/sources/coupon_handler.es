@@ -82,6 +82,8 @@ export class CouponHandler {
     var localStorage = CLIQZEnvironment.getLocalStorage(OffersConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
 
     if (OffersConfigs.COUPON_HANDLER_RESET_FILE) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.info(MODULE_NAME, 'reseting the database to empty');
       localStorage.setItem('coupons_data', JSON.stringify({}));
     }
 

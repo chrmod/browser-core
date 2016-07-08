@@ -27,6 +27,29 @@ export default background({
     // configure the preferences here
     OffersConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', false);
 
+    // check for some other flags here:
+    //
+    // enable logging into the console
+    if (CliqzUtils.getPref('offersLogsEnabled', false)) {
+      LoggingHandler.LOG_ENABLED = true;
+    }
+    // enable logs in file
+    if (CliqzUtils.getPref('offersFileLogsEnabled', false)) {
+      LoggingHandler.SAVE_TO_FILE = true;
+    }
+    // avoid read history from file
+    if (CliqzUtils.getPref('offersAvoidReadHistory', false)) {
+      OffersConfigs.LOAD_HISTORY_EVENTS = false;
+    }
+    // avoid load / save cupon handler data
+    if (CliqzUtils.getPref('offersAvoidLoadCuponsData', false)) {
+      OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
+    }
+    // reset coupons data
+    if (CliqzUtils.getPref('offersResetCouponsData', false)) {
+      OffersConfigs.COUPON_HANDLER_RESET_FILE = true;
+    }
+
     // check if we need to set dev flags or not
     // extensions.cliqz.offersDevFlag
     if (CliqzUtils.getPref('offersDevFlag', false)) {
@@ -59,6 +82,11 @@ export default background({
       'Version: ' + OffersConfigs.CURRENT_VERSION + '\n' +
       'timestamp: ' + Date.now() + '\n' +
       'switchFlag: ' + OffersConfigs.OFFER_SUBCLUSTER_SWITCH + '\n' +
+      'LoggingHandler.LOG_ENABLED: ' + LoggingHandler.LOG_ENABLED + '\n' +
+      'LoggingHandler.SAVE_TO_FILE: ' + LoggingHandler.SAVE_TO_FILE + '\n' +
+      'OffersConfigs.LOAD_HISTORY_EVENTS: ' + OffersConfigs.LOAD_HISTORY_EVENTS + '\n' +
+      'OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG: ' + OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG + '\n' +
+      'OffersConfigs.COUPON_HANDLER_RESET_FILE: ' + OffersConfigs.COUPON_HANDLER_RESET_FILE + '\n' +
       'dev_flag: ' + CliqzUtils.getPref('offersDevFlag', false) + '\n' +
       '------------------------------------------------------------------------\n'
       );
@@ -143,7 +171,14 @@ export default background({
   },
 
   //////////////////////////////////////////////////////////////////////////////
-  onTabOrWinChangedHandler(url) {
+  onTabOrWinChangedHandler(url, win) {
+    // check if this is the window
+    // EX-2561: private mode then we don't do anything here
+    if (!win || utils.isPrivate(win)) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.info(MODULE_NAME, 'window is private skipping: onTabOrWinChangedHandler');
+      return;
+    }
     if (!this.offerManager) {
       return;
     }
