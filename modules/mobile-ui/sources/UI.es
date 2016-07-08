@@ -409,6 +409,7 @@ function resultClick(ev) {
             var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
 
             var signal = {
+                type: 'activity',
                 action: 'result_click',
                 extra: extra,
                 mouse: coordinate,
