@@ -1620,8 +1620,8 @@ var CliqzAttrack = {
       try {
         var gBrowser = CliqzUtils.getWindow().gBrowser,
             selectedBrowser = gBrowser.selectedBrowser;
-
-        tabId = selectedBrowser.outerWindowID;
+        // on FF < 38 selectBrowser.outerWindowID is undefined, so we get the windowID from _loadContext
+        tabId = selectedBrowser.outerWindowID || selectedBrowser._loadContext.DOMWindowID;
         urlForTab = selectedBrowser.currentURI.spec;
       } catch (e) {
       }
