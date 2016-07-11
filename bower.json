@@ -21,7 +21,6 @@
     "chai": "~3.0.0",
     "jquery": "~2.1.4",
     "core.js": "~2.4.0",
-    "httpd": "http://mxr.mozilla.org/mozilla-central/source/netwerk/test/httpserver/httpd.js?raw=1",
     "sinonjs": "~1.17.1"
   }
 }
