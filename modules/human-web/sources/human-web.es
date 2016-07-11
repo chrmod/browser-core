@@ -799,7 +799,20 @@ var CliqzHumanWeb = {
         var error_message = null;
 
         var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-        req.open('GET', url, true);
+
+        /*
+        We need a try catch block here, because there are some URLs which throw malformed URI error,
+        hence stalling the double fetch on the same row.
+
+        Such URLs should not be there at the first place, but in-case they are, we set them as private.
+        */
+
+        try{
+            req.open('GET', url, true);
+        }catch(ee){
+            onerror(url, page_data, original_url, error_message);
+            return;
+        }
         req.overrideMimeType('text/html');
         req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
         //req.withCredentials = false;
