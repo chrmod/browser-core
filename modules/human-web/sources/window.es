@@ -44,7 +44,7 @@ export default class {
         currentBrowser.contentDocument.removeEventListener("scroll",    HumanWeb.captureScrollPage,true);
         currentBrowser.contentDocument.removeEventListener("copy",      HumanWeb.captureCopyPage,true);
       } catch(e) {}
-    }.bind(this));
+    });
   }
 
   createButtonItem(win) {

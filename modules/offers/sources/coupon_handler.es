@@ -504,7 +504,7 @@ export class CouponHandler {
       LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME,
                          'loadOfferSubclusters: ' + JSON.stringify(self.offerSubclusterInfo));
-    }.bind(self)).catch(function(e) {
+    }).catch(function(e) {
       LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME,
                            'Loading the OfferSubclusters: ' + e,

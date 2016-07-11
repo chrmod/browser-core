@@ -208,13 +208,13 @@ export default class {
       this.currentHour = datetime.getTime();
       this._clean();
       this.sendTelemetry();
-    }.bind(this));
+    });
     events.sub('attrack:token_whitelist_updated', () => {
       this.checkWrongToken('token');
-    }.bind(this));
+    });
     events.sub('attrack:safekeys_updated', () => {
       this.checkWrongToken('safeKey');
-    }.bind(this));
+    });
 
     this.checkedToken.load();
     this.blockedToken.load();

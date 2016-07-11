@@ -148,7 +148,7 @@ export default {
       // wait until tab is activated
       this.waiting_prompts.push({
         url: url,
-        callback: () => { this.unblockPrompt(url, cb) }.bind(this),
+        callback: () => { this.unblockPrompt(url, cb) },
         timestamp: (new Date()).getTime()
       });
       return;
@@ -209,7 +209,7 @@ export default {
       // wait until tab is activated
       this.waiting_prompts.push({
         url: url,
-        callback: () => { this.unblockNotification(url, label) }.bind(this),
+        callback: () => { this.unblockNotification(url, label) },
         timestamp: (new Date()).getTime()
       });
       return;
