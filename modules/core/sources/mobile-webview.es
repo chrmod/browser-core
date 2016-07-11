@@ -1,1 +1,2 @@
+export { window };
 export { document };
