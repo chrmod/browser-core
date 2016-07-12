@@ -211,7 +211,7 @@ var CliqzAttrack = {
             var url_parts = URLInfo.get(url);
 
             if (requestContext.isFullPage()) {
-                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID());
+                CliqzAttrack.tp_events.onFullPage(url_parts, requestContext.getOuterWindowID(), requestContext.isChannelPrivate());
                 if (CliqzAttrack.isTrackerTxtEnabled()) {
                     TrackerTXT.get(url_parts).update();
                 }
@@ -479,7 +479,7 @@ var CliqzAttrack = {
                         redirect_url_parts.hostname = url_parts.hostname;
                         redirect_url_parts.path = redirect_url;
                     }
-                    CliqzAttrack.tp_events.onRedirect(redirect_url_parts, requestContext.getOuterWindowID());
+                    CliqzAttrack.tp_events.onRedirect(redirect_url_parts, requestContext.getOuterWindowID(), requestContext.isChannelPrivate());
                 }
                 return;
             }
