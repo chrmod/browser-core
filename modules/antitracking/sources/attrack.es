@@ -1405,6 +1405,9 @@ var CliqzAttrack = {
     extractKeyTokens: function(url_parts, refstr, isPrivate, callback) {
         // keys, value of query strings will be sent in md5
         // url, refstr will be sent in half of md5
+        if (isPrivate) {
+          return;
+        }
         var keyTokens = url_parts.getKeyValuesMD5();
         if (keyTokens.length > 0) {
             var s = md5(url_parts.hostname).substr(0, 16);
@@ -1413,6 +1416,9 @@ var CliqzAttrack = {
         }
     },
     saveKeyTokens: function(s, keyTokens, r, isPrivate) {
+        if (isPrivate) {
+          return;
+        }
         // anything here should already be hash
         if (CliqzAttrack.tokens[s] == null) CliqzAttrack.tokens[s] = {lastSent: datetime.getTime()};
         if (CliqzAttrack.tokens[s][r] == null) CliqzAttrack.tokens[s][r] = {'c': 0, 'kv': {}};
@@ -1425,8 +1431,7 @@ var CliqzAttrack = {
                 CliqzAttrack.tokens[s][r]['kv'][k][tok] = {
                     c: 0,
                     k_len: kv.k_len,
-                    v_len: kv.v_len,
-                    isPrivate: isPrivate
+                    v_len: kv.v_len
                 };
             }
             CliqzAttrack.tokens[s][r]['kv'][k][tok].c += 1;
