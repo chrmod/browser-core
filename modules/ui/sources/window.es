@@ -171,8 +171,10 @@ export default class {
     if(this._searchContainer){
       searchContainer.setAttribute('class', this._searchContainer);
     }
+
+    // revert onclick handler
     var urlBarGo = this.window.document.getElementById('urlbar-go-button');
-    urlBarGo.removeEventListener("click",  this.urlbarGoClick);
+    urlBarGo.setAttribute('onclick', this._urlbarGoButtonClick);
 
     this.reloadUrlbar(this.urlbar);
 
