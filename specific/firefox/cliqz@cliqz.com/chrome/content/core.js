@@ -136,8 +136,6 @@ window.CLIQZ.Core = {
 
         return Promise.all(windowModulePromises).then(function () {
           var urlBarGo = document.getElementById('urlbar-go-button');
-          this._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
-          urlBarGo.setAttribute('onclick', "CLIQZ.UI.window.urlbarGoClick(); " + this._urlbarGoButtonClick);
 
           if ('gBrowser' in window) {
               CliqzDemo.init(window);
