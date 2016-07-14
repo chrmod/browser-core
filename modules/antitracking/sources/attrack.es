@@ -219,12 +219,6 @@ var CliqzAttrack = {
                 return;
             }
 
-            // find the ok tokens fields
-            var isPrivate = requestContext.isChannelPrivate();
-            if (!isPrivate) {
-                CliqzAttrack.examineTokens(url_parts);
-            }
-
             // This needs to be a common function aswell. Also consider getting ORIGIN header.
             var referrer = requestContext.getReferrer();
             var same_gd = false;
@@ -262,6 +256,12 @@ var CliqzAttrack = {
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) {
                   return;
+                }
+
+                // find the ok tokens fields
+                var isPrivate = requestContext.isChannelPrivate();
+                if (!isPrivate) {
+                    CliqzAttrack.examineTokens(url_parts);
                 }
 
                 // extract and save tokens
@@ -874,41 +874,29 @@ var CliqzAttrack = {
         pacemaker.register(CliqzAttrack.hourChanged, two_mins, timeChangeConstraint("hourChanged", "hour"));
 
         // every 2 mins
-        pacemaker.register(function clean_visitCache(curr_time) {
-            var keys = Object.keys(CliqzAttrack.visitCache);
-            for(var i=0;i<keys.length;i++) {
-                var diff = curr_time - (CliqzAttrack.visitCache[keys[i]] || 0);
-                if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.visitCache[keys[i]];
-            }
-        }, two_mins);
 
-        pacemaker.register(function clean_reloadWhiteList(curr_time) {
-            var keys = Object.keys(CliqzAttrack.reloadWhiteList);
-            for(var i=0;i<keys.length;i++) {
-                var diff = curr_time - (CliqzAttrack.reloadWhiteList[keys[i]] || 0);
-                if (diff > CliqzAttrack.timeCleaningCache) {
-                    delete CliqzAttrack.reloadWhiteList[keys[i]];
-                }
+        function cleanTimestampCache(cacheObj, timeout, currTime) {
+          const keys = Object.keys(cacheObj)
+          keys.forEach(function(k) {
+            if (currTime - cacheObj[k] || 0 > timeout) {
+              delete cacheObj[k];
             }
-        }, two_mins);
+          });
+        }
 
-        pacemaker.register(function clean_trackReload(curr_time) {
-            var keys = Object.keys(CliqzAttrack.trackReload);
-            for(var i=0;i<keys.length;i++) {
-                var diff = curr_time - (CliqzAttrack.trackReload[keys[i]] || 0);
-                if (diff > CliqzAttrack.timeCleaningCache) {
-                    delete CliqzAttrack.trackReload[keys[i]];
-                }
-            }
-            CliqzAttrack.tab_listener.cleanTabsStatus();
-        }, two_mins);
-
-        pacemaker.register(function clean_blockedCache(curr_time) {
-            var keys = Object.keys(CliqzAttrack.blockedCache);
-            for(var i=0;i<keys.length;i++) {
-                var diff = curr_time - (CliqzAttrack.blockedCache[keys[i]] || 0);
-                if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.blockedCache[keys[i]];
-            }
+        pacemaker.register(function clean_caches(currTime) {
+          // visit cache
+          cleanTimestampCache(CliqzAttrack.visitCache, CliqzAttrack.timeCleaningCache, currTime);
+          // reload whitelist
+          cleanTimestampCache(CliqzAttrack.reloadWhiteList, CliqzAttrack.timeCleaningCache, currTime);
+          // track reload
+          cleanTimestampCache(CliqzAttrack.trackReload, CliqzAttrack.timeCleaningCache, currTime);
+          // blocked cache
+          cleanTimestampCache(CliqzAttrack.blockedCache, CliqzAttrack.timeCleaningCache, currTime);
+          // record cache
+          cleanTimestampCache(CliqzAttrack.linksRecorded, 1000, currTime);
+          // tab listener statuses
+          CliqzAttrack.tab_listener.cleanTabsStatus();
         }, two_mins);
 
         var bootup_task = pacemaker.register(function bootup_check(curr_time) {
@@ -1438,11 +1426,17 @@ var CliqzAttrack = {
         }
         CliqzAttrack._tokens.setDirty();
     },
+    linksRecorded: {}, // cache when we recorded links for each url
     recordLinksForURL(url) {
       if (CliqzAttrack.loadedTabs[url]) {
         return;
       }
-
+      const now = Date.now();
+      const lastQuery = CliqzAttrack.linksRecorded[url] || 0;
+      if (now - lastQuery < 1000) {
+        return
+      }
+      CliqzAttrack.linksRecorded[url] = now;
       return Promise.all([
 
         core.getCookie(url).then(

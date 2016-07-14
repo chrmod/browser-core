@@ -170,13 +170,23 @@ class BlockLog {
   }
 
   isInBlockReportList(s, k, v) {
-    return s in this.blockReportList &&
-        k in this.blockReportList[s] &&
-        v in this.blockReportList[s][k] ||
-        '*' in this.blockReportList ||
-        s in this.blockReportList && '*' in this.blockReportList[s] ||
-        s in this.blockReportList && k in this.blockReportList[s] && '*' in this.blockReportList[s][k];
-  }
+    if ('*' in this.blockReportList) {
+      return true;
+    } else if (s in this.blockReportList) {
+      let keyList = this.blockReportList[s];
+      if (keyList === '*') {
+        return true;
+      } else if (k in keyList) {
+        let valueList = keyList[k];
+        if (valueList === '*') {
+          return true;
+        } else if (v in valueList) {
+          return true;
+        }
+      }
+      return false;
+    }
+}
 
   sendTelemetry() {
     if (Object.keys(this.blocked.value).length > 0) {
