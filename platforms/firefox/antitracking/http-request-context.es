@@ -8,6 +8,99 @@ import * as browser from 'platform/browser';
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 
+// Class to manage the window tree and resolve origin tab and url for pages
+class WindowTree {
+
+  constructor() {
+    this._wins = {};
+  }
+
+  addRootWindow(id, url) {
+    this._removeWindowTree(id);
+    this._wins[id] = {url,
+      top: true,
+      id
+    };
+  }
+
+  addLeafWindow(id, parentId, url) {
+    this._removeWindowTree(id);
+    let parent = this.getWindowByID(parentId);
+    var win = {
+      url,
+      id,
+      parent: parentId,
+      top: false
+    };
+    if (!parent) {
+      win.orphan = true;
+    }
+    this._wins[id] = win;
+  }
+
+  addWindowAction(id, parentId, url, contentType) {
+    if (!this.getWindowByID(id) && this.getWindowByID(parentId)) {
+      this._wins[id] = {url,
+        top: false,
+        id,
+        origin: contentType,
+        parent: parentId
+      };
+    }
+  }
+
+  getWindowByID(id) {
+    return this._wins[id];
+  }
+
+  getRootWindow(id) {
+    let win = this.getWindowByID(id);
+    while (win && !win.top && win.id !== win.parent) {
+      let parentWin = this.getWindowByID(win.parent);
+      if (!parentWin) {
+        break;
+      }
+      win = parentWin;
+    }
+    return win;
+  }
+
+  _removeWindowTree(id) {
+    if (id in this._wins) {
+      delete this._wins[id];
+      Object.values(this._wins).filter((win) => {
+        return win.parent === id
+      }).forEach((win) => {
+        this._removeWindowTree(win.id);
+      });
+    }
+  }
+
+  getTree(rootId) {
+    var {url} = this.getWindowByID(rootId);
+    var rootNode = {
+      id: rootId,
+      url
+    };
+    rootNode.children = Object.values(this._wins).filter((w) => {
+      return w.parent === rootId
+    }).map((w) => {
+      return this.getTree(w.id);
+    });
+    return rootNode;
+  }
+
+  cleanWindows() {
+    Object.values(this._wins).filter((w) => {
+      return (w.top && !browser.isWindowActive(w.id)) || !w.top && !(w.parent in this._wins);
+    }).forEach((w) => {
+      this._removeWindowTree(w.id);
+    });
+  }
+}
+
+var windowTree = new WindowTree();
+
 function HttpRequestContext(subject) {
   this.subject = subject;
   this.channel = subject.QueryInterface(nsIHttpChannel);
@@ -22,32 +115,24 @@ function HttpRequestContext(subject) {
   // tab tracking
   if(this.isFullPage()) {
     // fullpage - add tracked tab
-    HttpRequestContext.deleteTab(tabId); // clear old tab and children
-    HttpRequestContext._tabs[tabId] = {url: this.url, top: true, id: tabId};
+    windowTree.addRootWindow(tabId, this.url);
   } else if ( this.getContentPolicyType() === 7 ) {
     // frame, add tab with parent
-    // need this check to guarantee tree search will terminate
-    if (tabId != parentId) {
-      HttpRequestContext._tabs[tabId] = {url: this.url, top: false, parent: parentId, id: tabId};
-    }
-  } else if (!(tabId in HttpRequestContext._tabs) && parentId in HttpRequestContext._tabs) {
-    // new tab id, but not a frame request
-    HttpRequestContext._tabs[tabId] = {url: this.url, top: false, parent: parentId, id: tabId, origin: this.getContentPolicyType()};
+    windowTree.addLeafWindow(tabId, parentId, this.url);
+  } else {
+    // not a frame request
+    windowTree.addWindowAction(tabId, parentId, this.url, this.getContentPolicyType());
   }
 }
 
-HttpRequestContext._tabs = {};
+HttpRequestContext._wt = windowTree
 // clean up tab cache every minute
 HttpRequestContext._cleaner = null;
 
 HttpRequestContext.initCleaner = function() {
   if (!HttpRequestContext._cleaner) {
     HttpRequestContext._cleaner = CliqzUtils.setInterval(function() {
-      for (let t in HttpRequestContext._tabs) {
-        if(HttpRequestContext._tabs[t].top && !browser.isWindowActive(t)) {
-          HttpRequestContext.deleteTab(t);
-        }
-      }
+      windowTree.cleanWindows();
     }, 60000);
   }
 };
@@ -55,20 +140,6 @@ HttpRequestContext.initCleaner = function() {
 HttpRequestContext.unloadCleaner = function() {
   CliqzUtils.clearInterval(HttpRequestContext._cleaner);
   HttpRequestContext._cleaner = null;
-};
-
-HttpRequestContext.deleteTab = function(tabId) {
-  var childTabs = [];
-  for (let id in HttpRequestContext._tabs) {
-    let tab = HttpRequestContext._tabs[id];
-    if (tab.parent == tabId) {
-      childTabs.push(id);
-    }
-  }
-  delete HttpRequestContext._tabs[tabId];
-  childTabs.forEach( (t) => {
-    HttpRequestContext.deleteTab(t);
-  });
 };
 
 HttpRequestContext.prototype = {
@@ -91,12 +162,9 @@ HttpRequestContext.prototype = {
     }
   },
   getLoadingDocument: function() {
-    let parentWindow = this.getParentWindowID();
-    if (parentWindow in HttpRequestContext._tabs) {
-      while (HttpRequestContext._tabs[parentWindow] && !HttpRequestContext._tabs[parentWindow].top) {
-        parentWindow = HttpRequestContext._tabs[parentWindow].parent;
-      }
-      return HttpRequestContext._tabs[parentWindow].url;
+    let rootWindow = windowTree.getRootWindow(this.getParentWindowID());
+    if (rootWindow) {
+      return rootWindow.url;
     } else if (this.loadInfo != null) {
       return this.loadInfo.loadingDocument != null && 'location' in this.loadInfo.loadingDocument && this.loadInfo.loadingDocument.location ? this.loadInfo.loadingDocument.location.href : ""
     } else {
@@ -146,12 +214,9 @@ HttpRequestContext.prototype = {
   getOriginWindowID: function() {
     // in most cases this is the same as the outerWindowID.
     // however for frames, it is the parentWindowId
-    let parentWindow = this.getParentWindowID();
-    if (!this.isFullPage() && (parentWindow in HttpRequestContext._tabs || this.getContentPolicyType() == 7)) {
-      while (HttpRequestContext._tabs[parentWindow] && !HttpRequestContext._tabs[parentWindow].top) {
-        parentWindow = HttpRequestContext._tabs[parentWindow].parent;
-      }
-      return parentWindow;
+    let rootWindow = windowTree.getRootWindow(this.getParentWindowID());
+    if (rootWindow) {
+      return rootWindow.id;
     } else {
       return this.getOuterWindowID();
     }
