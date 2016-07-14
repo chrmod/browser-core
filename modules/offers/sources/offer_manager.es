@@ -285,8 +285,9 @@ OfferManager.prototype.loadHistoryEvents = function() {
 
   // calculate the delta time to fetch the data from
   const currentTs = Date.now();
-  const absoluteTimestamp = currentTs -
-    (OffersConfigs.HISTORY_EVENTS_TIME_DAYS * OffersConfigs.DAY * 1000);
+  const absoluteTimestamp = (currentTs -
+    (OffersConfigs.HISTORY_EVENTS_TIME_DAYS * OffersConfigs.DAY * 1000)) * 1000;
+
   const sqlQuery = 'SELECT url, visit_date FROM moz_historyvisits INNER JOIN moz_places ON ' +
                    'moz_historyvisits.place_id = moz_places.id WHERE visit_date > ' +
                    absoluteTimestamp + ' ORDER BY visit_date ASC;';
