@@ -12,15 +12,15 @@ var nsIHttpChannel = Ci.nsIHttpChannel;
 class WindowTree {
 
   constructor() {
-    this._wins = {};
+    this._wins = new Map();
   }
 
   addRootWindow(id, url) {
     this._removeWindowTree(id);
-    this._wins[id] = {url,
+    this._wins.set(id, {url,
       top: true,
       id
-    };
+    });
   }
 
   addLeafWindow(id, parentId, url) {
@@ -35,22 +35,22 @@ class WindowTree {
     if (!parent) {
       win.orphan = true;
     }
-    this._wins[id] = win;
+    this._wins.set(id, win);
   }
 
   addWindowAction(id, parentId, url, contentType) {
     if (!this.getWindowByID(id) && this.getWindowByID(parentId)) {
-      this._wins[id] = {url,
+      this._wins.set(id, {url,
         top: false,
         id,
         origin: contentType,
         parent: parentId
-      };
+      });
     }
   }
 
   getWindowByID(id) {
-    return this._wins[id];
+    return this._wins.get(id);
   }
 
   getRootWindow(id) {
@@ -66,13 +66,13 @@ class WindowTree {
   }
 
   _removeWindowTree(id) {
-    if (id in this._wins) {
-      delete this._wins[id];
-      Object.values(this._wins).filter((win) => {
-        return win.parent === id
-      }).forEach((win) => {
-        this._removeWindowTree(win.id);
-      });
+    if (this._wins.has(id)) {
+      this._wins.delete(id);
+      for (let win of this._wins.values()) {
+        if (win.parent === id) {
+          this._removeWindowTree(win.id);
+        }
+      }
     }
   }
 
@@ -82,7 +82,7 @@ class WindowTree {
       id: rootId,
       url
     };
-    rootNode.children = Object.values(this._wins).filter((w) => {
+    rootNode.children = [...this._wins.values()].filter((w) => {
       return w.parent === rootId
     }).map((w) => {
       return this.getTree(w.id);
@@ -91,11 +91,11 @@ class WindowTree {
   }
 
   cleanWindows() {
-    Object.values(this._wins).filter((w) => {
-      return (w.top && !browser.isWindowActive(w.id)) || !w.top && !(w.parent in this._wins);
-    }).forEach((w) => {
-      this._removeWindowTree(w.id);
-    });
+    for (let w of this._wins.values()) {
+      if ((w.top && !browser.isWindowActive(w.id)) || !w.top && !(w.parent in this._wins)) {
+        this._removeWindowTree(w.id);
+      }
+    }
   }
 }
 
