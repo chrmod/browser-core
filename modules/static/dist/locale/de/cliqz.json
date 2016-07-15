@@ -156,10 +156,10 @@
         "message": "Warnung: betrügerische Website!"
     },
     "anti-phishing-txt1": {
-        "message": "CLIQZ hat den Zugriff auf ("
+        "message": "CLIQZ hat den Zugriff auf "
     },
     "anti-phishing-txt2": {
-        "message": ") blockiert, weil diese Seite als Phishing-Website gemeldet wurde. Phishing-Websites geben vor, vertrauenswürdig zu sein, damit du deine Anmeldedaten, dein Passwort oder andere vertrauliche Informationen preisgibst."
+        "message": " blockiert, weil diese Seite als Phishing-Website gemeldet wurde. Phishing-Websites geben vor, vertrauenswürdig zu sein, damit du deine Anmeldedaten, dein Passwort oder andere vertrauliche Informationen preisgibst."
     },
     "anti-phishing-txt3": {
         "message": "Mehr erfahren"
