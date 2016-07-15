@@ -10,6 +10,7 @@ const {
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/NewTabUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -65,6 +66,8 @@ var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
         QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
 
+
+
 var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
@@ -79,6 +82,7 @@ var CLIQZEnvironment = {
     LOCATION_ACCURACY: 3, // Number of decimal digits to keep in user's location
     RERANKERS: [CliqzWikipediaDeduplication],
     SHARE_LOCATION_ONCE: false,
+    AB_1073_ACTIVE: false,
     OBSERVERS: [
       {
         notifications: ['wake_notification', 'sleep_notification'],
@@ -564,10 +568,33 @@ var CLIQZEnvironment = {
 
         //extend prototype
         for(var k in FFcontract) CliqzAutocomplete.CliqzResults.prototype[k] = FFcontract[k];
+        
 
         var cp = CliqzAutocomplete.CliqzResults.prototype;
         var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
         reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
+
+
+        var appInfo = Cc["@mozilla.org/xre/app-info;1"]
+          .getService(Components.interfaces.nsIXULAppInfo);
+        var versionChecker = Cc["@mozilla.org/xpcom/version-comparator;1"]
+          .getService(Components.interfaces.nsIVersionComparator);
+
+        CLIQZEnvironment.AB_1073_ACTIVE = versionChecker.compare(appInfo.version, "47.0") > 0  && versionChecker.compare(appInfo.version, "50.0") < 0 && CliqzUtils.getPref("history.timeouts", false);
+
+        if (CLIQZEnvironment.AB_1073_ACTIVE){
+          CliqzUtils.log('AB - 1073: Active', 'CliqzAutocomplete');
+          var FFHistorycontract = {
+                classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c9}'),
+                classDescription : 'Cliqz',
+                contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-history-results',
+                QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
+              }
+          for(var k in FFHistorycontract) CliqzPlacesAutoComplete.prototype[k] = FFHistorycontract[k];
+          var cpCliqzPlacesAutoComplete = CliqzPlacesAutoComplete.prototype;
+          var factory = XPCOMUtils.generateNSGetFactory([CliqzPlacesAutoComplete])(cpCliqzPlacesAutoComplete.classID);
+          reg.registerFactory(cpCliqzPlacesAutoComplete.classID, cpCliqzPlacesAutoComplete.classDescription, cpCliqzPlacesAutoComplete.contractID, factory);
+        }
 
     },
     unloadSearch: function(){
@@ -749,9 +776,18 @@ var CLIQZEnvironment = {
             if(hist === null) { //lazy
               // history autocomplete provider is removed
               // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
-              var provider = Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
-                             Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
-              hist = provider.getService(Ci["nsIAutoCompleteSearch"])
+
+              if (CLIQZEnvironment.AB_1073_ACTIVE){
+                // If AB 1073 is not in B or firefox version less than 49 it will fall back to firefox history
+                var provider = Cc["@mozilla.org/autocomplete/search;1?name=cliqz-history-results"] ||
+                               Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
+                               Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
+                hist = provider.getService(Ci["nsIAutoCompleteSearch"]);
+              } else{
+                var provider = Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
+                               Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
+                hist = provider.getService(Ci["nsIAutoCompleteSearch"]);
+              }
             }
             // special case: user has deleted text from urlbar
             if(q.length != 0 && urlbar().value.length == 0)
