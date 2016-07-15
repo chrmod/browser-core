@@ -24,8 +24,12 @@ class WindowTree {
   }
 
   addLeafWindow(id, parentId, url) {
-    this._removeWindowTree(id);
     let parent = this.getWindowByID(parentId);
+    if (id === parentId && parent) {
+      // not actually a leaf, do no overwrite parent
+      return;
+    }
+    this._removeWindowTree(id);
     var win = {
       url,
       id,
@@ -148,14 +152,14 @@ HttpRequestContext.prototype = {
     return this.loadInfo ? this.loadInfo.innerWindowID : 0;
   },
   getOuterWindowID: function() {
-    if (this.loadInfo == null || this.loadInfo.outerWindowID === undefined) {
+    if (!this.loadInfo || this.loadInfo.outerWindowID === undefined) {
       return this._legacyGetWindowId();
     } else {
       return this.loadInfo.outerWindowID;
     }
   },
   getParentWindowID: function() {
-    if (this.loadInfo == null || this.loadInfo.parentOuterWindowID === undefined) {
+    if (!this.loadInfo || this.loadInfo.parentOuterWindowID === undefined) {
       return this.getOuterWindowID();
     } else {
       return this.loadInfo.parentOuterWindowID;
