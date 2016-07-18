@@ -156,10 +156,10 @@
         "message": "Warning: deceptive website!"
     },
     "anti-phishing-txt1": {
-        "message": "CLIQZ has blocked access to ("
+        "message": "CLIQZ has blocked access to "
     },
     "anti-phishing-txt2": {
-        "message": ") because it has been reported as a phishing website. Phishing websites disguise as other sites you may trust in order to trick you into disclosing your login, password or other sensitive information."
+        "message": " because it has been reported as a phishing website. Phishing websites disguise as other sites you may trust in order to trick you into disclosing your login, password or other sensitive information."
     },
     "anti-phishing-txt3": {
         "message": "Learn more"
