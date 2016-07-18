@@ -142,9 +142,6 @@ export default {
       }
       return Promise.resolve();
     },
-    offersEM(args) {
-      events.pub("core:coupon-detected", args);
-    },
     recordMeta(url, meta) {
       events.pub("core:url-meta", url, meta);
     }

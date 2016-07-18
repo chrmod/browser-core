@@ -56,7 +56,8 @@ var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
   onLocationChange: function(aBrowser, aRequest, aURI) {
-    CliqzEvents.pub("core.location_change", aURI.spec, window);
+    const isPrivate = aBrowser.usePrivateBrowsing;
+    CliqzEvents.pub("core.location_change", aURI.spec, isPrivate);
   }
 };
 
@@ -67,11 +68,19 @@ var tabsProgressListener = {
     STATE_IS_DOCUMENT: Components.interfaces.nsIWebProgressListener.STATE_IS_DOCUMENT,
   },
 
-  onLocationChange: function (aBrowser, aProgress, aRequest, aURI) {
+  onLocationChange: function (aBrowser, aProgress, aRequest, aURI, aFlags) {
+    const isPrivate = aProgress.usePrivateBrowsing;
+    // get the referrer
+    const reqReferrer = (aRequest && (aRequest.referrer) && (aRequest.referrer.asciiSpec)) ?
+                        aRequest.referrer.asciiSpec :
+                        '';
     CliqzEvents.pub("core.tab_location_change", {
       url: aURI && aURI.spec,
       isLoadingDocument: aProgress.isLoadingDocument,
-      document: aProgress.document
+      document: aProgress.document,
+      referrer: reqReferrer,
+      flags: aFlags,
+      isOnPrivateContext: isPrivate,
     });
   },
 

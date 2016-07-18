@@ -3,6 +3,7 @@ import { OfferManager } from 'offers/offer_manager';
 import background from 'core/base/background';
 import LoggingHandler from 'offers/logging_handler';
 import OffersConfigs from 'offers/offers_configs';
+import WebRequest from 'core/webrequest';
 
 
 
@@ -20,39 +21,39 @@ export default background({
   init(settings) {
 
     // check if we need to do something or not
-    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+    if (!utils.getPref('grFeatureEnabled', false)) {
       return;
     }
 
     // configure the preferences here
-    OffersConfigs.OFFER_SUBCLUSTER_SWITCH = CliqzUtils.getPref('grOfferSwitchFlag', false);
+    OffersConfigs.OFFER_SUBCLUSTER_SWITCH = utils.getPref('grOfferSwitchFlag', false);
 
     // check for some other flags here:
     //
     // enable logging into the console
-    if (CliqzUtils.getPref('offersLogsEnabled', false)) {
+    if (utils.getPref('offersLogsEnabled', false)) {
       LoggingHandler.LOG_ENABLED = true;
     }
     // enable logs in file
-    if (CliqzUtils.getPref('offersFileLogsEnabled', false)) {
+    if (utils.getPref('offersFileLogsEnabled', false)) {
       LoggingHandler.SAVE_TO_FILE = true;
     }
     // avoid read history from file
-    if (CliqzUtils.getPref('offersAvoidReadHistory', false)) {
+    if (utils.getPref('offersAvoidReadHistory', false)) {
       OffersConfigs.LOAD_HISTORY_EVENTS = false;
     }
     // avoid load / save cupon handler data
-    if (CliqzUtils.getPref('offersAvoidLoadCuponsData', false)) {
+    if (utils.getPref('offersAvoidLoadCuponsData', false)) {
       OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
     }
     // reset coupons data
-    if (CliqzUtils.getPref('offersResetCouponsData', false)) {
+    if (utils.getPref('offersResetCouponsData', false)) {
       OffersConfigs.COUPON_HANDLER_RESET_FILE = true;
     }
 
     // check if we need to set dev flags or not
     // extensions.cliqz.offersDevFlag
-    if (CliqzUtils.getPref('offersDevFlag', false)) {
+    if (utils.getPref('offersDevFlag', false)) {
       OffersConfigs.LOAD_HISTORY_EVENTS = false;
       OffersConfigs.COUPON_HANDLER_RESET_FILE = true;
       OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
@@ -72,6 +73,7 @@ export default background({
     // TODO: GR-137 && GR-140: temporary fix
     events.sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
     events.sub('core.window_closed', this.onWindowClosed.bind(this));
+    events.sub('core.tab_location_change', this.onTabLocChanged.bind(this));
 
     // print the timestamp
     LoggingHandler.LOG_ENABLED &&
@@ -87,9 +89,13 @@ export default background({
       'OffersConfigs.LOAD_HISTORY_EVENTS: ' + OffersConfigs.LOAD_HISTORY_EVENTS + '\n' +
       'OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG: ' + OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG + '\n' +
       'OffersConfigs.COUPON_HANDLER_RESET_FILE: ' + OffersConfigs.COUPON_HANDLER_RESET_FILE + '\n' +
-      'dev_flag: ' + CliqzUtils.getPref('offersDevFlag', false) + '\n' +
+      'dev_flag: ' + utils.getPref('offersDevFlag', false) + '\n' +
       '------------------------------------------------------------------------\n'
       );
+
+
+    // add request listener
+    WebRequest.onBeforeRequest.addListener(this.beforeRequestListener.bind(this));
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -105,7 +111,7 @@ export default background({
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
     // check if we have the feature  enabled
-    if (!CliqzUtils.getPref('grFeatureEnabled', false)) {
+    if (!utils.getPref('grFeatureEnabled', false)) {
       return;
     }
 
@@ -122,11 +128,46 @@ export default background({
 
     // TODO: GR-137 && GR-140: temporary fix
     events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
-
     events.un_sub('core.window_closed', this.onWindowClosed.bind(this));
+    events.un_sub('core.tab_location_change', this.onTabLocChanged.bind(this));
+
+    WebRequest.onBeforeRequest.removeListener(this.beforeRequestListener.bind(this));
 
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'background script unloaded');
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  onTabLocChanged(data) {
+
+    // EX-2561: private mode then we don't do anything here
+    if (data.isOnPrivateContext) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.info(MODULE_NAME, 'window is private skipping: onTabOrWinChangedHandler');
+      return;
+    }
+
+    // We need to subscribe here to get events everytime the location is
+    // changing and is the a new url. We had issues since everytime we switch
+    // the tabs we got the event from core.locaiton_change and this is not correct
+    // for our project.
+    // Check issue https://cliqztix.atlassian.net/projects/GR/issues/GR-117
+    //
+    LoggingHandler.LOG_ENABLED &&
+    LoggingHandler.info(MODULE_NAME, '[window] location changed from background ' + data);
+
+    // skip the event if is the same document here
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIWebProgressListener
+    //
+    LoggingHandler.LOG_ENABLED &&
+    LoggingHandler.info(MODULE_NAME, 'new event with location: ' + data.url + ' - referrer: ' + data.referrer);
+    if (data.flags === Components.interfaces.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.info(MODULE_NAME, 'discarding event since it is repeated');
+      return;
+    }
+    // else we emit the event here
+    this.onLocationChangeHandler(data.url, data.referrer);
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -171,10 +212,10 @@ export default background({
   },
 
   //////////////////////////////////////////////////////////////////////////////
-  onTabOrWinChangedHandler(url, win) {
+  onTabOrWinChangedHandler(url, isWinPrivate) {
     // check if this is the window
     // EX-2561: private mode then we don't do anything here
-    if (!win || utils.isPrivate(win)) {
+    if (isWinPrivate) {
       LoggingHandler.LOG_ENABLED &&
       LoggingHandler.info(MODULE_NAME, 'window is private skipping: onTabOrWinChangedHandler');
       return;
@@ -194,13 +235,20 @@ export default background({
     }
   },
 
+  beforeRequestListener(requestObj) {
+    try {
+      this.offerManager && this.offerManager.beforeRequestListener(requestObj);
+    } catch (e) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.error(MODULE_NAME,
+       'Exception catched when detecting voucher usage ' + e,
+       LoggingHandler.ERR_INTERNAL);
+    }
+  },
+
   //////////////////////////////////////////////////////////////////////////////
   events: {
-    'core:coupon-detected': function(args) {
-      if(this.offerManager){
-        this.offerManager.addCouponAsUsedStats(args['domain'], args['code']);
-      }
-    }
-  }
+  },
+
 
 });

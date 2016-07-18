@@ -388,8 +388,8 @@ export class CouponHandler {
       }
       const coupon = coupons[couponID];
       if (coupon.hasOwnProperty('used_c') ||
-          coupon.hasOwnProperty('ur_c') ||
-          (coupon.hasOwnProperty('uc_c') && coupon['uc_c'] > 1) ||
+          coupon.hasOwnProperty('ur_c') && coupon.hasOwnProperty('ur_c') > 1 ||
+          (coupon.hasOwnProperty('uc_c') && coupon['uc_c'] > 2) ||
           (coupon.hasOwnProperty('cbs_c') && coupon['cbs_c'] >= 3)) {
         // we need to filter this one
         result.add(couponID);

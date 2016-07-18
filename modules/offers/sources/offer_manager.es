@@ -13,6 +13,7 @@ import { CouponHandler } from 'offers/coupon_handler';
 import OffersConfigs from 'offers/offers_configs';
 import LoggingHandler from 'offers/logging_handler';
 import { loadFileFromChrome } from 'offers/utils';
+import { VoucherDetector } from 'offers/voucher_detector';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 // needed for the history
@@ -39,7 +40,7 @@ function check(expression, message) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function openNewTabAndSelect(url) {
-  var currWindow = CliqzUtils.getWindow();
+  var currWindow = utils.getWindow();
   var gBrowser = currWindow.gBrowser;
   if (!currWindow || !gBrowser) {
     return false;
@@ -193,6 +194,10 @@ export function OfferManager() {
   // configs
   this.configs = null;
 
+
+  // voucher detector
+  this.voucherDetector = new VoucherDetector();
+
   // the fetcher
   let destURL = OffersConfigs.OFFER_FETCHER_DEST_URL;
   let self = this;
@@ -299,7 +304,7 @@ OfferManager.prototype.loadHistoryEvents = function() {
   CliqzHistoryManager.PlacesInterestsStorage._execute(sqlQuery,
                                                       ['url', 'visit_date'],
                                                       function(result) {
-      var urlObj = CliqzUtils.getDetailsFromUrl(result.url);
+      var urlObj = utils.getDetailsFromUrl(result.url);
       const timestamp = Number(result.visit_date) / 1000; // convert microseconds to ms
       self.feedWithHistoryEvent(urlObj, timestamp);
       eventCounts += 1;
@@ -590,7 +595,7 @@ OfferManager.prototype.createAndTrackNewOffer = function(coupon, timestamp, clus
                      'offersShownCounterMap content: ' + JSON.stringify(this.offersShownCounterMap));
 
   // set the timeout to disable this add
-  offer.timerID = CliqzUtils.setTimeout(function () {
+  offer.timerID = utils.setTimeout(function () {
     // check if we are showing the add, if not we just remove it
     this.removeAndUntrackOffer(offerID, true);
   }.bind(this), OffersConfigs.HIDE_OFFER_MS);
@@ -618,7 +623,7 @@ OfferManager.prototype.removeAndUntrackOffer = function(offerID, fromTimeout = f
   offer.active = false;
 
   // disable the timeout
-  CliqzUtils.clearTimeout(offer.timerID);
+  utils.clearTimeout(offer.timerID);
 
   const clusterID = offer.appear_on_cid;
 
@@ -1048,7 +1053,7 @@ OfferManager.prototype.checkButtonUICallback = function(offerID) {
 
   // we will remove the timer here so the person can see the offer until he
   // close it
-  CliqzUtils.clearTimeout(offer.timerID);
+  utils.clearTimeout(offer.timerID);
 
   // we will get the url to redirect from the coupon here
   const urlToGo = offer.voucher_data.redirect_url;
@@ -1258,7 +1263,22 @@ OfferManager.prototype.intentLifeCycleStarted = function(clusterID) {
   }
 };
 
-
+//
+// @brief get called before a request is made
+//
+OfferManager.prototype.beforeRequestListener = function(requestObj) {
+  if (!this.voucherDetector) {
+    LoggingHandler.LOG_ENABLED &&
+    LoggingHandler.error(MODULE_NAME,
+                         'no voucher detector object available',
+                         LoggingHandler.ERR_INTERNAL);
+    return;
+  }
+  let response = this.voucherDetector.processRequest(requestObj);
+  if (response) {
+    this.addCouponAsUsedStats(response['domain'], response['code']);
+  }
+};
 
 
 

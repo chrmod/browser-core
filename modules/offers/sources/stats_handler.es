@@ -64,7 +64,7 @@ export class StatsHandler {
 
     // TODO: here we can re-set properly the timer but we will just set it
     // to the time specified above
-    this.interval = CliqzUtils.setInterval(function () {
+    this.interval = utils.setInterval(function () {
       // we will check if we need to send the data and we will send it and
       // reset all the counters if needed
       if (this.shouldWeNeedToSendCurrenData()) {
@@ -93,7 +93,7 @@ export class StatsHandler {
   //////////////////////////////////////////////////////////////////////////////
   destroy() {
     // remove the interval update method
-    CliqzUtils.clearInterval(this.interval);
+    utils.clearInterval(this.interval);
 
     // at any case we store the current data
     this.savePersistentData();
@@ -138,7 +138,7 @@ export class StatsHandler {
     LoggingHandler.info(MODULE_NAME, 'Signal to send: ' + JSON.stringify(signal));
 
     try {
-      CliqzUtils.telemetry(signal);
+      utils.telemetry(signal);
     } catch (ee) {
       LoggingHandler.LOG_ENABLED &&
       LoggingHandler.error(MODULE_NAME, 'Error sending the telemtry data: ' + ee);

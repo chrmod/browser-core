@@ -1,11 +1,12 @@
 import LoggingHandler from 'offers/logging_handler';
+import { utils } from 'core/cliqz';
 
 const MODULE_NAME = 'utils';
 
 export function loadFileFromChrome(filePath) {
-    var localURL = CliqzUtils.System.baseURL + filePath.join('/');
+    var localURL = utils.System.baseURL + filePath.join('/');
     return new Promise( (resolve, reject) => {
-      CliqzUtils.httpGet( localURL , res => {
+      utils.httpGet( localURL , res => {
         resolve(res.response);
       }, reject );
     });
