@@ -1,6 +1,5 @@
-Components.utils.import('chrome://cliqzmodules/content/Result.jsm');
-
 import { utils } from 'core/cliqz';
+import Result from "autocomplete/result";
 
 export function getSmartCliqz(url) {
   utils.log('getSmartCliqz: start fetching for ' + url);

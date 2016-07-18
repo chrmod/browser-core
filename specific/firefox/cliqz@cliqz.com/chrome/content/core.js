@@ -16,12 +16,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryCluster',
-  'chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -31,17 +25,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzDemo',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
-  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
   'chrome://cliqzmodules/content/CliqzRedirect.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
-  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
@@ -107,9 +95,6 @@ window.CLIQZ.Core = {
     eventListeners: [],
     init: function(){
         CliqzRedirect.addHttpObserver();
-        var localePromise = CliqzUtils.init(window);
-
-        CliqzSpellCheck.init();
 
         var windowModuleConfig = {
           onInstall: !this.checkSession(),
@@ -139,9 +124,6 @@ window.CLIQZ.Core = {
             console.log("CLIQZ core.js", "Error loading module: "+moduleName, e);
           });
         }.bind(this));
-
-        // TODO: Refactor locale loading.
-        windowModulePromises.push(localePromise);
 
         return Promise.all(windowModulePromises).then(function () {
           var urlBarGo = document.getElementById('urlbar-go-button');
@@ -269,13 +251,10 @@ window.CLIQZ.Core = {
         if(!soft){
             delete window.CliqzUtils;
             delete window.CliqzHistoryManager;
-            delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.CliqzDemo;
-            delete window.CliqzResultProviders;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
-            delete window.CliqzHistoryCluster;
             delete window.CliqzHandlebars;
             delete window.CliqzEvents;
         }
@@ -352,95 +331,6 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
-    // autocomplete query inline
-    autocompleteQuery: function(urlBar, firstResult, firstTitle){
-        if (urlBar.selectionStart !== urlBar.selectionEnd) {
-            // TODO: temp fix for flickering,
-            // need to make it compatible with auto suggestion
-            urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
-        }
-        if(CliqzAutocomplete._lastKey  === KeyEvent.DOM_VK_BACK_SPACE ||
-           CliqzAutocomplete._lastKey  === KeyEvent.DOM_VK_DELETE){
-            if (CliqzAutocomplete.selectAutocomplete) {
-                CLIQZ.UI.selectAutocomplete();
-            }
-            CliqzAutocomplete.selectAutocomplete = false;
-            return;
-        }
-        CliqzAutocomplete.selectAutocomplete = false;
-
-        // History cluster does not have a url attribute, therefore firstResult is null
-        var lastPattern = CliqzAutocomplete.lastPattern,
-            fRes = lastPattern ? lastPattern.filteredResults() : null;
-        if(!firstResult && lastPattern && fRes.length > 1)
-          firstResult = fRes[0].url;
-
-        var r, endPoint = urlBar.value.length;
-        var lastPattern = CliqzAutocomplete.lastPattern;
-        var results = lastPattern ? fRes : [];
-
-        // try to update misspelings like ',' or '-'
-        if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
-        }
-        // Use first entry if there are no patterns
-        if (results.length === 0 || lastPattern.query != urlBar.value ||
-          CliqzUtils.generalizeUrl(firstResult) != CliqzUtils.generalizeUrl(results[0].url)) {
-            var newResult = [];
-            newResult.url = firstResult;
-            newResult.title = firstTitle;
-            newResult.query = [];
-            results.unshift(newResult);
-        }
-        if (!CliqzUtils.isUrl(results[0].url)) return;
-
-        // Detect autocomplete
-        var autocomplete = CliqzHistoryCluster.autocompleteTerm(urlBar.value, results[0], true);
-
-        // No autocomplete
-        if(!autocomplete.autocomplete ||
-           !CliqzUtils.getPref("browser.urlbar.autoFill", false, '')){ // user has disabled autocomplete
-            CLIQZ.UI.clearAutocomplete();
-            CliqzAutocomplete.lastAutocomplete = null;
-            CliqzAutocomplete.lastAutocompleteActive = null;
-            CliqzAutocomplete.selectAutocomplete = false;
-            return;
-        }
-
-        // Apply autocomplete
-        CliqzAutocomplete.lastAutocompleteActive = autocomplete.autocomplete;
-        CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
-        CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
-        CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
-        urlBar.mInputField.value = autocomplete.urlbar;
-        urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-        CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
-        CLIQZ.UI.cursor = autocomplete.selectionStart;
-
-        // Highlight first entry in dropdown
-        if (autocomplete.highlight) {
-            CliqzAutocomplete.selectAutocomplete = true;
-            CLIQZ.UI.selectAutocomplete();
-        }
-    },
-    cleanUrlBarValue: function(val){
-        var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
-            host = cleanParts[0],
-            pathLength = 0,
-            SYMBOLS = /,|\./g;
-
-        if(cleanParts.length > 1){
-            pathLength = ('/' + cleanParts.slice(1).join('/')).length;
-        }
-        if(host.indexOf('www') == 0 && host.length > 4){
-            // only fix symbols in host
-            if(SYMBOLS.test(host[3]) && host[4] != ' ')
-                // replace only issues in the host name, not ever in the path
-                return val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
-                       (pathLength? val.substr(-pathLength): '');
-        }
-        return val;
-    },
     getQuerySession: function() {
         return _querySession;
     },
@@ -488,7 +378,6 @@ window.CLIQZ.Core = {
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-        menupopup.appendChild(this.createSearchOptions(doc));
         menupopup.appendChild(this.createAdultFilterOptions(doc));
         menupopup.appendChild(this.createLocationPermOptions(win));
       }
@@ -502,42 +391,6 @@ window.CLIQZ.Core = {
         menupopup.appendChild(doc.createElement('menuseparator'));
         menupopup.appendChild(this.createActivateButton(doc));
       }
-    },
-    createSearchOptions: function(doc){
-        var menu = doc.createElement('menu'),
-            menupopup = doc.createElement('menupopup'),
-            engines = CliqzResultProviders.getSearchEngines(),
-            def = Services.search.currentEngine.name;
-
-        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
-
-        for(var i in engines){
-
-            var engine = engines[i],
-                item = doc.createElement('menuitem');
-            item.setAttribute('label', '[' + engine.prefix + '] ' + engine.name);
-            item.setAttribute('class', 'menuitem-iconic');
-            item.engineName = engine.name;
-            if(engine.name == def){
-                item.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'checkmark.png)';
-            }
-            // TODO: Where is this listener removed?
-            item.addEventListener('command', (function(event) {
-                CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
-                CliqzUtils.telemetry({
-                  type: 'activity',
-                  action: 'cliqz_menu_button',
-                  button_name: 'search_engine_change_' + event.currentTarget.engineName
-                });
-            }).bind(this), false);
-
-            menupopup.appendChild(item);
-        }
-
-        menu.appendChild(menupopup);
-
-        return menu;
     },
     createAdultFilterOptions: function(doc) {
         var menu = doc.createElement('menu'),

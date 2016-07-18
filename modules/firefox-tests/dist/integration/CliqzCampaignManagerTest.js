@@ -131,12 +131,17 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
           click($cliqzMessageContainer().find(".cqz-msg-btn-action-confirm")[0]);
           setTimeout(function () {
             chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
-                            // checks (1) for expected URL and (2) that new tab is focused
-                            //remove trailing slash
-                            var str = CliqzUtils.stripTrailingSlash(core.urlbar.value);
-                            chai.expect(str).to.equal(url);
-                            done();
-                          }, 1000)
+              // checks (1) for expected URL and (2) that new tab is focused
+              //remove trailing slash
+              try {
+                var str = CliqzUtils.stripTrailingSlash(core.urlbar.value);
+                chai.expect(str).to.equal(url);
+              } catch(e) {
+                done(e);
+                return;
+              }
+              done();
+            }, 1000)
         });
       });
     });

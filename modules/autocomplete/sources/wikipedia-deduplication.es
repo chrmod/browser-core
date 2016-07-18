@@ -1,19 +1,7 @@
-'use strict';
 /**
  * This modules implements reranking of results using user specific data
  */
-
-var EXPORTED_SYMBOLS = ['CliqzWikipediaDeduplication'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-    'chrome://cliqzmodules/content/CliqzLanguage.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-    'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-
+import { utils } from "core/cliqz";
 
 var CliqzWikipediaDeduplication = {
     LOG_KEY: 'CliqzWikipediaDeduplication',
@@ -73,7 +61,7 @@ var CliqzWikipediaDeduplication = {
     /*get most used user languages*/
     getUserLanguages: function(factor){
         factor = typeof factor !== 'undefined' ? factor : 1.5;
-        var availableLangs = CliqzLanguage.state(true);
+        var availableLangs = utils.getUserLanguages();
         var langs = [];
         var lastValue = null;
         availableLangs.forEach(function(langObj) {
@@ -191,5 +179,7 @@ var CliqzWikipediaDeduplication = {
             response: response
         };
     }
-    
+
 };
+
+export default CliqzWikipediaDeduplication;

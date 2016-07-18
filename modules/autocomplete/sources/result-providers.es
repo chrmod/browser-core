@@ -1,26 +1,13 @@
-'use strict';
 /*
  * This module handles the search engines present in the browser
  * and provides a series of custom results
  *
  */
 
-var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
-
- Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
- Components.utils.import('resource://gre/modules/Services.jsm');
-
- XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
- XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm');
-
- XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
-  'chrome://cliqzmodules/content/CliqzCalculator.jsm');
-
- Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
-
+import { utils, environment } from "core/cliqz";
+import Result from "autocomplete/result";
+import CliqzCalculator from "autocomplete/calculator";
+import { setSearchEngine } from "core/search-engines";
 
 // INIT_KEY ('newProvidersAdded') was used only as a boolean but now we have multiple states
 // state 1 -> Google images & Google maps
@@ -30,7 +17,7 @@ var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
 //  - to key property for NonDefaultProviders
 // state 4 -> Ecosia engine is added
 
- var INIT_KEY = 'newProvidersAdded',
+var INIT_KEY = 'newProvidersAdded',
      LOG_KEY = 'NonDefaultProviders.jsm',
      KEY ='#',
      CUSTOM = {
@@ -68,7 +55,7 @@ var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
 
 var CliqzResultProviders = {
   init: function () {
-    CliqzUtils.log('CliqzResultProviders initialized', LOG_KEY);
+    utils.log('CliqzResultProviders initialized', LOG_KEY);
     CliqzResultProviders.manageProviders();
   },
   manageProviders: function() {
@@ -84,30 +71,30 @@ var CliqzResultProviders = {
         maxState = -1,
         newProviderIsAdded = false;
 
-    if (typeof CliqzUtils.getPref(INIT_KEY) === "boolean") {
+    if (typeof utils.getPref(INIT_KEY) === "boolean") {
       providersAddedState = 1;
     } else {
-      providersAddedState = CliqzUtils.getPref(INIT_KEY, 0);
+      providersAddedState = utils.getPref(INIT_KEY, 0);
     }
 
     NonDefaultProviders.forEach(function (extern) {
-      CliqzUtils.log("NonDefaultProviders");
+      utils.log("NonDefaultProviders");
       try {
-        CliqzUtils.log('Analysing ' + extern.name, LOG_KEY);
-        if (!CLIQZEnvironment.getEngineByName(extern.name)) {
+        utils.log('Analysing ' + extern.name, LOG_KEY);
+        if (!environment.getEngineByName(extern.name)) {
           if (providersAddedState < extern.state) {
             maxState = extern.state > maxState ? extern.state : maxState;
-            CliqzUtils.log('Added ' + extern.name, LOG_KEY);
-            CLIQZEnvironment.addEngineWithDetails(extern);
+            utils.log('Added ' + extern.name, LOG_KEY);
+            environment.addEngineWithDetails(extern);
           }
         }
       } catch (e) {
-        CliqzUtils.log(e, 'err' + LOG_KEY);
+        utils.log(e, 'err' + LOG_KEY);
       }
     });
 
     if (maxState > 0) {
-      CliqzUtils.setPref(INIT_KEY, maxState);
+      utils.setPref(INIT_KEY, maxState);
       newProviderIsAdded = true;
     }
 
@@ -123,8 +110,8 @@ var CliqzResultProviders = {
     });
   },
   updateAlias: function(name, newAlias) {
-    CLIQZEnvironment.updateAlias(name, newAlias);
-    CliqzUtils.log("Alias of engine  " + name + " was updated to " + newAlias, LOG_KEY);
+    environment.updateAlias(name, newAlias);
+    utils.log("Alias of engine  " + name + " was updated to " + newAlias, LOG_KEY);
   },
   getCustomResults: function (q) {
     var results = null;
@@ -164,7 +151,8 @@ var CliqzResultProviders = {
     return 0;
   },
   setCurrentSearchEngine: function(engine){
-    Services.search.currentEngine = CliqzResultProviders.getEngineByName(engine);
+    const searchEngine = CliqzResultProviders.getEngineByName(engine);
+    setSearchEngine(searchEngine);
   },
   // called for each query
   customizeQuery: function(q){
@@ -207,17 +195,15 @@ var CliqzResultProviders = {
     }
   },
   getEngineByName: function(engine) {
-    return CLIQZEnvironment.getEngineByName(engine);
+    return environment.getEngineByName(engine);
   },
   getEngineByAlias: function(alias) {
-    return CLIQZEnvironment.getEngineByAlias(alias);
+    return environment.getEngineByAlias(alias);
   },
   getSubmissionByEngineName: function(name, query){
-    var engines = CliqzResultProviders.getSearchEngines();
-    for(var i=0; i < engines.length; i++){
-      if(engines[i].name == name){
-        return engines[i].getSubmissionForQuery(query);
-      }
+    var engine = CliqzResultProviders.getSearchEngines().find( engine => engine.name === name);
+    if (engine) {
+      return engine.getSubmissionForQuery(query);
     }
   },
   // called once at visual hashtag creation
@@ -234,7 +220,7 @@ var CliqzResultProviders = {
     return KEY + name.substring(0, 2).toLowerCase();
   },
   getSearchEngines: function(){
-    return CLIQZEnvironment.getSearchEngines().map(function(e){
+    return environment.getSearchEngines().map(function(e){
       e.prefix = CliqzResultProviders.getShortcut(e.name);
       e.code   = CliqzResultProviders.getEngineCode(e.name);
 
@@ -278,3 +264,5 @@ var NonDefaultProviders = [
     state: 4
   }
 ];
+
+export default CliqzResultProviders;

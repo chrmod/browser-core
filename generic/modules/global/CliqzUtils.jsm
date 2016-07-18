@@ -18,15 +18,6 @@ Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
-  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRequestMonitor',
   'chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
 
@@ -81,13 +72,11 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
-  init: function(win){
-    var localePromise;
-    if (win && win.navigator) {
-        // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
-        var nav = win.navigator;
-        CliqzUtils.PREFERRED_LANGUAGE = CliqzUtils.getPref('general.useragent.locale', nav.language || nav.userLanguage || 'en', '');
-        localePromise = CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
+  init: function(options){
+    options = options || {};
+
+    if (!options.lang) {
+      return Promise.reject("lang missing");
     }
 
     if(!brand_loaded){
@@ -115,7 +104,13 @@ var CliqzUtils = {
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
     CliqzUtils.log('Initialized', 'CliqzUtils');
-    return localePromise;
+
+    CliqzUtils.setLang(options.lang);
+  },
+
+  setLang: function (lang) {
+     CliqzUtils.PREFERRED_LANGUAGE = lang;
+     CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
   },
 
   initPlatform: function(System) {
@@ -793,14 +788,6 @@ var CliqzUtils = {
           return VERTICAL_ENCODINGS[s] || s;
       });
   },
-  combineSources: function(internal, cliqz){
-    // do not add extra sources to end of EZs
-    if(internal == "cliqz-extra")
-      return internal;
-
-    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
-    return internal + " " + cliqz_sources
-  },
   isPrivate: CLIQZEnvironment.isPrivate,
   telemetry: CLIQZEnvironment.telemetry,
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
@@ -830,33 +817,46 @@ var CliqzUtils = {
   locale: {},
   currLocale: null,
   loadLocale: function (lang_locale) {
-    if (!CliqzUtils.locale.hasOwnProperty(lang_locale) && !CliqzUtils.locale.hasOwnProperty('default')) {
-      return CliqzUtils.getLocaleFile(encodeURIComponent(lang_locale), lang_locale).catch(function() {
-        // We did not find the full locale (e.g. en-GB): let's try just the
-        // language!
+    var locales = {
+      "en-US": "en"
+    };
+    lang_locale = locales[lang_locale] || lang_locale;
+
+    if (!CliqzUtils.locale.hasOwnProperty(lang_locale)
+      && !CliqzUtils.locale.hasOwnProperty('default')) {
+      try {
+        CliqzUtils.getLocaleFile(encodeURIComponent(lang_locale), lang_locale);
+      } catch(e) {
         var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
-        return CliqzUtils.getLocaleFile(loc, lang_locale).catch(function () {
-          // The default language
-          return CliqzUtils.getLocaleFile('de', 'default');
-        });
-      });
+        try {
+          CliqzUtils.getLocaleFile(loc, lang_locale);
+        } catch(e) {
+          try {
+            CliqzUtils.getLocaleFile('de', 'default');
+          } catch(e) {
+
+          }
+        }
+      }
     }
   },
   getLocaleFile: function (locale_path, locale_key) {
-    return new Promise (function (resolve, reject) {
-      CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + locale_path + '/cliqz.json',
-        function(req) {
-            if (CliqzUtils){
-              if (locale_key !== 'default') {
-                CliqzUtils.currLocale = locale_key;
-              }
-              CliqzUtils.locale[locale_key] = JSON.parse(req.response);
-              resolve();
-            }
-        },
-        reject
-      );
-    });
+    function callback(req) {
+        if (CliqzUtils){
+          if (locale_key !== 'default') {
+            CliqzUtils.currLocale = locale_key;
+          }
+          CliqzUtils.locale[locale_key] = JSON.parse(req.response);
+        }
+    }
+    function onerror(err) {
+    }
+    var url = CLIQZEnvironment.LOCALE_PATH + locale_path + '/cliqz.json';
+    var response = CliqzUtils.httpGet(url, callback, onerror, 3000, null, true);
+    if (response.readyState !== 2) {
+      throw "Error";
+    }
+    return response;
   },
   getLanguageFromLocale: function(locale){
     return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
@@ -864,6 +864,7 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
+  getUserLanguages: CLIQZEnvironment.getUserLanguages,
   getLocalizedString: function(key, substitutions){
     if(!key) return '';
 

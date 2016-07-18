@@ -94,6 +94,11 @@ Object.keys(window.TESTS).forEach(function (testName) {
   testFunction.apply(null, modules);
 });
 
+before(function () {
+  // force location as it is IP based
+  CliqzUtils.setPref("config_location", "de");
+});
+
 beforeEach(function () {
   return CliqzUtils.extensionRestart().then(function () {
     window.closeAllTabs(chrome.gBrowser);

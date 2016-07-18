@@ -1,13 +1,30 @@
-'use strict';
+const expect = chai.expect;
 
-var expect = chai.expect;
+export default describeModule("autocomplete/mixer",
+  function () {
+    return {
+      "autocomplete/url-complete": { default: {} },
+      "core/cliqz": {
+        utils: {
+          setTimeout,
+          log: console.log.bind(console),
+          encodeSources() { return []; },
+          getDetailsFromUrl: function (url) { return { extra: "", path: "", host: "" }; },
+          encodeResultType() { return ""; },
+          isCompleteUrl() { return true; },
+          generalizeUrl() { },
+        },
+        environment: {
+          MIN_QUERY_LENGHT_FOR_EZ: 3
+        }
 
-TESTS.Mixer = function(Mixer, CliqzUtils) {
-  describe('Mixer', function() {
-
+      },
+    }
+  },
+  function () {
     beforeEach(function() {
       // Disable cleaning of smartCLIQZ trigger URLs during testing
-      Mixer._cleanTriggerUrls = function() {};
+      this.module().default._cleanTriggerUrls = function() {};
     });
 
     describe('prepareExtraResults', function() {
@@ -17,8 +34,8 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
             data: { garbage: 'useless' },
           },
         ];
-        Mixer._prepareExtraResults(input);
-        expect(Mixer._prepareExtraResults(input)).to.be.empty;
+        this.module().default._prepareExtraResults(input);
+        expect(this.module().default._prepareExtraResults(input)).to.be.empty;
       });
 
       it('should add trigger_method to each result', function() {
@@ -53,7 +70,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
 
         var expected = 'X|{"ez":"-6262111850032132334","trigger_method":"rh_query"}';
 
-        var results = Mixer._prepareExtraResults(input);
+        var results = this.module().default._prepareExtraResults(input);
 
         results.forEach(function(result) {
           expect(result).to.contain.all.keys(input[0]);
@@ -95,7 +112,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
           },
         ];
 
-        var results = Mixer._prepareCliqzResults(input);
+        var results = this.module().default._prepareCliqzResults(input);
 
         results.forEach(function(result, i) {
           var parts = result.data.kind[0].split('|'),
@@ -108,26 +125,28 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
 
     describe('isValidQueryForEZ', function() {
 
-      var subject = Mixer._isValidQueryForEZ,
-                    blacklist;
+      let subject, blacklist;
 
       beforeEach(function() {
-        blacklist = Mixer.EZ_QUERY_BLACKLIST;
-        Mixer.EZ_QUERY_BLACKLIST = ['xxx', 'yyy', 'ggg'];
+        subject = this.module().default._isValidQueryForEZ,
+                    blacklist;
+
+        blacklist = this.module().default.EZ_QUERY_BLACKLIST;
+        this.module().default.EZ_QUERY_BLACKLIST = ['xxx', 'yyy', 'ggg'];
       });
 
       afterEach(function() {
-        Mixer.EZ_QUERY_BLACKLIST = blacklist;
+        this.module().default.EZ_QUERY_BLACKLIST = blacklist;
       });
 
       it('rejects queries in blacklist', function() {
-        Mixer.EZ_QUERY_BLACKLIST.forEach(function(query) {
+        this.module().default.EZ_QUERY_BLACKLIST.forEach(function(query) {
           expect(subject(query)).to.be.false;
         });
       });
 
       it('ignores capitalization', function() {
-        Mixer.EZ_QUERY_BLACKLIST.map(function(q) {return q.toUpperCase();})
+        this.module().default.EZ_QUERY_BLACKLIST.map(function(q) {return q.toUpperCase();})
                                  .forEach(function(query) {
           expect(subject(query)).to.be.false;
         });
@@ -137,7 +156,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       });
 
       it('ignores whitespace', function() {
-        Mixer.EZ_QUERY_BLACKLIST.map(function(q) {return ' ' + q + ' ';})
+        this.module().default.EZ_QUERY_BLACKLIST.map(function(q) {return ' ' + q + ' ';})
                                 .forEach(function(query) {
           expect(subject(query)).to.be.false;
         });
@@ -184,10 +203,16 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         },
       };
 
+      beforeEach(function () {
+        this.deps("core/cliqz").utils.isCompleteUrl = () => true;
+        this.deps("core/cliqz").utils.getDetailsFromUrl = () => ({ name: 'bild' });
+      });
+
       it('should add EZ to empty list', function() {
+
         var extra = [];
 
-        Mixer._addEZfromBM(extra, result);
+        this.module().default._addEZfromBM(extra, result);
 
         expect(extra).to.have.length(1);
         expect(extra[0].data.subType).to.equal(result.extra.subType);
@@ -197,7 +222,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       it('should add EZ to end of existing list', function() {
         var extra = [{test: 'abc'}];
 
-        Mixer._addEZfromBM(extra, result);
+        this.module().default._addEZfromBM(extra, result);
 
         expect(extra).to.have.length(2);
         expect(extra[extra.length - 1].data.subType).to.equal(result.extra.subType);
@@ -216,7 +241,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
             },
           },
         };
-        var sublinks = Mixer._collectSublinks(data);
+        var sublinks = this.module().default._collectSublinks(data);
 
         expect(sublinks).to.be.empty;
       });
@@ -231,7 +256,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
             },
           },
         };
-        var sublinks = Mixer._collectSublinks(data);
+        var sublinks = this.module().default._collectSublinks(data);
 
         expect(sublinks).to.contain('http://www.test.com');
       });
@@ -246,7 +271,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
             },
           },
         };
-        var sublinks = Mixer._collectSublinks(data);
+        var sublinks = this.module().default._collectSublinks(data);
 
         expect(sublinks).to.contain('http://www.test.com');
       });
@@ -267,7 +292,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
             ],
           },
         };
-        var sublinks = Mixer._collectSublinks(data);
+        var sublinks = this.module().default._collectSublinks(data);
 
         expect(sublinks).to.contain('http://www.test.com');
         expect(sublinks).to.contain('http://aaa.com');
@@ -333,13 +358,13 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       });
 
       it('should find no duplicates', function() {
-        var duplicates = Mixer._getDuplicates(results, cliqz);
+        var duplicates = this.module().default._getDuplicates(results, cliqz);
         expect(duplicates).to.be.empty;
       });
 
       it('should find one duplicate - main link', function() {
         cliqz[0].label = cliqz[0].val = results[0].label;
-        var duplicates = Mixer._getDuplicates(results, cliqz);
+        var duplicates = this.module().default._getDuplicates(results, cliqz);
         expect(duplicates).to.have.length(1);
         expect(duplicates[0]).to.be.deep.equal(cliqz[0]);
       });
@@ -347,14 +372,14 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       it('should find one duplicate - sub link', function() {
         results[0].style = 'cliqz-pattern';
         results[0].data.urls = [{href: 'https://mail.facebook.com/'}];
-        var duplicates = Mixer._getDuplicates(results, cliqz);
+        var duplicates = this.module().default._getDuplicates(results, cliqz);
         expect(duplicates).to.have.length(1);
         expect(duplicates[0]).to.be.deep.equal(cliqz[0]);
       });
 
       it('should find one duplicate - main link different country', function() {
         cliqz[0].label = cliqz[0].val = 'https://de-de.facebook.com/';
-        var duplicates = Mixer._getDuplicates(results, cliqz);
+        var duplicates = this.module().default._getDuplicates(results, cliqz);
         expect(duplicates).to.have.length(1);
         expect(duplicates[0]).to.be.deep.equal(cliqz[0]);
       });
@@ -417,7 +442,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       });
 
       it('should leave both lists alone', function() {
-        var r = Mixer._deduplicateResults(results, cliqz);
+        var r = this.module().default._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(2);
@@ -426,7 +451,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       it('should remove facebook from cliqz', function() {
         cliqz[0].label = cliqz[0].val = results[0].label;
 
-        var r = Mixer._deduplicateResults(results, cliqz);
+        var r = this.module().default._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(1);
@@ -439,7 +464,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         results[0].style = 'cliqz-pattern';
         results[0].data.urls = [{href: 'https://mail.facebook.com/'}];
 
-        var r = Mixer._deduplicateResults(results, cliqz);
+        var r = this.module().default._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(1);
@@ -448,7 +473,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       it('should remove facebook from cliqz because only different by country', function() {
         cliqz[0].label = cliqz[0].val = 'https://de-de.facebook.com/';
 
-        var r = Mixer._deduplicateResults(results, cliqz);
+        var r = this.module().default._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(1);
@@ -485,60 +510,52 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       });
 
       it('should accept good ez', function() {
-        expect(Mixer._isValidEZ(result)).to.be.true;
+        expect(this.module().default._isValidEZ(result)).to.be.true;
       });
 
       it('should discard if url is missing', function() {
         delete result.val;
-        expect(Mixer._isValidEZ(result)).to.be.false;
+        expect(this.module().default._isValidEZ(result)).to.be.false;
       });
 
       it('should discard if data is missing', function() {
         delete result.data;
-        expect(Mixer._isValidEZ(result)).to.be.false;
+        expect(this.module().default._isValidEZ(result)).to.be.false;
       });
 
       it('should discard if subType is missing or unparsable', function() {
         result.data.subType = 'afsdfdasfdsfds{';
-        expect(Mixer._isValidEZ(result)).to.be.false;
+        expect(this.module().default._isValidEZ(result)).to.be.false;
         delete result.subType;
-        expect(Mixer._isValidEZ(result)).to.be.false;
+        expect(this.module().default._isValidEZ(result)).to.be.false;
       });
 
       it('should discard if __subType__ is missing or ID is missing', function() {
         delete result.data.__subType__.id;
-        expect(Mixer._isValidEZ(result)).to.be.false;
+        expect(this.module().default._isValidEZ(result)).to.be.false;
         delete result.data.__subType__;
-        expect(Mixer._isValidEZ(result)).to.be.false;
+        expect(this.module().default._isValidEZ(result)).to.be.false;
       });
     });
 
     describe('cacheEZs', function() {
 
-      // extracts id from SmartCliqz
-      function getIdfunction(smartCliqz) {
-        return smartCliqz.data.__subType__.id;
-      }
-
       function getUrlfunction(smartCliqz) {
-        return CliqzUtils.generalizeUrl(smartCliqz.val, true);
+        //return CliqzUtils.generalizeUrl(smartCliqz.val, true);
       }
 
       var saved = false,
           results = {},
           urls = {},
           ezs = {},
-          smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
-          triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache,
-          triggerUrlCacheRetrieve = triggerUrlCache.retrieve,
-          triggerUrlCacheStore = triggerUrlCache.store,
-          triggerUrlCacheSave = triggerUrlCache.save,
-          ezStore = smartCliqzCache.store;
+          smartCliqzCache = {},
+          triggerUrlCache = {},
+          ezstore,
+          test;
 
       // Mock CliqzSmartCliqzCache
       beforeEach(function() {
-        results = [
-        {
+        results = [{
           style: 'cliqz-extra',
           val: 'https://cliqz.com/',
           comment: 'Cliqz',
@@ -557,7 +574,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
               name: "Cliqz 1",
             },
           },
-        },];
+        }];
 
         saved = false;
         urls = {};
@@ -581,19 +598,16 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         smartCliqzCache.store = function(ezData) {
           ezs[getUrlfunction(ezData)] = ezData;
         };
-      });
+        triggerUrlCache.isCached = () => false;
 
-      afterEach(function() {
-        var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
-        smartCliqzCache.store = ezStore;
-
-        triggerUrlCache.retrieve = triggerUrlCacheRetrieve;
-        triggerUrlCache.store = triggerUrlCacheStore;
-        triggerUrlCache.save = triggerUrlCacheSave;
+        this.module().default.init({
+          smartCliqzCache,
+          triggerUrlCache,
+        });
       });
 
       it('should cache 1 entry given 1', function() {
-        Mixer._cacheEZs([results[0]]);
+        this.module().default._cacheEZs([results[0]]);
 
         expect(saved).to.be.true;
         expect(Object.keys(urls)).length.to.be(1);
@@ -604,7 +618,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       it('should cache 1 entry given 2 with same URL', function() {
         results.push(JSON.parse(JSON.stringify(results[0])));
         results[1].comment = 'Second entry';
-        Mixer._cacheEZs(results);
+        this.module().default._cacheEZs(results);
 
         expect(saved).to.be.true;
         expect(Object.keys(urls)).length.to.be(1);
@@ -620,7 +634,7 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         results[1].data.trigger_urls[0] = 'test.com';
         results[1].data.__subType__ = { id: "1111111111" };
 
-        Mixer._cacheEZs(results);
+        this.module().default._cacheEZs(results);
 
         expect(saved).to.be.true;
         expect(Object.keys(urls)).length.to.be(2);
@@ -636,13 +650,8 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
           result = {},
           urls = {},
           ezs = {},
-          smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache,
-          triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache,
-          triggerUrlCacheIsCached = triggerUrlCache.isCached,
-          triggerUrlCacheRetrieve = triggerUrlCache.retrieve,
-          triggerUrlCacheIsStale = triggerUrlCache.isStale,
-          ezFetchStore = smartCliqzCache.fetchAndStore,
-          ezRetrieve = smartCliqzCache.retrieve;
+          smartCliqzCache = {},
+          triggerUrlCache = {};
 
       // Mock CliqzSmartCliqzCache
       beforeEach(function() {
@@ -706,39 +715,34 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         smartCliqzCache.retrieve = function(url) {
           return ezs[url];
         };
-      });
-
-      afterEach(function() {
-        var smartCliqzCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.smartCliqzCache;
-        var triggerUrlCache = CliqzUtils.System.get('smart-cliqz-cache/background').default.triggerUrlCache;
-        smartCliqzCache.fetchAndStore = ezFetchStore;
-        smartCliqzCache.retrieve = ezRetrieve;
-        triggerUrlCache.isCached = triggerUrlCacheIsCached;
-        triggerUrlCache.retrieve = triggerUrlCacheRetrieve;
-        triggerUrlCache.isStale = triggerUrlCacheIsStale;
+        this.deps("core/cliqz").utils.generalizeUrl = () => "cliqz.com";
+        this.module().default.init({
+          smartCliqzCache,
+          triggerUrlCache,
+        });
       });
 
       it('should trigger ez', function() {
-        var ez = Mixer._historyTriggerEZ(result);
+        var ez = this.module().default._historyTriggerEZ(result);
         expect(ez).to.equal(ezs[urls['cliqz.com']]);
       });
 
       it('should not trigger ez but fetch', function() {
         ezs = {};
-        var ez = Mixer._historyTriggerEZ(result);
+        var ez = this.module().default._historyTriggerEZ(result);
         expect(ez).to.be.undefined;
         expect(fetching).to.equal('cliqz.com');
       });
 
       it('should trigger ez because no cluster', function() {
         result.data.cluster = false;
-        var ez = Mixer._historyTriggerEZ(result);
+        var ez = this.module().default._historyTriggerEZ(result);
         expect(ez).to.be.undefined;
       });
 
       it('should trigger ez because cluster base domain inferred', function() {
         result.data.autoAdd = true;
-        var ez = Mixer._historyTriggerEZ(result);
+        var ez = this.module().default._historyTriggerEZ(result);
         expect(ez).to.be.undefined;
       });
     });
@@ -785,20 +789,20 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
       });
 
       it('should not conflict if history matches', function() {
-        var finalExtra = Mixer._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.deep.equal(ezs);
       });
 
       it('should not conflict if no bet', function() {
         firstResult.val = 'http://facebook.com';
         firstResult.data.cluster = false;
-        var finalExtra = Mixer._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.deep.equal(ezs);
       });
 
       it('should conflict if history bet does not match', function() {
         firstResult.val = 'http://facebook.com';
-        var finalExtra = Mixer._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.have.length(0);
       });
 
@@ -807,11 +811,10 @@ TESTS.Mixer = function(Mixer, CliqzUtils) {
         firstResult.val = 'http://facebook.com';
         firstResult.cluster = false;
         firstResult.autocompleted = true;
-        var finalExtra = Mixer._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.have.length(0);
       });
 
     });
-
-  });
-};
+  }
+);

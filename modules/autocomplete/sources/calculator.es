@@ -1,25 +1,28 @@
-'use strict';
 /*
  * This module handles various calculations
  *
  */
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/Result.jsm');
-Components.utils.import("resource://gre/modules/Services.jsm");
-Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/math.min.js', this);
-var mathLib = math || this.math;
+import { utils } from "core/cliqz";
+import Result from "autocomplete/result";
+import { isFirefox } from "core/platform";
+
+let mathLib;
+
+if (isFirefox) {
+  const global = {};
+  Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/mathjs/dist/math.min.js', global);
+  mathLib = global.math;
+} else {
+  mathLib = window.math;
+}
 
 // REF:
 //      http://mathjs.org/docs/index.html
 //      http://stackoverflow.com/questions/26603795/variable-name-and-restrict-operators-in-math-js
 //      http://jsbin.com/duduru/1/edit?html,output
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-var EXPORTED_SYMBOLS = ['CliqzCalculator'];
-var BROWSER_LANG = CliqzUtils.getLocalizedString('locale_lang_code');
+var BROWSER_LANG = utils.getLocalizedString('locale_lang_code');
 
 function getEqualOperator(val, localizedStr){
   var valStr = val.toString().replace(",","").replace(".",""),
@@ -109,7 +112,7 @@ var CliqzCalculator = {
         }
       }
       numRaw = Math.round(num1 * floatDec) / floatDec;
-      num = numRaw.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code'));
+      num = numRaw.toLocaleString(utils.getLocalizedString('locale_lang_code'));
       resultSign = getEqualOperator(num1, num);
 
       this.CALCULATOR_RES = this.IS_UNIT_CONVERTER ? [num, this.UNIT_RES].join(" ") : num.toString();
@@ -225,7 +228,7 @@ var CliqzCalculator = {
 
       this.IS_UNIT_CONVERTER = true;
       var cvRaw = unit1Info[2].val / unit2[2].val,
-        cv = cvRaw.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code'));
+        cv = cvRaw.toLocaleString(utils.getLocalizedString('locale_lang_code'));
       this.CALCULATOR_RES = num * cvRaw;
       this.UNIT_RES = CliqzCalculator.selectUnitTerms(unit2[2], this.CALCULATOR_RES);
       this.BASE_UNIT_CONVERTER = [
@@ -266,3 +269,5 @@ var CliqzCalculator = {
     return this.isConverterSearch(q);
   }
 };
+
+export default CliqzCalculator;

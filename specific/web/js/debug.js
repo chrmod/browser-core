@@ -4,7 +4,7 @@ var urlbar      = document.getElementById('urlbar'),
     panelLeft   = -265,
     enableCMenu = CLIQZ.ContextMenu.enableContextMenu,
     openPopup   = CLIQZEnvironment.openPopup;
-CliqzUtils.init(window);
+CliqzUtils.init({lang: 'en'});
 CLIQZ.UI.init(urlbar);
 //disable context menu by default
 togglecMenu(true);

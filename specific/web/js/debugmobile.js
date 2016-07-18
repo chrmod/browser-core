@@ -1,5 +1,5 @@
 var urlbar = document.getElementById('urlbar');
-CliqzUtils.init(window);
+CliqzUtils.init({ lang: 'en' });
 var resultsBox = document.getElementById('results');
 CLIQZ.UI.init(urlbar);
 var item_container;

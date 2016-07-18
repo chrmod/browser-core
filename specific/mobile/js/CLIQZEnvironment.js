@@ -233,17 +233,13 @@ CLIQZEnvironment = {
   getDomNodeContent: function(el) {
     return el.outerHTML;
   },
-  httpHandler: function(method, url, callback, onerror, timeout, data, asynchronous) {
+  httpHandler: function(method, url, callback, onerror, timeout, data, sync) {
     latestUrl = url;
 
     function isMixerUrl(url) { return url.indexOf(CliqzUtils.RESULTS_PROVIDER) === 0; }
 
     var req = new XMLHttpRequest();
-    if (asynchronous === undefined) {
-      req.open(method, url, true);
-    } else {
-      req.open(method, url, asynchronous);
-    }
+    req.open(method, url, !sync)
     req.overrideMimeType && req.overrideMimeType('application/json');
     req.onload = function(){
       if(!parseInt) {
@@ -303,7 +299,7 @@ CLIQZEnvironment = {
       }
     };
 
-    if(callback){
+    if(callback && !sync){
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
@@ -404,7 +400,7 @@ CLIQZEnvironment = {
     var details = CliqzUtils.getDetailsFromUrl(engine.url);
     var logo = CliqzUtils.getLogoDetails(details);
 
-    var result =  Result.cliqzExtra(
+    var result =  CliqzUtils.Result.cliqzExtra(
       {
         data:
           {

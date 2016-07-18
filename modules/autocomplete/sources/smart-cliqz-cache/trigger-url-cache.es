@@ -1,6 +1,6 @@
-import { getSmartCliqz } from 'smart-cliqz-cache/rich-header';
+import { getSmartCliqz } from 'autocomplete/smart-cliqz-cache/rich-header';
 import { utils } from 'core/cliqz';
-import Cache from 'smart-cliqz-cache/cache';
+import Cache from 'autocomplete/smart-cliqz-cache/cache';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = 24 * HOUR;

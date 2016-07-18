@@ -1,10 +1,10 @@
-CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
+//CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
 
 CliqzUtils.initPlatform(System);
 
 System.import("core/startup").then(function (startupModule) {
   return startupModule.default(window, [
-    "core",
+    "autocomplete",
     "mobile-ui",
     "mobile-dev",
     "mobile-freshtab",
@@ -13,7 +13,9 @@ System.import("core/startup").then(function (startupModule) {
     "yt-downloader"
   ]);
 }).then(function () {
-  return CliqzUtils.init(window);
+  return CliqzUtils.init({
+    lang: window.navigator.language || window.navigator.userLanguage
+  });
 }).then(function () {
   osAPI.init();
   CLIQZEnvironment.initHomepage(true);

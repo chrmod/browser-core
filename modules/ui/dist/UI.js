@@ -7,6 +7,8 @@
 
 function load(ctx) {
 
+var CliqzAutocomplete;
+
 function isValidURL(str) {
   var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
   return pattern.test(str);
@@ -55,11 +57,10 @@ var UI = {
     DROPDOWN_HEIGHT: 349,
     popupClosed: true,
     VIEWS: Object.create(null),
-    init: function(_urlbar){
+    init: function(_urlbar, autocomplete) {
+        CliqzAutocomplete = autocomplete;
         urlbar = _urlbar
         if(!urlbar.mInputField) urlbar.mInputField = urlbar; //not FF
-
-        CLIQZEnvironment.initWindow && CLIQZEnvironment.initWindow(window);
 
         UI.urlbar_box = UI.urlbar_box || urlbar.getBoundingClientRect();
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
@@ -175,7 +176,9 @@ var UI = {
           firstResult.url = firstResult.data.urls[0].href;
 
         if(firstResult.url){
-          setTimeout(CLIQZ.Core.autocompleteQuery, 0, urlbar, CliqzUtils.cleanMozillaActions(firstResult.url)[1], firstResult.title);
+          setTimeout(function () {
+            CLIQZ.UI.autocompleteQuery.call(urlbar, CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title);
+          }, 0);
         }
 
         snippetQualityTelemetry(curResAll);
@@ -1914,7 +1917,7 @@ function onEnter(ev, item){
 
     CLIQZ.Core.triggerLastQ = true;
 
-    var customQuery = CliqzResultProviders.customizeQuery(input);
+    var customQuery = CliqzAutocomplete.CliqzResultProviders.customizeQuery(input);
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }

@@ -13,9 +13,7 @@ var modules = require('./modules-tree');
 // input trees
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 var generic         = new Funnel('generic');
-var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
-var local           = new Funnel(generic, { srcDir: 'modules/local', exclude: ['views/**/*'] });
 
 var mobileCss = compileSass(
   ['specific/mobile/skin/sass'],
@@ -52,27 +50,9 @@ var globalConcated = concat(global, {
   }
 });
 
-var localConcated = concat(local, {
-  outputFile: 'local.js',
-  header: "'use strict';\n\n",
-  inputFiles: [
-    "ContextMenu.js",
-  ],
-  sourceMapConfig: { enabled: cliqzConfig.sourceMaps },
-});
-
-var libsConcated = concat(libs, {
-  outputFile: 'libs.js',
-  inputFiles: [
-    "*.js",
-  ],
-  sourceMapConfig: { enabled: false },
-});
-
 var mobile = new MergeTrees([
   mobileSpecific,
   new Funnel(config),
-  new Funnel(libsConcated,   { destDir: 'js' }),
   new Funnel(globalConcated, { destDir: 'js' }),
   new Funnel(mobileCss,      { destDir: 'skin/css' }),
   new Funnel(modules.bowerComponents, { destDir: 'bower_components' }),

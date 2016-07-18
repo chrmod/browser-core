@@ -10,11 +10,7 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
 var EXPORTED_SYMBOLS = ['CliqzSearchHistory'];
-
 
 /* Responsible for managing the 'Letzte Eingabe' button/dropdown. */
 var CliqzSearchHistory = {
@@ -74,7 +70,7 @@ var CliqzSearchHistory = {
             win = this.windows[CliqzUtils.getWindowID()];
         if(win && win.urlbar){
             var val = win.urlbar.value.trim(),
-                lastQ = CliqzAutocomplete.lastSearch.trim();
+                lastQ = CliqzUtils.autocomplete.lastSearch.trim();
 
             if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
                 this.showLastQuery(lastQ);
@@ -108,7 +104,7 @@ var CliqzSearchHistory = {
         var curWin = this.windows[CliqzUtils.getWindowID()];
 
         // Clean last search to avoid conflicts
-        CliqzAutocomplete.lastSearch = '';
+        CliqzUtils.autocomplete.lastSearch = '';
 
         if(curWin && curWin.lastQueryInTab && curWin.lastQueryInTab[ev.target.linkedPanel])
             this.showLastQuery(curWin.lastQueryInTab[ev.target.linkedPanel]);

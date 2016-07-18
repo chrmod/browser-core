@@ -6,15 +6,9 @@
 
 var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
-
-Components.utils.import("resource://gre/modules/Services.jsm");
 Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
 Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
@@ -144,7 +138,7 @@ function registerHelpers(){
 
     Handlebars.registerHelper('wikiEZ_height', function(data_richData){
         if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0){
-            if ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data))  // is the first result in the show list
+            if ( (this.type === 'cliqz-extra') || (this.data === CliqzUtils.autocomplete.lastResult._results[0].data))  // is the first result in the show list
                 return 'cqz-result-h2';
             // BM hq result, but not the 1st result -> remove images
             data_richData.images = [];
@@ -160,16 +154,16 @@ function registerHelpers(){
                           && typeof(data_richData["total_review"]) !== "undefined";
 
         // is the only result in the show list
-        return (CliqzAutocomplete.lastResult._results.length === 1 && minimalData);
+        return (CliqzUtils.autocomplete.lastResult._results.length === 1 && minimalData);
     });
 
     Handlebars.registerHelper('cpgame_movie_rd_template', function(data_richData) {
-        if(!CliqzAutocomplete.lastResult) return false;
+        if(!CliqzUtils.autocomplete.lastResult) return false;
 
         var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
 
-        return (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
+        return (CliqzUtils.autocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
     });
 
     Handlebars.registerHelper('image_rd_specification', function(richData){

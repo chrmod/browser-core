@@ -1,10 +1,8 @@
-'use strict';
 /*
  * This module handles results(url) comparison
  *
  */
 
-var EXPORTED_SYMBOLS = ['UrlCompare'];
 
 // TLD list extracted from http://www.iana.org/domains/root/db,
 // cc stands fro country code, the other are generic
@@ -137,3 +135,4 @@ var UrlCompare = {
   },
 };
 
+export default UrlCompare;

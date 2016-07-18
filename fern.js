@@ -3,9 +3,14 @@
 'use strict';
 
 const childProcess = require('child_process');
+const os = require('os');
 
 if (process.argv[2] === "install") {
-  const npmInstall = childProcess.spawn('npm', ['install'], { stdio: [0,1,2] });
+  let command = "npm";
+  if (/win/.test(os.platform())) {
+    command += ".cmd"
+  }
+  const npmInstall = childProcess.spawn(command, ['install'], { stdio: [0,1,2] });
   npmInstall.on('exit', function () { fern() });
 } else {
   fern();

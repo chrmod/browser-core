@@ -1,15 +1,5 @@
-'use strict';
-
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/FileUtils.jsm");
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-                                  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-                                  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
-var EXPORTED_SYMBOLS = ["CliqzSpellCheck"];
+import autocomplete from "autocomplete/autocomplete";
+import { utils } from "core/cliqz";
 
 var CliqzSpellCheck = {
     check: function(q) {
@@ -17,8 +7,8 @@ var CliqzSpellCheck = {
         var correctBack = {}
         for (var i = 0; i < words.length; i++) {
             if (words[i] == "") continue;
-            if (CliqzAutocomplete.spellCorrectionDict.hasOwnProperty(words[i])) {
-                var correct = CliqzAutocomplete.spellCorrectionDict[words[i]];
+            if (autocomplete.spellCorrectionDict.hasOwnProperty(words[i])) {
+                var correct = autocomplete.spellCorrectionDict[words[i]];
                 if (correct.length > words[i].length &&
                     correct.slice(0, words[i].length) == words[i] &&
                     i == words.length - 1) continue;
@@ -39,14 +29,15 @@ var CliqzSpellCheck = {
             var words = content[i].split("\t");
             var wrong = words[0];
             var right = words[1];
-            CliqzAutocomplete.spellCorrectionDict[wrong] = right;
+            autocomplete.spellCorrectionDict[wrong] = right;
         }
     },
     init: function() {
-        if (CliqzUtils.getPref("config_location", "") == "de" && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
-            CliqzUtils.log('loading dict', 'spellcorr');
-            CliqzUtils.loadResource('chrome://cliqz/content/spell_check.list', CliqzSpellCheck.loadRecords);
+        if (utils.getPref("config_location", "") == "de" && Object.keys(autocomplete.spellCorrectionDict).length == 0) {
+            utils.log('loading dict', 'spellcorr');
+            utils.loadResource('chrome://cliqz/content/spell_check.list', CliqzSpellCheck.loadRecords);
         }
     }
 }
 
+export default CliqzSpellCheck;

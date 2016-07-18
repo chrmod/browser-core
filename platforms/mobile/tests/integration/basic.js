@@ -683,12 +683,11 @@ describe("Startup", function () {
       contentWindow.CliqzUtils.locale = {};
     });
 
-    it("should load default language if locale is not recognized", function (done) {
-      contentWindow.CliqzUtils.loadLocale('it-IT').then(function () {
-        expect(contentWindow.CliqzUtils.locale['it-IT']).to.be.not.ok;
-        expect(contentWindow.CliqzUtils.locale.default).to.be.ok;
-        done();
-      });
+    it("should load default language if locale is not recognized", function () {
+      contentWindow.CliqzUtils.loadLocale('it-IT');
+
+      expect(contentWindow.CliqzUtils.locale['it-IT']).to.be.not.ok;
+      expect(contentWindow.CliqzUtils.locale.default).to.be.ok;
     });
   });
 });

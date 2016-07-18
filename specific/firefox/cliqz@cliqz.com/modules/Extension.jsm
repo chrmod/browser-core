@@ -34,40 +34,33 @@ function newMajorVersion(oldV, newV){
 
 var Extension = {
     modules: [],
-    init: function(){
-        Extension.unloadJSMs();
+    init: function(upgrade, oldVersion, newVersion){
+      Extension.unloadJSMs();
 
-        Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
-        Extension.System = System;
+      Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
+      Extension.System = System;
 
-        Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
-        Cu.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
+      Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
+      Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+      Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+      Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+      Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
+      Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
+      Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+      Cu.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-        CliqzUtils.initPlatform(System)
+      CliqzUtils.initPlatform(System)
 
-        Extension.setDefaultPrefs();
-        CliqzUtils.init();
-        CLIQZEnvironment.init();
-        CliqzLanguage.init();
-        if(Services.search.init != null){
-          Services.search.init(function(){
-            CliqzResultProviders.init();
-          });
-        } else {
-          CliqzResultProviders.init();
-        }
-        CliqzABTests.init(System);
-        this.telemetry = CliqzUtils.telemetry;
-    },
-    load: function(upgrade, oldVersion, newVersion){
+      Extension.setDefaultPrefs();
+
+      CliqzUtils.init({
+        lang: CliqzUtils.getPref('general.useragent.locale', 'en', '')
+      });
+      CLIQZEnvironment.init();
+      CliqzLanguage.init();
+      CliqzABTests.init(System);
+      this.telemetry = CliqzUtils.telemetry;
+
       CliqzUtils.extensionVersion = newVersion;
 
       // wait before setting the support info as it uses LocalStorage which might not be accessible
@@ -86,11 +79,12 @@ var Extension = {
       // Load and initialize modules
       Extension.modulesLoadedPromise = Promise.all(
         Extension.config.modules.map(function (moduleName) {
-          return new Promise(function (resolve, reject) {
-            Extension.System.import(moduleName+"/background")
-                     .then(function (module) { module.default.init(Extension.config.settings); resolve(); })
-                     .catch(function (e) { CliqzUtils.log("Error on loading module: "+moduleName+" - "+e.toString()+" -- "+e.stack, "Extension"); resolve(); })
-          });
+          return Extension.System.import(moduleName+"/background")
+            .then(function (module) {
+              return module.default.init(Extension.config.settings);
+            }).catch(function (e) {
+              CliqzUtils.log("Error on loading module: "+moduleName+" - "+e.toString()+" -- "+e.stack, "Extension");
+            });
         })
       ).then(function () {
         Extension.cliqzPrefsObserver.register();
@@ -195,26 +189,15 @@ var Extension = {
     },
     unloadJSMs: function () {
         //unload all cliqz modules
-        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzWikipediaDeduplication.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
-        Cu.unload('chrome://cliqzmodules/content/UrlCompare.jsm');
-        Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
-        Cu.unload('chrome://cliqzmodules/content/Result.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryCluster.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzEvents.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v4.0.4.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
@@ -249,7 +232,6 @@ var Extension = {
         Extension.modulesLoadedPromise.then(function () {
           Extension.setupCliqzGlobal(win);
           Extension.addScript('core', win);
-          Extension.addScript('ContextMenu', win);
 
           Extension.addButtons(win);
 
@@ -366,7 +348,6 @@ var Extension = {
           win.CLIQZ.Core.unload(false);
           delete win.CLIQZ.Core;
           delete win.CLIQZ.UI;
-          delete win.CLIQZ.ContextMenu;
           delete win.CLIQZ;
 
           // count the number of opened windows here and send it to events

@@ -1,25 +1,11 @@
-'use strict';
 /*
  * This module mixes the results from cliqz with the history
  *
  */
 
-var EXPORTED_SYMBOLS = ['Mixer'];
-
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'UrlCompare',
-  'chrome://cliqzmodules/content/UrlCompare.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
-  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+import { utils, environment } from "core/cliqz";
+import Result from "autocomplete/result";
+import UrlCompare from "autocomplete/url-compare";
 
 var CliqzSmartCliqzCache;
 var SmartCliqzTriggerUrlCache;
@@ -57,16 +43,9 @@ var Mixer = {
     'http://www.', 'https://www.',
   ],
 
-  init: function() {
-    CliqzUtils.setTimeout(function() {
-      CliqzUtils.log('Init', 'Mixer');
-      CliqzUtils.importModule('smart-cliqz-cache/background').then(function(module) {
-        CliqzSmartCliqzCache = module.default.smartCliqzCache;
-        SmartCliqzTriggerUrlCache = module.default.triggerUrlCache;
-      }).catch(function(error) {
-        CliqzUtils.log('Failed loading SmartCliqzCache', 'Mixer');
-      });
-    }, 1000);
+  init: function( { smartCliqzCache, triggerUrlCache } = {} ) {
+    CliqzSmartCliqzCache = smartCliqzCache;
+    SmartCliqzTriggerUrlCache = triggerUrlCache;
   },
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
@@ -76,7 +55,7 @@ var Mixer = {
       if (Mixer._isValidEZ(r)) {
         return true;
       } else {
-        CliqzUtils.log('Discarding bad EZ: ' + JSON.stringify(r), 'Mixer');
+        utils.log('Discarding bad EZ: ' + JSON.stringify(r), 'Mixer');
         return false;
       }
     });
@@ -140,7 +119,7 @@ var Mixer = {
   //  - avoids many unexpected EZ triggerings
   _isValidQueryForEZ: function(q) {
     var trimmed = q.trim();
-    if (trimmed.length <= CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ) {
+    if (trimmed.length <= environment.MIN_QUERY_LENGHT_FOR_EZ) {
       return false;
     }
 
@@ -154,7 +133,7 @@ var Mixer = {
     }
 
     var extra = Result.cliqzExtra(result.extra, result.snippet);
-    resultKindEnricher({trigger_method: 'backend_url'}, extra);
+    //resultKindEnricher({trigger_method: 'backend_url'}, extra);
     extraResults.push(extra);
   },
 
@@ -298,7 +277,7 @@ var Mixer = {
       return undefined;
     }
 
-    var url = CliqzUtils.generalizeUrl(result.val, true),
+    var url = utils.generalizeUrl(result.val, true),
       ez;
 
     if (SmartCliqzTriggerUrlCache.isCached(url)) {
@@ -341,7 +320,7 @@ var Mixer = {
       // Did we make a 'bet' on a url from history that does not match this EZ?
       if (firstresult.data && firstresult.data.cluster &&
          !UrlCompare.sameUrls(ez.val, firstresult.val)) {
-        CliqzUtils.log('Not showing EZ ' + ez.val +
+        utils.log('Not showing EZ ' + ez.val +
                        ' because different than cluster ' + firstresult.val,
                        'Mixer');
         return false;
@@ -350,7 +329,7 @@ var Mixer = {
       // Will the autocomplete change if we use this EZ?
       if (firstresult.autocompleted &&
          !UrlCompare.sameUrls(ez.val, firstresult.val)) {
-        CliqzUtils.log('Not showing EZ ' + ez.val +
+        utils.log('Not showing EZ ' + ez.val +
                        ' because autocomplete would change', 'Mixer');
         return false;
       }
@@ -382,7 +361,7 @@ var Mixer = {
     cliqz = Mixer._prepareCliqzResults(cliqz || []);
     history = Mixer._prepareHistoryResults(history || []);
 
-    CliqzUtils.log('only_history:' + only_history +
+    utils.log('only_history:' + only_history +
                    ' history:' + history.length +
                    ' cliqz:' + cliqz.length +
                    ' extra:' + cliqzExtra.length, 'Mixer');
@@ -421,14 +400,14 @@ var Mixer = {
 
     // Add EZ to result list result list
     if (ez) {
-      CliqzUtils.log('EZ (' + ez.data.kind + ') for ' + ez.val, 'Mixer');
+      utils.log('EZ (' + ez.data.kind + ') for ' + ez.val, 'Mixer');
 
       // Make a combined entry, if possible
       if (results.length > 0 && results[0].data.cluster &&
          Mixer.EZ_COMBINE.indexOf(ez.data.template) !== -1 &&
          UrlCompare.sameUrls(results[0].val, ez.val)) {
 
-        CliqzUtils.log('Making combined entry.', 'Mixer');
+        utils.log('Making combined entry.', 'Mixer');
         results[0] = Result.combine(ez, result[0]);
         Mixer._deduplicateHistory(results[0]);
       } else {
@@ -439,7 +418,7 @@ var Mixer = {
 
     // Special case: adjust second result if it doesn't fit
     if (results.length > 1 && results[1].data.template == 'pattern-h2') {
-      CliqzUtils.log('Converting cluster for ' + results[1].val +
+      utils.log('Converting cluster for ' + results[1].val +
                      ' to simple history', 'Mixer');
 
       // convert to simple history entry
@@ -459,11 +438,11 @@ var Mixer = {
 
     // Show no results message
     if (results.length === 0 && !only_history) {
-      results.push(CliqzUtils.getNoResults());
+      results.push(utils.getNoResults());
     }
 
     return results;
   },
 };
 
-Mixer.init();
+export default Mixer;

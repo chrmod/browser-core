@@ -1,29 +1,31 @@
-'use strict';
 /*
  * This module acts as a result factory
  *
  */
 
-var EXPORTED_SYMBOLS = ['Result'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
+import { utils } from "core/cliqz";
 
 function log(msg){
-    //CliqzUtils.log(msg, 'Result.jsm');
+    //utils.log(msg, 'Result.jsm');
 }
 
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
     if(result.source == 'bm' && result.snippet && result.snippet.rich_data){
-        return CliqzUtils.getKnownType(result.snippet.rich_data.superType) || // superType used for custom templates
-               CliqzUtils.getKnownType(result.snippet.rich_data.type)      || // fallback result type
+        return utils.getKnownType(result.snippet.rich_data.superType) || // superType used for custom templates
+               utils.getKnownType(result.snippet.rich_data.type)      || // fallback result type
                'bm';                                                           // backwards compatibility (most generic type, requires only url)
     }
     return null;
+}
+
+function combineSources(internal, cliqz){
+  // do not add extra sources to end of EZs
+  if(internal == "cliqz-extra")
+    return internal;
+
+  var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
+  return internal + " " + cliqz_sources
 }
 
 var Result = {
@@ -62,8 +64,8 @@ var Result = {
         //try to show host name if no title (comment) is provided
         if(style.indexOf(Result.CLIQZC) === -1       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
-           && CliqzUtils.isCompleteUrl(value)){       // looks like an url
-            var host = CliqzUtils.getDetailsFromUrl(value).name;
+           && utils.isCompleteUrl(value)){       // looks like an url
+            var host = utils.getDetailsFromUrl(value).name;
             if(host && host.length>0){
                 comment = host[0].toUpperCase() + host.slice(1);
             }
@@ -73,7 +75,7 @@ var Result = {
         }
 
         data = data || {};
-        data.kind = [CliqzUtils.encodeResultType(style) + (subtype? '|' + subtype : '')];
+        data.kind = [utils.encodeResultType(style) + (subtype? '|' + subtype : '')];
 
         var item = {
             style: style,
@@ -86,7 +88,7 @@ var Result = {
         return item;
     },
     cliqz: function(result){
-        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source).join('');
+        var resStyle = Result.CLIQZR + ' sources-' + utils.encodeSources(getSuperType(result) || result.source).join('');
 
         if(result.snippet){
             return Result.generic(
@@ -122,7 +124,7 @@ var Result = {
     // Combine two results into a new result
     combine: function(first, second) {
         var ret = Result.clone(first);
-        ret.style = CliqzUtils.combineSources(ret.style, second.style);
+        ret.style = combineSources(ret.style, second.style);
         ret.data.kind = (ret.data.kind || []).concat(second.data.kind || []);
 
         // copy over description, title and url list, if needed
@@ -194,7 +196,7 @@ var Result = {
         if(!result.snippet)
             return;
 
-        var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
+        var urlparts = utils.getDetailsFromUrl(result.url),
             resp = {
                 richData: result.snippet.rich_data,
                 adult: result.snippet.adult || false,
@@ -280,3 +282,5 @@ var Result = {
         return undefined;
     }
 }
+
+export default Result;

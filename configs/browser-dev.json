@@ -17,6 +17,7 @@
   "modules": [
     "static",
     "core",
+    "autocomplete",
     "ui",
     "human-web",
     "anti-phishing",
@@ -29,7 +30,6 @@
     "antitracking",
     "performance",
     "hpn",
-    "smart-cliqz-cache",
     "privacy-dashboard"
   ],
   "subprojects": [

@@ -20,7 +20,6 @@ var firefoxPackage  = new Funnel(specific, { srcDir: 'firefox/package' });
 var generic         = new WatchedDir('generic');
 var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
 var global          = new Funnel(generic, { srcDir: 'modules/global' });
-var local           = new Funnel(generic, { srcDir: 'modules/local', exclude: ['views/**/*'] });
 
 // cliqz.json should be saved after not transpiled modules are removed from configration
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
@@ -38,7 +37,6 @@ var firefoxTree = new MergeTrees([
   new Funnel(config,      { destDir: 'chrome/content'}),
   new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
   new Funnel(global,      { destDir: 'modules' }),
-  new Funnel(local,       { destDir: 'chrome/content'}),
   new Funnel(modules.bowerComponents,   { destDir: 'chrome/content/bower_components' }),
   new Funnel(modules.modules,     { destDir: 'chrome/content' }),
 ], { overwrite: true } );
