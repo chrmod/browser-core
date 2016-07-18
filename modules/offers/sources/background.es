@@ -22,8 +22,11 @@ export default background({
 
     // check if we need to do something or not
     if (!utils.getPref('grFeatureEnabled', false)) {
+      this.initialized = false;
       return;
     }
+
+    this.beforeRequestListener = this.beforeRequestListener.bind(this)
 
     // configure the preferences here
     OffersConfigs.OFFER_SUBCLUSTER_SWITCH = utils.getPref('grOfferSwitchFlag', false);
@@ -95,12 +98,24 @@ export default background({
 
 
     // add request listener
-    WebRequest.onBeforeRequest.addListener(this.beforeRequestListener.bind(this));
+    WebRequest.onBeforeRequest.addListener(this.beforeRequestListener);
+
+    // to be checked on unload
+    this.initialized = true;
   },
 
   //////////////////////////////////////////////////////////////////////////////
   unload() {
-    // nothing to do, this is on hard unload, we want beforeBrowserShutdown
+    if (this.initialized === false) {
+      return;
+    }
+
+    // TODO: GR-137 && GR-140: temporary fix
+    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
+    events.un_sub('core.window_closed', this.onWindowClosed.bind(this));
+    events.un_sub('core.tab_location_change', this.onTabLocChanged.bind(this));
+
+    WebRequest.onBeforeRequest.removeListener(this.beforeRequestListener);
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -111,7 +126,7 @@ export default background({
   //////////////////////////////////////////////////////////////////////////////
   beforeBrowserShutdown() {
     // check if we have the feature  enabled
-    if (!utils.getPref('grFeatureEnabled', false)) {
+    if (this.initialized === false) {
       return;
     }
 
@@ -125,13 +140,6 @@ export default background({
       delete this.offerManager;
       this.offerManager = null;
     }
-
-    // TODO: GR-137 && GR-140: temporary fix
-    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
-    events.un_sub('core.window_closed', this.onWindowClosed.bind(this));
-    events.un_sub('core.tab_location_change', this.onTabLocChanged.bind(this));
-
-    WebRequest.onBeforeRequest.removeListener(this.beforeRequestListener.bind(this));
 
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'background script unloaded');
