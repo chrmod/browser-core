@@ -1,64 +1,66 @@
 node('jenkins-slave-gp-gpu') {
-  stage 'checkout'
-  checkout scm
-  checkout([
-    $class: 'GitSCM',
-    branches: [[name: '*/master']],
-    doGenerateSubmoduleConfigurations: false,
-    extensions: [[
-      $class: 'RelativeTargetDirectory',
-      relativeTargetDir: 'firefox-autoconfigs'
-    ]],
-    submoduleCfg: [],
-    userRemoteConfigs: [[
-      url: "https://github.com/cliqz-oss/firefox-autoconfigs.git"
-    ]]
-  ])
+  timeout(time: 20, unit: 'MINUTES') {
+    stage 'checkout'
+    checkout scm
+    checkout([
+      $class: 'GitSCM',
+      branches: [[name: '*/master']],
+      doGenerateSubmoduleConfigurations: false,
+      extensions: [[
+        $class: 'RelativeTargetDirectory',
+        relativeTargetDir: 'firefox-autoconfigs'
+      ]],
+      submoduleCfg: [],
+      userRemoteConfigs: [[
+        url: "https://github.com/cliqz-oss/firefox-autoconfigs.git"
+      ]]
+    ])
 
-  stage 'docker build'
-  def imgName = "cliqz/navigation-extension:latest"
-  sh "docker build -t ${imgName} --build-arg UID=`id -u` --build-arg GID=`id -g` ."
-  fingerprintDocker(imgName, "Dockerfile")
+    stage 'docker build'
+    def imgName = "cliqz/navigation-extension:latest"
+    sh "docker build -t ${imgName} --build-arg UID=`id -u` --build-arg GID=`id -g` ."
+    fingerprintDocker(imgName, "Dockerfile")
 
-  docker.image(imgName).inside() {
-    // Unit tests
-    withEnv(["CLIQZ_CONFIG_PATH=./configs/browser.json"]) {
-      stage 'fern install'
-      sh './fern.js install'
+    docker.image(imgName).inside() {
+      // Unit tests
+      withEnv(["CLIQZ_CONFIG_PATH=./configs/browser.json"]) {
+        stage 'fern install'
+        sh './fern.js install'
 
-      stage 'fern test'
-      sh 'rm -rf unittest-report.xml'
-      sh './fern.js test --ci unittest-report.xml'
+        stage 'fern test'
+        sh 'rm -rf unittest-report.xml'
+        sh './fern.js test --ci unittest-report.xml'
+      }
+
+      // Build extension for integration tests
+      withEnv(["CLIQZ_CONFIG_PATH=./configs/jenkins.json"]) {
+        stage 'fern build'
+        sh 'rm -fr build/'
+        sh './fern.js build'
+      }
     }
 
-    // Build extension for integration tests
-    withEnv(["CLIQZ_CONFIG_PATH=./configs/jenkins.json"]) {
-      stage 'fern build'
-      sh 'rm -fr build/'
-      sh './fern.js build'
+    stage 'test firefox'
+    // Define version of firefox we want to test
+    // Full list here: https://ftp.mozilla.org/pub/firefox/releases/
+    def firefoxVersions = [
+      "38.0.6",
+      "43.0.4",
+      "44.0.2",
+      "47.0.1"
+    ]
+
+    // The extension will be tested on each specified firefox version in parallel
+    def stepsForParallel = [:]
+    for (int i = 0; i < firefoxVersions.size(); i++) {
+      def version = firefoxVersions.get(i)
+      stepsForParallel[version] = testInFirefoxVersion(version)
     }
+    parallel stepsForParallel
+
+    // Register results
+    step([$class: 'JUnitResultArchiver', allowEmptyResults: false, testResults: '*report*.xml'])
   }
-
-  stage 'test firefox'
-  // Define version of firefox we want to test
-  // Full list here: https://ftp.mozilla.org/pub/firefox/releases/
-  def firefoxVersions = [
-    "38.0.6",
-    "43.0.4",
-    "44.0.2",
-    "47.0.1"
-  ]
-
-  // The extension will be tested on each specified firefox version in parallel
-  def stepsForParallel = [:]
-  for (int i = 0; i < firefoxVersions.size(); i++) {
-    def version = firefoxVersions.get(i)
-    stepsForParallel[version] = testInFirefoxVersion(version)
-  }
-  parallel stepsForParallel
-
-  // Register results
-  step([$class: 'JUnitResultArchiver', allowEmptyResults: false, testResults: '*report*.xml'])
 }
 
 
