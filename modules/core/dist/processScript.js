@@ -119,6 +119,7 @@ function onDOMWindowCreated(ev) {
       type: "response",
       response: msg.data.response,
       action: msg.data.action,
+      module: msg.data.module,
       requestId: msg.data.requestId,
     }), "*");
   }

@@ -18,7 +18,7 @@ export default Ember.Route.extend({
   model() {
     return this.get('cliqz').getSpeedDials().then( speedDials => {
       return Ember.Object.create({
-        speedDials: SpeedDials.create({ content: speedDials }),
+        speedDials: SpeedDials.create({ content: speedDials.map(dial => Ember.Object.create(dial)) }),
         news: News.create({ model: [] })
       });
     })
@@ -26,7 +26,19 @@ export default Ember.Route.extend({
   },
 
   afterModel(model) {
-
+    this.get('cliqz').getNotificationsCount().then(counts => {
+      const speedDialsDomains = model.get('speedDials').mapBy("displayTitle");
+      const sources = Object.keys(counts).filter(source => speedDialsDomains.indexOf(source) !== -1);
+      sources.forEach(source => {
+        //model.get('speedDials').toArray().forEach(dial => {dial.set("url", "sdasd");console.log(dial.url)})
+        const speedDial = model.get('speedDials').toArray().find(dial => dial.get('displayTitle') === source);
+        speedDial.set('count', counts[source]);
+        //speedDial.set('displayTitle',  22);//counts[source];
+        //speedDial.setProperties({ count:  counts[source]})
+        //speedDial.setEach('count', 2)
+      });
+    }).catch(e => console.error("err", e));
+return
     this.get('cliqz').getNews().then( news => {
       model.set('news.model', news);
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,

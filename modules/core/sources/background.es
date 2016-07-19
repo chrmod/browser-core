@@ -111,7 +111,8 @@ export default {
     }).then( response => {
       this.mm.broadcast(`window-${windowId}`, {
         response,
-        action: msg.data.payload.action,
+        action,
+        module,
         requestId,
       });
     }).catch( e => utils.log(`${e.toString()}--${e.stack}`, "Problem with frameScript") );

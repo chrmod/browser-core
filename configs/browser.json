@@ -16,6 +16,7 @@
   "modules": [
     "static",
     "core",
+    "notifications",
     "autocomplete",
     "ui",
     "human-web",
