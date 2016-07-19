@@ -177,7 +177,7 @@ var UI = {
 
         if(firstResult.url){
           setTimeout(function () {
-            CLIQZ.UI.autocompleteQuery.call(urlbar, CliqzUtils.cleanMozillaActions(firstResult.url), firstResult.title);
+            CLIQZ.UI.autocompleteQuery(CliqzUtils.cleanMozillaActions(firstResult.url)[1], firstResult.title);
           }, 0);
         }
 
