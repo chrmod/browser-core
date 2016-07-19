@@ -54,7 +54,7 @@ function get_links(bodyContent) {
   }
 
   let videoTitle = findMatch(bodyContent, TITLE_REGEX);
-  videoTitle = (videoTitle) ? escape(videoTitle) : escape('Youtube Video');
+  videoTitle = (videoTitle) ? videoTitle : 'Youtube Video';
 
   // parse the formats map
   const { sep1, sep2, sep3 } = getSeparators(videoFormats);
@@ -138,7 +138,7 @@ function get_links(bodyContent) {
       continue;
     }
     if (videoURL[format] !== undefined && FORMAT_LABEL[format] !== undefined && showFormat[format]) {
-      downloadCodeList.push({url:videoURL[format],sig:videoSignature[format],format:format,label:FORMAT_LABEL[format]});
+      downloadCodeList.push({ url:encodeURIComponent(videoURL[format]), sig:videoSignature[format], format:format, label:FORMAT_LABEL[format] });
       console.log('DYVAM - Info: itag'+format+' url:'+videoURL[format]);
     }
   }
