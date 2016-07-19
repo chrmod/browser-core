@@ -1,3 +1,5 @@
+$urlbar-elms-height: 34px;
+
 @font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
 :-moz-any(#back-button,
@@ -52,7 +54,7 @@
 }
 
 #urlbar-container {
-    min-width: 850px;
+    min-width: 300px;
     -moz-box-pack: center;
 }
 #urlbar-wrapper {
@@ -119,11 +121,15 @@
     background: transparent none repeat scroll 0% 0%;
 }
 
-#forward-button, #back-button {
-    margin-left: 0px !important;
-    border: 0px !important;
-    box-shadow: 0px 0px 0px 0px transparent !important;
-    border-radius: 0px;
+#forward-button,
+#back-button {
+    width: 37px;
+    height: $urlbar-elms-height !important;
+    margin-left: 0 !important;
+    box-shadow: 0 0 0 0 transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid #e1e1e1 !important;
     background-color: transparent !important;
 }
 
@@ -157,18 +163,29 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     box-sizing: border-box;
 }
 
+#urlbar-reload-button,
+#urlbar-stop-button,
+#identity-box {
+    border: none !important;
+}
+
 #urlbar[focused="true"],
 .searchbar-textbox[focused="true"] {
     box-shadow: none !important;
     border-color: #5ea3f9 !important;
     -moz-border-start: 1px solid #5ea3f9 !important;
 }
-#urlbar .urlbar-input::-moz-selection {
-  background: #b1d6ff;
-}
 
 #urlbar .urlbar-input-box {
     overflow: hidden;
+}
+
+#urlbar:hover {
+    background: #fff !important;
+}
+
+#urlbar[focused="true"] {
+    background: #fff !important;;
 }
 /*==== FF Color */
 
@@ -182,6 +199,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 .tab-content {
     border-color: #F6F6F6;
     background: #F6F6F6 !important;
+}
+
+.tabbrowser-tab[visuallyselected="true"] {
+    position: static !important;
 }
 
 .tabbrowser-tab[visuallyselected="true"] .tab-content {
@@ -203,6 +224,13 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: rgba(255, 255, 255, 1) !important;
 }
 
+.tabbrowser-tab:not([pinned]) {
+    background: #cecece !important;
+
+    .tab-content .tab-text {
+        color: #555;
+    }
+}
 
 /*======== Removes Tabs Border ==========*/
 #tabbrowser-tabs[movingtab] > .tabbrowser-tab[beforeselected]:not([last-visible-tab])::after,
@@ -232,18 +260,18 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 #nav-bar {
+    height: 35px !important;
+    padding: 0;
     margin-top: 0 !important;
-    border-top-color: #99B3C9 !important;
-    background: #fff !important;
+    box-shadow: none !important;
+    border-top-color: #d1d0d3 !important;
+    border-bottom: none !important; // 1px solid #e3e3e3 !important;
+    background: #f6f6f6 !important;
 }
 
-
-#back-button {
-    /*width: auto !important;
-    height: auto !important;
-    padding: 5px 0 !important;*/
+#forward-button > .toolbarbutton-icon {
+    margin: 0;
 }
-#forward-button > .toolbarbutton-icon { margin: 0; }
 
 #PersonalToolbar { padding-left: 8px; }
 
@@ -255,7 +283,7 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 }
 
 #nav-bar-customization-target {
-    padding: 0 4px 0 6px;
+    padding: 0 4px 0 0;
 }
 .tabs-newtab-button > .toolbarbutton-icon {
     padding-top: 3px;
@@ -364,14 +392,18 @@ notification[type="warning"] .messageText {
 #urlbar {
     /*margin-left: 3em !important;
     margin-right: 2.3em;*/
-    margin: 4px 2.5em !important;
-    border: 1px solid #ddd !important;
-
-	box-shadow: 0 1px 0.05em rgba(0,0,0, 0.1) inset !important;
-	border-color: #d1d1d1 !important;
-    -moz-border-start: 1px solid #d8d8d8 !important;
-
+    margin: 0 2.5em !important;
     padding: 1px 0px;
+    height: $urlbar-elms-height !important;
+    border: 1px solid #ddd !important;
+    border-top: 1px solid transparent !important;
+    border-bottom: 1px solid transparent !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+    -moz-border-start: 1px solid #d8d8d8 !important;
+    background: transparent !important;
+
 }
 
 #urlbar, .searchbar-textbox {
@@ -382,35 +414,20 @@ notification[type="warning"] .messageText {
     padding-bottom: 1px !important;
 }
 
-#urlbar[focused="true"] {
-    box-shadow: 0 0 0.2em #3B99FC inset !important;
-}
-
-#nav-bar {
-    border-top-color: #d1d0d3 !important;
-    padding: 0;
-    background: #f6f6f6 !important;
-    box-shadow: inset 0 1px 0 hsla(0,0%,100%,.01);
-	box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
-}
-
 
 #navigator-toolbox::after {
+    margin-top: -3px !important;
     background-image: none;
+    box-shadow: 0px 0.13em 0.005em 0px rgba(0, 0, 0, 0.15);
 }
 
 #main-window:not([chromehidden~="toolbar"]) {
     min-width: 425px;
 }
 
-#urlbar-container {
-    min-width: 300px;
-}
-
-#forward-button:hover:not(:-moz-lwtheme):not([disabled="true"]), #back-button:hover:not(:-moz-lwtheme):not([disabled="true"]) {
+#forward-button:hover:not(:-moz-lwtheme):not([disabled="true"]),
+#back-button:hover:not(:-moz-lwtheme):not([disabled="true"]) {
     background-color: #e6e6e6 !important;
-    border-radius: 3px;
-    margin: 0px 0px 0px 32px;
 }
 
 #PanelUI-button {
@@ -419,10 +436,6 @@ notification[type="warning"] .messageText {
 
 #forward-button {
     margin-left: -1px !important;
-}
-
-#forward-button:not(:-moz-lwtheme) {
-    height: 32px;
 }
 
 #forward-button, #back-button {
@@ -434,8 +447,8 @@ notification[type="warning"] .messageText {
 }
 
 #nav-bar .toolbarbutton-1:not(#back-button):not(#forward-button) {
-    margin-top: 2px; /*Remove space (padding) inside nav-bar*/
-    margin-bottom: 2px;
+    margin-top: 1px; /*Remove space (padding) inside nav-bar*/
+    margin-bottom: 1px;
 }
 
 #notification-popup-box {
@@ -515,6 +528,15 @@ notification[type="warning"] .messageText {
 
 #nav-bar #PanelUI-menu-button {
     -moz-margin-start: 0;
+    margin: 0 1px !important;
+    border-radius: 0 !important;;
+    height: $urlbar-elms-height !important;
+    min-width: 36px !important;
+    border-left: 1px solid #ccc !important;
+
+    &:hover {
+        background: #e6e6e6;
+    }
 }
 
 #navigator-toolbox[inFullscreen] > #TabsToolbar {
@@ -523,7 +545,8 @@ notification[type="warning"] .messageText {
 }
 
 #TabsToolbar {
-    padding-right: 80px; /*Reserve some space for dragging the window*/
+    padding-right: 60px; /*Reserve some space for dragging the window*/
+    min-height: 36px;
 }
 
 .tabbrowser-tab[visuallyselected="true"] .tab-content {
@@ -535,18 +558,19 @@ notification[type="warning"] .messageText {
 
 .tab-label {
     margin-top: 3px;
-    font-size: 1.05em;
+    font-size: 1.09em;
     text-align: left;
+    text-shadow: none;
 }
 
 .tab-content {
     border-radius: 0;
-    border-color: #C8C8C8;
+    border-color: #bababa;
     background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-content, .tabs-newtab-button:hover {
-    background-color: #f6f6f6 !important;
+    background-color: #dfdfdf !important;
 }
 
 #navigator-toolbox:not([inFullscreen]) #tabbrowser-tabs {
@@ -554,7 +578,7 @@ notification[type="warning"] .messageText {
 }
 
 .tabbrowser-tab:not([pinned]) {
-    max-width: 250px;
+    max-width: 236px;
 }
 
 .tabs-newtab-button > .toolbarbutton-icon {
@@ -584,7 +608,7 @@ notification[type="warning"] .messageText {
 }
 
 #navigator-toolbox:not([inFullscreen="true"]) #tabbrowser-tabs .tabbrowser-arrowscrollbox {
-    margin-inline-start: 64px;
+    margin-inline-start: 44px;
 }
 /* END TAB */
 
@@ -611,4 +635,11 @@ vbox[sidebarcommand=historybroadcaster] {
   sidebarheader {
     display: none;
   }
+}
+
+
+#main-window[inFullscreen="true"] {
+    .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
+        -moz-padding-start: 1px;
+    }
 }
