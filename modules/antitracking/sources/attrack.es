@@ -916,34 +916,6 @@ var CliqzAttrack = {
         let hourly = 60 * 60 * 1000;
         pacemaker.register(CliqzAttrack.pruneRequestKeyValue, hourly);
 
-        // send tracking occurances whenever day changes
-        pacemaker.register(function sendTrackingDetections() {
-            if (CliqzAttrack.local_tracking.isEnabled()) {
-                CliqzAttrack.local_tracking.getTrackingOccurances(function(results) {
-                    if (results.length > 0) {
-                        CliqzAttrack.local_tracking.getTableSize(function(table_size) {
-                            var payl = {
-                                'ver': CliqzAttrack.VERSION,
-                                'ts': datetime.getTime().substring(0, 8),
-                                'data': {
-                                    'lt': results.map(function(tup) {
-                                        return {'tp': tup[0], 'k': tup[1], 'v': tup[2], 'n': tup[3]};
-                                    }),
-                                    'c': table_size
-                                }
-                            };
-                            telemetry.telemetry({
-                                'type': telemetry.msgType,
-                                'action': 'attrack.tracked',
-                                'payload': payl
-                            });
-                        });
-                    }
-                    CliqzAttrack.local_tracking.cleanTable();
-                });
-            }
-        }, hourly, timeChangeConstraint("local_tracking", "day"));
-
         pacemaker.register(function annotateSafeKeys() {
             CliqzAttrack.qs_whitelist.annotateSafeKeys(CliqzAttrack.requestKeyValue);
         }, 10 * 60 * 60 * 1000);
