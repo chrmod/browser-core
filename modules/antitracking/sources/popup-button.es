@@ -121,6 +121,9 @@ CliqzPopupButton.prototype.updateState = function (win, turnOn) {
 
   var button = win.document.getElementById(this.tbb.id);
 
+  // if button is hidden via 'customize' menu, button will be undefined
+  if (!button) return;
+
   if (turnOn) {
     button.classList.remove("off");
   } else {
@@ -130,6 +133,9 @@ CliqzPopupButton.prototype.updateState = function (win, turnOn) {
 
 CliqzPopupButton.prototype.setBadge = function (win, badgeText) {
   var button = win.document.getElementById(this.tbb.id);
+
+  // if button is hidden via 'customize' menu, button will be undefined
+  if (!button) return;
 
   if ( badgeText ) {
     button.setAttribute('badge', String(badgeText));

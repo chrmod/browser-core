@@ -118,6 +118,10 @@ export default background({
         trakersList: info,
         ps: ps
       });
+
+      if (this.popup) {
+        this.popup.setBadge(utils.getWindow(), info.cookies.blocked + info.requests.unsafe);
+      }
     },
     /**
     * @method popupActions.toggleAttrack
