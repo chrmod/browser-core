@@ -350,4 +350,4 @@ function getLoadContext( aRequest ) {
   }
 }
 
-export { HttpRequestContext, getRefToSource };
+export { HttpRequestContext, getRefToSource, WindowTree };
