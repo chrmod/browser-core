@@ -274,7 +274,7 @@ CLIQZEnvironment = {
 
       if(CLIQZEnvironment){
         if(isMixerUrl(url)){
-          setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
+          setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, sync);
         }
         CliqzUtils.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler,onerror');
         onerror && onerror();
@@ -292,7 +292,7 @@ CLIQZEnvironment = {
 
       if(CLIQZEnvironment){ //might happen after disabling the extension
         if(isMixerUrl(url)){
-          setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, asynchronous);
+          setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, sync);
         }
         CliqzUtils.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler.ontimeout');
         onerror && onerror();
