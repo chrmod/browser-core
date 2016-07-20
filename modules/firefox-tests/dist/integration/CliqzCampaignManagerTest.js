@@ -130,10 +130,10 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
         waitForResult().then(function() {
           click($cliqzMessageContainer().find(".cqz-msg-btn-action-confirm")[0]);
           setTimeout(function () {
-            chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
               // checks (1) for expected URL and (2) that new tab is focused
               //remove trailing slash
               try {
+                chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
                 var str = CliqzUtils.stripTrailingSlash(core.urlbar.value);
                 chai.expect(str).to.equal(url);
               } catch(e) {
