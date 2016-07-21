@@ -15,10 +15,18 @@ var focusTotalTime = 0,
 export default Ember.Route.extend({
   cliqz: Ember.inject.service('cliqz'),
 
+  activate() {
+    Ember.$('body').addClass('freshTabContainer');
+  },
+
+  deactivate() {
+    Ember.$('body').removeClass('freshTabContainer');
+  },
+
   model() {
     return this.get('cliqz').getSpeedDials().then( speedDials => {
       return Ember.Object.create({
-        speedDials: SpeedDials.create({ content: speedDials }),
+        speedDials: SpeedDials.create({ content: speedDials.map( x => Ember.Object.create(x) ) }),
         news: News.create({ model: [] })
       });
     })
@@ -28,7 +36,9 @@ export default Ember.Route.extend({
   afterModel(model) {
 
     this.get('cliqz').getNews().then( news => {
-      model.set('news.model', news);
+
+      model.set('news.model.news', news.news.map(x => Ember.Object.create(x)));
+      model.set('news.model.version', news.version);
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,
           customSites = model.getWithDefault("speedDials.custom.length", 0),
           self = this;

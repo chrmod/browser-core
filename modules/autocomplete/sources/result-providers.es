@@ -164,8 +164,8 @@ var CliqzResultProviders = {
         code      : '#'
       }
     }
-    // a prefix has min 4 chars
-    if(q.length < 5) return false;
+    //a prefix has min 3 chars
+    if(q.length < 4) return false;
 
     var components = q.split(' ');
 
@@ -183,7 +183,7 @@ var CliqzResultProviders = {
       uq = q.substring(0, q.length - end.length - 1);
     }
 
-    if (engineName && uq) {
+    if (engineName) {
       return {
         updatedQ:   uq,
         engineName: engineName,
