@@ -286,6 +286,12 @@ var CliqzABTests = {
             case "1073_B":
                 CliqzUtils.setPref("history.timeouts", true);
                 break;
+            case "1074_A":
+                CliqzUtils.setPref("cliqz-adb-abtest", false);
+                break;
+            case "1074_B":
+                CliqzUtils.setPref("cliqz-adb-abtest", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -433,6 +439,10 @@ var CliqzABTests = {
             case "1073_B":
               CliqzUtils.clearPref('history.timeouts');
               break;
+            case "1074_A":
+            case "1074_B":
+                CliqzUtils.clearPref('cliqz-adb-abtest');
+                break;
             default:
                 rule_executed = false;
         }
