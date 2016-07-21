@@ -191,7 +191,7 @@ function locateParent(node) {
   while (parent && !isWholeDoc(parent)) {
     let count = countChildren(parent),
         incr = areaIncreased(child, parent),
-        childrenHeight = compareChildrenHeight(node);
+        childrenHeight = compareChildrenHeight(parent);
     if ((count <= MAX_CHILDREN || incr < MIN_EXPAND_RATE || childrenHeight < MIN_CHILDREN_HEIGHT) && !isPossibleContent(parent)) {
       child.setAttribute('cliqz-adb-blocked', 'parent');
       child = parent;
