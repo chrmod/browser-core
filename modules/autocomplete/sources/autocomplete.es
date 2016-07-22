@@ -239,7 +239,7 @@ var CliqzAutocomplete = {
                     this.latency.patterns = latency;
 
                     // Create instant result
-                    historyCluster.createInstantResult(res, this.searchString, this.createInstantResultCallback);
+                    historyCluster.createInstantResult(res, this.searchString, this.createInstantResultCallback, this.customResults);
                 }
             },
             createInstantResultCallback:function(instant) {
@@ -528,7 +528,6 @@ var CliqzAutocomplete = {
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
-                    this.customResults = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
 

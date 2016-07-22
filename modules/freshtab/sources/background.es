@@ -122,6 +122,7 @@ export default {
         });
       }
 
+
       //Promise all concatenate results and return
       return Promise.all([historyDialups, customDialups]).then(function(results){
         return {
@@ -171,8 +172,9 @@ export default {
     * @method addSpeedDial
     * @param url {string}
     */
-    addSpeedDial(url) {
+    addSpeedDial(url, index, type) {
       const urlToAdd = utils.stripTrailingSlash(url);
+
       //history returns most frequest 15 results, but we display up to 5
       //so we need to validate only against visible results
       return this.actions.getVisibleDials(5).then((result) => {
@@ -203,13 +205,57 @@ export default {
         if(isPresent) {
           throw "duplicate";
         } else {
-          dialUps.custom.push({
+          var dialup = {
             url: utils.tryEncodeURIComponent(urlToAdd)
-          });
+          };
+          if(index !== null) {
+            dialUps.custom.splice(index, 0, dialup);
+          } else {
+            dialUps.custom.push(dialup);
+          }
           utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
           return new SpeedDial(urlToAdd, true);
         }
       }).catch(reason => ({ error: true, reason: typeof reason === 'object' ? reason.toString() : reason }));
+    },
+
+    /**
+    * Parse speedDials
+    * @method parseSpeedDials
+    */
+    parseSpeedDials() {
+      return JSON.parse(utils.getPref(DIALUPS, '{}', ''));
+    },
+
+    /**
+    * Save speedDials
+    * @method saveSpeedDials
+    * @param dialUps object
+    */
+    saveSpeedDials(dialUps) {
+      utils.setPref(DIALUPS, JSON.stringify(dialUps), '');
+    },
+
+    /**
+    * Revert history url
+    * @method revertHistorySpeedDial
+    * @param url string
+    */
+    revertHistorySpeedDial(url) {
+      const dialUps = this.actions.parseSpeedDials();
+      delete dialUps.history[utils.hash(url)];
+      this.actions.saveSpeedDials(dialUps);
+    },
+
+    /**
+    * Reset all history speed dials
+    * @method resetAllHistory
+    */
+    resetAllHistory() {
+      const dialUps = this.actions.parseSpeedDials();
+      dialUps.history = {};
+      this.actions.saveSpeedDials(dialUps);
+      return this.actions.getSpeedDials();
     },
 
     /**

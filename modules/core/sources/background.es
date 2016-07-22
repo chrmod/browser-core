@@ -131,9 +131,8 @@ export default {
       urlBar.focus();
       urlBar.mInputField.focus();
       urlBar.mInputField.setUserInput(query);
-      //utils.getWindow().CLIQZ.Core.urlbar.focus("ss");
     },
-    getUrlbar(value) {
+    setUrlbar(value) {
       return this.actions.queryCliqz(value);
     },
     recordLang(url, lang) {
