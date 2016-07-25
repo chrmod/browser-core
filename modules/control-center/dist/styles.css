@@ -1,17 +1,193 @@
+/*========================================*/
+/*========== Control Center CSS ==========*/
+/*========== Felix Schmetz	    ==========*/
+/*========== Cliqz GmbH		    ==========*/
+/*========== July 2016	   	    ==========*/
+/*========================================*/
+
 #container {
-	width: 455px;
+	width: 458px;
 	margin:0 auto;
-	border: 1px solid #CCC;
-	height: 540px;
+	height: 532px;
+	z-index:10;
+	box-shadow: 0 0 20px #ccc;
 }
+
 @font-face {
 		font-family: "Lato";
 		src: url("fonts/Lato-Regular.ttf");
 }
-h1 {
-	background-color: #45C271;
-	font-size: 16px;
-	color: #fff;
+
+#top {
+    color: #FFF;
+    font-weight: 100;
+    background: #45C271;
+    width: 458px;
+    height:32;
+    font-family: "Lato";
+    font-size: 13px;
+    font-weight: 100;
+    background: linear-gradient(to bottom right, #45C271, #6ADC92);
+}
+
+#pause {
+	float: left;
+	left:0px;
+	top:0px;
+	width: 77px;
+	height:32px;
+	border: 0.5px solid #F3F3F3;
+}
+#pausebutton:hover {
+	filter: drop-shadow(0 0 2px #fff);
+}
+
+
+#check {
 	font-family: "Lato";
-	font-weight: 400;
+	border: 0.5px solid #F3F3F3;
+	margin-left: 77px;
+	height:32px;
+	width: 381 px;
+	font-weight: 100;
+}
+
+#currentsite {
+	font-family: "Lato";
+	font-size: 24px;
+	font-weight: normal;
+	width: 457px;
+	height: 55px;
+	border: 0.5px solid #F3F3F3;
+	font-weight: 100;
+}
+
+#antitracker {
+	font-size: 16px;
+	font-family: "Lato";
+	left: 0px;
+	float:left;
+	width: 228px;
+	height:186px;
+	border: 0.5px solid #F3F3F3;
+	font-weight: 100;
+}
+#antitracker:hover {
+	background-color: #f9f9f9;
+}
+
+#werbeblocker {
+	font-size: 16px;
+	font-family: "Lato";
+	margin-left:229px;
+	width: 228px;
+	height:186px;
+	border: 0.5px solid #F3F3F3;
+	font-weight: 100;
+}
+#werbeblocker:hover {
+	background-color: #f9f9f9;
+}
+
+#antiphishing {
+	font-size: 16px;
+	font-family: "Lato";
+	left: 0px;
+	float: left;
+	width: 228px;
+	height:83px;
+	border: 0.5px solid #F3F3F3;
+	font-weight: 100;
+	z-index: 1;
+	position: relative;
+}
+#antiphishing:hover {
+	background-color: #f9f9f9;
+}
+.infobutton-phish {
+	display: inline;
+}
+.phishing-info {
+	display:none;
+	z-index: 2;
+	position: absolute;;
+	font-size: 13px;
+	font-family: "Lato";
+	font-weight:100;
+	filter: drop-shadow(0 0 10px #ccc);
+}
+.infobutton-phish:hover + .phishing-info {
+	    display:block;
+	    z-index:2;
+}
+
+
+#httpsevery {
+	font-size: 16px;
+	font-family: "Lato";
+	margin-left:229px;
+	width: 228px;
+	height:83px;
+	border: 0.5px solid #F3F3F3;
+	font-weight: 100;
+}
+.infobutton-https {
+	display: inline;
+}
+.https-info {
+	display:none;
+	z-index: 2;
+	position: absolute;;
+	font-size: 13px;
+	font-family: "Lato";
+	font-weight:100;
+	filter: drop-shadow(0 0 10px #ccc);
+}
+.infobutton-https:hover + .https-info {
+	    display:block;
+	    z-index:2;
+}
+
+
+#bottom {
+	font-family: "Lato";
+	width: 458;
+	height: 173;
+	background-color: #E9E9E9;
+	z-index:0;
+	position: relative;
+	font-weight: 100;
+}
+
+#othersettings {
+	font-family: "Lato";
+	width: 457;
+	height: 50;
+	border: 0.5px solid #d5d1d1;
+	font-weight: 100;
+	background: linear-gradient(to bottom, #D2D2D2 0%, rgba(233,233,233,0.6) 6%, rgba(233,233,233,0) 15%);
+}
+
+#schnellsuche {
+	font-family: "Lato";
+	width: 457;
+	height: 40;
+	border: 0.5px solid #d5d1d1;
+	font-weight: 100;
+}
+
+#searchoptions {
+	font-family: "Lato";
+	width: 457;
+	height: 39;
+	border: 0.5px solid #d5d1d1;
+	font-weight: 100;
+}
+
+#chronik {
+	font-family: "Lato";
+	width: 457;
+	height: 40;
+	border: 0.5px solid #d5d1d1;
+	font-weight: 100;
 }
