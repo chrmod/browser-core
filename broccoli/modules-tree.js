@@ -4,7 +4,7 @@ var path = require('path');
 var Funnel = require('broccoli-funnel');
 var MergeTrees = require('broccoli-merge-trees');
 var Babel = require('broccoli-babel-transpiler');
-var JSHinter = require('broccoli-jshint');
+var eslint = require('broccoli-lint-eslint');
 var compileSass = require('broccoli-sass-source-maps');
 var broccoliSource = require('broccoli-source');
 var WatchedDir = broccoliSource.WatchedDir;
@@ -71,20 +71,21 @@ function getSourceTree() {
     }
   });
 
-  let jsHinterTree = new JSHinter(sources, {
-    jshintrcPath: process.cwd() + '/.jshintrc',
-    disableTestGenerator: true
+  let esLinterTree = eslint(sources, {
+    options: { configFile: process.cwd() + '/.eslintrc' }
   });
-  jsHinterTree.extensions = ['es']
+  esLinterTree.extensions = ['es'];
 
-  let transpiledSources = Babel(sources, babelOptions);
+  let transpiledSources = Babel(
+    esLinterTree,
+    Object.assign({}, babelOptions, { filterExtensions: ['js']})
+  );
   let transpiledModuleTestsTree = Babel(
     new Funnel(moduleTestsTree, { destDir: 'tests' }),
     babelOptions
   );
 
   let sourceTrees = [
-    jsHinterTree,
     transpiledSources,
   ];
 
@@ -93,7 +94,7 @@ function getSourceTree() {
   }
 
   return new Funnel(
-    new MergeTrees(sourceTrees),
+    new MergeTrees(sourceTrees), //, { overwrite: true }),
     {
       exclude: ["**/*.jshint.js"]
     }
