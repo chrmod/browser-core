@@ -30,7 +30,8 @@
     "performance",
     "hpn",
     "privacy-dashboard",
-    "offers"
+    "offers",
+    "adblocker"
   ],
   "subprojects": [
     "fresh-tab-frontend"

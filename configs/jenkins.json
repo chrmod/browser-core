@@ -28,7 +28,8 @@
     "anti-phishing",
     "privacy-dashboard",
     "performance",
-    "hpn"
+    "hpn",
+    "adblocker"
   ],
   "subprojects": [
     "fresh-tab-frontend"
