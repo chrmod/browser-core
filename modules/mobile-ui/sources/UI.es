@@ -16,6 +16,7 @@ import v6 from 'mobile-ui/views/local-data-sc';
 import v7 from 'mobile-ui/views/stocks';
 import v8 from 'mobile-ui/views/weatherAlert';
 import v9 from 'mobile-ui/views/weatherEZ';
+import v10 from 'mobile-ui/views/liveTicker';
 
 var resultsBox = null,
     currentResults = null,
