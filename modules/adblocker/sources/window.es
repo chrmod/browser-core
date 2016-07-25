@@ -1,5 +1,9 @@
 import { utils } from 'core/cliqz';
-import CliqzADB, { adbEnabled, adbABTestEnabled, ADB_PREF_VALUES, ADB_PREF } from 'adblocker/adblocker';
+import CliqzADB,
+     { adbEnabled,
+       adbABTestEnabled,
+       ADB_PREF_VALUES,
+       ADB_PREF } from 'adblocker/adblocker';
 
 
 export default class {

@@ -165,7 +165,8 @@ class AdBlocker {
     }
 
     // Process endpoint URL
-    const urlParts = URLInfo.get(httpContext.url);
+    const url = httpContext.url.toLowerCase();
+    const urlParts = URLInfo.get(url);
     let hostname = urlParts.hostname;
     if (hostname.startsWith('www.')) {
       hostname = hostname.substring(4);
@@ -173,7 +174,7 @@ class AdBlocker {
     const hostGD = getGeneralDomain(hostname);
 
     // Process source url
-    const source = httpContext.getSourceURL();
+    const source = httpContext.getSourceURL().toLowerCase();
     const sourceParts = URLInfo.get(source);
     let sourceHostname = sourceParts.hostname;
     if (sourceHostname.startsWith('www.')) {
@@ -182,11 +183,13 @@ class AdBlocker {
     const sourceGD = getGeneralDomain(sourceHostname);
 
     // Wrap informations needed to match the request
+    // NOTE: Here we convert everything to lowercase
+    // since we only support case-insensitive matching
     const request = {
       // Request
-      url: httpContext.url,
+      url,
       cpt: httpContext.getContentPolicyType(),
-      tokens: tokenizeURL(httpContext.url),
+      tokens: tokenizeURL(url),
       // Source
       sourceURL: source,
       sourceHostname,
