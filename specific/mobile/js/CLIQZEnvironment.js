@@ -219,6 +219,7 @@ CLIQZEnvironment = {
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
   clearTimeout: function(){ clearTimeout.apply(null, arguments); },
+  Promise: Promise,
   tldExtractor: function(host){
     //temp
     return host.split('.').splice(-1)[0];

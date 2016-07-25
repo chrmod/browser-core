@@ -814,6 +814,7 @@ var CliqzUtils = {
   setTimeout: CLIQZEnvironment.setTimeout,
   clearTimeout: CLIQZEnvironment.clearTimeout,
   clearInterval: CLIQZEnvironment.clearTimeout,
+  Promise: CLIQZEnvironment.Promise,
   locale: {},
   currLocale: null,
   loadLocale: function (lang_locale) {

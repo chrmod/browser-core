@@ -37,19 +37,28 @@ var Extension = {
     init: function(upgrade, oldVersion, newVersion){
       Extension.unloadJSMs();
 
-      Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js");
-      Extension.System = System;
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/runloop.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js", this);
+      Extension.System = this.System;
+
+      Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+      // must be set to this.Promise before anything else is called, so the proper Promise implementation can be used.
+      CLIQZEnvironment.Promise = this.Promise;
+      // timers have been attached to this by runloop.js
+      CLIQZEnvironment.setTimeout = this.setTimeout;
+      CLIQZEnvironment.setInterval = this.setInterval;
+      CLIQZEnvironment.clearTimeout = this.clearTimeout;
+      CLIQZEnvironment.clearInterval = this.clearInterval;
 
       Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
       Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
       Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-      Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
       Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
       Cu.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
       Cu.import('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
       Cu.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-      CliqzUtils.initPlatform(System)
+      CliqzUtils.initPlatform(Extension.System)
 
       Extension.setDefaultPrefs();
 
@@ -58,7 +67,7 @@ var Extension = {
       });
       CLIQZEnvironment.init();
       CliqzLanguage.init();
-      CliqzABTests.init(System);
+      CliqzABTests.init(Extension.System);
       this.telemetry = CliqzUtils.telemetry;
 
       CliqzUtils.extensionVersion = newVersion;
@@ -135,6 +144,7 @@ var Extension = {
         Extension.cliqzPrefsObserver.unregister();
 
         CLIQZEnvironment.unload();
+        this.cliqzRunloop.stop();
         CliqzABTests.unload();
         CliqzLanguage.unload();
 
