@@ -76,6 +76,8 @@ var CLIQZEnvironment = {
         'partials/timetable-cinema',
         'partials/timetable-movie',
         'partials/music-data-sc',
+        'partials/download-data-sc',
+        'partials/download',
         'partials/streaming',
         'partials/lyrics'
     ],

@@ -1226,5 +1226,8 @@
     "lyrics": {
       "message": "Lyrics: "
     },
+    "download": {
+      "message": "Download from: "
+    },
     "TEST": "OK"
 }

@@ -1440,3 +1440,65 @@
 }
 
 /*** END MUSIC DATA SC ***/
+
+/*** BEGIN DOWNLOAD DATA SC ***/
+
+#download_btn_region {
+    margin-top: 20px;
+}
+
+#download_btn_region .download-label {
+    float: left;
+    margin-right: 10px;
+    line-height: 26px;
+    color: #999999;
+    width: 122px;
+}
+
+#download_btn_region .download-btns-wrapper {
+    vertical-align: bottom;
+}
+
+#download_btn_region .download-btns {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#download_btn_region .download-btn {
+    margin-right: 10px;
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 0px;
+}
+
+#download_btn_region .download-btn-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 3px 10px 10px 10px;
+    border-radius: 3px;
+    display: inline-block;
+    text-align: center;
+    text-transform: capitalize;
+
+    max-height: 26px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+#download_btn_region .download-btn img {
+    max-height: 26px;
+    max-width: 100px;
+}
+
+.download-btns-container {
+    display: table-cell;
+    vertical-align: bottom !important;
+    width: 720px;
+    height: 90px;
+}
+
+/*** END DOWNLOAD DATA SC ***/

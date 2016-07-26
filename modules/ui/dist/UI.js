@@ -995,6 +995,12 @@ function setPartialTemplates(data) {
 
   }
 
+  // Download
+  if (data["__subType__"] && data["__subType__"]["class"] == "EntityDownload") {
+    partials.push('download-data-sc');
+
+  }
+
   return partials;
 }
 

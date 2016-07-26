@@ -59,7 +59,11 @@ export default class GenericView extends localData {
       'music-data-sc': {
         'space-count': 3,
         'path': 'partials/music-data-sc'
-       }
+      },
+      'download-data-sc': {
+        'space-count': 3,
+        'path': 'partials/download-data-sc'
+      }
     }
 
     // If we have more than 5 history results we extent the result to full height.

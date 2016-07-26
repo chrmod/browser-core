@@ -1,5 +1,5 @@
 <div class="music-btns-wrapper">
-    <span class="music-label">{{local 'streaming'}}</span>
+    <span class="music-label">{{local "streaming"}}</span>
     <ul class="music-btns">
     {{#each links}}
         <li class="music-btn"
