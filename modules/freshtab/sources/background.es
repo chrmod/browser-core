@@ -28,7 +28,7 @@ export default {
   */
   init(settings) {
     utils.bindObjectFunctions(this.actions, this);
-    FreshTab.startup(settings.freshTabABtest, settings.freshTabButton, settings.cliqzOnboarding, settings.channel);
+    FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel);
   },
   /**
   * @method unload

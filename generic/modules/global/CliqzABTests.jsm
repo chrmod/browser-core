@@ -177,12 +177,6 @@ var CliqzABTests = {
             case "1055_B":
                 CliqzUtils.setPref("unblockMode", "always");
                 break;
-            case "1056_A":
-                CliqzUtils.setPref("freshTabAB", false);
-                break;
-            case "1056_B":
-                CliqzUtils.setPref("freshTabAB", true);
-                break;
             case "1057_A":
                 CliqzUtils.setPref("trackerTxt", false);
                 break;

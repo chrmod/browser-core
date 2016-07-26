@@ -4,7 +4,6 @@
   "testem_launchers": ["Mocha"],
   "settings": {
     "freshTabButton": true,
-    "freshTabABtest" : true,
     "freshTabHistoryNews": true,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
