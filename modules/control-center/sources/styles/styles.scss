@@ -1,0 +1,311 @@
+/*========================================*/
+/*========== Control Center CSS ==========*/
+/*========== Felix Schmetz	    ==========*/
+/*========== Cliqz GmbH		    ==========*/
+/*========== July 2016	   	    ==========*/
+/*========================================*/
+
+@font-face {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+	// src: url("../fonts/Lato-Regular.ttf");
+}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+#control-center {
+	width: 455px;
+	margin:0 auto;
+	z-index:10;
+	box-shadow: 0 0 800px #414141;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  header {
+      color: #FFF;
+      background: #2CBA64;
+      height:30px;
+      font-size: 13px;
+			padding-right: 10px;
+			line-height: 22px;
+
+			.pause {
+				float: left;
+				padding: 7px 29px 0;
+				border-right: 1px solid #55A471;
+				&:hover {
+					svg {
+						filter: drop-shadow(0 0 1px #fff);
+					}
+				}
+			}
+			.title {
+				float: right;
+				padding-top: 3px;
+			}
+  }
+
+
+	#currentsite {
+		font-size: 24px;
+		height: 50px;
+		border: 0.5px solid #F3F3F3;
+		.truncate {
+			font-weight: 300;
+			font-size:24px;
+			padding: 10px 10px 10px 30px;
+		  width: 350px;
+		  white-space: nowrap;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		}
+	}
+
+
+	.settings {
+		#antitracker {
+			font-size: 16px;
+			left: 0px;
+			float:left;
+			width: 226px;
+			height:171px;
+			border: 0.5px solid #F3F3F3;
+			&:hover {
+				background-color: #f9f9f9;
+			}
+			#title {
+				margin: 10px 0 5px 10px;
+				#infobutton {
+					margin: 0 1px -1px 0;
+					&:hover {
+						#Oval-2 {
+							fill: #2388FF;
+						}
+					}
+				}
+				#smallarrow {
+					margin:0 0 -2px 2px;
+				}
+			}
+			#counter {
+				font-size:47px;
+				margin:0 10px 5px 30px;
+			}
+			#description {
+				font-size:16px;
+				font-color:#2A2A2A;
+				margin: 0 20px 10px 30px;
+			}
+			#switches {
+				margin: 0 0 0 30px;
+			}
+		}
+
+		#werbeblocker {
+			font-size: 16px;
+			margin-left:227px;
+			height:171px;
+			border: 0.5px solid #F3F3F3;
+			&:hover {
+				background-color: #f9f9f9;
+			}
+			#title {
+				margin: 10px 0 5px 10px;
+				#infobutton {
+					margin: 0 1px -1px 0;
+					&:hover {
+						#Oval-2 {
+							fill: #2388FF;
+						}
+					}
+				}
+				#smallarrow {
+					margin:0 0 -2px 2px;
+				}
+			}
+			#counter {
+				font-size:47px;
+				margin:0 10px 5px 30px;
+			}
+			#description {
+				font-size:16px;
+				font-color:#2A2A2A;
+				margin: 0 20px 10px 30px;
+			}
+			#switches {
+				margin: 0 0 0 30px;
+			}
+		}
+
+		#antiphishing {
+			font-size: 16px;
+			left: 0px;
+			float: left;
+			width: 226px;
+			height:76px;
+			border: 0.5px solid #F3F3F3;
+			z-index: 1;
+			position: relative;
+			&:hover {
+				background-color: #f9f9f9;
+			}
+			#title {
+				margin: 10px 0 5px 10px;
+				.infobutton-phish {
+					margin: 0 1px -1px 0;
+					display: inline;
+					&:hover {
+						#Oval-2 {
+							fill: #2388FF;
+						}
+					}
+					&:hover + .phishing-info {
+						display:block;
+						z-index:2;
+					}
+				}
+				.phishing-info {
+					display: none;
+					z-index: 2;
+					position: absolute;
+					font-size: 13px;
+					filter: drop-shadow(0 0 10px #ccc);
+					margin: -55px 0 0 20px;
+				}
+				#smallarrow {
+					margin:0 0 -2px 2px;
+				}
+			}
+			#switches {
+				margin: 15px 0 0 30px;
+			}
+		}
+
+		#httpsevery {
+			font-size: 16px;
+			margin-left:227px;
+			height:76px;
+			border: 0.5px solid #F3F3F3;
+			#title {
+				margin: 10px 0 5px 10px;
+				#infobutton {
+					margin: 0 1px -1px 0;
+					&:hover {
+						#Oval-2 {
+							fill: #2388FF;
+						}
+					}
+				}
+				#smallarrow {
+					margin:0 0 -2px 2px;
+				}
+			}
+			.infobutton-https {
+				display: inline;
+				margin:0 5px 0 10px;
+			}
+			.https-info {
+				display:none;
+				z-index: 2;
+				position: absolute;
+				font-size: 13px;
+				filter: drop-shadow(0 0 10px #ccc);
+				margin: -55px 0 0 -213px;
+			}
+			.infobutton-https:hover + .https-info {
+						display:block;
+						z-index:2;
+			}
+			#switches {
+				margin: 15px 0 0 30px;
+			}
+		}
+	}
+
+	.othersettings {
+		width: 458;
+		height: 173;
+		background-color: #E9E9E9;
+		z-index:0;
+		position: relative;
+		.header {
+			width: 457;
+			height: 50;
+			border: 0.5px solid #e9e9e9;
+			background: linear-gradient(to bottom, #D2D2D2 0%, rgba(#e9e9e9, 0.6) 6%, rgba(#e9e9e9, 0) 15%);
+			border-bottom: 0.5px solid #d5d1d1;
+			#title {
+				font-size:24px;
+				margin:10px 10px 10px 20px;
+				color: #3E3E3E;
+			}
+		}
+		#arrow {
+			margin: 0 3px -1px 3px ;
+		}
+
+	}
+}
+
+
+
+/*----- Accordion -----*/
+.accordion, .accordion * {
+    box-sizing:border-box;
+}
+
+.accordion {
+    overflow:hidden;
+    background:#E9E9E9;
+}
+
+/*----- Section Titles -----*/
+.accordion-section-title {
+    width:100%;
+    padding:12px 10px 10px 10px;
+		height: 40px;
+    display:inline-block;
+    background:#E9E9E9;
+    transition:all linear 0.15s;
+    font-size:14px;
+    color:#000;
+		border-bottom: 0.5px solid #d5d1d1;
+		text-decoration:none;
+		&:hover {
+			background-color: #e5e5e5;
+			text-decoration:none;
+		}
+		&.active {
+			text-decoration:none;
+			border-bottom: none;
+			#arrow {
+				transform:rotate(90deg);
+			}
+			background: linear-gradient(to bottom, #D2D2D2 0%, #e2e2e2 6%, #e2e2e2 15%);
+		}
+}
+
+.accordion-section:last-child .accordion-section-title {
+    border-bottom:none;
+}
+
+/*----- Section Content -----*/
+.accordion-section-content {
+		font-size: 14px;
+    // padding:15px;
+    display:none;
+		.infobutton {
+			margin: 0 3px -2px 0;
+			&:hover {
+				#Oval-2 {
+					fill: #2388FF;
+				}
+			}
+		}
+		p {
+			margin-left:50px;
+			line-height: 30px;
+		}
+		background-color: #e2e2e2;
+}
