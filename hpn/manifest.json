@@ -8,7 +8,7 @@
           "http://54.211.9.241/*"
         ],
   "background": {
-    "scripts": ["message-context.js","secure-logger.js","utils.js","dist/js/crypto-js.js","dist/js/jsencrypt.js","hpn.js"]
+    "scripts": ["message-context.js","secure-logger.js","utils.js","dist/js/crypto-js.js","dist/js/jsencrypt.js","hpn.js","background.js"]
   },
   "manifest_version": 2
 }

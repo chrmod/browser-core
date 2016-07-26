@@ -13,32 +13,28 @@ chrome.runtime.onMessageExternal.addListener(
     }
   });
 
-
+*/
   // For long-lived connections:
 chrome.runtime.onConnectExternal.addListener(function(port) {
   port.onMessage.addListener(function(request) {
-  	// alert(msg.question);
-  	// port.postMessage({"reply":"pong"});
-	function reqListener() {
-	  // var data = JSON.parse(this.responseText);
-	  // console.log(data);
-	  var t2 = Date.now()
-	  console.log("Request timing: " + (t2-t1)/1000);
-	  port.postMessage({"reply":"pong"});
-
-	}
-
-	function reqError(err) {
-	  console.log('Fetch Error :-S', err);
-	}
-
-	var t1 = Date.now();
-	var oReq = new XMLHttpRequest();
-	oReq.onload = reqListener;
-	oReq.onerror = reqError;
-	oReq.open('get', request.url, true);
-	oReq.send();
-	return true;
+	var mc = new messageContext(request.msg);
+	mc.aesEncrypt()
+	.then(function(enxryptedQuery){
+		return mc.signKey();
+	})
+	.then(function(){
+		var data = {"mP":mc.getMP()}
+		return _http("http://54.211.9.241/verify")
+			   .post(JSON.stringify(data), "instant")
+	})
+	.then(function(response){
+		if(request.msg.action != "extension-query") return;
+		return mc.aesDecrypt(JSON.parse(response)["data"]);
+	})
+	.then(function(res){
+	// callback && callback({"response":res});
+		console.log(res);
+		port.postMessage({"response":res});
+	})
   });
 });
-*/
