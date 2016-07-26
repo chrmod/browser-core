@@ -22,20 +22,8 @@ function findMatch(text, regexp) {
     return (matches) ? matches[1] : null;
 }
 
-function fetch_yt_url(youtube_url, callback) {
-  if (!callback) {
-    callback = osAPI.notifyYoutubeVideoUrls;
-  }
-  let req = new XMLHttpRequest();
-  req.open('GET', youtube_url, true);
-  req.onreadystatechange = function () {
-    if (req.readyState === 4 && req.status === 200) {
-      callback(get_links(req.responseText));
-    } else if (req.readyState === 4) {
-      callback([]);
-    }
-  };
-  req.send(null);
+function findVideoLinks(youtubePageContent) {
+  osAPI.notifyYoutubeVideoUrls(get_links(youtubePageContent));
 }
 
 function getSeparators(videoFormats) {
@@ -70,7 +58,7 @@ function get_links(bodyContent) {
 
   // parse the formats map
   const { sep1, sep2, sep3 } = getSeparators(videoFormats);
-  
+
 
   let videoURL = [];
   let videoSignature = [];
@@ -162,4 +150,4 @@ function get_links(bodyContent) {
 }
 
 
-export { fetch_yt_url as getUrls };
+export { findVideoLinks as findVideoLinks };
