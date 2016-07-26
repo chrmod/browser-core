@@ -16,6 +16,25 @@ var eventList = ['onBeforeNavigate', 'onCreatedNavigationTarget',
 */
 
 
+function observeRequest(requestDetails){
+    console.log("Headers request");
+    for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
+      if (requestDetails.requestHeaders[i].name === 'Referer') {
+           console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
+           break;
+      }
+    }
+    return {requestHeaders: requestDetails.requestHeaders}
+}
+
+function observeResponse(requestDetails){
+    // console.log("Headers rcvd");
+    // console.log(requestDetails);
+    console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
+}
+chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
+chrome.webRequest.onCompleted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]});
+
 var eventList = ['onDOMContentLoaded'];
 
 // initi
@@ -70,6 +89,13 @@ function focusOrCreateTab(url) {
     }
   });
 }
+
+
+chrome.webNavigation.onDOMContentLoaded.addListener(function(data) {
+  if (data.frameId === 0) {
+    console.log("Dom loaded: " + data.url, data);
+  }
+})
 
 chrome.browserAction.onClicked.addListener(function(tab) {
 
