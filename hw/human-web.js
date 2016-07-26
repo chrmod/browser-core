@@ -50,7 +50,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 VERSION: '2.1',
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
-                debug: false,
+                debug: true,
                 httpCache: {},
                 httpCache401: {},
                 queryCache: {},
@@ -1643,6 +1643,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 pacemaker: function pacemaker() {
 
+                    /* Konark : Commenting it, until it works. Making the pacemaker work right now
+                    */
+
+                    /*
                     var activeURL = CliqzHumanWeb.currentURL();
 
                     if (activeURL && activeURL.indexOf('about:') != 0) {
@@ -1726,11 +1730,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                             var v = CliqzHumanWeb.state['m'].slice(0, ll);
                             CliqzHumanWeb.state['m'] = CliqzHumanWeb.state['m'].slice(ll, CliqzHumanWeb.state['m'].length);
 
-                            /*
-                            for(var i=0;i<v.length;i++) {
-                                CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-                            }
-                            */
                         }
                         if (!CliqzHumanWeb.bloomFilter) {
                             CliqzHumanWeb.loadBloomFilter();
@@ -1767,7 +1766,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.saveActionStats();
                         CliqzHumanWeb.sendActionStatsIfNeeded();
                     }
-
+                    */
+                    if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
+                        if (CliqzHumanWeb.debug) {
+                            _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult);
+                        }
+                    }
                     CliqzHumanWeb.counter += 1;
                 },
                 cleanUserTransitions: function cleanUserTransitions(force) {

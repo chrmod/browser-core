@@ -14,6 +14,8 @@ var eventList = ['onBeforeNavigate', 'onCreatedNavigationTarget',
     'onErrorOccurred', 'onReferenceFragmentUpdated', 'onTabReplaced',
     'onHistoryStateUpdated'];
 */
+
+
 var eventList = ['onDOMContentLoaded'];
 
 // initi
@@ -23,6 +25,11 @@ console.log('Initializing...');
 var CliqzHumanWeb = __CliqzHumanWeb().execute();
 var CliqzBloomFilter = __CliqzBloomFilter().execute();
 var CliqzUtils = __CliqzUtils().execute();
+// export singleton pacemaker
+var pm = new Pacemaker();
+pm.register(CliqzHumanWeb.pacemaker);
+pm.start();
+
 
 
 eventList.forEach(function(e) {
@@ -31,6 +38,7 @@ eventList.forEach(function(e) {
       //console.log('L >>>', chrome.i18n.getMessage('inHandler'), e, data);
       if (data.frameId === 0) {
         console.log('LOCATION CHANGE: ' + data.url, data);
+
       }
     }
     else {
