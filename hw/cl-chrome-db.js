@@ -69,6 +69,20 @@ var __CliqzChromeDB = function() { // (_export) {
                     chrome.storage.local.clear();
                     CliqzChromeDB.size();
                 },
+                init: function() {
+
+                    CliqzChromeDB.size(function(sv) {
+                        if (sv && sv[1] > 0.90) {
+                            // more than 80% utilization,
+                            // drop everything
+                            CliqzChromeDB.removeEverything();
+                            // FIXME
+                            // we should send a telemetry signal for when it
+                            // happens
+                        }
+                    })
+
+                },
                 __test_sets: function() {
 
                     var tt = new Date().getTime();
@@ -121,7 +135,10 @@ var __CliqzChromeDB = function() { // (_export) {
 
             }
 
-            return CliqzChromeDB;
+            var _c = CliqzChromeDB;
+            _c.init();
+
+            return _c;
         }
     }
 };
