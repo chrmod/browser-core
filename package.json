@@ -19,10 +19,11 @@
   },
   "devDependencies": {
     "amd-name-resolver": "0.0.2",
-    "broccoli": "chrmod/broccoli#serve-build",
+    "broccoli": "cliqz-oss/broccoli#serve-build-16",
     "broccoli-asset-rev": "^2.3.0",
     "broccoli-babel-transpiler": "^5.4.5",
     "broccoli-config-replace": "cliqz-oss/broccoli-config-replace#nested-paths",
+    "broccoli-fast-browserify": "^0.2.11",
     "broccoli-file-creator": "^1.0.1",
     "broccoli-funnel": "^0.2.10",
     "broccoli-jade": "^1.1.0",
