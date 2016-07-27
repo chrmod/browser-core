@@ -2915,7 +2915,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                         CliqzChromeDB.get('usafe', fixed_url, function(obj) {
                             if (!obj) callback([], null);
-                            if (obj.private === 0 && obj.checked ===0 && obj.last_visit < (tt - sec_old * 1000)) {
+                            else if (obj.private === 0 && obj.checked ===0 && obj.last_visit < (tt - sec_old * 1000)) {
                                 var res = [];
                                 res.push([obj.url, JSON.parse(obj.payload)]);
                                  _log("Got the result: " + obj);
