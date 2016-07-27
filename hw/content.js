@@ -4,32 +4,22 @@ var additionalInfo = {
   "html": document.getElementsByTagName('html')[0].innerHTML
 };
 
-var signal = {};
-signal["type"] = "event_listener";
+
 
 chrome.runtime.connect().postMessage(additionalInfo);
 
-window.onkeypress = function(e){
-	signal["action"] = "keypress";
-	chrome.runtime.connect().postMessage(signal);
-}
 
-window.onmousemove = function(e){
-	signal["action"] = "mousemove";
-	chrome.runtime.connect().postMessage(signal);
-}
-
-window.onmousedown = function(e){
-	signal["action"] = "mousedown";
-	chrome.runtime.connect().postMessage(signal);
-}
-
-window.onscroll = function(e){
-	signal["action"] = "scroll";
-	chrome.runtime.connect().postMessage(signal);
-}
-
-window.oncopy = function(e){
-	signal["action"] = "copy";
-	chrome.runtime.connect().postMessage(signal);
-}
+// Add event listeners
+var events = ["keypress","mousemove","mousedown","scroll","copy"];
+events.forEach( e=> {
+	document.addEventListener(e, function(ev){
+		var signal = {};
+		signal["type"] = "event_listener";
+		signal["action"] = e;
+		signal["baseURI"] = ev.target.baseURI;
+		if (ev.target.href != null || ev.target.href != undefined) {
+			signal["targetHref"] = ev.target.href;
+		}
+		chrome.runtime.connect().postMessage(signal);
+	})
+})

@@ -106,6 +106,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 bloomFilter: null,
                 bf: null,
                 contentDocument:{},
+                tempCurrentURL: null,
                 _md5: function _md5(str) {
                     return md5(str);
                 },
@@ -1479,12 +1480,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     }
                                 }
 
-                                CliqzHumanWeb.state['v'][activeURL] = { 'url': activeURL, 'a': 5, 'x': null, 'tin': new Date().getTime(),
+                                CliqzHumanWeb.state['v'][activeURL] = { 'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                                     'e': { 'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0 }, 'st': status, 'c': [], 'ref': referral, 'red': red };
-
-                                // Fixme : Konark. a in intentionally starting with 2, to check for event listeners.
-                                // CliqzHumanWeb.state['v'][activeURL] = { 'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                                //    'e': { 'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0 }, 'st': status, 'c': [], 'ref': referral, 'red': red };
 
                                 if (referral) {
                                     // if there is a good referral, we must inherit the query if there is one
@@ -1584,7 +1581,6 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     // FIXME: return do simulate Konark's comments,
                     CliqzHumanWeb.counter += 1;
-                    return;
 
                     var activeURL = CliqzHumanWeb.currentURL();
 
@@ -1598,6 +1594,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             } catch (ee) {}
                         }
                     }
+                    return;
 
                     if (activeURL == null && CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         // this one is for when you do not have the page open, for instance, no firefox but console opened
@@ -1792,6 +1789,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                     } catch (e) {}
                 },
                 currentURL: function currentURL() {
+                    return CliqzHumanWeb.tempCurrentURL;
+
+                    // Konark : Fix me.
                     var currwin = CliqzUtils.getWindow(),
                         ret = null;
                     if (currwin && currwin.gBrowser) {

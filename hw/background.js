@@ -153,6 +153,7 @@ chrome.runtime.onConnect.addListener(function(port) {
   // the tab as a result of the user pressing the browser action.
   port.onMessage.addListener(function(info) {
     if(info.type == "dom"){
+      CliqzHumanWeb.tempCurrentURL = tab.url;
       console.log("Data rcvd");
       aProgress["isLoadingDocument"] = tab.status;
       aRequest["isChannelPrivate"] = tab.incognito;
@@ -162,7 +163,10 @@ chrome.runtime.onConnect.addListener(function(port) {
     }
     else if(info.type == "event_listener"){
       var ev = {};
-      ev["target"] = {"baseURI": tab.url};
+      ev["target"] = {"baseURI": info.baseURI};
+      if(info.targetHref){
+        ev["target"] = {"href": info.targetHref};
+      }
       if(info.action == "keypress"){
         CliqzHumanWeb.captureKeyPressPage(ev);
       }
