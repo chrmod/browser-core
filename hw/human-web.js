@@ -1,8 +1,6 @@
 var __CliqzHumanWeb = function() { // (_export) {
     "use strict";
 
-    //var AntiPhishing, CliqzBloomFilter, core, utils, nsIAO, nsIHttpChannel, refineFuncMappings, gadurl, bloomFilterSize, falsePositive, bloomFilterNHashes, CliqzHumanWeb;
-
     var refineFuncMappings, gadurl, bloomFilterSize, falsePositive, bloomFilterNHashes;
 
     function _log(msg) {
@@ -527,8 +525,8 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     var error_message = null;
 
-                    var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-
+                    // var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+                    var req = new XMLHttpRequest();
                     /*
                     We need a try catch block here, because there are some URLs which throw malformed URI error,
                     hence stalling the double fetch on the same row.
@@ -542,8 +540,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         return;
                     }
                     req.overrideMimeType('text/html');
-                    req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
-                    //req.withCredentials = false;
+                    // Konark: Needs to fixed for chrome:
+                    //req.channel.loadFlags |= 16384;//Ci.nsIRequest.LOAD_ANONYMOUS;
+                    req.withCredentials = false;
                     //req.setRequestHeader("Authorization", "true");
 
                     // CliqzHumanWeb.auxGetPageData('http://github.com/cliqz/navigation-extension/', function(x) {console.log(x);}, function(y) {})
@@ -568,7 +567,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 }
                             }
 
-                            var document = Services.appShell.hiddenDOMWindow.document;
+                            // var document = window.document;
                             var doc = document.implementation.createHTMLDocument("example");
                             doc.documentElement.innerHTML = req.responseText;
 
@@ -1554,8 +1553,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                         }
 
                                         if (CliqzHumanWeb.state['v'][currURL] != null) {
-                                            // Konark : Commented until storage layer is there.
-                                            // CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
+                                            CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
                                             CliqzHumanWeb.queryCache[currURL];
                                         }
                                     }, function () {
@@ -2569,6 +2567,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
 
                     //Check if url is in hashtable
+
                     var ft = 1;
                     var privateHash = false;
 
