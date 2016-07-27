@@ -120,6 +120,8 @@ function focusOrCreateTab(url) {
 }
 
 
+chrome.history.onVisitRemoved.addListener(CliqzHumanWeb.onHistoryVisitRemoved);
+
 chrome.tabs.onUpdated.addListener(function(tab){
   // console.log(">>> Tab data >>>");
   // console.log(JSON.stringify(tab));
@@ -128,7 +130,16 @@ chrome.tabs.onUpdated.addListener(function(tab){
 chrome.webNavigation.onDOMContentLoaded.addListener(function(data) {
   if (data.frameId === 0) {
     console.log("Dom loaded: " + data.url, data);
-    chrome.tabs.executeScript(null, {file: "content.js"});
+
+    // This fails when on chrome urls
+    //extensions::lastError:134 Unchecked runtime.lastError while running tabs.executeScript: Cannot access a chrome:// URL
+    //at chrome-extension://fapjminjapollpcgopnpdeailebdakkk/background.js:129:
+    //
+    // to see the effect uncomment the IF and go to chrome://history
+
+    if (data.url.startsWith('https://') || data.url.startsWith('http://')) {
+        chrome.tabs.executeScript(null, {file: "content.js"});
+    }
   }
   else if(data.tabId == 241){
     console.log("Google: " + data.url, data);
