@@ -2406,7 +2406,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     if (instantPush || CliqzHumanWeb.trk.length % 100 == 0) {
                         CliqzHumanWeb.pushTelemetry();
                     } else {
-                        CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                        CliqzHumanWeb.trkTimer = setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
                     }
                 },
                 _telemetry_req: null,
@@ -2417,10 +2417,22 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     // put current data aside in case of failure
                     CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
+
+                    // Konark: This needs to replaced with some sort of prefernce to switch on / off HPN.
+                    if(true){
+                        CliqzHumanWeb._telemetry_sending.forEach( msg => {
+                            HPN.pushMessage(msg);
+                        })
+                        CliqzHumanWeb._telemetry_sending = [];
+                        CliqzHumanWeb._telemetry_req = null;
+                    }
+
+                    /*
                     var data = JSON.stringify(CliqzHumanWeb._telemetry_sending);
                     CliqzHumanWeb._telemetry_req = CliqzUtils.promiseHttpHandler('POST', CliqzUtils.SAFE_BROWSING, data, 60000, true);
                     CliqzHumanWeb._telemetry_req.then(CliqzHumanWeb.pushTelemetryCallback);
                     CliqzHumanWeb._telemetry_req["catch"](CliqzHumanWeb.pushTelemetryError);
+                    */
                 },
                 pushTelemetryCallback: function pushTelemetryCallback(req) {
                     try {
