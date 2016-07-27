@@ -1227,7 +1227,13 @@
       "message": "Lyrics: "
     },
     "control-center-txt-header": {
-      "message": "Your information is safe"
+      "message": "Your data is protected"
+    },
+    "control-center-datapoints": {
+      "message": "Private data points have been removed"
+    },
+    "control-center-adblock": {
+      "message": "Ad-block"
     },
     "TEST": "OK"
 }

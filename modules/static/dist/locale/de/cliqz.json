@@ -1229,5 +1229,11 @@
     "control-center-txt-header": {
       "message": "Deine Daten sind geschützt"
     },
+    "control-center-datapoints": {
+      "message": "Persönliche Daten wurden entfernt"
+    },
+    "control-center-adblock": {
+      "message": "Werbeblocker"
+    },
     "TEST": "OK"
 }
