@@ -66,6 +66,7 @@ class AdFilter {
     this.fromPing = null;
     this.fromScript = null;
     this.fromStylesheet = null;
+    this.fromSubdocument = null;
     this.fromXmlHttpRequest = null;
 
     // Kind of pattern
@@ -197,6 +198,16 @@ class AdFilter {
           if (this.isRegex) {
             this.rawRegex = this.filterStr;
             this.regex = this.compileRegex(this.filterStr);
+          } else { // if (!this.matchCase) {
+            // NOTE: No filter seems to be using the `match-case` option,
+            // hence, it's more efficient to just convert everything to
+            // lower case before matching.
+            if (this.filterStr) {
+              this.filterStr = this.filterStr.toLowerCase();
+            }
+            if (this.hostname) {
+              this.hostname = this.hostname.toLowerCase();
+            }
           }
         }
       }
@@ -345,16 +356,17 @@ class AdFilter {
     });
 
     // Check if any of the fromX flag is set
-    this.fromAny = !(
-      this.fromImage !== null ||
-      this.fromMedia !== null ||
-      this.fromObject !== null ||
-      this.fromObjectSubrequest !== null ||
-      this.fromOther !== null ||
-      this.fromPing !== null ||
-      this.fromScript !== null ||
-      this.fromStylesheet !== null ||
-      this.fromXmlHttpRequest !== null);
+    this.fromAny = (
+      this.fromImage === null &&
+      this.fromMedia === null &&
+      this.fromObject === null &&
+      this.fromObjectSubrequest === null &&
+      this.fromOther === null &&
+      this.fromPing === null &&
+      this.fromScript === null &&
+      this.fromStylesheet === null &&
+      this.fromSubdocument === null &&
+      this.fromXmlHttpRequest === null);
   }
 
   match(httpContext) {
