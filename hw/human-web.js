@@ -105,6 +105,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 actionStatsLastSent: null,
                 bloomFilter: null,
                 bf: null,
+                contentDocument:{},
                 _md5: function _md5(str) {
                     return md5(str);
                 },
@@ -1348,14 +1349,25 @@ var __CliqzHumanWeb = function() { // (_export) {
                     return getDoc(url);
                 },
                 createDoc: function createDoc(html) {
-                    var hiddenWindow = Services.appShell.hiddenDOMWindow;
-                    var parser = new hiddenWindow.DOMParser();
+                    // var hiddenWindow = Services.appShell.hiddenDOMWindow;
+                    // var parser = new hiddenWindow.DOMParser();
+                    var parser = new DOMParser();
                     return parser.parseFromString(html, "text/html");
+                },
+                getHTML: function getHTML(url) {
+                    return new Promise(function(resolve, reject){
+                        if(CliqzHumanWeb.contentDocument){
+                            resolve(CliqzHumanWeb.contentDocument[url]);
+                        }
+                        else{
+                            reject();
+                        }
+                    })
                 },
                 getCD: function getCD(url) {
                     var _this = this;
 
-                    return this.getHTML(url).then(function (html) {
+                    return CliqzHumanWeb.getHTML(url).then(function (html) {
                         var doc = _this.createDoc(html);
                         // monkey patching the doc so it looks like regular document element
                         /*
@@ -1365,6 +1377,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         */
                         return doc;
                     });
+
                 },
                 captureJSRefresh: function captureJSRefresh(aRequest, aURI) {
 
@@ -1392,6 +1405,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     onLocationChange: function onLocationChange(aProgress, aRequest, aURI) {
                         // New location, means a page loaded on the top window, visible tab
                         // Return if it's a private tab.
+                        _log(">>> It's here >>>>");
                         if (aRequest && aRequest.isChannelPrivate !== undefined && aRequest.isChannelPrivate) {
                             return;
                         }
@@ -1434,8 +1448,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                         // original:
                         // var currwin = aProgress.topWindow || CliqzUtils.getWindow().gBrowser.selectedBrowser.contentDocument;
 
+                        /* Konark : Need to check if needed
                         var currwin = aProgress.DOMWindow.top;
                         if (!currwin) return; //internal FF page
+                        */
 
                         // This code looks obselete now, will remove in 1+ release.
                         if (gadurl.test(aURI.spec)) {
@@ -1495,11 +1511,11 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                                 var se = CliqzHumanWeb.checkSearchURL(activeURL);
                                 if (se > -1) {
-                                    CliqzUtils.setTimeout(function (url) {
+                                    setTimeout(function (url) {
                                         if (!CliqzHumanWeb) {
                                             return;
                                         }
-
+                                        _log(">>> Its search engine >>>");
                                         CliqzHumanWeb.getCD(url).then(function (doc) {
                                             CliqzHumanWeb.checkURL(doc, url);
                                             CliqzHumanWeb.queryCache[url] = {
@@ -1579,7 +1595,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     }
                                 }
 
-                                CliqzUtils.setTimeout(function (currWin, currURL) {
+                                setTimeout(function (currWin, currURL) {
 
                                     // Extract info about the page, title, length of the page, number of links, hash signature,
                                     // 404, soft-404, you name it
@@ -1605,7 +1621,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                         }
 
                                         var x = CliqzHumanWeb.getPageData(currURL, cd);
-
+                                        _log(JSON.stringify(x));
                                         if (x['canonical_url']) {
                                             CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
                                             CliqzHumanWeb.can_url_match[x['canonical_url']] = currURL;
@@ -1621,7 +1637,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                                         }
 
                                         if (CliqzHumanWeb.state['v'][currURL] != null) {
-                                            CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
+                                            // Konark : Commented until storage layer is there.
+                                            // CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
                                             CliqzHumanWeb.queryCache[currURL];
                                         }
                                     }, function () {
@@ -1631,7 +1648,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     })["catch"](function (ee) {
                                         _log("Error fetching title and length of page: " + ee + " : " + currURL);
                                     });
-                                }, CliqzHumanWeb.WAIT_TIME, currwin, activeURL);
+                                }, CliqzHumanWeb.WAIT_TIME, "", activeURL);
                             } else {
                                 // wops, it exists on the active page, probably it comes from a back button or back
                                 // from tab navigation
@@ -2068,6 +2085,26 @@ var __CliqzHumanWeb = function() { // (_export) {
                         return [];
                     }
                 },
+                initChrome: function initChrome(){
+                    // Only till we start loading from online resource
+
+                    CliqzHumanWeb.extractRules = {"0":{".r":{"t":{"item":"a","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":"a","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},".med #search":{"q":{"item":"#ires","type":"searchQuery","etype":"data-async-context","keyName":"q","functionsApplied":[["splitF","query:",1]]}},"#tads .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"#mbEnd .ads-ad":{"u":{"item":"a[id^=s1p]","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},".pla-unit-title":{"u":{"item":".pla-unit-title-link","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},"#tadsb .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}},"._gt":{"t":{"item":"[data-akp-oq] ._rl","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":".rllt__action-button._Jrh","type":"arr","etype":"href","keyName":"u"},"mu":{"item":".rllt__action-button.rllt__directions-button","type":"arr","etype":"href","keyName":"mu"}}},"1":{".dd.algo":{"t":{"item":"h3 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h3 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["splitF","RU=",1],["splitF","RK=0/",0],["maskU",false,false]]}},".sbq-w":{"q":{"item":"#yschsp","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"2":{".profile-card":{"img":{"item":".image","type":"arr","etype":"src","keyName":"imgl"},"fullName":{"item":".content h3 a","type":"arr","etype":"text","keyName":"fn"},"profileLink":{"item":".content h3 a","type":"arr","etype":"href","keyName":"pl"},"currentWork":{"item":".content p.headline","type":"arr","etype":"textContent","keyName":"cw"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"3":{".b_algo":{"t":{"item":"h2 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h2 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},"#sb_form":{"q":{"item":"#sb_form_q","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"4":{"#errorPageContainer":{"reason":{"item":"h1[id^=errorTitleText_]","type":"arr","etype":"id","keyName":"reason","required":"yes"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}}}
+                    var patternConfig = {"urlPatterns":["\\.google\\..*?[#?&;]q=[^$&]+",".search.yahoo\\..*?[#?&;]p=[^$&]+",".linkedin.*?\\/pub\\/dir+","\\.bing\\..*?[#?&;]q=[^$&]+",".*"],"searchEngines":["0","1","3"],"scrape":{"0":{".r":{"t":{"item":"a","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":"a","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},".med #search":{"q":{"item":"#ires","type":"searchQuery","etype":"data-async-context","keyName":"q","functionsApplied":[["splitF","query:",1]]}},"#tads .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"#mbEnd .ads-ad":{"u":{"item":"a[id^=s1p]","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},".pla-unit-title":{"u":{"item":".pla-unit-title-link","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},"#tadsb .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}},"._gt":{"t":{"item":"[data-akp-oq] ._rl","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":".rllt__action-button._Jrh","type":"arr","etype":"href","keyName":"u"},"mu":{"item":".rllt__action-button.rllt__directions-button","type":"arr","etype":"href","keyName":"mu"}}},"1":{".dd.algo":{"t":{"item":"h3 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h3 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["splitF","RU=",1],["splitF","RK=0/",0],["maskU",false,false]]}},".sbq-w":{"q":{"item":"#yschsp","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"2":{".profile-card":{"img":{"item":".image","type":"arr","etype":"src","keyName":"imgl"},"fullName":{"item":".content h3 a","type":"arr","etype":"text","keyName":"fn"},"profileLink":{"item":".content h3 a","type":"arr","etype":"href","keyName":"pl"},"currentWork":{"item":".content p.headline","type":"arr","etype":"textContent","keyName":"cw"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"3":{".b_algo":{"t":{"item":"h2 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h2 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},"#sb_form":{"q":{"item":"#sb_form_q","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"4":{"#errorPageContainer":{"reason":{"item":"h1[id^=errorTitleText_]","type":"arr","etype":"id","keyName":"reason","required":"yes"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}}},"payloads":{"0":{".r":{"type":"query","results":"clustered","action":"query","fields":[[".r","r","join"],[".med #search","q"],["qurl","qurl"],["ctry","ctry"]]},"#tads .ads-ad":{"type":"query","results":"clustered","action":"ads_A","fields":[["#tads .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},"#mbEnd .ads-ad":{"type":"query","results":"clustered","action":"ads_B","fields":[["#mbEnd .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},".pla-unit-title":{"type":"query","results":"clustered","action":"ads_C","fields":[[".pla-unit-title","r","join"],[".med #search","q"],["qurl","qurl"]]},"#tadsb .ads-ad":{"type":"query","results":"clustered","action":"ads_D","fields":[["#tadsb .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},"._gt":{"type":"query","results":"clustered","action":"locdata","fields":[["._gt","r","join"],[".med #search","q"],["qurl","qurl"]]}},"1":{".dd.algo":{"type":"query","results":"clustered","action":"query","fields":[[".dd.algo","r","join"],[".sbq-w","q"],["qurl","qurl"],["ctry","ctry"]]}},"2":{".profile-card":{"type":"single","results":"single","action":"linkedin"}},"3":{".b_algo":{"type":"query","results":"clustered","action":"query","fields":[[".b_algo","r","join"],["#sb_form","q"],["qurl","qurl"],["ctry","ctry"]]}},"4":{"#errorPageContainer":{"type":"single","results":"custom","action":"maliciousUrl","fields":[["qurl","qurl"],["#errorPageContainer","reason"],["ctry","ctry"]]}}},"idMapping":{"0":"go","1":"ya","2":"lnkd","3":"bing"}};
+                    CliqzHumanWeb.searchEngines = patternConfig["searchEngines"];
+                    CliqzHumanWeb.extractRules = patternConfig["scrape"];
+                    CliqzHumanWeb.payloads = patternConfig["payloads"];
+                    CliqzHumanWeb.idMappings = patternConfig["idMapping"];
+                    CliqzHumanWeb.rArray = [];
+                    patternConfig["urlPatterns"].forEach(function (e) {
+                        CliqzHumanWeb.rArray.push(new RegExp(e));
+                    });
+
+                    refineFuncMappings = {
+                        "splitF": CliqzHumanWeb.refineSplitFunc,
+                        "parseU": CliqzHumanWeb.refineParseURIFunc,
+                        "maskU": CliqzHumanWeb.refineMaskUrl
+                    };
+                },
                 init: function init(window) {
                     if (CliqzUtils.getPref("dnt", false)) return;
 
@@ -2341,14 +2378,15 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                 },
                 telemetry: function telemetry(msg, instantPush) {
-                    if (!CliqzHumanWeb || //might be called after the module gets unloaded
-                    CliqzUtils.getPref('dnt', false) || CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
+                    //_log("Telemetry: >> " + JSON.stringify(msg));
+                    //if (!CliqzHumanWeb || //might be called after the module gets unloaded
+                    //CliqzUtils.getPref('dnt', false) || CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
 
                     msg.ver = CliqzHumanWeb.VERSION;
                     msg = CliqzHumanWeb.msgSanitize(msg);
-                    if (msg) CliqzHumanWeb.incrActionStats(msg.action);
+                    // if (msg) CliqzHumanWeb.incrActionStats(msg.action);
                     if (msg) CliqzHumanWeb.trk.push(msg);
-                    CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+                    // CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
                     if (instantPush || CliqzHumanWeb.trk.length % 100 == 0) {
                         CliqzHumanWeb.pushTelemetry();
                     } else {
@@ -3116,7 +3154,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                                 if (rules[key][each_key]['etype'] == 'ctry') {
                                     try {
-                                        var location = CliqzUtils.getPref('config_location', null);
+                                        var location = "de";//CliqzUtils.getPref('config_location', null);
                                     } catch (ee) {};
                                     innerDict[each_key] = [location];
                                 }
