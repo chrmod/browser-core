@@ -2888,7 +2888,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     var tt = new Date().getTime();
 
                     if (fixed_url == null) {
-                        CliqzHumanWeb.get('usafe', function(o) {
+                        CliqzChromeDB.get('usafe', function(o) {
                             if (o.private === 0 && o.checked ===0 && o.last_visit < (tt - sec_old * 1000)) return true;
                         }, function(items) {
                             if (!items || items.length==0) callback([], null);
@@ -2908,7 +2908,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     else {
 
-                        CliqzHumanWeb.get('usafe', fixed_url, function(obj) {
+                        CliqzChromeDB.get('usafe', fixed_url, function(obj) {
                             if (!obj) callback([], null);
                             if (obj.private === 0 && obj.checked ===0 && obj.last_visit < (tt - sec_old * 1000)) {
                                 var res = [];
