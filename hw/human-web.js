@@ -1580,7 +1580,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     */
 
                     // FIXME: return do simulate Konark's comments,
-                    CliqzHumanWeb.counter += 1;
 
                     var activeURL = CliqzHumanWeb.currentURL();
 
@@ -1594,6 +1593,13 @@ var __CliqzHumanWeb = function() { // (_export) {
                             } catch (ee) {}
                         }
                     }
+
+                    if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (1 * 60) == 0) {
+                        // every minute
+                        CliqzHumanWeb.listOfUnchecked(1, CliqzHumanWeb.doubleFetchTimeInSec, null, CliqzHumanWeb.processUnchecks);
+                    }
+
+                    CliqzHumanWeb.counter += 1;
                     return;
 
                     if (activeURL == null && CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
@@ -1653,10 +1659,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.cleanLinkCache();
                     }
 
-                    if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (1 * 60) == 0) {
-                        // every minute
-                        CliqzHumanWeb.listOfUnchecked(1, CliqzHumanWeb.doubleFetchTimeInSec, null, CliqzHumanWeb.processUnchecks);
-                    }
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         var ll = CliqzHumanWeb.state['m'].length;
