@@ -13,7 +13,15 @@ var __CliqzUtils = function() { // (_export) {
                     //  CliqzUtils.getPref('config_ts', null);
                     //  CliqzUtils.getPref('config_location', null);
                     //  CliqzUtils.getPref('config_activeUsage', null);
-
+                    switch (label)
+                    {
+                        case "config_ts":
+                            defaultValue = "20160727";
+                            break;
+                        default:
+                            defaultValue;
+                            break;
+                    }
                     return defaultValue;
                 },
                 setPref: function(label, value) {

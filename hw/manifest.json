@@ -2,13 +2,13 @@
   "name" : "Test HumanWeb as Chrome Extension",
   "version" : "0.1",
   "description" : "Test",
-  "permissions": [ "webRequest", "webNavigation", "storage", "cookies", "tabs", "http://*/*", "https://*/*","activeTab"],
+  "permissions": [ "webRequest", "webNavigation", "storage", "cookies", "tabs", "http://*/*", "https://*/*","activeTab","tabs"],
   "icons": { "16": "icon.png", "48": "icon.png", "128": "icon.png" },
   "browser_action": {
     "default_icon": "icon.png"
   },
   "background": {
-    "scripts": ["md5.min.js", "cl-chrome-db.js", "cl-utils.js", "bloom-filter.js", "human-web.js", "pacemaker.js","background.js"]
+    "scripts": ["md5.min.js", "cl-chrome-db.js", "cl-utils.js", "bloom-filter.js", "human-web.js", "pacemaker.js", "content.js", "background.js"]
   },
   "manifest_version": 2
 }
