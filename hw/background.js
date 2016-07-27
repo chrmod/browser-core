@@ -40,10 +40,18 @@ var eventList = ['onDOMContentLoaded'];
 // initi
 
 
+
 console.log('Initializing...');
+var CliqzChromeDB = __CliqzChromeDB().execute();
 var CliqzHumanWeb = __CliqzHumanWeb().execute();
 var CliqzBloomFilter = __CliqzBloomFilter().execute();
 var CliqzUtils = __CliqzUtils().execute();
+
+//setInterval(function() {
+//    CliqzHumanWeb.pacemaker2();
+//}, 500);
+
+
 // export singleton pacemaker
 var pm = new Pacemaker();
 pm.register(CliqzHumanWeb.pacemaker);

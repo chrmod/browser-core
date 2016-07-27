@@ -424,6 +424,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                     var min, max;
 
                     var res = [];
+
+                    // FIXME DB @solso
+                    //
                     var st = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection.createStatement("SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places");
 
                     var res = [];
@@ -451,6 +454,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     });
                 },
+                /*
+
                 SQL: function SQL(sql, onRow, callback, parameters) {
                     // temporary fix to avoid console logs if human web is disabled
                     // the history listner should be handled better if HW module is disabled
@@ -493,23 +498,37 @@ var __CliqzHumanWeb = function() { // (_export) {
                     });
                     statement.finalize();
                 },
+                */
                 deleteVisit: function deleteVisit(url) {
+                    /*
                     CliqzHumanWeb.SQL("delete from usafe where url = :url", null, null, {
                         url: CliqzHumanWeb.escapeSQL(url)
                     });
+                    */
+                    CliqzChromeDB.remove('usafe', CliqzHumanWeb.escapeSQL(url));
+
                 },
                 deleteTimeFrame: function deleteTimeFrame() {
                     CliqzHumanWeb.historyTimeFrame(function (min, max) {
+
+                        /*
                         CliqzHumanWeb.SQL("delete from usafe where last_visit < :min", null, null, {
                             min: min
                         });
                         CliqzHumanWeb.SQL("delete from usafe where last_visit > :max", null, null, {
                             max: max
                         });
+                        */
+
+                        CliqzChromeDB.remove('usafe', function(o) {return o.last_visit < min} );
+                        CliqzChromeDB.remove('usafe', function(o) {return o.last_visit > max} );
+
                     });
                 },
                 clearHistory: function clearHistory() {
-                    CliqzHumanWeb.SQL("delete from usafe");
+                    //CliqzHumanWeb.SQL("delete from usafe");
+                    CliqzChromeDB.remove('usage', function() {return true;});
+
                 },
                 historyObserver: {
                     onBeginUpdateBatch: function onBeginUpdateBatch() {},
@@ -1646,7 +1665,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                     /* Konark : Commenting it, until it works. Making the pacemaker work right now
                     */
 
-                    /*
+                    // FIXME: return do simulate Konark's comments,
+                    return;
+
                     var activeURL = CliqzHumanWeb.currentURL();
 
                     if (activeURL && activeURL.indexOf('about:') != 0) {
@@ -1711,8 +1732,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                             _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
                         }
 
-                        // Ensuring the dbConn is not null.
-                        var dbConn = CliqzHumanWeb.getDBConn();
 
                         CliqzHumanWeb.cleanHttpCache();
                         CliqzHumanWeb.cleanDocCache();
@@ -1766,7 +1785,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.saveActionStats();
                         CliqzHumanWeb.sendActionStatsIfNeeded();
                     }
-                    */
+
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         if (CliqzHumanWeb.debug) {
                             _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult);
@@ -2076,9 +2095,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                         "parseU": CliqzHumanWeb.refineParseURIFunc,
                         "maskU": CliqzHumanWeb.refineMaskUrl
                     };
-
-                    _log("Init function called:");
-                    var dbConn = CliqzHumanWeb.initDB();
 
                     if (CliqzHumanWeb.state == null) {
                         CliqzHumanWeb.state = {};
@@ -2391,33 +2407,15 @@ var __CliqzHumanWeb = function() { // (_export) {
                 // ************************ Database ***********************
                 // source modules/CliqzHistory
                 // *********************************************************
-                initDB: function initDB() {
-                    if (FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists()) {
-                        if (CliqzHumanWeb.olddbConn == null) {
-                            CliqzHumanWeb.olddbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
-                        }
-                        CliqzHumanWeb.removeTable();
-                    }
-
-                    if (FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists()) {
-                        if (CliqzHumanWeb.dbConn == null) {
-                            CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
-                        }
-                        CliqzHumanWeb.createTable();
-                    } else {
-                        CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
-                        CliqzHumanWeb.createTable();
-                    }
-
-                    return CliqzHumanWeb.dbConn;
-                },
-                dbConn: null,
                 auxSameDomain: function auxSameDomain(url1, url2) {
                     var d1 = CliqzHumanWeb.parseURL(url1).hostname.replace('www.', '');
                     var d2 = CliqzHumanWeb.parseURL(url2).hostname.replace('www.', '');
                     return d1 == d2;
                 },
                 getPageFromDB: function getPageFromDB(url, callback) {
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
+
                     var res = [];
                     var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
                     st.params.url = url;
@@ -2445,6 +2443,17 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+
+                    */
+
+                    CliqzChromeDB.get('usafe', url, function(obj) {
+                        if (!obj) callback(null);
+                        else {
+                            callback({'url': obj['url'], 'ref': obj['ref'], 'private': obj['private'], 'checked': obj['checked']});
+                        }
+                    });
+
+
                 },
                 getPageFromHashTable: function getPageFromHashTable(url, callback) {
                     var hash = md5(url).substring(0, 16);
@@ -2458,38 +2467,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     }
                     callback(r);
-                    /*
-                    var res = [];
-                    var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashusafe WHERE hash = :hash");
-                    st.params.hash = (md5(url)).substring(0,16);
-                    st.executeAsync({
-                        handleResult: function(aResultSet) {
-                            for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                                res.push({"hash": row.getResultByName("hash"), "private": row.getResultByName("private")});
-                            }
-                        },
-                        handleError: function(aError) {
-                            _log("SQL error: " + aError.message);
-                            callback(true);
-                        },
-                        handleCompletion: function(aReason) {
-                            if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                                _log("SQL canceled or aborted");
-                                callback(null);
-                            }
-                            else {
-                                if (res.length == 1) {
-                                    callback(res[0]);
-                                }
-                                else {
-                                    callback(null);
-                                }
-                            }
-                        }
-                    });
-                    */
+
                 },
                 getCanUrlFromHashTable: function getCanUrlFromHashTable(canUrl, callback) {
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
+
                     var res = [];
                     var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashcans WHERE hash = :hash");
                     st.params.hash = md5(canUrl).substring(0, 16);
@@ -2516,7 +2499,47 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+                    */
+
+                    CliqzChromeDB.get('hashcans', md5(canUrl).substring(0, 16), function(obj) {
+                        if (!obj) callback(null);
+                        else {
+                            callback({'hash': obj['hash']});
+                        }
+                    });
+
                 },
+                isPrivate: function isPrivate(url, depth, callback) {
+                    // returns 1 is private (because of checked, of because the referrer is private)
+                    // returns 0 if public
+                    // returns -1 if not checked yet, handled as public in this cases,
+                    CliqzChromeDB.get('usafe', url, function(obj) {
+                        if (!obj) callback(true);
+                        else {
+                            if (obj.ref != '' && obj.ref != null) {
+                                // the urls already exists in the DB, it has been seen before
+                                if (depth < 10) {
+                                    if (CliqzHumanWeb.auxSameDomain(obj.ref, url)) {
+                                        CliqzHumanWeb.isPrivate(obj.ref, depth + 1, function (priv) { callback(priv); });
+
+                                    } else callback(false);
+
+                                } else {
+                                    // set to private (becasue we are not sure so beter safe than sorry),
+                                    // there is a loop of length > 10 between a <- b <- .... <- a, so if we do not
+                                    // break recursion it will continue to do the SELECT forever
+                                    //
+                                    callback(true);
+                                }
+                            } else {
+                                callback(false);
+                            }
+                        }
+                    });
+                },
+                /*
+                // Replaced by CliqzChromeDB, TBR after testing
+
                 isPrivate: function isPrivate(url, depth, callback) {
                     // returns 1 is private (because of checked, of because the referrer is private)
                     // returns 0 if public
@@ -2567,6 +2590,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     });
                 },
+                */
                 parseHostname: function parseHostname(hostname) {
                     var o = { 'hostname': null, 'username': '', 'password': '', 'port': null };
 
@@ -2666,6 +2690,113 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         });
                     }
+
+                    CliqzChromeDB.get('usafe', url, function(obj) {
+                        if (!obj && !privateHash) {
+                            // does not exist
+                            var setPrivate = false;
+
+                            var newObj = {};
+                            newObj.url = url;
+                            newObj.ref = ref;
+                            newObj.last_visit = tt;
+                            newObj.first_visit = tt;
+                            newObj.ft = ft;
+                            newObj.payload = JSON.stringify(paylobj || {});
+
+                            if (paylobj['x'] == null) {
+                                // page data structure is empty, so no need to double fetch, is private
+                                newObj.checked = 1;
+                                newObj.private = 1;
+                                newObj.reason = 'empty page data';
+                                setPrivate = true;
+                                _log("Setting private because empty page data");
+                            } else if (CliqzHumanWeb.isSuspiciousURL(url)) {
+                                // if the url looks private already add it already as checked and private
+                                newObj.checked = 1;
+                                newObj.private = 1;
+                                newObj.reason = 'susp. url';
+                                setPrivate = true;
+                                _log("Setting private because suspiciousURL");
+                            } else {
+                                if (CliqzHumanWeb.httpCache401[url]) {
+                                    newObj.checked = 1;
+                                    newObj.private = 1;
+                                    newObj.reason = '401';
+                                    setPrivate = true;
+                                    _log("Setting private because of 401");
+                                } else {
+                                    newObj.checked = 0;
+                                    newObj.private = 0;
+                                    newObj.reason = '';
+                                    setPrivate = false;
+                                }
+                            }
+
+                            CliqzChromeDB.set('usafe', url, newObj, function() {
+
+                                if (CliqzHumanWeb.debug) {
+                                    _log("Insertion success add urltoDB");
+                                }
+
+                                if (setPrivate) CliqzHumanWeb.setAsPrivate(url);
+
+                            });
+
+
+
+
+                        }
+                        else if (obj) {
+                            if (obj.checked === 0) {
+
+                                //Need to aggregate the engagement metrics.
+                                var metricsBefore = JSON.parse(obj.payload)['e'];
+
+                                var metricsAfter = paylobj['e'];
+                                paylobj['e'] = CliqzHumanWeb.aggregateMetrics(metricsBefore, metricsAfter);
+
+                                //Since not checked it is still the ft.
+                                if (obj.ft === 1) {
+                                    paylobj['ft'] = true;
+                                }
+
+                                var cloneObj = CliqzUtils.cloneObject(obj);
+
+                                cloneObj.last_visit = tt;
+                                cloneObj.payload = JSON.stringify(paylobj || {});
+
+                                CliqzChromeDB.set('usafe', url, cloneObj);
+
+                                paylobj['e'] = { 'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0 };
+
+                            }
+                            else {
+                                if (obj.checked === 1 && obj.private === 0) {
+                                    //Need to aggregate the engagement metrics.
+                                    var metricsBefore = obj['payload']['e'];
+                                    var metricsAfter = paylobj['e'];
+                                    paylobj['e'] = CliqzHumanWeb.aggregateMetrics(metricsBefore, metricsAfter);
+
+                                    var cloneObj = CliqzUtils.cloneObject(obj);
+
+                                    cloneObj.last_visit = tt;
+                                    cloneObj.payload = JSON.stringify(paylobj || {});
+                                    cloneObj.checked = 0;
+
+                                    CliqzChromeDB.set('usafe', url, cloneObj);
+
+                                    paylobj['e'] = { 'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0 };
+                                }
+                            }
+                        }
+
+
+                    });
+
+
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
 
                     var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private, payload FROM usafe WHERE url = :url");
                     stmt.params.url = url;
@@ -2795,11 +2926,16 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+
+                    */
                 },
                 setAsPrivate: function setAsPrivate(url) {
                     if (CliqzHumanWeb.bloomFilter) {
                         CliqzHumanWeb.bloomFilter.addSingle(md5(url).substring(0, 16));
                     }
+
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
                     var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
                     st.params.url = url;
                     //while (st.executeStep()) {};
@@ -2813,6 +2949,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+                    */
+
+                    CliqzChromeDB.remove('usafe', url);
+
                     if (CliqzHumanWeb.state['v'][url]) {
                         delete CliqzHumanWeb.state['v'][url];
                     }
@@ -2822,28 +2962,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                     // mp : when double fetch failed or url was marked private.
                     CliqzHumanWeb.incrActionStats("mp");
 
-                    /*
-                     //Add has in the hashusafe table
-                    var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
-                    hash_st.params.hash = (md5(url)).substring(0,16);
-                    hash_st.params.private = 1;
-                    //while (hash_st.executeStep()) {};
-                    hash_st.executeAsync({
-                        handleError: function(aError) {
-                            _log("SQL error: " + aError.message);
-                        },
-                        handleCompletion: function(aReason) {
-                            if(CliqzHumanWeb.debug){
-                                _log("Insertion success");
-                            }
-                        }
-                    });
-                    if (CliqzHumanWeb.debug) {
-                        _log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16));
-                    }
-                    */
+
                 },
                 setAsPublic: function setAsPublic(url) {
+
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
                     var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
                     st.params.url = url;
                     //while (st.executeStep()) {};
@@ -2857,33 +2981,58 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+                    */
+
+                    CliqzChromeDB.remove('usafe', url);
+
                     if (CliqzHumanWeb.state['v'][url]) {
                         delete CliqzHumanWeb.state['v'][url];
                     }
 
-                    /*
-                    //Add has in the hashusafe table
-                    var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
-                    hash_st.params.hash = (md5(url)).substring(0,16);
-                    hash_st.params.private = 0;
-                    //while (hash_st.executeStep()) {};
-                    hash_st.executeAsync({
-                        handleError: function(aError) {
-                            _log("SQL error: " + aError.message);
-                        },
-                        handleCompletion: function(aReason) {
-                            if(CliqzHumanWeb.debug){
-                                _log("Insertion success");
-                            }
-                        }
-                    });
-                    if (CliqzHumanWeb.debug) {
-                        _log('MD5: ' + url + md5(url));
-                    }
-                    */
+
+
                 },
                 listOfUnchecked: function listOfUnchecked(cap, sec_old, fixed_url, callback) {
                     var tt = new Date().getTime();
+
+                    if (fixed_url == null) {
+                        CliqzHumanWeb.get(usafe, function(o) {
+                            if (o.private === 0 && o.checked ===0 && o.last_visit < (tt - sec_old * 1000)) return true;
+                        }, function(items) {
+                            if (!items || items.length==0) callback([], null);
+
+                            // better do it here so we avoid JSON.parse on all elements
+                            items = items.splice(0, cap);
+
+                            var res = [];
+                            items.forEach(function(item) {
+                                res.push([item.url, JSON.parse(item.payload)]);
+                            });
+
+                             _log("Got the result: " + res[0]);
+                            callback(res.splice(0, cap), null);
+
+                        });
+                    }
+                    else {
+
+                        CliqzHumanWeb.get(usafe, fixed_url, function(obj) {
+                            if (!obj) callback([], null);
+                            if (obj.private === 0 && obj.checked ===0 && obj.last_visit < (tt - sec_old * 1000)) {
+                                var res = [];
+                                res.push([obj.url, JSON.parse(obj.payload)]);
+                                 _log("Got the result: " + obj);
+                                callback(res.splice(0, cap), null);
+                            }
+                            else callback([], null);
+                        });
+                    }
+
+
+
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
+
                     var stmt = null;
                     if (fixed_url == null) {
                         // all urls
@@ -2918,6 +3067,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+
+                    */
+
+
                 },
                 processUnchecks: function processUnchecks(listOfUncheckedUrls) {
                     var url_pagedocPair = {};
@@ -2930,6 +3083,20 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                         CliqzHumanWeb.isPrivate(url, 0, function (isPrivate) {
                             if (isPrivate) {
+
+
+                                CliqzChromeDB.get('usafe', url, function(obj) {
+                                    if (!obj) {
+                                        obj.checked = 1;
+                                        obj.private = 1;
+                                        obj.ft = 0;
+                                        obj.reason = 'priv. st.';
+                                        CliqzChromeDB.set('usafe', url, obj);
+                                    }
+                                });
+
+                                /*
+                                // Replaced by CliqzChromeDB, TBR after testing
                                 var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private , ft = :ft WHERE url = :url");
                                 st.params.url = url;
                                 st.params.checked = 1;
@@ -2947,8 +3114,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                                         }
                                     }
                                 });
+                                */
                                 _log("Marking as private via is private");
                                 CliqzHumanWeb.setAsPrivate(url);
+
                             } else {
                                 _log("Going for double fetch: " + url);
                                 CliqzHumanWeb.doubleFetch(url, url_pagedocPair[url]);
@@ -2960,6 +3129,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                 forceDoubleFetch: function forceDoubleFetch(url) {
                     CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
                 },
+                /*
+                FIXME these 2 can be directly removed (TBR) after test
                 outOfABTest: function outOfABTest() {
                     (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
                 },
@@ -2968,14 +3139,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         (CliqzHumanWeb.olddbConn.executeSimpleSQLAsync || CliqzHumanWeb.olddbConn.executeSimpleSQL)('DROP TABLE usafe;');
                     } catch (ee) {};
                 },
-                debugInterface: function debugInterface() {
-                    var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher);
-                    try {
-                        var win = ww.openWindow(null, "chrome://cliqzmodules/content/debugInterface", "debugInterface", null, null);
-                    } catch (ee) {
-                        _log(ee);
-                    }
-                },
+                */
                 loadContentExtraction: function loadContentExtraction() {
                     //Load content extraction.
                     CliqzUtils.httpGet(CliqzHumanWeb.patternsURL, function success(req) {
@@ -3308,6 +3472,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         return null;
                     }
                 },
+                /*
+                // Replaced by CliqzChromeDB, TBR after testing
+
                 createTable: function createTable() {
                     var usafe = "create table if not exists usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
@@ -3340,6 +3507,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_cans);
                     (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(telemetry);
                 },
+                */
                 aggregateMetrics: function aggregateMetrics(metricsBefore, metricsAfter) {
                     var aggregates = { "cp": 0, "mm": 0, "kp": 0, "sc": 0, "md": 0 };
                     if (CliqzHumanWeb.debug) {
@@ -3574,6 +3742,11 @@ var __CliqzHumanWeb = function() { // (_export) {
                         _log('MD5: ' + canUrl + md5(canUrl));
                     }
                 },
+                /*
+                !!!!!!!!!!!!!!!!!!!
+                FIXME: hashusafe is never written!!!
+                SAME for hashcans, localcheck
+                */
                 getPageStatusCount: function getPageStatusCount(callback) {
                     var st = CliqzHumanWeb.dbConn.createStatement("SELECT count(1) as 'total',SUM(CASE private when 0 then 1 else 0 end) AS 'allowed',SUM(CASE private when 1 then 1 else 0 end) AS 'notallowed' FROM  hashusafe;");
                     var res = [];
@@ -3602,6 +3775,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                     });
                 },
                 saveRecord: function saveRecord(id, data) {
+
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
+
                     if (!CliqzHumanWeb.dbConn) return;
                     var st = CliqzHumanWeb.dbConn.createStatement("INSERT OR REPLACE INTO telemetry (id,data) VALUES (:id, :data)");
                     st.params.id = id;
@@ -3619,8 +3796,20 @@ var __CliqzHumanWeb = function() { // (_export) {
                             }
                         }
                     });
+                    */
+
+                    CliqzChromeDB.set('telemetry', id, data);
+
                 },
                 loadRecord: function loadRecord(id, callback) {
+
+                    CliqzChromeDB.get('telemetry', id, function(obj) {
+                        if (!obj) callback(null);
+                        else callback(obj);
+                    });
+
+                    /*
+                    // Replaced by CliqzChromeDB, TBR after testing
                     var stmt = CliqzHumanWeb.dbConn.createAsyncStatement("SELECT id, data FROM telemetry WHERE id = :id;");
                     stmt.params.id = id;
 
@@ -3649,6 +3838,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             if (res.length == 1) callback(res[0]);else callback(null);
                         }
                     });
+                    */
                 },
                 loadActionStats: function loadActionStats() {
                     CliqzHumanWeb.loadRecord('actionStats', function (data) {
@@ -3730,9 +3920,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                             CliqzHumanWeb.bloomFilter = new CliqzBloomFilter.BloomFilter(_data, bloomFilterNHashes);
                         }
                     });
-                },
-                getDBConn: function getDBConn() {
-                    return CliqzHumanWeb.dbConn || CliqzHumanWeb.initDB();
                 }
 
             };

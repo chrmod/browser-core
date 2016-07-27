@@ -8,7 +8,7 @@
     "default_icon": "icon.png"
   },
   "background": {
-    "scripts": ["md5.min.js", "cl-utils.js", "bloom-filter.js", "human-web.js", "pacemaker.js","background.js"]
+    "scripts": ["md5.min.js", "cl-chrome-db.js", "cl-utils.js", "bloom-filter.js", "human-web.js", "pacemaker.js","background.js"]
   },
   "manifest_version": 2
 }
