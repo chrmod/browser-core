@@ -13,11 +13,8 @@ export default describeModule("autocomplete/mixer",
           encodeResultType() { return ""; },
           isCompleteUrl() { return true; },
           generalizeUrl() { },
-        },
-        environment: {
           MIN_QUERY_LENGHT_FOR_EZ: 3
-        }
-
+        },
       },
     }
   },

@@ -48,12 +48,12 @@ var UI = {
     results: function (r) {
 
       setMobileBasedUrls(r);
-      
+
       setCardCountPerPage(window.innerWidth);
 
       UI.setDimensions();
 
-      var engine = CLIQZEnvironment.getDefaultSearchEngine();
+      var engine = CliqzUtils.getDefaultSearchEngine();
       var details = CliqzUtils.getDetailsFromUrl(engine.url);
       var logo = CliqzUtils.getLogoDetails(details);
 
@@ -83,7 +83,7 @@ var UI = {
         var asyncResults = currentResults.results.filter(assessAsync(true));
         currentResults.results = currentResults.results.filter(assessAsync(false));
 
-        
+
         redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
 
         if (asyncResults.length) loadAsyncResult(asyncResults, query);
@@ -119,7 +119,7 @@ var UI = {
 
           onPageChange : function (page) {
             page = Math.abs(page);
-            if (page === CLIQZEnvironment.currentPage || !UI.isSearch()) return;
+            if (page === CliqzUtils.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
 
@@ -128,16 +128,16 @@ var UI = {
               type: 'activity',
               action: 'swipe',
               swipe_direction:
-                page > CLIQZEnvironment.currentPage ? 'right' : 'left',
+                page > CliqzUtils.currentPage ? 'right' : 'left',
               current_position: page,
               views: views[page],
-              prev_position: CLIQZEnvironment.currentPage,
+              prev_position: CliqzUtils.currentPage,
               prev_display_time: Date.now() - pageShowTs
             });
 
             pageShowTs = Date.now();
 
-            CLIQZEnvironment.currentPage = page;
+            CliqzUtils.currentPage = page;
           }
         });
     },
@@ -274,9 +274,9 @@ function getVertical(result) {
   let template;
   if (result.data.template === 'pattern-h3') {
     template = 'history';
-  } else if (CLIQZEnvironment.TEMPLATES[result.data.superTemplate]) {
+  } else if (CliqzUtils.TEMPLATES[result.data.superTemplate]) {
       template = result.data.superTemplate;
-  } else if(CLIQZEnvironment.TEMPLATES[result.data.template]) {
+  } else if(CliqzUtils.TEMPLATES[result.data.template]) {
     template = result.data.template
   } else {
     template = 'generic';
@@ -337,7 +337,7 @@ function enhanceSpecificResult(r) {
     width: UI.CARD_WIDTH,
     height: window.screen.height
   };
-  
+
   if (r.subType && JSON.parse(r.subType).ez) {
       // Indicate that this is a RH result.
       r.type = 'cliqz-extra';
@@ -382,7 +382,7 @@ function resultClick(ev) {
 
         if (url && url !== '#') {
 
-            var card = document.getElementsByClassName('card')[CLIQZEnvironment.currentPage];
+            var card = document.getElementsByClassName('card')[CliqzUtils.currentPage];
             var cardPosition = card.getBoundingClientRect();
             var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
 
@@ -394,7 +394,7 @@ function resultClick(ev) {
             };
 
             CliqzUtils.telemetry(signal);
-            CLIQZEnvironment.openLink(window, url);
+            CliqzUtils.openLink(window, url);
             return;
 
         } else if (action) {
@@ -402,7 +402,7 @@ function resultClick(ev) {
                 case 'stop-click-event-propagation':
                     return;
                 case 'copy-calc-answer':
-                    CLIQZEnvironment.copyResult(document.getElementById('calc-answer').innerHTML);
+                    CliqzUtils.copyResult(document.getElementById('calc-answer').innerHTML);
                     document.getElementById('calc-copied-msg').style.display = '';
                     document.getElementById('calc-copy-msg').style.display = 'none';
                     break;
@@ -420,10 +420,10 @@ function shiftResults() {
     var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
     left = parseInt(left);
     left -= (left / (i + 1));
-    CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
+    CliqzUtils.lastResults[i] && (CliqzUtils.lastResults[i].left = left);
     frames[i].style.left = left + 'px';
   }
-  setResultNavigation(CLIQZEnvironment.lastResults);
+  setResultNavigation(CliqzUtils.lastResults);
 }
 
 
@@ -445,8 +445,8 @@ function setResultNavigation(results) {
   // get number of pages according to number of cards per page
   UI.nPages = Math.ceil(currentResultsCount / UI.nCardsPerPage);
 
-  if (!CLIQZEnvironment.vp) {
-    CLIQZEnvironment.vp = UI.initViewpager();
+  if (!CliqzUtils.vp) {
+    CliqzUtils.vp = UI.initViewpager();
   }
 
   if (document.getElementById('currency-tpl')) {
@@ -465,7 +465,7 @@ function setMobileBasedUrls(o) {
         setMobileBasedUrls(o[i]);
     }
   }
-}  
+}
 
 var resizeTimeout;
 window.addEventListener('resize', function () {
@@ -479,12 +479,12 @@ window.addEventListener('resize', function () {
     for (let i = 0; i < frames.length; i++) {
       let left = UI.CARD_WIDTH * i;
       frames[i].style.left = left + 'px';
-      CLIQZEnvironment.lastResults[i] && (CLIQZEnvironment.lastResults[i].left = left);
+      CliqzUtils.lastResults[i] && (CliqzUtils.lastResults[i].left = left);
       frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
-    setResultNavigation(CLIQZEnvironment.lastResults);
-    CLIQZEnvironment.currentPage = Math.floor(CLIQZEnvironment.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
-    CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage, 0);
+    CliqzUtils.vp.goToIndex(CliqzUtils.currentPage, 0);
+    setResultNavigation(CliqzUtils.lastResults);
+    CliqzUtils.currentPage = Math.floor(CliqzUtils.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
     }, 200);
 
 });

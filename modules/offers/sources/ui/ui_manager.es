@@ -219,7 +219,7 @@ UIManager.prototype.showOfferInCurrentWindow = function(offerInfo, filterGoToOff
   let self = this;
   if (couponElement) {
     couponElement.onclick = function () {
-      CLIQZEnvironment.copyResult(couponElement.innerHTML);
+      CliqzUtils.copyResult(couponElement.innerHTML);
       if (self.callbacks.cp_to_clipboard) {
         try {
           let copyText = couponElement.nextElementSibling
@@ -289,7 +289,3 @@ UIManager.prototype.hideOfferOfClusterFromCurrentWindow = function(clusterID) {
     }
   }
 };
-
-
-
-

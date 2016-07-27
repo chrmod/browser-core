@@ -345,11 +345,13 @@ CLIQZEnvironment = {
   },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   displayHistory: function(data){
-    this.searchHistoryCallback(CLIQZEnvironment.processHistory(data));
+    console.log(this, 'bbb');
+    CLIQZEnvironment.searchHistoryCallback(CLIQZEnvironment.processHistory(data));
   },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   historySearch: function(q, callback){
-    this.searchHistoryCallback = callback;
+    CLIQZEnvironment.searchHistoryCallback = callback;
+    console.log(this, 'aaa');
     window.osAPI.searchHistory(q, 'CLIQZEnvironment.displayHistory');
   },
   //TODO: remove this dependency
@@ -452,4 +454,3 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
 };
-

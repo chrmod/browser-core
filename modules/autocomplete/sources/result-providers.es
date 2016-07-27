@@ -4,7 +4,7 @@
  *
  */
 
-import { utils, environment } from "core/cliqz";
+import { utils } from "core/cliqz";
 import Result from "autocomplete/result";
 import CliqzCalculator from "autocomplete/calculator";
 import { setSearchEngine } from "core/search-engines";
@@ -81,11 +81,11 @@ var CliqzResultProviders = {
       utils.log("NonDefaultProviders");
       try {
         utils.log('Analysing ' + extern.name, LOG_KEY);
-        if (!environment.getEngineByName(extern.name)) {
+        if (!utils.getEngineByName(extern.name)) {
           if (providersAddedState < extern.state) {
             maxState = extern.state > maxState ? extern.state : maxState;
             utils.log('Added ' + extern.name, LOG_KEY);
-            environment.addEngineWithDetails(extern);
+            utils.addEngineWithDetails(extern);
           }
         }
       } catch (e) {
@@ -110,7 +110,7 @@ var CliqzResultProviders = {
     });
   },
   updateAlias: function(name, newAlias) {
-    environment.updateAlias(name, newAlias);
+    utils.updateAlias(name, newAlias);
     utils.log("Alias of engine  " + name + " was updated to " + newAlias, LOG_KEY);
   },
   getCustomResults: function (q) {
@@ -195,10 +195,10 @@ var CliqzResultProviders = {
     }
   },
   getEngineByName: function(engine) {
-    return environment.getEngineByName(engine);
+    return utils.getEngineByName(engine);
   },
   getEngineByAlias: function(alias) {
-    return environment.getEngineByAlias(alias);
+    return utils.getEngineByAlias(alias);
   },
   getSubmissionByEngineName: function(name, query){
     var engine = CliqzResultProviders.getSearchEngines().find( engine => engine.name === name);
@@ -220,7 +220,7 @@ var CliqzResultProviders = {
     return KEY + name.substring(0, 2).toLowerCase();
   },
   getSearchEngines: function(){
-    return environment.getSearchEngines().map(function(e){
+    return utils.getSearchEngines().map(function(e){
       e.prefix = CliqzResultProviders.getShortcut(e.name);
       e.code   = CliqzResultProviders.getEngineCode(e.name);
 

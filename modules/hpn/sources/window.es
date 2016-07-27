@@ -34,7 +34,7 @@ export default class {
 		            doc,
 		            CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
 		            function(){
-		                    CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/products/proxy');
+		                    CliqzUtils.openTabInWindow(win, 'https://cliqz.com/products/proxy');
 		                },
 		            'safe_search_desc'
 		        )

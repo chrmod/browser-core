@@ -81,7 +81,7 @@ export default class {
         item.option = ADB_PREF_VALUES[name];
 
         if (utils.getPref(ADB_PREF, ADB_PREF_VALUES.Disabled) === item.option) {
-          item.style.listStyleImage = `url(${CLIQZEnvironment.SKIN_PATH}checkmark.png)`;
+          item.style.listStyleImage = `url(${utils.SKIN_PATH}checkmark.png)`;
         }
 
         item.addEventListener('command', () => {
@@ -104,7 +104,7 @@ export default class {
         win.CLIQZ.Core.createSimpleBtn(
           doc,
           CliqzUtils.getLocalizedString('adb-menu-more'),
-          () => { CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/whycliqz/adblocking'); },
+          () => { utils.openTabInWindow(win, 'https://cliqz.com/whycliqz/adblocking'); },
           'cliqz-adb-more'
         )
       );

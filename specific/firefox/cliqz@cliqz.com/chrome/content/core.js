@@ -31,9 +31,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
   'chrome://cliqzmodules/content/CliqzRedirect.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
-  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
   'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
@@ -136,7 +133,7 @@ window.CLIQZ.Core = {
               this.propagateEvents("core:tab_select", window.gBrowser.tabContainer, "TabSelect");
           }
 
-          CLIQZEnvironment.updateGeoLocation();
+          CliqzUtils.updateGeoLocation();
 
           // make sure the Qbutton popup is clean
           var menupopup = document.getElementById('cliqz-button').children.cliqz_menupopup;
@@ -157,7 +154,7 @@ window.CLIQZ.Core = {
             // Cliqz Tour
             var tourButton = this.createSimpleBtn(document, 'CLIQZ tour',
                 function() {
-                  CLIQZEnvironment.openTabInWindow(document.defaultView,
+                  CliqzUtils.openTabInWindow(document.defaultView,
                       'chrome://cliqz/content/onboarding/onboarding.html');
                 }, 'tour');
             tourButton.classList.add(cliqzItemClass);
@@ -309,9 +306,9 @@ window.CLIQZ.Core = {
                 history_days: history.days,
                 history_urls: history.size,
                 startup: startup? true: false,
-                prefs: CLIQZEnvironment.getCliqzPrefs(),
+                prefs: CliqzUtils.getCliqzPrefs(),
                 defaultSearchEngine: defaultSearchEngine,
-                isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser(),
+                isDefaultBrowser: CliqzUtils.isDefaultBrowser(),
                 private_window: CliqzUtils.isPrivate(window),
                 distribution: CliqzUtils.getPref('distribution', ''),
                 version_host: CliqzUtils.getPref('gecko.mstone', '', ''),
@@ -360,7 +357,7 @@ window.CLIQZ.Core = {
               feedbackParams =  CliqzUtils.extensionVersion + '-' + CLIQZ.config.settings.channel;
 
           //TODO - use the original channel instead of the current one (it will be changed at update)
-          CLIQZEnvironment.openTabInWindow(win, feeedbackUrl + feedbackParams);
+          CliqzUtils.openTabInWindow(win, feeedbackUrl + feedbackParams);
         }
 
         //feedback and FAQ
@@ -374,7 +371,7 @@ window.CLIQZ.Core = {
       // hide search prefs if the user decided to disable CLIQZ search
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(this.createSimpleBtn(doc, CliqzUtils.getLocalizedString('btnTipsTricks'), function(){
-          CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
+          CliqzUtils.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }, 'triqz'));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
@@ -414,7 +411,7 @@ window.CLIQZ.Core = {
           item.setAttribute('class', 'menuitem-iconic');
 
           if(filter_levels[level].selected){
-            item.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'checkmark.png)';
+            item.style.listStyleImage = 'url(' + CliqzUtils.SKIN_PATH + 'checkmark.png)';
           }
 
           item.filter_level = new String(level);
@@ -450,13 +447,13 @@ window.CLIQZ.Core = {
 
 
         if(filter_levels[level].selected){
-          item.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'checkmark.png)';
+          item.style.listStyleImage = 'url(' + CliqzUtils.SKIN_PATH + 'checkmark.png)';
 
         }
 
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
-            CLIQZEnvironment.setLocationPermission(window, this.filter_level.toString());
+            CliqzUtils.setLocationPermission(window, this.filter_level.toString());
             CliqzUtils.telemetry({
               type: 'activity',
               action: 'cliqz_menu_button',
@@ -472,7 +469,7 @@ window.CLIQZ.Core = {
           CliqzUtils.getLocalizedString('learnMore'),
           function(){
             var lang = CliqzUtils.getLanguage(win) == 'de' ? '' : 'en/';
-            CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + 'privacy');
+            CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + 'privacy');
           },
           'location_learn_more'
       );
@@ -513,8 +510,8 @@ window.CLIQZ.Core = {
                           CliqzUtils.getPref(key, false) === (activeState == 'undefined' ? true : activeState);
 
             return active ?
-               'url(' + CLIQZEnvironment.SKIN_PATH + 'opt-in.svg)':
-               'url(' + CLIQZEnvironment.SKIN_PATH + 'opt-out.svg)';
+               'url(' + CliqzUtils.SKIN_PATH + 'opt-in.svg)':
+               'url(' + CliqzUtils.SKIN_PATH + 'opt-out.svg)';
         }
 
         var btn = doc.createElement('menuitem');

@@ -1,6 +1,6 @@
 import autocomplete from "autocomplete/autocomplete";
 import CliqzResultProviders from "autocomplete/result-providers";
-import { utils, environment } from "core/cliqz";
+import { utils } from "core/cliqz";
 
 export default class {
   constructor(settings) {
@@ -32,7 +32,7 @@ export default class {
       item.setAttribute('class', 'menuitem-iconic');
       item.engineName = engine.name;
       if(engine.name == def){
-        item.style.listStyleImage = 'url(' + environment.SKIN_PATH + 'checkmark.png)';
+        item.style.listStyleImage = 'url(' + utils.SKIN_PATH + 'checkmark.png)';
       }
       // TODO: Where is this listener removed?
       item.addEventListener('command', (function(event) {

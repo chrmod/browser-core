@@ -18,5 +18,5 @@ System.import("core/startup").then(function (startupModule) {
   });
 }).then(function () {
   osAPI.init();
-  CLIQZEnvironment.initHomepage(true);
+  CliqzUtils.initHomepage(true);
 });

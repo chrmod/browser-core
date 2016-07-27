@@ -3,7 +3,7 @@
  *
  */
 
-import { utils, environment } from "core/cliqz";
+import { utils } from "core/cliqz";
 import Result from "autocomplete/result";
 import UrlCompare from "autocomplete/url-compare";
 
@@ -119,7 +119,7 @@ var Mixer = {
   //  - avoids many unexpected EZ triggerings
   _isValidQueryForEZ: function(q) {
     var trimmed = q.trim();
-    if (trimmed.length <= environment.MIN_QUERY_LENGHT_FOR_EZ) {
+    if (trimmed.length <= utils.MIN_QUERY_LENGHT_FOR_EZ) {
       return false;
     }
 

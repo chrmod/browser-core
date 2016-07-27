@@ -7,14 +7,13 @@
 var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
 Components.utils.import("resource://gre/modules/Services.jsm");
 Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
-Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
-var TEMPLATES = CLIQZEnvironment.TEMPLATES,
-    MESSAGE_TEMPLATES = CLIQZEnvironment.MESSAGE_TEMPLATES || [],
-    PARTIALS = CLIQZEnvironment.PARTIALS,
+var TEMPLATES = CliqzUtils.TEMPLATES,
+    MESSAGE_TEMPLATES = CliqzUtils.MESSAGE_TEMPLATES || [],
+    PARTIALS = CliqzUtils.PARTIALS,
     AGO_CEILINGS = [
         [0            , '',1],
         [120          , 'ago1Minute' , 1],

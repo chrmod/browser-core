@@ -3,7 +3,7 @@
  * http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
  */
 
-import { utils, events, environment } from "core/cliqz";
+import { utils, events } from "core/cliqz";
 import historyCluster from "autocomplete/history-cluster";
 import Result from "autocomplete/result";
 import resultProviders from "autocomplete/result-providers";
@@ -109,7 +109,7 @@ var CliqzAutocomplete = {
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
                             // override the template if the superTemplate is known
-                            if(environment.isUnknownTemplate(r.data.template)){
+                            if(utils.isUnknownTemplate(r.data.template)){
                                 // unexpected/unknown template
                                 continue;
                             }
@@ -308,8 +308,8 @@ var CliqzAutocomplete = {
                     var json = JSON.parse(req.response);
 
                     // apply rerankers
-                    for (var i = 0; i < environment.RERANKERS.length; i++){
-                        var reranker = environment.RERANKERS[i];
+                    for (var i = 0; i < utils.RERANKERS.length; i++){
+                        var reranker = utils.RERANKERS[i];
                         if (reranker != null){
                             var rerankerResults = reranker.doRerank(json.result);
                             json.result = rerankerResults.response;
@@ -532,7 +532,7 @@ var CliqzAutocomplete = {
                 }
 
                 // trigger history search
-                environment.historySearch(
+                utils.historySearch(
                     searchString,
                     this.onHistoryDone.bind(this),
                     CliqzAutocomplete.sessionStart);
@@ -614,9 +614,9 @@ var CliqzAutocomplete = {
             // Wrap up after instant results are shown
             instantWrapup: function(obj) {
                 obj.sendResultsSignal(obj, true);
-            }
-        }
-    }
+            },
+        };
+    },
 };
 
 CliqzAutocomplete.initProvider();

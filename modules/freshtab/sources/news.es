@@ -46,7 +46,7 @@ var CliqzFreshTabNews = {
   updateNews: function(callback){
     CliqzUtils.clearTimeout(t0);
     var bypassCache = CliqzUtils.getPref('freshTabByPassCache');
-    var ls = CLIQZEnvironment.getLocalStorage(CLIQZ_NEW_TAB_URL);
+    var ls = CliqzUtils.getLocalStorage(CLIQZ_NEW_TAB_URL);
     //remove version of the cache from the previous version
     if (ls.getItem('freshTab-news')){
       ls.removeItem('freshTab-news');
@@ -93,7 +93,7 @@ var CliqzFreshTabNews = {
 };
 
 function getNewsFromLS(){
-  var ls = CLIQZEnvironment.getLocalStorage(CLIQZ_NEW_TAB_URL);
+  var ls = CliqzUtils.getLocalStorage(CLIQZ_NEW_TAB_URL);
   var news_cache = ls.getItem('freshTab-news-cache');
   var recommend_cache = ls.getItem('freshTab-data');
 
@@ -108,7 +108,7 @@ function getNewsFromLS(){
 function getHbasedNewsList(hBasedNewsNumber){
   return new Promise(function (resolve, reject)  {
     var bypassCache = CliqzUtils.getPref('freshTabByPassCache');
-    var ls = CLIQZEnvironment.getLocalStorage(CLIQZ_NEW_TAB_URL);
+    var ls = CliqzUtils.getLocalStorage(CLIQZ_NEW_TAB_URL);
     var cache = ls.getItem("freshTab-data");
     if (CliqzFreshTabNews._isHdataStale()||(!(cache))||(bypassCache)){
       log('Compose hbased recommendations.');
@@ -164,7 +164,7 @@ function getHbasedNewsList(hBasedNewsNumber){
             }
 
             log(news_dcache);
-            var ls = CLIQZEnvironment.getLocalStorage(CLIQZ_NEW_TAB_URL);
+            var ls = CliqzUtils.getLocalStorage(CLIQZ_NEW_TAB_URL);
             if (ls) ls.setItem("freshTab-data", JSON.stringify(news_dcache));
 
             CliqzUtils.setPref('freshTabDTime', '' + Date.now());
@@ -439,7 +439,7 @@ function requestNews(hcache, callback){
         5000
       );
     }).catch(function () {
-      log('Error fetching news. Check CLIQZEnvironment.httpHandler errors.');
+      log('Error fetching news. Check CliqzUtils.httpHandler errors.');
       return {};
     });
   });
@@ -625,7 +625,7 @@ function isNotEmpty(ob){
 
 function updateFreshTabNewsCache(news_results, cache_full_update_flag) {
   if (isNotEmpty(news_results)) {
-    var ls = CLIQZEnvironment.getLocalStorage(CLIQZ_NEW_TAB_URL);
+    var ls = CliqzUtils.getLocalStorage(CLIQZ_NEW_TAB_URL);
     if (ls) ls.setItem("freshTab-news-cache", JSON.stringify(news_results));
     //if not all news sources were retrieved, try again in a minute
     if (cache_full_update_flag){
@@ -665,4 +665,3 @@ function normalizeUrlBasedCount(topic_dict){
 
 export { news_domains as NEWS_DOMAINS };
 export default CliqzFreshTabNews;
-

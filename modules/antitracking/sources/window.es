@@ -134,7 +134,7 @@ export default class {
         doc,
         utils.getLocalizedString('learnMore'),
         function() {
-          CLIQZEnvironment.openTabInWindow(this.window, 'https://cliqz.com/whycliqz/anti-tracking');
+          utils.openTabInWindow(this.window, 'https://cliqz.com/whycliqz/anti-tracking');
         }.bind(this),
         'attrack_learn_more'
     );

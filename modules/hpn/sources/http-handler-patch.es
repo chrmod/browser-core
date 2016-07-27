@@ -6,8 +6,8 @@ import CliqzSecureMessage from 'hpn/main';
 export function overRideCliqzResults(){
   if(CliqzUtils.getPref("proxyNetwork", true) == false) return;
 
-  if(!CLIQZEnvironment._httpHandler) CLIQZEnvironment._httpHandler = CLIQZEnvironment.httpHandler;
-  CLIQZEnvironment.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
+  if(!CliqzUtils._httpHandler) CliqzUtils._httpHandler = CliqzUtils.httpHandler;
+  CliqzUtils.httpHandler = function(method, url, callback, onerror, timeout, data, sync){
     if(url.indexOf(CliqzUtils.RESULTS_PROVIDER) > -1 && CliqzUtils.getPref('hpn-query', false)) {
       var _q = url.replace((CliqzUtils.RESULTS_PROVIDER),"")
       var mc = new messageContext({"action": "extension-query", "type": "cliqz", "ts": "", "ver": "1.5", "payload":_q });
@@ -64,16 +64,16 @@ export function overRideCliqzResults(){
       callback && callback({"response":'{"success":true}'});
     }
     else{
-      return CLIQZEnvironment._httpHandler.apply(CLIQZEnvironment, arguments);
+      return CliqzUtils._httpHandler.apply(CliqzUtils, arguments);
     }
   }
-  if(!CLIQZEnvironment._promiseHttpHandler) CLIQZEnvironment._promiseHttpHandler = CLIQZEnvironment.promiseHttpHandler;
-  CLIQZEnvironment.promiseHttpHandler = function(method, url, data, timeout, compressedPost) {
+  if(!CliqzUtils._promiseHttpHandler) CliqzUtils._promiseHttpHandler = CliqzUtils.promiseHttpHandler;
+  CliqzUtils.promiseHttpHandler = function(method, url, data, timeout, compressedPost) {
     if(url == CliqzUtils.SAFE_BROWSING && CliqzUtils.getPref('hpn-telemetry', false)){
-      return CLIQZEnvironment._promiseHttpHandler(method, url, data, timeout, false);
+      return CliqzUtils._promiseHttpHandler(method, url, data, timeout, false);
     }
     else{
-      return CLIQZEnvironment._promiseHttpHandler.apply(CLIQZEnvironment, arguments);
+      return CliqzUtils._promiseHttpHandler.apply(CliqzUtils, arguments);
     }
   }
 }

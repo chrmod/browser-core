@@ -28,7 +28,7 @@ var events = {
   click: {
     "cqz_location_yes": function(ev) {
       ev.preventDefault();
-      CLIQZEnvironment.setLocationPermission(this.window, "yes");
+      CliqzUtils.setLocationPermission(this.window, "yes");
       this.loadLocalResults(ev.target);
       CliqzUtils.telemetry({
         type: 'setting',
@@ -38,7 +38,7 @@ var events = {
     },
     "cqz_location_once": function(ev) {
       ev.preventDefault();
-      CLIQZEnvironment.SHARE_LOCATION_ONCE = true;
+      CliqzUtils.SHARE_LOCATION_ONCE = true;
       this.loadLocalResults(ev.target);
       CliqzUtils.telemetry({
         type: 'setting',
@@ -62,7 +62,7 @@ var events = {
       });
     },
     "cqz_location_never": function(ev) {
-      CLIQZEnvironment.setLocationPermission(this.window, "no");
+      CliqzUtils.setLocationPermission(this.window, "no");
       this.displayMessageForNoPermission();
       CliqzUtils.telemetry({
         type: 'setting',
@@ -74,7 +74,7 @@ var events = {
       this.displayMessageForNoPermission();
     },
     "cqz_location_yes_confirm": function(ev) {
-      CLIQZEnvironment.setLocationPermission(this.window, "yes");
+      CliqzUtils.setLocationPermission(this.window, "yes");
       var container = this.CLIQZ.Core.popup.cliqzBox.querySelector(".local-sc-data-container");
       if (container) container.innerHTML = this.CliqzHandlebars.tplCache["partials/location/no-locale-data"]({
         "display_msg": "location-thank-you"
@@ -101,9 +101,9 @@ export default class {
       this.failedToLoadResults(el);
       return;
     }
-    CLIQZEnvironment.getGeo(true, (loc) => {
-        CLIQZEnvironment.USER_LAT = loc.lat;
-        CLIQZEnvironment.USER_LNG = loc.lng;
+    CliqzUtils.getGeo(true, (loc) => {
+        CliqzUtils.USER_LAT = loc.lat;
+        CliqzUtils.USER_LNG = loc.lng;
         CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
             "&q=" + this.CLIQZ.Core.urlbar.value +
             CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +

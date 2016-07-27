@@ -14,7 +14,7 @@ function isValidURL(str) {
   return pattern.test(str);
 }
 
-var TEMPLATES = CLIQZEnvironment.TEMPLATES,
+var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
     IC = 'cqz-result-box', // result item class
@@ -287,10 +287,6 @@ var UI = {
                       }
                   }
                 }
-              }
-              // to handle broken promises (eg. Weather and flights) on mobile
-              else if (r.data && r.data.__callback_url__ && CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
-                CLIQZEnvironment.shiftResults();
               }
               else {
                 res.splice(i,1);
@@ -653,7 +649,7 @@ var UI = {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
       }
-      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate) && r.data["__subType__"]["class"] != "EntityLocal") {
+      if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate) && r.data["__subType__"]["class"] != "EntityLocal") {
         r.data.template = r.data.superTemplate;
       }
 
@@ -711,10 +707,10 @@ function selectWord(input, direction) {
 //called on urlbarBlur
 function sessionEnd(){
     adultMessage = 0; //show message in the next session
-    if (CLIQZEnvironment.SHARE_LOCATION_ONCE) {
-      CLIQZEnvironment.USER_LAT = null;
-      CLIQZEnvironment.USER_LNG = null;
-      CLIQZEnvironment.SHARE_LOCATION_ONCE = false;
+    if (CliqzUtils.SHARE_LOCATION_ONCE) {
+      CliqzUtils.USER_LAT = null;
+      CliqzUtils.USER_LNG = null;
+      CliqzUtils.SHARE_LOCATION_ONCE = false;
     }
 }
 
@@ -1075,7 +1071,7 @@ function enhanceResults(res){
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
             if(r.logo.style.indexOf('background-image') == -1){
                 //add local cliqz image if there is no internet
-                r.logo.style += ";background-image:url(" + CLIQZEnvironment.SKIN_PATH + "img/cliqzLogo.svg)";
+                r.logo.style += ";background-image:url(" + CliqzUtils.SKIN_PATH + "img/cliqzLogo.svg)";
             }
             r.logo.add_logo_url = true;
         }
@@ -1406,7 +1402,7 @@ function urlIndexInHistory(url, urlList) {
 
                     //changelog
                     case 'update-show':
-                        CLIQZEnvironment.openLink(window, CliqzUtils.CHANGELOG, true);
+                        CliqzUtils.openLink(window, CliqzUtils.CHANGELOG, true);
                     case 'update-dismiss':
                         clearMessage('bottom');
                         CliqzUtils.setPref('changeLogState', 2);
@@ -1518,7 +1514,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
   }
   CliqzUtils.telemetry(action);
 
-  if (CLIQZEnvironment.isOnPrivateTab(window))
+  if (CliqzUtils.isOnPrivateTab(window))
     return;
 
   CliqzUtils.resultTelemetry(
@@ -1549,7 +1545,7 @@ function resultScroll(ev) {
 }
 
 function copyResult(val) {
-    CLIQZEnvironment.copyResult(val);
+    CliqzUtils.copyResult(val);
 }
 
 function resultClick(ev) {
@@ -1582,7 +1578,7 @@ function resultClick(ev) {
             CliqzEvents.pub("result_click", signal, {});
 
             var url = CliqzUtils.cleanMozillaActions(url)[1];
-            CLIQZEnvironment.openLink(window, url, newTab);
+            CliqzUtils.openLink(window, url, newTab);
 
             //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
@@ -1947,7 +1943,7 @@ function onEnter(ev, item){
     CliqzEvents.pub("result_enter", {"position_type": getResultKind(UI.keyboardSelection)}, {'vertical_list': Object.keys(VERTICALS)});
   }
 
-  CLIQZEnvironment.openLink(window, input, newTab);
+  CliqzUtils.openLink(window, input, newTab);
   CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
@@ -1976,7 +1972,7 @@ function enginesClick(ev){
                 };
 
             if(ev.metaKey || ev.ctrlKey){
-                CLIQZEnvironment.openLink(window, url, true);
+                CliqzUtils.openLink(window, url, true);
                 action.new_tab = true;
             } else {
                 gBrowser.selectedBrowser.loadURI(url);
@@ -2020,7 +2016,7 @@ function snippetQualityTelemetry(results){
     // push empty data for EZones and history
     else data.push({});
 
-    slots += CLIQZEnvironment.TEMPLATES[r.vertical];
+    slots += CliqzUtils.TEMPLATES[r.vertical];
 
     // entity generic can be 3 slots height
     if(r.vertical == 'entity-generic' && r.data.urls) slots++;

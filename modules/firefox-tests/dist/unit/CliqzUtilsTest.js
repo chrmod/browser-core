@@ -2,7 +2,7 @@
 
 var expect = chai.expect;
 
-TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage, CLIQZEnvironment) {
+TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage) {
   describe('CliqzUtils', function(){
 
     it('RESULTS_PROVIDER should be set to the right mixer endpoint', function(){
@@ -247,8 +247,6 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage,
 
         it('can compress sent post data', function() {
           return CliqzUtils.importModule('core/gzip').then( function (gzip) {
-            CLIQZEnvironment.gzip = gzip;
-
             return CliqzUtils.promiseHttpHandler('POST', url, postDataSent, undefined, true).then( function(resp) {
               chai.expect(hitCtr).to.eql(1);
               chai.expect(resp.response).to.eql(responseTest);

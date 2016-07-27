@@ -72,6 +72,21 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
+  TEMPLATES: CLIQZEnvironment.TEMPLATES,
+  MESSAGE_TEMPLATES: CLIQZEnvironment.MESSAGE_TEMPLATES,
+  PARTIALS: CLIQZEnvironment.PARTIALS,
+  SKIN_PATH: CLIQZEnvironment.SKIN_PATH,
+  LOCALE_PATH: CLIQZEnvironment.LOCALE_PATH,
+  USER_LNG: CLIQZEnvironment.USER_LNG,
+  USER_LAT: CLIQZEnvironment.USER_LAT,
+  SHARE_LOCATION_ONCE: CLIQZEnvironment.SHARE_LOCATION_ONCE,
+  RERANKERS: CLIQZEnvironment.RERANKERS,
+  MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
+
+  currentPage: CLIQZEnvironment.currentPage,
+  lastResults: CLIQZEnvironment.lastResults,
+  vp: CLIQZEnvironment.vp,
+
   init: function(options){
     options = options || {};
 
@@ -234,6 +249,7 @@ var CliqzUtils = {
   promiseHttpHandler: function() {
     return CLIQZEnvironment.promiseHttpHandler.apply(CLIQZEnvironment, arguments);
   },
+  getLocalStorage: CLIQZEnvironment.getLocalStorage,
   /**
    * Loads a resource URL from the xpi.
    *
@@ -1017,5 +1033,29 @@ var CliqzUtils = {
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
     results = regex.exec(location.search);
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-  }
+  },
+  addEventListenerToElements: CLIQZEnvironment.addEventListenerToElements,
+  search: CLIQZEnvironment.search,
+  distance: CLIQZEnvironment.distance,
+  getDefaultSearchEngine: CLIQZEnvironment.getDefaultSearchEngine,
+  copyResult: CLIQZEnvironment.copyResult,
+  openLink: CLIQZEnvironment.openLink,
+  createContextMenu: CLIQZEnvironment.createContextMenu,
+  openPopup: CLIQZEnvironment.openPopup,
+  isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
+  setLocationPermission: CLIQZEnvironment.setLocationPermission,
+  getGeo: CLIQZEnvironment.getGeo,
+  updateGeoLocation: CLIQZEnvironment.updateGeoLocation,
+  getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,
+  isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser,
+  initHomepage: CLIQZEnvironment.initHomepage,
+  setDefaultSearchEngine: CLIQZEnvironment.setDefaultSearchEngine,
+  isUnknownTemplate: CLIQZEnvironment.isUnknownTemplate,
+  historySearch: CLIQZEnvironment.historySearch,
+  getEngineByName: CLIQZEnvironment.getEngineByName,
+  addEngineWithDetails: CLIQZEnvironment.addEngineWithDetails,
+  getEngineByAlias: CLIQZEnvironment.getEngineByAlias,
+  getSearchEngines: CLIQZEnvironment.getSearchEngines,
+  updateAlias: CLIQZEnvironment.updateAlias,
+  openLink: CLIQZEnvironment.openLink
 };

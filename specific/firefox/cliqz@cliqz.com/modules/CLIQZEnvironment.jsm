@@ -288,26 +288,31 @@ var CLIQZEnvironment = {
 
       return dsm.getLocalStorageForPrincipal(principal, '')
     },
+    _promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
+      return new Promise( function(resolve, reject) {
+       // gzip.compress may be false if there is no implementation for this platform
+       // or maybe it is not loaded yet
+       if (CLIQZEnvironment.gzip && CLIQZEnvironment.gzip.compress && method === 'POST' && compressedPost) {
+         const dataLength = data.length;
+         data = CLIQZEnvironment.gzip.compress(data);
+         CliqzUtils.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+         CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
+       } else {
+         CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
+       }
+     });
+   },
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
-        //lazy load gzip module
-        if(compressedPost && !CLIQZEnvironment.gzip){
-            CliqzUtils.importModule('core/gzip').then( function(gzip) {
-               CLIQZEnvironment.gzip = gzip
-            });
-        }
-
-        return new Promise( function(resolve, reject) {
-            // gzip.compress may be false if there is no implementation for this platform
-            // or maybe it is not loaded yet
-            if ( CLIQZEnvironment.gzip && CLIQZEnvironment.gzip.compress && method === 'POST' && compressedPost) {
-                var dataLength = data.length;
-                data = CLIQZEnvironment.gzip.compress(data);
-                CliqzUtils.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
-                CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
-            } else {
-                CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
-            }
+      if(compressedPost && !CLIQZEnvironment.gzip) {
+        return CliqzUtils.importModule('core/gzip').then(function(gzip) {
+          CLIQZEnvironment.gzip = gzip;
+          return CLIQZEnvironment._promiseHttpHandler(method, url, data, timeout, compressedPost);
+        }, function() {
+          return CLIQZEnvironment._promiseHttpHandler(method, url, data, timeout, compressedPost);
         });
+      } else {
+        return CLIQZEnvironment._promiseHttpHandler(method, url, data, timeout, compressedPost);
+      }
     },
     openLink: function(win, url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
@@ -603,7 +608,7 @@ var CLIQZEnvironment = {
           menuItem.addEventListener("command", menuItems[item].command, false);
           if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
             menuItem.setAttribute('class', 'menuitem-iconic');
-            menuItem.style.listStyleImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz.png)';
+            menuItem.style.listStyleImage = 'url(' + CliqzUtils.SKIN_PATH + 'cliqz.png)';
           }
           contextMenu.appendChild(menuItem);
       }
@@ -720,7 +725,7 @@ var CLIQZEnvironment = {
                       text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
                       "search_engines": chosen,
                       //use local image in case of no internet connection
-                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
+                      "cliqz_logo": CliqzUtils.SKIN_PATH + "img/cliqz.svg"
                   },
                   subType: JSON.stringify({empty:true})
               }
@@ -738,7 +743,7 @@ function getTopSites(){
         top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
         top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
         top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
-        top.data.cliqz_logo = CLIQZEnvironment.SKIN_PATH + 'img/cliqz.svg';
+        top.data.cliqz_logo = CliqzUtils.SKIN_PATH + 'img/cliqz.svg';
         top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
         top.data.url = results[0].url;
         top.data.template = 'topsites';

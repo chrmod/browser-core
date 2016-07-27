@@ -1,7 +1,7 @@
 export default describeModule("autocomplete/history-cluster",
   function () {
     return {
-      "core/cliqz": { utils: {}, environment: {} },
+      "core/cliqz": { utils: {} },
       "autocomplete/result": { default: {} },
     }
   },
