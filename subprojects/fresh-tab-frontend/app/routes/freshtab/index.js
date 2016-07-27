@@ -26,7 +26,10 @@ export default Ember.Route.extend({
   model() {
     return this.get('cliqz').getSpeedDials().then( speedDials => {
       return Ember.Object.create({
-        speedDials: SpeedDials.create({ content: speedDials.map( x => Ember.Object.create(x) ) }),
+        speedDials: {
+          history: speedDials.history.map(dial => Ember.Object.create(dial)),
+          custom: speedDials.custom.map(dial => Ember.Object.create(dial)),
+        },
         news: News.create({ model: [] })
       });
     })

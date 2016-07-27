@@ -126,7 +126,8 @@ export default {
       //Promise all concatenate results and return
       return Promise.all([historyDialups, customDialups]).then(function(results){
         return {
-          speedDials: results[0].concat(results[1])
+          history: results[0],
+          custom: results[1]
         };
       });
     },
@@ -162,9 +163,7 @@ export default {
     */
     getVisibleDials(historyLimit) {
       return this.actions.getSpeedDials().then((results) => {
-        return results.speedDials.filter(function(item, index) {
-          return (!item.custom && index < historyLimit) || item.custom;
-        });
+        return results.history.slice(0, historyLimit);
       })
     },
     /**
@@ -172,7 +171,7 @@ export default {
     * @method addSpeedDial
     * @param url {string}
     */
-    addSpeedDial(url, index, type) {
+    addSpeedDial(url, index) {
       const urlToAdd = utils.stripTrailingSlash(url);
 
       //history returns most frequest 15 results, but we display up to 5

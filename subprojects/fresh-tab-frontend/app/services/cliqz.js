@@ -206,10 +206,10 @@ export default Ember.Service.extend({
       action: "getSpeedDials"
     }) , "*")
 
-    return DS.PromiseObject.create({ promise }).then(model => model.speedDials);
+    return DS.PromiseObject.create({ promise });
   },
 
-  addSpeedDial(url, index, type) {
+  addSpeedDial(url, index) {
     let promise = new Promise( resolve => {
       this.callbacks.addSpeedDial = resolve;
     });
@@ -221,7 +221,6 @@ export default Ember.Service.extend({
       "args": [
         url,
         index,
-        type
       ]
     }), "*");
 
@@ -260,7 +259,7 @@ export default Ember.Service.extend({
       "action": "resetAllHistory",
     }), "*");
 
-    return DS.PromiseObject.create({ promise }).then(model => model.speedDials);
+    return DS.PromiseObject.create({ promise });
   },
 
   getNews() {
