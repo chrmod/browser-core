@@ -419,135 +419,31 @@ var __CliqzHumanWeb = function() { // (_export) {
                         } catch (ee) {};
                     }
                 },
-                historyTimeFrame: function historyTimeFrame(callback) {
-                    Cu["import"]('resource://gre/modules/PlacesUtils.jsm');
-                    var history = [];
-                    var min, max;
-
-                    var res = [];
-
-                    // FIXME DB @solso
-                    //
-                    var st = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection.createStatement("SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places");
-
-                    var res = [];
-                    st.executeAsync({
-                        handleResult: function handleResult(aResultSet) {
-                            for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                                res.push({ "minDate": row.getResultByName("min_date"), "maxDate": row.getResultByName("max_date") });
-                            }
-                        },
-                        handleError: function handleError(aError) {
-                            _log("SQL error: " + aError.message);
-                            callback(true);
-                        },
-                        handleCompletion: function handleCompletion(aReason) {
-                            if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                                _log("SQL canceled or aborted");
-                                callback(null);
-                            } else {
-                                try {
-                                    min = parseInt(res[0]['minDate'] / 1000);
-                                    max = parseInt(res[0]['maxDate'] / 1000);
-                                } catch (ex) {}
-                                callback(min, max);
-                            }
-                        }
-                    });
-                },
-                /*
-
-                SQL: function SQL(sql, onRow, callback, parameters) {
-                    // temporary fix to avoid console logs if human web is disabled
-                    // the history listner should be handled better if HW module is disabled
-                    if (!CliqzHumanWeb.dbConn) return;
-
-                    var st = CliqzHumanWeb.dbConn.createAsyncStatement(sql);
-
-                    for (var key in parameters) {
-                        st.params[key] = parameters[key];
-                    }
-
-                    CliqzHumanWeb._SQL(CliqzHumanWeb.dbConn, st, onRow, callback);
-                },
-                _SQL: function _SQL(dbConn, statement, onRow, callback) {
-                    statement.executeAsync({
-                        onRow: onRow,
-                        callback: callback,
-                        handleResult: function handleResult(aResultSet) {
-                            var resultCount = 0;
-                            for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                                resultCount++;
-                                if (this.onRow) {
-                                    this.onRow(statement.row);
-                                }
-                            }
-                            if (this.callback) {
-                                this.callback(resultCount);
-                            }
-                        },
-
-                        handleError: function handleError(aError) {
-                            _log("Error (" + aError.result + "):" + aError.message);
-                            if (this.callback) {
-                                this.callback(0);
-                            }
-                        },
-                        handleCompletion: function handleCompletion(aReason) {
-                            // Always called when done
-                        }
-                    });
-                    statement.finalize();
-                },
-                */
                 deleteVisit: function deleteVisit(url) {
                     /*
                     CliqzHumanWeb.SQL("delete from usafe where url = :url", null, null, {
                         url: CliqzHumanWeb.escapeSQL(url)
                     });
                     */
+                    // just to be safe, we try both options
+                    CliqzChromeDB.remove('usafe', url);
                     CliqzChromeDB.remove('usafe', CliqzHumanWeb.escapeSQL(url));
 
                 },
-                deleteTimeFrame: function deleteTimeFrame() {
-                    CliqzHumanWeb.historyTimeFrame(function (min, max) {
-
-                        /*
-                        CliqzHumanWeb.SQL("delete from usafe where last_visit < :min", null, null, {
-                            min: min
-                        });
-                        CliqzHumanWeb.SQL("delete from usafe where last_visit > :max", null, null, {
-                            max: max
-                        });
-                        */
-
-                        CliqzChromeDB.remove('usafe', function(o) {return o.last_visit < min} );
-                        CliqzChromeDB.remove('usafe', function(o) {return o.last_visit > max} );
-
-                    });
-                },
                 clearHistory: function clearHistory() {
-                    //CliqzHumanWeb.SQL("delete from usafe");
-                    CliqzChromeDB.remove('usage', function() {return true;});
-
+                    CliqzChromeDB.remove('usafe', function() {return true;});s
                 },
-                historyObserver: {
-                    onBeginUpdateBatch: function onBeginUpdateBatch() {},
-                    onEndUpdateBatch: function onEndUpdateBatch() {
-                        CliqzHumanWeb.deleteTimeFrame();
-                    },
-                    onVisit: function onVisit(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
-                    onTitleChanged: function onTitleChanged(aURI, aPageTitle) {},
-                    onBeforeDeleteURI: function onBeforeDeleteURI(aURI) {},
-                    onDeleteURI: function onDeleteURI(aURI) {
-                        CliqzHumanWeb.deleteVisit(aURI.spec);
-                    },
-                    onClearHistory: function onClearHistory() {
-                        CliqzHumanWeb.clearHistory();
-                    },
-                    onPageChanged: function onPageChanged(aURI, aWhat, aValue) {},
-                    onDeleteVisits: function onDeleteVisits() {},
-                    //QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
+                onHistoryVisitRemoved(args) {
+
+                    _log("History was removed, removing from usafe: " + args.allHistory + " " + args.urls);
+                    if (args && args.allHistory) CliqzHumanWeb.clearHistory();
+                    else {
+                        if (args.urls) {
+                            args.urls.forEach(function(url) {
+                                CliqzHumanWeb.deleteVisit(url);
+                            });
+                        }
+                    }
                 },
                 linkCache: {},
                 cleanLinkCache: function cleanLinkCache() {
@@ -2305,12 +2201,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     // handled beforehand!!!
                     // Canonical URLs and Referrals.
 
-                    /*
-                    if(CliqzHumanWeb.can_urls[msg.payload.url]){
-                        msg.payload.url = CliqzHumanWeb.can_urls[msg.payload.url];
-                    }
-                    */
-
                     //Check the depth. Just to be extra sure.
 
                     if (msg.payload.qr) {
@@ -2519,46 +2409,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     callback(r);
 
                 },
-                getCanUrlFromHashTable: function getCanUrlFromHashTable(canUrl, callback) {
-                    /*
-                    // Replaced by CliqzChromeDB, TBR after testing
-
-                    var res = [];
-                    var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashcans WHERE hash = :hash");
-                    st.params.hash = md5(canUrl).substring(0, 16);
-                    st.executeAsync({
-                        handleResult: function handleResult(aResultSet) {
-                            for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                                res.push({ "hash": row.getResultByName("hash") });
-                            }
-                        },
-                        handleError: function handleError(aError) {
-                            _log("SQL error: " + aError.message);
-                            callback(true);
-                        },
-                        handleCompletion: function handleCompletion(aReason) {
-                            if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                                _log("SQL canceled or aborted");
-                                callback(null);
-                            } else {
-                                if (res.length == 1) {
-                                    callback(res[0]);
-                                } else {
-                                    callback(null);
-                                }
-                            }
-                        }
-                    });
-                    */
-
-                    CliqzChromeDB.get('hashcans', md5(canUrl).substring(0, 16), function(obj) {
-                        if (!obj) callback(null);
-                        else {
-                            callback({'hash': obj['hash']});
-                        }
-                    });
-
-                },
                 isPrivate: function isPrivate(url, depth, callback) {
                     // returns 1 is private (because of checked, of because the referrer is private)
                     // returns 0 if public
@@ -2732,14 +2582,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     // Need to add if canonical is seen before or not.
                     // This is helpful, becuase now we replace the url with canonical incase of dropLongUrl(url) => true.
                     // Hence, in the event log, lot of URL's look ft => true.
-
-                    if (paylobj['x'] && paylobj['x']['canonical_url'] && paylobj['x']['canonical_url'] != url) {
-                        CliqzHumanWeb.getCanUrlFromHashTable(paylobj['x']['canonical_url'], function (_res) {
-                            if (_res) {
-                                paylobj['csb'] = true;
-                            }
-                        });
-                    }
 
                     CliqzChromeDB.get('usafe', url, function(obj) {
                         if (!obj && !privateHash) {
@@ -3537,24 +3379,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                 payload VARCHAR(4096), \
                 ft BOOLEAN DEFAULT 1 \
             )";
-
-                    var hash_usafe = "create table if not exists hashusafe(\
-                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
-                private BOOLEAN DEFAULT 0 \
-            )";
-
-                    var hash_cans = "create table if not exists hashcans(\
-                hash VARCHAR(32) PRIMARY KEY NOT NULL \
-            )";
-
                     var telemetry = "create table if not exists telemetry(\
                 id VARCHAR(24) PRIMARY KEY NOT NULL,\
                 data VARCHAR(1000000) \
             )";
 
                     (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(usafe);
-                    (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_usafe);
-                    (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_cans);
                     (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(telemetry);
                 },
                 */
@@ -3772,57 +3602,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
                         CliqzUtils.setPref('config_activeUsageCount', 0);
                     }
-                },
-                insertCanUrl: function insertCanUrl(canUrl) {
-                    //Add canUrl in the hashcans table
-                    var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashcans (hash) VALUES (:hash)");
-                    hash_st.params.hash = md5(canUrl).substring(0, 16);
-                    //while (hash_st.executeStep()) {};
-                    hash_st.executeAsync({
-                        handleError: function handleError(aError) {
-                            _log("SQL error: " + aError.message);
-                        },
-                        handleCompletion: function handleCompletion(aReason) {
-                            if (CliqzHumanWeb.debug) {
-                                _log("Insertion success canonical URL");
-                            }
-                        }
-                    });
-                    if (CliqzHumanWeb.debug) {
-                        _log('MD5: ' + canUrl + md5(canUrl));
-                    }
-                },
-                /*
-                !!!!!!!!!!!!!!!!!!!
-                FIXME: hashusafe is never written!!!
-                SAME for hashcans, localcheck
-                */
-                getPageStatusCount: function getPageStatusCount(callback) {
-                    var st = CliqzHumanWeb.dbConn.createStatement("SELECT count(1) as 'total',SUM(CASE private when 0 then 1 else 0 end) AS 'allowed',SUM(CASE private when 1 then 1 else 0 end) AS 'notallowed' FROM  hashusafe;");
-                    var res = [];
-                    st.executeAsync({
-                        handleResult: function handleResult(aResultSet) {
-                            for (var row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                                res.push({ "total": row.getResultByName("total"), "allowed": row.getResultByName("allowed"), "not-allowed": row.getResultByName("notallowed") });
-                            }
-                        },
-                        handleError: function handleError(aError) {
-                            _log("SQL error: " + aError.message);
-                            callback(true);
-                        },
-                        handleCompletion: function handleCompletion(aReason) {
-                            if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                                _log("SQL canceled or aborted");
-                                callback(null);
-                            } else {
-                                if (res.length == 1) {
-                                    callback(res);
-                                } else {
-                                    callback(null);
-                                }
-                            }
-                        }
-                    });
                 },
                 saveRecord: function saveRecord(id, data) {
 
