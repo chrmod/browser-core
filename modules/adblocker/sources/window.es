@@ -85,13 +85,13 @@ export default class {
         }
 
         item.addEventListener('command', () => {
-          utils.setPref(ADB_PREF, this.option);
+          utils.setPref(ADB_PREF, item.option);
 
           utils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
           utils.telemetry({
             type: 'activity',
             action: 'cliqz_menu_button',
-            button_name: `adb_option_${this.option}`,
+            button_name: `adb_option_${item.option}`,
           });
         }, false);
 
