@@ -8,7 +8,7 @@
     "default_icon": "icon.png"
   },
   "background": {
-    "scripts": ["message-context.js","secure-logger.js","utils.js","dist/js/crypto-js.js","dist/js/jsencrypt.js","hpn.js","md5.min.js", "cl-utils.js", "bloom-filter.js", "human-web.js", "pacemaker.js", "content.js", "background.js"]
+    "scripts": ["message-context.js","secure-logger.js","utils.js","dist/js/crypto-js.js","dist/js/jsencrypt.js","hpn.js","md5.min.js", "cl-chrome-db.js","cl-utils.js", "bloom-filter.js", "human-web.js", "pacemaker.js", "content.js", "background.js"]
   },
   "manifest_version": 2
 }

@@ -55,10 +55,13 @@ var eventList = ['onDOMContentLoaded'];
 // initi
 
 
+
 console.log('Initializing...');
+var CliqzChromeDB = __CliqzChromeDB().execute();
 var CliqzHumanWeb = __CliqzHumanWeb().execute();
 var CliqzBloomFilter = __CliqzBloomFilter().execute();
 var CliqzUtils = __CliqzUtils().execute();
+
 
 // Needed for onLocation Change arguments.
 var aProgress = {};
