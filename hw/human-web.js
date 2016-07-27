@@ -1,7 +1,9 @@
 var __CliqzHumanWeb = function() { // (_export) {
     "use strict";
 
-    var AntiPhishing, CliqzBloomFilter, core, utils, md5, nsIAO, nsIHttpChannel, refineFuncMappings, gadurl, bloomFilterSize, falsePositive, bloomFilterNHashes, CliqzHumanWeb;
+    //var AntiPhishing, CliqzBloomFilter, core, utils, nsIAO, nsIHttpChannel, refineFuncMappings, gadurl, bloomFilterSize, falsePositive, bloomFilterNHashes, CliqzHumanWeb;
+
+    var refineFuncMappings, gadurl, bloomFilterSize, falsePositive, bloomFilterNHashes;
 
     function _log(msg) {
         try {
@@ -33,10 +35,10 @@ var __CliqzHumanWeb = function() { // (_export) {
             //Cu["import"]('resource://gre/modules/XPCOMUtils.jsm');
 
             //nsIAO = Components.interfaces.nsIHttpActivityObserver;
-            nsIAO = null;
+            //nsIAO = null;
 
             //nsIHttpChannel = Components.interfaces.nsIHttpChannel;
-            nsIHttpChannel = null;
+            //nsIHttpChannel = null;
             gadurl = /\.google..*?\/(aclk)\?/;
 
             /*
@@ -2019,6 +2021,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         "parseU": CliqzHumanWeb.refineParseURIFunc,
                         "maskU": CliqzHumanWeb.refineMaskUrl
                     };
+
+                    CliqzHumanWeb.loadBloomFilter();
+
                 },
                 init: function init(window) {
                     if (CliqzUtils.getPref("dnt", false)) return;
@@ -2566,6 +2571,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     //Check if url is in hashtable
                     var ft = 1;
                     var privateHash = false;
+
                     CliqzHumanWeb.getPageFromHashTable(url, function (_res) {
                         if (_res) {
                             if (_res['private'] == 1) {
@@ -3741,7 +3747,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 loadBloomFilter: function loadBloomFilter() {
                     CliqzHumanWeb.loadRecord('bf', function (data) {
-                        if (data == null) {
+                        if (!data) {
                             _log("There was no data on CliqzHumanWeb.bf");
                             CliqzHumanWeb.bloomFilter = new CliqzBloomFilter.BloomFilter(Array(bloomFilterSize).join('0'), bloomFilterNHashes);
                         } else {
