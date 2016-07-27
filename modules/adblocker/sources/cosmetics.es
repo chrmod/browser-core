@@ -104,6 +104,12 @@ function locateParent(node) {
     return n.nodeName === '#document' || n.tagName === 'BODY' || n.nodeName === 'HTML';
   };
 
+  for (const c of parent.children) {
+    if (countChildren(c) >= MAX_CHILDREN || isPossibleContent(c)) {
+      return child;
+    }
+  }
+
   while (parent && !isWholeDoc(parent)) {
     const count = countChildren(parent);
     const incr = areaIncreased(child, parent);
@@ -237,7 +243,6 @@ function markNodeAsSafe(node) {
     node.setAttribute('cliqz-adblocker', 'safe');
   } catch (e) { /* Ignore exception */ }
 }
-
 
 function hide(node, url, source) {
   if (autoBlockAds()) {

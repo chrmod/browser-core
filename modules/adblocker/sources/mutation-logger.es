@@ -33,10 +33,13 @@ MutationLogger.prototype = {
   onMutation(mutations) {
     for (const m of mutations) {
       let t = m.target;
+      let count = 0;
+      for (const added of m.addedNodes) {
+        count = Math.max(count, countChildren(added));
+      }
       try {
         if (t.getAttribute('cliqz-adb-blocked')) {
-          const count = countChildren(t);
-          if (count > MAX_CHILDREN) {
+          if (countChildren(t) > MAX_CHILDREN || count > MAX_CHILDREN) {
             while (t.getAttribute('cliqz-adb-blocked') === 'parent') {
               t.setAttribute('cliqz-adb-blocked', undefined);
               t = t.parentNode;
