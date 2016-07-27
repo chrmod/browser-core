@@ -21,7 +21,8 @@ function observeRequest(requestDetails){
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
       console.log(requestDetails.requestHeaders[i].name);
       if (requestDetails.requestHeaders[i].name === 'Referer') {
-           console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
+           // console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
+           CliqzHumanWeb.linkCache[requestDetails.url] = {'s': ''+requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter};
            break;
       }
     }
@@ -34,16 +35,19 @@ function observeResponse(requestDetails){
     for (var i = 0; i < requestDetails.responseHeaders.length; ++i) {
       console.log("Resp: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
     }
-    console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
+    CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter}
 }
 
 function observeRedirect(requestDetails){
     // console.log("Headers rcvd");
     // console.log(requestDetails);
     for (var i = 0; i < requestDetails.responseHeaders.length; ++i) {
-      console.log("Redirect: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
+      // console.log("Redirect: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
+      if (requestDetails.responseHeaders[i].name === 'Location') {
+        CliqzHumanWeb.httpCache[requestDetails.url] = {'status': 301, 'time': CliqzHumanWeb.counter, 'location': requestDetails.responseHeaders[i].value};
+      }
     }
-    console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
+    // console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
 }
 
 chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
@@ -151,7 +155,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 chrome.browserAction.onClicked.addListener(function(tab) {
 
     console.log('you press the Q');
-    chrome.tabs.executeScript(null, {file: "content.js"});
+    chrome.tabs.executeScript(null, {file: "content.js", run_at:"document_end"});
     //var bkg = chrome.extension.getBackgroundPage();
     //bkg.console.log('hello');
 
