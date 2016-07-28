@@ -131,16 +131,6 @@ CLIQZEnvironment = {
       }
     }
   },
-  renderResults: function(r) {
-
-    CLIQZEnvironment.currentPage = 0;
-    CLIQZEnvironment.vp && CLIQZEnvironment.vp.goToIndex(CLIQZEnvironment.currentPage);
-    var renderedResults = CLIQZ.UI.results(r);
-
-    CLIQZ.UI.stopProgressBar();
-
-    return renderedResults;
-  },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   putHistoryFirst: function(r) {
     var history = [], backend = [];
@@ -164,20 +154,19 @@ CLIQZEnvironment = {
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT);
 
-    renderedResults = CLIQZEnvironment.renderResults(r);
+    const renderedResults = CLIQZ.UI.renderResults(r);
 
-    CLIQZEnvironment.lastResults = renderedResults.results;
-
-    renderedResults.results[0] && CLIQZEnvironment.autoComplete(renderedResults.results[0].url, r._searchString);
+    renderedResults[0] && CLIQZEnvironment.autoComplete(renderedResults[0].url, r._searchString);
   },
   search: function(e, location_enabled, latitude, longitude) {
     if(!e || e === '') {
+      // should be moved to UI except 'CLIQZEnvironment.initHomepage(true);'
       CLIQZEnvironment.lastSearch = '';
       CLIQZ.UI.hideResultsBox();
       window.document.getElementById('startingpoint').style.display = 'block';
       CLIQZEnvironment.initHomepage(true);
       CLIQZ.UI.stopProgressBar();
-      CLIQZEnvironment.lastResults = null;
+      CLIQZ.UI.lastResults = null;
       return;
     }
 

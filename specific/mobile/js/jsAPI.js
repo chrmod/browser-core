@@ -4,8 +4,8 @@ var jsAPI = {
   },
   getCardUrl: function() {
     var NOT_SHAREABLE_SIGNAL = '-1';
-    if(CliqzUtils.lastResults && CliqzUtils.lastResults[CliqzUtils.currentPage]) {
-      osAPI.shareCard(CliqzUtils.lastResults[CliqzUtils.currentPage].url || NOT_SHAREABLE_SIGNAL);
+    if(CLIQZ.UI.lastResults && CLIQZ.UI.lastResults[CLIQZ.UI.currentPage]) {
+      osAPI.shareCard(CLIQZ.UI.lastResults[CLIQZ.UI.currentPage].url || NOT_SHAREABLE_SIGNAL);
     } else {
       osAPI.shareCard(NOT_SHAREABLE_SIGNAL);
     }

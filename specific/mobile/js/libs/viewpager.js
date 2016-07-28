@@ -418,7 +418,6 @@ function GestureDetector(elem, options) {
 
     onUp: function onUp(e) {
       window.scrollTo(0,window.scrollY);
-      ViewPager.goToIndex(CliqzUtils.currentPage,200);
       if (!dragging) { return; }
       var p = getPoint(e);
       var dragData = getDragData(p);

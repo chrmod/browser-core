@@ -83,10 +83,6 @@ var CliqzUtils = {
   RERANKERS: CLIQZEnvironment.RERANKERS,
   MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
 
-  currentPage: CLIQZEnvironment.currentPage,
-  lastResults: CLIQZEnvironment.lastResults,
-  vp: CLIQZEnvironment.vp,
-
   init: function(options){
     options = options || {};
 

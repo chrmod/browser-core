@@ -19,6 +19,7 @@ import v9 from 'mobile-ui/views/weatherEZ';
 import v10 from 'mobile-ui/views/liveTicker';
 
 var resultsBox = null,
+    viewPager = null,
     currentResults = null,
     imgLoader = null,
     progressBarInterval = null,
@@ -29,6 +30,8 @@ var resultsBox = null,
     FRAME = 'frame';
 
 var UI = {
+    currentPage: 0,
+    lastResults: null,
     CARD_WIDTH: 0,
     nCardsPerPage: 1,
     nPages: 1,
@@ -39,16 +42,32 @@ var UI = {
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
         resultsBox = document.getElementById('cliqz-results', box);
+        
+        viewPager = UI.initViewpager();
+        
         resultsBox.addEventListener('click', resultClick);
     },
     setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
       UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
+    renderResults: function(r) {
+
+      const renderedResults = UI.results(r);
+
+      UI.lastResults = renderedResults;
+
+      CLIQZ.UI.stopProgressBar();
+
+      return renderedResults;
+    },
     results: function (r) {
 
-      setMobileBasedUrls(r);
+      UI.currentPage = 0;
+      viewPager.goToIndex(UI.currentPage);
 
+      setMobileBasedUrls(r);
+      
       setCardCountPerPage(window.innerWidth);
 
       UI.setDimensions();
@@ -95,7 +114,7 @@ var UI = {
 
         setResultNavigation(currentResults.results);
 
-        return currentResults;
+        return currentResults.results;
     },
     VIEWS: {},
     initViewpager: function () {
@@ -103,8 +122,6 @@ var UI = {
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
             offset = 0;
-
-        crossTransform(resultsBox, Math.min((offset * innerWidth), (innerWidth * currentResultsCount)));
 
         return new ViewPager(resultsBox, {
           dragSize: window.innerWidth,
@@ -119,7 +136,8 @@ var UI = {
 
           onPageChange : function (page) {
             page = Math.abs(page);
-            if (page === CliqzUtils.currentPage || !UI.isSearch()) return;
+
+            if (page === UI.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
 
@@ -127,17 +145,16 @@ var UI = {
             CliqzUtils.telemetry({
               type: 'activity',
               action: 'swipe',
-              swipe_direction:
-                page > CliqzUtils.currentPage ? 'right' : 'left',
+              swipe_direction: page > UI.currentPage ? 'right' : 'left',
               current_position: page,
               views: views[page],
-              prev_position: CliqzUtils.currentPage,
+              prev_position: UI.currentPage,
               prev_display_time: Date.now() - pageShowTs
             });
 
             pageShowTs = Date.now();
 
-            CliqzUtils.currentPage = page;
+            UI.currentPage = page;
           }
         });
     },
@@ -382,7 +399,7 @@ function resultClick(ev) {
 
         if (url && url !== '#') {
 
-            var card = document.getElementsByClassName('card')[CliqzUtils.currentPage];
+            var card = document.getElementsByClassName('card')[UI.currentPage];
             var cardPosition = card.getBoundingClientRect();
             var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
 
@@ -420,10 +437,10 @@ function shiftResults() {
     var left = frames[i].style.left.substring(0, frames[i].style.left.length - 1);
     left = parseInt(left);
     left -= (left / (i + 1));
-    CliqzUtils.lastResults[i] && (CliqzUtils.lastResults[i].left = left);
+    UI.lastResults[i] && (UI.lastResults[i].left = left);
     frames[i].style.left = left + 'px';
   }
-  setResultNavigation(CliqzUtils.lastResults);
+  setResultNavigation(UI.lastResults);
 }
 
 
@@ -444,10 +461,6 @@ function setResultNavigation(results) {
 
   // get number of pages according to number of cards per page
   UI.nPages = Math.ceil(currentResultsCount / UI.nCardsPerPage);
-
-  if (!CliqzUtils.vp) {
-    CliqzUtils.vp = UI.initViewpager();
-  }
 
   if (document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
@@ -479,13 +492,13 @@ window.addEventListener('resize', function () {
     for (let i = 0; i < frames.length; i++) {
       let left = UI.CARD_WIDTH * i;
       frames[i].style.left = left + 'px';
-      CliqzUtils.lastResults[i] && (CliqzUtils.lastResults[i].left = left);
+      UI.lastResults[i] && (UI.lastResults[i].left = left);
       frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
-    CliqzUtils.vp.goToIndex(CliqzUtils.currentPage, 0);
-    setResultNavigation(CliqzUtils.lastResults);
-    CliqzUtils.currentPage = Math.floor(CliqzUtils.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
-    }, 200);
+    setResultNavigation(UI.lastResults);
+    UI.currentPage = Math.floor(UI.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
+    viewPager.goToIndex(UI.currentPage, 0);
+  }, 200);
 
 });
 
