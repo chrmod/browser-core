@@ -19,7 +19,7 @@ export default Ember.Component.extend({
   reset: function () {
     this.set('error', false);
     this.set("newSpeedDial", '');
-  }.on('didInserElement'),
+  }.on('didInsertElement'),
 
   actions: {
     save() {
