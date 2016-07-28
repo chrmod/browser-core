@@ -1,4 +1,4 @@
-node('jenkins-slave-gp-gpu') {
+node('ubuntu && docker && gpu') {
   timeout(time: 20, unit: 'MINUTES') {
     stage 'checkout'
     checkout scm
