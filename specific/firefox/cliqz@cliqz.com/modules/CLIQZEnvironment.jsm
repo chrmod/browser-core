@@ -81,7 +81,8 @@ var CLIQZEnvironment = {
       'conversations_future': 1,
       'topnews': 1,
       '_generic': 1,
-      '_history': 1
+      '_history': 1,
+      'liveTicker': 3
     },
     MESSAGE_TEMPLATES: [
       'footer-message',

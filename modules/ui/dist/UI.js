@@ -2130,6 +2130,7 @@ Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES)
   } catch (ex) {
     ctx.console.error(ex);
   }
+
 });
 
 ctx.CLIQZ.UI = UI;
