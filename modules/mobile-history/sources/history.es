@@ -2,6 +2,7 @@
 /* global document, CliqzUtils, CliqzHandlebars, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
+import CliqzHandlebars from "core/templates";
 
 var historyTimer;
 var editMode = false, showOnlyFavorite = false;

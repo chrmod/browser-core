@@ -1,24 +1,7 @@
-'use strict';
-
-var EXPORTED_SYMBOLS = ['CliqzMsgCenter'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandler',
-  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerAlert',
-  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerAlert.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgHandlerDropdown',
-  'chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandlerDropdown.jsm');
-
+import CliqzUtils from "core/utils";
+import CliqzEvents from "core/events";
+import CliqzMsgHandlerAlert from "message-center/handlers/alert";
+import CliqzMsgHandlerDropdown from "message-center/handlers/dropdown";
 
 /* ************************************************************************* */
 function _log(msg) {
@@ -77,3 +60,5 @@ CliqzMsgCenter.getInstance = function () {
   return CliqzMsgCenter.getInstance.instance;
 };
 CliqzMsgCenter.getInstance();
+
+export default CliqzMsgCenter;

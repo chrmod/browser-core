@@ -1,10 +1,10 @@
+import CliqzUtils from "core/utils";
+import CliqzABTests from "core/ab-tests";
 const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu, manager: Cm } =
     Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var CLIQZ_NEW_TAB = "about:cliqz",
     CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/fresh-tab-frontend/index.html",

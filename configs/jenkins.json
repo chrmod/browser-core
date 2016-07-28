@@ -14,6 +14,7 @@
     "static",
     "core",
     "autocomplete",
+    "geolocation",
     "ui",
     "context-menu",
     "freshtab",
@@ -28,7 +29,9 @@
     "privacy-dashboard",
     "performance",
     "hpn",
-    "adblocker"
+    "adblocker",
+    "campaign-manager",
+    "message-center"
   ],
   "subprojects": [
     "fresh-tab-frontend"

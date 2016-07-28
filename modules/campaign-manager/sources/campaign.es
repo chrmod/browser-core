@@ -1,14 +1,5 @@
-'use strict';
-
-var EXPORTED_SYMBOLS = ['CliqzCampaign'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+import CliqzUtils from "core/utils";
+import CliqzEvents from "core/events";
 
 function CliqzCampaign(id, data) {
   this.PREF_PREFIX = 'msgs.';
@@ -65,3 +56,5 @@ CliqzCampaign.prototype = {
     CliqzUtils.log(msg, 'CliqzCampaign');
   }
 };
+
+export default CliqzCampaign;

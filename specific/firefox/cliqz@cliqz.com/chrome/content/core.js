@@ -10,8 +10,10 @@
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+var global = {};
+Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm', global);
+var CliqzUtils = global.CLIQZ.CliqzUtils;
+var CliqzEvents = global.CLIQZ.CliqzEvents;
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
@@ -22,17 +24,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzDemo',
   'chrome://cliqzmodules/content/CliqzDemo.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
-  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
   'chrome://cliqzmodules/content/CliqzRedirect.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
@@ -132,8 +128,6 @@ window.CLIQZ.Core = {
               this.propagateEvents("core:page_load", window.gBrowser, "load", true);
               this.propagateEvents("core:tab_select", window.gBrowser.tabContainer, "TabSelect");
           }
-
-          CliqzUtils.updateGeoLocation();
 
           // make sure the Qbutton popup is clean
           var menupopup = document.getElementById('cliqz-button').children.cliqz_menupopup;
@@ -252,7 +246,6 @@ window.CLIQZ.Core = {
             delete window.CliqzDemo;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
-            delete window.CliqzHandlebars;
             delete window.CliqzEvents;
         }
     },
@@ -376,7 +369,6 @@ window.CLIQZ.Core = {
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         menupopup.appendChild(this.createAdultFilterOptions(doc));
-        menupopup.appendChild(this.createLocationPermOptions(win));
 
         this.windowModules.forEach(function (mod) {
           var buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
@@ -429,56 +421,6 @@ window.CLIQZ.Core = {
         };
         menu.appendChild(menupopup);
         return menu;
-    },
-
-    createLocationPermOptions: function(win) {
-      var doc = win.document,
-          menu = doc.createElement('menu'),
-          menupopup = doc.createElement('menupopup');
-
-      menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
-
-      var filter_levels = this.getLocationPermState();
-
-      for(var level in filter_levels) {
-        var item = doc.createElement('menuitem');
-        item.setAttribute('label', filter_levels[level].name);
-        item.setAttribute('class', 'menuitem-iconic');
-
-
-        if(filter_levels[level].selected){
-          item.style.listStyleImage = 'url(' + CliqzUtils.SKIN_PATH + 'checkmark.png)';
-
-        }
-
-        item.filter_level = new String(level);
-        item.addEventListener('command', function(event) {
-            CliqzUtils.setLocationPermission(window, this.filter_level.toString());
-            CliqzUtils.telemetry({
-              type: 'activity',
-              action: 'cliqz_menu_button',
-              button_name: 'location_change_' + this.filter_level
-            });
-        }, false);
-
-        menupopup.appendChild(item);
-      };
-
-      var learnMore = this.createSimpleBtn(
-          doc,
-          CliqzUtils.getLocalizedString('learnMore'),
-          function(){
-            var lang = CliqzUtils.getLanguage(win) == 'de' ? '' : 'en/';
-            CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + 'privacy');
-          },
-          'location_learn_more'
-      );
-      learnMore.setAttribute('class', 'menuitem-iconic');
-      menupopup.appendChild(doc.createElement('menuseparator'));
-      menupopup.appendChild(learnMore);
-
-      menu.appendChild(menupopup);
-      return menu;
     },
 
     createSimpleBtn: function(doc, txt, func, action){
@@ -555,26 +497,6 @@ window.CLIQZ.Core = {
         });
       }).bind(this));
       return button;
-    },
-    getLocationPermState: function(){
-        var data = {
-          'yes': {
-                  name: CliqzUtils.getLocalizedString('always'),
-                  selected: false
-          },
-          'ask': {
-                  name: CliqzUtils.getLocalizedString('always_ask'),
-                  selected: false
-          },
-          'no': {
-              name: CliqzUtils.getLocalizedString('never'),
-              selected: false
-          }
-        };
-
-        data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
-
-        return data;
     },
     /** Adds a listener to eventTarget for events of type eventType, and republishes them
      *  through CliqzEvents with id eventPubName.

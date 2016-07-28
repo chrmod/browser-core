@@ -1,6 +1,7 @@
 /* global CustomEvent, window, document, CliqzLanguage, CliqzUtils, CliqzHandlebars, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
+import CliqzHandlebars from "core/templates";
 
 var DEPENDENCY_STATUS = {
   NOT_LOADED: 'NOT_LOADED',

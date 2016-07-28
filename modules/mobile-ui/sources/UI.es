@@ -1,4 +1,3 @@
-'use strict';
 /*
  * This is the module which creates the UI for the results
  *   - uses handlebars templates
@@ -6,6 +5,7 @@
  */
 
 import DelayedImageLoader from 'mobile-ui/DelayedImageLoader';
+import CliqzHandlebars from "core/templates";
 
 //TODO: improve loading of these views!
 import v1 from 'mobile-ui/views/currency';
@@ -42,9 +42,9 @@ var UI = {
         box.innerHTML = CliqzHandlebars.tplCache.main();
 
         resultsBox = document.getElementById('cliqz-results', box);
-        
+
         viewPager = UI.initViewpager();
-        
+
         resultsBox.addEventListener('click', resultClick);
     },
     setDimensions: function () {
@@ -67,7 +67,7 @@ var UI = {
       viewPager.goToIndex(UI.currentPage);
 
       setMobileBasedUrls(r);
-      
+
       setCardCountPerPage(window.innerWidth);
 
       UI.setDimensions();

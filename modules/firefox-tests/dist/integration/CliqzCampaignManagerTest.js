@@ -1,5 +1,7 @@
 'use strict';
 
+
+DEPS.CliqzCampaignManagerTestItegration = ["core/utils", "message-center/message-center", "campaign-manager/campaign-manager"];
 TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter, CliqzCampaignManager) {
 	describe('integration CliqzCampaignManager' , function() {
     this.retries(1);

@@ -1,32 +1,6 @@
-//TEMP
-CliqzLanguage = {
-  stateToQueryString: function(){ return '&lang=de,en'; }
-}
-XPCOMUtils = {
-  defineLazyModuleGetter: function(){},
-  generateQI: function(){},
-}
-
-Services = {
-  scriptloader: {
-    loadSubScript: function(){}
-  }
-}
-
-Components = {
-  interfaces: {
-    nsIAutoCompleteResult: {}
-  },
-  utils: {
-    import: function(){}
-  },
-  ID: function(){}
-}
-
 //TODO: get rid of me!
 var lastSucceededUrl;
 var latestUrl;
-////
 
 // END TEMP
 const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
@@ -64,7 +38,7 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "liveTicker": true
 }));
 
-CLIQZEnvironment = {
+var CLIQZEnvironment = {
   BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'mobile-ui/templates/',
   LOCALE_PATH: 'static/locale/',
@@ -214,7 +188,7 @@ CLIQZEnvironment = {
     return host.split('.').splice(-1)[0];
   },
   getLocalStorage: function(url) {
-    return CLIQZ.CliqzStorage;
+    return CLIQZEnvironment.storage;
   },
   OS: 'mobile',
   isPrivate: function(){ return false; },
@@ -443,3 +417,5 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
   }
 };
+
+export default CLIQZEnvironment;

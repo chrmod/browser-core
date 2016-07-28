@@ -1,27 +1,5 @@
-'use strict';
-/*
- * This module has a list of helpers used across the extension
- *  HTTP handlers
- *  URL manipulators
- *  Localization mechanics
- *  Common logging pipe
- *  Preferences(persistent storage) wrappers
- *  Browser helpers
- *  ...
- */
-Components.utils.import('resource://gre/modules/Services.jsm');
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRequestMonitor',
-  'chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
-
-var EXPORTED_SYMBOLS = ['CliqzUtils'];
+import CLIQZEnvironment from "platform/environment";
+//import { language as CliqzLanguage } from "core/cliqz";
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -51,10 +29,10 @@ var CliqzUtils = {
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
-  LOG:                            'https://logging.cliqz.com',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   FEEDBACK:                       'https://cliqz.com/support',
+  SYSTEM_BASE_URL:                CLIQZEnvironment.SYSTEM_BASE_URL,
   PREFERRED_LANGUAGE:             null,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
@@ -77,9 +55,6 @@ var CliqzUtils = {
   PARTIALS: CLIQZEnvironment.PARTIALS,
   SKIN_PATH: CLIQZEnvironment.SKIN_PATH,
   LOCALE_PATH: CLIQZEnvironment.LOCALE_PATH,
-  USER_LNG: CLIQZEnvironment.USER_LNG,
-  USER_LAT: CLIQZEnvironment.USER_LAT,
-  SHARE_LOCATION_ONCE: CLIQZEnvironment.SHARE_LOCATION_ONCE,
   RERANKERS: CLIQZEnvironment.RERANKERS,
   MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
 
@@ -89,6 +64,18 @@ var CliqzUtils = {
     if (!options.lang) {
       return Promise.reject("lang missing");
     }
+
+    CliqzUtils.importModule('core/gzip').then(function(gzip) {
+      CLIQZEnvironment.gzip = gzip;
+    }).catch(function () {
+      //no gzip, do nothing
+    });
+
+    // cutting cyclic dependency
+    CLIQZEnvironment.getLogoDetails = CliqzUtils.getLogoDetails.bind(CliqzUtils);
+    CLIQZEnvironment.getDetailsFromUrl = CliqzUtils.getDetailsFromUrl.bind(CliqzUtils);
+    CLIQZEnvironment.getLocalizedString = CliqzUtils.getLocalizedString.bind(CliqzUtils);
+    CLIQZEnvironment.SKIN_PATH = CliqzUtils.SKIN_PATH;
 
     if(!brand_loaded){
       brand_loaded = true;
@@ -113,7 +100,6 @@ var CliqzUtils = {
       })(CLIQZEnvironment.getBrandsDBUrl(this.BRANDS_DATABASE_VERSION));
     }
 
-    CliqzUtils.requestMonitor = new CliqzRequestMonitor();
     CliqzUtils.log('Initialized', 'CliqzUtils');
 
     CliqzUtils.setLang(options.lang);
@@ -131,6 +117,12 @@ var CliqzUtils = {
 
   importModule: function(moduleName) {
     return CliqzUtils.System.import(moduleName)
+  },
+
+  callAction(moduleName, actionName, args) {
+    var module = CliqzUtils.System.get(moduleName+"/background");
+    var action = module.default.actions[actionName];
+    return action.apply(null, args);
   },
 
   isNumber: function(n){
@@ -241,9 +233,6 @@ var CliqzUtils = {
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
-  },
-  promiseHttpHandler: function() {
-    return CLIQZEnvironment.promiseHttpHandler.apply(CLIQZEnvironment, arguments);
   },
   getLocalStorage: CLIQZEnvironment.getLocalStorage,
   /**
@@ -666,9 +655,6 @@ var CliqzUtils = {
     var req = CliqzUtils.httpGet(url, function (res) {
       callback && callback(res, q);
     });
-
-    // Currently when HPN is live, this guy breaks.
-    if(req) CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -779,12 +765,12 @@ var CliqzUtils = {
      CliqzUtils.getPref('share_location','ask')
     ].join('')
 
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
+    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG || lat && lng) {
       qs += [
         '&loc=',
-        lat || CLIQZEnvironment.USER_LAT,
+        lat || CliqzUtils.USER_LAT,
         ',',
-        lng || CLIQZEnvironment.USER_LNG,
+        lng || CliqzUtils.USER_LNG,
         (specifySource ? ',U' : '')
       ].join('');
     }
@@ -877,7 +863,6 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
-  getUserLanguages: CLIQZEnvironment.getUserLanguages,
   getLocalizedString: function(key, substitutions){
     if(!key) return '';
 
@@ -1036,12 +1021,8 @@ var CliqzUtils = {
   getDefaultSearchEngine: CLIQZEnvironment.getDefaultSearchEngine,
   copyResult: CLIQZEnvironment.copyResult,
   openLink: CLIQZEnvironment.openLink,
-  createContextMenu: CLIQZEnvironment.createContextMenu,
   openPopup: CLIQZEnvironment.openPopup,
   isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
-  setLocationPermission: CLIQZEnvironment.setLocationPermission,
-  getGeo: CLIQZEnvironment.getGeo,
-  updateGeoLocation: CLIQZEnvironment.updateGeoLocation,
   getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,
   isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser,
   initHomepage: CLIQZEnvironment.initHomepage,
@@ -1053,5 +1034,12 @@ var CliqzUtils = {
   getEngineByAlias: CLIQZEnvironment.getEngineByAlias,
   getSearchEngines: CLIQZEnvironment.getSearchEngines,
   updateAlias: CLIQZEnvironment.updateAlias,
-  openLink: CLIQZEnvironment.openLink
+  openLink: CLIQZEnvironment.openLink,
+  promiseHttpHandler: CLIQZEnvironment.promiseHttpHandler,
+  registerResultProvider: function (o) {
+    CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;
+    CLIQZEnvironment.Result = o.Result;
+  },
 };
+
+export default CliqzUtils;

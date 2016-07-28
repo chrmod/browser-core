@@ -2,7 +2,8 @@
 
 var expect = chai.expect;
 
-TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage) {
+DEPS.CliqzUtilsTest = ["core/utils"];
+TESTS.CliqzUtilsTest = function (CliqzUtils) {
   describe('CliqzUtils', function(){
 
     it('RESULTS_PROVIDER should be set to the right mixer endpoint', function(){
@@ -140,34 +141,6 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor, CliqzLanguage)
         chai.expect(locale).to.be.ok;
         chai.expect(locale.TEST).to.equal('OK');
       });
-    });
-
-    describe("getCliqzResults", function () {
-      var mockReq,
-          mockHttpGet = function () { return mockReq; },
-          httpGet, requestMonitor;
-
-      beforeEach(function () {
-        mockReq = { timestamp: new Date() };
-        httpGet = CliqzUtils.httpGet;
-        CliqzUtils.httpGet = mockHttpGet;
-        requestMonitor = CliqzUtils.requestMonitor;
-        CliqzUtils.requestMonitor = {};
-      });
-
-      afterEach(function () {
-        CliqzUtils.httpGet = httpGet;
-        CliqzUtils.requestMonitor = requestMonitor;
-      });
-
-      it("calls requestMonitor.addRequest", function (done) {
-        CliqzUtils.requestMonitor.addRequest = function (req) {
-          expect(req).to.equal(mockReq);
-          done();
-        };
-        CliqzUtils.getCliqzResults("mozilla", function () {});
-      });
-
     });
 
     describe("httpHandler", function () {

@@ -1,13 +1,13 @@
-'use strict';
-
 /*
     handlebars wrapper which adds all the needed helpers
 */
 
-var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
-Components.utils.import("resource://gre/modules/Services.jsm");
-Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
-Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+import CliqzUtils from "core/utils";
+import { isFirefox } from "core/platform";
+
+if (isFirefox) {
+  Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
+}
 
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
@@ -480,3 +480,5 @@ function registerHelpers(){
         return "#" + logoDetails.backgroundColor;
     });
 }
+
+export default CliqzHandlebars;

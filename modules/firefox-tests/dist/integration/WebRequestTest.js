@@ -3,6 +3,7 @@ function helloWorld(request, response) {
   response.write('<html><body><p>Hello world</p></body></html');
 }
 
+DEPS.WebRequestTest = ["core/utils"];
 TESTS.WebRequestTest = function(CliqzUtils) {
   var System = CliqzUtils.getWindow().CLIQZ.System,
       webrequest = System.get('core/webrequest').default;

@@ -16,6 +16,7 @@
     "static",
     "core",
     "autocomplete",
+    "geolocation",
     "ui",
     "human-web",
     "anti-phishing",

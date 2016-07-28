@@ -85,8 +85,11 @@ export default {
       // glueing stuff
       autocomplete.spellCheck = SpellCheck;
       utils.autocomplete = autocomplete;
-      utils.Result = Result;
-      utils.CliqzResultProviders = ResultProviders;
+
+      utils.registerResultProvider({
+        ResultProviders,
+        Result
+      });
     });
   },
 

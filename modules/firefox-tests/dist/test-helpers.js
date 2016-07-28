@@ -16,7 +16,6 @@ function injectTestHelpers(CliqzUtils) {
     });
 
     function check() {
-      CliqzUtils.log("!!", fn());
       if(fn()) {
         clearInterval(interval);
         resolver();

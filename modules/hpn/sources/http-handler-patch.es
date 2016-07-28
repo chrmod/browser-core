@@ -1,6 +1,7 @@
 import messageContext from "hpn/message-context";
 import JsonFormatter, { createHttpUrl, getRouteHash } from "hpn/utils";
 import CliqzSecureMessage from 'hpn/main';
+import utils from "core/utils";
 
 
 export function overRideCliqzResults(){

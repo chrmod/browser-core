@@ -1,5 +1,6 @@
 "use strict";
 
+DEPS.WebRequestPageTest = ["core/utils"];
 TESTS.WebRequestPageTest = function(CliqzUtils) {
   var System = CliqzUtils.getWindow().CLIQZ.System,
       webrequest = System.get('core/webrequest').default;

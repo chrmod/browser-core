@@ -8,6 +8,7 @@
 function load(ctx) {
 
 var CliqzAutocomplete;
+var CliqzHandlebars;
 
 function isValidURL(str) {
   var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
@@ -57,8 +58,11 @@ var UI = {
     DROPDOWN_HEIGHT: 349,
     popupClosed: true,
     VIEWS: Object.create(null),
-    init: function(_urlbar, autocomplete) {
+    preinit: function (autocomplete, handlebars) {
         CliqzAutocomplete = autocomplete;
+        CliqzHandlebars = handlebars;
+    },
+    init: function(_urlbar) {
         urlbar = _urlbar
         if(!urlbar.mInputField) urlbar.mInputField = urlbar; //not FF
 
@@ -78,6 +82,7 @@ var UI = {
           // hide immediately
           clearMessage(message["footer-message"].location);
         });
+        loadViews();
     },
     unload: function(){
         for(var i in urlbarEvents){
@@ -1203,21 +1208,7 @@ function enhanceResults(res){
     } else if (CLIQZ.UI.messageCenterMessage) {
       updateMessage(CLIQZ.UI.messageCenterMessage["footer-message"].location,
         CLIQZ.UI.messageCenterMessage);
-    } else if (!CliqzUtils.requestMonitor.inHealth()) {
-      var rand = getRandomForCurrentTime(4);
-
-      // Temporarily disabled while we re-evaluate the slow connection method
-      CliqzUtils.log(CliqzUtils.getLocalizedString("slow_connection_header_"+rand) + " - " +
-                     CliqzUtils.getLocalizedString("slow_connection_text_"+rand), "UI.js")
-      // updateMessage('bottom', {
-      //   slow_connection: {
-      //     header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
-      //     text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
-      //   }
-      // });
     }
-
-
 
     return res;
 }
@@ -1880,25 +1871,15 @@ function onEnter(ev, item){
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
     if(currentResults && CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
-      if(CLIQZ.config.settings.channel != "40"){
-        // it should be only for the browser
-        // get out of the AB test if its not a browser build
-        // TODO: we should make a smarter way of getting filtering AB tests users besides the session ID
-        CliqzUtils.clearPref("double-enter2");
-
-        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
-        CliqzABTests.disable("1063_B");
-      } else {
-        var r = currentResults.results;
-        if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
-          currentResults.blocked = true;
-          var signal = {
-              type: 'activity',
-              action: 'double_enter'
-          };
-          CliqzUtils.telemetry(signal);
-          return true;
-        }
+      var r = currentResults.results;
+      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+        currentResults.blocked = true;
+        var signal = {
+            type: 'activity',
+            action: 'double_enter'
+        };
+        CliqzUtils.telemetry(signal);
+        return true;
       }
     }
 
@@ -2114,24 +2095,29 @@ function handleMouseDown(e) {
 
 
 UI.clickHandlers = {};
-Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
-  UI.VIEWS[templateName] = Object.create(null);
-  try {
-    var module = CLIQZ.System.get("ui/views/"+templateName);
-    if (module) {
-      UI.VIEWS[templateName] = new module.default(ctx);
+function loadViews() {
+  Object.keys(CliqzHandlebars.TEMPLATES)
+    .concat(CliqzHandlebars.MESSAGE_TEMPLATES)
+    .concat(CliqzHandlebars.PARTIALS)
+    .forEach(function (templateName) {
+      UI.VIEWS[templateName] = Object.create(null);
+      try {
+        var module = CLIQZ.System.get("ui/views/"+templateName);
+        if (module) {
+          UI.VIEWS[templateName] = new module.default(ctx);
 
-      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
-        Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
-          UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
-        });
+          if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+            Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+              UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+            });
+          }
+        }
+      } catch (ex) {
+        ctx.console.error(ex);
       }
-    }
-  } catch (ex) {
-    ctx.console.error(ex);
-  }
 
-});
+    });
+}
 
 ctx.CLIQZ.UI = UI;
 

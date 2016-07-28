@@ -1,8 +1,48 @@
-//CliqzAutocomplete.CliqzResults.prototype.pushTimeoutCallback = function() {}
+window.CliqzLanguage = {
+  stateToQueryString: function(){ return '&lang=de,en'; }
+};
 
-CliqzUtils.initPlatform(System);
+window.XPCOMUtils = {
+  defineLazyModuleGetter: function(){},
+  generateQI: function(){},
+};
 
-System.import("core/startup").then(function (startupModule) {
+window.Services = {
+  scriptloader: {
+    loadSubScript: function(){}
+  }
+};
+
+window.Components = {
+  interfaces: {
+    nsIAutoCompleteResult: {}
+  },
+  utils: {
+    import: function(){}
+  },
+  ID: function(){}
+};
+
+window.CLIQZ = {};
+
+Promise.all([
+  System.import("platform/environment"),
+  System.import("core/utils"),
+  System.import("core/storage"),
+  System.import("core/templates"),
+]).then(function (modules) {
+  var environment = modules[0].default;
+  var utils = modules[1].default;
+  var Storage = modules[2].default;
+  var handlebars = modules[3].default;
+  environment.storage = new Storage();
+  window.CLIQZEnvironment = environment;
+  window.CliqzUtils = utils;
+  window.CliqzHandlebars = handlebars;
+  utils.initPlatform(System);
+}).then(function () {
+  return System.import("core/startup");
+}).then(function (startupModule) {
   return startupModule.default(window, [
     "autocomplete",
     "mobile-ui",

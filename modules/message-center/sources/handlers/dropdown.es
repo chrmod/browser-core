@@ -1,15 +1,6 @@
-'use strict';
-
-var EXPORTED_SYMBOLS = ['CliqzMsgHandlerDropdown'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+import CliqzUtils from "core/utils";
+import CliqzEvents from "core/events";
+import CliqzMsgHandler from "message-center/handlers/base";
 
 function CliqzMsgHandlerDropdown() {
   CliqzMsgHandler.call(this);
@@ -54,3 +45,4 @@ CliqzMsgHandlerDropdown.prototype._onClick = function (action) {
   }
 };
 
+export default CliqzMsgHandlerDropdown;

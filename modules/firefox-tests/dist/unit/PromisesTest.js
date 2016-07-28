@@ -15,6 +15,7 @@ function keysOf(object) {
   return results;
 }
 
+DEPS.PromiseTest = ["core/utils"];
 TESTS.PromiseTest = function(CliqzUtils) {
 
   var System = CliqzUtils.getWindow().CLIQZ.System,

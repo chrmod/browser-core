@@ -3,20 +3,11 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
-
-function getFunctionArguments(fn) {
-  var args = fn.toString ().match (/^\s*function\s+(?:\w*\s*)?\((.*?)\)/);
-  return args ? (args[1] ? args[1].trim ().split (/\s*,\s*/) : []) : [];
-}
+Cu.import('chrome://cliqzmodules/content/CLIQZ.jsm');
 
 function loadModule(moduleName) {
-  var MODULES = {};
-  XPCOMUtils.defineLazyModuleGetter(
-    MODULES,
-    moduleName,
-    'chrome://cliqzmodules/content/'+moduleName+'.jsm'
-  );
-  return MODULES[moduleName];
+  console.log(moduleName)
+  return CLIQZ.System.get(moduleName).default;
 }
 
 function getBrowserVersion() {
@@ -56,7 +47,7 @@ function writeToFile(testData) {
 }
 
 var runner;
-var CliqzUtils = loadModule("CliqzUtils"),
+var CliqzUtils = loadModule("core/utils"),
     chrome = CliqzUtils.getWindow(),
     telemetry,
     getCliqzResults,
@@ -85,7 +76,7 @@ initHttpServer();
 // Load Tests and inject their dependencies
 Object.keys(window.TESTS).forEach(function (testName) {
   var testFunction = TESTS[testName],
-      moduleNames = getFunctionArguments(testFunction),
+      moduleNames = DEPS[testName],
       modules = moduleNames.map(loadModule);
 
   if ('MIN_BROWSER_VERSION' in testFunction && browserMajorVersion < testFunction.MIN_BROWSER_VERSION) {

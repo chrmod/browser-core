@@ -1,12 +1,5 @@
-'use strict';
-
-var EXPORTED_SYMBOLS = ['CliqzMsgHandlerAlert'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzMsgHandlers/CliqzMsgHandler.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+import CliqzUtils from "core/utils";
+import CliqzMsgHandler from "message-center/handlers/base";
 
 var CliqzMsgHandlerAlert = function () {
   CliqzMsgHandler.call(this);
@@ -23,3 +16,5 @@ CliqzMsgHandlerAlert.prototype._renderMessage = function (message) {
     this.showNextMessage();
   };
   CliqzMsgHandlerAlert.prototype._hideMessage = function () { };
+
+export default CliqzMsgHandlerAlert;

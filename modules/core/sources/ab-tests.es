@@ -1,15 +1,10 @@
-'use strict';
 /*
  * This module implements a mechanism which enables/disables AB tests
  *
  */
 
-var EXPORTED_SYMBOLS = ['CliqzABTests'];
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+import CliqzUtils from "core/utils";
 
 var timer=null, ONE_HOUR = 60 * 60 * 1000;
 
@@ -23,10 +18,6 @@ var CliqzABTests = {
     URL: 'https://logging.cliqz.com/abtests/check?session=',
     init: function(){
         CliqzABTests.check();
-
-    },
-    unload: function(){
-        CliqzUtils.clearTimeout(timer);
     },
     // Accessors to list of tests this user is current in
     getCurrent: function() {
@@ -468,3 +459,5 @@ var CliqzABTests = {
         }
     },
 }
+
+export default CliqzABTests;

@@ -1,8 +1,4 @@
-'use strict';
-
-var EXPORTED_SYMBOLS = ['CliqzMsgHandler'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+import CliqzUtils from "core/utils";
 
 function CliqzMsgHandler () {
   this._messageQueue = [];
@@ -48,3 +44,5 @@ CliqzMsgHandler.prototype = {
     throw '_hideMessage not implemented';
   }
 };
+
+export default CliqzMsgHandler;

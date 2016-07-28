@@ -1,8 +1,7 @@
 import { utils } from 'core/cliqz';
 import { loadFileFromChrome } from 'offers/utils';
 import LoggingHandler from 'offers/logging_handler';
-
-Components.utils.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+import CliqzHandlebars from 'core/templates';
 
 
 ////////////////////////////////////////////////////////////////////////////////

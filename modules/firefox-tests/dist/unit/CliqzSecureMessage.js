@@ -1,6 +1,8 @@
 "use strict";
 
 var expect = chai.expect;
+
+DEPS.HPNTest = ["core/utils"];
 TESTS.HPNTest = function (CliqzUtils) {
 	var CliqzSecureMessage = CliqzUtils.getWindow().CLIQZ.System.get("hpn/main").default;
 	var messageContext = CliqzUtils.getWindow().CLIQZ.System.get("hpn/message-context").default;

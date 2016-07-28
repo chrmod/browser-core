@@ -1,7 +1,7 @@
 import config from "core/config";
+import CliqzUtils from "core/utils";
 
 Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
 var ONE_MINUTE = 60 * 1000,

@@ -1,5 +1,6 @@
 "use strict";
 
+DEPS.CliqzAttrackIntegrationTest = ["core/utils"];
 TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
   var System = CliqzUtils.getWindow().CLIQZ.System,
       CliqzAttrack = System.get("antitracking/attrack").default,

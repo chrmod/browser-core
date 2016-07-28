@@ -29,7 +29,11 @@ function getPlatformTree() {
   let platform = new Funnel(new WatchedDir('platforms/'+cliqzConfig.platform), {
     exclude: ['tests/**/*']
   });
-  platform = Babel(platform, Object.assign({}, babelOptions, {moduleIds: false}));
+  platform = Babel(platform, Object.assign({}, babelOptions, {
+    getModuleId(moduleId) {
+      return "platform/"+moduleId;
+    }
+  }));
   return new Funnel(platform, { destDir: "platform" });
 }
 

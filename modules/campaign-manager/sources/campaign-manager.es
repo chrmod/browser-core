@@ -1,22 +1,8 @@
-'use strict';
+import CliqzEvents from "core/events";
+import CliqzUtils from "core/utils";
+import CliqzCampaign from "campaign-manager/campaign";
+import CliqzCampaignTriggerUrlbarFocus from "campaign-manager/triggers/urlbar-focus";
 
-var EXPORTED_SYMBOLS = ['CliqzCampaignManager'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzEvents',
-  'chrome://cliqzmodules/content/CliqzEvents.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaign',
-  'chrome://cliqzmodules/content/CliqzCampaign.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCampaignTriggerUrlbarFocus',
-  'chrome://cliqzmodules/content/CliqzCampaignTriggers/CliqzCampaignTriggerUrlbarFocus.jsm');
-
-/* ************************************************************************* */
 
 function CliqzCampaignManager() {
     this._campaigns = {};
@@ -243,3 +229,5 @@ CliqzCampaignManager.getInstance = function () {
   return CliqzCampaignManager.getInstance.instance;
 };
 CliqzCampaignManager.getInstance();
+
+export default CliqzCampaignManager;

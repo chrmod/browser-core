@@ -1,4 +1,3 @@
-'use strict';
 /*
  * This method implements the publish subscribe design pattern
  *
@@ -13,12 +12,7 @@
  *    module_name describes recipient (this is more like a RPC)
  */
 
-var EXPORTED_SYMBOLS = ['CliqzEvents'];
-
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+import CliqzUtils from "core/utils";
 
 var CliqzEvents = CliqzEvents || {
   //use a javascript object to push the message ids and the callbacks
@@ -69,3 +63,5 @@ var CliqzEvents = CliqzEvents || {
     return nextId.id;
   }
 };
+
+export default CliqzEvents;

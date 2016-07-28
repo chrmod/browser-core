@@ -3,6 +3,7 @@ function key(line){
   return /\"(.*?)\"/.exec(line)[0];
 }
 
+DEPS.Validations = ["core/utils"];
 TESTS.Validations = function (CliqzUtils) {
   // translations files should have exactly the same keys on exactly the same lines
   describe('LocaleValidation_DE_EN', function(){
