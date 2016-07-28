@@ -1226,5 +1226,8 @@
     "lyrics": {
       "message": "Lyrics: "
     },
+    "control-center-txt-header": {
+      "message": "Deine Daten sind geschützt"
+    },
     "TEST": "OK"
 }
