@@ -127,7 +127,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
         console.log(" Location change>> " + tab.url);
         if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
-            chrome.tabs.executeScript(null, {file: "content.js"});
+            chrome.tabs.executeScript(tabId, {file: "content.js"});
         }
         /*
         chrome.local.storage.get('URLs', function() {
