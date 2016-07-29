@@ -149,16 +149,40 @@ chrome.webNavigation.onDOMContentLoaded.addListener(function(data) {
 
 chrome.runtime.onConnect.addListener(function(port) {
   var tab = port.sender.tab;
-  console.log(tab);
   // This will get called by the content script we execute in
   // the tab as a result of the user pressing the browser action.
   port.onMessage.addListener(function(info) {
-    console.log("Data rcvd");
-    aProgress["isLoadingDocument"] = tab.status;
-    aRequest["isChannelPrivate"] = tab.incognito;
-    aURI["spec"] = tab.url;
-    CliqzHumanWeb.contentDocument[tab.url] = info.html;
-    CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
+    if(info.type == "dom"){
+      CliqzHumanWeb.tempCurrentURL = tab.url;
+      console.log("Data rcvd");
+      aProgress["isLoadingDocument"] = tab.status;
+      aRequest["isChannelPrivate"] = tab.incognito;
+      aURI["spec"] = tab.url;
+      CliqzHumanWeb.contentDocument[tab.url] = info.html;
+      CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
+    }
+    else if(info.type == "event_listener"){
+      var ev = {};
+      ev["target"] = {"baseURI": info.baseURI};
+      if(info.targetHref){
+        ev["target"] = {"href": info.targetHref};
+      }
+      if(info.action == "keypress"){
+        CliqzHumanWeb.captureKeyPressPage(ev);
+      }
+      else if(info.action == "mousemove"){
+        CliqzHumanWeb.captureMouseMovePage(ev);
+      }
+      else if(info.action == "mousedown"){
+        CliqzHumanWeb.captureMouseClickPage(ev);
+      }
+      else if(info.action == "scroll"){
+        CliqzHumanWeb.captureScrollPage(ev);
+      }
+      else if(info.action == "copy"){
+        CliqzHumanWeb.captureCopyPage(ev);
+      }
+    }
   });
 })
 
