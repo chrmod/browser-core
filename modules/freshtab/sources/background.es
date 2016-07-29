@@ -265,29 +265,19 @@ export default {
 
       return News.getNews().then(function(news) {
         News.init();
-        var topNews = news.top_h_news || [],
-            hbNews = news.hb_news || [];
 
-        topNews = topNews.map(function(r){
-          r.title = r.short_title;
-          r.personalized = false;
-          return r;
-        });
-
-        hbNews = hbNews.map( r => {
-          r.personalized = true;
-         return r;
-        });
+        var newsList = news.newsList || [];
+        var topNewsVersion = news.topNewsVersion || 0;
 
         return {
-          version: news.top_news_version,
-          news: topNews.concat(hbNews).map( r => ({
-            title: r.title,
+          version: topNewsVersion,
+          news: newsList.map( r => ({
+            title: r.short_title || r.title,
             description: r.description,
             displayUrl: utils.getDetailsFromUrl(r.url).cleanHost || r.title,
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,
-            personalized: r.personalized,
+            type: r.type,
           }))
         };
       });

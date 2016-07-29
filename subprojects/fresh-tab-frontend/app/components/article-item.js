@@ -14,7 +14,7 @@ export default Ember.Component.extend({
     this.get('cliqz').sendTelemetry({
       type: 'home',
       action: 'click',
-      target_type: this.get('target-type'),
+      target_type: this.get('model.type'),
       extra: Ember.$(ev.target).attr('extra'),
       target_index: this.get('index')
     });
