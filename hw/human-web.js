@@ -521,18 +521,111 @@ var __CliqzHumanWeb = function() { // (_export) {
                 auxIsAlive: function auxIsAlive() {
                     return true;
                 },
+                // FIXME: this function is only for testing
+                testReqAno: function(url) {
+                    console.log("Trying", url);
+                    fetch(url //,{headers: new Headers({'Content-Type': 'text/html'})}
+                        ).then(
+                        function(response) {
+                            if (response.status !== 200) {
+                                console.log('>>>>', 'Looks like there was a problem. Status Code: ' + response.status);
+                                return;
+                            }
+                            //var r = new FileReader();
+                            //console.log('>>>', response, r.readAsText(response.body));
+
+                            response.text().then(function (body) {
+                                var doc = document.implementation.createHTMLDocument("example");
+                                doc.documentElement.innerHTML = body;
+                                //console.log('>>>>>', body);
+                                //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
+                                console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
+
+
+                            }).catch(function(err) {
+                                console.log('>>>>', 'Error reading body? ', err);
+
+                            });
+
+
+                            //var doc = document.implementation.createHTMLDocument("example");
+                            //doc.documentElement.innerHTML = response.body;
+                            //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
+                            //console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
+
+                          // Examine the text in the response
+                          //response.json().then(function(data) {
+                          //  console.log('>>>>', data);
+                          //});
+                        }
+                      ).catch(function(err) {
+                        console.log('>>>>', 'ERROR', err);
+                      });
+
+                },
                 auxGetPageData: function auxGetPageData(url, page_data, original_url, onsuccess, onerror) {
 
                     var error_message = null;
 
+                    // For testing try:
+                    // CliqzHumanWeb.auxGetPageData('https://golf.cliqz.com',null,'https://golf.cliqz.com', function(a,b,c,d) {console.log('success', a,b,c,d)}, function(a,b,c,d) {console.log('error',a,b,c,d)})
+                    // Odd thing is that it prints out an exception, we should prevent that
+                    // otherwise the user might see it on the console,
+                    // FIXME (description above)
+                    fetch(url).then(function(response) {
+
+                        if (response.status != 200 && response.status != 0) { // local files
+                            error_message = 'status not valid: ' + response.status;
+                            _log("Error on doublefetch: " + error_message);
+                            onerror(url, page_data, original_url, '' + error_message);
+                        }
+                        else {
+                            // there has been a redirect, we cannot guarantee that cookies were, not sent, therefore fail and consider as private
+                            if (response.url != url) {
+                                if (decodeURI(decodeURI(response.url)) != decodeURI(decodeURI(url))) {
+                                    error_message = 'dangerous redirect';
+                                    _log("Error on doublefetch: " + error_message);
+                                    _log("DANGER: " + url + ' ' + response.url);
+                                    onerror(url, page_data, original_url, '' + error_message);
+                                    return;
+                                }
+                            }
+
+                            response.text().then(function (body) {
+                                var doc = document.implementation.createHTMLDocument("example");
+                                doc.documentElement.innerHTML = body;
+
+                                CliqzHumanWeb.docCache[url] = {'time': CliqzHumanWeb.counter, 'doc': doc };
+                                var x = CliqzHumanWeb.getPageData(url, doc);
+
+                                onsuccess(url, page_data, original_url, x);
+
+                            }).catch(function(err) {
+                                console.log('>>>>', 'Error reading body? ', err);
+
+                            });
+
+                        }
+
+                    }).catch(function(err) {
+                        onerror(url, page_data, original_url, '' + err);
+                        return;
+                    });
+
+
+
+                    /*
+                    TBR after testing
+
                     // var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
                     var req = new XMLHttpRequest();
-                    /*
+
                     We need a try catch block here, because there are some URLs which throw malformed URI error,
                     hence stalling the double fetch on the same row.
                      Such URLs should not be there at the first place, but in-case they are, we set them as private.
                     */
 
+                    /*
                     try {
                         req.open('GET', url, true);
                     } catch (ee) {
@@ -545,12 +638,14 @@ var __CliqzHumanWeb = function() { // (_export) {
                     req.withCredentials = false;
                     //req.setRequestHeader("Authorization", "true");
 
+
+
                     // CliqzHumanWeb.auxGetPageData('http://github.com/cliqz/navigation-extension/', function(x) {console.log(x);}, function(y) {})
                     // CliqzHumanWeb.auxGetPageData('https://www.google.de/?gfe_rd=cr&ei=zk_bVNiXIMGo8wfwkYHwBQ&gws_rd=ssl', function(x) {console.log(x);}, function(y) {})
 
                     req.onload = function () {
 
-                        if (req.status != 200 && req.status != 0 /* local files */) {
+                        if (req.status != 200 && req.status != 0) {
                                 error_message = 'status not valid: ' + req.status;
                                 _log("Error on doublefetch: " + error_message);
                                 req.onerror();
@@ -578,17 +673,18 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     };
 
-                    req.onerror = function () {
-                        onerror(url, page_data, original_url, error_message);
-                    };
-                    req.ontimeout = function () {
-                        error_message = 'timeout';
-                        _log("Error on doublefetch: " + error_message);
-                        req.onerror();
-                    };
+                    //req.onerror = function () {
+                    //    onerror(url, page_data, original_url, error_message);
+                    //};
+                    //req.ontimeout = function () {
+                    //    error_message = 'timeout';
+                    //    _log("Error on doublefetch: " + error_message);
+                    //    req.onerror();
+                    //};
 
-                    req.timeout = 10000;
-                    req.send(null);
+                    //req.timeout = 10000;
+                    //req.send(null);
+                    */
                 },
                 auxIntersection: function auxIntersection(a, b) {
                     var ai = 0,
