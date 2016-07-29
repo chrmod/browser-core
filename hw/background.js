@@ -80,6 +80,7 @@ pm.start();
 
 CliqzHumanWeb.initChrome();
 
+/*
 eventList.forEach(function(e) {
   chrome.webNavigation[e].addListener(function(data) {
     if (typeof data) {
@@ -96,7 +97,7 @@ eventList.forEach(function(e) {
   });
 
 });
-
+*/
 
 function focusOrCreateTab(url) {
   chrome.windows.getAll({"populate":true}, function(windows) {
@@ -122,10 +123,26 @@ function focusOrCreateTab(url) {
 
 chrome.history.onVisitRemoved.addListener(CliqzHumanWeb.onHistoryVisitRemoved);
 
-chrome.tabs.onUpdated.addListener(function(tab){
-  // console.log(">>> Tab data >>>");
-  // console.log(JSON.stringify(tab));
-})
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
+        console.log(" Location change>> " + tab.url);
+        if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
+            chrome.tabs.executeScript(null, {file: "content.js"});
+        }
+        /*
+        chrome.local.storage.get('URLs', function() {
+            // Iterate through this list here and match with tab.url, if the match is found, just return.
+            if (url is there in list) {return;}
+            else {
+                alert("tab load complete");
+                chrome.local.set({URLs: [tab.url]});
+            }
+        });
+        */
+    }
+});
+
+/*
 
 chrome.webNavigation.onDOMContentLoaded.addListener(function(data) {
   if (data.frameId === 0) {
@@ -145,7 +162,7 @@ chrome.webNavigation.onDOMContentLoaded.addListener(function(data) {
     console.log("Google: " + data.url, data);
   }
 })
-
+*/
 
 chrome.runtime.onConnect.addListener(function(port) {
   var tab = port.sender.tab;
@@ -154,11 +171,11 @@ chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(info) {
     if(info.type == "dom"){
       CliqzHumanWeb.tempCurrentURL = tab.url;
-      console.log("Data rcvd");
+      console.log("Data rcvd: " + info.title);
       aProgress["isLoadingDocument"] = tab.status;
       aRequest["isChannelPrivate"] = tab.incognito;
       aURI["spec"] = tab.url;
-      CliqzHumanWeb.contentDocument[tab.url] = info.html;
+      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = info.html;
       CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
     }
     else if(info.type == "event_listener"){
@@ -186,7 +203,7 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 })
 
-
+/*
 chrome.browserAction.onClicked.addListener(function(tab) {
 
     console.log('you press the Q');
@@ -199,3 +216,4 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     //var manager_url = chrome.extension.getURL("manager.html");
     //focusOrCreateTab(manager_url);
 });
+*/
