@@ -14,12 +14,14 @@ export default class {
   init() {
     if (adbEnabled()) {
       CliqzADB.initWindow(this.window);
+      this.window.adbinit = true;
     }
   }
 
   unload() {
     if (adbEnabled()) {
       CliqzADB.unloadWindow(this.window);
+      this.window.adbinit = false;
     }
   }
 
@@ -90,7 +92,14 @@ export default class {
 
         item.addEventListener('command', () => {
           utils.setPref(ADB_PREF, item.option);
-
+          if (adbEnabled() && !win.adbinit) {
+            CliqzADB.initWindow(win);
+            win.adbinit = true;
+          }
+          if (!adbEnabled() && win.adbinit) {
+            CliqzADB.unloadWindow(win);
+            win.adbinit = false;
+          }
           utils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
           utils.telemetry({
             type: 'activity',
