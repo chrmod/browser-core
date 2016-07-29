@@ -1,6 +1,6 @@
 {{#with data}}
-<div id='music_btn_region'>
-    <div class="music-btns-container">
+<div id='bottom_btn_region'>
+    <div class="bottom-btns-container">
         {{#each deepResults}}
             {{partial type}}
         {{/each}}

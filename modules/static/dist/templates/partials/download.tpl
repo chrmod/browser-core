@@ -1,5 +1,5 @@
 <div class="bottom-btns-wrapper">
-    <span class="bottom-label">{{local "streaming"}}</span>
+    <span class="bottom-label">{{local "download"}}</span>
     <ul class="bottom-btns">
     {{#each links}}
         <li class="bottom-btn"

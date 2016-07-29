@@ -989,16 +989,9 @@ function setPartialTemplates(data) {
     })
   }
 
-  // Music
-  if (data["__subType__"] && data["__subType__"]["class"] == "EntityMusic") {
-    partials.push('music-data-sc');
-
-  }
-
-  // Download
-  if (data["__subType__"] && data["__subType__"]["class"] == "EntityDownload") {
-    partials.push('download-data-sc');
-
+  // Bottom buttons
+  if (data.__subType__ && (data.__subType__.class === 'EntityMusic' || data.__subType__.class === 'EntityDownload')) {
+    partials.push('bottom-data-sc');
   }
 
   return partials;
