@@ -74,9 +74,13 @@ var aURI = {};
 
 
 // export singleton pacemaker
+/*
 var pm = new Pacemaker();
 pm.register(CliqzHumanWeb.pacemaker);
 pm.start();
+*/
+
+CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
 
 CliqzHumanWeb.initChrome();
 
@@ -129,16 +133,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
             chrome.tabs.executeScript(tabId, {file: "content.js"});
         }
-        /*
-        chrome.local.storage.get('URLs', function() {
-            // Iterate through this list here and match with tab.url, if the match is found, just return.
-            if (url is there in list) {return;}
-            else {
-                alert("tab load complete");
-                chrome.local.set({URLs: [tab.url]});
-            }
-        });
-        */
     }
 });
 
@@ -203,6 +197,21 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 })
 
+var background = {
+  getAllOpenPages: function(){
+    return new Promise(function(resolve, reject){
+      var res = [];
+      chrome.windows.getAll({populate:true},function(windows){
+        windows.forEach(function(window){
+          window.tabs.forEach(function(tab){
+            res.push(tab.url);
+          });
+        });
+        resolve(res);
+      });
+    });
+  }
+}
 /*
 chrome.browserAction.onClicked.addListener(function(tab) {
 

@@ -1696,7 +1696,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
 
                     CliqzHumanWeb.counter += 1;
-                    return;
 
                     if (activeURL == null && CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         // this one is for when you do not have the page open, for instance, no firefox but console opened
@@ -1705,45 +1704,47 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 5 == 0) {
 
-                        var openPages = CliqzHumanWeb.getAllOpenPages();
-                        var tt = new Date().getTime();
+                        CliqzHumanWeb.getAllOpenPages(openPages => {
+                            var tt = new Date().getTime();
 
-                        for (var url in CliqzHumanWeb.state['v']) {
-                            if (CliqzHumanWeb.state['v'].hasOwnProperty(url)) {
+                            for (var url in CliqzHumanWeb.state['v']) {
+                                if (CliqzHumanWeb.state['v'].hasOwnProperty(url)) {
 
-                                if (openPages.indexOf(url) == -1) {
-                                    // not opened
+                                    if (openPages.indexOf(url) == -1) {
+                                        // not opened
 
-                                    if (CliqzHumanWeb.state['v'][url]['tend'] == null) {
-                                        CliqzHumanWeb.state['v'][url]['tend'] = tt;
-                                    }
+                                        if (CliqzHumanWeb.state['v'][url]['tend'] == null) {
+                                            CliqzHumanWeb.state['v'][url]['tend'] = tt;
+                                        }
 
-                                    if (tt - CliqzHumanWeb.state['v'][url]['tend'] > CliqzHumanWeb.deadFiveMts * 60 * 1000) {
-                                        // move to "dead pages" after 5 minutes
-                                        CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
-                                        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-                                        delete CliqzHumanWeb.state['v'][url];
-                                        delete CliqzHumanWeb.queryCache[url];
-                                    }
-                                } else {
-                                    // stil opened, do nothing.
-                                    if (tt - CliqzHumanWeb.state['v'][url]['tin'] > CliqzHumanWeb.deadTwentyMts * 60 * 1000) {
-                                        // unless it was opened more than 20 minutes ago, if so, let's move it to dead pages
+                                        if (tt - CliqzHumanWeb.state['v'][url]['tend'] > CliqzHumanWeb.deadFiveMts * 60 * 1000) {
+                                            // move to "dead pages" after 5 minutes
+                                            CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
+                                            CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+                                            delete CliqzHumanWeb.state['v'][url];
+                                            delete CliqzHumanWeb.queryCache[url];
+                                        }
+                                    } else {
+                                        // stil opened, do nothing.
+                                        if (tt - CliqzHumanWeb.state['v'][url]['tin'] > CliqzHumanWeb.deadTwentyMts * 60 * 1000) {
+                                            // unless it was opened more than 20 minutes ago, if so, let's move it to dead pages
 
-                                        CliqzHumanWeb.state['v'][url]['tend'] = null;
-                                        CliqzHumanWeb.state['v'][url]['too_long'] = true;
-                                        CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
-                                        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-                                        delete CliqzHumanWeb.state['v'][url];
-                                        delete CliqzHumanWeb.queryCache[url];
-                                        //_log("Deleted: moved to dead pages after 20 mts.");
-                                        //_log("Deleted: moved to dead pages after 20 mts: " + CliqzHumanWeb.state['m'].length);
+                                            CliqzHumanWeb.state['v'][url]['tend'] = null;
+                                            CliqzHumanWeb.state['v'][url]['too_long'] = true;
+                                            CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
+                                            CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+                                            delete CliqzHumanWeb.state['v'][url];
+                                            delete CliqzHumanWeb.queryCache[url];
+                                            //_log("Deleted: moved to dead pages after 20 mts.");
+                                            //_log("Deleted: moved to dead pages after 20 mts: " + CliqzHumanWeb.state['m'].length);
+                                        }
                                     }
                                 }
                             }
-                        }
+                        });
                     }
 
+                    return;
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         if (CliqzHumanWeb.debug) {
                             _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
@@ -2080,6 +2081,15 @@ var __CliqzHumanWeb = function() { // (_export) {
                 lastActive: null,
                 lastActiveAll: null,
                 getAllOpenPages: function getAllOpenPages() {
+                    return new Promise(function(resolve, reject){
+                        background.getAllOpenPages()
+                        .then( pages_arr => {
+                            _log(pages_arr.length);
+                            resolve(pages_arr)
+                        });
+                    });
+
+                    /*
                     var res = [];
                     try {
                         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -2102,6 +2112,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     } catch (ee) {
                         return [];
                     }
+                    */
                 },
                 initChrome: function initChrome(){
                     // Only till we start loading from online resource
