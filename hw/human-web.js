@@ -546,8 +546,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                             //console.log('>>>', response, r.readAsText(response.body));
 
                             response.text().then(function (body) {
-                                var doc = document.implementation.createHTMLDocument("example");
-                                doc.documentElement.innerHTML = body;
+                                var parser = new DOMParser();
+                                var doc =  parser.parseFromString(body, "text/html");
                                 //console.log('>>>>>', body);
                                 //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
                                 console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
