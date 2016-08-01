@@ -410,7 +410,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             if (gadurl.test(url) && aChannel && aChannel.referrer) {
                                 var refU = aChannel.referrer.spec;
                                 CliqzHumanWeb.linkCache[url] = { 's': '' + refU, 'time': CliqzHumanWeb.counter };
-                                console.log('REFZZZ 4', url,  { 's': '' + refU, 'time': CliqzHumanWeb.counter });
+                                //console.log('REFZZZ 4', url,  { 's': '' + refU, 'time': CliqzHumanWeb.counter });
 
                             }
                             if (status == '301' || status == '302') {
@@ -502,12 +502,43 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     }
                 },
-                getParametersQS: function getParametersQS(url) {
+                // This is the getParametersQS currently in FF, has an issue on:
+                // CliqzHumanWeb.getParametersQS(decodeURIComponent("https://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=18&ved=0ahUKEwjd0p3ip6DOAhVM2ywKHaa6AZwQtwIISTAR&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DaU7-OUXc6CU&usg=AFQjCNGrkgDaUa568gsgc9gLCpk-z4uD7w&bvm=bv.128617741,d.bGg"))
+                // FIXME: let's leave the FF as is before we see if the new getParametersQS has some side-effects
+                getParametersQSLegacy: function getParametersQSLegacy(url) {
                     var res = {};
                     var KeysValues = url.split(/[\?&]+/);
                     for (var i = 0; i < KeysValues.length; i++) {
                         var kv = KeysValues[i].split("=");
                         if (kv.length == 2) res[kv[0]] = kv[1];
+                    }
+                    return res;
+                },
+                getParametersQS: function getParametersQS(url) {
+                    var res = {};
+                    var KeysValues = url.split(/[&]+/);
+                    for (var i = 0; i < KeysValues.length; i++) {
+                        if (i==0) {
+                            var kv = KeysValues[i].split('?');
+                            if (kv.length >= 2) {
+                                var pre = kv[0];
+                                var post = kv.slice(1).join('?');
+                                kv = post.split('=');
+                                if (kv.length >= 2) {
+                                    pre = kv[0];
+                                    post = kv.slice(1).join('=');
+                                    res[pre] = post;
+                                }
+                            }
+                        }
+                        else {
+                            var kv = KeysValues[i].split("=");
+                            if (kv.length >= 2) {
+                                var pre = kv[0];
+                                var post = kv.slice(1).join('=');
+                                res[pre] = post;
+                            }
+                        }
                     }
                     return res;
                 },
@@ -1410,7 +1441,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             } catch (ee) {
                                 var _url = refU;
                             }
-                            console.log('REFZZZ 1', newURL, { 's': '' + _url, 'time': CliqzHumanWeb.counter });
+                            //console.log('REFZZZ 1', newURL, { 's': '' + _url, 'time': CliqzHumanWeb.counter });
                             CliqzHumanWeb.linkCache[newURL] = { 's': '' + _url, 'time': CliqzHumanWeb.counter };
                         }
                     }
@@ -1442,7 +1473,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
                                     var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s'];
                                     CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter };
-                                    console.log('REFZZZ 2', decodeURIComponent(aURI.spec),  { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter });
+                                    //console.log('REFZZZ 2', decodeURIComponent(aURI.spec),  { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter });
 
 
                                     CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
@@ -1946,6 +1977,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                 },
                 getURLFromEvent: function getURLFromEvent(ev) {
+
+                    console.log("EVENT: ", ev);
                     try {
                         if (ev.target.href != null || ev.target.href != undefined) {
                             return decodeURIComponent('' + ev.target.href);
@@ -2015,7 +2048,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         if (embURL != null) targetURL = embURL;
                         var activeURL = CliqzHumanWeb.cleanCurrentUrl(CliqzHumanWeb.currentURL());
 
-                        console.log(">>>> EVENT", targetURL, activeURL, 'LETS SEE', CliqzHumanWeb.state['v'][activeURL]);
+                        //console.log(">>>> EVENT", targetURL, activeURL, 'LETS SEE', CliqzHumanWeb.state['v'][activeURL]);
 
                         if (CliqzHumanWeb.debug) {
                             _log('captureMouseClickPage>> ' + CliqzHumanWeb.counter + ' ' + targetURL + ' : ' + " active: " + activeURL + " " + (CliqzHumanWeb.state['v'][activeURL] != null) + " " + ev.target + ' :: ' + ev.target.value + ' >>' + JSON.stringify(CliqzHumanWeb.lastEv));
@@ -2026,7 +2059,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         if (CliqzHumanWeb.state['v'][activeURL] != null) {
                             CliqzHumanWeb.linkCache[targetURL] = { 's': '' + activeURL, 'time': CliqzHumanWeb.counter };
 
-                            console.log('REFZZZ 3', targetURL,  { 's': '' + activeURL, 'time': CliqzHumanWeb.counter });
+                            //console.log('REFZZZ 3', targetURL,  { 's': '' + activeURL, 'time': CliqzHumanWeb.counter });
 
 
                             //Fix same link in 'l'

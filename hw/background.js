@@ -24,7 +24,7 @@ function observeRequest(requestDetails){
            //console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
            if (CliqzHumanWeb.gadurl.test(requestDetails.url)) {
                 CliqzHumanWeb.linkCache[requestDetails.url] = {'s': ''+requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter};
-                console.log('REFZZZ 999', requestDetails.url, { 's': '' + requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter });
+                //console.log('REFZZZ 999', requestDetails.url, { 's': '' + requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter });
            }
            break;
       }
