@@ -110,6 +110,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 _md5: function _md5(str) {
                     return md5(str);
                 },
+                gadurl: gadurl,
                 parseUri: function parseUri(str) {
                     //var o   = parseUri.options,
                     var m = null;
@@ -409,6 +410,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                             if (gadurl.test(url) && aChannel && aChannel.referrer) {
                                 var refU = aChannel.referrer.spec;
                                 CliqzHumanWeb.linkCache[url] = { 's': '' + refU, 'time': CliqzHumanWeb.counter };
+                                console.log('REFZZZ 4', url,  { 's': '' + refU, 'time': CliqzHumanWeb.counter });
+
                             }
                             if (status == '301' || status == '302') {
                                 CliqzHumanWeb.httpCache[url] = { 'status': status, 'time': CliqzHumanWeb.counter, 'location': loc };
@@ -1407,6 +1410,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                             } catch (ee) {
                                 var _url = refU;
                             }
+                            console.log('REFZZZ 1', newURL, { 's': '' + _url, 'time': CliqzHumanWeb.counter });
                             CliqzHumanWeb.linkCache[newURL] = { 's': '' + _url, 'time': CliqzHumanWeb.counter };
                         }
                     }
@@ -1438,6 +1442,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                                     var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
                                     var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s'];
                                     CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter };
+                                    console.log('REFZZZ 2', decodeURIComponent(aURI.spec),  { 's': '' + mrefreshUrl, 'time': CliqzHumanWeb.counter });
+
+
                                     CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
                                     if (CliqzHumanWeb.state['v'][mrefreshUrl]['qr']) {
                                         //Change type to ad, else might create confusion.
@@ -1579,6 +1586,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 CliqzHumanWeb.state['v'][activeURL] = { 'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                                     'e': { 'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0 }, 'st': status, 'c': [], 'ref': referral, 'red': red };
 
+                                console.log('>>>>>', activeURL, referral);
+
                                 if (referral) {
                                     // if there is a good referral, we must inherit the query if there is one
                                     if (CliqzHumanWeb.state['v'][referral] && CliqzHumanWeb.state['v'][referral]['qr']) {
@@ -1665,7 +1674,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 // wops, it exists on the active page, probably it comes from a back button or back
                                 // from tab navigation
                                 CliqzHumanWeb.state['v'][activeURL]['tend'] = null;
-                                AntiPhishing.auxOnPageLoad(activeURL, currwin, true, true);
+
+                                // FIXME: TBR after testing
+                                //AntiPhishing.auxOnPageLoad(activeURL, currwin, true, true);
+
                             }
                         }
                     }
@@ -2002,6 +2014,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         var embURL = CliqzHumanWeb.getEmbeddedURL(targetURL);
                         if (embURL != null) targetURL = embURL;
                         var activeURL = CliqzHumanWeb.currentURL();
+
+                        console.log(">>>> EVENT", targetURL, activeURL, 'LETS SEE', CliqzHumanWeb.state['v'][activeURL]);
+
                         if (CliqzHumanWeb.debug) {
                             _log('captureMouseClickPage>> ' + CliqzHumanWeb.counter + ' ' + targetURL + ' : ' + " active: " + activeURL + " " + (CliqzHumanWeb.state['v'][activeURL] != null) + " " + ev.target + ' :: ' + ev.target.value + ' >>' + JSON.stringify(CliqzHumanWeb.lastEv));
                         }
@@ -2010,6 +2025,10 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                         if (CliqzHumanWeb.state['v'][activeURL] != null) {
                             CliqzHumanWeb.linkCache[targetURL] = { 's': '' + activeURL, 'time': CliqzHumanWeb.counter };
+
+                            console.log('REFZZZ 3', targetURL,  { 's': '' + activeURL, 'time': CliqzHumanWeb.counter });
+
+
                             //Fix same link in 'l'
                             //Only add if gur. that they are public and the link exists in the double fetch page(Public).it's available on the public page.Such
                             //check is not done, therefore we do not push the links clicked on that page. - potential record linkage.
