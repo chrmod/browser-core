@@ -51,7 +51,7 @@ var __CliqzUtils = function() { // (_export) {
                     if (obj === null || typeof obj !== 'object') return obj;
                     var temp = obj.constructor();
                     for (var key in obj) {
-                        temp[key] = cloneObject(obj[key]);
+                        temp[key] = CliqzUtils.cloneObject(obj[key]);
                     }
                     return temp;
                 },
