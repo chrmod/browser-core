@@ -49,10 +49,18 @@ function observeRedirect(requestDetails){
     }
     // console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
 }
+function observeAuth(requestDetails){
+  // This does not capture the cases when password is already saved, but that should we taken care of when the doubeFetch happens.
+  if(requestDetails.statusCode == 401){
+    CliqzHumanWeb.httpCache401[requestDetails.url] = {'time': CliqzHumanWeb.counter};
+  }
+}
 
 chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
 chrome.webRequest.onBeforeRedirect.addListener(observeRedirect, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
 chrome.webRequest.onResponseStarted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
+chrome.webRequest.onAuthRequired.addListener(observeAuth, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
+
 
 var eventList = ['onDOMContentLoaded'];
 
@@ -171,7 +179,7 @@ chrome.runtime.onConnect.addListener(function(port) {
       aProgress["isLoadingDocument"] = tab.status;
       aRequest["isChannelPrivate"] = tab.incognito;
       aURI["spec"] = tab.url;
-      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = info.html;
+      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
       CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
     }
     else if(info.type == "event_listener"){

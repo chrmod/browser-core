@@ -362,6 +362,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                             delete CliqzHumanWeb.docCache[key];
                         }
                     }
+
+                    for (var key in CliqzHumanWeb.contentDocument) {
+                        if (CliqzHumanWeb.counter - CliqzHumanWeb.contentDocument[key]['time'] > 3600 * CliqzHumanWeb.tmult) {
+                            delete CliqzHumanWeb.contentDocument[key];
+                        }
+                    }
                 },
                 cleanHttpCache: function cleanHttpCache() {
                     for (var key in CliqzHumanWeb.httpCache) {
@@ -1372,8 +1378,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 getHTML: function getHTML(url) {
                     return new Promise(function(resolve, reject){
-                        if(CliqzHumanWeb.contentDocument){
-                            resolve(CliqzHumanWeb.contentDocument[url]);
+                        if(CliqzHumanWeb.contentDocument && CliqzHumanWeb.contentDocument.hasOwnProperty(url)){
+                            resolve(CliqzHumanWeb.contentDocument[url]["doc"]);
                         }
                         else{
                             reject();
@@ -1707,12 +1713,13 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.listOfUnchecked(1, CliqzHumanWeb.doubleFetchTimeInSec, null, CliqzHumanWeb.processUnchecks);
                     }
 
-                    CliqzHumanWeb.counter += 1;
 
+                    /*
                     if (activeURL == null && CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         // this one is for when you do not have the page open, for instance, no firefox but console opened
                         CliqzHumanWeb.pushAllData();
                     }
+                    */
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 5 == 0) {
 
@@ -1757,9 +1764,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
-                        if (CliqzHumanWeb.debug) {
-                            _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
-                        }
 
                         CliqzHumanWeb.cleanHttpCache();
                         CliqzHumanWeb.cleanDocCache();
@@ -2156,7 +2160,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 init: function init(window) {
                     // if (CliqzUtils.getPref("dnt", false)) return;
-
+                    console.log(">>>>> Init Called <<<<<<");
                     refineFuncMappings = {
                         "splitF": CliqzHumanWeb.refineSplitFunc,
                         "parseU": CliqzHumanWeb.refineParseURIFunc,
