@@ -2013,7 +2013,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                         var embURL = CliqzHumanWeb.getEmbeddedURL(targetURL);
                         if (embURL != null) targetURL = embURL;
-                        var activeURL = CliqzHumanWeb.currentURL();
+                        var activeURL = CliqzHumanWeb.cleanCurrentUrl(CliqzHumanWeb.currentURL());
 
                         console.log(">>>> EVENT", targetURL, activeURL, 'LETS SEE', CliqzHumanWeb.state['v'][activeURL]);
 
