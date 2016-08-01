@@ -19,10 +19,10 @@ var eventList = ['onBeforeNavigate', 'onCreatedNavigationTarget',
 function observeRequest(requestDetails){
     console.log("Headers request");
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
-      console.log(requestDetails.requestHeaders[i].name);
+      // console.log(requestDetails.requestHeaders[i].name);
       if (requestDetails.requestHeaders[i].name === 'Referer') {
            // console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
-           CliqzHumanWeb.linkCache[requestDetails.url] = {'s': ''+requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter};
+           // CliqzHumanWeb.linkCache[requestDetails.url] = {'s': ''+requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter};
            break;
       }
     }
@@ -33,7 +33,7 @@ function observeResponse(requestDetails){
     // console.log("Headers rcvd");
     // console.log(requestDetails);
     for (var i = 0; i < requestDetails.responseHeaders.length; ++i) {
-      console.log("Resp: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
+      // console.log("Resp: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
     }
     CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter}
 }
@@ -80,9 +80,9 @@ pm.register(CliqzHumanWeb.pacemaker);
 pm.start();
 */
 
-CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
+// CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
 
-CliqzHumanWeb.initChrome();
+CliqzHumanWeb.init();
 
 /*
 eventList.forEach(function(e) {

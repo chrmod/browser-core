@@ -1744,12 +1744,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                         });
                     }
 
-                    return;
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         if (CliqzHumanWeb.debug) {
                             _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
                         }
-
 
                         CliqzHumanWeb.cleanHttpCache();
                         CliqzHumanWeb.cleanDocCache();
@@ -2138,7 +2136,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                 },
                 init: function init(window) {
-                    if (CliqzUtils.getPref("dnt", false)) return;
+                    // if (CliqzUtils.getPref("dnt", false)) return;
 
                     refineFuncMappings = {
                         "splitF": CliqzHumanWeb.refineSplitFunc,
@@ -2167,8 +2165,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     */
 
+
                     if (CliqzHumanWeb.pacemakerId == null) {
-                        CliqzHumanWeb.pacemakerId = CliqzUtils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
+                        CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
                     }
 
                     CliqzHumanWeb.loadContentExtraction();
