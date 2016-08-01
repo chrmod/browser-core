@@ -87,6 +87,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 ismRefresh: false,
                 //activityDistributor: Components.classes["@mozilla.org/network/http-activity-distributor;1"].getService(Components.interfaces.nsIHttpActivityDistributor),
                 activityDistributor: null,
+                activeUsageLastSent: null,
 
                 userTransitionsSearchSession: 5 * 60,
                 key: ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"],
@@ -362,6 +363,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                             delete CliqzHumanWeb.docCache[key];
                         }
                     }
+
+                    for (var key in CliqzHumanWeb.contentDocument) {
+                        if (CliqzHumanWeb.counter - CliqzHumanWeb.contentDocument[key]['time'] > 3600 * CliqzHumanWeb.tmult) {
+                            delete CliqzHumanWeb.contentDocument[key];
+                        }
+                    }
                 },
                 cleanHttpCache: function cleanHttpCache() {
                     for (var key in CliqzHumanWeb.httpCache) {
@@ -570,8 +577,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                             //console.log('>>>', response, r.readAsText(response.body));
 
                             response.text().then(function (body) {
-                                var doc = document.implementation.createHTMLDocument("example");
-                                doc.documentElement.innerHTML = body;
+                                var parser = new DOMParser();
+                                var doc =  parser.parseFromString(body, "text/html");
                                 //console.log('>>>>>', body);
                                 //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
                                 console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
@@ -1403,8 +1410,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 getHTML: function getHTML(url) {
                     return new Promise(function(resolve, reject){
-                        if(CliqzHumanWeb.contentDocument){
-                            resolve(CliqzHumanWeb.contentDocument[url]);
+                        if(CliqzHumanWeb.contentDocument && CliqzHumanWeb.contentDocument.hasOwnProperty(url)){
+                            resolve(CliqzHumanWeb.contentDocument[url]["doc"]);
                         }
                         else{
                             reject();
@@ -1671,6 +1678,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                             } catch (e) {}
                                             //Check active usage...
                                             CliqzHumanWeb.activeUsage += 1;
+                                            CliqzHumanWeb.saveRecord("config_activeUsageCount", CliqzHumanWeb.activeUsage);
                                         }
 
                                         var x = CliqzHumanWeb.getPageData(currURL, cd);
@@ -1738,12 +1746,13 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.listOfUnchecked(1, CliqzHumanWeb.doubleFetchTimeInSec, null, CliqzHumanWeb.processUnchecks);
                     }
 
-                    CliqzHumanWeb.counter += 1;
 
+                    /*
                     if (activeURL == null && CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
                         // this one is for when you do not have the page open, for instance, no firefox but console opened
                         CliqzHumanWeb.pushAllData();
                     }
+                    */
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 5 == 0) {
 
@@ -1787,12 +1796,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         });
                     }
 
-                    return;
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
-                        if (CliqzHumanWeb.debug) {
-                            _log('Pacemaker: ' + CliqzHumanWeb.counter / CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
-                        }
-
 
                         CliqzHumanWeb.cleanHttpCache();
                         CliqzHumanWeb.cleanDocCache();
@@ -1828,12 +1832,14 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.fetchAndStoreConfig();
                     }
 
+                    /*
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (60 * 60 * 1) == 0) {
                         if (CliqzHumanWeb.debug) {
                             _log('Check if alive');
                         }
                         CliqzHumanWeb.checkActiveUsage();
                     }
+                    */
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (60 * 20 * 1) == 0) {
                         if (CliqzHumanWeb.debug) {
@@ -1841,6 +1847,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                         CliqzHumanWeb.saveActionStats();
                         CliqzHumanWeb.sendActionStatsIfNeeded();
+
+                        // Check Alive signal to be sent or not.
+                        CliqzHumanWeb.checkActiveUsage();
                     }
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
@@ -2190,8 +2199,8 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                 },
                 init: function init(window) {
-                    if (CliqzUtils.getPref("dnt", false)) return;
-
+                    // if (CliqzUtils.getPref("dnt", false)) return;
+                    console.log(">>>>> Init Called <<<<<<");
                     refineFuncMappings = {
                         "splitF": CliqzHumanWeb.refineSplitFunc,
                         "parseU": CliqzHumanWeb.refineParseURIFunc,
@@ -2219,8 +2228,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     */
 
+
                     if (CliqzHumanWeb.pacemakerId == null) {
-                        CliqzHumanWeb.pacemakerId = CliqzUtils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
+                        CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
                     }
 
                     CliqzHumanWeb.loadContentExtraction();
@@ -2233,6 +2243,22 @@ var __CliqzHumanWeb = function() { // (_export) {
                     if (!CliqzHumanWeb.bloomFilter) {
                         CliqzHumanWeb.loadBloomFilter();
                     }
+
+                    CliqzHumanWeb.loadRecord('config_activeUsageCount', function (data) {
+                        console.log("<<< Active usage >>>" + data);
+                        if(data){
+                            CliqzHumanWeb.activeUsage = data;
+                        }
+                    })
+
+                    CliqzHumanWeb.loadRecord('activeUsageLastSent', function (data) {
+                        if(!data){
+                            CliqzHumanWeb.activeUsageLastSent = Date.now();
+                            CliqzHumanWeb.saveRecord("activeUsageLastSent", CliqzHumanWeb.activeUsageLastSent);
+                        }
+                        console.log("<<< Time Active usage >>>" + data);
+                        // CliqzHumanWeb.activeUsage = data;
+                    })
                 },
                 initAtBrowser: function initAtBrowser() {
                     if (CliqzUtils.getPref("dnt", false)) return;
@@ -3754,6 +3780,32 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 checkActiveUsage: function checkActiveUsage() {
                     //This function needs to be scheduled every one hour.
+                    // Konark: Moving this to persitent store, instead of prefs.
+
+                    // Check if the alive signal sent was more than one hour earlier.
+                    var currentTime = Date.now();
+                    var tDiff = (currentTime - CliqzHumanWeb.activeUsageLastSent)/1000;
+
+                    // Check if activeUsgae is more than threshold.
+                    if (CliqzHumanWeb.activeUsage && (CliqzHumanWeb.activeUsage > CliqzHumanWeb.activeUsageThreshold) && ( tDiff > 3600)) {
+                        //Sample event to be sent
+                        var payload = {};
+                        payload['status'] = true;
+                        payload['t'] = CliqzHumanWeb.getTime();
+                        try {
+                            var location = CliqzUtils.getPref('config_location', null);
+                        } catch (ee) {};
+                        payload['ctry'] = location;
+                        CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload': payload });
+                        CliqzHumanWeb.activeUsage = 0;
+                        CliqzHumanWeb.saveRecord("activeUsageLastSent", CliqzHumanWeb.activeUsageLastSent)
+                        CliqzHumanWeb.saveRecord('config_activeUsageCount', 0);
+                    }
+                    else{
+                        _log("Active usage condition not met");
+                    }
+
+                    /* TBR: After testing.
                     var oldUsage = 0;
                     try {
                         oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0);
@@ -3773,6 +3825,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
                         CliqzUtils.setPref('config_activeUsageCount', 0);
                     }
+                    */
                 },
                 saveRecord: function saveRecord(id, data) {
 

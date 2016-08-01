@@ -19,7 +19,7 @@ var eventList = ['onBeforeNavigate', 'onCreatedNavigationTarget',
 function observeRequest(requestDetails){
     console.log("Headers request");
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
-      //console.log(requestDetails.requestHeaders[i].name);
+      // console.log(requestDetails.requestHeaders[i].name);
       if (requestDetails.requestHeaders[i].name === 'Referer') {
            //console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
            if (CliqzHumanWeb.gadurl.test(requestDetails.url)) {
@@ -35,10 +35,6 @@ function observeRequest(requestDetails){
 function observeResponse(requestDetails){
     // console.log("Headers rcvd");
     // console.log(requestDetails);
-
-    //for (var i = 0; i < requestDetails.responseHeaders.length; ++i) {
-    //  console.log("Resp: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
-    //}
     CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter}
 }
 
@@ -53,10 +49,18 @@ function observeRedirect(requestDetails){
     }
     // console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
 }
+function observeAuth(requestDetails){
+  // This does not capture the cases when password is already saved, but that should we taken care of when the doubeFetch happens.
+  if(requestDetails.statusCode == 401){
+    CliqzHumanWeb.httpCache401[requestDetails.url] = {'time': CliqzHumanWeb.counter};
+  }
+}
 
 chrome.webRequest.onBeforeSendHeaders.addListener(observeRequest, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["requestHeaders"]);
 chrome.webRequest.onBeforeRedirect.addListener(observeRedirect, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
 chrome.webRequest.onResponseStarted.addListener(observeResponse, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
+chrome.webRequest.onAuthRequired.addListener(observeAuth, {urls:["http://*/*", "https://*/*"],types:["main_frame"]},["responseHeaders"]);
+
 
 var eventList = ['onDOMContentLoaded'];
 
@@ -84,9 +88,9 @@ pm.register(CliqzHumanWeb.pacemaker);
 pm.start();
 */
 
-CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
+// CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
 
-CliqzHumanWeb.initChrome();
+CliqzHumanWeb.init();
 
 /*
 eventList.forEach(function(e) {
@@ -175,7 +179,7 @@ chrome.runtime.onConnect.addListener(function(port) {
       aProgress["isLoadingDocument"] = tab.status;
       aRequest["isChannelPrivate"] = tab.incognito;
       aURI["spec"] = tab.url;
-      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = info.html;
+      CliqzHumanWeb.contentDocument[decodeURIComponent(tab.url)] = {"doc":info.html,'time': CliqzHumanWeb.counter};
       CliqzHumanWeb.listener.onLocationChange(aProgress, aRequest, aURI);
     }
     else if(info.type == "event_listener"){
