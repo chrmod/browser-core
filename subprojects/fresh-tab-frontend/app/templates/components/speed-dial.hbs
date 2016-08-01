@@ -15,6 +15,8 @@
 
   <menu type="context" id="speedDialCMenu-{{index}}-{{type}}">
      <menuitem label="{{t 'speedDials.topsite-remove'}}" {{action "remove"}}></menuitem>
-     <menuitem label="{{t 'speedDials.reset-all'}}" {{action "resetAll"}}></menuitem>
+     {{#unless isCustom}}
+      <menuitem label="{{t 'speedDials.reset-all'}}" {{action "resetAll"}}></menuitem>
+     {{/unless}}
  </menu>
 </section>
