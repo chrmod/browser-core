@@ -87,6 +87,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 ismRefresh: false,
                 //activityDistributor: Components.classes["@mozilla.org/network/http-activity-distributor;1"].getService(Components.interfaces.nsIHttpActivityDistributor),
                 activityDistributor: null,
+                activeUsageLastSent: null,
 
                 userTransitionsSearchSession: 5 * 60,
                 key: ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"],
@@ -1646,6 +1647,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                             } catch (e) {}
                                             //Check active usage...
                                             CliqzHumanWeb.activeUsage += 1;
+                                            CliqzHumanWeb.saveRecord("config_activeUsageCount", CliqzHumanWeb.activeUsage);
                                         }
 
                                         var x = CliqzHumanWeb.getPageData(currURL, cd);
@@ -1799,12 +1801,14 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzHumanWeb.fetchAndStoreConfig();
                     }
 
+                    /*
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (60 * 60 * 1) == 0) {
                         if (CliqzHumanWeb.debug) {
                             _log('Check if alive');
                         }
                         CliqzHumanWeb.checkActiveUsage();
                     }
+                    */
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (60 * 20 * 1) == 0) {
                         if (CliqzHumanWeb.debug) {
@@ -1812,6 +1816,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                         CliqzHumanWeb.saveActionStats();
                         CliqzHumanWeb.sendActionStatsIfNeeded();
+
+                        // Check Alive signal to be sent or not.
+                        CliqzHumanWeb.checkActiveUsage();
                     }
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 10 == 0) {
@@ -2203,6 +2210,22 @@ var __CliqzHumanWeb = function() { // (_export) {
                     if (!CliqzHumanWeb.bloomFilter) {
                         CliqzHumanWeb.loadBloomFilter();
                     }
+
+                    CliqzHumanWeb.loadRecord('config_activeUsageCount', function (data) {
+                        console.log("<<< Active usage >>>" + data);
+                        if(data){
+                            CliqzHumanWeb.activeUsage = data;
+                        }
+                    })
+
+                    CliqzHumanWeb.loadRecord('activeUsageLastSent', function (data) {
+                        if(!data){
+                            CliqzHumanWeb.activeUsageLastSent = Date.now();
+                            CliqzHumanWeb.saveRecord("activeUsageLastSent", CliqzHumanWeb.activeUsageLastSent);
+                        }
+                        console.log("<<< Time Active usage >>>" + data);
+                        // CliqzHumanWeb.activeUsage = data;
+                    })
                 },
                 initAtBrowser: function initAtBrowser() {
                     if (CliqzUtils.getPref("dnt", false)) return;
@@ -3724,6 +3747,32 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 checkActiveUsage: function checkActiveUsage() {
                     //This function needs to be scheduled every one hour.
+                    // Konark: Moving this to persitent store, instead of prefs.
+
+                    // Check if the alive signal sent was more than one hour earlier.
+                    var currentTime = Date.now();
+                    var tDiff = (currentTime - CliqzHumanWeb.activeUsageLastSent)/1000;
+
+                    // Check if activeUsgae is more than threshold.
+                    if (CliqzHumanWeb.activeUsage && (CliqzHumanWeb.activeUsage > CliqzHumanWeb.activeUsageThreshold) && ( tDiff > 3600)) {
+                        //Sample event to be sent
+                        var payload = {};
+                        payload['status'] = true;
+                        payload['t'] = CliqzHumanWeb.getTime();
+                        try {
+                            var location = CliqzUtils.getPref('config_location', null);
+                        } catch (ee) {};
+                        payload['ctry'] = location;
+                        CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload': payload });
+                        CliqzHumanWeb.activeUsage = 0;
+                        CliqzHumanWeb.saveRecord("activeUsageLastSent", CliqzHumanWeb.activeUsageLastSent)
+                        CliqzHumanWeb.saveRecord('config_activeUsageCount', 0);
+                    }
+                    else{
+                        _log("Active usage condition not met");
+                    }
+
+                    /* TBR: After testing.
                     var oldUsage = 0;
                     try {
                         oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0);
@@ -3743,6 +3792,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
                         CliqzUtils.setPref('config_activeUsageCount', 0);
                     }
+                    */
                 },
                 saveRecord: function saveRecord(id, data) {
 
