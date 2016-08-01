@@ -11,7 +11,7 @@
         {{delete-icon}}
       </a>
 
-      {{input name="addUrl" type="text" placeholder=(t 'speedDials.address') value=newSpeedDial class="formRow addUrl"}}
+      {{input name="addUrl" type="text" placeholder=(t 'speedDials.address') value=newSpeedDial class="formRow addUrl" autocomplete="off"}}
 
       {{#if error}}
         <div class="notification">{{t 'speedDials.exists-already' }}</div>
