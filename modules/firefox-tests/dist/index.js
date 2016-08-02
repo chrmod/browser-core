@@ -75,9 +75,13 @@ initHttpServer();
 
 // Load Tests and inject their dependencies
 Object.keys(window.TESTS).forEach(function (testName) {
-  var testFunction = TESTS[testName],
-      moduleNames = DEPS[testName],
-      modules = moduleNames.map(loadModule);
+  var testFunction = window.TESTS[testName],
+      moduleNames = window.DEPS[testName],
+      modules;
+
+  if (moduleNames !== undefined) {
+    modules = moduleNames.map(loadModule);
+  }
 
   if ('MIN_BROWSER_VERSION' in testFunction && browserMajorVersion < testFunction.MIN_BROWSER_VERSION) {
     return; // skip tests
