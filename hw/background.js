@@ -91,6 +91,7 @@ pm.start();
 // CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
 
 CliqzHumanWeb.init();
+CliqzSecureMessage.init();
 
 /*
 eventList.forEach(function(e) {

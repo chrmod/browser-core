@@ -86,17 +86,47 @@ var messageContext = class messageContext {
 	 	this.mK = null;
 	 	this.mP = null;
 	 	this.dm = null;
-	 	// this.dmC =  this.action !== "extension-query" ? this.calculateRouteHash(this.jMessage) : null;
-	 	// this.proxyCoordinator = this.action != "extension-query" ? this.getProxyIP(this.dmC) :null;
 	 	this.proxyValidators = null;
-	 	this.secureLogger = new secureLogger(); // This needs to only on initialization
   }
 
   log(msg){
-  	if(HPN.DEBUG){
+  	if(CliqzSecureMessage.debug){
   		console.log("Message Context: " + msg);
   	}
   }
+
+	getproxyCoordinator(){
+		var _this = this;
+		var msg = _this.jMessage;
+		var promise = new Promise(function(resolve, reject){
+			try{
+				var hash = "";
+				// var _msg = msg || this.orgMessage;
+				var stringRouteHash = getRouteHash(msg);
+				CliqzSecureMessage.sha1(stringRouteHash)
+				.then(hashM => {
+					var dmC = hexToBinary(hashM)['result'].slice(0,13);
+					var routeHash = parseInt(dmC, 2);
+					_this.fullHash = hashM;
+					_this.dmC = dmC;
+					var totalProxies = 4096;
+					var modRoute = routeHash % totalProxies;
+					var proxyIP = createHttpUrl(CliqzSecureMessage.routeTable[modRoute]);
+					_this.proxyCoordinator = proxyIP;
+					resolve(proxyIP);
+				})
+				.catch(err=>{
+					reject(err);
+				})
+
+
+			}
+			catch(e){
+				reject(e);
+			}
+		})
+		return promise;
+	}
 
 	/**
 	 * Method to parse a message and encrypt with AES.
@@ -179,7 +209,7 @@ var messageContext = class messageContext {
 				// mE.
 				var mI = '' + CryptoJS.MD5(_this.mE);
 				var messageToSign = _this.key + ";" + _this.iv + ";endPoint;" + mI;
-				var signedKey = _this.secureLogger.keyObj.encrypt(messageToSign);
+				var signedKey = CliqzSecureMessage.secureLogger.keyObj.encrypt(messageToSign);
 				_this.signedKey = signedKey;
 				_this.mK = signedKey;
 				resolve(signedKey);
@@ -201,4 +231,5 @@ var messageContext = class messageContext {
 		this.mP = mP;
 		return mP
 	}
+
 };
