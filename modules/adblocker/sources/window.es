@@ -44,38 +44,42 @@ export default class {
       const currentURL = win.gBrowser.currentURI.spec;
       const adbDisabled = !adbEnabled();
 
-      // do not show disable for current URL/Domain
-      if (utils.isUrl(currentURL)) {
-        const disabledForDomain = CliqzADB.adBlocker.isDomainInBlacklist(currentURL);
-        const disabledForUrl = CliqzADB.adBlocker.isUrlInBlacklist(currentURL);
+      const isCorrectUrl = utils.isUrl(currentURL);
+      let disabledForUrl = false;
+      let disabledForDomain = false;
 
-        const disableUrl = win.CLIQZ.Core.createCheckBoxItem(
-          doc,
-          'cliqz-adb-url',
-          utils.getLocalizedString('adb-menu-disable-url'),
-          true,
-          () => { CliqzADB.adBlocker.toggleUrl(currentURL); },
-          disabledForUrl
-        );
-
-        const disableDomain = win.CLIQZ.Core.createCheckBoxItem(
-          doc,
-          'cliqz-adb-domain',
-          utils.getLocalizedString('adb-menu-disable-domain'),
-          true,
-          () => { CliqzADB.adBlocker.toggleDomain(currentURL); },
-          disabledForDomain
-        );
-
-        // We disabled the option of adding a custom rule for URL
-        // in case the whole domain is disabled
-        disableUrl.setAttribute('disabled', adbDisabled || disabledForDomain);
-        disableDomain.setAttribute('disabled', adbDisabled);
-
-        adbPopup.appendChild(disableUrl);
-        adbPopup.appendChild(disableDomain);
-        adbPopup.appendChild(doc.createElement('menuseparator'));
+      // Check if adblocker is disabled on this page
+      if (isCorrectUrl) {
+        disabledForDomain = CliqzADB.adBlocker.isDomainInBlacklist(currentURL);
+        disabledForUrl = CliqzADB.adBlocker.isUrlInBlacklist(currentURL);
       }
+
+      const disableUrl = win.CLIQZ.Core.createCheckBoxItem(
+        doc,
+        'cliqz-adb-url',
+        utils.getLocalizedString('adb-menu-disable-url'),
+        true,
+        () => { CliqzADB.adBlocker.toggleUrl(currentURL); },
+        disabledForUrl
+      );
+
+      const disableDomain = win.CLIQZ.Core.createCheckBoxItem(
+        doc,
+        'cliqz-adb-domain',
+        utils.getLocalizedString('adb-menu-disable-domain'),
+        true,
+        () => { CliqzADB.adBlocker.toggleDomain(currentURL); },
+        disabledForDomain
+      );
+
+      // We disabled the option of adding a custom rule for URL
+      // in case the whole domain is disabled
+      disableUrl.setAttribute('disabled', adbDisabled || disabledForDomain || !isCorrectUrl);
+      disableDomain.setAttribute('disabled', adbDisabled || !isCorrectUrl);
+
+      adbPopup.appendChild(disableUrl);
+      adbPopup.appendChild(disableDomain);
+      adbPopup.appendChild(doc.createElement('menuseparator'));
 
       Object.keys(ADB_PREF_VALUES).forEach(name => {
         const item = doc.createElement('menuitem');
