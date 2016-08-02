@@ -1,6 +1,7 @@
 "use strict";
 
 var expect = chai.expect;
+DEPS.UtilsTest = ["core/utils"];
 TESTS.UtilsTest = function (CliqzUtils) {
   var md5 = CliqzUtils.getWindow().CLIQZ.System.get('core/helpers/md5').default;
   describe('MD5 Hex-encoding', function () {
