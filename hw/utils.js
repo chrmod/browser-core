@@ -1,3 +1,44 @@
+/*
+Function to clean string for calculating route hash
+*/
+var punctuation = '!"\'()*,-./:;?[\\]^_`{|}~%$=&+#'
+var regex =  new RegExp("[" + punctuation + "]","g");
+function cleanStr(s){
+  // Replace all spaces
+
+  // Because in some telemetry message we only create uniqu based on anti-duplicate.
+  // Anti-duplicate is not a string, hence converting it to string.
+  s = '' + s;
+
+  // Decode uri component
+  // Need to find lua equivalent
+
+  try{
+    s = decodeURIComponent(s);
+  }catch(e){};
+
+
+  s = s.replace(/\s+/g,'');
+
+  // Convert to lower
+  s = s.toLowerCase();
+
+  // Trim
+  s = s.trim();
+
+  // Clean the URL
+  s = s.replace(/^http:\/\//, "");
+  s = s.replace(/^https:\/\//, "");
+  s = s.replace(/^www\./,'');
+
+
+  // Remove all punctuation marks
+  s = s.replace(regex,'');
+
+  return s;
+
+}
+
 function _http(url){
 
 	var core = {
@@ -53,4 +94,66 @@ function _http(url){
   		return core.req('POST', url, args, type);
   	}
   };
+}
+
+function fetchSourceMapping(){
+  // This will fetch the route table from local file, will move it to webservice later.
+    //Check health
+    CliqzUtils.httpGet(CliqzSecureMessage.SOURCE_MAP_PROVIDER,
+      function success(req){
+        try {
+          CliqzSecureMessage.sourceMap = JSON.parse(req.response);
+        } catch(e){}
+      },
+      function error(res){
+        CliqzUtils.log('Error loading config. ', CliqzSecureMessage.LOG_KEY);
+      }, 5000);
+}
+
+function getField(obj, path) {
+  return path.split(/[\.\[\]]+/).filter(x => x).reduce((o, i) => o[i], obj);
+}
+
+function orderedStringify(t, res, onlyKeys) {
+  if (!t || typeof t !== 'object') {
+    if (t === undefined) {
+      throw 'Found undefined field when trying to calculate msg routehash';
+    }
+    res.push(cleanStr(t));
+  } else {
+    let keys = Object.keys(t);
+    keys.sort();
+    let isArray = Array.isArray(t);
+    keys.forEach(k => {
+      if (!isArray) {
+        res.push(cleanStr(k));
+      }
+      if (!onlyKeys) {
+        orderedStringify(t[k], res);
+      }
+    });
+  }
+}
+
+
+function getRouteHashStr(obj, sourceMap) {
+  let action = obj.action;
+  let keys = sourceMap[action].keys;
+  let staticKeys = sourceMap[action].static||[];
+  let res = [];
+  keys.forEach(k => orderedStringify(getField(obj, k), res, staticKeys.some(sk => k.endsWith(sk))));
+  return res.join('');
+}
+
+/* This method will return the string based on mapping of which keys to use to hash for routing.
+*/
+function getRouteHash(msg){
+  return getRouteHashStr(msg, CliqzSecureMessage.sourceMap);
+}
+/*
+Function to create http url
+*/
+
+function createHttpUrl(host){
+  return "http://" + host + "/verify";
 }
