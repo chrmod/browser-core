@@ -35,6 +35,7 @@ var UI = {
     CARD_WIDTH: 0,
     nCardsPerPage: 1,
     nPages: 1,
+    DelayedImageLoader: null,
     init: function () {
         //check if loading is done
         if (!CliqzHandlebars.tplCache.main) return;
@@ -46,6 +47,10 @@ var UI = {
         viewPager = UI.initViewpager();
 
         resultsBox.addEventListener('click', resultClick);
+
+        // FIXME: import does not work
+        UI.DelayedImageLoader = System.get('mobile-ui/DelayedImageLoader').default;
+        loadViews();
     },
     setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
@@ -107,7 +112,7 @@ var UI = {
 
         if (asyncResults.length) loadAsyncResult(asyncResults, query);
 
-        imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
+        imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
         imgLoader.start();
 
         crossTransform(resultsBox, 0);
@@ -251,7 +256,7 @@ function loadAsyncResult(res, query) {
                   else {
                     redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                   }
-                  imgLoader = new DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
+                  imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
                   imgLoader.start();
               }
             }
@@ -513,23 +518,27 @@ window.addEventListener('connected', function () {
 });
 
 
-UI.clickHandlers = {};
-Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
-  UI.VIEWS[templateName] = Object.create(null);
-  try {
-    let module = System.get('mobile-ui/views/' + templateName);
-    if (module) {
-      UI.VIEWS[templateName] = new module.default(window);
+function loadViews() {
+  UI.clickHandlers = {};
+  Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
+    UI.VIEWS[templateName] = Object.create(null);
+    try {
+      let module = System.get('mobile-ui/views/' + templateName);
+      if (module) {
+        UI.VIEWS[templateName] = new module.default(window);
 
-      if (UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click) {
-        Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
-          UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
-        });
+        if (UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click) {
+          Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+            UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+          });
+        }
+      } else {
+        CliqzUtils.log('failed to load ' + templateName);
       }
+    } catch (ex) {
+      CliqzUtils.log(ex, 'UI');
     }
-  } catch (ex) {
-    CliqzUtils.log(ex, 'UI');
-  }
-});
+  });
+}
 
 export default UI;

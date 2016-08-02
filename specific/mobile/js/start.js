@@ -1,7 +1,3 @@
-window.CliqzLanguage = {
-  stateToQueryString: function(){ return '&lang=de,en'; }
-};
-
 window.XPCOMUtils = {
   defineLazyModuleGetter: function(){},
   generateQI: function(){},
@@ -24,6 +20,8 @@ window.Components = {
 };
 
 window.CLIQZ = {};
+
+System.baseURL = './';
 
 Promise.all([
   System.import("platform/environment"),
@@ -57,6 +55,7 @@ Promise.all([
     lang: window.navigator.language || window.navigator.userLanguage
   });
 }).then(function () {
+  jsAPI.init();
   osAPI.init();
   CliqzUtils.initHomepage(true);
 });

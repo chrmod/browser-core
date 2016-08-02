@@ -364,16 +364,16 @@ var CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CliqzUtils.getDetailsFromUrl(engine.url);
-    var logo = CliqzUtils.getLogoDetails(details);
+    var details = CLIQZEnvironment.getDetailsFromUrl(engine.url);
+    var logo = CLIQZEnvironment.getLogoDetails(details);
 
-    var result =  CliqzUtils.Result.cliqzExtra(
+    var result =  CLIQZEnvironment.Result.cliqzExtra(
       {
         data:
           {
             template:'noResult',
-            title: CliqzUtils.getLocalizedString('mobile_no_result_title'),
-            action: CliqzUtils.getLocalizedString('mobile_no_result_action', engine.name),
+            title: CLIQZEnvironment.getLocalizedString('mobile_no_result_title'),
+            action: CLIQZEnvironment.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CLIQZEnvironment.lastSearch),
             searchEngineUrl: engine.url,
             logo: logo

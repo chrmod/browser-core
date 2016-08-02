@@ -1,5 +1,6 @@
 import CLIQZEnvironment from "platform/environment";
-//import { language as CliqzLanguage } from "core/cliqz";
+
+var CliqzLanguage;
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -70,6 +71,13 @@ var CliqzUtils = {
       CLIQZEnvironment.gzip = gzip;
     }).catch(function () {
       //no gzip, do nothing
+    });
+
+    // FIXME: `import CliqzLanguage from "platform/language";` does not work
+    CliqzUtils.importModule('platform/language').then(function(language) {
+      CliqzLanguage = language.default;
+    }).catch(function () {
+      CliqzUtils.log('error: cannot load CliqzLanguage');
     });
 
     // cutting cyclic dependency
