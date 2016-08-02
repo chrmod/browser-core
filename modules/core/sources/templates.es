@@ -64,7 +64,6 @@ function fetchTemplate(tName, isPartial) {
     }
 }
 
-
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
         var template = CliqzHandlebars.tplCache[name] || CliqzHandlebars.tplCache["partials/"+name] || CliqzHandlebars.tplCache.empty;

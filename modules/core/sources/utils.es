@@ -49,6 +49,7 @@ var CliqzUtils = {
         'g': 'cpgame_movie',
         'o': 'cpgame_movie'
     },
+  hm: null,
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   TEMPLATES: CLIQZEnvironment.TEMPLATES,
   MESSAGE_TEMPLATES: CLIQZEnvironment.MESSAGE_TEMPLATES,

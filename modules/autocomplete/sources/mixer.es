@@ -417,7 +417,7 @@ var Mixer = {
     }
 
     // Special case: adjust second result if it doesn't fit
-    if (results.length > 1 && results[1].data.template == 'pattern-h2') {
+    if (utils.getPref('hist_search_type', 0) == 0 && results.length > 1 && results[1].data.template == 'pattern-h2') {
       utils.log('Converting cluster for ' + results[1].val +
                      ' to simple history', 'Mixer');
 

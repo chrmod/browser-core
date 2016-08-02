@@ -66,6 +66,32 @@ var CliqzHistoryCluster = {
     CliqzHistoryCluster.firefoxHistory.query = query;
     CliqzHistoryCluster.historyCallback(res);
   },
+  _simplePreparePatterns: function(patterns, query) {
+    var baseUrl, favicon, orig_query = query;
+
+    query = CliqzUtils.cleanUrlProtocol(query, true).trim();
+
+    // Filter patterns that don't match search
+    //patterns = CliqzHistoryCluster._filterPatterns(patterns, query.toLowerCase());
+    //var share = CliqzHistoryCluster._maxDomainShare(patterns);
+
+    // Remove patterns with same url or title
+    //patterns = CliqzHistoryCluster._removeDuplicates(patterns);
+
+    // Move base domain to top
+    //var adjustedResults = CliqzHistoryCluster._adjustBaseDomain(patterns, query);
+    //patterns = adjustedResults[0];
+    //baseUrl = adjustedResults[1];
+    //favicon = adjustedResults[2];
+    //var https = adjustedResults[3];
+    var res = CliqzHistoryCluster._generateResult(patterns, orig_query, false, baseUrl);
+
+    res.cluster = false;
+
+    res.results = CliqzHistoryCluster._removeDuplicates(res.results);
+    return res;
+  },
+
   // Process patterns
   _preparePatterns: function(patterns, query) {
     var baseUrl, favicon, orig_query = query;
@@ -462,7 +488,7 @@ var CliqzHistoryCluster = {
       var favicon = with_favicon && (urls[i].favicon == FF_DEF_FAVICON ? Q_DEF_FAVICON : urls[i].favicon),
           cleanUrl = utils.cleanUrlProtocol(utils.simplifyUrl(url), true);
 
-      result.data.urls.push({
+      var item = {
         href: urls[i].url,
         link: cleanUrl,
         domain: cleanUrl.split('/')[0],
@@ -470,9 +496,24 @@ var CliqzHistoryCluster = {
         extra: 'history-' + i,
         favicon: favicon,
         // logo is only necessary for 3-up mini-history view, this can be removed if that is retired
-        logo: utils.getLogoDetails(utils.getDetailsFromUrl(urls[i].url)),
-        kind: ['H']
-      });
+        logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(urls[i].url)),
+        kind: ['H'],
+      };
+
+      if (urls[i].hasOwnProperty('xtra_c')) {
+        item['xtra_c'] = urls[i]['xtra_c'];
+        item['class-col-cluster'] = 'cqz-col-12';
+        //item['class-col-query'] = 'cqz-col-0';
+      }
+
+      if (urls[i].hasOwnProperty('xtra_q')) {
+        item['xtra_q'] = urls[i]['xtra_q'];
+        item['class-col-cluster'] = 'cqz-col-8';
+        item['class-col-query'] = 'cqz-col-4';
+      }
+
+      result.data.urls.push(item);
+
       if ((result.data.urls.length > 9 && result.data.template == 'pattern-h1') ||
           (result.data.urls.length > 5 && result.data.template == 'pattern-h2') ||
           (result.data.urls.length > 2 && result.data.template == 'pattern-h3')) {
@@ -559,16 +600,60 @@ var CliqzHistoryCluster = {
       instant.data.generic = true;
 
       this._attachURLs(instant, results, true);
+      instant_results.push(instant);
+    }
+
+    if (typeof(Promise) === 'undefined') {
+      // Firefox versions < 29
+      callback(instant_results, 'cliqz-prod');
+    } else {
+      Promise.all(promises).then(function(data) {
+        callback(instant_results, 'cliqz-prod');
+      });
+    }
+  },
+  // Creates one (or potentially more) instant results based on history
+  simpleCreateInstantResult: function(res, cont, searchString, callback) {
+    var instant_results = [];
+    //var results = res.filteredResults();
+    var results = res.results;
+    var promises = [];
+
+    if (results.length === 0 && !res.urls) {
+      // no results, so do nothing
+
+    } else {
+      // generic history
+      var simple_generic = CliqzUtils.getPref('simpleHistory', false);
+      //var simple_generic = true;
+
+      // 3-up combined generic history entry
+      var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
+      instant.data.title = '';
+      instant.comment += ' (history generic)!';
+
+      //
+      // There is so many levels of abstraction here that is impossible to follow,
+      // 5 function to be able to printout something, stack overflow :-/
+      //
+      instant.data.template = 'pattern-hm';
+      //instant.data.template = 'pattern-h3';
+
+      instant.data.generic = true;
+
+      instant.data.cont = cont;
+
+      this._attachURLs(instant, results, true);
 
       instant_results.push(instant);
     }
 
     if (typeof(Promise) === 'undefined') {
       // Firefox versions < 29
-      callback(instant_results);
+      callback(instant_results, 'hm');
     } else {
       Promise.all(promises).then(function(data) {
-        callback(instant_results);
+        callback(instant_results, 'hm');
       });
     }
   },

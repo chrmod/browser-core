@@ -121,6 +121,10 @@ var UI = {
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
+
+        // TEMP
+        if (CliqzUtils.getPref('hist_search_type', 0))
+            resultsBox.style.height = "580px";
     },
     handleResults: function(){
       // TODO: this is FF specific - move it to another place!
