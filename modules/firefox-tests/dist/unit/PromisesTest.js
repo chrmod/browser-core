@@ -1015,7 +1015,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
 
             wrapped.then(function(){
               calledResolved++;
-            }, function(error){
+            }, function(error) {
               calledRejected++;
               assert(calledResolved === 0, 'never resolved');
               assert(calledRejected === 1, 'rejected only once');
@@ -1032,11 +1032,11 @@ TESTS.PromiseTest = function(CliqzUtils) {
               resolver('baz');
             }, 20);
 
-            setTimeout(function(){
+            setTimeout(function() {
               assert(calledRejected === 1, 'only rejected once');
               assert(calledResolved === 0, 'never resolved');
               done();
-            }, 50);
+            }, 100);
           });
 
           describe("2.3.4 If calling then throws an exception e", function(){
