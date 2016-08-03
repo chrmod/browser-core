@@ -712,6 +712,9 @@ export default describeModule("autocomplete/mixer",
         smartCliqzCache.retrieve = function(url) {
           return ezs[url];
         };
+
+        smartCliqzCache.retrieveAndUpdate = smartCliqzCache.retrieve;
+
         this.deps("core/cliqz").utils.generalizeUrl = () => "cliqz.com";
         this.module().default.init({
           smartCliqzCache,
