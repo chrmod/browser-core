@@ -147,7 +147,7 @@
         "message": "Ich nehme teil"
     },
     "anti-phishing": {
-        "message": "Phishing Schutz"
+        "message": "Anti-Phishing"
     },
     "anti-phishing-enabled": {
         "message": "Aktiviert"
@@ -165,7 +165,7 @@
         "message": "Mehr erfahren"
     },
     "anti-phishing-txt4": {
-        "message": "Zurück zu sicherer Seite"
+        "message": "Zu sicherer Seite"
     },
     "anti-phishing-txt5": {
         "message": "Diese Seite als sicher melden"
@@ -768,7 +768,7 @@
       "message": "Link in neuem Fenster öffnen"
     },
     "cMenuOpenInPrivateWindow": {
-      "message": "Link in neuem privaten Fenster öffnen"
+      "message": "Link in neuem Vergessen Fenster öffnen"
     },
     "cMenuFeedback": {
       "message": "Feedback an CLIQZ"
