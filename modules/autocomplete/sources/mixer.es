@@ -287,7 +287,7 @@ var Mixer = {
         SmartCliqzTriggerUrlCache.delete(url);
         return undefined;
       }
-      ez = CliqzSmartCliqzCache.retrieve(url);
+      ez = CliqzSmartCliqzCache.retrieveAndUpdate(url);
       if (ez) {
         // Cached EZ is available
         ez = Result.clone(ez);
