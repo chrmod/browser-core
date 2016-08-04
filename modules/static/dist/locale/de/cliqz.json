@@ -1232,8 +1232,80 @@
     "control-center-datapoints": {
       "message": "Persönliche Daten wurden entfernt"
     },
-    "control-center-adblock": {
+    "control-center-datapoints": {
+      "message": "Deaktiviert für diese Website"
+    },
+    "control-center-trackers": {
+      "message": "Tracking Unternehmen auf dieser Seite"
+    },
+    "control-center-adblock-title": {
       "message": "Werbeblocker"
+    },
+    "control-center-adblock-description": {
+      "message": "Werbungen wurden geblockt"
+    },
+    "control-center-adblock-description-inactive": {
+      "message": "Deaktiviert für diese Website"
+    },
+    "control-center-adblock-advertisers": {
+      "message": "Liste der Werbetreibenden auf dieser Seite"
+    },
+    "control-center-phishing-report": {
+      "message": "Phishing Seite melden"
+    },
+    "control-center-support": {
+      "message": "Info & Hilfe"
+    },
+    "control-center-othersettings": {
+      "message": "Andere Einstellungen"
+    },
+    "control-center-quicksearch": {
+      "message": "Sichere Schnell-Suche"
+    },
+    "control-center-quicksearch": {
+      "message": "Standort teilen"
+    },
+    "control-center-explicit": {
+      "message": "Explizite Websites blockieren"
+    },
+    "control-center-proxy": {
+      "message": "Suche über Proxy"
+    },
+    "control-center-searchoptions": {
+      "message": "Mehr Suchoptionen"
+    },
+    "control-center-humanweb": {
+      "message": "Am Human Web teilnehmen"
+    },
+    "control-center-best-cliqz": {
+      "message": "Hol dir das Beste aus CLIQZ"
+    },
+    "control-center-transparency": {
+      "message": "Transparenz Monitor"
+    },
+    "control-center-history-options": {
+      "message": "Chronik Einstellungen"
+    },
+    "control-center-show-history": {
+      "message": "Gesamte Chronik anzeigen"
+    },
+    "control-center-forget-history": {
+      "message": "Chronik vergessen"
+    },
+    "control-center-forget-mode": {
+      "message": "Automatischer Vergessen Modus"
+    },
+    "control-center-switch-on": {
+      "message": "AN"
+    },
+    "control-center-switch-off": {
+      "message": "AUS"
+    },
+    "control-center-phishing-deceptive": {
+      "message": "Als betrügerisch gemeldet"
+    },
+    "control-center-phishing-deceptive-not": {
+      "message": "Nicht als betrügerisch gemeldet"
     },
     "TEST": "OK"
 }

@@ -1232,8 +1232,80 @@
     "control-center-datapoints": {
       "message": "Private data points have been removed"
     },
-    "control-center-adblock": {
+    "control-center-datapoints-inactive": {
+      "message": "Turned off for this website"
+    },
+    "control-center-trackers": {
+      "message": "Tracking companies on this page"
+    },
+    "control-center-adblock-title": {
       "message": "Ad-block"
+    },
+    "control-center-adblock-description": {
+      "message": "Ads have been blocked on this website"
+    },
+    "control-center-adblock-description-inactive": {
+      "message": "Turned off for this website"
+    },
+    "control-center-adblock-advertisers": {
+      "message": "List of advertisers on this page"
+    },
+    "control-center-phishing-report": {
+      "message": "Report phishing Site"
+    },
+    "control-center-support": {
+      "message": "Info & Support"
+    },
+    "control-center-othersettings": {
+      "message": "Other Settings"
+    },
+    "control-center-quicksearch": {
+      "message": "Safe Quick-Search"
+    },
+    "control-center-location": {
+      "message": "Share location"
+    },
+    "control-center-explicit": {
+      "message": "Block adult content"
+    },
+    "control-center-proxy": {
+      "message": "Search via proxy"
+    },
+    "control-center-searchoptions": {
+      "message": "More Search Options"
+    },
+    "control-center-humanweb": {
+      "message": "Take part in Human Web"
+    },
+    "control-center-best-cliqz": {
+      "message": "Get the best out of CLIQZ"
+    },
+    "control-center-transparency": {
+      "message": "Transparency monitor"
+    },
+    "control-center-history-options": {
+      "message": "History options"
+    },
+    "control-center-show-history": {
+      "message": "Show all history"
+    },
+    "control-center-forget-history": {
+      "message": "Forget history"
+    },
+    "control-center-forget-mode": {
+      "message": "Automatic forget mode"
+    },
+    "control-center-switch-on": {
+      "message": "ON"
+    },
+    "control-center-switch-off": {
+      "message": "OFF"
+    },
+    "control-center-phishing-deceptive": {
+      "message": "Reported as deceptive"
+    },
+    "control-center-phishing-deceptive-not": {
+      "message": "Not reported as deceptive"
     },
     "TEST": "OK"
 }
