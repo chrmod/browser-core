@@ -11,6 +11,7 @@
     "antitrackingButton": true
   },
   "modules": [
+    "q-button",
     "static",
     "core",
     "autocomplete",
