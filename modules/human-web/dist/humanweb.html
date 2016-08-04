@@ -153,7 +153,6 @@
 
         function clickHW(cb){
             CliqzUtils.setPref('dnt', !cb.checked);
-            CliqzUtils.getWindow().CLIQZ.Core.refreshButtons();
 
             CliqzUtils.telemetry({
               type: 'humanWebStatus',

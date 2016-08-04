@@ -8,8 +8,6 @@
  */
 
 
-var EXPORTED_SYMBOLS = ['ToolbarButtonManager'];
-
 /* ***** BEGIN LICENSE BLOCK *****
 * Version: MIT/X11 License
 *
@@ -146,3 +144,5 @@ ToolbarButtonManager.hideToolbarElement = function(doc, id){
   }
 }
 
+
+export default ToolbarButtonManager;

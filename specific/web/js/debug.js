@@ -12,8 +12,7 @@ togglecMenu(true);
 
 CLIQZ.Core = {
 	urlbar: urlbar,
-	popup: document.getElementById('results'),
-	refreshButtons: function(){}
+	popup: document.getElementById('results')
 }
 urlbar.addEventListener('keydown', function(e){
   panelWindow.style.left = panelLeft + 'px';

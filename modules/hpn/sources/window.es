@@ -1,4 +1,5 @@
 import background from 'hpn/background';
+import { simpleBtn, checkBox } from 'q-button/buttons';
 
 const prefKey = 'hpn-query', // 0 - enable, 1 - disable
       BLOCK = false,
@@ -26,11 +27,11 @@ export default class {
 
 		    menu.setAttribute('label', CliqzUtils.getLocalizedString('btnSecureChannel'));
 
-		    var safeSearchBtn = win.CLIQZ.Core.createCheckBoxItem(doc, prefKey, CliqzUtils.getLocalizedString('btnSafeSearch'), true);
+		    var safeSearchBtn = checkBox(doc, prefKey, CliqzUtils.getLocalizedString('btnSafeSearch'), true);
 		    menuPopup.appendChild(safeSearchBtn);
 
 		    menuPopup.appendChild(
-		        win.CLIQZ.Core.createSimpleBtn(
+		        simpleBtn(
 		            doc,
 		            CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
 		            function(){

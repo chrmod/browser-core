@@ -1,4 +1,5 @@
 import { utils } from "core/cliqz";
+import { simpleBtn } from 'q-button/buttons';
 
 export default class {
   constructor(settings) {
@@ -37,7 +38,7 @@ export default class {
         utils.callAction(
           "geolocation",
           "setLocationPermission",
-          [win, this.filter_level.toString()]
+          [this.filter_level.toString()]
         );
         utils.telemetry({
           type: 'activity',
@@ -49,7 +50,7 @@ export default class {
       menupopup.appendChild(item);
     };
 
-    var learnMore = win.CLIQZ.Core.createSimpleBtn(
+    var learnMore = simpleBtn(
       doc,
       utils.getLocalizedString('learnMore'),
       function(){

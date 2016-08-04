@@ -1362,7 +1362,6 @@ function urlIndexInHistory(url, urlList) {
                             var win = enumerator.getNext();
                             win.CLIQZ.Core.unload(true);
                         }
-                        CLIQZ.Core.refreshButtons();
                         CliqzAutocomplete.isPopupOpen = false;
                         break;
                     case 'keep-cliqz':
@@ -1448,7 +1447,6 @@ function urlIndexInHistory(url, urlList) {
                     setting: el.getAttribute('cliqz-telemetry'),
                     value: state
                 });
-                setTimeout(function(){ CLIQZ.Core.refreshButtons(); }, 0);
             }
             /* Propagate event up the DOM tree */
             el = el.parentElement;

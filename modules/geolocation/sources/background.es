@@ -128,10 +128,9 @@ export default background({
       });
     },
 
-    setLocationPermission(window, newPerm) {
+    setLocationPermission(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         utils.setPref('share_location',newPerm);
-        utils.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
         this.actions.updateGeoLocation();
       }
     },

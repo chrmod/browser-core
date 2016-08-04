@@ -320,7 +320,6 @@ export default {
     */
     revertBack() {
       FreshTab.toggleState();
-      utils.getWindow().CLIQZ.Core.refreshButtons();
     },
 
     getTabIndex() {

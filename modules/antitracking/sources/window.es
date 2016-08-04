@@ -1,6 +1,7 @@
 import background from 'antitracking/background';
 import CliqzAttrack from 'antitracking/attrack';
 import { utils, events } from 'core/cliqz';
+import { simpleBtn } from 'q-button/buttons';
 
 
 function onLocationChange(ev) {
@@ -124,13 +125,12 @@ export default class {
           utils.clearPref('attrackForceBlock');
           utils.telemetry( { type: 'antitracking', action: 'click', target: 'attrack_qbutton_default'} );
         }
-        utils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
       }, false);
 
       attrackPopup.appendChild(item);
     };
 
-    var learnMore = this.window.CLIQZ.Core.createSimpleBtn(
+    var learnMore = simpleBtn(
         doc,
         utils.getLocalizedString('learnMore'),
         function() {

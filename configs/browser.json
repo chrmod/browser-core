@@ -13,6 +13,7 @@
     "helpMenus": true
   },
   "modules": [
+    "q-button",
     "static",
     "core",
     "autocomplete",

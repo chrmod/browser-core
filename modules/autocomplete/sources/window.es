@@ -37,7 +37,6 @@ export default class {
       // TODO: Where is this listener removed?
       item.addEventListener('command', (function(event) {
         CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-        utils.setTimeout(this.window.CLIQZ.Core.refreshButtons, 0);
         utils.telemetry({
           type: 'activity',
           action: 'cliqz_menu_button',

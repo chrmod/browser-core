@@ -1,4 +1,5 @@
 import { utils } from 'core/cliqz';
+import { simpleBtn, checkBox } from 'q-button/buttons';
 import CliqzADB,
      { adbEnabled,
        adbABTestEnabled,
@@ -54,7 +55,7 @@ export default class {
         disabledForUrl = CliqzADB.adBlocker.isUrlInBlacklist(currentURL);
       }
 
-      const disableUrl = win.CLIQZ.Core.createCheckBoxItem(
+      const disableUrl = checkBox(
         doc,
         'cliqz-adb-url',
         utils.getLocalizedString('adb-menu-disable-url'),
@@ -63,7 +64,7 @@ export default class {
         disabledForUrl
       );
 
-      const disableDomain = win.CLIQZ.Core.createCheckBoxItem(
+      const disableDomain = checkBox(
         doc,
         'cliqz-adb-domain',
         utils.getLocalizedString('adb-menu-disable-domain'),
@@ -104,7 +105,6 @@ export default class {
             CliqzADB.unloadWindow(win);
             win.adbinit = false;
           }
-          utils.setTimeout(win.CLIQZ.Core.refreshButtons, 0);
           utils.telemetry({
             type: 'activity',
             action: 'cliqz_menu_button',
@@ -118,7 +118,7 @@ export default class {
       adbPopup.appendChild(doc.createElement('menuseparator'));
 
       adbPopup.appendChild(
-        win.CLIQZ.Core.createSimpleBtn(
+        simpleBtn(
           doc,
           CliqzUtils.getLocalizedString('adb-menu-more'),
           () => { utils.openTabInWindow(win, 'https://cliqz.com/whycliqz/adblocking'); },
