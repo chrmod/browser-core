@@ -1047,7 +1047,7 @@
       "message": "Disable for this domain"
     },
     "adb-menu-disable-url": {
-      "message": "Disable only for this site"
+      "message": "Disable only for this page"
     },
     "adb-menu-option-optimized": {
       "message": "Fair"
