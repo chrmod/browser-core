@@ -1,10 +1,9 @@
 'use strict';
-/* global osAPI */
+/* global document, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
-import handlebars from "core/templates";
-import utils from "core/utils";
-import { document } from "core/mobile-webview"
+import { utils } from 'core/cliqz';
+import handlebars from 'core/templates';
 
 var historyTimer;
 var editMode = false;
@@ -23,24 +22,43 @@ function showHistory(history) {
     history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
 
-  const data = mixHistoryWithQueries(queries, history);
-  displayData(data, History.showOnlyFavorite);
+  const historyWithLogos = addLogos(history);
+  const data = mixHistoryWithQueries(queries, historyWithLogos);
+  History.displayData(data, History.showOnlyFavorite);
 }
 
 function showFavorites(favorites) {
   clearTimeout(historyTimer);
 
   allFavorites = favorites;
-  const favoriteHistory = favorites;
 
-  const favoriteQueries = utils.getLocalStorage().getObject('favoriteQueries', []);
-
-  for (let i = 0; i < favoriteHistory.length; i++) {
-    favoriteHistory[i].domain = favoriteHistory[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  for (let i = 0; i < favorites.length; i++) {
+    favorites[i].domain = favorites[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
   }
 
-  const data = mixHistoryWithQueries(favoriteQueries, favoriteHistory);
-  displayData(data, History.showOnlyFavorite);
+  const favoritesWithLogos = addLogos(favorites);
+
+  History.displayData(favoritesWithLogos, History.showOnlyFavorite);
+}
+
+function addLogos(list) {
+  return list.map(item => {
+    const details = utils.getDetailsFromUrl(item.url);
+    item.logo = utils.getLogoDetails(details);
+    return item;
+  });
+}
+
+function sendShowTelemetry(data) {
+  const queryCount = data.filter(function (item) { return item.query; }).length,
+      urlCount = data.filter(function (item) { return item.url; }).length;
+  utils.telemetry({
+    type: History.showOnlyFavorite ? 'favorites' : 'history',
+    action: 'show',
+    active_day_count: data.length - queryCount - urlCount,
+    query_count: queryCount,
+    url_count: urlCount
+  });
 }
 
 
@@ -93,10 +111,11 @@ function mixHistoryWithQueries(queries, history) {
 
 function displayData(data, isFavorite = false) {
   if (!handlebars.tplCache['conversations']) {
-    return setTimeout(displayData, 100, data);
+    return setTimeout(History.displayData, 100, data);
   }
 
-  document.body.innerHTML = handlebars.tplCache['conversations']({data: data, isFavorite});
+  const template = isFavorite ? 'favorites' : 'conversations';
+  document.body.innerHTML = handlebars.tplCache[template]({data: data});
 
   const B = document.body,
       H = document.documentElement;
@@ -111,21 +130,6 @@ function displayData(data, isFavorite = false) {
 
   document.body.scrollTop = height + 100;
 
-  document.getElementById('search_input').addEventListener('keyup', function() {
-      filterHistory(this.value);
-  });
-
-  const queryCount = data.filter(function (item) { return item.query; }).length,
-      urlCount = data.filter(function (item) { return item.url; }).length;
-  utils.telemetry({
-    type: History.showOnlyFavorite ? 'favorites' : 'history',
-    action: 'show',
-    active_day_count: data.length - queryCount - urlCount,
-    query_count: queryCount,
-    url_count: urlCount
-  });
-
-
   function onTap(element) {
     const type = element.getAttribute('class');
     const clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
@@ -137,6 +141,8 @@ function displayData(data, isFavorite = false) {
     }
   }
   new LongPress('.question, .answer', launchEditMode, onTap);
+
+  History.sendShowTelemetry(data);
 }
 
 function launchEditMode(element) {
@@ -147,10 +153,8 @@ function launchEditMode(element) {
   } else {
     let checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
     checkboxes.forEach(function(checkbox){
-      checkbox.style.display = 'block';
+      checkbox.style.display = 'inline';
     });
-    let div = document.getElementById('control');
-    div.style.display = 'block';
     editMode = true;
     selectedQueries = [];
     selectedHistory = [];
@@ -159,8 +163,8 @@ function launchEditMode(element) {
 }
 
 function endEditMode() {
-  const framers = [].slice.call(document.getElementsByClassName('framer'));
-  framers.forEach(item => item.setAttribute('class', 'framer'));
+  const records = [].slice.call(document.getElementsByClassName('item'));
+  records.forEach(item => item.setAttribute('class', 'item'));
 
   const checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
   checkboxes.forEach(function(element){
@@ -168,12 +172,25 @@ function endEditMode() {
     checkbox.checked = false;
     element.style.display = 'none';
   });
-
-  let div = document.getElementById('control');
-  div.style.display = 'none';
   editMode = false;
   selectedQueries = [];
   selectedHistory = [];
+  hideControl();
+}
+
+function showControl() {
+  if (selectedQueries.length) {
+    !History.showOnlyFavorite && (document.getElementById('editQuery').style.display = 'block');
+    document.getElementById('editUrl').style.display = 'none';
+  } else {
+    !History.showOnlyFavorite && (document.getElementById('editQuery').style.display = 'none');
+    document.getElementById('editUrl').style.display = 'block';
+  }
+}
+
+function hideControl() {
+  !History.showOnlyFavorite && (document.getElementById('editQuery').style.display = 'none');
+  document.getElementById('editUrl').style.display = 'none';
 }
 
 function getDateFromTimestamp(time) {
@@ -189,16 +206,6 @@ function getDateFromTimestamp(time) {
 
     const formatedDate = days + '.' + months + '.' + year;
     return formatedDate;
-}
-function filterHistory(value) {
-    var framers = document.getElementsByClassName('framer');
-    for (let i = 0; i < framers.length; i++) {
-        if (framers[i].childNodes[1].firstChild.textContent.toLowerCase().match(value.toLowerCase())) {
-            framers[i].parentNode.style.display = 'block';
-        } else {
-            framers[i].parentNode.style.display = 'none';
-        }
-    }
 }
 
 
@@ -297,22 +304,24 @@ function selectItem(item) {
   const timestamp = Date.now();
   item.getAttribute('class').indexOf('question') >= 0 ? selectQuery({id, query:data, title, timestamp}) : selectHistory({id, url:data, title, timestamp});
 
-  let framer = item.getElementsByClassName('framer')[0];
-  if (framer.getAttribute('class').indexOf('selected') >= 0) {
-    framer.setAttribute('class', 'framer');
+  let record = item.getElementsByClassName('item')[0];
+  if (record.getAttribute('class').indexOf('selected') >= 0) {
+    record.setAttribute('class', 'item');
   } else {
-    framer.setAttribute('class', 'framer selected');
+    record.setAttribute('class', 'item selected');
   }
   if (selectedQueries.length + selectedHistory.length === 0) {
     endEditMode();
+  } else {
+    showControl();
   }
 }
 
-function init(onlyFavorites = History.showOnlyFavorite) {
+function init(onlyFavorites = !!location.hash) {
   migrateQueries();
   History.showOnlyFavorite = onlyFavorites;
   const callback = onlyFavorites ? showFavorites : showHistory;
-  historyTimer = setTimeout(callback, 200, {results: []});
+  historyTimer = setTimeout(callback, 500, []);
   onlyFavorites ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
 }
 
@@ -329,7 +338,7 @@ function clearFavorites() {
 }
 
 function sendClickTelemetry(element) {
-  const targeType = element.className === 'question' ? 'query' : 'url';
+  const targeType = element.className.indexOf('question') >= 0 ? 'query' : 'url';
     utils.telemetry({
       type: History.showOnlyFavorite ? 'favorites' : 'history',
       action: 'click',
@@ -364,14 +373,16 @@ function migrateQueries() {
 
 
 var History = {
-  init: init,
-  showHistory: showHistory,
-  showFavorites: showFavorites,
-  clearHistory: clearHistory,
-  clearFavorites: clearFavorites,
-  favoriteSelected: favoriteSelected,
-  removeSelected: removeSelected,
-  endEditMode: endEditMode,
+  init,
+  showHistory,
+  showFavorites,
+  clearHistory,
+  clearFavorites,
+  favoriteSelected,
+  removeSelected,
+  endEditMode,
+  displayData,
+  sendShowTelemetry,
   showOnlyFavorite: false
 };
 

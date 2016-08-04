@@ -11,7 +11,7 @@ var DEPENDENCY_STATUS = {
   retryCount: {}
 };
 
-var topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesCount, TOPSITES_LIMIT = 4;
+var topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesCount, TOPSITES_LIMIT = 5;
 
 function displayTopSites (list, isEditMode = false) {
 

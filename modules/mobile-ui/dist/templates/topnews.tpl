@@ -5,6 +5,9 @@
     <ul>
         {{#each this}}
             <li class="item" onclick="osAPI.openLink('{{url}}')">
+                <div class="meta">
+                  {{displayUrl}}
+                </div>
                 <div class="meta__logo transition"
                  style="{{style}}"
                  show-status=""
@@ -17,9 +20,6 @@
                         {{ short_title }}
                     </a>
                 </h1>
-                <div class="meta">
-                  {{displayUrl}}
-                </div>
             </li>
         {{/each}}
     </ul>
