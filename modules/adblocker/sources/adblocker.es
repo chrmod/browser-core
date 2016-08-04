@@ -268,6 +268,7 @@ const CliqzADB = {
     CliqzADB.unloadPacemaker();
     browser.forEachWindow(CliqzADB.unloadWindow);
     WebRequest.onBeforeRequest.removeListener(CliqzADB.httpopenObserver.observe);
+    ContentPolicy.unload();
   },
 
   initWindow(window) {

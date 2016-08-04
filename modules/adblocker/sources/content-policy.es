@@ -15,10 +15,14 @@ const ContentPolicy = {
   requests2dom: {},
 
   init() {
-    const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-    registrar.registerFactory(this.classID, this.classDescription, this.contractID, this);
-    const catMan = Cc['@mozilla.org/categorymanager;1'].getService(Ci.nsICategoryManager);
-    catMan.addCategoryEntry(this.xpcom_categories, this.contractID, this.contractID, false, true);
+    this.registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+    this.registrar.registerFactory(this.classID, this.classDescription, this.contractID, this);
+    this.catMan = Cc['@mozilla.org/categorymanager;1'].getService(Ci.nsICategoryManager);
+    this.catMan.addCategoryEntry(this.xpcom_categories, this.contractID, this.contractID, false, true);
+  },
+
+  unload() {
+    this.catMan.deleteCategoryEntry(this.xpcom_categories, this.contractID, false);
   },
 
   shouldLoad(contentType, contentLocation, requestOrigin, node) {
