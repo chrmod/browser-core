@@ -3,7 +3,8 @@ export default describeModule('mobile-history/history',
     return {
       'mobile-touch/longpress': {
         default: { onTap() { }, onLongPress() { } }
-      }
+      },
+      'core/templates': { },
     };
   },
   function () {

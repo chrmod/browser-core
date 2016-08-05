@@ -3,7 +3,7 @@
  * http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
  */
 
-import { utils, events, environment } from "core/cliqz";
+import { utils, events } from "core/cliqz";
 import historyCluster from "autocomplete/history-cluster";
 import Result from "autocomplete/result";
 import resultProviders from "autocomplete/result-providers";
@@ -45,6 +45,8 @@ var CliqzAutocomplete = {
         'userConfirmed': false,
         'searchTerms': []
     },
+    hm: null,
+    currentAutoLoadURL: null,
     getResultsOrder: function(results){
         return CliqzAutocomplete.prepareResultOrder(results);
     },
@@ -109,7 +111,7 @@ var CliqzAutocomplete = {
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
                             // override the template if the superTemplate is known
-                            if(environment.isUnknownTemplate(r.data.template)){
+                            if(utils.isUnknownTemplate(r.data.template)){
                                 // unexpected/unknown template
                                 continue;
                             }
@@ -196,7 +198,7 @@ var CliqzAutocomplete = {
                 // History timed out but maybe we have some results already
                 // So show what you have - AB 1073
                 if (this.historyResults && CliqzUtils.getPref("history.timeouts", false)) {
-                    CliqzHistoryCluster.addFirefoxHistory(this.historyResults);
+                    historyCluster.addFirefoxHistory(this.historyResults);
                     CliqzUtils.log('historyTimeoutCallback: push collected results:' + this.historyResults.results.length, CliqzAutocomplete.LOG_KEY);
                 } else {
                     this.pushResults(this.searchString);
@@ -208,7 +210,6 @@ var CliqzAutocomplete = {
                 }
 
                 var now = Date.now();
-
 
                 this.historyResults = result;
                 this.latency.history = now - this.startTime;
@@ -225,7 +226,78 @@ var CliqzAutocomplete = {
             isHistoryReady: function() {
                 return this.historyResults && this.historyResults.ready;
             },
+            cliqz_hm_search: function(_this, res, hist_search_type) {
+                var data = null;
+                if (hist_search_type === 1) {
+                  data = CliqzUtils.hm.do_search(res.query, false);
+                  data['cont'] = null;
+                }
+                else {
+                  data = CliqzUtils.hm.do_search(res.query, true);
+                }
+
+                var urlAuto = CliqzUtils.hm.urlForAutoLoad(data);
+                if (false && urlAuto) {
+                    var win = CliqzUtils.getWindow().gBrowser.contentWindow;
+                    //if (CliqzAutocomplete.currentAutoLoadURL==null || win.location.href=='about:cliqz') {
+                        if (win.location.href!=urlAuto) {
+                            CliqzUtils.log(">> AUTOLOAD LAUNCH: " + urlAuto, 'CliqzHM');
+                            win.location.href = urlAuto;
+                            CliqzAutocomplete.currentAutoLoadURL = urlAuto;
+                        }
+                    //}
+                }
+
+                // Extract results
+                var patterns = [];
+                for (var i = 0; i < data.result.length; i++) {
+                  var url = CliqzUtils.cleanMozillaActions(data.result[i][0])[1],
+                      title = data.result[i][1];
+
+                  if (!title || title == 'N/A') {
+                    title = CliqzUtils.generalizeUrl(url);
+                  }
+
+                  if (title.length > 0 && url.length > 0 &&
+                      Result.isValid(url, CliqzUtils.getDetailsFromUrl(url))) {
+
+                    var item = {
+                      url: url,
+                      title: title,
+                      favicon: null, //history.results[i].image,
+                      _genUrl: CliqzUtils.generalizeUrl(url, true),
+                    };
+
+                    if (data.result[i][3]) {
+                        if (data.result[i][3].hasOwnProperty('c')) item['xtra_c'] = data.result[i][3]['c'];
+                        if (data.result[i][3].hasOwnProperty('q')) item['xtra_q'] = data.result[i][3]['q'];
+                    }
+
+                    patterns.push(item);
+                  }
+
+                  var cont = null;
+                  if (data.hasOwnProperty('cont')) cont = data['cont'];
+
+                }
+
+                if(patterns.length >0){
+                    var res3 = historyCluster._simplePreparePatterns(patterns, res.query);
+                    // This is also causing undefined issue. Specifically when the res.length == 0;
+                    if(res3.results.length == 0){
+                        res3.results.push({"url": res.query,"title": "Found no result in local history for query: ","favicon": "","_genUrl": "","base": true,"debug": ""})
+                    }
+                    historyCluster.simpleCreateInstantResult(res3, cont,  _this.searchString, function(kk2) {
+                        var vjoin = [];
+                        vjoin.push(kk2[0]);
+                        _this.createInstantResultCallback(vjoin, 'hm');
+                    });
+                }
+
+
+            },
             historyPatternCallback: function(res) {
+
                 // abort if we already have results
                 if(this.mixedResults.matchCount > 0) return;
 
@@ -239,12 +311,20 @@ var CliqzAutocomplete = {
                     this.latency.patterns = latency;
 
                     // Create instant result
-                    historyCluster.createInstantResult(res, this.searchString, this.createInstantResultCallback);
+                    historyCluster.createInstantResult(res, this.searchString, this.createInstantResultCallback, this.customResults);
                 }
             },
-            createInstantResultCallback:function(instant) {
-                this.instant = instant;
-
+            createInstantResultCallback:function(instant, type_res) {
+                if (type_res == 'hm') {
+                  instant[0].type = 'hm'
+                  this.instant.unshift(instant[0]);
+                } else {
+                  if(this.instant.length > 0 && this.instant[0].type == 'hm'){
+                    this.instant[1] = instant[0];
+                  } else {
+                    this.instant = instant
+                  }
+                }
                 this.pushResults(this.searchString);
             },
             pushTimeoutCallback: function(params) {
@@ -308,8 +388,8 @@ var CliqzAutocomplete = {
                     var json = JSON.parse(req.response);
 
                     // apply rerankers
-                    for (var i = 0; i < environment.RERANKERS.length; i++){
-                        var reranker = environment.RERANKERS[i];
+                    for (var i = 0; i < utils.RERANKERS.length; i++){
+                        var reranker = utils.RERANKERS[i];
                         if (reranker != null){
                             var rerankerResults = reranker.doRerank(json.result);
                             json.result = rerankerResults.response;
@@ -528,12 +608,11 @@ var CliqzAutocomplete = {
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
-                    this.customResults = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
 
                 // trigger history search
-                environment.historySearch(
+                utils.historySearch(
                     searchString,
                     this.onHistoryDone.bind(this),
                     CliqzAutocomplete.sessionStart);
@@ -541,6 +620,13 @@ var CliqzAutocomplete = {
                 utils.clearTimeout(this.historyTimer);
                 this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
                 this.historyTimeout = false;
+
+                var hist_search_type = utils.getPref('hist_search_type', 0);
+                if (hist_search_type != 0) {
+                  CliqzUtils.log('Calling CliqzHM.cliqz_hm_search for: ' + searchString, 'CliqzHM');
+                  this.cliqz_hm_search(this, {'query': searchString}, hist_search_type);
+                }
+
             },
             /**
             * Stops an asynchronous search that is in progress
@@ -615,9 +701,9 @@ var CliqzAutocomplete = {
             // Wrap up after instant results are shown
             instantWrapup: function(obj) {
                 obj.sendResultsSignal(obj, true);
-            }
-        }
-    }
+            },
+        };
+    },
 };
 
 CliqzAutocomplete.initProvider();

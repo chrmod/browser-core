@@ -78,11 +78,10 @@ function buildFreshtabFrontEnd() {
   if(!shouldBuild()) {
     return
   }
-  isPackageInstalled('ember', '-v', 'npm ember-cli package is missing, to install it run `npm install ember-cli -g`');
 
   rimraf.sync(appPath + 'dist', []);
   console.log(`Building Ember app: ${app}`);
-  var spawed = spaws.sync('ember', ['build', '--output-path=dist', '--env=production'], { stdio: 'inherit', stderr: 'inherit', cwd: appPath});
+  var spawed = spaws.sync('./node_modules/ember-cli/bin/ember', ['build', '--output-path=dist', '--env=production'], { stdio: 'inherit', stderr: 'inherit', cwd: appPath});
   if(spawed.status === 1) {
     console.log(chalk.red('*** RUN `./fern.js install` to install missing Freshtab ember dependencies'));
     process.exit(1);
@@ -117,7 +116,6 @@ program.command('install')
        .action(() => {
           isPackageInstalled('bower', '--silent', 'npm bower package missing, to install it run `npm install bower -g`');
           isPackageInstalled('broccoli', '-V', 'npm broccoli-cli package is missing, to install it run `npm install broccoli-cli -g`');
-          isPackageInstalled('ember', '-v', 'npm ember-cli package is missing, to install it run `npm install ember-cli -g`');
 
           console.log(chalk.green('Installing project dependencies'));
           spaws.sync('bower', ['install'], { stdio: 'inherit', stderr: 'inherit'});

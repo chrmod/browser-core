@@ -32,7 +32,7 @@ const ENGINES = [
 export default describeModule("autocomplete/result-providers",
   function () {
     return {
-      "core/cliqz": { utils: { log() {} }, environment: {} },
+      "core/cliqz": { utils: { log() {} } },
       "autocomplete/result": { default: {} },
       "autocomplete/calculator": { default: {} },
       "core/search-engines": { setSearchEngine: function () {} }
@@ -51,14 +51,14 @@ export default describeModule("autocomplete/result-providers",
       const queryURI = "https://maps.google.de/maps?q=wisen";
 
       beforeEach(function () {
-        this.deps("core/cliqz").environment.getEngineByAlias = function (alias) {
+        this.deps("core/cliqz").utils.getEngineByAlias = function (alias) {
           if (alias === "#gm") {
             return {
               name: "Google Maps",
             }
           }
         };
-        this.deps("core/cliqz").environment.getSearchEngines = function () {
+        this.deps("core/cliqz").utils.getSearchEngines = function () {
           return [{
             name: "Google Maps",
             getSubmissionForQuery() { return queryURI; }
@@ -84,17 +84,17 @@ export default describeModule("autocomplete/result-providers",
     describe('custom search - updateAliases', function() {
       beforeEach(function () {
         const CliqzResultProviders = this.module().default;
-        this.deps("core/cliqz").environment.getEngineByName = function (name) {
+        this.deps("core/cliqz").utils.getEngineByName = function (name) {
           return ENGINES.find(engine => engine.name === name);
         };
-        this.deps("core/cliqz").environment.updateAlias = function (name, newAlias) {
+        this.deps("core/cliqz").utils.updateAlias = function (name, newAlias) {
           for(var engine in ENGINES) {
             if(ENGINES[engine].name === name) {
               ENGINES[engine].alias = newAlias;
             }
           }
         };
-        this.deps("core/cliqz").environment.getSearchEngines = function () {
+        this.deps("core/cliqz").utils.getSearchEngines = function () {
           return ENGINES.map(function(e){
             e.prefix = CliqzResultProviders.getShortcut(e.name);
             return e;

@@ -1,12 +1,18 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
+
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+        awscli \
         bzip2 \
         ca-certificates \
         dbus \
+        jq \
         libasound2 \
         libatk1.0-0 \
+        libav-tools \
+        libavcodec-ffmpeg-extra56 \
         libc6 \
         libcairo-gobject2 \
         libcairo2 \
@@ -32,6 +38,7 @@ RUN apt-get update \
         libxt6 \
         lsb-release \
         wget \
+        x11vnc \
         xauth \
         xvfb \
  && rm -rf /var/lib/apt/lists/*
@@ -44,6 +51,7 @@ RUN groupadd jenkins --gid $GID \
 
 # Install firefox $VERSION
 ARG VERSION
+ENV VERSION ${VERSION}
 RUN wget https://ftp.mozilla.org/pub/firefox/releases/${VERSION}/linux-x86_64/en-US/firefox-${VERSION}.tar.bz2 -O /home/jenkins/firefox.tar.bz2 \
  && tar xjvf /home/jenkins/firefox.tar.bz2 -C /home/jenkins \
  && rm -f /home/jenkins/firefox.tar.bz2 \
@@ -55,3 +63,9 @@ RUN wget https://ftp.mozilla.org/pub/firefox/releases/${VERSION}/linux-x86_64/en
 RUN mkdir /tmp/.X11-unix \
  && chmod 1777 /tmp/.X11-unix \
  && chown root /tmp/.X11-unix
+
+# Expose port for VNC
+EXPOSE 5900
+
+ADD run_tests.sh /tmp/run_tests.sh
+ENTRYPOINT /tmp/run_tests.sh
