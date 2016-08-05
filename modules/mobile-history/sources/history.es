@@ -1,14 +1,10 @@
 'use strict';
-/* global document, osAPI */
+/* global document, osAPI, Hammer, math */
 
-import LongPress from 'mobile-touch/longpress';
 import { utils } from 'core/cliqz';
 import handlebars from 'core/templates';
 
 var historyTimer;
-var editMode = false;
-var selectedQueries = [];
-var selectedHistory = [];
 var allHistory = [];
 var allFavorites = [];
 
@@ -130,67 +126,8 @@ function displayData(data, isFavorite = false) {
 
   document.body.scrollTop = height + 100;
 
-  function onTap(element) {
-    const type = element.getAttribute('class');
-    const clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
-    if (editMode) {
-      selectItem(element);
-    } else {
-      clickAction(element.getAttribute('data'));
-      sendClickTelemetry(element);
-    }
-  }
-  new LongPress('.question, .answer', launchEditMode, onTap);
-
+  attachListeners(document.getElementById('container'));
   History.sendShowTelemetry(data);
-}
-
-function launchEditMode(element) {
-
-  if (editMode) {
-    endEditMode();
-    launchEditMode(element);
-  } else {
-    let checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
-    checkboxes.forEach(function(checkbox){
-      checkbox.style.display = 'inline';
-    });
-    editMode = true;
-    selectedQueries = [];
-    selectedHistory = [];
-    selectItem(element);
-  }
-}
-
-function endEditMode() {
-  const records = [].slice.call(document.getElementsByClassName('item'));
-  records.forEach(item => item.setAttribute('class', 'item'));
-
-  const checkboxes = Array.from(document.getElementsByClassName('edit__delete'));
-  checkboxes.forEach(function(element){
-    let checkbox = element.querySelector('input');
-    checkbox.checked = false;
-    element.style.display = 'none';
-  });
-  editMode = false;
-  selectedQueries = [];
-  selectedHistory = [];
-  hideControl();
-}
-
-function showControl() {
-  if (selectedQueries.length) {
-    !History.showOnlyFavorite && (document.getElementById('editQuery').style.display = 'block');
-    document.getElementById('editUrl').style.display = 'none';
-  } else {
-    !History.showOnlyFavorite && (document.getElementById('editQuery').style.display = 'none');
-    document.getElementById('editUrl').style.display = 'block';
-  }
-}
-
-function hideControl() {
-  !History.showOnlyFavorite && (document.getElementById('editQuery').style.display = 'none');
-  document.getElementById('editUrl').style.display = 'none';
 }
 
 function getDateFromTimestamp(time) {
@@ -207,114 +144,27 @@ function getDateFromTimestamp(time) {
     const formatedDate = days + '.' + months + '.' + year;
     return formatedDate;
 }
-
-
-function favoriteSelected() {
-  setQueryFavorite();
-  if (selectedHistory.length > 0) {
-    setHistoryFavorite();
-  }
-  endEditMode();
-  update();
-}
-
-function setQueryFavorite() {
-  let favoriteQueries = utils.getLocalStorage().getObject('favoriteQueries', []);
-  selectedQueries.forEach((item) => {
-    for (let i = 0; i < favoriteQueries.length; i++) {
-      if (item.query === favoriteQueries[i].query) {
-        favoriteQueries.splice(i, 1);
-        break;
-      }
-    }
-    if (!History.showOnlyFavorite) {
-      favoriteQueries.push({query: item.query, timestamp: item.timestamp});
-    }
-  });
-
-  utils.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
-}
-
-function setHistoryFavorite() {
-  selectedHistory.forEach((item) => {
-    for (let i = 0; i < allFavorites.length; i++) {
-      if (item.url === allFavorites[i].url) {
-        allFavorites.splice(i, 1);
-        break;
-      }
-    }
-    if (!History.showOnlyFavorite) {
-      allFavorites.push({url: item.url, timestamp: item.timestamp, title:item.title});
-    }
-  });
-  osAPI.setFavorites(selectedHistory, !History.showOnlyFavorite);
-}
-
-function removeQueries() {
+function removeQuery(id) {
   let queries = utils.getLocalStorage().getObject('recentQueries', []);
 
-  const queryIds = selectedQueries.map(query => query.id);
-  queries = queries.filter(query => queryIds.indexOf(query.id) === -1);
+  queries = queries.filter(query => id !== query.id);
   utils.getLocalStorage().setObject('recentQueries', queries);
 }
 
-function removeHistoryItems(ids) {
-  allHistory = allHistory.filter(history => ids.indexOf(history.id) === -1);
-  osAPI.removeHistoryItems(ids);
+function removeHistoryItem(id) {
+  allHistory = allHistory.filter(history => id !== history.id);
+  osAPI.removeHistoryItems([id]);
 }
 
-function removeSelected() {
-  if (selectedQueries.length > 0) {
-    removeQueries();
-  }
-  if (selectedHistory.length > 0) {
-    removeHistoryItems(selectedHistory.map(item => item.id));
-  }
-  endEditMode();
-  update();
-}
-
-function selectQuery(item) {
-  for (let i = 0; i < selectedQueries.length; i++) {
-    if (selectedQueries[i].id === item.id) {
-      selectedQueries.splice(i, 1);
-      return;
-    }
-  }
-  selectedQueries.push(item);
-}
-
-function selectHistory(item) {
-  for (let i = 0; i < selectedHistory.length; i++) {
-    if (selectedHistory[i].id === item.id) {
-      selectedHistory.splice(i, 1);
-      return;
-    }
-  }
-  selectedHistory.push(item);
-}
-
-function selectItem(item) {
-  let checkbox = item.querySelector('input');
-  checkbox.checked = !checkbox.checked;
-
+function removeItem(item) {
   const id = parseInt(item.dataset.id);
-  const data = item.getAttribute('data');
-  const title = item.dataset.title;
-  const timestamp = Date.now();
-  item.getAttribute('class').indexOf('question') >= 0 ? selectQuery({id, query:data, title, timestamp}) : selectHistory({id, url:data, title, timestamp});
+  item.getAttribute('class').indexOf('question') >= 0 ? removeQuery(id) : removeHistoryItem(id);
+}
 
-  let record = item.getElementsByClassName('item')[0];
-  if (record.getAttribute('class').indexOf('selected') >= 0) {
-    record.setAttribute('class', 'item');
-  } else {
-    record.setAttribute('class', 'item selected');
-  }
-  if (selectedQueries.length + selectedHistory.length === 0) {
-    endEditMode();
-  } else {
-    showControl();
-  }
+function unfavoriteItem(item) {
+  const url = item.getAttribute('data');
+  const title = item.dataset.title;
+  osAPI.setFavorites([{title, url}], false);
 }
 
 function init(onlyFavorites = !!location.hash) {
@@ -325,16 +175,20 @@ function init(onlyFavorites = !!location.hash) {
   onlyFavorites ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
 }
 
-function update() {
-  History.showOnlyFavorite ? showFavorites(allFavorites) : showHistory(allHistory);
-}
-
 function clearHistory() {
   utils.getLocalStorage().setObject('recentQueries', []);
 }
 
 function clearFavorites() {
   utils.getLocalStorage().setObject('favoriteQueries', []);
+}
+
+function onElementClick(event) {
+  const element = event.srcEvent.currentTarget;
+  const type = element.getAttribute('class');
+  const clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
+  clickAction(element.getAttribute('data'));
+  sendClickTelemetry(element);
 }
 
 function sendClickTelemetry(element) {
@@ -344,10 +198,44 @@ function sendClickTelemetry(element) {
       action: 'click',
       target_type: targeType,
       target_index: parseInt(element.dataset.index),
-      target_length: element.querySelector('.' + targeType).textContent.length,
+      target_length: element.getAttribute('data').length,
       target_ts: parseInt(element.dataset.timestamp)
     });
 }
+
+
+function crossTransform (element, x) {
+  var platforms = ['', '-webkit-', '-ms-'];
+  platforms.forEach(function (platform) {
+    element.style[platform + 'transform'] = 'translate3d('+ x +'px, 0px, 0px)';
+  });
+}
+
+function attachListeners(list) {
+  var listItems = list.getElementsByTagName("li");
+
+  for (let i = 0; i < listItems.length; i++) {
+    if(listItems[i].dataset) {
+      new Hammer(listItems[i]).on('pan', onSwipe);
+      new Hammer(listItems[i]).on('panend', onSwipeEnd);
+      new Hammer(listItems[i]).on('tap', onElementClick);
+    }
+  }
+}
+
+function onSwipe(e) {
+  crossTransform(e.srcEvent.currentTarget, math.min(e.deltaX, 0));
+}
+function onSwipeEnd(e) {
+  const element = e.srcEvent.currentTarget;
+  if (e.velocityX < -1 || e.deltaX > 150 || e.center.x < 50) {
+    History.showOnlyFavorite ? unfavoriteItem(element) : removeItem(element);
+    element.parentElement.removeChild(element);
+  } else {
+    crossTransform(element, 0);
+  }
+}
+
 
 /**
   This function is for migration of history and favorite queries
@@ -378,9 +266,6 @@ var History = {
   showFavorites,
   clearHistory,
   clearFavorites,
-  favoriteSelected,
-  removeSelected,
-  endEditMode,
   displayData,
   sendShowTelemetry,
   showOnlyFavorite: false
