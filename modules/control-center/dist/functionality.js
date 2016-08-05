@@ -1,3 +1,6 @@
+
+
+
 //====== ACCORDION FUNCTIONALITY =========//
 
 $(document).ready(function() {
@@ -26,17 +29,26 @@ $(document).ready(function() {
 });
 
 
-
 //====== SETTING SECTION =========//
 
 $(".setting").click(function(e) {
+  console.log($(e.target));
+
   const $elem = $(e.target),
     $this = $(this);
   if ($elem.hasClass("cqz-switch-box")) {
     return;
   } else if ($(e.target).hasClass("dropdown")) {
     return;
+  } else if ($(e.target).hasClass("opt-t")) {
+    return;
+  } else if ($(e.target).hasClass("opt-p")) {
+    return;
+  } else if ($(e.target).hasClass("opt")) {
+    return;
   } else if ($(e.target).hasClass("box")) {
+    return;
+  } else if ($(e.target).hasClass("squaredFour")) {
     return;
   } else if ($(e.target).hasClass("cqz-switch-box-antiphish")) {
     return;
@@ -44,7 +56,7 @@ $(".setting").click(function(e) {
     return;
   }
 
-  console.log($(e.target));
+
   $this.toggleClass("active");
 });
 
@@ -157,6 +169,11 @@ $(".cqz-switch").click(function() {
   }
 });
 
+
+
+
+
+
 $(".cqz-switch-antitrack").click(function(e) {
   $(this).toggleClass("active");
 
@@ -164,64 +181,67 @@ $(".cqz-switch-antitrack").click(function(e) {
       $counter = $switches.siblings('#counter'),
       $count = $counter.find('#count'),
       $main = $switches.closest("#control-center"),
+      $header = $main.find("#header"),
+      $headertext = $header.find("#text"),
+      headerstringCurr = $headertext.attr('data-i18n'),
+      headerstringNext = headerstringCurr,
+      $safeicon = $headertext.closest('#safe'),
+      $unsafeicon = $headertext.closest('#unsafe'),
       $cqzswitch = $switches.find('#cqz-switch'),
-      countcolon = '#000',
-      countcoloff = '#A4A4A4',
-      countcol = countcolon,
       $onLabel = $switches.find('#onlabel'),
       onLabelCurr = $onLabel.attr('data-i18n'),
       onLabelNext = onLabelCurr,
       off = 'off',
-      on = 'on',
-      offcol = '#FCBB0E',
-      oncol = '#2B9F5F',
-      labelcol = oncol;
+      on = 'on';
 
       if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
         onLabelNext = onLabelCurr.slice(0, -2);
         onLabelNext += off;
-        labelcol = offcol;
-        countcol = countcoloff;
       } else {
         onLabelNext = onLabelNext.slice(0, -3);
         onLabelNext += on;
-        labelcol = oncol;
-        countcol = countcolon;
       }
 
-      $count.css('color', countcol);
-      $onLabel.css('color', labelcol);
       $onLabel.attr('data-i18n', onLabelNext);
 
       var $desc = $switches.siblings('#description'),
         descLocalCurr = $desc.attr('data-i18n'),
         inActive = '-inactive',
-        descLocalNext = descLocalCurr,
-        col = '#444444';
+        // inActiveAll = '-inactive-all',
+        descLocalNext = descLocalCurr;
 
       if (descLocalCurr.substr(descLocalCurr.length - inActive.length) !== inActive) {
         descLocalNext += inActive;
-        col = '#A4A4A4';
       } else {
-        descLocalNext = descLocalNext.slice(0, -9)
-        col = '#595959'
+        descLocalNext = descLocalNext.slice(0, -9);
       }
 
-      $desc.css('color', col)
       $desc.attr('data-i18n', descLocalNext);
+
+      if($(this).hasClass("active")) {
+        if ($main.hasClass("bad-antitrack")) {
+          $main.removeClass("bad-antitrack");
+        }
+        $main.removeClass("crucial-antitrack");
+      } else {
+        $main.addClass("crucial-antitrack");
+      }
+
+      if ($main.hasClass("crucial-antitrack") && ((headerstringCurr.substr(headerstringCurr.length - 4)) !== '-not')) {
+        headerstringNext += '-not';
+        $safeicon.css('display', 'none');
+        $unsafeicon.css('display', 'block');
+      } else {
+        headerstringNext = headerstringNext.slice(0, -4);
+        $safeicon.css('display', 'block');
+        $unsafeicon.css('display', 'none');
+      }
+
+      $headertext.attr('data-i18n', headerstringNext);
 
       localizeDocument();
 
       $switches.toggleClass('inactive');
-      $counter.toggleClass('inactive');
-
-  var $main = $(this).closest('#control-center');
-
-  if($(this).hasClass("active")) {
-    $main.removeClass("crucial-antitrack");
-  } else {
-    $main.addClass("crucial-antitrack");
-  }
 });
 
 
@@ -232,40 +252,48 @@ $(".cqz-switch-antiphish").click(function(e) {
   $(this).toggleClass("active");
 
   var $switches = $(this).closest('#switches'),
-      $main = $switches.closest('#control-center');
+      $main = $switches.closest('#control-center'),
+      $header = $main.find("#header"),
+      $headertext = $header.find("#text"),
+      headerstringCurr = $headertext.attr('data-i18n'),
+      headerstringNext = headerstringCurr,
+      $safeicon = $headertext.closest('#safe'),
+      $unsafeicon = $headertext.closest('#unsafe'),
       $onLabel = $switches.find('#onlabel'),
       onLabelCurr = $onLabel.attr('data-i18n'),
       off = 'off',
-      offcol = '#FCBB0E',
       on = 'on',
-      oncol = '#2B9F5F'
-      labelcol = oncol,
       onLabelNext = onLabelCurr;
 
       if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
         onLabelNext = onLabelCurr.slice(0, -2);
         onLabelNext += off;
-        labelcol = offcol;
       } else {
         onLabelNext = onLabelNext.slice(0, -3);
         onLabelNext += on;
-        labelcol = oncol;
       }
 
-      $onLabel.css('color', labelcol);
+      if($(this).hasClass("active")) {
+        if ($main.hasClass("bad-antiphish")) {
+          $main.removeClass("bad-antiphish");
+        }
+        $main.removeClass("crucial-antiphish");
+      } else {
+        $main.addClass("crucial-antiphish");
+      }
+
+      if ($main.hasClass("crucial-antiphish") && ((headerstringCurr.substr(headerstringCurr.length - 3)) !== 'not')) {
+        headerstringNext += '-not';
+      } else {
+        headerstringNext = headerstringNext.slice(0, -4);
+      }
+
+      $headertext.attr('data-i18n', headerstringNext);
       $onLabel.attr('data-i18n', onLabelNext);
 
       localizeDocument();
 
       $switches.toggleClass('inactive');
-
-  var $main = $(this).closest('#control-center');
-
-  if($(this).hasClass("active")) {
-    $main.removeClass("crucial-antiphish");
-  } else {
-    $main.addClass("crucial-antiphish");
-  }
 });
 
 
@@ -289,4 +317,42 @@ $(".cqz-switch-grey").click(function() {
   }
   $onLabel.attr('data-i18n', onLabelNext);
   localizeDocument();
+});
+
+
+
+
+$(".opt-t").click(function() {
+
+  var $main = $(this).closest('#control-center');
+
+  if($(this).hasClass("bad")) {
+    if ($main.hasClass("crucial-antitrack")) {
+      $main.removeClass('crucial-antitrack');
+    }
+    $main.addClass("bad-antitrack");
+  } else {
+    if ($main.hasClass("bad-antitrack")) {
+      $main.removeClass('bad-antitrack');
+      $main.addClass("crucial-antitrack");
+    }
+  }
+});
+
+$(".opt-p").click(function() {
+
+  var $main = $(this).closest('#control-center');
+
+  if($(this).hasClass("bad")) {
+    if ($main.hasClass("crucial-antiphish")) {
+      $main.removeClass('crucial-antiphish');
+    }
+    $main.addClass("bad-antiphish");
+  } else {
+    if ($main.hasClass("bad-antiphish")) {
+      $main.removeClass('bad-antiphish');
+      $main.addClass("crucial-antiphish");
+    }
+  }
+
 });

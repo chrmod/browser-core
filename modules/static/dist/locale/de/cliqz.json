@@ -1229,6 +1229,9 @@
     "control-center-txt-header": {
       "message": "Deine Daten sind geschützt"
     },
+    "control-center-txt-header-not": {
+      "message": "Deine Daten sind nicht geschützt"
+    },
     "control-center-datapoints": {
       "message": "Persönliche Daten wurden entfernt"
     },
@@ -1306,6 +1309,24 @@
     },
     "control-center-phishing-deceptive-not": {
       "message": "Nicht als betrügerisch gemeldet"
+    },
+    "control-center-check-strict": {
+      "message": "Streng"
+    },
+    "control-center-this-site": {
+      "message": "Diese Website"
+    },
+    "control-center-all-sites": {
+      "message": "Alle Websites"
+    },
+    "control-center-always": {
+      "message": "Immer"
+    },
+    "control-center-never": {
+      "message": "Nie"
+    },
+    "control-center-always-ask": {
+      "message": "Immer Fragen"
     },
     "TEST": "OK"
 }

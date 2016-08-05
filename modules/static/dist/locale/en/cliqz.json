@@ -1229,6 +1229,9 @@
     "control-center-txt-header": {
       "message": "Your data is protected"
     },
+    "control-center-txt-header-not": {
+      "message": "Your data is not protected"
+    },
     "control-center-datapoints": {
       "message": "Private data points have been removed"
     },
@@ -1306,6 +1309,24 @@
     },
     "control-center-phishing-deceptive-not": {
       "message": "Not reported as deceptive"
+    },
+    "control-center-check-strict": {
+      "message": "Strict"
+    },
+    "control-center-this-site": {
+      "message": "This website"
+    },
+    "control-center-all-sites": {
+      "message": "All Sites"
+    },
+    "control-center-always": {
+      "message": "Always"
+    },
+    "control-center-never": {
+      "message": "Never"
+    },
+    "control-center-always-ask": {
+      "message": "Always ask"
     },
     "TEST": "OK"
 }
