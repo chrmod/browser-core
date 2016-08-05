@@ -65,6 +65,7 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
     });
 
     it('should show message', function() {
+      this.timeout(5000);
       campaignManager._campaigns.TEST001.limits.trigger = 2;
 
       core.urlbar.blur();

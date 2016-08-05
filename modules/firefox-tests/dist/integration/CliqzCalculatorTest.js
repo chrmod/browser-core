@@ -1,3 +1,5 @@
+/* global: $cliqzResults */
+
 var expect = chai.expect;
 
 DEPS.CliqzCalculatorTest = [];

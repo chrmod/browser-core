@@ -31,20 +31,33 @@ function closeBrowser() {
     .quit(Ci.nsIAppStartup.eForceQuit);
 }
 
-function writeToFile(testData) {
-  var version   = getBrowserVersion(),
-      filename  = "mocha-report-" + version + ".xml",
-      file      = FileUtils.getFile("ProfD", [filename]),
-      ostream   = FileUtils.openSafeFileOutputStream(file),
-      converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                    .createInstance(Ci.nsIScriptableUnicodeConverter),
-      istream;
+function writeToFile(content, filename) {
+  var file = FileUtils.getFile('ProfD', [filename]);
+  var ostream = FileUtils.openSafeFileOutputStream(file);
+  var converter = Cc['@mozilla.org/intl/scriptableunicodeconverter']
+                    .createInstance(Ci.nsIScriptableUnicodeConverter);
+  var istream;
 
-  converter.charset = "UTF-8";
-  istream = converter.convertToInputStream(testData);
+  converter.charset = 'UTF-8';
+  istream = converter.convertToInputStream(content);
 
   NetUtil.asyncCopy(istream, ostream);
 }
+
+
+function writeLogsToFile(logs) {
+  var version = getBrowserVersion();
+  var filename = 'logs-' + version + '.json';
+  writeToFile(JSON.stringify(logs), filename);
+}
+
+
+function writeTestResultsToFile(testData) {
+  var version = getBrowserVersion();
+  var filename = 'mocha-report-' + version + '.xml';
+  writeToFile(testData, filename);
+}
+
 
 var runner;
 var CliqzUtils = loadModule("core/utils"),
@@ -53,7 +66,7 @@ var CliqzUtils = loadModule("core/utils"),
     getCliqzResults,
     browserMajorVersion = parseInt(getBrowserVersion().split('.')[0]);
 
-mocha.setup({ ui: 'bdd', timeout: 3000 });
+mocha.setup({ ui: 'bdd', timeout: 10000 });
 
 /**
  * If extension did not intialize properly we want to kill tests ASAP
@@ -103,6 +116,13 @@ beforeEach(function () {
     /* Turn off telemetry during tests */
     telemetry = CliqzUtils.telemetry;
     CliqzUtils.telemetry = function () {};
+
+    /* Give time to the extension to restart */
+    return new Promise(function (resolve) {
+      CliqzUtils.setTimeout(function () {
+        resolve();
+      }, 200);
+    });
   });
 });
 
@@ -119,6 +139,28 @@ afterEach(function () {
 
 window.focus();
 
+
+// Capture console logs
+var logs = [];
+var theConsoleListener = {
+  observe:function( aMessage ) {
+    logs.push(aMessage);
+  },
+  QueryInterface: function (iid) {
+    if (!iid.equals(Components.interfaces.nsIConsoleListener) &&
+        !iid.equals(Components.interfaces.nsISupports)) {
+      throw Components.results.NS_ERROR_NO_INTERFACE;
+    }
+    return this;
+  }
+};
+
+var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"]
+    .getService(Components.interfaces.nsIConsoleService);
+aConsoleService.registerListener(theConsoleListener);
+
+
+// Init Mocha runner
 var runner =  mocha.run();
 
 var XMLReport = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -157,6 +199,7 @@ Mocha.reporters.XUnit.prototype.write = function (line) {
 new Mocha.reporters.XUnit(runner, {});
 
 runner.on('end', function () {
-  writeToFile(XMLReport);
+  writeTestResultsToFile(XMLReport);
+  writeLogsToFile(logs);
   if(getParameterByName('closeOnFinish') === "1") { closeBrowser(); }
 });
