@@ -48,7 +48,6 @@ export default {
         });
       }
       this.prev_mode = mode;
-      utils.setTimeout(utils.getWindow().CLIQZ.Core.refreshButtons, 0)
     }
   },
   getMode: function() {

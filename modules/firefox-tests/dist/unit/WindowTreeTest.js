@@ -1,4 +1,4 @@
-
+DEPS.WindowTree = ["core/utils"];
 TESTS.WindowTree = function(CliqzUtils) {
   var System = CliqzUtils.getWindow().CLIQZ.System,
       WindowTree = System.get('platform/antitracking/http-request-context').WindowTree;

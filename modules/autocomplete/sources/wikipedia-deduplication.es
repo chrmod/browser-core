@@ -1,7 +1,7 @@
 /**
  * This modules implements reranking of results using user specific data
  */
-import { utils } from "core/cliqz";
+import { utils, language } from "core/cliqz";
 
 var CliqzWikipediaDeduplication = {
     LOG_KEY: 'CliqzWikipediaDeduplication',
@@ -61,7 +61,7 @@ var CliqzWikipediaDeduplication = {
     /*get most used user languages*/
     getUserLanguages: function(factor){
         factor = typeof factor !== 'undefined' ? factor : 1.5;
-        var availableLangs = utils.getUserLanguages();
+        var availableLangs = language.state(true);
         var langs = [];
         var lastValue = null;
         availableLangs.forEach(function(langObj) {

@@ -4,12 +4,32 @@
  *
  */
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
 (function(ctx) {
+
+
+  function createContextMenu(box, menuItems) {
+    var doc = document,
+        contextMenu = doc.createElement('menupopup');
+
+    box.appendChild(contextMenu);
+    contextMenu.setAttribute('id', "dropdownContextMenu");
+
+    for(var item = 0; item < menuItems.length; item++) {
+        var menuItem = doc.createElement('menuitem');
+        menuItem.setAttribute('label', menuItems[item].label);
+        menuItem.setAttribute('functionality', menuItems[item].functionality);
+        menuItem.addEventListener("command", menuItems[item].command, false);
+        if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
+          menuItem.setAttribute('class', 'menuitem-iconic');
+          menuItem.style.listStyleImage = 'url(' + CliqzUtils.SKIN_PATH + 'cliqz.png)';
+        }
+        contextMenu.appendChild(menuItem);
+    }
+    return contextMenu
+  }
 
   var contextMenu,
       activeArea,
@@ -33,22 +53,22 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   }
 
   function openFeedback(e) {
-    CLIQZEnvironment.openLink(window, CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
+    CliqzUtils.openLink(window, CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
     telemetry('open_feedback');
   }
 
   function openNewTab(e) {
-    CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), true);
+    CliqzUtils.openLink(window, e.target.getAttribute('data-url'), true);
     telemetry('open_new_tab');
   }
 
   function openNewWindow(e) {
-    CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), false, true);
+    CliqzUtils.openLink(window, e.target.getAttribute('data-url'), false, true);
     telemetry('open_new_window');
   }
 
   function openInPrivateWindow(e) {
-    CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), false, false, true);
+    CliqzUtils.openLink(window, e.target.getAttribute('data-url'), false, false, true);
     telemetry('open_private_window');
   }
 
@@ -151,7 +171,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
         { label: CliqzUtils.getLocalizedString('cMenuFeedback'),             command: openFeedback,          displayInDebug: true,   functionality: 'openFeedback'},
     ];
 
-    return CLIQZEnvironment.createContextMenu(activeArea, CONTEXT_MENU_ITEMS);
+    return createContextMenu(activeArea, CONTEXT_MENU_ITEMS);
   }
 
   function hideRemoveEntry(menu) {
@@ -189,7 +209,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
         for(var i = 0; i < children.length; i++) {
           children[i].setAttribute('data-url', url);
         }
-        CLIQZEnvironment.openPopup(contextMenu, ev, ev.screenX, ev.screenY);
+        CliqzUtils.openPopup(contextMenu, ev, ev.screenX, ev.screenY);
 
         telemetry();
 
@@ -219,7 +239,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
           for(var i = 0; i < children.length; i++) {
             children[i].setAttribute('data-url', url);
           }
-          CLIQZEnvironment.openPopup(contextMenu, ev, ev.screenX, ev.screenY);
+          CliqzUtils.openPopup(contextMenu, ev, ev.screenX, ev.screenY);
 
           telemetry();
         });
@@ -230,4 +250,3 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   ctx.CLIQZ.ContextMenu = ContextMenu;
 
 })(this);
-

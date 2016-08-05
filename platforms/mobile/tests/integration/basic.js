@@ -119,7 +119,7 @@ describe('Search View', function() {
   });
 
   afterEach(function () {
-  	contentWindow.CLIQZEnvironment.getLocalStorage().clear();
+  	contentWindow.CliqzUtils.getLocalStorage().clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
   });
@@ -534,7 +534,7 @@ describe("Freshtab", function () {
   });
 
   afterEach(function () {
-    contentWindow.CLIQZEnvironment.getLocalStorage().clear();
+    contentWindow.CliqzUtils.getLocalStorage().clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
   });
@@ -670,7 +670,7 @@ describe("Startup", function () {
   });
 
   afterEach(function () {
-    contentWindow.CLIQZEnvironment.getLocalStorage().clear();
+    contentWindow.CliqzUtils.getLocalStorage().clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
   });

@@ -1,5 +1,5 @@
 import { utils } from "core/cliqz";
-
+import CliqzEvents from "core/events";
 
 export default CliqzPopupButton;
 
@@ -173,8 +173,6 @@ CliqzPopupButton.prototype.destroy = function () {
 };
 
 CliqzPopupButton.prototype.setupCommunicationChannel = function () {
-  Components.utils.import('chrome://cliqzmodules/content/CliqzEvents.jsm');
-
   var channelName = this.name,
       actions = this.actions;
 

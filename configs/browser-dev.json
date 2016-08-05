@@ -6,7 +6,6 @@
     "richheader-url": "http://mixer-beta.clyqz.com/api/v1/rich-header?path=/map",
     "resultsprovider-url": "http://mixer-beta.clyqz.com/api/v1/results?q=",
     "freshTabButton": false,
-    "freshTabABtest" : false,
     "freshTabHistoryNews": true,
     "unblockUI": false,
     "showDataCollectionMessage": false,
@@ -15,9 +14,11 @@
     "antitrackingButton": true
   },
   "modules": [
+    "q-button",
     "static",
     "core",
     "autocomplete",
+    "geolocation",
     "ui",
     "human-web",
     "anti-phishing",

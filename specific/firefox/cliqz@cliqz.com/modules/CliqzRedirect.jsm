@@ -5,10 +5,8 @@
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-                                  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
+var CliqzUtils = CLIQZ.CliqzUtils;
 
 var EXPORTED_SYMBOLS = ['CliqzRedirect'];
 

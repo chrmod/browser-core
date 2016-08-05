@@ -1,6 +1,7 @@
-/* global CustomEvent, window, document, CLIQZEnvironment, CliqzLanguage, CliqzUtils, CliqzHandlebars, osAPI */
+/* global CustomEvent, window, document, CliqzLanguage, CliqzUtils, CliqzHandlebars, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
+import CliqzHandlebars from "core/templates";
 
 var DEPENDENCY_STATUS = {
   NOT_LOADED: 'NOT_LOADED',
@@ -14,7 +15,7 @@ var topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesC
 
 function displayTopSites (list, isEditMode = false) {
 
-  const blockedTopSites = CLIQZEnvironment.getLocalStorage().getObject('blockedTopSites', []);
+  const blockedTopSites = CliqzUtils.getLocalStorage().getObject('blockedTopSites', []);
 
   list = list.filter(item => blockedTopSites.indexOf(item.mainDomain) === -1);
 
@@ -38,7 +39,7 @@ function displayTopSites (list, isEditMode = false) {
       domain: r.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1]
     };
   });
-  
+
   const isEmpty = list.length ? false : true;
 
   list = list.concat('', '', '', ''); // 4 empty topsites to fill
@@ -49,19 +50,19 @@ function displayTopSites (list, isEditMode = false) {
   div.innerHTML = topSites({isEmpty, isEditMode, list});
 
 
-  CLIQZEnvironment.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
-    const blockedTopSites = CLIQZEnvironment.getLocalStorage().getObject('blockedTopSites', []);
-    CLIQZEnvironment.getLocalStorage().setObject('blockedTopSites', blockedTopSites.concat(tempBlockedTopSites));
+  CliqzUtils.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
+    const blockedTopSites = CliqzUtils.getLocalStorage().getObject('blockedTopSites', []);
+    CliqzUtils.getLocalStorage().setObject('blockedTopSites', blockedTopSites.concat(tempBlockedTopSites));
     tempBlockedTopSites = [];
     displayTopSites(topSitesList);
   });
 
-  CLIQZEnvironment.addEventListenerToElements('#cancelEditTopsites', 'click', _ => {
+  CliqzUtils.addEventListenerToElements('#cancelEditTopsites', 'click', _ => {
     tempBlockedTopSites = [];
     displayTopSites(topSitesList);
   });
 
-  CLIQZEnvironment.addEventListenerToElements('.blockTopsite', 'click', function () {
+  CliqzUtils.addEventListenerToElements('.blockTopsite', 'click', function () {
     tempBlockedTopSites.push(this.getAttribute('mainDomain'));
     displayTopSites(topSitesList, true);
   });
@@ -110,7 +111,7 @@ var News = {
     },
     data = null,
     asynchronous = true;
-    CLIQZEnvironment.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data, asynchronous);
+    CliqzUtils.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data, asynchronous);
 
   },
   displayTopNews: function(top_news) {
@@ -144,7 +145,7 @@ var News = {
     const topNews = CliqzHandlebars.tplCache.topnews;
     const div = document.getElementById('topNews');
     div.innerHTML = topNews(top_news);
-    CLIQZEnvironment.addEventListenerToElements('.topNewsLink', 'click', function () {
+    CliqzUtils.addEventListenerToElements('.topNewsLink', 'click', function () {
       CliqzUtils.telemetry({
         type: 'home',
         action: 'click',

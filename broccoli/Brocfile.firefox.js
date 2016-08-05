@@ -17,9 +17,6 @@ var nodeModules     = new UnwatchedDir('node_modules');
 var specific        = new WatchedDir('specific');
 var firefoxSpecific = new Funnel(specific, { srcDir: 'firefox/cliqz@cliqz.com' });
 var firefoxPackage  = new Funnel(specific, { srcDir: 'firefox/package' });
-var generic         = new WatchedDir('generic');
-var libs            = new Funnel(generic, { srcDir: 'modules/libs' });
-var global          = new Funnel(generic, { srcDir: 'modules/global' });
 
 // cliqz.json should be saved after not transpiled modules are removed from configration
 var config          = writeFile('cliqz.json', JSON.stringify(cliqzConfig));
@@ -28,7 +25,6 @@ console.log(cliqzConfig);
 // cliqz.json is finalized
 
 var firefoxLibs = new MergeTrees([
-  libs,
   new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] }),
 ]);
 
@@ -36,7 +32,6 @@ var firefoxTree = new MergeTrees([
   firefoxSpecific,
   new Funnel(config,      { destDir: 'chrome/content'}),
   new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
-  new Funnel(global,      { destDir: 'modules' }),
   new Funnel(modules.bowerComponents,   { destDir: 'chrome/content/bower_components' }),
   new Funnel(modules.modules,     { destDir: 'chrome/content' }),
 ], { overwrite: true } );
