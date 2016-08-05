@@ -3,7 +3,7 @@
  *
  */
 
-import { utils, environment } from "core/cliqz";
+import { utils } from "core/cliqz";
 import Result from "autocomplete/result";
 import UrlCompare from "autocomplete/url-compare";
 
@@ -119,7 +119,7 @@ var Mixer = {
   //  - avoids many unexpected EZ triggerings
   _isValidQueryForEZ: function(q) {
     var trimmed = q.trim();
-    if (trimmed.length <= environment.MIN_QUERY_LENGHT_FOR_EZ) {
+    if (trimmed.length <= utils.MIN_QUERY_LENGHT_FOR_EZ) {
       return false;
     }
 
@@ -287,7 +287,7 @@ var Mixer = {
         SmartCliqzTriggerUrlCache.delete(url);
         return undefined;
       }
-      ez = CliqzSmartCliqzCache.retrieve(url);
+      ez = CliqzSmartCliqzCache.retrieveAndUpdate(url);
       if (ez) {
         // Cached EZ is available
         ez = Result.clone(ez);
@@ -417,7 +417,7 @@ var Mixer = {
     }
 
     // Special case: adjust second result if it doesn't fit
-    if (results.length > 1 && results[1].data.template == 'pattern-h2') {
+    if (utils.getPref('hist_search_type', 0) == 0 && results.length > 1 && results[1].data.template == 'pattern-h2') {
       utils.log('Converting cluster for ' + results[1].val +
                      ' to simple history', 'Mixer');
 

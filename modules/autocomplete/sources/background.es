@@ -1,4 +1,4 @@
-import { utils, environment } from "core/cliqz";
+import { utils } from "core/cliqz";
 import { isFirefox } from "core/platform";
 import autocomplete from "autocomplete/autocomplete";
 import SpellCheck from "autocomplete/spell-check";
@@ -76,7 +76,7 @@ export default {
         this.autocompleteComponent.unregister();
         this.autocompleteComponent.register();
 
-        environment.RERANKERS.push(WikipediaDeduplication);
+        utils.RERANKERS.push(WikipediaDeduplication);
       } else {
         Mixer.init();
       }
@@ -85,8 +85,11 @@ export default {
       // glueing stuff
       autocomplete.spellCheck = SpellCheck;
       utils.autocomplete = autocomplete;
-      utils.Result = Result;
-      utils.CliqzResultProviders = ResultProviders;
+
+      utils.registerResultProvider({
+        ResultProviders,
+        Result
+      });
     });
   },
 

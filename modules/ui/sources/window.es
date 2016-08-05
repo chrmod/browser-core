@@ -1,5 +1,6 @@
 import { utils } from "core/cliqz";
 import autocomplete from "autocomplete/autocomplete";
+import CliqzHandlebars from "core/templates";
 
 function initPopup(popup, win) {
   //patch this method to avoid any caching FF might do for components.xml
@@ -67,6 +68,7 @@ export default class {
     if(utils.getPref("cliqz_core_disabled", false)) return;
 
     Services.scriptloader.loadSubScript(this.window.CLIQZ.System.baseURL + 'ui/UI.js', this.window);
+    this.window.CLIQZ.UI.preinit(autocomplete, CliqzHandlebars);
     Services.scriptloader.loadSubScript(this.window.CLIQZ.System.baseURL + 'ui/ContextMenu.js', this.window);
     //create a new panel for cliqz to avoid inconsistencies at FF startup
     var document = this.window.document,
@@ -92,7 +94,7 @@ export default class {
     this.window.CLIQZ.Core.popup = this.popup;
 
     initPopup(this.popup, this.window);
-    this.window.CLIQZ.UI.init(this.urlbar, autocomplete);
+    this.window.CLIQZ.UI.init(this.urlbar);
     this.window.CLIQZ.UI.window = this;
     this.window.CLIQZ.UI.autocompleteQuery = this.autocompleteQuery.bind(this);
 

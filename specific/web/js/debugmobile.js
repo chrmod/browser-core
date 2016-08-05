@@ -6,8 +6,7 @@ var item_container;
 
 CLIQZ.Core = {
 	urlbar: urlbar,
-	popup: resultsBox,
-	refreshButtons: function(){}
+	popup: resultsBox
 }
 urlbar.addEventListener('keydown', function(e){
 	setTimeout(function(){

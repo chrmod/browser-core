@@ -1,5 +1,7 @@
 'use strict';
 
+
+DEPS.CliqzCampaignManagerTestItegration = ["core/utils", "message-center/message-center", "campaign-manager/campaign-manager"];
 TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter, CliqzCampaignManager) {
 	describe('integration CliqzCampaignManager' , function() {
     this.retries(1);
@@ -63,6 +65,7 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
     });
 
     it('should show message', function() {
+      this.timeout(5000);
       campaignManager._campaigns.TEST001.limits.trigger = 2;
 
       core.urlbar.blur();

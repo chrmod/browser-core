@@ -8,6 +8,10 @@ const CUSTOM_DATA_CACHE_FILE = CUSTOM_DATA_CACHE_FOLDER + '/smartcliqz-custom-da
 // maximum number of items (e.g., categories or links) to keep
 const MAX_ITEMS = 5;
 
+const ONE_MINUTE = 60;
+const ONE_HOUR = ONE_MINUTE * 60;
+const ONE_DAY = ONE_HOUR * 24;
+
 /*
  * @namespace smart-cliqz-cache
  */
@@ -20,9 +24,9 @@ export default class {
   * @constructor
   */
   constructor() {
-    this._smartCliqzCache = new Cache();
+    this._smartCliqzCache = new Cache(ONE_MINUTE);
     // re-customize after an hour
-    this._customDataCache = new Cache(3600);
+    this._customDataCache = new Cache(ONE_HOUR);
     this._isCustomizationEnabledByDefault = true;
     this._isInitialized = false;
     // to prevent fetching while fetching is still in progress
@@ -47,8 +51,7 @@ export default class {
   store(smartCliqz) {
     const url = this.getUrl(smartCliqz);
 
-    this._smartCliqzCache.store(url, smartCliqz,
-      this.getTimestamp(smartCliqz));
+    this._smartCliqzCache.store(url, smartCliqz);
 
     try {
       if (this.isCustomizationEnabled() &&
@@ -96,7 +99,7 @@ export default class {
   /**
   * customizes SmartCliqz if news or domain supported, and user preference is set
   * @method retrieve
-  * @param id
+  * @param url
   * @returns SmartCliqz from cache (false if not found)
   */
   retrieve(url) {
@@ -110,6 +113,26 @@ export default class {
         this._log('retrieveCustomized: error while customizing data: ' + e);
       }
     }
+
+    return smartCliqz;
+  }
+
+  /**
+   * Same as `retrieve`, but triggers asynchronous cache update:
+   * fetches SmartCliqz (again) if not yet cached or if stale. If SmartCliqz
+   * was not yet cached `false` is returned and update is initiated.
+   * @param {String} url - The SmartCliqz trigger URL
+   * @return {SmartCliqz} The cached SmartCliqz or false if not yet cached.
+   */
+  retrieveAndUpdate(url) {
+    const smartCliqz = this.retrieve(url);
+
+    if (this._smartCliqzCache.isStale(url)) {
+      utils.setTimeout(function () {
+        this.fetchAndStore(url);
+      }.bind(this), 0);
+    }
+
     return smartCliqz;
   }
 

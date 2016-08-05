@@ -6,6 +6,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+
 XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
                                   "resource://gre/modules/PlacesUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "TelemetryStopwatch",
@@ -15,8 +16,8 @@ XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
 XPCOMUtils.defineLazyModuleGetter(this, "Task",
                                   "resource://gre/modules/Task.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-                                'chrome://cliqzmodules/content/CliqzUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
+var CliqzUtils = CLIQZ.CliqzUtils;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Constants

@@ -215,6 +215,9 @@ HttpRequestContext.prototype = {
         referrer = '';
     try {
       refstr = this.getRequestHeader("Referer");
+      if (!refstr) {
+        return;
+      }
       referrer = dURIC(refstr);
     } catch(ee) {}
     return referrer;

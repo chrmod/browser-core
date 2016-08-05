@@ -61,7 +61,7 @@ export class CouponHandler {
     if (!OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG) {
       return;
     }
-    var localStorage = CLIQZEnvironment.getLocalStorage(OffersConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
+    var localStorage = CliqzUtils.getLocalStorage(OffersConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
     if (localStorage) {
       localStorage.setItem('coupons_data', JSON.stringify(this.couponData));
 
@@ -79,7 +79,7 @@ export class CouponHandler {
     if (!OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG) {
       return;
     }
-    var localStorage = CLIQZEnvironment.getLocalStorage(OffersConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
+    var localStorage = CliqzUtils.getLocalStorage(OffersConfigs.COUPONS_DATA_LOCAL_STORAGE_URL);
 
     if (OffersConfigs.COUPON_HANDLER_RESET_FILE) {
       LoggingHandler.LOG_ENABLED &&
@@ -514,6 +514,3 @@ export class CouponHandler {
 
 
 }
-
-
-

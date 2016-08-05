@@ -8,7 +8,9 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import('resource://gre/modules/PlacesUtils.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+
+Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
+var CliqzUtils = CLIQZ.CliqzUtils;
 
 var browserHistory = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Components.interfaces.nsIBrowserHistory),
     bookmarkService = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].getService(Components.interfaces.nsINavBookmarksService);

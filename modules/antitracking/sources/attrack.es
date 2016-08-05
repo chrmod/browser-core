@@ -15,7 +15,7 @@ import { AttrackBloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
-import { utils, events } from 'core/cliqz';
+import { utils, events, Promise } from 'core/cliqz';
 import ResourceLoader from 'core/resource-loader';
 import core from 'core/background';
 import CookieChecker from 'antitracking/cookie-checker';
@@ -307,17 +307,7 @@ var CliqzAttrack = {
                     tp_events.incrementStat(req_log, 'scheme_' + scheme);
 
                     // find frame depth
-                    let windowDepth = 0;
-                    if (requestContext.getInnerWindowID() !== requestContext.getOriginWindowID()) {
-                      if (requestContext.getOriginWindowID() === requestContext.getParentWindowID()) {
-                        // frame in document
-                        windowDepth = 1;
-                      } else {
-                        // deeper than 1st level iframe
-                        windowDepth = 2;
-                      }
-                    }
-                    tp_events.incrementStat(req_log, 'window_depth_' + windowDepth);
+                    tp_events.incrementStat(req_log, 'window_depth_' + requestContext.getWindowDepth());
                 }
 
                 // get cookie data
@@ -436,6 +426,7 @@ var CliqzAttrack = {
                                 tp_events.incrementStat(req_log, 'proxy');
                             }
                             CliqzAttrack.recentlyModified.add(source_tab + url, 30000);
+                            CliqzAttrack.recentlyModified.add(source_tab + tmp_url, 30000);
                             return {
                               redirectUrl: tmp_url,
                               requestHeaders: rule != 'same' ? [{name: CliqzAttrack.cliqzHeader, value: ' '}] : undefined
@@ -503,6 +494,28 @@ var CliqzAttrack = {
                 // is cached?
                 let cached = requestContext.isCached;
                 CliqzAttrack.tp_events.incrementStat(req_log, cached ? 'cached' : 'not_cached');
+
+
+                // broken by attrack?
+                if (CliqzAttrack.recentlyModified.has(source_tab + url) && requestContext.channel.responseStatus >= 400) {
+                  const payload = {
+                    source: source_url,
+                    status: requestContext.channel.responseStatus,
+                    url_info: {
+                      protocol: url_parts.protocol,
+                      hostname: url_parts.hostname,
+                      path: md5(url_parts.path),
+                      params: url_parts.getKeyValuesMD5()
+                    },
+                    context: requestContext.getWindowDepth()
+                  };
+                  const msg = {
+                    'type': telemetry.msgType,
+                    'action': 'attrack.breakage',
+                    'payload': CliqzAttrack.generateAttrackPayload(payload)
+                  };
+                  telemetry.telemetry(msg);
+                }
             }
         }
     },

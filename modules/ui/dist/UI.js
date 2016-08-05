@@ -8,13 +8,14 @@
 function load(ctx) {
 
 var CliqzAutocomplete;
+var CliqzHandlebars;
 
 function isValidURL(str) {
   var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
   return pattern.test(str);
 }
 
-var TEMPLATES = CLIQZEnvironment.TEMPLATES,
+var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = CliqzUtils.VERTICAL_TEMPLATES,
     urlbar = null,
     IC = 'cqz-result-box', // result item class
@@ -57,8 +58,11 @@ var UI = {
     DROPDOWN_HEIGHT: 349,
     popupClosed: true,
     VIEWS: Object.create(null),
-    init: function(_urlbar, autocomplete) {
+    preinit: function (autocomplete, handlebars) {
         CliqzAutocomplete = autocomplete;
+        CliqzHandlebars = handlebars;
+    },
+    init: function(_urlbar) {
         urlbar = _urlbar
         if(!urlbar.mInputField) urlbar.mInputField = urlbar; //not FF
 
@@ -78,6 +82,7 @@ var UI = {
           // hide immediately
           clearMessage(message["footer-message"].location);
         });
+        loadViews();
     },
     unload: function(){
         for(var i in urlbarEvents){
@@ -116,6 +121,10 @@ var UI = {
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
+
+        // TEMP
+        if (CliqzUtils.getPref('hist_search_type', 0))
+            resultsBox.style.height = "580px";
     },
     handleResults: function(){
       // TODO: this is FF specific - move it to another place!
@@ -287,10 +296,6 @@ var UI = {
                       }
                   }
                 }
-              }
-              // to handle broken promises (eg. Weather and flights) on mobile
-              else if (r.data && r.data.__callback_url__ && CLIQZEnvironment && CLIQZEnvironment.shiftResults) {
-                CLIQZEnvironment.shiftResults();
               }
               else {
                 res.splice(i,1);
@@ -653,7 +658,7 @@ var UI = {
         // Indicate that this is a RH result.
         r.type = "cliqz-extra";
       }
-      if(r.data.superTemplate && CLIQZEnvironment.TEMPLATES.hasOwnProperty(r.data.superTemplate) && r.data["__subType__"]["class"] != "EntityLocal") {
+      if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate) && r.data["__subType__"]["class"] != "EntityLocal") {
         r.data.template = r.data.superTemplate;
       }
 
@@ -711,10 +716,10 @@ function selectWord(input, direction) {
 //called on urlbarBlur
 function sessionEnd(){
     adultMessage = 0; //show message in the next session
-    if (CLIQZEnvironment.SHARE_LOCATION_ONCE) {
-      CLIQZEnvironment.USER_LAT = null;
-      CLIQZEnvironment.USER_LNG = null;
-      CLIQZEnvironment.SHARE_LOCATION_ONCE = false;
+    if (CliqzUtils.SHARE_LOCATION_ONCE) {
+      CliqzUtils.USER_LAT = null;
+      CliqzUtils.USER_LNG = null;
+      CliqzUtils.SHARE_LOCATION_ONCE = false;
     }
 }
 
@@ -1075,7 +1080,7 @@ function enhanceResults(res){
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
             if(r.logo.style.indexOf('background-image') == -1){
                 //add local cliqz image if there is no internet
-                r.logo.style += ";background-image:url(" + CLIQZEnvironment.SKIN_PATH + "img/cliqzLogo.svg)";
+                r.logo.style += ";background-image:url(" + CliqzUtils.SKIN_PATH + "img/cliqzLogo.svg)";
             }
             r.logo.add_logo_url = true;
         }
@@ -1207,21 +1212,7 @@ function enhanceResults(res){
     } else if (CLIQZ.UI.messageCenterMessage) {
       updateMessage(CLIQZ.UI.messageCenterMessage["footer-message"].location,
         CLIQZ.UI.messageCenterMessage);
-    } else if (!CliqzUtils.requestMonitor.inHealth()) {
-      var rand = getRandomForCurrentTime(4);
-
-      // Temporarily disabled while we re-evaluate the slow connection method
-      CliqzUtils.log(CliqzUtils.getLocalizedString("slow_connection_header_"+rand) + " - " +
-                     CliqzUtils.getLocalizedString("slow_connection_text_"+rand), "UI.js")
-      // updateMessage('bottom', {
-      //   slow_connection: {
-      //     header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
-      //     text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
-      //   }
-      // });
     }
-
-
 
     return res;
 }
@@ -1371,7 +1362,6 @@ function urlIndexInHistory(url, urlList) {
                             var win = enumerator.getNext();
                             win.CLIQZ.Core.unload(true);
                         }
-                        CLIQZ.Core.refreshButtons();
                         CliqzAutocomplete.isPopupOpen = false;
                         break;
                     case 'keep-cliqz':
@@ -1406,7 +1396,7 @@ function urlIndexInHistory(url, urlList) {
 
                     //changelog
                     case 'update-show':
-                        CLIQZEnvironment.openLink(window, CliqzUtils.CHANGELOG, true);
+                        CliqzUtils.openLink(window, CliqzUtils.CHANGELOG, true);
                     case 'update-dismiss':
                         clearMessage('bottom');
                         CliqzUtils.setPref('changeLogState', 2);
@@ -1457,7 +1447,6 @@ function urlIndexInHistory(url, urlList) {
                     setting: el.getAttribute('cliqz-telemetry'),
                     value: state
                 });
-                setTimeout(function(){ CLIQZ.Core.refreshButtons(); }, 0);
             }
             /* Propagate event up the DOM tree */
             el = el.parentElement;
@@ -1518,7 +1507,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
   }
   CliqzUtils.telemetry(action);
 
-  if (CLIQZEnvironment.isOnPrivateTab(window))
+  if (CliqzUtils.isOnPrivateTab(window))
     return;
 
   CliqzUtils.resultTelemetry(
@@ -1549,7 +1538,7 @@ function resultScroll(ev) {
 }
 
 function copyResult(val) {
-    CLIQZEnvironment.copyResult(val);
+    CliqzUtils.copyResult(val);
 }
 
 function resultClick(ev) {
@@ -1582,7 +1571,7 @@ function resultClick(ev) {
             CliqzEvents.pub("result_click", signal, {});
 
             var url = CliqzUtils.cleanMozillaActions(url)[1];
-            CLIQZEnvironment.openLink(window, url, newTab);
+            CliqzUtils.openLink(window, url, newTab);
 
             //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
@@ -1884,25 +1873,15 @@ function onEnter(ev, item){
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
     if(currentResults && CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
-      if(CLIQZ.config.settings.channel != "40"){
-        // it should be only for the browser
-        // get out of the AB test if its not a browser build
-        // TODO: we should make a smarter way of getting filtering AB tests users besides the session ID
-        CliqzUtils.clearPref("double-enter2");
-
-        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
-        CliqzABTests.disable("1063_B");
-      } else {
-        var r = currentResults.results;
-        if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
-          currentResults.blocked = true;
-          var signal = {
-              type: 'activity',
-              action: 'double_enter'
-          };
-          CliqzUtils.telemetry(signal);
-          return true;
-        }
+      var r = currentResults.results;
+      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+        currentResults.blocked = true;
+        var signal = {
+            type: 'activity',
+            action: 'double_enter'
+        };
+        CliqzUtils.telemetry(signal);
+        return true;
       }
     }
 
@@ -1947,7 +1926,7 @@ function onEnter(ev, item){
     CliqzEvents.pub("result_enter", {"position_type": getResultKind(UI.keyboardSelection)}, {'vertical_list': Object.keys(VERTICALS)});
   }
 
-  CLIQZEnvironment.openLink(window, input, newTab);
+  CliqzUtils.openLink(window, input, newTab);
   CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
@@ -1976,7 +1955,7 @@ function enginesClick(ev){
                 };
 
             if(ev.metaKey || ev.ctrlKey){
-                CLIQZEnvironment.openLink(window, url, true);
+                CliqzUtils.openLink(window, url, true);
                 action.new_tab = true;
             } else {
                 gBrowser.selectedBrowser.loadURI(url);
@@ -2020,7 +1999,7 @@ function snippetQualityTelemetry(results){
     // push empty data for EZones and history
     else data.push({});
 
-    slots += CLIQZEnvironment.TEMPLATES[r.vertical];
+    slots += CliqzUtils.TEMPLATES[r.vertical];
 
     // entity generic can be 3 slots height
     if(r.vertical == 'entity-generic' && r.data.urls) slots++;
@@ -2118,23 +2097,29 @@ function handleMouseDown(e) {
 
 
 UI.clickHandlers = {};
-Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
-  UI.VIEWS[templateName] = Object.create(null);
-  try {
-    var module = CLIQZ.System.get("ui/views/"+templateName);
-    if (module) {
-      UI.VIEWS[templateName] = new module.default(ctx);
+function loadViews() {
+  Object.keys(CliqzHandlebars.TEMPLATES)
+    .concat(CliqzHandlebars.MESSAGE_TEMPLATES)
+    .concat(CliqzHandlebars.PARTIALS)
+    .forEach(function (templateName) {
+      UI.VIEWS[templateName] = Object.create(null);
+      try {
+        var module = CLIQZ.System.get("ui/views/"+templateName);
+        if (module) {
+          UI.VIEWS[templateName] = new module.default(ctx);
 
-      if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
-        Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
-          UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
-        });
+          if(UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click){
+            Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
+              UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
+            });
+          }
+        }
+      } catch (ex) {
+        ctx.console.error(ex);
       }
-    }
-  } catch (ex) {
-    ctx.console.error(ex);
-  }
-});
+
+    });
+}
 
 ctx.CLIQZ.UI = UI;
 
