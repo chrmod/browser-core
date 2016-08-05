@@ -277,6 +277,12 @@ var CliqzABTests = {
             case "1074_B":
                 CliqzUtils.setPref("cliqz-adb-abtest", true);
                 break;
+            case "1075_A":
+                CliqzUtils.setPref("freshtabFeedback", false);
+                break;
+            case "1075_B":
+                CliqzUtils.setPref("freshtabFeedback", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -427,6 +433,10 @@ var CliqzABTests = {
             case "1074_A":
             case "1074_B":
                 CliqzUtils.clearPref('cliqz-adb-abtest');
+                break;
+            case "1075_A":
+            case "1075_B":
+                CliqzUtils.clearPref('freshtabFeedback');
                 break;
             default:
                 rule_executed = false;

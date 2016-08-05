@@ -93,7 +93,7 @@ var Extension = {
       this.config = {{CONFIG}};
       CliqzUtils.RICH_HEADER = this.config.settings['richheader-url'] || CliqzUtils.RICH_HEADER;
       CliqzUtils.RESULTS_PROVIDER = this. config.settings['resultsprovider-url'] || CliqzUtils.RESULTS_PROVIDER;
-
+      CliqzUtils.FEEDBACK_URL = CliqzUtils.FEEDBACK + CliqzUtils.extensionVersion + '-' + this.config.settings.channel;
 
       function startAbTests() {
         return Extension.System.import("core/ab-tests").then(function (ab) {

@@ -173,12 +173,8 @@ export default class {
     return simpleBtn(win.document,
       utils.getLocalizedString('btnFeedbackFaq'),
       () => {
-        var lang = utils.PREFERRED_LANGUAGE == 'de' ? '' : 'en/',
-            feeedbackUrl = 'https://cliqz.com/' + lang + 'feedback/',
-            feedbackParams =  utils.extensionVersion + '-' + this.settings.channel;
-
-      //TODO - use the original channel instead of the current one (it will be changed at update)
-      CLIQZEnvironment.openTabInWindow(win, feeedbackUrl + feedbackParams);
+        //TODO - use the original channel instead of the current one (it will be changed at update)
+        CLIQZEnvironment.openTabInWindow(win, CliqzUtils.FEEDBACK_URL);
       },
       'feedback'
     );

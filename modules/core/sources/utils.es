@@ -32,7 +32,7 @@ var CliqzUtils = {
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
-  FEEDBACK:                       'https://cliqz.com/support',
+  FEEDBACK:                       'https://cliqz.com/feedback/',
   SYSTEM_BASE_URL:                CLIQZEnvironment.SYSTEM_BASE_URL,
   PREFERRED_LANGUAGE:             null,
 
@@ -66,7 +66,6 @@ var CliqzUtils = {
     if (!options.lang) {
       return Promise.reject("lang missing");
     }
-
     CliqzUtils.importModule('core/gzip').then(function(gzip) {
       CLIQZEnvironment.gzip = gzip;
     }).catch(function () {
