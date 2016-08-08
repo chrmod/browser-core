@@ -257,12 +257,14 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  var onReady = function () {
+  var onReady = function (event) {
     // ReportLang
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
+    // don't analyse language for (i)frames
+    var isTopWindow = !event.originalTarget.defaultView.frameElement;
 
-    if (lang) {
+    if (isTopWindow && lang) {
       send({
         windowId: windowId,
         payload: {
