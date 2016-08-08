@@ -143,6 +143,10 @@ export default {
     },
     recordMeta(url, meta) {
       events.pub("core:url-meta", url, meta);
+    },
+
+    getFeedbackPage() {
+      return utils.FEEDBACK_URL;
     }
   }
 };

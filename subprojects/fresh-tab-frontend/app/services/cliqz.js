@@ -227,6 +227,20 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({ promise });
   },
 
+  getFeedbackPage() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getFeedbackPage = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "core",
+      action: "getFeedbackPage"
+    }), "*");
+
+    return DS.PromiseObject.create({ promise });
+  },
+
   revertHistorySpeedDial(item) {
 
     window.postMessage(JSON.stringify({

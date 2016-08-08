@@ -51,5 +51,8 @@ export default {
   },
   news: {
     "read-more": "Read more"
+  },
+  abtests: {
+    "feedback": "Questions? Comments? Contact CLIQZ"
   }
 };
