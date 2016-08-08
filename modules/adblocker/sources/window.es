@@ -69,7 +69,7 @@ export default class {
         'cliqz-adb-domain',
         utils.getLocalizedString('adb-menu-disable-domain'),
         true,
-        () => { CliqzADB.adBlocker.toggleDomain(currentURL); },
+        () => { CliqzADB.adBlocker.toggleUrl(currentURL, true); },
         disabledForDomain
       );
 

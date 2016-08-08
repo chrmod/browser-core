@@ -17,6 +17,8 @@ import ContentPolicy from 'adblocker/content-policy';
 import { hideNodes } from 'adblocker/cosmetics';
 import { MutationLogger } from 'adblocker/mutation-logger';
 
+import CliqzHumanWeb from 'human-web/human-web';
+
 
 // adb version
 export const ADB_VER = 0.01;
@@ -134,23 +136,40 @@ class AdBlocker {
     return this.blacklist.has(url);
   }
 
-  toggleDomain(url) {
-    // Should all this domain stuff be extracted into a function?
-    // Why is CliqzUtils.detDetailsFromUrl not used?
-    const urlParts = URLInfo.get(url);
-    let hostname = urlParts.hostname;
-    if (hostname.startsWith('www.')) {
-      hostname = hostname.substring(4);
+  logActionHW(url, action, domain) {
+    let type = 'url';
+    if (domain) {
+      type = 'domain';
     }
-
-    this.toggleUrl(hostname);
+    if (!CliqzHumanWeb.state.v[url].adblocker_blacklist) {
+      CliqzHumanWeb.state.v[url].adblocker_blacklist = {};
+    }
+    CliqzHumanWeb.state.v[url].adblocker_blacklist[action] = type;
   }
 
-  toggleUrl(url) {
-    if (this.blacklist.has(url)) {
-      this.blacklist.delete(url);
+  toggleUrl(url, domain) {
+    let processedURL = url;
+    if (domain) {
+      // Should all this domain stuff be extracted into a function?
+      // Why is CliqzUtils.getDetailsFromUrl not used?
+      processedURL = URLInfo.get(url).hostname;
+      if (processedURL.startsWith('www.')) {
+        processedURL = processedURL.substring(4);
+      }
+    }
+
+    const existHW = CliqzHumanWeb && CliqzHumanWeb.state.v[url];
+    if (this.blacklist.has(processedURL)) {
+      this.blacklist.delete(processedURL);
+      // TODO: It's better to have an API from humanweb to indicate if a url is private
+      if (existHW) {
+        this.logActionHW(url, 'remove', domain);
+      }
     } else {
-      this.blacklist.add(url);
+      this.blacklist.add(processedURL);
+      if (existHW) {
+        this.logActionHW(url, 'add', domain);
+      }
     }
 
     this.persistBlacklist();
