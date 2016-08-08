@@ -1,5 +1,4 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-import parseList from 'adblocker/filters-parsing';
 
 
 // Disk persisting
@@ -133,7 +132,7 @@ class ExtraLists extends UpdateCallbackHandler {
   updateExtraListsFromMetadata(extraLists) {
     Object.keys(extraLists).forEach(entry => {
       const metadata = extraLists[entry];
-      const url = metadata.hasOwnProperty('homeURL') ? metadata.homeURL : entry;
+      const url = metadata.homeURL !== undefined ? metadata.homeURL : entry;
 
       this.triggerCallbacks({
         asset: entry,
@@ -150,7 +149,6 @@ class FiltersList extends UpdateCallbackHandler {
   constructor(checksum, asset, remoteURL) {
     super();
     this.checksum = checksum;
-    this.filters = [];
 
     let assetName = asset;
 
@@ -180,9 +178,9 @@ class FiltersList extends UpdateCallbackHandler {
   }
 
   updateList(data) {
-    this.filters = parseList(data) || [];
-    if (this.filters.length > 0) {
-      this.triggerCallbacks(this.filters);
+    const filters = data.split(/\r\n|\r|\n/g);
+    if (filters.length > 0) {
+      this.triggerCallbacks(filters);
     }
   }
 }
@@ -217,14 +215,6 @@ export default class extends UpdateCallbackHandler {
     this.checksums.load();
   }
 
-  concatLists(lists) {
-    let filters = [];
-    lists.forEach(list => {
-      filters = filters.concat(list.filters);
-    });
-    return filters;
-  }
-
   updateList({ checksum, asset, remoteURL }) {
     if (isListSupported(asset)) {
       let list = this.lists.get(asset);
@@ -232,8 +222,8 @@ export default class extends UpdateCallbackHandler {
       if (list === undefined) {
         list = new FiltersList(checksum, asset, remoteURL);
         this.lists.set(asset, list);
-        list.onUpdate(() => {
-          this.triggerCallbacks(this.concatLists(this.lists));
+        list.onUpdate(filters => {
+          this.triggerCallbacks({ asset, filters });
         });
         list.load();
       } else {

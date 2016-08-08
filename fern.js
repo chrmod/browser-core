@@ -206,13 +206,13 @@ program.command('test [file]')
 
           if (options.ci) {
             watcher.on('change', function() {
-              var Testem  = require('testem');
+              const Testem = require('testem');
+              const testem = new Testem();
 
-              var testem = new Testem();
-
-              var launch_in_ci = process.argv.slice(2, process.argv.length);
+              // TODO: Find a way to fix testem with too many tests
 
               testem.startCI({
+                debug: true,
                 host: 'localhost',
                 port: '4200',
                 launch_in_ci: CONFIG['testem_launchers'],

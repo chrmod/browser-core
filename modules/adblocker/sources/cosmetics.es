@@ -214,16 +214,18 @@ function isFromFrame(requestContext) {
 
 
 function containsVideo(node) {
-  if (node.querySelectorAll('VIDEO').length > 0) {
-    return true;
-  }
-
-  const frames = node.querySelectorAll('IFRAME');
-  for (const frame of frames) {
-    if (isVideoFrame(frame)) {
+  try {
+    if (node.querySelectorAll('VIDEO').length > 0) {
       return true;
     }
-  }
+
+    const frames = node.querySelectorAll('IFRAME');
+    for (const frame of frames) {
+      if (isVideoFrame(frame)) {
+        return true;
+      }
+    }
+  } catch (ex) { /* Ignore exception */ }
 
   return false;
 }

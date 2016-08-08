@@ -20,7 +20,6 @@ node('ubuntu && docker && gpu') {
   sh "docker build -t ${imgName} --build-arg UID=`id -u` --build-arg GID=`id -g` ."
   fingerprintDocker(imgName, "Dockerfile")
 
-  // 30 minutes
   timeout(60) {
     try {
       docker.image(imgName).inside() {
@@ -85,7 +84,6 @@ def testInFirefoxVersion(version, no) {
     fingerprintDocker(firefoxImgName, dockerfile)
     dockerFingerprintFrom dockerfile: "./Dockerfile.firefox", image: firefoxImgName, toolName: env.DOCKER_TOOL_NAME
 
-    // 40 minutes
     timeout(60) {
       docker.image(firefoxImgName).inside('--device /dev/nvidia0 --device /dev/nvidiactl') {
         sh '/tmp/run_tests.sh'

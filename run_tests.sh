@@ -5,7 +5,13 @@ cp -v firefox-autoconfigs/firefox.cfg /home/jenkins/firefox/firefox.cfg
 # Install Cliqz extension
 cp -fr ./build/cliqz@cliqz.com /home/jenkins/firefox/distribution/extensions/
 
+
 RESOLUTION="1024x768"
+FIREFOX=/home/jenkins/firefox/firefox
+PROFILE=/home/jenkins/profile
+TEST_URL=chrome://cliqz/content/firefox-tests/run.html
+TEST_COMMAND="${FIREFOX} -profile ${PROFILE} --no-remote -chrome ${TEST_URL}"
+
 
 if [ -z "$JOB_NAME" ] ; then
     # TODO: Fix this as docker doesn't seem to isolate Xvfb totally
@@ -55,13 +61,14 @@ if [ -z "$JOB_NAME" ] ; then
     x11vnc -storepasswd vnc /tmp/vncpass
     x11vnc -rfbauth /tmp/vncpass -forever &
 
-
     # Run tests
     echo "Run integration tests"
-    /home/jenkins/firefox/firefox -profile /home/jenkins/profile --no-remote -chrome chrome://cliqz/content/firefox-tests/run.html
+    ${TEST_COMMAND}
 else
     # TODO: Fix problem with already used display
-    xvfb-run -e /dev/stdout --server-args="-screen 0 ${RESOLUTION}x24" --auto-servernum /home/jenkins/firefox/firefox -profile /home/jenkins/profile --no-remote -chrome chrome://cliqz/content/firefox-tests/run.html
+    # Run tests
+    echo "Run integration tests"
+    xvfb-run -e /dev/stdout --server-args="-screen 0 ${RESOLUTION}x24" --auto-servernum ${TEST_COMMAND}
 fi
 
 # Move tests report into workspace
