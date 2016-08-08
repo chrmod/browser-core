@@ -1,4 +1,5 @@
-import { language, utils, events } from "core/cliqz";
+import { utils, events } from "core/cliqz";
+import language from "platform/language";
 import config from "core/config";
 import ProcessScriptManager from "platform/process-script-manager";
 

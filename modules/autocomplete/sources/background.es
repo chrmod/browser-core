@@ -24,7 +24,7 @@ class AutocompleteComponent {
   unregister() {
     try {
       this.reg.unregisterFactory(
-        this.reg.contractIDToCID(FFcontract.contractID),
+        this.reg.contractIDToCID(this.FFcontract.contractID),
         this.reg.getClassObjectByContractID(
           this.FFcontract.contractID,
           Ci.nsISupports
