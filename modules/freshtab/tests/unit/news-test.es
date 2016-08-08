@@ -2,6 +2,7 @@ export default describeModule("freshtab/news",
   function () {
     return {
       "core/config": { default: { } },
+      "platform/language": {default:{}},
       "freshtab/news-cache": { default: function(){}},
       "core/cliqz": {
         utils: {
@@ -10,7 +11,6 @@ export default describeModule("freshtab/news",
           clearTimeout,
         },
         environment: {},
-        language: {},
 
         historyManager: {
           PlacesInterestsStorage : {},
@@ -94,7 +94,7 @@ export default describeModule("freshtab/news",
 
         this.deps("core/cliqz").utils.log = function(mes){ console.log(mes); };
 
-        this.deps("core/cliqz").language.stateToQueryString = function() {return '&lang=en';};
+        this.deps("platform/language").default.stateToQueryString = function() {return '&lang=en';};
 
         this.deps("core/cliqz").environment.getLocalStorage = function (locale_storage) { 
           return {
@@ -189,7 +189,7 @@ export default describeModule("freshtab/news",
 
           var historyObject = {newsPlacing};
           // limit number of history based news
-          hbasedResponse.results[0].news['focus.de'] = hbasedResponse.results[0].news['focus.de'].slice(0, 2);
+          hbasedResponse['focus.de'] = hbasedResponse['focus.de'].slice(0, 2);
 
           return this.module().composeNewsList(historyObject, topNewsCache, hbasedResponse).then(
             freshtabNews => {
