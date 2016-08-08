@@ -97,7 +97,7 @@ export default class {
         // only care about top level menu
         if(ev.target.id != 'cliqz_menupopup') return;
 
-        this.createMenu(this.window, menupopup);
+        this.createQbutton(this.window, menupopup);
         utils.telemetry({
           type: 'activity',
           action: 'cliqz_menu_button',
@@ -111,17 +111,6 @@ export default class {
     }, false);
 
     ToolbarButtonManager.restorePosition(doc, button);
-  }
-
-  // creates the menu items at first click
-  createMenu(win, menupopup){
-    //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
-    //FF16+
-    if(Services.search.init != null){
-        Services.search.init(() => this.createQbutton(win, menupopup) );
-    } else {
-        this.createQbutton(win, menupopup);
-    }
   }
 
   createQbutton(win, menupopup){
