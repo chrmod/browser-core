@@ -1048,6 +1048,17 @@ var CliqzUtils = {
     CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;
     CLIQZEnvironment.Result = o.Result;
   },
+  onRenderComplete: function(query, box){
+    if (!CLIQZEnvironment.onRenderComplete)
+      return;
+
+    var linkNodes = box.querySelectorAll("[url]:not(.cqz-result-box):not(.entity-story):not([hidden]), [href]:not([hidden])");
+    var urls = [].map.call(linkNodes, function(node) {
+      return node.getAttribute("url") || node.getAttribute("href");
+    });
+
+    CLIQZEnvironment.onRenderComplete(query, urls);
+  }
 };
 
 export default CliqzUtils;

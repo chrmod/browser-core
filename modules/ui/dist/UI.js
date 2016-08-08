@@ -9,6 +9,7 @@ function load(ctx) {
 
 var CliqzAutocomplete;
 var CliqzHandlebars;
+var CliqzEvents;
 
 function isValidURL(str) {
   var pattern = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
@@ -58,9 +59,10 @@ var UI = {
     DROPDOWN_HEIGHT: 349,
     popupClosed: true,
     VIEWS: Object.create(null),
-    preinit: function (autocomplete, handlebars) {
+    preinit: function (autocomplete, handlebars, cliqzEvents) {
         CliqzAutocomplete = autocomplete;
         CliqzHandlebars = handlebars;
+        CliqzEvents = cliqzEvents;
     },
     init: function(_urlbar) {
         urlbar = _urlbar
@@ -91,7 +93,6 @@ var UI = {
         }
     },
     main: function(box) {
-
         gCliqzBox = box;
 
         //check if loading is done
@@ -225,6 +226,8 @@ var UI = {
           setTimeout(function(box){
               hideMisalignedElements(box);
               smCqzAnalogClock($('.cqz-analog-clock', box));
+
+              CliqzUtils.onRenderComplete(CliqzAutocomplete.lastSearch, box);
           }, 0, gCliqzBox.resultsBox);
 
 
@@ -755,15 +758,13 @@ function hideMisalignedElements(ctx){
             childrenW += el.children[c].clientWidth;
 
         if(childrenW > el.clientWidth){
-            var children = [].slice.call($$('[hide-priority]', el)),
-                sorted = children.sort(function(a, b){
-                    return +a.getAttribute('hide-priority') < +b.getAttribute('hide-priority')
-                });
+            var children = [].slice.call(el.children);
 
-            while(sorted.length && childrenW > el.clientWidth){
-                var excluded = sorted.pop();
+            while(children.length && childrenW > el.clientWidth){
+                var excluded = children.pop();
                 childrenW -= excluded.clientWidth;
                 excluded.style.display = 'none';
+                excluded.setAttribute('hidden', true);
             }
         }
     }
@@ -2104,7 +2105,7 @@ function loadViews() {
     .forEach(function (templateName) {
       UI.VIEWS[templateName] = Object.create(null);
       try {
-        var module = CLIQZ.System.get("ui/views/"+templateName);
+        var module = CliqzUtils.System.get("ui/views/"+templateName);
         if (module) {
           UI.VIEWS[templateName] = new module.default(ctx);
 

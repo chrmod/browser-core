@@ -45,7 +45,6 @@ var CLIQZEnvironment = {
   SYSTEM_BASE_URL: './',
   RESULTS_LIMIT: 3,
   MIN_QUERY_LENGHT_FOR_EZ: 0,
-  storeQueryTimeout: null,
   RERANKERS: [],
   TEMPLATES: TEMPLATES,
   KNOWN_TEMPLATES: {
@@ -193,11 +192,7 @@ var CLIQZEnvironment = {
   OS: 'mobile',
   isPrivate: function(){ return false; },
   isOnPrivateTab: function(win) { return false; },
-  isScrolling: false,
   getWindow: function(){ return window; },
-  getDomNodeContent: function(el) {
-    return el.outerHTML;
-  },
   httpHandler: function(method, url, callback, onerror, timeout, data, sync) {
     latestUrl = url;
 
