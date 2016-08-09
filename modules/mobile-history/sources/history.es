@@ -167,12 +167,16 @@ function unfavoriteItem(item) {
   osAPI.setFavorites([{title, url}], false);
 }
 
-function init(onlyFavorites = !!location.hash) {
+function init(onlyFavorites) {
   migrateQueries();
   History.showOnlyFavorite = onlyFavorites;
-  const callback = onlyFavorites ? showFavorites : showHistory;
+  update();
+}
+
+function update() {
+  const callback = History.showOnlyFavorite ? showFavorites : showHistory;
   historyTimer = setTimeout(callback, 500, []);
-  onlyFavorites ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
+  History.showOnlyFavorite ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
 }
 
 function clearHistory() {
@@ -203,7 +207,6 @@ function sendClickTelemetry(element) {
     });
 }
 
-
 function crossTransform (element, x) {
   var platforms = ['', '-webkit-', '-ms-'];
   platforms.forEach(function (platform) {
@@ -211,16 +214,31 @@ function crossTransform (element, x) {
   });
 }
 
+function isElementDate(element) {
+  return !element.dataset.timestamp
+}
+
 function attachListeners(list) {
   var listItems = list.getElementsByTagName("li");
 
   for (let i = 0; i < listItems.length; i++) {
-    if(listItems[i].dataset) {
+    if(!isElementDate(listItems[i])) {
       new Hammer(listItems[i]).on('pan', onSwipe);
       new Hammer(listItems[i]).on('panend', onSwipeEnd);
       new Hammer(listItems[i]).on('tap', onElementClick);
     }
   }
+}
+
+function removeDomElement(element) {
+  const prev = element.previousElementSibling;
+  const next = element.nextElementSibling;
+  if (prev && isElementDate(prev)) {
+    if (!next || isElementDate(next)) {
+      element.parentElement.removeChild(prev);
+    }
+  }
+  element.parentElement.removeChild(element);
 }
 
 function onSwipe(e) {
@@ -230,7 +248,7 @@ function onSwipeEnd(e) {
   const element = e.srcEvent.currentTarget;
   if (e.velocityX < -1 || e.deltaX > 150 || e.center.x < 50) {
     History.showOnlyFavorite ? unfavoriteItem(element) : removeItem(element);
-    element.parentElement.removeChild(element);
+    removeDomElement(element);
   } else {
     crossTransform(element, 0);
   }
@@ -262,6 +280,7 @@ function migrateQueries() {
 
 var History = {
   init,
+  update,
   showHistory,
   showFavorites,
   clearHistory,

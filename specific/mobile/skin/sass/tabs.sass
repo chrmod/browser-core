@@ -56,19 +56,19 @@ body, html
         background-color: white
         color: #333
         padding: 0 0.75rem 0.5rem 0.75rem
-        display: inline-block
         border-radius: 0.25rem
         margin: 0 5%
         box-sizing: border-box
         position: relative
         box-shadow: 0 2px 4px rgba(0,0,0,0.12)
-        h1
+        overflow: hidden
+        .item__head
           padding: 0
           margin: 0
           font-size: 1rem
           line-height: 1.25rem
           font-weight: 500
-          display: inline
+          word-break: break-word;
         .item__meta
           position: absolute
           bottom: 0
@@ -88,20 +88,19 @@ body, html
         border-radius: 0.25rem
         float: right
         margin-right: 1rem
-        max-width: 75%
+        max-width: 85%
         box-sizing: border-box
         position: relative
         box-shadow: 0 2px 4px rgba(0,0,0,0.12)
-        h1
+        overflow: hidden
+        .item__head
           padding: 0
           margin: 0
+          overflow: hidden
+          text-overflow: ellipsis
           font-size: 1rem
           line-height: 1.25rem
           font-weight: 500
-          display: inline
-          a
-            text-decoration: none
-            color: #333
         .item__meta
           position: absolute
           bottom: 0
@@ -118,17 +117,19 @@ body, html
         border-radius: 0.25rem
         float: left
         margin-left: 1rem
-        max-width: 75%
+        max-width: 85%
+        min-width: 50%
         box-sizing: border-box
         position: relative
         box-shadow: 0 2px 4px rgba(0,0,0,0.12)
-        h1
+        overflow: hidden
+        .item__head
           padding: 0
           margin: 0
+          word-break: break-word;
           font-size: 1rem
           line-height: 1.25rem
           font-weight: 500
-          display: inline
         .item__meta
           position: absolute
           bottom: 0

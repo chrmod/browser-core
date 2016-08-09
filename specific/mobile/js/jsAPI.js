@@ -78,7 +78,7 @@ var jsAPI = {
         CliqzUtils.initHomepage();
       }
     } else { // history view
-      History.init();
+      History.update();
     }
   }
 }

@@ -20,9 +20,9 @@
                         {{/if}}
                     {{/with}}
                     <div class="url"><div>{{domain}}</div></div>
-                    <h1 class="item__head">
+                    <div class="item__head">
                         {{title}}
-                    </h1>
+                    </div>
                     <div class="item__meta">
                         {{conversationsTime timestamp}}
                     </div>
@@ -39,9 +39,9 @@
                         <div class="item__meta">
                             <div>{{conversationsTime timestamp}}</div>
                         </div>
-                        <h1 class="item__head query">
+                        <div class="item__head">
                             {{query}}
-                        </h1>
+                        </div>
                     </div>
                 </li>
 

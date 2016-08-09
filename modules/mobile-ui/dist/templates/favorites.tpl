@@ -18,9 +18,9 @@
                     {{/if}}
                 {{/with}}
                 <div class="url"><div>{{domain}}</div></div>
-                <h1 class="item__head">
+                <div class="item__head">
                     {{title}}
-                </h1>
+                </div>
             </div>
         </li>
 
