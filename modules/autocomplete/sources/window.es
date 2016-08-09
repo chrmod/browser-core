@@ -12,7 +12,7 @@ export default class {
   }
 
   unload() {
-
+    delete this.window.CliqzAutocomplete;
   }
 
   createButtonItem() {

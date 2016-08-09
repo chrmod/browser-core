@@ -33,7 +33,8 @@
     "adblocker",
     "hm",
     "campaign-manager",
-    "message-center"
+    "message-center",
+    "q-button"
   ],
   "subprojects": [
     "fresh-tab-frontend"

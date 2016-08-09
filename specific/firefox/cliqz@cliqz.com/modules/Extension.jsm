@@ -287,6 +287,8 @@ var Extension = {
 
         try {
           win.CLIQZ.Core.unload(false);
+          delete win.CLIQZ.CliqzUtils;
+          delete win.CLIQZ.CliqzEvents;
           delete win.CLIQZ.Core;
           delete win.CLIQZ.UI;
           delete win.CLIQZ;

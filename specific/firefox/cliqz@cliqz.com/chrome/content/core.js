@@ -205,13 +205,13 @@ window.CLIQZ.Core = {
         }
 
         if(!soft){
-            delete window.CliqzUtils;
+            window.CliqzUtils = undefined;
             delete window.CliqzHistoryManager;
             delete window.CliqzLanguage;
             delete window.CliqzDemo;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
-            delete window.CliqzEvents;
+            window.CliqzEvents = undefined;
         }
     },
     restart: function(soft){
