@@ -1381,37 +1381,37 @@
     cursor: pointer;
 }
 
-/*** BEGIN MUSIC DATA SC ***/
+/*** BEGIN BOTTOM BUTTONS DATA SC ***/
 
-#music_btn_region {
+#bottom_btn_region {
     margin-top: 20px;
 }
 
-#music_btn_region .music-label {
+#bottom_btn_region .bottom-label {
     float: left;
     margin-right: 10px;
     line-height: 26px;
     color: #999999;
-    width: 82px;
+    max-width: 150px;
 }
 
-#music_btn_region .music-btns-wrapper {
+#bottom_btn_region .bottom-btns-wrapper {
     vertical-align: bottom;
 }
 
-#music_btn_region .music-btns {
+#bottom_btn_region .bottom-btns {
     white-space: nowrap;
     overflow: hidden;
 }
 
-#music_btn_region .music-btn {
+#bottom_btn_region .bottom-btn {
     margin-right: 10px;
     display: inline-block;
     cursor: pointer;
     margin-bottom: 0px;
 }
 
-#music_btn_region .music-btn-text {
+#bottom_btn_region .bottom-btn-text {
     color: #fff;
     font-size: 14px;
     font-weight: normal;
@@ -1429,16 +1429,16 @@
 
 }
 
-#music_btn_region .music-btn img {
+#bottom_btn_region .bottom-btn img {
     max-height: 26px;
     max-width: 100px;
 }
 
-.music-btns-container {
+.bottom-btns-container {
     display: table-cell;
     vertical-align: bottom !important;
     width: 720px;
     height: 90px;
 }
 
-/*** END MUSIC DATA SC ***/
+/*** END BOTTOM BUTTONS DATA SC ***/

@@ -74,7 +74,8 @@ var CLIQZEnvironment = {
         'partials/location/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie',
-        'partials/music-data-sc',
+        'partials/bottom-data-sc',
+        'partials/download',
         'partials/streaming',
         'partials/lyrics'
     ],
