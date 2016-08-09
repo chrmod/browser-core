@@ -2,7 +2,7 @@ import MockOS from "mobile-dev/MockOS"
 
 export default {
   init(settings) {
-  	window.MockOS = MockOS;
+  	CLIQZ.MockOS = MockOS;
   },
 
   unload() {

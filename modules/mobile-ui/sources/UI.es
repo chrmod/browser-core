@@ -24,9 +24,7 @@ var resultsBox = null,
     currentResults = null,
     imgLoader = null,
     progressBarInterval = null,
-    LEFT_PEEK = 15,
-    RIGHT_PEEK = 25,
-    PADDING = 16, // CONNECTED TO CSS VALUE (DON'T CHANGE)
+    PEEK = 25,
     currentResultsCount = 0,
     FRAME = 'frame';
 
@@ -54,7 +52,7 @@ var UI = {
         loadViews();
     },
     setDimensions: function () {
-      UI.CARD_WIDTH = window.innerWidth - PADDING - RIGHT_PEEK - LEFT_PEEK;
+      UI.CARD_WIDTH = window.innerWidth  -  2 * PEEK;
       UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
     renderResults: function(r) {
@@ -66,6 +64,9 @@ var UI = {
       CLIQZ.UI.stopProgressBar();
 
       return renderedResults;
+    },
+    setTheme: function (incognito = false) {
+      window.document.body.style.backgroundColor = incognito ? '#4a4a4a' : '#E8E8E8';
     },
     setMobileBasedUrls: function  (o) {
       if (!o) return;
@@ -114,7 +115,8 @@ var UI = {
           frameWidth: UI.CARD_WIDTH,
           searchString: encodeURIComponent(r._searchString),
           searchEngineUrl: engine.url,
-          logo: logo
+          logo: logo,
+          background: logo.backgroundColor
         }
       };
         var query = currentResults.searchString || '';
@@ -190,6 +192,8 @@ var UI = {
       }
     },
     startProgressBar: function () {
+      // suspended
+      return;
       if (progressBarInterval) {
         clearInterval(progressBarInterval);
       }
@@ -205,6 +209,8 @@ var UI = {
     },
 
     stopProgressBar: function () {
+      // suspended
+      return;
       if (progressBarInterval) {
         clearInterval(progressBarInterval);
       }
@@ -475,7 +481,7 @@ function setResultNavigation(results) {
   }
 
   resultsBox.style.width = window.innerWidth + 'px';
-  resultsBox.style.marginLeft = LEFT_PEEK + 'px';
+  resultsBox.style.marginLeft = PEEK + 'px';
 
 
   var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;

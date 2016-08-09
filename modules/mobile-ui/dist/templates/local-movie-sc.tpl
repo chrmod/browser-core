@@ -5,7 +5,7 @@
     <div class="meta">
         {{> logo}}
         {{#with data}}
-        <h3 class="meta__url"><i class="fa fa-mobile mobile"></i> {{emphasis friendly_url query 2 true}}</h3>
+        <div extra="url" class="card__meta"><div>{{friendly_url}}</div></div>
     </div>
     <div class="main">
         <div class="item">

@@ -372,7 +372,8 @@ var CLIQZEnvironment = {
             action: CLIQZEnvironment.getLocalizedString('mobile_no_result_action', engine.name),
             searchString: encodeURIComponent(CLIQZEnvironment.lastSearch),
             searchEngineUrl: engine.url,
-            logo: logo
+            logo: logo,
+            background: logo.backgroundColor
           },
         subType: JSON.stringify({empty:true})
       }

@@ -44,12 +44,13 @@ function displayTopSites (list, isEditMode = false) {
 
   const isEmpty = list.length ? false : true;
 
-  list = list.concat('', '', '', ''); // 4 empty topsites to fill
+  list = list.concat(Array(TOPSITES_LIMIT).fill(''));
   list = list.splice(0, TOPSITES_LIMIT);
 
   const topSites = CliqzHandlebars.tplCache.topsites;
   const div = document.getElementById('topSites');
-  div.innerHTML = topSites({isEmpty, isEditMode, list});
+  const theme = (CLIQZEnvironment.getPref('incognito', false) === 'true' ? 'incognito' : 'standard');
+  div.innerHTML = topSites({isEmpty, isEditMode, list, theme});
 
 
   CliqzUtils.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
