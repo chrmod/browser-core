@@ -265,12 +265,6 @@ var CliqzABTests = {
                 break;
             case "1072_B":
                 CliqzUtils.setPref("grFeatureEnabled", true);
-            case "1073_A":
-                CliqzUtils.setPref("history.timeouts", false);
-                break;
-            case "1073_B":
-                CliqzUtils.setPref("history.timeouts", true);
-                break;
             case "1074_A":
                 CliqzUtils.setPref("cliqz-adb-abtest", false);
                 break;
@@ -282,6 +276,12 @@ var CliqzABTests = {
                 break;
             case "1075_B":
                 CliqzUtils.setPref("freshtabFeedback", true);
+                break;
+            case "1076_A":
+                CliqzUtils.setPref("history.timeouts", false);
+                break;
+            case "1076_B":
+                CliqzUtils.setPref("history.timeouts", true);
                 break;
             default:
                 rule_executed = false;
@@ -426,10 +426,6 @@ var CliqzABTests = {
             case "1072_B":
               CliqzUtils.clearPref('grFeatureEnabled');
               break;
-            case "1073_A":
-            case "1073_B":
-              CliqzUtils.clearPref('history.timeouts');
-              break;
             case "1074_A":
             case "1074_B":
                 CliqzUtils.clearPref('cliqz-adb-abtest');
@@ -438,6 +434,10 @@ var CliqzABTests = {
             case "1075_B":
                 CliqzUtils.clearPref('freshtabFeedback');
                 break;
+            case "1076_A":
+            case "1076_B":
+              CliqzUtils.clearPref('history.timeouts');
+              break;
             default:
                 rule_executed = false;
         }
