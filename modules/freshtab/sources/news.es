@@ -96,7 +96,7 @@ function getHbasedNewsObject() {
 
       reqDomains.forEach(domain => {
         if (hbNewsDict.hasOwnProperty(domain)) {
-          CleanhbNewsDict[domain] = hbNewsDict[domain];
+          cleanhbNewsDict[domain] = hbNewsDict[domain];
         }
       });
       resolve(cleanhbNewsDict);
@@ -107,7 +107,7 @@ function getHbasedNewsObject() {
     let requestPromise;
 
     if (hbasedRecom.hashList.length === 0) {
-      requestPromise = Promise.resolve(() => {});
+      requestPromise = Promise.resolve({});
     } else {
       requestPromise = requestBackend(getHbasedNewsUrl(hbasedRecom.hashList))
         .then((reqData) => filterNotRequiredDomains(reqData, hbasedRecom));
