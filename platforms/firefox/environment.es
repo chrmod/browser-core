@@ -85,10 +85,12 @@ var CLIQZEnvironment = {
     unload: function() {
     },
     log: function(msg, key){
+      if(CLIQZEnvironment && CLIQZEnvironment.getPref('showConsoleLogs', false)){
         _log.logStringMessage(
           'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
+      }
     },
     __prefixPref: function (pref, prefix) {
         if ( !(typeof prefix === 'string') ) {

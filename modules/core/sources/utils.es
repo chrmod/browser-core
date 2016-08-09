@@ -289,13 +289,7 @@ var CliqzUtils = {
    * @param {string=} prefix - prefix for pref
    */
   clearPref: CLIQZEnvironment.clearPref,
-  log: function(msg, key){
-    if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
-      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
-      if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CLIQZEnvironment.log(msg, key);
-    }
-  },
+  log: CLIQZEnvironment.log,
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },

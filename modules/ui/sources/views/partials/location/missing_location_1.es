@@ -114,11 +114,16 @@ export default class {
       return;
     }
     CliqzUtils.callAction("geolocation", "updateGeoLocation", []).then(loc => {
+      if(loc.latitude && loc.longitude){
         CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
             "&q=" + this.CLIQZ.Core.urlbar.value +
             CliqzUtils.encodeLocation(true, loc.latitude, loc.longitude) +
             "&bmresult=" + bmUrl,
             this.handleNewLocalResults(el));
+      } else {
+        CliqzUtils.log("Unable to get user's location", "getlocation.actions.updateGeoLocation");
+        this.failedToLoadResults(el);
+      }
     }).catch(() => {
         CliqzUtils.log("Unable to get user's location", "getlocation.actions.updateGeoLocation");
         this.failedToLoadResults(el);
