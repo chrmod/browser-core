@@ -10,8 +10,6 @@ import Result from "autocomplete/result";
 import WikipediaDeduplication from "autocomplete/wikipedia-deduplication";
 import Mixer from "autocomplete/mixer";
 
-Cu.import('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
-
 class AutocompleteComponent {
   constructor() {
     this.reg = Cm.QueryInterface(Ci.nsIComponentRegistrar);
@@ -20,13 +18,6 @@ class AutocompleteComponent {
       classDescription : 'Cliqz',
       contractID: '@mozilla.org/autocomplete/search;1?name=cliqz-results',
       QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
-    };
-    // AB-1076: History provider contrace
-    this.CliqzHistoryContract = {
-                classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c9}'),
-                classDescription : 'Cliqz',
-                contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-history-results',
-                QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ])
     };
   }
 
@@ -42,18 +33,6 @@ class AutocompleteComponent {
     } catch(e) {
 
     }
-    // AB-1076: Unregister history provider 
-    try{
-      this.reg.unregisterFactory(
-        this.reg.contractIDToCID(this.CliqzHistoryContract.contractID),
-        this.reg.getClassObjectByContractID(
-          this.CliqzHistoryContract.contractID,
-          Ci.nsISupports
-        )
-      );
-    } catch(e) {
-
-    }
   }
 
   register() {
@@ -61,22 +40,6 @@ class AutocompleteComponent {
     const cp = autocomplete.CliqzResults.prototype;
     const factory = XPCOMUtils.generateNSGetFactory([autocomplete.CliqzResults])(cp.classID);
     this.reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
-
-    // AB - 1076
-    var appInfo = Cc['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo);
-    var versionChecker = Cc['@mozilla.org/xpcom/version-comparator;1']
-                          .getService(Components.interfaces.nsIVersionComparator);
-
-    autocomplete.AB_1076_ACTIVE = versionChecker.compare(appInfo.version, '47.0') >= 0  && versionChecker.compare(appInfo.version, "51.0") < 0 && CliqzUtils.getPref("history.timeouts", false);
-
-    if (autocomplete.AB_1076_ACTIVE){
-
-      for(var k in this.CliqzHistoryContract) CliqzPlacesAutoComplete.prototype[k] = this.CliqzHistoryContract[k];
-      const cpCliqzPlacesAutoComplete = CliqzPlacesAutoComplete.prototype;
-      const cpFactory = XPCOMUtils.generateNSGetFactory([CliqzPlacesAutoComplete])(cpCliqzPlacesAutoComplete.classID);
-      this.reg.registerFactory(cpCliqzPlacesAutoComplete.classID, cpCliqzPlacesAutoComplete.classDescription, cpCliqzPlacesAutoComplete.contractID, cpFactory);
-      CliqzUtils.log('AB - 1076: registration finished', 'CliqzAutocomplete');
-    }
   }
 }
 
