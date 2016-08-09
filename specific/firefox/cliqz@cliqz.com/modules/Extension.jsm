@@ -216,6 +216,7 @@ var Extension = {
     },
     unloadJSMs: function () {
         //unload all cliqz modules
+        Cu.unload('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');

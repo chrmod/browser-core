@@ -22,7 +22,6 @@ var CLIQZEnvironment = {
     prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     RERANKERS: [],
-    AB_1073_ACTIVE: false,
     TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -79,7 +78,9 @@ var CLIQZEnvironment = {
         'partials/streaming',
         'partials/lyrics'
     ],
+
     init: function(){
+
     },
     unload: function() {
     },
@@ -498,9 +499,9 @@ var CLIQZEnvironment = {
             if(hist === null) { //lazy
               // history autocomplete provider is removed
               // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
-
-              if (CLIQZEnvironment.AB_1073_ACTIVE){
-                // If AB 1073 is not in B or firefox version less than 49 it will fall back to firefox history
+              if (CliqzUtils.autocomplete.AB_1076_ACTIVE){
+                CliqzUtils.log('AB - 1076: Initialize custom provider');
+                // If AB 1076 is not in B or firefox version less than 49 it will fall back to firefox history
                 var provider = Cc["@mozilla.org/autocomplete/search;1?name=cliqz-history-results"] ||
                                Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
                                Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];
