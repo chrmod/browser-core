@@ -47,6 +47,7 @@ export class Resource extends UpdateCallbackHandler {
     this.remoteURL = options.remoteURL;
     this.dataType  = options.dataType || "json";
     this.filePath  = ["cliqz", ...this.name];
+    this.chromeURL = `chrome://cliqz/content/${this.name.join('/')}`;
   }
 
   persist(data) {
@@ -60,18 +61,21 @@ export class Resource extends UpdateCallbackHandler {
     return readFile(this.filePath)
       .then(data => (new TextDecoder()).decode(data))
       .then(this._parseData.bind(this))
-      .catch(ex => {
-        return this.updateFromRemote();
-      });
+      .catch(() => this.updateFromURL(this.chromeURL))
+      .catch(() => this.updateFromRemote());
+  }
+
+  updateFromURL(url) {
+    return get(url)
+      .then(this.persist.bind(this))
+      .then(this._parseData.bind(this));
   }
 
   updateFromRemote() {
     if (this.remoteURL === undefined) {
       return Promise.resolve();
     } else {
-      return get(this.remoteURL)
-        .then(this.persist.bind(this))
-        .then(this._parseData.bind(this))
+      return this.updateFromURL(this.remoteURL)
         .then(data => {
           this.triggerCallbacks(data);
           return data;
