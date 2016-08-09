@@ -2,7 +2,7 @@ import { utils } from 'core/cliqz';
 import { countChildren, MAX_CHILDREN } from 'adblocker/cosmetics';
 
 
-export function MutationLogger() {
+export default function MutationLogger() {
   this.tabsInfo = {};  // first party url
   this.config = {
     childList: true,

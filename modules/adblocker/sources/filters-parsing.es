@@ -1,19 +1,6 @@
 import { log } from 'adblocker/utils';
 
 
-// Some content policy types used in filters
-const TYPE_OTHER = 1;
-const TYPE_SCRIPT = 2;
-const TYPE_IMAGE = 3;
-const TYPE_STYLESHEET = 4;
-const TYPE_OBJECT = 5;
-const TYPE_SUBDOCUMENT = 7;
-const TYPE_PING = 10;
-const TYPE_XMLHTTPREQUEST = 11;
-const TYPE_OBJECT_SUBREQUEST = 12;
-const TYPE_MEDIA = 15;
-
-
 // Uniq ID generator
 let uidGen = 0;
 
@@ -29,7 +16,7 @@ let uidGen = 0;
 //       we could split it into prefix + plain pattern
 // TODO: Make sure we support difference between adblock and ublock when filter is a valid hostname
 // TODO: Replace some of the attributes by a bitmask
-class AdFilter {
+export class AdFilter {
   constructor(line) {
     // Assign an id to the filter
     this.id = uidGen++;
@@ -80,7 +67,7 @@ class AdFilter {
     // Deal with comments
     this.isComment = (this.filterStr.startsWith('!') ||
                       this.filterStr.startsWith('#') ||
-                      this.filterStr.startsWith('[Adblock]'));
+                      this.filterStr.startsWith('[Adblock'));
 
     // Trim comments at the end of the line
     // eg: "... # Comment"
@@ -118,7 +105,6 @@ class AdFilter {
             this.isRegex = false;
             this.isHostnameAnchor = true;
           } else {
-            // TODO: Check if it's possible to be both right and left anchor
             if (this.filterStr.endsWith('|')) {
               this.isRightAnchor = true;
               this.filterStr = this.filterStr.substring(0, this.filterStr.length - 1);
@@ -161,32 +147,29 @@ class AdFilter {
               try {
                 // Split at the first '/' or '^' character to get the hostname
                 // and then the pattern.
-                const firstSep = this.filterStr.search(/[/^]/);
+                const firstSep = this.filterStr.search(/[/^*]/);
                 if (firstSep !== -1) {
                   const hostname = this.filterStr.substring(0, firstSep);
                   const pattern = this.filterStr.substring(firstSep);
-                  if (!hostname.includes('*')) {
-                    this.hostname = hostname;
-                    this.isRegex = (pattern.includes('^') ||
-                      pattern.includes('*'));
-                    this.isPlain = !this.isRegex;
 
-                    // If it's a regex, we keep the pattern full (and not splitted in
-                    // hostname + pattern), as it will be easier to match the whole
-                    // regex at once.
-                    // NOTE: The `hostname` attribute can still be used to optimize
-                    // filter dispatch in buckets and/or reverse index.
-                    if (this.isPlain) {
-                      this.filterStr = pattern;
-                    }
+                  this.hostname = hostname;
+                  this.isRegex = (pattern.includes('^') ||
+                    pattern.includes('*'));
+                  this.isPlain = !this.isRegex;
+                  this.filterStr = pattern;
 
-                    log(`SPLIT ${JSON.stringify({
-                      raw: this.rawLine,
-                      hostname: this.hostname,
-                      filterStr: this.filterStr,
-                      isRegex: this.isRegex,
-                    })}`);
+                  if (this.filterStr === '^') {
+                    this.filterStr = '';
+                    this.isPlain = true;
+                    this.isRegex = false;
                   }
+
+                  log(`SPLIT ${JSON.stringify({
+                    raw: this.rawLine,
+                    hostname: this.hostname,
+                    filterStr: this.filterStr,
+                    isRegex: this.isRegex,
+                  })}`);
                 }
               } catch (ex) {
                 log(`ERROR !! ${ex}`);
@@ -196,8 +179,8 @@ class AdFilter {
 
           // Compile Regex
           if (this.isRegex) {
-            this.rawRegex = this.filterStr;
             this.regex = this.compileRegex(this.filterStr);
+            this.rawRegex = this.regex.toString();
           } else { // if (!this.matchCase) {
             // NOTE: No filter seems to be using the `match-case` option,
             // hence, it's more efficient to just convert everything to
@@ -230,10 +213,7 @@ class AdFilter {
       filter = `${filter}$`;
     }
 
-    if (this.isHostnameAnchor) {
-      // Based on http://tools.ietf.org/html/rfc3986#appendix-B
-      filter = `^(?:[^:/?#]+:)?(?://(?:[^/?#]*\.)?)?${filter}`;
-    } else if (this.isLeftAnchor) {
+    if (this.isHostnameAnchor || this.isLeftAnchor) {
       filter = `^${filter}`;
     }
 
@@ -341,10 +321,6 @@ class AdFilter {
         case 'first-party':
           this.firstParty = !negation;
           break;
-        // TODO: Check if it recudes the number of popups displayed
-        // Ignore the following options but use the filters anyway
-        case 'popunder':
-        case 'popup':
         case 'collapse':
           break;
         // Disable this filter if any other option is encountered
@@ -368,116 +344,13 @@ class AdFilter {
       this.fromSubdocument === null &&
       this.fromXmlHttpRequest === null);
   }
-
-  match(httpContext) {
-    const url = httpContext.url;
-
-    // Source
-    const sHost = httpContext.sourceHostname;
-    const sHostGD = httpContext.sourceGD;
-
-    // Url endpoint
-    const host = httpContext.hostname;
-    const hostGD = httpContext.hostGD;
-
-    if (this.supported) {
-      // Check option $third-party
-      // source domain and requested domain must be different
-      if ((this.firstParty === false || this.thirdParty === true) && sHostGD === hostGD) {
-        return false;
-      }
-
-      // $~third-party
-      // source domain and requested domain must be the same
-      if ((this.firstParty === true || this.thirdParty === false) && sHostGD !== hostGD) {
-        return false;
-      }
-
-      // URL must be among these domains to match
-      if (this.optDomains !== null &&
-         !(this.optDomains.has(sHostGD) ||
-           this.optDomains.has(sHost))) {
-        return false;
-      }
-
-      // URL must not be among these domains to match
-      if (this.optNotDomains !== null &&
-          (this.optNotDomains.has(sHostGD) ||
-           this.optNotDomains.has(sHost))) {
-        return false;
-      }
-
-      // Check content policy type only if at least one content policy has
-      // been specified in the options.
-      if (!this.fromAny) {
-        const options = [
-          [this.fromSubdocument, TYPE_SUBDOCUMENT],
-          [this.fromImage, TYPE_IMAGE],
-          [this.fromMedia, TYPE_MEDIA],
-          [this.fromObject, TYPE_OBJECT],
-          [this.fromObjectSubrequest, TYPE_OBJECT_SUBREQUEST],
-          [this.fromOther, TYPE_OTHER],
-          [this.fromPing, TYPE_PING],
-          [this.fromScript, TYPE_SCRIPT],
-          [this.fromStylesheet, TYPE_STYLESHEET],
-          [this.fromXmlHttpRequest, TYPE_XMLHTTPREQUEST],
-        ];
-
-        // If content policy type `option` is specified in this filter,
-        // then the policy type of the request must match.
-        // - If more than one policy type is valid, we must find at least one
-        // - If we found a blacklisted policy type we can return `false`
-        let foundValidCP = null;
-        for (let i = 0; i < options.length; i++) {
-          const [option, policyType] = options[i];
-
-          // Found a fromX matching the origin policy of the request
-          if (option === true) {
-            if (httpContext.cpt === policyType) {
-              foundValidCP = true;
-              break;
-            } else {
-              foundValidCP = false;
-            }
-          }
-
-          // This rule can't be used with this policy type
-          if (option === false && httpContext.cpt === policyType) {
-            return false;
-          }
-        }
-
-        // Couldn't find any policy origin matching the request
-        if (foundValidCP === false) {
-          return false;
-        }
-      }
-
-      // Try to match url with pattern
-      if (this.isRegex) {
-        return this.regex.test(url);
-      } else if (this.isHostnameAnchor) {
-        if (host.startsWith(this.hostname) || hostGD.startsWith(this.hostname)) {
-          return url.includes(this.filterStr, this.hostname.length);
-        }
-      } else if (this.isLeftAnchor) {
-        return url.startsWith(this.filterStr);
-      } else if (this.isRightAnchor) {
-        return url.endsWith(this.filterStr);
-      } else {
-        return url.includes(this.filterStr);
-      }
-    }
-
-    return false;
-  }
 }
 
 
 export default function parseList(list) {
   try {
     const filters = [];
-    list.split(/\r\n|\r|\n/g).forEach(line => {
+    list.forEach(line => {
       if (line) {
         const filter = new AdFilter(line);
         if (filter.supported && !filter.isComment) {

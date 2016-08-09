@@ -10,12 +10,12 @@ import LRUCache from 'antitracking/fixed-size-cache';
 import HttpRequestContext from 'antitracking/webrequest-context';
 
 import { log } from 'adblocker/utils';
-import FilterEngine, { tokenizeURL } from 'adblocker/filters-engine';
+import FilterEngine from 'adblocker/filters-engine';
 import FiltersLoader from 'adblocker/filters-loader';
 
 import ContentPolicy from 'adblocker/content-policy';
 import { hideNodes } from 'adblocker/cosmetics';
-import { MutationLogger } from 'adblocker/mutation-logger';
+import MutationLogger from 'adblocker/mutation-logger';
 
 import CliqzHumanWeb from 'human-web/human-web';
 
@@ -62,8 +62,11 @@ class AdBlocker {
     this.engine = new FilterEngine();
 
     this.listsManager = new FiltersLoader();
-    this.listsManager.onUpdate(filters => {
-      this.engine.onUpdateFilters(filters);
+    this.listsManager.onUpdate(update => {
+      // Update list in engine
+      const { asset, filters } = update;
+      this.engine.onUpdateFilters(asset, filters);
+
       this.initCache();
     });
 
@@ -193,8 +196,8 @@ class AdBlocker {
     const hostGD = getGeneralDomain(hostname);
 
     // Process source url
-    const source = httpContext.getSourceURL().toLowerCase();
-    const sourceParts = URLInfo.get(source);
+    const sourceURL = httpContext.getSourceURL().toLowerCase();
+    const sourceParts = URLInfo.get(sourceURL);
     let sourceHostname = sourceParts.hostname;
     if (sourceHostname.startsWith('www.')) {
       sourceHostname = sourceHostname.substring(4);
@@ -202,15 +205,12 @@ class AdBlocker {
     const sourceGD = getGeneralDomain(sourceHostname);
 
     // Wrap informations needed to match the request
-    // NOTE: Here we convert everything to lowercase
-    // since we only support case-insensitive matching
     const request = {
       // Request
       url,
       cpt: httpContext.getContentPolicyType(),
-      tokens: tokenizeURL(url),
       // Source
-      sourceURL: source,
+      sourceURL,
       sourceHostname,
       sourceGD,
       // Endpoint
@@ -306,7 +306,7 @@ const CliqzADB = {
     const t1 = utils.setInterval(() => {
       Object.keys(CliqzADB.adbStats.pages).forEach(url => {
         if (!CliqzADB.isTabURL[url]) {
-          delete(CliqzADB.adbStats.pages[url]);
+          delete CliqzADB.adbStats.pages[url];
         }
       });
     }, 10 * 60 * 1000);
@@ -385,6 +385,7 @@ const CliqzADB = {
           return { cancel: true };
         }
       }
+
       return {};
     },
   },
