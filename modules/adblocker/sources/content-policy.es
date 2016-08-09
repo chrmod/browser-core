@@ -22,6 +22,7 @@ const ContentPolicy = {
   },
 
   unload() {
+    this.registrar.unregisterFactory(this.classID, this);
     this.catMan.deleteCategoryEntry(this.xpcom_categories, this.contractID, false);
   },
 
