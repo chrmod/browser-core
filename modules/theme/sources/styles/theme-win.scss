@@ -1,3 +1,5 @@
+$urlbar-elms-height: 34px;
+
 @font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
 
@@ -93,7 +95,7 @@
 .tab-background-middle[visuallyselected="true"] { background: none; }
 
 .tab-content {
-    border-color: #d0d0d0;
+    border-color: #bababa;
     border-width: 1px 1px 0px 1px;
     border-style: solid;
     border-radius: 3px 3px 0 0;
@@ -144,17 +146,27 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 /*======= Gabriel Changes */
 
 #urlbar {
-    max-width: 800px;
-    box-sizing: border-box;
-    border-radius: 3px !important;
-    background: #fefefe;
-    box-shadow: none !important;
-    border: 1px solid #ccc !important;
-    -moz-border-start: 1px solid #ccc !important;
-}
+    * { box-sizing: border-box; }
 
-#urlbar * {
+    max-width: 800px;
+    height: $urlbar-elms-height !important;
     box-sizing: border-box;
+
+    margin: 0 2.5em !important;
+    padding: 1px 0;
+    border: 1px solid #ccc !important;
+    border-top: 1px solid transparent !important;
+    border-bottom: 1px solid transparent !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+    background: transparent !important;
+    -moz-border-start: 1px solid #d8d8d8 !important;
+
+    &:hover,
+    &[focused="true"] {
+        background: #fff !important;;
+    }
 }
 
 #urlbar[focused="true"],
@@ -163,8 +175,25 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     border-color: #5ea3f9 !important;
     -moz-border-start: 1px solid #5ea3f9 !important;
 }
+
 #urlbar .urlbar-input::-moz-selection {
   background: #b1d6ff;
+}
+
+
+
+#urlbar-reload-button,
+#urlbar-stop-button,
+#identity-box {
+    border: none !important;
+}
+
+#urlbar, .searchbar-textbox {
+    font-size: 1.3em;
+}
+
+#urlbar .urlbar-input-box {
+    overflow: hidden;
 }
 
 /* BEGIN EX-2290 */
@@ -189,9 +218,18 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 /*========== Tabs =======*/
+
+#TabsToolbar  {
+    min-height: $urlbar-elms-height;
+}
+
 .tab-content {
     border: none;
     background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.tabbrowser-tab[visuallyselected="true"] {
+    position: static !important;
 }
 
 .tabbrowser-tab[visuallyselected="true"] .tab-content,
@@ -228,17 +266,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #fff !important;
 }
 
-#back-button {
-    width: auto !important;
-    height: auto !important;
-    padding: 5px 0px 5px 6px !important;
-}
-#forward-button > .toolbarbutton-icon {
-    margin: 0;
-    border: none !important;
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-}
 
 #PersonalToolbar { padding-left: 8px; }
 
@@ -313,19 +340,31 @@ notification[type="warning"] .notification-inner {
 
 /* ======= Navigation Arrows Back Forth ======= */
 
-#forward-button, #back-button {
+#forward-button,
+#back-button {
     margin-left: 0 !important;
-    border: 0 !important;
+    width: 37px;
+    height: $urlbar-elms-height !important;
+    border: none !important;
+    border-right: 1px solid #e1e1e1 !important;
     border-radius: 0 !important;
     box-shadow: 0 0 0 0 transparent !important;
     background-color: transparent !important;
-}
+    padding: 0 2px !important; /*Later*/
 
-#back-button .toolbarbutton-icon {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-    margin-left: 3px;
+
+    &:hover:not(:-moz-lwtheme):not([disabled="true"])  {
+        background-color: #dbdbdb !important;
+        box-shadow: none !important;
+    }
+
+    & > .toolbarbutton-icon {
+        padding: 6px !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
 }
 
 
@@ -386,22 +425,7 @@ notification[type="warning"] .notification-inner {
     background-color: #f6f6f6 !important;
 
     box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
-}
-
-#urlbar {
-    padding: 2px 0px;
-    margin: 0.33em !important;
-
-	box-shadow: 0 1px 0.05em rgba(0,0,0, 0.1) inset !important;
-	border-color: #d1d1d1 !important;
-}
-
-#urlbar, .searchbar-textbox {
-    font-size: 1.3em;
-}
-
-#urlbar .urlbar-input-box {
-    overflow: hidden;
+    height: 35px;
 }
 
 .cliqz-urlbar-Last-search-container {
@@ -410,10 +434,6 @@ notification[type="warning"] .notification-inner {
 
 .cliqz-urlbar-Last-search-container .cliqz-urlbar-Last-search {
     padding: 1px 6px;
-}
-
-#urlbar[focused="true"] {
-    box-shadow: 0 0 0.2em #3B99FC inset !important; /*Border effect when focus*/
 }
 
 #main-window:not([chromehidden~="toolbar"]) {
@@ -428,15 +448,7 @@ notification[type="warning"] .notification-inner {
     border-image-slice: 0; /*Remove border on burger menu button*/
 }
 
-#forward-button:hover:not(:-moz-lwtheme):not([disabled="true"]) .toolbarbutton-icon, #back-button:hover:not(:-moz-lwtheme):not([disabled="true"]) .toolbarbutton-icon{
-    background-color: #dbdbdb !important; /*Hover effect on back-forward button*/
-    border-radius: 3px !important;
-    box-shadow: none !important;
-}
 
-#forward-button, #back-button {
-    padding: 0 2px !important; /*Later*/
-}
 
 .toolbarbutton-icon {
     background: none !important;
@@ -448,9 +460,10 @@ notification[type="warning"] .notification-inner {
     padding: 0 5px 0 0;
 }
 
-
 #navigator-toolbox::after {
-    background-color: #f6f6f6;
+    margin-top: -3px !important;
+    background-image: none;
+    box-shadow: 0px 0.13em 0.005em 0px rgba(0, 0, 0, 0.15);
 }
 
 #notification-popup-box {
@@ -532,11 +545,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 
 .tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-content,
 .tabs-newtab-button:hover {
-    background-color: #f6f6f6 !important;
+    background-color: #dfdfdf !important;
 }
 
 .tabbrowser-tab:not([pinned]) {
-    max-width: 250px; /*Increase tab max width*/
+    max-width: 235px; /*Increase tab max width*/
 }
 
 .tabs-newtab-button,
@@ -752,6 +765,64 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 	}
 }
 
+/* END WINDOWS VERSIONS */
+
+/* BEGIN CUSTOMIZE UI */
+
+#customization-panelHolder #PanelUI-customize {
+    background-color: rgb(70, 87, 183);
+}
+
+#customization-panelHolder #PanelUI-customize:hover, #customization-panelHolder #PanelUI-customize:hover:active {
+    background-color: rgb(54, 71, 167);
+}
+
+#main-window #customization-panel-container, #main-window[customize-entered] #customization-panel-container {
+    background-image: none;
+    background-color: #838383;
+}
+
+vbox[sidebarcommand=historybroadcaster] {
+  #sidebar {
+    background-color: white;
+  }
+
+  sidebarheader {
+    display: none;
+  }
+}
+
+#main-window[inFullscreen="true"] {
+    .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
+        -moz-padding-start: 1px;
+    }
+}
+
+#nav-bar #PanelUI-menu-button {
+    -moz-margin-start: 0;
+    padding: 0 !important;
+    margin: 0 1px !important;
+    border-radius: 0 !important;;
+    height: $urlbar-elms-height !important;
+    min-width: 36px !important;
+    border-left: 1px solid #ccc !important;
+
+    &:hover {
+        background: #e6e6e6;
+    }
+
+    .toolbarbutton-badge-stack {
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+    }
+}
+
+
+//=========================
+//======== WIN 10 =========
+//=========================
+
 @media (-moz-os-version: windows-win10) {
 
     #titlebar, #tab-view-deck, #titlebar-content {
@@ -780,13 +851,13 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
         padding-right: 4px !important;
     }
 
-    #forward-button {
-        padding-left: 0px !important;
-    }
+    //#forward-button {
+    //    padding-left: 0px !important;
+    //}
 
+    #back-button > .toolbarbutton-icon,
     #forward-button > .toolbarbutton-icon {
-        padding-left: 9px !important;
-        padding-right: 3px !important;
+        padding: 8px 4px 8px 8px !important;
     }
 
     #main-window:not([sizemode="maximized"]) {
@@ -794,19 +865,19 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
             padding: 0;
         }
 
-		&[tabsintitlebar="true"] {/*When there is no custom titlebar*/
-        	#TabsToolbar {
-            	padding-right: 60px; /*Reserve some space for dragging the window*/
-        	}
+        &[tabsintitlebar="true"] { /*When there is no custom titlebar*/
+            #TabsToolbar {
+                padding-right: 60px; /*Reserve some space for dragging the window*/
+            }
 
-	    	#tabbrowser-tabs .tabbrowser-arrowscrollbox {
-	    		margin-inline-start: 35px;
-			}
+            #tabbrowser-tabs .tabbrowser-arrowscrollbox {
+                margin-inline-start: 35px;
+            }
 
-	    	#tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
-	    		margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
-			}
-		}
+            #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
+                margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
+            }
+        }
     }
 
     #main-window[sizemode="maximized"] {
@@ -815,31 +886,4 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
             margin-top: -2px; /*Move the window up to remove space above tabs*/
         }
     }
-}
-
-/* END WINDOWS VERSIONS */
-
-/* BEGIN CUSTOMIZE UI */
-
-#customization-panelHolder #PanelUI-customize {
-    background-color: rgb(70, 87, 183);
-}
-
-#customization-panelHolder #PanelUI-customize:hover, #customization-panelHolder #PanelUI-customize:hover:active {
-    background-color: rgb(54, 71, 167);
-}
-
-#main-window #customization-panel-container, #main-window[customize-entered] #customization-panel-container {
-    background-image: none;
-    background-color: #838383;
-}
-
-vbox[sidebarcommand=historybroadcaster] {
-  #sidebar {
-    background-color: white;
-  }
-
-  sidebarheader {
-    display: none;
-  }
 }
