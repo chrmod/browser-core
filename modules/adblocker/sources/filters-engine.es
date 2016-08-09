@@ -1,8 +1,26 @@
 import { TLDs } from 'antitracking/domain';
+import { URLInfo } from 'antitracking/url';
 
 import { log } from 'adblocker/utils';
 import parseList from 'adblocker/filters-parsing';
 import match from 'adblocker/filters-matching';
+
+
+function tokenizeHostname(hostname) {
+  const tokens = [];
+
+  hostname.split('.')
+    .filter(token => !TLDs[token] && token)
+    .filter(token => token !== 'www')
+    .forEach(token => {
+      token.split('-').forEach(t => {
+        log(`TOKEN ${hostname} => ${t}`);
+        tokens.push(t);
+      });
+    });
+
+  return tokens;
+}
 
 
 export function tokenizeURL(pattern) {
@@ -52,6 +70,10 @@ class FuzzyIndex {
     this.size = 0;
   }
 
+  get length() {
+    return this.size;
+  }
+
   set(key, value) {
     // Only true if we insert something (we have at least 1 token)
     log(`SET ${key}`);
@@ -83,7 +105,7 @@ class FuzzyIndex {
     this.tokenizer(key, token => {
       const bucket = this.index.get(token);
       if (bucket !== undefined) {
-        log(`BUCKET ${token} size ${bucket.size}`);
+        log(`BUCKET ${token} size ${bucket.length}`);
         buckets.push(bucket);
       }
     });
@@ -135,14 +157,14 @@ class FilterReverseIndex {
     }
   }
 
+  get length() {
+    return this.size;
+  }
+
   push(filter) {
     log(`REVERSE INDEX ${this.name} INSERT ${filter.rawLine}`);
     ++this.size;
-    const inserted = this.index.set(
-      filter.filterStr,
-      filter,
-      this.tokenizer.bind(this)
-    );
+    const inserted = this.index.set(filter.filterStr, filter);
 
     if (!inserted) {
       log(`${this.name} MISC FILTER ${filter.rawLine}`);
@@ -219,13 +241,8 @@ class FilterBucket {
     // ||hostname filter
     this.hostnameAnchors = new FuzzyIndex(
       // Tokenize key
-      (key, cb) => {
-        key.split('.').filter(token => !TLDs[token] && token).forEach(token => {
-          token.split('-').forEach(t => {
-            log(`TOKEN ${key} => ${t}`);
-            cb(t);
-          });
-        });
+      (hostname, cb) => {
+        tokenizeHostname(hostname).forEach(cb);
       },
       // Create a new empty bucket
       token => new FilterReverseIndex(`${token}_${name}`)
@@ -284,6 +301,114 @@ class FilterBucket {
 }
 
 
+/**
+ * Dispatch cosmetics filters on selectors
+ */
+class CosmeticBucket {
+  constructor(name, filters) {
+    this.name = name;
+    this.size = 0;
+
+    this.miscFilters = [];
+    this.index = new FuzzyIndex(
+      (selector, cb) => {
+        selector.split(/[^#.\w_-]/g).filter(token => token.length > 0).forEach(cb);
+      }
+    );
+
+    if (filters) {
+      filters.forEach(this.push.bind(this));
+    }
+  }
+
+  push(filter) {
+    ++this.size;
+    const inserted = this.index.set(filter.selector, filter);
+
+    if (!inserted) {
+      log(`${this.name} MISC FILTER ${filter.rawLine}`);
+      this.miscFilters.push(filter);
+    }
+  }
+
+  getMatchingRules(nodeInfo) {
+    const rules = [...this.miscFilters];
+
+    nodeInfo.forEach(node => {
+      // [id, tagName, className] = node
+      node.forEach(token => {
+        this.index.getFromKey(token).forEach(bucket => {
+          bucket.forEach(rule => { rules.push(rule); })
+        });
+      });
+    });
+
+    return rules;
+  }
+}
+
+class CosmeticEngine {
+  constructor() {
+    this.size = 0;
+
+    this.miscFilters = new CosmeticBucket('misc');
+    this.cosmetics = new FuzzyIndex(
+      (hostname, cb) => {
+        tokenizeHostname(hostname).forEach(cb);
+      },
+      token => new CosmeticBucket(`${token}_cosmetics`)
+    );
+  }
+
+  push(filter) {
+    if (filter.hostnames.length === 0) {
+      this.miscFilters.push(filter);
+    } else {
+      filter.hostnames.forEach(hostname => {
+        this.cosmetics.set(hostname, filter);
+      });
+    }
+  }
+
+  /**
+   * Return a list of potential cosmetics filters
+   *
+   * @param {string} url - url of the page.
+   * @param {Array} nodeInfo - Array of tuples [id, tagName, className].
+  **/
+  getMatchingRules(url, nodeInfo) {
+    const uniqIds = new Set();
+    const rules = [];
+    const hostname = URLInfo.get(url).hostname;
+    log(`getMatchingRules ${url} => ${hostname} (${JSON.stringify(nodeInfo)})`);
+
+    // Check misc bucket
+    this.miscFilters.getMatchingRules(nodeInfo).forEach(rule => {
+      if (!uniqIds.has(rule.id)) {
+        log(`Found rule ${JSON.stringify(rule)}`);
+        uniqIds.add(rule.id);
+        rules.push(rule);
+      }
+    });
+
+    // Check hostname buckets
+    this.cosmetics.getFromKey(hostname).forEach(bucket => {
+      log(`Found bucket ${bucket.size}`);
+      bucket.getMatchingRules(nodeInfo).forEach(rule => {
+        if (!uniqIds.has(rule.id)) {
+          log(`Found rule ${JSON.stringify(rule)}`);
+          uniqIds.add(rule.id);
+          rules.push(rule);
+        }
+      });
+    });
+
+    log(`COSMETICS found ${rules.length} potential rules for ${url}`);
+    return rules;
+  }
+}
+
+
 /* Manage a list of filters and match them in an efficient way.
  * To avoid inspecting to many filters for each request, we create
  * the following accelerating structure:
@@ -298,6 +423,13 @@ class FilterBucket {
  */
 export default class {
   constructor() {
+    this.lists = new Map();
+    this.size = 0;
+
+    // *************** //
+    // Network filters //
+    // *************** //
+
     // @@filter
     this.exceptions = new FilterBucket('exceptions');
     // $important
@@ -305,18 +437,27 @@ export default class {
     // All other filters
     this.filters = new FilterBucket('filters');
 
-    this.lists = new Map();
+    // ***************** //
+    // Cosmetic filters  //
+    // ***************** //
 
-    this.size = 0;
+    this.cosmetics = new CosmeticEngine();
+
   }
 
   onUpdateFilters(asset, newFilters) {
+    // Network filters
     const filters = [];
     const exceptions = [];
     const importants = [];
 
+    // Cosmetic filters
+    const cosmetics = [];
+
     // Parse and dispatch filters depending on type
-    parseList(newFilters).forEach(filter => {
+    const parsed = parseList(newFilters)
+
+    parsed.networkFilters.forEach(filter => {
       if (filter.isException) {
         exceptions.push(filter);
       } else if (filter.isImportant) {
@@ -326,15 +467,20 @@ export default class {
       }
     });
 
+    parsed.cosmeticFilters.forEach(filter => {
+      cosmetics.push(filter);
+    });
+
     if (!this.lists.has(asset)) {
       log(`FILTER ENGINE ${asset} UPDATE`);
       // Update data structures
-      this.size += filters.length + exceptions.length + importants.length;
+      this.size += filters.length + exceptions.length + importants.length + cosmetics.length;
       filters.forEach(this.filters.push.bind(this.filters));
       exceptions.forEach(this.exceptions.push.bind(this.exceptions));
       importants.forEach(this.importants.push.bind(this.importants));
+      cosmetics.forEach(this.cosmetics.push.bind(this.cosmetics));
 
-      this.lists.set(asset, { filters, exceptions, importants });
+      this.lists.set(asset, { filters, exceptions, importants, cosmetics });
     } else {
       log(`FILTER ENGINE ${asset} REBUILD`);
       // Rebuild everything
@@ -342,16 +488,23 @@ export default class {
         list.filters.forEach(filters.push.bind(filters));
         list.exceptions.forEach(exceptions.push.bind(exceptions));
         list.importants.forEach(importants.push.bind(importants));
+        list.cosmetics.forEach(cosmetics.push.bind(cosmetics));
       }
 
-      this.size = filters.length + exceptions.length + importants.length;
+      this.size = filters.length + exceptions.length + importants.length + cosmetics.length;
       this.filters = new FilterBucket('filters', filters);
       this.exceptions = new FilterBucket('exceptions', exceptions);
       this.importants = new FilterBucket('importants', importants);
+      this.cosmetics = new CosmeticEngine(cosmetics);
     }
 
     log(`Filter engine updated with ${filters.length} filters, ` +
-        `${exceptions.length} exceptions and ${importants.length} importants\n`);
+        `${exceptions.length} exceptions, ` +
+        `${importants.length} importants and ${cosmetics.length} cosmetic filters\n`);
+  }
+
+  getCosmeticsFilters(url, nodes) {
+    return this.cosmetics.getMatchingRules(url, nodes);
   }
 
   match(request) {
