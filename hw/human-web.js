@@ -47,7 +47,7 @@ var __CliqzHumanWeb = function() { // (_export) {
             falsePositive = 0.01;
             bloomFilterNHashes = 7;
             CliqzHumanWeb = {
-                VERSION: '2.1',
+                VERSION: '2.1', // should change the version number for chrome.
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
                 debug: true,
