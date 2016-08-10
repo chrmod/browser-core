@@ -10,6 +10,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
 var SEARCH_BAR_ID = 'search-container',
     dontHideSearchBar = 'dontHideSearchBar',
@@ -118,6 +119,7 @@ var Extension = {
         .then(loadModulesBackground)
         .then(function () {
           Extension.cliqzPrefsObserver.register();
+          CliqzHistoryManager.init();
         })
 
       // Load into currently open windows
@@ -164,6 +166,7 @@ var Extension = {
 
         this.cliqzRunloop.stop();
         CliqzLanguage.unload();
+        CliqzHistoryManager.unload();
 
         Extension.unloadJSMs();
     },
