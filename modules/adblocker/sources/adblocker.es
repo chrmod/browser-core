@@ -313,6 +313,9 @@ const CliqzADB = {
     CliqzADB.timers.push(t1);
 
     const t2 = utils.setInterval(() => {
+      if (!CliqzADB.cacheADB) {
+        return;
+      }
       Object.keys(CliqzADB.cacheADB).forEach(t => {
         if (!browser.isWindowActive(t)) {
           delete CliqzADB.cacheADB[t];
