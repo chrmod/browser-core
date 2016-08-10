@@ -1,5 +1,4 @@
-import CliqzADB from 'adblocker/adblocker';
-
+import CliqzADB, { adbEnabled } from 'adblocker/adblocker';
 
 export default {
   init() {
@@ -14,5 +13,18 @@ export default {
       return;
     }
     CliqzADB.unload();
+  },
+
+  actions: {
+    // handles messages coming from process script
+    nodes(url, nodes) {
+      if (!adbEnabled()) {
+        return { rules: [] };
+      }
+      const candidates = CliqzADB.adBlocker.engine.getCosmeticsFilters(url, nodes);
+      return {
+        rules: candidates.map(rule => rule.selector)
+      }
+    },
   },
 };

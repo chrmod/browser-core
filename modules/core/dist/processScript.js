@@ -69,6 +69,7 @@ function getContextHTML(ev) {
 }
 
 function onDOMWindowCreated(ev) {
+  injectedRules = {};
   var window = ev.originalTarget.defaultView;
   var currentURL = function(){return window.location.href};
 
@@ -76,6 +77,79 @@ function onDOMWindowCreated(ev) {
     var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
     return v.toString(16);
   });
+
+  // adblocker cosmetic filter
+  // go through the nodes of the dom
+  var adbComsFilter = function() {
+    if (!currentURL() || currentURL()[0] !== 'h') {
+      return;
+    }
+    var addNodeName = function(node, nodeInfo) {
+      // ignore hidden nodes
+      if (node.offsetWidth === 0 && node.offsetWidth === 0) {
+        return;
+      }
+      if (node.id) {
+        nodeInfo.add(`#${node.id}`);
+      }
+      if (node.tagName) {
+        nodeInfo.add(node.tagName);
+      }
+      if (node.className && node.className.split) {
+        node.className.split(' ').forEach(name => nodeInfo.add(`.${name}`));
+      }
+    }
+
+    var sendNodeNames = function(nodeInfo) {
+      if (!currentURL() || !nodeInfo.size) {
+        return;
+      }
+      let nodesArray = [...nodeInfo];
+      for (let n of nodeInfo) {
+        nodesArray.push(n);
+      }
+      let payload = {
+        module: 'adblocker',
+        action: 'nodes',
+        args: [
+          currentURL(),
+          [nodesArray]
+        ]
+      }
+      send({
+        windowId,
+        payload
+      })
+    }
+
+    var onMutation = function(mutations) {
+      let nodeInfo = new Set();
+      for (let m of mutations) {
+        let target = m.target;
+        if (target) {
+          addNodeName(target, nodeInfo);
+          nodes = target.querySelectorAll('*');
+          for (let node of nodes) {
+            addNodeName(node, nodeInfo);
+          }
+        }
+      }
+      sendNodeNames(nodeInfo);
+    }
+
+    var doc = window.document;
+    var nodes = doc.querySelectorAll('*');
+    var nodeInfo = new Set();
+    for (let node of nodes) {
+      addNodeName(node, nodeInfo);
+    }
+
+    sendNodeNames(nodeInfo);
+
+    // attach mutation obsever in case new nodes are added
+    var mutationObserver = new window.MutationObserver(onMutation);
+    mutationObserver.observe(window.document, {childList: true, subtree: true, attributes: true});
+  }
 
   var onMessage = function (ev) {
     var href = ev.target.location.href;
@@ -106,9 +180,38 @@ function onDOMWindowCreated(ev) {
     });
   };
 
+  function injectCSSRule(rule, doc) {
+    css = doc.createElement('style');
+    css.type = 'text/css';
+    css.id = 'cliqz-adblokcer-css-rules'
+    doc.getElementsByTagName("head")[0].appendChild(css);
+    css.appendChild(doc.createTextNode(rule));
+  }
+
   function onCallback(msg) {
     if (isDead()) {
       return;
+    }
+
+    if (msg.data && msg.data.response && msg.data.response.rules) {
+      let rulesStr = '';
+      let rules = msg.data.response.rules;
+
+      for (let rule of rules)  {
+        if (rule in injectedRules) {
+          continue;
+        } else {
+          injectedRules[rule] = true;
+          if (rulesStr) {
+            rulesStr += ', ';
+          }
+          rulesStr += ` ${rule}`;
+        }
+      }
+      if (rulesStr) {
+        rulesStr += ' {display:none !important;}';
+        injectCSSRule(rulesStr, window.document);
+      }
     }
 
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
@@ -258,6 +361,7 @@ function onDOMWindowCreated(ev) {
   };
 
   var onReady = function (event) {
+    adbComsFilter();
     // ReportLang
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');

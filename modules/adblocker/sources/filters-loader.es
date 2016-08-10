@@ -1,5 +1,5 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-
+import CliqzLanguage from 'platform/language';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -51,9 +51,23 @@ const ALLOWED_LISTS = new Set([
   // "assets/ublock/privacy.txt"
 ]);
 
+const COUNTRY_LISTS = new Map([
+  ['de', 'https://easylist-downloads.adblockplus.org/easylistgermany.txt'],
+  ['fr', 'https://easylist-downloads.adblockplus.org/liste_fr.txt'],
+  ['it', 'https://easylist-downloads.adblockplus.org/easylistitaly.txt'],
+  ['zh', 'https://easylist-downloads.adblockplus.org/easylistchina.txt'],
+  ['cn', 'https://easylist-downloads.adblockplus.org/easylistchina.txt']
+]);
+
+function getSupportedLangLists() {
+  let supportLangLists = new Set();
+  const LANGS = CliqzLanguage.state();
+  LANGS.forEach(lang => supportLangLists.add(COUNTRY_LISTS.get(lang)))
+  return supportLangLists;
+}
 
 function isListSupported(path) {
-  return ALLOWED_LISTS.has(path);
+  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path);
 }
 
 

@@ -105,7 +105,6 @@ export default {
   handleRequest(msg) {
     const { action, module, args, requestId } = msg.data.payload,
           windowId = msg.data.windowId;
-
     utils.importModule(`${module}/background`).then( module => {
       const background = module.default;
       return background.actions[action].apply(null, args);
