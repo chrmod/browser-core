@@ -88,6 +88,56 @@ function buildFreshtabFrontEnd() {
   }
 }
 
+function buildChromeHumanWeb() {
+  const configPath = process.env['CLIQZ_CONFIG_PATH'];
+
+  var app = 'chrome-test-hw-hpn',
+      appPath = 'subprojects/' + app,
+      modulePath = appPath + '/hw/',
+      manifestPath = modulePath + 'manifest.json',
+      shouldBuild = function() {
+        if(CONFIG.subprojects.indexOf('chrome-test-hw-hpn') === -1) {
+          return false;
+        }
+
+        if(process.env['chrome-test-hw-hpn'] !== 'undefined') {
+          return true;
+        }
+        return false;
+      };
+
+  if(!shouldBuild()) {
+    return
+  }
+
+  const manifest = JSON.parse(fs.readFileSync(manifestPath));
+  const newPath = "js/hw/";
+  let newScript = [];
+
+  manifest.background.scripts.forEach( e=> {
+    newScript.push(`${newPath}${e}`);
+  });
+
+  manifest.background.scripts = newScript;
+
+  // Need version name, to map content.js to correct path.
+  manifest.version_name = "packaged";
+
+  wrench.copyDirSyncRecursive(modulePath, 'build/js/hw/', {
+      forceDelete: true
+  });
+
+  var stream = fs.createWriteStream("build/manifest.json");
+  stream.once('open', function(fd) {
+    stream.write(JSON.stringify(manifest, null, 2));
+    stream.end();
+  });
+
+  fs.unlink('build/js/hw/manifest.json', function (err) {
+    if (err) throw err;
+  });
+}
+
 function isPackageInstalled(pkg, options, msg) {
   var spawned = spaws.sync(pkg, [options], { stderr: 'inherit' });
   if(spawned.error !== null) {
@@ -148,7 +198,10 @@ program.command('build [file]')
             let child = spaws('broccoli', ['build', OUTPUT_PATH]);
             child.stderr.on('data', data => console.log(data.toString()));
             child.stdout.on('data', data => console.log(data.toString()));
-            child.on('close', code => console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : ''));
+            child.on('close', code => {
+              buildChromeHumanWeb();
+              console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : '');
+            })
           });
        });
 

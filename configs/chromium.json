@@ -9,5 +9,8 @@
     "autocomplete",
     "static",
     "ui"
+  ],
+  "subprojects": [
+    "chrome-test-hw-hpn"
   ]
 }
