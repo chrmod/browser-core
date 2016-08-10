@@ -14,7 +14,11 @@ var eventList = ['onBeforeNavigate', 'onCreatedNavigationTarget',
     'onErrorOccurred', 'onReferenceFragmentUpdated', 'onTabReplaced',
     'onHistoryStateUpdated'];
 */
-
+var manifest = chrome.runtime.getManifest();
+var contentScriptPath = "content.js";
+if(manifest.version_name === "packaged"){
+  contentScriptPath = "js/hw/content.js";
+}
 
 function observeRequest(requestDetails){
     console.log("Headers request");
@@ -140,7 +144,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
         console.log(" Location change>> " + tab.url);
         if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
-            chrome.tabs.executeScript(tabId, {file: "content.js"});
+            chrome.tabs.executeScript(tabId, {file: contentScriptPath});
         }
     }
 });
