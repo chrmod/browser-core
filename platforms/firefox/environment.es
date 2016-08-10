@@ -493,6 +493,26 @@ var CLIQZEnvironment = {
       }
       return uri;
     },
+    disableCliqzResults: function () {
+
+      CliqzUtils.setPref("cliqz_core_disabled", true);
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      //remove cliqz from all windows
+      while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext();
+          win.CLIQZ.Core.unload(true);
+      }
+      CliqzUtils.autocomplete.isPopupOpen = false;
+    },
+    enableCliqzResults: function () {
+      utils.setPref("cliqz_core_disabled", false);
+      
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext();
+          win.CLIQZ.Core.init();
+      }
+    }
     // lazy init
     // callback called multiple times
     historySearch: (function(){

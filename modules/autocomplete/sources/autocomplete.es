@@ -578,13 +578,10 @@ var CliqzAutocomplete = {
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
                 this.createInstantResultCallback = this.createInstantResultCallback.bind(this);
-
                 historyCluster.historyCallback = this.historyPatternCallback;
-
                 if(searchString.trim().length){
                     // start fetching results
-                    utils.getCliqzResults(searchString, this.cliqzResultFetcher);
-
+                    utils.getBackendResults(searchString, this.cliqzResultFetcher);
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;
