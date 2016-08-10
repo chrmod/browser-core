@@ -23,6 +23,18 @@ node('ubuntu && docker && gpu') {
   timeout(60) {
     try {
       docker.image(imgName).inside() {
+        // Main dependencies
+        sh "rm -fr node_modules"
+        sh "rm -fr bower_components"
+        sh "cp -fr /home/jenkins/node_modules ."
+        sh "cp -fr /home/jenkins/bower_components ."
+
+        // Freshtab dependencies
+        sh "rm -fr ./subprojects/fresh-tab-frontend/node_modules"
+        sh "rm -fr ./subprojects/fresh-tab-frontend/bower_components"
+        sh "cp -fr /home/jenkins/freshtab/node_modules subprojects/fresh-tab-frontend/"
+        sh "cp -fr /home/jenkins/freshtab/bower_components subprojects/fresh-tab-frontend/"
+
         // Unit tests
         withEnv(["CLIQZ_CONFIG_PATH=./configs/browser.json"]) {
           stage 'fern install'
@@ -68,6 +80,12 @@ node('ubuntu && docker && gpu') {
   }
   catch (err) {
   }
+
+  // Clean-up workspace
+  sh "rm -fr node_modules"
+  sh "rm -fr bower_components"
+  sh "rm -fr ./subprojects/fresh-tab-frontend/node_modules"
+  sh "rm -fr ./subprojects/fresh-tab-frontend/bower_components"
 
   // Register results
   step([$class: 'JUnitResultArchiver', allowEmptyResults: false, testResults: '*report*.xml'])
