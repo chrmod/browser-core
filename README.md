@@ -44,8 +44,7 @@ To run ember freshtab:
 You can then access freshtab under http://localhost:3000. Every change you make in fresh-tab-frontend folder will be live reloaded. However if you change anything in freshtab folder (backend), restart browser to see your changes.
 
 To build ember freshtab:
-`cd modules/fresh-tab-frontend`
-`npm run build`
+`./fern.js serve --freshtab ./configs/browser.json`
 
 By running above command you end up with minified distributed files in fresh-tab-frontend/dist folder. If you want these files to be moved into build/firefox folder, you also have to be running fern.
 
