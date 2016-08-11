@@ -1,3 +1,5 @@
+Components.utils.import('resource://gre/modules/PlacesUtils.jsm');
+
 import {
   utils as coreUtils,
   historyManager as coreHistoryManager,

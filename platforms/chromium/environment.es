@@ -171,11 +171,26 @@ var CLIQZEnvironment = {
     req.send(data);
     return req;
   },
-  _pendingHistoryQueries: {},  // Will hold query-callback pairs.
+
   historySearch: function(q, callback, searchParam, sessionStart) {
-      CLIQZEnvironment._pendingHistoryQueries[q] = callback;
-      chrome.send("queryHistory", [q]);
+    chrome.cliqzSearchPrivate.queryHistory(q, (query, matches, finished) => {
+      var res = matches.map(function(match) {
+          return {
+              value:   match.url,
+              comment: match.description,
+              style:   'favicon',
+              image:   '',
+              label:   ''
+          };
+      });
+      callback({
+        query: query,
+        results: res,
+        ready: true
+      });
+    });
   },
+
   getSearchEngines: function(){
     return ENGINES.map(function(e){
       e.getSubmissionForQuery = function(q){
@@ -227,7 +242,7 @@ var CLIQZEnvironment = {
     return CLIQZEnvironment.GOOGLE_ENGINE;
   },
   onRenderComplete: function(query, urls){
-    chrome.send("renderComplete", [query, urls]);
+    chrome.cliqzSearchPrivate.processResults(query, urls);
   }
 };
 
