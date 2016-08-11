@@ -106,6 +106,7 @@ var CliqzSecureMessage = {
 	    if(!CliqzSecureMessage.dsPK){
 	      CliqzSecureMessage.dsPK = new directoryServicePK();
 	    }
+	    CliqzSecureMessage.loadLocalCheckTable();
  	},
 	pushMessage: function(msg){
 		msg.mode = CliqzSecureMessage.mode;
@@ -242,6 +243,10 @@ var CliqzSecureMessage = {
     },
     saveLocalCheckTable: function(){
     	// This needs to persist the local temporary table on disk.
+		if (Object.keys(CliqzSecureMessage.localTemporalUniq).length > 0) {
+	    	CliqzUtils.log("Saving local table");
+			CliqzSecureMessage.saveRecord('localTemporalUniq', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
+		}
     },
     saveRecord: function(id, data) {
     	CliqzChromeDB.set('hpn', id, data);
@@ -255,5 +260,13 @@ var CliqzSecureMessage = {
 	        });
     	});
     	return promise;
+    },
+    loadLocalCheckTable: function(){
+    	CliqzSecureMessage.loadRecord('localTemporalUniq')
+    	.then( res => {
+    		if(res.length > 0){
+    			CliqzSecureMessage.localTemporalUniq = JSON.parse(res[0]);
+    		}
+    	})
     }
 }

@@ -57,7 +57,6 @@ var userPK = class userPK {
   sign(msg){
     var promise = new Promise(function(resolve, reject){
       var ppk = privateKeytoKeypair(CliqzSecureMessage.uPK.privateKey);
-      console.log(ppk);
       CliqzSecureMessage.crypto.subtle.importKey(
         "pkcs8",
         base64ToByteArray(ppk[1]),
