@@ -130,6 +130,50 @@ urlbar.addEventListener('keyup', function(ev){
   setTimeout(startAutocomplete, 0, ev.target.value);
 });
 
+// Debugging stubs for running outside of chromium extension context.
+function declareStubs(props, context) {
+  function makePrintCall(pn) {
+    return function() {
+      console.log(pn + ": " + Array.prototype.slice.call(arguments));
+    }
+  }
+
+  for (var propName in props) {
+    var prop = props[propName];
+    if (typeof prop === "object") {
+      var stub = {}
+      declareStubs(prop, context[propName] || stub);
+      if (!(propName in context))
+        context[propName] = stub;
+    }
+    else if (!(propName in context)) {
+      context[propName] = makePrintCall(propName);
+    }
+  }
+}
+
+var stubs = {
+  chrome: {
+    windows: {
+      getCurrent: 0
+    },
+    cliqzSearchPrivate: {
+      queryHistory: 0,
+      processResults: 0,
+      onInputChanged: {
+        addListener: 0
+      },
+      onAutocompleteStopped: {
+        addListener: 0
+      },
+      onSelectionMoved: {
+        addListener: 0
+      }
+    }
+  }
+};
+declareStubs(stubs, this);
+
 function showPosition(position) {
   CLIQZEnvironment.USER_LAT = position.coords.latitude;
   CLIQZEnvironment.USER_LNG = position.coords.longitude;
