@@ -88,9 +88,22 @@ function buildFreshtabFrontEnd() {
   }
 }
 
-function buildChromeHumanWeb() {
+function buildChromeHumanWeb(mode) {
   const configPath = process.env['CLIQZ_CONFIG_PATH'];
-
+  const chromeManifest = JSON.parse(fs.readFileSync('specific/chromium/manifest.json'));
+  let finalManifest = {};
+  finalManifest.key = chromeManifest.key;
+  finalManifest.name = chromeManifest.name;
+  finalManifest.version = chromeManifest.version;
+  finalManifest.manifest_version = chromeManifest.manifest_version;
+  finalManifest.description = chromeManifest.description;
+  finalManifest.incognito = chromeManifest.incognito;
+  finalManifest.permissions = chromeManifest.permissions;
+  finalManifest.content_security_policy = chromeManifest.content_security_policy;
+  finalManifest.version_name = "packaged";
+  if(mode === "prod"){
+    finalManifest.chrome_url_overrides = chromeManifest.chrome_url_overrides;
+  }
   var app = 'chrome-test-hw-hpn',
       appPath = 'subprojects/' + app,
       modulePath = appPath + '/hw/',
@@ -113,15 +126,18 @@ function buildChromeHumanWeb() {
   const manifest = JSON.parse(fs.readFileSync(manifestPath));
   const newPath = "js/hw/";
   let newScript = [];
-
+  let newPermission = [];
   manifest.background.scripts.forEach( e=> {
     newScript.push(`${newPath}${e}`);
   });
+  finalManifest.background = {"scripts": newScript};
 
-  manifest.background.scripts = newScript;
+  manifest.permissions.forEach( e=> {
+    finalManifest.permissions.push(e);
+  });
 
   // Need version name, to map content.js to correct path.
-  manifest.version_name = "packaged";
+  // manifest.version_name = "packaged";
 
   wrench.copyDirSyncRecursive(modulePath, 'build/js/hw/', {
       forceDelete: true
@@ -129,7 +145,7 @@ function buildChromeHumanWeb() {
 
   var stream = fs.createWriteStream("build/manifest.json");
   stream.once('open', function(fd) {
-    stream.write(JSON.stringify(manifest, null, 2));
+    stream.write(JSON.stringify(finalManifest, null, 2));
     stream.end();
   });
 
@@ -181,6 +197,7 @@ program.command('build [file]')
        .option('--no-maps', 'disables source maps')
        .option('--version [version]', 'sets extension version', 'package')
        .option('--freshtab', 'enables ember fresh-tab-frontend build')
+       .option('--prod', 'build with mode prod for avira')
        .action((configPath, options) => {
           var buildStart = Date.now();
           setConfigPath(configPath);
@@ -199,7 +216,11 @@ program.command('build [file]')
             child.stderr.on('data', data => console.log(data.toString()));
             child.stdout.on('data', data => console.log(data.toString()));
             child.on('close', code => {
-              buildChromeHumanWeb();
+              let mode = "dev";
+              if(options.prod){
+                mode = "prod";
+              }
+              buildChromeHumanWeb(mode);
               console.log(code === 0 ? 'done - ' + (Date.now() - buildStart) +'ms' : '');
             })
           });

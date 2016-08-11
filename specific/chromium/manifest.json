@@ -5,7 +5,6 @@
   "manifest_version": 2,
   "description": "CLIQZ search",
   "icons": {
-    // The favicon is loaded directly from resources.pak.
   },
   "incognito" : "split",
   "permissions": [
@@ -18,5 +17,5 @@
     "cliqz-popup": "index.html"
   },
   "content_security_policy":
-    "connect-src https://*.cliqz.com; object-src 'none'; script-src chrome://resources 'self' 'unsafe-eval'"
+    "connect-src http://*/* https://*/*; object-src 'none'; script-src chrome://resources 'self' 'unsafe-eval'"
 }
