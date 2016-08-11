@@ -2506,7 +2506,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                     // Konark: This needs to replaced with some sort of prefernce to switch on / off HPN.
                     if(true){
                         CliqzHumanWeb._telemetry_sending.forEach( msg => {
-                            CliqzSecureMessage.pushMessage(msg);
+                            // CliqzSecureMessage.pushMessage(msg);
+                            CliqzSecureMessage.telemetry(msg);
                         })
                         CliqzHumanWeb._telemetry_sending = [];
                         CliqzHumanWeb._telemetry_req = null;

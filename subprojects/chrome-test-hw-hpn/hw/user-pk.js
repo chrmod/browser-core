@@ -7,6 +7,21 @@ For now in prefs.
 var userPK = class userPK {
   constructor(msg) {
     // var keySet = CliqzUtils.getPref('userPKTest',false,'extensions.cliqz_hpn.');
+    CliqzSecureMessage.loadRecord("userPKTest")
+    .then(e=>{
+      if(e.length > 0){
+        var keySet = e[0];
+        this.keyGen = new JSEncrypt({default_key_size:2048});
+        this.keyGen.setPrivateKey(keySet);
+        this.privateKey = this.keyGen.getPrivateKeyB64();
+        this.publicKey = this.keyGen.getPublicKey();
+        this.publicKeyB64 = this.keyGen.getPublicKeyB64();
+      }
+      else{
+        this.genKey().then(e=> CliqzUtils.log("Key generated"));
+      }
+    });
+    /*
     if(true) {
        // Using 2048 as 4096 is compute intensive.
        this.genKey().then(e=> CliqzUtils.log("Key generated"));
@@ -18,6 +33,7 @@ var userPK = class userPK {
       this.publicKey = this.keyGen.getPublicKey();
       this.publicKeyB64 = this.keyGen.getPublicKeyB64();
     }
+    */
   }
 
   /**
@@ -40,7 +56,8 @@ var userPK = class userPK {
    */
   sign(msg){
     var promise = new Promise(function(resolve, reject){
-      var ppk = CliqzSecureMessage.p2p.privateKeytoKeypair(CliqzSecureMessage.uPK.privateKey);
+      var ppk = privateKeytoKeypair(CliqzSecureMessage.uPK.privateKey);
+      console.log(ppk);
       CliqzSecureMessage.crypto.subtle.importKey(
         "pkcs8",
         base64ToByteArray(ppk[1]),
@@ -72,10 +89,11 @@ var userPK = class userPK {
      _this.privateKey = _this.keyGen.getPrivateKeyB64 ();
      _this.publicKey = _this.keyGen.getPublicKeyB64();
      _this.publicKeyB64 = _this.keyGen.getPublicKeyB64();
-     CliqzUtils.setPref('userPKTest', _this.privateKey, 'extensions.cliqz_hpn.');
+     // CliqzUtils.setPref('userPKTest', _this.privateKey, 'extensions.cliqz_hpn.');
      _this.registerKey()
      .then( e=> {
         _this.log("Registration complete");
+        CliqzSecureMessage.saveRecord('userPKTest', _this.privateKey)
         resolve();
       });
     });
@@ -88,7 +106,7 @@ var userPK = class userPK {
     var _this = this;
     var promise = new Promise(function(resolve, reject){
       _this.log("Setting public Key","user-pk");
-      _http("http://hpn-sign.cliqz.com/register")
+      _http("http://hpn-sign.test.cliqz.com/register")
         .post(JSON.stringify({"pk": upk}))
         .then(e=> resolve(true))
     });

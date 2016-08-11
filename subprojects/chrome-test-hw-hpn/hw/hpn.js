@@ -6,25 +6,29 @@ var CliqzSecureMessage = {
 	counter: 0,
 	tmult: 4,
   	tpace: 250,
-	SOURCE_MAP_PROVIDER: "https://hpn-collector.cliqz.com/sourcemapjson?q=1",
-	LOOKUP_TABLE_PROVIDER: "https://hpn-collector.cliqz.com/lookuptable?q=1",
-	KEYS_PROVIDER: "https://hpn-collector.cliqz.com/signerKey?q=1",
+	SOURCE_MAP_PROVIDER: "http://hpn-collector.test.cliqz.com/sourcemapjson?q=1",
+	LOOKUP_TABLE_PROVIDER: "http://hpn-collector.test.cliqz.com/lookuptable?q=1",
+	KEYS_PROVIDER: "http://hpn-collector.test.cliqz.com/signerKey?q=1",
 	proxyList: null,
 	proxyStats:{},
-	PROXY_LIST_PROVIDER: "https://hpn-collector.cliqz.com/proxyList?q=1",
-	BLIND_SIGNER:"https://hpn-sign.cliqz.com/sign",
-	USER_REG:"https://hpn-sign.cliqz.com/register",
+	PROXY_LIST_PROVIDER: "http://hpn-collector.test.cliqz.com/proxyList?q=1",
+	BLIND_SIGNER:"http://hpn-sign.test.cliqz.com/sign",
+	USER_REG:"http://hpn-sign.test.cliqz.com/register",
 	signerKey: null,
 	loggerKey: null,
-	localTemporalUniq:null,
+	localTemporalUniq:{},
 	pacemakerId: null,
+	dsPK : null,
+	JSEncrypt: JSEncrypt,
+	crypto: crypto,
+	httpHandler:_http,
 	testMessage: function(){
 		var sample_message = [
-								{"action":"extension-query","type":"cliqz","ts":"","ver":"1.5","payload":"a&s=Mdw1i5slNi95U3DCaw9dCJWdRQPWM3CV&n=1&qc=0&lang=en%2Cde&locale=en-US&force_country=true&adult=0&loc_pref=ask"},
-								{"action": "alive","mode":"safe", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}
+								// {"action":"extension-query","type":"cliqz","ts":"","ver":"1.5","payload":"a&s=Mdw1i5slNi95U3DCaw9dCJWdRQPWM3CV&n=1&qc=0&lang=en%2Cde&locale=en-US&force_country=true&adult=0&loc_pref=ask"},
+								{"action": "alive","mode":"safe", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20160811"}
 							 ]
 		sample_message.forEach( e=> {
-			CliqzSecureMessage.pushMessage(e);
+			CliqzSecureMessage.telemetry(e);
 		})
 	},
 	pacemaker: function() {
@@ -98,6 +102,10 @@ var CliqzSecureMessage = {
 		    CliqzSecureMessage.pacemakerId = setInterval(CliqzSecureMessage.pacemaker, CliqzSecureMessage.tpace, null);
 		}
 		CliqzSecureMessage.secureLogger = new secureLogger();
+		CliqzSecureMessage.uPK = new userPK();
+	    if(!CliqzSecureMessage.dsPK){
+	      CliqzSecureMessage.dsPK = new directoryServicePK();
+	    }
  	},
 	pushMessage: function(msg){
 		msg.mode = CliqzSecureMessage.mode;
@@ -203,5 +211,49 @@ var CliqzSecureMessage = {
 	      });
 	    })
 	    return promise;
-  	}
+  	},
+  	trk: [],
+  	trkTimer: null,
+  	telemetry: function(msg, instantPush) {
+	    if (msg) CliqzSecureMessage.trk.push(msg);
+	    clearTimeout(CliqzSecureMessage.trkTimer);
+	    if(instantPush || CliqzSecureMessage.trk.length % 20 == 0){
+	    	CliqzSecureMessage.pushTelemetry();
+	    } else {
+	    	CliqzSecureMessage.trkTimer = setTimeout(CliqzSecureMessage.pushTelemetry, 10000);
+	    }
+  	},
+  	pushTelemetry: function() {
+	    CliqzSecureMessage._telemetry_sending = CliqzSecureMessage.trk.splice(0);
+	    CliqzSecureMessage.pushMessage = trkGen(CliqzSecureMessage._telemetry_sending);
+	    let nextMsg = CliqzSecureMessage.nextMessage();
+	    if (nextMsg) {
+	      return sendM(nextMsg);
+	    }
+	    return Promise.resolve([]);
+  	},
+  	nextMessage: function() {
+	    if(CliqzSecureMessage._telemetry_sending.length > 0) {
+	      return CliqzSecureMessage._telemetry_sending[CliqzSecureMessage.pushMessage.next()["value"]];
+	    }
+  	},
+    stats: function(proxyIP, statName, value){
+    	CliqzUtils.log(`"${proxyIP}, ${statName},${value}"`);
+    },
+    saveLocalCheckTable: function(){
+    	// This needs to persist the local temporary table on disk.
+    },
+    saveRecord: function(id, data) {
+    	CliqzChromeDB.set('hpn', id, data);
+    },
+    loadRecord: function(id){
+    	var promise = new Promise(function(resolve, reject){
+	        CliqzChromeDB.get('hpn', id, function(obj) {
+	        	var res = [];
+	            if (obj) res.push(obj);
+	            resolve(res);
+	        });
+    	});
+    	return promise;
+    }
 }
