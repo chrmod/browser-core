@@ -227,6 +227,41 @@ var background = {
     });
   }
 }
+
+// This listener is used for accepting queries, and sending them through encrypted channel.
+// We can add a check to make sure it only comes from our counterpart, by checking the senderID.
+// For long-lived connections:
+
+chrome.runtime.onConnect.addListener(function(port) {
+  port.onMessage.addListener(function(request) {
+    var eID = request.eventID;
+    var mc = new messageContext(request.msg);
+    mc.aesEncrypt()
+    .then(function(enxryptedQuery){
+      return mc.signKey();
+    })
+    .then(function(){
+      var data = {"mP":mc.getMP()}
+      return _http("http://54.146.26.49/verify")
+           .post(JSON.stringify(data), "instant")
+    })
+    .then(function(response){
+      if(request.msg.action != "extension-query") return;
+      return mc.aesDecrypt(JSON.parse(response)["data"]);
+    })
+    .then(function(res){
+      //callback && callback({"response":res});
+      // console.log(res);
+      let resp = {"data":
+          {
+          "response": res
+          },
+          "eID": eID
+        }
+      port.postMessage(resp);
+    })
+  });
+});
 /*
 chrome.browserAction.onClicked.addListener(function(tab) {
 

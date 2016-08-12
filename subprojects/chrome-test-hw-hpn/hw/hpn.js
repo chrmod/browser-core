@@ -1,7 +1,7 @@
 var CliqzSecureMessage = {
 	VERSION: '0.1',
 	LOG_KEY: 'securemessage',
-	debug: true,
+	debug: false,
 	mode:"safe",
 	counter: 0,
 	tmult: 4,
