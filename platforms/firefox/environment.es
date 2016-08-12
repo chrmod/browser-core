@@ -43,11 +43,6 @@ var CLIQZEnvironment = {
       'cpgame_movie': 3,
       'delivery-tracking': 2,
       'vod': 3,
-      'conversations': 1,
-      'conversations_future': 1,
-      'topnews': 1,
-      '_generic': 1,
-      '_history': 1,
       'liveTicker': 3
     },
     MESSAGE_TEMPLATES: [
@@ -357,7 +352,6 @@ var CLIQZEnvironment = {
           telemetrySeq = -1,
           telemetryReq = null,
           telemetrySending = [],
-          telemetryStart = undefined,
           TELEMETRY_MAX_SIZE = 500;
 
       function getNextSeq(){
@@ -376,8 +370,6 @@ var CLIQZEnvironment = {
         // put current data aside in case of failure
         telemetrySending = CLIQZEnvironment.trk.slice(0);
         CLIQZEnvironment.trk = [];
-
-        telemetryStart = Date.now();
 
         CLIQZEnvironment.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
 

@@ -27,6 +27,8 @@ window.XULBrowserWindow = {
   setOverLink: function(){}
 }
 
+//TODO: remove lines from above
+
 window.CLIQZ = {};
 
 var currWinId = undefined;
@@ -59,7 +61,8 @@ Promise.all([
       System.import("autocomplete/autocomplete"),
       System.import("ui/background"),
       System.import("core/events"),
-      System.import("platform/expansions-provider")
+      System.import("platform/expansions-provider"),
+      System.import("core/config")
     ])
   }).then(function (modules) {
     window.CLIQZEnvironment = modules[0].default;
@@ -72,6 +75,7 @@ Promise.all([
     CliqzAutocomplete.Mixer = Mixer;
     CLIQZEnvironment.storage = localStorage;
     CLIQZEnvironment.ExpansionsProvider = modules[5].default;
+    CLIQZ.config = modules[6].default;
 
     return System.import("core/startup")
   }).then(function (startupModule) {
@@ -93,10 +97,13 @@ Promise.all([
     CLIQZ.UI.init(urlbar);
     CLIQZ.UI.main(document.getElementById('results'));
     // Initialization of the ExpansionProvider should be after
-    // the initialization of the autocomplete otherwise 
+    // the initialization of the autocomplete otherwise
     // CliqzUtils.getBackendResults gets blindly overwriten
     CLIQZEnvironment.ExpansionsProvider.init();
-  }).then(function() {
+
+    // remove keydown handler from UI - the platform will do it
+    urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
+  }).then(function () {
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
         (winId, query) => {
           if (winId === currWinId)
@@ -114,6 +121,8 @@ Promise.all([
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
     console.log('magic');
+
+    whoAmI(true);
   });
 
 
@@ -188,3 +197,54 @@ function showPosition(position) {
   CLIQZEnvironment.USER_LNG = position.coords.longitude;
 }
 navigator.geolocation.getCurrentPosition(showPosition);
+
+function whoAmI(startup){
+  var onInstall = checkSession();
+
+  // schedule another signal
+  setTimeout(CLIQZ.Core.whoAmI, 60 * 60 * 1e3 /* one hour */, false);
+
+  //executed after the services are fetched
+  CliqzUtils.fetchAndStoreConfig(function(){
+    sendEnvironmentalSignal(startup);
+  });
+}
+
+function sendEnvironmentalSignal(startup, defaultSearchEngine){
+  var hostVersion = '';
+  try {
+    hostVersion = /Chrome\/([0-9.]+)/.exec(navigator.userAgent)[1];
+  } catch(e){}
+
+  var info = {
+      type: 'environment',
+      agent: navigator.userAgent,
+      language: navigator.language,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      version: '4.8.0', // TODO
+      startup: startup? true: false,
+      version_host: hostVersion,
+      version_dist: ''
+  };
+
+  CliqzUtils.telemetry(info);
+}
+
+function checkSession() {
+  if (!CliqzUtils.hasPref('session')) {
+    var source = CLIQZ.config.settings.channel;
+    CliqzUtils.setPref('session', generateSession(source));
+    return false;
+  }
+  // Session is set already
+  return true;
+}
+
+function generateSession(source){
+  return CliqzUtils.rand(18) + CliqzUtils.rand(6, '0123456789')
+         + '|' +
+         CliqzUtils.getDay()
+         + '|' +
+         (source || 'NONE');
+}
