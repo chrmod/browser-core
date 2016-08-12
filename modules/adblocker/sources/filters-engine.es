@@ -2,7 +2,7 @@ import { TLDs } from 'antitracking/domain';
 import { URLInfo } from 'antitracking/url';
 
 import { log } from 'adblocker/utils';
-import parseList from 'adblocker/filters-parsing';
+import parseList, { parseJSResource } from 'adblocker/filters-parsing';
 import match from 'adblocker/filters-matching';
 
 
@@ -338,7 +338,7 @@ class CosmeticBucket {
       // [id, tagName, className] = node
       node.forEach(token => {
         this.index.getFromKey(token).forEach(bucket => {
-          bucket.forEach(rule => { rules.push(rule); })
+          bucket.forEach(rule => { rules.push(rule); });
         });
       });
     });
@@ -395,7 +395,7 @@ class CosmeticEngine {
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
       log(`Found bucket ${bucket.size}`);
       bucket.getMatchingRules(nodeInfo).forEach(rule => {
-        if (!uniqIds.has(rule.id)) {
+        if (!rule.scriptInject && !uniqIds.has(rule.id)) {
           log(`Found rule ${JSON.stringify(rule)}`);
           uniqIds.add(rule.id);
           rules.push(rule);
@@ -404,6 +404,38 @@ class CosmeticEngine {
     });
 
     log(`COSMETICS found ${rules.length} potential rules for ${url}`);
+    return rules;
+  }
+
+  /**
+   * Return all the cosmetic filters on a domain
+   *
+   * @param {string} url - url of the page
+  **/
+  getDomainRules(url, js) {
+    const hostname = URLInfo.get(url).hostname;
+    const rules = [];
+    const uniqIds = new Set();
+    log(`getDomainRules ${url} => ${hostname}`);
+    this.cosmetics.getFromKey(hostname).forEach(bucket => {
+      for (const value of bucket.index.index.values()) {
+        value.forEach(rule => {
+          if (!uniqIds.has(rule.id)) {
+            if (rule.scriptInject) {
+              // make sure the selector was replaced by javascript
+              if (!rule.scriptReplaced) {
+                rule.selector = js.get(rule.selector);
+                rule.scriptReplaced = true;
+              }
+            }
+            if (rule.selector) {
+              rules.push(rule);
+              uniqIds.add(rule.id);
+            }
+          }
+        });
+      }
+    });
     return rules;
   }
 }
@@ -443,6 +475,17 @@ export default class {
 
     this.cosmetics = new CosmeticEngine();
 
+    // injections
+    this.js = new Map();
+  }
+
+  onUpdateResource(asset, data) {
+    // the resource containing javascirpts to be injected
+    const js = parseJSResource(data).get('application/javascript');
+    // TODO: handle other type
+    if (js) {
+      this.js = js;
+    }
   }
 
   onUpdateFilters(asset, newFilters) {
@@ -455,7 +498,7 @@ export default class {
     const cosmetics = [];
 
     // Parse and dispatch filters depending on type
-    const parsed = parseList(newFilters)
+    const parsed = parseList(newFilters);
 
     parsed.networkFilters.forEach(filter => {
       if (filter.isException) {
@@ -505,6 +548,10 @@ export default class {
 
   getCosmeticsFilters(url, nodes) {
     return this.cosmetics.getMatchingRules(url, nodes);
+  }
+
+  getDomainFilters(url) {
+    return this.cosmetics.getDomainRules(url, this.js);
   }
 
   match(request) {

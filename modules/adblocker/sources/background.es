@@ -26,5 +26,22 @@ export default {
         rules: candidates.map(rule => rule.selector)
       }
     },
+
+    url(url) {
+      if (!adbEnabled()) {
+        return {
+          scripts: [],
+          sytles: [],
+          type: 'domain-rules'
+        }
+      }
+
+      const candidates = CliqzADB.adBlocker.engine.getDomainFilters(url);
+      return {
+        styles: candidates.filter(rule => !rule.scriptInject).map(rule => rule.selector),
+        scripts: candidates.filter(rule => rule.scriptInject).map(rule => rule.selector),
+        type: 'domain-rules'
+      }
+    }
   },
 };

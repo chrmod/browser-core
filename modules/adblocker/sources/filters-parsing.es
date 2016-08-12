@@ -17,6 +17,8 @@ export class AdCosmetics {
     this.supported = true;
     this.unhide = false;
     this.isCosmeticFilter = true;
+    this.scriptInject = false;
+    this.scriptReplaced = false;
 
     this.hostnames = [];
     this.selector = null;
@@ -44,12 +46,18 @@ export class AdCosmetics {
         this.selector = suffix;
       }
 
+      // extract script name
+      if (this.selector.includes('script:inject')) {
+        this.selector = this.selector.match(/script:inject\((.+)\)/)[1];
+        this.scriptInject = true;
+      }
+
       // Exceptions
       if (this.selector === null ||
           this.selector.length === 0 ||
           this.selector.endsWith('}') ||
           this.selector.includes('##') ||
-          this.selector.includes('script:') ||
+          this.selector.includes('script:contains') ||
           (this.unhide && this.hostnames.length === 0)) {
         this.supported = false;
       }
@@ -428,4 +436,52 @@ export default function parseList(list) {
     log(`ERROR WHILE PARSING ${typeof list} ${ex}`);
     return null;
   }
+}
+
+export function parseJSResource(lines) {
+  let state = 'end';
+  let tmpContent = '';
+  let type = null;
+  let name = '';
+  const parsed = new Map();
+  for (let line of lines) {
+    line = line.trim();
+    if (line.startsWith('#')) {
+      state = 'comment';
+    } else if (!line.trim()) {
+      state = 'end';
+    } else if (state !== 'content' && !type && line.split(' ').length === 2) {
+      state = 'title';
+    } else {
+      state = 'content';
+    }
+    switch (state) {
+      case 'end':
+        if (tmpContent) {
+          if (!parsed.get(type)) {
+            parsed.set(type, new Map());
+          }
+          parsed.get(type).set(name, tmpContent);
+          tmpContent = '';
+          type = null;
+        }
+        break;
+      case 'comment':
+        break;
+      case 'title':
+        [name, type] = line.split(' ');
+        break;
+      case 'content':
+        tmpContent += `${line}\n`;
+        break;
+      default:
+    }
+  }
+  if (tmpContent) {
+    if (!parsed.get(type)) {
+      parsed.set(type, new Map());
+    }
+    parsed.get(type).set(name, tmpContent);
+  }
+  return parsed;
 }

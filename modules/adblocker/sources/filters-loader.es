@@ -34,6 +34,10 @@ function urlFromPath(path) {
   return null;
 }
 
+const JS_RESOURCES = new Set([
+  // uBlock resource
+  'assets/ublock/resources.txt',
+]);
 
 const ALLOWED_LISTS = new Set([
   // uBlock
@@ -67,7 +71,11 @@ function getSupportedLangLists() {
 }
 
 function isListSupported(path) {
-  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path);
+  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path) || isJSResource(path);
+}
+
+function isJSResource(path) {
+  return JS_RESOURCES.has(path);
 }
 
 
@@ -200,6 +208,7 @@ class FiltersList extends UpdateCallbackHandler {
 }
 
 
+
 /* Class responsible for loading, persisting and updating filters lists.
  */
 export default class extends UpdateCallbackHandler {
@@ -213,7 +222,7 @@ export default class extends UpdateCallbackHandler {
     // Index of available extra filters lists
     this.extraLists = new ExtraLists();
 
-    // Lists of filters currently loaded
+    // Lists of filters and injected scripts currently loaded
     this.lists = new Map();
 
     // Update extra lists
@@ -237,7 +246,8 @@ export default class extends UpdateCallbackHandler {
         list = new FiltersList(checksum, asset, remoteURL);
         this.lists.set(asset, list);
         list.onUpdate(filters => {
-          this.triggerCallbacks({ asset, filters });
+          const isFiltersList = !isJSResource(asset);
+          this.triggerCallbacks({ asset, filters, isFiltersList });
         });
         list.load();
       } else {

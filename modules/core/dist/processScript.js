@@ -78,6 +78,28 @@ function onDOMWindowCreated(ev) {
     return v.toString(16);
   });
 
+  var requestDomainRules = function() {
+    if (!currentURL() || currentURL()[0] !== 'h') {
+      return;
+    }
+
+    let payload = {
+      module: 'adblocker',
+      action: 'url',
+      args:[
+        currentURL()
+      ]
+    }
+
+    send({
+      windowId,
+      payload
+    })
+  }
+
+  requestDomainRules();
+
+
   // adblocker cosmetic filter
   // go through the nodes of the dom
   var adbComsFilter = function() {
@@ -181,16 +203,30 @@ function onDOMWindowCreated(ev) {
   };
 
   function injectCSSRule(rule, doc) {
-    css = doc.createElement('style');
+    let css = doc.createElement('style');
     css.type = 'text/css';
     css.id = 'cliqz-adblokcer-css-rules'
     doc.getElementsByTagName("head")[0].appendChild(css);
     css.appendChild(doc.createTextNode(rule));
   }
 
+  function injectScript(s, doc) {
+    let script = doc.createElement('script');
+    script.type = 'text/javascript';
+    script.id = 'cliqz-adblocker-script';
+    script.textContent = s;
+    doc.getElementsByTagName("head")[0].appendChild(script);
+  }
+
   function onCallback(msg) {
     if (isDead()) {
       return;
+    }
+
+    if (msg.data && msg.data.response && msg.data.response.type === 'domain-rules') {
+      //TODO: test domain specific cosmetic filters
+      let scripts = msg.data.response.scripts;
+      scripts.forEach(script => injectScript(script, window.document));
     }
 
     if (msg.data && msg.data.response && msg.data.response.rules) {

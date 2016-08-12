@@ -60,9 +60,12 @@ class AdBlocker {
     this.listsManager = new FiltersLoader();
     this.listsManager.onUpdate(update => {
       // Update list in engine
-      const { asset, filters } = update;
-      this.engine.onUpdateFilters(asset, filters);
-
+      const { asset, filters, isFiltersList } = update;
+      if (isFiltersList) {
+        this.engine.onUpdateFilters(asset, filters);
+      } else {
+        this.engine.onUpdateResource(asset, filters)
+      }
       this.initCache();
     });
 
