@@ -236,13 +236,14 @@ chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(request) {
     var eID = request.eventID;
     var mc = new messageContext(request.msg);
+    var proxyIP = getProxyIP();
     mc.aesEncrypt()
     .then(function(enxryptedQuery){
       return mc.signKey();
     })
     .then(function(){
       var data = {"mP":mc.getMP()}
-      return _http("http://54.146.26.49/verify")
+      return _http(proxyIP)
            .post(JSON.stringify(data), "instant")
     })
     .then(function(response){

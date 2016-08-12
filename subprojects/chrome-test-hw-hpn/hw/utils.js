@@ -182,3 +182,13 @@ function trkGen(trk) {
   }
   }
 }
+
+// Helps choose random proxy in case of encrypted queries.
+Array.prototype.randomElement = function () {
+    return this[Math.floor(Math.random() * this.length)]
+}
+
+function getProxyIP(){
+  var pIP = CliqzSecureMessage.proxyList.randomElement();
+  return `http://${pIP}/verify`;
+}
