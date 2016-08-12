@@ -5,6 +5,7 @@
  *   - attaches all the needed listners (keyboard/mouse)
  */
 
+
 function load(ctx) {
 
 var CliqzAutocomplete;
@@ -1353,16 +1354,8 @@ function urlIndexInHistory(url, urlList) {
                 switch (state) {
                     //not supported country
                     case 'disable-cliqz':
-                        CliqzUtils.setPref("cliqz_core_disabled", true);
                         clearMessage('bottom');
-                        var enumerator = Services.wm.getEnumerator('navigator:browser');
-
-                        //remove cliqz from all windows
-                        while (enumerator.hasMoreElements()) {
-                            var win = enumerator.getNext();
-                            win.CLIQZ.Core.unload(true);
-                        }
-                        CliqzAutocomplete.isPopupOpen = false;
+                        CLIQZEnvironment.disbleCliqzResults();
                         break;
                     case 'keep-cliqz':
                         clearMessage('bottom');
