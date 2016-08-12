@@ -1,7 +1,7 @@
 var CliqzSecureMessage = {
 	VERSION: '0.1',
 	LOG_KEY: 'securemessage',
-	debug: false,
+	debug: true,
 	mode:"safe",
 	counter: 0,
 	tmult: 4,
@@ -25,7 +25,7 @@ var CliqzSecureMessage = {
 	testMessage: function(){
 		var sample_message = [
 								// {"action":"extension-query","type":"cliqz","ts":"","ver":"1.5","payload":"a&s=Mdw1i5slNi95U3DCaw9dCJWdRQPWM3CV&n=1&qc=0&lang=en%2Cde&locale=en-US&force_country=true&adult=0&loc_pref=ask"},
-								{"action": "alive","mode":"safe", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20160811"}
+								{"action": "alive","mode":"safe", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110911"}, "ts": "20160812"}
 							 ]
 		sample_message.forEach( e=> {
 			CliqzSecureMessage.telemetry(e);

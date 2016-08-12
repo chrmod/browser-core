@@ -234,9 +234,11 @@ var background = {
 
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(request) {
+    if(!request.msg) return;
     var eID = request.eventID;
     var mc = new messageContext(request.msg);
     var proxyIP = getProxyIP();
+    console.log("From port> @@@ >>> " + request.msg);
     mc.aesEncrypt()
     .then(function(enxryptedQuery){
       return mc.signKey();

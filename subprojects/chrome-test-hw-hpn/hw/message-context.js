@@ -70,7 +70,7 @@ var sourceMap = {"alive":{"keys":["action","payload.t"],"endpoint":"safe-browsin
 var messageContext = class messageContext {
   constructor(msg) {
 		if(!msg || !isJson(msg)) return;
-		this.log("Message Rec: " + JSON.stringify(msg));
+		this.log("Message Rec: @@@ " + JSON.stringify(msg));
 	 	this.orgMessage = isJson(msg) ? JSON.stringify(msg) : msg;
 	 	this.jMessage = isJson(msg) ? msg : JSON.parse(msg);
 	 	this.signed = null;
