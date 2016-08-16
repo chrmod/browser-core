@@ -58,7 +58,8 @@ Promise.all([
       System.import("autocomplete/mixer"),
       System.import("autocomplete/autocomplete"),
       System.import("ui/background"),
-      System.import("core/events")
+      System.import("core/events"),
+      System.import("platform/expansions-provider")
     ])
   }).then(function (modules) {
     window.CLIQZEnvironment = modules[0].default;
@@ -66,9 +67,11 @@ Promise.all([
     window.CliqzAutocomplete = modules[2].default;
     window.CliqzEvents = modules[4].default;
 
+
     CliqzUtils.System = System;
     CliqzAutocomplete.Mixer = Mixer;
     CLIQZEnvironment.storage = localStorage;
+    CLIQZEnvironment.ExpansionsProvider = modules[5].default;
 
     return System.import("core/startup")
   }).then(function (startupModule) {
@@ -89,6 +92,10 @@ Promise.all([
     CLIQZ.UI.preinit(CliqzAutocomplete, CliqzHandlebars, CliqzEvents);
     CLIQZ.UI.init(urlbar);
     CLIQZ.UI.main(document.getElementById('results'));
+    // Initialization of the ExpansionProvider should be after
+    // the initialization of the autocomplete otherwise 
+    // CliqzUtils.getBackendResults gets blindly overwriten
+    CLIQZEnvironment.ExpansionsProvider.init();
   }).then(function() {
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
         (winId, query) => {
@@ -106,7 +113,9 @@ Promise.all([
           if (winId === currWinId)
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
+    console.log('magic');
   });
+
 
 function startAutocomplete(query) {
   urlbar.value = query;

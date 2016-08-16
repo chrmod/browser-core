@@ -632,6 +632,9 @@ var CliqzUtils = {
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
+  getBackendResults:  function(q, callback){
+    
+  },
   getCliqzResults: function(q, callback){
     CliqzUtils._sessionSeq++;
 

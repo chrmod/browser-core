@@ -214,13 +214,7 @@ export default class {
     var button = doc.createElement('menuitem');
     button.setAttribute('label', utils.getLocalizedString('btnActivateCliqz'));
     button.addEventListener('command', (function(event) {
-      utils.setPref("cliqz_core_disabled", false);
-
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext();
-          win.CLIQZ.Core.init();
-      }
+      CLIQZEnvironment.enableCliqzResults();
 
       utils.telemetry({
         type: 'setting',

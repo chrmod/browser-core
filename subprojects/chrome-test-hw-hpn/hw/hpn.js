@@ -10,6 +10,7 @@ var CliqzSecureMessage = {
 	LOOKUP_TABLE_PROVIDER: "http://hpn-collector.test.cliqz.com/lookuptable?q=1",
 	KEYS_PROVIDER: "http://hpn-collector.test.cliqz.com/signerKey?q=1",
 	proxyList: null,
+	routeTable: null,
 	proxyStats:{},
 	PROXY_LIST_PROVIDER: "http://hpn-collector.test.cliqz.com/proxyList?q=1",
 	BLIND_SIGNER:"http://hpn-sign.test.cliqz.com/sign",
@@ -62,7 +63,7 @@ var CliqzSecureMessage = {
 		*/
 
 	    //Fetch sourceMap
-	    if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 3 * 1) == 0) {
+	    if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 1 * 1) == 0) {
 	    	if (CliqzSecureMessage.debug) {
 	    		CliqzUtils.log('Load proxy list', CliqzSecureMessage.LOG_KEY);
 	    	}
@@ -82,19 +83,18 @@ var CliqzSecureMessage = {
 
 	    }
 
-	    /* Konark : To be fixed, after implementing DB in here.
 	    if ((CliqzSecureMessage.counter/CliqzSecureMessage.tmult) % (60 * 10 * 1) == 0) {
 	    	if (CliqzSecureMessage.debug) {
 	    		CliqzUtils.log('Save local temporalUniquness stats', CliqzSecureMessage.LOG_KEY);
 	    	}
-	    	saveLocalCheckTable();
-	    	saveLocalProxyList();
-	    	saveLocalRouteTable();
+	    	CliqzSecureMessage.saveLocalCheckTable();
+	    	CliqzSecureMessage.saveLocalProxyList();
+	    	CliqzSecureMessage.saveLocalRouteTable();
 
 	      // Flush proxy stats
-	      CliqzSecureMessage.flushProxyStats();
+	      // CliqzSecureMessage.flushProxyStats();
 	    }
-		*/
+
 	    CliqzSecureMessage.counter += 1;
  	},
  	init: function(){
@@ -107,6 +107,8 @@ var CliqzSecureMessage = {
 	      CliqzSecureMessage.dsPK = new directoryServicePK();
 	    }
 	    CliqzSecureMessage.loadLocalCheckTable();
+    	if(!CliqzSecureMessage.proxyList) CliqzSecureMessage.loadLocalProxyList();
+    	if(!CliqzSecureMessage.routeTable) CliqzSecureMessage.loadLocalRouteTable();
  	},
 	pushMessage: function(msg){
 		msg.mode = CliqzSecureMessage.mode;
@@ -248,6 +250,20 @@ var CliqzSecureMessage = {
 			CliqzSecureMessage.saveRecord('localTemporalUniq', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
 		}
     },
+    saveLocalProxyList: function(){
+    	// This needs to persist the local temporary table on disk.
+		if (CliqzSecureMessage.proxyList && CliqzSecureMessage.proxyList.length > 0) {
+	    	CliqzUtils.log("Saving local table");
+			CliqzSecureMessage.saveRecord('proxylist', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
+		}
+    },
+    saveLocalRouteTable: function(){
+    	// This needs to persist the local temporary table on disk.
+		if (CliqzSecureMessage.routeTable && CliqzSecureMessage.routeTable.length > 0) {
+	    	CliqzUtils.log("Saving local table");
+			CliqzSecureMessage.saveRecord('routetable', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
+		}
+    },
     saveRecord: function(id, data) {
     	CliqzChromeDB.set('hpn', id, data);
     },
@@ -266,6 +282,22 @@ var CliqzSecureMessage = {
     	.then( res => {
     		if(res.length > 0){
     			CliqzSecureMessage.localTemporalUniq = JSON.parse(res[0]);
+    		}
+    	})
+    },
+    loadLocalProxyList: function(){
+    	CliqzSecureMessage.loadRecord('proxylist')
+    	.then( res => {
+    		if(res.length > 0){
+    			CliqzSecureMessage.proxyList = JSON.parse(res[0]);
+    		}
+    	})
+    },
+    loadLocalRouteTable: function(){
+    	CliqzSecureMessage.loadRecord('routetable')
+    	.then( res => {
+    		if(res.length > 0){
+    			CliqzSecureMessage.routeTable = JSON.parse(res[0]);
     		}
     	})
     }

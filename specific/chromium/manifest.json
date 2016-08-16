@@ -11,11 +11,12 @@
     "cliqzSearchPrivate",
     "geolocation",
     "windows",
-    "https://*.cliqz.com/*"
+    "https://*.cliqz.com/*",
+    "http://suggestqueries.google.com/*"
   ],
   "chrome_url_overrides": {
     "cliqz-popup": "index.html"
   },
   "content_security_policy":
-    "connect-src http://*/* https://*/*; object-src 'none'; script-src chrome://resources 'self' 'unsafe-eval'"
+    "connect-src http://*/* https://*/* http://*.google.com/*; object-src 'none'; script-src chrome://resources 'self' 'unsafe-eval'"
 }
