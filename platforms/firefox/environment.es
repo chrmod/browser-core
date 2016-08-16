@@ -512,7 +512,7 @@ var CLIQZEnvironment = {
           var win = enumerator.getNext();
           win.CLIQZ.Core.init();
       }
-    }
+    },
     // lazy init
     // callback called multiple times
     historySearch: (function(){
