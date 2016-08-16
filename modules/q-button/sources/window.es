@@ -163,7 +163,7 @@ export default class {
       utils.getLocalizedString('btnFeedbackFaq'),
       () => {
         //TODO - use the original channel instead of the current one (it will be changed at update)
-        CLIQZEnvironment.openTabInWindow(win, CliqzUtils.FEEDBACK_URL);
+        CLIQZEnvironment.openTabInWindow(win, utils.FEEDBACK_URL);
       },
       'feedback'
     );
@@ -214,13 +214,7 @@ export default class {
     var button = doc.createElement('menuitem');
     button.setAttribute('label', utils.getLocalizedString('btnActivateCliqz'));
     button.addEventListener('command', (function(event) {
-      CLIQZEnvironment.enableCliqzResults();
-
-      utils.telemetry({
-        type: 'setting',
-        setting: 'international',
-        value: 'activate'
-      });
+      CLIQZEnvironment.enableCliqzResults(doc.getElementById('urlbar'));
     }).bind(this));
     return button;
   }

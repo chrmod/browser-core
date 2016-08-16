@@ -1355,7 +1355,7 @@ function urlIndexInHistory(url, urlList) {
                     //not supported country
                     case 'disable-cliqz':
                         clearMessage('bottom');
-                        CLIQZEnvironment.disbleCliqzResults();
+                        CliqzUtils.disableCliqzResults(urlbar);
                         break;
                     case 'keep-cliqz':
                         clearMessage('bottom');

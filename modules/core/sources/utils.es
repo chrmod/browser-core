@@ -1014,6 +1014,8 @@ var CliqzUtils = {
     return data;
   },
   getNoResults: CLIQZEnvironment.getNoResults,
+  disableCliqzResults: CLIQZEnvironment.disableCliqzResults,
+  enableCliqzResults: CLIQZEnvironment.enableCliqzResults,
   getParameterByName: function(name, location) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
