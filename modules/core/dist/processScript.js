@@ -144,19 +144,38 @@ function onDOMWindowCreated(ev) {
       })
     }
 
+    var docMutation = [];
+
+    var checkMutation = function() {
+      if (!docMutation || docMutation.length === 0) {
+        return;
+      }
+      for (let target of docMutation) {
+        nodes = target.querySelectorAll('*');
+        for (let node of nodes) {
+          addNodeName(node, nodeInfo);
+        }
+      }
+      sendNodeNames(nodeInfo);
+      docMutation = []
+    }
+
+    window.setInterval(checkMutation, 500);
+
     var onMutation = function(mutations) {
       let nodeInfo = new Set();
       for (let m of mutations) {
         let target = m.target;
         if (target) {
-          addNodeName(target, nodeInfo);
-          nodes = target.querySelectorAll('*');
-          for (let node of nodes) {
-            addNodeName(node, nodeInfo);
-          }
+          docMutation.push(target);
+          // addNodeName(target, nodeInfo);
+          // nodes = target.querySelectorAll('*');
+          // for (let node of nodes) {
+          //   addNodeName(node, nodeInfo);
+          // }
         }
       }
-      sendNodeNames(nodeInfo);
+      // sendNodeNames(nodeInfo);
     }
 
     var doc = window.document;
@@ -170,7 +189,7 @@ function onDOMWindowCreated(ev) {
 
     // attach mutation obsever in case new nodes are added
     var mutationObserver = new window.MutationObserver(onMutation);
-    mutationObserver.observe(window.document, {childList: true, subtree: true, attributes: true});
+    mutationObserver.observe(window.document, {childList: true, subtree: true});
   }
 
   var onMessage = function (ev) {
@@ -218,36 +237,47 @@ function onDOMWindowCreated(ev) {
     doc.getElementsByTagName("head")[0].appendChild(script);
   }
 
+  function handleRules(rules) {
+    if (!rules) {
+      return;
+    }
+    let rulesStr = '';
+    for (let rule of rules)  {
+      if (rule in injectedRules) {
+        continue;
+      } else {
+        let find = window.document.querySelectorAll(rule);
+        if (!find.length) {
+          continue;
+        }
+        injectedRules[rule] = true;
+        if (rulesStr) {
+          rulesStr += ', ';
+        }
+        rulesStr += ` ${rule}`;
+      }
+    }
+    if (rulesStr) {
+      rulesStr += ' {display:none !important;}';
+      injectCSSRule(rulesStr, window.document);
+    }
+  }
+
   function onCallback(msg) {
     if (isDead()) {
       return;
     }
 
     if (msg.data && msg.data.response && msg.data.response.type === 'domain-rules') {
-      //TODO: test domain specific cosmetic filters
       let scripts = msg.data.response.scripts;
       scripts.forEach(script => injectScript(script, window.document));
+      let rules = msg.data.response.styles;
+      handleRules(rules)
     }
 
     if (msg.data && msg.data.response && msg.data.response.rules) {
-      let rulesStr = '';
       let rules = msg.data.response.rules;
-
-      for (let rule of rules)  {
-        if (rule in injectedRules) {
-          continue;
-        } else {
-          injectedRules[rule] = true;
-          if (rulesStr) {
-            rulesStr += ', ';
-          }
-          rulesStr += ` ${rule}`;
-        }
-      }
-      if (rulesStr) {
-        rulesStr += ' {display:none !important;}';
-        injectCSSRule(rulesStr, window.document);
-      }
+      handleRules(rules);
     }
 
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
