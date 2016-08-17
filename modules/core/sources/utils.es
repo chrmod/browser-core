@@ -1071,7 +1071,6 @@ var CliqzUtils = {
   distance: CLIQZEnvironment.distance,
   getDefaultSearchEngine: CLIQZEnvironment.getDefaultSearchEngine,
   copyResult: CLIQZEnvironment.copyResult,
-  openLink: CLIQZEnvironment.openLink,
   openPopup: CLIQZEnvironment.openPopup,
   isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
   getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,
