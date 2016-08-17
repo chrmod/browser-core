@@ -1,4 +1,7 @@
-$urlbar-elms-height: 34px;
+$urlbar-holder: 33px;
+$urlbar-elms-height: 32px;
+$buttons-hover-color: #fff;
+$browser-top-bg-color: #ccc;
 
 @font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
@@ -131,12 +134,19 @@ $urlbar-elms-height: 34px;
 #back-button {
     width: 37px;
     height: $urlbar-elms-height !important;
+    padding: 0 2px !important;
     margin-left: 0 !important;
     box-shadow: 0 0 0 0 transparent !important;
     border-radius: 0 !important;
     border: none !important;
     border-right: 1px solid #e1e1e1 !important;
     background-color: transparent !important;
+
+
+    &:hover:not(:-moz-lwtheme):not([disabled="true"])  {
+        background-color: $buttons-hover-color !important;
+        box-shadow: none !important;
+    }
 }
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
@@ -177,13 +187,15 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 #urlbar[focused="true"],
 .searchbar-textbox[focused="true"] {
-    box-shadow: none !important;
     border-color: #5ea3f9 !important;
+    box-shadow: inset 0 0 2px #90c3e4 !important;
     -moz-border-start: 1px solid #5ea3f9 !important;
+
 }
 
 #urlbar .urlbar-input-box {
     overflow: hidden;
+    border: none !important;
 }
 
 #urlbar:hover {
@@ -198,7 +210,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #titlebar,
 #tab-view-deck,
 #titlebar-content {
-    background: #e0e0e0;
+    background-color: $browser-top-bg-color;
+}
+
+#tab-view-deck {
+    background-image: none !important;
 }
 
 /*========== Tabs =======*/
@@ -207,15 +223,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #F6F6F6 !important;
 }
 
-.tabbrowser-tab[visuallyselected="true"] {
-    position: static !important;
-}
-
-.tabbrowser-tab[visuallyselected="true"] .tab-content {
-    border-color: #99B3C9;
-    border-top: 2px solid #ABC8E2;
-    background: #fff !important;
-}
 
 #PersonalToolbar {
     background: #fff !important;
@@ -230,11 +237,26 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: rgba(255, 255, 255, 1) !important;
 }
 
-.tabbrowser-tab:not([pinned]) {
-    background: #cecece !important;
+.tabbrowser-tab {
 
-    .tab-content .tab-text {
-        color: #555;
+    &[visuallyselected="true"] {
+        position: static !important;
+
+        .tab-content {
+            border-color: #99B3C9;
+            border-top: 2px solid #ABC8E2;
+            background: #fff !important;
+        }
+    }
+
+    &:not([visuallyselected="true"]) {
+        background: #b9b9b9 !important;
+    }
+
+    &:not([pinned]) {
+        .tab-content .tab-text {
+            color: #555;
+        }
     }
 }
 
@@ -266,7 +288,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 #nav-bar {
-    height: 35px !important;
+    height: $urlbar-holder !important;
     padding: 0;
     margin-top: 0 !important;
     box-shadow: none !important;
@@ -417,35 +439,23 @@ notification[type="warning"] .messageText {
 }
 
 .urlbar-input {
-    padding-bottom: 1px !important;
+    padding-bottom: 2px !important;
 }
 
 
 #navigator-toolbox::after {
     margin-top: -3px !important;
     background-image: none;
-    box-shadow: 0px 0.13em 0.005em 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.13em 2px 0 rgba(0, 0, 0, 0.35);
+    z-index: 0;
 }
 
 #main-window:not([chromehidden~="toolbar"]) {
     min-width: 425px;
 }
 
-#forward-button:hover:not(:-moz-lwtheme):not([disabled="true"]),
-#back-button:hover:not(:-moz-lwtheme):not([disabled="true"]) {
-    background-color: #e6e6e6 !important;
-}
-
 #PanelUI-button {
     border-image-slice: 0;
-}
-
-#forward-button {
-    margin-left: -1px !important;
-}
-
-#forward-button, #back-button {
-    padding: 0 2px !important;
 }
 
 #TabsToolbar .toolbarbutton-1 {
@@ -454,7 +464,12 @@ notification[type="warning"] .messageText {
 
 #nav-bar .toolbarbutton-1:not(#back-button):not(#forward-button) {
     margin-top: 1px; /*Remove space (padding) inside nav-bar*/
-    margin-bottom: 1px;
+    margin-bottom: 0;
+    border-radius: 0;
+
+    &:hover {
+        background: $buttons-hover-color;
+    }
 }
 
 #notification-popup-box {
@@ -510,10 +525,6 @@ notification[type="warning"] .messageText {
     margin-left: 10px;
 }
 
-#titlebar, #tab-view-deck, #titlebar-content {
-    background-color: #ddd;
-}
-
 #main-window[privatebrowsingmode]:not([tabsintitlebar="true"]):not([inFullscreen="true"]) {
     #titlebar {
         margin-bottom: 0 !important;
@@ -533,21 +544,19 @@ notification[type="warning"] .messageText {
 }
 
 #nav-bar #PanelUI-menu-button {
+    height: $urlbar-elms-height !important;
     -moz-margin-start: 0;
     margin: 0 1px !important;
+    min-width: 37px !important;
     border-radius: 0 !important;;
-    height: $urlbar-elms-height !important;
-    min-width: 36px !important;
     border-left: 1px solid #ccc !important;
+    box-shadow: none !important;
+
+
 
     &:hover {
-        background: #e6e6e6;
+        background: $buttons-hover-color;
     }
-}
-
-#navigator-toolbox[inFullscreen] > #TabsToolbar {
-    padding-top: 0;
-    margin-top: -2px;
 }
 
 #TabsToolbar {
@@ -571,12 +580,12 @@ notification[type="warning"] .messageText {
 
 .tab-content {
     border-radius: 0;
-    border-color: #bababa;
+    border-color: #afafaf;
     background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-content, .tabs-newtab-button:hover {
-    background-color: #dfdfdf !important;
+    background-color: #ccc !important;
 }
 
 #navigator-toolbox:not([inFullscreen]) #tabbrowser-tabs {
@@ -621,11 +630,12 @@ notification[type="warning"] .messageText {
 /* BEGIN CUSTOMIZE UI */
 
 #customization-panelHolder #PanelUI-customize {
-    background-color: rgb(70, 87, 183);
+    background-color: #36c0c0;
 }
 
-#customization-panelHolder #PanelUI-customize:hover, #customization-panelHolder #PanelUI-customize:hover:active {
-    background-color: rgb(54, 71, 167);
+#customization-panelHolder #PanelUI-customize:hover,
+#customization-panelHolder #PanelUI-customize:hover:active {
+    background-color: #3eadb5;
 }
 
 #main-window #customization-panel-container, #main-window[customize-entered] #customization-panel-container {
@@ -643,9 +653,35 @@ vbox[sidebarcommand=historybroadcaster] {
   }
 }
 
-
+//=== FULL SCREEN
 #main-window[inFullscreen="true"] {
     .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
-        -moz-padding-start: 1px;
+        -moz-padding-start: 0;
     }
+
+    .tabbrowser-tab[pinned][first-visible-tab] {
+        margin-left: -1px;
+    }
+
+    .tabbrowser-tab[pinned] {
+        width: 37px;
+    }
+
+}
+
+#navigator-toolbox[inFullscreen="true"] > #TabsToolbar {
+    padding-top: 0;
+    margin-top: -2px;
+}
+
+//=== Border Customize Pannel
+#main-window[customize-entered] #browser-bottombox, #main-window[customize-entered] #navigator-toolbox > toolbar:not(#TabsToolbar), #main-window[customize-entered] #customization-container {
+    border: none !important;
+}
+
+#urlbar[pageproxystate="invalid"] > #urlbar-icons > .urlbar-icon,
+#urlbar[pageproxystate="invalid"][focused="true"] > #urlbar-go-button ~ toolbarbutton,
+#urlbar[pageproxystate="valid"] > #urlbar-go-button,
+#urlbar:not([focused="true"]) > #urlbar-go-button {
+    border: none !important;
 }
