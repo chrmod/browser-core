@@ -19,11 +19,15 @@ export default {
     // handles messages coming from process script
     nodes(url, nodes) {
       if (!adbEnabled()) {
-        return { rules: [] };
+        return {
+          rules: [],
+          active: false
+        };
       }
       const candidates = CliqzADB.adBlocker.engine.getCosmeticsFilters(url, nodes);
       return {
-        rules: candidates.map(rule => rule.selector)
+        rules: candidates.map(rule => rule.selector),
+        active: true
       }
     },
 
@@ -32,7 +36,8 @@ export default {
         return {
           scripts: [],
           sytles: [],
-          type: 'domain-rules'
+          type: 'domain-rules',
+          active: false
         }
       }
 
@@ -40,7 +45,8 @@ export default {
       return {
         styles: candidates.filter(rule => !rule.scriptInject).map(rule => rule.selector),
         scripts: candidates.filter(rule => rule.scriptInject).map(rule => rule.selector),
-        type: 'domain-rules'
+        type: 'domain-rules',
+        active: true
       }
     }
   },

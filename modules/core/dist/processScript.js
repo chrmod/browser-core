@@ -102,6 +102,7 @@ function onDOMWindowCreated(ev) {
 
   // adblocker cosmetic filter
   // go through the nodes of the dom
+  var mutationObserver, checkMutId
   var adbComsFilter = function() {
     if (!currentURL() || currentURL()[0] !== 'h') {
       return;
@@ -160,7 +161,7 @@ function onDOMWindowCreated(ev) {
       docMutation = []
     }
 
-    window.setInterval(checkMutation, 500);
+    checkMutId = window.setInterval(checkMutation, 500);
 
     var onMutation = function(mutations) {
       let nodeInfo = new Set();
@@ -188,7 +189,7 @@ function onDOMWindowCreated(ev) {
     sendNodeNames(nodeInfo);
 
     // attach mutation obsever in case new nodes are added
-    var mutationObserver = new window.MutationObserver(onMutation);
+    mutationObserver = new window.MutationObserver(onMutation);
     mutationObserver.observe(window.document, {childList: true, subtree: true});
   }
 
@@ -263,12 +264,22 @@ function onDOMWindowCreated(ev) {
     }
   }
 
+  function clearAdb() {
+    if (mutationObserver) {
+      mutationObserver.disconnect();
+    }
+    window.clearInterval(checkMutId);
+  }
+
   function onCallback(msg) {
     if (isDead()) {
       return;
     }
 
     if (msg.data && msg.data.response && msg.data.response.type === 'domain-rules') {
+      if (!msg.data.response.active) {
+        clearAdb();
+      }
       let scripts = msg.data.response.scripts;
       scripts.forEach(script => injectScript(script, window.document));
       let rules = msg.data.response.styles;
@@ -276,6 +287,9 @@ function onDOMWindowCreated(ev) {
     }
 
     if (msg.data && msg.data.response && msg.data.response.rules) {
+      if (!msg.data.response.active) {
+        clearAdb();
+      }
       let rules = msg.data.response.rules;
       handleRules(rules);
     }
