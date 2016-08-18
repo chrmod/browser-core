@@ -316,7 +316,7 @@ var CLIQZEnvironment = {
   onRenderComplete: function(query, urls){
     chrome.cliqzSearchPrivate.processResults(query, urls);
   },
-  disbleCliqzResults: function () {
+  disableCliqzResults: function () {
     CLIQZEnvironment.ExpansionsProvider.enable();
   },
   enableCliqzResults: function () {
