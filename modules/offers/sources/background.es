@@ -60,6 +60,7 @@ export default background({
       OffersConfigs.LOAD_HISTORY_EVENTS = false;
       OffersConfigs.COUPON_HANDLER_RESET_FILE = true;
       OffersConfigs.COUPON_HANDLER_LOAD_FILE_FLAG = false;
+      OffersConfigs.DEBUG_MODE = true;
       // enable logs?
       LoggingHandler.LOG_ENABLED = true;
       LoggingHandler.SAVE_TO_FILE = true;
