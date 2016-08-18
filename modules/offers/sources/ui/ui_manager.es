@@ -186,6 +186,8 @@ UIManager.prototype.showVoucherNotificationInCurrentWindow = function(currWindow
                                               }
                                             });
 
+  notification.style.backgroundColor = "#f6f6f6";
+  notification.style.borderBottom = "1px solid #dedede";
   notification.classList.add("cqz-voucher-holder");
 
   // get the coupon element and set the callback when the user click on it
