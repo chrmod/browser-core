@@ -256,6 +256,13 @@ var CLIQZEnvironment = {
     });
   },
 
+  openLink: function(win, url, newTab) {
+    if (newTab)
+      window.open(url);
+    else
+      window.location.href = url;
+  },
+
   getSearchEngines: function(){
     return ENGINES.map(function(e){
       e.getSubmissionForQuery = function(q){
