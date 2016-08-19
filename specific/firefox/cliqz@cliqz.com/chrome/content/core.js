@@ -37,16 +37,11 @@ var locationListener = {
   QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
   onLocationChange: function(aBrowser, aRequest, aURI) {
-    const isPrivate = aBrowser.usePrivateBrowsing;
-    CliqzEvents.pub("core.location_change", aURI.spec, isPrivate);
-
     // since the object seems to not be loaded at once what we will do is create a
     // second async call till the real object is fully loaded.
-    // (for now for backward compatibility) and we may later merge
-    // this one to the proper location_change if no problems are found.
     //
     CliqzUtils.setTimeout(function(aBrowserRef, aUriSpec) {
-      CliqzEvents.pub("core.location_change_delayed", aUriSpec, aBrowserRef.usePrivateBrowsing);
+      CliqzEvents.pub("core.location_change", aUriSpec, aBrowserRef.usePrivateBrowsing);
     }, 0, aBrowser, aURI.spec);
   }
 };
