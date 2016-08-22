@@ -32,7 +32,7 @@ $(document).ready(function() {
 //====== SETTING SECTION =========//
 
 $(".setting").click(function(e) {
-  console.log($(e.target));
+  // console.log($(e.target));
 
   const $elem = $(e.target),
     $this = $(this);
@@ -82,97 +82,70 @@ $(".cqz-switch").click(function() {
           $main = $switches.closest('#control-center');
           $onLabel = $switches.find('#onlabel'),
           onLabelCurr = $onLabel.attr('data-i18n'),
-          off = 'off',
-          offcol = '#A4A4A4',
-          offcolyel = '#FCBB0E',
-          on = 'on',
-          oncol = '#2B9F5F'
-          labelcol = oncol,
           onLabelNext = onLabelCurr;
 
-          if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
-            onLabelNext = onLabelCurr.slice(0, -2);
-            onLabelNext += off;
-            labelcol = offcol;
-            countcol = countcoloff;
+
+          if ($(this).hasClass('active')) {
+            onLabelNext = 'control-center-switch-on';
           } else {
-            onLabelNext = onLabelNext.slice(0, -3);
-            onLabelNext += on;
-            labelcol = oncol;
-            countcol = countcolon;
+            onLabelNext = 'control-center-switch-off';
           }
 
-          $onLabel.css('color', labelcol);
           $onLabel.attr('data-i18n', onLabelNext);
 
           localizeDocument();
 
-          $switches.toggleClass('inactive');
+          $switches.addClass('inactive');
+          if ($(this).hasClass('active')) {
+            $switches.removeClass('inactive');
+          }
 
   } else {
 
       var $switches = $(this).closest('#switches'),
           $counter = $switches.siblings('#counter'),
+          $desc = $switches.siblings('#description'),
           $count = $counter.find('#count'),
           $main = $switches.closest("#control-center"),
           $cqzswitch = $switches.find('#cqz-switch'),
-          countcolon = '#000',
-          countcoloff = '#A4A4A4',
-          countcol = countcolon,
           $onLabel = $switches.find('#onlabel'),
           onLabelCurr = $onLabel.attr('data-i18n'),
-          off = 'off',
-          offcol = '#A4A4A4',
-          on = 'on',
-          oncol = '#2B9F5F'
-          labelcol = oncol,
           onLabelNext = onLabelCurr;
 
 
-      if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
-        onLabelNext = onLabelCurr.slice(0, -2);
-        onLabelNext += off;
-        labelcol = offcol;
-        countcol = countcoloff;
+      if ($(this).hasClass('active')) {
+        onLabelNext = 'control-center-switch-on';
       } else {
-        onLabelNext = onLabelNext.slice(0, -3);
-        onLabelNext += on;
-        labelcol = oncol;
-        countcol = countcolon;
+        onLabelNext = 'control-center-switch-off';
       }
 
-      $count.css('color', countcol);
-      $onLabel.css('color', labelcol);
       $onLabel.attr('data-i18n', onLabelNext);
 
       var $desc = $switches.siblings('#description'),
         descLocalCurr = $desc.attr('data-i18n'),
         inActive = '-inactive',
-        descLocalNext = descLocalCurr,
-        col = '#444444';
+        descLocalNext = descLocalCurr;
 
       if (descLocalCurr.substr(descLocalCurr.length - inActive.length) !== inActive) {
         descLocalNext += inActive;
-        col = '#A4A4A4';
       } else {
         descLocalNext = descLocalNext.slice(0, -9)
-        col = '#595959'
       }
 
-      $desc.css('color', col)
       $desc.attr('data-i18n', descLocalNext);
 
       localizeDocument();
 
-      $switches.toggleClass('inactive');
-      $counter.toggleClass('inactive');
+      $desc.addClass('inactive');
+      $switches.addClass('inactive');
+      $counter.addClass('inactive');
+      if ($(this).hasClass('active')) {
+        $desc.removeClass('inactive');
+        $switches.removeClass('inactive');
+        $counter.removeClass('inactive');
+      }
   }
 });
-
-
-
-
-
 
 $(".cqz-switch-antitrack").click(function(e) {
   $(this).toggleClass("active");
@@ -187,19 +160,14 @@ $(".cqz-switch-antitrack").click(function(e) {
       headerstringNext = headerstringCurr,
       $safeicon = $headertext.closest('#safe'),
       $unsafeicon = $headertext.closest('#unsafe'),
-      $cqzswitch = $switches.find('#cqz-switch'),
       $onLabel = $switches.find('#onlabel'),
       onLabelCurr = $onLabel.attr('data-i18n'),
-      onLabelNext = onLabelCurr,
-      off = 'off',
-      on = 'on';
+      onLabelNext = onLabelCurr;
 
-      if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
-        onLabelNext = onLabelCurr.slice(0, -2);
-        onLabelNext += off;
+      if ($(this).hasClass('active')) {
+        onLabelNext = 'control-center-switch-on';
       } else {
-        onLabelNext = onLabelNext.slice(0, -3);
-        onLabelNext += on;
+        onLabelNext = 'control-center-switch-off';
       }
 
       $onLabel.attr('data-i18n', onLabelNext);
@@ -207,7 +175,6 @@ $(".cqz-switch-antitrack").click(function(e) {
       var $desc = $switches.siblings('#description'),
         descLocalCurr = $desc.attr('data-i18n'),
         inActive = '-inactive',
-        // inActiveAll = '-inactive-all',
         descLocalNext = descLocalCurr;
 
       if (descLocalCurr.substr(descLocalCurr.length - inActive.length) !== inActive) {
@@ -241,7 +208,10 @@ $(".cqz-switch-antitrack").click(function(e) {
 
       localizeDocument();
 
-      $switches.toggleClass('inactive');
+      $switches.addClass('inactive');
+      if ($(this).hasClass('active')) {
+        $switches.removeClass('inactive');
+      }
 });
 
 
@@ -261,16 +231,12 @@ $(".cqz-switch-antiphish").click(function(e) {
       $unsafeicon = $headertext.closest('#unsafe'),
       $onLabel = $switches.find('#onlabel'),
       onLabelCurr = $onLabel.attr('data-i18n'),
-      off = 'off',
-      on = 'on',
       onLabelNext = onLabelCurr;
 
-      if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
-        onLabelNext = onLabelCurr.slice(0, -2);
-        onLabelNext += off;
+      if ($(this).hasClass('active')) {
+        onLabelNext = 'control-center-switch-on';
       } else {
-        onLabelNext = onLabelNext.slice(0, -3);
-        onLabelNext += on;
+        onLabelNext = 'control-center-switch-off';
       }
 
       if($(this).hasClass("active")) {
@@ -293,11 +259,11 @@ $(".cqz-switch-antiphish").click(function(e) {
 
       localizeDocument();
 
-      $switches.toggleClass('inactive');
+      $switches.addClass('inactive');
+      if ($(this).hasClass('active')) {
+        $switches.removeClass('inactive');
+      }
 });
-
-
-
 
 
 $(".cqz-switch-grey").click(function() {
@@ -305,21 +271,17 @@ $(".cqz-switch-grey").click(function() {
   var $switches = $(this).closest('#switches-grey'),
       $onLabel = $switches.find('#onlabel'),
       onLabelCurr = $onLabel.attr('data-i18n'),
-      off = 'off',
-      on = 'on',
       onLabelNext = onLabelCurr;
-  if (onLabelCurr.substr(onLabelCurr.length - off.length) !== off) {
-    onLabelNext = onLabelCurr.slice(0, -2);
-    onLabelNext += off;
-  } else {
-    onLabelNext = onLabelNext.slice(0, -3);
-    onLabelNext += on;
-  }
+
+      if ($(this).hasClass('active')) {
+        onLabelNext = 'control-center-switch-on';
+      } else {
+        onLabelNext = 'control-center-switch-off';
+      }
+
   $onLabel.attr('data-i18n', onLabelNext);
   localizeDocument();
 });
-
-
 
 
 $(".opt-t").click(function() {
@@ -354,5 +316,85 @@ $(".opt-p").click(function() {
       $main.addClass("crucial-antiphish");
     }
   }
+
+});
+
+
+$(".pause").click(function() {
+  var $main = $(this).closest('#control-center'),
+
+      $cqzswitch = $main.find(".cqz-switch"),
+      $switches = $cqzswitch.closest('#switches'),
+      $onLabel = $switches.find('#onlabel'),
+
+      $trackswitch = $main.find(".cqz-switch-antitrack"),
+      $trackswitches = $trackswitch.closest('#switches'),
+      $trackLabel = $trackswitches.find('#onlabel'),
+
+      $phishswitch = $main.find(".cqz-switch-antiphish"),
+      $phishswitches = $phishswitch.closest('#switches'),
+      $phishLabel = $phishswitches.find('#onlabel');
+
+      if ($main.hasClass("break")) {
+        $main.removeClass("break");
+
+        $cqzswitch.addClass("active");
+        $trackswitch.addClass("active");
+        $phishswitch.addClass("active");
+
+        $onLabel.attr('data-i18n', 'control-center-switch-on');
+        $trackLabel.attr('data-i18n', 'control-center-switch-on');
+        $phishLabel.attr('data-i18n', 'control-center-switch-on');
+
+      } else {
+        $main.addClass("break");
+
+        $cqzswitch.removeClass("active");
+        $trackswitch.removeClass("active");
+        $phishswitch.removeClass("active");
+
+        if ($main.hasClass("crucial-antiphish")){
+          $main.removeClass("crucial-antiphish");
+        }
+        if ($main.hasClass("crucial-antitrack")) {
+          $main.removeClass("crucial-antitrack");
+        }
+        if ($main.hasClass("bad-antiphish")) {
+          $main.removeClass("bad-antiphish");
+        }
+        if ($main.hasClass("bad-antitrack")) {
+          $main.removeClass("bad-antitrack");
+        }
+
+        $onLabel.attr('data-i18n', 'control-center-switch-off');
+        $trackLabel.attr('data-i18n', 'control-center-switch-off');
+        $phishLabel.attr('data-i18n', 'control-center-switch-off');
+      }
+
+      $switches.addClass('inactive');
+      if ($cqzswitch.hasClass('active')) {
+        $switches.removeClass('inactive');
+      }
+
+      $trackswitches.addClass('inactive');
+      if ($trackswitch.hasClass('active')) {
+        $trackswitches.removeClass('inactive');
+      }
+
+      $phishswitches.addClass('inactive');
+      if ($phishswitch.hasClass('active')) {
+        $phishswitches.removeClass('inactive');
+      }
+
+      localizeDocument();
+});
+
+
+$(".lock").click(function() {
+
+    $(".lock").addClass("flash");
+    setTimeout(function() {
+        $(".lock").removeClass("flash");
+    },50);
 
 });

@@ -15,6 +15,7 @@
 }
 #control-center {
 
+	// Whole control-center will light up YELLOW when this is active
 	&.crucial-antitrack {
 		#header {
 			background: #FCBB0E;
@@ -41,6 +42,7 @@
     }
 	}
 
+	// Whole control-center will light up YELLOW when this is active
   &.crucial-antiphish {
     #header {
       background: #FCBB0E;
@@ -56,6 +58,7 @@
     }
   }
 
+	// Whole control-center will light up RED when this is active
 	&.bad-antitrack {
 		#header {
 			background: #EE1B3D;
@@ -82,6 +85,7 @@
     }
 	}
 
+	// Whole control-center will light up RED when this is active
   &.bad-antiphish {
     #header {
       background: #EE1B3D;
@@ -97,11 +101,134 @@
     }
   }
 
+	// Whole control-center will light up GREY when this is active
+  &.break {
+    #header {
+      background: #8F8F8F;
+    }
+		.settings-section {
+			.lock {
+				display: block;
+			}
+			.antiphishing {
+				#switches {
+					#onlabel {
+						color: #8F8F8F;
+					}
+				}
+			}
+			.adblock {
+				#description {
+					color: #8F8F8F;
+				}
+				#counter {
+					color: #A4A4A4;
+					#block {
+						.fill {
+							fill: #8F8F8F;
+						}
+					}
+				}
+				#switches {
+					#onlabel {
+						color: #8F8F8F;
+					}
+				}
+			}
+			.antitracker {
+				#description {
+					color: #8F8F8F;
+				}
+				#counter {
+					color: #A4A4A4;
+					#shield {
+						.fill {
+							fill: #8F8F8F;
+						}
+					}
+				}
+				#switches {
+					#onlabel {
+						color: #8F8F8F;
+					}
+				}
+			}
+			#httpsevery {
+				#switches {
+					#onlabel {
+						color: #8F8F8F;
+					}
+				}
+			}
+		}
+		.cqz-switch-antitrack {
+			&.active {
+				.cqz-switch-box-antitrack {
+					background: #8F8F8F;
+				}
+			}
+		}
+		.cqz-switch-antiphish {
+			&.active {
+				.cqz-switch-box-antiphish {
+					background: #8F8F8F;
+				}
+			}
+		}
+		.cqz-switch {
+			&.active {
+				.cqz-switch-box {
+					background: #8F8F8F;
+				}
+			}
+		}
+
+		// Causes the settings-section to flash when it's pressed!
+		.lock {
+			&.flash {
+				background-color: #fff;
+				-webkit-animation-name: demo;
+				-webkit-animation-duration: 900ms;
+				-webkit-animation-iteration-count: 1;
+				-webkit-animation-timing-function: ease-in-out;
+			}
+		}
+
+		// This causes the strict checkbox to turn unchecked
+		.squaredFour {
+			label {
+				width: 15px;
+		    height: 15px;
+		    cursor: pointer;
+		    position: absolute;
+		    top: 2px;
+		    left: 0;
+				border: 0.5px solid #ccc;
+		    border-radius: 4px;
+		    &:after {
+		      content: '';
+		      width: 10px;
+		      height: 3.5px;
+		      position: absolute;
+		      top: 4px;
+		      left: 2px;
+		      border: 2px solid #333;
+		      border-top: none;
+		      border-right: none;
+		      background: transparent;
+		      opacity: 0;
+		      transform: rotate(-45deg);
+			}
+		}
+  }
+}
+
 	width: 455px;
 	margin: 0 auto;
 	box-shadow: 0 0 40px #787878;
 	font-family: "HelveticaNeue", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 	font-weight: 300;
+	// Contains Pause-Button and data protection status
 	#header {
 		color: #FFF;
 		background: #2CBA64;
@@ -116,7 +243,7 @@
 			border-right: 1px solid rgba(255, 255, 255, 0.5);
 			&:hover {
 				svg {
-					filter: drop-shadow(0 0 1px #fff);
+					filter: drop-shadow(0 0 0.5px #fff);
 				}
 			}
 		}
@@ -128,6 +255,8 @@
 			padding-top: 3px;
 		}
 	}
+
+	// The Current Website's URL is displayed here
 	#currentsite {
 		font-size: 24px;
 		height: 49.5px;
@@ -143,10 +272,14 @@
 			text-overflow: ellipsis;
 		}
 	}
+
+	// This is where the main settings are (antitracker, antiphishing, https everywhere & adblocker)
 	.settings-section {
 		position: relative;
 		.setting {
 			position: relative;
+
+			// Active Phishing Window: Appears when the Antiphishing Section is clicked
 			.active-window-phishing {
 				display: none;
 				#report {
@@ -198,7 +331,9 @@
 					height: 70px;
 				}
 			}
-			.active-window {
+
+			// Active Tracking Window: Appears when the Antitracking Section is clicked
+			.active-window-tracking {
 				display: none;
 				#companies-title {
 					background-color: #9f9f9f;
@@ -237,6 +372,49 @@
 					}
 				}
 			}
+
+			// Active Adblocker Window: Appears when the Adblocking Section is clicked
+			.active-window-adblock {
+				display: none;
+				#companies-title {
+					background-color: #9f9f9f;
+					height: 50px;
+					p {
+						color: #fff;
+						float: left;
+						padding: 15px 0 15px 30px;
+					}
+					.cross {
+						padding: 15px 20px 15px 0;
+						float: right;
+						&:hover {
+							cursor: pointer;
+						}
+					}
+				}
+				#companies {
+					height: 250px;
+					background-color: #F4F4F4;
+				}
+				#bottom-part {
+					background-color: #fff;
+					height: 120px;
+					#description {
+						margin: 20px 250px 0 30px;
+					}
+					#switches {
+						float: left;
+						margin: 30px 0 0 30px;
+					}
+					#counter {
+						float: right;
+						margin: -40px 30px 0 0;
+						font-size: 54px;
+					}
+				}
+			}
+
+			// The actual active state that toggles which window is to be displayed
 			&.active {
 				position: absolute;
 				z-index: 10;
@@ -250,7 +428,11 @@
 				&:hover {
 					background-color: #fff;
 				}
-				.active-window {
+				.active-window-tracking {
+					display: block;
+					background-color: #fff;
+				}
+				.active-window-adblock {
 					display: block;
 					background-color: #fff;
 				}
@@ -273,6 +455,7 @@
 			}
 		}
 
+		// Basic HTML/CSS dropdown: Security disabled for THIS WEBSITE or ALL WEBSITES
 		.dropdown {
 			float: right;
 			margin-right: 15px;
@@ -294,6 +477,16 @@
 			}
 		}
 
+		// A invisible div that's plastered on top of the settings section during PAUSE-state so that nothing is clickable
+		.lock {
+			display: none;
+			position: absolute;
+			width: 455px;
+			height: 250px;
+			z-index: 100;
+		}
+
+		// Antitracking setting
 		.antitracker {
 			position: relative;
 			z-index: 0;
@@ -321,8 +514,17 @@
 						}
 					}
 				}
+
+				#infobutton:hover + .tracking-popup {
+					display: block;
+				}
 				#smallarrow {
 					margin: 0 0 -2px 2px;
+				}
+				.tracking-popup {
+					display: none;
+					position: absolute;
+					z-index: 10;
 				}
 			}
 			#counter {
@@ -330,6 +532,9 @@
 				font-weight: 400;
 				font-size: 47px;
 				margin: 0 10px 0 30px;
+				#count {
+					margin-bottom: 10px;
+				}
 			}
 			#description {
 				font-size: 16px;
@@ -353,7 +558,11 @@
 				}
 			}
 		}
+
+		// Adblocker setting
 		.adblock {
+			position: relative;
+			z-index: 0;
 			background-color: #fff;
 			font-size: 16px;
 			float: right;
@@ -385,7 +594,14 @@
 				font-weight: 400;
 				font-size: 47px;
 				margin: 0 10px 0 30px;
+				color: #000;
+				#block {
+					.fill {
+						fill: #2CBA64;
+					}
+				}
 				&.inactive {
+					color: #A4A4A4;
 					#block {
 						.fill {
 							fill: #A4A4A4;
@@ -397,6 +613,10 @@
 				font-size: 16px;
 				color: #595959;
 				margin: 0 25px 10px 30px;
+
+				&.inactive {
+					color: #A4A4A4;
+				}
 			}
 			#switches {
 				margin: 0 0 0 30px;
@@ -412,9 +632,14 @@
 					.squaredFour {
 						display: none;
 					}
+					#onlabel {
+						color: #A4A4A4;
+					}
 				}
 			}
 		}
+
+		// Antiphishing Setting
 		.antiphishing {
 			background-color: #fff;
 			font-size: 16px;
@@ -462,6 +687,8 @@
 				}
 			}
 		}
+
+		// HTTPS everywhere setting
 		#httpsevery {
 			background-color: #fff;
 			font-size: 16px;
@@ -489,9 +716,18 @@
 					font-weight: 600;
 					color: #2B9F5F;
 				}
+				&.inactive {
+					color: #A4A4A4;
+
+					#onlabel {
+						color: #A4A4A4;
+					}
+				}
 			}
 		}
 	}
+
+	// Other Settings: Accordion section below the main 4 settings
 	.othersettings {
 		position: relative;
 		width: 455;
