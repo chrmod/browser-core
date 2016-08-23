@@ -44,21 +44,21 @@ export class AdCosmetics {
       // Parse selector
       if (suffix.length > 0) {
         this.selector = suffix;
-      }
 
-      // extract script name
-      if (this.selector.includes('script:inject')) {
-        this.selector = this.selector.match(/script:inject\((.+)\)/)[1];
-        this.scriptInject = true;
-      }
-
-      // extract blocked scripts
-      if (this.selector.includes('script:contains')) {
-        this.selector = this.selector.match(/script:contains\((.+)\)/)[1];
-        if (this.selector[0] === '/' && this.selector.endsWith('/')) {
-          this.selector = this.selector.substring(1, this.selector.length - 1);
+        // extract script name
+        if (this.selector.includes('script:inject')) {
+          this.selector = this.selector.match(/script:inject\((.+)\)/)[1];
+          this.scriptInject = true;
         }
-        this.scriptBlock = true;
+
+        // extract blocked scripts
+        if (this.selector.includes('script:contains')) {
+          this.selector = this.selector.match(/script:contains\((.+)\)/)[1];
+          if (this.selector[0] === '/' && this.selector.endsWith('/')) {
+            this.selector = this.selector.substring(1, this.selector.length - 1);
+          }
+          this.scriptBlock = true;
+        }
       }
 
       // Exceptions
