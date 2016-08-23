@@ -1054,7 +1054,7 @@ var CliqzUtils = {
     var linkNodes = box.querySelectorAll("[url]:not(.cqz-result-box):not(.entity-story):not([hidden]), [href]:not([hidden])");
     var urls = [].map.call(linkNodes, function(node) {
       return node.getAttribute("url") || node.getAttribute("href");
-    });
+    }).filter(url => !!url);
 
     CLIQZEnvironment.onRenderComplete(query, urls);
   }
