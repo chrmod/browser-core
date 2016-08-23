@@ -1,9 +1,12 @@
 /* global chai */
 /* global describeModule */
+/* global require */
+
+
+const fs = require('fs');
 
 
 function readFile(path) {
-  const fs = require('fs');
   return fs.readFileSync(path, 'utf8');
 }
 
@@ -19,30 +22,25 @@ function loadTestCases(path) {
 
 
 export default describeModule('adblocker/filters-engine',
-  function () {
-    return {
-      'adblocker/utils': {
-        log: msg => {
-          // const message = `[adblock] ${msg}`;
-          // console.log(message);
-        },
+  () => ({
+    'adblocker/utils': {
+      log: () => {
+        // const message = `[adblock] ${msg}`;
+        // console.log(message);
       },
-      'antitracking/hash': {
-        HashProb: () => { return { isHash: () => false }; },
-      },
-      'core/cliqz': {
-        utils: {},
-      },
-    };
-  },
-  function () {
-    describe('Test cosmetic engine', function () {
+    },
+    'core/cliqz': {
+      utils: {},
+    },
+  }),
+  () => {
+    describe('Test cosmetic engine', () => {
       let FilterEngine;
       let engine = null;
       const cosmeticsPath = 'modules/adblocker/tests/unit/data/cosmetics.txt';
       const cosmeticMatches = 'modules/adblocker/tests/unit/data/cosmetics_matching.txt';
 
-      beforeEach(function () {
+      beforeEach(function initializeCosmeticEngine() {
         this.timeout(10000);
         FilterEngine = this.module().default;
         if (engine === null) {
@@ -51,23 +49,22 @@ export default describeModule('adblocker/filters-engine',
         }
       });
 
-      it('matches correctly', () => {
-        return new Promise((resolve, reject) => {
-          loadTestCases(cosmeticMatches).forEach(testCase => {
-            console.log(`NEW TEST ${testCase.url}`);
-            const shouldMatch = new Set(testCase.matches);
-            console.log(`SHOULD MATCH ${JSON.stringify(testCase.matches)}`);
-            const rules = engine.getCosmeticsFilters(testCase.url, [testCase.node]);
-            console.log(`FOUND ${rules.length} candidates`);
-            chai.expect(shouldMatch.size).to.equal(rules.length);
-            rules.forEach(rule => {
-              if (!shouldMatch.has(rule.rawLine)) {
-                reject(`Expected node ${testCase.url} + ${JSON.stringify(testCase.node)} to match ${rule.rawLine}`);
-              }
-            });
-          });
-          resolve();
-        });
+      loadTestCases(cosmeticMatches).forEach(testCase => {
+        it(`matches url: ${testCase.url}`,
+            () => new Promise((resolve, reject) => {
+              const shouldMatch = new Set(testCase.matches);
+              const rules = engine.getCosmeticsFilters(testCase.url, [testCase.node]);
+              chai.expect(shouldMatch.size).to.equal(rules.length);
+              rules.forEach(rule => {
+                if (!shouldMatch.has(rule.rawLine)) {
+                  reject(`Expected node ${testCase.url} + ` +
+                         `${JSON.stringify(testCase.node)}` +
+                         ` to match ${rule.rawLine}`);
+                }
+              });
+              resolve();
+            })
+        );
       });
     });
   }
