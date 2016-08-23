@@ -10,6 +10,10 @@ Services.scriptloader.loadSubScript("chrome://cliqz/content/core/content-scripts
 
 var config = {{CONFIG}};
 
+if (config.modules.indexOf('adblocker') > -1) {
+  Services.scriptloader.loadSubScript('chrome://cliqz/content/adblocker/content-scripts.js');
+}
+
 var whitelist = [
   "chrome://cliqz/"
 ].concat(config.settings.frameScriptWhitelist);
@@ -69,7 +73,6 @@ function getContextHTML(ev) {
 }
 
 function onDOMWindowCreated(ev) {
-  injectedRules = {};
   var window = ev.originalTarget.defaultView;
   var currentURL = function(){return window.location.href};
 
@@ -78,119 +81,8 @@ function onDOMWindowCreated(ev) {
     return v.toString(16);
   });
 
-  var requestDomainRules = function() {
-    if (!currentURL() || currentURL()[0] !== 'h') {
-      return;
-    }
-
-    let payload = {
-      module: 'adblocker',
-      action: 'url',
-      args:[
-        currentURL()
-      ]
-    }
-
-    send({
-      windowId,
-      payload
-    })
-  }
-
-  requestDomainRules();
-
-
-  // adblocker cosmetic filter
-  // go through the nodes of the dom
-  var mutationObserver, checkMutId
-  var adbComsFilter = function() {
-    if (!currentURL() || currentURL()[0] !== 'h') {
-      return;
-    }
-    var addNodeName = function(node, nodeInfo) {
-      // ignore hidden nodes
-      if (node.offsetWidth === 0 && node.offsetWidth === 0) {
-        return;
-      }
-      if (node.id) {
-        nodeInfo.add(`#${node.id}`);
-      }
-      if (node.tagName) {
-        nodeInfo.add(node.tagName);
-      }
-      if (node.className && node.className.split) {
-        node.className.split(' ').forEach(name => nodeInfo.add(`.${name}`));
-      }
-    }
-
-    var sendNodeNames = function(nodeInfo) {
-      if (!currentURL() || !nodeInfo.size) {
-        return;
-      }
-      let nodesArray = [...nodeInfo];
-      for (let n of nodeInfo) {
-        nodesArray.push(n);
-      }
-      let payload = {
-        module: 'adblocker',
-        action: 'nodes',
-        args: [
-          currentURL(),
-          [nodesArray]
-        ]
-      }
-      send({
-        windowId,
-        payload
-      })
-    }
-
-    var docMutation = [];
-
-    var checkMutation = function() {
-      if (!docMutation || docMutation.length === 0) {
-        return;
-      }
-      for (let target of docMutation) {
-        nodes = target.querySelectorAll('*');
-        for (let node of nodes) {
-          addNodeName(node, nodeInfo);
-        }
-      }
-      sendNodeNames(nodeInfo);
-      docMutation = []
-    }
-
-    checkMutId = window.setInterval(checkMutation, 500);
-
-    var onMutation = function(mutations) {
-      let nodeInfo = new Set();
-      for (let m of mutations) {
-        let target = m.target;
-        if (target) {
-          docMutation.push(target);
-          // addNodeName(target, nodeInfo);
-          // nodes = target.querySelectorAll('*');
-          // for (let node of nodes) {
-          //   addNodeName(node, nodeInfo);
-          // }
-        }
-      }
-      // sendNodeNames(nodeInfo);
-    }
-
-    var doc = window.document;
-    var nodes = doc.querySelectorAll('*');
-    var nodeInfo = new Set();
-    for (let node of nodes) {
-      addNodeName(node, nodeInfo);
-    }
-
-    sendNodeNames(nodeInfo);
-
-    // attach mutation obsever in case new nodes are added
-    mutationObserver = new window.MutationObserver(onMutation);
-    mutationObserver.observe(window.document, {childList: true, subtree: true});
+  if (config.modules.indexOf('adblocker') > -1) {
+    adbOnDOMWindowCreated(currentURL(), window, send, windowId);
   }
 
   var onMessage = function (ev) {
@@ -222,76 +114,13 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  function injectCSSRule(rule, doc) {
-    let css = doc.createElement('style');
-    css.type = 'text/css';
-    css.id = 'cliqz-adblokcer-css-rules'
-    doc.getElementsByTagName("head")[0].appendChild(css);
-    css.appendChild(doc.createTextNode(rule));
-  }
-
-  function injectScript(s, doc) {
-    let script = doc.createElement('script');
-    script.type = 'text/javascript';
-    script.id = 'cliqz-adblocker-script';
-    script.textContent = s;
-    doc.getElementsByTagName("head")[0].appendChild(script);
-  }
-
-  function handleRules(rules) {
-    if (!rules) {
-      return;
-    }
-    let rulesStr = '';
-    for (let rule of rules)  {
-      if (rule in injectedRules) {
-        continue;
-      } else {
-        let find = window.document.querySelectorAll(rule);
-        if (!find.length) {
-          continue;
-        }
-        injectedRules[rule] = true;
-        if (rulesStr) {
-          rulesStr += ', ';
-        }
-        rulesStr += ` ${rule}`;
-      }
-    }
-    if (rulesStr) {
-      rulesStr += ' {display:none !important;}';
-      injectCSSRule(rulesStr, window.document);
-    }
-  }
-
-  function clearAdb() {
-    if (mutationObserver) {
-      mutationObserver.disconnect();
-    }
-    window.clearInterval(checkMutId);
-  }
-
   function onCallback(msg) {
     if (isDead()) {
       return;
     }
 
-    if (msg.data && msg.data.response && msg.data.response.type === 'domain-rules') {
-      if (!msg.data.response.active) {
-        clearAdb();
-      }
-      let scripts = msg.data.response.scripts;
-      scripts.forEach(script => injectScript(script, window.document));
-      let rules = msg.data.response.styles;
-      handleRules(rules)
-    }
-
-    if (msg.data && msg.data.response && msg.data.response.rules) {
-      if (!msg.data.response.active) {
-        clearAdb();
-      }
-      let rules = msg.data.response.rules;
-      handleRules(rules);
+    if (config.modules.indexOf('adblocker') > -1) {
+      responseAdbMsg(msg, window);
     }
 
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
@@ -441,7 +270,8 @@ function onDOMWindowCreated(ev) {
   };
 
   var onReady = function (event) {
-    adbComsFilter();
+    adbCosmFilter(currentURL(), window, send, windowId, throttle);
+
     // ReportLang
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
