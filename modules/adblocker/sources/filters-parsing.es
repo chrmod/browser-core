@@ -1,6 +1,5 @@
 import { log } from 'adblocker/utils';
 
-
 // Uniq ID generator
 let uidGen = 0;
 
@@ -19,6 +18,7 @@ export class AdCosmetics {
     this.isCosmeticFilter = true;
     this.scriptInject = false;
     this.scriptReplaced = false;
+    this.scriptBlock = false;
 
     this.hostnames = [];
     this.selector = null;
@@ -52,12 +52,20 @@ export class AdCosmetics {
         this.scriptInject = true;
       }
 
+      // extract blocked scripts
+      if (this.selector.includes('script:contains')) {
+        this.selector = this.selector.match(/script:contains\((.+)\)/)[1];
+        if (this.selector[0] === '/' && this.selector.endsWith('/')) {
+          this.selector = this.selector.substring(1, this.selector.length - 1);
+        }
+        this.scriptBlock = true;
+      }
+
       // Exceptions
       if (this.selector === null ||
           this.selector.length === 0 ||
           this.selector.endsWith('}') ||
           this.selector.includes('##') ||
-          this.selector.includes('script:contains') ||
           (this.unhide && this.hostnames.length === 0)) {
         this.supported = false;
       }

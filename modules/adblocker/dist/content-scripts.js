@@ -20,7 +20,7 @@ var adbOnDOMWindowCreated = function(url, window, send, windowId) {
       payload
     })
   }
-  requestDomainRules();
+  requestDomainRules(url, window, send, windowId);
 }
 
 var adbCosmFilter = function(url, window, send, windowId, throttle) {
@@ -118,8 +118,10 @@ function responseAdbMsg(msg, window) {
     }
     let scripts = msg.data.response.scripts;
     scripts.forEach(script => injectScript(script, window.document));
+    msg.data.response.scriptBlock.forEach(s => blockScript(s, window.document));
+
     let rules = msg.data.response.styles;
-    handleRules(rules)
+    handleRules(rules, window);
   }
 
   if (msg.data && msg.data.response && msg.data.response.rules) {
@@ -172,3 +174,13 @@ function injectScript(s, doc) {
   script.textContent = s;
   doc.getElementsByTagName("head")[0].appendChild(script);
 }
+
+function blockScript(filter, document) {
+  filter = new RegExp(filter);
+  document.addEventListener('beforescriptexecute', function(ev) {
+    if (filter.test(ev.target.textContent)) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+  });
+};

@@ -43,8 +43,9 @@ export default {
 
       const candidates = CliqzADB.adBlocker.engine.getDomainFilters(url);
       return {
-        styles: candidates.filter(rule => !rule.scriptInject).map(rule => rule.selector),
+        styles: candidates.filter(rule => !rule.scriptInject && !rule.scriptBlock).map(rule => rule.selector),
         scripts: candidates.filter(rule => rule.scriptInject).map(rule => rule.selector),
+        scriptBlock: candidates.filter(rule => rule.scriptBlock).map(rule => rule.selector),
         type: 'domain-rules',
         active: true
       }
