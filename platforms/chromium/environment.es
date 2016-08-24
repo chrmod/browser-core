@@ -280,6 +280,20 @@ var CLIQZEnvironment = {
       window.location.href = url;
   },
 
+  copyResult: function(val) {
+    var backup = document.oncopy;
+    try {
+      document.oncopy = function(event) {
+        event.clipboardData.setData("text/plain", val);
+        event.preventDefault();
+      };
+      document.execCommand("copy", false, null);
+    }
+    finally {
+      document.oncopy = backup;
+    }
+  },
+
   getSearchEngines: function(){
     return ENGINES.map(function(e){
       e.getSubmissionForQuery = function(q){
