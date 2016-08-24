@@ -3,8 +3,10 @@ $urlbar-elms-height: 32px;
 $buttons-hover-color: #fff;
 $browser-top-bg-color: #ccc;
 
-@font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
-
+@font-face {
+    font-family: "Lato";
+    src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
+}
 
 :root {
     --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel.png");
@@ -66,6 +68,7 @@ $browser-top-bg-color: #ccc;
     min-width: 300px;
     -moz-box-pack: center;
 }
+
 #urlbar-wrapper {
     max-width: 100%;
     -moz-box-pack: center;
@@ -74,12 +77,13 @@ $browser-top-bg-color: #ccc;
 /*/!* ====== Close, minimize & fullscreen btns*!/*/
 /*#main-window[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-buttonbox-container,*/
 /*#main-window[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-secondary-buttonbox > #titlebar-fullscreen-button {*/
-    /*margin-top: 7px;*/
+/*margin-top: 7px;*/
 /*}*/
 
 #tabbrowser-tabs {
     min-height: 27px;
 }
+
 .tab-background-start,
 .tab-background-end {
     display: none;
@@ -94,23 +98,18 @@ $browser-top-bg-color: #ccc;
     margin: 0;
     min-height: var(--tab-min-height);
 }
-.tab-background-middle[visuallyselected="true"] { background: none; }
 
-.tab-content {
-    border-color: #d0d0d0;
-    border-width: 1px 1px 0px 1px;
-    border-style: solid;
-    border-radius: 3px 3px 0 0;
+.tab-background-middle[visuallyselected="true"] {
+    background: none;
 }
 
-.tabbrowser-tab .tab-stack {
-    margin: 0 2px;
-}
 .tabbrowser-tab:not([pinned]) {
     max-width: 195px;
 }
 
-.tabbrowser-tab:hover > .tab-stack > .tab-background:not([visuallyselected="true"]) { background: none; }
+.tabbrowser-tab:hover > .tab-stack > .tab-background:not([visuallyselected="true"]) {
+    background: none;
+}
 
 .tabs-newtab-button {
     width: 30px;
@@ -142,8 +141,7 @@ $browser-top-bg-color: #ccc;
     border-right: 1px solid #e1e1e1 !important;
     background-color: transparent !important;
 
-
-    &:hover:not(:-moz-lwtheme):not([disabled="true"])  {
+    &:hover:not(:-moz-lwtheme):not([disabled="true"]) {
         background-color: $buttons-hover-color !important;
         box-shadow: none !important;
     }
@@ -158,7 +156,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 /*list-style-image: url("./Toolbar.png");*/
 /*}*/
 
-#nav-bar, #navigator-toolbox, .tab-content, #PersonalToolbar {
+#nav-bar,
+#navigator-toolbox,
+.tab-content,
+#PersonalToolbar {
     background-image: none !important;
     background-color: #eee !important;
 }
@@ -205,6 +206,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #urlbar[focused="true"] {
     background: #fff !important;;
 }
+
 /*==== FF Color */
 
 #titlebar,
@@ -223,7 +225,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #F6F6F6 !important;
 }
 
-
 #PersonalToolbar {
     background: #fff !important;
 }
@@ -238,6 +239,23 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 .tabbrowser-tab {
+
+    .tab-stack {
+        width: 100%;
+        margin: 0;
+    }
+
+    .tab-content {
+        border-color: #afafaf;
+        border-width: 1px 1px 0 0;
+        border-style: solid;
+        border-radius: 3px 3px 0 0;
+    }
+
+    &:first-child .tab-content {
+        border-width: 1px 1px 0 1px;
+    }
+
 
     &[visuallyselected="true"] {
         position: static !important;
@@ -258,6 +276,18 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
             color: #555;
         }
     }
+    &[pinned] {
+        width: 37px;
+    }
+}
+
+.tabbrowser-tabs[positionpinnedtabs] > .tabbrowser-tab[pinned] {
+        .tab-stack {
+            margin: 0;
+        }
+        .tab-content {
+            height: 36px;
+        }
 }
 
 /*======== Removes Tabs Border ==========*/
@@ -266,6 +296,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #tabbrowser-tabs:not([overflow]) > .tabbrowser-tab[last-visible-tab]:not([visuallyselected]):not([beforehovered]):not(:hover)::after {
     display: none;
 }
+
 .tabs-newtab-button {
     border: none !important;
 }
@@ -276,10 +307,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     list-style-image: url("../images/browser/mac/newtab.png");
 }
 
-.close-icon { list-style-image: url("../images/browser/mac/close.png");  }
+.close-icon {
+    list-style-image: url("../images/browser/mac/close.png");
+}
 
 /*========== End Tabs =========*/
-
 
 /*=== Bookmarks */
 #PersonalToolbar {
@@ -301,7 +333,9 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     margin: 0;
 }
 
-#PersonalToolbar { padding-left: 8px; }
+#PersonalToolbar {
+    padding-left: 8px;
+}
 
 /*===== Bookmarks */
 
@@ -313,6 +347,7 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 #nav-bar-customization-target {
     padding: 0 4px 0 0;
 }
+
 .tabs-newtab-button > .toolbarbutton-icon {
     padding-top: 3px;
 }
@@ -320,17 +355,15 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 /*========== Tabs undeer window buttons*/
 
 /*#titlebar-placeholder-on-TabsToolbar-for-captions-buttons {*/
-    /*display: none;*/
+/*display: none;*/
 /*}*/
 /*#TabsToolbar { padding-top: 7px; }*/
 /*.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox { -moz-padding-start: 2px; }*/
 
 /*#main-window[tabsintitlebar] > #titlebar {*/
-    /*min-height: 0;*/
-    /*margin-bottom: 0 !important;*/
+/*min-height: 0;*/
+/*margin-bottom: 0 !important;*/
 /*}*/
-
-
 
 /*========== END Tabs undeer window buttons*/
 
@@ -341,7 +374,9 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
         list-style-image: url("../images/browser/mac/newtab@2x.png");
     }
 
-    .close-icon { list-style-image: url("../images/browser/mac/close@2x.png");  }
+    .close-icon {
+        list-style-image: url("../images/browser/mac/close@2x.png");
+    }
 }
 
 @media (min-resolution: 1.1dppx) {
@@ -442,7 +477,6 @@ notification[type="warning"] .messageText {
     padding-bottom: 2px !important;
 }
 
-
 #navigator-toolbox::after {
     margin-top: -3px !important;
     background-image: none;
@@ -473,7 +507,7 @@ notification[type="warning"] .messageText {
 }
 
 #notification-popup-box {
-	background-color: rgba(255, 255, 255, 0);
+    background-color: rgba(255, 255, 255, 0);
 }
 
 #navigator-toolbox[on_private_tab="true"] {
@@ -501,14 +535,14 @@ notification[type="warning"] .messageText {
 /* BEGIN TOOLBAR */
 
 #PersonalToolbar {
-	border-top: 1px solid #fcfcfc !important;
+    border-top: 1px solid #fcfcfc !important;
     box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
     z-index: 1;
     -moz-box-ordinal-group: 101;
     content: "";
     display: -moz-box;
     position: relative;
-	background-color: #f6f6f6 !important;
+    background-color: #f6f6f6 !important;
 }
 
 /* END TOOLBAR */
@@ -552,8 +586,6 @@ notification[type="warning"] .messageText {
     border-left: 1px solid #ccc !important;
     box-shadow: none !important;
 
-
-
     &:hover {
         background: $buttons-hover-color;
     }
@@ -568,7 +600,7 @@ notification[type="warning"] .messageText {
     border-color: #d1d0d3;
     border-top: none;
     margin-top: 1px; /*Prevent tab jumping up when active*/
-	background: -moz-linear-gradient(top, #ffffff 0%, #f6f6f6 100%) !important;
+    background: -moz-linear-gradient(top, #ffffff 0%, #f6f6f6 100%) !important;
 }
 
 .tab-label {
@@ -606,10 +638,6 @@ notification[type="warning"] .messageText {
     padding-bottom: 4px;
 }
 
-.tabbrowser-tab .tab-stack {
-    margin: 0 -1px 0 0;
-}
-
 .tab-label:not([selected="true"]) {
     color: #808080;
 }
@@ -625,6 +653,7 @@ notification[type="warning"] .messageText {
 #navigator-toolbox:not([inFullscreen="true"]) #tabbrowser-tabs .tabbrowser-arrowscrollbox {
     margin-inline-start: 44px;
 }
+
 /* END TAB */
 
 /* BEGIN CUSTOMIZE UI */
@@ -644,13 +673,13 @@ notification[type="warning"] .messageText {
 }
 
 vbox[sidebarcommand=historybroadcaster] {
-  #sidebar {
-    background-color: white;
-  }
+    #sidebar {
+        background-color: white;
+    }
 
-  sidebarheader {
-    display: none;
-  }
+    sidebarheader {
+        display: none;
+    }
 }
 
 //=== FULL SCREEN
@@ -658,15 +687,6 @@ vbox[sidebarcommand=historybroadcaster] {
     .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
         -moz-padding-start: 0;
     }
-
-    .tabbrowser-tab[pinned][first-visible-tab] {
-        margin-left: -1px;
-    }
-
-    .tabbrowser-tab[pinned] {
-        width: 37px;
-    }
-
 }
 
 #navigator-toolbox[inFullscreen="true"] > #TabsToolbar {
