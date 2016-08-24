@@ -197,7 +197,7 @@ program.command('build [file]')
        .option('--no-maps', 'disables source maps')
        .option('--version [version]', 'sets extension version', 'package')
        .option('--freshtab', 'enables ember fresh-tab-frontend build')
-       .option('--prod', 'build with mode prod for avira')
+       .option('--prod', 'to generate comprehensive manifest.json')
        .action((configPath, options) => {
           var buildStart = Date.now();
           setConfigPath(configPath);
