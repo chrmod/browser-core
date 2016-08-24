@@ -82,7 +82,7 @@ function onDOMWindowCreated(ev) {
   });
 
   if (config.modules.indexOf('adblocker') > -1) {
-    adbOnDOMWindowCreated(currentURL(), window, send, windowId);
+    requestDomainRules(currentURL(), window, send, windowId);
   }
 
   var onMessage = function (ev) {

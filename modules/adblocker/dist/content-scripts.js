@@ -1,26 +1,23 @@
-var mutationObserver
-var injectedRules = {};
+var mutationObserver, injectedRules;
 
-var adbOnDOMWindowCreated = function(url, window, send, windowId) {
-  var requestDomainRules = function(url, window, send, windowId) {
-    if (!url || url[0] !== 'h') {
-      return;
-    }
-
-    let payload = {
-      module: 'adblocker',
-      action: 'url',
-      args:[
-        url
-      ]
-    }
-
-    send({
-      windowId,
-      payload
-    })
+var requestDomainRules = function(url, window, send, windowId) {
+  injectedRules = {};
+  if (!url || url[0] !== 'h') {
+    return;
   }
-  requestDomainRules(url, window, send, windowId);
+
+  let payload = {
+    module: 'adblocker',
+    action: 'url',
+    args:[
+      url
+    ]
+  }
+
+  send({
+    windowId,
+    payload
+  })
 }
 
 var adbCosmFilter = function(url, window, send, windowId, throttle) {
@@ -107,7 +104,12 @@ var adbCosmFilter = function(url, window, send, windowId, throttle) {
 
 function clearAdb() {
   if (mutationObserver) {
-    mutationObserver.disconnect();
+    try {
+      mutationObserver.disconnect();
+    }
+    catch (e) {
+      /* in case the page is closed */
+    }
   }
 }
 
@@ -115,6 +117,7 @@ function responseAdbMsg(msg, window) {
   if (msg.data && msg.data.response && msg.data.response.type === 'domain-rules') {
     if (!msg.data.response.active) {
       clearAdb();
+      return;
     }
     let scripts = msg.data.response.scripts;
     scripts.forEach(script => injectScript(script, window.document));
@@ -127,6 +130,7 @@ function responseAdbMsg(msg, window) {
   if (msg.data && msg.data.response && msg.data.response.rules) {
     if (!msg.data.response.active) {
       clearAdb();
+      return;
     }
     let rules = msg.data.response.rules;
     handleRules(rules, window);

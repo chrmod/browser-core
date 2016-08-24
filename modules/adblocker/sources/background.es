@@ -1,5 +1,11 @@
 import CliqzADB, { adbEnabled } from 'adblocker/adblocker';
 
+function isAdbActive(url) {
+  return adbEnabled() &&
+         !CliqzADB.adBlocker.isDomainInBlacklist(url) &&
+         !CliqzADB.adBlocker.isUrlInBlacklist(url)
+}
+
 export default {
   init() {
     if (CliqzADB.getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
@@ -18,7 +24,7 @@ export default {
   actions: {
     // handles messages coming from process script
     nodes(url, nodes) {
-      if (!adbEnabled()) {
+      if (!isAdbActive(url)) {
         return {
           rules: [],
           active: false
@@ -32,7 +38,7 @@ export default {
     },
 
     url(url) {
-      if (!adbEnabled()) {
+      if (!isAdbActive(url)) {
         return {
           scripts: [],
           sytles: [],
