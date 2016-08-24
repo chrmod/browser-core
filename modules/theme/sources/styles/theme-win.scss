@@ -159,7 +159,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     height: $urlbar-elms-height !important;
     box-sizing: border-box;
 
-    margin: 0 2.5em !important;
+    margin: 0 36px !important;
     padding: 1px 0;
     border: 1px solid #ccc !important;
     border-top: 1px solid transparent !important;
@@ -192,8 +192,15 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 #urlbar-reload-button,
 #urlbar-stop-button,
-#identity-box {
+#identity-box,
+.urlbar-input-box,
+#urlbar-display-box {
     border: none !important;
+}
+
+
+#identity-box {
+    padding-bottom: 2px;
 }
 
 #urlbar, .searchbar-textbox {
@@ -220,6 +227,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 /*========== Tabs =======*/
 
 #TabsToolbar  {
+    margin-top: 0 !important;
     min-height: $urlbar-elms-height;
 }
 
@@ -232,8 +240,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #fff !important;
 }
 
+
+tab {
+    color: #202020;
+}
+
 .tab-label:not([visuallyselected="true"]) {
     opacity: 1 !important;
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
@@ -459,8 +473,11 @@ notification[type="warning"] .notification-inner {
     margin-bottom: 0; /*Later*/
     padding: 0 2px;
     border-radius: 0;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
 
     &:hover {
+        border-color: #dfdfdf;
         background: $buttons-hover-color;
     }
 }
@@ -509,14 +526,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
 /* BEGIN TOOLBAR */
 
 #PersonalToolbar {
-	border-top: 1px solid #fcfcfc !important;
-    box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
-    z-index: 1;
     -moz-box-ordinal-group: 101;
     content: "";
-    display: -moz-box;
     position: relative;
-	background-color: #f6f6f6 !important;
+    display: -moz-box;
+    border-top: 1px solid #dfdfdf !important;
+    box-shadow: 0 1px 3px -2px rgba(0, 0, 0, 0.24);
+    background-color: #f6f6f6 !important;
+    z-index: 1;
 }
 
 /* END TOOLBAR */
@@ -582,33 +599,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     color: RGBA(0, 0, 0, 0.54);
 }
 
-#main-window:not([sizemode="maximized"]) {
-
-    #browser-panel {
-        margin-top: -15px; /*Move the window up to remove space above tabs*/
-    }
-
-    #menubar-items {
-        margin-top: 15px;
-        margin-bottom: -2px;
-        margin-left: 1px;
-    }
-}
-
-#main-window[sizemode="fullscreen"] #browser-panel {
-    margin-top: 0;
-}
-
-#main-window:not([sizemode="maximized"]):not([tabsintitlebar="true"]) {
-	#browser-panel {
-        margin-top: 0;
-    }
-}
-
 /* END TAB */
 
 toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
     padding: 0 !important;
+}
+
+toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker[label='Bookmarks'] > .dropmarker-icon {
+    padding: 0 4px !important;
 }
 
 //=========================
@@ -618,7 +616,7 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-ic
 @media (-moz-os-version: windows-win7) {
 
     #navigator-toolbox:not(:-moz-lwtheme) {
-        overflow: visible;
+        overflow: visible !important;
     }
 
     #identity-box {
@@ -669,9 +667,6 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-ic
     }
 
     #main-window:not([sizemode="maximized"]) {
-        #browser-panel {
-            margin-top: -8px; /*Move the window up to remove space above tabs*/
-        }
 
         &[tabsintitlebar="true"] { /*When there is no custom titlebar*/
             #TabsToolbar {
@@ -684,27 +679,6 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-ic
 
             #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
                 margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
-            }
-        }
-
-        :-moz-system-metric(windows-default-theme) {
-            #titlebar-buttonbox {
-                -moz-appearance: none; /*move the 3 buttons (max,min,close)*/
-                padding: 4px 0;
-            }
-        }
-
-        :-moz-system-metric(windows-classic) {
-            #browser-panel {
-                margin-top: -15px !important; /*Move the window up to remove space above tabs*/
-            }
-        }
-
-        &:not([tabsintitlebar="true"]) {
-            :-moz-system-metric(windows-classic) {
-                #browser-panel {
-                    margin-top: 0 !important; /*Move the window up to remove space above tabs*/
-                }
             }
         }
     }
@@ -753,7 +727,7 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-ic
             }
 
             #tabbrowser-tabs .tabbrowser-arrowscrollbox {
-                margin-inline-start: 36px;
+                margin-inline-start: 37px;
             }
 
             #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
@@ -903,13 +877,6 @@ vbox[sidebarcommand=historybroadcaster] {
             #tabbrowser-tabs[overflow="true"] .tabbrowser-arrowscrollbox { /*When the indicator is showing*/
                 margin-inline-start: 15px; /*Remove the line on the left of allowscroll-up button*/
             }
-        }
-    }
-
-    #main-window[sizemode="maximized"] {
-
-        #browser-panel {
-            margin-top: -2px; /*Move the window up to remove space above tabs*/
         }
     }
 }
