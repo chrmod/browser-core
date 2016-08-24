@@ -278,6 +278,7 @@ var CLIQZEnvironment = {
       return e;
     });
   },
+  updateAlias: function(){},
   getEngineByAlias: function(alias) {
     return ENGINES.find(function (engine) { return engine.alias === alias; });
   },
