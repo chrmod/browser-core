@@ -2,6 +2,7 @@ import { utils } from "core/cliqz";
 import autocomplete from "autocomplete/autocomplete";
 import CliqzHandlebars from "core/templates";
 import CliqzEvents from "core/events";
+import inputFocus from "./input-focus";
 
 function initPopup(popup, win) {
   //patch this method to avoid any caching FF might do for components.xml
@@ -440,22 +441,27 @@ const popupEventHandlers = {
 };
 
 const miscHandlers = {
-  _handleKeyboardShortcutsAction: function(val){
+  handleKeyboardShortcutsAction(val) {
     utils.telemetry({
       type: 'activity',
       action: 'keyboardShortcut',
-      value: val
+      value: val,
     });
   },
-  handleKeyboardShortcuts: function(ev) {
-    if(ev.keyCode == this.window.KeyEvent.DOM_VK_K && !this.urlbar.focused) {
-      if((utils.isMac(this.window)  &&  ev.metaKey && !ev.ctrlKey && !ev.altKey) ||  // CMD-K
-        (!utils.isMac(this.window) && !ev.metaKey &&  ev.ctrlKey && !ev.altKey)){   // CTRL-K
-        this.urlbar.focus();
-        miscHandlers._handleKeyboardShortcutsAction(ev.keyCode);
-        ev.preventDefault();
-        ev.stopPropagation();
-      }
+  handleKeyboardShortcuts(ev) {
+    const kPressed = ev.keyCode === this.window.KeyEvent.DOM_VK_K;
+    const urlbarFocused = this.urlbar.focused;
+    const isMac = utils.isMac(this.window);
+    const isCtrlPressed = isMac && ev.metaKey && !ev.ctrlKey && !ev.altKey;
+    const isCmdPressed = !isMac && !ev.metaKey && ev.ctrlKey && !ev.altKey;
+    const isCtrlOrCmdPressed = isCtrlPressed || isCmdPressed;
+    const isInputFocused = inputFocus(this.window);
+
+    if (kPressed && isCtrlOrCmdPressed && !urlbarFocused && !isInputFocused) {
+      this.urlbar.focus();
+      miscHandlers.handleKeyboardShortcutsAction(ev.keyCode);
+      ev.preventDefault();
+      ev.stopPropagation();
     }
-  }
+  },
 };
