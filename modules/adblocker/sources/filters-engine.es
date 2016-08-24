@@ -360,6 +360,10 @@ class CosmeticEngine {
     );
   }
 
+  get length() {
+    return this.size;
+  }
+
   push(filter) {
     if (filter.hostnames.length === 0) {
       this.miscFilters.push(filter);
