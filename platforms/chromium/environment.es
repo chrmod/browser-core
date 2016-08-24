@@ -214,7 +214,7 @@ var CLIQZEnvironment = {
   XMLHttpRequest: XMLHttpRequest,
   httpHandler: function(method, url, callback, onerror, timeout, data, sync) {
     // Check if its a query and needs to sent via the encrypted channel.
-    if(url.indexOf('newbeta.cliqz.com') > -1 && true) {
+    if(url.indexOf('newbeta.cliqz.com') > -1 && CLIQZEnvironment.getPref("hpn-query",false)) {
         let eID = Math.floor(Math.random() * 1000);
         eventIDs[eID] = {"cb": callback};
         let _q = url.replace(('https://newbeta.cliqz.com/api/v1/results?q='),"")
