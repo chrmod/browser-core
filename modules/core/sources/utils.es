@@ -633,7 +633,7 @@ var CliqzUtils = {
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
   getBackendResults:  function(q, callback){
-    
+
   },
   getCliqzResults: function(q, callback){
     CliqzUtils._sessionSeq++;
@@ -1010,6 +1010,26 @@ var CliqzUtils = {
     };
 
     data[CliqzUtils.getPref('adultContentFilter', 'moderate')].selected = true;
+
+    return data;
+  },
+  getLocationPermState(){
+    var data = {
+      'yes': {
+        name: CliqzUtils.getLocalizedString('always'),
+        selected: false
+      },
+      'ask': {
+        name: CliqzUtils.getLocalizedString('always_ask'),
+        selected: false
+      },
+      'no': {
+        name: CliqzUtils.getLocalizedString('never'),
+        selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
 
     return data;
   },
