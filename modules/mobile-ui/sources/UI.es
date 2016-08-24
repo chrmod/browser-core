@@ -5,7 +5,8 @@
  */
 
 import DelayedImageLoader from 'mobile-ui/DelayedImageLoader';
-import CliqzHandlebars from "core/templates";
+import handlebars from "core/templates";
+import { window, document } from 'core/mobile-webview';
 
 //TODO: improve loading of these views!
 import v1 from 'mobile-ui/views/currency';
@@ -38,9 +39,9 @@ var UI = {
     DelayedImageLoader: null,
     init: function () {
         //check if loading is done
-        if (!CliqzHandlebars.tplCache.main) return;
+        if (!handlebars.tplCache.main) return;
         let box = document.getElementById('results');
-        box.innerHTML = CliqzHandlebars.tplCache.main();
+        box.innerHTML = handlebars.tplCache.main();
 
         resultsBox = document.getElementById('cliqz-results', box);
 
@@ -66,12 +67,29 @@ var UI = {
 
       return renderedResults;
     },
+    setMobileBasedUrls: function  (o) {
+      if (!o) return;
+      const url = o.data && o.data.mobile_url;
+      if (o.val) {
+        o.val = url || o.val;
+      }
+      if (o.url) {
+        o.url = url || o.url;
+      }
+      if (o.url && o.m_url) {
+        o.url = o.m_url;
+      }
+      for (let i in o) {
+        if (typeof(o[i]) === 'object') {
+            UI.setMobileBasedUrls(o[i]);
+        }
+      }
+    },
     results: function (r) {
 
       UI.currentPage = 0;
       viewPager.goToIndex(UI.currentPage);
-
-      setMobileBasedUrls(r);
+      UI.setMobileBasedUrls(r);
 
       setCardCountPerPage(window.innerWidth);
 
@@ -107,8 +125,7 @@ var UI = {
         var asyncResults = currentResults.results.filter(assessAsync(true));
         currentResults.results = currentResults.results.filter(assessAsync(false));
 
-
-        redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+        redrawDropdown(handlebars.tplCache.results(currentResults), query);
 
         if (asyncResults.length) loadAsyncResult(asyncResults, query);
 
@@ -231,7 +248,7 @@ function loadAsyncResult(res, query) {
                   }, 100 /*smartCliqzWaitTime*/);
                 }
                 else if (!currentResults.results.length) {
-                  redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                  redrawDropdown(handlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                 }
             }
             else {
@@ -251,10 +268,10 @@ function loadAsyncResult(res, query) {
                   currentResults.results.unshift(r);
 
                   if (currentResults.results.length) {
-                    redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+                    redrawDropdown(handlebars.tplCache.results(currentResults), query);
                   }
                   else {
-                    redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                    redrawDropdown(handlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                   }
                   imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
                   imgLoader.start();
@@ -268,7 +285,7 @@ function loadAsyncResult(res, query) {
           else {
             res.splice(i,1);
             if (!currentResults.results.length) {
-              redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+              redrawDropdown(handlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
             }
           }
 
@@ -409,6 +426,7 @@ function resultClick(ev) {
             var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
 
             var signal = {
+                type: 'activity',
                 action: 'result_click',
                 extra: extra,
                 mouse: coordinate,
@@ -470,19 +488,6 @@ function setResultNavigation(results) {
   if (document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
   }
-
-}
-
-function setMobileBasedUrls(o) {
-  if (!o) return;
-  if (o.url && o.m_url) {
-    o.url = o.m_url;
-  }
-  for (let i in o) {
-    if (typeof(o[i]) === 'object') {
-        setMobileBasedUrls(o[i]);
-    }
-  }
 }
 
 var resizeTimeout;
@@ -517,7 +522,6 @@ window.addEventListener('connected', function () {
   elem && (elem.innerHTML = '');
 });
 
-
 function loadViews() {
   UI.clickHandlers = {};
   Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
@@ -542,3 +546,4 @@ function loadViews() {
 }
 
 export default UI;
+    

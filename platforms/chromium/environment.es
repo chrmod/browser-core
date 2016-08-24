@@ -55,6 +55,7 @@ var ENGINES = [
 ];
 
 var CLIQZEnvironment = {
+  LOG: 'https://logging.cliqz.com',
   BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'modules/static/templates/',
   LOCALE_PATH: 'modules/static/locale/',
@@ -81,11 +82,6 @@ var CLIQZEnvironment = {
     'cpgame_movie': 3,
     'delivery-tracking': 2,
     'vod': 3,
-    'conversations': 1,
-    'conversations_future': 1,
-    'topnews': 1,
-    '_generic': 1,
-    '_history': 1,
     'liveTicker': 3
   },
   MESSAGE_TEMPLATES: [
@@ -112,16 +108,70 @@ var CLIQZEnvironment = {
       'partials/location/missing_location_1',
       'partials/timetable-cinema',
       'partials/timetable-movie',
-      'partials/music-data-sc',
       'partials/streaming',
       'partials/lyrics'
   ],
   log: function(msg, key){
     console.log('[[' + key + ']]', msg);
   },
-  telemetry: function(msg) {
-    // TODO: Implement telemetry on Chromium
-  },
+  trk: [],
+  telemetry: (function(){
+    var trkTimer = null,
+        telemetrySending = [],
+        TELEMETRY_MAX_SIZE = 500;
+
+    function pushTelemetry() {
+      // put current data aside in case of failure
+      telemetrySending = CLIQZEnvironment.trk.slice(0);
+      CLIQZEnvironment.trk = [];
+
+      CLIQZEnvironment.httpHandler('POST', CLIQZEnvironment.LOG, pushTelemetryCallback,
+                                   pushTelemetryError, 10000, JSON.stringify(telemetrySending));
+
+      CLIQZEnvironment.log('push telemetry data: ' + telemetrySending.length + ' elements', 'Telemetry');
+    }
+
+    function pushTelemetryCallback(req){
+      var response = JSON.parse(req.response);
+
+      if(response.new_session){
+        CLIQZEnvironment.setPref('session', response.new_session);
+      }
+      telemetrySending = [];
+    }
+
+    function pushTelemetryError(req){
+      // pushTelemetry failed, put data back in queue to be sent again later
+      CLIQZEnvironment.log('push telemetry failed: ' + telemetrySending.length + ' elements', 'Telemetry');
+      CLIQZEnvironment.trk = telemetrySending.concat(CLIQZEnvironment.trk);
+
+      // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
+      var slice_pos = CLIQZEnvironment.trk.length - TELEMETRY_MAX_SIZE + 100;
+      if(slice_pos > 0){
+        CLIQZEnvironment.log('discarding ' + slice_pos + ' old telemetry data', 'Telemetry');
+        CLIQZEnvironment.trk = CLIQZEnvironment.trk.slice(slice_pos);
+      }
+
+      telemetrySending = [];
+    }
+
+    return function(msg, instantPush) {
+      CLIQZEnvironment.log(msg, 'Utils.telemetry');
+
+      if(!CLIQZEnvironment.getPref('telemetry', true))return;
+      msg.session = CLIQZEnvironment.getPref('session');
+      msg.ts = Date.now();
+
+      CLIQZEnvironment.trk.push(msg);
+      CLIQZEnvironment.clearTimeout(trkTimer);
+
+      if(instantPush || CLIQZEnvironment.trk.length % 100 == 0){
+        pushTelemetry();
+      } else {
+        trkTimer = CLIQZEnvironment.setTimeout(pushTelemetry, 60000);
+      }
+    }
+  })(),
   isUnknownTemplate: function(template){
      // in case an unknown template is required
      return template &&
@@ -143,6 +193,9 @@ var CLIQZEnvironment = {
   setPref: function(pref, val){
     CLIQZEnvironment.getLocalStorage().setItem(pref,val);
   },
+  hasPref: function(pref){
+    return pref in CLIQZEnvironment.getLocalStorage();
+  },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
   clearTimeout: function(){ clearTimeout.apply(null, arguments); },
@@ -162,7 +215,6 @@ var CLIQZEnvironment = {
   httpHandler: function(method, url, callback, onerror, timeout, data, sync) {
     // Check if its a query and needs to sent via the encrypted channel.
     if(url.indexOf('newbeta.cliqz.com') > -1 && true) {
-        CliqzUtils.log(">>>>>>> @@@@" + data);
         let eID = Math.floor(Math.random() * 1000);
         eventIDs[eID] = {"cb": callback};
         let _q = url.replace(('https://newbeta.cliqz.com/api/v1/results?q='),"")
@@ -221,6 +273,13 @@ var CLIQZEnvironment = {
     });
   },
 
+  openLink: function(win, url, newTab) {
+    if (newTab)
+      window.open(url);
+    else
+      window.location.href = url;
+  },
+
   getSearchEngines: function(){
     return ENGINES.map(function(e){
       e.getSubmissionForQuery = function(q){
@@ -236,6 +295,7 @@ var CLIQZEnvironment = {
       return e;
     });
   },
+  updateAlias: function(){},
   getEngineByAlias: function(alias) {
     return ENGINES.find(function (engine) { return engine.alias === alias; });
   },
@@ -244,7 +304,7 @@ var CLIQZEnvironment = {
   },
   getNoResults: function() {
     var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CliqzUtils.getDetailsFromUrl(engine.url);
+    var details = CliqzUtils.getDetailsFromUrl(engine.searchForm);
 
     var engines = CLIQZEnvironment.getSearchEngines(),
         defaultName = engines[0].name;
@@ -281,133 +341,12 @@ var CLIQZEnvironment = {
   onRenderComplete: function(query, urls){
     chrome.cliqzSearchPrivate.processResults(query, urls);
   },
-  disbleCliqzResults: function () {
+  disableCliqzResults: function () {
     CLIQZEnvironment.ExpansionsProvider.enable();
   },
   enableCliqzResults: function () {
     CLIQZEnvironment.ExpansionsProvider.disable();
   }
 };
-
-if (typeof KeyEvent == "undefined") {
-    var KeyEvent = {
-        DOM_VK_CANCEL: 3,
-        DOM_VK_HELP: 6,
-        DOM_VK_BACK_SPACE: 8,
-        DOM_VK_TAB: 9,
-        DOM_VK_CLEAR: 12,
-        DOM_VK_RETURN: 13,
-        DOM_VK_ENTER: 14,
-        DOM_VK_SHIFT: 16,
-        DOM_VK_CONTROL: 17,
-        DOM_VK_ALT: 18,
-        DOM_VK_PAUSE: 19,
-        DOM_VK_CAPS_LOCK: 20,
-        DOM_VK_ESCAPE: 27,
-        DOM_VK_SPACE: 32,
-        DOM_VK_PAGE_UP: 33,
-        DOM_VK_PAGE_DOWN: 34,
-        DOM_VK_END: 35,
-        DOM_VK_HOME: 36,
-        DOM_VK_LEFT: 37,
-        DOM_VK_UP: 38,
-        DOM_VK_RIGHT: 39,
-        DOM_VK_DOWN: 40,
-        DOM_VK_PRINTSCREEN: 44,
-        DOM_VK_INSERT: 45,
-        DOM_VK_DELETE: 46,
-        DOM_VK_0: 48,
-        DOM_VK_1: 49,
-        DOM_VK_2: 50,
-        DOM_VK_3: 51,
-        DOM_VK_4: 52,
-        DOM_VK_5: 53,
-        DOM_VK_6: 54,
-        DOM_VK_7: 55,
-        DOM_VK_8: 56,
-        DOM_VK_9: 57,
-        DOM_VK_SEMICOLON: 59,
-        DOM_VK_EQUALS: 61,
-        DOM_VK_A: 65,
-        DOM_VK_B: 66,
-        DOM_VK_C: 67,
-        DOM_VK_D: 68,
-        DOM_VK_E: 69,
-        DOM_VK_F: 70,
-        DOM_VK_G: 71,
-        DOM_VK_H: 72,
-        DOM_VK_I: 73,
-        DOM_VK_J: 74,
-        DOM_VK_K: 75,
-        DOM_VK_L: 76,
-        DOM_VK_M: 77,
-        DOM_VK_N: 78,
-        DOM_VK_O: 79,
-        DOM_VK_P: 80,
-        DOM_VK_Q: 81,
-        DOM_VK_R: 82,
-        DOM_VK_S: 83,
-        DOM_VK_T: 84,
-        DOM_VK_U: 85,
-        DOM_VK_V: 86,
-        DOM_VK_W: 87,
-        DOM_VK_X: 88,
-        DOM_VK_Y: 89,
-        DOM_VK_Z: 90,
-        DOM_VK_CONTEXT_MENU: 93,
-        DOM_VK_NUMPAD0: 96,
-        DOM_VK_NUMPAD1: 97,
-        DOM_VK_NUMPAD2: 98,
-        DOM_VK_NUMPAD3: 99,
-        DOM_VK_NUMPAD4: 100,
-        DOM_VK_NUMPAD5: 101,
-        DOM_VK_NUMPAD6: 102,
-        DOM_VK_NUMPAD7: 103,
-        DOM_VK_NUMPAD8: 104,
-        DOM_VK_NUMPAD9: 105,
-        DOM_VK_MULTIPLY: 106,
-        DOM_VK_ADD: 107,
-        DOM_VK_SEPARATOR: 108,
-        DOM_VK_SUBTRACT: 109,
-        DOM_VK_DECIMAL: 110,
-        DOM_VK_DIVIDE: 111,
-        DOM_VK_F1: 112,
-        DOM_VK_F2: 113,
-        DOM_VK_F3: 114,
-        DOM_VK_F4: 115,
-        DOM_VK_F5: 116,
-        DOM_VK_F6: 117,
-        DOM_VK_F7: 118,
-        DOM_VK_F8: 119,
-        DOM_VK_F9: 120,
-        DOM_VK_F10: 121,
-        DOM_VK_F11: 122,
-        DOM_VK_F12: 123,
-        DOM_VK_F13: 124,
-        DOM_VK_F14: 125,
-        DOM_VK_F15: 126,
-        DOM_VK_F16: 127,
-        DOM_VK_F17: 128,
-        DOM_VK_F18: 129,
-        DOM_VK_F19: 130,
-        DOM_VK_F20: 131,
-        DOM_VK_F21: 132,
-        DOM_VK_F22: 133,
-        DOM_VK_F23: 134,
-        DOM_VK_F24: 135,
-        DOM_VK_NUM_LOCK: 144,
-        DOM_VK_SCROLL_LOCK: 145,
-        DOM_VK_COMMA: 188,
-        DOM_VK_PERIOD: 190,
-        DOM_VK_SLASH: 191,
-        DOM_VK_BACK_QUOTE: 192,
-        DOM_VK_OPEN_BRACKET: 219,
-        DOM_VK_BACK_SLASH: 220,
-        DOM_VK_CLOSE_BRACKET: 221,
-        DOM_VK_QUOTE: 222,
-        DOM_VK_META: 224
-    };
-}
-
 
 export default CLIQZEnvironment;

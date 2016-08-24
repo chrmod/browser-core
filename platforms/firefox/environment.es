@@ -43,11 +43,6 @@ var CLIQZEnvironment = {
       'cpgame_movie': 3,
       'delivery-tracking': 2,
       'vod': 3,
-      'conversations': 1,
-      'conversations_future': 1,
-      'topnews': 1,
-      '_generic': 1,
-      '_history': 1,
       'liveTicker': 3
     },
     MESSAGE_TEMPLATES: [
@@ -357,7 +352,6 @@ var CLIQZEnvironment = {
           telemetrySeq = -1,
           telemetryReq = null,
           telemetrySending = [],
-          telemetryStart = undefined,
           TELEMETRY_MAX_SIZE = 500;
 
       function getNextSeq(){
@@ -376,8 +370,6 @@ var CLIQZEnvironment = {
         // put current data aside in case of failure
         telemetrySending = CLIQZEnvironment.trk.slice(0);
         CLIQZEnvironment.trk = [];
-
-        telemetryStart = Date.now();
 
         CLIQZEnvironment.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
 
@@ -493,26 +485,31 @@ var CLIQZEnvironment = {
       }
       return uri;
     },
-    disableCliqzResults: function () {
+    disableCliqzResults: function (urlbar) {
+      CliqzUtils.extensionRestart(function(){
+        CliqzUtils.setPref("cliqz_core_disabled", true);
+      });
 
-      CliqzUtils.setPref("cliqz_core_disabled", true);
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      //remove cliqz from all windows
-      while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext();
-          win.CLIQZ.Core.unload(true);
-      }
+      // blur the urlbar so it picks up the default AutoComplete provider
       CliqzUtils.autocomplete.isPopupOpen = false;
+      setTimeout(function(urlbar){
+        urlbar.focus();
+        urlbar.blur();
+      }, 0, urlbar);
     },
-    enableCliqzResults: function () {
-      utils.setPref("cliqz_core_disabled", false);
-      
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext();
-          win.CLIQZ.Core.init();
-      }
-    }
+    enableCliqzResults: function (urlbar) {
+      CliqzUtils.setPref("cliqz_core_disabled", false);
+      CliqzUtils.extensionRestart();
+
+      // blur the urlbar so it picks up the new CLIQZ Autocomplete provider
+      urlbar.blur();
+
+      CliqzUtils.telemetry({
+        type: 'setting',
+        setting: 'international',
+        value: 'activate'
+      });
+    },
     // lazy init
     // callback called multiple times
     historySearch: (function(){
