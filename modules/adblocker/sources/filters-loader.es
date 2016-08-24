@@ -1,5 +1,5 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-
+import CliqzLanguage from 'platform/language';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -34,6 +34,10 @@ function urlFromPath(path) {
   return null;
 }
 
+const JS_RESOURCES = new Set([
+  // uBlock resource
+  'assets/ublock/resources.txt',
+]);
 
 const ALLOWED_LISTS = new Set([
   // uBlock
@@ -42,7 +46,8 @@ const ALLOWED_LISTS = new Set([
   // Adblock plus
   'assets/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
   // Extra lists
-  'pgl.yoyo.org/as/serverlist',
+  // Peter Lowe’s Ad server list‎
+  // 'pgl.yoyo.org/as/serverlist',
   // Anti adblock killers
   'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
   'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
@@ -51,9 +56,27 @@ const ALLOWED_LISTS = new Set([
   // "assets/ublock/privacy.txt"
 ]);
 
+const COUNTRY_LISTS = new Map([
+  ['de', 'https://easylist-downloads.adblockplus.org/easylistgermany.txt'],
+  ['fr', 'https://easylist-downloads.adblockplus.org/liste_fr.txt'],
+  ['it', 'https://easylist-downloads.adblockplus.org/easylistitaly.txt'],
+  ['zh', 'https://easylist-downloads.adblockplus.org/easylistchina.txt'],
+  ['cn', 'https://easylist-downloads.adblockplus.org/easylistchina.txt']
+]);
+
+function getSupportedLangLists() {
+  let supportLangLists = new Set();
+  const LANGS = CliqzLanguage.state();
+  LANGS.forEach(lang => supportLangLists.add(COUNTRY_LISTS.get(lang)))
+  return supportLangLists;
+}
 
 function isListSupported(path) {
-  return ALLOWED_LISTS.has(path);
+  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path) || isJSResource(path);
+}
+
+function isJSResource(path) {
+  return JS_RESOURCES.has(path);
 }
 
 
@@ -186,6 +209,7 @@ class FiltersList extends UpdateCallbackHandler {
 }
 
 
+
 /* Class responsible for loading, persisting and updating filters lists.
  */
 export default class extends UpdateCallbackHandler {
@@ -199,7 +223,7 @@ export default class extends UpdateCallbackHandler {
     // Index of available extra filters lists
     this.extraLists = new ExtraLists();
 
-    // Lists of filters currently loaded
+    // Lists of filters and injected scripts currently loaded
     this.lists = new Map();
 
     // Update extra lists
@@ -223,7 +247,8 @@ export default class extends UpdateCallbackHandler {
         list = new FiltersList(checksum, asset, remoteURL);
         this.lists.set(asset, list);
         list.onUpdate(filters => {
-          this.triggerCallbacks({ asset, filters });
+          const isFiltersList = !isJSResource(asset);
+          this.triggerCallbacks({ asset, filters, isFiltersList });
         });
         list.load();
       } else {

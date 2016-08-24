@@ -35,28 +35,30 @@ export default describeModule('adblocker/filters-parsing',
     },
   }),
   () => {
-    describe('#AdFilter', () => {
-      let AdFilter;
+    describe('#AdCosmetics', () => {
+      let AdCosmetics;
 
       // Generate test cases
-      context('Filters parsing', () => {
-        beforeEach(function importAdFilter() {
-          AdFilter = this.module().AdFilter;
+      context('Cosmetic filter parsing', () => {
+        beforeEach(function importAdCosmetics() {
+          AdCosmetics = this.module().AdCosmetics;
         });
 
-        const dataPath = 'modules/adblocker/tests/unit/data/filters_parsing.txt';
+        const dataPath = 'modules/adblocker/tests/unit/data/cosmetics_parsing.txt';
         loadTestCases(dataPath).forEach(testCase => {
           it(`parses ${testCase.filter} correctly`,
              () => new Promise((resolve, reject) => {
-               const parsed = new AdFilter(testCase.filter);
+               const parsed = new AdCosmetics(testCase.filter);
                Object.keys(testCase.compiled).forEach(key => {
-                 if (parsed[key] !== testCase.compiled[key]) {
+                 try {
+                   chai.expect(parsed[key]).to.deep.equal(testCase.compiled[key]);
+                 } catch (ex) {
                    reject(`Expected ${key} == ${testCase.compiled[key]} (found ${parsed[key]})`);
                  }
                });
                resolve();
              })
-           );
+          );
         });
       });
     });
