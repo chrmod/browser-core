@@ -46,7 +46,8 @@ const ALLOWED_LISTS = new Set([
   // Adblock plus
   'assets/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
   // Extra lists
-  'pgl.yoyo.org/as/serverlist',
+  // Peter Lowe’s Ad server list‎
+  // 'pgl.yoyo.org/as/serverlist',
   // Anti adblock killers
   'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
   'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
