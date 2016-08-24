@@ -46,6 +46,8 @@ System.baseURL = "modules/";
 
 console.log('LOADING ...')
 
+var acResults;
+
 Promise.all([
   System.import("core/utils"),
   System.import("core/templates")
@@ -104,6 +106,7 @@ Promise.all([
     // remove keydown handler from UI - the platform will do it
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
+    acResults = new CliqzAutocomplete.CliqzResults();
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
         (winId, query) => {
           if (winId === currWinId)
@@ -125,10 +128,9 @@ Promise.all([
     whoAmI(true);
   });
 
-
 function startAutocomplete(query) {
   urlbar.value = query;
-  (new CliqzAutocomplete.CliqzResults()).search(query, function(r) {
+  acResults.search(query, function(r) {
     var currentResults = CLIQZ.UI.results({
       q: r._searchString,
       results: r._results.map(function(r) {
