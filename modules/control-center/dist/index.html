@@ -32,7 +32,7 @@
       document.getElementsByTagName("head")[0].appendChild(node);
     </script>
     <!--======= Container =======-->
-    <div id="control-center">
+    <div id="control-center" class="first">
       <!--======= Top Part - Green Bar =======-->
       <header id="header">
         <div class="pause">
@@ -62,34 +62,46 @@
           </svg>
         </div>
         <div class="title">
-          <svg id="safe" width="16px" height="18px" viewBox="1249 142 16 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+          <svg class="safe" width="16px" height="18px" viewBox="1249 142 16 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <desc>Created with Sketch.</desc>
             <defs></defs>
             <polyline id="Path-228-Copy-11" stroke="#FFFFFF" stroke-width="1.955" fill="none" opacity="0.793435168" points="1250.5556 151.759574 1255.6556 158.134574 1263.7306 143.684574"></polyline>
           </svg>
-          <svg id="unsafe" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <defs>
-              <rect id="path-1" x="0" y="0" width="19.760387" height="19.760387" rx="9.88019348"></rect>
-              <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="19.760387" height="19.760387" fill="white">
-                <use xlink:href="#path-1"></use>
-              </mask>
-            </defs>
-            <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <use id="Rectangle-432-Copy" stroke="#FFFFFF" mask="url(#mask-2)" stroke-width="2" xlink:href="#path-1"></use>
-              <text id="!" opacity="0.80130597" font-family="Lato-Black, Lato" font-size="14.3999996" font-weight="700" fill="#FFFFFF">
-                <tspan x="8" y="15">!</tspan>
-              </text>
-            </g>
+
+
+          <svg class="unsafe" width="20px" height="21px" viewBox="1783 288 20 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <!-- Generator: Sketch 39 (31667) - http://www.bohemiancoding.com/sketch -->
+              <desc>Created with Sketch.</desc>
+              <defs>
+                  <rect id="path-1" x="0.116771875" y="0.930181337" width="19.760387" height="19.760387" rx="9.88019348"></rect>
+                  <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="19.760387" height="19.760387" fill="white">
+                      <use xlink:href="#path-1"></use>
+                  </mask>
+              </defs>
+              <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1783.000000, 288.000000)">
+                  <use id="Rectangle-432-Copy" stroke="#FFFFFF" mask="url(#mask-2)" stroke-width="2" xlink:href="#path-1"></use>
+                  <text id="!" font-family="Lato-Black, Lato" font-size="14.3999996" font-weight="700" fill="#FFFFFF">
+                      <tspan x="8.11677188" y="15.9301813">!</tspan>
+                  </text>
+              </g>
           </svg>
+
           <span id="text" class="text" data-i18n="control-center-txt-header"></span>
         </div>
       </header>
+
+      <!-- <div class="onboarding">
+        <span><span class="cqz-switch-onboarding"><span class="cqz-switch-box-onboarding"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+      </div> -->
+
       <div id="currentsite">
         <h3 class="truncate">sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk</h3>
       </div>
       <div class="settings-section clearfix">
-        <div class="lock">
-        </div>
+
+        <div class="lock"></div>
+
         <div class="antitracker setting">
           <div class="antitracker-frame">
             <p id="title">
@@ -121,7 +133,7 @@
             <p id="description" data-i18n="control-center-datapoints"></p>
             <div id="switches" class="switches-antitrack">
               <!--======= Switch ======-->
-              <span><span class="cqz-switch-antitrack active"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+              <span><span class="cqz-switch-antitrack active one"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               <select class="dropdown">
                 <option class="opt-t" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt-t bad" id="all-sites" data-i18n="control-center-all-sites"></option>
@@ -141,13 +153,15 @@
             <!-- Initially display:none; but when antitracker is active, display:block; -->
             <div id="companies-title">
               <p data-i18n="control-center-trackers">Tracking Firmen auf dieser Seite</p>
-              <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <defs></defs>
-                <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
-                  <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
-                  <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line-Copy-47" stroke="#FFFFFF" stroke-width="2.5" transform="translate(8.400000, 8.435192) scale(-1, 1) translate(-8.400000, -8.435192) "></path>
-                </g>
-              </svg>
+              <span>
+                <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <defs></defs>
+                  <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
+                    <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
+                    <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line-Copy-47" stroke="#FFFFFF" stroke-width="2.5" transform="translate(8.400000, 8.435192) scale(-1, 1) translate(-8.400000, -8.435192) "></path>
+                  </g>
+                </svg>
+              </span>
             </div>
             <div id="companies">
             </div>
@@ -155,7 +169,7 @@
               <div id="description" data-i18n="control-center-datapoints"></div>
               <div id="switches" class="switches-antitrack">
                 <!--======= Switch ======-->
-                <!-- <span><span class="cqz-switch-antitrack active"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span> -->
+                <span><span class="cqz-switch-antitrack active two"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               </div>
               <div id="counter">
                 <!--======= Shield =======-->
@@ -204,17 +218,17 @@
             <p id="description" data-i18n="control-center-adblock-description"></p>
             <div id="switches">
               <!--======= Switch ======-->
-              <span><span class="cqz-switch active"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+              <span><span class="cqz-switch active one"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               <select class="dropdown">
                 <option class="opt" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt bad" id="all-sites" data-i18n="control-center-all-sites"></option>
               </select>
               <span title=".squaredFour2">
-              <span class="squaredFour">
-              <input type="checkbox" value="None" id="squaredFour2" name="check" checked />
-              <label for="squaredFour2"></label>
-              <span id="strict" data-i18n="control-center-check-strict"></span>
-              </span>
+                <span class="squaredFour">
+                  <input type="checkbox" value="None" id="squaredFour2" name="check" checked />
+                  <label for="squaredFour2"></label>
+                  <span id="strict" data-i18n="control-center-check-strict"></span>
+                </span>
               </span>
             </div>
           </div>
@@ -222,13 +236,15 @@
             <!-- Initially display:none; but when antitracker is active, display:block; -->
             <div id="companies-title">
               <p data-i18n="control-center-adblock-advertisers"></p>
-              <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <defs></defs>
-                <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
-                  <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
-                  <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line-Copy-47" stroke="#FFFFFF" stroke-width="2.5" transform="translate(8.400000, 8.435192) scale(-1, 1) translate(-8.400000, -8.435192) "></path>
-                </g>
-              </svg>
+              <span>
+                <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <defs></defs>
+                  <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
+                    <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
+                    <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line-Copy-47" stroke="#FFFFFF" stroke-width="2.5" transform="translate(8.400000, 8.435192) scale(-1, 1) translate(-8.400000, -8.435192) "></path>
+                  </g>
+                </svg>
+              </span>
             </div>
             <div id="companies">
             </div>
@@ -236,7 +252,7 @@
               <div id="description" data-i18n="control-center-adblock-description"></div>
               <div id="switches">
                 <!--======= Switch ======-->
-                <span><span class="cqz-switch active"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+                <span><span class="cqz-switch active two"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               </div>
               <div id="counter">
                 <svg id="shield" width="40px" height="39px" viewBox="1769 198 40 39" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -274,7 +290,7 @@
             </p>
             <p id="switches" class="switches-antiphish">
               <!--======= Switch ======-->
-              <span><span class="cqz-switch-antiphish active"><span class="cqz-switch-box-antiphish"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+              <span><span class="cqz-switch-antiphish active one"><span class="cqz-switch-box-antiphish"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               <select class="dropdown">
                 <option class="opt-p" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt-p bad" id="all-sites" data-i18n="control-center-all-sites"></option>
@@ -284,30 +300,34 @@
           <div class="active-window-phishing">
             <div id="report">
               <span id="status" data-i18n="control-center-phishing-deceptive-not"></span>
-              <svg id="cross" class="cross" width="18px" height="17px" viewBox="1284 241 18 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
-                <g id="Group-8" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1285.804525, 242.914503)" stroke-linecap="square">
-                  <path d="M1.02796509,0.649691945 L13.5379615,13.1596884" id="Line" stroke="#474747" stroke-width="1.6"></path>
-                  <path d="M1.02796509,0.649691945 L13.5379615,13.1596884" id="Line-Copy-47" stroke="#474747" stroke-width="1.6" transform="translate(7.527965, 7.149692) scale(-1, 1) translate(-7.527965, -7.149692) "></path>
+                <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
+                  <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
+                  <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line-Copy-47" stroke="#FFFFFF" stroke-width="2.5" transform="translate(8.400000, 8.435192) scale(-1, 1) translate(-8.400000, -8.435192) "></path>
                 </g>
               </svg>
               <span id="line">
                 <span id="report-button">
                 <span id="report-button-text" data-i18n="control-center-phishing-report"></span>
                 </span>
-                <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                  <defs></defs>
-                  <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
-                    <ellipse id="Oval-2" fill="#D0D0D0" cx="7.56817127" cy="7.39375789" rx="7" ry="7"></ellipse>
-                    <text id="i-copy" font-family="AmericanTypewriter-Bold, American Typewriter" font-size="11.2" font-weight="bold" fill="#FFFFFF">
-                      <tspan x="5.50934774" y="11.3937579">i</tspan>
-                    </text>
-                  </g>
-                </svg>
               </span>
+              <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <defs></defs>
+                <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
+                  <ellipse id="Oval-2" fill="#D0D0D0" cx="7.56817127" cy="7.39375789" rx="7" ry="7"></ellipse>
+                  <text id="i-copy" font-family="AmericanTypewriter-Bold, American Typewriter" font-size="11.2" font-weight="bold" fill="#FFFFFF">
+                    <tspan x="5.50934774" y="11.3937579">i</tspan>
+                  </text>
+                </g>
+              </svg>
             </div>
             <div id="full-url"></div>
-            <div id="switch"></div>
+            <div id="switch">
+              <span id="switches">
+                <span><span class="cqz-switch-antiphish active two"><span class="cqz-switch-box-antiphish"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+              </span>
+            </div>
           </div>
         </div>
         <!--======= HTTPS everywhere =======-->
