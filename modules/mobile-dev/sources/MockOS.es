@@ -75,7 +75,7 @@ function getFavorites() {
   return mockedFavorites;
 };
 function isReady() {
-  UI && jsAPI.setDefaultSearchEngine({name: 'google', url: 'http://www.google.com/search?q='});
+  UI.isSearch() && jsAPI.setDefaultSearchEngine({name: 'google', url: 'http://www.google.com/search?q='});
   jsAPI.setClientPreferences({
     incognito: false,
     showConsoleLogs: true

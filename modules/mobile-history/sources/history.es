@@ -242,11 +242,11 @@ function removeDomElement(element) {
 }
 
 function onSwipe(e) {
-  crossTransform(e.srcEvent.currentTarget, math.min(e.deltaX, 0));
+  crossTransform(e.srcEvent.currentTarget, e.deltaX);
 }
 function onSwipeEnd(e) {
   const element = e.srcEvent.currentTarget;
-  if (e.velocityX < -1 || e.deltaX > 150 || e.center.x < 50) {
+  if (math.abs(e.velocityX) < -1 || math.abs(e.deltaX) > 150) {
     History.showOnlyFavorite ? unfavoriteItem(element) : removeItem(element);
     removeDomElement(element);
   } else {
