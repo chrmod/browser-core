@@ -1,19 +1,3 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-/*
-chrome.cookies.onChanged.addListener(function(info) {
-  console.log("onChanged" + JSON.stringify(info));
-});
-*/
-
-/*
-var eventList = ['onBeforeNavigate', 'onCreatedNavigationTarget',
-    'onCommitted', 'onCompleted', 'onDOMContentLoaded',
-    'onErrorOccurred', 'onReferenceFragmentUpdated', 'onTabReplaced',
-    'onHistoryStateUpdated'];
-*/
 var manifest = chrome.runtime.getManifest();
 var contentScriptPath = "content.js";
 if(manifest.version_name === "packaged"){
@@ -21,15 +5,11 @@ if(manifest.version_name === "packaged"){
 }
 
 function observeRequest(requestDetails){
-    console.log("Headers request");
     for (var i = 0; i < requestDetails.requestHeaders.length; ++i) {
-      // console.log(requestDetails.requestHeaders[i].name);
       if (requestDetails.requestHeaders[i].name === 'Referer') {
-           //console.log("Url >>> " + requestDetails.url + " Referrer: >>> "  + requestDetails.requestHeaders[i].value);
            if (CliqzHumanWeb.gadurl.test(requestDetails.url)) {
                 CliqzHumanWeb.linkCache[requestDetails.url] = {'s': ''+requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter};
-                //console.log('REFZZZ 999', requestDetails.url, { 's': '' + requestDetails.requestHeaders[i].value, 'time': CliqzHumanWeb.counter });
-           }
+            }
            break;
       }
     }
@@ -37,21 +17,15 @@ function observeRequest(requestDetails){
 }
 
 function observeResponse(requestDetails){
-    // console.log("Headers rcvd");
-    // console.log(requestDetails);
     CliqzHumanWeb.httpCache[requestDetails.url] = {'status': requestDetails.statusCode, 'time': CliqzHumanWeb.counter}
 }
 
 function observeRedirect(requestDetails){
-    // console.log("Headers rcvd");
-    // console.log(requestDetails);
     for (var i = 0; i < requestDetails.responseHeaders.length; ++i) {
-      // console.log("Redirect: " + requestDetails.responseHeaders[i].name + " : " + requestDetails.responseHeaders[i].value);
       if (requestDetails.responseHeaders[i].name === 'Location') {
         CliqzHumanWeb.httpCache[requestDetails.url] = {'status': 301, 'time': CliqzHumanWeb.counter, 'location': requestDetails.responseHeaders[i].value};
       }
     }
-    // console.log("Url >>> " + requestDetails.url + " Status: >>> "  + requestDetails.statusCode);
 }
 function observeAuth(requestDetails){
   // This does not capture the cases when password is already saved, but that should we taken care of when the doubeFetch happens.
@@ -68,11 +42,7 @@ chrome.webRequest.onAuthRequired.addListener(observeAuth, {urls:["http://*/*", "
 
 var eventList = ['onDOMContentLoaded'];
 
-// initi
 
-
-
-console.log('Initializing...');
 var CliqzChromeDB = __CliqzChromeDB().execute();
 var CliqzHumanWeb = __CliqzHumanWeb().execute();
 var CliqzBloomFilter = __CliqzBloomFilter().execute();
@@ -84,37 +54,9 @@ var aProgress = {};
 var aRequest = {};
 var aURI = {};
 
-
-// export singleton pacemaker
-/*
-var pm = new Pacemaker();
-pm.register(CliqzHumanWeb.pacemaker);
-pm.start();
-*/
-
-// CliqzHumanWeb.pacemakerId = setInterval(CliqzHumanWeb.pacemaker, 250);
-
 CliqzHumanWeb.init();
 CliqzSecureMessage.init();
 
-/*
-eventList.forEach(function(e) {
-  chrome.webNavigation[e].addListener(function(data) {
-    if (typeof data) {
-      //console.log('L >>>', chrome.i18n.getMessage('inHandler'), e, data);
-      if (data.frameId === 0) {
-        console.log('LOCATION CHANGE: ' + data.url, data);
-
-      }
-    }
-    else {
-      //console.error('E >>>', chrome.i18n.getMessage('inHandlerError'), e);
-
-    }
-  });
-
-});
-*/
 
 function focusOrCreateTab(url) {
   chrome.windows.getAll({"populate":true}, function(windows) {
@@ -142,34 +84,12 @@ chrome.history.onVisitRemoved.addListener(CliqzHumanWeb.onHistoryVisitRemoved);
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
-        console.log(" Location change>> " + tab.url);
         if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
             chrome.tabs.executeScript(tabId, {file: contentScriptPath});
         }
     }
 });
 
-/*
-
-chrome.webNavigation.onDOMContentLoaded.addListener(function(data) {
-  if (data.frameId === 0) {
-    console.log("Dom loaded: " + data.url, data);
-
-    // This fails when on chrome urls
-    //extensions::lastError:134 Unchecked runtime.lastError while running tabs.executeScript: Cannot access a chrome:// URL
-    //at chrome-extension://fapjminjapollpcgopnpdeailebdakkk/background.js:129:
-    //
-    // to see the effect uncomment the IF and go to chrome://history
-
-    if (data.url.startsWith('https://') || data.url.startsWith('http://')) {
-        chrome.tabs.executeScript(null, {file: "content.js"});
-    }
-  }
-  else if(data.tabId == 241){
-    console.log("Google: " + data.url, data);
-  }
-})
-*/
 
 chrome.runtime.onConnect.addListener(function(port) {
   var tab = port.sender.tab;
@@ -180,7 +100,6 @@ chrome.runtime.onConnect.addListener(function(port) {
       console.log("current URL??", tab.url, tab);
       CliqzHumanWeb.tempCurrentURL = tab.url;
 
-      console.log("Data rcvd: " + info.title);
       aProgress["isLoadingDocument"] = tab.status;
       aRequest["isChannelPrivate"] = tab.incognito;
       aURI["spec"] = tab.url;
@@ -238,7 +157,6 @@ chrome.runtime.onConnect.addListener(function(port) {
     var eID = request.eventID;
     var mc = new messageContext(request.msg);
     var proxyIP = getProxyIP();
-    // console.log("From port> @@@ >>> " + request.msg);
     mc.aesEncrypt()
     .then(function(enxryptedQuery){
       return mc.signKey();
@@ -253,8 +171,6 @@ chrome.runtime.onConnect.addListener(function(port) {
       return mc.aesDecrypt(JSON.parse(response)["data"]);
     })
     .then(function(res){
-      //callback && callback({"response":res});
-      // console.log(res);
       let resp = {"data":
           {
           "response": res
@@ -265,17 +181,3 @@ chrome.runtime.onConnect.addListener(function(port) {
     })
   });
 });
-/*
-chrome.browserAction.onClicked.addListener(function(tab) {
-
-    console.log('you press the Q');
-    chrome.tabs.executeScript(null, {file: "content.js", run_at:"document_end"});
-    //var bkg = chrome.extension.getBackgroundPage();
-    //bkg.console.log('hello');
-
-
-    //console.log('Hello');
-    //var manager_url = chrome.extension.getURL("manager.html");
-    //focusOrCreateTab(manager_url);
-});
-*/

@@ -1410,6 +1410,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 getHTML: function getHTML(url) {
                     return new Promise(function(resolve, reject){
+                        CliqzUtils.log(">>>>>>> DEBUG >>> " + url);
                         if(CliqzHumanWeb.contentDocument && CliqzHumanWeb.contentDocument.hasOwnProperty(url)){
                             resolve(CliqzHumanWeb.contentDocument[url]["doc"]);
                         }
@@ -1429,6 +1430,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                           href: url
                         };
                         */
+                        CliqzUtils.log(">>>>>>> DEBUG2 >>> " + doc.title);
                         return doc;
                     });
 
@@ -1460,7 +1462,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     onLocationChange: function onLocationChange(aProgress, aRequest, aURI) {
                         // New location, means a page loaded on the top window, visible tab
                         // Return if it's a private tab.
-                        _log(">>> It's here >>>>");
+                        _log(">>> It's here >>>> " + aURI.spec);
                         if (aRequest && aRequest.isChannelPrivate !== undefined && aRequest.isChannelPrivate) {
                             return;
                         }
@@ -1573,7 +1575,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                         if (!CliqzHumanWeb) {
                                             return;
                                         }
-                                        _log(">>> Its search engine >>>");
+                                        _log(">>> Its search engine >>>" + url);
                                         CliqzHumanWeb.getCD(url).then(function (doc) {
                                             CliqzHumanWeb.checkURL(doc, url);
                                             CliqzHumanWeb.queryCache[url] = {
