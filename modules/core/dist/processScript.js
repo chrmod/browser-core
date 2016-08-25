@@ -270,7 +270,9 @@ function onDOMWindowCreated(ev) {
   };
 
   var onReady = function (event) {
-    adbCosmFilter(currentURL(), window, send, windowId, throttle);
+    if (config.modules.indexOf('adblocker') > -1) {
+      adbCosmFilter(currentURL(), window, send, windowId, throttle);
+    }
 
     // ReportLang
     var lang = window.document.getElementsByTagName('html')
