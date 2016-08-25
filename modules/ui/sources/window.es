@@ -2,7 +2,6 @@ import { utils } from "core/cliqz";
 import autocomplete from "autocomplete/autocomplete";
 import CliqzHandlebars from "core/templates";
 import CliqzEvents from "core/events";
-import inputFocus from "./input-focus";
 
 function initPopup(popup, win) {
   //patch this method to avoid any caching FF might do for components.xml
@@ -54,11 +53,6 @@ export default class {
     this.popupEventHandlers = {}
     Object.keys(popupEventHandlers).forEach( ev => {
       this.popupEventHandlers[ev] = popupEventHandlers[ev].bind(this)
-    })
-
-    this.miscHandlers = {}
-    Object.keys(miscHandlers).forEach( ev => {
-      this.miscHandlers[ev] = miscHandlers[ev].bind(this)
     })
   }
 
@@ -126,7 +120,12 @@ export default class {
     var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(null, this.window);
     this.window.CLIQZ.Core.elem.push(searchHistoryContainer);
 
-    this.window.addEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
+    // make CMD/CTRL + K equal with CMD/CTRL + L
+    this.searchShortcutElements = this.window.document.getElementById('mainKeyset').querySelectorAll('#key_search, #key_search2');
+    [].forEach.call(this.searchShortcutElements, function (item) {
+      item.setAttribute('original_command', item.getAttribute('command'))
+      item.setAttribute('command', 'Browser:OpenLocation')
+    });
 
     this.initialzied = true;
   }
@@ -305,7 +304,9 @@ export default class {
 
     this.reloadUrlbar(this.urlbar);
 
-    this.window.removeEventListener("keydown", this.miscHandlers.handleKeyboardShortcuts);
+    [].forEach.call(this.searchShortcutElements, function (item) {
+      item.setAttribute('command', item.getAttribute('original_command'))
+    });
 
     delete this.window.CLIQZ.UI;
 
@@ -438,30 +439,4 @@ const popupEventHandlers = {
     this.popupEvent(false);
     this.window.CLIQZ.UI.popupClosed = true;
   }
-};
-
-const miscHandlers = {
-  handleKeyboardShortcutsAction(val) {
-    utils.telemetry({
-      type: 'activity',
-      action: 'keyboardShortcut',
-      value: val,
-    });
-  },
-  handleKeyboardShortcuts(ev) {
-    const kPressed = ev.keyCode === this.window.KeyEvent.DOM_VK_K;
-    const urlbarFocused = this.urlbar.focused;
-    const isMac = utils.isMac(this.window);
-    const isCtrlPressed = isMac && ev.metaKey && !ev.ctrlKey && !ev.altKey;
-    const isCmdPressed = !isMac && !ev.metaKey && ev.ctrlKey && !ev.altKey;
-    const isCtrlOrCmdPressed = isCtrlPressed || isCmdPressed;
-    const isInputFocused = inputFocus(this.window);
-
-    if (kPressed && isCtrlOrCmdPressed && !urlbarFocused && !isInputFocused) {
-      this.urlbar.focus();
-      miscHandlers.handleKeyboardShortcutsAction(ev.keyCode);
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-  },
 };
