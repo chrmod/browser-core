@@ -13,10 +13,6 @@ import { log } from 'adblocker/utils';
 import FilterEngine from 'adblocker/filters-engine';
 import FiltersLoader from 'adblocker/filters-loader';
 
-import ContentPolicy from 'adblocker/content-policy';
-import { hideNodes } from 'adblocker/cosmetics';
-import MutationLogger from 'adblocker/mutation-logger';
-
 import CliqzHumanWeb from 'human-web/human-web';
 
 
@@ -64,9 +60,12 @@ class AdBlocker {
     this.listsManager = new FiltersLoader();
     this.listsManager.onUpdate(update => {
       // Update list in engine
-      const { asset, filters } = update;
-      this.engine.onUpdateFilters(asset, filters);
-
+      const { asset, filters, isFiltersList } = update;
+      if (isFiltersList) {
+        this.engine.onUpdateFilters(asset, filters);
+      } else {
+        this.engine.onUpdateResource(asset, filters)
+      }
       this.initCache();
     });
 
@@ -257,9 +256,6 @@ const CliqzADB = {
     CliqzADB.adBlocker = new AdBlocker();
 
     const initAdBlocker = () => {
-      ContentPolicy.init();
-      CliqzADB.cp = ContentPolicy;
-      CliqzADB.mutationLogger = new MutationLogger();
       CliqzADB.adBlocker.init();
       CliqzADB.adblockInitialized = true;
       CliqzADB.initPacemaker();
@@ -291,15 +287,9 @@ const CliqzADB = {
   },
 
   initWindow(window) {
-    if (CliqzADB.mutationLogger !== null) {
-      window.gBrowser.addProgressListener(CliqzADB.mutationLogger);
-    }
   },
 
   unloadWindow(window) {
-    if (window.gBrowser && CliqzADB.mutationLogger !== null) {
-      window.gBrowser.removeProgressListener(CliqzADB.mutationLogger);
-    }
   },
 
   initPacemaker() {
@@ -372,19 +362,16 @@ const CliqzADB = {
             frame.style.display = 'none';  // hide this node
             CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
 
-            frame.setAttribute('cliqz-adb', `source: ${url}`);
             return { cancel: true };
           }
-          frame.setAttribute('cliqz-adblocker', 'safe');
+        } else {
+          if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
+            return { cancel: true };
+          }
         }
         return {};
       } else if (adbEnabled()) {
-        if (CliqzADB.mutationLogger.tabsInfo[sourceTab] &&
-            !CliqzADB.mutationLogger.tabsInfo[sourceTab].observerAdded) {
-          CliqzADB.mutationLogger.addMutationObserver(sourceTab);
-        }
         if (CliqzADB.adBlocker.match(requestContext)) {
-          hideNodes(requestContext);
           return { cancel: true };
         }
       }

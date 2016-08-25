@@ -46,6 +46,8 @@ System.baseURL = "modules/";
 
 console.log('LOADING ...')
 
+var acResults;
+
 Promise.all([
   System.import("core/utils"),
   System.import("core/templates")
@@ -62,7 +64,8 @@ Promise.all([
       System.import("ui/background"),
       System.import("core/events"),
       System.import("platform/expansions-provider"),
-      System.import("core/config")
+      System.import("core/config"),
+      System.import("geolocation/background")
     ])
   }).then(function (modules) {
     window.CLIQZEnvironment = modules[0].default;
@@ -104,6 +107,7 @@ Promise.all([
     // remove keydown handler from UI - the platform will do it
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
+    acResults = new CliqzAutocomplete.CliqzResults();
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
         (winId, query) => {
           if (winId === currWinId)
@@ -120,16 +124,17 @@ Promise.all([
           if (winId === currWinId)
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
-    console.log('magic');
 
+    createSettingsMenu();
     whoAmI(true);
-  });
 
+    console.log('magic');
+  });
 
 function startAutocomplete(query) {
   urlbar.value = query;
-  (new CliqzAutocomplete.CliqzResults()).search(query, function(r) {
-    var currentResults = CLIQZ.UI.results({
+  acResults.search(query, function(r) {
+    CLIQZ.UI.setRawResults({
       q: r._searchString,
       results: r._results.map(function(r) {
         r.type = r.style;
@@ -140,6 +145,8 @@ function startAutocomplete(query) {
       isInstant: false,
       isMixed: true
     });
+
+    CLIQZ.UI.render();
   });
 }
 
@@ -192,12 +199,6 @@ var stubs = {
 };
 declareStubs(stubs, this);
 
-function showPosition(position) {
-  CLIQZEnvironment.USER_LAT = position.coords.latitude;
-  CLIQZEnvironment.USER_LNG = position.coords.longitude;
-}
-navigator.geolocation.getCurrentPosition(showPosition);
-
 function whoAmI(startup){
   var onInstall = checkSession();
 
@@ -247,4 +248,50 @@ function generateSession(source){
          CliqzUtils.getDay()
          + '|' +
          (source || 'NONE');
+}
+
+// Settings
+
+function createOptionEntries(el, options, prefKey, action){
+  for(var id in options){
+    var option = document.createElement('option');
+    option.value = id;
+    option.textContent = options[id].name;
+    option.selected = options[id].selected;
+    el.appendChild(option);
+  }
+
+  el.addEventListener("change", function(ev){
+    CliqzUtils.setPref(prefKey, ev.target.value);
+    action(ev.target.value);
+  });
+}
+
+function createSettingsMenu(){
+  var btn = document.getElementById("settingsButton"),
+      box = document.getElementById("settings"),
+      adult = document.getElementById('adult'),
+      loc = document.getElementById('location');
+
+  createOptionEntries(adult,
+    CliqzUtils.getAdultFilterState(),
+    "adultContentFilter"
+  );
+
+  createOptionEntries(
+    loc,
+    CliqzUtils.getLocationPermState(),
+    "share_location",
+    function (val) {
+      CliqzUtils.callAction(
+        "geolocation",
+        "setLocationPermission",
+        [val.toString()]
+      );
+    }
+  );
+
+  btn.addEventListener('click', function(){
+    box.classList.toggle('hidden')
+  })
 }

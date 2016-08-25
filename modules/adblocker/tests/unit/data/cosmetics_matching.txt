@@ -1,0 +1,30 @@
+[
+{
+    "url": "https://www.google.com/test",
+    "node": [".adwords"],
+    "matches": [
+        "##.adwords",
+        "accounts.google.com#@#.adwords"
+    ]
+},
+{
+    "url": "https://www.example.de/test",
+    "node": ["#AD300Right"],
+    "matches": [
+        "###AD300Right"
+    ]
+},
+{
+    "url": "https://pokerupdate.com/test",
+    "node": ["#not_an_ad"],
+    "matches": []
+},
+{
+    "url": "https://pokerupdate.com/test",
+    "node": [".related-room", ".prev-article"],
+    "matches": [
+        "pokerupdate.com##.related-room",
+        "pokerupdate.com##.prev-article"
+    ]
+}
+]

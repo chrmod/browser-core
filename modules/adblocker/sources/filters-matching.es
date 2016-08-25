@@ -107,13 +107,12 @@ function checkOptions(filter, request) {
 function checkPattern(filter, request) {
   const url = request.url;
   const host = request.hostname;
-  const hostGD = request.hostGD;
 
   // Try to match url with pattern
   if (filter.isHostnameAnchor) {
-    if (host.startsWith(filter.hostname) ||
-        hostGD.startsWith(filter.hostname) ||
-        host.endsWith(filter.hostname)) {
+    const matchIndex = host.indexOf(filter.hostname);
+    // Either start at beginning of hostname or be preceded by a '.'
+    if ((matchIndex > 0 && host[matchIndex - 1] === '.') || matchIndex === 0) {
       // Extract only the part after the hostname
       const urlPattern = url.substring(url.indexOf(filter.hostname) + filter.hostname.length);
       if (filter.isRegex) {

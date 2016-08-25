@@ -34,7 +34,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     DEL = 46,
     BACKSPACE = 8,
     ESC = 27,
-    currentResults,
+    currentResults, // enhancedResults
+    rawResults, // raw results
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
 
     // The number of times to attempt loading smart CLIQZ results asynchronously
@@ -94,7 +95,7 @@ var UI = {
         }
     },
     main: function(box) {
-        gCliqzBox = box;
+        CLIQZ.UI.gCliqzBox = gCliqzBox = box;
 
         //check if loading is done
         if(!CliqzHandlebars.tplCache.main)return;
@@ -128,6 +129,7 @@ var UI = {
         if (CliqzUtils.getPref('hist_search_type', 0))
             resultsBox.style.height = "580px";
     },
+    // FF specific
     handleResults: function(){
       // TODO: this is FF specific - move it to another place!
       var popup = urlbar.popup,
@@ -164,12 +166,14 @@ var UI = {
           });
       }
 
-      var currentResults = CLIQZ.UI.results({
+      CLIQZ.UI.setRawResults({
         q: q,
         results: data,
         isInstant: lastRes && lastRes.isInstant,
         isMixed: lastRes && lastRes.isMixed,
       });
+
+      var currentResults = CLIQZ.UI.render();
 
       // cache heights (1-3) for result order
       CliqzAutocomplete.lastResultHeights =
@@ -198,10 +202,12 @@ var UI = {
       XULBrowserWindow.updateStatusField();
       CliqzUtils._queryLastDraw = Date.now();
     },
-
+    setRawResults: function(res){
+      rawResults = res
+    },
     // results function
-    results: function(res){
-        currentResults = enhanceResults(res);
+    render: function(){
+        currentResults = enhanceResults(rawResults);
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         // Results that are not ready (extra results, for which we received a callback_url)
@@ -446,7 +452,7 @@ var UI = {
                   // set the caret at the beginning of the text box
                   urlbar.selectionEnd = 0;
                 }
-                (ev.originalTarget || ev.srcElement).setSelectionRange(0, urlbar.selectionEnd);
+                (ev.target || ev.srcElement).setSelectionRange(0, urlbar.selectionEnd);
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
@@ -1002,6 +1008,10 @@ function setPartialTemplates(data) {
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+    // is this smart?
+    // clone the object to avoid losing the raw version
+    res = JSON.parse(JSON.stringify(res));
+
     clearMessage('bottom');
     var adult = false, data;
 
@@ -1396,14 +1406,14 @@ function urlIndexInHistory(url, urlList) {
                         break;
                     case 'dismiss':
                         clearMessage('bottom');
-                        var pref = ev.originalTarget.getAttribute("pref");
+                        var pref = ev.target.getAttribute("pref");
                         if (pref && pref != "null")
                             CliqzUtils.setPref(pref, false);
                         break;
                     case 'set':
                         clearMessage('bottom');
-                        var pref = ev.originalTarget.getAttribute("pref");
-                        var prefVal = ev.originalTarget.getAttribute("prefVal");
+                        var pref = ev.target.getAttribute("pref");
+                        var prefVal = ev.target.getAttribute("prefVal");
                         if (pref && prefVal && pref != "null" && prefVal != "null")
                             CliqzUtils.setPref(pref, prefVal);
                         break;
@@ -1424,7 +1434,7 @@ function urlIndexInHistory(url, urlList) {
                             CliqzUtils.setPref('adultContentFilter', state);
                         }
                         clearMessage('bottom');
-                        UI.handleResults();
+                        UI.render();
                         if (user_location != "de" && user_location != "" && !ignored_location_warning)
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
@@ -1434,7 +1444,7 @@ function urlIndexInHistory(url, urlList) {
                         break;
                 }
                 CliqzEvents.pub('ui:dropdown_message_click',
-                  ev.originalTarget.getAttribute('state'));
+                  ev.target.getAttribute('state'));
                 CliqzUtils.telemetry({
                     type: 'setting',
                     setting: el.getAttribute('cliqz-telemetry'),
@@ -1787,7 +1797,7 @@ function setResultSelection(el, scrollTop, changeUrl, mouseOver){
 }
 
 function getStatus(ev, el){
-  var oTarget = ev.originalTarget || ev.srcElement;
+  var oTarget = ev.target || ev.srcElement;
 
   return /* newtab */ (oTarget.hasAttribute('newtab') && el.getAttribute('url') ?
           CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')) : ''
@@ -2025,7 +2035,7 @@ function handleMouseDown(e) {
       }
     }
   }
-  walk_the_DOM(e.originalTarget || e.srcElement);
+  walk_the_DOM(e.target || e.srcElement);
 }
 
     function smCqzAnalogClock(elm) {

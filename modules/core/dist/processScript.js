@@ -10,6 +10,10 @@ Services.scriptloader.loadSubScript("chrome://cliqz/content/core/content-scripts
 
 var config = {{CONFIG}};
 
+if (config.modules.indexOf('adblocker') > -1) {
+  Services.scriptloader.loadSubScript('chrome://cliqz/content/adblocker/content-scripts.js');
+}
+
 var whitelist = [
   "chrome://cliqz/"
 ].concat(config.settings.frameScriptWhitelist);
@@ -77,6 +81,10 @@ function onDOMWindowCreated(ev) {
     return v.toString(16);
   });
 
+  if (config.modules.indexOf('adblocker') > -1) {
+    requestDomainRules(currentURL(), window, send, windowId);
+  }
+
   var onMessage = function (ev) {
     var href = ev.target.location.href;
 
@@ -109,6 +117,10 @@ function onDOMWindowCreated(ev) {
   function onCallback(msg) {
     if (isDead()) {
       return;
+    }
+
+    if (config.modules.indexOf('adblocker') > -1) {
+      responseAdbMsg(msg, window);
     }
 
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
@@ -258,6 +270,10 @@ function onDOMWindowCreated(ev) {
   };
 
   var onReady = function (event) {
+    if (config.modules.indexOf('adblocker') > -1) {
+      adbCosmFilter(currentURL(), window, send, windowId, throttle);
+    }
+
     // ReportLang
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
