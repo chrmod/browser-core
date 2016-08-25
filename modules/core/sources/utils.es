@@ -770,12 +770,12 @@ var CliqzUtils = {
      CliqzUtils.getPref('share_location','ask')
     ].join('')
 
-    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG || lat && lng) {
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
       qs += [
         '&loc=',
-        lat || CliqzUtils.USER_LAT,
+        lat || CLIQZEnvironment.USER_LAT,
         ',',
-        lng || CliqzUtils.USER_LNG,
+        lng || CLIQZEnvironment.USER_LNG,
         (specifySource ? ',U' : '')
       ].join('');
     }

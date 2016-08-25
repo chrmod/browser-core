@@ -543,7 +543,7 @@ function loadViews() {
           });
         }
       } else {
-        CliqzUtils.log('failed to load ' + templateName);
+        CliqzUtils.log('failed to load ' + templateName, 'UI');
       }
     } catch (ex) {
       CliqzUtils.log(ex, 'UI');
