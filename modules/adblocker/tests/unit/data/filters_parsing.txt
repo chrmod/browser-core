@@ -172,11 +172,7 @@
 ###############################################################################
 
 ##############################################################
-# supported / not supported (cosmetics, unsupported options) #
-# > Cosmetics
-{"filter": "youtube.com###watch-buy-urls", "compiled": {"supported": false}}
-{"filter": "accounts.google.com#@#.adwords", "compiled": {"supported": false}}
-{"filter": "www.youtube.com##.ad-div", "compiled": {"supported": false}}
+# supported / not supported (unsupported options) #
 # > Redirect
 {"filter": "||cliqz.com$redirect", "compiled": {"supported": false}}
 {"filter": "||cliqz.com$~redirect", "compiled": {"supported": false}}
@@ -266,8 +262,6 @@
 # > True
 {"filter": "# ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
 {"filter": "! ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
-{"filter": " ! ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
-{"filter": " # ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
 {"filter": "[Adblock] ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
 {"filter": "[Adblock Plus 2.0] ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
 # > False
