@@ -5,6 +5,7 @@ import { utils, events } from 'core/cliqz';
 import * as datetime from 'antitracking/time';
 import CliqzAttrack from 'antitracking/attrack';
 import telemetry from 'antitracking/telemetry';
+import ResourceLoader from 'core/resource-loader';
 
 const DAYS_EXPIRE = 7;
 
@@ -60,12 +61,21 @@ class BlockLog {
     this.blockReportList = {};
     this.blocked = new persist.LazyPersistentObject('blocked');
     this.localBlocked = new persist.LazyPersistentObject('localBlocked');
+    this._blockReportListLoader = new ResourceLoader( ['antitracking', 'anti-tracking-report-list.json'], {
+      remoteURL: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-report-list.json',
+      cron: 24 * 60 * 60 * 1000,
+    });
   }
 
   init() {
     this.blocked.load();
     this.localBlocked.load();
-    this._loadReportList();
+    this._blockReportListLoader.load().then(this._loadReportList.bind(this));
+    this._blockReportListLoader.onUpdate(this._loadReportList.bind(this));
+  }
+
+  destroy() {
+    this._blockReportListLoader.stop();
   }
 
   // blocked + localBlocked
@@ -159,14 +169,8 @@ class BlockLog {
     this.localBlocked.save();
   }
 
-  _loadReportList() {
-    utils.loadResource(this.URL_BLOCK_REPORT_LIST, function(req) {
-      try {
-        this.blockReportList = JSON.parse(req.response);
-      } catch(e) {
-        this.blockReportList = {};
-      }
-    }.bind(this));
+  _loadReportList(list) {
+    this.blockReportList = list;
   }
 
   isInBlockReportList(s, k, v) {
@@ -243,6 +247,7 @@ export default class {
 
   destroy() {
     pacemaker.deregister(this._pmTask);
+    this.blockLog.destroy();
   }
 
   incrementCheckedTokens() {
