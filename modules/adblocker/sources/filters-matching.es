@@ -1,14 +1,16 @@
 // Some content policy types used in filters
-const TYPE_OTHER = 1;
-const TYPE_SCRIPT = 2;
-const TYPE_IMAGE = 3;
-const TYPE_STYLESHEET = 4;
-const TYPE_OBJECT = 5;
-const TYPE_SUBDOCUMENT = 7;
-const TYPE_PING = 10;
-const TYPE_XMLHTTPREQUEST = 11;
-const TYPE_OBJECT_SUBREQUEST = 12;
-const TYPE_MEDIA = 15;
+const CPT = {
+  TYPE_OTHER: 1,
+  TYPE_SCRIPT: 2,
+  TYPE_IMAGE: 3,
+  TYPE_STYLESHEET: 4,
+  TYPE_OBJECT: 5,
+  TYPE_SUBDOCUMENT: 7,
+  TYPE_PING: 10,
+  TYPE_XMLHTTPREQUEST: 11,
+  TYPE_OBJECT_SUBREQUEST: 12,
+  TYPE_MEDIA: 15,
+};
 
 
 function checkContentPolicy(filter, cpt) {
@@ -16,16 +18,16 @@ function checkContentPolicy(filter, cpt) {
   // been specified in the options.
   if (!filter.fromAny) {
     const options = [
-      [filter.fromSubdocument, TYPE_SUBDOCUMENT],
-      [filter.fromImage, TYPE_IMAGE],
-      [filter.fromMedia, TYPE_MEDIA],
-      [filter.fromObject, TYPE_OBJECT],
-      [filter.fromObjectSubrequest, TYPE_OBJECT_SUBREQUEST],
-      [filter.fromOther, TYPE_OTHER],
-      [filter.fromPing, TYPE_PING],
-      [filter.fromScript, TYPE_SCRIPT],
-      [filter.fromStylesheet, TYPE_STYLESHEET],
-      [filter.fromXmlHttpRequest, TYPE_XMLHTTPREQUEST],
+      [filter.fromSubdocument, CPT.TYPE_SUBDOCUMENT],
+      [filter.fromImage, CPT.TYPE_IMAGE],
+      [filter.fromMedia, CPT.TYPE_MEDIA],
+      [filter.fromObject, CPT.TYPE_OBJECT],
+      [filter.fromObjectSubrequest, CPT.TYPE_OBJECT_SUBREQUEST],
+      [filter.fromOther, CPT.TYPE_OTHER],
+      [filter.fromPing, CPT.TYPE_PING],
+      [filter.fromScript, CPT.TYPE_SCRIPT],
+      [filter.fromStylesheet, CPT.TYPE_STYLESHEET],
+      [filter.fromXmlHttpRequest, CPT.TYPE_XMLHTTPREQUEST],
     ];
 
     // If content policy type `option` is specified in filter filter,
