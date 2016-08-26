@@ -47,7 +47,7 @@ var __CliqzHumanWeb = function() { // (_export) {
             falsePositive = 0.01;
             bloomFilterNHashes = 7;
             CliqzHumanWeb = {
-                VERSION: '2.1', // should change the version number for chrome.
+                VERSION: '3.0', // should change the version number for chrome.
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
                 debug: true,
@@ -1410,7 +1410,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                 },
                 getHTML: function getHTML(url) {
                     return new Promise(function(resolve, reject){
-                        CliqzUtils.log(">>>>>>> DEBUG >>> " + url);
                         if(CliqzHumanWeb.contentDocument && CliqzHumanWeb.contentDocument.hasOwnProperty(url)){
                             resolve(CliqzHumanWeb.contentDocument[url]["doc"]);
                         }
@@ -1430,7 +1429,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                           href: url
                         };
                         */
-                        CliqzUtils.log(">>>>>>> DEBUG2 >>> " + doc.title);
                         return doc;
                     });
 

@@ -17,7 +17,7 @@ var __CliqzUtils = function() { // (_export) {
                     switch (label)
                     {
                         case "config_ts":
-                            defaultValue = "20160727"; // Need to change this.
+                            defaultValue = CliqzHumanWeb.getTime().slice(0, 8);
                             if(CliqzUtils.prefs.hasOwnProperty(label)){
                                 defaultValue = CliqzUtils.prefs[label];
                             }

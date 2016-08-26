@@ -78,9 +78,9 @@ var messageContext = class messageContext {
 	 	this.type = this.jMessage.type || null;
 	 	this.action = this.jMessage.action || null;
 	 	this.sha256 = this.action == "duplication-check" ? sha256_digest(this.orgMessage) : null;
-	 	this.interval = this.action ? sourceMap[this.action]["interval"] : null;
-	 	this.rateLimit = this.action ? sourceMap[this.action]["ratelimit"] : null;
-	 	this.endPoint = this.action ? sourceMap[this.action]["endpoint"] : null;
+	 	this.interval = this.action ? CliqzSecureMessage.sourceMap[this.action]["interval"] : null;
+	 	this.rateLimit = this.action ? CliqzSecureMessage.sourceMap[this.action]["ratelimit"] : null;
+	 	this.endPoint = this.action ? CliqzSecureMessage.sourceMap[this.action]["endpoint"] : null;
 	 	this.mE = null;
 	 	this.mK = null;
 	 	this.mP = null;
