@@ -188,9 +188,9 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
 #urlbar[focused="true"],
 .searchbar-textbox[focused="true"] {
-    border-color: #5ea3f9 !important;
-    box-shadow: inset 0 0 2px #90c3e4 !important;
-    -moz-border-start: 1px solid #5ea3f9 !important;
+    border-color: #7aa8d9 !important;
+    box-shadow: inset 0 0 2px #aec6de !important;
+    -moz-border-start: 1px solid #7aa8d9 !important;
 
 }
 
@@ -267,9 +267,9 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
         }
     }
 
-    &:not([visuallyselected="true"]) {
-        background: #b9b9b9 !important;
-    }
+    //&:not([visuallyselected="true"]) {
+    //    background: #b9b9b9 !important;
+    //}
 
     &:not([pinned]) {
         .tab-content .tab-text {
@@ -424,28 +424,42 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     }
 }
 
-notification[type="warning"] {
-    padding: 6px 5px;
-    border: none;
-    color: #fff;
-    font-size: 14px;
-    background: #fec621;
-    letter-spacing: 0.4px;
+
+#notification-popup-box {
+    background-color: #fff !important;
+    margin-left: 2px;
 }
 
-notification[type="warning"] > button {
-    padding: 5px 10px;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    text-shadow: none;
-    box-shadow: none;
-    background: #4661ae;
-}
+notification {
+    &[type="info"] {
+        margin-top: 0;
+        border: none;
+        color: rgba(255, 255, 255, 0.9);
+    }
 
-notification[type="warning"] .messageText {
-    font-weight: normal;
-    color: black;
+    &[type="warning"] {
+        padding: 6px 5px;
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        background: #fec621;
+        letter-spacing: 0.4px;
+
+        & > button {
+            padding: 5px 10px;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            text-shadow: none;
+            box-shadow: none;
+            background: #4661ae;
+        }
+
+        & .messageText {
+            font-weight: normal;
+            color: black;
+        }
+    }
 }
 
 /****** NEW THEME ******/
@@ -506,10 +520,6 @@ notification[type="warning"] .messageText {
     }
 }
 
-#notification-popup-box {
-    background-color: rgba(255, 255, 255, 0);
-}
-
 #navigator-toolbox[on_private_tab="true"] {
     #notification-popup-box {
         border-image: url("../images/browser/mac/urlbar-arrow.png") 0 8 0 0 fill;
@@ -535,8 +545,9 @@ notification[type="warning"] .messageText {
 /* BEGIN TOOLBAR */
 
 #PersonalToolbar {
-    border-top: 1px solid #fcfcfc !important;
-    box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
+    border-top: 1px solid #e1e1e1 !important;
+    //box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
+    box-shadow: none;
     z-index: 1;
     -moz-box-ordinal-group: 101;
     content: "";
@@ -667,9 +678,10 @@ notification[type="warning"] .messageText {
     background-color: #3eadb5;
 }
 
-#main-window #customization-panel-container, #main-window[customize-entered] #customization-panel-container {
+#main-window #customization-panel-container,
+#main-window[customize-entered] #customization-panel-container {
     background-image: none;
-    background-color: #838383;
+    background-color: #506275;
 }
 
 vbox[sidebarcommand=historybroadcaster] {
