@@ -117,7 +117,7 @@ export default class {
     this.reloadUrlbar(this.urlbar);
 
     // Add search history dropdown
-    var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(null, this.window);
+    var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(this.window);
     this.window.CLIQZ.Core.elem.push(searchHistoryContainer);
 
     // make CMD/CTRL + K equal with CMD/CTRL + L
@@ -324,7 +324,7 @@ const urlbarEventHandlers = {
     utils.pingCliqzResults();
 
     autocomplete.lastFocusTime = Date.now();
-    CliqzSearchHistory.hideLastQuery();
+    CliqzSearchHistory.hideLastQuery(this.window);
     this.triggerLastQ = false;
     utils.setSearchSession(utils.rand(32));
     this.urlbarEvent('focus');
@@ -351,7 +351,7 @@ const urlbarEventHandlers = {
     autocomplete.resetSpellCorr();
 
     if(this.window.CLIQZ.Core.triggerLastQ)
-        CliqzSearchHistory.lastQuery();
+        CliqzSearchHistory.lastQuery(this.window);
 
     this.urlbarEvent('blur');
 
