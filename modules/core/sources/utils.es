@@ -1033,6 +1033,30 @@ var CliqzUtils = {
 
     return data;
   },
+
+  // Returns result elements selecatble and navigatable from keyboard.
+  // |container| search context, usually it's `CLIQZ.UI.gCliqzBox`.
+  extractSelectableElements(container) {
+    return Array.prototype.slice.call(
+        container.querySelectorAll('[arrow]')).filter(
+            function(el) {
+              // dont consider hidden elements
+              if(el.offsetParent == null)
+                return false;
+
+              if(!el.getAttribute('arrow-if-visible'))
+                return true;
+
+              // check if the element is visible
+              //
+              // for now this check is enough but we might be forced to switch to a
+              // more generic approach - maybe using document.elementFromPoint(x, y)
+              if (el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+              return true;
+            });
+  },
+
   getNoResults: CLIQZEnvironment.getNoResults,
   disableCliqzResults: CLIQZEnvironment.disableCliqzResults,
   enableCliqzResults: CLIQZEnvironment.enableCliqzResults,
@@ -1071,10 +1095,12 @@ var CliqzUtils = {
     if (!CLIQZEnvironment.onRenderComplete)
       return;
 
-    var linkNodes = box.querySelectorAll("[url]:not(.cqz-result-box):not(.entity-story):not([hidden]), [href]:not([hidden])");
-    var urls = [].map.call(linkNodes, function(node) {
-      return node.getAttribute("url") || node.getAttribute("href");
-    }).filter(url => !!url);
+    var linkNodes = this.extractSelectableElements(box);
+    var urls = linkNodes
+        .map(node => {
+          return node.getAttribute("url") || node.getAttribute("href");
+        })
+        .filter(url => !!url);
 
     CLIQZEnvironment.onRenderComplete(query, urls);
   }
