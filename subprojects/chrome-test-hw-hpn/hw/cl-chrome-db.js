@@ -73,12 +73,20 @@ var __CliqzChromeDB = function() { // (_export) {
 
                     CliqzChromeDB.size(function(sv) {
                         if (sv && sv[1] > 0.90) {
-                            // more than 80% utilization,
+                            // more than 90% utilization,
                             // drop everything
+
                             CliqzChromeDB.removeEverything();
                             // FIXME
                             // we should send a telemetry signal for when it
                             // happens
+                            var payload = {};
+                            payload['cleared'] = true;
+                            try {
+                                var location = CliqzUtils.getPref('config_location', null);
+                            } catch (ee) {};
+                            payload['ctry'] = location;
+                            CliqzHumanWeb.telemetry({ 'type': CliqzHumanWeb.msgType, 'action': 'dbcleared', 'payload': payload });
                         }
                     })
 
