@@ -13,19 +13,10 @@
     <script src="../webextensions-shim.js"></script>
     <script defer src="jquery.min.js"></script>
     <script defer src="functionality.js"></script>
+    <script defer src="chrome://cliqz/content/bower_components/handlebars/handlebars.js"></script>
   </head>
   <body>
     <script>
-      var acc = document.getElementsByClassName("accordion");
-      var i;
-
-      for (i = 0; i < acc.length; i++) {
-          acc[i].onclick = function() {
-              this.classList.toggle("active");
-              this.nextElementSibling.classList.toggle("show");
-          }
-      }
-
       var node = document.createElement("link");
       node.rel = "stylesheet";
       node.href = 'styles/styles.css?' + Math.floor(Math.random() * 999999999);
@@ -164,6 +155,53 @@
               </span>
             </div>
             <div id="companies">
+
+              <div class="setting-accordion">
+                <div class="setting-accordion-section">
+                  <a class="setting-accordion-section-title" href="#accordion-1">
+                    <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <defs></defs>
+                      <polygon id="Rectangle-546-Copy-11" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+                    </svg>
+                    <span>Test 1</span>
+                  </a>
+                  <div id="accordion-1" class="setting-accordion-section-content">
+                    <span class="bullet">OOOOONNNEEEE</span>
+                  </div>
+                  <!--end .accordion-section-content-->
+                </div>
+                <!--end .accordion-section-->
+                <div class="setting-accordion-section">
+                  <a class="setting-accordion-section-title" href="#accordion-2">
+                    <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <defs></defs>
+                      <polygon id="Rectangle" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+                    </svg>
+                    <span>Test 2</span>
+                  </a>
+                  <div id="accordion-2" class="setting-accordion-section-content">
+                    <span class="bullet">TTTWWWOOOOOOOO</span>
+                  </div>
+                  <!--end .accordion-section-content-->
+                </div>
+                <!--end .accordion-section-->
+                <div class="setting-accordion-section">
+                  <a class="setting-accordion-section-title" href="#accordion-3">
+                    <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <defs></defs>
+                      <polygon id="Rectangle-546-Copy-11" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+                    </svg>
+                    <span>Test 3</span>
+                  </a>
+                  <div id="accordion-3" class="setting-accordion-section-content">
+                    <span class="bullet">TTTHHHREEEEEE</span>
+                  </div>
+                  <!--end .accordion-section-content-->
+                </div>
+                <!--end .accordion-section-->
+              </div>
+              <!--end .accordion-->
+
             </div>
             <div id="bottom-part">
               <div id="description" data-i18n="control-center-datapoints"></div>
@@ -493,16 +531,6 @@
       // var headerTemplate = Handlebars.compile(document.querySelector("#headerTemplate").innerHTML);
       //   headerElem.innerHTML = headerTemplate();
 
-      function localizeDocument() {
-          Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-              var elArgs = el.dataset.i18n.split(","),
-                  key = elArgs.shift();
-              el.textContent = chrome.i18n.getMessage(key, elArgs);
-          });
-
-      }
-
-      localizeDocument();
     </script>
   </body>
 </html>

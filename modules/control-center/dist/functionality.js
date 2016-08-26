@@ -1,4 +1,15 @@
-//====== ACCORDION FUNCTIONALITY =========//
+function localizeDocument() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
+        var elArgs = el.dataset.i18n.split(","),
+            key = elArgs.shift();
+        el.textContent = chrome.i18n.getMessage(key, elArgs);
+    });
+
+}
+
+localizeDocument();
+
+//====== OTHERSETTINGS ACCORDION FUNCTIONALITY =========//
 $(document).ready(function() {
   function close_accordion_section() {
     $('.accordion .accordion-section-title').removeClass('active');
@@ -6,10 +17,12 @@ $(document).ready(function() {
   }
 
   $('.accordion-section-title').click(function(e) {
+
+    console.log($(e.target));
     // Grab current anchor value
     var currentAttrValue = $(this).attr('href');
 
-    if ($(e.target).is('.active')) {
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-section-title active")) {
       close_accordion_section();
     } else {
       close_accordion_section();
@@ -18,6 +31,33 @@ $(document).ready(function() {
       $(this).addClass('active');
       // Open up the hidden content panel
       $('.accordion ' + currentAttrValue).slideDown(150).addClass('open');
+    }
+    e.preventDefault();
+  });
+});
+
+//====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
+$(document).ready(function() {
+  function close_setting_accordion_section() {
+    $('.setting-accordion .setting-accordion-section-title').removeClass('active');
+    $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
+  }
+
+  $('.setting-accordion-section-title').click(function(e) {
+
+    console.log($(e.target));
+    // Grab current anchor value
+    var currentAttrValue = $(this).attr('href');
+
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "setting-accordion-section-title active")) {
+      close_setting_accordion_section();
+    } else {
+      close_setting_accordion_section();
+
+      // Add active class to section title
+      $(this).addClass('active');
+      // Open up the hidden content panel
+      $('.setting-accordion ' + currentAttrValue).slideDown(150).addClass('open');
     }
     e.preventDefault();
   });
@@ -65,14 +105,6 @@ $(".setting").click(function(e) {
 });
 
 //====== SWITCHES =========//
-function localizeDocument() {
-  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-    var elArgs = el.dataset.i18n.split(","),
-      key = elArgs.shift();
-    el.textContent = chrome.i18n.getMessage(key, elArgs);
-  });
-}
-
 $(".cqz-switch").click(function() {
   $(this).toggleClass("active");
 
