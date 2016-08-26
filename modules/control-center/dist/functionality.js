@@ -4,37 +4,7 @@ function localizeDocument() {
             key = elArgs.shift();
         el.textContent = chrome.i18n.getMessage(key, elArgs);
     });
-
 }
-
-localizeDocument();
-
-//====== OTHERSETTINGS ACCORDION FUNCTIONALITY =========//
-$(document).ready(function() {
-  function close_accordion_section() {
-    $('.accordion .accordion-section-title').removeClass('active');
-    $('.accordion .accordion-section-content').slideUp(150).removeClass('open');
-  }
-
-  $('.accordion-section-title').click(function(e) {
-
-    console.log($(e.target));
-    // Grab current anchor value
-    var currentAttrValue = $(this).attr('href');
-
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-section-title active")) {
-      close_accordion_section();
-    } else {
-      close_accordion_section();
-
-      // Add active class to section title
-      $(this).addClass('active');
-      // Open up the hidden content panel
-      $('.accordion ' + currentAttrValue).slideDown(150).addClass('open');
-    }
-    e.preventDefault();
-  });
-});
 
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
 $(document).ready(function() {
@@ -61,6 +31,31 @@ $(document).ready(function() {
     }
     e.preventDefault();
   });
+
+  function close_accordion_section() {
+    $('.accordion .accordion-section-title').removeClass('active');
+    $('.accordion .accordion-section-content').slideUp(150).removeClass('open');
+  }
+
+  $('.accordion-section-title').click(function(e) {
+
+    console.log($(e.target));
+    // Grab current anchor value
+    var currentAttrValue = $(this).attr('href');
+
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-section-title active")) {
+      close_accordion_section();
+    } else {
+      close_accordion_section();
+
+      // Add active class to section title
+      $(this).addClass('active');
+      // Open up the hidden content panel
+      $('.accordion ' + currentAttrValue).slideDown(150).addClass('open');
+    }
+    e.preventDefault();
+  });
+  localizeDocument();
 });
 
 
@@ -108,8 +103,9 @@ $(".setting").click(function(e) {
 $(".cqz-switch").click(function() {
   $(this).toggleClass("active");
 
-  if (($(this).closest('#switches')).hasClass('smallsetting')) {
-      var $switches = $(this).closest('#switches'),
+  if (($(this).closest('.switches')).hasClass('smallsetting')) {
+
+      var $switches = $(this).closest('.switches'),
           $main = $switches.closest('#control-center');
           $onLabel = $switches.find('#onlabel'),
           onLabel = $onLabel.attr('data-i18n');
@@ -134,11 +130,11 @@ $(".cqz-switch").click(function() {
           $one = $adblock.find(".one"),
           $two = $adblock.find(".two"),
 
-          $switchesOne = $one.closest('#switches'),
-          $switchesTwo = $two.closest('#switches'),
+          $switchesOne = $one.closest('.switches'),
+          $switchesTwo = $two.closest('.switches'),
 
-          $descOne = $switchesOne.siblings('#description'),
-          $descTwo = $switchesTwo.siblings('#description'),
+          $descOne = $switchesOne.siblings('.description'),
+          $descTwo = $switchesTwo.siblings('.description'),
 
           descLocalOne = $descOne.attr('data-i18n'),
           descLocalTwo = $descTwo.attr('data-i18n'),
@@ -185,9 +181,7 @@ $(".cqz-switch").click(function() {
 $(".cqz-switch-antitrack").click(function(e) {
   $(this).toggleClass("active");
 
-  var $switches = $(this).closest('#switches'),
-      $counter = $switches.siblings('#counter'),
-      $count = $counter.find('#count'),
+  var $switches = $(this).closest('.switches'),
       $main = $switches.closest("#control-center"),
       $antitracker = $main.find(".antitracker"),
 
@@ -202,11 +196,11 @@ $(".cqz-switch-antitrack").click(function(e) {
       $onLabeltwo = $two.siblings('#onlabel'),
       onLabelone = $onLabelone.attr('data-i18n'),
       onLabeltwo = $onLabeltwo.attr('data-i18n'),
-      $switchesOne = $one.closest('#switches'),
-      $switchesTwo = $two.closest('#switches'),
+      $switchesOne = $one.closest('.switches'),
+      $switchesTwo = $two.closest('.switches'),
 
-      $descOne = $switchesOne.siblings('#description'),
-      $descTwo = $switchesTwo.siblings('#description'),
+      $descOne = $switchesOne.siblings('.description'),
+      $descTwo = $switchesTwo.siblings('.description'),
       descLocalOne = $descOne.attr('data-i18n'),
       descLocalTwo = $descTwo.attr('data-i18n');
 
@@ -264,7 +258,7 @@ $(".cqz-switch-antitrack").click(function(e) {
 $(".cqz-switch-antiphish").click(function(e) {
   $(this).toggleClass("active");
 
-  var $switches = $(this).closest('#switches'),
+  var $switches = $(this).closest('.switches'),
       $main = $switches.closest('#control-center'),
 
       $header = $main.find("#header"),
@@ -277,8 +271,8 @@ $(".cqz-switch-antiphish").click(function(e) {
       $one = $antiphishing.find(".one"),
       $two = $antiphishing.find(".two"),
 
-      $switchesOne = $one.closest('#switches'),
-      $switchesTwo = $two.closest('#switches'),
+      $switchesOne = $one.closest('.switches'),
+      $switchesTwo = $two.closest('.switches'),
 
       $onLabelone = $one.siblings('#onlabel'),
       $onLabeltwo = $two.siblings('#onlabel'),
@@ -392,18 +386,18 @@ $(".pause").click(function() {
       $antitracker = $main.find(".antitracker"),
 
       $cqzswitch = $main.find(".cqz-switch"),
-      $switches = $cqzswitch.closest('#switches'),
+      $switches = $cqzswitch.closest('.switches'),
       $onLabel = $switches.find('#onlabel'),
 
       $trackswitch = $main.find(".cqz-switch-antitrack"),
-      $trackswitches = $trackswitch.closest('#switches'),
+      $trackswitches = $trackswitch.closest('.switches'),
       $trackLabel = $trackswitches.find('#onlabel'),
-      $trackdesc = $trackswitches.siblings("#description"),
+      $trackdesc = $trackswitches.siblings(".description"),
 
-      $adblockdesc = $adblock.find("#description"),
+      $adblockdesc = $adblock.find(".description"),
 
       $phishswitch = $main.find(".cqz-switch-antiphish"),
-      $phishswitches = $phishswitch.closest('#switches'),
+      $phishswitches = $phishswitch.closest('.switches'),
       $phishLabel = $phishswitches.find('#onlabel');
 
 

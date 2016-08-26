@@ -11,9 +11,8 @@
     <title>Control Center</title>
     <!-- <link rel="stylesheet" href="styles/styles.css"> -->
     <script src="../webextensions-shim.js"></script>
-    <script defer src="jquery.min.js"></script>
-    <script defer src="functionality.js"></script>
-    <script defer src="chrome://cliqz/content/bower_components/handlebars/handlebars.js"></script>
+    <script src="jquery.min.js"></script>
+    <script src="chrome://cliqz/content/bower_components/handlebars/handlebars.js"></script>
   </head>
   <body>
     <script>
@@ -95,7 +94,8 @@
 
         <div class="antitracker setting">
           <div class="antitracker-frame">
-            <p id="title">
+
+            <div class="title">
               <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
                 <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
@@ -111,8 +111,9 @@
                 <defs></defs>
                 <polyline id="Path-164-Copy-153" stroke="#7D7D7D" stroke-width="2.5999999" fill="none" opacity="0.44" points="1133.19742 410.787186 1139.09434 416.693941 1133.42806 422.369666"></polyline>
               </svg>
-            </p>
-            <p id="counter">
+            </div>
+
+            <div class="counter">
               <!--======= Shield =======-->
               <svg id="shield" width="38px" height="44px" viewBox="-1 0 38 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
@@ -120,9 +121,9 @@
                   id="Fill-1" stroke="none" fill="#2CBA64" fill-rule="evenodd"></path>
               </svg>
               <span id="count">45</span>
-            </p>
-            <p id="description" data-i18n="control-center-datapoints"></p>
-            <div id="switches" class="switches-antitrack">
+            </div>
+            <p class="description" data-i18n="control-center-datapoints"></p>
+            <div class="switches" class="switches-antitrack">
               <!--======= Switch ======-->
               <span><span class="cqz-switch-antitrack active one"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               <select class="dropdown">
@@ -204,12 +205,12 @@
 
             </div>
             <div id="bottom-part">
-              <div id="description" data-i18n="control-center-datapoints"></div>
-              <div id="switches" class="switches-antitrack">
+              <div class="description" data-i18n="control-center-datapoints"></div>
+              <div class="switches" class="switches-antitrack">
                 <!--======= Switch ======-->
                 <span><span class="cqz-switch-antitrack active two"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               </div>
-              <div id="counter">
+              <div class="counter">
                 <!--======= Shield =======-->
                 <svg id="shield" width="42px" height="50px" viewBox="-1 0 38 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <defs></defs>
@@ -224,7 +225,7 @@
         <!--======= Werbeblocker =======-->
         <div class="adblock setting">
           <div class="adblock-frame">
-            <p id="title">
+            <div class="title">
               <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
                 <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
@@ -239,9 +240,9 @@
                 <defs></defs>
                 <polyline id="Path-164-Copy-153" stroke="#7D7D7D" stroke-width="2.5999999" fill="none" opacity="0.44" points="1133.19742 410.787186 1139.09434 416.693941 1133.42806 422.369666"></polyline>
               </svg>
-            </p>
-            <p id="counter">
-              <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            </div>
+            <div class="counter">
+              <!-- <?xml version="1.0" encoding="UTF-8" standalone="no"?> -->
               <svg id="block" width="40px" height="39px" viewBox="1769 198 40 39" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
                 <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1769.000000, 198.000000)">
@@ -252,9 +253,9 @@
                 </g>
               </svg>
               <span id="count">5</span>
-            </p>
-            <p id="description" data-i18n="control-center-adblock-description"></p>
-            <div id="switches">
+            </div>
+            <p class="description" data-i18n="control-center-adblock-description"></p>
+            <div class="switches">
               <!--======= Switch ======-->
               <span><span class="cqz-switch active one"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               <select class="dropdown">
@@ -287,12 +288,12 @@
             <div id="companies">
             </div>
             <div id="bottom-part">
-              <div id="description" data-i18n="control-center-adblock-description"></div>
-              <div id="switches">
+              <div class="description" data-i18n="control-center-adblock-description"></div>
+              <div class="switches">
                 <!--======= Switch ======-->
                 <span><span class="cqz-switch active two"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               </div>
-              <div id="counter">
+              <div class="counter">
                 <svg id="shield" width="40px" height="39px" viewBox="1769 198 40 39" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <defs></defs>
                   <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1769.000000, 198.000000)">
@@ -310,7 +311,7 @@
         <!--======= Anti Phishing =======-->
         <div class="antiphishing setting">
           <div class="antiphishing-frame">
-            <p id="title">
+            <div class="title">
               <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
                 <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
@@ -325,15 +326,15 @@
                 <defs></defs>
                 <polyline id="Path-164-Copy-153" stroke="#7D7D7D" stroke-width="2.5999999" fill="none" opacity="0.44" points="1133.19742 410.787186 1139.09434 416.693941 1133.42806 422.369666"></polyline>
               </svg>
-            </p>
-            <p id="switches" class="switches-antiphish">
+            </div>
+            <div class="switches" class="switches-antiphish">
               <!--======= Switch ======-->
               <span><span class="cqz-switch-antiphish active one"><span class="cqz-switch-box-antiphish"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               <select class="dropdown">
                 <option class="opt-p" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt-p bad" id="all-sites" data-i18n="control-center-all-sites"></option>
               </select>
-            </p>
+            </div>
           </div>
           <div class="active-window-phishing">
             <div id="report">
@@ -362,7 +363,7 @@
             </div>
             <div id="full-url"></div>
             <div id="switch">
-              <span id="switches">
+              <span class="switches">
                 <span><span class="cqz-switch-antiphish active two"><span class="cqz-switch-box-antiphish"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
               </span>
             </div>
@@ -371,7 +372,7 @@
         <!--======= HTTPS everywhere =======-->
         <div id="httpsevery">
           <div class="httpsevery-frame">
-            <p id="title">
+            <div class="title">
               <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <defs></defs>
                 <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
@@ -382,19 +383,19 @@
                 </g>
               </svg>
               <span>HTTPS everywhere</span>
-            </p>
-            <p id="switches" class="smallsetting">
+            </div>
+            <div class="switches smallsetting">
               <!--======= Switch ======-->
               <span><span class="cqz-switch active"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
-            </p>
+            </div>
           </div>
         </div>
       </div>
       <!--======= Bottom Part (Grey Part) =======-->
-      <div class="othersettings">
+      <section class="othersettings">
         <!--======= Andere Einstellungen =======-->
-        <div class="header">
-          <p id="title">
+        <header class="header">
+          <div class="title">
             <span data-i18n="control-center-othersettings"></span>
             <span id="support">
               <svg  id="icon" width="16px" height="16px" viewBox="1342 488 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -403,8 +404,8 @@
               </svg>
               <span data-i18n="control-center-support"></span>
             </span>
-          </p>
-        </div>
+          </div>
+        </header>
         <div class="accordion">
           <div class="accordion-section">
             <a class="accordion-section-title" href="#accordion-1">
@@ -523,7 +524,7 @@
           <!--end .accordion-section-->
         </div>
         <!--end .accordion-->
-      </div>
+      </section>
     </div>
     <!--======= Container END ======= -->
     <script>
@@ -532,5 +533,8 @@
       //   headerElem.innerHTML = headerTemplate();
 
     </script>
+
+    <script src="functionality.js"></script>
+
   </body>
 </html>
