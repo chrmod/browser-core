@@ -436,7 +436,8 @@ function resultClick(ev) {
                 action: 'result_click',
                 extra: extra,
                 mouse: coordinate,
-                position_type: getResultKind(el)
+                position_type: getResultKind(el),
+                current_position: UI.currentPage
             };
 
             CliqzUtils.telemetry(signal);
