@@ -68,7 +68,7 @@
                 {{/unless}}
             </div>
         </div>
-        <div extra="des" class="card__description">{{{description}}}</div>
+        <div extra="des" class="card__description">{{description}}</div>
     </section>
 {{/with}}
 <section class="secondary">

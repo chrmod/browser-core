@@ -337,6 +337,7 @@ function enhanceResults(results) {
     const urlDetails = CliqzUtils.getDetailsFromUrl(url);
 
     enhancedResults.push(enhanceSpecificResult({
+      query: r.query,
       type: r.style,
       left: (UI.CARD_WIDTH * index),
       data: r.data || {},

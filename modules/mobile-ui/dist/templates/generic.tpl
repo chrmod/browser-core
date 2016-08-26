@@ -114,7 +114,7 @@
 		{{/with}}
 
 		{{#if data.des}}
-			{{{data.des}}}
+			{{ emphasis data.des query 2 true }}
 		{{else}}
 			{{#if data.richData.current_company}}
 			{{else}}
