@@ -125,6 +125,12 @@ Promise.all([
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
 
+    chrome.cliqzSearchPrivate.onOmniboxFocusChanged.addListener(
+        (winId, focused) => {
+          if (winId === currWinId && !focused)
+            CLIQZ.UI.sessionEnd();
+        });
+
     createSettingsMenu();
     whoAmI(true);
 
