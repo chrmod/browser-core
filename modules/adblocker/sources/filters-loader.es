@@ -1,5 +1,5 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-
+import CliqzLanguage from 'platform/language';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -16,8 +16,11 @@ const ONE_DAY = 24 * ONE_HOUR;
 const TODAY_DATE = new Date().toISOString().slice(0, 10);
 
 const BASE_URL = `https://cdn.cliqz.com/adblocking/latest-filters/`;
-CliqzUtils.log(BASE_URL, 'adblocking');
 
+const JS_RESOURCES = new Set([
+  // uBlock resource
+  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt',
+]);
 
 const ALLOWED_LISTS = new Set([
   // uBlock
@@ -36,9 +39,28 @@ const ALLOWED_LISTS = new Set([
   // "assets/ublock/privacy.txt"
 ]);
 
+const COUNTRY_LISTS = new Map([
+  ['de', 'https://easylist-downloads.adblockplus.org/easylistgermany.txt'],
+  ['fr', 'https://easylist-downloads.adblockplus.org/liste_fr.txt'],
+  ['it', 'https://easylist-downloads.adblockplus.org/easylistitaly.txt'],
+  ['zh', 'https://easylist-downloads.adblockplus.org/easylistchina.txt'],
+  ['cn', 'https://easylist-downloads.adblockplus.org/easylistchina.txt']
+]);
+
+function getSupportedLangLists() {
+  let supportLangLists = new Set();
+  const LANGS = CliqzLanguage.state();
+  LANGS.forEach(lang => supportLangLists.add(COUNTRY_LISTS.get(lang)))
+  return supportLangLists;
+}
+
 
 function isListSupported(path) {
-  return ALLOWED_LISTS.has(path);
+  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path) || isJSResource(path);
+}
+
+function isJSResource(path) {
+  return JS_RESOURCES.has(path);
 }
 
 
@@ -175,16 +197,18 @@ export default class extends UpdateCallbackHandler {
   updateList({ checksum, asset, remoteURL }) {
     if (isListSupported(asset)) {
       let list = this.lists.get(asset);
-      // if (list === undefined) {
-      list = new FiltersList(checksum, asset, remoteURL);
-      this.lists.set(asset, list);
-      list.onUpdate(filters => {
-        this.triggerCallbacks({ asset, filters });
-      });
-      list.load();
-      // } else {
-      //   list.updateFromChecksum(checksum);
-      // }
+
+      if (list === undefined) {
+        list = new FiltersList(checksum, asset, remoteURL);
+        this.lists.set(asset, list);
+        list.onUpdate(filters => {
+          const isFiltersList = !isJSResource(asset);
+          this.triggerCallbacks({ asset, filters, isFiltersList });
+        });
+        list.load();
+      } else {
+        list.updateFromChecksum(checksum);
+      }
     }
   }
 }
