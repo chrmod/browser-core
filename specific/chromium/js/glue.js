@@ -292,6 +292,7 @@ function createSettingsMenu(){
   );
 
   btn.addEventListener('click', function(){
-    box.classList.toggle('hidden')
+    this.classList.toggle('active');
+    box.classList.toggle('hidden');
   })
 }
