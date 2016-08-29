@@ -16,6 +16,10 @@ const ONE_DAY = 24 * ONE_HOUR;
 const TODAY_DATE = new Date().toISOString().slice(0, 10);
 
 const BASE_URL = `https://cdn.cliqz.com/adblocking/latest-filters/`;
+<<<<<<< c302c0b560333c2e894827eb5097fb929f0ab4f1
+=======
+CliqzUtils.log(BASE_URL, 'adblocking');
+>>>>>>> changed the S3 domain
 
 const JS_RESOURCES = new Set([
   // uBlock resource
