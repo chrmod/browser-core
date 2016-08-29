@@ -22,7 +22,6 @@ var CLIQZEnvironment = {
     prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     RERANKERS: [],
-    AB_1073_ACTIVE: false,
     TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -44,11 +43,6 @@ var CLIQZEnvironment = {
       'cpgame_movie': 3,
       'delivery-tracking': 2,
       'vod': 3,
-      'conversations': 1,
-      'conversations_future': 1,
-      'topnews': 1,
-      '_generic': 1,
-      '_history': 1,
       'liveTicker': 3
     },
     MESSAGE_TEMPLATES: [
@@ -75,19 +69,24 @@ var CLIQZEnvironment = {
         'partials/location/missing_location_1',
         'partials/timetable-cinema',
         'partials/timetable-movie',
-        'partials/music-data-sc',
+        'partials/bottom-data-sc',
+        'partials/download',
         'partials/streaming',
         'partials/lyrics'
     ],
+
     init: function(){
+
     },
     unload: function() {
     },
     log: function(msg, key){
+      if(CLIQZEnvironment && CLIQZEnvironment.getPref('showConsoleLogs', false)){
         _log.logStringMessage(
           'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
           (typeof msg == 'object'? JSON.stringify(msg): msg)
         );
+      }
     },
     __prefixPref: function (pref, prefix) {
         if ( !(typeof prefix === 'string') ) {
@@ -353,7 +352,6 @@ var CLIQZEnvironment = {
           telemetrySeq = -1,
           telemetryReq = null,
           telemetrySending = [],
-          telemetryStart = undefined,
           TELEMETRY_MAX_SIZE = 500;
 
       function getNextSeq(){
@@ -372,8 +370,6 @@ var CLIQZEnvironment = {
         // put current data aside in case of failure
         telemetrySending = CLIQZEnvironment.trk.slice(0);
         CLIQZEnvironment.trk = [];
-
-        telemetryStart = Date.now();
 
         CLIQZEnvironment.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
 
@@ -489,6 +485,31 @@ var CLIQZEnvironment = {
       }
       return uri;
     },
+    disableCliqzResults: function (urlbar) {
+      CliqzUtils.extensionRestart(function(){
+        CliqzUtils.setPref("cliqz_core_disabled", true);
+      });
+
+      // blur the urlbar so it picks up the default AutoComplete provider
+      CliqzUtils.autocomplete.isPopupOpen = false;
+      setTimeout(function(urlbar){
+        urlbar.focus();
+        urlbar.blur();
+      }, 0, urlbar);
+    },
+    enableCliqzResults: function (urlbar) {
+      CliqzUtils.setPref("cliqz_core_disabled", false);
+      CliqzUtils.extensionRestart();
+
+      // blur the urlbar so it picks up the new CLIQZ Autocomplete provider
+      urlbar.blur();
+
+      CliqzUtils.telemetry({
+        type: 'setting',
+        setting: 'international',
+        value: 'activate'
+      });
+    },
     // lazy init
     // callback called multiple times
     historySearch: (function(){
@@ -498,9 +519,9 @@ var CLIQZEnvironment = {
             if(hist === null) { //lazy
               // history autocomplete provider is removed
               // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
-
-              if (CLIQZEnvironment.AB_1073_ACTIVE){
-                // If AB 1073 is not in B or firefox version less than 49 it will fall back to firefox history
+              if (CliqzUtils.autocomplete.AB_1076_ACTIVE){
+                CliqzUtils.log('AB - 1076: Initialize custom provider');
+                // If AB 1076 is not in B or firefox version less than 49 it will fall back to firefox history
                 var provider = Cc["@mozilla.org/autocomplete/search;1?name=cliqz-history-results"] ||
                                Cc["@mozilla.org/autocomplete/search;1?name=history"] ||
                                Cc["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"];

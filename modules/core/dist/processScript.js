@@ -10,6 +10,10 @@ Services.scriptloader.loadSubScript("chrome://cliqz/content/core/content-scripts
 
 var config = {{CONFIG}};
 
+if (config.modules.indexOf('adblocker') > -1) {
+  Services.scriptloader.loadSubScript('chrome://cliqz/content/adblocker/content-scripts.js');
+}
+
 var whitelist = [
   "chrome://cliqz/"
 ].concat(config.settings.frameScriptWhitelist);
@@ -77,6 +81,10 @@ function onDOMWindowCreated(ev) {
     return v.toString(16);
   });
 
+  if (config.modules.indexOf('adblocker') > -1) {
+    requestDomainRules(currentURL(), window, send, windowId);
+  }
+
   var onMessage = function (ev) {
     var href = ev.target.location.href;
 
@@ -109,6 +117,10 @@ function onDOMWindowCreated(ev) {
   function onCallback(msg) {
     if (isDead()) {
       return;
+    }
+
+    if (config.modules.indexOf('adblocker') > -1) {
+      responseAdbMsg(msg, window);
     }
 
     if (!whitelist.some(function (url) { return currentURL().indexOf(url) === 0; }) ) {
@@ -166,7 +178,15 @@ function onDOMWindowCreated(ev) {
       );
     },
     getCookie: function () {
-      return window.document.cookie;
+      try {
+        return window.document.cookie;
+      } catch (e) {
+        if (e instanceof DOMException && e.name == "SecurityError") {
+          return null;
+        } else {
+          throw e; // let others bubble up
+        }
+      }
     }
   };
 
@@ -194,6 +214,9 @@ function onDOMWindowCreated(ev) {
 
     try {
       payload = fns[msg.data.action].apply(null, msg.data.args || []);
+      if (payload === null){
+        return
+      }
     } catch (e) {
       window.console.error("cliqz framescript:", e);
     }
@@ -246,12 +269,18 @@ function onDOMWindowCreated(ev) {
     });
   };
 
-  var onReady = function () {
+  var onReady = function (event) {
+    if (config.modules.indexOf('adblocker') > -1) {
+      adbCosmFilter(currentURL(), window, send, windowId, throttle);
+    }
+
     // ReportLang
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
+    // don't analyse language for (i)frames
+    var isTopWindow = !event.originalTarget.defaultView.frameElement;
 
-    if (lang) {
+    if (isTopWindow && lang) {
       send({
         windowId: windowId,
         payload: {

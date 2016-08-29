@@ -75,7 +75,8 @@ export default class {
     try{
       return JSON.parse(this.localStore.getItem(this.cacheName) || '{}');
     } catch (err) {
-      log(`Error parsing cache ${this.cacheName}.`);
+      log(`Error parsing cache ${this.cacheName} ${err}.`);
+      return {};
     }
   }
 

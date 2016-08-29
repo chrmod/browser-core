@@ -12,10 +12,12 @@ export default class {
   }
 
   unload() {
-
+    delete this.window.CliqzAutocomplete;
   }
 
   createButtonItem() {
+    if (utils.getPref("cliqz_core_disabled", false)) return;
+
     const doc = this.window.document,
       menu = doc.createElement('menu'),
       menupopup = doc.createElement('menupopup'),

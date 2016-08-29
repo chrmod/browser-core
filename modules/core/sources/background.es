@@ -1,4 +1,5 @@
-import { language, utils, events } from "core/cliqz";
+import { utils, events } from "core/cliqz";
+import language from "platform/language";
 import config from "core/config";
 import ProcessScriptManager from "platform/process-script-manager";
 
@@ -104,7 +105,6 @@ export default {
   handleRequest(msg) {
     const { action, module, args, requestId } = msg.data.payload,
           windowId = msg.data.windowId;
-
     utils.importModule(`${module}/background`).then( module => {
       const background = module.default;
       return background.actions[action].apply(null, args);
@@ -143,6 +143,10 @@ export default {
     },
     recordMeta(url, meta) {
       events.pub("core:url-meta", url, meta);
+    },
+
+    getFeedbackPage() {
+      return utils.FEEDBACK_URL;
     }
   }
 };

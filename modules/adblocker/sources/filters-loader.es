@@ -1,6 +1,5 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-import parseList from 'adblocker/filters-parsing';
-
+import CliqzLanguage from 'platform/language';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -35,6 +34,10 @@ function urlFromPath(path) {
   return null;
 }
 
+const JS_RESOURCES = new Set([
+  // uBlock resource
+  'assets/ublock/resources.txt',
+]);
 
 const ALLOWED_LISTS = new Set([
   // uBlock
@@ -43,7 +46,8 @@ const ALLOWED_LISTS = new Set([
   // Adblock plus
   'assets/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
   // Extra lists
-  'pgl.yoyo.org/as/serverlist',
+  // Peter Lowe’s Ad server list‎
+  // 'pgl.yoyo.org/as/serverlist',
   // Anti adblock killers
   'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
   'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
@@ -52,9 +56,27 @@ const ALLOWED_LISTS = new Set([
   // "assets/ublock/privacy.txt"
 ]);
 
+const COUNTRY_LISTS = new Map([
+  ['de', 'https://easylist-downloads.adblockplus.org/easylistgermany.txt'],
+  ['fr', 'https://easylist-downloads.adblockplus.org/liste_fr.txt'],
+  ['it', 'https://easylist-downloads.adblockplus.org/easylistitaly.txt'],
+  ['zh', 'https://easylist-downloads.adblockplus.org/easylistchina.txt'],
+  ['cn', 'https://easylist-downloads.adblockplus.org/easylistchina.txt']
+]);
+
+function getSupportedLangLists() {
+  let supportLangLists = new Set();
+  const LANGS = CliqzLanguage.state();
+  LANGS.forEach(lang => supportLangLists.add(COUNTRY_LISTS.get(lang)))
+  return supportLangLists;
+}
 
 function isListSupported(path) {
-  return ALLOWED_LISTS.has(path);
+  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path) || isJSResource(path);
+}
+
+function isJSResource(path) {
+  return JS_RESOURCES.has(path);
 }
 
 
@@ -133,7 +155,7 @@ class ExtraLists extends UpdateCallbackHandler {
   updateExtraListsFromMetadata(extraLists) {
     Object.keys(extraLists).forEach(entry => {
       const metadata = extraLists[entry];
-      const url = metadata.hasOwnProperty('homeURL') ? metadata.homeURL : entry;
+      const url = metadata.homeURL !== undefined ? metadata.homeURL : entry;
 
       this.triggerCallbacks({
         asset: entry,
@@ -150,7 +172,6 @@ class FiltersList extends UpdateCallbackHandler {
   constructor(checksum, asset, remoteURL) {
     super();
     this.checksum = checksum;
-    this.filters = [];
 
     let assetName = asset;
 
@@ -180,12 +201,13 @@ class FiltersList extends UpdateCallbackHandler {
   }
 
   updateList(data) {
-    this.filters = parseList(data) || [];
-    if (this.filters.length > 0) {
-      this.triggerCallbacks(this.filters);
+    const filters = data.split(/\r\n|\r|\n/g);
+    if (filters.length > 0) {
+      this.triggerCallbacks(filters);
     }
   }
 }
+
 
 
 /* Class responsible for loading, persisting and updating filters lists.
@@ -201,7 +223,7 @@ export default class extends UpdateCallbackHandler {
     // Index of available extra filters lists
     this.extraLists = new ExtraLists();
 
-    // Lists of filters currently loaded
+    // Lists of filters and injected scripts currently loaded
     this.lists = new Map();
 
     // Update extra lists
@@ -217,14 +239,6 @@ export default class extends UpdateCallbackHandler {
     this.checksums.load();
   }
 
-  concatLists(lists) {
-    let filters = [];
-    lists.forEach(list => {
-      filters = filters.concat(list.filters);
-    });
-    return filters;
-  }
-
   updateList({ checksum, asset, remoteURL }) {
     if (isListSupported(asset)) {
       let list = this.lists.get(asset);
@@ -232,8 +246,9 @@ export default class extends UpdateCallbackHandler {
       if (list === undefined) {
         list = new FiltersList(checksum, asset, remoteURL);
         this.lists.set(asset, list);
-        list.onUpdate(() => {
-          this.triggerCallbacks(this.concatLists(this.lists));
+        list.onUpdate(filters => {
+          const isFiltersList = !isJSResource(asset);
+          this.triggerCallbacks({ asset, filters, isFiltersList });
         });
         list.load();
       } else {

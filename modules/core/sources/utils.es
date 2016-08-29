@@ -32,7 +32,7 @@ var CliqzUtils = {
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
-  FEEDBACK:                       'https://cliqz.com/support',
+  FEEDBACK:                       'https://cliqz.com/feedback/',
   SYSTEM_BASE_URL:                CLIQZEnvironment.SYSTEM_BASE_URL,
   PREFERRED_LANGUAGE:             null,
 
@@ -66,7 +66,6 @@ var CliqzUtils = {
     if (!options.lang) {
       return Promise.reject("lang missing");
     }
-
     CliqzUtils.importModule('core/gzip').then(function(gzip) {
       CLIQZEnvironment.gzip = gzip;
     }).catch(function () {
@@ -290,13 +289,7 @@ var CliqzUtils = {
    * @param {string=} prefix - prefix for pref
    */
   clearPref: CLIQZEnvironment.clearPref,
-  log: function(msg, key){
-    if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
-      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
-      if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CLIQZEnvironment.log(msg, key);
-    }
-  },
+  log: CLIQZEnvironment.log,
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },
@@ -638,6 +631,9 @@ var CliqzUtils = {
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
+  },
+  getBackendResults:  function(q, callback){
+
   },
   getCliqzResults: function(q, callback){
     CliqzUtils._sessionSeq++;
@@ -1017,7 +1013,53 @@ var CliqzUtils = {
 
     return data;
   },
+  getLocationPermState(){
+    var data = {
+      'yes': {
+        name: CliqzUtils.getLocalizedString('always'),
+        selected: false
+      },
+      'ask': {
+        name: CliqzUtils.getLocalizedString('always_ask'),
+        selected: false
+      },
+      'no': {
+        name: CliqzUtils.getLocalizedString('never'),
+        selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
+
+    return data;
+  },
+
+  // Returns result elements selecatble and navigatable from keyboard.
+  // |container| search context, usually it's `CLIQZ.UI.gCliqzBox`.
+  extractSelectableElements(container) {
+    return Array.prototype.slice.call(
+        container.querySelectorAll('[arrow]')).filter(
+            function(el) {
+              // dont consider hidden elements
+              if(el.offsetParent == null)
+                return false;
+
+              if(!el.getAttribute('arrow-if-visible'))
+                return true;
+
+              // check if the element is visible
+              //
+              // for now this check is enough but we might be forced to switch to a
+              // more generic approach - maybe using document.elementFromPoint(x, y)
+              if (el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+              return true;
+            });
+  },
+
   getNoResults: CLIQZEnvironment.getNoResults,
+  disableCliqzResults: CLIQZEnvironment.disableCliqzResults,
+  enableCliqzResults: CLIQZEnvironment.enableCliqzResults,
   getParameterByName: function(name, location) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -1049,6 +1091,19 @@ var CliqzUtils = {
     CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;
     CLIQZEnvironment.Result = o.Result;
   },
+  onRenderComplete: function(query, box){
+    if (!CLIQZEnvironment.onRenderComplete)
+      return;
+
+    var linkNodes = this.extractSelectableElements(box);
+    var urls = linkNodes
+        .map(node => {
+          return node.getAttribute("url") || node.getAttribute("href");
+        })
+        .filter(url => !!url);
+
+    CLIQZEnvironment.onRenderComplete(query, urls);
+  }
 };
 
 export default CliqzUtils;

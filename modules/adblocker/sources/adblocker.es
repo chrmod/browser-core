@@ -10,12 +10,10 @@ import LRUCache from 'antitracking/fixed-size-cache';
 import HttpRequestContext from 'antitracking/webrequest-context';
 
 import { log } from 'adblocker/utils';
-import FilterEngine, { tokenizeURL } from 'adblocker/filters-engine';
+import FilterEngine from 'adblocker/filters-engine';
 import FiltersLoader from 'adblocker/filters-loader';
 
-import ContentPolicy from 'adblocker/content-policy';
-import { hideNodes } from 'adblocker/cosmetics';
-import { MutationLogger } from 'adblocker/mutation-logger';
+import CliqzHumanWeb from 'human-web/human-web';
 
 
 // adb version
@@ -60,8 +58,14 @@ class AdBlocker {
     this.engine = new FilterEngine();
 
     this.listsManager = new FiltersLoader();
-    this.listsManager.onUpdate(filters => {
-      this.engine.onUpdateFilters(filters);
+    this.listsManager.onUpdate(update => {
+      // Update list in engine
+      const { asset, filters, isFiltersList } = update;
+      if (isFiltersList) {
+        this.engine.onUpdateFilters(asset, filters);
+      } else {
+        this.engine.onUpdateResource(asset, filters)
+      }
       this.initCache();
     });
 
@@ -134,23 +138,40 @@ class AdBlocker {
     return this.blacklist.has(url);
   }
 
-  toggleDomain(url) {
-    // Should all this domain stuff be extracted into a function?
-    // Why is CliqzUtils.detDetailsFromUrl not used?
-    const urlParts = URLInfo.get(url);
-    let hostname = urlParts.hostname;
-    if (hostname.startsWith('www.')) {
-      hostname = hostname.substring(4);
+  logActionHW(url, action, domain) {
+    let type = 'url';
+    if (domain) {
+      type = 'domain';
     }
-
-    this.toggleUrl(hostname);
+    if (!CliqzHumanWeb.state.v[url].adblocker_blacklist) {
+      CliqzHumanWeb.state.v[url].adblocker_blacklist = {};
+    }
+    CliqzHumanWeb.state.v[url].adblocker_blacklist[action] = type;
   }
 
-  toggleUrl(url) {
-    if (this.blacklist.has(url)) {
-      this.blacklist.delete(url);
+  toggleUrl(url, domain) {
+    let processedURL = url;
+    if (domain) {
+      // Should all this domain stuff be extracted into a function?
+      // Why is CliqzUtils.getDetailsFromUrl not used?
+      processedURL = URLInfo.get(url).hostname;
+      if (processedURL.startsWith('www.')) {
+        processedURL = processedURL.substring(4);
+      }
+    }
+
+    const existHW = CliqzHumanWeb && CliqzHumanWeb.state.v[url];
+    if (this.blacklist.has(processedURL)) {
+      this.blacklist.delete(processedURL);
+      // TODO: It's better to have an API from humanweb to indicate if a url is private
+      if (existHW) {
+        this.logActionHW(url, 'remove', domain);
+      }
     } else {
-      this.blacklist.add(url);
+      this.blacklist.add(processedURL);
+      if (existHW) {
+        this.logActionHW(url, 'add', domain);
+      }
     }
 
     this.persistBlacklist();
@@ -174,8 +195,8 @@ class AdBlocker {
     const hostGD = getGeneralDomain(hostname);
 
     // Process source url
-    const source = httpContext.getSourceURL().toLowerCase();
-    const sourceParts = URLInfo.get(source);
+    const sourceURL = httpContext.getSourceURL().toLowerCase();
+    const sourceParts = URLInfo.get(sourceURL);
     let sourceHostname = sourceParts.hostname;
     if (sourceHostname.startsWith('www.')) {
       sourceHostname = sourceHostname.substring(4);
@@ -183,15 +204,12 @@ class AdBlocker {
     const sourceGD = getGeneralDomain(sourceHostname);
 
     // Wrap informations needed to match the request
-    // NOTE: Here we convert everything to lowercase
-    // since we only support case-insensitive matching
     const request = {
       // Request
       url,
       cpt: httpContext.getContentPolicyType(),
-      tokens: tokenizeURL(url),
       // Source
-      sourceURL: source,
+      sourceURL,
       sourceHostname,
       sourceGD,
       // Endpoint
@@ -238,9 +256,6 @@ const CliqzADB = {
     CliqzADB.adBlocker = new AdBlocker();
 
     const initAdBlocker = () => {
-      ContentPolicy.init();
-      CliqzADB.cp = ContentPolicy;
-      CliqzADB.mutationLogger = new MutationLogger();
       CliqzADB.adBlocker.init();
       CliqzADB.adblockInitialized = true;
       CliqzADB.initPacemaker();
@@ -272,28 +287,25 @@ const CliqzADB = {
   },
 
   initWindow(window) {
-    if (CliqzADB.mutationLogger !== null) {
-      window.gBrowser.addProgressListener(CliqzADB.mutationLogger);
-    }
   },
 
   unloadWindow(window) {
-    if (window.gBrowser && CliqzADB.mutationLogger !== null) {
-      window.gBrowser.removeProgressListener(CliqzADB.mutationLogger);
-    }
   },
 
   initPacemaker() {
     const t1 = utils.setInterval(() => {
       Object.keys(CliqzADB.adbStats.pages).forEach(url => {
         if (!CliqzADB.isTabURL[url]) {
-          delete(CliqzADB.adbStats.pages[url]);
+          delete CliqzADB.adbStats.pages[url];
         }
       });
     }, 10 * 60 * 1000);
     CliqzADB.timers.push(t1);
 
     const t2 = utils.setInterval(() => {
+      if (!CliqzADB.cacheADB) {
+        return;
+      }
       Object.keys(CliqzADB.cacheADB).forEach(t => {
         if (!browser.isWindowActive(t)) {
           delete CliqzADB.cacheADB[t];
@@ -350,22 +362,20 @@ const CliqzADB = {
             frame.style.display = 'none';  // hide this node
             CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
 
-            frame.setAttribute('cliqz-adb', `source: ${url}`);
             return { cancel: true };
           }
-          frame.setAttribute('cliqz-adblocker', 'safe');
+        } else {
+          if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
+            return { cancel: true };
+          }
         }
         return {};
       } else if (adbEnabled()) {
-        if (CliqzADB.mutationLogger.tabsInfo[sourceTab] &&
-            !CliqzADB.mutationLogger.tabsInfo[sourceTab].observerAdded) {
-          CliqzADB.mutationLogger.addMutationObserver(sourceTab);
-        }
         if (CliqzADB.adBlocker.match(requestContext)) {
-          hideNodes(requestContext);
           return { cancel: true };
         }
       }
+
       return {};
     },
   },

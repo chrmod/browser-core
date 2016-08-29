@@ -234,12 +234,6 @@ var CliqzABTests = {
             case "1067_B":
                 CliqzUtils.setPref("attrackProxyTrackers", true);
                 break;
-            case "1068_A":
-                CliqzUtils.setPref("languageDedup", false);
-                break;
-            case "1068_B":
-                CliqzUtils.setPref("languageDedup", true);
-                break;
             case "1069_A":
                 CliqzUtils.setPref("grOfferSwitchFlag", false);
                 break;
@@ -265,17 +259,30 @@ var CliqzABTests = {
                 break;
             case "1072_B":
                 CliqzUtils.setPref("grFeatureEnabled", true);
-            case "1073_A":
-                CliqzUtils.setPref("history.timeouts", false);
-                break;
-            case "1073_B":
-                CliqzUtils.setPref("history.timeouts", true);
                 break;
             case "1074_A":
                 CliqzUtils.setPref("cliqz-adb-abtest", false);
                 break;
             case "1074_B":
                 CliqzUtils.setPref("cliqz-adb-abtest", true);
+                break;
+            case "1075_A":
+                CliqzUtils.setPref("freshtabFeedback", false);
+                break;
+            case "1075_B":
+                CliqzUtils.setPref("freshtabFeedback", true);
+                break;
+            case "1076_A":
+                CliqzUtils.setPref("history.timeouts", false);
+                break;
+            case "1076_B":
+                CliqzUtils.setPref("history.timeouts", true);
+                break;
+            case "1077_A":
+                CliqzUtils.setPref("languageDedup", false);
+                break;
+            case "1077_B":
+                CliqzUtils.setPref("languageDedup", true);
                 break;
             default:
                 rule_executed = false;
@@ -420,14 +427,23 @@ var CliqzABTests = {
             case "1072_B":
               CliqzUtils.clearPref('grFeatureEnabled');
               break;
-            case "1073_A":
-            case "1073_B":
-              CliqzUtils.clearPref('history.timeouts');
-              break;
             case "1074_A":
             case "1074_B":
                 CliqzUtils.clearPref('cliqz-adb-abtest');
                 break;
+            case "1075_A":
+            case "1075_B":
+                CliqzUtils.clearPref('freshtabFeedback');
+                break;
+            case "1076_A":
+            case "1076_B":
+              CliqzUtils.clearPref('history.timeouts');
+              break;
+            case "1077_A":
+            case "1077_B":
+              CliqzUtils.clearPref("languageDedup");
+              break;
+
             default:
                 rule_executed = false;
         }

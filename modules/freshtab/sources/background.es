@@ -62,6 +62,13 @@ export default {
     _isBrowser() {
       return FreshTab.isBrowser;
     },
+    _showFeedback() {
+      const showFeedback = utils.getPref('freshtabFeedback', false);
+      return showFeedback;
+    },
+    _getFeedbackUrl() {
+
+    },
     /**
     * Get history based & user defined speedDials
     * @method getSpeedDials
@@ -295,7 +302,8 @@ export default {
         showOnboarding: self.actions._showOnboarding(),
         miniOnboarding: self.actions._showMiniOnboarding(),
         showHelp: self.actions._showHelp(),
-        isBrowser: self.actions._isBrowser()
+        isBrowser: self.actions._isBrowser(),
+        showFeedback: self.actions._showFeedback(),
       };
       return Promise.resolve(config);
     },

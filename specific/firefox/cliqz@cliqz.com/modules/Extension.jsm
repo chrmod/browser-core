@@ -10,6 +10,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
 var SEARCH_BAR_ID = 'search-container',
     dontHideSearchBar = 'dontHideSearchBar',
@@ -93,7 +94,7 @@ var Extension = {
       this.config = {{CONFIG}};
       CliqzUtils.RICH_HEADER = this.config.settings['richheader-url'] || CliqzUtils.RICH_HEADER;
       CliqzUtils.RESULTS_PROVIDER = this. config.settings['resultsprovider-url'] || CliqzUtils.RESULTS_PROVIDER;
-
+      CliqzUtils.FEEDBACK_URL = CliqzUtils.FEEDBACK + CliqzUtils.extensionVersion + '-' + this.config.settings.channel;
 
       function startAbTests() {
         return Extension.System.import("core/ab-tests").then(function (ab) {
@@ -118,6 +119,7 @@ var Extension = {
         .then(loadModulesBackground)
         .then(function () {
           Extension.cliqzPrefsObserver.register();
+          CliqzHistoryManager.init();
         })
 
       // Load into currently open windows
@@ -164,6 +166,7 @@ var Extension = {
 
         this.cliqzRunloop.stop();
         CliqzLanguage.unload();
+        CliqzHistoryManager.unload();
 
         Extension.unloadJSMs();
     },
@@ -216,6 +219,7 @@ var Extension = {
     },
     unloadJSMs: function () {
         //unload all cliqz modules
+        Cu.unload('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
@@ -287,6 +291,8 @@ var Extension = {
 
         try {
           win.CLIQZ.Core.unload(false);
+          delete win.CLIQZ.CliqzUtils;
+          delete win.CLIQZ.CliqzEvents;
           delete win.CLIQZ.Core;
           delete win.CLIQZ.UI;
           delete win.CLIQZ;

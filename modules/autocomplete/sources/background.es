@@ -24,7 +24,7 @@ class AutocompleteComponent {
   unregister() {
     try {
       this.reg.unregisterFactory(
-        this.reg.contractIDToCID(FFcontract.contractID),
+        this.reg.contractIDToCID(this.FFcontract.contractID),
         this.reg.getClassObjectByContractID(
           this.FFcontract.contractID,
           Ci.nsISupports
@@ -75,13 +75,13 @@ export default {
         this.autocompleteComponent = new AutocompleteComponent();
         this.autocompleteComponent.unregister();
         this.autocompleteComponent.register();
-
         utils.RERANKERS.push(WikipediaDeduplication);
       } else {
         Mixer.init();
       }
       autocomplete.Mixer = Mixer;
 
+      utils.getBackendResults = utils.getCliqzResults;
       // glueing stuff
       autocomplete.spellCheck = SpellCheck;
       utils.autocomplete = autocomplete;

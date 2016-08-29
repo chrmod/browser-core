@@ -2,7 +2,9 @@ export default describeModule("freshtab/news",
   function () {
     return {
       "core/config": { default: { } },
-      "freshtab/news-cache": { default: function(){}},
+      "platform/language": { default: { } },
+      "platform/places-utils": { default: { } },
+      "freshtab/news-cache": { default: function () { } },
       "core/cliqz": {
         utils: {
           log(message) {console.log(message)},
@@ -10,7 +12,6 @@ export default describeModule("freshtab/news",
           clearTimeout,
         },
         environment: {},
-        language: {},
 
         historyManager: {
           PlacesInterestsStorage : {},
@@ -24,7 +25,7 @@ export default describeModule("freshtab/news",
                       childCount: 0
                     }
                   };
-                }, 
+                },
                 getNewQueryOptions() {
                   return '';
                 },
@@ -64,13 +65,13 @@ export default describeModule("freshtab/news",
 
       beforeEach(function() {
 
-        this.deps("core/cliqz").utils.getPref = function (prefName, defaultPref) { 
-          return defaultPref; 
+        this.deps("core/cliqz").utils.getPref = function (prefName, defaultPref) {
+          return defaultPref;
         };
 
         this.deps("core/cliqz").utils.setPref = function (prefName, defaultPref) {
           console.log("prefName");
-          return true; 
+          return true;
         };
 
         this.deps("core/cliqz").utils.log = function() {};
@@ -78,7 +79,7 @@ export default describeModule("freshtab/news",
         this.deps("core/cliqz").utils.getDetailsFromUrl = function(url) {
           var data = {
             "http://www.focus.de/politik/": {
-              path: "/politik/", 
+              path: "/politik/",
               cleanHost: "focus.de"
             }
           };
@@ -94,20 +95,20 @@ export default describeModule("freshtab/news",
 
         this.deps("core/cliqz").utils.log = function(mes){ console.log(mes); };
 
-        this.deps("core/cliqz").language.stateToQueryString = function() {return '&lang=en';};
+        this.deps("platform/language").default.stateToQueryString = function() {return '&lang=en';};
 
-        this.deps("core/cliqz").environment.getLocalStorage = function (locale_storage) { 
+        this.deps("core/cliqz").environment.getLocalStorage = function (locale_storage) {
           return {
             getItem() { return true },
             setItem: function(itemName) {return true;}
-          }; 
+          };
         }
 
       });
 
       it("one history domain", function () {
 
-        this.deps("core/cliqz").historyManager.PlacesInterestsStorage._execute = 
+        this.deps("core/cliqz").historyManager.PlacesInterestsStorage._execute =
           function (SQL_statment, sql_input, iterative_function, SQL_parameters) {
 
             var record = { url: "http://www.focus.de/politik/", visit_count: 1};
@@ -134,7 +135,7 @@ export default describeModule("freshtab/news",
 
       it("no history domains", function () {
 
-        this.deps("core/cliqz").historyManager.PlacesInterestsStorage._execute = 
+        this.deps("core/cliqz").historyManager.PlacesInterestsStorage._execute =
         function (SQL_statment, sql_input, iterative_function, SQL_parameters) {
 
           return Promise.resolve();
@@ -150,9 +151,9 @@ export default describeModule("freshtab/news",
       });
 
       context("with mocked news caches", function () {
-        let topNewsCache, 
+        let topNewsCache,
           hbasedResponse;
-      
+
         beforeEach(function () {
           return Promise.all([
                   readMock('tests/mocks/topNewsExample.json'),
@@ -189,7 +190,7 @@ export default describeModule("freshtab/news",
 
           var historyObject = {newsPlacing};
           // limit number of history based news
-          hbasedResponse.results[0].news['focus.de'] = hbasedResponse.results[0].news['focus.de'].slice(0, 2);
+          hbasedResponse['focus.de'] = hbasedResponse['focus.de'].slice(0, 2);
 
           return this.module().composeNewsList(historyObject, topNewsCache, hbasedResponse).then(
             freshtabNews => {

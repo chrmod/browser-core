@@ -97,7 +97,7 @@ export default class {
         // only care about top level menu
         if(ev.target.id != 'cliqz_menupopup') return;
 
-        this.createMenu(this.window, menupopup);
+        this.createQbutton(this.window, menupopup);
         utils.telemetry({
           type: 'activity',
           action: 'cliqz_menu_button',
@@ -111,17 +111,6 @@ export default class {
     }, false);
 
     ToolbarButtonManager.restorePosition(doc, button);
-  }
-
-  // creates the menu items at first click
-  createMenu(win, menupopup){
-    //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
-    //FF16+
-    if(Services.search.init != null){
-        Services.search.init(() => this.createQbutton(win, menupopup) );
-    } else {
-        this.createQbutton(win, menupopup);
-    }
   }
 
   createQbutton(win, menupopup){
@@ -173,12 +162,8 @@ export default class {
     return simpleBtn(win.document,
       utils.getLocalizedString('btnFeedbackFaq'),
       () => {
-        var lang = utils.PREFERRED_LANGUAGE == 'de' ? '' : 'en/',
-            feeedbackUrl = 'https://cliqz.com/' + lang + 'feedback/',
-            feedbackParams =  utils.extensionVersion + '-' + this.settings.channel;
-
-      //TODO - use the original channel instead of the current one (it will be changed at update)
-      CLIQZEnvironment.openTabInWindow(win, feeedbackUrl + feedbackParams);
+        //TODO - use the original channel instead of the current one (it will be changed at update)
+        CLIQZEnvironment.openTabInWindow(win, utils.FEEDBACK_URL);
       },
       'feedback'
     );
@@ -229,19 +214,7 @@ export default class {
     var button = doc.createElement('menuitem');
     button.setAttribute('label', utils.getLocalizedString('btnActivateCliqz'));
     button.addEventListener('command', (function(event) {
-      utils.setPref("cliqz_core_disabled", false);
-
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext();
-          win.CLIQZ.Core.init();
-      }
-
-      utils.telemetry({
-        type: 'setting',
-        setting: 'international',
-        value: 'activate'
-      });
+      CLIQZEnvironment.enableCliqzResults(doc.getElementById('urlbar'));
     }).bind(this));
     return button;
   }

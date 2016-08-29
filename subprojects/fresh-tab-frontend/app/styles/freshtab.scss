@@ -545,6 +545,7 @@ body.freshTabContainer {
         max-height: 87px;
         overflow: hidden;
         line-height: 1.21;
+        height: 90px;
       }
 
       .title:hover {
@@ -746,6 +747,24 @@ body.freshTabContainer {
     z-index: 2;
   }
 
+  #feedback {
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    cursor: pointer;
+    z-index: 2;
+
+    .feedbackText {
+      margin-right: 8px;
+      color: #666;
+    }
+
+    .feedbackIcon {
+      top: 3px;
+      position: relative
+    }
+  }
+
   .learnBtn {
     overflow:hidden;
     text-indent:100%;
@@ -792,8 +811,6 @@ body.freshTabContainer {
 @media (max-width: 809px) {
 
   #freshTabPage #newsContainer .allNews li {
-    /*max-width: 100%;
-    width: 100%;*/
     width: 49%;
     max-width: 370px;
   }
@@ -829,11 +846,6 @@ body.freshTabContainer {
       left: 5%;
     }
   }
-
-  /*#freshTabPage #topVisited li.addFrame {
-    display:none;
-  }*/
-
   #freshTabPage #topVisited .title {
     max-width: 46px;
     display: block;
@@ -853,11 +865,6 @@ body.freshTabContainer {
     width: 100%;
     max-width: 100%;
   }
-
-  /*#freshTabPage #newsContainer .newsBox {
-    float: none;
-    width: auto;
-  }*/
 
   #freshTabPage #newsContainer #yourNewsBox {
     margin-left: 20px;
@@ -902,13 +909,19 @@ body.freshTabContainer {
       margin-left: 17px;
     }
   }
+
+  #freshTabPage #firstTimeOnboarding,
+  #freshTabPage #learnMore,
+  #freshTabPage #feedback {
+    right: 40px;
+  }
 }
 
 @media (max-width: 500px) {
 
-  #freshTabPage #container {
-    padding: 0 10px;
-  }
+/*  #freshTabPage #container {
+    padding: 0 20px;
+  }*/
 
   #freshTabPage #topVisited li {
     width: 23.6%;
@@ -942,7 +955,7 @@ body.freshTabContainer {
 
 }
 
-@media (min-height: 830px) {
+@media (min-height: 950px) {
 
   #freshTabPage #topVisited {
     margin-bottom: 15%;
@@ -953,9 +966,10 @@ body.freshTabContainer {
   }
 }
 
-@media (max-height: 740px) {
+@media (max-height: 760px) {
   #freshTabPage #firstTimeOnboarding,
-  #freshTabPage #learnMore {
+  #freshTabPage #learnMore,
+  #freshTabPage #feedback {
     display: none;
   }
 }
