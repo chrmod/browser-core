@@ -1,5 +1,3 @@
-import environment from "platform/environment";
-
 export default class {
   enhanceResults(data) {
 
@@ -95,9 +93,7 @@ export default class {
 
     data.distance = CliqzUtils.distance(
                         data.lon,
-                        data.lat,
-                      environment.USER_LNG,
-                      environment.USER_LAT)*1000;
+                        data.lat)*1000;
 
     data.deepLinks = ((data.deepResults || []).find(res => res.type === 'buttons') || {}).links
   }

@@ -3,7 +3,7 @@
 <ul id="container" class="content favorites cf">
     {{#each data}}
 
-        <li class="cf answer" data="{{url}}" data-title="{{title}}"
+        <li class="cf answer" data-ref="{{url}}" data-title="{{title}}"
              data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
 
             <div class="item">

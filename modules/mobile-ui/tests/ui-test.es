@@ -3,7 +3,7 @@
 export default describeModule('mobile-ui/UI',
   function () {
     return {
-      'core/mobile-webview': {
+      'mobile-ui/webview': {
         window: {
           addEventListener() { }
         }

@@ -1,8 +1,9 @@
 'use strict';
-/* global document, osAPI, Hammer, math */
+/* global osAPI, math */
 
 import { utils } from 'core/cliqz';
 import handlebars from 'core/templates';
+import { document, Hammer } from 'mobile-history/webview';
 
 var historyTimer;
 var allHistory = [];
@@ -14,9 +15,9 @@ function showHistory(history) {
   allHistory = history;
   const queries = utils.getLocalStorage().getObject('recentQueries', []).reverse();
 
-  for (let i = 0; i < history.length; i++) {
-    history[i].domain = history[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
-  }
+  history.forEach(item => {
+    item.domain = item.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  });
 
   const historyWithLogos = addLogos(history);
   const data = mixHistoryWithQueries(queries, historyWithLogos);
@@ -28,9 +29,9 @@ function showFavorites(favorites) {
 
   allFavorites = favorites;
 
-  for (let i = 0; i < favorites.length; i++) {
-    favorites[i].domain = favorites[i].url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
-  }
+  favorites.forEach(item => {
+    item.domain = item.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
+  });
 
   const favoritesWithLogos = addLogos(favorites);
 
@@ -45,11 +46,11 @@ function addLogos(list) {
   });
 }
 
-function sendShowTelemetry(data) {
+function sendShowTelemetry(data, type) {
   const queryCount = data.filter(function (item) { return item.query; }).length,
       urlCount = data.filter(function (item) { return item.url; }).length;
   utils.telemetry({
-    type: History.showOnlyFavorite ? 'favorites' : 'history',
+    type,
     action: 'show',
     active_day_count: data.length - queryCount - urlCount,
     query_count: queryCount,
@@ -127,7 +128,9 @@ function displayData(data, isFavorite = false) {
   document.body.scrollTop = height + 100;
 
   attachListeners(document.getElementById('container'));
-  History.sendShowTelemetry(data);
+
+  const type = isFavorite ? 'favorites' : 'history';
+  History.sendShowTelemetry(data, type);
 }
 
 function getDateFromTimestamp(time) {
@@ -162,7 +165,7 @@ function removeItem(item) {
 }
 
 function unfavoriteItem(item) {
-  const url = item.getAttribute('data');
+  const url = item.dataset.ref;
   const title = item.dataset.title;
   osAPI.setFavorites([{title, url}], false);
 }
@@ -191,7 +194,7 @@ function onElementClick(event) {
   const element = event.srcEvent.currentTarget;
   const type = element.getAttribute('class');
   const clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
-  clickAction(element.getAttribute('data'));
+  clickAction(element.dataset.ref);
   sendClickTelemetry(element);
 }
 
@@ -202,7 +205,7 @@ function sendClickTelemetry(element) {
       action: 'click',
       target_type: targeType,
       target_index: parseInt(element.dataset.index),
-      target_length: element.getAttribute('data').length,
+      target_length: element.dataset.ref.length,
       target_ts: parseInt(element.dataset.timestamp)
     });
 }

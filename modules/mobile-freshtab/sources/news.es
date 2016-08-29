@@ -1,7 +1,8 @@
-/* global CustomEvent, window, document, CliqzLanguage, CliqzUtils, CliqzHandlebars, osAPI */
+/* global CustomEvent, window, document, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
-import CliqzHandlebars from "core/templates";
+import CliqzHandlebars from 'core/templates';
+import CliqzUtils from 'core/utils';
 
 var DEPENDENCY_STATUS = {
   NOT_LOADED: 'NOT_LOADED',
@@ -49,7 +50,7 @@ function displayTopSites (list, isEditMode = false) {
 
   const topSites = CliqzHandlebars.tplCache.topsites;
   const div = document.getElementById('topSites');
-  const theme = (CLIQZEnvironment.getPref('incognito', false) === 'true' ? 'incognito' : 'standard');
+  const theme = (CliqzUtils.getPref('incognito', false) === 'true' ? 'incognito' : 'standard');
   div.innerHTML = topSites({isEmpty, isEditMode, list, theme});
 
 

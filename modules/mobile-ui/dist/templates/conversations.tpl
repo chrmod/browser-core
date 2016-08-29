@@ -5,7 +5,7 @@
 
         {{#if url}}
 
-            <li class="cf answer" data="{{url}}" data-title="{{title}}"
+            <li class="cf answer" data-ref="{{url}}" data-title="{{title}}"
                  data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
 
                 <div class="item">
@@ -33,7 +33,7 @@
 
             {{#if query}}
 
-                <li class="cf question" data="{{query}}"
+                <li class="cf question" data-ref="{{query}}"
                        data-id="{{id}}" data-timestamp={{ timestamp }} data-index="{{@index}}">
                     <div class="item">
                         <div class="item__meta">

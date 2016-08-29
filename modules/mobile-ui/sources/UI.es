@@ -6,7 +6,7 @@
 
 import DelayedImageLoader from 'mobile-ui/DelayedImageLoader';
 import handlebars from "core/templates";
-import { window, document } from 'core/mobile-webview';
+import { window, document } from 'mobile-ui/webview';
 
 //TODO: improve loading of these views!
 import v1 from 'mobile-ui/views/currency';

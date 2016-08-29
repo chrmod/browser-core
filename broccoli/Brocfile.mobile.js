@@ -13,19 +13,6 @@ var modules = require('./modules-tree');
 // input trees
 var mobileSpecific  = new Funnel('specific/mobile', { exclude: ['skin/sass/**/*', '*.py'] });
 
-var searchCss = compileSass(
-  ['specific/mobile/skin/sass'],
-  'style.sass',
-  'style.css',
-  { sourceMap: cliqzConfig.sourceMaps }
-);
-
-var tabsCss = compileSass(
-  ['specific/mobile/skin/sass'],
-  'tabs.sass',
-  'tabs.css',
-  { sourceMap: cliqzConfig.sourceMaps }
-);
 
 
 // cliqz.json should be saved after not transpiled modules are removed from configration
@@ -37,8 +24,6 @@ console.log(cliqzConfig);
 var mobile = new MergeTrees([
   mobileSpecific,
   new Funnel(config),
-  new Funnel(searchCss,      { destDir: 'skin/css' }),
-  new Funnel(tabsCss,      { destDir: 'skin/css' }),
   new Funnel(modules.bowerComponents, { destDir: 'bower_components' }),
   modules.modules
 ]);
