@@ -1,4 +1,4 @@
-node('ubuntu && docker') {
+node('ubuntu && docker && !gpu') {
   stage 'checkout'
   checkout scm
   def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
