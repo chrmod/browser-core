@@ -13,6 +13,20 @@
     <script src="../webextensions-shim.js"></script>
     <script src="jquery.min.js"></script>
     <script src="chrome://cliqz/content/bower_components/handlebars/handlebars.js"></script>
+
+    <script id="currentsite-handlebars" type="text/x-handlebars-template">
+      <h3 class="truncate">{{title}}</h3>
+    </script>
+
+    <script id="antitracker-counter-handlebars" type="text/x-handlebars-template">
+      <svg id="shield" width="38px" height="44px" viewBox="-1 0 38 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs></defs>
+        <path class="fill" d="M18.0059,0.375 C18.0059,0.375 13.1119,9.034 1.3039,9.034 C0.8799,9.034 0.4479,9.023 0.0059,9 L0.0049,9 C-0.1111,8.998 1.6699,34.772 18.0059,44 C34.3409,34.773 36.1219,9 36.0069,9 L36.0059,9 C35.5649,9.023 35.1319,9.034 34.7079,9.034 C22.8979,9.034 18.0059,0.375 18.0059,0.375 M32.4389,12.139 C31.4659,18.564 28.1719,33.281 18.0059,40.233 C7.8339,33.279 4.5449,18.563 3.5729,12.139 C10.6619,11.534 15.3369,8.172 18.0059,5.47 C20.6739,8.172 25.3499,11.534 32.4389,12.139 Z"
+          id="Fill-1" stroke="none" fill="#2CBA64" fill-rule="evenodd"></path>
+      </svg>
+      <span id="count">{{antitrackerCount}}</span>
+    </script>
+
   </head>
   <body>
     <script>
@@ -60,34 +74,14 @@
           </svg>
 
 
-          <svg class="unsafe" width="20px" height="21px" viewBox="1783 288 20 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <!-- Generator: Sketch 39 (31667) - http://www.bohemiancoding.com/sketch -->
-              <desc>Created with Sketch.</desc>
-              <defs>
-                  <rect id="path-1" x="0.116771875" y="0.930181337" width="19.760387" height="19.760387" rx="9.88019348"></rect>
-                  <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="19.760387" height="19.760387" fill="white">
-                      <use xlink:href="#path-1"></use>
-                  </mask>
-              </defs>
-              <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1783.000000, 288.000000)">
-                  <use id="Rectangle-432-Copy" stroke="#FFFFFF" mask="url(#mask-2)" stroke-width="2" xlink:href="#path-1"></use>
-                  <text id="!" font-family="Lato-Black, Lato" font-size="14.3999996" font-weight="700" fill="#FFFFFF">
-                      <tspan x="8.11677188" y="15.9301813">!</tspan>
-                  </text>
-              </g>
-          </svg>
-
           <span id="text" class="text" data-i18n="control-center-txt-header"></span>
         </div>
       </header>
 
-      <!-- <div class="onboarding">
-        <span><span class="cqz-switch-onboarding"><span class="cqz-switch-box-onboarding"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
-      </div> -->
-
       <div id="currentsite">
-        <h3 class="truncate">sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk</h3>
+
       </div>
+
       <div class="settings-section clearfix">
 
         <div class="lock"></div>
@@ -113,20 +107,15 @@
               </svg>
             </div>
 
-            <div class="counter">
-              <!--======= Shield =======-->
-              <svg id="shield" width="38px" height="44px" viewBox="-1 0 38 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <defs></defs>
-                <path class="fill" d="M18.0059,0.375 C18.0059,0.375 13.1119,9.034 1.3039,9.034 C0.8799,9.034 0.4479,9.023 0.0059,9 L0.0049,9 C-0.1111,8.998 1.6699,34.772 18.0059,44 C34.3409,34.773 36.1219,9 36.0069,9 L36.0059,9 C35.5649,9.023 35.1319,9.034 34.7079,9.034 C22.8979,9.034 18.0059,0.375 18.0059,0.375 M32.4389,12.139 C31.4659,18.564 28.1719,33.281 18.0059,40.233 C7.8339,33.279 4.5449,18.563 3.5729,12.139 C10.6619,11.534 15.3369,8.172 18.0059,5.47 C20.6739,8.172 25.3499,11.534 32.4389,12.139 Z"
-                  id="Fill-1" stroke="none" fill="#2CBA64" fill-rule="evenodd"></path>
-              </svg>
-              <span id="count">45</span>
+            <div class="counter" id="antitracker-counter">
+
             </div>
+
             <p class="description" data-i18n="control-center-datapoints"></p>
             <div class="switches" class="switches-antitrack">
               <!--======= Switch ======-->
               <span><span class="cqz-switch-antitrack active one"><span class="cqz-switch-box-antitrack"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
-              <select class="dropdown">
+              <select class="dropdown" name="dropdown">
                 <option class="opt-t" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt-t bad" id="all-sites" data-i18n="control-center-all-sites"></option>
               </select>
@@ -258,7 +247,7 @@
             <div class="switches">
               <!--======= Switch ======-->
               <span><span class="cqz-switch active one"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
-              <select class="dropdown">
+              <select class="dropdown" name="dropdown2">
                 <option class="opt" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt bad" id="all-sites" data-i18n="control-center-all-sites"></option>
               </select>
@@ -330,7 +319,7 @@
             <div class="switches" class="switches-antiphish">
               <!--======= Switch ======-->
               <span><span class="cqz-switch-antiphish active one"><span class="cqz-switch-box-antiphish"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
-              <select class="dropdown">
+              <select class="dropdown" name="dropdown3">
                 <option class="opt-p" selected id="this-site" data-i18n="control-center-this-site"></option>
                 <option class="opt-p bad" id="all-sites" data-i18n="control-center-all-sites"></option>
               </select>
