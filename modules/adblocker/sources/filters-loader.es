@@ -14,7 +14,32 @@ const ONE_DAY = 24 * ONE_HOUR;
 
 // URLs to fetch block lists
 const TODAY_DATE = new Date().toISOString().slice(0, 10);
-const BASE_URL = `https://s3.amazonaws.com/cdn.cliqz.com/adblocking/latest-filters/`;
+
+const BASE_URL = `https://cdn.cliqz.com/adblocking/latest-filters/`;
+CliqzUtils.log(BASE_URL, 'adblocking');
+
+
+const ALLOWED_LISTS = new Set([
+  // uBlock
+  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt',
+
+  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt',
+  // Adblock plus
+  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
+  // Extra lists
+  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/pgl.yoyo.org/as/serverlist',
+  // Anti adblock killers
+  'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
+  'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
+  // Privacy
+  // "assets/thirdparties/easylist-downloads.adblockplus.org/easyprivacy.txt",
+  // "assets/ublock/privacy.txt"
+]);
+
+
+function isListSupported(path) {
+  return ALLOWED_LISTS.has(path);
+}
 
 
 class Checksums extends UpdateCallbackHandler {
