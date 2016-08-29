@@ -73,7 +73,7 @@ function getContextHTML(ev) {
 }
 
 function onDOMWindowCreated(ev) {
-  var window = ev.originalTarget.defaultView;
+  var window = ev.target.defaultView;
   var currentURL = function(){return window.location.href};
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
@@ -278,7 +278,7 @@ function onDOMWindowCreated(ev) {
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
     // don't analyse language for (i)frames
-    var isTopWindow = !event.originalTarget.defaultView.frameElement;
+    var isTopWindow = !event.target.defaultView.frameElement;
 
     if (isTopWindow && lang) {
       send({
@@ -394,7 +394,7 @@ var DocumentManager = {
     }
 
     onDOMWindowCreated({
-      originalTarget: {
+      target: {
         defaultView: window
       }
     }, true)
