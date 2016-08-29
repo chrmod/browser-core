@@ -108,6 +108,10 @@ Promise.all([
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
     acResults = new CliqzAutocomplete.CliqzResults();
+
+    createSettingsMenu();
+    whoAmI(true);
+
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
         (winId, query) => {
           if (winId === currWinId)
@@ -127,14 +131,14 @@ Promise.all([
 
     chrome.cliqzSearchPrivate.onOmniboxFocusChanged.addListener(
         (winId, focused) => {
-          if (winId === currWinId && !focused)
+          if (winId === currWinId && !focused) {
             CLIQZ.UI.sessionEnd();
+            // Close settings section.
+            document.getElementById("settings").classList.add("hidden");
+          }
         });
 
-    createSettingsMenu();
-    whoAmI(true);
-
-    console.log('magic');
+    console.log('Glue init complete!');
   });
 
 function startAutocomplete(query) {
@@ -274,18 +278,14 @@ function createOptionEntries(el, options, prefKey, action){
 }
 
 function createSettingsMenu(){
-  var btn = document.getElementById("settingsButton"),
-      box = document.getElementById("settings"),
-      adult = document.getElementById('adult'),
-      loc = document.getElementById('location');
-
-  createOptionEntries(adult,
+  createOptionEntries(
+    document.getElementById('adult'),
     CliqzUtils.getAdultFilterState(),
     "adultContentFilter"
   );
 
   createOptionEntries(
-    loc,
+    document.getElementById('location'),
     CliqzUtils.getLocationPermState(),
     "share_location",
     function (val) {
@@ -297,6 +297,8 @@ function createSettingsMenu(){
     }
   );
 
+  var btn = document.getElementById("settingsButton"),
+      box = document.getElementById("settings");
   btn.addEventListener('click', function(){
     this.classList.toggle('active');
     box.classList.toggle('hidden');
