@@ -27,3 +27,11 @@
 
 @import 'parts/_context-menu';
 @import 'ezones/_history';
+
+.cliqz-control-center {
+    background-repeat: no-repeat;
+    height: 26px;
+    background-position: 2px 4px;
+    padding: 4px 4px 0px 24px;
+    border: 1px solid #ccc;
+}

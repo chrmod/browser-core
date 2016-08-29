@@ -121,6 +121,13 @@ export default background({
 
       if (this.popup) {
         this.popup.setBadge(utils.getWindow(), info.cookies.blocked + info.requests.unsafe);
+
+        utils.callWindowAction(
+          utils.getWindow(),
+          'control-center',
+          'setBadge',
+          [info.cookies.blocked + info.requests.unsafe]
+        );
       }
     },
     /**

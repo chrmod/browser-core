@@ -85,6 +85,13 @@ export default class {
     }
 
     this.popup.setBadge(this.window, count);
+
+    utils.callWindowAction(
+      this.window,
+      'control-center',
+      'setBadge',
+      [info.cookies.blocked + info.requests.unsafe]
+    );
   }
 
   createAttrackButton() {
