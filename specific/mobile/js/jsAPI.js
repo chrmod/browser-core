@@ -2,7 +2,6 @@
 
 var jsAPI = {
   init: function () {
-    
   },
   search: function(e, location_enabled, latitude, longitude) {
     CliqzUtils.search(e, location_enabled, latitude, longitude);
@@ -66,7 +65,10 @@ var jsAPI = {
   clearFavorites: function() {
     History.clearFavorites();
   },
-  setDefaultSearchEngine: function(engine) {
+  setDefaultSearchEngine: function(engine, url) {
+    if (url) { // temporary until iOS complies
+      engine = { name: engine, url: url};
+    }
     CliqzUtils.setDefaultSearchEngine(engine);
     CLIQZ.UI.updateSearchCard(engine);
   },
