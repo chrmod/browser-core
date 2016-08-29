@@ -234,12 +234,6 @@ var CliqzABTests = {
             case "1067_B":
                 CliqzUtils.setPref("attrackProxyTrackers", true);
                 break;
-            case "1068_A":
-                CliqzUtils.setPref("languageDedup", false);
-                break;
-            case "1068_B":
-                CliqzUtils.setPref("languageDedup", true);
-                break;
             case "1069_A":
                 CliqzUtils.setPref("grOfferSwitchFlag", false);
                 break;
@@ -283,6 +277,12 @@ var CliqzABTests = {
                 break;
             case "1076_B":
                 CliqzUtils.setPref("history.timeouts", true);
+                break;
+            case "1077_A":
+                CliqzUtils.setPref("languageDedup", false);
+                break;
+            case "1077_B":
+                CliqzUtils.setPref("languageDedup", true);
                 break;
             default:
                 rule_executed = false;
@@ -439,6 +439,11 @@ var CliqzABTests = {
             case "1076_B":
               CliqzUtils.clearPref('history.timeouts');
               break;
+            case "1077_A":
+            case "1077_B":
+              CliqzUtils.clearPref("languageDedup");
+              break;
+
             default:
                 rule_executed = false;
         }
