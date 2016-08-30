@@ -154,7 +154,7 @@ function handleRules(rules, window) {
       if (rulesStr) {
         rulesStr += ', ';
       }
-      rulesStr += ` ${rule}`;
+      rulesStr += ` :root ${rule}`;
     }
   }
   if (rulesStr) {
