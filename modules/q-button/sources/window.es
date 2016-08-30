@@ -132,7 +132,7 @@ export default class {
 
     // module buttons
     win.CLIQZ.config.modules.forEach(moduleName=> {
-      var mod = CLIQZ.Core.windowModules[moduleName],
+      var mod = win.CLIQZ.Core.windowModules[moduleName],
           buttonItem = mod && mod.createButtonItem && mod.createButtonItem(win);
 
       if (buttonItem) {

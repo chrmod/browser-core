@@ -1,24 +1,25 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { simpleBtn } from 'q-button/buttons';
 import { utils } from 'core/cliqz';
+import config from "core/config";
 import CLIQZEnvironment from "platform/environment";
+
 
 const BTN_ID = 'cliqz-button1',
       firstRunPref = 'firstStartDone1';
 
 export default class {
   constructor(config) {
+    this.config = config;
     this.window = config.window;
     this.actions = {
-      setBadge: this.setBadge.bind(this)
+      setBadge: this.setBadge.bind(this),
+      getData: this.getData.bind(this)
     }
   }
 
   init() {
     this.addCCbutton();
-
-    //TODO: can we make it smarter?
-    // this.window.CLIQZ.ControlCenter.actions = this.actions
   }
 
   unload() {
@@ -27,6 +28,64 @@ export default class {
 
   setBadge(info){
     this.badge.textContent = info;
+  }
+
+  getData(){
+    // gets dynamic data from all the modules
+    var data = this.getModulesData();
+
+    data.adult = { state: utils.getAdultFilterState() };
+    data.apt = { state: utils.getPref("browser.privatebrowsing.apt", false, '') }
+
+    this.sendMessageToPopup({
+      action: 'pushData',
+      data: data
+    })
+  }
+
+  getModulesData(){
+    var modules = {};
+
+    for (var moduleName in this.window.CLIQZ.Core.windowModules){
+      var mod = this.window.CLIQZ.Core.windowModules[moduleName];
+
+      modules[moduleName] = null
+
+      if ('controlCenterData' in mod) {
+        try {
+          modules[moduleName] = mod.controlCenterData()
+        } catch(e) { /* no data for control-center */ }
+      }
+    }
+
+    return modules;
+  }
+
+  attachMessageHandlers(iframe){
+    this.iframe = iframe;
+    this.iframe.contentWindow.addEventListener("message", this.decodeMessagesFromPopup.bind(this))
+  }
+
+  decodeMessagesFromPopup(ev){
+    var data = JSON.parse(ev.data);
+    if(data.target == 'cliqz-control-center' &&
+       data.origin == 'iframe'){
+      this.handleMessagesFromPopup(data.message);
+    }
+  }
+
+  handleMessagesFromPopup(message){
+    this.window.console.log("IN BACKGROUND", message);
+
+    this.actions[message.action](message.data);
+  }
+
+  sendMessageToPopup(message) {
+    this.iframe.contentWindow.postMessage(JSON.stringify({
+      target: 'cliqz-control-center',
+      origin: "window",
+      message: message
+    }), "*")
   }
 
   addCCbutton() {
@@ -76,10 +135,12 @@ export default class {
 
         if(menupopup.children.length == 0){
           var iframe = doc.createElement('iframe');
-          iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html');
+          iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html?' + this.rand);
           iframe.style.width = "455px";
           iframe.style.height = "700px";
           menupopup.appendChild(iframe);
+
+          this.attachMessageHandlers(iframe);
         }
       }
     );

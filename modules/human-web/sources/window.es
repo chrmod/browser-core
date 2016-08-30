@@ -81,6 +81,12 @@ export default class {
     return menu;
   }
 
+  controlCenterData() {
+    return {
+      state: utils.getPref('dnt', false)
+    }
+  }
+
   changeHumanWebState() {
     if(utils.getPref("humanWeb", false) && !utils.getPref('dnt', false)){
       HumanWeb.unloadAtBrowser();
