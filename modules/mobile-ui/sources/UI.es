@@ -43,8 +43,6 @@ var UI = {
 
         resultsBox = document.getElementById('cliqz-results', box);
 
-        viewPager = UI.initViewpager();
-
         resultsBox.addEventListener('click', resultClick);
 
         // FIXME: import does not work
@@ -56,6 +54,10 @@ var UI = {
       UI.CARD_WIDTH /= UI.nCardsPerPage;
     },
     renderResults: function(r) {
+
+      if (!viewPager) {
+        viewPager = UI.initViewpager();
+      }
 
       const renderedResults = UI.results(r);
 
