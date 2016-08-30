@@ -13,14 +13,14 @@ export default describeModule("telemetry/reporter",
     beforeEach(function() {
       behaviorTimespan = undefined;
       demographicsTimespans = [];
-      behavior.getByTimespanAndType = (_timespan) => {
+      behavior.getTypesByTimespan = (_timespan) => {
         behaviorTimespan = _timespan;
         return Promise.resolve({
           type_1: [{ signal_key: 1 }],
           type_2: [{ signal_key: 2 }],
         });
       };
-      demographicsStorage.getByTimespanAndType = (_timespan) => {
+      demographicsStorage.getTypesByTimespan = (_timespan) => {
         demographicsTimespans.push(_timespan);
         return Promise.resolve({
           _demographics: [{
@@ -59,9 +59,9 @@ export default describeModule("telemetry/reporter",
           [{ a: 1, b: 1 }, { a: 1, b: 2 }, { a: 2, b: 1 }, { a: 2, b: 2 }]);
       });
     });
-    describe("#getMessageFromBehavior", function () {
+    describe("#createBehaviorMessage", function () {
       it("should retrieve records for given timespan, aggregate them, and return them as a message", function () {
-        return reporter.getMessageFromBehavior({ from: 1, to: 99 }, aggregator).then((message) => {
+        return reporter.createBehaviorMessage({ from: 1, to: 99 }, aggregator).then((message) => {
           chai.expect(behaviorTimespan).to.eql({ from: 1, to: 99 });
           chai.expect(message).to.eql({
             behavior: {
@@ -72,9 +72,9 @@ export default describeModule("telemetry/reporter",
         });
       });
     });
-    describe("#getMessagesFromDemographics", function () {
+    describe("#createDemographicsMessages", function () {
       it("should retrieve records for given timespan, aggregate them, and return them as a message", function () {
-        return reporter.getMessagesFromDemographics({ from: 1, to: 99 }, demographicsAggregator).then((messages) => {
+        return reporter.createDemographicsMessages({ from: 1, to: 99 }, demographicsAggregator).then((messages) => {
           chai.expect(demographicsTimespans[0]).to.eql({ from: 1, to: 99 });
           chai.expect(messages).to.eql([
             { demographics: {

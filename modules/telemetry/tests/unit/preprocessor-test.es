@@ -4,10 +4,10 @@ export default describeModule("telemetry/preprocessor",
       'core/cliqz': {
         default: { },
       },
-      'telemetry/ua-parser': {
+      'platform/ua-parser': {
         default: class { },
       },
-      'telemetry/moment': {
+      'platform/moment': {
         moment: { },
       }
     }

@@ -1,6 +1,6 @@
 import Anacron from 'telemetry/anacron';
 import Behavior from 'telemetry/aggregators/behavior';
-import Database from 'telemetry/database';
+import Database from 'core/database';
 import Demographics from 'telemetry/aggregators/demographics';
 import Preprocessor from 'telemetry/preprocessor';
 import Reporter from 'telemetry/reporter';
@@ -33,12 +33,15 @@ export default background({
     this.loader = new ResourceLoader(
       ['telemetry', 'trees.json'],
       {
-        remoteURL: undefined,
+        remoteURL: 'https://cdn.cliqz.com/telemetry/trees.json',
         cron: ONE_DAY,
       }
     );
 
-    this.anacron = new Anacron();
+    this.anacron = new Anacron({
+      get: utils.getPref,
+      set: utils.setPref,
+    });
     // TODO: re-enable for production
     // this.actions.schedule('20-min-behavior', this.behavior,
     //   '*/20 *', 20 * ONE_MINUTE);
@@ -63,6 +66,9 @@ export default background({
       });
     });
 
+    this.telemetryHandler = this.events['telemetry:log'].bind(this);
+    utils.telemetryHandlers.push(this.telemetryHandler);
+
     // TODO: move somewhere else (e.g., to storage as auto-delete setting)
     this.behaviorStorage
       .deleteByTimespan({ to: Date.now() - 30 * ONE_DAY })
@@ -81,6 +87,13 @@ export default background({
 
   stop() {
     if (!this.isRunning) return;
+
+    // unsubscribe
+    const index = utils.telemetryHandlers.indexOf(this.telemetryHandler);
+    if (index > -1) {
+      utils.telemetryHandlers.splice(index, 1);
+      delete this.telemetryHandler;
+    }
 
     this.anacron.stop();
     this.loader.stop();
@@ -104,7 +117,11 @@ export default background({
     'telemetry:log'(data) {
       if (!this.isRunning) return;
 
-      this.actions.log(data);
+      // no telemetry in private windows
+      if (data.type != 'environment' && utils.isPrivate()) return;
+
+      // don't insert summary reports
+      if (!data._report) this.actions.log(data);
     },
     'prefchange'(pref) {
       if (pref !== ENABLE_PREF) return;
@@ -118,8 +135,17 @@ export default background({
   },
 
   actions: {
-    // examples: schedule('20-min-behavior', behavior, '*/20 *', 20 * ONE_MINUTE)
-    //           schedule('daily-retention', retention, '0 0', 30 * ONE_DAY, ONE_DAY)
+    /**
+    * Schedule a telemtry report.
+    * @example
+    * schedule('20-min-behavior', behavior, '* /20 *', 20 * ONE_MINUTE)
+    * schedule('daily-retention', retention, '0 0', 30 * ONE_DAY, ONE_DAY)
+    * @param {string} id - The report ID (e.g., 'daily-retention').
+    * @param {Aggregator} aggregator - The signal aggregator.
+    * @param {string} pattern - The cron pattern (e.g., '0 0' for daily report at midnight).
+    * @param {number} interval - The total timespan covered in the report (in ms).
+    * @param {number} retention - The retention interval (in ms) or null for non-retention reports.
+    */
     // TODO: add test
     // TODO: derive interval from pattern
     // TODO: rename `interval` to `timespan`? `retention` => `interval`?
@@ -151,9 +177,13 @@ export default background({
             });
           })
           .catch(error => utils.log(error, 'telemetry'));
-      }.bind(this), pattern);
+      }, pattern);
     },
 
+    /**
+    * Log a telemetry signal.
+    * @param {Object} signal - The telemetry signal.
+    */
     // TODO: add test
     log(signal) {
       const processedSignal = this.preprocessor.process(signal);

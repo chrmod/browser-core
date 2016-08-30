@@ -31,7 +31,7 @@ export default class extends Aggregator {
   }
 
   getValuesForKey(objects, key) {
-    return objects.filter(o => key in o).map(o => o[key]);
+    return objects.filter(o => o.hasOwnProperty(key)).map(o => o[key]);
   }
 
   isIntervalSeries(series) {
@@ -39,14 +39,10 @@ export default class extends Aggregator {
   }
 
   countOccurences(array) {
-    const counts = Object.create(null);
-    array.forEach((value) => {
-      if (!(value in counts)) {
-        counts[value] = 0;
-      }
-      counts[value]++;
-    });
-    return counts;
+    return array.reduce((counts, value) => {
+      counts[value] = (counts[value] || 0) + 1;
+      return counts;
+    }, Object.create(null));
   }
 
   describeCategoricalSeries(series) {
@@ -59,13 +55,13 @@ export default class extends Aggregator {
   // TODO: add histogram
   describeIntervalSeries(series) {
     const numbers = [];
-    const nulls = [];
+    let nullCount = 0;
 
     series.forEach((value) => {
       if (typeof value === 'number') {
         numbers.push(value);
       } else if (value === null) {
-        nulls.push(value);
+        nullCount++;
       }
     });
 
@@ -79,7 +75,7 @@ export default class extends Aggregator {
         max: Stats.max(numbers),
       },
       nulls: {
-        count: nulls.length,
+        count: nullCount,
       },
     });
   }

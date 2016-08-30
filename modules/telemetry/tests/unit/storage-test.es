@@ -90,7 +90,7 @@ export default describeModule("telemetry/storage",
         //   documents = _documents;
         //   params = _params;
         // };
-        database.remove = _document => documents.push(_document);
+        database.remove = _document => Promise.resolve(documents.push(_document));
         return storage.deleteByTimespan({ from: 1, to: 100 }).then(() => {
           // chai.expect(params, 'used incorrect query parameters').to.be.eql({
           //   _deleted: true,
@@ -104,7 +104,7 @@ export default describeModule("telemetry/storage",
         });
       });
     });
-    describe("#getByTimespanAndType", function () {
+    describe("#getTypesByTimespan", function () {
       it("should query database with correct index & timespan and group records by type", function () {
         var index;
         var params;
@@ -119,7 +119,7 @@ export default describeModule("telemetry/storage",
             ]
           });
         };
-        return storage.getByTimespanAndType({ from: 1, to: 100 }).then((records) => {
+        return storage.getTypesByTimespan({ from: 1, to: 100 }).then((records) => {
           chai.expect(index, 'queried wrong index').to.be.equal('index/by_ts');
           chai.expect(params, 'used incorrect query parameters').to.be.eql({
             startkey: 1,

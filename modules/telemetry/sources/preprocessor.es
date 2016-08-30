@@ -1,5 +1,5 @@
-import moment from 'telemetry/moment';
-import UAParser from 'telemetry/ua-parser';
+import moment from 'platform/moment';
+import UAParser from 'platform/ua-parser';
 
 export default class {
   constructor(settings = { channel: 99 }) {

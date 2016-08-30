@@ -37,7 +37,7 @@ export default class {
     }).then(result => result.rows.map(row => row.doc));
   }
 
-  getByTimespanAndType(timespan) {
+  getTypesByTimespan(timespan) {
     return this.getByTimespan(timespan)
       // group by type
       .then(documents => documents.reduce((pre, cur) => {
@@ -53,6 +53,6 @@ export default class {
     return this.getByTimespan(timespan)
       // TODO: find out why `.then(documents => this.database.bulkDocs(documents,
       //       { _deleted: true }));` does not work
-      .then(documents => documents.forEach(doc => this.database.remove(doc)));
+      .then(documents => Promise.all(documents.map(doc => this.database.remove(doc))));
   }
 }

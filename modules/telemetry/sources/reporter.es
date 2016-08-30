@@ -30,14 +30,21 @@ export default class {
 
     return Promise.all([
       // use the same demographics for all messages
-      this.getMessagesFromDemographics(timespans[timespans.length - 1], demographicsAggregator),
-      ...timespans.map(timespan => this.getMessageFromBehavior(timespan, behaviorAggregator)),
+      this.createDemographicsMessages(timespans[timespans.length - 1], demographicsAggregator),
+      ...timespans.map(timespan => this.createBehaviorMessage(timespan, behaviorAggregator)),
     ])
       // create all combinations of demographics and behavior messages
       .then(([demographicsMessages, ...behaviorMessages]) =>
         this.joinMessages(demographicsMessages, behaviorMessages));
   }
 
+  /**
+  * Generates all combination of messages from lists A and B, for example,
+  * to combine a set of demographic factors with behavioral statistics from
+  * different timespans.
+  * @param {Object[]} listA - First list of messages.
+  * @param {Object[]} listB - Second list of messages.
+  */
   joinMessages(listA, listB) {
     const joined = [];
     listA.forEach((msgA) => {
@@ -48,9 +55,8 @@ export default class {
     return joined;
   }
 
-  // TODO: rename, this actually returns a message stub
-  getMessageFromBehavior(timespan, behaviorAggregator) {
-    return this.behavior.getByTimespanAndType(timespan)
+  createBehaviorMessage(timespan, behaviorAggregator) {
+    return this.behavior.getTypesByTimespan(timespan)
       .then(records => behaviorAggregator.aggregate(records))
       .then((aggregation) => {
         aggregation.timespan = timespan;
@@ -60,9 +66,8 @@ export default class {
       });
   }
 
-  // TODO: rename, this actually returns a message stub
-  getMessagesFromDemographics(timespan, demographicsAggregator) {
-    return this.demographics.getByTimespanAndType(timespan)
+  createDemographicsMessages(timespan, demographicsAggregator) {
+    return this.demographics.getTypesByTimespan(timespan)
       .then(records => {
         const demographics = demographicsAggregator.aggregate(records);
         demographics._any = true;

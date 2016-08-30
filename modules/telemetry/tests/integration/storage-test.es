@@ -15,7 +15,7 @@ export default describeModule("telemetry/storage",
     afterEach(function() {
       database.destroy();
     });
-    describe("put and getByTimespanAndType", function () {
+    describe("put and getTypesByTimespan", function () {
       it("should return records given complete timespan with records", function () {
         const timespan = {
           from: Date.now() - 100,
@@ -25,7 +25,7 @@ export default describeModule("telemetry/storage",
         return storage.put({ id: 'type_A', value: 5 })
           .then(() => storage.put({ id: 'type_B', value: 6 }))
           .then(() => storage.put({ id: 'type_A', value: 7 }))
-          .then(() => storage.getByTimespanAndType(timespan))
+          .then(() => storage.getTypesByTimespan(timespan))
           .then((records) => {
             chai.expect(records).to.contain.all.keys(['type_A', 'type_B']);
             chai.expect(records.type_A.length).to.equal(2);
@@ -41,7 +41,7 @@ export default describeModule("telemetry/storage",
         };
 
         return storage.put({ id: 'type_A', value: 5 })
-          .then(() => storage.getByTimespanAndType(timespan))
+          .then(() => storage.getTypesByTimespan(timespan))
           .then((records) => {
             chai.expect(records).to.contain.all.keys(['type_A']);
             chai.expect(records.type_A.length).to.equal(1);
@@ -54,7 +54,7 @@ export default describeModule("telemetry/storage",
         };
 
         return storage.put({ id: 'type_A', value: 5 })
-          .then(() => storage.getByTimespanAndType(timespan))
+          .then(() => storage.getTypesByTimespan(timespan))
           .then((records) => {
             chai.expect(records).to.contain.all.keys(['type_A']);
             chai.expect(records.type_A.length).to.equal(1);

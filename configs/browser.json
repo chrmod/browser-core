@@ -35,7 +35,7 @@
     "privacy-dashboard",
     "offers",
     "adblocker",
-    "https-everywhere"
+    "https-everywhere",
     "telemetry"
   ],
   "subprojects": [

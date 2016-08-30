@@ -106,7 +106,7 @@ export class Cron {
   run(date) {
     this.tasks
       .filter(task => task.shouldRun(date))
-      .forEach(task => task.run(date));
+      .forEach(task => utils.setTimeout(task.run, 0, date));
   }
 
   onTick(date = new Date()) {
@@ -116,12 +116,12 @@ export class Cron {
 
 // Anacron
 export default class extends Cron {
-  constructor({ name = 'telemetry.anacron' } = { }) {
+  constructor(storage, { name = 'telemetry.anacron' } = { }) {
     super();
-    // TODO: inject storage service
-    // TODO: test getting of pref
-    this.pref = `${name}.last`;
-    this.last = Number(utils.getPref(this.pref, 0));
+    this.storage = storage;
+    // TODO: test getting of setting
+    this.setting = `${name}.last`;
+    this.last = Number(this.storage.get(this.setting, 0));
     this.queue = new Queue();
     // TODO: move to `start`; also call `unsubscribe` from `stop`
     this.queue.subscribe(this.run.bind(this));
@@ -129,10 +129,14 @@ export default class extends Cron {
 
   // TODO: add tests
   run(date) {
+    // `super.run` runs tasks asynchronously, thus does not block
     super.run(date);
-    // TODO: test setting of pref
+    // TODO: test setting of setting
     this.last = date.getTime();
-    utils.setPref(this.pref, String(this.last));
+    // TODO: since `super.run` is asynchronous, not all tasks are completed at this point;
+    //       timestamp setting should only be set once alls tasks are completed to avoid missing
+    //       tasks (e.g., due to browser shutdown)
+    this.storage.set(this.setting, String(this.last));
   }
 
   converge(date) {

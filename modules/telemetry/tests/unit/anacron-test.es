@@ -12,7 +12,7 @@ export default describeModule("telemetry/anacron",
       this.deps('core/cliqz').utils.getPref = (_, _default) => _default;
 
       const Anacron = this.module().default;
-      anacron = new Anacron();
+      anacron = new Anacron({ get: () => {} , set: () => {} });
       Task = this.module().Task;
     });
     describe("Queue", function () {
@@ -41,15 +41,21 @@ export default describeModule("telemetry/anacron",
           chai.expect(cron.isRunning).to.be.true;
         });
         it("should start running tasks", function () {
-          var delay;
+          var intervalDelay;
+          var timeoutDelay;
           var wasRun = false;
           this.deps('core/cliqz').utils.setInterval = (_callback, _delay) =>  {
-            delay = _delay;
+            intervalDelay = _delay;
             _callback();
+          };
+          this.deps('core/cliqz').utils.setTimeout = (_callback, _delay, _date) => {
+            timeoutDelay = _delay;
+            _callback(_date);
           };
           cron.schedule(() => wasRun = true, '* *', 'test');
           cron.start();
-          chai.expect(delay).to.equal(60000);
+          chai.expect(intervalDelay).to.equal(60000);
+          chai.expect(timeoutDelay).to.equal(0);
           chai.expect(wasRun).to.be.true;
         });
       });
@@ -72,6 +78,7 @@ export default describeModule("telemetry/anacron",
       });
       describe("#run", function () {
         it("should run tasks with date as parameter", function () {
+          this.deps('core/cliqz').utils.setTimeout = (_callback, _delay, _date) => _callback(_date);
           var date;
           cron.schedule((_date) => date = _date, '* *');
           cron.run(new Date('01.01.2016 00:01'));

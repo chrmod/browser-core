@@ -20,7 +20,6 @@ export default class extends Aggregator {
           // TODO: drop keys for which there is no tree
           anon[key] = '';
         }
-        return anon;
       });
     return anon;
   }
