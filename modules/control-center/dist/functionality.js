@@ -7,7 +7,17 @@ function localizeDocument() {
 }
 
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
-$(document).ready(function() {
+Promise.all([
+  System.import("control-center/content/helpers"),
+  $(document).ready().promise(),
+]).then(function(resolvedPromises) {
+  // register helpers - start
+  var helpers = resolvedPromises[0].default;
+  Object.keys(helpers).forEach(function (helperName) {
+    Handlebars.registerHelper(helperName, helpers[helperName]);
+  });
+  // register helpers - end
+
   function close_setting_accordion_section() {
     $('.setting-accordion .setting-accordion-section-title').removeClass('active');
     $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
@@ -477,10 +487,9 @@ $(document).ready(function() {
 
   localizeDocument();
 
-  var currSiteTemplate = Handlebars.compile($('#currentsite-handlebars').html()),
-      antitrackerTemplate = Handlebars.compile($('#antitracker-counter-handlebars').html());
+  var antitrackerTemplate = Handlebars.compile($('#antitracker-counter-handlebars').html());
 
-  document.getElementById('currentsite').innerHTML = currSiteTemplate({
+  document.getElementById('currentsite').innerHTML = CLIQZ.templates["current-site"]({
     title: 'sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk'
   })
   document.getElementById('antitracker-counter').innerHTML = antitrackerTemplate({
