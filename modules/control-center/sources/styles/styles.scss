@@ -27,17 +27,17 @@
 	}
 
 	&.first {
-			.onboarding {
-				display: block;
-				position: absolute;
-				z-index: 100;
-				height: 300px;
-				width: 455px;
-				background-color: rgba(233, 233, 233, 0.9);
-				filter: blur(4px);
-			}
+  	.onboarding {
+  		display: block;
+  		position: absolute;
+  		z-index: 100;
+  		height: 300px;
+  		width: 455px;
+  		background-color: rgba(233, 233, 233, 0.9);
+  		filter: blur(4px);
+  	}
 	}
-	// Whole control-center will light up YELLOW when this is active
+	/*Whole control-center will light up YELLOW when this is active*/
 	&.crucial-antitrack {
 		#header {
 			background: #F5C03E;
@@ -64,7 +64,7 @@
     }
 	}
 
-	// Whole control-center will light up YELLOW when this is active
+	/*Whole control-center will light up YELLOW when this is active*/
   &.crucial-antiphish {
     #header {
       background: #F5C03E;
@@ -80,7 +80,7 @@
     }
   }
 
-	// Whole control-center will light up RED when this is active
+	/*Whole control-center will light up RED when this is active*/
 	&.bad-antitrack {
 		#header {
 			background: #E64C66;
@@ -110,7 +110,7 @@
     }
 	}
 
-	// Whole control-center will light up RED when this is active
+  /*	Whole control-center will light up RED when this is active*/
   &.bad-antiphish {
     #header {
       background: #E64C66;
@@ -123,17 +123,16 @@
           }
         }
       }
-			.dropdown {
-				color: #E64C66;
-			}
+  		.dropdown {
+  			color: #E64C66;
+  		}
     }
   }
 
-	// Whole control-center will light up GREY when this is active
+  /*Whole control-center will light up GREY when this is active*/
   &.break {
     #header {
       background: #8F8F8F;
-
 			.pause {
 				background: #707070;
 				box-shadow: inset 0 0 3px #545353;
@@ -189,25 +188,11 @@
 					}
 				}
 			}
-			#httpsevery {
+			#https {
 				.switches {
 					#onlabel {
 						color: #8F8F8F;
 					}
-				}
-			}
-		}
-		.cqz-switch-antitrack {
-			&.active {
-				.cqz-switch-box-antitrack {
-					background: #8F8F8F;
-				}
-			}
-		}
-		.cqz-switch-antiphish {
-			&.active {
-				.cqz-switch-box-antiphish {
-					background: #8F8F8F;
 				}
 			}
 		}
@@ -219,7 +204,7 @@
 			}
 		}
 
-		// Causes the settings-section to flash when it's pressed!
+		/*Causes the settings-section to flash when it's pressed!*/
 		.lock {
 			&.flash {
 				background-color: #fff;
@@ -230,7 +215,7 @@
 			}
 		}
 
-		// This causes the strict checkbox to turn unchecked
+		/*This causes the strict checkbox to turn unchecked*/
 		.squaredFour {
 			label {
 				width: 15px;
@@ -254,12 +239,12 @@
 		      background: transparent;
 		      opacity: 0;
 		      transform: rotate(-45deg);
-			}
-		}
+			 }
+		  }
+    }
   }
-}
 
-	// Contains Pause-Button and data protection status
+	/*Contains Pause-Button and data protection status*/
 	#header {
 		color: #FFF;
 		background: #2CBA84;
@@ -287,7 +272,7 @@
 		}
 	}
 
-	// The Current Website's URL is displayed here
+	/*The Current Website's URL is displayed here*/
 	#currentsite {
 		font-size: 24px;
 		height: 49.5px;
@@ -304,13 +289,140 @@
 		}
 	}
 
-	// This is where the main settings are (antitracker, antiphishing, https everywhere & adblocker)
 	.settings-section {
-		position: relative;
-		.setting {
-			position: relative;
+    position:relative;
+    .title {
+      margin: 10px 0 5px 10px;
+      font-weight: 400;
+      &:hover {
+        cursor: pointer;
+      }
+      #infobutton {
+        margin: 0 1px -1px 0;
+        &:hover {
+          #Oval-2 {
+            fill: #2388FF;
+          }
+        }
+      }
+      #infobutton:hover + .tracking-popup {
+        display: block;
+      }
+      #smallarrow {
+        margin: 0 0 -2px 2px;
+      }
+      .tracking-popup {
+        display: none;
+        position: absolute;
+        z-index: 10;
+      }
+    }
 
-			// Active Phishing Window: Appears when the Antiphishing Section is clicked
+    .description {
+      font-size: 16px;
+      color: #595959;
+      margin: 0 25px 10px 30px;
+    }
+
+    .counter {
+      font-weight: 400;
+      font-size: 47px;
+      margin: 0 10px 0 30px;
+      color: #000;
+    }
+
+    .switches {
+      margin: 0 0 0 30px;
+      #onlabel {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2B9F5F;
+      }
+    }
+
+    .inactive {
+      .dropdown {
+        display: block;
+      }
+    }
+
+    .antiphishing {
+      float: left;
+      width: 226px;
+      height: 74.5px;
+      border-bottom: 0.5px solid #F3F3F3;
+      border-right: 0.5px solid #F3F3F3;
+    }
+
+    .antitracker {
+      float: left;
+      width: 226px;
+      height: 174.5px;
+      border-right: 0.5px solid #F3F3F3;
+      border-bottom: 0.5px solid #F3F3F3;
+
+      &.inactive {
+        .switches {
+          .squaredFour {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .adblock {
+      float: right;
+      width: 226.5px;
+      height: 174.5px;
+      border-bottom: 0.5px solid #F3F3F3;
+
+      &.inactive {
+        .counter {
+          color: #A4A4A4;
+          #block {
+            .fill {
+              fill: #A4A4A4;
+            }
+          }
+        }
+        .description {
+          color: #A4A4A4;
+        }
+        .switches {
+          .dropdown {
+            display: block;
+          }
+          .squaredFour {
+            display: none;
+          }
+          #onlabel {
+            color: #A4A4A4;
+          }
+        }
+      }
+    }
+
+    #https {
+      width: 226.5px;
+      height: 74.5px;
+      float: right;
+      border-bottom: 0.5px solid #F3F3F3;
+
+      .inactive {
+        #onlabel {
+          color: #A4A4A4;
+        }
+      }
+    }
+
+		.setting {
+      position: relative;
+      background-color: #fff;
+      font-size: 16px;
+
+      &:hover {
+        background-color: #f9f9f9;
+      }
 			.active-window-phishing {
 				display: none;
 				#report {
@@ -373,7 +485,7 @@
 				}
 			}
 
-			// Active Tracking Window: Appears when the Antitracking Section is clicked
+			/*Active Tracking Window: Appears when the Antitracking Section is clicked*/
 			.active-window-tracking {
 				display: none;
 				#companies-title {
@@ -414,7 +526,7 @@
 				}
 			}
 
-			// Active Adblocker Window: Appears when the Adblocking Section is clicked
+			/*Active Adblocker Window: Appears when the Adblocking Section is clicked*/
 			.active-window-adblock {
 				display: none;
 				#companies-title {
@@ -455,7 +567,7 @@
 				}
 			}
 
-			// The actual active state that toggles which window is to be displayed
+			/*The actual active state that toggles which window is to be displayed*/
 			&.active {
 				position: absolute;
 				z-index: 10;
@@ -496,7 +608,7 @@
 			}
 		}
 
-		// Basic HTML/CSS dropdown: Security disabled for THIS WEBSITE or ALL WEBSITES
+		/*Basic HTML/CSS dropdown: Security disabled for THIS WEBSITE or ALL WEBSITES*/
 		.dropdown {
 			float: right;
 			margin-right: 15px;
@@ -521,7 +633,7 @@
 			}
 		}
 
-		// A invisible div that's plastered on top of the settings section during PAUSE-state so that nothing is clickable
+		/*A invisible div that's plastered on top of the settings section during PAUSE-state so that nothing is clickable*/
 		.lock {
 			display: none;
 			position: absolute;
@@ -529,252 +641,10 @@
 			height: 450px;
 			z-index: 100;
 		}
-
-		// Antitracking setting
-		.antitracker {
-			position: relative;
-			font-size: 16px;
-			float: left;
-			width: 226px;
-			height: 174.5px;
-			border-right: 0.5px solid #F3F3F3;
-			border-bottom: 0.5px solid #F3F3F3;
-			background-color: #fff;
-			&:hover {
-				background-color: #f9f9f9;
-			}
-			.title {
-				margin: 10px 0 5px 10px;
-				font-weight: 400;
-				&:hover {
-					cursor: pointer;
-				}
-				#infobutton {
-					margin: 0 1px -1px 0;
-					&:hover {
-						#Oval-2 {
-							fill: #2388FF;
-						}
-					}
-				}
-
-				#infobutton:hover + .tracking-popup {
-					display: block;
-				}
-				#smallarrow {
-					margin: 0 0 -2px 2px;
-				}
-				.tracking-popup {
-					display: none;
-					position: absolute;
-					z-index: 10;
-				}
-			}
-			.counter {
-        color: #000;
-				font-weight: 400;
-				font-size: 47px;
-				margin: 0 10px 0 30px;
-				#count {
-					margin-bottom: 10px;
-				}
-			}
-			.description {
-				font-size: 16px;
-				color: #595959;
-				margin: 0 25px 10px 30px;
-			}
-			.switches {
-				margin: 0 0 0 30px;
-				#onlabel {
-					font-size: 16px;
-					font-weight: 600;
-					color: #2B9F5F;
-				}
-			}
-			&.inactive {
-				.switches {
-					.dropdown {
-						display: block;
-					}
-					.squaredFour {
-						display: none;
-					}
-				}
-			}
-		}
-
-		// Adblocker setting
-		.adblock {
-			position: relative;
-			z-index: 0;
-			background-color: #fff;
-			font-size: 16px;
-			float: right;
-			width: 226.5px;
-			height: 174.5px;
-			border-bottom: 0.5px solid #F3F3F3;
-			&:hover {
-				background-color: #f9f9f9;
-			}
-			.title {
-				margin: 10px 0 5px 10px;
-				font-weight: 400;
-				&:hover {
-					cursor: pointer;
-				}
-				#infobutton {
-					margin: 0 1px -1px 0;
-					&:hover {
-						#Oval-2 {
-							fill: #2388FF;
-						}
-					}
-				}
-				#smallarrow {
-					margin: 0 0 -2px 2px;
-				}
-			}
-			.counter {
-				font-weight: 400;
-				font-size: 47px;
-				margin: 0 10px 0 30px;
-				color: #000;
-				#block {
-					.fill {
-						fill: #2CBA84;
-					}
-				}
-			}
-			.description {
-				font-size: 16px;
-				color: #595959;
-				margin: 0 25px 10px 30px;
-			}
-			.switches {
-				margin: 0 0 0 30px;
-				#onlabel {
-					font-size: 16px;
-					font-weight: 600;
-					color: #2B9F5F;
-				}
-			}
-			&.inactive {
-				.counter {
-					color: #A4A4A4;
-					#block {
-						.fill {
-							fill: #A4A4A4;
-						}
-					}
-				}
-				.description {
-					color: #A4A4A4;
-				}
-				.switches {
-					.dropdown {
-						display: block;
-					}
-					.squaredFour {
-						display: none;
-					}
-					#onlabel {
-						color: #A4A4A4;
-					}
-				}
-			}
-		}
-
-		// Antiphishing Setting
-		.antiphishing {
-			background-color: #fff;
-			font-size: 16px;
-			left: 0;
-			float: left;
-			width: 226px;
-			height: 74.5px;
-			border-bottom: 0.5px solid #F3F3F3;
-			border-right: 0.5px solid #F3F3F3;
-			position: relative;
-			z-index: 0;
-			&:hover {
-				background-color: #f9f9f9;
-			}
-			.title {
-				font-weight: 400;
-				margin: 10px 0 5px 10px;
-				&:hover {
-					cursor: pointer;
-				}
-				.infobutton {
-					margin: 0 1px -1px 0;
-					display: inline;
-					&:hover {
-						#Oval-2 {
-							fill: #2388FF;
-						}
-					}
-				}
-				#smallarrow {
-					margin: 0 0 -2px 2px;
-				}
-			}
-			.switches {
-				margin: 10px 0 0 30px;
-				#onlabel {
-					font-size: 16px;
-					font-weight: 600;
-					color: #2B9F5F;
-				}
-				&.inactive {
-					.dropdown {
-						display: block;
-					}
-				}
-			}
-		}
-
-		// HTTPS everywhere setting
-		#httpsevery {
-			background-color: #fff;
-			font-size: 16px;
-			width: 226.5px;
-			height: 74.5px;
-			float: right;
-			border-bottom: 0.5px solid #F3F3F3;
-			.title {
-				margin: 10px 0 5px 10px;
-				font-weight: 400;
-				#infobutton {
-					margin: 0 1px -1px 0;
-					display: inline;
-					&:hover {
-						#Oval-2 {
-							fill: #2388FF;
-						}
-					}
-				}
-			}
-			.switches {
-				margin: 10px 0 0 30px;
-				#onlabel {
-					font-size: 16px;
-					font-weight: 600;
-					color: #2B9F5F;
-				}
-				&.inactive {
-					color: #A4A4A4;
-
-					#onlabel {
-						color: #A4A4A4;
-					}
-				}
-			}
-		}
 	}
 
-	// Other Settings: Accordion section below the main 4 settings
-	.othersettings {
+	/*Other Settings: Accordion section below the main 4 settings*/
+	#othersettings {
 		position: relative;
 		width: 455;
 		background-color: #E9E9E9;
@@ -975,105 +845,6 @@
 	}
 }
 
-/*========= Antitracking Switch =======*/
-.cqz-switch-antitrack {
-	display: table-cell;
-	height: 20px;
-	padding-left: 30px;
-	margin-bottom: 5px;
-	font-size: 12px;
-	text-decoration: none;
-	color: #999;
-	text-align: left;
-	vertical-align: middle;
-	cursor: pointer;
-	&.active {
-		.cqz-switch-box-antitrack {
-			background: #2CBA84;
-			&:before {
-				left: auto;
-				right: 1px;
-			}
-		}
-	}
-}
-.cqz-switch-box-antitrack {
-	float: left;
-	margin: -2px 5px -2px -30px;
-	position: relative;
-	display: inline-block;
-	width: 32px;
-	height: 16px;
-	border-radius: 15px;
-	background: #BCBCBC;
-	transition: all 0.3s;
-	&:before {
-		display: block;
-		content: '';
-		position: absolute;
-		top: 1px;
-		left: 1px;
-		right: 0;
-		width: 14px;
-		height: 14px;
-		background-color: #fff;
-		border-radius: 50%;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-		transition: all 0.3s;
-	}
-}
-
-
-/*========= Antiphishing Switch =======*/
-.cqz-switch-antiphish {
-	display: table-cell;
-	height: 20px;
-	padding-left: 30px;
-	margin-bottom: 5px;
-	font-size: 12px;
-	text-decoration: none;
-	color: #999;
-	text-align: left;
-	vertical-align: middle;
-	cursor: pointer;
-	&.active {
-		.cqz-switch-box-antiphish {
-			background: #2CBA84;
-			&:before {
-				left: auto;
-				right: 1px;
-			}
-		}
-	}
-}
-.cqz-switch-box-antiphish {
-	float: left;
-	margin: -2px 5px -2px -30px;
-	position: relative;
-	display: inline-block;
-	width: 32px;
-	height: 16px;
-	border-radius: 15px;
-	background: #BCBCBC;
-	transition: all 0.3s;
-	&:before {
-		display: block;
-		content: '';
-		position: absolute;
-		top: 1px;
-		left: 1px;
-		right: 0;
-		width: 14px;
-		height: 14px;
-		background-color: #fff;
-		border-radius: 50%;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-		transition: all 0.3s;
-	}
-}
-
-
-
 /*========= Switch-Grey =======*/
 .cqz-switch-grey {
 	display: table-cell;
@@ -1122,57 +893,6 @@
 	}
 }
 
-/*========= Switch-ONBOARDING =======*/
-.cqz-switch-onboarding {
-	display: table-cell;
-	height: 20px;
-	padding-left: 50px;
-	margin-bottom: 5px;
-	font-size: 12px;
-	text-decoration: none;
-	color: #F9F9F9;
-	text-align: left;
-	vertical-align: middle;
-	cursor: pointer;
-	&.active {
-		.cqz-switch-box-grey {
-			background: #F9F9F9;
-			&:before {
-				left: auto;
-				right: 1px;
-			}
-		}
-	}
-}
-.cqz-switch-box-onboarding {
-	border: 1px solid #ccc;
-	float: left;
-	margin: 4px 0 -4px -45px;
-	position: relative;
-	display: inline-block;
-	width: 32px;
-	height: 16px;
-	border-radius: 15px;
-	background: #F9F9F9;
-	transition: all 0.3s;
-	&:before {
-		display: block;
-		content: '';
-		position: absolute;
-		top: 1px;
-		left: 1px;
-		right: 0;
-		width: 12px;
-		height: 12px;
-		background-color: #b9b9b9;
-		border-radius: 50%;
-		transition: all 0.3s;
-	}
-}
-
-
-
-
 .ask-dropdown {
 	cursor: pointer;
 	margin-left: 5px;
@@ -1188,8 +908,6 @@
 	padding: 1px 15px 1px 2px;
 }
 
-
-/* .squaredFour */
 .squaredFour {
   width: 20px;
   position: relative;
@@ -1236,7 +954,6 @@
     }
   }
 }
-/* end .squaredFour */
 
 .clearfix:after {
 	clear: both;
@@ -1245,9 +962,4 @@
 	font-size: 0;
 	height: 0;
 	visibility: hidden;
-}
-
-.dropdown::before {
-	content: "lala";
-	color: red;
 }

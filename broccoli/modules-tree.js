@@ -209,13 +209,7 @@ function getHandlebarsTree() {
         CLIQZ = CLIQZ || {};
         CLIQZ.templates = CLIQZ.templates || {};
       `,
-      footer: `
-        Object.keys(CLIQZ.templates).filter(function (template) {
-          return template[0] === "_";
-        }).forEach(function (template) {
-          Handlebars.partials[template.substring(1, template.length)] = CLIQZ.templates[template];
-        });
-      `
+      footer: "Handlebars.partials = CLIQZ.templates"
     });
   })
 

@@ -18,6 +18,18 @@ Promise.all([
   });
   // register helpers - end
 
+  document.getElementById('control-center').innerHTML = CLIQZ.templates["template"]()
+  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"]();
+  document.getElementById('anti-phising').innerHTML = CLIQZ.templates["anti-phising"]();
+  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"]({
+    antitrackerCount: '200'
+  });
+
+  document.getElementById('currentsite').innerHTML = CLIQZ.templates["current-site"]({
+    title: 'sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk'
+  });
+
+
   function close_setting_accordion_section() {
     $('.setting-accordion .setting-accordion-section-title').removeClass('active');
     $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
@@ -71,7 +83,6 @@ Promise.all([
 
     var $main = $(this).closest("#control-center"),
         $othersettings = $main.find(".othersettings");
-
         // return;
     if ($(e.target).hasClass("cqz-switch-box")) {
       return;
@@ -89,9 +100,7 @@ Promise.all([
       return;
     } else if ($(e.target)[0].nodeName == "INPUT") {
       return;
-    } else if ($(e.target).hasClass("cqz-switch-box-antiphish")) {
-      return;
-    } else if ($(e.target).hasClass("cqz-switch-box-antitrack")) {
+    } else if ($(e.target).hasClass("cqz-switch-box")) {
       return;
     }
 
@@ -106,229 +115,73 @@ Promise.all([
     $othersettings.css('display', 'none');
   });
 
-  //====== SWITCHES =========//
-  $(".cqz-switch").click(function() {
-    $(this).toggleClass("active");
+  function setLabels(switchSpans, labelText) {
+    switchSpans.each(function(index, obj) {
+      var $onLabel = $(obj).siblings('#onlabel');
+      $onLabel.attr('data-i18n', labelText);
+    });
+  }
 
-    if (($(this).closest('.switches')).hasClass('smallsetting')) {
+  function setDescriptions(switches, descText) {
+    switches.each(function(index, obj) {
+      var $desc = $(obj).siblings('.description');
+      $desc.attr('data-i18n', descText);
+    });
+  }
 
-        var $switches = $(this).closest('.switches'),
-            $main = $switches.closest('#control-center');
-            $onLabel = $switches.find('#onlabel'),
-            onLabel = $onLabel.attr('data-i18n');
-
-        $switches.addClass('inactive');
-        if ($(this).hasClass('active')) {
-          $switches.removeClass('inactive');
-          onLabel = 'control-center-switch-on';
-        } else {
-          onLabel = 'control-center-switch-off';
-        }
-        $onLabel.attr('data-i18n', onLabel);
-        localizeDocument();
-
-    } else {
-
-        var $main = $(this).closest("#control-center"),
-
-            $adblock = $main.find(".adblock"),
-            $activeadblock = $main.find(".active-window-adblock"),
-
-            $one = $adblock.find(".one"),
-            $two = $adblock.find(".two"),
-
-            $switchesOne = $one.closest('.switches'),
-            $switchesTwo = $two.closest('.switches'),
-
-            $descOne = $switchesOne.siblings('.description'),
-            $descTwo = $switchesTwo.siblings('.description'),
-
-            descLocalOne = $descOne.attr('data-i18n'),
-            descLocalTwo = $descTwo.attr('data-i18n'),
-
-            $onLabelone = $one.siblings('#onlabel'),
-            $onLabeltwo = $two.siblings('#onlabel'),
-            onLabelone = $onLabelone.attr('data-i18n'),
-            onLabeltwo = $onLabeltwo.attr('data-i18n');
-
-        $adblock.addClass('inactive');
-        if ($(this).hasClass('active')) {
-          onLabelone = 'control-center-switch-on';
-          onLabeltwo = 'control-center-switch-on';
-          descLocalOne = 'control-center-adblock-description';
-          descLocalTwo = 'control-center-adblock-description';
-          $adblock.removeClass('inactive');
-          if ($one.hasClass("active") && !$two.hasClass("active")) {
-            $two.addClass("active");
-          } else if (!$one.hasClass("active") && $two.hasClass("active")) {
-            $one.addClass("active");
-          }
-
-        } else {
-          onLabelone = 'control-center-switch-off';
-          onLabeltwo = 'control-center-switch-off';
-          descLocalOne = 'control-center-adblock-description-inactive';
-          descLocalTwo = 'control-center-adblock-description-inactive';
-
-          if ($one.hasClass("active") && !$two.hasClass("active")) {
-            $one.removeClass("active");
-          } else if (!$one.hasClass("active") && $two.hasClass("active")) {
-            $two.removeClass("active");
-          }
-        }
-        $onLabelone.attr('data-i18n', onLabelone);
-        $onLabeltwo.attr('data-i18n', onLabeltwo);
-        $descOne.attr('data-i18n', descLocalOne);
-        $descTwo.attr('data-i18n', descLocalTwo);
-        localizeDocument();
-    }
-  });
-
-
-  $(".cqz-switch-antitrack").click(function(e) {
-    $(this).toggleClass("active");
-
-    var $switches = $(this).closest('.switches'),
-        $main = $switches.closest("#control-center"),
-        $antitracker = $main.find(".antitracker"),
-
-        $header = $main.find("#header"),
+  function setHeaderText(main) {
+    var $header = $("#header"),
         $headertext = $header.find("#text"),
-        headerstring = $headertext.attr('data-i18n'),
-
-        $one = $antitracker.find(".one"),
-        $two = $antitracker.find(".two"),
-
-        $onLabelone = $one.siblings('#onlabel'),
-        $onLabeltwo = $two.siblings('#onlabel'),
-        onLabelone = $onLabelone.attr('data-i18n'),
-        onLabeltwo = $onLabeltwo.attr('data-i18n'),
-        $switchesOne = $one.closest('.switches'),
-        $switchesTwo = $two.closest('.switches'),
-
-        $descOne = $switchesOne.siblings('.description'),
-        $descTwo = $switchesTwo.siblings('.description'),
-        descLocalOne = $descOne.attr('data-i18n'),
-        descLocalTwo = $descTwo.attr('data-i18n');
-
-        $antitracker.addClass('inactive');
-        if ($(this).hasClass('active')) {
-
-          $antitracker.removeClass('inactive');
-          if ($main.hasClass("bad-antitrack")) {
-            $main.removeClass("bad-antitrack");
-          }
-          $main.removeClass("crucial-antitrack");
-          $antitracker.removeClass('inactive');
-          if ($one.hasClass("active") && !$two.hasClass("active")) {
-            $two.addClass("active");
-          } else if (!$one.hasClass("active") && $two.hasClass("active")) {
-            $one.addClass("active");
-          }
-          onLabelone = 'control-center-switch-on';
-          onLabeltwo = 'control-center-switch-on';
-          descLocalOne = 'control-center-datapoints';
-          descLocalTwo = 'control-center-datapoints';
-          headerstring = 'control-center-txt-header';
-
-        } else {
-
-          headerstring = 'control-center-txt-header-not';
-          onLabelone = 'control-center-switch-off';
-          onLabeltwo = 'control-center-switch-off';
-          descLocalOne = 'control-center-datapoints-inactive';
-          descLocalTwo = 'control-center-datapoints-inactive';
-
-          $main.addClass("crucial-antitrack");
-          if ($one.hasClass("active") && !$two.hasClass("active")) {
-            $one.removeClass("active");
-          } else if (!$one.hasClass("active") && $two.hasClass("active")) {
-            $two.removeClass("active");
-          }
-        }
-
-        if ($main.hasClass("crucial-antiphish") || $main.hasClass("crucial-antitrack") || $main.hasClass("bad-antiphish") || $main.hasClass("bad-antitrack")) {
-          headerstring = 'control-center-txt-header-not';
-        } else {
-          headerstring = 'control-center-txt-header';
-        }
-
-        $onLabelone.attr('data-i18n', onLabelone);
-        $onLabeltwo.attr('data-i18n', onLabeltwo);
-        $descOne.attr('data-i18n', descLocalOne);
-        $descTwo.attr('data-i18n', descLocalTwo);
-        $headertext.attr('data-i18n', headerstring);
-        localizeDocument();
-  });
-
-
-  $(".cqz-switch-antiphish").click(function(e) {
-    $(this).toggleClass("active");
-
-    var $switches = $(this).closest('.switches'),
-        $main = $switches.closest('#control-center'),
-
-        $header = $main.find("#header"),
-        $headertext = $header.find("#text"),
-        headerstring = $headertext.attr('data-i18n'),
-
-        $antiphishing = $main.find(".antiphishing"),
-        $activephishing = $main.find(".active-window-phishing"),
-
-        $one = $antiphishing.find(".one"),
-        $two = $antiphishing.find(".two"),
-
-        $switchesOne = $one.closest('.switches'),
-        $switchesTwo = $two.closest('.switches'),
-
-        $onLabelone = $one.siblings('#onlabel'),
-        $onLabeltwo = $two.siblings('#onlabel'),
-        onLabelone = $onLabelone.attr('data-i18n'),
-        onLabeltwo = $onLabeltwo.attr('data-i18n');
-
-    $switches.addClass('inactive');
-    if ($(this).hasClass('active')) {
-      onLabelone = 'control-center-switch-on';
-      onLabeltwo = 'control-center-switch-on';
-
-      $switches.removeClass('inactive');
-
-      if ($main.hasClass("bad-antiphish")) {
-        $main.removeClass("bad-antiphish");
-      }
-      $main.removeClass("crucial-antiphish");
-
-      if ($one.hasClass("active") && !$two.hasClass("active")) {
-        $two.addClass("active");
-      } else if (!$one.hasClass("active") && $two.hasClass("active")) {
-        $one.addClass("active");
-      }
-
-    } else {
-
-      onLabelone = 'control-center-switch-off';
-      onLabeltwo = 'control-center-switch-off';
-      $main.addClass("crucial-antiphish");
-
-      if ($one.hasClass("active") && !$two.hasClass("active")) {
-        $one.removeClass("active");
-      } else if (!$one.hasClass("active") && $two.hasClass("active")) {
-        $two.removeClass("active");
-      }
-    }
-
-    if ($main.hasClass("crucial-antiphish") || $main.hasClass("crucial-antitrack") || $main.hasClass("bad-antiphish") || $main.hasClass("bad-antitrack")) {
+        headerstring = '';
+    if (main.hasClass("crucial-antiphish") || main.hasClass("crucial-antitrack") || main.hasClass("bad-antiphish") || main.hasClass("bad-antitrack")) {
       headerstring = 'control-center-txt-header-not';
     } else {
       headerstring = 'control-center-txt-header';
     }
-
     $headertext.attr('data-i18n', headerstring);
-    $onLabelone.attr('data-i18n', onLabelone);
-    $onLabeltwo.attr('data-i18n', onLabeltwo);
-    localizeDocument();
-  });
+  }
 
+  $(".cqz-switch").click(function() {
+    var $this = $(this),
+        $setting = $this.closest('.setting'),
+        section = $setting.attr('data-section'),
+        $switches = $setting.find('.switches'),
+        $main = $switches.closest("#control-center"),
+        onLabelText = 'control-center-switch-on',
+        offLabelText = 'control-center-switch-off',
+        onDesc = 'control-center-datapoints',
+        offDesc = 'control-center-datapoints-inactive',
+        $switchSpans = $setting.find('.cqz-switch');
+        //https-everywhere
+        if ($switchSpans.length === 0) {
+          $switches = $this.closest('.switches')
+          $switches.toggleClass('inactive');
+          $switchSpans = $switches.find('.cqz-switch')
+        }
+
+        $this.toggleClass("active");
+        $setting.toggleClass('inactive');
+        if ($this.hasClass('active')) {
+          setLabels($switchSpans, onLabelText);
+          setDescriptions($switches, onDesc);
+          $switchSpans.each(function(index, obj) {
+            $(obj).addClass('active');
+          })
+          if($main.hasClass("bad-" + section)) {
+            $main.removeClass("bad-" + section);
+          }
+          $main.removeClass("crucial-" + section);
+        } else {
+          setLabels($switchSpans, offLabelText);
+          setDescriptions($switches, offDesc);
+          $switchSpans.each(function(index, obj) {
+            $(obj).removeClass('active');
+          })
+          $main.addClass("crucial-" + section);
+        }
+        setHeaderText($main);
+        localizeDocument();
+  });
 
   $(".cqz-switch-grey").click(function() {
     $(this).toggleClass("active");
@@ -486,14 +339,5 @@ Promise.all([
   });
 
   localizeDocument();
-
-  var antitrackerTemplate = Handlebars.compile($('#antitracker-counter-handlebars').html());
-
-  document.getElementById('currentsite').innerHTML = CLIQZ.templates["current-site"]({
-    title: 'sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk'
-  })
-  document.getElementById('antitracker-counter').innerHTML = antitrackerTemplate({
-    antitrackerCount: '200'
-  })
 
 });
