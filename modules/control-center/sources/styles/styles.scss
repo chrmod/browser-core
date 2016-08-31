@@ -188,7 +188,7 @@
 					}
 				}
 			}
-			#httpsevery {
+			#https {
 				.switches {
 					#onlabel {
 						color: #8F8F8F;
@@ -402,7 +402,7 @@
       }
     }
 
-    #httpsevery {
+    #https {
       width: 226.5px;
       height: 74.5px;
       float: right;
@@ -644,7 +644,7 @@
 	}
 
 	/*Other Settings: Accordion section below the main 4 settings*/
-	.othersettings {
+	#othersettings {
 		position: relative;
 		width: 455;
 		background-color: #E9E9E9;

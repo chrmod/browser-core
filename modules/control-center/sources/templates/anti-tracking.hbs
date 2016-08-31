@@ -1,0 +1,128 @@
+<div class="antitracker-frame">
+
+  <div class="title">
+    <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs></defs>
+      <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
+        <ellipse id="Oval-2" fill="#D0D0D0" cx="7.56817127" cy="7.39375789" rx="7" ry="7"></ellipse>
+        <text id="i-copy" font-family="AmericanTypewriter-Bold, American Typewriter" font-size="11.2" font-weight="bold" fill="#FFFFFF">
+          <tspan x="5.50934774" y="11.3937579">i</tspan>
+        </text>
+      </g>
+    </svg>
+    <img class="tracking-popup" src="icons/tracking-popup.png" width="312px" height="220px"/>
+    <span>Anti-Tracking</span>
+    <svg id="smallarrow" width="10px" height="15px" viewBox="1131 409 10 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs></defs>
+      <polyline id="Path-164-Copy-153" stroke="#7D7D7D" stroke-width="2.5999999" fill="none" opacity="0.44" points="1133.19742 410.787186 1139.09434 416.693941 1133.42806 422.369666"></polyline>
+    </svg>
+  </div>
+
+  <div class="counter" id="antitracker-counter">
+    <svg id="shield" width="38px" height="44px" viewBox="-1 0 38 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs></defs>
+      <path class="fill" d="M18.0059,0.375 C18.0059,0.375 13.1119,9.034 1.3039,9.034 C0.8799,9.034 0.4479,9.023 0.0059,9 L0.0049,9 C-0.1111,8.998 1.6699,34.772 18.0059,44 C34.3409,34.773 36.1219,9 36.0069,9 L36.0059,9 C35.5649,9.023 35.1319,9.034 34.7079,9.034 C22.8979,9.034 18.0059,0.375 18.0059,0.375 M32.4389,12.139 C31.4659,18.564 28.1719,33.281 18.0059,40.233 C7.8339,33.279 4.5449,18.563 3.5729,12.139 C10.6619,11.534 15.3369,8.172 18.0059,5.47 C20.6739,8.172 25.3499,11.534 32.4389,12.139 Z"
+        id="Fill-1" stroke="none" fill="#2CBA64" fill-rule="evenodd"></path>
+    </svg>
+    <span id="count">{{antitrackerCount}}</span>
+  </div>
+
+  <p class="description" data-i18n="control-center-datapoints"></p>
+  <div class="switches" class="switches-antitrack">
+    <!--======= Switch ======-->
+    <span><span class="active cqz-switch"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+    <select class="dropdown" name="dropdown">
+      <option class="opt-t" selected id="this-site" data-i18n="control-center-this-site"></option>
+      <option class="opt-t bad" id="all-sites" data-i18n="control-center-all-sites"></option>
+    </select>
+    <span title=".squaredFour">
+      <!-- .squaredFour -->
+      <span class="squaredFour">
+      <input type="checkbox" value="None" id="squaredFour" name="check" checked />
+      <label for="squaredFour"></label>
+      <span id="strict" data-i18n="control-center-check-strict"></span>
+      </span>
+      <!-- end .squaredFour -->
+    </span>
+  </div>
+</div>
+<div class="active-window-tracking">
+  <!-- Initially display:none; but when antitracker is active, display:block; -->
+  <div id="companies-title">
+    <p data-i18n="control-center-trackers">Tracking Firmen auf dieser Seite</p>
+    <span>
+      <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs></defs>
+        <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
+          <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
+          <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line-Copy-47" stroke="#FFFFFF" stroke-width="2.5" transform="translate(8.400000, 8.435192) scale(-1, 1) translate(-8.400000, -8.435192) "></path>
+        </g>
+      </svg>
+    </span>
+  </div>
+  <div id="companies">
+
+    <div class="setting-accordion">
+      <div class="setting-accordion-section">
+        <a class="setting-accordion-section-title" href="#accordion-1">
+          <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs></defs>
+            <polygon id="Rectangle-546-Copy-11" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+          </svg>
+          <span>Test 1</span>
+        </a>
+        <div id="accordion-1" class="setting-accordion-section-content">
+          <span class="bullet">OOOOONNNEEEE</span>
+        </div>
+        <!--end .accordion-section-content-->
+      </div>
+      <!--end .accordion-section-->
+      <div class="setting-accordion-section">
+        <a class="setting-accordion-section-title" href="#accordion-2">
+          <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs></defs>
+            <polygon id="Rectangle" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+          </svg>
+          <span>Test 2</span>
+        </a>
+        <div id="accordion-2" class="setting-accordion-section-content">
+          <span class="bullet">TTTWWWOOOOOOOO</span>
+        </div>
+        <!--end .accordion-section-content-->
+      </div>
+      <!--end .accordion-section-->
+      <div class="setting-accordion-section">
+        <a class="setting-accordion-section-title" href="#accordion-3">
+          <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs></defs>
+            <polygon id="Rectangle-546-Copy-11" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+          </svg>
+          <span>Test 3</span>
+        </a>
+        <div id="accordion-3" class="setting-accordion-section-content">
+          <span class="bullet">TTTHHHREEEEEE</span>
+        </div>
+        <!--end .accordion-section-content-->
+      </div>
+      <!--end .accordion-section-->
+    </div>
+    <!--end .accordion-->
+
+  </div>
+  <div id="bottom-part">
+    <div class="description" data-i18n="control-center-datapoints"></div>
+    <div class="switches" class="switches-antitrack">
+      <!--======= Switch ======-->
+      <span><span class="active cqz-switch"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
+    </div>
+    <div class="counter">
+      <!--======= Shield =======-->
+      <svg id="shield" width="42px" height="50px" viewBox="-1 0 38 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs></defs>
+        <path class="fill" d="M18.0059,0.375 C18.0059,0.375 13.1119,9.034 1.3039,9.034 C0.8799,9.034 0.4479,9.023 0.0059,9 L0.0049,9 C-0.1111,8.998 1.6699,34.772 18.0059,44 C34.3409,34.773 36.1219,9 36.0069,9 L36.0059,9 C35.5649,9.023 35.1319,9.034 34.7079,9.034 C22.8979,9.034 18.0059,0.375 18.0059,0.375 M32.4389,12.139 C31.4659,18.564 28.1719,33.281 18.0059,40.233 C7.8339,33.279 4.5449,18.563 3.5729,12.139 C10.6619,11.534 15.3369,8.172 18.0059,5.47 C20.6739,8.172 25.3499,11.534 32.4389,12.139 Z"
+          stroke="none" fill="#2CBA64" fill-rule="evenodd"></path>
+      </svg>
+      <span id="count">45</span>
+    </div>
+  </div>
+</div>

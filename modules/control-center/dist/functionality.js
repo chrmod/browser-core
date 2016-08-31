@@ -18,6 +18,18 @@ Promise.all([
   });
   // register helpers - end
 
+  document.getElementById('control-center').innerHTML = CLIQZ.templates["template"]()
+  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"]();
+  document.getElementById('anti-phising').innerHTML = CLIQZ.templates["anti-phising"]();
+  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"]({
+    antitrackerCount: '200'
+  });
+
+  document.getElementById('currentsite').innerHTML = CLIQZ.templates["current-site"]({
+    title: 'sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk'
+  });
+
+
   function close_setting_accordion_section() {
     $('.setting-accordion .setting-accordion-section-title').removeClass('active');
     $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
@@ -328,12 +340,4 @@ Promise.all([
 
   localizeDocument();
 
-  var antitrackerTemplate = Handlebars.compile($('#antitracker-counter-handlebars').html());
-
-  document.getElementById('currentsite').innerHTML = CLIQZ.templates["current-site"]({
-    title: 'sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk'
-  })
-  document.getElementById('antitracker-counter').innerHTML = antitrackerTemplate({
-    antitrackerCount: '200'
-  })
 });
