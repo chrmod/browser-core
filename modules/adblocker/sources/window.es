@@ -173,7 +173,7 @@ export default class {
         state: disabledForDomain,
         active: adbDisabled || !isCorrectUrl
       },
-      count: CliqzADB.adbStats.pages[currentURL]
+      totalCount: CliqzADB.adbStats.pages[currentURL] || 0
     }
   }
 }

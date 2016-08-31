@@ -12,7 +12,8 @@ export default class {
     this.window = config.window;
     this.actions = {
       setBadge: this.setBadge.bind(this),
-      getData: this.getData.bind(this)
+      getData: this.getData.bind(this),
+      openURL: this.openURL.bind(this)
     }
   }
 
@@ -26,6 +27,17 @@ export default class {
 
   setBadge(info){
     this.badge.textContent = info;
+  }
+
+  openURL(data){
+    this.window.console.log(data)
+    switch(data.url) {
+      case 'history':
+        this.window.PlacesCommandHook.showPlacesOrganizer('History');
+        break;
+      default:
+        this.window.gBrowser.addTab(data.url);
+    }
   }
 
   getData(){
@@ -42,7 +54,10 @@ export default class {
 
       this.sendMessageToPopup({
         action: 'pushData',
-        data: moduleData
+        data: {
+          activeURL: this.window.gBrowser.currentURI.spec,
+          module: moduleData
+        }
       })
     });
   }

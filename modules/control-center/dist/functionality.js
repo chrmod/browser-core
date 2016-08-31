@@ -41,24 +41,26 @@ Promise.all([
   System.import("control-center/content/helpers"),
   $(document).ready().promise(),
 ]).then(function(resolvedPromises) {
-  // register helpers - start
   var helpers = resolvedPromises[0].default;
   Object.keys(helpers).forEach(function (helperName) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
-  // register helpers - end
 
-  document.getElementById('control-center').innerHTML = CLIQZ.templates["template"]()
-  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"]();
-  document.getElementById('anti-phising').innerHTML = CLIQZ.templates["anti-phising"]();
-  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"]({
-    antitrackerCount: '200'
-  });
 
-  document.getElementById('currentsite').innerHTML = CLIQZ.templates["current-site"]({
-    title: 'sueddeutsche.de/wirtschaft/fsgjbhfkjsbfgkjdbkjdsbficsudjkbfs,mdbfk'
-  });
+});
 
+$('#control-center').on('click', '[openUrl]', function(ev){
+  sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
+})
+
+
+function draw(data){
+  console.log(data);
+
+  document.getElementById('control-center').innerHTML = CLIQZ.templates["template"](data)
+  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"](data);
+  document.getElementById('anti-phising').innerHTML = CLIQZ.templates["anti-phising"](data);
+  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"](data);
 
   function close_setting_accordion_section() {
     $('.setting-accordion .setting-accordion-section-title').removeClass('active');
@@ -187,7 +189,7 @@ Promise.all([
 
   $(".cqz-switch-grey").click(function() {
     $(this).toggleClass("active");
-    var $switches = $(this).closest('#switches-grey'),
+    var $switches = $(this).closest('.switches-grey'),
         $onLabel = $switches.find('#onlabel'),
         onLabelCurr = $onLabel.attr('data-i18n'),
         onLabelNext = onLabelCurr;
@@ -327,4 +329,4 @@ Promise.all([
   });
 
   localizeDocument();
-});
+}
