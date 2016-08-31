@@ -68,4 +68,13 @@ export default class {
     menu.appendChild(menupopup);
     return menu;
   }
+
+  status() {
+    if (utils.getPref("cliqz_core_disabled", false) === false) {
+      return {
+        visible: true,
+        state: utils.getLocationPermState()
+      }
+    }
+  }
 }

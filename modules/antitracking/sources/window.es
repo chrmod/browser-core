@@ -85,6 +85,13 @@ export default class {
     }
 
     this.popup.setBadge(this.window, count);
+
+    utils.callWindowAction(
+      this.window,
+      'control-center',
+      'setBadge',
+      [ count ]
+    );
   }
 
   createAttrackButton() {
@@ -153,5 +160,25 @@ export default class {
     return [
       this.createAttrackButton()
     ];
+  }
+
+  status() {
+    if (background.buttonEnabled) {
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+      ps = info.ps;
+
+      return {
+        visible: true,
+        strict: utils.getPref('attrackForceBlock', false),
+        url: info.hostname,
+        cookiesCount: info.cookies.blocked,
+        requestsCount: info.requests.unsafe,
+        enabled: utils.getPref('antiTrackTest'),
+        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
+        reload: info.reload || false,
+        trakersList: info,
+        ps: ps
+      }
+    }
   }
 };

@@ -133,6 +133,12 @@ var CliqzUtils = {
     return action.apply(null, args);
   },
 
+  callWindowAction(win, moduleName, actionName, args) {
+    var module = win.CLIQZ.Core.windowModules[moduleName];
+    var action = module.actions[actionName];
+    return action.apply(null, args);
+  },
+
   isNumber: function(n){
       /*
       NOTE: this function can't recognize numbers in the form such as: "1.2B", but it can for "1e4". See specification for isFinite()
@@ -1097,9 +1103,7 @@ var CliqzUtils = {
 
     var linkNodes = this.extractSelectableElements(box);
     var urls = linkNodes
-        .map(node => {
-          return node.getAttribute("url") || node.getAttribute("href");
-        })
+        .map(node => node.getAttribute("url") || node.getAttribute("href"))
         .filter(url => !!url);
 
     CLIQZEnvironment.onRenderComplete(query, urls);
