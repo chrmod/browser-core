@@ -690,11 +690,11 @@ function navigateToEZinput(element){
     var provider_name = element.getAttribute("search-provider"),
         search_url = element.getAttribute("search-url"),
         value = element.value,
-        search_engine = Services.search.getEngineByName(provider_name),
+        search_engine = CLIQZEnvironment.getEngineByName(provider_name),
         dest_url = search_url + value;
 
     if (search_engine) {
-        dest_url = search_engine.getSubmission(value).uri.spec
+        dest_url = search_engine.getSubmissionForQuery(value);
     }
     openUILink(dest_url);
     CLIQZ.Core.allowDDtoClose = true;
@@ -1923,7 +1923,7 @@ function enginesClick(ev){
         engineName = getResultOrChildAttr(el, 'engine');
 
     if(engineName){
-        var engine = Services.search.getEngineByName(engineName);
+        var engine = CLIQZEnvironment.getEngineByName(engineName);
         if(engine){
             var userInput = urlbar.value;
 
@@ -1934,7 +1934,7 @@ function enginesClick(ev){
                 userInput = userInput.slice(0, urlbar.selectionStart);
             }
 
-            var url = engine.getSubmission(userInput).uri.spec,
+            var url = engine.getSubmissionForQuery(userInput),
                 action = {
                     type: 'activity',
                     action: 'visual_hash_tag',
@@ -1945,7 +1945,7 @@ function enginesClick(ev){
                 CliqzUtils.openLink(window, url, true);
                 action.new_tab = true;
             } else {
-                gBrowser.selectedBrowser.loadURI(url);
+                CLIQZEnvironment.openLink(window, url);
                 CLIQZ.Core.popup.closePopup();
                 action.new_tab = false;
             }
