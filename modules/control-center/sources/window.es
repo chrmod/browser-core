@@ -32,6 +32,10 @@ export default class {
 
   updatePref(data){
     this.window.console.log('updatePref', data);
+
+    // NASTY!
+    if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
+
     utils.setPref(data.pref, data.value, '' /* full pref name required! */);
   }
 
@@ -42,7 +46,8 @@ export default class {
         this.window.PlacesCommandHook.showPlacesOrganizer('History');
         break;
       default:
-        this.window.gBrowser.addTab(data.url);
+        var tab = utils.openLink(this.window, data.url, true);
+        this.window.gBrowser.selectedTab = tab;
     }
   }
 
