@@ -50,6 +50,7 @@ export default class {
   controlCenterData() {
     if(background.CliqzSecureMessage && !CliqzUtils.getPref("cliqz_core_disabled", false)){
       return {
+        visible: true,
         state: utils.getPref(prefKey)
       }
     }

@@ -1,4 +1,4 @@
-import {utils} from "core/cliqz";
+import { utils } from "core/cliqz";
 import CliqzAntiPhishing from "anti-phishing/anti-phishing";
 import { simpleBtn, checkBox } from 'q-button/buttons';
 
@@ -53,5 +53,14 @@ export default class {
     menu.appendChild(menuPopup);
 
     return menu;
+  }
+
+  controlCenterData() {
+    if (CliqzAntiPhishing.isAntiPhishingActive()) {
+      return {
+        visible: true,
+        active: utils.getPref('cliqz-anti-phishing-enabled', false)
+      }
+    }
   }
 }

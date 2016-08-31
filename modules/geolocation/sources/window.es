@@ -72,6 +72,7 @@ export default class {
   controlCenterData() {
     if (utils.getPref("cliqz_core_disabled", false) == false) {
       return {
+        visible: true,
         state: utils.getLocationPermState()
       }
     }

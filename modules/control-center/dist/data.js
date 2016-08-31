@@ -20,4 +20,7 @@ function messageHandler(message){
   console.log("MESSAGE in IFRAME", message);
 }
 
-setInterval(sendMessageToWindow, 2000, { action: "getData", data: {} })
+sendMessageToWindow({ action: "getData", data: {} });
+
+// debug data
+setInterval(sendMessageToWindow, 10000, { action: "getData", data: {} })

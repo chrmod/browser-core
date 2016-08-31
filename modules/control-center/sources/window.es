@@ -1,8 +1,8 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { simpleBtn } from 'q-button/buttons';
-import { utils } from 'core/cliqz';
-import config from "core/config";
-import CLIQZEnvironment from "platform/environment";
+import { utils, Promise } from 'core/cliqz';
+import config from 'core/config';
+import CLIQZEnvironment from 'platform/environment';
 
 
 const BTN_ID = 'cliqz-button1',
@@ -30,17 +30,38 @@ export default class {
     this.badge.textContent = info;
   }
 
+  getHttpsEverywhereState() {
+    return new Promise((resolve, reject) =>
+      {
+        if(this.config.settings.channel == '40'){ //browser
+          AddonManager.getAddonByID("https-everywhere@cliqz.com", function(addon){
+            if(addon && addon.isActive){
+              resolve({
+                visible: true,
+                active: utils.getPref('extensions.https_everywhere.globalEnabled', false, '')
+              });
+            } else resolve({});
+          });
+        } else resolve({});
+      });
+  }
+
   getData(){
-    // gets dynamic data from all the modules
-    var data = this.getModulesData();
+    this.getHttpsEverywhereState().then((httpsEverywhere) => {
+      // gets dynamic data from all the modules
+      var data = this.getModulesData();
 
-    data.adult = { state: utils.getAdultFilterState() };
-    data.apt = { state: utils.getPref("browser.privatebrowsing.apt", false, '') }
+      data.httpsEverywhere = httpsEverywhere;
+      data.adult = { visible: true, state: utils.getAdultFilterState() };
+      if(utils.hasPref('browser.privatebrowsing.apt', '')){
+        data.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
+      }
 
-    this.sendMessageToPopup({
-      action: 'pushData',
-      data: data
-    })
+      this.sendMessageToPopup({
+        action: 'pushData',
+        data: data
+      })
+    });
   }
 
   getModulesData(){
@@ -63,7 +84,7 @@ export default class {
 
   attachMessageHandlers(iframe){
     this.iframe = iframe;
-    this.iframe.contentWindow.addEventListener("message", this.decodeMessagesFromPopup.bind(this))
+    this.iframe.contentWindow.addEventListener('message', this.decodeMessagesFromPopup.bind(this))
   }
 
   decodeMessagesFromPopup(ev){
@@ -75,7 +96,7 @@ export default class {
   }
 
   handleMessagesFromPopup(message){
-    this.window.console.log("IN BACKGROUND", message);
+    this.window.console.log('IN BACKGROUND', message);
 
     this.actions[message.action](message.data);
   }
@@ -83,9 +104,9 @@ export default class {
   sendMessageToPopup(message) {
     this.iframe.contentWindow.postMessage(JSON.stringify({
       target: 'cliqz-control-center',
-      origin: "window",
+      origin: 'window',
       message: message
-    }), "*")
+    }), '*')
   }
 
   addCCbutton() {
@@ -125,7 +146,7 @@ export default class {
     div.setAttribute('class','cliqz-control-center')
     div.style.backgroundImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz_btn.svg)';
     button.appendChild(div);
-    div.textContent = "CLIQZ";
+    div.textContent = 'CLIQZ';
 
     this.badge = div;
 
@@ -136,8 +157,8 @@ export default class {
         if(menupopup.children.length == 0){
           var iframe = doc.createElement('iframe');
           iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html?' + this.rand);
-          iframe.style.width = "455px";
-          iframe.style.height = "700px";
+          iframe.style.width = '455px';
+          iframe.style.height = '700px';
           menupopup.appendChild(iframe);
 
           this.attachMessageHandlers(iframe);
@@ -146,7 +167,7 @@ export default class {
     );
     button.addEventListener('command', () => {
         if(button.children[0] && button.children[0].openPopup)
-        button.children[0].openPopup(button,"after_start", -370, 0, false, true);
+        button.children[0].openPopup(button,'after_start', -370, 0, false, true);
     }, false);
 
     ToolbarButtonManager.restorePosition(doc, button);

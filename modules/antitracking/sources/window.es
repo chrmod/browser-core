@@ -90,7 +90,7 @@ export default class {
       this.window,
       'control-center',
       'setBadge',
-      [info.cookies.blocked + info.requests.unsafe]
+      [ count ]
     );
   }
 
@@ -160,5 +160,25 @@ export default class {
     return [
       this.createAttrackButton()
     ];
+  }
+
+  controlCenterData() {
+    if (background.buttonEnabled) {
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+      ps = info.ps;
+
+      return {
+        visible: true,
+        strict: utils.getPref('attrackForceBlock', false),
+        url: info.hostname,
+        cookiesCount: info.cookies.blocked,
+        requestsCount: info.requests.unsafe,
+        enabled: utils.getPref('antiTrackTest'),
+        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
+        reload: info.reload || false,
+        trakersList: info,
+        ps: ps
+      }
+    }
   }
 };

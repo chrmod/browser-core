@@ -83,6 +83,7 @@ export default class {
 
   controlCenterData() {
     return {
+      visible: true,
       state: utils.getPref('dnt', false)
     }
   }
