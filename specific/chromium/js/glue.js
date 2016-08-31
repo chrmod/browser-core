@@ -93,7 +93,9 @@ Promise.all([
     });
 
     return Promise.all([brokenUIpromise, CliqzUtils.init({
-      lang: window.navigator.language || window.navigator.userLanguage
+      lang: chrome.i18n.getUILanguage() ||
+            window.navigator.language ||
+            window.navigator.userLanguage
     })]);
   }).then(function () {
     CLIQZ.UI.preinit(CliqzAutocomplete, CliqzHandlebars, CliqzEvents);
