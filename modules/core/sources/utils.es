@@ -1103,9 +1103,7 @@ var CliqzUtils = {
 
     var linkNodes = this.extractSelectableElements(box);
     var urls = linkNodes
-        .map(node => {
-      return node.getAttribute("url") || node.getAttribute("href");
-        })
+        .map(node => node.getAttribute("url") || node.getAttribute("href"))
         .filter(url => !!url);
 
     CLIQZEnvironment.onRenderComplete(query, urls);

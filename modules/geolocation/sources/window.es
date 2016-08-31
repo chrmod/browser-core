@@ -70,7 +70,7 @@ export default class {
   }
 
   status() {
-    if (utils.getPref("cliqz_core_disabled", false) == false) {
+    if (utils.getPref("cliqz_core_disabled", false) === false) {
       return {
         visible: true,
         state: utils.getLocationPermState()
