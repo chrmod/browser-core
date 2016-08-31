@@ -42,7 +42,10 @@ export default class {
 
       this.sendMessageToPopup({
         action: 'pushData',
-        data: moduleData
+        data: {
+          activeURL: this.window.gBrowser.currentURI.spec,
+          module: moduleData
+        }
       })
     });
   }
