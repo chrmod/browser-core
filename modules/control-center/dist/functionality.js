@@ -49,6 +49,11 @@ Promise.all([
 
 });
 
+$('#control-center').on('click', '[openUrl]', function(ev){
+  sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
+})
+
+
 function draw(data){
   console.log(data);
 
@@ -184,7 +189,7 @@ function draw(data){
 
   $(".cqz-switch-grey").click(function() {
     $(this).toggleClass("active");
-    var $switches = $(this).closest('#switches-grey'),
+    var $switches = $(this).closest('.switches-grey'),
         $onLabel = $switches.find('#onlabel'),
         onLabelCurr = $onLabel.attr('data-i18n'),
         onLabelNext = onLabelCurr;

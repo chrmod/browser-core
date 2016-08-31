@@ -27,4 +27,4 @@ function messageHandler(message){
 sendMessageToWindow({ action: "getData", data: {} });
 
 // debug data
-setInterval(sendMessageToWindow, 2000, { action: "getData", data: {} })
+setInterval(sendMessageToWindow, 5000, { action: "getData", data: {} })

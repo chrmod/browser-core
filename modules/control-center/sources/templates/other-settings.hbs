@@ -49,7 +49,7 @@
                 </svg>
                 <span>
                 <span data-i18n="control-center-proxy"></span>
-                <span id="switches-grey"> <span class="cqz-switch-grey active"><span class="cqz-switch-box-grey"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span> </span>
+                <span class="switches-grey"> <span class="cqz-switch-grey active"><span class="cqz-switch-box-grey"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span> </span>
                 </span>
               </span>
             </div>
@@ -76,7 +76,7 @@
                   </g>
                 </svg>
                 <span data-i18n="control-center-humanweb"></span>
-                <span id="switches-grey"> <span class="cqz-switch-grey active"><span class="cqz-switch-box-grey"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span> </span>
+                <span class="switches-grey"> <span class="cqz-switch-grey active"><span class="cqz-switch-box-grey"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span> </span>
               </span>
               <span class="bullet">
                 <span data-i18n="control-center-best-cliqz"></span>
@@ -105,7 +105,7 @@
               <span data-i18n="control-center-history-options"></span>
             </a>
             <div id="accordion-3" class="accordion-section-content">
-              <span class="bullet">
+              <span class="bullet" openUrl="history">
                 <span data-i18n="control-center-show-history"></span>
                 <svg class="bulletarrow" width="9px" height="12px" viewBox="175 40 9 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <defs></defs>
@@ -119,10 +119,17 @@
                   <polyline id="Path-164-Copy-140" stroke="#7D7D7D" stroke-width="1.5999999" fill="none" opacity="0.554279384" points="176 41 181.896928 46.9067547 176.230646 52.5824794"></polyline>
                 </svg>
               </span>
-              <span class="bullet">
-              <span data-i18n="control-center-forget-mode"></span>
-              <span id="switches-grey"> <span class="cqz-switch-grey active"><span class="cqz-switch-box-grey"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span> </span>
-              </span>
+              {{#if module.apt.visible}}"
+                <span class="bullet">
+                <span data-i18n="control-center-forget-mode"></span>
+                  <span class="switches-grey">
+                    <span class="cqz-switch-grey {{#if module.apt.state }}active{{/if}}">
+                      <span class="cqz-switch-box-grey"></span>
+                    </span>
+                    <span id="onlabel" data-i18n="control-center-switch-{{#if module.apt.state }}on{{ else }}off{{/if}}"></span>
+                  </span>
+                </span>
+              {{/if}}
             </div>
             <!--end .accordion-section-content-->
           </div>
