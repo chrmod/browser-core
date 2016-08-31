@@ -1,16 +1,16 @@
-var UI;
+
 
 var jsAPI = {
   init: function () {
-    UI = System.get("mobile-ui/UI").default;
+    
   },
   search: function(e, location_enabled, latitude, longitude) {
     CliqzUtils.search(e, location_enabled, latitude, longitude);
   },
   getCardUrl: function() {
     var NOT_SHAREABLE_SIGNAL = '-1';
-    if(UI.lastResults && UI.lastResults[UI.currentPage]) {
-      osAPI.shareCard(UI.lastResults[UI.currentPage].url || NOT_SHAREABLE_SIGNAL);
+    if(CLIQZ.UI.lastResults && CLIQZ.UI.lastResults[CLIQZ.UI.currentPage]) {
+      osAPI.shareCard(CLIQZ.UI.lastResults[CLIQZ.UI.currentPage].url || NOT_SHAREABLE_SIGNAL);
     } else {
       osAPI.shareCard(NOT_SHAREABLE_SIGNAL);
     }
@@ -31,7 +31,7 @@ var jsAPI = {
     CliqzUtils.initHomepage();
     var start = document.getElementById("resetState");
     var resetStateContent = document.getElementById("resetStateContent");
-    UI.hideResultsBox();
+    CLIQZ.UI.hideResultsBox();
     if(cfg.url && cfg.url.length > 0) {
       start.style.display = "block";
       window.document.getElementById("startingpoint").style.display = 'block';
@@ -53,6 +53,7 @@ var jsAPI = {
     }
   },
   setClientPreferences: function(prefs) {
+    CLIQZ.UI && CLIQZ.UI.setTheme(prefs.incognito);
     for (var key in prefs) {
       if (prefs.hasOwnProperty(key)) {
         CliqzUtils.setPref(key, prefs[key]);
@@ -67,18 +68,18 @@ var jsAPI = {
   },
   setDefaultSearchEngine: function(engine) {
     CliqzUtils.setDefaultSearchEngine(engine);
-    UI.updateSearchCard(engine);
+    CLIQZ.UI.updateSearchCard(engine);
   },
   restoreBlockedTopSites: function () {
     CliqzUtils.getLocalStorage().setObject('blockedTopSites', []);
   },
   onShow: function () {
-    if (UI) { // search view
-      if (!UI.isSearch()) { // freshtab
+    if (CLIQZ.UI) { // search view
+      if (!CLIQZ.UI.isSearch()) { // freshtab
         CliqzUtils.initHomepage();
       }
     } else { // history view
-      History.init();
+      History.update();
     }
   }
 }
