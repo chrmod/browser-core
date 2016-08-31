@@ -122,28 +122,25 @@ export default {
   },
 
   getWindowStatusFromModules(win){
-    return win.CLIQZ.config.modules.map((moduleName) => {
+    return config.modules.map((moduleName) => {
       var module = win.CLIQZ.Core.windowModules[moduleName];
-      if('status' in module) return module.status()
+      return module.status ? module.status() : {}
     })
   },
 
   actions: {
     getWindowStatus(win) {
-      return new Promise((resolve, reject) => {
-        var moduleStatus = this.getWindowStatusFromModules(win);
+      return Promise
+        .all(this.getWindowStatusFromModules(win))
+        .then((allStatus) => {
+          var result = {}
 
-        Promise
-          .all(moduleStatus)
-          .then((allStatus) => {
-            var result = {}
-
-            allStatus.forEach((status, moduleIdx) => {
-              result[win.CLIQZ.config.modules[moduleIdx]] = status || null;
-            })
-            resolve(result);
+          allStatus.forEach((status, moduleIdx) => {
+            result[config.modules[moduleIdx]] = status || null;
           })
-      });
+
+          return result;
+        })
     },
     sendTelemetry(msg) {
       utils.telemetry(msg);

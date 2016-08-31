@@ -1,7 +1,6 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { simpleBtn } from 'q-button/buttons';
 import { utils } from 'core/cliqz';
-import config from 'core/config';
 import CLIQZEnvironment from 'platform/environment';
 
 
@@ -10,7 +9,6 @@ const BTN_ID = 'cliqz-button1',
 
 export default class {
   constructor(config) {
-    this.config = config;
     this.window = config.window;
     this.actions = {
       setBadge: this.setBadge.bind(this),

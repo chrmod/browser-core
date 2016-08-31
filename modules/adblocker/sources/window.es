@@ -140,40 +140,40 @@ export default class {
   }
 
   status() {
-    if (adbABTestEnabled()) {
-      const currentURL = this.window.gBrowser.currentURI.spec;
-      const adbDisabled = !adbEnabled();
+    if (!adbABTestEnabled()) {
+      return;
+    }
 
-      const isCorrectUrl = utils.isUrl(currentURL);
-      let disabledForUrl = false;
-      let disabledForDomain = false;
+    const currentURL = this.window.gBrowser.currentURI.spec;
+    const adbDisabled = !adbEnabled();
 
-      // Check if adblocker is disabled on this page
-      if (isCorrectUrl) {
-        disabledForDomain = CliqzADB.adBlocker.isDomainInBlacklist(currentURL);
-        disabledForUrl = CliqzADB.adBlocker.isUrlInBlacklist(currentURL);
-      }
+    const isCorrectUrl = utils.isUrl(currentURL);
+    let disabledForUrl = false;
+    let disabledForDomain = false;
 
-      var state = Object.keys(ADB_PREF_VALUES).map(name => {
-        return {
-          name: name.toLowerCase(),
-          selected: utils.getPref(ADB_PREF, ADB_PREF_VALUES.Disabled) == ADB_PREF_VALUES[name]
-        }
-      });
+    // Check if adblocker is disabled on this page
+    if (isCorrectUrl) {
+      disabledForDomain = CliqzADB.adBlocker.isDomainInBlacklist(currentURL);
+      disabledForUrl = CliqzADB.adBlocker.isUrlInBlacklist(currentURL);
+    }
 
-      return {
-        visible: true,
-        state: state,
-        urlState: {
-          state: disabledForUrl,
-          active: adbDisabled || disabledForDomain || !isCorrectUrl
-        },
-        domainState: {
-          state: disabledForDomain,
-          active: adbDisabled || !isCorrectUrl
-        },
-        count: CliqzADB.adbStats.pages[currentURL]
-      }
+    const state = Object.keys(ADB_PREF_VALUES).map(name => ({
+      name: name.toLowerCase(),
+      selected: utils.getPref(ADB_PREF, ADB_PREF_VALUES.Disabled) == ADB_PREF_VALUES[name],
+    }));
+
+    return {
+      visible: true,
+      state: state,
+      urlState: {
+        state: disabledForUrl,
+        active: adbDisabled || disabledForDomain || !isCorrectUrl
+      },
+      domainState: {
+        state: disabledForDomain,
+        active: adbDisabled || !isCorrectUrl
+      },
+      count: CliqzADB.adbStats.pages[currentURL]
     }
   }
 }
