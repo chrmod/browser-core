@@ -1,9 +1,39 @@
 function localizeDocument() {
-    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-        var elArgs = el.dataset.i18n.split(","),
-            key = elArgs.shift();
-        el.textContent = chrome.i18n.getMessage(key, elArgs);
-    });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
+    var elArgs = el.dataset.i18n.split(","),
+        key = elArgs.shift();
+    el.textContent = chrome.i18n.getMessage(key, elArgs);
+  });
+}
+
+function setLabels(switchSpans, labelText) {
+  switchSpans.each(function(index, obj) {
+    var $onLabel = $(obj).siblings('#onlabel');
+    $onLabel.attr('data-i18n', labelText);
+  });
+}
+
+function setDescriptions(switches, descText) {
+  switches.each(function(index, obj) {
+    var $desc = $(obj).siblings('.description');
+    $desc.attr('data-i18n', descText);
+  });
+}
+
+function setHeaderText(main) {
+  var $header = $("#header"),
+      $headertext = $header.find("#text"),
+      headerstring = '';
+  if (main.hasClass("crucial-antiphish") || main.hasClass("crucial-antitrack") || main.hasClass("bad-antiphish") || main.hasClass("bad-antitrack")) {
+    headerstring = 'control-center-txt-header-not';
+  } else {
+    headerstring = 'control-center-txt-header';
+  }
+  $headertext.attr('data-i18n', headerstring);
+}
+
+function isHttpsSection(section) {
+  return section === 'https';
 }
 
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
@@ -37,7 +67,6 @@ Promise.all([
 
   $('.setting-accordion-section-title').click(function(e) {
 
-    console.log($(e.target));
     // Grab current anchor value
     var currentAttrValue = $(this).attr('href');
 
@@ -60,8 +89,6 @@ Promise.all([
   }
 
   $('.accordion-section-title').click(function(e) {
-
-    console.log($(e.target));
     // Grab current anchor value
     var currentAttrValue = $(this).attr('href');
 
@@ -80,11 +107,12 @@ Promise.all([
 
   //====== SETTING SECTION =========//
   $(".setting").click(function(e) {
-
     var $main = $(this).closest("#control-center"),
-        $othersettings = $main.find(".othersettings");
-        // return;
-    if ($(e.target).hasClass("cqz-switch-box")) {
+        $othersettings = $main.find(".othersettings"),
+        $section = $(this).closest('.setting').attr('data-section');
+    if (isHttpsSection($section)) {
+      return;
+    } else if ($(e.target).hasClass("cqz-switch-box")) {
       return;
     } else if ($(e.target).hasClass("dropdown")) {
       return;
@@ -104,7 +132,6 @@ Promise.all([
       return;
     }
 
-    // console.log($(e.target)[0].ownerSVGElement); debugger
     if ($(e.target).hasClass("cross") || ($(e.target)[0].ownerSVGElement != null && $(e.target)[0].ownerSVGElement.getAttribute("class") == "cross")) {
       $(this).removeClass("active");
       $othersettings.css('display', 'block');
@@ -114,32 +141,6 @@ Promise.all([
     $(this).addClass("active");
     $othersettings.css('display', 'none');
   });
-
-  function setLabels(switchSpans, labelText) {
-    switchSpans.each(function(index, obj) {
-      var $onLabel = $(obj).siblings('#onlabel');
-      $onLabel.attr('data-i18n', labelText);
-    });
-  }
-
-  function setDescriptions(switches, descText) {
-    switches.each(function(index, obj) {
-      var $desc = $(obj).siblings('.description');
-      $desc.attr('data-i18n', descText);
-    });
-  }
-
-  function setHeaderText(main) {
-    var $header = $("#header"),
-        $headertext = $header.find("#text"),
-        headerstring = '';
-    if (main.hasClass("crucial-antiphish") || main.hasClass("crucial-antitrack") || main.hasClass("bad-antiphish") || main.hasClass("bad-antitrack")) {
-      headerstring = 'control-center-txt-header-not';
-    } else {
-      headerstring = 'control-center-txt-header';
-    }
-    $headertext.attr('data-i18n', headerstring);
-  }
 
   $(".cqz-switch").click(function() {
     var $this = $(this),
@@ -152,11 +153,9 @@ Promise.all([
         onDesc = 'control-center-datapoints',
         offDesc = 'control-center-datapoints-inactive',
         $switchSpans = $setting.find('.cqz-switch');
-        //https-everywhere
-        if ($switchSpans.length === 0) {
-          $switches = $this.closest('.switches')
+
+        if (isHttpsSection(section)) {
           $switches.toggleClass('inactive');
-          $switchSpans = $switches.find('.cqz-switch')
         }
 
         $this.toggleClass("active");
@@ -179,7 +178,10 @@ Promise.all([
           })
           $main.addClass("crucial-" + section);
         }
-        setHeaderText($main);
+
+        if (!isHttpsSection(section)) {
+          setHeaderText($main);
+        }
         localizeDocument();
   });
 
@@ -198,7 +200,6 @@ Promise.all([
     $onLabel.attr('data-i18n', onLabelNext);
     localizeDocument();
   });
-
 
   $(".opt-t").click(function() {
     var $main = $(this).closest('#control-center');
@@ -232,34 +233,25 @@ Promise.all([
     }
   });
 
-
   $(".pause").click(function() {
     var $main = $(this).closest('#control-center'),
-
         $header = $main.find("#header"),
         $headertext = $header.find("#text"),
-
         $safe = $main.find(".safe"),
         $unsafe = $main.find(".unsafe"),
-
         $adblock = $main.find(".adblock"),
         $antitracker = $main.find(".antitracker"),
-
         $cqzswitch = $main.find(".cqz-switch"),
         $switches = $cqzswitch.closest('.switches'),
         $onLabel = $switches.find('#onlabel'),
-
         $trackswitch = $main.find(".cqz-switch-antitrack"),
         $trackswitches = $trackswitch.closest('.switches'),
         $trackLabel = $trackswitches.find('#onlabel'),
         $trackdesc = $trackswitches.siblings(".description"),
-
         $adblockdesc = $adblock.find(".description"),
-
         $phishswitch = $main.find(".cqz-switch-antiphish"),
         $phishswitches = $phishswitch.closest('.switches'),
         $phishLabel = $phishswitches.find('#onlabel');
-
 
     if ($main.hasClass("break")) {
       $main.removeClass("break");
@@ -293,10 +285,6 @@ Promise.all([
       if ($main.hasClass("bad-antitrack")) {
         $main.removeClass("bad-antitrack");
       }
-
-      // $('[name=dropdown]').each(function(index, val) {
-      //   console.log(index, "index")
-      // })
 
       $('[name=dropdown] option').filter(function(index, val) {
           return index === 0; //To select Blue
@@ -339,5 +327,4 @@ Promise.all([
   });
 
   localizeDocument();
-
 });
