@@ -46,7 +46,7 @@ Promise.all([
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
 
-
+  draw({});
 });
 
 $('#control-center').on('click', '[openUrl]', function(ev){
