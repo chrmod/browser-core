@@ -84,6 +84,7 @@ var adbCosmFilter = function(url, window, send, windowId, throttle) {
       let target = m.target;
       if (target) {
         docMutation.push(target);
+        throttle(checkMutation(), 200);
       }
     }
   }
@@ -98,7 +99,7 @@ var adbCosmFilter = function(url, window, send, windowId, throttle) {
   sendNodeNames(nodeInfo);
 
   // attach mutation obsever in case new nodes are added
-  mutationObserver = new window.MutationObserver(mutations => throttle(onMutation(mutations), 500));
+  mutationObserver = new window.MutationObserver(mutations => throttle(onMutation(mutations), 200));
   mutationObserver.observe(window.document, {childList: true, subtree: true});
 }
 
