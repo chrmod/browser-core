@@ -192,14 +192,24 @@ function draw(data){
     var $switches = $(this).closest('.switches-grey'),
         $onLabel = $switches.find('#onlabel'),
         onLabelCurr = $onLabel.attr('data-i18n'),
-        onLabelNext = onLabelCurr;
+        onLabelNext = onLabelCurr,
+        isActive = $(this).hasClass('active');
 
-    if ($(this).hasClass('active')) {
+    if (isActive) {
       onLabelNext = 'control-center-switch-on';
     } else {
       onLabelNext = 'control-center-switch-off';
     }
     $onLabel.attr('data-i18n', onLabelNext);
+
+    sendMessageToWindow({
+      action: 'updatePref',
+      data: {
+        pref: this.getAttribute('updatePref'),
+        value: isActive
+      }
+    });
+
     localizeDocument();
   });
 

@@ -13,7 +13,8 @@ export default class {
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
-      openURL: this.openURL.bind(this)
+      openURL: this.openURL.bind(this),
+      updatePref: this.updatePref.bind(this)
     }
   }
 
@@ -29,8 +30,13 @@ export default class {
     this.badge.textContent = info;
   }
 
+  updatePref(data){
+    this.window.console.log('updatePref', data);
+    utils.setPref(data.pref, data.value, '' /* full pref name required! */);
+  }
+
   openURL(data){
-    this.window.console.log(data)
+    this.window.console.log('openURL', data);
     switch(data.url) {
       case 'history':
         this.window.PlacesCommandHook.showPlacesOrganizer('History');
