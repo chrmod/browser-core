@@ -162,7 +162,7 @@ export default class {
     ];
   }
 
-  controlCenterData() {
+  status() {
     if (background.buttonEnabled) {
       var info = CliqzAttrack.getCurrentTabBlockingInfo(),
       ps = info.ps;

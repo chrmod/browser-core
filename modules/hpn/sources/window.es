@@ -47,7 +47,7 @@ export default class {
 		}
 	}
 
-  controlCenterData() {
+  status() {
     if(background.CliqzSecureMessage && !CliqzUtils.getPref("cliqz_core_disabled", false)){
       return {
         visible: true,

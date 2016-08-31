@@ -55,7 +55,7 @@ export default class {
     return menu;
   }
 
-  controlCenterData() {
+  status() {
     if (CliqzAntiPhishing.isAntiPhishingActive()) {
       return {
         visible: true,

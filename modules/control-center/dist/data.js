@@ -18,6 +18,12 @@ function sendMessageToWindow(message){
 
 function messageHandler(message){
   console.log("MESSAGE in IFRAME", message);
+
+  switch(message.action) {
+    case 'pushData': {
+      console.log("pushData", message.data);
+    }
+  }
 }
 
 sendMessageToWindow({ action: "getData", data: {} });

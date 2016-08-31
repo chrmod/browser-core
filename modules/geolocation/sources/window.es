@@ -69,7 +69,7 @@ export default class {
     return menu;
   }
 
-  controlCenterData() {
+  status() {
     if (utils.getPref("cliqz_core_disabled", false) == false) {
       return {
         visible: true,

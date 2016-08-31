@@ -81,7 +81,7 @@ export default class {
     return menu;
   }
 
-  controlCenterData() {
+  status() {
     return {
       visible: true,
       state: utils.getPref('dnt', false)

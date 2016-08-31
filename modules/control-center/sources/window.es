@@ -1,6 +1,6 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { simpleBtn } from 'q-button/buttons';
-import { utils, Promise } from 'core/cliqz';
+import { utils } from 'core/cliqz';
 import config from 'core/config';
 import CLIQZEnvironment from 'platform/environment';
 
@@ -30,56 +30,23 @@ export default class {
     this.badge.textContent = info;
   }
 
-  getHttpsEverywhereState() {
-    return new Promise((resolve, reject) =>
-      {
-        if(this.config.settings.channel == '40'){ //browser
-          AddonManager.getAddonByID("https-everywhere@cliqz.com", function(addon){
-            if(addon && addon.isActive){
-              resolve({
-                visible: true,
-                active: utils.getPref('extensions.https_everywhere.globalEnabled', false, '')
-              });
-            } else resolve({});
-          });
-        } else resolve({});
-      });
-  }
-
   getData(){
-    this.getHttpsEverywhereState().then((httpsEverywhere) => {
-      // gets dynamic data from all the modules
-      var data = this.getModulesData();
+    utils.callAction(
+      "core",
+      "getWindowStatus",
+      [this.window]
+    ).then((moduleData) => {
 
-      data.httpsEverywhere = httpsEverywhere;
-      data.adult = { visible: true, state: utils.getAdultFilterState() };
+      moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
       if(utils.hasPref('browser.privatebrowsing.apt', '')){
-        data.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
+        moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
       this.sendMessageToPopup({
         action: 'pushData',
-        data: data
+        data: moduleData
       })
     });
-  }
-
-  getModulesData(){
-    var modules = {};
-
-    for (var moduleName in this.window.CLIQZ.Core.windowModules){
-      var mod = this.window.CLIQZ.Core.windowModules[moduleName];
-
-      modules[moduleName] = null
-
-      if ('controlCenterData' in mod) {
-        try {
-          modules[moduleName] = mod.controlCenterData()
-        } catch(e) { /* no data for control-center */ }
-      }
-    }
-
-    return modules;
   }
 
   attachMessageHandlers(iframe){

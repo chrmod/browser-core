@@ -139,7 +139,7 @@ export default class {
     return [];
   }
 
-  controlCenterData() {
+  status() {
     if (adbABTestEnabled()) {
       const currentURL = this.window.gBrowser.currentURI.spec;
       const adbDisabled = !adbEnabled();
