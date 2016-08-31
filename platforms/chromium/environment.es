@@ -275,7 +275,7 @@ const CLIQZEnvironment = {
       e.text =  e.alias.slice(1);
       return e;
     });
-    const defaultName = engines[0].name;
+    const defaultName = CE.getDefaultSearchEngine().name;
 
     return CE.Result.cliqzExtra({
       data: {
