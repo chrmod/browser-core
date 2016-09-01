@@ -184,7 +184,7 @@ function draw(data){
   })
 
   $(".switches").click(function() {
-     $(this).attr("active", function(idx, attr){
+     $(this.parentElement).attr("active", function(idx, attr){
         return attr == "true" ? "false": "true";
      });
   });

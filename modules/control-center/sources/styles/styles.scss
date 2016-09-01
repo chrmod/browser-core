@@ -195,7 +195,7 @@
       color: #A4A4A4;
     }
 
-    .switches[active="true"] {
+    .frame-container[active="true"] .switches {
         color: #2B9F5F;
         .cqz-switch-box {
             background: #2CBA84;
@@ -657,7 +657,7 @@
 	cursor: pointer;
 }
 
-.switches[active="true"] {
+.frame-container[active="true"] {
     .inactive {
         display: none;
     }
@@ -669,7 +669,7 @@
     }
 }
 
-.switches[active="false"] {
+.frame-container[active="false"] {
     .active {
         display: none;
     }

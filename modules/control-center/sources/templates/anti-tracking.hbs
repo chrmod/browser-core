@@ -1,4 +1,4 @@
-<div class="antitracker-frame">
+<div class="antitracker-frame frame-container" active="false">
 
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -28,13 +28,14 @@
   </div>
 
   <p class="description" data-i18n="control-center-datapoints"></p>
-  <div class="switches" class="switches-antitrack">
+  <div class="switches">
     <!--======= Switch ======-->
     <span>
-      <span class="active cqz-switch">
+      <span class="cqz-switch">
         <span class="cqz-switch-box"></span>
       </span>
       <span class="active" data-i18n="control-center-switch-on"></span>
+      <span class="inactive" data-i18n="control-center-switch-off"></span>
     </span>
     <select class="dropdown" name="dropdown">
       <option class="opt-t" selected id="this-site" data-i18n="control-center-this-site"></option>
@@ -116,7 +117,7 @@
   </div>
   <div id="bottom-part">
     <div class="description" data-i18n="control-center-datapoints"></div>
-    <div class="switches" class="switches-antitrack">
+    <div class="switches" class="switches-antitrack" active="true">
       <!--======= Switch ======-->
       <span>
         <span class="active cqz-switch">
