@@ -173,11 +173,7 @@ function draw(data){
       return;
     } else if ($(e.target).hasClass("dropdown-scope")) {
       return;
-    } else if ($(e.target).hasClass("opt-t")) {
-      return;
-    } else if ($(e.target).hasClass("opt-p")) {
-      return;
-    } else if ($(e.target).hasClass("opt")) {
+    } else if (e.target.hasAtribute("stop-navigation")) {
       return;
     } else if ($(e.target).hasClass("box")) {
       return;
@@ -297,39 +293,6 @@ function draw(data){
       "critical" : target.attr('inactiveState'));
 
     updateGeneralState();
-  });
-
-  $(".opt-t").click(function() {
-    return;
-    var $main = $(this).closest('#control-center');
-
-    if($(this).hasClass("bad")) {
-      if ($main.hasClass("crucial-antitrack")) {
-        $main.removeClass('crucial-antitrack');
-      }
-      $main.addClass("bad-antitrack");
-    } else {
-      if ($main.hasClass("bad-antitrack")) {
-        $main.removeClass('bad-antitrack');
-        $main.addClass("crucial-antitrack");
-      }
-    }
-  });
-
-  $(".opt-p").click(function() {
-    var $main = $(this).closest('#control-center');
-
-    if($(this).hasClass("bad")) {
-      if ($main.hasClass("crucial-antiphish")) {
-        $main.removeClass('crucial-antiphish');
-      }
-      $main.addClass("bad-antiphish");
-    } else {
-      if ($main.hasClass("bad-antiphish")) {
-        $main.removeClass('bad-antiphish');
-        $main.addClass("crucial-antiphish");
-      }
-    }
   });
 
   $(".pause").click(function() {
