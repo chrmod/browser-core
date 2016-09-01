@@ -1,4 +1,5 @@
-<div class="antiphishing frame-container" state="active" inactiveState="inactive">
+{{#if module.anti-phishing.visible}}
+<div class="antiphishing frame-container" state="{{#if module.anti-phishing.active}}active{{ else }}inactive{{/if}}" inactiveState="inactive">
   <div class="title">
     <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -18,14 +19,14 @@
   <div class="switches">
     <!--======= Switch ======-->
     <span>
-      <span class="cqz-switch">
+      <span class="cqz-switch" updatePref='extensions.cliqz.cliqz-anti-phishing-enabled'>
           <span class="cqz-switch-box"></span>
       </span>
       <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
       <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
     </span>
     <select class="dropdown-scope" visible-on-state="inactive">
-      <option selected data-i18n="control-center-this-site" value="this"></option>
+      <option stop-navigation selected data-i18n="control-center-this-site" value="this"></option>
       <option stop-navigation data-i18n="control-center-all-sites" value="all"></option>
     </select>
   </div>
@@ -62,3 +63,4 @@
     </span>
   </div>
 </div>
+{{/if}}
