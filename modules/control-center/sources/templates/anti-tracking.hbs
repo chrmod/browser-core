@@ -1,4 +1,4 @@
-<div class="antitracker-frame">
+<div class="antitracking frame-container" state="active" inactiveState="inactive">
 
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -27,20 +27,22 @@
     <span id="count">{{ module.antitracking.totalCount }}</span>
   </div>
 
-  <p class="description" data-i18n="control-center-datapoints"></p>
-  <div class="switches" class="switches-antitrack">
+  <p class="description" visible-on-state="active" data-i18n="control-center-datapoints"></p>
+  <p class="description" visible-on-state="inactive" data-i18n="control-center-datapoints-inactive"></p>
+  <div class="switches">
     <!--======= Switch ======-->
     <span>
-      <span class="active cqz-switch">
+      <span class="cqz-switch">
         <span class="cqz-switch-box"></span>
       </span>
-      <span id="onlabel" data-i18n="control-center-switch-on"></span>
+      <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+      <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
     </span>
-    <select class="dropdown" name="dropdown">
-      <option class="opt-t" selected id="this-site" data-i18n="control-center-this-site"></option>
-      <option class="opt-t bad" id="all-sites" data-i18n="control-center-all-sites"></option>
+    <select class="dropdown-scope" visible-on-state="inactive">
+      <option selected data-i18n="control-center-this-site" value="this"></option>
+      <option data-i18n="control-center-all-sites" value="all"></option>
     </select>
-    <span title=".squaredFour">
+    <span class="strict" visible-on-state="active">
       <!-- .squaredFour -->
       <span class="squaredFour">
       <input type="checkbox" value="None" id="squaredFour" name="check" checked />

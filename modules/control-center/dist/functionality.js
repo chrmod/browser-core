@@ -93,6 +93,23 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
   });
 })
 
+
+function updateGeneralState() {
+  var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
+  var states = [].map.call(stateElements, function(el) {
+    return el.getAttribute('state');
+  });
+
+  if(states.includes('critical')){
+    $("#header").attr('state', 'critical');
+  }
+  else if(states.includes('inactive')){
+    $("#header").attr('state', 'inactive');
+  } else {
+    $("#header").attr('state', 'active');
+  }
+}
+
 function compile(obj) {
   return Object.keys(obj.companies)
       .map(function (companyName) {
@@ -184,13 +201,9 @@ function draw(data){
       return;
     } else if ($(e.target).hasClass("cqz-switch-box")) {
       return;
-    } else if ($(e.target).hasClass("dropdown")) {
+    } else if ($(e.target).hasClass("dropdown-scope")) {
       return;
-    } else if ($(e.target).hasClass("opt-t")) {
-      return;
-    } else if ($(e.target).hasClass("opt-p")) {
-      return;
-    } else if ($(e.target).hasClass("opt")) {
+    } else if (e.target.hasAtribute && e.target.hasAtribute("stop-navigation")) {
       return;
     } else if ($(e.target).hasClass("box")) {
       return;
@@ -213,48 +226,16 @@ function draw(data){
   })
 
   $(".cqz-switch").click(function() {
-    var $this = $(this),
-        $setting = $this.closest('.setting'),
-        section = $setting.attr('data-section'),
-        $switches = $setting.find('.switches'),
-        $main = $switches.closest("#control-center"),
-        $desc = $setting.find('.description').attr('data-i18n'),
-        onLabelText = 'control-center-switch-on',
-        offLabelText = 'control-center-switch-off',
-        inactiveDesc = '-inactive',
-        $switchSpans = $setting.find('.cqz-switch');
+    var target = $(this).closest('.frame-container');
 
-        if (isHttpsSection(section)) {
-          $switches.toggleClass('inactive');
-        }
+    target.attr("state", function(idx, attr){
+        return attr !== "active" ? "active": target.attr('inactiveState');
+    });
 
-        $this.toggleClass("active");
-        $setting.toggleClass('inactive');
-        if ($this.hasClass('active')) {
-          setLabels($switchSpans, onLabelText);
-          setDescriptions($switches, $desc.substr(0, $desc.length - inactiveDesc.length));
-          $switchSpans.each(function(index, obj) {
-            $(obj).addClass('active');
-          })
-          if($main.hasClass("bad-" + section)) {
-            $main.removeClass("bad-" + section);
-          }
-          $main.removeClass("crucial-" + section);
-        } else {
-          setLabels($switchSpans, offLabelText);
-          setDescriptions($switches, $desc + inactiveDesc);
-          $switchSpans.each(function(index, obj) {
-            $(obj).removeClass('active');
-          })
-          $main.addClass("crucial-" + section);
-        }
-
-        if (!isHttpsSection(section)) {
-          setHeaderText($main);
-        }
-        localizeDocument();
+    updateGeneralState();
   });
 
+  // TODO: improve this - make more in CSS
   $(".cqz-switch-grey").click(function() {
     $(this).toggleClass("active");
     var $switches = $(this).closest('.switches-grey'),
@@ -280,36 +261,14 @@ function draw(data){
     localizeDocument();
   });
 
-  $(".opt-t").click(function() {
-    var $main = $(this).closest('#control-center');
+  $(".dropdown-scope").change(function(ev) {
+    var state = ev.currentTarget.value,
+        target = $(this).closest('.frame-container');
 
-    if($(this).hasClass("bad")) {
-      if ($main.hasClass("crucial-antitrack")) {
-        $main.removeClass('crucial-antitrack');
-      }
-      $main.addClass("bad-antitrack");
-    } else {
-      if ($main.hasClass("bad-antitrack")) {
-        $main.removeClass('bad-antitrack');
-        $main.addClass("crucial-antitrack");
-      }
-    }
-  });
+    target.attr("state", state == "all" ?
+      "critical" : target.attr('inactiveState'));
 
-  $(".opt-p").click(function() {
-    var $main = $(this).closest('#control-center');
-
-    if($(this).hasClass("bad")) {
-      if ($main.hasClass("crucial-antiphish")) {
-        $main.removeClass('crucial-antiphish');
-      }
-      $main.addClass("bad-antiphish");
-    } else {
-      if ($main.hasClass("bad-antiphish")) {
-        $main.removeClass('bad-antiphish');
-        $main.addClass("crucial-antiphish");
-      }
-    }
+    updateGeneralState();
   });
 
   $(".pause").click(function() {

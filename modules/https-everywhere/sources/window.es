@@ -1,3 +1,5 @@
+import utils from "core/utils";
+
 export default class {
   constructor(config) {
     this.config = config;
