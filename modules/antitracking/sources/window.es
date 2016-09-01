@@ -177,7 +177,7 @@ export default class {
         enabled: utils.getPref('antiTrackTest'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
-        trakersList: info,
+        trackersList: info,
         ps: ps
       }
     }

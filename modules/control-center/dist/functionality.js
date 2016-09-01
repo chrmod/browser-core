@@ -69,6 +69,30 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
 })
 
 function draw(data){
+  if (data.module) {
+    data.module.antitracking.trackersList.companiesArray = Object.keys(data.module.antitracking.trackersList.companies)
+      .map(function (companyName) {
+        var domains = data.module.antitracking.trackersList.companies[companyName];
+        var company = {
+          name: companyName,
+          domains: domains.map(function (domain) {
+            var domainData = data.module.antitracking.trackersList.trackers[domain];
+            return {
+              domain: domain,
+              count: (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
+            }
+          }).sort(function (a, b) {
+            return a.count < b.count;
+          }),
+          count: 0
+        };
+        company.count = company.domains.reduce(function (prev, curr) { return prev + curr.count }, 0)
+        return company;
+      })
+      .sort(function (a,b) {
+        return a.count < b.count;
+      });
+  }
   console.log(data);
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates["template"](data)
