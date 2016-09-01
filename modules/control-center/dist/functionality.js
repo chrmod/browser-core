@@ -105,7 +105,7 @@ function updateGeneralState() {
   else if(states.includes('inactive')){
     $("#header").attr('state', 'inactive');
   } else {
-    $("#header").attr('state', '');
+    $("#header").attr('state', 'active');
   }
 }
 

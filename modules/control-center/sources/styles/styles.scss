@@ -586,10 +586,13 @@
 	cursor: pointer;
 }
 
-.frame-container[state="active"] {
+[state="active"] {
     [visible-on-state="inactive"] {
         display: none;
     }
+}
+
+.frame-container[state="active"] {
     .cqz-switch-box {
         &:before {
             left: auto;
@@ -603,11 +606,13 @@
 
 }
 
-.frame-container[state="inactive"] {
+[state="inactive"], [state="critical"] {
     [visible-on-state="active"] {
         display: none;
     }
+}
 
+.frame-container[state="inactive"] {
     .strict {
         display: none;
     }
