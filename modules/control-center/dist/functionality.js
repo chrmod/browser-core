@@ -190,7 +190,7 @@ function draw(data){
   });
 
   $(".cqz-switch").click(function() {
-
+    return;
     var $this = $(this),
         $setting = $this.closest('.setting'),
         section = $setting.attr('data-section'),

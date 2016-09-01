@@ -657,18 +657,15 @@
 	cursor: pointer;
 }
 
-.switches {
-    .cqz-switch-box {
+.switches[active="true"] {
+    .inactive {
+        display: none;
+    }
+        .cqz-switch-box {
         &:before {
             left: auto;
             right: 1px;
         }
-    }
-}
-
-.switches[active="true"] {
-    .inactive {
-        display: none;
     }
 }
 
