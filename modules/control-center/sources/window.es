@@ -36,6 +36,17 @@ export default class {
     // NASTY!
     if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
 
+    // more NASTY
+    if(data.pref == 'extensions.cliqz.share_location'){
+      utils.callAction(
+        "geolocation",
+        "setLocationPermission",
+        [data.value]
+      );
+
+      return;
+    }
+
     utils.setPref(data.pref, data.value, '' /* full pref name required! */);
   }
 

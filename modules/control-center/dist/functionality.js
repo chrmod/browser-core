@@ -49,10 +49,24 @@ Promise.all([
   draw({});
 });
 
+// actions
+
+// open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
 })
 
+// select box change
+$('#control-center').on('change', 'select[updatePref]', function(ev){
+  console.log(ev, arguments)
+  sendMessageToWindow({
+    action: 'updatePref',
+    data: {
+      pref: ev.currentTarget.getAttribute('updatePref'),
+      value: ev.currentTarget.value
+    }
+  });
+})
 
 function draw(data){
   console.log(data);
