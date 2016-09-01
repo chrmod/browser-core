@@ -398,17 +398,12 @@ html {
 				&:hover {
 					background-color: #fff;
 				}
-				.active-window-tracking {
+				.active-window-tracking,
+        .active-window-adblock,
+        .active-window-phishing {
 					display: block;
 					background-color: #fff;
-				}
-				.active-window-adblock {
-					display: block;
-					background-color: #fff;
-				}
-				.active-window-phishing {
-					display: block;
-					background-color: #fff;
+          height: 420px;
 				}
 				.antiphishing {
 					display: none;
