@@ -205,61 +205,7 @@ function draw(data){
     updateGeneralState();
   });
 
-  $(".cqz-switch").click(function() {
-    return;
-    var $this = $(this),
-        $setting = $this.closest('.setting'),
-        section = $setting.attr('data-section'),
-        $switches = $setting.find('.switches'),
-        $main = $switches.closest("#control-center"),
-        $desc = $setting.find('.description').attr('data-i18n'),
-        onLabelText = 'control-center-switch-on',
-        offLabelText = 'control-center-switch-off',
-        inactiveDesc = '-inactive',
-        $switchSpans = $setting.find('.cqz-switch');
-
-    if (isHttpsSection(section)) {
-      $switches.toggleClass('inactive');
-    }
-
-    $this.toggleClass("active");
-    $setting.toggleClass('inactive');
-
-    var isActive = $this.hasClass('active');
-
-    if (isActive) {
-      setLabels($switchSpans, onLabelText);
-      if($desc)setDescriptions($switches, $desc.substr(0, $desc.length - inactiveDesc.length));
-      $switchSpans.each(function(index, obj) {
-        $(obj).addClass('active');
-      })
-      if($main.hasClass("bad-" + section)) {
-        $main.removeClass("bad-" + section);
-      }
-      $main.removeClass("crucial-" + section);
-    } else {
-      setLabels($switchSpans, offLabelText);
-      setDescriptions($switches, $desc + inactiveDesc);
-      $switchSpans.each(function(index, obj) {
-        $(obj).removeClass('active');
-      })
-      $main.addClass("crucial-" + section);
-    }
-
-    sendMessageToWindow({
-      action: 'updatePref',
-      data: {
-        pref: this.getAttribute('updatePref'),
-        value: isActive
-      }
-    });
-
-    if (!isHttpsSection(section)) {
-      setHeaderText($main);
-    }
-    localizeDocument();
-  });
-
+  // TODO: improve this - make more in CSS
   $(".cqz-switch-grey").click(function() {
     $(this).toggleClass("active");
     var $switches = $(this).closest('.switches-grey'),
