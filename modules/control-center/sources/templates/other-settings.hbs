@@ -48,8 +48,13 @@
                   </g>
                 </svg>
                 <span>
-                <span data-i18n="control-center-proxy"></span>
-                <span class="switches-grey"> <span class="cqz-switch-grey active"><span class="cqz-switch-box-grey"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span> </span>
+                  <span data-i18n="control-center-proxy"></span>
+                  <span class="switches-grey">
+                    <span class="cqz-switch-grey {{#if module.hpn.state }}active{{/if}}" updatePref='extensions.cliqz.hpn-query'>
+                      <span class="cqz-switch-box-grey">
+                    </span>
+                  </span>
+                  <span id="onlabel" data-i18n="control-center-switch-{{#if module.hpn.state }}on{{ else }}off{{/if}}"></span> </span>
                 </span>
               </span>
             </div>
