@@ -155,7 +155,7 @@ function draw(data){
       return;
     } else if ($(e.target).hasClass("cqz-switch-box")) {
       return;
-    } else if ($(e.target).hasClass("dropdown")) {
+    } else if ($(e.target).hasClass("dropdown-scope")) {
       return;
     } else if ($(e.target).hasClass("opt-t")) {
       return;
@@ -186,7 +186,7 @@ function draw(data){
   $(".cqz-switch").click(function() {
     console.log("AAA", arguments)
     $(this).closest('.frame-container').attr("state", function(idx, attr){
-        return attr == "active" ? "inactive": "active";
+        return attr !== "active" ? "active": "inactive";
      });
   });
 
@@ -270,7 +270,14 @@ function draw(data){
     localizeDocument();
   });
 
+  $(".dropdown-scope").change(function(ev) {
+    var state = ev.currentTarget.value;
+    $(this).closest('.frame-container')
+      .attr("state", state == "all" ? "critical" : "inactive");
+  });
+
   $(".opt-t").click(function() {
+    return;
     var $main = $(this).closest('#control-center');
 
     if($(this).hasClass("bad")) {
