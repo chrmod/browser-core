@@ -158,7 +158,14 @@ function draw(data){
     $(".othersettings").css('display', 'block');
   })
 
+  $(".switches").click(function() {
+     $(this).attr("active", function(idx, attr){
+        return attr == "true" ? "false": "true";
+     });
+  });
+
   $(".cqz-switch").click(function() {
+
     var $this = $(this),
         $setting = $this.closest('.setting'),
         section = $setting.attr('data-section'),
@@ -170,35 +177,46 @@ function draw(data){
         inactiveDesc = '-inactive',
         $switchSpans = $setting.find('.cqz-switch');
 
-        if (isHttpsSection(section)) {
-          $switches.toggleClass('inactive');
-        }
+    if (isHttpsSection(section)) {
+      $switches.toggleClass('inactive');
+    }
 
-        $this.toggleClass("active");
-        $setting.toggleClass('inactive');
-        if ($this.hasClass('active')) {
-          setLabels($switchSpans, onLabelText);
-          setDescriptions($switches, $desc.substr(0, $desc.length - inactiveDesc.length));
-          $switchSpans.each(function(index, obj) {
-            $(obj).addClass('active');
-          })
-          if($main.hasClass("bad-" + section)) {
-            $main.removeClass("bad-" + section);
-          }
-          $main.removeClass("crucial-" + section);
-        } else {
-          setLabels($switchSpans, offLabelText);
-          setDescriptions($switches, $desc + inactiveDesc);
-          $switchSpans.each(function(index, obj) {
-            $(obj).removeClass('active');
-          })
-          $main.addClass("crucial-" + section);
-        }
+    $this.toggleClass("active");
+    $setting.toggleClass('inactive');
 
-        if (!isHttpsSection(section)) {
-          setHeaderText($main);
-        }
-        localizeDocument();
+    var isActive = $this.hasClass('active');
+
+    if (isActive) {
+      setLabels($switchSpans, onLabelText);
+      if($desc)setDescriptions($switches, $desc.substr(0, $desc.length - inactiveDesc.length));
+      $switchSpans.each(function(index, obj) {
+        $(obj).addClass('active');
+      })
+      if($main.hasClass("bad-" + section)) {
+        $main.removeClass("bad-" + section);
+      }
+      $main.removeClass("crucial-" + section);
+    } else {
+      setLabels($switchSpans, offLabelText);
+      setDescriptions($switches, $desc + inactiveDesc);
+      $switchSpans.each(function(index, obj) {
+        $(obj).removeClass('active');
+      })
+      $main.addClass("crucial-" + section);
+    }
+
+    sendMessageToWindow({
+      action: 'updatePref',
+      data: {
+        pref: this.getAttribute('updatePref'),
+        value: isActive
+      }
+    });
+
+    if (!isHttpsSection(section)) {
+      setHeaderText($main);
+    }
+    localizeDocument();
   });
 
   $(".cqz-switch-grey").click(function() {

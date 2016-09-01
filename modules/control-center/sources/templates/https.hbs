@@ -11,13 +11,14 @@
     </svg>
     <span>HTTPS everywhere</span>
   </div>
-  <div class="switches">
+  <div class="switches" active="true"> <!-- {{#if module.https-everywhere.active}}active{{/if}}> -->
     <!--======= Switch ======-->
     <span>
-      <span class="cqz-switch active">
+      <span class="cqz-switch" updatePref='extensions.https_everywhere.globalEnabled'>
         <span class="cqz-switch-box"></span>
       </span>
-      <span id="onlabel" data-i18n="control-center-switch-on"></span>
+      <span class="active" data-i18n="control-center-switch-on"></span>
+      <span class="inactive" data-i18n="control-center-switch-off"></span>
     </span>
   </div>
 </div>
