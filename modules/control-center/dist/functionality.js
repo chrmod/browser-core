@@ -197,13 +197,15 @@ function draw(data){
     var $main = $(this).closest("#control-center"),
         $othersettings = $main.find(".othersettings"),
         $section = $(this).closest('.setting').attr('data-section');
+
+    console.log(arguments, e.target)
     if (isHttpsSection($section)) {
       return;
     } else if ($(e.target).hasClass("cqz-switch-box")) {
       return;
     } else if ($(e.target).hasClass("dropdown-scope")) {
       return;
-    } else if (e.target.hasAtribute && e.target.hasAtribute("stop-navigation")) {
+    } else if (e.target.hasAttribute && e.target.hasAttribute("stop-navigation")) {
       return;
     } else if ($(e.target).hasClass("box")) {
       return;
@@ -231,6 +233,16 @@ function draw(data){
     target.attr("state", function(idx, attr){
         return attr !== "active" ? "active": target.attr('inactiveState');
     });
+
+    if(this.hasAttribute('updatePref')){
+      sendMessageToWindow({
+        action: 'updatePref',
+        data: {
+          pref: this.getAttribute('updatePref'),
+          value: target.attr('state') == 'active' ? true : false
+        }
+      });
+    }
 
     updateGeneralState();
   });

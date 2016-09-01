@@ -205,8 +205,8 @@ export default class {
         overflow: hidden !important;
       }
 
-      .panel-mainview:not([panelid="PanelUI-popup"]) {
-        max-width: 32em !important;
+      panel[viewId="${BTN_ID}"] .panel-mainview {
+        max-width: 50em !important;
       }
     `;
 
