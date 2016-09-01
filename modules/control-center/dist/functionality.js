@@ -93,6 +93,7 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
   });
 })
 
+
 function updateGeneralState() {
   var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
   var states = [].map.call(stateElements, function(el) {
@@ -107,9 +108,37 @@ function updateGeneralState() {
   } else {
     $("#header").attr('state', 'active');
   }
+
+function compile(obj) {
+  return Object.keys(obj.companies)
+      .map(function (companyName) {
+        var domains = obj.companies[companyName];
+        var company = {
+          name: companyName,
+          domains: domains.map(function (domain) {
+            var domainData = obj.trackers[domain];
+            return {
+              domain: domain,
+              count: (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
+            }
+          }).sort(function (a, b) {
+            return a.count < b.count;
+          }),
+          count: 0
+        };
+        company.count = company.domains.reduce(function (prev, curr) { return prev + curr.count }, 0)
+        return company;
+      })
+      .sort(function (a,b) {
+        return a.count < b.count;
+      });
 }
 
 function draw(data){
+  if (data.module) {
+    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+  }
   console.log(data);
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates["template"](data)

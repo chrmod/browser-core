@@ -173,7 +173,32 @@ export default class {
         state: disabledForDomain,
         active: adbDisabled || !isCorrectUrl
       },
-      totalCount: CliqzADB.adbStats.pages[currentURL] || 0
+      totalCount: CliqzADB.adbStats.pages[currentURL] || 0,
+      advertisersList: {
+        companies: {
+          "Adform": [
+            "server.adform.net",
+            "s1.adform.net"
+          ],
+          "Amazon.com": [
+            "s3-eu-west-1.amazonaws.com"
+          ]
+        },
+        trackers: {
+          "s1.adform.net": {
+            "cookie_blocked": 1,
+            "bad_qs": 2
+          },
+          "s3-eu-west-1.amazonaws.com": {
+             "cookie_blocked": 10,
+              "bad_qs": 1
+          },
+          "server.adform.net": {
+            "cookie_blocked": 5,
+            "bad_qs": 6
+          }
+        }
+      }
     }
   }
 }
