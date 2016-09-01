@@ -138,7 +138,9 @@ function compile(obj) {
 function draw(data){
   if (data.module) {
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
-    data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+    if (data.module.adblocker) {
+      data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+    }
   }
   console.log(data);
 
