@@ -4,6 +4,11 @@
   /*src: url("../fonts/Lato-Regular.ttf");*/
 }
 
+body,
+html {
+  overflow: hidden;
+}
+
 * {
 	margin: 0;
 	padding: 0;

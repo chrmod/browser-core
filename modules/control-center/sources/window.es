@@ -200,7 +200,8 @@ export default class {
     // we need more than default max-width
     var style = `
       #${BTN_ID},
-      #${BTN_ID} > iframe {
+      #${BTN_ID} > iframe,
+      #${BTN_ID} > panel-subview-body {
         overflow: hidden !important;
       }
 
