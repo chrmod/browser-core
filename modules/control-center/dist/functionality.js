@@ -93,15 +93,14 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
   });
 })
 
-function draw(data){
-  if (data.module) {
-    data.module.antitracking.trackersList.companiesArray = Object.keys(data.module.antitracking.trackersList.companies)
+function compile(obj) {
+  return Object.keys(obj.companies)
       .map(function (companyName) {
-        var domains = data.module.antitracking.trackersList.companies[companyName];
+        var domains = obj.companies[companyName];
         var company = {
           name: companyName,
           domains: domains.map(function (domain) {
-            var domainData = data.module.antitracking.trackersList.trackers[domain];
+            var domainData = obj.trackers[domain];
             return {
               domain: domain,
               count: (domainData.cookie_blocked || 0) + (domainData.bad_qs || 0)
@@ -117,6 +116,12 @@ function draw(data){
       .sort(function (a,b) {
         return a.count < b.count;
       });
+}
+
+function draw(data){
+  if (data.module) {
+    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
   }
   console.log(data);
 

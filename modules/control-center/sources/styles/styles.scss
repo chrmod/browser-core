@@ -450,6 +450,8 @@ html {
 				#companies {
 					height: 250px;
 					background-color: #F4F4F4;
+          overflow: auto;
+          width: 100%;
 				}
 				#bottom-part {
 					background-color: #fff;
