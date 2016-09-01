@@ -1,4 +1,4 @@
-<div class="adblock-frame">
+<div class="adblocker frame-container" state="active">
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -31,12 +31,18 @@
   <p class="description" data-i18n="control-center-adblock-description"></p>
   <div class="switches">
     <!--======= Switch ======-->
-    <span><span class="cqz-switch active one"><span class="cqz-switch-box"></span></span> <span class="active" data-i18n="control-center-switch-on"></span></span>
-    <select class="dropdown" name="dropdown2">
-      <option class="opt" selected id="this-site" data-i18n="control-center-this-site"></option>
-      <option class="opt bad" id="all-sites" data-i18n="control-center-all-sites"></option>
+    <span>
+        <span class="cqz-switch">
+            <span class="cqz-switch-box"></span>
+        </span>
+        <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+        <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
+    </span>
+    <select class="dropdown-scope" visible-on-state="inactive">
+      <option class="opt" selected data-i18n="control-center-this-site" value="this"></option>
+      <option class="opt bad" data-i18n="control-center-all-sites" value="all"></option>
     </select>
-    <span title=".squaredFour2">
+    <span visible-on-state="active">
       <span class="squaredFour">
         <input type="checkbox" value="None" id="squaredFour2" name="check" checked />
         <label for="squaredFour2"></label>
