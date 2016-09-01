@@ -93,6 +93,22 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
   });
 })
 
+function updateGeneralState() {
+  var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
+  var states = [].map.call(stateElements, function(el) {
+    return el.getAttribute('state');
+  });
+
+  if(states.includes('critical')){
+    $("#header").attr('state', 'critical');
+  }
+  else if(states.includes('inactive')){
+    $("#header").attr('state', 'inactive');
+  } else {
+    $("#header").attr('state', '');
+  }
+}
+
 function draw(data){
   console.log(data);
 
@@ -188,12 +204,7 @@ function draw(data){
     $(this).closest('.frame-container').attr("state", function(idx, attr){
         return attr !== "active" ? "active": "inactive";
     });
-
-    var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
-    var states = [].map.call(stateElements, function(el) {
-      return el.getAttribute('state')
-    })
-
+    updateGeneralState();
   });
 
   $(".cqz-switch").click(function() {
@@ -280,6 +291,8 @@ function draw(data){
     var state = ev.currentTarget.value;
     $(this).closest('.frame-container')
       .attr("state", state == "all" ? "critical" : "inactive");
+
+    updateGeneralState();
   });
 
   $(".opt-t").click(function() {

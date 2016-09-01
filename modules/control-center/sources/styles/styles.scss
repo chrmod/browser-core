@@ -85,6 +85,14 @@
 		}
 	}
 
+    #header[state="critical"] {
+        background: #E64C66;
+    }
+
+    #header[state="inactive"] {
+        background: #F5C03E;
+    }
+
 	#currentsite {
 		font-size: 24px;
 		height: 49.5px;
