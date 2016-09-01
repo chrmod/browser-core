@@ -183,9 +183,10 @@ function draw(data){
     $(".othersettings").css('display', 'block');
   })
 
-  $(".switches").click(function() {
-     $(this.parentElement).attr("active", function(idx, attr){
-        return attr == "true" ? "false": "true";
+  $(".cqz-switch").click(function() {
+    console.log("AAA", arguments)
+    $(this).closest('.frame-container').attr("state", function(idx, attr){
+        return attr == "active" ? "inactive": "active";
      });
   });
 

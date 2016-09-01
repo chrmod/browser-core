@@ -1,4 +1,4 @@
-<div class="httpsevery-frame frame-container" active="true"> <!-- {{#if module.https-everywhere.active}}active{{/if}}> -->
+<div class="httpsevery-frame frame-container" state="active"> <!-- {{#if module.https-everywhere.active}}active{{/if}}> -->
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -17,8 +17,8 @@
       <span class="cqz-switch" updatePref='extensions.https_everywhere.globalEnabled'>
         <span class="cqz-switch-box"></span>
       </span>
-      <span class="active" data-i18n="control-center-switch-on"></span>
-      <span class="inactive" data-i18n="control-center-switch-off"></span>
+      <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+      <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
     </span>
   </div>
 </div>

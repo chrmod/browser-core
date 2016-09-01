@@ -195,7 +195,7 @@
       color: #A4A4A4;
     }
 
-    .frame-container[active="true"] .switches {
+    .frame-container[state="active"] .switches {
         color: #2B9F5F;
         .cqz-switch-box {
             background: #2CBA84;
@@ -656,11 +656,11 @@
 	cursor: pointer;
 }
 
-.frame-container[active="true"] {
-    .inactive {
+.frame-container[state="active"] {
+    [visible-on-state="inactive"] {
         display: none;
     }
-        .cqz-switch-box {
+    .cqz-switch-box {
         &:before {
             left: auto;
             right: 1px;
@@ -670,15 +670,28 @@
     .anti-tracking-options {
         display: none;
     }
+
 }
 
-.frame-container[active="false"] {
-    .active {
+.frame-container[state="inactive"] {
+    [visible-on-state="active"] {
         display: none;
     }
 
     .strict {
         display: none;
+    }
+
+    .description {
+      color: #A4A4A4;
+    }
+    .counter {
+      color: #A4A4A4;
+      #shield {
+        .fill {
+          fill: #F5C03E;
+        }
+      }
     }
 }
 

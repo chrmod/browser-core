@@ -1,4 +1,4 @@
-<div class="antitracker-frame frame-container" active="true">
+<div class="antitracker-frame frame-container" state="active">
 
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -27,15 +27,16 @@
     <span id="count">{{ module.antitracking.totalCount }}</span>
   </div>
 
-  <p class="description" data-i18n="control-center-datapoints"></p>
+  <p class="description" visible-on-state="active" data-i18n="control-center-datapoints"></p>
+  <p class="description" visible-on-state="inactive" data-i18n="control-center-datapoints-inactive"></p>
   <div class="switches">
     <!--======= Switch ======-->
     <span>
       <span class="cqz-switch">
         <span class="cqz-switch-box"></span>
       </span>
-      <span class="active" data-i18n="control-center-switch-on"></span>
-      <span class="inactive" data-i18n="control-center-switch-off"></span>
+      <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+      <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
     </span>
     <select class="dropdown anti-tracking-options">
       <option class="opt-t" selected id="this-site" data-i18n="control-center-this-site"></option>
