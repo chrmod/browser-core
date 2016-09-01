@@ -53,7 +53,6 @@ $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
 })
 
-
 function draw(data){
   console.log(data);
 
@@ -134,15 +133,15 @@ function draw(data){
       return;
     }
 
-    if ($(e.target).hasClass("cross") || ($(e.target)[0].ownerSVGElement != null && $(e.target)[0].ownerSVGElement.getAttribute("class") == "cross")) {
-      $(this).removeClass("active");
-      $othersettings.css('display', 'block');
-      return;
-    }
-
     $(this).addClass("active");
     $othersettings.css('display', 'none');
   });
+
+  $(".cross").click(function(e) {
+    e.stopPropagation()
+    $(this).closest('.setting').removeClass("active");
+    $(".othersettings").css('display', 'block');
+  })
 
   $(".cqz-switch").click(function() {
     var $this = $(this),
@@ -150,10 +149,10 @@ function draw(data){
         section = $setting.attr('data-section'),
         $switches = $setting.find('.switches'),
         $main = $switches.closest("#control-center"),
+        $desc = $setting.find('.description').attr('data-i18n'),
         onLabelText = 'control-center-switch-on',
         offLabelText = 'control-center-switch-off',
-        onDesc = 'control-center-datapoints',
-        offDesc = 'control-center-datapoints-inactive',
+        inactiveDesc = '-inactive',
         $switchSpans = $setting.find('.cqz-switch');
 
         if (isHttpsSection(section)) {
@@ -164,7 +163,7 @@ function draw(data){
         $setting.toggleClass('inactive');
         if ($this.hasClass('active')) {
           setLabels($switchSpans, onLabelText);
-          setDescriptions($switches, onDesc);
+          setDescriptions($switches, $desc.substr(0, $desc.length - inactiveDesc.length));
           $switchSpans.each(function(index, obj) {
             $(obj).addClass('active');
           })
@@ -174,7 +173,7 @@ function draw(data){
           $main.removeClass("crucial-" + section);
         } else {
           setLabels($switchSpans, offLabelText);
-          setDescriptions($switches, offDesc);
+          setDescriptions($switches, $desc + inactiveDesc);
           $switchSpans.each(function(index, obj) {
             $(obj).removeClass('active');
           })
@@ -191,8 +190,7 @@ function draw(data){
     $(this).toggleClass("active");
     var $switches = $(this).closest('.switches-grey'),
         $onLabel = $switches.find('#onlabel'),
-        onLabelCurr = $onLabel.attr('data-i18n'),
-        onLabelNext = onLabelCurr;
+        onLabelNext = $onLabel.attr('data-i18n');
 
     if ($(this).hasClass('active')) {
       onLabelNext = 'control-center-switch-on';
@@ -237,93 +235,41 @@ function draw(data){
 
   $(".pause").click(function() {
     var $main = $(this).closest('#control-center'),
-        $header = $main.find("#header"),
-        $headertext = $header.find("#text"),
-        $safe = $main.find(".safe"),
-        $unsafe = $main.find(".unsafe"),
-        $adblock = $main.find(".adblock"),
-        $antitracker = $main.find(".antitracker"),
+        $headertext = $main.find("#header").find("#text"),
+        $section = $main.find('.setting'),
         $cqzswitch = $main.find(".cqz-switch"),
         $switches = $cqzswitch.closest('.switches'),
         $onLabel = $switches.find('#onlabel'),
-        $trackswitch = $main.find(".cqz-switch-antitrack"),
-        $trackswitches = $trackswitch.closest('.switches'),
-        $trackLabel = $trackswitches.find('#onlabel'),
-        $trackdesc = $trackswitches.siblings(".description"),
-        $adblockdesc = $adblock.find(".description"),
-        $phishswitch = $main.find(".cqz-switch-antiphish"),
-        $phishswitches = $phishswitch.closest('.switches'),
-        $phishLabel = $phishswitches.find('#onlabel');
+        $trackswitch = $main.find(".cqz-switch"),
+        $trackdesc = $trackswitch.closest('.switches').siblings(".description"),
+        $adblock = $main.find(".adblock"),
+        $adblockdesc = $adblock.find(".description");
 
     if ($main.hasClass("break")) {
       $main.removeClass("break");
       $cqzswitch.addClass("active");
-      $trackswitch.addClass("active");
-      $phishswitch.addClass("active");
       $onLabel.attr('data-i18n', 'control-center-switch-on');
-      $trackLabel.attr('data-i18n', 'control-center-switch-on');
       $trackdesc.attr('data-i18n', 'control-center-datapoints');
-      $phishLabel.attr('data-i18n', 'control-center-switch-on');
       $adblockdesc.attr('data-i18n', 'control-center-adblock-description');
       $headertext.attr('data-i18n', 'control-center-txt-header');
-      //
-      // $safe.css('display', 'block');
-      // $unsafe.css('display', 'none');
+      $section.removeClass('inactive');
+      $switches.removeClass('inactive');
     } else {
       $main.addClass("break");
       $cqzswitch.removeClass("active");
-      $trackswitch.removeClass("active");
-      $phishswitch.removeClass("active");
-
-      if ($main.hasClass("crucial-antiphish")){
-        $main.removeClass("crucial-antiphish");
-      }
-      if ($main.hasClass("crucial-antitrack")) {
-        $main.removeClass("crucial-antitrack");
-      }
-      if ($main.hasClass("bad-antiphish")) {
-        $main.removeClass("bad-antiphish");
-      }
-      if ($main.hasClass("bad-antitrack")) {
-        $main.removeClass("bad-antitrack");
-      }
-
-      $('[name=dropdown] option').filter(function(index, val) {
-          return index === 0; //To select Blue
-      }).prop('selected', true);
-
-      $('[name=dropdown2] option').filter(function(index, val) {
-          return index === 0; //To select Blue
-      }).prop('selected', true);
-
-      $('[name=dropdown3] option').filter(function(index, val) {
-          return index === 0; //To select Blue
-      }).prop('selected', true);
-
       $onLabel.attr('data-i18n', 'control-center-switch-off');
-      $trackLabel.attr('data-i18n', 'control-center-switch-off');
       $trackdesc.attr('data-i18n', 'control-center-datapoints-inactive');
-      $phishLabel.attr('data-i18n', 'control-center-switch-off');
       $adblockdesc.attr('data-i18n', 'control-center-adblock-description-inactive');
       $headertext.attr('data-i18n', 'control-center-txt-header-not');
-      //
-      // $safe.css('display', 'none');
-      // $unsafe.css('display', 'block');
-    }
+      $section.addClass('inactive');
 
-    $adblock.addClass('inactive');
-    $switches.addClass('inactive');
-    if ($cqzswitch.hasClass('active')) {
-      $switches.removeClass('inactive');
-      $adblock.removeClass('inactive');
-    }
-    $antitracker.addClass("inactive");
-    if ($trackswitch.hasClass('active')) {
-      $antitracker.removeClass("inactive");
-    }
-    $phishswitches.addClass('inactive');
-    if ($phishswitch.hasClass('active')) {
-      $phishswitches.removeClass('inactive');
+      $main.removeClass("crucial-antiphish");
+      $main.removeClass("crucial-antitrack");
+      $main.removeClass("crucial-https");
+      $main.removeClass("bad-antiphish");
+      $main.removeClass("bad-antitrack");
+
+      $('.dropdown option:first-child').prop("selected", true);
     }
     localizeDocument();
   });
