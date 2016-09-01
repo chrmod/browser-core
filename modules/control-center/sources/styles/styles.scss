@@ -35,10 +35,6 @@
     background: #F5C03E;
   }
 
-  &.bad-antitrack #header,
-  &.bad-antiphish #header {
-    background: #E64C66;
-  }
 
   &.crucial-antitrack .antitracker {
     .description {
@@ -52,27 +48,6 @@
         }
       }
     }
-  }
-
-  &.bad-antitrack .antitracker {
-    .description {
-      color: #A4A4A4;
-    }
-    .counter {
-      color: #A4A4A4;
-      #shield {
-        .fill {
-          fill: #E64C66;
-        }
-      }
-    }
-    .dropdown-scope {
-      color: #E64C66;
-    }
-  }
-
-  &.bad-antiphish .antiphishing .dropdown-scope {
-    color: #E64C66;
   }
 
   &.break {
@@ -217,9 +192,6 @@
       background: white;
       font-size: 12px;
       color: #F5C03E;
-      &.bad {
-        color: #E64C66;
-      }
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
@@ -472,7 +444,7 @@
 				.antiphishing-frame {
 					display: none;
 				}
-				.antitracker-frame {
+				.antitracking {
 					display: none;
 				}
 				.adblock-frame {
@@ -670,7 +642,7 @@
 
 }
 
-.frame-container[state="inactive"], .frame-container[state="critical"] {
+.frame-container[state="inactive"] {
     [visible-on-state="active"] {
         display: none;
     }
@@ -683,16 +655,34 @@
       color: #A4A4A4;
     }
     .counter {
-      color: #A4A4A4;
+      color: #F5C03E;
       #shield {
         .fill {
           fill: #F5C03E;
         }
       }
     }
+    .switches {
+        color: #F5C03E !important;
+        .cqz-switch-box {
+            background: #F5C03E;
+        }
+    }
 }
 
+
 .frame-container[state="critical"] {
+    [visible-on-state="active"] {
+        display: none;
+    }
+
+    .strict {
+        display: none;
+    }
+
+    .description {
+      color: #A4A4A4;
+    }
     .counter {
       #shield {
         .fill {
@@ -702,6 +692,13 @@
     }
     .dropdown-scope {
       color: #E64C66 !important;
+    }
+
+    .switches {
+        color: #E64C66 !important;
+        .cqz-switch-box {
+            background: #E64C66;
+        }
     }
 }
 
