@@ -1319,15 +1319,6 @@
     "control-center-all-sites": {
       "message": "All Sites"
     },
-    "control-center-always": {
-      "message": "Always"
-    },
-    "control-center-never": {
-      "message": "Never"
-    },
-    "control-center-always-ask": {
-      "message": "Always ask"
-    },
     "download": {
       "message": "Download from: "
     },

@@ -1319,15 +1319,6 @@
     "control-center-all-sites": {
       "message": "Alle Websites"
     },
-    "control-center-always": {
-      "message": "Immer"
-    },
-    "control-center-never": {
-      "message": "Nie"
-    },
-    "control-center-always-ask": {
-      "message": "Immer Fragen"
-    },
     "download": {
       "message": "Herunterladen von: "
     },

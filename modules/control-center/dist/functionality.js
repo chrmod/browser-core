@@ -49,8 +49,23 @@ Promise.all([
   draw({});
 });
 
+// actions
+
+// open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
+})
+
+// select box change
+$('#control-center').on('change', 'select[updatePref]', function(ev){
+  console.log(ev, arguments)
+  sendMessageToWindow({
+    action: 'updatePref',
+    data: {
+      pref: ev.currentTarget.getAttribute('updatePref'),
+      value: ev.currentTarget.value
+    }
+  });
 })
 
 function draw(data){
@@ -190,14 +205,24 @@ function draw(data){
     $(this).toggleClass("active");
     var $switches = $(this).closest('.switches-grey'),
         $onLabel = $switches.find('#onlabel'),
-        onLabelNext = $onLabel.attr('data-i18n');
+        onLabelNext = $onLabel.attr('data-i18n'),
+        isActive = $(this).hasClass('active');
 
-    if ($(this).hasClass('active')) {
+    if (isActive) {
       onLabelNext = 'control-center-switch-on';
     } else {
       onLabelNext = 'control-center-switch-off';
     }
     $onLabel.attr('data-i18n', onLabelNext);
+
+    sendMessageToWindow({
+      action: 'updatePref',
+      data: {
+        pref: this.getAttribute('updatePref'),
+        value: isActive
+      }
+    });
+
     localizeDocument();
   });
 

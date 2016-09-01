@@ -84,7 +84,7 @@ export default class {
   status() {
     return {
       visible: true,
-      state: utils.getPref('dnt', false)
+      state: !utils.getPref('dnt', false)
     }
   }
 
