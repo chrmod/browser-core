@@ -30,26 +30,6 @@
   	}
 	}
 
-  &.crucial-antitrack #header,
-  &.crucial-antiphish #header {
-    background: #F5C03E;
-  }
-
-
-  &.crucial-antitrack .antitracker {
-    .description {
-      color: #A4A4A4;
-    }
-    .counter {
-      color: #A4A4A4;
-      #shield {
-        .fill {
-          fill: #F5C03E;
-        }
-      }
-    }
-  }
-
   &.break {
     #header {
       background: #8F8F8F;

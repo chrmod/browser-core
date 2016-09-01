@@ -187,7 +187,13 @@ function draw(data){
     console.log("AAA", arguments)
     $(this).closest('.frame-container').attr("state", function(idx, attr){
         return attr !== "active" ? "active": "inactive";
-     });
+    });
+
+    var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
+    var states = [].map.call(stateElements, function(el) {
+      return el.getAttribute('state')
+    })
+
   });
 
   $(".cqz-switch").click(function() {
