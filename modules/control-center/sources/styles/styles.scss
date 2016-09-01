@@ -211,7 +211,6 @@
     .dropdown {
       float: right;
       margin-right: 15px;
-      display: none;
       padding: 2px 15px 2px 0;
       border: 0.5px solid #ccc;
       border-radius: 5px;
@@ -667,10 +666,18 @@
             right: 1px;
         }
     }
+
+    .anti-tracking-options {
+        display: none;
+    }
 }
 
 .frame-container[active="false"] {
     .active {
+        display: none;
+    }
+
+    .strict {
         display: none;
     }
 }
