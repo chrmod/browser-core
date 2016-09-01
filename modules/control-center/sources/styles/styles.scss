@@ -587,7 +587,7 @@
 }
 
 [state="active"] {
-    [visible-on-state="inactive"] {
+    [visible-on-state="inactive"], [visible-on-state="off"] {
         display: none;
     }
 }
@@ -606,7 +606,7 @@
 
 }
 
-[state="inactive"], [state="critical"] {
+[state="inactive"], [state="critical"], [state="off"] {
     [visible-on-state="active"] {
         display: none;
     }
@@ -632,6 +632,33 @@
         color: #F5C03E !important;
         .cqz-switch-box {
             background: #F5C03E;
+        }
+    }
+}
+
+.frame-container[state="off"] {
+    .strict {
+        display: none;
+    }
+
+    .description {
+      color: #A4A4A4;
+    }
+    .counter {
+      color: #A4A4A4;
+      #shield {
+        .fill {
+          fill: #A4A4A4;
+        }
+      }
+    }
+    .dropdown-scope {
+      color: #A4A4A4 !important;
+    }
+    .switches {
+        color: #A4A4A4 !important;
+        .cqz-switch-box {
+            background: #A4A4A4;
         }
     }
 }
