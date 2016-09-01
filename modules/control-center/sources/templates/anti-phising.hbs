@@ -1,4 +1,4 @@
-<div class="antiphishing-frame">
+<div class="antiphishing frame-container" state="active">
   <div class="title">
     <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -15,17 +15,18 @@
       <polyline id="Path-164-Copy-153" stroke="#7D7D7D" stroke-width="2.5999999" fill="none" opacity="0.44" points="1133.19742 410.787186 1139.09434 416.693941 1133.42806 422.369666"></polyline>
     </svg>
   </div>
-  <div class="switches" class="switches-antiphish">
+  <div class="switches">
     <!--======= Switch ======-->
     <span>
-      <span class="active cqz-switch">
+      <span class="cqz-switch">
           <span class="cqz-switch-box"></span>
       </span>
-      <span class="active" data-i18n="control-center-switch-on"></span>
+      <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+      <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
     </span>
-    <select class="dropdown" name="dropdown3">
-      <option class="opt-p" selected id="this-site" data-i18n="control-center-this-site"></option>
-      <option class="opt-p bad" id="all-sites" data-i18n="control-center-all-sites"></option>
+    <select class="dropdown-scope">
+      <option class="opt-p" selected data-i18n="control-center-this-site" value="this"></option>
+      <option class="opt-p bad" data-i18n="control-center-all-sites" value="all"></option>
     </select>
   </div>
 </div>
