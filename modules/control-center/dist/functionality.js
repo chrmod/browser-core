@@ -108,6 +108,7 @@ function updateGeneralState() {
   } else {
     $("#header").attr('state', 'active');
   }
+}
 
 function compile(obj) {
   return Object.keys(obj.companies)
