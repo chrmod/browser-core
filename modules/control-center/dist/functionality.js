@@ -203,7 +203,7 @@ function draw(data){
       return;
     } else if ($(e.target).hasClass("dropdown-scope")) {
       return;
-    } else if (e.target.hasAtribute("stop-navigation")) {
+    } else if (e.target.hasAtribute && e.target.hasAtribute("stop-navigation")) {
       return;
     } else if ($(e.target).hasClass("box")) {
       return;
