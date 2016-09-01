@@ -195,7 +195,7 @@ function draw(data){
   //====== SETTING SECTION =========//
   $(".setting").click(function(e) {
     var $main = $(this).closest("#control-center"),
-        $othersettings = $main.find(".othersettings"),
+        $othersettings = $main.find("#othersettings"),
         $section = $(this).closest('.setting').attr('data-section');
     if (isHttpsSection($section)) {
       return;
@@ -222,7 +222,7 @@ function draw(data){
   $(".cross").click(function(e) {
     e.stopPropagation()
     $(this).closest('.setting').removeClass("active");
-    $(".othersettings").css('display', 'block');
+    $("#othersettings").css('display', 'block');
   })
 
   $(".cqz-switch").click(function() {
