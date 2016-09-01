@@ -3,6 +3,9 @@ import { simpleBtn } from 'q-button/buttons';
 import { utils } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 
+function toPx(pixels) {
+  return pixels.toString() + 'px';
+}
 
 const BTN_ID = 'cliqz-button1',
       firstRunPref = 'firstStartDone1';
@@ -14,7 +17,8 @@ export default class {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
       openURL: this.openURL.bind(this),
-      updatePref: this.updatePref.bind(this)
+      updatePref: this.updatePref.bind(this),
+      resize: this.resizePopup.bind(this)
     }
   }
 
@@ -161,10 +165,6 @@ export default class {
     var iframe;
     panel.addEventListener("ViewShowing", () => {
 
-      function toPx(pixels) {
-        return pixels.toString() + 'px';
-      }
-
       function onPopupReady() {
         var body = iframe.contentDocument.body;
         var clientHeight = body.scrollHeight;
@@ -199,6 +199,11 @@ export default class {
 
     // we need more than default max-width
     var style = `
+      #${BTN_ID},
+      #${BTN_ID} > iframe {
+        overflow: hidden !important;
+      }
+
       .panel-mainview:not([panelid="PanelUI-popup"]) {
         max-width: 32em !important;
       }
@@ -215,5 +220,10 @@ export default class {
       .loadSheet(styleURI, 1);
 
     ToolbarButtonManager.restorePosition(doc, button);
+  }
+
+  resizePopup({ width, height }) {
+    this.iframe.style.width = toPx(width);
+    this.iframe.style.height = toPx(height);
   }
 }

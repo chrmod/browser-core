@@ -1,3 +1,28 @@
+var slideUp = $.fn.slideUp;
+var slideDown = $.fn.slideDown;
+function resize() {
+  var $controlCenter = $("#control-center");
+  var width = $controlCenter.width();
+  var height = $controlCenter.height();
+  sendMessageToWindow({
+    action: 'resize',
+    data: {
+      width: width,
+      height: height
+    }
+  });
+}
+$.fn.slideUp = function () {
+  var ret = slideUp.call(this, 0);
+  resize()
+  return ret;
+}
+$.fn.slideDown = function () {
+  var ret = slideDown.call(this, 0);
+  resize();
+  return ret;
+}
+
 function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
     var elArgs = el.dataset.i18n.split(","),
