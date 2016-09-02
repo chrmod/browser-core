@@ -279,6 +279,12 @@ html {
 
     }
 
+    &.open {
+      .setting:not(.active) {
+        display: none;
+      }
+    }
+
 		.setting {
       position: relative;
       background-color: #fff;
@@ -434,7 +440,6 @@ html {
 			}
 
 			&.active {
-				position: absolute;
 				z-index: 10;
 				width: 100%;
 				border-right: 0;

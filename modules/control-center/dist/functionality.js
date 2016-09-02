@@ -217,6 +217,7 @@ function draw(data){
       return;
     }
 
+    $("#settings").addClass("open");
     $(this).addClass("active");
     $othersettings.css('display', 'none');
   });
@@ -225,6 +226,7 @@ function draw(data){
     e.stopPropagation()
     $(this).closest('.setting').removeClass("active");
     $("#othersettings").css('display', 'block');
+    $("#settings").removeClass("open");
   })
 
   $(".cqz-switch").click(function() {
