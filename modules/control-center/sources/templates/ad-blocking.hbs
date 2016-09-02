@@ -1,5 +1,6 @@
 {{#if true }} <!-- module.adblocker.visible}} -->
-<div class="adblocker frame-container" state="{{#if module.adblocker.enabled}}active{{ else }}off{{/if}}" inactiveState="off">
+<div class="frame-container" state="{{#if module.adblocker.enabled}}active{{ else }}off{{/if}}" inactiveState="off">
+<div class="adblocker">
   <div class="title">
     <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -62,5 +63,6 @@
 </div>
 <div class="active-window-adblock">
   {{> active-ad-blocking }}
+</div>
 </div>
 {{/if}}

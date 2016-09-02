@@ -339,7 +339,7 @@ const CliqzADB = {
       }
 
       if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-        CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
+        CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
         return { cancel: true };
       }
 

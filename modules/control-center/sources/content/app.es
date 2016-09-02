@@ -154,12 +154,41 @@ function compile(obj) {
       });
 }
 
+function compileAdblockInfo(data) {
+  if (!data.module.adblocker) {
+    return;
+  }
+  var advertisers = data.module.adblocker.advertisersList;
+  var firstParty = advertisers["First party"];
+  var unknown = advertisers["_Unknown"]
+  delete advertisers["First party"];
+  delete advertisers["_Unknown"];
+  data.module.adblocker.advertisersList.companiesArray = Object.keys(advertisers).map(function (advertiser) {
+    var resources = advertisers[advertiser];
+    return {
+      name: advertiser,
+      count: resources.length
+    }
+  }).sort((a,b) => a.count < b.count);
+
+  if (firstParty) {
+    data.module.adblocker.advertisersList.companiesArray.unshift({
+      name: "First Party", // i18n
+      count: firstParty.length
+    });
+  }
+  if (unknown) {
+    data.module.adblocker.advertisersList.companiesArray.push({
+      name: "Other", // i18n
+      count: unknown.length
+    });
+  }
+}
+
 function draw(data){
   if (data.module) {
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
-    if (data.module.adblocker) {
-      //data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
-    }
+    compileAdblockInfo(data);
   }
   console.log(data);
 
