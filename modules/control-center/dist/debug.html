@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Control Center Debug</title>
+    <!-- <link rel="stylesheet" href="styles/styles.css"> -->
+  </head>
+  <body>
+    <iframe id="control-center" src="./index.html"></iframe>
+    <script>
+      var data = {"activeURL":"https://cliqztix.atlassian.net/projects/EX/versions/14200/tab/release-report-all-issues","module":{"q-button":{},"static":{},"core":{},"autocomplete":{},"geolocation":{"visible":true,"state":{"yes":{"name":"Always","selected":true},"ask":{"name":"Always Ask","selected":false},"no":{"name":"Never","selected":false}}},"ui":{},"human-web":{"visible":true,"state":true},"anti-phishing":null,"context-menu":{},"onboarding":{},"freshtab":{},"unblock":{},"theme":{},"telemetry-categories":{},"antitracking":{"visible":true,"strict":false,"url":"cliqztix.atlassian.net","cookiesCount":0,"requestsCount":1,"totalCount":1,"enabled":true,"isWhitelisted":false,"reload":false,"trackersList":{"tab":20,"hostname":"cliqztix.atlassian.net","path":"0a0c40d5c389fdf5","cookies":{"allowed":0,"blocked":0},"requests":{"safe":37,"unsafe":1},"trackers":{"d2kryfvs3op226.cloudfront.net":{"c":26,"cookie_set":0,"cookie_blocked":0,"bad_cookie_sent":0,"bad_qs":0,"tokens_blocked":0,"req_aborted":0},"d1ixbz5qgnvms3.cloudfront.net":{"c":7,"cookie_set":0,"cookie_blocked":0,"bad_cookie_sent":0,"bad_qs":0,"tokens_blocked":0,"req_aborted":0},"ssl.google-analytics.com":{"c":2,"cookie_set":0,"cookie_blocked":0,"bad_cookie_sent":0,"bad_qs":1,"tokens_blocked":0,"req_aborted":0},"secure.gravatar.com":{"c":3,"cookie_set":0,"cookie_blocked":0,"bad_cookie_sent":0,"bad_qs":0,"tokens_blocked":0,"req_aborted":0}},"companies":{"Amazon.com":["d2kryfvs3op226.cloudfront.net","d1ixbz5qgnvms3.cloudfront.net"],"Google Analytics":["ssl.google-analytics.com"],"Automattic":["secure.gravatar.com"]},"ps":{"tldHash":"a9d2a0d898d2d833","role":"site","score":-1,"datetime":"2016090115"},"companiesArray":[{"name":"Google Analytics","domains":[{"domain":"ssl.google-analytics.com","count":1}],"count":1},{"name":"Amazon.com","domains":[{"domain":"d2kryfvs3op226.cloudfront.net","count":0},{"domain":"d1ixbz5qgnvms3.cloudfront.net","count":0}],"count":0},{"name":"Automattic","domains":[{"domain":"secure.gravatar.com","count":0}],"count":0}]},"ps":{"tldHash":"a9d2a0d898d2d833","role":"site","score":-1,"datetime":"2016090115"}},"performance":{},"hpn":{"visible":true,"state":false},"control-center":{},"hm":{},"privacy-dashboard":{"visible":true},"offers":{},"adblocker":null,"https-everywhere":{},"adult":{"visible":true,"state":{"conservative":{"name":"Always","selected":false},"moderate":{"name":"Always Ask","selected":false},"liberal":{"name":"Never","selected":true}}}}};
+      var iframe = document.getElementById("control-center");
+      function resize(obj) {
+        iframe.style.width = obj.width + "px";
+        iframe.style.height = obj.height + "px";
+      }
+
+      iframe.addEventListener("load", function () {
+        resize({
+          width: iframe.contentWindow.document.body.scrollWidth,
+          height: iframe.contentWindow.document.body.scrollHeight,
+        });
+        iframe.contentWindow.postMessage(JSON.stringify({
+          target: "cliqz-control-center",
+          origin: "window",
+          message: {
+            action: "pushData",
+            data: data
+          },
+        }), "*");
+      });
+
+      iframe.contentWindow.addEventListener("message", function (ev) {
+        var data = JSON.parse(ev.data);
+        if(data.target == 'cliqz-control-center' &&
+           data.origin == 'iframe'){
+          if (data.message.action === "resize") {
+            resize(data.message.data);
+          }
+        }
+      });
+    </script>
+    <script>
+      var node = document.createElement("link");
+      node.rel = "stylesheet";
+      node.href = 'styles/styles.css?' + Math.floor(Math.random() * 999999999);
+      document.getElementsByTagName("head")[0].appendChild(node);
+    </script>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 {{#if visible}}
 <div class="httpsevery-frame frame-container" state="{{#if active}}active{{ else }}off{{/if}}" inactiveState="off"> <!-- {{#if module.https-everywhere.active}}active{{/if}}> -->
   <div class="title">
-    <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
       <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
         <ellipse id="Oval-2" fill="#D0D0D0" cx="7.56817127" cy="7.39375789" rx="7" ry="7"></ellipse>
@@ -10,6 +10,10 @@
         </text>
       </g>
     </svg>
+    <div class="tooltip right">
+      <span class="title">HTTPS everywhere</span>
+      Er schaltet automatisch Tausende von Webseiten, die auf unsicheren "http" zu sichern "https". Es wird Ihnen gegen viele Formen der Überwachung und Kontodie-bstählen und einigen Formen der Zensur zu schützen.
+    </div>
     <span>HTTPS everywhere</span>
   </div>
   <div class="switches" >

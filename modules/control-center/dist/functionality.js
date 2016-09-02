@@ -151,7 +151,9 @@ function compile(obj) {
 function draw(data){
   if (data.module) {
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
-    data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+    if (data.module.adblocker) {
+      data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+    }
   }
   console.log(data);
 
@@ -208,7 +210,7 @@ function draw(data){
   //====== SETTING SECTION =========//
   $(".setting").click(function(e) {
     var $main = $(this).closest("#control-center"),
-        $othersettings = $main.find(".othersettings"),
+        $othersettings = $main.find("#othersettings"),
         $section = $(this).closest('.setting').attr('data-section');
 
     if (isHttpsSection($section)) {
@@ -229,6 +231,7 @@ function draw(data){
       return;
     }
 
+    $("#settings").addClass("open");
     $(this).addClass("active");
     $othersettings.css('display', 'none');
   });
@@ -236,7 +239,8 @@ function draw(data){
   $(".cross").click(function(e) {
     e.stopPropagation()
     $(this).closest('.setting').removeClass("active");
-    $(".othersettings").css('display', 'block');
+    $("#othersettings").css('display', 'block');
+    $("#settings").removeClass("open");
   })
 
   $(".cqz-switch").click(function() {

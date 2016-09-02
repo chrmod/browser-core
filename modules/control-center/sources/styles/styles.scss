@@ -123,7 +123,7 @@ html {
       &:hover {
         cursor: pointer;
       }
-      #infobutton {
+      .infobutton {
         margin: 0 1px -1px 0;
         &:hover {
           #Oval-2 {
@@ -131,16 +131,64 @@ html {
           }
         }
       }
-      #infobutton:hover + .tracking-popup {
+      .infobutton:hover + .tooltip {
         display: block;
       }
       #smallarrow {
         margin: 0 0 -2px 2px;
       }
-      .tracking-popup {
+      .tooltip {
         display: none;
         position: absolute;
         z-index: 10;
+        background: #ffffff;
+        border: 1px solid #D8D8D8;
+        border-radius: 4px;
+        color: #535353;
+        font-size: 13px;
+        padding: 20px;
+        box-shadow: 3px 2px 10px #ccc;
+
+        &.left {
+          left: 35px;
+          top: -10px;
+          width: 270px;
+
+          &:before {
+            content:' '; /* Must have content to display */
+            position:absolute;
+            top:27px;
+            left:-16px; /* 2 x border width */
+            width:0;
+            height:0;
+            margin-top:-8px; /* - border width */
+            border:8px solid transparent;
+            border-right-color:#fff;
+          }
+        }
+
+        &.right {
+          width: 170px;
+          right: 228px;
+          top: -10px;
+
+          &:before {
+            content:' '; /* Must have content to display */
+            position:absolute;
+            top:27px;
+            right:-16px; /* 2 x border width */
+            width:0;
+            height:0;
+            margin-top:-8px; /* - border width */
+            border:8px solid transparent;
+            border-left-color:#fff;
+          }
+        }
+
+        .title {
+          margin: 0 0 15px;
+          display: block;
+        }
       }
     }
 
@@ -230,6 +278,12 @@ html {
       float: right;
       border-bottom: 0.5px solid #F3F3F3;
 
+    }
+
+    &.open {
+      .setting:not(.active) {
+        display: none;
+      }
     }
 
 		.setting {
@@ -387,7 +441,6 @@ html {
 			}
 
 			&.active {
-				position: absolute;
 				z-index: 10;
 				width: 100%;
 				border-right: 0;
@@ -399,17 +452,12 @@ html {
 				&:hover {
 					background-color: #fff;
 				}
-				.active-window-tracking {
+				.active-window-tracking,
+        .active-window-adblock,
+        .active-window-phishing {
 					display: block;
 					background-color: #fff;
-				}
-				.active-window-adblock {
-					display: block;
-					background-color: #fff;
-				}
-				.active-window-phishing {
-					display: block;
-					background-color: #fff;
+          height: 420px;
 				}
 				.antiphishing {
 					display: none;

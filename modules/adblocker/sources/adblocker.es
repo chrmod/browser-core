@@ -12,6 +12,7 @@ import HttpRequestContext from 'antitracking/webrequest-context';
 import { log } from 'adblocker/utils';
 import FilterEngine from 'adblocker/filters-engine';
 import FiltersLoader from 'adblocker/filters-loader';
+import AdbStats from 'adblocker/adb-stats';
 
 import CliqzHumanWeb from 'human-web/human-web';
 
@@ -64,7 +65,7 @@ class AdBlocker {
       if (isFiltersList) {
         this.engine.onUpdateFilters(asset, filters);
       } else {
-        this.engine.onUpdateResource(asset, filters)
+        this.engine.onUpdateResource(asset, filters);
       }
       this.initCache();
     });
@@ -241,7 +242,7 @@ class AdBlocker {
 const CliqzADB = {
   adblockInitialized: false,
   adbMem: {},
-  adbStats: { pages: {} },
+  adbStats: new AdbStats(),
   mutationLogger: null,
   adbDebug: false,
   MIN_BROWSER_VERSION: 35,
@@ -283,22 +284,17 @@ const CliqzADB = {
     CliqzADB.unloadPacemaker();
     browser.forEachWindow(CliqzADB.unloadWindow);
     WebRequest.onBeforeRequest.removeListener(CliqzADB.httpopenObserver.observe);
-    ContentPolicy.unload();
   },
 
-  initWindow(window) {
+  initWindow(/* window */) {
   },
 
-  unloadWindow(window) {
+  unloadWindow(/* window */) {
   },
 
   initPacemaker() {
     const t1 = utils.setInterval(() => {
-      Object.keys(CliqzADB.adbStats.pages).forEach(url => {
-        if (!CliqzADB.isTabURL[url]) {
-          delete CliqzADB.adbStats.pages[url];
-        }
-      });
+      CliqzADB.adbStats.clearStats();
     }, 10 * 60 * 1000);
     CliqzADB.timers.push(t1);
 
@@ -335,7 +331,7 @@ const CliqzADB = {
       const urlParts = URLInfo.get(url);
 
       if (requestContext.isFullPage()) {
-        CliqzADB.adbStats.pages[url] = 0;
+        CliqzADB.adbStats.addNewPage(url);
       }
 
       const sourceUrl = requestContext.getLoadingDocument();
@@ -346,34 +342,9 @@ const CliqzADB = {
         return {};
       }
 
-      sourceUrlParts = URLInfo.get(sourceUrl);
-
-      // same general domain
-      const sameGd = sameGeneralDomain(urlParts.hostname, sourceUrlParts.hostname) || false;
-      if (sameGd) {
-        const wOri = requestContext.getOriginWindowID();
-        const wOut = requestContext.getOuterWindowID();
-        if (wOri !== wOut) { // request from iframe
-          const wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-            .getService(Components.interfaces.nsIWindowMediator);
-          const frame = wm.getOuterWindowWithId(wOut).frameElement;
-
-          if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-            frame.style.display = 'none';  // hide this node
-            CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
-
-            return { cancel: true };
-          }
-        } else {
-          if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-            return { cancel: true };
-          }
-        }
-        return {};
-      } else if (adbEnabled()) {
-        if (CliqzADB.adBlocker.match(requestContext)) {
-          return { cancel: true };
-        }
+      if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
+        CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
+        return { cancel: true };
       }
 
       return {};
