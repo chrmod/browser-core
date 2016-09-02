@@ -776,12 +776,12 @@ var CliqzUtils = {
      CliqzUtils.getPref('share_location','ask')
     ].join('')
 
-    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG || lat && lng) {
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
       qs += [
         '&loc=',
-        lat || CliqzUtils.USER_LAT,
+        lat || CLIQZEnvironment.USER_LAT,
         ',',
-        lng || CliqzUtils.USER_LNG,
+        lng || CLIQZEnvironment.USER_LNG,
         (specifySource ? ',U' : '')
       ].join('');
     }
@@ -1074,10 +1074,25 @@ var CliqzUtils = {
   },
   addEventListenerToElements: CLIQZEnvironment.addEventListenerToElements,
   search: CLIQZEnvironment.search,
-  distance: CLIQZEnvironment.distance,
+  distance: function(lon1, lat1, lon2 = CLIQZEnvironment.USER_LNG, lat2 = CLIQZEnvironment.USER_LAT) {
+    /** Converts numeric degrees to radians */
+    function degreesToRad(degree){
+      return degree * Math.PI / 180;
+    }
+
+    var R = 6371; // Radius of the earth in km
+    if(!lon2 || !lon1 || !lat2 || !lat1) { return -1; }
+    var dLat = degreesToRad(lat2-lat1);  // Javascript functions in radians
+    var dLon = degreesToRad(lon2-lon1);
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(degreesToRad(lat1)) * Math.cos(degreesToRad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c; // Distance in km
+    return d;
+  },
   getDefaultSearchEngine: CLIQZEnvironment.getDefaultSearchEngine,
   copyResult: CLIQZEnvironment.copyResult,
-  openLink: CLIQZEnvironment.openLink,
   openPopup: CLIQZEnvironment.openPopup,
   isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
   getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,

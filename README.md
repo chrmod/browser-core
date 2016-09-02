@@ -85,10 +85,14 @@ You first need to clone firefox-autoconfigs in the top directory of the extensio
 git clone https://github.com/cliqz-oss/firefox-autoconfigs
 ```
 
-Then *build* (or *serve*) the extension with `jenkins` configuration:
+Then *build* an extension xpi with `jenkins` configuration, and put it in the repository root:
 
 ```sh
-./fern.js serve configs/jenkins.json
+./fern.js build configs/jenkins.json
+cd build
+fab package
+cp latest.xpi ../cliqz@cliqz.com.xpi
+cd ../
 ```
 
 You can then build docker with the following command:
@@ -102,7 +106,7 @@ Here `<version>` can be any firefox [release number](https://ftp.mozilla.org/pub
 Then run tests with:
 
 ```sh
-docker run -iP -p 15900:5900 -u 1000:1000 -v `pwd`:/ebs/jenkins/workspace/cliqz/navigation-extension/ -w /ebs/jenkins/workspace/cliqz/navigation-extension/
+docker run -iP -p 15900:5900 -u 1000:1000 -v `pwd`:/ebs/jenkins/workspace/cliqz/navigation-extension/ -w /ebs/jenkins/workspace/cliqz/navigation-extension/ --entrypoint "./run_tests.sh" {image_id}
 ```
 
 You can connect to docker with any VNC client on `localhost` port `15900`.

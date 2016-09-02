@@ -1589,13 +1589,18 @@ var CliqzAttrack = {
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};
-        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs', 'tokens_blocked', 'req_aborted'].forEach(function (k) {
+        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs'].forEach(function (k) {
           result.trackers[dom][k] = plain_data.tps[dom][k] || 0;
         });
+        // actual block count can be in several different signals, depending on configuration. Aggregate them into one.
+        result.trackers[dom].tokens_removed = ['empty', 'replace', 'placeholder', 'block'].reduce((cumsum, action) => {
+            return cumsum + (plain_data.tps[dom]['token_blocked_' + action] || 0);
+        }, 0);
+
         result.cookies.allowed += result.trackers[dom]['cookie_set'] - result.trackers[dom]['cookie_blocked'];
         result.cookies.blocked += result.trackers[dom]['cookie_blocked'];
-        result.requests.safe += result.trackers[dom]['c'] - result.trackers[dom]['bad_qs'];
-        result.requests.unsafe += result.trackers[dom]['bad_qs'];
+        result.requests.safe += result.trackers[dom]['c'] - result.trackers[dom].tokens_removed;
+        result.requests.unsafe += result.trackers[dom].tokens_removed;
 
         let tld = getGeneralDomain(dom),
           company = tld;

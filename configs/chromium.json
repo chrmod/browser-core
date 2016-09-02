@@ -9,5 +9,8 @@
     "static",
     "geolocation",
     "ui"
+  ],
+  "subprojects": [
+    "chrome-test-hw-hpn"
   ]
 }

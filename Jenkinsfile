@@ -1,7 +1,21 @@
-node('ubuntu && docker') {
+def getGitCommit() {
+  def gitCommit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+  def parents = sh(returnStdout: true, script: "git show --format='%P' $gitCommit | head -1").trim()
+  def parentCount = sh(returnStdout: true, script: "echo $parents | tr ' ' '\n' | wc -l").trim()
+
+  if (parentCount == "1") {
+    // one parent means there was a fast-forward merge
+    return gitCommit
+  } else {
+    // there was merge commit, check it parent
+    return sh(returnStdout: true, script: "echo $parents | tr ' ' '\n' | head -1").trim()
+  }
+}
+
+node('ubuntu && docker && !gpu') {
   stage 'checkout'
   checkout scm
-  def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+  def gitCommit = getGitCommit()
 
   stage 'docker build'
   def imgName = "cliqz/navigation-extension:latest"
@@ -34,7 +48,7 @@ node('ubuntu && docker') {
           stage 'fern build'
           sh 'rm -fr build/'
           sh './fern.js build'
-          
+
           stage 'fern test'
           try {
             sh 'rm -rf unittest-report.xml'
@@ -46,7 +60,7 @@ node('ubuntu && docker') {
             step([$class: 'JUnitResultArchiver', allowEmptyResults: false, testResults: 'unittest-report.xml'])
           }
         }
-        
+
         stage 'package'
         sh "cd build; fab package:beta=True,version=${gitCommit}"
       }
@@ -61,7 +75,7 @@ node('ubuntu && docker') {
   archive "build/Cliqz.${gitCommit}.xpi"
   archive "Dockerfile.firefox"
   archive "run_tests.sh"
-  
+
   stage 'tests'
   // Define version of firefox we want to test
   // Full list here: https://ftp.mozilla.org/pub/firefox/releases/
@@ -76,7 +90,7 @@ node('ubuntu && docker') {
   def stepsForParallel = [:]
   for (int i = 0; i < firefoxVersions.size(); i++) {
     def version = firefoxVersions.get(i)
-    stepsForParallel[version] = { build job: 'nav-ext-browser-matrix', 
+    stepsForParallel[version] = { build job: 'nav-ext-browser-matrix',
       parameters: [
         [$class: 'StringParameterValue', name: 'FIREFOX_VERSION', value: version],
         [$class: 'StringParameterValue', name: 'TRIGGERING_BUILD_NUMBER', value: env.BUILD_NUMBER],
@@ -84,7 +98,7 @@ node('ubuntu && docker') {
       ]
     }
   }
-  
+
   // Run tests in parallel
   parallel stepsForParallel
 }

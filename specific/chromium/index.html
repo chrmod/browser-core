@@ -16,6 +16,11 @@ about:Cliqz omnibox popup page
             margin: 0px;
         }
 
+        /* This scrollbar only adds flicker when we toggle settings section. */
+        body::-webkit-scrollbar {
+           display: none;
+        }
+
         *,
         *:before,
         *:after {
