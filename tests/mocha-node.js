@@ -22,10 +22,15 @@ const cliqzConfig = JSON.parse(fs.readFileSync(configFilePath));
 
 log(JSON.stringify(cliqzConfig));
 
-const mocha = new Mocha({
+const mochaOptions = {
   ui: 'bdd',
   reporter: 'tap',
-});
+};
+const grep = process.env["MOCHA_GREP"];
+if (grep) {
+  mochaOptions.grep = grep;
+}
+const mocha = new Mocha(mochaOptions);
 const baseDir = cliqzConfig.testsBasePath;
 
 log(`baseDir ${baseDir}`);
