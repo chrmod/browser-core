@@ -335,8 +335,8 @@ var CLIQZEnvironment = {
                             .getService(Ci.nsIWindowMediator);
         return wm.getMostRecentWindow("navigator:browser");
     },
-    getWindowID: function(){
-        var win = CLIQZEnvironment.getWindow();
+    getWindowID: function(win){
+        win = win || CLIQZEnvironment.getWindow();
         var util = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
         return util.outerWindowID;
     },
