@@ -74,6 +74,10 @@ $(document).ready(function(resolvedPromises) {
 
   draw({});
   resize();
+  sendMessageToWindow({
+    action: 'getData',
+    data: { }
+  });
 });
 
 // actions

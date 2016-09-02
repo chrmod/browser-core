@@ -115,7 +115,6 @@ export default class {
   attachMessageHandlers(iframe){
     this.iframe = iframe;
     this.iframe.contentWindow.addEventListener('message', this.decodeMessagesFromPopup.bind(this))
-    this.actions.getData();
   }
 
   decodeMessagesFromPopup(ev){
