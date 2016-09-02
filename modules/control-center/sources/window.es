@@ -35,7 +35,6 @@ export default class {
   }
 
   antitrackingActivator(data){
-    this.window.console.log('AAAA', data)
     events.pub("control-center:antitracking-activator", data)
   }
 

@@ -1235,11 +1235,20 @@
     "control-center-datapoints": {
       "message": "Private data points have been removed"
     },
-    "control-center-datapoints-inactive": {
-      "message": "Turned off for this website"
-    },
     "control-center-trackers": {
       "message": "Tracking companies on this page"
+    },
+    "control-center-info-trackers": {
+      "message": "It is common for websites to include tracking services that record all user activity. CLIQZ blocks data that could be used to identify you, before trackers can collect them. The figure tells you how many single data points have been removed. Click inside the Anti-Tracking box to see more details."
+    },
+    "control-center-info-phishing": {
+      "message": "Im Netz sind Phishing-Betrüger unterwegs, die mit gefälschten Nachrichten und Websites deine Passwort-, Konto-, Kreditkarten- oder sonstige kritische Daten abgreifen wollen. Wenn du eine Website besuchst, die CLIQZ als Fälschung identifiziert, zeigt dir unser Browser einen Warnhinweis."
+    },
+    "control-center-info-ads": {
+      "message": "Im Netz sind Phishing-Betrüger unterwegs, die mit gefälschten Nachrichten und Websites deine Passwort-, Konto-, Kreditkarten- oder sonstige kritische Daten abgreifen wollen. Wenn du eine Website besuchst, die CLIQZ als Fälschung identifiziert, zeigt dir unser Browser einen Warnhinweis."
+    },
+    "control-center-info-https": {
+      "message": "Er schaltet automatisch Tausende von Webseiten, die auf unsicheren \"http\" zu sichern \"https\". Es wird Ihnen gegen viele Formen der Überwachung und Kontodie-bstählen und einigen Formen der Zensur zu schützen."
     },
     "control-center-adblock-title": {
       "message": "Ad-block"

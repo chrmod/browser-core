@@ -152,7 +152,7 @@ function draw(data){
   if (data.module) {
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     if (data.module.adblocker) {
-      data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+      //data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
     }
   }
   console.log(data);
