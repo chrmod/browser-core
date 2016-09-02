@@ -1,4 +1,4 @@
-<header id="header" state="active">
+<header id="header" state="{{ generalState }}">
  {{> header }}
 </header>
 
@@ -10,7 +10,7 @@
   <div class="lock"></div>
 
   <div id="anti-tracking" data-section="antitrack" class="antitracker setting">
-    {{> anti-tracking }}
+    {{> anti-tracking module.antitracking}}
   </div>
 
   <div id="ad-blocking" class="adblock setting">
@@ -18,11 +18,11 @@
   </div>
 
   <div id="anti-phising" data-section="antiphish" class="antiphishing setting">
-    {{> anti-phising }}
+    {{> anti-phising}}
   </div>
 
   <div id="https" class="setting" data-section="https">
-    {{> https }}
+    {{> https module.https-everywhere}}
   </div>
 </div>
 

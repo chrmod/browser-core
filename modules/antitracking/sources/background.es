@@ -219,7 +219,27 @@ export default background({
 
   events: {
     "core.tab_location_change": CliqzAttrack.onTabLocationChange,
-    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener)
+    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener),
+    "control-center:antitracking-strict": function () {
+      utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
+    },
+    "control-center:antitracking-activator": function (data) {
+      if(data.status == 'active'){
+        utils.setPref('antiTrackTest', true);
+        if(CliqzAttrack.isSourceWhitelisted(data.hostname)){
+          CliqzAttrack.removeSourceDomainFromWhitelist(data.hostname);
+          this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
+        }
+      } else if(data.status == 'inactive'){
+        this.popupActions.toggleWhiteList({ hostname: data.hostname});
+      } else if(data.status == 'critical'){
+        utils.setPref('antiTrackTest', false);
+        if(CliqzAttrack.isSourceWhitelisted(data.hostname)){
+          CliqzAttrack.removeSourceDomainFromWhitelist(data.hostname);
+          this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
+        }
+      }
+    }
   },
 
 });

@@ -23,6 +23,3 @@ function messageHandler(message){
     }
   }
 }
-
-// debug data
-setInterval(sendMessageToWindow, 5000, { action: "getData", data: {} })

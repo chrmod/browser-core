@@ -1,3 +1,5 @@
+Cu.import("resource://gre/modules/AddonManager.jsm");
+
 import utils from "core/utils";
 
 export default class {

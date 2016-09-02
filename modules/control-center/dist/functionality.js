@@ -79,11 +79,24 @@ Promise.all([
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
+});
+
+$('#control-center').on('click', '[data-function]', function(ev){
+  sendMessageToWindow({ action: ev.currentTarget.dataset.function } );
+});
+
+$('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
+  sendMessageToWindow({
+    action: 'antitracking-activator',
+    data: {
+      status: $(this).closest('.frame-container').attr("state"),
+      hostname: $(this).closest('.frame-container').attr("hostname")
+    }
+  });
 })
 
 // select box change
 $('#control-center').on('change', 'select[updatePref]', function(ev){
-  console.log(ev, arguments)
   sendMessageToWindow({
     action: 'updatePref',
     data: {
@@ -139,7 +152,7 @@ function draw(data){
   if (data.module) {
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     if (data.module.adblocker) {
-      data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
+      //data.module.adblocker.advertisersList.companiesArray = compile(data.module.adblocker.advertisersList)
     }
   }
   console.log(data);
@@ -199,13 +212,14 @@ function draw(data){
     var $main = $(this).closest("#control-center"),
         $othersettings = $main.find("#othersettings"),
         $section = $(this).closest('.setting').attr('data-section');
+
     if (isHttpsSection($section)) {
       return;
     } else if ($(e.target).hasClass("cqz-switch-box")) {
       return;
     } else if ($(e.target).hasClass("dropdown-scope")) {
       return;
-    } else if (e.target.hasAtribute && e.target.hasAtribute("stop-navigation")) {
+    } else if (e.target.hasAttribute && e.target.hasAttribute("stop-navigation")) {
       return;
     } else if ($(e.target).hasClass("box")) {
       return;
@@ -235,6 +249,16 @@ function draw(data){
     target.attr("state", function(idx, attr){
         return attr !== "active" ? "active": target.attr('inactiveState');
     });
+
+    if(this.hasAttribute('updatePref')){
+      sendMessageToWindow({
+        action: 'updatePref',
+        data: {
+          pref: this.getAttribute('updatePref'),
+          value: target.attr('state') == 'active' ? true : false
+        }
+      });
+    }
 
     updateGeneralState();
   });

@@ -1,6 +1,6 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { simpleBtn } from 'q-button/buttons';
-import { utils } from 'core/cliqz';
+import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 
 function toPx(pixels) {
@@ -18,7 +18,11 @@ export default class {
       getData: this.getData.bind(this),
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
-      resize: this.resizePopup.bind(this)
+      resize: this.resizePopup.bind(this),
+      "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
+      "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
+      "antitracking-activator": this.antitrackingActivator.bind(this),
+      "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
     }
   }
 
@@ -28,6 +32,10 @@ export default class {
 
   unload() {
 
+  }
+
+  antitrackingActivator(data){
+    events.pub("control-center:antitracking-activator", data)
   }
 
   setBadge(info){
@@ -72,6 +80,21 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
+      var generalState = 'active';
+      if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
+        generalState = 'inactive';
+      }
+
+      if(moduleData.antitracking && !moduleData.antitracking.enabled){
+        if(moduleData.antitracking.isWhitelisted){
+          // only this website is whitelisted
+          generalState = 'inactive';
+        }
+        else {
+          // completely disabled
+          generalState = 'critical';
+        }
+      }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
       if(utils.hasPref('browser.privatebrowsing.apt', '')){
@@ -82,7 +105,8 @@ export default class {
         action: 'pushData',
         data: {
           activeURL: this.window.gBrowser.currentURI.spec,
-          module: moduleData
+          module: moduleData,
+          generalState: generalState
         }
       })
     });
@@ -104,7 +128,6 @@ export default class {
 
   handleMessagesFromPopup(message){
     this.window.console.log('IN BACKGROUND', message);
-
     this.actions[message.action](message.data);
   }
 
@@ -205,8 +228,8 @@ export default class {
         overflow: hidden !important;
       }
 
-      .panel-mainview:not([panelid="PanelUI-popup"]) {
-        max-width: 32em !important;
+      panel[viewId="${BTN_ID}"] .panel-mainview {
+        max-width: 50em !important;
       }
     `;
 
