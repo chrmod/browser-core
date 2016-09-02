@@ -5,25 +5,24 @@
     <title>Control Center</title>
     <link rel="stylesheet" href="styles/styles.css">
     <script src="../webextensions-shim.js"></script>
-    <script src="data.js"></script>
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
     <script src="../bower_components/system.js/dist/system.js"></script>
     <script src="../bower_components/handlebars/handlebars.js"></script>
     <script src="./templates.js"></script>
     <script>
       System.config({
-        defaultJSExtensions: true
-      })
+        defaultJSExtensions: true,
+        map: {
+          jquery: '../bower_components/jquery/dist/jquery.min.js',
+        }
+      });
+      System.set('handlebars', System.newModule({default: Handlebars}));
+      System.baseURL = System._loader.baseURL = "chrome://cliqz/content/";
+      System.import("control-center/content/app");
     </script>
-    <script src="./content/helpers.js"></script>
-
   </head>
   <body>
     <!--======= Container =======-->
     <div id="control-center" class="first">
     </div>
-
-    <script src="functionality.js"></script>
-
   </body>
 </html>
