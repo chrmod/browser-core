@@ -223,8 +223,23 @@ export default background({
     "control-center:antitracking-strict": function () {
       utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
     },
-    "control-center:antitracking-activator": function () {
-      utils.setPref('antiTrackTest', !utils.getPref('antiTrackTest', false));
+    "control-center:antitracking-activator": function (data) {
+      debugger;
+      if(data.status == 'active'){
+        utils.setPref('antiTrackTest', true);
+        if(CliqzAttrack.isSourceWhitelisted(hostname)){
+          CliqzAttrack.removeSourceDomainFromWhitelist(hostname);
+          this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
+        }
+      } else if(data.status == 'inactive'){
+        this.popupActions.toggleWhiteList({ hostname: data.hostname});
+      } else if(data.status == 'critical'){
+        utils.setPref('antiTrackTest', false);
+        if(CliqzAttrack.isSourceWhitelisted(hostname)){
+          CliqzAttrack.removeSourceDomainFromWhitelist(hostname);
+          this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
+        }
+      }
     }
   },
 

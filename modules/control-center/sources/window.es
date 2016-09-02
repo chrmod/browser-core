@@ -21,7 +21,7 @@ export default class {
       resize: this.resizePopup.bind(this),
       "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
       "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
-      "antitracking-activator": events.pub.bind(events, "control-center:antitracking-activator"),
+      "antitracking-activator": this.antitrackingActivator.bind(this),
       "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
     }
   }
@@ -32,6 +32,11 @@ export default class {
 
   unload() {
 
+  }
+
+  antitrackingActivator(data){
+    this.window.console.log('AAAA', data)
+    events.pub("control-center:antitracking-activator", data)
   }
 
   setBadge(info){
@@ -78,13 +83,20 @@ export default class {
     ).then((moduleData) => {
       var generalState = 'active';
 
-
-      if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].enabled){
+      debugger;
+      if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
         generalState = 'inactive';
       }
 
       if(moduleData.antitracking && !moduleData.antitracking.enabled){
-        generalState = 'critical';
+        if(moduleData.antitracking.isWhitelisted){
+          // only this website is whitelisted
+          generalState = 'inactive';
+        }
+        else {
+          // completely disabled
+          generalState = 'critical';
+        }
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };

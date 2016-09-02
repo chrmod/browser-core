@@ -170,11 +170,11 @@ export default class {
       return {
         visible: true,
         strict: utils.getPref('attrackForceBlock', false),
-        url: info.hostname,
+        hostname: info.hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         totalCount: info.cookies.blocked + info.requests.unsafe,
-        enabled: utils.getPref('antiTrackTest'),
+        enabled: utils.getPref('antiTrackTest') && !CliqzAttrack.isSourceWhitelisted(info.hostname),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
         trackersList: info,

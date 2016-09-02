@@ -79,10 +79,20 @@ Promise.all([
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
-})
+});
 
 $('#control-center').on('click', '[data-function]', function(ev){
   sendMessageToWindow({ action: ev.currentTarget.dataset.function } );
+});
+
+$('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
+  sendMessageToWindow({
+    action: 'antitracking-activator',
+    data: {
+      status: $(this).closest('.frame-container').attr("state"),
+      hostname: $(this).closest('.frame-container').attr("hostname")
+    }
+  });
 })
 
 // select box change

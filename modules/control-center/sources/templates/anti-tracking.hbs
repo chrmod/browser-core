@@ -1,5 +1,5 @@
 {{#if true }} <!-- module.antitracking.visible}} -->
-<div class="antitracking frame-container" state="{{#if module.antitracking.enabled}}active{{ else }}inactive{{/if}}" inactiveState="inactive">
+<div class="antitracking frame-container" state="{{#if module.antitracking.enabled}}active{{ else }}inactive{{/if}}" inactiveState="inactive" hostname="{{module.antitracking.hostname}}">
 
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -33,15 +33,15 @@
   <div class="switches">
     <!--======= Switch ======-->
     <span>
-      <span class="cqz-switch" data-function="antitracking-activator">
+      <span class="cqz-switch" antiTrackingStatusChanger>
         <span class="cqz-switch-box"></span>
       </span>
       <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
       <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
     </span>
     <select stop-navigation class="dropdown-scope" visible-on-state="inactive">
-      <option stop-navigation selected data-i18n="control-center-this-site" value="this"></option>
-      <option stop-navigation data-i18n="control-center-all-sites" value="all"></option>
+      <option stop-navigation selected data-i18n="control-center-this-site" value="this" antiTrackingStatusChanger></option>
+      <option stop-navigation data-i18n="control-center-all-sites" value="all" antiTrackingStatusChanger></option>
     </select>
     <span class="strict" visible-on-state="active">
       <!-- .squaredFour -->
