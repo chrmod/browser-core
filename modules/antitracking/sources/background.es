@@ -219,7 +219,14 @@ export default background({
 
   events: {
     "core.tab_location_change": CliqzAttrack.onTabLocationChange,
-    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener)
+    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener),
+    "control-center:antitracking-strict": function () {
+      utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
+    },
+    "control-center:antitracking-activator": function () {
+      debugger;
+      utils.setPref('antiTrackTest', !utils.getPref('antiTrackTest', false));
+    }
   },
 
 });

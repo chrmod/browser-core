@@ -21,6 +21,8 @@ export default class {
       resize: this.resizePopup.bind(this),
       "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
       "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
+      "antitracking-activator": events.pub.bind(events, "control-center:antitracking-activator"),
+      "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
     }
   }
 
@@ -106,7 +108,7 @@ export default class {
 
   handleMessagesFromPopup(message){
     this.window.console.log('IN BACKGROUND', message);
-
+    debugger;
     this.actions[message.action](message.data);
   }
 
