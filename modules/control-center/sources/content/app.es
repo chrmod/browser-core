@@ -1,3 +1,8 @@
+import helpers from "control-center/content/helpers";
+import { messageHandler, sendMessageToWindow } from "control-center/content/data";
+import $ from "jquery";
+import Handlebars from "handlebars";
+
 var slideUp = $.fn.slideUp;
 var slideDown = $.fn.slideDown;
 function resize() {
@@ -62,16 +67,13 @@ function isHttpsSection(section) {
 }
 
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
-Promise.all([
-  System.import("control-center/content/helpers"),
-  $(document).ready().promise(),
-]).then(function(resolvedPromises) {
-  var helpers = resolvedPromises[0].default;
+$(document).ready(function(resolvedPromises) {
   Object.keys(helpers).forEach(function (helperName) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
 
   draw({});
+  resize();
 });
 
 // actions
@@ -342,3 +344,5 @@ function draw(data){
 
   localizeDocument();
 }
+
+window.draw = draw;
