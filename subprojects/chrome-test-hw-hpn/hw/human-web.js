@@ -47,10 +47,10 @@ var __CliqzHumanWeb = function() { // (_export) {
             falsePositive = 0.01;
             bloomFilterNHashes = 7;
             CliqzHumanWeb = {
-                VERSION: '3.0', // should change the version number for chrome.
+                VERSION: '3.0',
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
-                debug: true,
+                debug: false,
                 httpCache: {},
                 httpCache401: {},
                 queryCache: {},
@@ -79,7 +79,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 messageTemplate: {},
                 idMappings: {},
                 patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
-                configURL: 'https://safe-browsing.cliqz.com/config',
+                configURL: 'https://safe-browsing-proxy-network.cliqz.com/config',
                 searchCache: {},
                 ts: "",
                 mRefresh: {},
@@ -581,11 +581,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 var doc =  parser.parseFromString(body, "text/html");
                                 //console.log('>>>>>', body);
                                 //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
-                                console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
-
-
                             }).catch(function(err) {
-                                console.log('>>>>', 'Error reading body? ', err);
+                                _log('Error reading body? ', err);
 
                             });
 
