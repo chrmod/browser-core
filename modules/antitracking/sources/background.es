@@ -224,7 +224,6 @@ export default background({
       utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
     },
     "control-center:antitracking-activator": function () {
-      debugger;
       utils.setPref('antiTrackTest', !utils.getPref('antiTrackTest', false));
     }
   },

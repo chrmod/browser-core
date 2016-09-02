@@ -76,6 +76,16 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
+      var generalState = 'active';
+
+
+      if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].enabled){
+        generalState = 'inactive';
+      }
+
+      if(moduleData.antitracking && !moduleData.antitracking.enabled){
+        generalState = 'critical';
+      }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
       if(utils.hasPref('browser.privatebrowsing.apt', '')){
@@ -86,7 +96,8 @@ export default class {
         action: 'pushData',
         data: {
           activeURL: this.window.gBrowser.currentURI.spec,
-          module: moduleData
+          module: moduleData,
+          generalState: generalState
         }
       })
     });
@@ -108,7 +119,6 @@ export default class {
 
   handleMessagesFromPopup(message){
     this.window.console.log('IN BACKGROUND', message);
-    debugger;
     this.actions[message.action](message.data);
   }
 
