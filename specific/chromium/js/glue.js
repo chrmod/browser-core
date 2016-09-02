@@ -31,10 +31,10 @@ window.XULBrowserWindow = {
 
 window.CLIQZ = {};
 
-var currWinId = undefined;
+let currWinId = undefined;
 chrome.windows.getCurrent(null, (win) => { currWinId = win.id; });
 
-var urlbar = document.getElementById('urlbar');
+const urlbar = document.getElementById('urlbar');
 
 CLIQZ.Core = {
   urlbar: urlbar,
@@ -46,7 +46,7 @@ System.baseURL = "modules/";
 
 console.log('LOADING ...')
 
-var acResults;
+let acResults;
 
 Promise.all([
   System.import("core/utils"),
@@ -88,12 +88,14 @@ Promise.all([
   }).then(function () {
     // Loading UI still breaks but we need to wait for it to break/load before
     // continuing.
-    var brokenUIpromise = new Promise(function(resolve, reject){
+    let brokenUIpromise = new Promise(function(resolve, reject){
       System.import("ui/UI").then(resolve).catch(resolve);
     });
 
     return Promise.all([brokenUIpromise, CliqzUtils.init({
-      lang: window.navigator.language || window.navigator.userLanguage
+      lang: chrome.i18n.getUILanguage() ||
+            window.navigator.language ||
+            window.navigator.userLanguage
     })]);
   }).then(function () {
     CLIQZ.UI.preinit(CliqzAutocomplete, CliqzHandlebars, CliqzEvents);
@@ -108,6 +110,10 @@ Promise.all([
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
     acResults = new CliqzAutocomplete.CliqzResults();
+
+    createSettingsMenu();
+    whoAmI(true);
+
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
         (winId, query) => {
           if (winId === currWinId)
@@ -124,11 +130,40 @@ Promise.all([
           if (winId === currWinId)
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
+    chrome.cliqzSearchPrivate.onOmniboxFocusChanged.addListener(
+        (winId, focused) => {
+          if (winId === currWinId && !focused) {
+            CLIQZ.UI.sessionEnd();
+            // Close settings section.
+            document.getElementById("settings").classList.add("hidden");
+          }
+        });
 
-    createSettingsMenu();
-    whoAmI(true);
+    chrome.cliqzSearchPrivate.getSearchEngines((engines, defIdx) => {
+      function renameProps(obj, mapping) {
+        for (let p of Object.keys(mapping)) {
+          obj[mapping[p]] = obj[p];
+          delete obj[p];
+        }
+      }
 
-    console.log('magic');
+      const enginePropMapping = {
+        "keyword"         : "alias",
+        "faviconUrl"      : "icon",
+        "id"              : "code",
+        "searchUrl"       : "searchForm",
+        "suggestionsUrl"  : "suggestionUrl"
+      };
+
+      for (let engine of engines) {
+        renameProps(engine, enginePropMapping);
+      }
+      engines[defIdx].default = true;
+
+      CLIQZEnvironment._ENGINES = engines;
+    });
+
+    console.log('Glue init complete!');
   });
 
 function startAutocomplete(query) {
@@ -163,10 +198,10 @@ function declareStubs(props, context) {
     }
   }
 
-  for (var propName in props) {
-    var prop = props[propName];
+  for (let propName in props) {
+    let prop = props[propName];
     if (typeof prop === "object") {
-      var stub = {}
+      let stub = {}
       declareStubs(prop, context[propName] || stub);
       if (!(propName in context))
         context[propName] = stub;
@@ -177,7 +212,7 @@ function declareStubs(props, context) {
   }
 }
 
-var stubs = {
+const stubs = {
   chrome: {
     windows: {
       getCurrent: 0
@@ -200,7 +235,7 @@ var stubs = {
 declareStubs(stubs, this);
 
 function whoAmI(startup){
-  var onInstall = checkSession();
+  let onInstall = checkSession();
 
   // schedule another signal
   setTimeout(CLIQZ.Core.whoAmI, 60 * 60 * 1e3 /* one hour */, false);
@@ -212,12 +247,12 @@ function whoAmI(startup){
 }
 
 function sendEnvironmentalSignal(startup, defaultSearchEngine){
-  var hostVersion = '';
+  let hostVersion = '';
   try {
     hostVersion = /Chrome\/([0-9.]+)/.exec(navigator.userAgent)[1];
   } catch(e){}
 
-  var info = {
+  const info = {
       type: 'environment',
       agent: navigator.userAgent,
       language: navigator.language,
@@ -234,7 +269,7 @@ function sendEnvironmentalSignal(startup, defaultSearchEngine){
 
 function checkSession() {
   if (!CliqzUtils.hasPref('session')) {
-    var source = CLIQZ.config.settings.channel;
+    const source = CLIQZ.config.settings.channel;
     CliqzUtils.setPref('session', generateSession(source));
     return false;
   }
@@ -253,8 +288,8 @@ function generateSession(source){
 // Settings
 
 function createOptionEntries(el, options, prefKey, action){
-  for(var id in options){
-    var option = document.createElement('option');
+  for(let id in options){
+    let option = document.createElement('option');
     option.value = id;
     option.textContent = options[id].name;
     option.selected = options[id].selected;
@@ -268,18 +303,14 @@ function createOptionEntries(el, options, prefKey, action){
 }
 
 function createSettingsMenu(){
-  var btn = document.getElementById("settingsButton"),
-      box = document.getElementById("settings"),
-      adult = document.getElementById('adult'),
-      loc = document.getElementById('location');
-
-  createOptionEntries(adult,
+  createOptionEntries(
+    document.getElementById('adult'),
     CliqzUtils.getAdultFilterState(),
     "adultContentFilter"
   );
 
   createOptionEntries(
-    loc,
+    document.getElementById('location'),
     CliqzUtils.getLocationPermState(),
     "share_location",
     function (val) {
@@ -291,7 +322,10 @@ function createSettingsMenu(){
     }
   );
 
+  let btn = document.getElementById("settingsButton"),
+      box = document.getElementById("settings");
   btn.addEventListener('click', function(){
-    box.classList.toggle('hidden')
+    this.classList.toggle('active');
+    box.classList.toggle('hidden');
   })
 }

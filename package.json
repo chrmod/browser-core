@@ -14,7 +14,7 @@
   },
   "author": "Cliqz GmbH",
   "dependencies": {
-    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-2",
+    "es6-micro-loader": "cliqz-oss/es6-micro-loader#firefox-3",
     "yuidoc-bootstrap-theme": "^1.0.6"
   },
   "devDependencies": {

@@ -170,11 +170,11 @@ describe('Search View', function() {
     });
 
     it("has one local result", function () {
-      expect($('.local')).to.have.length(1);
+      expect($('.cqz-local-result')).to.have.length(1);
     });
 
     it("renders local template with address and map", function () {
-      var address = $('.cqz-local-address')[0];
+      var address = $('.address__text')[0];
       expect(address).to.be.ok;
 
       var addressText = address.lastChild.wholeText;
@@ -183,7 +183,7 @@ describe('Search View', function() {
     });
 
     it("shows local data image", function () {
-      var img = $('.local-data-img')[0];
+      var img = $('.map__img')[0];
       expect(img).to.be.ok
       expect(img).to.have.property('style');
       expect(img.style).to.have.property('display').that.not.equal('none');

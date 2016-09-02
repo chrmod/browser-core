@@ -1,7 +1,8 @@
-/* global CustomEvent, window, document, CliqzLanguage, CliqzUtils, CliqzHandlebars, osAPI */
+/* global CustomEvent, window, document, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
-import CliqzHandlebars from "core/templates";
+import CliqzHandlebars from 'core/templates';
+import CliqzUtils from 'core/utils';
 
 var DEPENDENCY_STATUS = {
   NOT_LOADED: 'NOT_LOADED',
@@ -11,7 +12,7 @@ var DEPENDENCY_STATUS = {
   retryCount: {}
 };
 
-var topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesCount, TOPSITES_LIMIT = 4;
+var topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesCount, TOPSITES_LIMIT = 5;
 
 function displayTopSites (list, isEditMode = false) {
 
@@ -44,12 +45,13 @@ function displayTopSites (list, isEditMode = false) {
 
   const isEmpty = list.length ? false : true;
 
-  list = list.concat('', '', '', ''); // 4 empty topsites to fill
+  list = list.concat(Array(TOPSITES_LIMIT).fill(''));
   list = list.splice(0, TOPSITES_LIMIT);
 
   const topSites = CliqzHandlebars.tplCache.topsites;
   const div = document.getElementById('topSites');
-  div.innerHTML = topSites({isEmpty, isEditMode, list});
+  const theme = (CliqzUtils.getPref('incognito', false) === 'true' ? 'incognito' : 'standard');
+  div.innerHTML = topSites({isEmpty, isEditMode, list, theme});
 
 
   CliqzUtils.addEventListenerToElements('#doneEditTopsites', 'click', _ => {

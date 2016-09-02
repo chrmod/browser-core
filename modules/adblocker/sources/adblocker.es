@@ -2,7 +2,7 @@ import { utils, events } from 'core/cliqz';
 import WebRequest from 'core/webrequest';
 
 import { URLInfo } from 'antitracking/url';
-import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
+import { getGeneralDomain } from 'antitracking/domain';
 import * as browser from 'platform/browser';
 
 import { LazyPersistentObject } from 'antitracking/persistent-state';
@@ -332,48 +332,19 @@ const CliqzADB = {
         return {};
       }
 
-      const urlParts = URLInfo.get(url);
-
       if (requestContext.isFullPage()) {
         CliqzADB.adbStats.pages[url] = 0;
       }
 
       const sourceUrl = requestContext.getLoadingDocument();
-      let sourceUrlParts = null;
-      const sourceTab = requestContext.getOriginWindowID();
 
       if (!sourceUrl || sourceUrl.startsWith('about:')) {
         return {};
       }
 
-      sourceUrlParts = URLInfo.get(sourceUrl);
-
-      // same general domain
-      const sameGd = sameGeneralDomain(urlParts.hostname, sourceUrlParts.hostname) || false;
-      if (sameGd) {
-        const wOri = requestContext.getOriginWindowID();
-        const wOut = requestContext.getOuterWindowID();
-        if (wOri !== wOut) { // request from iframe
-          const wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-            .getService(Components.interfaces.nsIWindowMediator);
-          const frame = wm.getOuterWindowWithId(wOut).frameElement;
-
-          if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-            frame.style.display = 'none';  // hide this node
-            CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
-
-            return { cancel: true };
-          }
-        } else {
-          if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-            return { cancel: true };
-          }
-        }
-        return {};
-      } else if (adbEnabled()) {
-        if (CliqzADB.adBlocker.match(requestContext)) {
-          return { cancel: true };
-        }
+      if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
+        CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
+        return { cancel: true };
       }
 
       return {};

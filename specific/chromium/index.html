@@ -5,56 +5,108 @@ about:Cliqz omnibox popup page
 -->
 
 <html id='t' i18n-values='dir:textdirection;lang:language'>
- <head>
-   <meta charset='utf-8'>
-   <title i18n-content='title'></title>
-   <script src='js/libs/system-polyfill.js'></script>
-   <script src='bower_components/mathjs/dist/math.min.js'></script>
-   <script src='bower_components/handlebars/handlebars.js'></script>
-   <style type='text/css'>
-    body {
-      margin: 0px;
-    }
-    #settingsButton {
-      background-color: gray;
-      color: white;
-      height: 40px;
-      line-height: 40px;
-      width: 80px;
-      text-align: center;
-      position: relative;
-      top: -40px;
-      float: right;
-     }
+<head>
+    <meta charset='utf-8'>
+    <title i18n-content='title'></title>
+    <script src='js/libs/system-polyfill.js'></script>
+    <script src='bower_components/mathjs/dist/math.min.js'></script>
+    <script src='bower_components/handlebars/handlebars.js'></script>
+    <style type='text/css'>
+        body {
+            margin: 0px;
+        }
 
-     #settings {
-      height: 60px;
-      background-color: #ccc;
-      padding: 0 60px;
-      line-height: 60px;
-     }
+        /* This scrollbar only adds flicker when we toggle settings section. */
+        body::-webkit-scrollbar {
+           display: none;
+        }
 
-     .hidden {
-      display: none
-     }
-   </style>
-   <link href='modules/static/styles/styles.css' rel='stylesheet' type='text/css'>
- </head>
- <body>
-  <input id='urlbar' style='display:none;'/>
-  <div id='results' style='padding: 0 60px;'></div>
-  <div>
+        *,
+        *:before,
+        *:after {
+            box-sizing: border-box;
+            -mox-box-sizing: border-box;
+        }
+
+        #settingsButton {
+            position: relative;
+            width: 80px;
+            height: 40px;
+            padding-right: 20px;
+            line-height: 40px;
+            top: -40px;
+            float: right;
+            color: #fff;
+            text-align: center;
+            background-color: #999;
+        }
+
+        #settingsButton:after {
+            position: absolute;
+            right: 10px;
+            top: 46%;
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #fff;
+        }
+
+        #settingsButton.active:after {
+            border-top: none;
+            border-bottom: 5px solid #fff;
+        }
+
+        #settings {
+            height: 60px;
+            padding: 0 60px;
+            line-height: 60px;
+            background-color: #dedede;
+        }
+
+        #settings label {
+            color: #222;
+            margin-right: 20px;
+        }
+
+        #settings label span {
+            margin-right: 7px;
+        }
+
+        #settings label select {
+            border-radius: 3px;
+            border-color: #d2d2d2;
+            background: #fefefe;
+            padding-right: 5px;
+        }
+
+        .hidden {
+            display: none
+        }
+    </style>
+    <link href='modules/static/styles/styles.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<input id='urlbar' style='display:none;' />
+<div id='results' style='padding: 0 60px;'></div>
+<div>
     <div id='settingsButton'>
-      Settings
+        Settings
     </div>
     <div id='settings' class='hidden'>
-      <span>Explizite Inhalt blockieren</span>
-      <select id='adult'></select>
+        <label>
+            <span>Explizite Inhalt blockieren</span>
+            <select id='adult'></select>
+        </label>
 
-      <span>Standort teilen</span>
-      <select id='location'></select>
+        <label>
+            <span>Standort teilen</span>
+            <select id='location'></select>
+        </label>
     </div>
-  </div>
- </body>
- <script src='js/glue.js'></script>
+</div>
+</body>
+<script src='js/glue.js'></script>
 </html>
