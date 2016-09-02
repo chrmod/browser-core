@@ -1104,7 +1104,7 @@
       "message": "Here you will find your history.<br />You still haven't searched or navigated to websites."
     },
     "mobile_no_favorites": {
-      "message": "Here you will find your favorites.<br />Long tap on history items to create favorites."
+      "message": "Here you will find your favorites."
     },
     "mobile_history_title": {
       "message": "History"

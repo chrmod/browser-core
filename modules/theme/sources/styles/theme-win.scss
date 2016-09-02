@@ -511,6 +511,10 @@ notification[type="warning"] .notification-inner {
     #identity-box:hover:active, #identity-box[open="true"] {
         background-color: rgba(255, 255, 255, 0);
     }
+
+    #urlbar {
+        background-color: #bec9d7 !important;
+    }
 }
 
 window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box {

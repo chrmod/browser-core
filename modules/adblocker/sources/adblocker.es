@@ -2,7 +2,7 @@ import { utils, events } from 'core/cliqz';
 import WebRequest from 'core/webrequest';
 
 import { URLInfo } from 'antitracking/url';
-import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
+import { getGeneralDomain } from 'antitracking/domain';
 import * as browser from 'platform/browser';
 
 import { LazyPersistentObject } from 'antitracking/persistent-state';
@@ -328,22 +328,18 @@ const CliqzADB = {
         return {};
       }
 
-      const urlParts = URLInfo.get(url);
-
       if (requestContext.isFullPage()) {
         CliqzADB.adbStats.addNewPage(url);
       }
 
       const sourceUrl = requestContext.getLoadingDocument();
-      let sourceUrlParts = null;
-      const sourceTab = requestContext.getOriginWindowID();
 
       if (!sourceUrl || sourceUrl.startsWith('about:')) {
         return {};
       }
 
       if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-        CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
+        CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
         return { cancel: true };
       }
 

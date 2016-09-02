@@ -73,7 +73,7 @@ function getContextHTML(ev) {
 }
 
 function onDOMWindowCreated(ev) {
-  var window = ev.originalTarget.defaultView;
+  var window = ev.target.defaultView;
   var currentURL = function(){return window.location.href};
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
@@ -278,7 +278,7 @@ function onDOMWindowCreated(ev) {
     var lang = window.document.getElementsByTagName('html')
       .item(0).getAttribute('lang');
     // don't analyse language for (i)frames
-    var isTopWindow = !event.originalTarget.defaultView.frameElement;
+    var isTopWindow = !event.target.defaultView.frameElement;
 
     if (isTopWindow && lang) {
       send({
@@ -301,23 +301,25 @@ function onDOMWindowCreated(ev) {
         ogDescription = window.document.querySelector("meta[property='og:description']"),
         ogImage = window.document.querySelector("meta[property='og:image']");
 
-    send({
-      windowId: windowId,
-      payload: {
-        module: "core",
-        action: "recordMeta",
-        args: [
-          currentURL(),
-          {
-            title: title && title.innerHTML,
-            description: description && description.content,
-            ogTitle: ogTitle && ogTitle.content,
-            ogDescription: ogDescription && ogDescription.content,
-            ogImage: ogImage && ogImage.content
-          }
-        ]
-      }
-    });
+    if (isTopWindow) {
+      send({
+        windowId: windowId,
+        payload: {
+          module: "core",
+          action: "recordMeta",
+          args: [
+            currentURL(),
+            {
+              title: title && title.innerHTML,
+              description: description && description.content,
+              ogTitle: ogTitle && ogTitle.content,
+              ogDescription: ogDescription && ogDescription.content,
+              ogImage: ogImage && ogImage.content
+            }
+          ]
+        }
+      });
+    }
   };
 
 
@@ -394,7 +396,7 @@ var DocumentManager = {
     }
 
     onDOMWindowCreated({
-      originalTarget: {
+      target: {
         defaultView: window
       }
     }, true)

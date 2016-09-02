@@ -1,12 +1,9 @@
 export default describeModule('mobile-history/history',
   function () {
     return {
-      'mobile-touch/longpress': {
-        default: { onTap() { }, onLongPress() { } }
-      },
       'core/utils': { default: { } },
       'core/templates': { default: { tplCache: { } } },
-      'core/mobile-webview': { 
+      'mobile-history/webview': { 
         document: { 
           body: { }, 
           documentElement: { }, 

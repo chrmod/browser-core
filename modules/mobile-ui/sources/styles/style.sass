@@ -481,8 +481,7 @@ div#progress
     clear: both
 
 body, html
-  font-family: system, -apple-system, "Helvetica Neue", "Lucida Grande", "Arial", "Tahoma"
-  /* font-family: lato
+  font-family: -apple-system, "Roboto"
   font-size: 16px
   padding: 0
   margin: 0
@@ -518,7 +517,6 @@ body, html
   top: 0
   left: 0
   bottom: 0
-  width: 100%
   padding-bottom: 1.5rem
   overflow-x: hidden
   /* box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2)
@@ -547,7 +545,7 @@ body, html
 .cqz-result-box, .rr
   padding: 16px 16px 16px
   margin: 32px 0px 32px 16px
-  background-color: #E6F0FA 
+  background-color: #FFF
   overflow: auto
   border-radius: 4px
 
@@ -649,7 +647,6 @@ a
 
 .main
   position: relative
-  padding-top: 1rem
   .movie_desc
     padding: 24px 0 0
     font-size: 12px
@@ -710,7 +707,6 @@ a
   line-height: 24px
   padding: 0 0
   box-sizing: border-box
-  margin: 16px 0 8px
   color: #333
   font-weight: 400
   overflow: hidden
@@ -729,6 +725,7 @@ a
   font-weight: 400
 
 .main.mulitple
+  padding: 0 1rem
   display: -webkit-box
   display: -moz-box
   display: box
@@ -1003,7 +1000,6 @@ a
   bottom: 0
   left: 0
   right: 0
-  background-color: white
   h2
     padding: 24px 0 12px
     text-align: center
@@ -1030,54 +1026,78 @@ a
     width: 32px
     height: 32px
     line-height: 32px
-    border-radius: 50%
-    background-color: #000
-    margin-right: 8px
     color: #fff
     text-align: center
     overflow: hidden
-    border: 2px #fff solid
-    margin: 0 12px 4px 0
-    float: left
+    margin: 0 12px 4px 10px
     background-size: 62%
     background-position: center
     background-repeat: no-repeat
-    position: absolute
-    top: 0
-    left: 0
     &.image
       text-indent: -9999px
       background-image: url("logos/twitter.svg")
       background-size: 62%
       background-position: center
       background-repeat: no-repeat
-  .item
-    padding: 0 0 12px
-    position: relative
-    h1
-      font-size: 14px
-      line-height: 16px
-      padding: 2px 0 0 48px
+  li
+    list-style-type: none
+  .cf
+      padding: 0.25rem 0
+  .answer
+    .item
+      width: 100%
+      background-color: white
+      color: #333
+      padding: 0 0.75rem 0.5rem 0.75rem
+      display: inline-block
+      border-radius: 0.25rem
       box-sizing: border-box
-      margin: 16px 0 4px
-      color: #333  
-      font-weight: 300
-      a
-        font-weight: 400
-        color: #333
-    .meta
-      font-size: 12px
-      line-height: 12px
-      color: #999
-      display: block
-      max-height: 12px
-      padding: 0 0 0 48px
-      text-overflow: ellipsis
-      overflow: hidden
-      padding-bottom: 8px
-      white-space: nowrap
-  .main__content
-    color: #666
+      position: relative
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12)
+      h1
+        padding: 0
+        margin: 0
+        font-size: 1rem
+        line-height: 1.25rem
+        font-weight: 500
+        display: inline
+      .item__meta
+        position: absolute
+        bottom: 0
+        right: 0
+        color: #aaa
+        font-size: 0.7rem
+        padding: 0.25rem
+      .url
+        position: absolute
+        top: 0
+        left: 60px
+        text-align: left
+        font-size: 0.75rem
+        color: #4A90E2
+        width: 70%
+        height: 32px
+        overflow: hidden
+        overflow-wrap: break-word
+        div
+          position: relative
+          top: 50%
+          transform: translateY(-50%)
+          display: -webkit-box
+          -webkit-line-clamp: 2
+          -webkit-box-orient: vertical
+      .item__logo
+        width: 32px
+        height: 32px
+        line-height: 32px
+        color: #fff
+        text-align: center
+        overflow: hidden
+        margin: 0 12px 4px 0px
+        background-size: 50%
+        background-position: center
+        background-repeat: no-repeat
+
 
 .list
   padding: 0 0 12px
@@ -1416,44 +1436,32 @@ a
     font-size: 36px
     line-height: 40px
 
-.cqz-local-result .item
+.cqz-local-result
+  padding: 0 1rem
+  overflow: hidden
   .local__head
-    padding: 16px 0
-  .main__image
-    width: 36%
-    float: left
-    text-indent: 0
-    margin-top: 0
-    overflow: hidden
-    height: auto
-    img
-      width: 100%
-  .main__headline
-    width: 62%
-    float: right
-    padding-left: 16px
-    margin: 0
-  .no__loc__headline
+    word-break: break-all
     width: 100%
-    padding-left: 0px
-  .main__meta
-    width: 62%
-    float: right
-    padding-left: 16px
-    margin-top: 0
-    .cqz-rd-snippet_hspacing img
-      max-width: 36%
-
-  .no__loc__meta
+    box-sizing: border-box
+    .map__img
+      overflow: hidden
+      width: 35%
+      height: auto
+      box-sizing: border-box
+    .address__details
+      float: right
+      width: 60%
+      box-sizing: border-box
+      word-break: break-word
+      overflow: hidden
+  .local__details
+    padding-top: 10px
     width: 100%
-    padding-left: 0px
-  .main__content
-    padding: 0 0 16px
   .cqz-local-info
-    .cqz-local-address, .phone_num, .cqz-local-info-right
-      padding: 0 0 16px 32px
+    .cqz-local-address, .phone_num, .cqz-local-info-right, .local-distance
+      padding: 0 0 16px 24px
       position: relative
-    .cqz-local-address .icon, .phone_num .icon, .cqz-local-info-right .icon
+    .local-distance .icon, .phone_num .icon, .cqz-local-info-right .icon
       width: 16px
       float: left
       background-position: center
@@ -1502,21 +1510,17 @@ a
       padding: 2px 4px
   .currency__legend
     td
-      color: #999
       padding: 2px 0
       font-size: 12px
       &:first-child
         text-align: right
-    &.first td
-      padding-top: 16px
   .currency__swap td
     padding: 2px 0 24px
     border-bottom: 1px #eee solid
 
 .poweredby
-  border-top: 1px #eee solid
-  margin-top: 32px
-  padding: 16px 0 0
+  border-top: 1px #EDECEC solid
+  padding: 8px 0 8px
   font-size: 12px
   color: #999
   text-align: center
@@ -1546,131 +1550,6 @@ a
       &.bold
         font-weight: 700
         color: #333
-
-.history
-  padding: 0 1rem 1rem
-  #control
-    display: block
-    position: absolute
-    bottom: 0
-    left: 0
-    right: 0
-    background-color: red
-    padding: 0.5rem
-    td
-      color: #fff
-  .edit__delete
-    padding: 0.5rem 1rem 0
-    display: none
-  .question
-    @extend .clearfix
-    padding: 1rem 0 0.1rem
-    margin: 0
-    border: 0
-    .selected
-      color: white
-    .framer
-      background-color: lighten(#1F69AD, 40%)
-      font-size: 1rem
-      line-height: 1.25rem
-      padding: 0.5rem 1.25rem
-      border-radius: 0.25rem
-      p
-        margin: 0
-        padding: 0
-        font-size: 1rem
-        line-height: 1.25rem
-        overflow: hidden
-        font-weight: 400
-        white-space: nowrap
-        overflow: hidden
-        height: 1.25rem
-        text-overflow: ellipsis
-        max-width: 13rem
-    .meta
-      text-align: right
-      padding: 0.05rem 0.5rem 0 0
-      font-size: 0.62rem
-      line-height: 0.9rem
-      width: 100%
-      div
-        text-align: right
-        color: #ccc
-        &.date
-          color: #ddd
-  .nohistoryyet
-    padding: 2rem
-    p
-      text-align: center
-      color: #999
-      font-size: 1rem
-      line-height: 1.5rem
-      padding: 0 0 1.5rem
-  h2
-    padding: 24px 0 12px
-    text-align: center
-    position: relative
-    font-size: 12px
-    font-weight: 300
-    color: #999
-    &:after
-      position: absolute
-      content: ""
-      top: 32px
-      left: 0
-      right: 0
-      border-top: 1px #eee solid
-      z-index: 1
-  span
-    display: inline
-    background-color: #fff
-    padding: 0 8px
-    color: #999
-    z-index: 99
-    position: relative
-
-  .answer
-    @extend .clearfix
-    padding: 0.1rem 0
-    .selected
-      color: white
-    .framer
-      background-color: lighten(#55B146, 30%)
-      font-size: 1rem
-      line-height: 1.25rem
-      padding: 0.5rem 1.25rem
-      border-radius: 0.25rem
-      p
-        margin: 0
-        padding: 0
-        overflow: hidden
-        font-weight: 400
-        &.url
-          font-size: 0.75rem
-          line-height: 1rem
-          color: rgba(0,0,0,0.25)
-    .meta
-      text-align: left
-      padding: 0.1rem 0 0 0.5rem
-      div
-        text-align: left
-        font-size: 0.62rem
-        line-height: 0.9rem
-        color: #ccc
-        &.date
-          color: #ddd
-    &.followup
-      .framer
-        background-color: lighten(#55B146, 40%)
-        font-size: 0.8rem
-        line-height: 1rem
-        color: rgba(0,0,0,0.38)
-      .meta
-        line-height: 1rem
-
-.editmode .edit__delete
-  display: block
-
 
 #resetState
   a
@@ -1706,6 +1585,7 @@ a
 .currencyInput
   width: 100%
   box-sizing: border-box
+  border: 1px solid #EDECEC
 
 .currency__table
   .text-center
@@ -1716,7 +1596,7 @@ a
   border: 0
   width: 100%
   box-sizing: border-box
-  background-color: #f9f9f9
+  background-color: #EDECEC
   margin: 0
   padding: 0 0.25rem
   height: 1.4rem
@@ -1730,8 +1610,8 @@ a
 ul.recipe_ingredients
   list-style-type: none
   li
-    margin: 5px 0px
-    border-top: 1px solid #eee
+    padding: 7px 0
+    border-top: 1px solid #FFF
     /* font-size: 12px */
 
 
@@ -1743,21 +1623,23 @@ ul.recipe_ingredients
   margin: 0
 
 #topSites td
+  padding: 10px 0 20px 0
   position: relative
   .topsites__item 
     width: 46px
     height: 46px
     line-height: 48px
-    border-radius: 50%
-    background-color: #000
     color: #fff
     text-align: center
     overflow: hidden
-    border: 2px #fff solid
     background-size: 62%
     font-size: 18px
     background-position: center
     background-repeat: no-repeat
+    &.standard
+      background-color: #eee
+    &.incognito
+      background-color: #373737
 
   .main__headline
     font-size: 13.2px
@@ -1796,9 +1678,7 @@ ul.recipe_ingredients
   width: 46px
   height: 46px
   line-height: 46px
-  border-radius: 50%
   position: absolute
-  top: 2px
   left: 50%
   margin-left: -23px
   background-color: rgba(0,0,0,0.50)
@@ -1829,7 +1709,6 @@ ul.recipe_ingredients
   top: 10px
   left: 0
   right: 0
-  padding: 0.25rem 2rem
   font-size: 0.75rem
   line-height: 1rem
   text-align: center
@@ -1884,40 +1763,23 @@ h3.meta__url
     max-width: 80%
 
 
-.cards__title__secondary span 
-  right: 24px
-  color: #888
-  font-size: 10px
-  position: absolute
-  top: 23px
-
-
-
-
-
-
-
-
-
 
 
 /* End of Old Stuff */
 
 body  
-  background-color: #083A6B 
+  background-color: #e8e8e8 
   padding-bottom: 1rem 
  
 .card  
   position: relative 
-  top: 2.5rem 
-  bottom: 1.5rem 
-  left: 2rem 
-  width: 88% 
-  box-sizing: border-box 
-  padding: 0 
+  top: 1.2rem
+  bottom: 1.5rem
+  box-sizing: border-box
   margin-bottom: 4rem
   box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.12) 
-  border-radius: 0.25rem   
+  border-radius: 0.25rem
+  width: 96%
   &.last-card
     #googleThisAnim
       h3
@@ -1938,11 +1800,26 @@ body
   &.third  
     left: 45rem   
   .primary  
-    padding: 1rem 0 1rem   
-  .card__logo  
-    position: absolute 
-    top: 1rem 
-    left: -1.5rem 
+    padding: 0.75rem 0 0
+  .timestamp
+    font-size: 0.75rem 
+    line-height: 1rem 
+    color: #4A90E2 
+    height: 1rem 
+    overflow: hidden 
+    text-overflow: ellipsis
+    color: #448100
+    padding-left: 1rem
+    padding-bottom: 0.5rem
+    margin-top: -1rem
+  .social
+    display: table
+    padding: 0 1rem
+    .social__logo
+      display: table-cell
+      padding-right: 15px
+  .card__logo 
+    margin: 0 12px
     width: 3rem 
     height: 3rem 
     line-height: 3rem
@@ -1950,49 +1827,47 @@ body
     background-position: center 
     background-repeat: no-repeat 
     background-size: 50% 
-    border-radius: 50%   
     &.bg  
       text-indent: -9999px 
       text-align: left
-  .card__logo__secondary  
-    position: absolute 
-    top: 0.5rem 
-    left: -1rem 
-    width: 2rem 
-    height: 2rem 
+  .card__logo__secondary
+    width: 2.5rem 
+    height: 2.5rem 
     background-position: center 
     background-repeat: no-repeat 
-    background-size: 50% 
+    background-size: 60% 
     font-size: 0.75rem 
     line-height: 2rem 
     text-align: center 
-    color: #fff 
-    background-color: #60A8F1 
-    border-radius: 50%   
+    color: #fff
     &.bg  
       text-indent: -9999px 
   .card__description  
     font-size: 1rem 
-    padding: 0.25rem 2rem 0.5rem 
+    padding: 0rem 1rem 0.5rem 
     line-height: 1.25rem 
     color: #0C2B4A   
-  .card__meta  
-    font-size: 0.75rem 
-    line-height: 1rem 
-    color: #4A90E2 
-    padding: 0 2rem 0rem 
+  .card__meta
+    position: absolute
+    top: 0
+    left: 40px
+    text-align: left
+    font-size: 0.75rem
+    color: #4A90E2
+    width: 60%
+    height: 3rem
+    line-height: 1rem
+    overflow: hidden
+    padding: 0 2rem 0rem
     margin: 0.25rem 0 0.5rem
-    height: 1rem 
-    overflow: hidden 
-    text-overflow: ellipsis   
-    .timestamp
-      font-size: 0.75rem 
-      line-height: 1rem 
-      color: #4A90E2 
-      height: 1rem 
-      overflow: hidden 
-      text-overflow: ellipsis   
-      color: #448100
+    div
+      position: relative
+      top: 50%
+      transform: translateY(-50%)
+      display: -webkit-box
+      -webkit-line-clamp: 3
+      -webkit-box-orient: vertical
+      word-break: break-all
   .card__meta__secondary  
     font-size: 0.75rem 
     padding: 0 0.5rem 0rem 
@@ -2002,21 +1877,24 @@ body
     overflow: hidden 
     text-overflow: ellipsis 
     color: #4A90E2   
-  .cards__title__secondary  
-    margin: 0 
+  .cards__title__secondary
     font-weight: 400 
     color: #333 
     padding: 0.25rem 0.5rem 0.25rem 
     font-size: 1rem 
-    line-height: 1.5rem   
+    line-height: 1.5rem
+    overflow: hidden
+    text-overflow: ellipsis
+    height: 1.5rem
+    word-break: break-all;
+
   .card__title  
-    padding: 0.25rem 2rem 0rem 
+    padding: 0.25rem 1rem 0.75rem
     margin: 0 
     font-weight: 500 
     text-align: left 
     font-size: 1.2rem 
     line-height: 1.5rem 
-    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif   
     span
       font-size: 0.75rem
       line-height: 1.5rem
@@ -2090,28 +1968,62 @@ body
       &.big
         height: 10rem   
   .secondary  
-    background-color: #D4E5F6 
-    padding: 0   
-    .cards__item  
+    .separator
+      padding: 2px 0
+    .additional_sources
+      color: #333
+      padding: 1rem 1rem
+      display: inline-block
+      width: 100%
+      box-sizing: border-box
+      position: relative
+      background-color: #FFF
+      border-top: 1px #EDECEC solid
+      .url
+        position: absolute
+        top: 1rem
+        left: 60px
+        text-align: left
+        font-size: 0.75rem
+        color: #4A90E2
+        width: 70%
+        height: 32px
+        overflow: hidden
+        overflow-wrap: break-word
+        div
+          position: relative
+          top: 50%
+          transform: translateY(-50%)
+          display: -webkit-box
+          -webkit-line-clamp: 2
+          -webkit-box-orient: vertical
+      .item__logo
+        width: 32px
+        height: 32px
+        line-height: 32px
+        color: #fff
+        text-align: center
+        overflow: hidden
+        margin: 0 12px 4px 0px
+        background-size: 50%
+        background-position: center
+        background-repeat: no-repeat
+    .cards__item
       position: relative 
-      padding: 0.5rem 1rem 
-      border-top: 1px #B5D0EB solid   
-      &.additional_sources  
-        background-color: #BAD3ED 
-        border-top: 1px #9DBFE2 solid   
-      &.external_links
-        background-color: #BAD3ED  
-        border-top: 1px #8CB2D9 solid    
+      padding: 0.5rem 1rem
+      background: #FFF
+      border-top: 1px #EDECEC solid
   .third
-     background-color: #D4E5F6 
+     background-color: #EDECEC 
      padding: 0   
      .cards__item  
        position: relative 
        padding: 0.5rem 1rem 
-       border-top: 1px #8CB2D9 solid   
+       border-top: 1px #FFF solid   
        &.ez-category
-         background-color: #BAD3ED  
+         background-color: #EDECEC  
   .share
+    border-top: 1px #EDECEC solid
     text-align: center
     padding: 0.25rem 1.5rem 
     font-size: 0.5rem 
@@ -2139,6 +2051,7 @@ body
         clear: both
         content: ""
         display: table
+        margin-bottom: 0.5rem
       .main__image
         background-repeat: no-repeat
         background-size: cover
@@ -2273,7 +2186,7 @@ body
   background-size: 62%
   background-position: center
   background-repeat: no-repeat
-  margin: 24px auto 54px
+  margin: 0 auto 54px
 
 .cqz-delivery-status-boxes-holder 
   overflow: hidden
@@ -2348,3 +2261,7 @@ em
       &.cqz-live
         td
           background-color: #c7e8ad
+
+
+::-webkit-scrollbar
+  display: none
