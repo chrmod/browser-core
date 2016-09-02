@@ -301,23 +301,25 @@ function onDOMWindowCreated(ev) {
         ogDescription = window.document.querySelector("meta[property='og:description']"),
         ogImage = window.document.querySelector("meta[property='og:image']");
 
-    send({
-      windowId: windowId,
-      payload: {
-        module: "core",
-        action: "recordMeta",
-        args: [
-          currentURL(),
-          {
-            title: title && title.innerHTML,
-            description: description && description.content,
-            ogTitle: ogTitle && ogTitle.content,
-            ogDescription: ogDescription && ogDescription.content,
-            ogImage: ogImage && ogImage.content
-          }
-        ]
-      }
-    });
+    if (isTopWindow) {
+      send({
+        windowId: windowId,
+        payload: {
+          module: "core",
+          action: "recordMeta",
+          args: [
+            currentURL(),
+            {
+              title: title && title.innerHTML,
+              description: description && description.content,
+              ogTitle: ogTitle && ogTitle.content,
+              ogDescription: ogDescription && ogDescription.content,
+              ogImage: ogImage && ogImage.content
+            }
+          ]
+        }
+      });
+    }
   };
 
 
