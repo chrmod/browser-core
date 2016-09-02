@@ -97,7 +97,6 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
 
 // select box change
 $('#control-center').on('change', 'select[updatePref]', function(ev){
-  console.log(ev, arguments)
   sendMessageToWindow({
     action: 'updatePref',
     data: {
@@ -212,7 +211,6 @@ function draw(data){
         $othersettings = $main.find(".othersettings"),
         $section = $(this).closest('.setting').attr('data-section');
 
-    console.log(arguments, e.target)
     if (isHttpsSection($section)) {
       return;
     } else if ($(e.target).hasClass("cqz-switch-box")) {

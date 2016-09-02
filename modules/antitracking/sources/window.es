@@ -165,7 +165,9 @@ export default class {
   status() {
     if (background.buttonEnabled) {
       var info = CliqzAttrack.getCurrentTabBlockingInfo(),
-      ps = info.ps;
+          ps = info.ps,
+          enabled = utils.getPref('antiTrackTest') && !CliqzAttrack.isSourceWhitelisted(info.hostname),
+          isWhitelisted = CliqzAttrack.isSourceWhitelisted(info.hostname);
 
       return {
         visible: true,
@@ -174,11 +176,12 @@ export default class {
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         totalCount: info.cookies.blocked + info.requests.unsafe,
-        enabled: utils.getPref('antiTrackTest') && !CliqzAttrack.isSourceWhitelisted(info.hostname),
-        isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
+        enabled: enabled,
+        isWhitelisted: isWhitelisted,
         reload: info.reload || false,
         trackersList: info,
-        ps: ps
+        ps: ps,
+        state: enabled ? 'active' : isWhitelisted ? 'inactive' : 'critical'
       }
     }
   }

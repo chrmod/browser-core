@@ -82,8 +82,6 @@ export default class {
       [this.window]
     ).then((moduleData) => {
       var generalState = 'active';
-
-      debugger;
       if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
         generalState = 'inactive';
       }
