@@ -1,4 +1,9 @@
-import CliqzADB, { adbEnabled } from 'adblocker/adblocker';
+import { utils } from 'core/cliqz';
+import background from "core/base/background";
+import CliqzADB,
+      { ADB_PREF_VALUES,
+        ADB_PREF,
+        adbEnabled } from 'adblocker/adblocker';
 
 function isAdbActive(url) {
   return adbEnabled() &&
@@ -6,7 +11,9 @@ function isAdbActive(url) {
          !CliqzADB.adBlocker.isUrlInBlacklist(url)
 }
 
-export default {
+export default background({
+  enabled() { return true; },
+
   init() {
     if (CliqzADB.getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
       return;
@@ -19,6 +26,19 @@ export default {
       return;
     }
     CliqzADB.unload();
+  },
+
+  events: {
+    "control-center:adb-optimized": function () {
+      utils.setPref(ADB_PREF,
+                    utils.getPref(ADB_PREF) == ADB_PREF_VALUES.Enabled ?
+                      ADB_PREF_VALUES.Optimized : ADB_PREF_VALUES.Enabled)
+    },
+    "control-center:adb-activator": function () {
+      utils.setPref(ADB_PREF,
+                    utils.getPref(ADB_PREF) !== ADB_PREF_VALUES.Disabled ?
+                      ADB_PREF_VALUES.Disabled : ADB_PREF_VALUES.Enabled)
+    }
   },
 
   actions: {
@@ -57,4 +77,4 @@ export default {
       }
     }
   },
-};
+});

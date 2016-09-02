@@ -1,6 +1,6 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { simpleBtn } from 'q-button/buttons';
-import { utils } from 'core/cliqz';
+import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 
 function toPx(pixels) {
@@ -18,7 +18,9 @@ export default class {
       getData: this.getData.bind(this),
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
-      resize: this.resizePopup.bind(this)
+      resize: this.resizePopup.bind(this),
+      "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
+      "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
     }
   }
 

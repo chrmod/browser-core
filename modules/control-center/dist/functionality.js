@@ -81,6 +81,10 @@ $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
 })
 
+$('#control-center').on('click', '[data-function]', function(ev){
+  sendMessageToWindow({ action: ev.currentTarget.dataset.function } );
+})
+
 // select box change
 $('#control-center').on('change', 'select[updatePref]', function(ev){
   console.log(ev, arguments)

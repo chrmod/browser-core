@@ -164,7 +164,8 @@ export default class {
 
     return {
       visible: true,
-      state: state,
+      enabled: CliqzUtils.getPref(ADB_PREF, '') !== ADB_PREF_VALUES.Disabled,
+      optimized: CliqzUtils.getPref(ADB_PREF, '') === ADB_PREF_VALUES.Optimized,
       urlState: {
         state: disabledForUrl,
         active: adbDisabled || disabledForDomain || !isCorrectUrl

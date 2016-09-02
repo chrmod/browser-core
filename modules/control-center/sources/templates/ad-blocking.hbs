@@ -1,4 +1,5 @@
-<div class="adblocker frame-container" state="active" inactiveState="off">
+{{#if module.adblocker.visible}}
+<div class="adblocker frame-container" state="{{#if module.adblocker.enabled}}active{{ else }}off{{/if}}" inactiveState="off">
   <div class="title">
     <svg id="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -32,7 +33,7 @@
   <div class="switches">
     <!--======= Switch ======-->
     <span>
-      <span class="cqz-switch">
+      <span class="cqz-switch" data-function="adb-activator">
         <span class="cqz-switch-box"></span>
       </span>
       <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
@@ -44,7 +45,11 @@
     </select>
     <span visible-on-state="active">
       <span class="squaredFour">
-        <input type="checkbox" value="None" id="squaredFour2" name="check" checked />
+        <input type="checkbox"
+               value="None"
+               id="squaredFour2"
+               data-function="adb-optimized"
+               name="check" {{#if module.adblocker.optimized }}checked{{/if}} />
         <label for="squaredFour2"></label>
         <span id="strict" data-i18n="control-center-check-strict"></span>
       </span>
@@ -54,3 +59,4 @@
 <div class="active-window-adblock">
   {{> active-ad-blocking }}
 </div>
+{{/if}}
