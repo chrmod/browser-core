@@ -108,9 +108,9 @@ const CLIQZEnvironment = {
     }
 
     return function(msg, instantPush) {
+      if ((msg.type != 'environment') && CLIQZEnvironment.isPrivate())
+        return;
       CE.log(msg, 'Utils.telemetry');
-
-      if(!CE.getPref('telemetry', true))return;
       msg.session = CE.getPref('session');
       msg.ts = Date.now();
 
@@ -124,6 +124,7 @@ const CLIQZEnvironment = {
       }
     }
   })(),
+
   isUnknownTemplate: function(template){
      // in case an unknown template is required
      return template &&
@@ -157,11 +158,11 @@ const CLIQZEnvironment = {
     return host.split('.').splice(-1)[0];
   },
   getLocalStorage: function(url) {
-    return CE.storage;
+    return localStorage;
   },
   OS: 'chromium',
-  isPrivate: function(){ return false; },
-  isOnPrivateTab: function(win) { return false; },
+  isPrivate: function() { return chrome.extension.inIncognitoContext; },
+  isOnPrivateTab: function(win) { return CE.isPrivate(); },
   getWindow: function(){ return { document: { getElementById() {} } } },
   XMLHttpRequest: XMLHttpRequest,
   httpHandler: function(method, url, callback, onerror, timeout, data, sync) {

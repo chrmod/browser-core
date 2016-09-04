@@ -76,7 +76,6 @@ Promise.all([
 
     CliqzUtils.System = System;
     CliqzAutocomplete.Mixer = Mixer;
-    CLIQZEnvironment.storage = localStorage;
     CLIQZEnvironment.ExpansionsProvider = modules[5].default;
     CLIQZ.config = modules[6].default;
 
@@ -139,6 +138,7 @@ Promise.all([
           }
         });
 
+    // TODO: Move these to CE inself and introduce module init().
     chrome.cliqzSearchPrivate.getSearchEngines((engines, defIdx) => {
       function renameProps(obj, mapping) {
         for (let p of Object.keys(mapping)) {
@@ -162,6 +162,7 @@ Promise.all([
 
       CLIQZEnvironment._ENGINES = engines;
     });
+    chrome.runtime.getPlatformInfo(v => CLIQZEnvironment.OS = v.os);
 
     console.log('Glue init complete!');
   });
@@ -238,7 +239,7 @@ function whoAmI(startup){
   let onInstall = checkSession();
 
   // schedule another signal
-  setTimeout(CLIQZ.Core.whoAmI, 60 * 60 * 1e3 /* one hour */, false);
+  setTimeout(whoAmI, 60 * 60 * 1e3 /* one hour */, false);
 
   //executed after the services are fetched
   CliqzUtils.fetchAndStoreConfig(function(){
@@ -246,7 +247,7 @@ function whoAmI(startup){
   });
 }
 
-function sendEnvironmentalSignal(startup, defaultSearchEngine){
+function sendEnvironmentalSignal(startup){
   let hostVersion = '';
   try {
     hostVersion = /Chrome\/([0-9.]+)/.exec(navigator.userAgent)[1];
@@ -259,7 +260,7 @@ function sendEnvironmentalSignal(startup, defaultSearchEngine){
       width: window.innerWidth,
       height: window.innerHeight,
       version: '4.8.0', // TODO
-      startup: startup? true: false,
+      startup: !!startup,
       version_host: hostVersion,
       version_dist: ''
   };
@@ -268,13 +269,14 @@ function sendEnvironmentalSignal(startup, defaultSearchEngine){
 }
 
 function checkSession() {
-  if (!CliqzUtils.hasPref('session')) {
-    const source = CLIQZ.config.settings.channel;
-    CliqzUtils.setPref('session', generateSession(source));
-    return false;
-  }
-  // Session is set already
-  return true;
+  if (CliqzUtils.hasPref('session'))
+    return true;  // Session is already present.
+
+  const newSession = CLIQZEnvironment.isPrivate() ?
+      ["PRIVATE", "15000", CLIQZ.config.settings.channel].join("|") :
+      generateSession(CLIQZ.config.settings.channel);
+  CliqzUtils.setPref('session', newSession)
+  return false;
 }
 
 function generateSession(source){
