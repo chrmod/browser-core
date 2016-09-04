@@ -1,10 +1,86 @@
 <!DOCTYPE html>
-  <html>
-  <head>
+<html>
+<head>
     <meta charset="utf-8">
     <title></title>
-  </head>
-  <body>
-    Hello!
-  </body>
-  </html>
+    <!--<link href="styles/styles.css" rel="stylesheet">-->
+
+
+    <link rel="stylesheet" type="text/css"
+          href="js/tooltip/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-light.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/tooltip/css/tooltipster.bundle.min.css"/>
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script type="text/javascript" src="js/tooltip/js/tooltipster.bundle.min.js"></script>
+
+    <script>
+        var node = document.createElement("link");
+        node.rel = "stylesheet";
+        node.href = 'styles/styles.css?' + Math.floor(Math.random() * 999999999);
+        document.getElementsByTagName("head")[0].appendChild(node);
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+
+
+
+            setTimeout(function(){
+
+                $('#cqb-atr-on').tooltipster({
+                    theme: 'tooltipster-light',
+                    side : "right",
+                    maxWidth: 250,
+                    trigger: 'custom',
+                });
+                //trigger
+                 $('#cqb-atr-on').tooltipster('open');
+
+            }, 500);
+        });
+
+
+
+    </script>
+</head>
+<body>
+
+<div class="cqb-steps-holder">
+    <ul class="cqb-steps">
+        <li class="cqb-step1">
+            <div>
+                <img src="images/logo.png" class="cqb-logo" alt=""/>
+                <h1>Welcome to Cliqz, <br> Turn On Privacy Protection</h1>
+                <p class="cqb-descr">This is important cos bla bla.</p>
+                <a id="cqb-atr-on" class="cqb-btn" title="Plese press the button to activate the Privacy Protection and continue !">
+                    Turn On
+                </a>
+            </div>
+        </li>
+        <li class="cqb-step2">
+            <div>
+                <p class="cqb-step-msg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac est
+                    metus. Nulla sit amet malesuada dui, nec sodales nisi</p>
+                <a class="cqb-btn">Search</a>
+            </div>
+        </li>
+        <li class="cqb-step3">
+            <div>
+                <p class="cqb-step-msg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac est
+                    metus. Nulla sit amet malesuada dui, nec sodales nisi</p>
+                <a class="cqb-btn">Search</a>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+<ul class="cqb-progress cqb-step2 cqb-step3">
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+
+</body>
+</html>
