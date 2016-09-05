@@ -1594,6 +1594,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                                 qObj['ts'] = Date.now();
                                                 qObj['tDiff'] = getRandomIntInclusive(1, 20);
                                                 CliqzHumanWeb.strictQueries.push(qObj);
+                                                CliqzHumanWeb.saveStrictQueries();
                                             }
                                         });
 
@@ -2191,29 +2192,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     */
                 },
-                initChrome: function initChrome(){
-                    // Only till we start loading from online resource
-
-                    CliqzHumanWeb.extractRules = {"0":{".r":{"t":{"item":"a","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":"a","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},".med #search":{"q":{"item":"#ires","type":"searchQuery","etype":"data-async-context","keyName":"q","functionsApplied":[["splitF","query:",1]]}},"#tads .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"#mbEnd .ads-ad":{"u":{"item":"a[id^=s1p]","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},".pla-unit-title":{"u":{"item":".pla-unit-title-link","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},"#tadsb .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}},"._gt":{"t":{"item":"[data-akp-oq] ._rl","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":".rllt__action-button._Jrh","type":"arr","etype":"href","keyName":"u"},"mu":{"item":".rllt__action-button.rllt__directions-button","type":"arr","etype":"href","keyName":"mu"}}},"1":{".dd.algo":{"t":{"item":"h3 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h3 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["splitF","RU=",1],["splitF","RK=0/",0],["maskU",false,false]]}},".sbq-w":{"q":{"item":"#yschsp","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"2":{".profile-card":{"img":{"item":".image","type":"arr","etype":"src","keyName":"imgl"},"fullName":{"item":".content h3 a","type":"arr","etype":"text","keyName":"fn"},"profileLink":{"item":".content h3 a","type":"arr","etype":"href","keyName":"pl"},"currentWork":{"item":".content p.headline","type":"arr","etype":"textContent","keyName":"cw"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"3":{".b_algo":{"t":{"item":"h2 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h2 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},"#sb_form":{"q":{"item":"#sb_form_q","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"4":{"#errorPageContainer":{"reason":{"item":"h1[id^=errorTitleText_]","type":"arr","etype":"id","keyName":"reason","required":"yes"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}}}
-                    var patternConfig = {"urlPatterns":["\\.google\\..*?[#?&;]q=[^$&]+",".search.yahoo\\..*?[#?&;]p=[^$&]+",".linkedin.*?\\/pub\\/dir+","\\.bing\\..*?[#?&;]q=[^$&]+",".*"],"searchEngines":["0","1","3"],"scrape":{"0":{".r":{"t":{"item":"a","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":"a","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},".med #search":{"q":{"item":"#ires","type":"searchQuery","etype":"data-async-context","keyName":"q","functionsApplied":[["splitF","query:",1]]}},"#tads .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"#mbEnd .ads-ad":{"u":{"item":"a[id^=s1p]","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},".pla-unit-title":{"u":{"item":".pla-unit-title-link","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},"#tadsb .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}},"._gt":{"t":{"item":"[data-akp-oq] ._rl","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":".rllt__action-button._Jrh","type":"arr","etype":"href","keyName":"u"},"mu":{"item":".rllt__action-button.rllt__directions-button","type":"arr","etype":"href","keyName":"mu"}}},"1":{".dd.algo":{"t":{"item":"h3 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h3 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["splitF","RU=",1],["splitF","RK=0/",0],["maskU",false,false]]}},".sbq-w":{"q":{"item":"#yschsp","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"2":{".profile-card":{"img":{"item":".image","type":"arr","etype":"src","keyName":"imgl"},"fullName":{"item":".content h3 a","type":"arr","etype":"text","keyName":"fn"},"profileLink":{"item":".content h3 a","type":"arr","etype":"href","keyName":"pl"},"currentWork":{"item":".content p.headline","type":"arr","etype":"textContent","keyName":"cw"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"3":{".b_algo":{"t":{"item":"h2 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h2 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},"#sb_form":{"q":{"item":"#sb_form_q","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"4":{"#errorPageContainer":{"reason":{"item":"h1[id^=errorTitleText_]","type":"arr","etype":"id","keyName":"reason","required":"yes"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}}},"payloads":{"0":{".r":{"type":"query","results":"clustered","action":"query","fields":[[".r","r","join"],[".med #search","q"],["qurl","qurl"],["ctry","ctry"]]},"#tads .ads-ad":{"type":"query","results":"clustered","action":"ads_A","fields":[["#tads .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},"#mbEnd .ads-ad":{"type":"query","results":"clustered","action":"ads_B","fields":[["#mbEnd .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},".pla-unit-title":{"type":"query","results":"clustered","action":"ads_C","fields":[[".pla-unit-title","r","join"],[".med #search","q"],["qurl","qurl"]]},"#tadsb .ads-ad":{"type":"query","results":"clustered","action":"ads_D","fields":[["#tadsb .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},"._gt":{"type":"query","results":"clustered","action":"locdata","fields":[["._gt","r","join"],[".med #search","q"],["qurl","qurl"]]}},"1":{".dd.algo":{"type":"query","results":"clustered","action":"query","fields":[[".dd.algo","r","join"],[".sbq-w","q"],["qurl","qurl"],["ctry","ctry"]]}},"2":{".profile-card":{"type":"single","results":"single","action":"linkedin"}},"3":{".b_algo":{"type":"query","results":"clustered","action":"query","fields":[[".b_algo","r","join"],["#sb_form","q"],["qurl","qurl"],["ctry","ctry"]]}},"4":{"#errorPageContainer":{"type":"single","results":"custom","action":"maliciousUrl","fields":[["qurl","qurl"],["#errorPageContainer","reason"],["ctry","ctry"]]}}},"idMapping":{"0":"go","1":"ya","2":"lnkd","3":"bing"}};
-                    CliqzHumanWeb.searchEngines = patternConfig["searchEngines"];
-                    CliqzHumanWeb.extractRules = patternConfig["scrape"];
-                    CliqzHumanWeb.payloads = patternConfig["payloads"];
-                    CliqzHumanWeb.idMappings = patternConfig["idMapping"];
-                    CliqzHumanWeb.rArray = [];
-                    patternConfig["urlPatterns"].forEach(function (e) {
-                        CliqzHumanWeb.rArray.push(new RegExp(e));
-                    });
-
-                    refineFuncMappings = {
-                        "splitF": CliqzHumanWeb.refineSplitFunc,
-                        "parseU": CliqzHumanWeb.refineParseURIFunc,
-                        "maskU": CliqzHumanWeb.refineMaskUrl
-                    };
-
-                    CliqzHumanWeb.loadBloomFilter();
-
-                },
                 init: function init(window) {
                     // if (CliqzUtils.getPref("dnt", false)) return;
                     console.log(">>>>> Init Called <<<<<<");
@@ -2275,6 +2253,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         console.log("<<< Time Active usage >>>" + data);
                         // CliqzHumanWeb.activeUsage = data;
                     })
+
+                    // Load strictQueries list.
+                    CliqzHumanWeb.loadStrictQueries();
                 },
                 initAtBrowser: function initAtBrowser() {
                     if (CliqzUtils.getPref("dnt", false)) return;
@@ -2432,7 +2413,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     //Remove the msg if the query is too long,
 
-                    if (msg.action == 'query') {
+                    if (msg.action == 'query' || msg.action == 'anon-query') {
                         //Remove the msg if the query is too long,
                         if (msg.payload.q == null || msg.payload.q == '') {
                             return null;
@@ -3329,14 +3310,23 @@ var __CliqzHumanWeb = function() { // (_export) {
                     var pageContent = cd;
                     //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
                     //scrap(4, pageContent)
-                    for (var i = 0; i < CliqzHumanWeb.rArray.length; i++) {
-                        if (CliqzHumanWeb.rArray[i].test(url)) {
+                    let rArray = [];
+                    let searchEngines = [];
+                    if (ruleset === "strict"){
+                        rArray = CliqzHumanWeb.rArray;
+                        searchEngines = CliqzHumanWeb.searchEngines;
+                    }
+                    else if (ruleset === "normal"){
+                        rArray = CliqzHumanWeb.anonRArray;
+                        searchEngines = CliqzHumanWeb.anonSearchEngines
+                    }
+
+                    for(var i=0;i<rArray.length;i++){
+                        if (rArray[i].test(url)){
                             CliqzHumanWeb.extractContent(i, pageContent, url, ruleset);
 
                             //Do not want to continue after search engines...
-                            if (CliqzHumanWeb.searchEngines.indexOf('' + i) != -1) {
-                                return;
-                            }
+                            if(searchEngines.indexOf(''+i) != -1 ){return;}
                             if (CliqzHumanWeb.debug) {
                                 _log('Continue further after search engines ');
                             }
@@ -4006,6 +3996,12 @@ var __CliqzHumanWeb = function() { // (_export) {
                 saveActionStatsLastSent: function saveActionStatsLastSent() {
                     CliqzHumanWeb.saveRecord('actionStats_last_send', CliqzHumanWeb.actionStatsLastSent);
                 },
+                saveStrictQueries: function saveStrictQueries() {
+                    if (CliqzHumanWeb.strictQueries.length > 0) {
+                        _log("Saving local table");
+                        CliqzHumanWeb.saveRecord('localStrictQueries', JSON.stringify(CliqzHumanWeb.strictQueries));
+                    }
+                },
                 sendActionStatsIfNeeded: function sendActionStatsIfNeeded() {
                     // Send action stats once per day.
                     // Day resolution.
@@ -4037,6 +4033,19 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     });
                 },
+                loadStrictQueries: function loadStrictQueries(){
+                    CliqzHumanWeb.loadRecord('localStrictQueries', function(data) {
+                        if (data==null || data.length == 0) {
+                            _log("There was no data on CliqzHumanWeb.bf");
+                            CliqzHumanWeb.strictQueries = [];
+                        }
+                        else {
+                            CliqzHumanWeb.strictQueries = JSON.parse(data);
+                        }
+
+                    });
+
+                },
                 auxGetQuery: function(){
                     CliqzHumanWeb.strictQueries.forEach( function(e, idx) {
                         var t = Date.now();
@@ -4048,6 +4057,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 _log("Error aux>>>> " + d)
                             });
                             CliqzHumanWeb.strictQueries.splice(idx, 1);
+                            CliqzHumanWeb.saveStrictQueries();
                         }
                     })
                 }
