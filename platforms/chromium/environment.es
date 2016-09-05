@@ -78,7 +78,7 @@ const CLIQZEnvironment = {
       CE.trk = [];
 
       CE.httpHandler('POST', CE.LOG, pushTelemetryCallback,
-          TelemetryError, 10000, JSON.stringify(telemetrySending));
+          pushTelemetryError, 10000, JSON.stringify(telemetrySending));
 
       CE.log('push telemetry data: ' + telemetrySending.length + ' elements', 'Telemetry');
     }
