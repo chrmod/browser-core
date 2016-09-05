@@ -18,12 +18,11 @@ const TODAY_DATE = new Date().toISOString().slice(0, 10);
 const BASE_URL = `https://cdn.cliqz.com/adblocking/latest-filters/`;
 
 const LANGS = CliqzLanguage.state();
- 
 
-
-function isListSupported(path) {
-  return ALLOWED_LISTS.has(path) || getSupportedLangLists().has(path) || isJSResource(path);
-}
+const JS_RESOURCES = new Set([
+  // uBlock resource
+  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt',
+]);
 
 function isJSResource(path) {
   return JS_RESOURCES.has(path);
@@ -160,7 +159,6 @@ export default class extends UpdateCallbackHandler {
   }
 
   load() {
-    //this.extraLists.load();
     this.checksums.load();
   }
 
