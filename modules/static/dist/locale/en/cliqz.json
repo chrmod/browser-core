@@ -153,7 +153,7 @@
         "message": "Enabled"
     },
     "anti-phishing-txt0": {
-        "message": "Warning: deceptive website!"
+        "message": "Security Warning"
     },
     "anti-phishing-txt1": {
         "message": "CLIQZ has blocked access to "
