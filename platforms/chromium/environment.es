@@ -249,7 +249,10 @@ const CLIQZEnvironment = {
       document.oncopy = backup;
     }
   },
-
+  // debug
+  _ENGINES: [{
+    "name": "CLIQZ dummy search", "alias": "#qq", "default": true, "icon": "", "searchForm": "", "suggestionUrl": "", "base_url": "https://www.cliqz.com/search?q=", "prefix": "#qq", "code": 3
+  }],
   getSearchEngines: function(){
     return CE._ENGINES.map(function(e){
       e.getSubmissionForQuery = function(q){
