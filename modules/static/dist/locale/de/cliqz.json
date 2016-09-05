@@ -1229,5 +1229,8 @@
     "download": {
       "message": "Herunterladen von: "
     },
+    "settings": {
+      "message": "Einstellungen"
+    },
     "TEST": "OK"
 }

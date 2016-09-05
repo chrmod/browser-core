@@ -78,7 +78,7 @@ const CLIQZEnvironment = {
       CE.trk = [];
 
       CE.httpHandler('POST', CE.LOG, pushTelemetryCallback,
-          TelemetryError, 10000, JSON.stringify(telemetrySending));
+          pushTelemetryError, 10000, JSON.stringify(telemetrySending));
 
       CE.log('push telemetry data: ' + telemetrySending.length + ' elements', 'Telemetry');
     }
@@ -143,11 +143,26 @@ const CLIQZEnvironment = {
       return notFound;
     }
   },
+  _prefListeners:[],
+  addPrefListener: function(fun){
+    CE._prefListeners.push(fun)
+  },
   setPref: function(pref, val){
     CE.getLocalStorage().setItem(pref,val);
+
+    CE._prefListeners.forEach(function(f){
+      try {
+        f(pref);
+      } catch(e){
+        // bummer
+      }
+    })
   },
   hasPref: function(pref){
     return pref in CE.getLocalStorage();
+  },
+  clearPref: function(pref){
+    delete localStorage[pref];
   },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
@@ -246,7 +261,10 @@ const CLIQZEnvironment = {
       document.oncopy = backup;
     }
   },
-
+  // debug
+  _ENGINES: [{
+    "name": "CLIQZ dummy search", "alias": "#qq", "default": true, "icon": "", "searchForm": "", "suggestionUrl": "", "base_url": "https://www.cliqz.com/search?q=", "prefix": "#qq", "code": 3
+  }],
   getSearchEngines: function(){
     return CE._ENGINES.map(function(e){
       e.getSubmissionForQuery = function(q){
