@@ -13,21 +13,10 @@ const ONE_DAY = 24 * ONE_HOUR;
 
 
 // URLs to fetch block lists
-const TODAY_DATE = new Date().toISOString().slice(0, 10);
 
-const BASE_URL = `https://cdn.cliqz.com/adblocking/latest-filters/`;
+const BASE_URL = 'https://cdn.cliqz.com/adblocking/latest-filters/';
 
 const LANGS = CliqzLanguage.state();
-
-const JS_RESOURCES = new Set([
-  // uBlock resource
-  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt',
-]);
-
-function isJSResource(path) {
-  return JS_RESOURCES.has(path);
-}
-
 
 class Checksums extends UpdateCallbackHandler {
   constructor() {
@@ -65,7 +54,7 @@ class Checksums extends UpdateCallbackHandler {
       Object.keys(data[list]).forEach(asset => {
         const checksum = data[list][asset].checksum;
         let lang = null;
-        if (list == 'country_lists'){
+        if (list === 'country_lists'){
           lang = data[list][asset].language;
         }
 
@@ -86,11 +75,11 @@ class Checksums extends UpdateCallbackHandler {
           this.triggerCallbacks({
             checksum,
             asset,
-            remoteURL: `${BASE_URL}` + assetName,
+            remoteURL: BASE_URL + assetName,
+            key: list,
           });
         }
-          
-        });
+      });
     });
   }
 }
@@ -162,14 +151,14 @@ export default class extends UpdateCallbackHandler {
     this.checksums.load();
   }
 
-  updateList({ checksum, asset, remoteURL }) {
+  updateList({ checksum, asset, remoteURL, key }) {
     let list = this.lists.get(asset);
 
     if (list === undefined) {
       list = new FiltersList(checksum, asset, remoteURL);
       this.lists.set(asset, list);
       list.onUpdate(filters => {
-        const isFiltersList = !isJSResource(asset);
+        const isFiltersList = key !== 'js_resources';
         this.triggerCallbacks({ asset, filters, isFiltersList });
       });
       list.load();
