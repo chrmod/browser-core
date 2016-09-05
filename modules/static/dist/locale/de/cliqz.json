@@ -309,7 +309,7 @@
         "message":"Deine Webseiten-Vorschläge erscheinen sofort hier"
     },
     "onCalloutLandingPage":{
-        "message":"Mit CLIQZ direkt am Ziel – mehr Zeit zum Surfen, weniger Suchen"
+        "message":"Mit CLIQZ direkt am Ziel--schneller suchen, länger surfen"
     },
     "onCalloutClickHere":{
         "message":"Klick hier um einen CLIQZ-Vorschlag auszuwählen"
@@ -360,7 +360,7 @@
         "message":"Meine $1 Seiten"
     },
     "Sitemap_Youtube_Popular": {
-        "message":"Beliebte auf YouTube"
+        "message":"Beliebt auf YouTube"
     },
     "Sitemap_Youtube_Subscriptions": {
         "message":"Meine Abos"
@@ -540,7 +540,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "statsShareMsg": {
-        "message": "@cliqz saved me $1 minutes over the last 7 days"
+        "message": "mit @cliqz habe ich $1 Minuten in den letzten 7 Tagen gespart."
     },
     "statsShareAction": {
         "message": "Diese Statistik auf $1 posten"
@@ -642,7 +642,7 @@
       "message": "CLIQZ Suche aktivieren"
     },
     "btnFreshTab": {
-      "message": "CLIQZ Startseite und Neue Tabs aktivieren"
+      "message": "CLIQZ Tab aktivieren"
     },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
@@ -690,7 +690,7 @@
       "message": "Meist gesehen"
     },
     "ez_video-music": {
-      "message": "Music"
+      "message": "Musik"
     },
     "ez_video-newest": {
       "message": "Neueste"
@@ -861,10 +861,10 @@
       "message": "Nein"
     },
     "no_local_data_msg": {
-      "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe. Können wir in Zukunft deinen Standort benutzten?"
+      "message": "Entschuldigung, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in deiner Nähe. Können wir in Zukunft deinen Standort benutzten?"
     },
     "location_sorry_msg": {
-      "message": "Oh nein, leider ist etwas schief gegangen. Passiert nicht noch einmal!"
+      "message": "Entschuldigung, für dieses Ergebnis haben wir leider keine örtlichen Informationen in deiner Nähe."
     },
     "location_thank_you_msg": {
       "message": "Vielen Dank!"
@@ -879,7 +879,7 @@
       "message": "Sicher, dass Du nicht sehen möchtest welche Filme in diesem Kino laufen?"
     },
     "show_local_movies": {
-      "message": "Nein, zeig mir wo ich den Film schauen kann."
+      "message": "Nein, zeig mir wo ich den Film anschauen kann."
     },
     "show_local_cinemas": {
       "message": "Nein, zeig mir welche Filme ich sehen kann."
@@ -930,16 +930,16 @@
       "message": "Bitte die Internet-Verbindung überprüfen."
     },
     "slow_connection_header_3": {
-      "message": "Hmpf."
+      "message": "Noch da?"
     },
     "slow_connection_text_3": {
-      "message": "Bitte die Internet-Verbindung überprüfen."
+      "message": "Bitte überprüfe die Internet-Verbindung."
     },
     "slow_connection_header_4": {
-      "message": "Nicht unsere Schuld!"
+      "message": "Keine...Verbindung...mehr..."
     },
     "slow_connection_text_4": {
-      "message": "Bitte die Internet-Verbindung überprüfen"
+      "message": "Bitte überprüfe die Internet-Verbindung."
     },
     "dataCollection": {
       "message": "CLIQZ for Firefox übermittelt anonyme Daten über Web-Suchen und Website-Besuche an Server von Cliqz um die Such- und Browser-Funktionen zu verbessern."
@@ -990,7 +990,7 @@
       "message": "Unsichere Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
-      "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich."
+      "message": "Gegenwärtig sind deine persönlichen Daten auf dieser Seite Dritten zugänglich."
     },
     "attrack-headline-deactivate": {
       "message": "Der CLIQZ Privatsphären-Schutz ist ausgeschaltet. Private Daten sind nun Dritten zugänglich."
@@ -1158,7 +1158,7 @@
       "message": "Nein, niemals"
     },
     "unblock_youtube_fail": {
-      "message": "OK, wir haben es versucht, leider können wir das Video im Moment nicht zugänglich machen"
+      "message": "OK, wir haben es versucht. Leider können wir das Video im Moment nicht zugänglich machen"
     },
     "cliqz-onboarding-title": {
       "message": "Juhuuu! CLIQZ wurde erfolgreich installiert."
@@ -1170,7 +1170,7 @@
       "message": "Unsere innovativen"
     },
     "cliqz-onboarding-txt-privacy2": {
-      "message": "Anti-Tracking & -Phising"
+      "message": "Anti-Tracking & Anti-Phishing"
     },
     "cliqz-onboarding-txt-privacy3": {
       "message": "Funktionen schützen deine persönlichen Daten."
