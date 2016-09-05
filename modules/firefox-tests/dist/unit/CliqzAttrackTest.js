@@ -601,13 +601,21 @@ TESTS.AttrackTest = function (CliqzUtils) {
         var bloomFilter;
 
         beforeEach(function() {
-          bloomFilter = new AttrackBloomFilter();
-          bloomFilter.configURL = mock_bloom_filter_config_url;
-          bloomFilter.baseURL = mock_bloom_filter_base_url;
+          bloomFilter = new AttrackBloomFilter(mock_bloom_filter_config_url, mock_bloom_filter_base_url);
         });
 
-        it ('bloom filter first time update', function() {
-          bloomFilter.checkUpdate();
+        it ('bloom filter init', function() {
+          bloomFilter.init();
+          return waitFor(function() {
+            return bloomFilter.bloomFilter != null && bloomFilter.version != null;
+          }).then(function() {
+            chai.expect(bloomFilter.version.major).to.equal('0');
+            chai.expect(bloomFilter.bloomFilter.k).to.equal(5);
+          });
+        });
+
+        it ('bloom filter update', function() {
+          bloomFilter.update();
           return waitFor(function() {
             return bloomFilter.bloomFilter != null && bloomFilter.version != null;
           }).then(function() {
