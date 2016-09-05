@@ -101,6 +101,9 @@ Promise.all([
             window.navigator.userLanguage
     })]);
   }).then(function () {
+    // localize
+    CliqzUtils.localizeDoc(document);
+
     CLIQZ.UI.preinit(CliqzAutocomplete, CliqzHandlebars, CliqzEvents);
     CLIQZ.UI.init(urlbar);
     CLIQZ.UI.main(document.getElementById('results'));
