@@ -36,32 +36,6 @@ function localizeDocument() {
   });
 }
 
-function setLabels(switchSpans, labelText) {
-  switchSpans.each(function(index, obj) {
-    var $onLabel = $(obj).siblings('#onlabel');
-    $onLabel.attr('data-i18n', labelText);
-  });
-}
-
-function setDescriptions(switches, descText) {
-  switches.each(function(index, obj) {
-    var $desc = $(obj).siblings('.description');
-    $desc.attr('data-i18n', descText);
-  });
-}
-
-function setHeaderText(main) {
-  var $header = $("#header"),
-      $headertext = $header.find("#text"),
-      headerstring = '';
-  if (main.hasClass("crucial-antiphish") || main.hasClass("crucial-antitrack") || main.hasClass("bad-antiphish") || main.hasClass("bad-antitrack")) {
-    headerstring = 'control-center-txt-header-not';
-  } else {
-    headerstring = 'control-center-txt-header';
-  }
-  $headertext.attr('data-i18n', headerstring);
-}
-
 function isHttpsSection(section) {
   return section === 'https';
 }
