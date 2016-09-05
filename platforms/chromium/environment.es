@@ -60,6 +60,8 @@ const CLIQZEnvironment = {
       'partials/location/missing_location_1',
       'partials/timetable-cinema',
       'partials/timetable-movie',
+      'partials/bottom-data-sc',
+      'partials/download',
       'partials/streaming',
       'partials/lyrics'
   ],
