@@ -17,42 +17,8 @@ const TODAY_DATE = new Date().toISOString().slice(0, 10);
 
 const BASE_URL = `https://cdn.cliqz.com/adblocking/latest-filters/`;
 
-const JS_RESOURCES = new Set([
-  // uBlock resource
-  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt',
-]);
-
-const ALLOWED_LISTS = new Set([
-  // uBlock
-  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt',
-
-  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt',
-  // Adblock plus
-  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
-  // Extra lists
-  'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/pgl.yoyo.org/as/serverlist',
-  // Anti adblock killers
-  'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
-  'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
-  // Privacy
-  // "assets/thirdparties/easylist-downloads.adblockplus.org/easyprivacy.txt",
-  // "assets/ublock/privacy.txt"
-]);
-
-const COUNTRY_LISTS = new Map([
-  ['de', 'https://easylist-downloads.adblockplus.org/easylistgermany.txt'],
-  ['fr', 'https://easylist-downloads.adblockplus.org/liste_fr.txt'],
-  ['it', 'https://easylist-downloads.adblockplus.org/easylistitaly.txt'],
-  ['zh', 'https://easylist-downloads.adblockplus.org/easylistchina.txt'],
-  ['cn', 'https://easylist-downloads.adblockplus.org/easylistchina.txt']
-]);
-
-function getSupportedLangLists() {
-  let supportLangLists = new Set();
-  const LANGS = CliqzLanguage.state();
-  LANGS.forEach(lang => supportLangLists.add(COUNTRY_LISTS.get(lang)))
-  return supportLangLists;
-}
+const LANGS = CliqzLanguage.state();
+ 
 
 
 function isListSupported(path) {
@@ -71,8 +37,8 @@ class Checksums extends UpdateCallbackHandler {
     this.loader = new ResourceLoader(
       RESOURCES_PATH.concat('checksums'),
       {
-        cron: ONE_DAY,
-        dataType: 'plainText',
+        cron: ONE_MINUTE,
+        dataType: 'json',
         remoteURL: this.remoteURL,
       }
     );
@@ -87,7 +53,7 @@ class Checksums extends UpdateCallbackHandler {
 
   get remoteURL() {
     // The URL should contain a timestamp to avoid caching
-    return `${BASE_URL}filters_urls?_=` + String(Date.now());
+    return 'https://cdn.cliqz.com/adblocking/allowed-lists.json';
   }
 
   updateChecksums(data) {
@@ -96,10 +62,14 @@ class Checksums extends UpdateCallbackHandler {
     this.loader.resource.remoteURL = this.remoteURL;
 
     // Parse checksums
-    data.split(/\r\n|\r|\n/g)
-      .filter(line => line.length > 0)
-      .forEach(line => {
-        const [checksum, asset] = line.split(' ');
+    Object.keys(data).forEach(list => {
+      Object.keys(data[list]).forEach(asset => {
+        const checksum = data[list][asset].checksum;
+        let lang = null;
+        if (list == 'country_lists'){
+          lang = data[list][asset].language;
+        }
+
         let assetName = asset;
 
         // Strip prefix
@@ -108,16 +78,21 @@ class Checksums extends UpdateCallbackHandler {
             assetName = assetName.substring(prefix.length);
           }
         });
+
         // Trigger callback even if checksum is the same since
         // it wouldn't work for filter-lists.json file which could
         // have the same checksum but lists could be expired.
         // FiltersList class has then to check the checksum before update.
-        this.triggerCallbacks({
-          checksum,
-          asset,
-          remoteURL: `${BASE_URL}` + assetName,
+        if (lang === null || LANGS.indexOf(lang) > -1){
+          this.triggerCallbacks({
+            checksum,
+            asset,
+            remoteURL: `${BASE_URL}` + assetName,
+          });
+        }
+          
         });
-      });
+    });
   }
 }
 
@@ -175,18 +150,13 @@ export default class extends UpdateCallbackHandler {
     // Current checksums of official filters lists
     this.checksums = new Checksums();
 
-    // Index of available extra filters lists
-    // this.extraLists = new ExtraLists();
 
     // Lists of filters currently loaded
     this.lists = new Map();
 
-    // Update extra lists
-    //this.checksums.onUpdate(this.extraLists.updateExtraLists.bind(this.extraLists));
 
     // Register callbacks on list creation
     this.checksums.onUpdate(this.updateList.bind(this));
-    //this.extraLists.onUpdate(this.updateList.bind(this));
   }
 
   load() {
@@ -195,20 +165,18 @@ export default class extends UpdateCallbackHandler {
   }
 
   updateList({ checksum, asset, remoteURL }) {
-    if (isListSupported(asset)) {
-      let list = this.lists.get(asset);
+    let list = this.lists.get(asset);
 
-      if (list === undefined) {
-        list = new FiltersList(checksum, asset, remoteURL);
-        this.lists.set(asset, list);
-        list.onUpdate(filters => {
-          const isFiltersList = !isJSResource(asset);
-          this.triggerCallbacks({ asset, filters, isFiltersList });
-        });
-        list.load();
-      } else {
-        list.updateFromChecksum(checksum);
-      }
+    if (list === undefined) {
+      list = new FiltersList(checksum, asset, remoteURL);
+      this.lists.set(asset, list);
+      list.onUpdate(filters => {
+        const isFiltersList = !isJSResource(asset);
+        this.triggerCallbacks({ asset, filters, isFiltersList });
+      });
+      list.load();
+    } else {
+      list.updateFromChecksum(checksum);
     }
   }
 }
