@@ -117,16 +117,20 @@ function updateGeneralState() {
   var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
   var states = [].map.call(stateElements, function(el) {
     return el.getAttribute('state');
-  });
+  }), state = 'active';
 
   if(states.includes('critical')){
-    $("#header").attr('state', 'critical');
+    state = 'critical';
   }
   else if(states.includes('inactive')){
-    $("#header").attr('state', 'inactive');
-  } else {
-    $("#header").attr('state', 'active');
+    state = 'inactive';
   }
+
+  $("#header").attr('state', state);
+  sendMessageToWindow({
+    action: 'updateState',
+    data: state
+  });
 }
 
 function compile(obj) {

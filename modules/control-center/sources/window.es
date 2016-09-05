@@ -18,20 +18,30 @@ export default class {
       getData: this.getData.bind(this),
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
+      updateState: this.updateState.bind(this),
       resize: this.resizePopup.bind(this),
       "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
       "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
       "antitracking-activator": this.antitrackingActivator.bind(this),
       "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
     }
+
+    this.onLocationChange = this.onLocationChange.bind(this);
   }
 
   init() {
     this.addCCbutton();
+    CliqzEvents.sub("core.location_change", this.onLocationChange);
   }
 
   unload() {
+    CliqzEvents.un_sub("core.location_change", this.onLocationChange);
+  }
 
+  onLocationChange() {
+    this.prepareData((data) => {
+      this.updateState(data.generalState);
+    });
   }
 
   antitrackingActivator(data){
@@ -40,6 +50,10 @@ export default class {
 
   setBadge(info){
     this.badge.textContent = info;
+  }
+
+  updateState(state){
+    this.badge.setAttribute('state', state);
   }
 
   updatePref(data){
@@ -74,7 +88,7 @@ export default class {
     }
   }
 
-  getData(){
+  prepareData(cb){
     utils.callAction(
       "core",
       "getWindowStatus",
@@ -101,13 +115,19 @@ export default class {
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
-      this.sendMessageToPopup({
-        action: 'pushData',
-        data: {
+      cb({
           activeURL: this.window.gBrowser.currentURI.spec,
           module: moduleData,
           generalState: generalState
-        }
+        });
+    });
+  }
+
+  getData(data){
+    this.prepareData((data) => {
+      this.sendMessageToPopup({
+        action: 'pushData',
+        data: data
       })
     });
   }
@@ -169,7 +189,6 @@ export default class {
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
     div.setAttribute('class','cliqz-control-center')
-    div.style.backgroundImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz_btn.svg)';
     button.appendChild(div);
     div.textContent = 'CLIQZ';
 
