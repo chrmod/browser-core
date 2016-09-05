@@ -1,3 +1,5 @@
+import { utils } from 'core/cliqz';
+
 export default {
   init(settings) {
 
@@ -9,5 +11,11 @@ export default {
 
   beforeBrowserShutdown() {
 
+  },
+
+  actions: {
+    openPopUp() {
+      utils.getWindow().document.querySelector('toolbarbutton#cliqz-button1').click()
+    }
   }
 }

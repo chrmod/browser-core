@@ -75,6 +75,20 @@ export default class {
   }
 
   getData(){
+    var activeURL = this.window.gBrowser.currentURI.spec;
+    if(activeURL === 'about:onboarding') {
+      this.sendMessageToPopup({
+        action: 'pushData',
+        data: {
+          activeURL: 'examplepage.de/webpage',
+          module: {},
+          generalState: ''
+        }
+      });
+
+      return;
+    }
+
     utils.callAction(
       "core",
       "getWindowStatus",
