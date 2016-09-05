@@ -34,7 +34,8 @@ window.CLIQZ = {};
 let currWinId = undefined;
 chrome.windows.getCurrent(null, (win) => { currWinId = win.id; });
 
-const urlbar = document.getElementById('urlbar');
+const urlbar = document.getElementById('urlbar'),
+      settings = document.getElementById("settings");
 
 CLIQZ.Core = {
   urlbar: urlbar,
@@ -79,6 +80,9 @@ Promise.all([
     CLIQZEnvironment.ExpansionsProvider = modules[5].default;
     CLIQZ.config = modules[6].default;
 
+    // initiaize geolocation window
+    CliqzUtils.callAction("geolocation", "updateGeoLocation", []);
+
     return System.import("core/startup")
   }).then(function (startupModule) {
     return startupModule.default(window, [
@@ -105,12 +109,16 @@ Promise.all([
     // CliqzUtils.getBackendResults gets blindly overwriten
     CLIQZEnvironment.ExpansionsProvider.init();
 
+    CliqzUtils.setPref = function(pref, val, prefix){
+      CliqzEvents.pub('prefchange', pref);
+      CLIQZEnvironment.setPref(pref, val, prefix);
+    }
     // remove keydown handler from UI - the platform will do it
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
     acResults = new CliqzAutocomplete.CliqzResults();
 
-    createSettingsMenu();
+    handleSettings();
     whoAmI(true);
 
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
@@ -168,6 +176,7 @@ Promise.all([
   });
 
 function startAutocomplete(query) {
+  settings.classList.add('hidden');
   urlbar.value = query;
   acResults.search(query, function(r) {
     CLIQZ.UI.setRawResults({
@@ -290,6 +299,10 @@ function generateSession(source){
 // Settings
 
 function createOptionEntries(el, options, prefKey, action){
+  while (el.lastChild) {
+    el.removeChild(el.lastChild);
+  }
+
   for(let id in options){
     let option = document.createElement('option');
     option.value = id;
@@ -301,6 +314,23 @@ function createOptionEntries(el, options, prefKey, action){
   el.addEventListener("change", function(ev){
     CliqzUtils.setPref(prefKey, ev.target.value);
     action(ev.target.value);
+  });
+}
+
+function handleSettings(){
+  document.getElementById("settingsButton").addEventListener('click', function(){
+    this.classList.toggle('active');
+    settings.classList.toggle('hidden');
+
+    if(!settings.classList.contains('hidden')){
+      createSettingsMenu();
+    }
+  });
+
+  CliqzEvents.sub('prefchange', function(pref){
+    // recreate the settings menu if relevant prefs change
+    if(pref == 'share_location')
+      createSettingsMenu();
   });
 }
 
@@ -323,11 +353,4 @@ function createSettingsMenu(){
       );
     }
   );
-
-  let btn = document.getElementById("settingsButton"),
-      box = document.getElementById("settings");
-  btn.addEventListener('click', function(){
-    this.classList.toggle('active');
-    box.classList.toggle('hidden');
-  })
 }

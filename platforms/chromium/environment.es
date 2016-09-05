@@ -149,6 +149,9 @@ const CLIQZEnvironment = {
   hasPref: function(pref){
     return pref in CE.getLocalStorage();
   },
+  clearPref: function(pref){
+    delete localStorage[pref];
+  },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
   clearTimeout: function(){ clearTimeout.apply(null, arguments); },
