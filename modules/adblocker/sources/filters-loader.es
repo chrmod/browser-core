@@ -36,7 +36,7 @@ class Checksums extends UpdateCallbackHandler {
     this.loader = new ResourceLoader(
       RESOURCES_PATH.concat('checksums'),
       {
-        cron: ONE_MINUTE,
+        cron: ONE_DAY,
         dataType: 'json',
         remoteURL: this.remoteURL,
       }
