@@ -143,8 +143,20 @@ const CLIQZEnvironment = {
       return notFound;
     }
   },
+  _prefListeners:[],
+  addPrefListener: function(fun){
+    CE._prefListeners.push(fun)
+  },
   setPref: function(pref, val){
     CE.getLocalStorage().setItem(pref,val);
+
+    CE._prefListeners.forEach(function(f){
+      try {
+        f(pref);
+      } catch(e){
+        // bummer
+      }
+    })
   },
   hasPref: function(pref){
     return pref in CE.getLocalStorage();

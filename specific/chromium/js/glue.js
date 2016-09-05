@@ -112,10 +112,6 @@ Promise.all([
     // CliqzUtils.getBackendResults gets blindly overwriten
     CLIQZEnvironment.ExpansionsProvider.init();
 
-    CliqzUtils.setPref = function(pref, val, prefix){
-      CliqzEvents.pub('prefchange', pref);
-      CLIQZEnvironment.setPref(pref, val, prefix);
-    }
     // remove keydown handler from UI - the platform will do it
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
@@ -330,9 +326,13 @@ function handleSettings(){
     }
   });
 
-  CliqzEvents.sub('prefchange', function(pref){
+  CLIQZEnvironment.addPrefListener(function(pref){
     // recreate the settings menu if relevant prefs change
-    if(pref == 'share_location')
+    var relevantPrefs = [
+      'share_location',
+      'adultContentFilter',
+    ]
+    if(relevantPrefs.indexOf(pref) != -1)
       createSettingsMenu();
   });
 }
