@@ -75,7 +75,7 @@ export default background({
     this.offerManager = new OfferManager();
 
     // TODO: GR-137 && GR-140: temporary fix
-    events.sub('core.location_change_delayed', this.onTabOrWinChangedHandler.bind(this));
+    events.sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
     events.sub('core.window_closed', this.onWindowClosed.bind(this));
     events.sub('core.tab_location_change', this.onTabLocChanged.bind(this));
 
