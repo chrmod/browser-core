@@ -511,6 +511,11 @@ html {
 			}
 		}
 	}
+  .infobutton:hover + .tooltip {
+    display: block;
+  }
+
+  @import "tooltip";
 	.bullet {
 		margin-left: 50px;
 		line-height: 30px;
