@@ -1235,6 +1235,9 @@
     "control-center-datapoints": {
       "message": "Deaktiviert für diese Website"
     },
+    "control-center-datapoints-inactive": {
+      "message": "Persönliche Daten wurden entfernt"
+    },
     "control-center-trackers": {
       "message": "Tracking Unternehmen auf dieser Seite"
     },

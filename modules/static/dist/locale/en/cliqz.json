@@ -1235,6 +1235,9 @@
     "control-center-datapoints": {
       "message": "Private data points have been removed"
     },
+    "control-center-datapoints-inactive": {
+      "message": "Turned off for this website"
+    },
     "control-center-trackers": {
       "message": "Tracking companies on this page"
     },
