@@ -1,5 +1,4 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
-import { simpleBtn } from 'q-button/buttons';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 
@@ -8,7 +7,8 @@ function toPx(pixels) {
 }
 
 const BTN_ID = 'cliqz-button1',
-      firstRunPref = 'firstStartDone1';
+      firstRunPref = 'firstStartDone1',
+      BTN_LABEL = 0;
 
 export default class {
   constructor(config) {
@@ -183,14 +183,14 @@ export default class {
 
     let button = doc.createElement('toolbarbutton');
     button.setAttribute('id', BTN_ID);
-    button.setAttribute('label', 'CLIQZ');
-    button.setAttribute('tooltiptext', 'CLIQZ');
+    button.setAttribute('label', BTN_LABEL);
+    button.setAttribute('tooltiptext', BTN_LABEL);
 
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
     div.setAttribute('class','cliqz-control-center')
     button.appendChild(div);
-    div.textContent = 'CLIQZ';
+    div.textContent = BTN_LABEL;
 
     this.badge = div;
 

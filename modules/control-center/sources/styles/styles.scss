@@ -1,5 +1,5 @@
 @font-face {
-	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-family: "-mac-system", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 	font-weight: 300;
 }
 
@@ -130,13 +130,20 @@ html {
           }
         }
       }
-      .infobutton:hover + .tooltip {
-        display: block;
+      .infobutton:hover {
+        cursor: pointer;
+        &+ .tooltip {
+          display: block;
+        }
       }
       #smallarrow {
         margin: 0 0 -2px 2px;
       }
       @import "tooltip";
+    }
+
+    .title[stop-navigation]:hover {
+      cursor: default;
     }
 
     .description {
@@ -163,6 +170,10 @@ html {
         .cqz-switch-box {
             background: #2CBA84;
         }
+    }
+
+    .frame-container[stop-navigation] #smallarrow {
+      display: none;
     }
 
     .inactive {
@@ -511,6 +522,11 @@ html {
 			}
 		}
 	}
+  .infobutton:hover + .tooltip {
+    display: block;
+  }
+
+  @import "tooltip";
 	.bullet {
 		margin-left: 50px;
 		line-height: 30px;
@@ -725,6 +741,11 @@ html {
 		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 		transition: all 0.3s;
 	}
+}
+
+.bullet[state="active"] .cqz-switch-box-grey::before {
+  left: auto;
+  right: 1px;
 }
 
 .cqz-switch-grey {
