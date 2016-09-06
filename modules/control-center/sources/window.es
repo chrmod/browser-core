@@ -118,7 +118,8 @@ export default class {
       cb({
           activeURL: this.window.gBrowser.currentURI.spec,
           module: moduleData,
-          generalState: generalState
+          generalState: generalState,
+          feedbackURL: utils.FEEDBACK_URL
         });
     });
   }
