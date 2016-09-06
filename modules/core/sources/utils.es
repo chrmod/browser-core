@@ -35,6 +35,7 @@ var CliqzUtils = {
   FEEDBACK:                       'https://cliqz.com/feedback/',
   SYSTEM_BASE_URL:                CLIQZEnvironment.SYSTEM_BASE_URL,
   PREFERRED_LANGUAGE:             null,
+  RESULTS_TIMEOUT:                CLIQZEnvironment.RESULTS_TIMEOUT,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
 

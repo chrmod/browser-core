@@ -13,6 +13,7 @@ const CLIQZEnvironment = {
   LOCALE_PATH: 'modules/static/locale/',
   MIN_QUERY_LENGHT_FOR_EZ: 2,
   RERANKERS: [],
+  RESULTS_TIMEOUT: 1000, // 1 second
   TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
     'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
     'spellcheck': 1,
