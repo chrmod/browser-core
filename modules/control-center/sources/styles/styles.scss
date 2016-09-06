@@ -130,13 +130,20 @@ html {
           }
         }
       }
-      .infobutton:hover + .tooltip {
-        display: block;
+      .infobutton:hover {
+        cursor: pointer;
+        &+ .tooltip {
+          display: block;
+        }
       }
       #smallarrow {
         margin: 0 0 -2px 2px;
       }
       @import "tooltip";
+    }
+
+    .title[stop-navigation]:hover {
+      cursor: default;
     }
 
     .description {
@@ -163,6 +170,10 @@ html {
         .cqz-switch-box {
             background: #2CBA84;
         }
+    }
+
+    .frame-container[stop-navigation] #smallarrow {
+      display: none;
     }
 
     .inactive {
