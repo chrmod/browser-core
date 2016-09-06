@@ -424,6 +424,10 @@ var CLIQZEnvironment = {
         }
       }
     })(),
+    getDefaultSearchEngine() {
+      var searchEngines = CLIQZEnvironment.getSearchEngines();
+      return searchEngines.filter(function (se) { return se.default; })[0];
+    },
     //TODO: cache this
     getSearchEngines: function(){
         var defEngineName = Services.search.defaultEngine.name;
