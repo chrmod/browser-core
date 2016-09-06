@@ -1857,7 +1857,7 @@ function onEnter(ev, item){
     CliqzEvents.pub('autocomplete', {"autocompleted": CliqzAutocomplete.lastAutocompleteActive});
   }
   // Google
-  else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
+  else if ((!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) || input.endsWith('.')) {
     if(currentResults && CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
       var r = currentResults.results;
@@ -1886,6 +1886,11 @@ function onEnter(ev, item){
     var customQuery = CliqzAutocomplete.CliqzResultProviders.customizeQuery(input);
     if(customQuery){
         urlbar.value = customQuery.queryURI;
+    }
+
+    if (input.endsWith('.')) {
+      var engine = CliqzUtils.getDefaultSearchEngine();
+      urlbar.value = engine.getSubmissionForQuery(input);
     }
     return false;
   }
