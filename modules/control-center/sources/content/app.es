@@ -36,32 +36,6 @@ function localizeDocument() {
   });
 }
 
-function setLabels(switchSpans, labelText) {
-  switchSpans.each(function(index, obj) {
-    var $onLabel = $(obj).siblings('#onlabel');
-    $onLabel.attr('data-i18n', labelText);
-  });
-}
-
-function setDescriptions(switches, descText) {
-  switches.each(function(index, obj) {
-    var $desc = $(obj).siblings('.description');
-    $desc.attr('data-i18n', descText);
-  });
-}
-
-function setHeaderText(main) {
-  var $header = $("#header"),
-      $headertext = $header.find("#text"),
-      headerstring = '';
-  if (main.hasClass("crucial-antiphish") || main.hasClass("crucial-antitrack") || main.hasClass("bad-antiphish") || main.hasClass("bad-antitrack")) {
-    headerstring = 'control-center-txt-header-not';
-  } else {
-    headerstring = 'control-center-txt-header';
-  }
-  $headertext.attr('data-i18n', headerstring);
-}
-
 function isHttpsSection(section) {
   return section === 'https';
 }
@@ -280,7 +254,24 @@ function draw(data){
     $(this).closest('.setting').removeClass("active");
     $("#othersettings").css('display', 'block');
     $("#settings").removeClass("open");
-  })
+  });
+
+  $(".cqz-switch-label, .cqz-switch-grey").click(function() {
+    var target = $(this).closest('.bullet');
+    target.attr("state", function(idx, attr) {
+      return attr !== "active" ? "active" : target.attr("inactiveState");
+    });
+
+    if(this.hasAttribute('updatePref')){
+      sendMessageToWindow({
+        action: 'updatePref',
+        data: {
+          pref: this.getAttribute('updatePref'),
+          value: target.attr('state') == 'active' ? true : false
+         }
+      });
+    }
+  });
 
   $(".cqz-switch").click(function() {
     var target = $(this).closest('.frame-container');
@@ -300,32 +291,6 @@ function draw(data){
     }
 
     updateGeneralState();
-  });
-
-  // TODO: improve this - make more in CSS
-  $(".cqz-switch-grey").click(function() {
-    $(this).toggleClass("active");
-    var $switches = $(this).closest('.switches-grey'),
-        $onLabel = $switches.find('#onlabel'),
-        onLabelNext = $onLabel.attr('data-i18n'),
-        isActive = $(this).hasClass('active');
-
-    if (isActive) {
-      onLabelNext = 'control-center-switch-on';
-    } else {
-      onLabelNext = 'control-center-switch-off';
-    }
-    $onLabel.attr('data-i18n', onLabelNext);
-
-    sendMessageToWindow({
-      action: 'updatePref',
-      data: {
-        pref: this.getAttribute('updatePref'),
-        value: isActive
-      }
-    });
-
-    localizeDocument();
   });
 
   $(".dropdown-scope").change(function(ev) {
