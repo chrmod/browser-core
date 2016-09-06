@@ -37,7 +37,9 @@
                   {{/each}}
                 </select>
               </span>
-              <span class="bullet">
+              <span class="bullet"
+                    state="{{#if module.hpn.state}}active{{ else }}inactive{{/if}}"
+                    inactiveState="inactive">
                 <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <defs></defs>
                   <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
@@ -52,13 +54,15 @@
                   <span data-i18n="control-center-info-hpn"></span>
                 </div>
                 <span>
-                  <span data-i18n="control-center-proxy"></span>
+                  <span class="cqz-switch-label" updatePref='extensions.cliqz.hpn-query' data-i18n="control-center-proxy"></span>
                   <span class="switches-grey">
-                    <span class="cqz-switch-grey {{#if module.hpn.state }}active{{/if}}" updatePref='extensions.cliqz.hpn-query'>
+                    <span class="cqz-switch-grey" updatePref='extensions.cliqz.hpn-query'>
                       <span class="cqz-switch-box-grey">
+                      </span>
                     </span>
+                    <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+                    <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
                   </span>
-                  <span id="onlabel" data-i18n="control-center-switch-{{#if module.hpn.state }}on{{ else }}off{{/if}}"></span> </span>
                 </span>
               </span>
             </div>
@@ -75,7 +79,9 @@
             </a>
             <div id="accordion-2" class="accordion-section-content">
               {{#if module.human-web.visible }}
-                <span class="bullet">
+                <span class="bullet"
+                      state="{{#if module.human-web.state}}active{{ else }}inactive{{/if}}"
+                      inactiveState="inactive">
                   <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <defs></defs>
                     <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
@@ -89,12 +95,13 @@
                     <span class="title" data-i18n="control-center-info-hw-title"></span>
                     <span data-i18n="control-center-info-hw"></span>
                   </div>
-                  <span data-i18n="control-center-humanweb"></span>
+                  <span class="cqz-switch-label" updatePref="extensions.cliqz.dnt" data-i18n="control-center-humanweb"></span>
                   <span class="switches-grey">
-                    <span class="cqz-switch-grey {{#if module.human-web.state }}active{{/if}}" updatePref='extensions.cliqz.dnt'>
+                    <span class="cqz-switch-grey" updatePref='extensions.cliqz.dnt'>
                       <span class="cqz-switch-box-grey"></span>
                     </span>
-                    <span id="onlabel" data-i18n="control-center-switch-{{#if module.human-web.state }}on{{ else }}off{{/if}}"></span>
+                    <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+                    <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
                   </span>
                 </span>
               {{/if }}
@@ -144,14 +151,20 @@
                 </span>
               {{/if}}
               {{#if module.apt.visible}}
-                <span class="bullet">
-                <span data-i18n="control-center-forget-mode"></span>
+                <span class="bullet"
+                      state="{{#if module.apt.state}}active{{ else }}inactive{{/if}}"
+                      inactiveState="inactive">
+                  <span class="cqz-switch-label"
+                        data-i18n="control-center-forget-mode"
+                        updatePref='browser.privatebrowsing.apt'>
+                  </span>
                   <span class="switches-grey">
-                    <span class="cqz-switch-grey {{#if module.apt.state }}active{{/if}}" updatePref='browser.privatebrowsing.apt'>
+                    <span class="cqz-switch-grey" updatePref='browser.privatebrowsing.apt'>
                       <span class="cqz-switch-box-grey"></span>
                     </span>
-                    <span id="onlabel" data-i18n="control-center-switch-{{#if module.apt.state }}on{{ else }}off{{/if}}"></span>
                   </span>
+                  <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
+                  <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
                 </span>
               {{/if}}
             </div>

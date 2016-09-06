@@ -1,5 +1,5 @@
 @font-face {
-	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-family: "-mac-system", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 	font-weight: 300;
 }
 
@@ -741,6 +741,11 @@ html {
 		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 		transition: all 0.3s;
 	}
+}
+
+.bullet[state="active"] .cqz-switch-box-grey::before {
+  left: auto;
+  right: 1px;
 }
 
 .cqz-switch-grey {
