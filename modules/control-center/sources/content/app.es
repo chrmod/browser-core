@@ -304,43 +304,7 @@ function draw(data){
   });
 
   $(".pause").click(function() {
-    var $main = $(this).closest('#control-center'),
-        $headertext = $main.find("#header").find("#text"),
-        $section = $main.find('.setting'),
-        $cqzswitch = $main.find(".cqz-switch"),
-        $switches = $cqzswitch.closest('.switches'),
-        $onLabel = $switches.find('#onlabel'),
-        $trackswitch = $main.find(".cqz-switch"),
-        $trackdesc = $trackswitch.closest('.switches').siblings(".description"),
-        $adblock = $main.find(".adblock"),
-        $adblockdesc = $adblock.find(".description");
-
-    if ($main.hasClass("break")) {
-      $main.removeClass("break");
-      $cqzswitch.addClass("active");
-      $onLabel.attr('data-i18n', 'control-center-switch-on');
-      $trackdesc.attr('data-i18n', 'control-center-datapoints');
-      $adblockdesc.attr('data-i18n', 'control-center-adblock-description');
-      $headertext.attr('data-i18n', 'control-center-txt-header');
-      $section.removeClass('inactive');
-      $switches.removeClass('inactive');
-    } else {
-      $main.addClass("break");
-      $cqzswitch.removeClass("active");
-      $onLabel.attr('data-i18n', 'control-center-switch-off');
-      $trackdesc.attr('data-i18n', 'control-center-datapoints-inactive');
-      $adblockdesc.attr('data-i18n', 'control-center-adblock-description-inactive');
-      $headertext.attr('data-i18n', 'control-center-txt-header-not');
-      $section.addClass('inactive');
-
-      $main.removeClass("crucial-antiphish");
-      $main.removeClass("crucial-antitrack");
-      $main.removeClass("crucial-https");
-      $main.removeClass("bad-antiphish");
-      $main.removeClass("bad-antitrack");
-
-      $('.dropdown option:first-child').prop("selected", true);
-    }
+    //TODO
     localizeDocument();
   });
 

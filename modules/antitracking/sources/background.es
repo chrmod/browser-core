@@ -225,14 +225,21 @@ export default background({
     },
     "control-center:antitracking-activator": function (data) {
       if(data.status == 'active'){
+        // when we activate we also remove the current url from whitelist
         utils.setPref('antiTrackTest', true);
         if(CliqzAttrack.isSourceWhitelisted(data.hostname)){
           CliqzAttrack.removeSourceDomainFromWhitelist(data.hostname);
           this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
         }
       } else if(data.status == 'inactive'){
-        this.popupActions.toggleWhiteList({ hostname: data.hostname});
+        // inactive means that the current url is whitelisted but the whole mechanism is on
+        CliqzAttrack.addSourceDomainToWhitelist(data.hostname);
+        if(utils.getPref('antiTrackTest', false) == false){
+          utils.setPref('antiTrackTest', true)
+        }
+        this.popupActions.telemetry({ action: 'click', target: 'whitelist_domain' });
       } else if(data.status == 'critical'){
+        // on critical we disable anti tracking completely so we must also clean the current url from whitelist
         utils.setPref('antiTrackTest', false);
         if(CliqzAttrack.isSourceWhitelisted(data.hostname)){
           CliqzAttrack.removeSourceDomainFromWhitelist(data.hostname);

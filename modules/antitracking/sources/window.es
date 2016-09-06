@@ -2,7 +2,7 @@ import background from 'antitracking/background';
 import CliqzAttrack from 'antitracking/attrack';
 import { utils, events } from 'core/cliqz';
 import { simpleBtn } from 'q-button/buttons';
-
+import { URLInfo } from 'antitracking/url';
 
 function onLocationChange(ev) {
   if(this.interval) { CliqzUtils.clearInterval(this.interval); }
@@ -172,12 +172,12 @@ export default class {
       return {
         visible: true,
         strict: utils.getPref('attrackForceBlock', false),
-        hostname: info.hostname,
+        hostname: URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         totalCount: info.cookies.blocked + info.requests.unsafe,
         enabled: enabled,
-        isWhitelisted: isWhitelisted,
+        isWhitelisted: isWhitelisted || enabled,
         reload: info.reload || false,
         trackersList: info,
         ps: ps,
