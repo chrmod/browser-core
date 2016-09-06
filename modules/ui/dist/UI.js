@@ -490,7 +490,7 @@ var UI = {
                 return false;
             case ESC:
                 if (CLIQZ.Core.urlbar.mInputField.value.length == 0) {
-                  CLIQZ.Core.popup.hidePopup();
+                  CliqzEvents.pub('ui:popup_hide');
                 }
                 return false;
             default:
@@ -679,7 +679,6 @@ var UI = {
         specificView.enhanceResults(r.data);
       }
     },
-    closeResults: closeResults,
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
     getElementByAttr: getElementByAttr,
@@ -697,8 +696,7 @@ function navigateToEZinput(element){
         dest_url = search_engine.getSubmissionForQuery(value);
     }
     openUILink(dest_url);
-    CLIQZ.Core.allowDDtoClose = true;
-    CLIQZ.Core.popup.hidePopup();
+    CliqzEvents.pub('ui:popup_hide');
 
     var action_type = element.getAttribute("logg-action-type");
     var signal = {
@@ -733,26 +731,6 @@ function sessionEnd(){
       CliqzUtils.USER_LNG = null;
       CliqzUtils.SHARE_LOCATION_ONCE = false;
     }
-}
-
-var allowDDtoClose = false;
-function closeResults(event) {
-    if($("[dont-close=true]", gCliqzBox) == null) return;
-
-    if (allowDDtoClose) {
-        allowDDtoClose = false;
-        return;
-    }
-
-    event.preventDefault();
-    setTimeout(function(){
-      var newActive = document.activeElement;
-      if (newActive.getAttribute("dont-close") != "true") {
-        allowDDtoClose = true;
-        CLIQZ.Core.popup.hidePopup();
-        gBrowser.selectedTab.linkedBrowser.focus();
-      }
-    }, 0);
 }
 
 // hide elements in a context folowing a priority (0-lowest)
@@ -1580,7 +1558,7 @@ function resultClick(ev) {
 
             //decouple!
             window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
-            if (!newTab) CLIQZ.Core.popup.hidePopup();
+            if (!newTab) CliqzEvents.pub('ui:popup_hide');
             break;
         } else if (el.getAttribute('cliqz-action')) {
             switch (el.getAttribute('cliqz-action')) {
