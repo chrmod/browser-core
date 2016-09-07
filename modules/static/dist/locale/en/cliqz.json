@@ -1229,6 +1229,9 @@
     "download": {
       "message": "Download from: "
     },
+    "cliqz-search-hint": {
+      "message": "Search is powered by"
+    },
     "settings": {
       "message": "Settings"
     },
