@@ -6,8 +6,8 @@ function toPx(pixels) {
   return pixels.toString() + 'px';
 }
 
-const BTN_ID = 'cliqz-button1',
-      firstRunPref = 'firstStartDone1',
+const BTN_ID = 'cliqz-cc-btn',
+      firstRunPref = 'cliqz-cc-initialized',
       BTN_LABEL = 0;
 
 export default class {
@@ -20,9 +20,9 @@ export default class {
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
       resize: this.resizePopup.bind(this),
-      "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
       "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
       "antitracking-activator": this.antitrackingActivator.bind(this),
+      "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
     }
 
@@ -48,6 +48,10 @@ export default class {
     events.pub("control-center:antitracking-activator", data)
   }
 
+  adbActivator(data){
+    events.pub("control-center:adb-activator", data)
+  }
+
   setBadge(info){
     this.badge.textContent = info;
   }
@@ -57,8 +61,6 @@ export default class {
   }
 
   updatePref(data){
-    this.window.console.log('updatePref', data);
-
     // NASTY!
     if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
 
@@ -77,7 +79,6 @@ export default class {
   }
 
   openURL(data){
-    this.window.console.log('openURL', data);
     switch(data.url) {
       case 'history':
         this.window.PlacesCommandHook.showPlacesOrganizer('History');
@@ -149,7 +150,6 @@ export default class {
   }
 
   handleMessagesFromPopup(message){
-    this.window.console.log('IN BACKGROUND', message);
     this.actions[message.action](message.data);
   }
 
@@ -167,7 +167,7 @@ export default class {
     if (!firstRunPrefVal) {
         utils.setPref(firstRunPref, true);
 
-        ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
+        ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'bookmarks-menu-button');
     }
 
     if (!utils.getPref(dontHideSearchBar, false)) {

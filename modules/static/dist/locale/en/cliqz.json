@@ -1344,7 +1344,10 @@
       "message": "Strict"
     },
     "control-center-this-site": {
-      "message": "This website"
+      "message": "This page"
+    },
+    "control-center-this-domain": {
+      "message": "This domain"
     },
     "control-center-all-sites": {
       "message": "All Sites"

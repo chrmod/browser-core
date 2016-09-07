@@ -70,10 +70,21 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
     action: 'antitracking-activator',
     data: {
       status: $(this).closest('.frame-container').attr("state"),
-      hostname: $(this).closest('.frame-container').attr("hostname")
+      hostname: $(this).closest('.frame-container').attr("hostname"),
     }
   });
-})
+});
+
+$('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
+  sendMessageToWindow({
+    action: 'adb-activator',
+    data: {
+      status: $(this).closest('.frame-container').attr("state"),
+      url: $(this).closest('.frame-container').attr("url"),
+      option: $(this).closest('.switches').find('.dropdown-scope').val()
+    }
+  });
+});
 
 // select box change
 $('#control-center').on('change', 'select[updatePref]', function(ev){
@@ -168,7 +179,7 @@ function draw(data){
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     compileAdblockInfo(data);
   }
-  console.log(data);
+  console.log("Drawing: ", data);
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates["template"](data)
   document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"](data);
