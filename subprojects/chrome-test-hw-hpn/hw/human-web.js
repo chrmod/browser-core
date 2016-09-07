@@ -82,8 +82,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                 anonPayloads: {}, //Variable for content extraction fw.
                 messageTemplate: {},
                 anonIdMappings: {},
-                patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
-                anonPatternsURL: 'https://cdn.cliqz.com/human-web/patterns-anon',
+                patternsURL: 'https://cdn.cliqz.com/human-web-chromium/patterns',
+                anonPatternsURL: 'https://cdn.cliqz.com/human-web-chromium/patterns-anon',
                 configURL: 'https://safe-browsing-proxy-network.cliqz.com/config',
                 searchCache: {},
                 ts: "",
@@ -2281,6 +2281,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     // Adding anti-duplicate key, so to detect duplicate messages on the backend.
                     msg['anti-duplicates'] = Math.floor(Math.random() * 10000000);
+                    msg['channel'] = 'chromium';
 
                     if (msg.action == 'page') {
                         if (msg.payload.tend && msg.payload.tin) {
@@ -3997,10 +3998,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                     CliqzHumanWeb.saveRecord('actionStats_last_send', CliqzHumanWeb.actionStatsLastSent);
                 },
                 saveStrictQueries: function saveStrictQueries() {
-                    if (CliqzHumanWeb.strictQueries.length > 0) {
-                        _log("Saving local table");
-                        CliqzHumanWeb.saveRecord('localStrictQueries', JSON.stringify(CliqzHumanWeb.strictQueries));
-                    }
+                    _log("Saving local table");
+                    CliqzHumanWeb.saveRecord('localStrictQueries', JSON.stringify(CliqzHumanWeb.strictQueries));
                 },
                 sendActionStatsIfNeeded: function sendActionStatsIfNeeded() {
                     // Send action stats once per day.

@@ -24,6 +24,9 @@ var __CliqzUtils = function() { // (_export) {
                             break;
                         case "config_location":
                             defaultValue = "de";
+                            if(CliqzUtils.prefs.hasOwnProperty(label)){
+                                defaultValue = CliqzUtils.prefs[label];
+                            }
                         default:
                             defaultValue;
                             break;
