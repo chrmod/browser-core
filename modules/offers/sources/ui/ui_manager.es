@@ -151,16 +151,6 @@ UIManager.prototype.showVoucherNotificationInCurrentWindow = function(currWindow
     });
   }
 
-  // not interested in this
-  buttons.push({
-    label : 'Kein Interesse',
-    callback : function () {
-        if (self.callbacks.not_interested) {
-          return self.callbacks.not_interested(offerID);
-        }
-      }
-  });
-
   buttons.push({
     label : 'Ueber CLIQZ-Angebote',
     callback : function () {
@@ -197,8 +187,11 @@ UIManager.prototype.showVoucherNotificationInCurrentWindow = function(currWindow
       CliqzUtils.copyResult(couponElement.innerHTML);
       if (self.callbacks.cp_to_clipboard) {
         try {
-          let copyText = couponElement.nextElementSibling
-          copyText.style.visibility = 'visible';
+
+          let copyText = notification.boxObject.firstChild.getElementsByClassName("cqz-copy-coupon")[0];
+          if (copyText) {
+            copyText.style.display = 'inline';
+          }
         } catch (ee) {
           LoggingHandler.LOG_ENABLED &&
           LoggingHandler.error(MODULE_NAME, "can't attach click listener to couponElement" + ee);

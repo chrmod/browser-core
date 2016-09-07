@@ -270,7 +270,7 @@ const CliqzADB = {
       initAdBlocker();
     } else {
       events.sub('prefchange', pref => {
-        if (pref === ADB_PREF &&
+        if ((pref === ADB_PREF || pref === ADB_ABTEST_PREF) &&
             !CliqzADB.adblockInitialized &&
             adbEnabled()) {
           initAdBlocker();

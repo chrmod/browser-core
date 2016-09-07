@@ -1073,6 +1073,9 @@ var CliqzAttrack = {
 
         this._trackerLoader.stop();
         this._cookieWhitelistLoader.stop();
+        if (this._blockRulesLoader) {
+          this._blockRulesLoader.stop();
+        }
 
         events.un_sub("attrack:safekeys_updated");
     },
@@ -1198,13 +1201,13 @@ var CliqzAttrack = {
     },
     loadBlockRules: function() {
         CliqzAttrack.qsBlockRule = [];
-        CliqzUtils.loadResource(CliqzAttrack.URL_BLOCK_RULES, function(req) {
-            try {
-                CliqzAttrack.qsBlockRule = JSON.parse(req.response);
-            } catch(e) {
-                CliqzAttrack.qsBlockRule = [];
-            }
+        CliqzAttrack._blockRulesLoader = new ResourceLoader( ['antitracking', 'anti-tracking-block-rules.json'], {
+          remoteURL: CliqzAttrack.URL_BLOCK_RULES,
+          cron: 24 * 60 * 60 * 1000,
         });
+        const updateRules = (rules) => { CliqzAttrack.qsBlockRule = rules || []};
+        CliqzAttrack._blockRulesLoader.load().then(updateRules);
+        CliqzAttrack._blockRulesLoader.onUpdate(updateRules);
     },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
