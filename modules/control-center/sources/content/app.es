@@ -70,10 +70,21 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
     action: 'antitracking-activator',
     data: {
       status: $(this).closest('.frame-container').attr("state"),
-      hostname: $(this).closest('.frame-container').attr("hostname")
+      hostname: $(this).closest('.frame-container').attr("hostname"),
     }
   });
-})
+});
+
+$('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
+  sendMessageToWindow({
+    action: 'adb-activator',
+    data: {
+      status: $(this).closest('.frame-container').attr("state"),
+      url: $(this).closest('.frame-container').attr("url"),
+      option: $(this).closest('.switches').find('.dropdown-scope').val()
+    }
+  });
+});
 
 // select box change
 $('#control-center').on('change', 'select[updatePref]', function(ev){

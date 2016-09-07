@@ -20,9 +20,9 @@ export default class {
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
       resize: this.resizePopup.bind(this),
-      "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
       "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
       "antitracking-activator": this.antitrackingActivator.bind(this),
+      "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
     }
 
@@ -46,6 +46,10 @@ export default class {
 
   antitrackingActivator(data){
     events.pub("control-center:antitracking-activator", data)
+  }
+
+  adbActivator(data){
+    events.pub("control-center:adb-activator", data)
   }
 
   setBadge(info){

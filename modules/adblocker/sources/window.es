@@ -4,6 +4,7 @@ import CliqzADB,
      { adbEnabled,
        adbABTestEnabled,
        ADB_PREF_VALUES,
+       ADB_PREF_OPTIMIZED,
        ADB_PREF } from 'adblocker/adblocker';
 
 
@@ -163,20 +164,18 @@ export default class {
     }));
 
     const report = CliqzADB.adbStats.report(currentURL);
+    const enabled = CliqzUtils.getPref(ADB_PREF, false) !== ADB_PREF_VALUES.Disabled;
+
     return {
       visible: true,
-      enabled: CliqzUtils.getPref(ADB_PREF, '') !== ADB_PREF_VALUES.Disabled,
-      optimized: CliqzUtils.getPref(ADB_PREF, '') === ADB_PREF_VALUES.Optimized,
-      urlState: {
-        state: disabledForUrl,
-        active: adbDisabled || disabledForDomain || !isCorrectUrl
-      },
-      domainState: {
-        state: disabledForDomain,
-        active: adbDisabled || !isCorrectUrl
-      },
+      enabled: enabled && !disabledForDomain && !disabledForUrl,
+      optimized: CliqzUtils.getPref(ADB_PREF_OPTIMIZED, true) == true,
+      disabledForUrl: disabledForUrl,
+      disabledForDomain: disabledForDomain,
+      disabledEverywhere: !enabled && !disabledForUrl && !disabledForDomain,
       totalCount: report.totalCount,
       advertisersList: report.advertisersList,
+      state: (!enabled) ? 'critical' : (disabledForUrl || disabledForDomain ? 'off' : 'active')
     }
   }
 }
