@@ -175,7 +175,7 @@ export default class {
       disabledEverywhere: !enabled && !disabledForUrl && !disabledForDomain,
       totalCount: report.totalCount,
       advertisersList: report.advertisersList,
-      state: (!enabled) ? 'critical' : (disabledForUrl || disabledForDomain ? 'off' : 'active')
+      state: (!enabled) ? 'off' : (disabledForUrl || disabledForDomain ? 'off' : 'active')
     }
   }
 }

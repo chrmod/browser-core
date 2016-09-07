@@ -1,4 +1,4 @@
-{{#if true }} <!-- module.adblocker.visible}} -->
+{{#if module.adblocker.visible }}
 <div class="frame-container"
      state="{{ module.adblocker.state }}"
      inactiveState="off"
@@ -54,7 +54,7 @@
         <option stop-navigation {{#if module.adblocker.disabledForDomain }}selected{{/if}}
             data-i18n="control-center-this-domain" value="domain" adBlockerStatusChanger></option>
         <option stop-navigation {{#if module.adblocker.disabledEverywhere }}selected{{/if}}
-            data-i18n="control-center-all-sites" value="all" adBlockerStatusChanger></option>
+            data-i18n="control-center-all-sites" value="all-sites" adBlockerStatusChanger></option>
       </select>
       <span visible-on-state="active">
         <span class="squaredFour">

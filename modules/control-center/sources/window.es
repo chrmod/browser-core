@@ -61,8 +61,6 @@ export default class {
   }
 
   updatePref(data){
-    this.window.console.log('updatePref', data);
-
     // NASTY!
     if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
 
@@ -81,7 +79,6 @@ export default class {
   }
 
   openURL(data){
-    this.window.console.log('openURL', data);
     switch(data.url) {
       case 'history':
         this.window.PlacesCommandHook.showPlacesOrganizer('History');
@@ -151,7 +148,6 @@ export default class {
   }
 
   handleMessagesFromPopup(message){
-    this.window.console.log('IN BACKGROUND', message);
     this.actions[message.action](message.data);
   }
 
