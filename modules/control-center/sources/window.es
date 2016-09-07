@@ -84,7 +84,9 @@ export default class {
         this.window.PlacesCommandHook.showPlacesOrganizer('History');
         break;
       default:
-        var tab = utils.openLink(this.window, data.url, true);
+        var tab = utils.openLink(this.window, data.url, true),
+            panel = utils.getWindow().document.querySelector("panel[viewId=" + BTN_ID + "]");
+        panel.hidePopup();
         this.window.gBrowser.selectedTab = tab;
     }
   }

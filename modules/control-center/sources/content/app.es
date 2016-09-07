@@ -187,16 +187,15 @@ function draw(data){
   document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"](data);
 
   function close_setting_accordion_section() {
-    $('.setting-accordion .setting-accordion-section-title').removeClass('active');
+    $('.setting-accordion .accordion-active-title').removeClass('active');
     $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
   }
 
-  $('.setting-accordion-section-title').click(function(e) {
-
+  $('.accordion-active-title').click(function(e) {
     // Grab current anchor value
     var currentAttrValue = $(this).attr('href');
 
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "setting-accordion-section-title active")) {
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-active-title active")) {
       close_setting_accordion_section();
     } else {
       close_setting_accordion_section();

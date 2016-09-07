@@ -1,7 +1,7 @@
 <div class="setting-accordion">
   {{#each companiesArray}}
     <div class="setting-accordion-section">
-      <a class="setting-accordion-section-title" href="#accordion-{{@index}}">
+      <a class="setting-accordion-section-title {{#if_eq ../module "antitracking"}} accordion-active-title {{/if_eq}}" href="#accordion-{{@index}}">
         <svg id="arrow" width="13px" height="13px" viewBox="0 0 7 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
           <defs></defs>
           <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -15,11 +15,12 @@
         <span>{{name}}</span>
       </a>
       <span class="company-count">{{count}}</span>
-      <div id="accordion-{{@index}}" class="setting-accordion-section-content">
-        {{#each domains}}
-          <span class="bullet">{{domain}} </span>
-        {{/each}}
-      </div>
+
+        <div id="accordion-{{@index}}" class="setting-accordion-section-content">
+          {{#each domains}}
+            <span class="bullet">{{domain}} </span>
+          {{/each}}
+        </div>
     </div>
   {{/each}}
 </div>
