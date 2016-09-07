@@ -35,6 +35,7 @@ var CliqzUtils = {
   FEEDBACK:                       'https://cliqz.com/feedback/',
   SYSTEM_BASE_URL:                CLIQZEnvironment.SYSTEM_BASE_URL,
   PREFERRED_LANGUAGE:             null,
+  RESULTS_TIMEOUT:                CLIQZEnvironment.RESULTS_TIMEOUT,
 
   BRANDS_DATABASE: BRANDS_DATABASE,
 
@@ -770,12 +771,12 @@ var CliqzUtils = {
      CliqzUtils.getPref('share_location','ask')
     ].join('')
 
-    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng) {
+    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG || lat && lng) {
       qs += [
         '&loc=',
-        lat || CLIQZEnvironment.USER_LAT,
+        lat || CliqzUtils.USER_LAT,
         ',',
-        lng || CLIQZEnvironment.USER_LNG,
+        lng || CliqzUtils.USER_LNG,
         (specifySource ? ',U' : '')
       ].join('');
     }
@@ -1068,7 +1069,7 @@ var CliqzUtils = {
   },
   addEventListenerToElements: CLIQZEnvironment.addEventListenerToElements,
   search: CLIQZEnvironment.search,
-  distance: function(lon1, lat1, lon2 = CLIQZEnvironment.USER_LNG, lat2 = CLIQZEnvironment.USER_LAT) {
+  distance: function(lon1, lat1, lon2 = CliqzUtils.USER_LNG, lat2 = CliqzUtils.USER_LAT) {
     /** Converts numeric degrees to radians */
     function degreesToRad(degree){
       return degree * Math.PI / 180;
