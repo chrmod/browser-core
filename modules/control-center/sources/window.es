@@ -6,8 +6,8 @@ function toPx(pixels) {
   return pixels.toString() + 'px';
 }
 
-const BTN_ID = 'cliqz-button1',
-      firstRunPref = 'firstStartDone1',
+const BTN_ID = 'cliqz-cc-btn',
+      firstRunPref = 'cliqz-cc-initialized',
       BTN_LABEL = 0;
 
 export default class {
@@ -169,7 +169,7 @@ export default class {
     if (!firstRunPrefVal) {
         utils.setPref(firstRunPref, true);
 
-        ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
+        ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'bookmarks-menu-button');
     }
 
     if (!utils.getPref(dontHideSearchBar, false)) {
