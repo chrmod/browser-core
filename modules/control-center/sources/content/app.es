@@ -58,28 +58,55 @@ $(document).ready(function(resolvedPromises) {
 
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
-  sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
+  sendMessageToWindow({
+    action: 'openURL',
+    data: {
+      url: ev.currentTarget.getAttribute('openUrl'),
+      target: ev.currentTarget.getAttribute('data-target')
+    }
+  });
 });
 
 $('#control-center').on('click', '[data-function]', function(ev){
-  sendMessageToWindow({ action: ev.currentTarget.dataset.function } );
+  sendMessageToWindow({
+    action: ev.currentTarget.dataset.function,
+    data: {
+      status: $(this).prop('checked')
+    }
+  });
 });
 
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
+  var status,
+      type = $(this).attr("data-type");
+  if (type === 'switch') {
+    status = $(this).closest('.frame-container').attr("state");
+  } else {
+    status = $(this).attr('data-state');
+  }
   sendMessageToWindow({
     action: 'antitracking-activator',
     data: {
-      status: $(this).closest('.frame-container').attr("state"),
+      type: type,
+      status: status,
       hostname: $(this).closest('.frame-container').attr("hostname"),
     }
   });
 });
 
 $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
+  var status,
+      type = $(this).attr("data-type");
+  if (type === 'switch') {
+    status = $(this).closest('.frame-container').attr("state");
+  } else {
+    status = $(this).attr('data-state');
+  }
   sendMessageToWindow({
     action: 'adb-activator',
     data: {
-      status: $(this).closest('.frame-container').attr("state"),
+      type: type,
+      status: status,
       url: $(this).closest('.frame-container').attr("url"),
       option: $(this).closest('.switches').find('.dropdown-scope').val()
     }
@@ -92,11 +119,11 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
     action: 'updatePref',
     data: {
       pref: ev.currentTarget.getAttribute('updatePref'),
-      value: ev.currentTarget.value
+      value: ev.currentTarget.value,
+      target: ev.currentTarget.getAttribute('data-target')
     }
   });
-})
-
+});
 
 function updateGeneralState() {
   var stateElements = document.querySelectorAll(".frame-container.anti-tracking, .frame-container.antiphishing");
@@ -192,20 +219,28 @@ function draw(data){
   }
 
   $('.accordion-active-title').click(function(e) {
-    // Grab current anchor value
-    var currentAttrValue = $(this).attr('href');
+    e.preventDefault();
+    var currentAttrValue = $(this).attr('href'),
+        state;
 
     if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-active-title active")) {
       close_setting_accordion_section();
+      state = 'collapsed';
     } else {
       close_setting_accordion_section();
-
-      // Add active class to section title
       $(this).addClass('active');
-      // Open up the hidden content panel
       $('.setting-accordion ' + currentAttrValue).slideDown(150).addClass('open');
+      state = 'expanded';
     }
-    e.preventDefault();
+
+    sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $(this).attr('data-target'),
+        state: state,
+        action: 'click'
+      }
+    });
   });
 
   function close_accordion_section() {
@@ -214,27 +249,37 @@ function draw(data){
   }
 
   $('.accordion-section-title').click(function(e) {
-    // Grab current anchor value
-    var currentAttrValue = $(this).attr('href');
+    e.preventDefault();
+    var currentAttrValue = $(this).attr('href'),
+        state;
 
     if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-section-title active")) {
       close_accordion_section();
+      state = 'collapsed';
     } else {
       close_accordion_section();
-
-      // Add active class to section title
       $(this).addClass('active');
-      // Open up the hidden content panel
       $('.accordion ' + currentAttrValue).slideDown(150).addClass('open');
+      state = 'expanded';
     }
-    e.preventDefault();
+
+     sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $(this).attr('data-target'),
+        state: state,
+        action: 'click'
+      }
+    });
   });
 
   //====== SETTING SECTION =========//
   $(".setting").click(function(e) {
     var $main = $(this).closest("#control-center"),
         $othersettings = $main.find("#othersettings"),
-        $section = $(this).closest('.setting').attr('data-section');
+        $setting = $(this).closest('.setting'),
+        $section = $setting.attr('data-section'),
+        $target = $setting.attr('data-target');
 
     if (isHttpsSection($section)) {
       return;
@@ -254,6 +299,14 @@ function draw(data){
       return;
     }
 
+    sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $target,
+        action: 'click'
+      }
+    });
+
     $("#settings").addClass("open");
     $(this).addClass("active");
     $othersettings.css('display', 'none');
@@ -264,6 +317,13 @@ function draw(data){
     $(this).closest('.setting').removeClass("active");
     $("#othersettings").css('display', 'block');
     $("#settings").removeClass("open");
+    sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $(this).attr('data-target'),
+        action: 'click'
+      }
+    });
   });
 
   $(".cqz-switch-label, .cqz-switch-grey").click(function() {
@@ -277,14 +337,17 @@ function draw(data){
         action: 'updatePref',
         data: {
           pref: this.getAttribute('updatePref'),
-          value: target.attr('state') == 'active' ? true : false
+          value: target.attr('state') == 'active' ? true : false,
+          target: this.getAttribute('data-target')
          }
       });
     }
   });
 
   $(".cqz-switch").click(function() {
-    var target = $(this).closest('.frame-container');
+
+    var target = $(this).closest('.frame-container'),
+        type = 'switch';
 
     target.attr("state", function(idx, attr){
         return attr !== "active" ? "active": target.attr('inactiveState');
@@ -294,6 +357,8 @@ function draw(data){
       sendMessageToWindow({
         action: 'updatePref',
         data: {
+          type: type,
+          target: target.parent().attr("data-target") + '_' + type,
           pref: this.getAttribute('updatePref'),
           value: target.attr('state') == 'active' ? true : false
         }
