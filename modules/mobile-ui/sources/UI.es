@@ -49,6 +49,10 @@ var UI = {
         UI.DelayedImageLoader = System.get('mobile-ui/DelayedImageLoader').default;
         loadViews();
     },
+    onBoardingSwipe: function () {
+      viewPager.goToIndex(1, 1000);
+      setTimeout(viewPager.goToIndex, 600, 0, 1000);
+    },
     setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth  -  2 * PEEK;
       UI.CARD_WIDTH /= UI.nCardsPerPage;
@@ -556,4 +560,4 @@ function loadViews() {
 }
 
 export default UI;
-    
+
