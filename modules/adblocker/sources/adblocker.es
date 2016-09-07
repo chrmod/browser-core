@@ -64,7 +64,7 @@ class AdBlocker {
       if (isFiltersList) {
         this.engine.onUpdateFilters(asset, filters);
       } else {
-        this.engine.onUpdateResource(asset, filters)
+        this.engine.onUpdateResource(asset, filters);
       }
       this.initCache();
     });
@@ -270,7 +270,7 @@ const CliqzADB = {
       initAdBlocker();
     } else {
       events.sub('prefchange', pref => {
-        if (pref === ADB_PREF &&
+        if ((pref === ADB_PREF || pref === ADB_ABTEST_PREF) &&
             !CliqzADB.adblockInitialized &&
             adbEnabled()) {
           initAdBlocker();
@@ -283,13 +283,12 @@ const CliqzADB = {
     CliqzADB.unloadPacemaker();
     browser.forEachWindow(CliqzADB.unloadWindow);
     WebRequest.onBeforeRequest.removeListener(CliqzADB.httpopenObserver.observe);
-    ContentPolicy.unload();
   },
 
-  initWindow(window) {
+  initWindow(/* window */) {
   },
 
-  unloadWindow(window) {
+  unloadWindow(/* window */) {
   },
 
   initPacemaker() {
