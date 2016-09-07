@@ -88,7 +88,7 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
 
 
 function updateGeneralState() {
-  var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
+  var stateElements = document.querySelectorAll(".frame-container.anti-tracking, .frame-container.antiphishing");
   var states = [].map.call(stateElements, function(el) {
     return el.getAttribute('state');
   }), state = 'active';

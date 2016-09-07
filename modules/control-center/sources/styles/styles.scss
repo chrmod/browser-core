@@ -156,6 +156,11 @@ html {
       font-size: 47px;
       margin: 0 10px 0 30px;
       color: #000;
+
+      #count {
+        position: relative;
+        top: -3px;
+      }
     }
 
     .switches {
@@ -394,6 +399,10 @@ html {
 						float: right;
 						margin: -40px 30px 0 0;
 						font-size: 54px;
+
+            #count {
+              top: 0;
+            }
 					}
 				}
 			}
@@ -644,7 +653,8 @@ html {
         display: none;
     }
 
-    .description {
+    .description,
+    #count {
       color: #A4A4A4;
     }
     .counter {
@@ -653,6 +663,9 @@ html {
         .fill {
           fill: #F5C03E;
         }
+      }
+      #count {
+        color: #A4A4A4;
       }
     }
     .switches {
@@ -668,7 +681,8 @@ html {
         display: none;
     }
 
-    .description {
+    .description,
+    #count {
       color: #A4A4A4;
     }
     .counter {
@@ -690,7 +704,6 @@ html {
     }
 }
 
-
 .frame-container[state="critical"] {
     [visible-on-state="active"] {
         display: none;
@@ -700,7 +713,8 @@ html {
         display: none;
     }
 
-    .description {
+    .description,
+    #count {
       color: #A4A4A4;
     }
     .counter {
