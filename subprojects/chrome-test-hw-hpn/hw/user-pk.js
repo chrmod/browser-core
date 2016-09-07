@@ -105,7 +105,7 @@ var userPK = class userPK {
     var _this = this;
     var promise = new Promise(function(resolve, reject){
       _this.log("Setting public Key","user-pk");
-      _http("http://hpn-sign.test.cliqz.com/register")
+      _http("https://signer-proxy-network.cliqz.com/register")
         .post(JSON.stringify({"pk": upk}))
         .then(e=> resolve(true))
     });
