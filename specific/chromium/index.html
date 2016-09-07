@@ -30,9 +30,8 @@ about:Cliqz omnibox popup page
 
         #settingsButton {
             position: relative;
-            width: 80px;
             height: 40px;
-            padding-right: 20px;
+            padding: 0px 25px 0px 10px;
             line-height: 40px;
             top: -40px;
             float: right;
@@ -92,17 +91,16 @@ about:Cliqz omnibox popup page
 <input id='urlbar' style='display:none;' />
 <div id='results' style='padding: 0 60px;'></div>
 <div>
-    <div id='settingsButton'>
-        Settings
+    <div id='settingsButton' class='cliqz-locale' key='settings'>
     </div>
     <div id='settings' class='hidden'>
         <label>
-            <span>Explizite Inhalt blockieren</span>
+            <span class='cliqz-locale' key='result_filter'></span>
             <select id='adult'></select>
         </label>
 
         <label>
-            <span>Standort teilen</span>
+            <span class='cliqz-locale' key='share_location'></span>
             <select id='location'></select>
         </label>
     </div>

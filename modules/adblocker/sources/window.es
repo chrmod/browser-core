@@ -169,7 +169,7 @@ export default class {
     return {
       visible: true,
       enabled: enabled && !disabledForDomain && !disabledForUrl,
-      optimized: CliqzUtils.getPref(ADB_PREF_OPTIMIZED, true) == true,
+      optimized: CliqzUtils.getPref(ADB_PREF_OPTIMIZED, false) == true,
       disabledForUrl: disabledForUrl,
       disabledForDomain: disabledForDomain,
       disabledEverywhere: !enabled && !disabledForUrl && !disabledForDomain,
