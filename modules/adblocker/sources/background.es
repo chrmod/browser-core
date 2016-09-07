@@ -31,7 +31,7 @@ export default background({
 
   events: {
     "control-center:adb-optimized": function () {
-      utils.setPref(ADB_PREF_OPTIMIZED, !utils.getPref(ADB_PREF_OPTIMIZED, true));
+      utils.setPref(ADB_PREF_OPTIMIZED, !utils.getPref(ADB_PREF_OPTIMIZED, false));
     },
     "control-center:adb-activator": function (data) {
       const isUrlInBlacklist = CliqzADB.adBlocker.isUrlInBlacklist(data.url),

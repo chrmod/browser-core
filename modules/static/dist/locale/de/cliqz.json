@@ -1272,7 +1272,7 @@
       "message": "CLIQZ arbeitet mit anonymisierten Daten über Suchanfragen und Website-Besuchen, die von der Gemeinschaft der Nutzer geschaffen werden. Die Technologie, die diese Daten erhebt und daraus einen Web-Index aufbaut, nennen wir Human Web."
     },
     "control-center-adblock-title": {
-      "message": "Werbeblocker"
+      "message": "Werbeblocker [BETA]"
     },
     "control-center-adblock-description": {
       "message": "Werbungen wurden geblockt"
@@ -1287,7 +1287,7 @@
       "message": "Phishing Seite melden"
     },
     "control-center-support": {
-      "message": "Info & Hilfe"
+      "message": "FAQ & Support"
     },
     "control-center-othersettings": {
       "message": "Andere Einstellungen"
@@ -1295,7 +1295,7 @@
     "control-center-quicksearch": {
       "message": "Sichere Schnell-Suche"
     },
-    "control-center-quicksearch": {
+    "control-center-location": {
       "message": "Standort teilen"
     },
     "control-center-explicit": {
