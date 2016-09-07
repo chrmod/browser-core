@@ -192,22 +192,16 @@ function clearFavorites() {
 
 function onElementClick(event) {
   const element = event.srcEvent.currentTarget;
-  const type = element.getAttribute('class');
-  const clickAction = type.indexOf('question') >= 0 ? osAPI.notifyQuery : osAPI.openLink;
-  clickAction(element.dataset.ref);
-  sendClickTelemetry(element);
-}
+  const tab = History.showOnlyFavorite ? 'favorites' : 'history';
+  const targetType = element.getAttribute('class');
+  if (targetType.indexOf('question') >= 0) {
+    osAPI.notifyQuery(element.dataset.ref);
+    sendClickTelemetry(event.target, 'query', tab);
+  } else {
+    osAPI.openLink(element.dataset.ref);
+    sendClickTelemetry(event.target, 'site', tab);
+  }
 
-function sendClickTelemetry(element) {
-  const targeType = element.className.indexOf('question') >= 0 ? 'query' : 'url';
-    utils.telemetry({
-      type: History.showOnlyFavorite ? 'favorites' : 'history',
-      action: 'click',
-      target_type: targeType,
-      target_index: parseInt(element.dataset.index),
-      target_length: element.dataset.ref.length,
-      target_ts: parseInt(element.dataset.timestamp)
-    });
 }
 
 function crossTransform (element, x) {
@@ -249,12 +243,33 @@ function onSwipe(e) {
 }
 function onSwipeEnd(e) {
   const element = e.srcEvent.currentTarget;
+  const tab = History.showOnlyFavorite ? 'favorites' : 'history';
+  const targetType = element.getAttribute('class').indexOf('question') >= 0 ? 'query' : 'site';
+  const direction = e.direction === 4 ? 'right' : 'left';
   if (math.abs(e.velocityX) < -1 || math.abs(e.deltaX) > 150) {
     History.showOnlyFavorite ? unfavoriteItem(element) : removeItem(element);
     removeDomElement(element);
+    sendSwipeTelemetry(targetType, tab, direction);
   } else {
     crossTransform(element, 0);
   }
+}
+
+function sendClickTelemetry(element, targetType, tab) {
+    utils.telemetry({
+      type: tab,
+      action: 'click',
+      target_type: targetType,
+      element: element.dataset.name
+    });
+}
+
+function sendSwipeTelemetry(targetType, tab, direction) {
+  utils.telemetry({
+    type: tab,
+    action: `swipe_${direction}`,
+    target: targetType
+  });
 }
 
 

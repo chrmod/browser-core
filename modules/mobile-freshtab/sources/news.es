@@ -55,24 +55,54 @@ function displayTopSites (list, isEditMode = false) {
 
 
   CliqzUtils.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
+    const delete_count = tempBlockedTopSites.length;
     const blockedTopSites = CliqzUtils.getLocalStorage().getObject('blockedTopSites', []);
     CliqzUtils.getLocalStorage().setObject('blockedTopSites', blockedTopSites.concat(tempBlockedTopSites));
     tempBlockedTopSites = [];
     displayTopSites(topSitesList);
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target: 'confirm_delete',
+      count: displayedTopSitesCount,
+      delete_count
+    });
   });
 
-  CliqzUtils.addEventListenerToElements('#cancelEditTopsites', 'click', _ => {
+  CliqzUtils.addEventListenerToElements('#cancelEditTopsites', 'click', ({ target:element }) => {
+    const delete_count = tempBlockedTopSites.length;
     tempBlockedTopSites = [];
     displayTopSites(topSitesList);
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target: 'cancel_delete',
+      count: displayedTopSitesCount,
+      delete_count
+    });
   });
 
-  CliqzUtils.addEventListenerToElements('.blockTopsite', 'click', function () {
+  CliqzUtils.addEventListenerToElements('.blockTopsite', 'click', function ({ target:element }) {
     tempBlockedTopSites.push(this.getAttribute('mainDomain'));
     displayTopSites(topSitesList, true);
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'click',
+      target: 'delete_topsite',
+      count: displayedTopSitesCount,
+      index: element.dataset.index
+    });
   });
 
-  function onLongpress () {
+  function onLongpress (element) {
     displayTopSites(topSitesList, true);
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'longpress',
+      target: 'topsite',
+      count: displayedTopSitesCount,
+      index: element.dataset.index
+    });
   }
 
   function onTap (element) {

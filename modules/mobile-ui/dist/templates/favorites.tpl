@@ -9,16 +9,17 @@
             <div class="item">
                 {{#with logo}}
                     {{#if backgroundImage}}
-                        <div class="item__logo bg" style="background-image:{{backgroundImage}};
-                                                          background-color:#{{backgroundColor}}"></div>
+                        <div class="item__logo bg" data-name="logo"
+                             style="background-image:{{backgroundImage}};
+                                    background-color:#{{backgroundColor}}"></div>
                     {{else}}
-                        <div class="item__logo" style="{{ style }}">
+                        <div class="item__logo" style="{{ style }}" data-name="logo">
                             {{ text }}
                         </div>
                     {{/if}}
                 {{/with}}
-                <div class="url"><div>{{domain}}</div></div>
-                <div class="item__head">
+                <div class="url" data-name="url"><div>{{domain}}</div></div>
+                <div class="item__head" data-name="title">
                     {{title}}
                 </div>
             </div>

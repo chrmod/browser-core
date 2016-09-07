@@ -148,7 +148,7 @@ var UI = {
     },
     VIEWS: {},
     initViewpager: function () {
-        var views = {},
+        var views = { 0: 1 },
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
             offset = 0;
@@ -170,16 +170,16 @@ var UI = {
             if (page === UI.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
+            const direction = page > UI.currentPage ? 'right' : 'left'
 
 
             CliqzUtils.telemetry({
-              type: 'activity',
-              action: 'swipe',
-              swipe_direction: page > UI.currentPage ? 'right' : 'left',
-              current_position: page,
-              views: views[page],
-              prev_position: UI.currentPage,
-              prev_display_time: Date.now() - pageShowTs
+              type: 'cards',
+              action: `swipe_${direction}`,
+              index: page,
+              show_count: views[page],
+              show_duration: Date.now() - pageShowTs,
+              count: currentResultsCount
             });
 
             pageShowTs = Date.now();
