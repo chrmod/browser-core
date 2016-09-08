@@ -31,6 +31,9 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   -webkit-user-select: none;
 }
 
+#settings-container #settings { display: none; }
+#settings-container.open #settings { display: block; }
+
 .cqz-settings-header {
   position: relative;
   height: 26px;
@@ -82,7 +85,7 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   height: 12px;
 }
 
-#settingsButton.active:before {
+#settings-container.open #settingsButton:before {
   top: 8px;
   background: url("img/settings_arrow_down.svg");
   width: 13px;
@@ -121,11 +124,6 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   background: #fefefe;
   padding-right: 5px;
 }
-
-.hidden {
-  display: none
-}
-
 
 @media (max-width: 628px) {
   #cliqz-search-hint {

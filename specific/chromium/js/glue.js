@@ -35,6 +35,7 @@ let currWinId = undefined;
 chrome.windows.getCurrent(null, (win) => { currWinId = win.id; });
 
 const urlbar = document.getElementById('urlbar'),
+      settingsContainer = document.getElementById("settings-container"),
       settings = document.getElementById("settings");
 
 CLIQZ.Core = {
@@ -141,7 +142,7 @@ Promise.all([
           if (winId === currWinId && !focused) {
             CLIQZ.UI.sessionEnd();
             // Close settings section.
-            document.getElementById("settings").classList.add("hidden");
+            settingsContainer.classList.remove("open");
           }
         });
 
@@ -175,7 +176,7 @@ Promise.all([
   });
 
 function startAutocomplete(query) {
-  settings.classList.add('hidden');
+  settings.classList.remove("open");
   urlbar.value = query;
   acResults.search(query, function(r) {
     CLIQZ.UI.setRawResults({
@@ -318,10 +319,8 @@ function createOptionEntries(el, options, prefKey, action){
 
 function handleSettings(){
   document.getElementById("settingsButton").addEventListener('click', function(){
-    this.classList.toggle('active');
-    settings.classList.toggle('hidden');
-
-    if(!settings.classList.contains('hidden')){
+    settingsContainer.classList.toggle('open');
+    if(!settingsContainer.classList.contains('open')){
       createSettingsMenu();
     }
   });
