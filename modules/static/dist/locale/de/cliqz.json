@@ -1226,6 +1226,132 @@
     "lyrics": {
       "message": "Lyrics: "
     },
+    "control-center-txt-header": {
+      "message": "Deine Daten sind geschützt"
+    },
+    "control-center-txt-header-not": {
+      "message": "Deine Daten sind nicht geschützt"
+    },
+    "control-center-datapoints": {
+      "message": "Deaktiviert für diese Website"
+    },
+    "control-center-datapoints-inactive": {
+      "message": "Persönliche Daten wurden entfernt"
+    },
+    "control-center-trackers": {
+      "message": "Tracking Unternehmen auf dieser Seite"
+    },
+    "control-center-info-trackers": {
+      "message": "Auf fast allen Websites zeichnen integrierte Tracker deine Aktivitäten im Web auf. CLIQZ unterbindet die Daten, anhand derer du identifiziert werden könntest, bevor sie an die Tracking-Dienste gesendet werden. Wie viele einzelne Daten das sind, sagt dir die Zahl. Klick auf das Feld um nähere Details zu sehen."
+    },
+    "control-center-info-phishing-title": {
+      "message": "Anti-Phishing"
+    },
+    "control-center-info-phishing": {
+      "message": "Anti-Phishing technology identifies and blocks potentially deceptive websites that try to get your passwords or account data before you visit the site."
+    },
+    "control-center-info-ads-title": {
+      "message": "Werbeblocker"
+    },
+    "control-center-info-ads": {
+      "message": "Die integrierte Funktion zum „Ausschalten“ von Werbung ist aktuell noch in der Entwicklungs-Phase (BETA). Schon jetzt kann Werbung generell oder nur auf einer bestimmten Website blockiert oder zugelassen werden. Ein „fairer“ Modus, der Werbung nur nach bestimmten Kriterien zulässt, ist in Planung."
+    },
+    "control-center-info-https": {
+      "message": "Dieser integrierte quelloffene Service erhöht die Sicherheit beim Surfen, indem er immer soweit möglich verschlüsselte HTTPS Verbindungen zu Websites anfordert."
+    },
+    "control-center-info-hpn-title": {
+      "message": "Suche über Proxy"
+    },
+    "control-center-info-hpn": {
+      "message": "Wer bei der Internet-Suche erweiterte Anonymität wünscht und die eigene IP-Adresse verbergen möchte, kann die Suchanfragen über ein Netzwerk aus Proxyservern laufen lassen."
+    },
+    "control-center-info-hw-title": {
+      "message": "Human Web"
+    },
+    "control-center-info-hw": {
+      "message": "CLIQZ arbeitet mit anonymisierten Daten über Suchanfragen und Website-Besuchen, die von der Gemeinschaft der Nutzer geschaffen werden. Die Technologie, die diese Daten erhebt und daraus einen Web-Index aufbaut, nennen wir Human Web."
+    },
+    "control-center-adblock-title": {
+      "message": "Werbeblocker [BETA]"
+    },
+    "control-center-adblock-description": {
+      "message": "Werbungen wurden geblockt"
+    },
+    "control-center-adblock-description-inactive": {
+      "message": "Deaktiviert für diese Website"
+    },
+    "control-center-adblock-advertisers": {
+      "message": "Liste der Werbetreibenden auf dieser Seite"
+    },
+    "control-center-phishing-report": {
+      "message": "Phishing Seite melden"
+    },
+    "control-center-support": {
+      "message": "FAQ & Support"
+    },
+    "control-center-othersettings": {
+      "message": "Andere Einstellungen"
+    },
+    "control-center-quicksearch": {
+      "message": "Sichere Schnell-Suche"
+    },
+    "control-center-location": {
+      "message": "Standort teilen"
+    },
+    "control-center-explicit": {
+      "message": "Nicht-jugendfreie Seiten in Suche blockieren"
+    },
+    "control-center-proxy": {
+      "message": "Suche über Proxy"
+    },
+    "control-center-searchoptions": {
+      "message": "Mehr Suchoptionen"
+    },
+    "control-center-humanweb": {
+      "message": "Am Human Web teilnehmen"
+    },
+    "control-center-best-cliqz": {
+      "message": "Hol dir das Beste aus CLIQZ"
+    },
+    "control-center-transparency": {
+      "message": "Transparenz Monitor"
+    },
+    "control-center-history-options": {
+      "message": "Chronik Einstellungen"
+    },
+    "control-center-show-history": {
+      "message": "Gesamte Chronik anzeigen"
+    },
+    "control-center-forget-history": {
+      "message": "Chronik vergessen"
+    },
+    "control-center-forget-mode": {
+      "message": "Automatischer Vergessen Modus"
+    },
+    "control-center-switch-on": {
+      "message": "AN"
+    },
+    "control-center-switch-off": {
+      "message": "AUS"
+    },
+    "control-center-phishing-deceptive": {
+      "message": "Als betrügerisch gemeldet"
+    },
+    "control-center-phishing-deceptive-not": {
+      "message": "Nicht als betrügerisch gemeldet"
+    },
+    "control-center-check-strict": {
+      "message": "Streng"
+    },
+    "control-center-this-site": {
+      "message": "Diese Seite"
+    },
+    "control-center-this-domain": {
+      "message": "Diese Domain"
+    },
+    "control-center-all-sites": {
+      "message": "Alle Websites"
+    },
     "download": {
       "message": "Herunterladen von: "
     },

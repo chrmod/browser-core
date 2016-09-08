@@ -284,6 +284,12 @@ var CliqzABTests = {
             case "1077_B":
                 CliqzUtils.setPref("languageDedup", true);
                 break;
+            case "1078_A":
+                CliqzUtils.setPref("telemetryNoSession", false);
+                break;
+            case "1078_B":
+                CliqzUtils.setPref("telemetryNoSession", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -442,6 +448,10 @@ var CliqzABTests = {
             case "1077_A":
             case "1077_B":
               CliqzUtils.clearPref("languageDedup");
+              break;
+            case "1078_A":
+            case "1078_B":
+              CliqzUtils.clearPref("telemetryNoSession");
               break;
 
             default:

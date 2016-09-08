@@ -30,11 +30,13 @@
     "privacy-dashboard",
     "performance",
     "hpn",
+    "control-center",
     "adblocker",
     "hm",
     "campaign-manager",
     "message-center",
-    "q-button"
+    "q-button",
+    "https-everywhere"
   ],
   "subprojects": [
     "fresh-tab-frontend"
