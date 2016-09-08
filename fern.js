@@ -52,16 +52,19 @@ let hookInstaller = spaws('git-hooks/install-hooks.sh');
 hookInstaller.stderr.on('data', data => console.log(data.toString()));
 hookInstaller.stdout.on('data', data => console.log(data.toString()));
 
-function setConfigPath(configPath) {
+function setConfigPath(configPath, buildIntoSubdir) {
   configPath = configPath || process.env['CLIQZ_CONFIG_PATH'] || './configs/jenkins.json'
   process.env['CLIQZ_CONFIG_PATH'] = configPath;
   CONFIG = JSON.parse(fs.readFileSync(configPath));
   CONFIG.subprojects = CONFIG.subprojects || [];
 
   const configName = path.basename(configPath);
+  let defaultBuildDir = path.resolve(__dirname, 'build');
+  if (buildIntoSubdir)
+      defaultBuildDir = path.join(defaultBuildDir, path.parse(configPath).name);
   OUTPUT_PATH = ('CLIQZ_OUTPUT_PATH' in process.env) ?
       path.resolve(process.env.CLIQZ_OUTPUT_PATH) :
-      path.join(path.resolve(__dirname, 'build'), path.parse(configPath).name);
+      defaultBuildDir;
 }
 
 function buildFreshtabFrontEnd() {
@@ -200,9 +203,10 @@ program.command('build [file]')
        .option('--version [version]', 'sets extension version', 'package')
        .option('--freshtab', 'enables ember fresh-tab-frontend build')
        .option('--prod', 'to generate comprehensive manifest.json')
+       .option('--to-subdir', 'build into a subdirectory named after the config')
        .action((configPath, options) => {
           var buildStart = Date.now();
-          setConfigPath(configPath);
+          setConfigPath(configPath, options.toSubdir);
 
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
           process.env['CLIQZ_FRESHTAB'] = options.freshtab;
