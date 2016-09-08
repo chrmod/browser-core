@@ -35,7 +35,8 @@
     "privacy-dashboard",
     "offers",
     "adblocker",
-    "https-everywhere"
+    "https-everywhere",
+    "telemetry"
   ],
   "subprojects": [
     "fresh-tab-frontend"

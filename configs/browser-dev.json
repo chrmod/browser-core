@@ -31,7 +31,8 @@
     "antitracking",
     "performance",
     "hpn",
-    "privacy-dashboard"
+    "privacy-dashboard",
+    "telemetry"
   ],
   "subprojects": [
     "fresh-tab-frontend"
