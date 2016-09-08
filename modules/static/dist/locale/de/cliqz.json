@@ -1355,6 +1355,9 @@
     "download": {
       "message": "Herunterladen von: "
     },
+    "cliqz-search-hint": {
+      "message": "Search is powered by"
+    },
     "settings": {
       "message": "Einstellungen"
     },
