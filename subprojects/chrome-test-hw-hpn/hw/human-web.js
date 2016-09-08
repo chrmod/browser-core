@@ -1773,7 +1773,8 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 5 == 0) {
 
-                        CliqzHumanWeb.getAllOpenPages(openPages => {
+                        CliqzHumanWeb.getAllOpenPages()
+                        .then(openPages => {
                             var tt = new Date().getTime();
 
                             for (var url in CliqzHumanWeb.state['v']) {
