@@ -325,6 +325,8 @@ export default class {
         overflow: hidden !important;
       }
 
+      panelmultiview[mainViewId="${BTN_ID}"] > .panel-viewcontainer >
+        .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
       panel[viewId="${BTN_ID}"] .panel-mainview {
         max-width: 50em !important;
       }
