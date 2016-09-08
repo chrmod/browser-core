@@ -8,7 +8,9 @@ function toPx(pixels) {
 
 const BTN_ID = 'cliqz-cc-btn',
       firstRunPref = 'cliqz-cc-initialized',
-      BTN_LABEL = 0;
+      BTN_LABEL = 0,
+      TOOLTIP_LABEL = 'CLIQZ',
+      TELEMETRY_TYPE = 'control_center';
 
 export default class {
   constructor(config) {
@@ -20,10 +22,11 @@ export default class {
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
       resize: this.resizePopup.bind(this),
-      "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
+      "adb-optimized": this.adbOptimized.bind(this),
       "antitracking-activator": this.antitrackingActivator.bind(this),
       "adb-activator": this.adbActivator.bind(this),
-      "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
+      "antitracking-strict": this.antitrackingStrict.bind(this),
+      "sendTelemetry": this.sendTelemetry.bind(this)
     }
 
     this.onLocationChange = this.onLocationChange.bind(this);
@@ -44,12 +47,57 @@ export default class {
     });
   }
 
+  adbOptimized(data) {
+    events.pub("control-center:adb-optimized");
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'adblock_fair',
+      action: 'click',
+      state: data.status === true ? 'on' : 'off'
+    });
+  }
+
+  antitrackingStrict(data) {
+    events.pub("control-center:antitracking-strict");
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'attrack_fair',
+      action: 'click',
+      state: data.status === true ? 'on' : 'off'
+    });
+  }
+
   antitrackingActivator(data){
-    events.pub("control-center:antitracking-activator", data)
+    events.pub("control-center:antitracking-activator", data);
+    var state;
+    if(data.type === 'switch') {
+      state = data.status === 'active' ? 'on' : 'off';
+    } else {
+      state = data.status;
+    }
+
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'attrack_' + data.type,
+      state: state,
+      action: 'click',
+    });
   }
 
   adbActivator(data){
-    events.pub("control-center:adb-activator", data)
+    events.pub("control-center:adb-activator", data);
+    var state;
+    if(data.type === 'switch') {
+      state = data.status === 'active' ? 'on' : 'off';
+    } else {
+      state = data.status;
+    }
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'adblock_' + data.type,
+      state: state,
+      action: 'click',
+    });
   }
 
   setBadge(info){
@@ -61,8 +109,24 @@ export default class {
   }
 
   updatePref(data){
+    var state = data.value;
     // NASTY!
-    if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
+    if(data.pref == 'extensions.cliqz.dnt') state = !state;
+
+    //NASTY again
+    //updatePref is being shared by
+    //1. antiphishing & https switches
+    //2. othersettings options
+    if(typeof state === 'boolean') {
+      state = state === true ? 'on' : 'off';
+    }
+
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: data.target,
+      state: state,
+      action: 'click'
+    });
 
     // more NASTY
     if(data.pref == 'extensions.cliqz.share_location'){
@@ -89,6 +153,12 @@ export default class {
         panel.hidePopup();
         this.window.gBrowser.selectedTab = tab;
     }
+
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: data.target,
+      action: 'click'
+    })
   }
 
   prepareData(cb){
@@ -187,7 +257,7 @@ export default class {
     let button = doc.createElement('toolbarbutton');
     button.setAttribute('id', BTN_ID);
     button.setAttribute('label', BTN_LABEL);
-    button.setAttribute('tooltiptext', BTN_LABEL);
+    button.setAttribute('tooltiptext', TOOLTIP_LABEL);
 
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
@@ -225,6 +295,12 @@ export default class {
       iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html');
       iframe.addEventListener('load', onPopupReady.bind(this), true);
       vbox.appendChild(iframe);
+
+      utils.telemetry({
+        type: TELEMETRY_TYPE,
+        target: 'icon',
+        action: 'click',
+      });
     });
 
     panel.addEventListener("ViewHiding", function () {
@@ -270,5 +346,14 @@ export default class {
   resizePopup({ width, height }) {
     this.iframe.style.width = toPx(width);
     this.iframe.style.height = toPx(height);
+  }
+
+  sendTelemetry(data) {
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: data.target,
+      action: 'click',
+      state: data.state
+    });
   }
 }
