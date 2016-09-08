@@ -3375,14 +3375,17 @@ var __CliqzHumanWeb = function() { // (_export) {
                     var scrapeResults = {};
                     var eventMsg = {};
                     var rules = {};
+                    var payloadRules = [];
                     var key = "";
                     var rule = "";
 
                     if(ruleset === "normal"){
                         rules = CliqzHumanWeb.extractRules[ind];
+                        payloadRules = CliqzHumanWeb.payloads[ind];
                     }
                     else if(ruleset === "strict"){
                         rules = CliqzHumanWeb.anonExtractRules[ind];
+                        payloadRules = CliqzHumanWeb.anonPayloads[ind];
                     }
                     if (CliqzHumanWeb.debug) {
                         _log('rules' + rules + ind);
@@ -3446,7 +3449,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     }
 
-                    for (rule in CliqzHumanWeb.payloads[ind]) {
+                    for (rule in payloadRules){
                         CliqzHumanWeb.createPayload(scrapeResults, ind, rule, ruleset);
                     }
                 },
