@@ -38,6 +38,7 @@ ul.cqb-steps {
     }
 
     li {
+        position: relative;
         overflow: hidden;
         display: inline-block;
         width: 100%;
@@ -94,6 +95,7 @@ ul.cqb-steps {
     line-height: 1em;
     color: #fff;
     font-size: 19px;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
     background: #4bc2cb;
 
     &:hover {
@@ -123,4 +125,13 @@ ul.cqb-progress {
     &.cqb-step3 li:nth-child(3) {
         background: #fff;
     }
+}
+
+.cqb-search-tooltip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: block;
+    width: 10px;
+    height: 10px;
 }

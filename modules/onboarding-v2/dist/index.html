@@ -37,8 +37,36 @@
                 //trigger
                  $('#cqb-atr-on').tooltipster('open');
 
-            }, 500);
+            }, 400);
+
+
+            $('.cqb-search-tooltip').tooltipster({
+                theme: 'tooltipster-light',
+                side : "bottom",
+                maxWidth: 250,
+                interactive: true,
+                trigger: 'custom',
+            });
+
+
+            // Step 1 Click
+            $("#cqb-atr-on").click(function () {
+                $('#cqb-atr-on').tooltipster('close');
+                $("ul.cqb-steps").css("left", "-100%");
+                $(".cqb-progress").addClass("cqb-step2");
+            });
+
+            // Step 2 Click
+            $("#cqb-search-btn").click(function () {
+                $("ul.cqb-steps").css("left", "-200%");
+                $(".cqb-progress").addClass("cqb-step3");
+
+                setTimeout(function(){
+                    $('.cqb-search-tooltip').tooltipster('open');
+                }, 600);
+            });
         });
+
 
 
 
@@ -62,25 +90,35 @@
             <div>
                 <p class="cqb-step-msg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac est
                     metus. Nulla sit amet malesuada dui, nec sodales nisi</p>
-                <a class="cqb-btn">Search</a>
+                <a id="cqb-search-btn" class="cqb-btn">Search</a>
             </div>
         </li>
         <li class="cqb-step3">
+            <span class="cqb-search-tooltip"  data-tooltip-content="#cqb-tooltip-search"></span>
             <div>
                 <p class="cqb-step-msg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac est
                     metus. Nulla sit amet malesuada dui, nec sodales nisi</p>
-                <a class="cqb-btn">Search</a>
+                <a class="cqb-btn">Bla Bla</a>
             </div>
         </li>
     </ul>
 </div>
 
 
-<ul class="cqb-progress cqb-step2 cqb-step3">
+<ul class="cqb-progress">
     <li></li>
     <li></li>
     <li></li>
 </ul>
+
+<div id="cqb-tooltip-search">
+    <span id="tooltip_content">
+        asdf asdf sadf asdf sad <br>
+        <a href="asd">asdasd asd</a><br>
+        <a href="asd">asdasd asd</a><br>
+        <a href="asd">asdasd asd</a>
+    </span>
+</div>
 
 </body>
 </html>
