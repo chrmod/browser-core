@@ -15,7 +15,7 @@ export default {
 
   actions: {
     openPopUp() {
-      utils.getWindow().document.querySelector('toolbarbutton#cliqz-button1').click()
+      utils.getWindow().document.querySelector('toolbarbutton#cliqz-cc-btn').click()
     }
   }
 }

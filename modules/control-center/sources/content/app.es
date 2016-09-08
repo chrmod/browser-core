@@ -1,12 +1,12 @@
-import helpers from "control-center/content/helpers";
-import { messageHandler, sendMessageToWindow } from "control-center/content/data";
-import $ from "jquery";
-import Handlebars from "handlebars";
+import helpers from 'control-center/content/helpers';
+import { messageHandler, sendMessageToWindow } from 'control-center/content/data';
+import $ from 'jquery';
+import Handlebars from 'handlebars';
 
 var slideUp = $.fn.slideUp;
 var slideDown = $.fn.slideDown;
 function resize() {
-  var $controlCenter = $("#control-center");
+  var $controlCenter = $('#control-center');
   var width = $controlCenter.width();
   var height = $controlCenter.height();
   sendMessageToWindow({
@@ -29,37 +29,11 @@ $.fn.slideDown = function () {
 }
 
 function localizeDocument() {
-  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-    var elArgs = el.dataset.i18n.split(","),
+  Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
+    var elArgs = el.dataset.i18n.split(','),
         key = elArgs.shift();
     el.textContent = chrome.i18n.getMessage(key, elArgs);
   });
-}
-
-function setLabels(switchSpans, labelText) {
-  switchSpans.each(function(index, obj) {
-    var $onLabel = $(obj).siblings('#onlabel');
-    $onLabel.attr('data-i18n', labelText);
-  });
-}
-
-function setDescriptions(switches, descText) {
-  switches.each(function(index, obj) {
-    var $desc = $(obj).siblings('.description');
-    $desc.attr('data-i18n', descText);
-  });
-}
-
-function setHeaderText(main) {
-  var $header = $("#header"),
-      $headertext = $header.find("#text"),
-      headerstring = '';
-  if (main.hasClass("crucial-antiphish") || main.hasClass("crucial-antitrack") || main.hasClass("bad-antiphish") || main.hasClass("bad-antitrack")) {
-    headerstring = 'control-center-txt-header-not';
-  } else {
-    headerstring = 'control-center-txt-header';
-  }
-  $headertext.attr('data-i18n', headerstring);
 }
 
 function isHttpsSection(section) {
@@ -84,22 +58,60 @@ $(document).ready(function(resolvedPromises) {
 
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
-  sendMessageToWindow({ action: 'openURL', data: {url: ev.currentTarget.getAttribute('openUrl')}} );
+  sendMessageToWindow({
+    action: 'openURL',
+    data: {
+      url: ev.currentTarget.getAttribute('openUrl'),
+      target: ev.currentTarget.getAttribute('data-target')
+    }
+  });
 });
 
 $('#control-center').on('click', '[data-function]', function(ev){
-  sendMessageToWindow({ action: ev.currentTarget.dataset.function } );
+  sendMessageToWindow({
+    action: ev.currentTarget.dataset.function,
+    data: {
+      status: $(this).prop('checked')
+    }
+  });
 });
 
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
+  var status,
+      type = $(this).attr('data-type');
+  if (type === 'switch') {
+    status = $(this).closest('.frame-container').attr('state');
+  } else {
+    status = $(this).attr('data-state');
+  }
   sendMessageToWindow({
     action: 'antitracking-activator',
     data: {
-      status: $(this).closest('.frame-container').attr("state"),
-      hostname: $(this).closest('.frame-container').attr("hostname")
+      type: type,
+      status: status,
+      hostname: $(this).closest('.frame-container').attr('hostname'),
     }
   });
-})
+});
+
+$('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
+  var status,
+      type = $(this).attr('data-type');
+  if (type === 'switch') {
+    status = $(this).closest('.frame-container').attr('state');
+  } else {
+    status = $(this).attr('data-state');
+  }
+  sendMessageToWindow({
+    action: 'adb-activator',
+    data: {
+      type: type,
+      status: status,
+      url: $(this).closest('.frame-container').attr('url'),
+      option: $(this).closest('.switches').find('.dropdown-scope').val()
+    }
+  });
+});
 
 // select box change
 $('#control-center').on('change', 'select[updatePref]', function(ev){
@@ -107,26 +119,30 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
     action: 'updatePref',
     data: {
       pref: ev.currentTarget.getAttribute('updatePref'),
-      value: ev.currentTarget.value
+      value: ev.currentTarget.value,
+      target: ev.currentTarget.getAttribute('data-target')
     }
   });
-})
-
+});
 
 function updateGeneralState() {
-  var stateElements = document.querySelectorAll(".frame-container.antitracking, .frame-container.antiphishing");
+  var stateElements = document.querySelectorAll('.frame-container.anti-tracking, .frame-container.antiphishing');
   var states = [].map.call(stateElements, function(el) {
     return el.getAttribute('state');
-  });
+  }), state = 'active';
 
   if(states.includes('critical')){
-    $("#header").attr('state', 'critical');
+    state = 'critical';
   }
   else if(states.includes('inactive')){
-    $("#header").attr('state', 'inactive');
-  } else {
-    $("#header").attr('state', 'active');
+    state = 'inactive';
   }
+
+  $('#header').attr('state', state);
+  sendMessageToWindow({
+    action: 'updateState',
+    data: state
+  });
 }
 
 function compile(obj) {
@@ -159,10 +175,10 @@ function compileAdblockInfo(data) {
     return;
   }
   var advertisers = data.module.adblocker.advertisersList;
-  var firstParty = advertisers["First party"];
-  var unknown = advertisers["_Unknown"]
-  delete advertisers["First party"];
-  delete advertisers["_Unknown"];
+  var firstParty = advertisers['First party'];
+  var unknown = advertisers['_Unknown']
+  delete advertisers['First party'];
+  delete advertisers['_Unknown'];
   data.module.adblocker.advertisersList.companiesArray = Object.keys(advertisers).map(function (advertiser) {
     var resources = advertisers[advertiser];
     return {
@@ -173,13 +189,13 @@ function compileAdblockInfo(data) {
 
   if (firstParty) {
     data.module.adblocker.advertisersList.companiesArray.unshift({
-      name: "First Party", // i18n
+      name: 'First Party', // i18n
       count: firstParty.length
     });
   }
   if (unknown) {
     data.module.adblocker.advertisersList.companiesArray.push({
-      name: "Other", // i18n
+      name: 'Other', // i18n
       count: unknown.length
     });
   }
@@ -190,34 +206,41 @@ function draw(data){
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     compileAdblockInfo(data);
   }
-  console.log(data);
+  console.log('Drawing: ', data);
 
-  document.getElementById('control-center').innerHTML = CLIQZ.templates["template"](data)
-  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"](data);
-  document.getElementById('anti-phising').innerHTML = CLIQZ.templates["anti-phising"](data);
-  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"](data);
+  document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
+  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
+  document.getElementById('anti-phising').innerHTML = CLIQZ.templates['anti-phising'](data);
+  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates['anti-tracking'](data);
 
   function close_setting_accordion_section() {
-    $('.setting-accordion .setting-accordion-section-title').removeClass('active');
+    $('.setting-accordion .accordion-active-title').removeClass('active');
     $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
   }
 
-  $('.setting-accordion-section-title').click(function(e) {
+  $('.accordion-active-title').click(function(e) {
+    e.preventDefault();
+    var currentAttrValue = $(this).attr('href'),
+        state;
 
-    // Grab current anchor value
-    var currentAttrValue = $(this).attr('href');
-
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "setting-accordion-section-title active")) {
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == 'accordion-active-title active')) {
       close_setting_accordion_section();
+      state = 'collapsed';
     } else {
       close_setting_accordion_section();
-
-      // Add active class to section title
       $(this).addClass('active');
-      // Open up the hidden content panel
       $('.setting-accordion ' + currentAttrValue).slideDown(150).addClass('open');
+      state = 'expanded';
     }
-    e.preventDefault();
+
+    sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $(this).attr('data-target'),
+        state: state,
+        action: 'click'
+      }
+    });
   });
 
   function close_accordion_section() {
@@ -226,69 +249,116 @@ function draw(data){
   }
 
   $('.accordion-section-title').click(function(e) {
-    // Grab current anchor value
-    var currentAttrValue = $(this).attr('href');
+    e.preventDefault();
+    var currentAttrValue = $(this).attr('href'),
+        state;
 
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-section-title active")) {
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == 'accordion-section-title active')) {
       close_accordion_section();
+      state = 'collapsed';
     } else {
       close_accordion_section();
-
-      // Add active class to section title
       $(this).addClass('active');
-      // Open up the hidden content panel
       $('.accordion ' + currentAttrValue).slideDown(150).addClass('open');
+      state = 'expanded';
     }
-    e.preventDefault();
+
+     sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $(this).attr('data-target'),
+        state: state,
+        action: 'click'
+      }
+    });
   });
 
   //====== SETTING SECTION =========//
-  $(".setting").click(function(e) {
-    var $main = $(this).closest("#control-center"),
-        $othersettings = $main.find("#othersettings"),
-        $section = $(this).closest('.setting').attr('data-section');
+  $('.setting').click(function(e) {
+    var $main = $(this).closest('#control-center'),
+        $othersettings = $main.find('#othersettings'),
+        $setting = $(this).closest('.setting'),
+        $section = $setting.attr('data-section'),
+        $target = $setting.attr('data-target');
 
     if (isHttpsSection($section)) {
       return;
-    } else if ($(e.target).hasClass("cqz-switch-box")) {
+    } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;
-    } else if ($(e.target).hasClass("dropdown-scope")) {
+    } else if ($(e.target).hasClass('dropdown-scope')) {
       return;
-    } else if (e.target.hasAttribute && e.target.hasAttribute("stop-navigation")) {
+    } else if (e.target.hasAttribute && e.target.hasAttribute('stop-navigation')) {
       return;
-    } else if ($(e.target).hasClass("box")) {
+    } else if ($(e.target).hasClass('box')) {
       return;
-    } else if ($(e.target)[0].nodeName == "LABEL") {
+    } else if ($(e.target)[0].nodeName == 'LABEL') {
       return;
-    } else if ($(e.target)[0].nodeName == "INPUT") {
+    } else if ($(e.target)[0].nodeName == 'INPUT') {
       return;
-    } else if ($(e.target).hasClass("cqz-switch-box")) {
+    } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;
     }
 
-    $("#settings").addClass("open");
-    $(this).addClass("active");
+    sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $target,
+        action: 'click'
+      }
+    });
+
+    $('#settings').addClass('open');
+    $(this).addClass('active');
     $othersettings.css('display', 'none');
   });
 
-  $(".cross").click(function(e) {
+  $('.cross').click(function(e) {
     e.stopPropagation()
-    $(this).closest('.setting').removeClass("active");
-    $("#othersettings").css('display', 'block');
-    $("#settings").removeClass("open");
-  })
+    $(this).closest('.setting').removeClass('active');
+    $('#othersettings').css('display', 'block');
+    $('#settings').removeClass('open');
+    sendMessageToWindow({
+      action: 'sendTelemetry',
+      data: {
+        target: $(this).attr('data-target'),
+        action: 'click'
+      }
+    });
+  });
 
-  $(".cqz-switch").click(function() {
-    var target = $(this).closest('.frame-container');
-
-    target.attr("state", function(idx, attr){
-        return attr !== "active" ? "active": target.attr('inactiveState');
+  $('.cqz-switch-label, .cqz-switch-grey').click(function() {
+    var target = $(this).closest('.bullet');
+    target.attr('state', function(idx, attr) {
+      return attr !== 'active' ? 'active' : target.attr('inactiveState');
     });
 
     if(this.hasAttribute('updatePref')){
       sendMessageToWindow({
         action: 'updatePref',
         data: {
+          pref: this.getAttribute('updatePref'),
+          value: target.attr('state') == 'active' ? true : false,
+          target: this.getAttribute('data-target')
+         }
+      });
+    }
+  });
+
+  $('.cqz-switch').click(function() {
+
+    var target = $(this).closest('.frame-container'),
+        type = 'switch';
+
+    target.attr('state', function(idx, attr){
+        return attr !== 'active' ? 'active': target.attr('inactiveState');
+    });
+
+    if(this.hasAttribute('updatePref')){
+      sendMessageToWindow({
+        action: 'updatePref',
+        data: {
+          type: type,
+          target: target.parent().attr('data-target') + '_' + type,
           pref: this.getAttribute('updatePref'),
           value: target.attr('state') == 'active' ? true : false
         }
@@ -298,80 +368,18 @@ function draw(data){
     updateGeneralState();
   });
 
-  // TODO: improve this - make more in CSS
-  $(".cqz-switch-grey").click(function() {
-    $(this).toggleClass("active");
-    var $switches = $(this).closest('.switches-grey'),
-        $onLabel = $switches.find('#onlabel'),
-        onLabelNext = $onLabel.attr('data-i18n'),
-        isActive = $(this).hasClass('active');
-
-    if (isActive) {
-      onLabelNext = 'control-center-switch-on';
-    } else {
-      onLabelNext = 'control-center-switch-off';
-    }
-    $onLabel.attr('data-i18n', onLabelNext);
-
-    sendMessageToWindow({
-      action: 'updatePref',
-      data: {
-        pref: this.getAttribute('updatePref'),
-        value: isActive
-      }
-    });
-
-    localizeDocument();
-  });
-
-  $(".dropdown-scope").change(function(ev) {
+  $('.dropdown-scope').change(function(ev) {
     var state = ev.currentTarget.value,
         target = $(this).closest('.frame-container');
 
-    target.attr("state", state == "all" ?
-      "critical" : target.attr('inactiveState'));
+    target.attr('state', state == 'all' ?
+      'critical' : target.attr('inactiveState'));
 
     updateGeneralState();
   });
 
-  $(".pause").click(function() {
-    var $main = $(this).closest('#control-center'),
-        $headertext = $main.find("#header").find("#text"),
-        $section = $main.find('.setting'),
-        $cqzswitch = $main.find(".cqz-switch"),
-        $switches = $cqzswitch.closest('.switches'),
-        $onLabel = $switches.find('#onlabel'),
-        $trackswitch = $main.find(".cqz-switch"),
-        $trackdesc = $trackswitch.closest('.switches').siblings(".description"),
-        $adblock = $main.find(".adblock"),
-        $adblockdesc = $adblock.find(".description");
-
-    if ($main.hasClass("break")) {
-      $main.removeClass("break");
-      $cqzswitch.addClass("active");
-      $onLabel.attr('data-i18n', 'control-center-switch-on');
-      $trackdesc.attr('data-i18n', 'control-center-datapoints');
-      $adblockdesc.attr('data-i18n', 'control-center-adblock-description');
-      $headertext.attr('data-i18n', 'control-center-txt-header');
-      $section.removeClass('inactive');
-      $switches.removeClass('inactive');
-    } else {
-      $main.addClass("break");
-      $cqzswitch.removeClass("active");
-      $onLabel.attr('data-i18n', 'control-center-switch-off');
-      $trackdesc.attr('data-i18n', 'control-center-datapoints-inactive');
-      $adblockdesc.attr('data-i18n', 'control-center-adblock-description-inactive');
-      $headertext.attr('data-i18n', 'control-center-txt-header-not');
-      $section.addClass('inactive');
-
-      $main.removeClass("crucial-antiphish");
-      $main.removeClass("crucial-antitrack");
-      $main.removeClass("crucial-https");
-      $main.removeClass("bad-antiphish");
-      $main.removeClass("bad-antitrack");
-
-      $('.dropdown option:first-child').prop("selected", true);
-    }
+  $('.pause').click(function () {
+    // TODO
     localizeDocument();
   });
 

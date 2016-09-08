@@ -273,10 +273,15 @@ program.command('serve [file]')
 
 program.command('test [file]')
        .option('--ci [output]', 'Starts Testem in CI mode')
+       .option('--grep [pattern]', 'only run tests matching <pattern>')
        .action( (configPath, options) => {
           "use strict";
           setConfigPath(configPath);
           const watcher = createBuildWatcher();
+
+          if (options.grep) {
+            process.env["MOCHA_GREP"] = options.grep;
+          }
 
           if (options.ci) {
             watcher.on('change', function() {

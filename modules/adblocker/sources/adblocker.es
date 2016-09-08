@@ -22,9 +22,9 @@ export const ADB_VER = 0.01;
 
 // Preferences
 export const ADB_PREF = 'cliqz-adb';
+export const ADB_PREF_OPTIMIZED = 'cliqz-adb-optimized';
 export const ADB_ABTEST_PREF = 'cliqz-adb-abtest';
 export const ADB_PREF_VALUES = {
-  Optimized: 2,
   Enabled: 1,
   Disabled: 0,
 };
@@ -45,7 +45,6 @@ export function adbEnabled() {
   // TODO: Deal with 'optimized' mode.
   // 0 = Disabled
   // 1 = Enabled
-  // 2 = Optimized
   return adbABTestEnabled() && CliqzUtils.getPref(ADB_PREF, ADB_PREF_VALUES.Disabled) !== 0;
 }
 
@@ -127,7 +126,7 @@ class AdBlocker {
     // Should all this domain stuff be extracted into a function?
     // Why is CliqzUtils.detDetailsFromUrl not used?
     const urlParts = URLInfo.get(url);
-    let hostname = urlParts.hostname;
+    let hostname = urlParts.hostname || url;
     if (hostname.startsWith('www.')) {
       hostname = hostname.substring(4);
     }
@@ -271,7 +270,7 @@ const CliqzADB = {
       initAdBlocker();
     } else {
       events.sub('prefchange', pref => {
-        if (pref === ADB_PREF &&
+        if ((pref === ADB_PREF || pref === ADB_ABTEST_PREF) &&
             !CliqzADB.adblockInitialized &&
             adbEnabled()) {
           initAdBlocker();

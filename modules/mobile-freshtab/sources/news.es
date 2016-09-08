@@ -118,9 +118,8 @@ var News = {
       log('timeout error', arguments);
       News.getNews();
     },
-    data = null,
-    asynchronous = true;
-    CliqzUtils.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data, asynchronous);
+    data = null;
+    CliqzUtils.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data);
 
   },
   displayTopNews: function(top_news) {

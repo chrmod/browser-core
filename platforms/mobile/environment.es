@@ -47,6 +47,7 @@ var CLIQZEnvironment = {
   RESULTS_LIMIT: 3,
   MIN_QUERY_LENGHT_FOR_EZ: 0,
   RERANKERS: [],
+  RESULTS_TIMEOUT: 60000, // 1 minute
   TEMPLATES: TEMPLATES,
   KNOWN_TEMPLATES: {
       'entity-portal': true,

@@ -1,7 +1,7 @@
 <div id="companies-title">
   <p data-i18n="control-center-adblock-advertisers"></p>
   <span>
-    <svg class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <svg data-target="adblock_details_close" class="cross" width="21px" height="21px" viewBox="623 233 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
       <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(625.000000, 235.000000)" stroke-linecap="round">
         <path d="M0.6,0.635192349 L15.6119957,15.647188" id="Line" stroke="#FFFFFF" stroke-width="2.5"></path>
@@ -11,10 +11,11 @@
   </span>
 </div>
 <div id="companies">
-  {{> companies-list module.adblocker.advertisersList }}
+  {{> companies-list module.adblocker.advertisersList module="adblock" }}
 </div>
 <div id="bottom-part">
-  <div class="description" data-i18n="control-center-adblock-description"></div>
+  <div class="description" data-i18n="control-center-adblock-description" visible-on-state="active"></div>
+  <div class="description" data-i18n="control-center-adblock-description-inactive" visible-on-state="off"></div>
   <div class="switches" style="display: none">
     <!--======= Switch ======-->
     <span><span class="cqz-switch active"><span class="cqz-switch-box"></span></span> <span id="onlabel" data-i18n="control-center-switch-on"></span></span>
