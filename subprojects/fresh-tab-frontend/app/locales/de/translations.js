@@ -50,7 +50,8 @@ export default {
     "search-address": "Suche oder Adresse eingeben"
   },
   news: {
-    "read-more": "Weiterlesen"
+    "read-more": "Weiterlesen",
+    "breaking-news": "Eilmeldung:"
   },
   abtests: {
     "feedback": "Fragen? Anmerkungen? CLIQZ kontaktieren"

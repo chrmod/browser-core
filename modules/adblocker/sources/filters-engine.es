@@ -6,51 +6,35 @@ import parseList, { parseJSResource } from 'adblocker/filters-parsing';
 import match from 'adblocker/filters-matching';
 
 
+const TOKEN_BLACKLIST = new Set([
+  'com',
+  'http',
+  'https',
+  'icon',
+  'images',
+  'img',
+  'js',
+  'net',
+  'news',
+  'www',
+]);
+
+
 function tokenizeHostname(hostname) {
-  const tokens = [];
-
-  hostname.split('.')
-    .filter(token => !TLDs[token] && token)
-    .filter(token => token !== 'www')
-    .forEach(token => {
-      token.split('-').forEach(t => {
-        log(`TOKEN ${hostname} => ${t}`);
-        tokens.push(t);
-      });
-    });
-
-  return tokens;
+  return hostname.split('.')
+    .filter(token => (token &&
+                      !TLDs[token] &&
+                      !TOKEN_BLACKLIST.has(token)));
 }
 
 
 export function tokenizeURL(pattern) {
-  // Deal with big URLs
-  if (pattern.length > 150) {
-    log(`SHORTEN URL ${pattern}`);
-    let newPattern = pattern;
-    pattern.split(/[|?=/&]/g).forEach(sub => {
-      log(`SUB ${sub} (${sub.length})`);
-      if (sub.length > 100) {
-        newPattern = newPattern.replace(sub, '');
-      }
-    });
-
-    pattern = newPattern;
-    log(`RES ${pattern}`);
-  }
-
-  // Generate tokens (ngrams)
-  const NGRAM_SIZE = 6;
-  const tokens = [];
-  for (let i = 0; i <= (pattern.length - NGRAM_SIZE); ++i) {
-    tokens.push(pattern.substring(i, i + NGRAM_SIZE));
-  }
-  return tokens;
+  return pattern.match(/[a-zA-Z0-9]+/g) || [];
 }
 
 
 class FuzzyIndex {
-  constructor(tokenizer, buildBucket) {
+  constructor(tokenizer, buildBucket, indexOnlyOne) {
     // Define tokenizer
     this.tokenizer = tokenizer;
     if (this.tokenizer === undefined) {
@@ -58,6 +42,9 @@ class FuzzyIndex {
         tokenizeURL(key).forEach(cb);
       };
     }
+
+    // Should we index with all tokens, or just one
+    this.indexOnlyOne = indexOnlyOne;
 
     // Function used to create a new bucket
     this.buildBucket = buildBucket;
@@ -80,18 +67,45 @@ class FuzzyIndex {
     let inserted = false;
     const insertValue = token => {
       log(`FOUND TOKEN ${token}`);
-      inserted = true;
-      const bucket = this.index.get(token);
-      if (bucket === undefined) {
-        const newBucket = this.buildBucket(token);
-        newBucket.push(value);
-        this.index.set(token, newBucket);
-      } else {
-        bucket.push(value);
+      if (!(this.indexOnlyOne && inserted)) {
+        inserted = true;
+        const bucket = this.index.get(token);
+        if (bucket === undefined) {
+          const newBucket = this.buildBucket(token);
+          newBucket.push(value);
+          this.index.set(token, newBucket);
+        } else {
+          bucket.push(value);
+        }
       }
     };
 
-    this.tokenizer(key, insertValue);
+    // Split tokens into good, common, tld
+    // common: too common tokens
+    // tld: corresponding to hostname extensions
+    // good: anything else
+    // TODO: What about trying to insert bigger tokens first?
+    const goodTokens = [];
+    const commonTokens = [];
+    const tldTokens = [];
+    this.tokenizer(key, token => {
+      if (TOKEN_BLACKLIST.has(token)) {
+        commonTokens.push(token);
+      } else if (TLDs[token]) {
+        tldTokens.push(token);
+      } else {
+        goodTokens.push(token);
+      }
+    });
+
+    // Try to insert
+    goodTokens.forEach(insertValue);
+    if (!inserted) {
+      tldTokens.forEach(insertValue);
+    }
+    if (!inserted) {
+      commonTokens.forEach(insertValue);
+    }
 
     if (inserted) {
       this.size += 1;
@@ -149,7 +163,7 @@ class FilterReverseIndex {
         tokenizeURL(part).forEach(cb);
       });
     };
-    this.index = new FuzzyIndex(this.tokenizer);
+    this.index = new FuzzyIndex(this.tokenizer, undefined, true);
 
     // Update index
     if (filters) {
@@ -220,7 +234,7 @@ class FilterReverseIndex {
  * Each group of filters is stored in a Filter index that is the last level
  * of dispatch of our matching engine.
  */
-class FilterBucket {
+class FilterHostnameDispatch {
 
   constructor(name, filters) {
     // TODO: Dispatch also on:
@@ -237,6 +251,7 @@ class FilterBucket {
     // If we do it, we could simplify the match function of Filter
 
     this.name = name;
+    this.size = 0;
 
     // ||hostname filter
     this.hostnameAnchors = new FuzzyIndex(
@@ -260,7 +275,13 @@ class FilterBucket {
         `${this.hostnameAnchors.size} hostnames`);
   }
 
+  get length() {
+    return this.size;
+  }
+
   push(filter) {
+    ++this.size;
+
     log(`PUSH ${filter.rawLine}`);
     if (filter.hostname !== null) {
       this.hostnameAnchors.set(filter.hostname, filter);
@@ -283,9 +304,10 @@ class FilterBucket {
     return false;
   }
 
-  match(request) {
-    // Keep track of filters we already tried
-    const checkedFilters = new Set();
+  match(request, checkedFilters) {
+    if (checkedFilters === undefined) {
+      checkedFilters = new Set();
+    }
 
     if (this.matchWithDomain(request, request.hostname, checkedFilters)) {
       return true;
@@ -293,10 +315,66 @@ class FilterBucket {
 
     // Try to find a match with remaining filters
     log(`${this.name} bucket try to match misc`);
-    const result = this.filters.match(request, checkedFilters);
-    log(`BUCKET ${this.name} total filters ${checkedFilters.size}`);
+    return this.filters.match(request, checkedFilters);
+  }
+}
 
-    return result;
+
+class FilterSourceDomainDispatch {
+  constructor(name, filters) {
+    this.name = name;
+    this.size = 0;
+
+    // Dispatch on source domain
+    this.sourceDomainDispatch = new Map();
+    // Filters without source domain specified
+    this.miscFilters = new FilterHostnameDispatch(this.name);
+
+    if (filters) {
+      filters.forEach(this.push.bind(this));
+    }
+  }
+
+  get length() {
+    return this.size;
+  }
+
+  push(filter) {
+    ++this.size;
+
+    if (filter.optNotDomains === null &&
+        filter.optDomains !== null) {
+      filter.optDomains.forEach(domain => {
+        log(`SOURCE DOMAIN DISPATCH ${domain} filter: ${filter.rawLine}`);
+        const bucket = this.sourceDomainDispatch.get(domain);
+        if (bucket === undefined) {
+          const newIndex = new FilterHostnameDispatch(`${this.name}_${domain}`);
+          newIndex.push(filter);
+          this.sourceDomainDispatch.set(domain, newIndex);
+        } else {
+          bucket.push(filter);
+        }
+      });
+    } else {
+      this.miscFilters.push(filter);
+    }
+  }
+
+  match(request, checkedFilters) {
+    // Check bucket for source domain
+    const bucket = this.sourceDomainDispatch.get(request.sourceGD);
+    let foundMatch = false;
+    if (bucket !== undefined) {
+      log(`Source domain dispatch ${request.sourceGD} size ${bucket.length}`);
+      foundMatch = bucket.match(request, checkedFilters);
+    }
+
+    if (!foundMatch) {
+      log(`Source domain dispatch misc size ${this.miscFilters.length}`);
+      foundMatch = this.miscFilters.match(request, checkedFilters);
+    }
+
+    return foundMatch;
   }
 }
 
@@ -346,6 +424,7 @@ class CosmeticBucket {
     return rules;
   }
 }
+
 
 class CosmeticEngine {
   constructor() {
@@ -451,7 +530,7 @@ class CosmeticEngine {
  *
  * [ Importants ]    [ Exceptions ]    [ Remaining filters ]
  *
- * Each of theses is a `FilterBucket`, which manage a subset of filters.
+ * Each of theses is a `FilterHostnameDispatch`, which manage a subset of filters.
  *
  * Importants filters are not subject to exceptions, hence we try it first.
  * If no important filter matched, try to use the remaining filters bucket.
@@ -467,11 +546,11 @@ export default class {
     // *************** //
 
     // @@filter
-    this.exceptions = new FilterBucket('exceptions');
+    this.exceptions = new FilterSourceDomainDispatch('exceptions');
     // $important
-    this.importants = new FilterBucket('importants');
+    this.importants = new FilterSourceDomainDispatch('importants');
     // All other filters
-    this.filters = new FilterBucket('filters');
+    this.filters = new FilterSourceDomainDispatch('filters');
 
     // ***************** //
     // Cosmetic filters  //
@@ -539,9 +618,9 @@ export default class {
       }
 
       this.size = filters.length + exceptions.length + importants.length + cosmetics.length;
-      this.filters = new FilterBucket('filters', filters);
-      this.exceptions = new FilterBucket('exceptions', exceptions);
-      this.importants = new FilterBucket('importants', importants);
+      this.filters = new FilterSourceDomainDispatch('filters', filters);
+      this.exceptions = new FilterSourceDomainDispatch('exceptions', exceptions);
+      this.importants = new FilterSourceDomainDispatch('importants', importants);
       this.cosmetics = new CosmeticEngine(cosmetics);
     }
 
@@ -561,19 +640,24 @@ export default class {
   match(request) {
     log(`MATCH ${JSON.stringify(request)}`);
     request.tokens = tokenizeURL(request.url);
-    if (this.importants.match(request)) {
-      log('IMPORTANT');
-      return true;
-    } else if (this.filters.match(request)) {
-      log('FILTER');
-      if (this.exceptions.match(request)) {
-        log('EXCEPTION');
-        return false;
-      }
 
-      return true;
+    const checkedFilters = new Set();
+    let result = false;
+
+    if (this.importants.match(request, checkedFilters)) {
+      log('IMPORTANT');
+      result = true;
+    } else if (this.filters.match(request, checkedFilters)) {
+      log('FILTER');
+      if (this.exceptions.match(request, checkedFilters)) {
+        log('EXCEPTION');
+        result = false;
+      } else {
+        result = true;
+      }
     }
 
-    return false;
+    log(`Total filters ${checkedFilters.size}`);
+    return result;
   }
 }

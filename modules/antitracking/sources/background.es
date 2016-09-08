@@ -122,6 +122,13 @@ export default background({
       if (this.popup) {
         this.popup.setBadge(utils.getWindow(), info.cookies.blocked + info.requests.unsafe);
       }
+
+      utils.callWindowAction(
+        utils.getWindow(),
+        'control-center',
+        'setBadge',
+        [info.cookies.blocked + info.requests.unsafe]
+      );
     },
     /**
     * @method popupActions.toggleAttrack
@@ -212,7 +219,34 @@ export default background({
 
   events: {
     "core.tab_location_change": CliqzAttrack.onTabLocationChange,
-    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener)
+    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener),
+    "control-center:antitracking-strict": function () {
+      utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
+    },
+    "control-center:antitracking-activator": function (data) {
+      if(data.status == 'active'){
+        // when we activate we also remove the current url from whitelist
+        utils.setPref('antiTrackTest', true);
+        if(CliqzAttrack.isSourceWhitelisted(data.hostname)){
+          CliqzAttrack.removeSourceDomainFromWhitelist(data.hostname);
+          this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
+        }
+      } else if(data.status == 'inactive'){
+        // inactive means that the current url is whitelisted but the whole mechanism is on
+        CliqzAttrack.addSourceDomainToWhitelist(data.hostname);
+        if(utils.getPref('antiTrackTest', false) == false){
+          utils.setPref('antiTrackTest', true)
+        }
+        this.popupActions.telemetry({ action: 'click', target: 'whitelist_domain' });
+      } else if(data.status == 'critical'){
+        // on critical we disable anti tracking completely so we must also clean the current url from whitelist
+        utils.setPref('antiTrackTest', false);
+        if(CliqzAttrack.isSourceWhitelisted(data.hostname)){
+          CliqzAttrack.removeSourceDomainFromWhitelist(data.hostname);
+          this.popupActions.telemetry( { action: 'click', target: 'unwhitelist_domain'} );
+        }
+      }
+    }
   },
 
 });

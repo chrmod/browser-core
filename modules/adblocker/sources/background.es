@@ -1,4 +1,10 @@
-import CliqzADB, { adbEnabled } from 'adblocker/adblocker';
+import { utils } from 'core/cliqz';
+import background from "core/base/background";
+import CliqzADB,
+      { ADB_PREF_VALUES,
+        ADB_PREF,
+        ADB_PREF_OPTIMIZED,
+        adbEnabled } from 'adblocker/adblocker';
 
 function isAdbActive(url) {
   return adbEnabled() &&
@@ -6,7 +12,9 @@ function isAdbActive(url) {
          !CliqzADB.adBlocker.isUrlInBlacklist(url)
 }
 
-export default {
+export default background({
+  enabled() { return true; },
+
   init() {
     if (CliqzADB.getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
       return;
@@ -19,6 +27,36 @@ export default {
       return;
     }
     CliqzADB.unload();
+  },
+
+  events: {
+    "control-center:adb-optimized": function () {
+      utils.setPref(ADB_PREF_OPTIMIZED, !utils.getPref(ADB_PREF_OPTIMIZED, false));
+    },
+    "control-center:adb-activator": function (data) {
+      const isUrlInBlacklist = CliqzADB.adBlocker.isUrlInBlacklist(data.url),
+            isDomainInBlacklist = CliqzADB.adBlocker.isDomainInBlacklist(data.url);
+
+      //we first need to togle it off to be able to turn it on for the right thing - site or domain
+      if(isUrlInBlacklist){
+        CliqzADB.adBlocker.toggleUrl(data.url);
+      }
+
+      if(isDomainInBlacklist){
+        CliqzADB.adBlocker.toggleUrl(data.url, true);
+      }
+
+      if(data.status == 'active'){
+        utils.setPref(ADB_PREF, ADB_PREF_VALUES.Enabled);
+      } else if(data.status == 'off'){
+        if(data.option == 'all-sites'){
+          utils.setPref(ADB_PREF, ADB_PREF_VALUES.Disabled);
+        } else {
+          utils.setPref(ADB_PREF, ADB_PREF_VALUES.Enabled);
+          CliqzADB.adBlocker.toggleUrl(data.url, data.option == 'domain' ? true : false);
+        }
+      }
+    }
   },
 
   actions: {
@@ -57,4 +95,4 @@ export default {
       }
     }
   },
-};
+});

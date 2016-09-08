@@ -61,6 +61,10 @@ var CliqzUtils = {
   RERANKERS: CLIQZEnvironment.RERANKERS,
   MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
 
+  telemetryHandlers: [
+    CLIQZEnvironment.telemetry
+  ],
+
   init: function(options){
     options = options || {};
 
@@ -131,6 +135,12 @@ var CliqzUtils = {
   callAction(moduleName, actionName, args) {
     var module = CliqzUtils.System.get(moduleName+"/background");
     var action = module.default.actions[actionName];
+    return action.apply(null, args);
+  },
+
+  callWindowAction(win, moduleName, actionName, args) {
+    var module = win.CLIQZ.Core.windowModules[moduleName];
+    var action = module.actions[actionName];
     return action.apply(null, args);
   },
 
@@ -793,7 +803,10 @@ var CliqzUtils = {
       });
   },
   isPrivate: CLIQZEnvironment.isPrivate,
-  telemetry: CLIQZEnvironment.telemetry,
+  telemetry: function () {
+    const args = arguments;
+    CliqzUtils.telemetryHandlers.forEach(handler => handler.apply(null, args));
+  },
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     CliqzUtils.setResultOrder(resultOrder);
     var params = encodeURIComponent(query) +
@@ -1113,9 +1126,7 @@ var CliqzUtils = {
 
     var linkNodes = this.extractSelectableElements(box);
     var urls = linkNodes
-        .map(node => {
-          return node.getAttribute("url") || node.getAttribute("href");
-        })
+        .map(node => node.getAttribute("url") || node.getAttribute("href"))
         .filter(url => !!url);
 
     CLIQZEnvironment.onRenderComplete(query, urls);

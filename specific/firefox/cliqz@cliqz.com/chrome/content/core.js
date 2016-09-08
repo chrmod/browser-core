@@ -108,14 +108,13 @@ window.CLIQZ.Core = {
         this.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", this.tabRemoved, false);
 
-        // windowModules should be in same order as config.modules
-        this.windowModules = new Array(CLIQZ.config.modules.length);
+        this.windowModules = {};
 
         var windowModulePromises = CLIQZ.config.modules.map(function (moduleName, moduleIndex) {
           return CLIQZ.System.import(moduleName+"/window").then(function (Module) {
             var mod = new Module.default(windowModuleConfig);
             mod.init();
-            this.windowModules[moduleIndex] = mod;
+            this.windowModules[moduleName] = mod;
             return mod;
           }.bind(this)).catch(function (e) {
             console.log("CLIQZ core.js", "Error loading module: "+moduleName, e);
@@ -148,7 +147,9 @@ window.CLIQZ.Core = {
     checkSession: function() {
         if (!CliqzUtils.hasPref('session')) {
             var source = CLIQZ.config.settings.channel;
-            CliqzUtils.setPref('session', CLIQZ.Core.generateSession(source));
+            var session = CLIQZ.Core.generateSession(source);
+            CliqzUtils.setPref('session', session);
+            CliqzUtils.setPref('install_date', session.split('|')[1]);
             return false;
         }
         // Session is set already
@@ -173,15 +174,13 @@ window.CLIQZ.Core = {
     },
     // restoring
     unload: function(soft){
-        this.windowModules.slice(0).reverse().forEach(function (mod, index) {
-          var moduleIndex = CLIQZ.config.modules.length - 1 - index;
-          var moduleName = CLIQZ.config.modules[moduleIndex];
+        CLIQZ.config.modules.slice(0).reverse().forEach((function (mod, index) {
           try {
-            mod.unload();
+            this.windowModules[mod].unload();
           } catch(e) {
-            console.log("CLIQZ core.js:", "error on unload module " + moduleName, e);
+            console.log("CLIQZ core.js:", "error on unload module " + mod, e);
           }
-        });
+        }).bind(this));
 
         clearTimeout(this._whoAmItimer);
 
@@ -274,8 +273,8 @@ window.CLIQZ.Core = {
                 private_window: CliqzUtils.isPrivate(window),
                 distribution: CliqzUtils.getPref('distribution', ''),
                 version_host: CliqzUtils.getPref('gecko.mstone', '', ''),
-                version_dist: CliqzUtils.getPref('distribution.version', '', '')
-
+                version_dist: CliqzUtils.getPref('distribution.version', '', ''),
+                install_date: CliqzUtils.getPref('install_date'),
             };
 
             CliqzUtils.telemetry(info);

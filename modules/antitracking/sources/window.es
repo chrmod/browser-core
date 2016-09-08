@@ -2,7 +2,7 @@ import background from 'antitracking/background';
 import CliqzAttrack from 'antitracking/attrack';
 import { utils, events } from 'core/cliqz';
 import { simpleBtn } from 'q-button/buttons';
-
+import { URLInfo } from 'antitracking/url';
 
 function onLocationChange(ev) {
   if(this.interval) { CliqzUtils.clearInterval(this.interval); }
@@ -85,6 +85,13 @@ export default class {
     }
 
     this.popup.setBadge(this.window, count);
+
+    utils.callWindowAction(
+      this.window,
+      'control-center',
+      'setBadge',
+      [ count ]
+    );
   }
 
   createAttrackButton() {
@@ -153,5 +160,29 @@ export default class {
     return [
       this.createAttrackButton()
     ];
+  }
+
+  status() {
+    if (background.buttonEnabled) {
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+          ps = info.ps,
+          enabled = utils.getPref('antiTrackTest') && !CliqzAttrack.isSourceWhitelisted(info.hostname),
+          isWhitelisted = CliqzAttrack.isSourceWhitelisted(info.hostname);
+
+      return {
+        visible: true,
+        strict: utils.getPref('attrackForceBlock', false),
+        hostname: URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
+        cookiesCount: info.cookies.blocked,
+        requestsCount: info.requests.unsafe,
+        totalCount: info.cookies.blocked + info.requests.unsafe,
+        enabled: enabled,
+        isWhitelisted: isWhitelisted || enabled,
+        reload: info.reload || false,
+        trackersList: info,
+        ps: ps,
+        state: enabled ? 'active' : isWhitelisted ? 'inactive' : 'critical'
+      }
+    }
   }
 };
