@@ -1,12 +1,12 @@
-import helpers from "control-center/content/helpers";
-import { messageHandler, sendMessageToWindow } from "control-center/content/data";
-import $ from "jquery";
-import Handlebars from "handlebars";
+import helpers from 'control-center/content/helpers';
+import { messageHandler, sendMessageToWindow } from 'control-center/content/data';
+import $ from 'jquery';
+import Handlebars from 'handlebars';
 
 var slideUp = $.fn.slideUp;
 var slideDown = $.fn.slideDown;
 function resize() {
-  var $controlCenter = $("#control-center");
+  var $controlCenter = $('#control-center');
   var width = $controlCenter.width();
   var height = $controlCenter.height();
   sendMessageToWindow({
@@ -29,8 +29,8 @@ $.fn.slideDown = function () {
 }
 
 function localizeDocument() {
-  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), el => {
-    var elArgs = el.dataset.i18n.split(","),
+  Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
+    var elArgs = el.dataset.i18n.split(','),
         key = elArgs.shift();
     el.textContent = chrome.i18n.getMessage(key, elArgs);
   });
@@ -78,9 +78,9 @@ $('#control-center').on('click', '[data-function]', function(ev){
 
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
   var status,
-      type = $(this).attr("data-type");
+      type = $(this).attr('data-type');
   if (type === 'switch') {
-    status = $(this).closest('.frame-container').attr("state");
+    status = $(this).closest('.frame-container').attr('state');
   } else {
     status = $(this).attr('data-state');
   }
@@ -89,16 +89,16 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
     data: {
       type: type,
       status: status,
-      hostname: $(this).closest('.frame-container').attr("hostname"),
+      hostname: $(this).closest('.frame-container').attr('hostname'),
     }
   });
 });
 
 $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
   var status,
-      type = $(this).attr("data-type");
+      type = $(this).attr('data-type');
   if (type === 'switch') {
-    status = $(this).closest('.frame-container').attr("state");
+    status = $(this).closest('.frame-container').attr('state');
   } else {
     status = $(this).attr('data-state');
   }
@@ -107,7 +107,7 @@ $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
     data: {
       type: type,
       status: status,
-      url: $(this).closest('.frame-container').attr("url"),
+      url: $(this).closest('.frame-container').attr('url'),
       option: $(this).closest('.switches').find('.dropdown-scope').val()
     }
   });
@@ -126,7 +126,7 @@ $('#control-center').on('change', 'select[updatePref]', function(ev){
 });
 
 function updateGeneralState() {
-  var stateElements = document.querySelectorAll(".frame-container.anti-tracking, .frame-container.antiphishing");
+  var stateElements = document.querySelectorAll('.frame-container.anti-tracking, .frame-container.antiphishing');
   var states = [].map.call(stateElements, function(el) {
     return el.getAttribute('state');
   }), state = 'active';
@@ -138,7 +138,7 @@ function updateGeneralState() {
     state = 'inactive';
   }
 
-  $("#header").attr('state', state);
+  $('#header').attr('state', state);
   sendMessageToWindow({
     action: 'updateState',
     data: state
@@ -175,10 +175,10 @@ function compileAdblockInfo(data) {
     return;
   }
   var advertisers = data.module.adblocker.advertisersList;
-  var firstParty = advertisers["First party"];
-  var unknown = advertisers["_Unknown"]
-  delete advertisers["First party"];
-  delete advertisers["_Unknown"];
+  var firstParty = advertisers['First party'];
+  var unknown = advertisers['_Unknown']
+  delete advertisers['First party'];
+  delete advertisers['_Unknown'];
   data.module.adblocker.advertisersList.companiesArray = Object.keys(advertisers).map(function (advertiser) {
     var resources = advertisers[advertiser];
     return {
@@ -189,13 +189,13 @@ function compileAdblockInfo(data) {
 
   if (firstParty) {
     data.module.adblocker.advertisersList.companiesArray.unshift({
-      name: "First Party", // i18n
+      name: 'First Party', // i18n
       count: firstParty.length
     });
   }
   if (unknown) {
     data.module.adblocker.advertisersList.companiesArray.push({
-      name: "Other", // i18n
+      name: 'Other', // i18n
       count: unknown.length
     });
   }
@@ -206,12 +206,12 @@ function draw(data){
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     compileAdblockInfo(data);
   }
-  console.log("Drawing: ", data);
+  console.log('Drawing: ', data);
 
-  document.getElementById('control-center').innerHTML = CLIQZ.templates["template"](data)
-  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates["ad-blocking"](data);
-  document.getElementById('anti-phising').innerHTML = CLIQZ.templates["anti-phising"](data);
-  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates["anti-tracking"](data);
+  document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
+  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
+  document.getElementById('anti-phising').innerHTML = CLIQZ.templates['anti-phising'](data);
+  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates['anti-tracking'](data);
 
   function close_setting_accordion_section() {
     $('.setting-accordion .accordion-active-title').removeClass('active');
@@ -223,7 +223,7 @@ function draw(data){
     var currentAttrValue = $(this).attr('href'),
         state;
 
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-active-title active")) {
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == 'accordion-active-title active')) {
       close_setting_accordion_section();
       state = 'collapsed';
     } else {
@@ -253,7 +253,7 @@ function draw(data){
     var currentAttrValue = $(this).attr('href'),
         state;
 
-    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == "accordion-section-title active")) {
+    if ($(e.target).is('.active') || ($(e.target)[0].parentElement.className == 'accordion-section-title active')) {
       close_accordion_section();
       state = 'collapsed';
     } else {
@@ -274,28 +274,28 @@ function draw(data){
   });
 
   //====== SETTING SECTION =========//
-  $(".setting").click(function(e) {
-    var $main = $(this).closest("#control-center"),
-        $othersettings = $main.find("#othersettings"),
+  $('.setting').click(function(e) {
+    var $main = $(this).closest('#control-center'),
+        $othersettings = $main.find('#othersettings'),
         $setting = $(this).closest('.setting'),
         $section = $setting.attr('data-section'),
         $target = $setting.attr('data-target');
 
     if (isHttpsSection($section)) {
       return;
-    } else if ($(e.target).hasClass("cqz-switch-box")) {
+    } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;
-    } else if ($(e.target).hasClass("dropdown-scope")) {
+    } else if ($(e.target).hasClass('dropdown-scope')) {
       return;
-    } else if (e.target.hasAttribute && e.target.hasAttribute("stop-navigation")) {
+    } else if (e.target.hasAttribute && e.target.hasAttribute('stop-navigation')) {
       return;
-    } else if ($(e.target).hasClass("box")) {
+    } else if ($(e.target).hasClass('box')) {
       return;
-    } else if ($(e.target)[0].nodeName == "LABEL") {
+    } else if ($(e.target)[0].nodeName == 'LABEL') {
       return;
-    } else if ($(e.target)[0].nodeName == "INPUT") {
+    } else if ($(e.target)[0].nodeName == 'INPUT') {
       return;
-    } else if ($(e.target).hasClass("cqz-switch-box")) {
+    } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;
     }
 
@@ -307,16 +307,16 @@ function draw(data){
       }
     });
 
-    $("#settings").addClass("open");
-    $(this).addClass("active");
+    $('#settings').addClass('open');
+    $(this).addClass('active');
     $othersettings.css('display', 'none');
   });
 
-  $(".cross").click(function(e) {
+  $('.cross').click(function(e) {
     e.stopPropagation()
-    $(this).closest('.setting').removeClass("active");
-    $("#othersettings").css('display', 'block');
-    $("#settings").removeClass("open");
+    $(this).closest('.setting').removeClass('active');
+    $('#othersettings').css('display', 'block');
+    $('#settings').removeClass('open');
     sendMessageToWindow({
       action: 'sendTelemetry',
       data: {
@@ -326,10 +326,10 @@ function draw(data){
     });
   });
 
-  $(".cqz-switch-label, .cqz-switch-grey").click(function() {
+  $('.cqz-switch-label, .cqz-switch-grey').click(function() {
     var target = $(this).closest('.bullet');
-    target.attr("state", function(idx, attr) {
-      return attr !== "active" ? "active" : target.attr("inactiveState");
+    target.attr('state', function(idx, attr) {
+      return attr !== 'active' ? 'active' : target.attr('inactiveState');
     });
 
     if(this.hasAttribute('updatePref')){
@@ -344,13 +344,13 @@ function draw(data){
     }
   });
 
-  $(".cqz-switch").click(function() {
+  $('.cqz-switch').click(function() {
 
     var target = $(this).closest('.frame-container'),
         type = 'switch';
 
-    target.attr("state", function(idx, attr){
-        return attr !== "active" ? "active": target.attr('inactiveState');
+    target.attr('state', function(idx, attr){
+        return attr !== 'active' ? 'active': target.attr('inactiveState');
     });
 
     if(this.hasAttribute('updatePref')){
@@ -358,7 +358,7 @@ function draw(data){
         action: 'updatePref',
         data: {
           type: type,
-          target: target.parent().attr("data-target") + '_' + type,
+          target: target.parent().attr('data-target') + '_' + type,
           pref: this.getAttribute('updatePref'),
           value: target.attr('state') == 'active' ? true : false
         }
@@ -368,18 +368,18 @@ function draw(data){
     updateGeneralState();
   });
 
-  $(".dropdown-scope").change(function(ev) {
+  $('.dropdown-scope').change(function(ev) {
     var state = ev.currentTarget.value,
         target = $(this).closest('.frame-container');
 
-    target.attr("state", state == "all" ?
-      "critical" : target.attr('inactiveState'));
+    target.attr('state', state == 'all' ?
+      'critical' : target.attr('inactiveState'));
 
     updateGeneralState();
   });
 
-  $(".pause").click(function() {
-    //TODO
+  $('.pause').click(function () {
+    // TODO
     localizeDocument();
   });
 
