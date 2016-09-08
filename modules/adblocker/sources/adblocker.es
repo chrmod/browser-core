@@ -12,6 +12,7 @@ import HttpRequestContext from 'antitracking/webrequest-context';
 import { log } from 'adblocker/utils';
 import FilterEngine from 'adblocker/filters-engine';
 import FiltersLoader from 'adblocker/filters-loader';
+import AdbStats from 'adblocker/adb-stats';
 
 import CliqzHumanWeb from 'human-web/human-web';
 
@@ -21,9 +22,9 @@ export const ADB_VER = 0.01;
 
 // Preferences
 export const ADB_PREF = 'cliqz-adb';
+export const ADB_PREF_OPTIMIZED = 'cliqz-adb-optimized';
 export const ADB_ABTEST_PREF = 'cliqz-adb-abtest';
 export const ADB_PREF_VALUES = {
-  Optimized: 2,
   Enabled: 1,
   Disabled: 0,
 };
@@ -44,7 +45,6 @@ export function adbEnabled() {
   // TODO: Deal with 'optimized' mode.
   // 0 = Disabled
   // 1 = Enabled
-  // 2 = Optimized
   return adbABTestEnabled() && CliqzUtils.getPref(ADB_PREF, ADB_PREF_VALUES.Disabled) !== 0;
 }
 
@@ -126,7 +126,7 @@ class AdBlocker {
     // Should all this domain stuff be extracted into a function?
     // Why is CliqzUtils.detDetailsFromUrl not used?
     const urlParts = URLInfo.get(url);
-    let hostname = urlParts.hostname;
+    let hostname = urlParts.hostname || url;
     if (hostname.startsWith('www.')) {
       hostname = hostname.substring(4);
     }
@@ -241,7 +241,7 @@ class AdBlocker {
 const CliqzADB = {
   adblockInitialized: false,
   adbMem: {},
-  adbStats: { pages: {} },
+  adbStats: new AdbStats(),
   mutationLogger: null,
   adbDebug: false,
   MIN_BROWSER_VERSION: 35,
@@ -293,11 +293,7 @@ const CliqzADB = {
 
   initPacemaker() {
     const t1 = utils.setInterval(() => {
-      Object.keys(CliqzADB.adbStats.pages).forEach(url => {
-        if (!CliqzADB.isTabURL[url]) {
-          delete CliqzADB.adbStats.pages[url];
-        }
-      });
+      CliqzADB.adbStats.clearStats();
     }, 10 * 60 * 1000);
     CliqzADB.timers.push(t1);
 
@@ -332,7 +328,7 @@ const CliqzADB = {
       }
 
       if (requestContext.isFullPage()) {
-        CliqzADB.adbStats.pages[url] = 0;
+        CliqzADB.adbStats.addNewPage(url);
       }
 
       const sourceUrl = requestContext.getLoadingDocument();
@@ -342,7 +338,7 @@ const CliqzADB = {
       }
 
       if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-        CliqzADB.adbStats.pages[sourceUrl] = (CliqzADB.adbStats.pages[sourceUrl] || 0) + 1;
+        CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
         return { cancel: true };
       }
 

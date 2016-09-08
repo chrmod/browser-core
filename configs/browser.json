@@ -30,10 +30,12 @@
     "antitracking",
     "performance",
     "hpn",
+    "control-center",
     "hm",
     "privacy-dashboard",
     "offers",
-    "adblocker"
+    "adblocker",
+    "https-everywhere"
   ],
   "subprojects": [
     "fresh-tab-frontend"
