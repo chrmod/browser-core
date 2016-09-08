@@ -34,7 +34,8 @@ window.CLIQZ = {};
 let currWinId = undefined;
 chrome.windows.getCurrent(null, (win) => { currWinId = win.id; });
 
-const urlbar = document.getElementById('urlbar');
+const urlbar = document.getElementById('urlbar'),
+      settings = document.getElementById("settings");
 
 CLIQZ.Core = {
   urlbar: urlbar,
@@ -76,9 +77,11 @@ Promise.all([
 
     CliqzUtils.System = System;
     CliqzAutocomplete.Mixer = Mixer;
-    CLIQZEnvironment.storage = localStorage;
     CLIQZEnvironment.ExpansionsProvider = modules[5].default;
     CLIQZ.config = modules[6].default;
+
+    // initiaize geolocation window
+    CliqzUtils.callAction("geolocation", "updateGeoLocation", []);
 
     return System.import("core/startup")
   }).then(function (startupModule) {
@@ -98,6 +101,9 @@ Promise.all([
             window.navigator.userLanguage
     })]);
   }).then(function () {
+    // localize
+    CliqzUtils.localizeDoc(document);
+
     CLIQZ.UI.preinit(CliqzAutocomplete, CliqzHandlebars, CliqzEvents);
     CLIQZ.UI.init(urlbar);
     CLIQZ.UI.main(document.getElementById('results'));
@@ -111,7 +117,7 @@ Promise.all([
   }).then(function () {
     acResults = new CliqzAutocomplete.CliqzResults();
 
-    createSettingsMenu();
+    handleSettings();
     whoAmI(true);
 
     chrome.cliqzSearchPrivate.onInputChanged.addListener(
@@ -139,6 +145,7 @@ Promise.all([
           }
         });
 
+    // TODO: Move these to CE inself and introduce module init().
     chrome.cliqzSearchPrivate.getSearchEngines((engines, defIdx) => {
       function renameProps(obj, mapping) {
         for (let p of Object.keys(mapping)) {
@@ -162,11 +169,13 @@ Promise.all([
 
       CLIQZEnvironment._ENGINES = engines;
     });
+    chrome.runtime.getPlatformInfo(v => CLIQZEnvironment.OS = v.os);
 
     console.log('Glue init complete!');
   });
 
 function startAutocomplete(query) {
+  settings.classList.add('hidden');
   urlbar.value = query;
   acResults.search(query, function(r) {
     CLIQZ.UI.setRawResults({
@@ -238,7 +247,7 @@ function whoAmI(startup){
   let onInstall = checkSession();
 
   // schedule another signal
-  setTimeout(CLIQZ.Core.whoAmI, 60 * 60 * 1e3 /* one hour */, false);
+  setTimeout(whoAmI, 60 * 60 * 1e3 /* one hour */, false);
 
   //executed after the services are fetched
   CliqzUtils.fetchAndStoreConfig(function(){
@@ -246,7 +255,7 @@ function whoAmI(startup){
   });
 }
 
-function sendEnvironmentalSignal(startup, defaultSearchEngine){
+function sendEnvironmentalSignal(startup){
   let hostVersion = '';
   try {
     hostVersion = /Chrome\/([0-9.]+)/.exec(navigator.userAgent)[1];
@@ -259,7 +268,7 @@ function sendEnvironmentalSignal(startup, defaultSearchEngine){
       width: window.innerWidth,
       height: window.innerHeight,
       version: '4.8.0', // TODO
-      startup: startup? true: false,
+      startup: !!startup,
       version_host: hostVersion,
       version_dist: ''
   };
@@ -268,13 +277,14 @@ function sendEnvironmentalSignal(startup, defaultSearchEngine){
 }
 
 function checkSession() {
-  if (!CliqzUtils.hasPref('session')) {
-    const source = CLIQZ.config.settings.channel;
-    CliqzUtils.setPref('session', generateSession(source));
-    return false;
-  }
-  // Session is set already
-  return true;
+  if (CliqzUtils.hasPref('session'))
+    return true;  // Session is already present.
+
+  const newSession = CLIQZEnvironment.isPrivate() ?
+      ["PRIVATE", "15000", CLIQZ.config.settings.channel].join("|") :
+      generateSession(CLIQZ.config.settings.channel);
+  CliqzUtils.setPref('session', newSession)
+  return false;
 }
 
 function generateSession(source){
@@ -288,6 +298,10 @@ function generateSession(source){
 // Settings
 
 function createOptionEntries(el, options, prefKey, action){
+  while (el.lastChild) {
+    el.removeChild(el.lastChild);
+  }
+
   for(let id in options){
     let option = document.createElement('option');
     option.value = id;
@@ -299,6 +313,27 @@ function createOptionEntries(el, options, prefKey, action){
   el.addEventListener("change", function(ev){
     CliqzUtils.setPref(prefKey, ev.target.value);
     action(ev.target.value);
+  });
+}
+
+function handleSettings(){
+  document.getElementById("settingsButton").addEventListener('click', function(){
+    this.classList.toggle('active');
+    settings.classList.toggle('hidden');
+
+    if(!settings.classList.contains('hidden')){
+      createSettingsMenu();
+    }
+  });
+
+  CLIQZEnvironment.addPrefListener(function(pref){
+    // recreate the settings menu if relevant prefs change
+    var relevantPrefs = [
+      'share_location',
+      'adultContentFilter',
+    ]
+    if(relevantPrefs.indexOf(pref) != -1)
+      createSettingsMenu();
   });
 }
 
@@ -321,11 +356,4 @@ function createSettingsMenu(){
       );
     }
   );
-
-  let btn = document.getElementById("settingsButton"),
-      box = document.getElementById("settings");
-  btn.addEventListener('click', function(){
-    this.classList.toggle('active');
-    box.classList.toggle('hidden');
-  })
 }

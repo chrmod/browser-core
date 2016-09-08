@@ -54,6 +54,14 @@
                 $('#cqb-atr-on').tooltipster('close');
                 $("ul.cqb-steps").css("left", "-100%");
                 $(".cqb-progress").addClass("cqb-step2");
+
+                setTimeout(function(){
+                  window.postMessage(JSON.stringify({
+                    target: 'cliqz',
+                    module: 'control-center',
+                    action: 'openPopUp',
+                  }), '*')
+                }, 600);
             });
 
             // Step 2 Click
@@ -66,9 +74,6 @@
                 }, 600);
             });
         });
-
-
-
 
     </script>
 </head>

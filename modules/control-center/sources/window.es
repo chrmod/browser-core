@@ -1,5 +1,4 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
-import { simpleBtn } from 'q-button/buttons';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 
@@ -7,8 +6,11 @@ function toPx(pixels) {
   return pixels.toString() + 'px';
 }
 
-const BTN_ID = 'cliqz-button1',
-      firstRunPref = 'firstStartDone1';
+const BTN_ID = 'cliqz-cc-btn',
+      firstRunPref = 'cliqz-cc-initialized',
+      BTN_LABEL = 0,
+      TOOLTIP_LABEL = 'CLIQZ',
+      TELEMETRY_TYPE = 'control_center';
 
 export default class {
   constructor(config) {
@@ -18,35 +20,113 @@ export default class {
       getData: this.getData.bind(this),
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
+      updateState: this.updateState.bind(this),
       resize: this.resizePopup.bind(this),
-      "adb-activator": events.pub.bind(events, "control-center:adb-activator"),
-      "adb-optimized": events.pub.bind(events, "control-center:adb-optimized"),
+      "adb-optimized": this.adbOptimized.bind(this),
       "antitracking-activator": this.antitrackingActivator.bind(this),
-      "antitracking-strict": events.pub.bind(events, "control-center:antitracking-strict")
+      "adb-activator": this.adbActivator.bind(this),
+      "antitracking-strict": this.antitrackingStrict.bind(this),
+      "sendTelemetry": this.sendTelemetry.bind(this)
     }
+
+    this.onLocationChange = this.onLocationChange.bind(this);
   }
 
   init() {
     this.addCCbutton();
+    CliqzEvents.sub("core.location_change", this.onLocationChange);
   }
 
   unload() {
+    CliqzEvents.un_sub("core.location_change", this.onLocationChange);
+  }
 
+  onLocationChange() {
+    this.prepareData((data) => {
+      this.updateState(data.generalState);
+    });
+  }
+
+  adbOptimized(data) {
+    events.pub("control-center:adb-optimized");
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'adblock_fair',
+      action: 'click',
+      state: data.status === true ? 'on' : 'off'
+    });
+  }
+
+  antitrackingStrict(data) {
+    events.pub("control-center:antitracking-strict");
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'attrack_fair',
+      action: 'click',
+      state: data.status === true ? 'on' : 'off'
+    });
   }
 
   antitrackingActivator(data){
-    events.pub("control-center:antitracking-activator", data)
+    events.pub("control-center:antitracking-activator", data);
+    var state;
+    if(data.type === 'switch') {
+      state = data.status === 'active' ? 'on' : 'off';
+    } else {
+      state = data.status;
+    }
+
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'attrack_' + data.type,
+      state: state,
+      action: 'click',
+    });
+  }
+
+  adbActivator(data){
+    events.pub("control-center:adb-activator", data);
+    var state;
+    if(data.type === 'switch') {
+      state = data.status === 'active' ? 'on' : 'off';
+    } else {
+      state = data.status;
+    }
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'adblock_' + data.type,
+      state: state,
+      action: 'click',
+    });
   }
 
   setBadge(info){
     this.badge.textContent = info;
   }
 
-  updatePref(data){
-    this.window.console.log('updatePref', data);
+  updateState(state){
+    this.badge.setAttribute('state', state);
+  }
 
+  updatePref(data){
+    var state = data.value;
     // NASTY!
-    if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
+    if(data.pref == 'extensions.cliqz.dnt') state = !state;
+
+    //NASTY again
+    //updatePref is being shared by
+    //1. antiphishing & https switches
+    //2. othersettings options
+    if(typeof state === 'boolean') {
+      state = state === true ? 'on' : 'off';
+    }
+
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: data.target,
+      state: state,
+      action: 'click'
+    });
 
     // more NASTY
     if(data.pref == 'extensions.cliqz.share_location'){
@@ -63,18 +143,25 @@ export default class {
   }
 
   openURL(data){
-    this.window.console.log('openURL', data);
     switch(data.url) {
       case 'history':
         this.window.PlacesCommandHook.showPlacesOrganizer('History');
         break;
       default:
-        var tab = utils.openLink(this.window, data.url, true);
+        var tab = utils.openLink(this.window, data.url, true),
+            panel = utils.getWindow().document.querySelector("panel[viewId=" + BTN_ID + "]");
+        panel.hidePopup();
         this.window.gBrowser.selectedTab = tab;
     }
+
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: data.target,
+      action: 'click'
+    })
   }
 
-  getData(){
+  prepareData(cb){
     utils.callAction(
       "core",
       "getWindowStatus",
@@ -101,13 +188,32 @@ export default class {
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
-      this.sendMessageToPopup({
-        action: 'pushData',
-        data: {
+      cb({
           activeURL: this.window.gBrowser.currentURI.spec,
           module: moduleData,
-          generalState: generalState
-        }
+          generalState: generalState,
+          feedbackURL: utils.FEEDBACK_URL
+        });
+    });
+  }
+
+  getData(data){
+    this.prepareData((data) => {
+      if(date.activeURL === 'about:onboarding') {
+        this.sendMessageToPopup({
+          action: 'pushData',
+          data: {
+            activeURL: 'examplepage.de/webpage',
+            module: {},
+            generalState: ''
+          }
+        });
+
+        return;
+      }
+      this.sendMessageToPopup({
+        action: 'pushData',
+        data: data
       })
     });
   }
@@ -126,7 +232,6 @@ export default class {
   }
 
   handleMessagesFromPopup(message){
-    this.window.console.log('IN BACKGROUND', message);
     this.actions[message.action](message.data);
   }
 
@@ -144,7 +249,7 @@ export default class {
     if (!firstRunPrefVal) {
         utils.setPref(firstRunPref, true);
 
-        ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
+        ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'bookmarks-menu-button');
     }
 
     if (!utils.getPref(dontHideSearchBar, false)) {
@@ -163,15 +268,14 @@ export default class {
 
     let button = doc.createElement('toolbarbutton');
     button.setAttribute('id', BTN_ID);
-    button.setAttribute('label', 'CLIQZ');
-    button.setAttribute('tooltiptext', 'CLIQZ');
+    button.setAttribute('label', BTN_LABEL);
+    button.setAttribute('tooltiptext', TOOLTIP_LABEL);
 
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
     div.setAttribute('class','cliqz-control-center')
-    div.style.backgroundImage = 'url(' + CLIQZEnvironment.SKIN_PATH + 'cliqz_btn.svg)';
     button.appendChild(div);
-    div.textContent = 'CLIQZ';
+    div.textContent = BTN_LABEL;
 
     this.badge = div;
 
@@ -203,6 +307,12 @@ export default class {
       iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html');
       iframe.addEventListener('load', onPopupReady.bind(this), true);
       vbox.appendChild(iframe);
+
+      utils.telemetry({
+        type: TELEMETRY_TYPE,
+        target: 'icon',
+        action: 'click',
+      });
     });
 
     panel.addEventListener("ViewHiding", function () {
@@ -248,5 +358,14 @@ export default class {
   resizePopup({ width, height }) {
     this.iframe.style.width = toPx(width);
     this.iframe.style.height = toPx(height);
+  }
+
+  sendTelemetry(data) {
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: data.target,
+      action: 'click',
+      state: data.state
+    });
   }
 }

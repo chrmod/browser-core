@@ -153,7 +153,7 @@
         "message": "Aktiviert"
     },
     "anti-phishing-txt0": {
-        "message": "Warnung: betrügerische Website!"
+        "message": "Sicherheits-Warnung"
     },
     "anti-phishing-txt1": {
         "message": "CLIQZ hat den Zugriff auf ("
@@ -309,7 +309,7 @@
         "message":"Deine Webseiten-Vorschläge erscheinen sofort hier"
     },
     "onCalloutLandingPage":{
-        "message":"Mit CLIQZ direkt am Ziel – mehr Zeit zum Surfen, weniger Suchen"
+        "message":"Mit CLIQZ direkt am Ziel--schneller suchen, länger surfen"
     },
     "onCalloutClickHere":{
         "message":"Klick hier um einen CLIQZ-Vorschlag auszuwählen"
@@ -360,7 +360,7 @@
         "message":"Meine $1 Seiten"
     },
     "Sitemap_Youtube_Popular": {
-        "message":"Beliebte auf YouTube"
+        "message":"Beliebt auf YouTube"
     },
     "Sitemap_Youtube_Subscriptions": {
         "message":"Meine Abos"
@@ -540,7 +540,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "statsShareMsg": {
-        "message": "@cliqz saved me $1 minutes over the last 7 days"
+        "message": "mit @cliqz habe ich $1 Minuten in den letzten 7 Tagen gespart."
     },
     "statsShareAction": {
         "message": "Diese Statistik auf $1 posten"
@@ -642,7 +642,7 @@
       "message": "CLIQZ Suche aktivieren"
     },
     "btnFreshTab": {
-      "message": "CLIQZ Startseite und Neue Tabs aktivieren"
+      "message": "CLIQZ Tab aktivieren"
     },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
@@ -690,7 +690,7 @@
       "message": "Meist gesehen"
     },
     "ez_video-music": {
-      "message": "Music"
+      "message": "Musik"
     },
     "ez_video-newest": {
       "message": "Neueste"
@@ -861,10 +861,10 @@
       "message": "Nein"
     },
     "no_local_data_msg": {
-      "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe. Können wir in Zukunft deinen Standort benutzten?"
+      "message": "Entschuldigung, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in deiner Nähe. Können wir in Zukunft deinen Standort benutzten?"
     },
     "location_sorry_msg": {
-      "message": "Oh nein, leider ist etwas schief gegangen. Passiert nicht noch einmal!"
+      "message": "Entschuldigung, für dieses Ergebnis haben wir leider keine örtlichen Informationen in deiner Nähe."
     },
     "location_thank_you_msg": {
       "message": "Vielen Dank!"
@@ -879,7 +879,7 @@
       "message": "Sicher, dass Du nicht sehen möchtest welche Filme in diesem Kino laufen?"
     },
     "show_local_movies": {
-      "message": "Nein, zeig mir wo ich den Film schauen kann."
+      "message": "Nein, zeig mir wo ich den Film anschauen kann."
     },
     "show_local_cinemas": {
       "message": "Nein, zeig mir welche Filme ich sehen kann."
@@ -930,16 +930,16 @@
       "message": "Bitte die Internet-Verbindung überprüfen."
     },
     "slow_connection_header_3": {
-      "message": "Hmpf."
+      "message": "Noch da?"
     },
     "slow_connection_text_3": {
-      "message": "Bitte die Internet-Verbindung überprüfen."
+      "message": "Bitte überprüfe die Internet-Verbindung."
     },
     "slow_connection_header_4": {
-      "message": "Nicht unsere Schuld!"
+      "message": "Keine...Verbindung...mehr..."
     },
     "slow_connection_text_4": {
-      "message": "Bitte die Internet-Verbindung überprüfen"
+      "message": "Bitte überprüfe die Internet-Verbindung."
     },
     "dataCollection": {
       "message": "CLIQZ for Firefox übermittelt anonyme Daten über Web-Suchen und Website-Besuche an Server von Cliqz um die Such- und Browser-Funktionen zu verbessern."
@@ -990,7 +990,7 @@
       "message": "Unsichere Daten entfernt"
     },
     "attrack-headline-general-whitelisted": {
-      "message": "Gegenwärtig sind auf dieser Seite deine persönlichen Daten Dritten zugänglich."
+      "message": "Gegenwärtig sind deine persönlichen Daten auf dieser Seite Dritten zugänglich."
     },
     "attrack-headline-deactivate": {
       "message": "Der CLIQZ Privatsphären-Schutz ist ausgeschaltet. Private Daten sind nun Dritten zugänglich."
@@ -1158,7 +1158,7 @@
       "message": "Nein, niemals"
     },
     "unblock_youtube_fail": {
-      "message": "OK, wir haben es versucht, leider können wir das Video im Moment nicht zugänglich machen"
+      "message": "OK, wir haben es versucht. Leider können wir das Video im Moment nicht zugänglich machen"
     },
     "cliqz-onboarding-title": {
       "message": "Juhuuu! CLIQZ wurde erfolgreich installiert."
@@ -1170,7 +1170,7 @@
       "message": "Unsere innovativen"
     },
     "cliqz-onboarding-txt-privacy2": {
-      "message": "Anti-Tracking & -Phising"
+      "message": "Anti-Tracking & Anti-Phishing"
     },
     "cliqz-onboarding-txt-privacy3": {
       "message": "Funktionen schützen deine persönlichen Daten."
@@ -1235,23 +1235,44 @@
     "control-center-datapoints": {
       "message": "Deaktiviert für diese Website"
     },
+    "control-center-datapoints-inactive": {
+      "message": "Persönliche Daten wurden entfernt"
+    },
     "control-center-trackers": {
       "message": "Tracking Unternehmen auf dieser Seite"
     },
     "control-center-info-trackers": {
       "message": "Auf fast allen Websites zeichnen integrierte Tracker deine Aktivitäten im Web auf. CLIQZ unterbindet die Daten, anhand derer du identifiziert werden könntest, bevor sie an die Tracking-Dienste gesendet werden. Wie viele einzelne Daten das sind, sagt dir die Zahl. Klick auf das Feld um nähere Details zu sehen."
     },
+    "control-center-info-phishing-title": {
+      "message": "Anti-Phishing"
+    },
     "control-center-info-phishing": {
-      "message": "Im Netz sind Phishing-Betrüger unterwegs, die mit gefälschten Nachrichten und Websites deine Passwort-, Konto-, Kreditkarten- oder sonstige kritische Daten abgreifen wollen. Wenn du eine Website besuchst, die CLIQZ als Fälschung identifiziert, zeigt dir unser Browser einen Warnhinweis."
+      "message": "Anti-Phishing technology identifies and blocks potentially deceptive websites that try to get your passwords or account data before you visit the site."
+    },
+    "control-center-info-ads-title": {
+      "message": "Werbeblocker"
     },
     "control-center-info-ads": {
-      "message": "Im Netz sind Phishing-Betrüger unterwegs, die mit gefälschten Nachrichten und Websites deine Passwort-, Konto-, Kreditkarten- oder sonstige kritische Daten abgreifen wollen. Wenn du eine Website besuchst, die CLIQZ als Fälschung identifiziert, zeigt dir unser Browser einen Warnhinweis."
+      "message": "Die integrierte Funktion zum „Ausschalten“ von Werbung ist aktuell noch in der Entwicklungs-Phase (BETA). Schon jetzt kann Werbung generell oder nur auf einer bestimmten Website blockiert oder zugelassen werden. Ein „fairer“ Modus, der Werbung nur nach bestimmten Kriterien zulässt, ist in Planung."
     },
     "control-center-info-https": {
-      "message": "Er schaltet automatisch Tausende von Webseiten, die auf unsicheren \"http\" zu sichern \"https\". Es wird Ihnen gegen viele Formen der Überwachung und Kontodie-bstählen und einigen Formen der Zensur zu schützen."
+      "message": "Dieser integrierte quelloffene Service erhöht die Sicherheit beim Surfen, indem er immer soweit möglich verschlüsselte HTTPS Verbindungen zu Websites anfordert."
+    },
+    "control-center-info-hpn-title": {
+      "message": "Suche über Proxy"
+    },
+    "control-center-info-hpn": {
+      "message": "Wer bei der Internet-Suche erweiterte Anonymität wünscht und die eigene IP-Adresse verbergen möchte, kann die Suchanfragen über ein Netzwerk aus Proxyservern laufen lassen."
+    },
+    "control-center-info-hw-title": {
+      "message": "Human Web"
+    },
+    "control-center-info-hw": {
+      "message": "CLIQZ arbeitet mit anonymisierten Daten über Suchanfragen und Website-Besuchen, die von der Gemeinschaft der Nutzer geschaffen werden. Die Technologie, die diese Daten erhebt und daraus einen Web-Index aufbaut, nennen wir Human Web."
     },
     "control-center-adblock-title": {
-      "message": "Werbeblocker"
+      "message": "Werbeblocker [BETA]"
     },
     "control-center-adblock-description": {
       "message": "Werbungen wurden geblockt"
@@ -1266,7 +1287,7 @@
       "message": "Phishing Seite melden"
     },
     "control-center-support": {
-      "message": "Info & Hilfe"
+      "message": "FAQ & Support"
     },
     "control-center-othersettings": {
       "message": "Andere Einstellungen"
@@ -1274,11 +1295,11 @@
     "control-center-quicksearch": {
       "message": "Sichere Schnell-Suche"
     },
-    "control-center-quicksearch": {
+    "control-center-location": {
       "message": "Standort teilen"
     },
     "control-center-explicit": {
-      "message": "Explizite Websites blockieren"
+      "message": "Nicht-jugendfreie Seiten in Suche blockieren"
     },
     "control-center-proxy": {
       "message": "Suche über Proxy"
@@ -1323,13 +1344,19 @@
       "message": "Streng"
     },
     "control-center-this-site": {
-      "message": "Diese Website"
+      "message": "Diese Seite"
+    },
+    "control-center-this-domain": {
+      "message": "Diese Domain"
     },
     "control-center-all-sites": {
       "message": "Alle Websites"
     },
     "download": {
       "message": "Herunterladen von: "
+    },
+    "settings": {
+      "message": "Einstellungen"
     },
     "TEST": "OK"
 }
