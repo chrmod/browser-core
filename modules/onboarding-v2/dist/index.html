@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title></title>
-    <!--<link href="styles/styles.css" rel="stylesheet">-->
+    <!-- <link href="styles/styles.css" rel="stylesheet"> -->
 
 
     <link rel="stylesheet" type="text/css"
@@ -11,8 +11,9 @@
     <link rel="stylesheet" type="text/css" href="js/tooltip/css/tooltipster.bundle.min.css"/>
 
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="../bower_components/jquery-ui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/tooltip/js/tooltipster.bundle.min.js"></script>
+    <script src="../webextensions-shim.js"></script>
+
 
     <script>
         var node = document.createElement("link");
@@ -21,9 +22,27 @@
         document.getElementsByTagName("head")[0].appendChild(node);
     </script>
 
+<script src="../webextensions-shim.js"></script>
 
-    <script>
-        var CALLBACKS = {};
+
+<script>
+       function localizeDocument() {
+           Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
+                   var elArgs = el.dataset.i18n.split(','),
+                   key = elArgs.shift();
+               el.textContent = chrome.i18n.getMessage(key, elArgs);
+           });
+
+           Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-title]'), el => {
+                   var elArgs = el.dataset.i18nTitle.split(','),
+                   key = elArgs.shift();
+
+               el.setAttribute('title', chrome.i18n.getMessage(key, elArgs));
+           });
+
+       }
+
+       var CALLBACKS = {};
         window.addEventListener("message", function (ev) {
           var msg;
           try {
@@ -43,11 +62,17 @@
         function step3(val) {
           CALLBACKS['queryCliqz'] = function () {
             setTimeout(function() {
-              $('body').animate({backgroundColor:'#f7f7f7'}, 300, function() {
-                  window.location.href = "about:cliqz";
-              });
-
-            }, 8000);
+              $('body').css('background', '#f7f7f7');
+              setTimeout(function() {
+                window.postMessage(JSON.stringify({
+                    target: 'cliqz',
+                    module: 'core',
+                    action: 'closePopup',
+                    args: [val]
+                }), "*");
+                window.location.href = "about:cliqz";
+              }, 600);
+            }, 4000);
           };
           window.postMessage(JSON.stringify({
             target: 'cliqz',
@@ -58,68 +83,95 @@
 
 
         }
-        $(document).ready(function () {
+
+       $(document).ready(function () {
+
+           localizeDocument();
 
 
+           $('.cqb-search-tooltip').tooltipster({
+               theme: 'tooltipster-light',
+               side: "bottom",
+               maxWidth: 250,
+               interactive: true,
+               trigger: 'custom',
+           });
 
-            setTimeout(function(){
+           $('#cqb-atr-on').tooltipster({
+               theme: 'tooltipster-light',
+               side: "right",
+               maxWidth: 250,
+               trigger: 'custom',
+           });
 
-                $('#cqb-atr-on').tooltipster({
-                    theme: 'tooltipster-light',
-                    side : "right",
-                    maxWidth: 250,
-                    trigger: 'custom',
-                });
-                //trigger
-                 $('#cqb-atr-on').tooltipster('open');
+           $('#cqb-search-btn').tooltipster({
+               theme: 'tooltipster-light',
+               side: "right",
+               maxWidth: 250,
+               interactive: true,
+               trigger: 'custom',
+           });
 
-            }, 400);
-
-
-            $('.cqb-search-tooltip').tooltipster({
-                theme: 'tooltipster-light',
-                side : "bottom",
-                maxWidth: 250,
-                interactive: true,
-                trigger: 'custom',
-            });
+           //=== STEP 1 Tooltip Trigger
+           setTimeout(function () {
+               $('#cqb-atr-on').tooltipster('open');
+           }, 4000);
 
 
-            // Step 1 Click
-            $("#cqb-atr-on").click(function () {
-                $('#cqb-atr-on').tooltipster('close');
-                $("ul.cqb-steps").css("left", "-100%");
-                $(".cqb-progress").addClass("cqb-step2");
+           //==== Step 1 Click
+           $("#cqb-atr-on").click(function (e) {
+               e.stopPropagation();
+               $("body").addClass("cqb-step2");
+               $('#cqb-atr-on').tooltipster('close');
 
-                setTimeout(function(){
-                  window.postMessage(JSON.stringify({
-                    target: 'cliqz',
-                    module: 'control-center',
-                    action: 'openPopUp',
-                  }), '*')
-                }, 600);
-            });
+               // Open Tool Tip
+               setTimeout(function () {
+                   $('#cqb-search-btn').tooltipster('open');
+               }, 4000);
 
-            // Step 2 Click
-            $("#cqb-search-btn").click(function () {
-                $("ul.cqb-steps").css("left", "-200%");
-                $(".cqb-progress").addClass("cqb-step3");
+               // Open PRIVACY CENTER
+               setTimeout(function () {
+                   window.postMessage(JSON.stringify({
+                       target: 'cliqz',
+                       module: 'control-center',
+                       action: 'openPopUp',
+                   }), '*')
+               }, 400);
+           });
 
-                setTimeout(function(){
-                    $('.cqb-search-tooltip').tooltipster('open');
-                }, 600);
-            });
+           //==== Step 2 Click
+           $("#cqb-search-btn").click(function () {
+               $("body").addClass("cqb-step3");
+               $('#cqb-search-btn').tooltipster('close');
 
-            $('.search-link').click(function(e) {
-              e.preventDefault();
-              var val = $(this).attr('href');
-              step3(val).then(function() {
-                alert('xoxo')
-              })
-            });
-        });
+               setTimeout(function () {
+                   $('.cqb-search-tooltip').tooltipster('open');
+               }, 600);
+           });
 
-    </script>
+           $('.search-link').click(function (e) {
+               e.preventDefault();
+               var val = $(this).attr('href');
+
+               step3(val);
+           });
+
+
+           // Open Tooltip if user click
+           $(".cqb-steps .cqb-step1").click(function(e) {
+               if (e.target !== this)
+                   return;
+               $('#cqb-atr-on').tooltipster('open');
+           });
+           $(".cqb-steps .cqb-step2").click(function(e) {
+               if (e.target !== this)
+                   return;
+               $('#cqb-search-btn').tooltipster('open');
+           });
+
+       });
+
+   </script>
 </head>
 <body>
 
@@ -128,26 +180,23 @@
         <li class="cqb-step1">
             <div>
                 <img src="images/logo.png" class="cqb-logo" alt=""/>
-                <h1>Welcome to Cliqz, <br> Turn On Privacy Protection</h1>
-                <p class="cqb-descr">This is important cos bla bla.</p>
-                <a id="cqb-atr-on" class="cqb-btn" title="Plese press the button to activate the Privacy Protection and continue !">
-                    Turn On
+                <h1 data-i18n="onboarding-step-1-msg"></h1>
+                <!--<p class="cqb-descr">This is important cos bla bla.</p>-->
+                <a id="cqb-atr-on" class="cqb-btn" data-i18n="onboarding-step-1-btn"
+                   data-i18n-title="onboarding-step-1-tooltip">
                 </a>
             </div>
         </li>
         <li class="cqb-step2">
             <div>
-                <p class="cqb-step-msg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac est
-                    metus. Nulla sit amet malesuada dui, nec sodales nisi</p>
-                <a id="cqb-search-btn" class="cqb-btn">Search</a>
+                <p class="cqb-step-msg" data-i18n="onboarding-step-2-msg"></p>
+                <a id="cqb-search-btn" class="cqb-btn" data-i18n="onboarding-step-2-btn" data-i18n-title="onboarding-step-2-tooltip"></a>
             </div>
         </li>
         <li class="cqb-step3">
-            <span class="cqb-search-tooltip"  data-tooltip-content="#cqb-tooltip-search"></span>
+            <span class="cqb-search-tooltip" data-tooltip-content="#cqb-tooltip-search"></span>
             <div>
-                <p class="cqb-step-msg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac est
-                    metus. Nulla sit amet malesuada dui, nec sodales nisi</p>
-                <a class="cqb-btn">Bla Bla</a>
+                <p class="cqb-step-msg" data-i18n="onboarding-step-3-msg"></p>
             </div>
         </li>
     </ul>
@@ -162,10 +211,12 @@
 
 <div id="cqb-tooltip-search">
     <span id="tooltip_content">
-        asdf asdf sadf asdf sad <br>
-        <a class="search-link" href="wetter munich">asdasd asd</a><br>
-        <a class="search-link" href="giota">asdasd asd</a><br>
-        <a class="search-link" href="gabriel">asdasd asd</a>
+
+        Start searching the web <br>
+        Try: <br>
+        <a class="search-link" href="weather munich">Weather Munich</a><br>
+        <a class="search-link" href="make lasagna">make lasagna</a><br>
+        <a class="search-link" href="tv program">tv program</a>
     </span>
 </div>
 

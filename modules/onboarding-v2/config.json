@@ -1,6 +1,5 @@
 {
   "bower_components": [
-    "jquery/dist/jquery.min.js",
-    "jquery-ui/jquery-ui.min.js"
+    "jquery/dist/jquery.min.js"
   ]
 }
