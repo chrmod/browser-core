@@ -71,9 +71,9 @@ export default class {
     events.pub("control-center:antitracking-activator", data);
     var state;
     if(data.type === 'switch') {
-      state = data.status === 'active' ? 'on' : 'off';
+      state = data.state === 'active' ? 'on' : 'off';
     } else {
-      state = data.status;
+      state = data.state;
     }
 
     utils.telemetry({
@@ -88,9 +88,9 @@ export default class {
     events.pub("control-center:adb-activator", data);
     var state;
     if(data.type === 'switch') {
-      state = data.status === 'active' ? 'on' : 'off';
+      state = data.state === 'active' ? 'on' : 'off';
     } else {
-      state = data.status;
+      state = data.state;
     }
     utils.telemetry({
       type: TELEMETRY_TYPE,
@@ -109,22 +109,13 @@ export default class {
   }
 
   updatePref(data){
-    var state = data.value;
     // NASTY!
-    if(data.pref == 'extensions.cliqz.dnt') state = !state;
-
-    //NASTY again
-    //updatePref is being shared by
-    //1. antiphishing & https switches
-    //2. othersettings options
-    if(typeof state === 'boolean') {
-      state = state === true ? 'on' : 'off';
-    }
+    if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
 
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: data.target,
-      state: state,
+      state: data.value,
       action: 'click'
     });
 

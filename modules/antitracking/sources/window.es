@@ -164,15 +164,16 @@ export default class {
 
   status() {
     if (background.buttonEnabled) {
-      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(this.window.gBrowser),
           ps = info.ps,
-          enabled = utils.getPref('antiTrackTest') && !CliqzAttrack.isSourceWhitelisted(info.hostname),
-          isWhitelisted = CliqzAttrack.isSourceWhitelisted(info.hostname);
+          hostname = URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
+          isWhitelisted = CliqzAttrack.isSourceWhitelisted(hostname),
+          enabled = utils.getPref('antiTrackTest', true) && !isWhitelisted;
 
       return {
         visible: true,
         strict: utils.getPref('attrackForceBlock', false),
-        hostname: URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
+        hostname: hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         totalCount: info.cookies.blocked + info.requests.unsafe,

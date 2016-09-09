@@ -44,6 +44,17 @@
     border-style: solid;
 }
 
+/* if the button appears in the overflow area of the browser on very small widths */
+.widget-overflow-list .cliqz-control-center {
+    border-style: none;
+    margin-left: 5px;
+}
+
+.widget-overflow-list .cliqz-control-center:after {
+    content: 'CLIQZ';
+    padding-left: 20px;
+}
+
 .cliqz-control-center[state="critical"] {
     background-image: url(../skin/cc-critical.svg)
 }
