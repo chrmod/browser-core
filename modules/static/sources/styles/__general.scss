@@ -143,7 +143,7 @@
     border-bottom: 1px solid #CCC;
 }
 
-.cqz-results .cqz-result-box:nth-last-child(2) {
+.cqz-results .cqz-result-box:nth-child(n+3):nth-last-child(2) {
     margin-bottom: -1px;
 
     & > .cqz-result-h1,
