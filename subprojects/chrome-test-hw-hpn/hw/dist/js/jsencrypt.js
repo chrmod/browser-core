@@ -1275,10 +1275,10 @@ if(rng_pool == null) {
   rng_pool = new Array();
   rng_pptr = 0;
   var t;
-  if(crypto && crypto.getRandomValues) {
+  if(window.crypto && window.crypto.getRandomValues) {
     // Extract entropy (2048 bits) from RNG if available
     var z = new Uint32Array(256);
-    crypto.getRandomValues(z);
+    window.crypto.getRandomValues(z);
     for (t = 0; t < z.length; ++t)
       rng_pool[rng_pptr++] = z[t] & 255;
   }

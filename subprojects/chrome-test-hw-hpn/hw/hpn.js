@@ -1,20 +1,20 @@
 var CliqzSecureMessage = {
 	VERSION: '0.1',
 	LOG_KEY: 'securemessage',
-	debug: true,
+	debug: false,
 	mode:"safe",
 	counter: 0,
 	tmult: 4,
   	tpace: 250,
-	SOURCE_MAP_PROVIDER: "http://hpn-collector.test.cliqz.com/sourcemapjson?q=1",
-	LOOKUP_TABLE_PROVIDER: "http://hpn-collector.test.cliqz.com/lookuptable?q=1",
-	KEYS_PROVIDER: "http://hpn-collector.test.cliqz.com/signerKey?q=1",
+	SOURCE_MAP_PROVIDER: "https://collector-proxy-network.cliqz.com/sourcemapjson?q=1",
+	LOOKUP_TABLE_PROVIDER: "https://collector-proxy-network.cliqz.com/lookuptable?q=1",
+	KEYS_PROVIDER: "https://collector-proxy-network.cliqz.com/signerKey?q=1",
 	proxyList: null,
 	routeTable: null,
 	proxyStats:{},
-	PROXY_LIST_PROVIDER: "http://hpn-collector.test.cliqz.com/proxyList?q=1",
-	BLIND_SIGNER:"http://hpn-sign.test.cliqz.com/sign",
-	USER_REG:"http://hpn-sign.test.cliqz.com/register",
+	PROXY_LIST_PROVIDER: "https://collector-proxy-network.cliqz.com/proxyList?q=1",
+	BLIND_SIGNER:"http://signer-proxy-network.cliqz.com/sign",
+	USER_REG:"http://signer-proxy-network.cliqz.com/register",
 	signerKey: null,
 	loggerKey: null,
 	localTemporalUniq:{},
@@ -110,27 +110,6 @@ var CliqzSecureMessage = {
     	if(!CliqzSecureMessage.proxyList) CliqzSecureMessage.loadLocalProxyList();
     	if(!CliqzSecureMessage.routeTable) CliqzSecureMessage.loadLocalRouteTable();
  	},
-	pushMessage: function(msg){
-		msg.mode = CliqzSecureMessage.mode;
-		var mc = new messageContext(msg);
-		mc.aesEncrypt()
-		.then(function(enxryptedQuery){
-			return mc.signKey();
-		})
-		.then(function(){
-			var data = {"mP":mc.getMP()}
-			return _http("http://54.211.9.241/verify")
-			 	   .post(JSON.stringify(data), "instant")
-		})
-		.then(function(response){
-			if(msg.action != "extension-query") return;
-			return mc.aesDecrypt(JSON.parse(response)["data"]);
-		})
-		.then(function(res){
-			// callback && callback({"response":res});
-			console.log(res);
-		})
-	},
   	fetchRouteTable: function(){
 		// This will fetch the route table from webservice.
 		CliqzUtils.httpGet(CliqzSecureMessage.LOOKUP_TABLE_PROVIDER,
@@ -246,22 +225,19 @@ var CliqzSecureMessage = {
     saveLocalCheckTable: function(){
     	// This needs to persist the local temporary table on disk.
 		if (Object.keys(CliqzSecureMessage.localTemporalUniq).length > 0) {
-	    	CliqzUtils.log("Saving local table");
 			CliqzSecureMessage.saveRecord('localTemporalUniq', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
 		}
     },
     saveLocalProxyList: function(){
     	// This needs to persist the local temporary table on disk.
 		if (CliqzSecureMessage.proxyList && CliqzSecureMessage.proxyList.length > 0) {
-	    	CliqzUtils.log("Saving local table");
-			CliqzSecureMessage.saveRecord('proxylist', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
+			CliqzSecureMessage.saveRecord('proxylist', JSON.stringify(CliqzSecureMessage.proxyList));
 		}
     },
     saveLocalRouteTable: function(){
     	// This needs to persist the local temporary table on disk.
 		if (CliqzSecureMessage.routeTable && CliqzSecureMessage.routeTable.length > 0) {
-	    	CliqzUtils.log("Saving local table");
-			CliqzSecureMessage.saveRecord('routetable', JSON.stringify(CliqzSecureMessage.localTemporalUniq));
+			CliqzSecureMessage.saveRecord('routetable', JSON.stringify(CliqzSecureMessage.routeTable));
 		}
     },
     saveRecord: function(id, data) {

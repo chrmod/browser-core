@@ -131,6 +131,8 @@ var Extension = {
 
       // Load into all new windows
       Services.ww.registerNotification(Extension.windowWatcher);
+
+      Extension.setInstallDatePref();
     },
     shutdown: function () {
       Extension.quickUnloadModules();
@@ -146,6 +148,21 @@ var Extension = {
           Extension.resetOriginalPrefs();
           win.CLIQZ.Core.showUninstallMessage(version);
       } catch(e){}
+    },
+
+    // for legacy users who have not set install date on installation
+    setInstallDatePref() {
+      try {
+        if (!CliqzUtils.getPref('install_date')) {
+          Cu.import('resource://gre/modules/AddonManager.jsm');
+          AddonManager.getAddonByID("cliqz@cliqz.com", function () {
+            var date = Math.floor(arguments[0].installDate.getTime() / 86400000);
+            CliqzUtils.setPref('install_date', date);
+          });
+        }
+      } catch (ex) {
+        CliqzUtils.log('Unable to set install date');
+      }
     },
 
     unload: function () {

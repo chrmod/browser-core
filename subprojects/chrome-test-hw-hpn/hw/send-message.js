@@ -94,7 +94,6 @@ var sendMessage = function(m) {
                     CliqzSecureMessage.stats(mc.proxyCoordinator, "telemetry-sent",1);
                     // CliqzSecureMessage.sampleMessage.push(payload);
                     // return CliqzSecureMessage.peer.sendStringMsg(mc.proxyCoordinator, JSON.stringify(payload),"telemetry")
-                    console.log("@@@@ proxyCoordinator" + mc.proxyCoordinator);
                     return CliqzSecureMessage.httpHandler(mc.proxyCoordinator)
                     .post(JSON.stringify(payload))
 

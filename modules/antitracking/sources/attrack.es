@@ -1620,10 +1620,10 @@ var CliqzAttrack = {
 
       return result;
     },
-    getCurrentTabBlockingInfo: function() {
+    getCurrentTabBlockingInfo: function(_gBrowser) {
       var tabId, urlForTab;
       try {
-        var gBrowser = CliqzUtils.getWindow().gBrowser,
+        var gBrowser = _gBrowser || CliqzUtils.getWindow().gBrowser,
             selectedBrowser = gBrowser.selectedBrowser;
         // on FF < 38 selectBrowser.outerWindowID is undefined, so we get the windowID from _loadContext
         tabId = selectedBrowser.outerWindowID || selectedBrowser._loadContext.DOMWindowID;

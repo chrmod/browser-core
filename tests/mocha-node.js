@@ -6,8 +6,10 @@ const walk = require('walk');
 const System = require('systemjs');
 const Mocha = require('mocha');
 const fs = require('fs');
-const chai = require('../bower_components/chai/chai.js');
-chai.config.truncateThreshold = 0;
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+chai.config.truncateThreshold = 0
+chai.use(chaiAsPromised);
 
 global.chai = chai;
 
@@ -68,9 +70,20 @@ function describeModule(moduleName, loadDeps, testFn) {
   let deps;
 
   function loadModules() {
+    const depsRewrite = Object.assign(Object.create(null), deps);
+    Object.keys(deps).forEach(dep => {
+      Object.keys(deps[dep]).forEach(key => {
+        if (deps[dep][key] === '[dynamic]') {
+          depsRewrite[dep][key] = function () {
+            return deps[dep][key].apply(null, arguments);
+          }
+        }
+      });
+    });
+
     return Promise.all(
-      Object.keys(deps).map(
-        dep => System.set(dep, System.newModule(deps[dep]))
+      Object.keys(depsRewrite).map(
+        dep => System.set(dep, System.newModule(depsRewrite[dep]))
       )
     ).then(() => System.import(moduleName));
   }

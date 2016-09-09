@@ -3309,15 +3309,17 @@ var CliqzHumanWeb = {
         var rules = {};
         var key = "";
         var rule = "";
+        var payloadRules = [];
 
         if(ruleset === "normal"){
             rules = CliqzHumanWeb.extractRules[ind];
+            payloadRules = CliqzHumanWeb.payloads[ind];
         }
         else if(ruleset === "strict"){
             rules = CliqzHumanWeb.anonExtractRules[ind];
+            payloadRules = CliqzHumanWeb.anonPayloads[ind];
         }
 
-        rules = CliqzHumanWeb.extractRules[ind];
         if (CliqzHumanWeb.debug) {
             _log('rules' + rules + ind);
         }
@@ -3386,7 +3388,7 @@ var CliqzHumanWeb = {
             }
         }
 
-        for(rule in CliqzHumanWeb.payloads[ind]){
+        for(rule in payloadRules){
             CliqzHumanWeb.createPayload(scrapeResults, ind, rule, ruleset);
         }
     },
@@ -3969,10 +3971,8 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.saveRecord('actionStats_last_send', CliqzHumanWeb.actionStatsLastSent);
     },
     saveStrictQueries: function() {
-        if (CliqzHumanWeb.strictQueries.length > 0) {
-            _log("Saving local table");
-            CliqzHumanWeb.saveRecord('localStrictQueries', JSON.stringify(CliqzHumanWeb.strictQueries));
-        }
+        _log("Saving local table");
+        CliqzHumanWeb.saveRecord('localStrictQueries', JSON.stringify(CliqzHumanWeb.strictQueries));
     },
     sendActionStatsIfNeeded: function() {
         // Send action stats once per day.

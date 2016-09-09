@@ -1248,7 +1248,7 @@
       "message": "Anti-Phishing"
     },
     "control-center-info-phishing": {
-      "message": "Potentiell betrügerische Websites, die es auf deine Passwörter und Kontodaten abgesehen haben, werden mit der Anti-Tracking Technologie vorzeitig erkannt und blockiert."
+      "message": "Anti-Phishing technology identifies and blocks potentially deceptive websites that try to get your passwords or account data before you visit the site."
     },
     "control-center-info-ads-title": {
       "message": "Ad Blocking"
@@ -1354,6 +1354,9 @@
     },
     "download": {
       "message": "Download from: "
+    },
+    "cliqz-search-hint": {
+      "message": "Search is powered by"
     },
     "settings": {
       "message": "Settings"
