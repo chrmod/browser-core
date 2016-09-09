@@ -7,6 +7,11 @@ TESTS.HPNTest = function (CliqzUtils) {
 	var CliqzSecureMessage = CliqzUtils.getWindow().CLIQZ.System.get("hpn/main").default;
 	var messageContext = CliqzUtils.getWindow().CLIQZ.System.get("hpn/message-context").default;
 	var getRouteHashStr = CliqzUtils.getWindow().CLIQZ.System.get("hpn/utils").getRouteHashStr;
+	var stringToByteArray = CliqzUtils.getWindow().CLIQZ.System.get("hpn/crypto-utils").stringToByteArray;
+	var base64ToByteArray = CliqzUtils.getWindow().CLIQZ.System.get("hpn/crypto-utils").base64ToByteArray;
+	var byteArrayToHexString = CliqzUtils.getWindow().CLIQZ.System.get("hpn/crypto-utils").byteArrayToHexString;
+	var hexStringToByteArray = CliqzUtils.getWindow().CLIQZ.System.get("hpn/crypto-utils").hexStringToByteArray;
+	var privateKeytoKeypair = CliqzUtils.getWindow().CLIQZ.System.get("hpn/crypto-utils").privateKeytoKeypair;
 	var subject;
 	var mc = "";
 	var sample_message = '{"action": "alive", "type": "humanweb", "ver": "1.5", "payload": {"status": true, "ctry": "de", "t": "2015110909"}, "ts": "20151109"}';
@@ -51,7 +56,11 @@ TESTS.HPNTest = function (CliqzUtils) {
 		});
 
 		it("dmC rightly calculated", function () {
-			expect(mc.dmC).to.equal("0101101101011");
+			mc.getproxyCoordinator()
+			.then(() => {
+				expect(mc.dmC).to.equal("0101101101011");
+			})
+
 		});
 
 		it("action", function () {
@@ -60,40 +69,95 @@ TESTS.HPNTest = function (CliqzUtils) {
 
 	})
 
-	describe("HPN-RSA signing", function () {
-		it("RSA signature", function () {
-			var rsa = new CliqzSecureMessage.RSAKey();
-			rsa.readPrivateKeyFromPEMString(pk);
-			var hSig = rsa.sign(sample_message,"sha256");
-			expect(hSig).to.equal("2be67d16d64c93f55af6db28dd83f48ff92761e459e61dab161f475aea010208b3a8437e8acec0f15d463f762e64e00033cbcab1b6017d541b88dbb1258c98cfe9c70436caf6d62effa8edc9f5a54d17e77724ae2864a34a0c6b0877f00f2fa8e5d583b02bafa8f72eadf16b2edd844fdca9440aa93ec6dd88d280831becdeb363ca69ecf4e6d82bdd9a18de3034b3bdc23c557847503924c45dcb3e8ed4d164725068109109fd5ffc3727e41c73e246e9017f497603d6261ffcd0c939857f11b9a2e49bf34e9ab31aaa1d82ba420a8d09517a97c98b176bebeb3b8c97f5bfe148258b268eb95b3916c328584f9b7975a0265198a919e89e507ddb6c9e51f025");
+	describe("HPN-SHA-1", function () {
+		it("SHA-1", function () {
+			CliqzSecureMessage.sha1(sample_message)
+			.then( hash => {
+				expect(hash).to.equal("e4bf1a37cbddc10c5db8fb757236c2c6053f6e39");
+			})
+
+		});
+		it("SHA-1-with-accents", function () {
+			CliqzSecureMessage.sha1('çéë')
+			.then( hash => {
+				expect(hash).to.equal("133d5d8ecc7c377501a41dba28fb70a0a1577a38");
+			})
+
 		});
 
-		it("HPN-RSA verification", function () {
-			var rsa = new CliqzSecureMessage.RSAKey();
-			rsa.readPrivateKeyFromPEMString(CliqzSecureMessage.uPK.privateKey);
-			var hSig = rsa.sign(sample_message,"sha256");
 
-			var je = new CliqzSecureMessage.JSEncrypt();
-		 	var rsa = new CliqzSecureMessage.RSAKey();
-			rsa.setPublic(je.parseKeyValues(CliqzSecureMessage.uPK.publicKeyB64)["n"], "10001");
-			var _hSig = rsa.verifyHexSignatureForMessage(hSig, sample_message);
-			expect(_hSig).to.equal(true);
+	})
+
+describe("HPN-RSA signing and verification", function () {
+		it("RSA signature & Verification", function () {
+	    	var ppk = privateKeytoKeypair(pk);
+	    	CliqzSecureMessage.crypto.subtle.importKey(
+		        "pkcs8",
+		        base64ToByteArray(ppk[1]),
+		        {name: "RSASSA-PKCS1-v1_5", hash: "SHA-256"},
+		        false,
+		        ["sign"]
+	    	)
+	    	.then(function(privateKey) {
+				var documentBytes = stringToByteArray(sample_message);
+				CliqzSecureMessage.crypto.subtle.sign(
+	                {name: "RSASSA-PKCS1-v1_5", hash: "SHA-256"},
+	                privateKey,
+	                documentBytes
+	            )
+	            .then(function(signatureBuffer) {
+	                var signatureBytes = new Uint8Array(signatureBuffer);
+	                var signatureHex = byteArrayToHexString(signatureBytes);
+	                var spkiBytes = base64ToByteArray(ppk[0]);
+	                CliqzSecureMessage.crypto.subtle.importKey(
+	                    "spki",
+	                    spkiBytes,
+	                    {name: "RSASSA-PKCS1-v1_5", hash: "SHA-256"},
+	                    false,
+	                    ["verify"]
+	                )
+	                .then(function(publicKey) {
+	                  var signatureBytes = hexStringToByteArray(signatureHex);
+	                  CliqzSecureMessage.crypto.subtle.verify(
+	                    {name: "RSASSA-PKCS1-v1_5", hash: "SHA-256"},
+	                    publicKey,
+	                    signatureBytes,
+	                    documentBytes
+	                  ).then(function(validSignature) {
+	                  	expect(validSignature).to.equal(true);
+	                  })
+	                })
+	            })
+	        })
+		});
+
+		it("LUA-signing and Web-Crypto-verification", function () {
+		    var orgMsgString = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmbCq0gL1kOWmlXcA0bl+kbM+6C7NcvphVF3WsbXV8lBwZP5FiyHJnTwRq2bVJBgYZW2EwIFXJaWT2gAWhgyb/pvEqRslz8/t1sbZbYINt0nxUvOEuCIk59sIJQ8UCD6MF69zr6W2TzIPdGGgYTA+TcWF6N2K5MFdYi/5cTkKym9r2dDU+c8mg6A4DFtP4jBfK6xq+iPUQx+HwqzkRAptR+rOJ0BNy2n5BbzhGNLh8xswCmxUzkOQdkbY2XZGkiciysoBMfh5Ncdxxp3wg9uRJUSz9wIirHt6vrPaaqMDfG8BIRYWj45XBRp4HtcpKuR03f1DgUJF6C06SHpB4B55RwIDAQAB20160627";
+		    var sigHex = "46e04fd62cc5899247f4649be27c795bab5de852c8fb726b922f1f9bed92fe0a7512352d9ccdcdb3d31ff393372fd8882da347444a21b04ffb96171871303152c9d837cdca792dd19db9a1af7c659ccb50f415bdba28ba11a0003d28e8082d73598907f3b6ebcff39c50426fa5342d012149ccfbe8544dedda02098cd042c825ea9f4d3397a669cba7d8b7340a308d51d78fa078a041c78677bd700fa33335f1347e23e97471b700d6443323dedeb808aed0299045589806cc7a67fa477596bd81c018c18661db5a805d3c6ebdd4fa87249678f9e110867d048a6d438134e0ce6a86cf55b131e686664f4fd2cae5206a37ed166b4afc750f3caaed8c7e24e7645723af86342fc64c1c7efadcc91a54bf3f285616875eac9c3cd22b4f9bd726bc92608d76e9138713cdfaee1b7e4886dc661e38a55c93cde338bdc8bfca0b2c19761a14e3c974214719c212eb2a7cbbdcb21d92c15a72df6cc607a4561bfc49ff0e2a85b5417cf92fc5ea96f946f2d0b6dfb0ec6afdea804344d07616123209e8ee5fe7763a8818e87368650822c165684dc7ba02bc3f20f6bfb89d1c8fb60010bf9fc4d199af3aa9a546bcc53057d6aeb2c29f38b7dfbd14679a80a69ea24d654598b189de9d7c319d0b3ec347e96bf7a87524121dc30b27c5f37e49d5dd7414e8df2b3d074f932dbad59a1de991085bdc7dc65a7ecf8ed997d370ca91dab75e";
+		    var publicKey = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAq6SBV1x/k/5pVsLxRTeSmDGtPsYs1STff022H4f5Pm1ctEfTUEh+1EtTi68WdxgkQiyCYN8qAnrUkC4Ea1u4jFC3zghciRY2FtI1F/cZ+moOxxY4o71QtHB0ZLUbD9NIs0bCvjq+5Lu2KdMsVXxPcDHMQGw2ALRMIbWUcAG5dOAqBsuQ7ZCmyaT6yt0LTBI+Q7RiJI6yqfzZDAlOUDHVZGLaqsp+34lTwck7yOT4IbKWR4D/Bt/mr9Bxgkz+BKuKkPyANkzLM4df+DGM9HwQlAOuKxqnNlc4MXCTYe6Op7YwFyG+1/fWUKKPrRUL6elexQxUZDygScfvOINS4ghg74Fd8RUGFtIR6ZdD6F7zFCK11ZIqj6sfBfZZze1p1Ld9qtDivojFr7VWe2EwX9VrDQu7dlh+AKu+GpheY76gwo2P0XzjXl51kBzYSI2SMOADDvcN2eYxMOy+9V/Zwib2HmfR9+X23H8vXx9hWL7kVBz8RjihdmMUpcG+DeBb9kBSVvO6LFPeWuqHnXkq0zD5fleldaEH4vHOf9ppgB8NOkLDKcJGRjwD7rdpSqWhrR+VDwQ8Xkoflr11MDlqVoSInokLP1oAkanSc2b9FaztmGMsP2U7sUjJ00/VoGNdC+HBzyJdP3QcmLTmJNsVqlisZSkesdaygGRG3q4MgCZvP9cCAwEAAQ==";
+		    var documentBytes = stringToByteArray(orgMsgString);
+		    var signatureBytes = hexStringToByteArray(sigHex);
+		    var spkiBytes = base64ToByteArray(publicKey);
+		    CliqzSecureMessage.crypto.subtle.importKey(
+		        "spki",
+		        spkiBytes,
+		        {name: "RSASSA-PKCS1-v1_5", hash: "SHA-1"},
+		        false,
+		        ["verify"]
+		    )
+		    .then(function(pkey) {
+		      CliqzSecureMessage.crypto.subtle.verify(
+		        {name: "RSASSA-PKCS1-v1_5", hash: "SHA-1"},
+		        pkey,
+		        signatureBytes,
+		        documentBytes
+		      ).then(function(validSignature) {
+		      	expect(validSignature).to.equal(true);
+		      })
+		    })
 		});
 	})
 
-	describe("HPN message hash calculation (digest)", () => {
-		// CliqzSecureMessage.sourceMap is sometimes replaced internally, making this test fail.
-		// So we test getRouteHashStr instead of getRouteHash, which
-		// accepts our sourceMap as parameter. getRouteHash just returns getRouteHashStr with
-		// CliqzSecureMessage.sourceMap as parameter.
-		let sm = JSON.parse(sourceMap);
-		var sampleMsgs = [[{"ts":"20160323","action":"page","payload":{"url":"http://haendler.autoscout24.de/audi-berlin-gmbh/fahrzeuge"}},"haendlerautoscout24deaudiberlingmbhfahrzeuge20160323"],[{"ts":"20160323","action":"query","payload":{"q":"sudoku standard 2015","qurl":"https://www.google.at/ (PROTECTED)"}},"sudokustandard201520160323"],[{"action":"alive","payload":{"t":"2016032303"}},"alive2016032303"],[{"ts":"20160323","action":"ads_A","payload":{"q":"alten bauernhof kaufen","qurl":"https://www.google.de/ (PROTECTED)"}},"adsaaltenbauernhofkaufen20160323"],[{"ts":"20160323","action":"hw.telemetry.actionstats"},"hwtelemetryactionstats20160323"],[{"ts":"20160323","action":"maliciousUrl","payload":{"qurl":"http://livetv.sx/de/eventinfo/391891_saint_louis_san_jose/"}},"maliciousurllivetvsxdeeventinfo391891saintlouissanjose20160323"],[{"action":"doorwaypage","payload":{"url":"http://getdebrid.com/step-2","durl":"http://www.histats.com/"}},"doorwaypagegetdebridcomstep2histatscom"],[{"ts":"20160323","action":"ads_C","payload":{"q":"elbeo strumpfhosen","qurl":"https://www.google.de/ (PROTECTED)"}},"adscelbeostrumpfhosen20160323"],[{"ts":"20160323","action":"attrack.tp_events","payload":{"data":[{"hostname":"bd6e7d66cc4e630a","path":"6ee49a6554081c45"}]}},"attracktpevents20160323bd6e7d66cc4e630a6ee49a6554081c45"],[{"type":"humanweb","action":"attrack.tokens","payload":"H4sIAAAAAAAAA81a246cuY1+l772BuJBlOjr3OVm3yCQSAkxMpldjJ1ZLIK8+34qz7gNVHX1AW7sNGC73V","compressed":true,"ver":"2.0","ts":"20160425","anti-duplicates":9501426},"attracktokens20160425h4siaaaaaaaaa81a246cuy1l772bujblojr3ovm3ycqsakxmpldjj1zlik834qz7gnvhx1aw7sngc73v"],[{"action":"attrack.safekey","payload":{"ts":"20160321"}},"attracksafekey20160321"]];
-		it("Msg hash calculation", () => {
-			sampleMsgs.forEach(x => {
-				expect(x[1]).to.equal(getRouteHashStr(x[0], sm));
-			});
-		});
-	})
 
 }
 
