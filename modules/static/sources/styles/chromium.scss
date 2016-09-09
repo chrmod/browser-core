@@ -8,6 +8,12 @@
       left: 64px;
     }
   }
+
+  .cqz-message-container {
+    margin-top: -26px;
+    margin-bottom: 26px;
+    position: relative;
+  }
 }
 
 $dynamic-padding: calc((100% - 500px)/2);
