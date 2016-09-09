@@ -19,7 +19,7 @@ function AboutURL() {}
 AboutURL.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
   classDescription: CLIQZ_ONBOARDING,
-  classID: Components.ID("{b0272978-beab-4adc-a3d4-04b76acfa4e7}"),
+  classID: Components.ID("{be8a8710-7611-11e6-bdf4-0800200c9a66}"),
   contractID: "@mozilla.org/network/protocol/about;1?what=onboarding",
 
   newChannel: function(uri) {

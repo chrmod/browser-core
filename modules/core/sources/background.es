@@ -151,7 +151,9 @@ export default {
       urlBar.focus();
       urlBar.mInputField.focus();
       urlBar.mInputField.setUserInput(query);
+      return Promise.resolve();
     },
+
     setUrlbar(value) {
       return this.actions.queryCliqz(value);
     },

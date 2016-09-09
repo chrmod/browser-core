@@ -10,7 +10,8 @@
           href="js/tooltip/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-light.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/tooltip/css/tooltipster.bundle.min.css"/>
 
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../bower_components/jquery-ui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/tooltip/js/tooltipster.bundle.min.js"></script>
 
     <script>
@@ -22,6 +23,41 @@
 
 
     <script>
+        var CALLBACKS = {};
+        window.addEventListener("message", function (ev) {
+          var msg;
+          try {
+            msg = JSON.parse(ev.data);
+          } catch (e) {
+            msg = {};
+          }
+
+          if (msg.type === "response") {
+            var action = CALLBACKS[msg.action];
+            if (action) {
+              action();
+            }
+          }
+        });
+
+        function step3(val) {
+          CALLBACKS['queryCliqz'] = function () {
+            setTimeout(function() {
+              $('body').animate({backgroundColor:'#f7f7f7'}, 300, function() {
+                  window.location.href = "about:cliqz";
+              });
+
+            }, 8000);
+          };
+          window.postMessage(JSON.stringify({
+            target: 'cliqz',
+            module: 'core',
+            action: 'queryCliqz',
+            args: [val]
+          }), "*");
+
+
+        }
         $(document).ready(function () {
 
 
@@ -73,6 +109,14 @@
                     $('.cqb-search-tooltip').tooltipster('open');
                 }, 600);
             });
+
+            $('.search-link').click(function(e) {
+              e.preventDefault();
+              var val = $(this).attr('href');
+              step3(val).then(function() {
+                alert('xoxo')
+              })
+            });
         });
 
     </script>
@@ -119,9 +163,9 @@
 <div id="cqb-tooltip-search">
     <span id="tooltip_content">
         asdf asdf sadf asdf sad <br>
-        <a href="asd">asdasd asd</a><br>
-        <a href="asd">asdasd asd</a><br>
-        <a href="asd">asdasd asd</a>
+        <a class="search-link" href="wetter munich">asdasd asd</a><br>
+        <a class="search-link" href="giota">asdasd asd</a><br>
+        <a class="search-link" href="gabriel">asdasd asd</a>
     </span>
 </div>
 

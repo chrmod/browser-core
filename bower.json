@@ -18,7 +18,8 @@
     "mathjs": "1.0.1",
     "es6-promise": "~3.2.2",
     "system.js": "^0.19.37",
-    "hammerjs": "^2.0.8"
+    "hammerjs": "^2.0.8",
+    "jquery-ui": "jqueryui#^1.12.0"
   },
   "devDependencies": {
     "mocha": "cliqz-oss/mocha#2.5.0",
