@@ -65,10 +65,9 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   position: relative;
   float: right;
   right: 64px;  /* Keep in sync with side paddings of .cqz-main-result-wrapper */
-  width: 105px;
   height: 26px;
   line-height: 26px;
-  padding: 0px 25px 0px 25px;
+  padding: 0px 30px 0px 25px;
   color: #959595;
   text-align: center;
   background-color: #f0f0f0;
@@ -109,16 +108,17 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   background-color: #f0f0f0;
 }
 
-#settings label {
+#settings label.pref-label {
   color: #222;
   margin-right: 20px;
+  white-space: nowrap;
 }
 
-#settings label span {
+#settings label.pref-label span {
   margin-right: 7px;
 }
 
-#settings label select {
+#settings label.pref-label select {
   border-radius: 3px;
   border-color: #d2d2d2;
   background: #fefefe;
@@ -136,7 +136,6 @@ div#cliqz-results::-webkit-scrollbar-thumb {
 
   #settings {
     padding-left: calc((100% - 500px)/2 + 20px);
-    padding-right: calc((100% - 500px)/2);
   }
 }
 
