@@ -22,6 +22,7 @@ export default class {
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
+      refreshState: this.refreshState.bind(this),
       resize: this.resizePopup.bind(this),
       "adb-optimized": this.adbOptimized.bind(this),
       "antitracking-activator": this.antitrackingActivator.bind(this),
@@ -29,22 +30,20 @@ export default class {
       "antitracking-strict": this.antitrackingStrict.bind(this),
       "sendTelemetry": this.sendTelemetry.bind(this)
     }
-
-    this.onLocationChange = this.onLocationChange.bind(this);
   }
 
   init() {
     this.addCCbutton();
-    CliqzEvents.sub("core.location_change", this.onLocationChange);
+    CliqzEvents.sub("core.location_change", this.actions.refreshState);
   }
 
   unload() {
-    CliqzEvents.un_sub("core.location_change", this.onLocationChange);
+    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
   }
 
-  onLocationChange() {
+  refreshState() {
     this.prepareData((data) => {
-      this.updateState(data.generalState);
+      this.setState(data.generalState);
     });
   }
 
@@ -106,6 +105,30 @@ export default class {
   }
 
   updateState(state){
+    // set the state of the current window
+    this.setState(state);
+
+    // go to all the other windows and refresh the state
+    var enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+      var win = enumerator.getNext();
+      if(win != this.window){
+        setTimeout((win) => {
+          utils.callWindowAction(
+            win,
+            'control-center',
+            'refreshState',
+            []
+          );
+        }, 200, win);
+      }
+      else {
+        // current window - nothing to do
+      }
+    }
+  }
+
+  setState(state){
     this.badge.setAttribute('state', state);
   }
 
