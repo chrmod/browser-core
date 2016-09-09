@@ -1358,5 +1358,29 @@
     "settings": {
       "message": "Settings"
     },
+    "onboarding-step-1-msg": {
+      "message": "Welcome to CLIQZ"
+    },
+    "onboarding-step-1-btn": {
+      "message": "Turn on your Privacy Protection"
+    },
+    "onboarding-step-1-tooltip": {
+      "message": "Hey there! Ready to browse safely?"
+    },
+    "onboarding-step-2-msg": {
+      "message": "Privacy Control Center"
+    },
+    "onboarding-step-2-btn": {
+      "message": "Search the web"
+    },
+    "onboarding-step-2-tooltip": {
+      "message": "Holla! Ready for your next step?"
+    },
+    "onboarding-step-3-msg": {
+      "message": "Try Cliqz Search"
+    },
+    "onboarding-step-3-tooltip": {
+      "message": ""
+    },
     "TEST": "OK"
 }

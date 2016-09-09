@@ -118,12 +118,30 @@ ul.cqb-progress {
         margin-right: 10px;
         border-radius: 50%;
         border: 1px solid #fff;
+
+        &:nth-child(1) {
+            background: #fff;
+        }
+    }
+}
+
+body.cqb-step2 {
+    ul.cqb-progress li:nth-child(2) {
+        background: #fff;
     }
 
-    li:nth-child(1),
-    &.cqb-step2 li:nth-child(2),
-    &.cqb-step3 li:nth-child(3) {
+    ul.cqb-steps {
+        left: -100%;
+    }
+}
+
+body.cqb-step3 {
+    ul.cqb-progress li:nth-child(3) {
         background: #fff;
+    }
+
+    ul.cqb-steps {
+        left: -200%;
     }
 }
 
@@ -134,4 +152,13 @@ ul.cqb-progress {
     display: block;
     width: 10px;
     height: 10px;
+}
+
+//==== Tooltip ==
+
+.tooltipster-sidetip.tooltipster-light .tooltipster-content {
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.4em;
+    color: #4f4f4f;
 }
