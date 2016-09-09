@@ -1365,7 +1365,7 @@
       "message": "Turn on your Privacy Protection"
     },
     "onboarding-step-1-tooltip": {
-      "message": "Hey there! <br> Ready to browse safely?"
+      "message": "Hey there! Ready to browse safely?"
     },
     "onboarding-step-2-msg": {
       "message": "Privacy Control Center"
@@ -1374,7 +1374,7 @@
       "message": "Search the web"
     },
     "onboarding-step-2-tooltip": {
-      "message": "Holla! <br> Ready for your next step?"
+      "message": "Holla! Ready for your next step?"
     },
     "onboarding-step-3-msg": {
       "message": "Try Cliqz Search"
