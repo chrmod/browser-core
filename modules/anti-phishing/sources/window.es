@@ -20,7 +20,7 @@ export default class {
   }
 
   createButtonItem(win) {
-    if (!CliqzAntiPhishing.isAntiPhishingActive()) {
+    if (CliqzUtils.getPref('cliqz-anti-phishing', false) == false) {
       return;
     }
     var doc = win.document,
