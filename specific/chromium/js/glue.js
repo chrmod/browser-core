@@ -298,31 +298,27 @@ function generateSession(source){
 
 // Settings
 
-function createOptionEntries(el, options, prefKey, action){
-  while (el.lastChild) {
-    el.removeChild(el.lastChild);
-  }
-
-  for(let id in options){
-    let option = document.createElement('option');
-    option.value = id;
-    option.textContent = options[id].name;
-    option.selected = options[id].selected;
-    el.appendChild(option);
-  }
-
-  el.addEventListener("change", function(ev){
-    CliqzUtils.setPref(prefKey, ev.target.value);
-    action(ev.target.value);
-  });
-}
-
-function handleSettings(){
+function handleSettings() {
   document.getElementById("settingsButton").addEventListener('click', function(){
     settingsContainer.classList.toggle('open');
-    if(!settingsContainer.classList.contains('open')){
-      createSettingsMenu();
+    if (settingsContainer.classList.contains('open')) {
+      updatePrefControls();
     }
+  });
+
+  const locationSelector = document.getElementById('location');
+  locationSelector.addEventListener("change", function(ev) {
+    CliqzUtils.setPref("share_location", ev.target.value);
+    CliqzUtils.callAction(
+        "geolocation",
+        "setLocationPermission",
+        [ev.target.value.toString()]
+    );
+  });
+
+  const adultSelector = document.getElementById('adult');
+  adultSelector.addEventListener("change", function(ev) {
+    CliqzUtils.setPref("adultContentFilter", ev.target.value);
   });
 
   CLIQZEnvironment.addPrefListener(function(pref){
@@ -332,27 +328,30 @@ function handleSettings(){
       'adultContentFilter',
     ]
     if(relevantPrefs.indexOf(pref) != -1)
-      createSettingsMenu();
+      updatePrefControls();
   });
 }
 
-function createSettingsMenu(){
-  createOptionEntries(
-    document.getElementById('adult'),
-    CliqzUtils.getAdultFilterState(),
-    "adultContentFilter"
-  );
+function updatePrefControls() {
+  function createOptionEntries(el, options) {
+    while (el.lastChild) {
+      el.removeChild(el.lastChild);
+    }
+
+    for(let id in options){
+      let option = document.createElement('option');
+      option.value = id;
+      option.textContent = options[id].name;
+      option.selected = options[id].selected;
+      el.appendChild(option);
+    }
+  }
 
   createOptionEntries(
-    document.getElementById('location'),
-    CliqzUtils.getLocationPermState(),
-    "share_location",
-    function (val) {
-      CliqzUtils.callAction(
-        "geolocation",
-        "setLocationPermission",
-        [val.toString()]
-      );
-    }
-  );
+      document.getElementById('adult'),
+      CliqzUtils.getAdultFilterState());
+
+  createOptionEntries(
+      document.getElementById('location'),
+      CliqzUtils.getLocationPermState());
 }
