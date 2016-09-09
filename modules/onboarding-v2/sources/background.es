@@ -19,13 +19,13 @@ function AboutURL() {}
 AboutURL.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
   classDescription: CLIQZ_ONBOARDING,
-  classID: Components.ID("{b0272978-beab-4adc-a3d4-04b76acfa4e7}"),
+  classID: Components.ID("{be8a8710-7611-11e6-bdf4-0800200c9a66}"),
   contractID: "@mozilla.org/network/protocol/about;1?what=onboarding",
 
   newChannel: function(uri) {
     var src = CLIQZ_ONBOARDING_URL;
     var html =  [
-        '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+        '<!DOCTYPE html><html><head><title>CLIQZ</title><meta charset="UTF-8">',
         '<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>',
         `</head><body><iframe src="${src}">`,
         '</iframe></body></html>'

@@ -3,140 +3,175 @@
 <head>
     <meta charset="utf-8">
     <title></title>
-    <link href="styles/styles.css" rel="stylesheet">
+    <!-- <link href="styles/styles.css" rel="stylesheet"> -->
 
 
     <link rel="stylesheet" type="text/css"
           href="js/tooltip/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-light.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/tooltip/css/tooltipster.bundle.min.css"/>
 
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="js/tooltip/js/tooltipster.bundle.min.js"></script>
     <script src="../webextensions-shim.js"></script>
 
 
-    <!--<script>-->
-        <!--var node = document.createElement("link");-->
-        <!--node.rel = "stylesheet";-->
-        <!--node.href = 'styles/styles.css?' + Math.floor(Math.random() * 999999999);-->
-        <!--document.getElementsByTagName("head")[0].appendChild(node);-->
-    <!--</script>-->
-
-
     <script>
-        function localizeDocument() {
-            Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
-                var elArgs = el.dataset.i18n.split(','),
-                key = elArgs.shift();
-            el.textContent = chrome.i18n.getMessage(key, elArgs);
-        })
-            ;
+        var node = document.createElement("link");
+        node.rel = "stylesheet";
+        node.href = 'styles/styles.css?' + Math.floor(Math.random() * 999999999);
+        document.getElementsByTagName("head")[0].appendChild(node);
+    </script>
 
-            Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-title]'), el => {
-                var elArgs = el.dataset.i18nTitle.split(','),
-                key = elArgs.shift();
-
-            el.setAttribute('title', chrome.i18n.getMessage(key, elArgs));
-        })
-            ;
-
-        }
-
-        $(document).ready(function () {
-
-            localizeDocument();
+<script src="../webextensions-shim.js"></script>
 
 
-            $('.cqb-search-tooltip').tooltipster({
-                theme: 'tooltipster-light',
-                side: "bottom",
-                maxWidth: 250,
-                interactive: true,
-                trigger: 'custom',
-            });
+<script>
+       function localizeDocument() {
+           Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
+                   var elArgs = el.dataset.i18n.split(','),
+                   key = elArgs.shift();
+               el.textContent = chrome.i18n.getMessage(key, elArgs);
+           });
 
-            $('#cqb-atr-on').tooltipster({
-                theme: 'tooltipster-light',
-                side: "right",
-                maxWidth: 250,
-                trigger: 'custom',
-            });
+           Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-title]'), el => {
+                   var elArgs = el.dataset.i18nTitle.split(','),
+                   key = elArgs.shift();
 
-            $('#cqb-search-btn').tooltipster({
-                theme: 'tooltipster-light',
-                side: "right",
-                maxWidth: 250,
-                interactive: true,
-                trigger: 'custom',
-            });
+               el.setAttribute('title', chrome.i18n.getMessage(key, elArgs));
+           });
 
-            //=== STEP 1 Tooltip Trigger
-            setTimeout(function () {
-                $('#cqb-atr-on').tooltipster('open');
-            }, 4000);
+       }
 
+       var CALLBACKS = {};
+        window.addEventListener("message", function (ev) {
+          var msg;
+          try {
+            msg = JSON.parse(ev.data);
+          } catch (e) {
+            msg = {};
+          }
 
-            //==== Step 1 Click
-            $("#cqb-atr-on").click(function (e) {
-                e.stopPropagation();
-                $("body").addClass("cqb-step2");
-                $('#cqb-atr-on').tooltipster('close');
+          if (msg.type === "response") {
+            var action = CALLBACKS[msg.action];
+            if (action) {
+              action();
+            }
+          }
+        });
 
-                // Open Tool Tip
-                setTimeout(function () {
-                    $('#cqb-search-btn').tooltipster('open');
-                }, 4000);
-
-                // Open PRIVACY CENTER
-                setTimeout(function () {
-                    window.postMessage(JSON.stringify({
-                        target: 'cliqz',
-                        module: 'control-center',
-                        action: 'openPopUp',
-                    }), '*')
-                }, 400);
-            });
-
-            //==== Step 2 Click
-            $("#cqb-search-btn").click(function () {
-                $("body").addClass("cqb-step3");
-                $('#cqb-search-btn').tooltipster('close');
-
-                setTimeout(function () {
-                    $('.cqb-search-tooltip').tooltipster('open');
-                }, 600);
-            });
-
-            $('.search-link').click(function (e) {
-                e.preventDefault();
-                var val = $(this).attr('href');
-
+        function step3(val) {
+          CALLBACKS['queryCliqz'] = function () {
+            setTimeout(function() {
+              $('body').css('background', '#f7f7f7');
+              setTimeout(function() {
                 window.postMessage(JSON.stringify({
                     target: 'cliqz',
                     module: 'core',
-                    action: 'setUrlbar',
+                    action: 'closePopup',
                     args: [val]
-                }), '*');
+                }), "*");
+                window.location.href = "about:cliqz";
+              }, 600);
+            }, 4000);
+          };
+          window.postMessage(JSON.stringify({
+            target: 'cliqz',
+            module: 'core',
+            action: 'queryCliqz',
+            args: [val]
+          }), "*");
 
-                window.location = 'about:cliqz'
-            });
+
+        }
+
+       $(document).ready(function () {
+
+           localizeDocument();
 
 
-            // Open Tooltip if user click
-            $(".cqb-steps .cqb-step1").click(function(e) {
-                if (e.target !== this)
-                    return;
-                $('#cqb-atr-on').tooltipster('open');
-            });
-            $(".cqb-steps .cqb-step2").click(function(e) {
-                if (e.target !== this)
-                    return;
-                $('#cqb-search-btn').tooltipster('open');
-            });
+           $('.cqb-search-tooltip').tooltipster({
+               theme: 'tooltipster-light',
+               side: "bottom",
+               maxWidth: 250,
+               interactive: true,
+               trigger: 'custom',
+           });
 
-        });
+           $('#cqb-atr-on').tooltipster({
+               theme: 'tooltipster-light',
+               side: "right",
+               maxWidth: 250,
+               trigger: 'custom',
+           });
 
-    </script>
+           $('#cqb-search-btn').tooltipster({
+               theme: 'tooltipster-light',
+               side: "right",
+               maxWidth: 250,
+               interactive: true,
+               trigger: 'custom',
+           });
+
+           //=== STEP 1 Tooltip Trigger
+           setTimeout(function () {
+               $('#cqb-atr-on').tooltipster('open');
+           }, 4000);
+
+
+           //==== Step 1 Click
+           $("#cqb-atr-on").click(function (e) {
+               e.stopPropagation();
+               $("body").addClass("cqb-step2");
+               $('#cqb-atr-on').tooltipster('close');
+
+               // Open Tool Tip
+               setTimeout(function () {
+                   $('#cqb-search-btn').tooltipster('open');
+               }, 4000);
+
+               // Open PRIVACY CENTER
+               setTimeout(function () {
+                   window.postMessage(JSON.stringify({
+                       target: 'cliqz',
+                       module: 'control-center',
+                       action: 'openPopUp',
+                   }), '*')
+               }, 400);
+           });
+
+           //==== Step 2 Click
+           $("#cqb-search-btn").click(function () {
+               $("body").addClass("cqb-step3");
+               $('#cqb-search-btn').tooltipster('close');
+
+               setTimeout(function () {
+                   $('.cqb-search-tooltip').tooltipster('open');
+               }, 600);
+           });
+
+           $('.search-link').click(function (e) {
+               e.preventDefault();
+               var val = $(this).attr('href');
+
+               step3(val);
+           });
+
+
+           // Open Tooltip if user click
+           $(".cqb-steps .cqb-step1").click(function(e) {
+               if (e.target !== this)
+                   return;
+               $('#cqb-atr-on').tooltipster('open');
+           });
+           $(".cqb-steps .cqb-step2").click(function(e) {
+               if (e.target !== this)
+                   return;
+               $('#cqb-search-btn').tooltipster('open');
+           });
+
+       });
+
+   </script>
 </head>
 <body>
 
@@ -176,6 +211,7 @@
 
 <div id="cqb-tooltip-search">
     <span id="tooltip_content">
+
         Start searching the web <br>
         Try: <br>
         <a class="search-link" href="weather munich">Weather Munich</a><br>
