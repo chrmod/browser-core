@@ -77,36 +77,38 @@ $('#control-center').on('click', '[data-function]', function(ev){
 });
 
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
-  var status,
+  var state,
       type = $(this).attr('data-type');
   if (type === 'switch') {
-    status = $(this).closest('.frame-container').attr('state');
+    state = $(this).closest('.frame-container').attr('state');
   } else {
-    status = $(this).attr('data-state');
+    state = $(this).attr('data-state');
   }
   sendMessageToWindow({
     action: 'antitracking-activator',
     data: {
       type: type,
-      status: status,
+      state: state,
+      status: $(this).closest('.frame-container').attr('state'),
       hostname: $(this).closest('.frame-container').attr('hostname'),
     }
   });
 });
 
 $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
-  var status,
+  var state,
       type = $(this).attr('data-type');
   if (type === 'switch') {
-    status = $(this).closest('.frame-container').attr('state');
+    state = $(this).closest('.frame-container').attr('state');
   } else {
-    status = $(this).attr('data-state');
+    state = $(this).attr('data-state');
   }
   sendMessageToWindow({
     action: 'adb-activator',
     data: {
       type: type,
-      status: status,
+      state: state,
+      status: $(this).closest('.frame-container').attr('state'),
       url: $(this).closest('.frame-container').attr('url'),
       option: $(this).closest('.switches').find('.dropdown-scope').val()
     }

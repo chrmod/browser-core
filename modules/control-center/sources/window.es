@@ -71,9 +71,9 @@ export default class {
     events.pub("control-center:antitracking-activator", data);
     var state;
     if(data.type === 'switch') {
-      state = data.status === 'active' ? 'on' : 'off';
+      state = data.state === 'active' ? 'on' : 'off';
     } else {
-      state = data.status;
+      state = data.state;
     }
 
     utils.telemetry({
@@ -88,9 +88,9 @@ export default class {
     events.pub("control-center:adb-activator", data);
     var state;
     if(data.type === 'switch') {
-      state = data.status === 'active' ? 'on' : 'off';
+      state = data.state === 'active' ? 'on' : 'off';
     } else {
-      state = data.status;
+      state = data.state;
     }
     utils.telemetry({
       type: TELEMETRY_TYPE,
