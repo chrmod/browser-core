@@ -3308,17 +3308,16 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }, 5000);
                 },
                 checkURL: function checkURL(cd, url, ruleset) {
-                    console.log(">>>>>> CHECK URL" + cd);
                     var pageContent = cd;
                     //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
                     //scrap(4, pageContent)
                     let rArray = [];
                     let searchEngines = [];
-                    if (ruleset === "strict"){
+                    if (ruleset === "normal"){
                         rArray = CliqzHumanWeb.rArray;
                         searchEngines = CliqzHumanWeb.searchEngines;
                     }
-                    else if (ruleset === "normal"){
+                    else if (ruleset === "strict"){
                         rArray = CliqzHumanWeb.anonRArray;
                         searchEngines = CliqzHumanWeb.anonSearchEngines
                     }
