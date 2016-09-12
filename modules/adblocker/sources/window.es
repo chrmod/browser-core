@@ -151,6 +151,7 @@ export default class {
     const isCorrectUrl = utils.isUrl(currentURL);
     let disabledForUrl = false;
     let disabledForDomain = false;
+    let disabledEverywhere = false;
 
     // Check if adblocker is disabled on this page
     if (isCorrectUrl) {
@@ -166,16 +167,23 @@ export default class {
     const report = CliqzADB.adbStats.report(currentURL);
     const enabled = CliqzUtils.getPref(ADB_PREF, false) !== ADB_PREF_VALUES.Disabled;
 
+    if (isCorrectUrl) {
+      disabledForDomain = CliqzADB.adBlocker.isDomainInBlacklist(currentURL);
+      disabledForUrl = CliqzADB.adBlocker.isUrlInBlacklist(currentURL);
+    }
+    disabledEverywhere = !enabled && !disabledForUrl && !disabledForDomain
+
     return {
       visible: true,
       enabled: enabled && !disabledForDomain && !disabledForUrl,
       optimized: CliqzUtils.getPref(ADB_PREF_OPTIMIZED, false) == true,
       disabledForUrl: disabledForUrl,
       disabledForDomain: disabledForDomain,
-      disabledEverywhere: !enabled && !disabledForUrl && !disabledForDomain,
+      disabledEverywhere: disabledEverywhere,
       totalCount: report.totalCount,
       advertisersList: report.advertisersList,
-      state: (!enabled) ? 'off' : (disabledForUrl || disabledForDomain ? 'off' : 'active')
+      state: (!enabled) ? 'off' : (disabledForUrl || disabledForDomain ? 'off' : 'active'),
+      off_state: disabledForUrl ? 'off_website' : (disabledForDomain ? 'off_domain' : (disabledEverywhere ? 'off_all' : 'off_website'))
     }
   }
 }
