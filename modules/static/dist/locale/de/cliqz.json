@@ -1238,6 +1238,9 @@
     "control-center-datapoints-inactive": {
       "message": "Persönliche Daten wurden entfernt"
     },
+    "control-center-datapoints-off": {
+      "message": "Deaktiviert für alle Websites"
+    },
     "control-center-trackers": {
       "message": "Tracking Unternehmen auf dieser Seite"
     },
@@ -1277,8 +1280,14 @@
     "control-center-adblock-description": {
       "message": "Werbungen wurden geblockt"
     },
-    "control-center-adblock-description-inactive": {
-      "message": "Deaktiviert für diese Website"
+    "control-center-adblock-description-off-website": {
+      "message": "Deaktiviert für diese Seite"
+    },
+    "control-center-adblock-description-off-domain": {
+      "message": "Deaktiviert für diese Domain"
+    },
+    "control-center-adblock-description-off-all": {
+      "message": "Deaktiviert für alle Websites"
     },
     "control-center-adblock-advertisers": {
       "message": "Liste der Werbetreibenden auf dieser Seite"
