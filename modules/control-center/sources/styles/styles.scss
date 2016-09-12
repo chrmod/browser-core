@@ -14,6 +14,14 @@ html {
 	padding: 0;
 }
 
+#control-center.onboarding {
+    #othersettings {
+        .lock {
+            display: block;
+        }
+    }
+}
+
 #control-center {
   width: 455px;
 	font-family: "HelveticaNeue", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -455,6 +463,14 @@ html {
 		position: relative;
 		width: 100%;
 		background-color: #E9E9E9;
+
+        .lock {
+            display: none;
+            position: absolute;
+            width: 455px;
+            height: 175px;
+            z-index: 100;
+        }
 		.header {
 			width: 457;
 			height: 50px;

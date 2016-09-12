@@ -137,10 +137,34 @@
                        action: 'openPopUp',
                    }), '*')
                }, 400);
+
+               setTimeout(function() {
+                    window.postMessage(JSON.stringify({
+                       target: 'cliqz',
+                       module: 'control-center',
+                       action: 'setBadge',
+                       args: [17]
+                   }), '*')
+               }, 1000);
            });
 
            //==== Step 2 Click
            $("#cqb-search-btn").click(function () {
+
+                window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'control-center',
+                   action: 'setBadge',
+                   args: [0]
+               }), '*');
+
+                window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'control-center',
+                   action: 'updateState',
+                   args: ['active']
+               }), '*');
+
                $("body").addClass("cqb-step3");
                $('#cqb-search-btn').tooltipster('close');
 

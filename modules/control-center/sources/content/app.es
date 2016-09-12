@@ -40,8 +40,10 @@ function isHttpsSection(section) {
   return section === 'https';
 }
 
+
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
 $(document).ready(function(resolvedPromises) {
+
   Object.keys(helpers).forEach(function (helperName) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
@@ -213,6 +215,8 @@ function draw(data){
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     compileAdblockInfo(data);
   }
+
+  console.log(JSON.stringify(data));
   console.log('Drawing: ', data);
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
