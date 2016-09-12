@@ -1238,6 +1238,9 @@
     "control-center-datapoints-inactive": {
       "message": "Turned off for this website"
     },
+    "control-center-datapoints-off": {
+      "message": "Turned off for all websites"
+    },
     "control-center-trackers": {
       "message": "Tracking companies on this page"
     },
@@ -1277,8 +1280,14 @@
     "control-center-adblock-description": {
       "message": "Ads have been blocked on this website"
     },
-    "control-center-adblock-description-inactive": {
-      "message": "Turned off for this website"
+    "control-center-adblock-description-off-website": {
+      "message": "Turned off for this page"
+    },
+    "control-center-adblock-description-off-domain": {
+      "message": "Turned off for this domain"
+    },
+    "control-center-adblock-description-off-all": {
+      "message": "Turned off for all websites"
     },
     "control-center-adblock-advertisers": {
       "message": "List of advertisers on this page"
@@ -1350,7 +1359,7 @@
       "message": "This domain"
     },
     "control-center-all-sites": {
-      "message": "All Sites"
+      "message": "All websites"
     },
     "download": {
       "message": "Download from: "

@@ -36,6 +36,7 @@
 
     <p class="description" visible-on-state="active" data-i18n="control-center-datapoints"></p>
     <p class="description" visible-on-state="inactive" data-i18n="control-center-datapoints-inactive"></p>
+    <p class="description" visible-on-state="critical" data-i18n="control-center-datapoints-off"></p>
     <div class="switches">
       <!--======= Switch ======-->
       <span>
@@ -47,8 +48,9 @@
         </span>
         <span visible-on-state="active" data-i18n="control-center-switch-on"></span>
         <span visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
+        <span visible-on-state="critical" data-i18n="control-center-switch-off"></span>
       </span>
-      <select stop-navigation class="dropdown-scope" visible-on-state="inactive">
+      <select stop-navigation class="dropdown-scope" invisible-on-state="active">
         <option
           {{#if module.antitracking.isWhitelisted }}selected{{/if}}
           stop-navigation

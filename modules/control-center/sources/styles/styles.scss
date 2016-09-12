@@ -149,6 +149,7 @@ html {
     .description {
       font-size: 16px;
       margin: 0 25px 10px 30px;
+      height: 2.5em;
     }
 
     .counter {
@@ -627,9 +628,59 @@ html {
 	cursor: pointer;
 }
 
+/* by default we hide everything which has this attribute and show it only for relevant states */
+[visible-on-state], [visible-on-off-state] {
+    display: none;
+}
+
 [state="active"] {
-    [visible-on-state="inactive"], [visible-on-state="off"] {
+    [visible-on-state="active"] {
+        display: inline-block;
+    }
+    [invisible-on-state="active"], {
         display: none;
+    }
+}
+
+[state="inactive"] {
+    [visible-on-state="inactive"] {
+        display: inline-block;
+    }
+}
+
+[state="off"] {
+    [visible-on-state="off"] {
+        display: inline-block;
+    }
+}
+
+.adblock [state="off"] {
+    .description {
+        display: none;
+    }
+
+    &[data-visible="off_website"] {
+        [data-visible="off_website"] {
+            display: inline-block
+        };
+    }
+
+    &[data-visible="off_domain"] {
+        [data-visible="off_domain"] {
+            display: inline-block
+        };
+    }
+
+    &[data-visible="off_all"] {
+        [data-visible="off_all"] {
+            display: inline-block
+        };
+    }
+}
+
+[state="critical"] {
+    [visible-on-state="critical"] {
+        display: inline-block;
     }
 }
 
@@ -645,12 +696,6 @@ html {
         display: none;
     }
 
-}
-
-[state="inactive"], [state="critical"], [state="off"] {
-    [visible-on-state="active"] {
-        display: none;
-    }
 }
 
 .frame-container[state="inactive"] {
@@ -710,10 +755,6 @@ html {
 }
 
 .frame-container[state="critical"] {
-    [visible-on-state="active"] {
-        display: none;
-    }
-
     .strict {
         display: none;
     }

@@ -7,6 +7,7 @@ function toPx(pixels) {
 }
 
 const BTN_ID = 'cliqz-cc-btn',
+      PANEL_ID = BTN_ID + '-panel',
       firstRunPref = 'cliqz-cc-initialized',
       BTN_LABEL = 0,
       TOOLTIP_LABEL = 'CLIQZ',
@@ -21,6 +22,7 @@ export default class {
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
+      refreshState: this.refreshState.bind(this),
       resize: this.resizePopup.bind(this),
       "adb-optimized": this.adbOptimized.bind(this),
       "antitracking-activator": this.antitrackingActivator.bind(this),
@@ -28,22 +30,20 @@ export default class {
       "antitracking-strict": this.antitrackingStrict.bind(this),
       "sendTelemetry": this.sendTelemetry.bind(this)
     }
-
-    this.onLocationChange = this.onLocationChange.bind(this);
   }
 
   init() {
     this.addCCbutton();
-    CliqzEvents.sub("core.location_change", this.onLocationChange);
+    CliqzEvents.sub("core.location_change", this.actions.refreshState);
   }
 
   unload() {
-    CliqzEvents.un_sub("core.location_change", this.onLocationChange);
+    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
   }
 
-  onLocationChange() {
+  refreshState() {
     this.prepareData((data) => {
-      this.updateState(data.generalState);
+      this.setState(data.generalState);
     });
   }
 
@@ -105,6 +105,30 @@ export default class {
   }
 
   updateState(state){
+    // set the state of the current window
+    this.setState(state);
+
+    // go to all the other windows and refresh the state
+    var enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+      var win = enumerator.getNext();
+      if(win != this.window){
+        setTimeout((win) => {
+          utils.callWindowAction(
+            win,
+            'control-center',
+            'refreshState',
+            []
+          );
+        }, 200, win);
+      }
+      else {
+        // current window - nothing to do
+      }
+    }
+  }
+
+  setState(state){
     this.badge.setAttribute('state', state);
   }
 
@@ -243,23 +267,9 @@ export default class {
         ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'bookmarks-menu-button');
     }
 
-    if (!utils.getPref(dontHideSearchBar, false)) {
-        //try to hide quick search
-        try{
-            var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
-            if(toolbarID){
-                utils.setPref(searchBarPosition, toolbarID);
-            }
-            if(nextEl){
-                utils.setPref(searchBarPositionNext, nextEl);
-            }
-            utils.setPref(dontHideSearchBar, true);
-        } catch(e){}
-    }
-
     let button = doc.createElement('toolbarbutton');
     button.setAttribute('id', BTN_ID);
-    button.setAttribute('label', BTN_LABEL);
+    button.setAttribute('label', TOOLTIP_LABEL);
     button.setAttribute('tooltiptext', TOOLTIP_LABEL);
 
     var div = doc.createElement('div');
@@ -271,7 +281,7 @@ export default class {
     this.badge = div;
 
     var panel = doc.createElement('panelview');
-    panel.setAttribute('id', BTN_ID);
+    panel.setAttribute('id', PANEL_ID);
     panel.setAttribute('flex', '1');
 
     var vbox = doc.createElement("vbox");
@@ -314,7 +324,7 @@ export default class {
 
     button.addEventListener('command', () => {
       this.window.PanelUI.showSubView(
-        BTN_ID,
+        PANEL_ID,
         button,
         this.window.CustomizableUI.AREA_NAVBAR
       );
@@ -322,15 +332,15 @@ export default class {
 
     // we need more than default max-width
     var style = `
-      #${BTN_ID},
-      #${BTN_ID} > iframe,
-      #${BTN_ID} > panel-subview-body {
+      #${PANEL_ID},
+      #${PANEL_ID} > iframe,
+      #${PANEL_ID} > panel-subview-body {
         overflow: hidden !important;
       }
 
-      panelmultiview[mainViewId="${BTN_ID}"] > .panel-viewcontainer >
+      panelmultiview[mainViewId="${PANEL_ID}"] > .panel-viewcontainer >
         .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
-      panel[viewId="${BTN_ID}"] .panel-mainview {
+      panel[viewId="${PANEL_ID}"] .panel-mainview {
         max-width: 50em !important;
       }
     `;

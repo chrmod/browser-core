@@ -97,19 +97,24 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
 
 $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
   var state,
-      type = $(this).attr('data-type');
+      type = $(this).attr('data-type'),
+      frame = $(this).closest('.frame-container');
+
   if (type === 'switch') {
-    state = $(this).closest('.frame-container').attr('state');
+    state = frame.attr('state');
   } else {
     state = $(this).attr('data-state');
   }
+
+  frame.attr('data-visible', $(this).attr('data-state'));
+
   sendMessageToWindow({
     action: 'adb-activator',
     data: {
       type: type,
       state: state,
-      status: $(this).closest('.frame-container').attr('state'),
-      url: $(this).closest('.frame-container').attr('url'),
+      status: frame.attr('state'),
+      url: frame.attr('url'),
       option: $(this).closest('.switches').find('.dropdown-scope').val()
     }
   });
