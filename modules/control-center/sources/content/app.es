@@ -62,7 +62,8 @@ $('#control-center').on('click', '[openUrl]', function(ev){
     action: 'openURL',
     data: {
       url: ev.currentTarget.getAttribute('openUrl'),
-      target: ev.currentTarget.getAttribute('data-target')
+      target: ev.currentTarget.getAttribute('data-target'),
+      closePopup: ev.currentTarget.dataset.closepopup || true
     }
   });
 });
@@ -158,6 +159,7 @@ function compile(obj) {
         var domains = obj.companies[companyName];
         var company = {
           name: companyName,
+          watchDogName: companyName.replace(/ /g,"-"),
           domains: domains.map(function (domain) {
             var domainData = obj.trackers[domain];
             return {
@@ -226,6 +228,11 @@ function draw(data){
   }
 
   $('.accordion-active-title').click(function(e) {
+    //temporary disable accordion for attrack EX-2875
+    if($(this).attr('data-target').indexOf('attrack') == 0) {
+      return;
+    }
+
     e.preventDefault();
     var currentAttrValue = $(this).attr('href'),
         state;

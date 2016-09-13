@@ -164,8 +164,8 @@ export default class {
         break;
       default:
         var tab = utils.openLink(this.window, data.url, true),
-            panel = utils.getWindow().document.querySelector("panel[viewId=" + BTN_ID + "]");
-        panel.hidePopup();
+            panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
+        if(data.closePopup == true) panel.hidePopup();
         this.window.gBrowser.selectedTab = tab;
     }
 
