@@ -21,7 +21,6 @@ import core from 'core/background';
 import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
-import {PrivacyScore} from 'antitracking/privacy-score';
 import * as browser from 'platform/browser';
 import WebRequest from 'core/webrequest';
 import telemetry from 'antitracking/telemetry';
@@ -1585,10 +1584,6 @@ var CliqzAttrack = {
         firstPartyCompany = CliqzAttrack.tracker_companies[getGeneralDomain(tabData.hostname)];
       result.hostname = tabData.hostname;
       result.path = tabData.path;
-      result.ps = PrivacyScore.get(md5(getGeneralDomain(result.hostname)).substr(0, 16) + 'site');
-      if (!result.ps.score) {
-        result.ps.getPrivacyScore();
-      }
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};
