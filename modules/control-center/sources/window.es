@@ -1,6 +1,7 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
+import background from 'control-center/background';
 
 function toPx(pixels) {
   return pixels.toString() + 'px';
@@ -15,6 +16,10 @@ const BTN_ID = 'cliqz-cc-btn',
 
 export default class {
   constructor(config) {
+    if(!background.buttonEnabled){
+      return;
+    }
+
     this.window = config.window;
     this.actions = {
       setBadge: this.setBadge.bind(this),
@@ -33,12 +38,16 @@ export default class {
   }
 
   init() {
-    this.addCCbutton();
-    CliqzEvents.sub("core.location_change", this.actions.refreshState);
+    if(background.buttonEnabled){
+      this.addCCbutton();
+      CliqzEvents.sub("core.location_change", this.actions.refreshState);
+    }
   }
 
   unload() {
-    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    if(background.buttonEnabled){
+      CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    }
   }
 
   refreshState() {
@@ -105,6 +114,10 @@ export default class {
   }
 
   updateState(state){
+    if(!background.buttonEnabled){
+      return;
+    }
+
     // set the state of the current window
     this.setState(state);
 
@@ -207,7 +220,8 @@ export default class {
           activeURL: this.window.gBrowser.currentURI.spec,
           module: moduleData,
           generalState: generalState,
-          feedbackURL: utils.FEEDBACK_URL
+          feedbackURL: utils.FEEDBACK_URL,
+          debug: utils.getPref('showConsoleLogs', false)
         });
     });
   }

@@ -215,7 +215,9 @@ function draw(data){
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     compileAdblockInfo(data);
   }
-  console.log('Drawing: ', data);
+  if(data.debug){
+    console.log('Drawing: ', data);
+  }
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
   document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);

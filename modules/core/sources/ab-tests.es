@@ -290,6 +290,12 @@ var CliqzABTests = {
             case "1078_B":
                 CliqzUtils.setPref("telemetryNoSession", true);
                 break;
+            case "1079_A":
+                CliqzUtils.setPref("controlCenter", false);
+                break;
+            case "1079_B":
+                CliqzUtils.setPref("controlCenter", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -453,7 +459,10 @@ var CliqzABTests = {
             case "1078_B":
               CliqzUtils.clearPref("telemetryNoSession");
               break;
-
+            case "1079_A":
+            case "1079_B":
+              CliqzUtils.clearPref("controlCenter");
+              break;
             default:
                 rule_executed = false;
         }
