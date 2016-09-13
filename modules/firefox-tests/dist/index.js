@@ -165,24 +165,6 @@ var runner =  mocha.run();
 
 var XMLReport = '<?xml version="1.0" encoding="UTF-8"?>';
 
-//append firefox version to the className attribute
-var mochaTest = Mocha.reporters.XUnit.prototype.test;
-Mocha.reporters.XUnit.prototype.test = function (test) {
-  var version = getBrowserVersion(),
-      fullTitle = test.parent.fullTitle;
-
-  test.parent.fullTitle = function () {
-    var title = fullTitle.apply(this);
-    if(title.indexOf("firefox: ") === 0) {
-      return title;
-    } else {
-      return "firefox: " + version + " - " + title;
-    }
-  }
-
-  mochaTest.call(this, test);
-}
-
 Mocha.reporters.XUnit.prototype.write = function (line) {
   var version = getBrowserVersion();
 
