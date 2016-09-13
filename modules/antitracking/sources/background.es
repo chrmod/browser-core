@@ -17,9 +17,6 @@ export default background({
   * @param settings
   */
   init(settings) {
-    if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
-      return;
-    }
     if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
       return;
     }

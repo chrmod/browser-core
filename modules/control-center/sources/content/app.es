@@ -211,8 +211,11 @@ function compileAdblockInfo(data) {
 }
 
 function draw(data){
+  if(data.onboarding) {
+    document.getElementById('control-center').classList.add('onboarding');
+  }
   if (data.module) {
-    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList);
     compileAdblockInfo(data);
   }
 

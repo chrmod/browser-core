@@ -129,6 +129,13 @@
                    $('#cqb-search-btn').tooltipster('open');
                }, 4000);
 
+               window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'onboarding-v2',
+                   action: 'moveToStep',
+                   args: [2]
+               }), '*')
+
                // Open PRIVACY CENTER
                setTimeout(function () {
                    window.postMessage(JSON.stringify({
@@ -167,6 +174,13 @@
 
                $("body").addClass("cqb-step3");
                $('#cqb-search-btn').tooltipster('close');
+
+               window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'onboarding-v2',
+                   action: 'moveToStep',
+                   args: [3]
+               }), '*')
 
                setTimeout(function () {
                    $('.cqb-search-tooltip').tooltipster('open');

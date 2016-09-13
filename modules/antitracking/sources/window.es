@@ -5,7 +5,6 @@ import { simpleBtn } from 'q-button/buttons';
 import { URLInfo } from 'antitracking/url';
 
 function onLocationChange(ev) {
-  utils.log(utils.getWindow().gBrowser.currentURI.spec, "!!spec")
   if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
     return;
   }
