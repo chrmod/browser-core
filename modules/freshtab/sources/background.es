@@ -285,6 +285,7 @@ export default {
             logo: utils.getLogoDetails(utils.getDetailsFromUrl(r.url)),
             url: r.url,
             type: r.type,
+            breaking_label: r.breaking_label
           }))
         };
       });
