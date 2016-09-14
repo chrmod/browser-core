@@ -57,7 +57,7 @@ var events = {
           localType = el.getAttribute("local_sc_type") || "default";
 
       container.innerHTML = CliqzHandlebars.tplCache["partials/location/missing_location_2"]({
-          friendly_url: el.getAttribute("bm_url"),
+          url: el.getAttribute("bm_url"),
           trans_str: messages[localType].trans_str
       });
       CliqzUtils.telemetry({
