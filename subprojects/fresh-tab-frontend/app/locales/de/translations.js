@@ -55,5 +55,11 @@ export default {
   },
   abtests: {
     "feedback": "Fragen? Anmerkungen? CLIQZ kontaktieren"
+  },
+  notifications: {
+    "hdr-new-brand": "CLIQZ bekommt einen neuen Look!",
+    "txt-new-brand1": "In Kürze werden wir das CLIQZ Browser Logo aktualisieren.",
+    "cta-new-brand": "Erfahre mehr",
+    "txt-new-brand2": "darüber und zu den neuesten Änderungen"
   }
 };

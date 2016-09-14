@@ -103,13 +103,45 @@ a:hover, a:active, a:focus {
   background-size: 100% 100%;
 }
 
-
 body.freshTabContainer {
   background: #f7f7f7;
 }
 
-#freshTabPage {
+#notificationsBox {
+  background-color: #506275;
+  color: #ffffff;
+  width: 100%;
+  padding: 20px;
+  letter-spacing: 1px;
+  position: relative;
 
+  .close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+  }
+
+  h1 {
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  img {
+  float: left;
+  }
+
+  .text {
+  padding-left: 70px;
+  font-size: 14px;
+   }
+
+  a {
+  color: #8BE0E7;
+  }
+}
+
+#freshTabPage {
   .undoOptions {
     height: 50px;
   }
