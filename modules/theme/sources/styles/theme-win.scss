@@ -446,9 +446,9 @@ notification[type="warning"] .notification-inner {
     margin: -1px 3px -1px 0 !important;
 }
 
-.cliqz-urlbar-Last-search-container .cliqz-urlbar-Last-search {
-    padding: 1px 6px;
-}
+//.cliqz-urlbar-Last-search-container .cliqz-urlbar-Last-search {
+//    padding: 1px 6px;
+//}
 
 #main-window:not([chromehidden~="toolbar"]) {
     min-width: 425px; /*Allow resize window*/
@@ -468,13 +468,15 @@ notification[type="warning"] .notification-inner {
     background: none !important;
 }
 
-#nav-bar .toolbarbutton-1:not(#back-button):not(#forward-button) {
+#nav-bar .toolbarbutton-1:not(#back-button):not(#forward-button),
+toolbarbutton#cliqz-cc-btn {
     margin-top: 0; /*Later*/
     margin-bottom: 0; /*Later*/
     padding: 0 2px;
     border-radius: 0;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
+    transition: none !important;
 
     &:hover {
         border-color: #dfdfdf;
@@ -535,7 +537,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     position: relative;
     display: -moz-box;
     border-top: 1px solid #dfdfdf !important;
-    box-shadow: 0 1px 3px -2px rgba(0, 0, 0, 0.24);
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, 0.35);
     background-color: #f6f6f6 !important;
     z-index: 1;
 }
@@ -716,6 +718,10 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker[label='Bookmarks
 
     #main-window[sizemode="normal"] #browser-border-start, #main-window[sizemode="normal"] #browser-border-end {
         background: none !important;
+    }
+
+    toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker[label='Bookmarks'] > .dropmarker-icon {
+        padding: 1px 6px !important;
     }
 
     #main-window:not([sizemode="maximized"]) {

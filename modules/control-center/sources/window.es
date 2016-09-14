@@ -279,6 +279,8 @@ export default class {
     button.setAttribute('id', BTN_ID);
     button.setAttribute('label', TOOLTIP_LABEL);
     button.setAttribute('tooltiptext', TOOLTIP_LABEL);
+    button.classList.add('toolbarbutton-1')
+    button.classList.add('chromeclass-toolbar-additional')
 
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
