@@ -39,6 +39,10 @@ export default class {
 
   init() {
     if(background.buttonEnabled){
+      // stylesheet for control center button
+      this.window.CLIQZ.Core.addCSS(this.window.document,
+        'chrome://cliqz/content/control-center/styles/xul.css');
+
       this.addCCbutton();
       CliqzEvents.sub("core.location_change", this.actions.refreshState);
     }
@@ -47,6 +51,8 @@ export default class {
   unload() {
     if(background.buttonEnabled){
       CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+      this.panel.parentElement.removeChild(this.panel);
+      this.button.parentElement.removeChild(this.button);
     }
   }
 
@@ -280,8 +286,6 @@ export default class {
     button.appendChild(div);
     div.textContent = BTN_LABEL;
 
-    this.badge = div;
-
     var panel = doc.createElement('panelview');
     panel.setAttribute('id', PANEL_ID);
     panel.setAttribute('flex', '1');
@@ -332,32 +336,11 @@ export default class {
       );
     }, false);
 
-    // we need more than default max-width
-    var style = `
-      #${PANEL_ID},
-      #${PANEL_ID} > iframe,
-      #${PANEL_ID} > panel-subview-body {
-        overflow: hidden !important;
-      }
-
-      panelmultiview[mainViewId="${PANEL_ID}"] > .panel-viewcontainer >
-        .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
-      panel[viewId="${PANEL_ID}"] .panel-mainview {
-        max-width: 50em !important;
-      }
-    `;
-
-    var styleURI = Services.io.newURI(
-        'data:text/css,' + encodeURIComponent(style),
-        null,
-        null
-    );
-
-    doc.defaultView.QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIDOMWindowUtils)
-      .loadSheet(styleURI, 1);
-
     ToolbarButtonManager.restorePosition(doc, button);
+
+    this.badge = div;
+    this.panel = panel;
+    this.button = button;
   }
 
   resizePopup({ width, height }) {
