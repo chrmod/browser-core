@@ -23,6 +23,9 @@ export default background({
 
     this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
 
+    // if Control center is enabled Attrack button should be hidden
+    this.buttonEnabled = this.buttonEnabled && utils.getPref('controlCenter', false) == false;
+
     // fix for users without pref properly set: set to value from build config
     if (!utils.hasPref('attrackRemoveQueryStringTracking')) {
       utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
@@ -121,14 +124,14 @@ export default background({
 
       if (this.popup) {
         this.popup.setBadge(utils.getWindow(), info.cookies.blocked + info.requests.unsafe);
+      } else {
+        utils.callWindowAction(
+          utils.getWindow(),
+          'control-center',
+          'setBadge',
+          [info.cookies.blocked + info.requests.unsafe]
+        );
       }
-
-      utils.callWindowAction(
-        utils.getWindow(),
-        'control-center',
-        'setBadge',
-        [info.cookies.blocked + info.requests.unsafe]
-      );
     },
     /**
     * @method popupActions.toggleAttrack

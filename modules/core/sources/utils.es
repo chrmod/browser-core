@@ -144,7 +144,7 @@ var CliqzUtils = {
       var action = module.actions[actionName];
       return action.apply(null, args);
     } catch (e){
-      CliqzUtils.log(e.message, "callWindowAction failed");
+      CliqzUtils.log('Failed to call "' + actionName +'" on "' + moduleName + '"', "callWindowAction failed");
     }
   },
 
