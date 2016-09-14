@@ -3,14 +3,13 @@ export default describeModule('mobile-history/history',
     return {
       'core/utils': { default: { } },
       'core/templates': { default: { tplCache: { } } },
-      'mobile-history/webview': { 
-        document: { 
-          body: { }, 
-          documentElement: { }, 
-          getElementById() { return { addEventListener() { } }; } 
-        } 
-      },
-      'mobile-touch/longpress': { default() { } }
+      'mobile-history/webview': {
+        document: {
+          body: { },
+          documentElement: { },
+          getElementById() { return { addEventListener() { } }; }
+        }
+      }
     };
   },
   function () {
@@ -20,6 +19,7 @@ export default describeModule('mobile-history/history',
       this.deps('core/utils').default.getLocalStorage = _  => { 
         return { getObject() { return []; } };
       };
+      this.deps('core/utils').default.BRANDS_DATABASE = { buttons: true };
       this.deps('core/utils').default.telemetry = msg => {
         chai.expect(msg).to.be.ok;
         chai.expect(msg.action).to.equal('show');

@@ -1,0 +1,33 @@
+<!-- noResult.tpl -->
+{{#with (noResult)}}
+    {{#with data}}
+        <div class="frame">
+            <div class="card">
+                <div class="cqz-result-box"
+                    type='{{ type }}'
+                    kind='{{ kind_printer data.kind }}'
+                    {{#if url}}
+                    url='{{ url }}'
+                    {{/if}}
+                    idx='0'
+                    id='cqz-result-box-0'>
+
+                    <div id="defaultEngine"
+                        style="background: #{{background}};padding: 30px;color: #fff;text-align: center;height:100%"
+                        url="{{searchEngineUrl}}{{searchString}}" kind="CL" class="cqz-result-box">
+
+                        <h3 class="no-results-title">{{ title }}</h3>
+                        {{#with logo}}
+                            <div id="searchEngineLogo"
+                                class="search_engine_logo"
+                                style="{{style}}">
+                            </div>
+                        {{/with}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/with}}
+{{/with}}
+
+<!-- end noResult.tpl -->

@@ -9,8 +9,6 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "EZ-history": true,
   "calculator": true,
   "celebrities": true,
-  "conversations": true,
-  "favorites": true,
   "currency": true,
   "emphasis": true,
   "empty": true,

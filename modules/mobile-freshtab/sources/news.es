@@ -1,7 +1,6 @@
 /* global CustomEvent, window, document, osAPI */
 
 import LongPress from 'mobile-touch/longpress';
-import CliqzHandlebars from 'core/templates';
 import CliqzUtils from 'core/utils';
 
 var DEPENDENCY_STATUS = {
@@ -48,10 +47,9 @@ function displayTopSites (list, isEditMode = false) {
   list = list.concat(Array(TOPSITES_LIMIT).fill(''));
   list = list.splice(0, TOPSITES_LIMIT);
 
-  const topSites = CliqzHandlebars.tplCache.topsites;
   const div = document.getElementById('topSites');
   const theme = (CliqzUtils.getPref('incognito', false) === 'true' ? 'incognito' : 'standard');
-  div.innerHTML = topSites({isEmpty, isEditMode, list, theme});
+  div.innerHTML = CLIQZ.templates.topsites({isEmpty, isEditMode, list, theme});
 
 
   CliqzUtils.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
@@ -69,7 +67,7 @@ function displayTopSites (list, isEditMode = false) {
     });
   });
 
-  CliqzUtils.addEventListenerToElements('#cancelEditTopsites', 'click', ({ target:element }) => {
+  CliqzUtils.addEventListenerToElements('#cancelEditTopsites', 'click', () => {
     const delete_count = tempBlockedTopSites.length;
     tempBlockedTopSites = [];
     displayTopSites(topSitesList);
@@ -180,9 +178,8 @@ var News = {
     } else if(dependencyStatus === DEPENDENCY_STATUS.GIVE_UP) {
       return;
     }
-    const topNews = CliqzHandlebars.tplCache.topnews;
     const div = document.getElementById('topNews');
-    div.innerHTML = topNews(top_news);
+    div.innerHTML = CLIQZ.templates.topnews(top_news);
     CliqzUtils.addEventListenerToElements('.topNewsLink', 'click', function () {
       CliqzUtils.telemetry({
         type: 'home',
@@ -232,7 +229,7 @@ var News = {
     if(DEPENDENCY_STATUS.retryCount[template] === undefined) {
       DEPENDENCY_STATUS.retryCount[template] = 0;
     }
-    if(!CliqzUtils.BRANDS_DATABASE.buttons || !CliqzHandlebars.tplCache[template]) {
+    if(!CliqzUtils.BRANDS_DATABASE.buttons) {
       return DEPENDENCY_STATUS.retryCount[template]++ < DEPENDENCY_STATUS.RETRY_LIMIT ? DEPENDENCY_STATUS.NOT_LOADED : DEPENDENCY_STATUS.GIVE_UP;
     }
     DEPENDENCY_STATUS.retryCount[template] = 0;

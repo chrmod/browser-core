@@ -2,15 +2,15 @@
 /* global osAPI, math */
 
 import { utils } from 'core/cliqz';
-import handlebars from 'core/templates';
 import { document, Hammer } from 'mobile-history/webview';
 
-var historyTimer;
-var allHistory = [];
-var allFavorites = [];
+let allHistory = [];
+let allFavorites = [];
 
 function showHistory(history) {
-  clearTimeout(historyTimer);
+  if (!utils.BRANDS_DATABASE.buttons) {
+    return setTimeout(History.showHistory, 50, history);
+  }
 
   allHistory = history;
   const queries = utils.getLocalStorage().getObject('recentQueries', []).reverse();
@@ -25,7 +25,9 @@ function showHistory(history) {
 }
 
 function showFavorites(favorites) {
-  clearTimeout(historyTimer);
+  if (!utils.BRANDS_DATABASE.buttons) {
+    return setTimeout(History.showFavorites, 50, favorites);
+  }
 
   allFavorites = favorites;
 
@@ -107,12 +109,9 @@ function mixHistoryWithQueries(queries, history) {
 }
 
 function displayData(data, isFavorite = false) {
-  if (!handlebars.tplCache['conversations']) {
-    return setTimeout(History.displayData, 100, data);
-  }
 
   const template = isFavorite ? 'favorites' : 'conversations';
-  document.body.innerHTML = handlebars.tplCache[template]({data: data});
+  document.body.innerHTML = CLIQZ.templates[template]({data: data});
 
   const B = document.body,
       H = document.documentElement;
@@ -178,7 +177,6 @@ function init(onlyFavorites) {
 
 function update() {
   const callback = History.showOnlyFavorite ? showFavorites : showHistory;
-  historyTimer = setTimeout(callback, 500, []);
   History.showOnlyFavorite ? osAPI.getFavorites('History.showFavorites') : osAPI.getHistoryItems('History.showHistory');
 }
 
