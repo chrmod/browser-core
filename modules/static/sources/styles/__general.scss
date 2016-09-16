@@ -3,6 +3,28 @@
     src: url("../skin/fonts/Lato-Regular.ttf");
 }
 
+/*===== Onboarding =====*/
+
+#main-window.cqz-onboarding {
+    #nav-bar {
+        background: pink;
+    }
+
+    &.cqz-step1 {
+        #nav-bar > * { display: none; }
+    }
+
+    &.cqz-step2 {
+        #nav-bar #nav-bar-customization-target {
+            display: block;
+        }
+       #nav-bar #cliqz-cc-btn { display: block; }
+    }
+
+    &.cqz-step3 {}
+}
+
+
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("../../components.xml#autocomplete-rich-result-popup-cliqz");
     min-height: 350px; /* fixes bug with popup auto-sizing */

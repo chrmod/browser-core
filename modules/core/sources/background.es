@@ -175,6 +175,13 @@ export default {
 
     getFeedbackPage() {
       return utils.FEEDBACK_URL;
+    },
+    addClassToWindow() {
+      var args = [].slice.call(arguments);
+      var mainWindow = utils.getWindow().document.getElementById('main-window');
+      args.forEach(function(aClass) {
+        mainWindow.classList.add(aClass);
+      });
     }
   }
 };
