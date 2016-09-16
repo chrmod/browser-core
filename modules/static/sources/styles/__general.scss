@@ -6,19 +6,25 @@
 /*===== Onboarding =====*/
 
 #main-window.cqz-onboarding {
-    #nav-bar {
-        background: pink;
-    }
-
     &.cqz-step1 {
-        #nav-bar > * { display: none; }
+        #PanelUI-button {
+            display: none;
+        }
+
+        #nav-bar > *:not(panel),
+        #urlbar-container {
+            opacity: 0;
+        }
     }
 
     &.cqz-step2 {
         #nav-bar #nav-bar-customization-target {
-            display: block;
+            opacity: 1;
+
+            & > :not(#cliqz-cc-btn):not(#urlbar-container) {
+                display: none;
+            }
         }
-       #nav-bar #cliqz-cc-btn { display: block; }
     }
 
     &.cqz-step3 {}
