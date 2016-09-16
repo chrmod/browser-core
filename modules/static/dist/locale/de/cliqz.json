@@ -1233,10 +1233,10 @@
       "message": "Deine Daten sind nicht geschützt"
     },
     "control-center-datapoints": {
-      "message": "Deaktiviert für diese Website"
+      "message": "Persönliche Daten wurden entfernt"
     },
     "control-center-datapoints-inactive": {
-      "message": "Persönliche Daten wurden entfernt"
+      "message": "Deaktiviert für diese Website"
     },
     "control-center-datapoints-off": {
       "message": "Deaktiviert für alle Websites"
