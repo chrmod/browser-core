@@ -206,7 +206,10 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
-      var generalState = 'active';
+      var url = this.window.gBrowser.currentURI.spec,
+          friendlyURL = url,
+          generalState = 'active';
+
       if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
         generalState = 'inactive';
       }
@@ -227,8 +230,14 @@ export default class {
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
+      try {
+        // try to clean the url
+        friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+      } catch (e) {}
+
       cb({
-          activeURL: this.window.gBrowser.currentURI.spec,
+          activeURL: url,
+          friendlyURL: friendlyURL,
           module: moduleData,
           generalState: generalState,
           feedbackURL: utils.FEEDBACK_URL,
