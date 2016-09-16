@@ -331,7 +331,7 @@ const CliqzADB = {
         CliqzADB.adbStats.addNewPage(url);
       }
 
-      const sourceUrl = requestContext.getLoadingDocument();
+      const sourceUrl = requestContext.getSourceURL();
 
       if (!sourceUrl || sourceUrl.startsWith('about:')) {
         return {};

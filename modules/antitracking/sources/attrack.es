@@ -229,7 +229,7 @@ var CliqzAttrack = {
             // 2. Get source url.
             // 3. header -> ORIGIN (This needs to be investigated.)
 
-            var source_url = requestContext.getLoadingDocument(),
+            var source_url = requestContext.getSourceURL(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
 
@@ -454,7 +454,7 @@ var CliqzAttrack = {
             var referrer = requestContext.getReferrer();
             var same_gd = false;
 
-            var source_url = requestContext.getLoadingDocument(),
+            var source_url = requestContext.getSourceURL(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
 
@@ -561,7 +561,7 @@ var CliqzAttrack = {
             // Then uri.spec == source_url
             // Only get source tabs for now.
 
-            var source_url = requestContext.getLoadingDocument(),
+            var source_url = requestContext.getSourceURL(),
                 source_url_parts = null,
                 source_tab = requestContext.getOriginWindowID();
 
