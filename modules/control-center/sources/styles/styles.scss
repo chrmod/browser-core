@@ -866,6 +866,12 @@ html {
     }
 }
 
+#control-center .settings-section .dropdown-scope {
+    background-image: url("../images/dropmarker.png");
+    background-repeat: no-repeat;
+    background-position: 95% center;
+}
+
 .ask-dropdown {
     cursor: pointer;
     margin-left: 5px;
