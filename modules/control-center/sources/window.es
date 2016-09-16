@@ -179,7 +179,12 @@ export default class {
   openURL(data){
     switch(data.url) {
       case 'history':
-        this.window.PlacesCommandHook.showPlacesOrganizer('History');
+        //use firefox command to ensure compatibility
+        this.window.document.getElementById("Browser:ShowAllHistory").click();
+        break;
+      case 'forget_history':
+        //use firefox command to ensure compatibility
+        this.window.document.getElementById("Tools:Sanitize").click();
         break;
       default:
         var tab = utils.openLink(this.window, data.url, true),
