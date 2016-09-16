@@ -296,6 +296,12 @@ var CliqzABTests = {
             case "1079_B":
                 CliqzUtils.setPref("controlCenter", true);
                 break;
+            case "1080_A":
+                CliqzUtils.setPref("freshtabNewBrand", false);
+                break;
+            case "1080_B":
+                CliqzUtils.setPref("freshtabNewBrand", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -462,6 +468,10 @@ var CliqzABTests = {
             case "1079_A":
             case "1079_B":
               CliqzUtils.clearPref("controlCenter");
+              break;
+            case "1080_A":
+            case "1080_B":
+              CliqzUtils.clearPref("freshtabNewBrand");
               break;
             default:
                 rule_executed = false;
