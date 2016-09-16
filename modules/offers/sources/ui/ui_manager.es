@@ -255,7 +255,7 @@ UIManager.prototype.showLeadNotificationInCurrentWindow = function(currWindow, o
   });
 
   buttons.push({
-    label : 'Mehr Info',
+    label : 'Ueber CLIQZ-Angebote',
     callback : function () {
       if (self.callbacks.show_coupon) {
         return self.callbacks.information(offerID);

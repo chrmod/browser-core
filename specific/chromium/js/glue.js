@@ -35,6 +35,7 @@ let currWinId = undefined;
 chrome.windows.getCurrent(null, (win) => { currWinId = win.id; });
 
 const urlbar = document.getElementById('urlbar'),
+      settingsContainer = document.getElementById("settings-container"),
       settings = document.getElementById("settings");
 
 CLIQZ.Core = {
@@ -141,7 +142,7 @@ Promise.all([
           if (winId === currWinId && !focused) {
             CLIQZ.UI.sessionEnd();
             // Close settings section.
-            document.getElementById("settings").classList.add("hidden");
+            settingsContainer.classList.remove("open");
           }
         });
 
@@ -175,7 +176,7 @@ Promise.all([
   });
 
 function startAutocomplete(query) {
-  settings.classList.add('hidden');
+  settings.classList.remove("open");
   urlbar.value = query;
   acResults.search(query, function(r) {
     CLIQZ.UI.setRawResults({
@@ -297,33 +298,27 @@ function generateSession(source){
 
 // Settings
 
-function createOptionEntries(el, options, prefKey, action){
-  while (el.lastChild) {
-    el.removeChild(el.lastChild);
-  }
-
-  for(let id in options){
-    let option = document.createElement('option');
-    option.value = id;
-    option.textContent = options[id].name;
-    option.selected = options[id].selected;
-    el.appendChild(option);
-  }
-
-  el.addEventListener("change", function(ev){
-    CliqzUtils.setPref(prefKey, ev.target.value);
-    action(ev.target.value);
-  });
-}
-
-function handleSettings(){
+function handleSettings() {
   document.getElementById("settingsButton").addEventListener('click', function(){
-    this.classList.toggle('active');
-    settings.classList.toggle('hidden');
-
-    if(!settings.classList.contains('hidden')){
-      createSettingsMenu();
+    settingsContainer.classList.toggle('open');
+    if (settingsContainer.classList.contains('open')) {
+      updatePrefControls();
     }
+  });
+
+  const locationSelector = document.getElementById('location');
+  locationSelector.addEventListener("change", function(ev) {
+    CliqzUtils.setPref("share_location", ev.target.value);
+    CliqzUtils.callAction(
+        "geolocation",
+        "setLocationPermission",
+        [ev.target.value.toString()]
+    );
+  });
+
+  const adultSelector = document.getElementById('adult');
+  adultSelector.addEventListener("change", function(ev) {
+    CliqzUtils.setPref("adultContentFilter", ev.target.value);
   });
 
   CLIQZEnvironment.addPrefListener(function(pref){
@@ -333,27 +328,30 @@ function handleSettings(){
       'adultContentFilter',
     ]
     if(relevantPrefs.indexOf(pref) != -1)
-      createSettingsMenu();
+      updatePrefControls();
   });
 }
 
-function createSettingsMenu(){
-  createOptionEntries(
-    document.getElementById('adult'),
-    CliqzUtils.getAdultFilterState(),
-    "adultContentFilter"
-  );
+function updatePrefControls() {
+  function createOptionEntries(el, options) {
+    while (el.lastChild) {
+      el.removeChild(el.lastChild);
+    }
+
+    for(let id in options){
+      let option = document.createElement('option');
+      option.value = id;
+      option.textContent = options[id].name;
+      option.selected = options[id].selected;
+      el.appendChild(option);
+    }
+  }
 
   createOptionEntries(
-    document.getElementById('location'),
-    CliqzUtils.getLocationPermState(),
-    "share_location",
-    function (val) {
-      CliqzUtils.callAction(
-        "geolocation",
-        "setLocationPermission",
-        [val.toString()]
-      );
-    }
-  );
+      document.getElementById('adult'),
+      CliqzUtils.getAdultFilterState());
+
+  createOptionEntries(
+      document.getElementById('location'),
+      CliqzUtils.getLocationPermState());
 }

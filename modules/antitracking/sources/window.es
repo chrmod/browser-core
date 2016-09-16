@@ -5,6 +5,9 @@ import { simpleBtn } from 'q-button/buttons';
 import { URLInfo } from 'antitracking/url';
 
 function onLocationChange(ev) {
+  if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
+    return;
+  }
   if(this.interval) { CliqzUtils.clearInterval(this.interval); }
 
   var counter = 8;
@@ -39,7 +42,7 @@ export default class {
 
     this.popup = background.popup;
 
-    if ( this.popup ) {
+    if ( this.popup  ) {
       this.onLocationChange = onLocationChange.bind(this);
     }
     this.onPrefChange = onPrefChange.bind(this);
@@ -164,15 +167,16 @@ export default class {
 
   status() {
     if (background.buttonEnabled) {
-      var info = CliqzAttrack.getCurrentTabBlockingInfo(),
+      var info = CliqzAttrack.getCurrentTabBlockingInfo(this.window.gBrowser),
           ps = info.ps,
-          enabled = utils.getPref('antiTrackTest') && !CliqzAttrack.isSourceWhitelisted(info.hostname),
-          isWhitelisted = CliqzAttrack.isSourceWhitelisted(info.hostname);
+          hostname = URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
+          isWhitelisted = CliqzAttrack.isSourceWhitelisted(hostname),
+          enabled = utils.getPref('antiTrackTest', true) && !isWhitelisted;
 
       return {
         visible: true,
         strict: utils.getPref('attrackForceBlock', false),
-        hostname: URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
+        hostname: hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
         totalCount: info.cookies.blocked + info.requests.unsafe,

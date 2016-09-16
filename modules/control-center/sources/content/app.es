@@ -40,8 +40,10 @@ function isHttpsSection(section) {
   return section === 'https';
 }
 
+
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
 $(document).ready(function(resolvedPromises) {
+
   Object.keys(helpers).forEach(function (helperName) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
@@ -77,37 +79,44 @@ $('#control-center').on('click', '[data-function]', function(ev){
 });
 
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
-  var status,
+  var state,
       type = $(this).attr('data-type');
   if (type === 'switch') {
-    status = $(this).closest('.frame-container').attr('state');
+    state = $(this).closest('.frame-container').attr('state');
   } else {
-    status = $(this).attr('data-state');
+    state = $(this).attr('data-state');
   }
   sendMessageToWindow({
     action: 'antitracking-activator',
     data: {
       type: type,
-      status: status,
+      state: state,
+      status: $(this).closest('.frame-container').attr('state'),
       hostname: $(this).closest('.frame-container').attr('hostname'),
     }
   });
 });
 
 $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
-  var status,
-      type = $(this).attr('data-type');
+  var state,
+      type = $(this).attr('data-type'),
+      frame = $(this).closest('.frame-container');
+
   if (type === 'switch') {
-    status = $(this).closest('.frame-container').attr('state');
+    state = frame.attr('state');
   } else {
-    status = $(this).attr('data-state');
+    state = $(this).attr('data-state');
   }
+
+  frame.attr('data-visible', $(this).attr('data-state'));
+
   sendMessageToWindow({
     action: 'adb-activator',
     data: {
       type: type,
-      status: status,
-      url: $(this).closest('.frame-container').attr('url'),
+      state: state,
+      status: frame.attr('state'),
+      url: frame.attr('url'),
       option: $(this).closest('.switches').find('.dropdown-scope').val()
     }
   });
@@ -202,10 +211,15 @@ function compileAdblockInfo(data) {
 }
 
 function draw(data){
+  if(data.onboarding) {
+    document.getElementById('control-center').classList.add('onboarding');
+  }
   if (data.module) {
-    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList);
     compileAdblockInfo(data);
   }
+
+  console.log(JSON.stringify(data));
   console.log('Drawing: ', data);
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)

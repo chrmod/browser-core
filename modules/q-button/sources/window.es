@@ -7,7 +7,8 @@ import CliqzResultProviders from "autocomplete/result-providers";
 const BTN_ID = 'cliqz-button',
       firstRunPref = 'firstStartDone',
       TRIQZ_URL = 'https://cliqz.com/home/cliqz-triqz',
-      TOUR_URL = 'chrome://cliqz/content/onboarding/onboarding.html';
+      TOUR_URL = 'chrome://cliqz/content/onboarding/onboarding.html',
+      dontHideSearchBar = 'dontHideSearchBar';
 
 export default class {
 

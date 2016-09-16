@@ -1,4 +1,6 @@
 import background from "core/base/background";
+import utils from "core/utils";
+
 const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu, manager: Cm } =
     Components;
 
@@ -85,6 +87,9 @@ export default background({
   },
 
   actions: {
+    moveToStep(step) {
+      utils.setPref('cliqz-onboarding-v2-step', step);
+    }
 
   }
 });

@@ -1,14 +1,14 @@
 var directoryServicePK = class directoryServicePK {
 	constructor(){
-        this.dsPubKey = "-----BEGIN PUBLIC KEY-----\
-	    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnL0p5VJJ0fuzeXdV/7w6\
-	    2vSJfqt6LkK0z05B3kP668d8acyUddk63F4WHO3/ZAautA2C4h5xCErRhehYh170\
-	    qf/y7TLYB0wJL6Q1vsPSZedLWVds0/Q5y/nUBobJZSyTFC6ls3xAP2oK8YbO3i4s\
-	    YMJ7/iKrgEXLWAPOYxXJHhQ0eCdodwGYEFeeNJLzlBiI9u6j5tIasNFFG/TBqks6\
-	    K5bybqqEkHPPEaK8KNbLkhtOg1YC+S8+9XEO5Sd/CNT+7TuA8QaX0KXw/x0wdiHF\
-	    jFaGNsrywflvpS1X1AMZpfsMr/tGRtdLdlnQ6UGAxS9UsQT0/s0ydhLA/obaX3qK\
-	    pwIDAQAB\
-	    -----END PUBLIC KEY-----";
+	    this.dsPubKey = "-----BEGIN PUBLIC KEY-----\
+	    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2YQdJOUx4/XT5uRlMl+9\
+	    rCnyoPVcRLmbdd+DcUDPVYHxLl9bUorgfZHNnu/HPWj5vLRIF7mNnAFhZByZj/Fv\
+	    QHqfOptrFEJP5h9/2iAUBr2ZgRsWHhGGEBDRXI3FLvuqFCf8jcDRsVRXqiJ8ZMJg\
+	    aF+a4j2Smt7XYDlG56L+MZCXgaR6mlevXMymee8Cf1Y28+mtV4Q8UZPCqARWNKeN\
+	    u8HG0X39lWb/boqB2IiZHdclpmeYpuHHlcPZ2Qg/5ofi7KlZXA9SW3w3WguQnR/T\
+	    KC+sZd49fI63H4lpIN/Mkk4tq4oYR9zrvGUP5944+ozLiY4+sXFXjYJ9Lq/jZdHl\
+	    BQIDAQAB\
+	    -----END PUBLIC KEY-----"
 	    this.endPoint = CliqzSecureMessage.BLIND_SIGNER;
 	    this.loadKey = new CliqzSecureMessage.JSEncrypt();
 	    this.loadKey.setPublicKey(CliqzSecureMessage.signerKey || this.dsPubKey);

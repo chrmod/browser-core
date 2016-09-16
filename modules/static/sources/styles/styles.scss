@@ -34,14 +34,37 @@
 
 .cliqz-control-center {
     background-repeat: no-repeat;
-    height: 26px;
-    background-position: 4px 5px;
+    height: 31px;
+    background-position: center center;
     padding: 9px 4px 0px 32px;
     border-width: 0px 1px 0px 1px;
     background-size: 20px;
     background-image: url(../skin/cc-active.svg);
     border-color: #ccc;
+    color: transparent;
+}
+
+.cliqz-control-center:after {
+    content: 'CLIQZ';
+}
+
+#nav-bar .cliqz-control-center {
+    background-position: 4px 5px;
     border-style: solid;
+    color: black;
+}
+
+#nav-bar .cliqz-control-center:after {
+    content: '';
+}
+
+/* if the button appears in the overflow area of the browser on very small widths */
+.widget-overflow-list .cliqz-control-center {
+    margin-left: 5px;
+}
+
+.widget-overflow-list .cliqz-control-center:after {
+    padding-left: 20px;
 }
 
 .cliqz-control-center[state="critical"] {

@@ -61,6 +61,10 @@ var CliqzUtils = {
   RERANKERS: CLIQZEnvironment.RERANKERS,
   MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
 
+  telemetryHandlers: [
+    CLIQZEnvironment.telemetry
+  ],
+
   init: function(options){
     options = options || {};
 
@@ -799,7 +803,10 @@ var CliqzUtils = {
       });
   },
   isPrivate: CLIQZEnvironment.isPrivate,
-  telemetry: CLIQZEnvironment.telemetry,
+  telemetry: function () {
+    const args = arguments;
+    CliqzUtils.telemetryHandlers.forEach(handler => handler.apply(null, args));
+  },
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     CliqzUtils.setResultOrder(resultOrder);
     var params = encodeURIComponent(query) +

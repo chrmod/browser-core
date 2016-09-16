@@ -1238,6 +1238,9 @@
     "control-center-datapoints-inactive": {
       "message": "Persönliche Daten wurden entfernt"
     },
+    "control-center-datapoints-off": {
+      "message": "Deaktiviert für alle Websites"
+    },
     "control-center-trackers": {
       "message": "Tracking Unternehmen auf dieser Seite"
     },
@@ -1248,7 +1251,7 @@
       "message": "Anti-Phishing"
     },
     "control-center-info-phishing": {
-      "message": "Anti-Phishing technology identifies and blocks potentially deceptive websites that try to get your passwords or account data before you visit the site."
+      "message": "Potentiell betrügerische Websites, die es auf deine Passwörter und Kontodaten abgesehen haben, werden mit der Anti-Tracking Technologie vorzeitig erkannt und blockiert."
     },
     "control-center-info-ads-title": {
       "message": "Werbeblocker"
@@ -1277,8 +1280,14 @@
     "control-center-adblock-description": {
       "message": "Werbungen wurden geblockt"
     },
-    "control-center-adblock-description-inactive": {
-      "message": "Deaktiviert für diese Website"
+    "control-center-adblock-description-off-website": {
+      "message": "Deaktiviert für diese Seite"
+    },
+    "control-center-adblock-description-off-domain": {
+      "message": "Deaktiviert für diese Domain"
+    },
+    "control-center-adblock-description-off-all": {
+      "message": "Deaktiviert für alle Websites"
     },
     "control-center-adblock-advertisers": {
       "message": "Liste der Werbetreibenden auf dieser Seite"
@@ -1354,6 +1363,9 @@
     },
     "download": {
       "message": "Herunterladen von: "
+    },
+    "cliqz-search-hint": {
+      "message": "Search is powered by"
     },
     "settings": {
       "message": "Einstellungen"

@@ -1238,6 +1238,9 @@
     "control-center-datapoints-inactive": {
       "message": "Turned off for this website"
     },
+    "control-center-datapoints-off": {
+      "message": "Turned off for all websites"
+    },
     "control-center-trackers": {
       "message": "Tracking companies on this page"
     },
@@ -1248,7 +1251,7 @@
       "message": "Anti-Phishing"
     },
     "control-center-info-phishing": {
-      "message": "Potentiell betrügerische Websites, die es auf deine Passwörter und Kontodaten abgesehen haben, werden mit der Anti-Tracking Technologie vorzeitig erkannt und blockiert."
+      "message": "Anti-Phishing technology identifies and blocks potentially deceptive websites that try to get your passwords or account data before you visit the site."
     },
     "control-center-info-ads-title": {
       "message": "Ad Blocking"
@@ -1277,8 +1280,14 @@
     "control-center-adblock-description": {
       "message": "Ads have been blocked on this website"
     },
-    "control-center-adblock-description-inactive": {
-      "message": "Turned off for this website"
+    "control-center-adblock-description-off-website": {
+      "message": "Turned off for this page"
+    },
+    "control-center-adblock-description-off-domain": {
+      "message": "Turned off for this domain"
+    },
+    "control-center-adblock-description-off-all": {
+      "message": "Turned off for all websites"
     },
     "control-center-adblock-advertisers": {
       "message": "List of advertisers on this page"
@@ -1350,10 +1359,13 @@
       "message": "This domain"
     },
     "control-center-all-sites": {
-      "message": "All Sites"
+      "message": "All websites"
     },
     "download": {
       "message": "Download from: "
+    },
+    "cliqz-search-hint": {
+      "message": "Search is powered by"
     },
     "settings": {
       "message": "Settings"

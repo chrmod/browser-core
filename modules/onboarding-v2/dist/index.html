@@ -129,6 +129,13 @@
                    $('#cqb-search-btn').tooltipster('open');
                }, 4000);
 
+               window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'onboarding-v2',
+                   action: 'moveToStep',
+                   args: [2]
+               }), '*')
+
                // Open PRIVACY CENTER
                setTimeout(function () {
                    window.postMessage(JSON.stringify({
@@ -137,12 +144,43 @@
                        action: 'openPopUp',
                    }), '*')
                }, 400);
+
+               setTimeout(function() {
+                    window.postMessage(JSON.stringify({
+                       target: 'cliqz',
+                       module: 'control-center',
+                       action: 'setBadge',
+                       args: [17]
+                   }), '*')
+               }, 1000);
            });
 
            //==== Step 2 Click
            $("#cqb-search-btn").click(function () {
+
+                window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'control-center',
+                   action: 'setBadge',
+                   args: [0]
+               }), '*');
+
+                window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'control-center',
+                   action: 'updateState',
+                   args: ['active']
+               }), '*');
+
                $("body").addClass("cqb-step3");
                $('#cqb-search-btn').tooltipster('close');
+
+               window.postMessage(JSON.stringify({
+                   target: 'cliqz',
+                   module: 'onboarding-v2',
+                   action: 'moveToStep',
+                   args: [3]
+               }), '*')
 
                setTimeout(function () {
                    $('.cqb-search-tooltip').tooltipster('open');

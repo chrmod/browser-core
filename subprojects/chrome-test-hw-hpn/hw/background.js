@@ -108,10 +108,8 @@ chrome.runtime.onConnect.addListener(function(port) {
     }
     else if(info.type == "event_listener"){
       var ev = {};
-      ev["target"] = {"baseURI": info.baseURI};
-      if(info.targetHref){
-        ev["target"] = {"href": info.targetHref};
-      }
+      ev["target"] = {"baseURI": info.baseURI,"href": null,"parentNode": {"href": null}};
+
       if(info.action == "keypress"){
         CliqzHumanWeb.captureKeyPressPage(ev);
       }
@@ -119,6 +117,9 @@ chrome.runtime.onConnect.addListener(function(port) {
         CliqzHumanWeb.captureMouseMovePage(ev);
       }
       else if(info.action == "mousedown"){
+        if(info.targetHref){
+          ev["target"] = {"href": info.targetHref};
+        }
         CliqzHumanWeb.captureMouseClickPage(ev);
       }
       else if(info.action == "scroll"){

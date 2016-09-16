@@ -47,7 +47,7 @@ var __CliqzHumanWeb = function() { // (_export) {
             falsePositive = 0.01;
             bloomFilterNHashes = 7;
             CliqzHumanWeb = {
-                VERSION: '3.0', // should change the version number for chrome.
+                VERSION: '3.0',
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
                 debug: true,
@@ -76,10 +76,15 @@ var __CliqzHumanWeb = function() { // (_export) {
                 rArray: [], //Variable for content extraction fw.
                 extractRules: {}, //Variable for content extraction fw.
                 payloads: {}, //Variable for content extraction fw.
+                anonSearchEngines: [], //Variable for content extraction fw.
+                anonRArray: [], //Variable for content extraction fw.
+                anonExtractRules: {}, //Variable for content extraction fw.
+                anonPayloads: {}, //Variable for content extraction fw.
                 messageTemplate: {},
-                idMappings: {},
-                patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
-                configURL: 'https://safe-browsing.cliqz.com/config',
+                anonIdMappings: {},
+                patternsURL: 'https://cdn.cliqz.com/human-web-chromium/patterns',
+                anonPatternsURL: 'https://cdn.cliqz.com/human-web-chromium/patterns-anon',
+                configURL: 'https://safe-browsing-proxy-network.cliqz.com/config',
                 searchCache: {},
                 ts: "",
                 mRefresh: {},
@@ -112,6 +117,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     return md5(str);
                 },
                 gadurl: gadurl,
+                strictQueries: [],
                 parseUri: function parseUri(str) {
                     //var o   = parseUri.options,
                     var m = null;
@@ -581,11 +587,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 var doc =  parser.parseFromString(body, "text/html");
                                 //console.log('>>>>>', body);
                                 //console.log('>>>>>', {'time': CliqzHumanWeb.counter, 'doc': doc });
-                                console.log('>>>>>', CliqzHumanWeb.getPageData(url, doc));
-
-
                             }).catch(function(err) {
-                                console.log('>>>>', 'Error reading body? ', err);
+                                _log('Error reading body? ', err);
 
                             });
 
@@ -1573,15 +1576,28 @@ var __CliqzHumanWeb = function() { // (_export) {
                                         if (!CliqzHumanWeb) {
                                             return;
                                         }
-                                        _log(">>> Its search engine >>>" + url);
+
                                         CliqzHumanWeb.getCD(url).then(function (doc) {
-                                            CliqzHumanWeb.checkURL(doc, url);
+                                            CliqzHumanWeb.checkURL(doc, url, "normal");
                                             CliqzHumanWeb.queryCache[url] = {
                                                 d: 0,
                                                 q: CliqzHumanWeb.searchCache[se]['q'],
                                                 t: CliqzHumanWeb.searchCache[se]['t']
                                             };
+
+                                            let anonSe = CliqzHumanWeb.checkAnonSearchURL(url);
+                                            if(anonSe > -1){
+                                                let hostName = CliqzHumanWeb.parseURL(url)['hostname'];
+                                                let qurl = "https://" + hostName + "/search?q=" + CliqzHumanWeb.searchCache[se]['q'];
+                                                let qObj = {};
+                                                qObj['qurl'] = qurl;
+                                                qObj['ts'] = Date.now();
+                                                qObj['tDiff'] = getRandomIntInclusive(1, 20);
+                                                CliqzHumanWeb.strictQueries.push(qObj);
+                                                CliqzHumanWeb.saveStrictQueries();
+                                            }
                                         });
+
                                     }, CliqzHumanWeb.WAIT_TIME, activeURL);
                                 }
 
@@ -1674,7 +1690,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                                         if (se == -1) {
                                             try {
-                                                CliqzHumanWeb.checkURL(cd, currURL);
+                                                CliqzHumanWeb.checkURL(cd, currURL,"normal");
                                             } catch (e) {}
                                             //Check active usage...
                                             CliqzHumanWeb.activeUsage += 1;
@@ -1744,6 +1760,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % (1 * 60) == 0) {
                         // every minute
                         CliqzHumanWeb.listOfUnchecked(1, CliqzHumanWeb.doubleFetchTimeInSec, null, CliqzHumanWeb.processUnchecks);
+                        CliqzHumanWeb.auxGetQuery();
                     }
 
 
@@ -1756,7 +1773,8 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     if (CliqzHumanWeb.counter / CliqzHumanWeb.tmult % 5 == 0) {
 
-                        CliqzHumanWeb.getAllOpenPages(openPages => {
+                        CliqzHumanWeb.getAllOpenPages()
+                        .then(openPages => {
                             var tt = new Date().getTime();
 
                             for (var url in CliqzHumanWeb.state['v']) {
@@ -2175,29 +2193,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     */
                 },
-                initChrome: function initChrome(){
-                    // Only till we start loading from online resource
-
-                    CliqzHumanWeb.extractRules = {"0":{".r":{"t":{"item":"a","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":"a","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},".med #search":{"q":{"item":"#ires","type":"searchQuery","etype":"data-async-context","keyName":"q","functionsApplied":[["splitF","query:",1]]}},"#tads .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"#mbEnd .ads-ad":{"u":{"item":"a[id^=s1p]","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},".pla-unit-title":{"u":{"item":".pla-unit-title-link","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},"#tadsb .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}},"._gt":{"t":{"item":"[data-akp-oq] ._rl","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":".rllt__action-button._Jrh","type":"arr","etype":"href","keyName":"u"},"mu":{"item":".rllt__action-button.rllt__directions-button","type":"arr","etype":"href","keyName":"mu"}}},"1":{".dd.algo":{"t":{"item":"h3 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h3 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["splitF","RU=",1],["splitF","RK=0/",0],["maskU",false,false]]}},".sbq-w":{"q":{"item":"#yschsp","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"2":{".profile-card":{"img":{"item":".image","type":"arr","etype":"src","keyName":"imgl"},"fullName":{"item":".content h3 a","type":"arr","etype":"text","keyName":"fn"},"profileLink":{"item":".content h3 a","type":"arr","etype":"href","keyName":"pl"},"currentWork":{"item":".content p.headline","type":"arr","etype":"textContent","keyName":"cw"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"3":{".b_algo":{"t":{"item":"h2 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h2 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},"#sb_form":{"q":{"item":"#sb_form_q","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"4":{"#errorPageContainer":{"reason":{"item":"h1[id^=errorTitleText_]","type":"arr","etype":"id","keyName":"reason","required":"yes"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}}}
-                    var patternConfig = {"urlPatterns":["\\.google\\..*?[#?&;]q=[^$&]+",".search.yahoo\\..*?[#?&;]p=[^$&]+",".linkedin.*?\\/pub\\/dir+","\\.bing\\..*?[#?&;]q=[^$&]+",".*"],"searchEngines":["0","1","3"],"scrape":{"0":{".r":{"t":{"item":"a","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":"a","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},".med #search":{"q":{"item":"#ires","type":"searchQuery","etype":"data-async-context","keyName":"q","functionsApplied":[["splitF","query:",1]]}},"#tads .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"#mbEnd .ads-ad":{"u":{"item":"a[id^=s1p]","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},".pla-unit-title":{"u":{"item":".pla-unit-title-link","type":"multiple","etype":"href","keyName":"u","functionsApplied":[["parseU","qs","adurl"],["maskU",false,false]]}},"#tadsb .ads-ad":{"u":{"item":".ads-visurl cite","type":"multiple","etype":"textContent","keyName":"u","functionsApplied":[[false,false,false],["maskU",false,false]]}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}},"._gt":{"t":{"item":"[data-akp-oq] ._rl","type":"arr","etype":"textContent","keyName":"t"},"u":{"item":".rllt__action-button._Jrh","type":"arr","etype":"href","keyName":"u"},"mu":{"item":".rllt__action-button.rllt__directions-button","type":"arr","etype":"href","keyName":"mu"}}},"1":{".dd.algo":{"t":{"item":"h3 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h3 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["splitF","RU=",1],["splitF","RK=0/",0],["maskU",false,false]]}},".sbq-w":{"q":{"item":"#yschsp","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"2":{".profile-card":{"img":{"item":".image","type":"arr","etype":"src","keyName":"imgl"},"fullName":{"item":".content h3 a","type":"arr","etype":"text","keyName":"fn"},"profileLink":{"item":".content h3 a","type":"arr","etype":"href","keyName":"pl"},"currentWork":{"item":".content p.headline","type":"arr","etype":"textContent","keyName":"cw"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"3":{".b_algo":{"t":{"item":"h2 [href]","type":"arr","etype":"text","keyName":"t"},"u":{"item":"h2 [href]","type":"arr","etype":"href","keyName":"u","functionsApplied":[["maskU",false,false]]}},"#sb_form":{"q":{"item":"#sb_form_q","type":"searchQuery","etype":"value","keyName":"query"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl","functionsApplied":[["maskU",false,false]]}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}},"4":{"#errorPageContainer":{"reason":{"item":"h1[id^=errorTitleText_]","type":"arr","etype":"id","keyName":"reason","required":"yes"}},"qurl":{"qurl":{"type":"standard","etype":"url","keyName":"qurl"}},"ctry":{"ctry":{"type":"standard","etype":"ctry","keyName":"ctry"}}}},"payloads":{"0":{".r":{"type":"query","results":"clustered","action":"query","fields":[[".r","r","join"],[".med #search","q"],["qurl","qurl"],["ctry","ctry"]]},"#tads .ads-ad":{"type":"query","results":"clustered","action":"ads_A","fields":[["#tads .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},"#mbEnd .ads-ad":{"type":"query","results":"clustered","action":"ads_B","fields":[["#mbEnd .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},".pla-unit-title":{"type":"query","results":"clustered","action":"ads_C","fields":[[".pla-unit-title","r","join"],[".med #search","q"],["qurl","qurl"]]},"#tadsb .ads-ad":{"type":"query","results":"clustered","action":"ads_D","fields":[["#tadsb .ads-ad","r","join"],[".med #search","q"],["qurl","qurl"]]},"._gt":{"type":"query","results":"clustered","action":"locdata","fields":[["._gt","r","join"],[".med #search","q"],["qurl","qurl"]]}},"1":{".dd.algo":{"type":"query","results":"clustered","action":"query","fields":[[".dd.algo","r","join"],[".sbq-w","q"],["qurl","qurl"],["ctry","ctry"]]}},"2":{".profile-card":{"type":"single","results":"single","action":"linkedin"}},"3":{".b_algo":{"type":"query","results":"clustered","action":"query","fields":[[".b_algo","r","join"],["#sb_form","q"],["qurl","qurl"],["ctry","ctry"]]}},"4":{"#errorPageContainer":{"type":"single","results":"custom","action":"maliciousUrl","fields":[["qurl","qurl"],["#errorPageContainer","reason"],["ctry","ctry"]]}}},"idMapping":{"0":"go","1":"ya","2":"lnkd","3":"bing"}};
-                    CliqzHumanWeb.searchEngines = patternConfig["searchEngines"];
-                    CliqzHumanWeb.extractRules = patternConfig["scrape"];
-                    CliqzHumanWeb.payloads = patternConfig["payloads"];
-                    CliqzHumanWeb.idMappings = patternConfig["idMapping"];
-                    CliqzHumanWeb.rArray = [];
-                    patternConfig["urlPatterns"].forEach(function (e) {
-                        CliqzHumanWeb.rArray.push(new RegExp(e));
-                    });
-
-                    refineFuncMappings = {
-                        "splitF": CliqzHumanWeb.refineSplitFunc,
-                        "parseU": CliqzHumanWeb.refineParseURIFunc,
-                        "maskU": CliqzHumanWeb.refineMaskUrl
-                    };
-
-                    CliqzHumanWeb.loadBloomFilter();
-
-                },
                 init: function init(window) {
                     // if (CliqzUtils.getPref("dnt", false)) return;
                     console.log(">>>>> Init Called <<<<<<");
@@ -2259,6 +2254,9 @@ var __CliqzHumanWeb = function() { // (_export) {
                         console.log("<<< Time Active usage >>>" + data);
                         // CliqzHumanWeb.activeUsage = data;
                     })
+
+                    // Load strictQueries list.
+                    CliqzHumanWeb.loadStrictQueries();
                 },
                 initAtBrowser: function initAtBrowser() {
                     if (CliqzUtils.getPref("dnt", false)) return;
@@ -2284,6 +2282,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     // Adding anti-duplicate key, so to detect duplicate messages on the backend.
                     msg['anti-duplicates'] = Math.floor(Math.random() * 10000000);
+                    msg['channel'] = 'chromium';
 
                     if (msg.action == 'page') {
                         if (msg.payload.tend && msg.payload.tin) {
@@ -2416,7 +2415,7 @@ var __CliqzHumanWeb = function() { // (_export) {
 
                     //Remove the msg if the query is too long,
 
-                    if (msg.action == 'query') {
+                    if (msg.action == 'query' || msg.action == 'anon-query') {
                         //Remove the msg if the query is too long,
                         if (msg.payload.q == null || msg.payload.q == '') {
                             return null;
@@ -3247,6 +3246,23 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }, function error(res) {
                         _log('Error loading config. ');
                     });
+
+                    // Load anon content extraction.
+                    CliqzUtils.httpGet(CliqzHumanWeb.anonPatternsURL, function success(req) {
+                        if (!CliqzHumanWeb) return;
+
+                        var patternConfig = JSON.parse(req.response);
+                        CliqzHumanWeb.anonSearchEngines = patternConfig["searchEngines"];
+                        CliqzHumanWeb.anonExtractRules = patternConfig["scrape"];
+                        CliqzHumanWeb.anonPayloads = patternConfig["payloads"];
+                        CliqzHumanWeb.anonIdMappings = patternConfig["idMapping"];
+                        CliqzHumanWeb.anonRArray = [];
+                        patternConfig["urlPatterns"].forEach(function (e) {
+                            CliqzHumanWeb.anonRArray.push(new RegExp(e));
+                        });
+                    }, function error(res) {
+                        _log('Error loading config. ');
+                    });
                 },
                 checkForEmail: function checkForEmail(str) {
                     if (str.match(/[a-z0-9\-_@]+(@|%40|%(25)+40)[a-z0-9\-_]+\.[a-z0-9\-_]/i) != null) return true;else return false;
@@ -3291,18 +3307,27 @@ var __CliqzHumanWeb = function() { // (_export) {
                         _log('Error loading config. ');
                     }, 5000);
                 },
-                checkURL: function checkURL(cd, url) {
+                checkURL: function checkURL(cd, url, ruleset) {
                     var pageContent = cd;
                     //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
                     //scrap(4, pageContent)
-                    for (var i = 0; i < CliqzHumanWeb.rArray.length; i++) {
-                        if (CliqzHumanWeb.rArray[i].test(url)) {
-                            CliqzHumanWeb.extractContent(i, pageContent, url);
+                    let rArray = [];
+                    let searchEngines = [];
+                    if (ruleset === "normal"){
+                        rArray = CliqzHumanWeb.rArray;
+                        searchEngines = CliqzHumanWeb.searchEngines;
+                    }
+                    else if (ruleset === "strict"){
+                        rArray = CliqzHumanWeb.anonRArray;
+                        searchEngines = CliqzHumanWeb.anonSearchEngines
+                    }
+
+                    for(var i=0;i<rArray.length;i++){
+                        if (rArray[i].test(url)){
+                            CliqzHumanWeb.extractContent(i, pageContent, url, ruleset);
 
                             //Do not want to continue after search engines...
-                            if (CliqzHumanWeb.searchEngines.indexOf('' + i) != -1) {
-                                return;
-                            }
+                            if(searchEngines.indexOf(''+i) != -1 ){return;}
                             if (CliqzHumanWeb.debug) {
                                 _log('Continue further after search engines ');
                             }
@@ -3328,14 +3353,40 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     }
                 },
-                extractContent: function extractContent(ind, cd, url) {
+                checkAnonSearchURL: function checkSearchURL(url) {
+                    var idx = null;
+                    for (var i = 0; i < CliqzHumanWeb.anonRArray.length; i++) {
+                        if (CliqzHumanWeb.anonRArray[i].test(url)) {
+                            //Do not want to continue after search engines... && !reref.test(url)
+                            if (CliqzHumanWeb.anonSearchEngines.indexOf('' + i) != -1) {
+                                ;
+                                idx = i;
+                                return idx;
+                            } else {
+                                if (CliqzHumanWeb.debug) {
+                                    _log('Not search engine ' + i + CliqzHumanWeb.searchEngines);
+                                }
+                                return -1;
+                            }
+                        }
+                    }
+                },
+                extractContent: function extractContent(ind, cd, url, ruleset) {
                     var scrapeResults = {};
                     var eventMsg = {};
                     var rules = {};
+                    var payloadRules = [];
                     var key = "";
                     var rule = "";
 
-                    rules = CliqzHumanWeb.extractRules[ind];
+                    if(ruleset === "normal"){
+                        rules = CliqzHumanWeb.extractRules[ind];
+                        payloadRules = CliqzHumanWeb.payloads[ind];
+                    }
+                    else if(ruleset === "strict"){
+                        rules = CliqzHumanWeb.anonExtractRules[ind];
+                        payloadRules = CliqzHumanWeb.anonPayloads[ind];
+                    }
                     if (CliqzHumanWeb.debug) {
                         _log('rules' + rules + ind);
                     }
@@ -3398,8 +3449,8 @@ var __CliqzHumanWeb = function() { // (_export) {
                         }
                     }
 
-                    for (rule in CliqzHumanWeb.payloads[ind]) {
-                        CliqzHumanWeb.createPayload(scrapeResults, ind, rule);
+                    for (rule in payloadRules){
+                        CliqzHumanWeb.createPayload(scrapeResults, ind, rule, ruleset);
                     }
                 },
                 mergeArr: function mergeArr(arrS) {
@@ -3441,9 +3492,14 @@ var __CliqzHumanWeb = function() { // (_export) {
                     }
                     return arr;
                 },
-                createPayload: function createPayload(scrapeResults, idx, key) {
+                createPayload: function createPayload(scrapeResults, idx, key, payloadRule) {
                     try {
-                        var payloadRules = CliqzHumanWeb.payloads[idx][key];
+                        if(payloadRule === "normal"){
+                            var payloadRules = CliqzHumanWeb.payloads[idx][key];
+                        }else if(payloadRule === "strict"){
+                            var payloadRules = CliqzHumanWeb.anonPayloads[idx][key];
+                        }
+
                         if (payloadRules['type'] == 'single' && payloadRules['results'] == 'single') {
                             scrapeResults[key].forEach(function (e) {
                                 try {
@@ -3944,6 +4000,10 @@ var __CliqzHumanWeb = function() { // (_export) {
                 saveActionStatsLastSent: function saveActionStatsLastSent() {
                     CliqzHumanWeb.saveRecord('actionStats_last_send', CliqzHumanWeb.actionStatsLastSent);
                 },
+                saveStrictQueries: function saveStrictQueries() {
+                    _log("Saving local table");
+                    CliqzHumanWeb.saveRecord('localStrictQueries', JSON.stringify(CliqzHumanWeb.strictQueries));
+                },
                 sendActionStatsIfNeeded: function sendActionStatsIfNeeded() {
                     // Send action stats once per day.
                     // Day resolution.
@@ -3974,8 +4034,35 @@ var __CliqzHumanWeb = function() { // (_export) {
                             CliqzHumanWeb.bloomFilter = new CliqzBloomFilter.BloomFilter(_data, bloomFilterNHashes);
                         }
                     });
-                }
+                },
+                loadStrictQueries: function loadStrictQueries(){
+                    CliqzHumanWeb.loadRecord('localStrictQueries', function(data) {
+                        if (data==null || data.length == 0) {
+                            _log("There was no data on CliqzHumanWeb.bf");
+                            CliqzHumanWeb.strictQueries = [];
+                        }
+                        else {
+                            CliqzHumanWeb.strictQueries = JSON.parse(data);
+                        }
 
+                    });
+
+                },
+                auxGetQuery: function(){
+                    CliqzHumanWeb.strictQueries.forEach( function(e, idx) {
+                        var t = Date.now();
+                        if((t - e.ts) > (e.tDiff * 60 * 1000)) {
+                            CliqzHumanWeb.auxGetPageData(e.qurl, null, e.qurl,function(url, page_data, ourl, x){
+                                let cd = CliqzHumanWeb.docCache[url]['doc'];
+                                CliqzHumanWeb.checkURL(cd, url, "strict");
+                            }, function(a,b,c,d){
+                                _log("Error aux>>>> " + d)
+                            });
+                            CliqzHumanWeb.strictQueries.splice(idx, 1);
+                            CliqzHumanWeb.saveStrictQueries();
+                        }
+                    })
+                }
             };
 
             return CliqzHumanWeb; //_export("default", CliqzHumanWeb);
