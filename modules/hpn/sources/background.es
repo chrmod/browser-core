@@ -26,6 +26,7 @@ export default {
     if(FF41_OR_ABOVE && CliqzUtils.getPref("proxyNetwork", true)){
       // We need to use this function, 'load' events do not seem to be firing...
       this.enabled = true;
+      this.CliqzSecureMessage = CliqzSecureMessage;
       CliqzSecureMessage.init();
     }
   },
