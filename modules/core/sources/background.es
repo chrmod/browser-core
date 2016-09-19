@@ -124,7 +124,7 @@ export default {
   getWindowStatusFromModules(win){
     return config.modules.map((moduleName) => {
       var module = win.CLIQZ.Core.windowModules[moduleName];
-      return module.status ? module.status() : {}
+      return module && module.status ? module.status() : {}
     })
   },
 

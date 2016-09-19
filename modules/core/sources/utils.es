@@ -139,9 +139,13 @@ var CliqzUtils = {
   },
 
   callWindowAction(win, moduleName, actionName, args) {
-    var module = win.CLIQZ.Core.windowModules[moduleName];
-    var action = module.actions[actionName];
-    return action.apply(null, args);
+    try {
+      var module = win.CLIQZ.Core.windowModules[moduleName];
+      var action = module.actions[actionName];
+      return action.apply(null, args);
+    } catch (e){
+      CliqzUtils.log('Failed to call "' + actionName +'" on "' + moduleName + '"', "callWindowAction failed");
+    }
   },
 
   isNumber: function(n){

@@ -3,9 +3,11 @@ import { simpleBtn } from 'q-button/buttons';
 import { utils } from 'core/cliqz';
 import CLIQZEnvironment from "platform/environment";
 import CliqzResultProviders from "autocomplete/result-providers";
+import background from 'q-button/background';
 
 const BTN_ID = 'cliqz-button',
       firstRunPref = 'firstStartDone',
+      CC_ENABLE_PREF = 'controlCenter',
       TRIQZ_URL = 'https://cliqz.com/home/cliqz-triqz',
       TOUR_URL = 'chrome://cliqz/content/onboarding/onboarding.html',
       dontHideSearchBar = 'dontHideSearchBar';
@@ -20,7 +22,12 @@ export default class {
   }
 
   init() {
-    this.addQbutton();
+    // if Control center is enabled Q button is disabled
+    if(background.buttonEnabled){
+      this.addQbutton();
+    }
+
+    // TODO: handle this help menu once ControlCenter goes 100%
     this.updateFFHelpMenu();
   }
 
@@ -43,10 +50,12 @@ export default class {
   }
 
   unload() {
-    // remove Q menu
-    var btn = this.window.document.getElementById(BTN_ID);
-    if (btn) {
-      btn.parentNode.removeChild(btn);
+    if(background.buttonEnabled){
+      // remove Q menu
+      var btn = this.window.document.getElementById(BTN_ID);
+      if (btn) {
+        btn.parentNode.removeChild(btn);
+      }
     }
 
     //remove custom items from the Help Menu

@@ -1,8 +1,9 @@
 import { utils } from 'core/cliqz';
 
 export default {
-  init(settings) {
-
+  init() {
+    // if Control center is enabled Q button is disabled
+    this.buttonEnabled = utils.getPref('controlCenter', false) == true;
   },
 
   unload() {
@@ -31,4 +32,4 @@ export default {
        utils.getWindow().document.querySelector('#cliqz-control-center-badge').setAttribute('state', state);
     }
   }
-}
+};

@@ -37,6 +37,7 @@ RUN apt-get update \
         libxrender1 \
         libxt6 \
         lsb-release \
+        openbox \
         unzip \
         wget \
         x11vnc \

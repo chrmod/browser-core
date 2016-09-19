@@ -1,6 +1,7 @@
 import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
+import background from 'control-center/background';
 
 function toPx(pixels) {
   return pixels.toString() + 'px';
@@ -15,6 +16,10 @@ const BTN_ID = 'cliqz-cc-btn',
 
 export default class {
   constructor(config) {
+    if(!background.buttonEnabled){
+      return;
+    }
+
     this.window = config.window;
     this.actions = {
       setBadge: this.setBadge.bind(this),
@@ -33,12 +38,16 @@ export default class {
   }
 
   init() {
-    this.addCCbutton();
-    CliqzEvents.sub("core.location_change", this.actions.refreshState);
+    if(background.buttonEnabled){
+      this.addCCbutton();
+      CliqzEvents.sub("core.location_change", this.actions.refreshState);
+    }
   }
 
   unload() {
-    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    if(background.buttonEnabled){
+      CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    }
   }
 
   refreshState() {
@@ -119,6 +128,10 @@ export default class {
   }
 
   updateState(state){
+    if(!background.buttonEnabled){
+      return;
+    }
+
     // set the state of the current window
     this.setState(state);
 
@@ -184,8 +197,8 @@ export default class {
         break;
       default:
         var tab = utils.openLink(this.window, data.url, true),
-            panel = utils.getWindow().document.querySelector("panel[viewId=" + BTN_ID + "]");
-        panel.hidePopup();
+            panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
+        if(data.closePopup == true) panel.hidePopup();
         this.window.gBrowser.selectedTab = tab;
     }
 
@@ -228,8 +241,9 @@ export default class {
           module: moduleData,
           generalState: generalState,
           feedbackURL: utils.FEEDBACK_URL,
-          onboarding: false
-        };
+          onboarding: false,
+          debug: utils.getPref('showConsoleLogs', false)
+        }
     });
   }
 
