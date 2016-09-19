@@ -88,6 +88,13 @@ function step2() {
 function step3() {
   window.postMessage(JSON.stringify({
     target: 'cliqz',
+    module: 'core',
+    action: 'removeClassFromWindow',
+    args: ['cqz-step1', 'cqz-step2']
+  }), '*');
+
+  window.postMessage(JSON.stringify({
+    target: 'cliqz',
     module: 'control-center',
     action: 'setBadge',
     args: [0]

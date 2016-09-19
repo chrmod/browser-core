@@ -182,6 +182,14 @@ export default {
       args.forEach(function(aClass) {
         mainWindow.classList.add(aClass);
       });
+    },
+
+    removeClassFromWindow() {
+      var args = [].slice.call(arguments);
+      var mainWindow = utils.getWindow().document.getElementById('main-window');
+      args.forEach(function(aClass) {
+        mainWindow.classList.remove(aClass);
+      });
     }
   }
 };
