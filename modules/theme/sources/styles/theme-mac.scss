@@ -524,6 +524,8 @@ toolbarbutton#cliqz-cc-btn {
     padding: 0 0px;
     border-left: 1px solid transparent;
     transition: none !important;
+    border-right: 1px solid transparent;
+
 
     &:hover {
         border-color: #dfdfdf;
