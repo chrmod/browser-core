@@ -33,7 +33,8 @@ export default class {
       "antitracking-activator": this.antitrackingActivator.bind(this),
       "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": this.antitrackingStrict.bind(this),
-      "sendTelemetry": this.sendTelemetry.bind(this)
+      "sendTelemetry": this.sendTelemetry.bind(this),
+      "enableSearch": this.enableSearch.bind(this)
     }
   }
 
@@ -241,6 +242,7 @@ export default class {
           module: moduleData,
           generalState: generalState,
           feedbackURL: utils.FEEDBACK_URL,
+          searchDisabled: utils.getPref('cliqz_core_disabled', false),
           debug: utils.getPref('showConsoleLogs', false)
         });
     });
@@ -371,5 +373,11 @@ export default class {
       action: 'click',
       state: data.state
     });
+  }
+
+  enableSearch() {
+    CLIQZEnvironment.enableCliqzResults(this.window.document.getElementById('urlbar'));
+    let panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
+    panel.hidePopup();
   }
 }

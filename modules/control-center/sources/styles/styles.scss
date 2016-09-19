@@ -481,6 +481,14 @@ html {
                         position: relative;
                         top: 3px;
                     }
+
+                    &:hover {
+                        color: black;
+
+                        .support-icon #icon {
+                            fill: black;
+                        }
+                    }
                 }
             }
         }
@@ -521,6 +529,29 @@ html {
             transform: rotate(90deg);
         }
     }
+
+    &[data-disabled="true"] {
+        color: #a4a4a4;
+        .arrow {
+            fill: #a4a4a4;
+        }
+    }
+
+    .enable-search {
+        color: #252525;
+        font-size: 14px;
+        float: right;
+        padding-right: 5px;
+        background-image: url("../images/refresh-grey.svg");
+        background-repeat: no-repeat;
+        background-position: left center;
+        padding-left: 20px;
+    }
+
+    .enable-search:hover {
+         background-image: url("../images/refresh-black.svg");
+         color: #1C9C6B;
+     }
 }
 
 .accordion-section-title {

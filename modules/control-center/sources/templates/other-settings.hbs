@@ -28,14 +28,19 @@
   <div class="accordion-section">
     <a class="accordion-section-title"
        href="#accordion-1"
-       data-target="quicksearch">
+       data-target="quicksearch"
+       data-disabled="{{searchDisabled}}">
       <svg id="arrow" width="13px" height="13px" viewBox="1017 657 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs></defs>
-        <polygon id="Rectangle-546-Copy-11" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
+        <polygon class="arrow" stroke="none" fill="#838383" fill-rule="evenodd" transform="translate(1023.344411, 663.208565) rotate(45.000000) translate(-1023.344411, -663.208565) " points="1018.95691 660.49484 1027.73191 658.821065 1026.05814 667.596065"></polygon>
       </svg>
       <span data-i18n="control-center-quicksearch"></span>
+      {{#if searchDisabled}}
+      <span class="enable-search" data-i18n="control-center-enable-search"></span>
+      {{/if}}
     </a>
     <div id="accordion-1" class="accordion-section-content">
+      {{#unless searchDisabled }}
       <span class="bullet">
         <span data-i18n="control-center-location"></span>
         <select class="ask-dropdown"
@@ -91,6 +96,7 @@
         </span>
       </span>
     </div>
+    {{/unless}}
   </div>
   <div class="accordion-section">
     <a class="accordion-section-title"
@@ -136,15 +142,17 @@
           </span>
         </span>
       {{/if }}
-      <span class="bullet"
-            openUrl="https://cliqz.com/home/cliqz-triqz"
-            data-target="search_tips">
-        <span data-i18n="control-center-best-cliqz"></span>
-        <svg class="bulletarrow" width="9px" height="12px" viewBox="175 40 9 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-          <defs></defs>
-          <polyline id="Path-164-Copy-140" stroke="#7D7D7D" stroke-width="1.5999999" fill="none" opacity="0.554279384" points="176 41 181.896928 46.9067547 176.230646 52.5824794"></polyline>
-        </svg>
-      </span>
+      {{#unless searchDisabled }}
+          <span class="bullet"
+                openUrl="https://cliqz.com/home/cliqz-triqz"
+                data-target="search_tips">
+            <span data-i18n="control-center-best-cliqz"></span>
+            <svg class="bulletarrow" width="9px" height="12px" viewBox="175 40 9 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <defs></defs>
+              <polyline id="Path-164-Copy-140" stroke="#7D7D7D" stroke-width="1.5999999" fill="none" opacity="0.554279384" points="176 41 181.896928 46.9067547 176.230646 52.5824794"></polyline>
+            </svg>
+          </span>
+      {{/unless}}
       {{#if module.privacy-dashboard.visible }}
         <span class="bullet"
               openUrl="about:transparency"
