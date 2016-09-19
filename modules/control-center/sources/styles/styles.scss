@@ -194,8 +194,6 @@ html {
         }
 
         .dropdown-scope {
-            float: right;
-            margin-right: 25px;
             padding: 2px 18px 2px 0;
             border: 0.5px solid #ccc;
             border-radius: 5px;
@@ -205,7 +203,8 @@ html {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            margin-top: -1px;
+            margin: -1px 0 0 7px;
+            position: absolute;
             * {
                 color: #000;
             }
