@@ -13,13 +13,14 @@
 
         #nav-bar > *:not(panel),
         #urlbar-container {
-            opacity: 0;
+            visibility: hidden;
+
         }
     }
 
     &.cqz-step2 {
         #nav-bar #nav-bar-customization-target {
-            opacity: 1;
+            visibility: visible;
 
             & > :not(#cliqz-cc-btn):not(#urlbar-container) {
                 display: none;
