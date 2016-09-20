@@ -33,7 +33,8 @@ export default class {
       "antitracking-activator": this.antitrackingActivator.bind(this),
       "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": this.antitrackingStrict.bind(this),
-      "sendTelemetry": this.sendTelemetry.bind(this)
+      "sendTelemetry": this.sendTelemetry.bind(this),
+      "openPopUp": this.openPopUp.bind(this)
     }
   }
 
@@ -77,11 +78,6 @@ export default class {
   }
 
   antitrackingActivator(data){
-    // if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
-    //   utils.log("!!mock onboarding");
-    //   return;
-    // }
-    // utils.log(data, "!!updatePref from onboarding");
 
     events.pub("control-center:antitracking-activator", data);
     var state;
@@ -100,11 +96,6 @@ export default class {
   }
 
   adbActivator(data){
-    // if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
-    //   utils.log("!!mock onboarding");
-    //   return;
-    // }
-    // utils.log(data, "!!updatePref from onboarding")
 
     events.pub("control-center:adb-activator", data);
     var state;
@@ -160,11 +151,6 @@ export default class {
   }
 
   updatePref(data){
-    // if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
-    //   utils.log("!!mock onboarding");
-    //   return;
-    // }
-    // utils.log(data, "!!updatePref from onboarding")
 
     // NASTY!
     if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
@@ -274,16 +260,6 @@ export default class {
   attachMessageHandlers(iframe){
 
     this.iframe = iframe;
-    // if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
-    //   var panel = utils.getWindow().document.getElementById('cliqz-cc-btn-panel');
-    //   var currIframe = panel.getElementsByTagName('iframe')[0];
-    //   var cc = iframe.contentDocument.getElementById('control-center');
-    //   utils.log(cc.classList, "!!iframe")
-    //   cc.classList.add('onboarding')
-    //   // var panelView = utils.getWindow().document.getElementById("cliqz-cc-btn-panel");
-    //   // utils.log(utils.getWindow().document.getElementById('cliqz-cc-btn'), "!!cc")
-    //   //this.iframe.contentDocument.classList.add('onboarding');
-    // }
     this.iframe.contentWindow.addEventListener('message', this.decodeMessagesFromPopup.bind(this))
   }
 
@@ -429,5 +405,14 @@ export default class {
       action: 'click',
       state: data.state
     });
+  }
+
+  openPopUp() {
+    this.window.document.querySelector('toolbarbutton#' + BTN_ID).click();
+    //keep control-center popup open for 1,5sec to prevent user closing it immediately
+    utils.setPref("ui.popup.disable_autohide", true, '');
+    setTimeout(function() {
+      utils.setPref("ui.popup.disable_autohide", false, '');
+    }, 1500);
   }
 }

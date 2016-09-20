@@ -52,12 +52,6 @@ function step1() {
 // =================
 
 function step2() {
-  window.postMessage(JSON.stringify({
-    target: 'cliqz',
-    module: 'core',
-    action: 'addClassToWindow',
-    args: ['cqz-step2']
-  }), '*');
 
   $("body").addClass("cqb-step2");
   $('#cqb-atr-on').tooltipster('close');
@@ -72,30 +66,12 @@ function step2() {
      $('#cqb-search-btn').tooltipster('open');
   }, 5000);
 
+  //Open control center
   window.postMessage(JSON.stringify({
     target: 'cliqz',
     module: 'onboarding-v2',
-    action: 'moveToStep',
-    args: [2]
-  }), '*')
-
-  // Open PRIVACY CENTER
-  setTimeout(function () {
-    window.postMessage(JSON.stringify({
-      target: 'cliqz',
-      module: 'control-center',
-      action: 'openPopUp',
-    }), '*')
-  }, 400);
-
-  setTimeout(function() {
-    window.postMessage(JSON.stringify({
-      target: 'cliqz',
-      module: 'control-center',
-      action: 'setBadge',
-      args: [17]
-      }), '*')
-  }, 1000);
+    action: 'step2'
+  }), '*');
 }
 
 
@@ -104,42 +80,15 @@ function step2() {
 // =================
 
 function step3() {
-  window.postMessage(JSON.stringify({
-    target: 'cliqz',
-    module: 'core',
-    action: 'removeClassFromWindow',
-    args: ['cqz-step1', 'cqz-step2']
-  }), '*');
 
   window.postMessage(JSON.stringify({
     target: 'cliqz',
-    module: 'control-center',
-    action: 'setBadge',
-    args: [0]
-  }), '*');
-
-  window.postMessage(JSON.stringify({
-    target: 'cliqz',
-    module: 'control-center',
-    action: 'updateState',
-    args: ['active']
+    module: 'onboarding-v2',
+    action: 'step3',
   }), '*');
 
   $("body").addClass("cqb-step3");
   $('#cqb-search-btn').tooltipster('close');
-
-  window.postMessage(JSON.stringify({
-    target: 'cliqz',
-    module: 'onboarding-v2',
-    action: 'moveToStep',
-    args: [3]
-  }), '*');
-
-  window.postMessage(JSON.stringify({
-    target: 'cliqz',
-    module: 'onboarding-v2',
-    action: 'focusUrlbar',
-  }), '*');
 
   setTimeout(function () {
     $('.cqb-search-tooltip').tooltipster('open');
@@ -192,10 +141,9 @@ function autoQuery(val) {
 
 window.postMessage(JSON.stringify({
   target: 'cliqz',
-  module: 'core',
-  action: 'addClassToWindow',
-  args: ['cqz-onboarding', 'cqz-step1']
-}), '*')
+  module: 'onboarding-v2',
+  action: 'step1'
+}), '*');
 
 $(document).ready(function () {
 
