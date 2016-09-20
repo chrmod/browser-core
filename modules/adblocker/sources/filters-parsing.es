@@ -423,6 +423,7 @@ export default function parseList(list) {
   try {
     const networkFilters = [];
     const cosmeticFilters = [];
+
     list.forEach(line => {
       if (line) {
         const filter = parseLine(line.trim());
@@ -436,6 +437,7 @@ export default function parseList(list) {
         }
       }
     });
+
     return {
       networkFilters,
       cosmeticFilters,
@@ -445,6 +447,7 @@ export default function parseList(list) {
     return null;
   }
 }
+
 
 export function parseJSResource(lines) {
   let state = 'end';

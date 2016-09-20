@@ -18,10 +18,24 @@ const BASE_URL = 'https://cdn.cliqz.com/adblocking/latest-filters/';
 
 const LANGS = CliqzLanguage.state();
 
+
+function stripProtocol(url) {
+  let result = url;
+  ['http://', 'https://'].forEach(prefix => {
+    if (result.startsWith(prefix)) {
+      result = result.substring(prefix.length);
+    }
+  });
+
+  return result;
+}
+
+
 class Checksums extends UpdateCallbackHandler {
   constructor() {
     super();
 
+    this.remoteURL = 'https://cdn.cliqz.com/adblocking/allowed-lists.json';
     this.loader = new ResourceLoader(
       RESOURCES_PATH.concat('checksums'),
       {
@@ -39,39 +53,19 @@ class Checksums extends UpdateCallbackHandler {
 
   // Private API
 
-  get remoteURL() {
-    // The URL should contain a timestamp to avoid caching
-    return 'https://cdn.cliqz.com/adblocking/allowed-lists.json';
-  }
-
   updateChecksums(data) {
-    // Update the URL as it must include the timestamp to avoid caching
-    // NOTE: This mustn't be removed as it would break the update.
-    this.loader.resource.remoteURL = this.remoteURL;
-
     // Parse checksums
     Object.keys(data).forEach(list => {
       Object.keys(data[list]).forEach(asset => {
         const checksum = data[list][asset].checksum;
         let lang = null;
-        if (list === 'country_lists'){
+        if (list === 'country_lists') {
           lang = data[list][asset].language;
         }
 
-        let assetName = asset;
+        const assetName = stripProtocol(asset);
 
-        // Strip prefix
-        ['http://', 'https://'].forEach(prefix => {
-          if (assetName.startsWith(prefix)) {
-            assetName = assetName.substring(prefix.length);
-          }
-        });
-
-        // Trigger callback even if checksum is the same since
-        // it wouldn't work for filter-lists.json file which could
-        // have the same checksum but lists could be expired.
-        // FiltersList class has then to check the checksum before update.
-        if (lang === null || LANGS.indexOf(lang) > -1){
+        if (lang === null || LANGS.indexOf(lang) > -1) {
           this.triggerCallbacks({
             checksum,
             asset,
@@ -85,21 +79,12 @@ class Checksums extends UpdateCallbackHandler {
 }
 
 
-// TODO: Download the file everytime, but we should find a way to use the checksum
-// Or, since some lists use an expiration date, we could store a timestamp instead of checksum
 class FiltersList extends UpdateCallbackHandler {
   constructor(checksum, asset, remoteURL) {
     super();
     this.checksum = checksum;
 
-    let assetName = asset;
-
-    // Strip prefix
-    ['http://', 'https://'].forEach(prefix => {
-      if (assetName.startsWith(prefix)) {
-        assetName = assetName.substring(prefix.length);
-      }
-    });
+    const assetName = stripProtocol(asset);
 
     this.resource = new Resource(
       RESOURCES_PATH.concat(assetName.split('/')),

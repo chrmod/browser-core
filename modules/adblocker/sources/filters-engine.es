@@ -399,6 +399,10 @@ class CosmeticBucket {
     }
   }
 
+  get length() {
+    return this.size;
+  }
+
   push(filter) {
     ++this.size;
     const inserted = this.index.set(filter.selector, filter);
@@ -584,6 +588,7 @@ export default class {
     const parsed = parseList(newFilters);
 
     parsed.networkFilters.forEach(filter => {
+      log(`ADD TO ENGINE ${filter}`);
       if (filter.isException) {
         exceptions.push(filter);
       } else if (filter.isImportant) {
@@ -599,7 +604,7 @@ export default class {
 
     if (!this.lists.has(asset)) {
       log(`FILTER ENGINE ${asset} UPDATE`);
-      // Update data structures
+      // If this is the first time we add this list => update data structures
       this.size += filters.length + exceptions.length + importants.length + cosmetics.length;
       filters.forEach(this.filters.push.bind(this.filters));
       exceptions.forEach(this.exceptions.push.bind(this.exceptions));
@@ -609,7 +614,7 @@ export default class {
       this.lists.set(asset, { filters, exceptions, importants, cosmetics });
     } else {
       log(`FILTER ENGINE ${asset} REBUILD`);
-      // Rebuild everything
+      // Rebuild everything since this is an update for an existing list
       for (const list of this.lists.values()) {
         list.filters.forEach(filters.push.bind(filters));
         list.exceptions.forEach(exceptions.push.bind(exceptions));
@@ -626,7 +631,8 @@ export default class {
 
     log(`Filter engine updated with ${filters.length} filters, ` +
         `${exceptions.length} exceptions, ` +
-        `${importants.length} importants and ${cosmetics.length} cosmetic filters\n`);
+        `${importants.length} importants and ` +
+        `${cosmetics.length} cosmetic filters`);
   }
 
   getCosmeticsFilters(url, nodes) {
