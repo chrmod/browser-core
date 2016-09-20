@@ -413,19 +413,70 @@ class CosmeticBucket {
     }
   }
 
-  getMatchingRules(nodeInfo) {
+  /**
+   * Return element hiding rules and exception rules
+   * @param {string} hostname - domain of the page.
+   * @param {Array} nodeInfo - Array of tuples [id, tagName, className].
+  **/
+  getMatchingRules(hostname, nodeInfo) {
     const rules = [...this.miscFilters];
+    const uniqIds = new Set();
 
     nodeInfo.forEach(node => {
       // [id, tagName, className] = node
       node.forEach(token => {
         this.index.getFromKey(token).forEach(bucket => {
-          bucket.forEach(rule => { rules.push(rule); });
+          bucket.forEach(rule => {
+            if (!uniqIds.has(rule.id)) {
+              rules.push(rule);
+              uniqIds.add(rule.id);
+            }
+          });
         });
       });
     });
 
-    return rules;
+    const matchingRules = {};
+    function addRule(rule, matchingHost, exception) {
+      if (rule.selector in matchingRules) {
+        const oldMatchingHost = matchingRules[rule.selector].matchingHost;
+        if (matchingHost.length > oldMatchingHost.length) {
+          matchingRules[rule.selector] = {
+            rule,
+            exception,
+            matchingHost,
+          };
+        }
+      } else {
+        matchingRules[rule.selector] = {
+          rule,
+          exception,
+          matchingHost,
+        };
+      }
+    }
+
+    // filter by hostname
+    if (hostname !== '') {
+      rules.forEach(rule => {
+        rule.hostnames.forEach(h => {
+          let exception = false;
+          if (h.startsWith('~')) {
+            exception = true;
+            h = h.substr(1);
+          }
+          if (hostname === h || hostname.endsWith(`.${h}`)) {
+            addRule(rule, h, exception);
+          }
+        });
+      });
+    } else {  // miscFilters
+      rules.forEach(rule => {
+        addRule(rule, '', false);
+      });
+    }
+
+    return matchingRules;
   }
 }
 
@@ -465,29 +516,34 @@ class CosmeticEngine {
   **/
   getMatchingRules(url, nodeInfo) {
     const uniqIds = new Set();
+    const miscRules = {};
     const rules = [];
-    const hostname = URLInfo.get(url).hostname;
+    let hostname = URLInfo.get(url).hostname;
+    if (hostname.startsWith('www.')) {
+      hostname = hostname.substr(4);
+    }
     log(`getMatchingRules ${url} => ${hostname} (${JSON.stringify(nodeInfo)})`);
 
     // Check misc bucket
-    this.miscFilters.getMatchingRules(nodeInfo).forEach(rule => {
-      if (!uniqIds.has(rule.id)) {
-        log(`Found rule ${JSON.stringify(rule)}`);
-        uniqIds.add(rule.id);
-        rules.push(rule);
-      }
-    });
+    const miscMatchingRules = this.miscFilters.getMatchingRules('', nodeInfo);
 
     // Check hostname buckets
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
       log(`Found bucket ${bucket.size}`);
-      bucket.getMatchingRules(nodeInfo).forEach(rule => {
-        if (!rule.scriptInject && !uniqIds.has(rule.id)) {
-          log(`Found rule ${JSON.stringify(rule)}`);
-          uniqIds.add(rule.id);
-          rules.push(rule);
+      const matchingRules = bucket.getMatchingRules(hostname, nodeInfo);
+      Object.keys(matchingRules).forEach(selector => {
+        const r = matchingRules[selector];
+        if (!r.exception && !uniqIds.has(r.rule.id)) {
+          rules.push(r.rule);
+          uniqIds.add(r.rule.id);
+        } else if (selector in miscRules) {  // handle exception rules
+          delete miscMatchingRules[selector];
         }
       });
+    });
+
+    Object.keys(miscMatchingRules).forEach(selector => {
+      rules.push(miscMatchingRules[selector].rule);
     });
 
     log(`COSMETICS found ${rules.length} potential rules for ${url}`);

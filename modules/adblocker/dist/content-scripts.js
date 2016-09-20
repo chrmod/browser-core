@@ -147,8 +147,12 @@ function handleRules(rules, window) {
     if (rule in injectedRules) {
       continue;
     } else {
-      let find = window.document.querySelectorAll(rule);
-      if (!find.length) {
+      try {
+        let find = window.document.querySelectorAll(rule);
+        if (!find.length) {
+          continue;
+        }
+      } catch(e) {  // invalid selector
         continue;
       }
       injectedRules[rule] = true;
