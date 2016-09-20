@@ -33,12 +33,17 @@ export default class {
       "antitracking-activator": this.antitrackingActivator.bind(this),
       "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": this.antitrackingStrict.bind(this),
-      "sendTelemetry": this.sendTelemetry.bind(this)
+      "sendTelemetry": this.sendTelemetry.bind(this),
+      "enableSearch": this.enableSearch.bind(this)
     }
   }
 
   init() {
     if(background.buttonEnabled){
+      // stylesheet for control center button
+      this.window.CLIQZ.Core.addCSS(this.window.document,
+        'chrome://cliqz/content/control-center/styles/xul.css');
+
       this.addCCbutton();
       CliqzEvents.sub("core.location_change", this.actions.refreshState);
     }
@@ -47,6 +52,8 @@ export default class {
   unload() {
     if(background.buttonEnabled){
       CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+      this.panel.parentElement.removeChild(this.panel);
+      this.button.parentElement.removeChild(this.button);
     }
   }
 
@@ -173,7 +180,12 @@ export default class {
   openURL(data){
     switch(data.url) {
       case 'history':
-        this.window.PlacesCommandHook.showPlacesOrganizer('History');
+        //use firefox command to ensure compatibility
+        this.window.document.getElementById("Browser:ShowAllHistory").click();
+        break;
+      case 'forget_history':
+        //use firefox command to ensure compatibility
+        this.window.document.getElementById("Tools:Sanitize").click();
         break;
       default:
         var tab = utils.openLink(this.window, data.url, true),
@@ -195,7 +207,10 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
-      var generalState = 'active';
+      var url = this.window.gBrowser.currentURI.spec,
+          friendlyURL = url,
+          generalState = 'active';
+
       if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
         generalState = 'inactive';
       }
@@ -216,11 +231,18 @@ export default class {
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
+      try {
+        // try to clean the url
+        friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+      } catch (e) {}
+
       cb({
-          activeURL: this.window.gBrowser.currentURI.spec,
+          activeURL: url,
+          friendlyURL: friendlyURL,
           module: moduleData,
           generalState: generalState,
           feedbackURL: utils.FEEDBACK_URL,
+          searchDisabled: utils.getPref('cliqz_core_disabled', false),
           debug: utils.getPref('showConsoleLogs', false)
         });
     });
@@ -273,14 +295,14 @@ export default class {
     button.setAttribute('id', BTN_ID);
     button.setAttribute('label', TOOLTIP_LABEL);
     button.setAttribute('tooltiptext', TOOLTIP_LABEL);
+    button.classList.add('toolbarbutton-1')
+    button.classList.add('chromeclass-toolbar-additional')
 
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
     div.setAttribute('class','cliqz-control-center')
     button.appendChild(div);
     div.textContent = BTN_LABEL;
-
-    this.badge = div;
 
     var panel = doc.createElement('panelview');
     panel.setAttribute('id', PANEL_ID);
@@ -332,32 +354,11 @@ export default class {
       );
     }, false);
 
-    // we need more than default max-width
-    var style = `
-      #${PANEL_ID},
-      #${PANEL_ID} > iframe,
-      #${PANEL_ID} > panel-subview-body {
-        overflow: hidden !important;
-      }
-
-      panelmultiview[mainViewId="${PANEL_ID}"] > .panel-viewcontainer >
-        .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
-      panel[viewId="${PANEL_ID}"] .panel-mainview {
-        max-width: 50em !important;
-      }
-    `;
-
-    var styleURI = Services.io.newURI(
-        'data:text/css,' + encodeURIComponent(style),
-        null,
-        null
-    );
-
-    doc.defaultView.QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIDOMWindowUtils)
-      .loadSheet(styleURI, 1);
-
     ToolbarButtonManager.restorePosition(doc, button);
+
+    this.badge = div;
+    this.panel = panel;
+    this.button = button;
   }
 
   resizePopup({ width, height }) {
@@ -372,5 +373,11 @@ export default class {
       action: 'click',
       state: data.state
     });
+  }
+
+  enableSearch() {
+    CLIQZEnvironment.enableCliqzResults(this.window.document.getElementById('urlbar'));
+    let panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
+    panel.hidePopup();
   }
 }

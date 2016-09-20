@@ -265,6 +265,10 @@ function draw(data){
   }
 
   $('.accordion-section-title').click(function(e) {
+    if($(this).attr('data-disabled') == 'true') {
+      return;
+    }
+
     e.preventDefault();
     var currentAttrValue = $(this).attr('href'),
         state;
@@ -286,6 +290,12 @@ function draw(data){
         state: state,
         action: 'click'
       }
+    });
+  });
+
+  $('.enable-search').click(function(e) {
+     sendMessageToWindow({
+      action: 'enableSearch'
     });
   });
 

@@ -10,7 +10,12 @@ const BTN_ID = 'cliqz-button',
       CC_ENABLE_PREF = 'controlCenter',
       TRIQZ_URL = 'https://cliqz.com/home/cliqz-triqz',
       TOUR_URL = 'chrome://cliqz/content/onboarding/onboarding.html',
-      dontHideSearchBar = 'dontHideSearchBar';
+      SEARCH_BAR_ID = 'search-container'
+      dontHideSearchBar = 'dontHideSearchBar',
+      //toolbar
+      searchBarPosition = 'defaultSearchBarPosition',
+      //next element in the toolbar
+      searchBarPositionNext = 'defaultSearchBarPositionNext';
 
 export default class {
 
@@ -29,6 +34,20 @@ export default class {
 
     // TODO: handle this help menu once ControlCenter goes 100%
     this.updateFFHelpMenu();
+    if (!utils.getPref(dontHideSearchBar, false)) {
+      //try to hide quick search
+      try{
+          var doc = this.window.document;
+          var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+          if(toolbarID){
+              utils.setPref(searchBarPosition, toolbarID);
+          }
+          if(nextEl){
+              utils.setPref(searchBarPositionNext, nextEl);
+          }
+          utils.setPref(dontHideSearchBar, true);
+      } catch(e){}
+    }
   }
 
   updateFFHelpMenu() {
@@ -74,20 +93,6 @@ export default class {
         utils.setPref(firstRunPref, true);
 
         ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
-    }
-
-    if (!utils.getPref(dontHideSearchBar, false)) {
-        //try to hide quick search
-        try{
-            var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
-            if(toolbarID){
-                utils.setPref(searchBarPosition, toolbarID);
-            }
-            if(nextEl){
-                utils.setPref(searchBarPositionNext, nextEl);
-            }
-            utils.setPref(dontHideSearchBar, true);
-        } catch(e){}
     }
 
     // cliqz button
