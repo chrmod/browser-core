@@ -30,18 +30,26 @@ window.addEventListener("message", function (ev) {
   }
 });
 
+// =================
+// ====== STEP 1 ===
+// =================
+
 function step1() {
   //=== STEP 1 Tooltip Trigger
   setTimeout(function () {
     $('#cqb-atr-on').tooltipster('open');
   }, 1000);
 
-  // //==== Step 1 Click
+  //==== Step 1 Click
   $("#cqb-atr-on").click(function (e) {
     e.stopPropagation();
     step2();
   });
 }
+
+// =================
+// ====== STEP 2 ===
+// =================
 
 function step2() {
   window.postMessage(JSON.stringify({
@@ -54,10 +62,15 @@ function step2() {
   $("body").addClass("cqb-step2");
   $('#cqb-atr-on').tooltipster('close');
 
+  // Show search btn
+  setTimeout(function () {
+     $('#cqb-search-btn').css('opacity', '1');
+  }, 2500);
+
   // Open Tool Tip
   setTimeout(function () {
      $('#cqb-search-btn').tooltipster('open');
-  }, 4000);
+  }, 5000);
 
   window.postMessage(JSON.stringify({
     target: 'cliqz',
@@ -84,6 +97,11 @@ function step2() {
       }), '*')
   }, 1000);
 }
+
+
+// =================
+// ====== STEP 3 ===
+// =================
 
 function step3() {
   window.postMessage(JSON.stringify({
@@ -144,20 +162,20 @@ function step3() {
 function autoQuery(val) {
 
   //Go to freshtab
-  //CALLBACKS['queryCliqz'] = function () {
-    // setTimeout(function() {
-    //   $('body').css('background', '#f7f7f7');
-    //   setTimeout(function() {
-    //     window.postMessage(JSON.stringify({
-    //         target: 'cliqz',
-    //         module: 'core',
-    //         action: 'closePopup',
-    //         args: [val]
-    //     }), "*");
-    //     window.location.href = "about:cliqz";
-    //   }, 600);
-    // }, 4000);
-  //};
+  CALLBACKS['queryCliqz'] = function () {
+    setTimeout(function() {
+      $('body').css('background', '#f7f7f7');
+      setTimeout(function() {
+        window.postMessage(JSON.stringify({
+            target: 'cliqz',
+            module: 'core',
+            action: 'closePopup',
+            args: [val]
+        }), "*");
+        window.location.href = "about:cliqz";
+      }, 600);
+    }, 30000);
+  };
   window.postMessage(JSON.stringify({
     target: 'cliqz',
     module: 'core',
@@ -177,19 +195,23 @@ $(document).ready(function () {
 
   localizeDocument();
 
+  $('#cqb-atr-on').tooltipster({
+    theme: 'tooltipster-light',
+    side: "right",
+    maxWidth: 250,
+    trigger: 'custom',
+    animation: 'grow',
+    animationDuration: 250,
+  });
+
   $('.cqb-search-tooltip').tooltipster({
     theme: 'tooltipster-light',
     side: "bottom",
     maxWidth: 250,
     interactive: true,
     trigger: 'custom',
-  });
-
-  $('#cqb-atr-on').tooltipster({
-    theme: 'tooltipster-light',
-    side: "right",
-    maxWidth: 250,
-    trigger: 'custom',
+    animation: 'grow',
+    animationDuration: 250,
   });
 
   $('#cqb-search-btn').tooltipster({
@@ -198,6 +220,8 @@ $(document).ready(function () {
     maxWidth: 250,
     interactive: true,
     trigger: 'custom',
+    animation: 'grow',
+    animationDuration: 250,
   });
 
   step1();

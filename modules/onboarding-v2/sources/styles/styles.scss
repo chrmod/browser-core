@@ -53,7 +53,7 @@ ul.cqb-steps {
         //&:nth-child(3) { background: blue; }
 
         .cqb-logo {
-            margin: 3% 0 30px 0;
+            margin: 7% 0 30px 0;
         }
 
         h1 {
@@ -162,4 +162,22 @@ body.cqb-step3 {
     font-size: 16px;
     line-height: 1.4em;
     color: #4f4f4f;
+}
+
+.hidden {
+    display: none;
+}
+
+.search-link {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 5px 0;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #2D3E50;
+    background: #aeedef;
+
+    &:hover {
+        background: #71d8dd;
+    }
 }
