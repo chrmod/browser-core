@@ -30,13 +30,13 @@ window.addEventListener("message", function (ev) {
   }
 });
 
+var openTooltip1, openTooltip2;
 // =================
 // ====== STEP 1 ===
 // =================
-
 function step1() {
   //=== STEP 1 Tooltip Trigger
-  setTimeout(function () {
+  openTooltip1 = setTimeout(function () {
     $('#cqb-atr-on').tooltipster('open');
   }, 1000);
 
@@ -52,6 +52,8 @@ function step1() {
 // =================
 
 function step2() {
+  clearTimeout(openTooltip1);
+
   window.postMessage(JSON.stringify({
     target: 'cliqz',
     module: 'core',
@@ -68,7 +70,7 @@ function step2() {
   }, 2500);
 
   // Open Tool Tip
-  setTimeout(function () {
+  openTooltip2 = setTimeout(function () {
      $('#cqb-search-btn').tooltipster('open');
   }, 5000);
 
@@ -104,6 +106,8 @@ function step2() {
 // =================
 
 function step3() {
+  clearTimeout(openTooltip2);
+
   window.postMessage(JSON.stringify({
     target: 'cliqz',
     module: 'core',
