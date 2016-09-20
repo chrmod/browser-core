@@ -689,7 +689,7 @@ function navigateToEZinput(element){
     var provider_name = element.getAttribute("search-provider"),
         search_url = element.getAttribute("search-url"),
         value = element.value,
-        search_engine = CLIQZEnvironment.getEngineByName(provider_name),
+        search_engine = CliqzUtils.getEngineByName(provider_name),
         dest_url = search_url + value;
 
     if (search_engine) {
@@ -1906,7 +1906,7 @@ function enginesClick(ev){
         engineName = getResultOrChildAttr(el, 'engine');
 
     if(engineName){
-        var engine = CLIQZEnvironment.getEngineByName(engineName);
+        var engine = CliqzUtils.getEngineByName(engineName);
         if(engine){
             var userInput = urlbar.value;
 
@@ -1928,7 +1928,7 @@ function enginesClick(ev){
                 CliqzUtils.openLink(window, url, true);
                 action.new_tab = true;
             } else {
-                CLIQZEnvironment.openLink(window, url);
+                CliqzUtils.openLink(window, url);
                 CLIQZ.Core.popup.closePopup();
                 action.new_tab = false;
             }
