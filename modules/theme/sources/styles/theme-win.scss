@@ -167,7 +167,8 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     border-radius: 0 !important;
 
     box-shadow: none !important;
-    background: transparent !important;
+    /* background: transparent !important; */
+    background: #fff !important;
     -moz-border-start: 1px solid #d8d8d8 !important;
 
     &:hover,
