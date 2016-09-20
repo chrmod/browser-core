@@ -61,33 +61,34 @@ node('ubuntu && docker && !gpu') {
     archive 'run_tests.sh'
   }
 
-  stage('tests') {
-    // Define version of firefox we want to test
-    // Full list here: https://ftp.mozilla.org/pub/firefox/releases/
-    def firefoxVersions = [
-      '38.0.6',
-      '43.0.4',
-      '44.0.2',
-      '47.0.1',
-    ]
+}
 
-    // The extension will be tested on each specified firefox version in parallel
-    def stepsForParallel = [:]
-    for (int i = 0; i < firefoxVersions.size(); i++) {
-      def version = firefoxVersions.get(i)
-      stepsForParallel[version] = {
-        build(
-          job: 'nav-ext-browser-matrix',
-          parameters: [
-            string(name: 'FIREFOX_VERSION', value: version),
-            string(name: 'TRIGGERING_BUILD_NUMBER', value: env.BUILD_NUMBER),
-            string(name: 'TRIGGERING_JOB_NAME', value: env.JOB_NAME),
-          ]
-        )
-      }
+stage('tests') {
+  // Define version of firefox we want to test
+  // Full list here: https://ftp.mozilla.org/pub/firefox/releases/
+  def firefoxVersions = [
+    '38.0.6',
+    '43.0.4',
+    '44.0.2',
+    '47.0.1',
+  ]
+
+  // The extension will be tested on each specified firefox version in parallel
+  def stepsForParallel = [:]
+  for (int i = 0; i < firefoxVersions.size(); i++) {
+    def version = firefoxVersions.get(i)
+    stepsForParallel[version] = {
+      build(
+        job: 'nav-ext-browser-matrix',
+        parameters: [
+          string(name: 'FIREFOX_VERSION', value: version),
+          string(name: 'TRIGGERING_BUILD_NUMBER', value: env.BUILD_NUMBER),
+          string(name: 'TRIGGERING_JOB_NAME', value: env.JOB_NAME),
+        ]
+      )
     }
-
-    // Run tests in parallel
-    parallel stepsForParallel
   }
+
+  // Run tests in parallel
+  parallel stepsForParallel
 }
