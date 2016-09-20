@@ -456,10 +456,10 @@ var CLIQZEnvironment = {
       Services.search.getEngineByName(name).alias = newAlias;
     },
     getEngineByAlias: function(alias) {
-     return Services.search.getEngineByAlias(alias);
+      return CLIQZEnvironment.getSearchEngines().find(engine => { return engine.alias === alias; });
     },
-    getEngineByName: function(engine) {
-      return Services.search.getEngineByName(engine);
+    getEngineByName: function(name) {
+      return CLIQZEnvironment.getSearchEngines().find(engine => { return engine.name === name; });
     },
     addEngineWithDetails: function(engine) {
       Services.search.addEngineWithDetails(
