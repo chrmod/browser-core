@@ -1,9 +1,11 @@
 function injectTestHelpers(CliqzUtils) {
   var chrome = CliqzUtils.getWindow();
   var urlBar = chrome.CLIQZ.Core.urlbar;
+  var popup = chrome.CLIQZ.Core.popup;
   var lang = CliqzUtils.getLocalizedString('locale_lang_code');
 
   window.fillIn = function fillIn(text) {
+    popup.mPopupOpen = false;
     urlBar.focus();
     urlBar.mInputField.focus();
     urlBar.mInputField.setUserInput(text);

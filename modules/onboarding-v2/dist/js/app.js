@@ -133,7 +133,13 @@ function step3() {
     module: 'onboarding-v2',
     action: 'moveToStep',
     args: [3]
-  }), '*')
+  }), '*');
+
+  window.postMessage(JSON.stringify({
+    target: 'cliqz',
+    module: 'onboarding-v2',
+    action: 'focusUrlbar',
+  }), '*');
 
   setTimeout(function () {
     $('.cqb-search-tooltip').tooltipster('open');

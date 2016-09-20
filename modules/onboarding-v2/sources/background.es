@@ -89,6 +89,12 @@ export default background({
   actions: {
     moveToStep(step) {
       utils.setPref('cliqz-onboarding-v2-step', step);
+    },
+
+    focusUrlbar() {
+      var urlBar = utils.getWindow().CLIQZ.Core.urlbar;
+      urlBar.focus();
+      urlBar.mInputField.focus();
     }
 
   }

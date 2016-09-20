@@ -7,7 +7,13 @@
     <div class="newsContent">
       <div extra='title' class='title'>
         {{#if isBreakingNews}}
-          <span class="breakingNews">{{t 'news.breaking-news'}}</span>
+          <span class="breakingNews">
+          {{#if model.breaking_label}}
+            {{model.breaking_label}}:
+          {{else}}
+            {{t 'news.breaking-news'}}
+          {{/if}}
+          </span>
         {{/if}}
         {{model.title}}
       </div>

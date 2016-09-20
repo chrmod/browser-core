@@ -43,6 +43,7 @@ var CliqzSecureMessage = {
   secureLogger: null,
   JSEncrypt: JSEncrypt,
   cryptoJS: CryptoJS,
+  crypto,
   uPK : new userPK(),
   dsPK : null,
   routeTable : null,

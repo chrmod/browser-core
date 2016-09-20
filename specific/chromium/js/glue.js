@@ -147,33 +147,37 @@ Promise.all([
         });
 
     // TODO: Move these to CE inself and introduce module init().
-    chrome.cliqzSearchPrivate.getSearchEngines((engines, defIdx) => {
-      function renameProps(obj, mapping) {
-        for (let p of Object.keys(mapping)) {
-          obj[mapping[p]] = obj[p];
-          delete obj[p];
-        }
-      }
-
-      const enginePropMapping = {
-        "keyword"         : "alias",
-        "faviconUrl"      : "icon",
-        "id"              : "code",
-        "searchUrl"       : "searchForm",
-        "suggestionsUrl"  : "suggestionUrl"
-      };
-
-      for (let engine of engines) {
-        renameProps(engine, enginePropMapping);
-      }
-      engines[defIdx].default = true;
-
-      CLIQZEnvironment._ENGINES = engines;
-    });
+    chrome.cliqzSearchPrivate.getSearchEngines(updateSearchEngines);
+    chrome.cliqzSearchPrivate.onSearchEnginesChanged.addListener(
+        updateSearchEngines);
     chrome.runtime.getPlatformInfo(v => CLIQZEnvironment.OS = v.os);
 
     console.log('Glue init complete!');
   });
+
+function updateSearchEngines(engines, defIdx) {
+  function renameProps(obj, mapping) {
+    for (let p of Object.keys(mapping)) {
+      obj[mapping[p]] = obj[p];
+      delete obj[p];
+    }
+  }
+
+  const enginePropMapping = {
+    "keyword"         : "alias",
+    "faviconUrl"      : "icon",
+    "id"              : "code",
+    "searchUrl"       : "searchForm",
+    "suggestionsUrl"  : "suggestionUrl"
+  };
+
+  for (let engine of engines) {
+    renameProps(engine, enginePropMapping);
+  }
+  engines[defIdx].default = true;
+
+  CLIQZEnvironment._ENGINES = engines;
+}
 
 function startAutocomplete(query) {
   settings.classList.remove("open");
