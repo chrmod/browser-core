@@ -91,7 +91,68 @@ export default background({
       utils.setPref('cliqz-onboarding-v2-step', step);
     },
 
-    focusUrlbar() {
+    step1() {
+      utils.callWindowAction(
+        utils.getWindow(),
+        'core',
+        'addClassToWindow',
+        ['cqz-onboarding', 'cqz-step1']
+      );
+    },
+
+    step2() {
+      utils.callWindowAction(
+        utils.getWindow(),
+        'core',
+        'addClassToWindow',
+        ['cqz-step2']
+      );
+
+      utils.setPref('cliqz-onboarding-v2-step', 2);
+      setTimeout(function() {
+        utils.callWindowAction(
+          utils.getWindow(),
+          'control-center',
+          'openPopUp'
+        );
+      }, 400);
+
+      setTimeout(function() {
+        utils.callAction(
+          'control-center',
+          'setBadge',
+          [17]
+        );
+      }, 1000);
+    },
+
+    step3() {
+      utils.callWindowAction(
+        utils.getWindow(),
+        'core',
+        'removeClassFromWindow',
+        ['cqz-step1', 'cqz-step2']
+      );
+
+      utils.setPref('cliqz-onboarding-v2-step', 3);
+
+      utils.callAction(
+        'control-center',
+        'setBadge',
+        [0]
+      );
+
+      this.actions._focusUrlbar();
+
+      utils.callWindowAction(
+        utils.getWindow(),
+        'control-center',
+        'updateState',
+        ['active']
+      );
+    },
+
+    _focusUrlbar() {
       var urlBar = utils.getWindow().CLIQZ.Core.urlbar;
       urlBar.focus();
       urlBar.mInputField.focus();
