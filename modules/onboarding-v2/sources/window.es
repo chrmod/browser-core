@@ -7,7 +7,7 @@ export default class {
 
   init() {
     var step = utils.getPref('cliqz-onboarding-v2-step', 1);
-    if(step === 1) {
+    if(step < 3) {
       utils.openLink(this.window, "about:onboarding");
     }
   }
