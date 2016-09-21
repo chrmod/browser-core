@@ -41,11 +41,19 @@ export default {
   actions: {
     _showOnboarding() {
         var showOnboarding = false;
-        if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref('browserOnboarding')) {
-          utils.setPref('browserOnboarding', true);
+        // if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref('browserOnboarding')) {
+        //   utils.setPref('browserOnboarding', true);
+        //   showOnboarding = true;
+        // }
+        var step = utils.getPref('cliqz-onboarding-v2-step', 1);
+        if(step === 1) {
           showOnboarding = true;
         }
         return showOnboarding;
+    },
+
+    displayOnboarding() {
+      utils.openLink(utils.getWindow(), 'about:onboarding')
     },
 
     _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),

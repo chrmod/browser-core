@@ -151,6 +151,16 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({ promise });
   },
 
+  displayOnboarding() {
+    this.callbacks.displayOnboarding = () => {};
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'displayOnboarding'
+    }), '*');
+  },
+
   takeFullTour() {
     this.callbacks.takeFullTour = () => {};
     window.postMessage(JSON.stringify({
