@@ -149,7 +149,7 @@ var CLIQZEnvironment = {
 
     CLIQZEnvironment.lastSearch = e;
 
-    window.document.getElementById('startingpoint').style.display = 'none';
+    News.hideFreshtab();
 
     CLIQZ.UI.startProgressBar();
 

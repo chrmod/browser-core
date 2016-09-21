@@ -11,7 +11,8 @@ var DEPENDENCY_STATUS = {
   retryCount: {}
 };
 
-var topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesCount, TOPSITES_LIMIT = 5;
+let topSitesList = [], tempBlockedTopSites = [], newsVersion, displayedTopSitesCount;
+const TOPSITES_LIMIT = 5, NEWS_LIMIT = 2;
 
 function displayTopSites (list, isEditMode = false) {
 
@@ -123,6 +124,7 @@ function deduplicateTopsites(list) {
 }
 
 var News = {
+  lastShowTime: 0,
   GENERIC_NEWS_URL: 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de',
   _recentHistory: {},
   getNews: function() {
@@ -150,51 +152,58 @@ var News = {
     CliqzUtils.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data);
 
   },
-  displayTopNews: function(top_news) {
-    if(!top_news) {
+  displayTopNews: function(news) {
+    if(!news) {
       return;
     }
 
-    top_news = top_news.map(function(r){
+    news = news.map(function(r){
       const details = CliqzUtils.getDetailsFromUrl(r.url);
       const logo = CliqzUtils.getLogoDetails(details);
+      const type = r.breaking ? 'breakingnews' : 'topnews';
       return {
+        breaking: r.breaking,
         title: r.title,
         description: r.description,
         short_title: r.short_title || r.title,
         displayUrl: details.domain || r.title,
         url: r.url,
-        type: r.type,
         text: logo.text,
         backgroundColor: logo.backgroundColor,
         buttonsClass: logo.buttonsClass,
-        style: logo.style
+        style: logo.style,
+        type,
       };
     });
-    top_news = top_news.splice(0, 2);
+    news = news.splice(0, NEWS_LIMIT);
     const dependencyStatus = News.getDependencyStatus('topnews');
     if(dependencyStatus === DEPENDENCY_STATUS.NOT_LOADED) {
-      return setTimeout(News.displayTopNews, 100, top_news);
+      return setTimeout(News.displayTopNews, 100, news);
     } else if(dependencyStatus === DEPENDENCY_STATUS.GIVE_UP) {
       return;
     }
     const div = document.getElementById('topNews');
-    div.innerHTML = CLIQZ.templates.topnews(top_news);
-    CliqzUtils.addEventListenerToElements('.topNewsLink', 'click', function () {
+    div.innerHTML = CLIQZ.templates.topnews(news);
+    CliqzUtils.addEventListenerToElements('.answer', 'click', function ({ currentTarget: item, target: element}) {
+      osAPI.openLink(item.dataset.url)
       CliqzUtils.telemetry({
         type: 'home',
         action: 'click',
-        target_type: 'topnews',
-        target_index: this.dataset.index
+        target: item.dataset.type,
+        element: element.dataset.extra,
+        index: item.dataset.index,
       });
     });
     window.dispatchEvent(new CustomEvent('newsLoadingDone'));
-
+    const breakingnews_count = news.reduce((count, item) => item.breaking ? count + 1 : count, 0);
+    const topnews_count = news.length - breakingnews_count;
     CliqzUtils.telemetry({
-      'type': 'home',
-      'action': 'display',
-      'historysites': displayedTopSitesCount,
-      'topnews_version': newsVersion
+      type: 'home',
+      action: 'show',
+      topsite_count: displayedTopSitesCount,
+      topnews_version: newsVersion,
+      topnews_count,
+      breakingnews_count,
     });
   },
 
@@ -208,6 +217,8 @@ var News = {
     } else if(dependencyStatus === DEPENDENCY_STATUS.GIVE_UP) {
       return;
     }
+
+    News.lastShowTime = Date.now();
 
     News.getNews();
 
@@ -234,7 +245,17 @@ var News = {
     }
     DEPENDENCY_STATUS.retryCount[template] = 0;
     return DEPENDENCY_STATUS.LOADED;
-  }
+  },
+
+  hideFreshtab: function () {
+    window.document.getElementById('startingpoint').style.display = 'none';
+    const showDuration = Date.now() - News.lastShowTime;
+    CliqzUtils.telemetry({
+      type: 'home',
+      action: 'hide',
+      show_duration: showDuration,
+    });
+  },
 };
 
 function log() {
