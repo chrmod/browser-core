@@ -63,7 +63,7 @@ function step2() {
   // Show search btn
   setTimeout(function () {
      $('#cqb-search-btn').css('opacity', '1');
-  }, 2500);
+  }, 3000);
 
   // Open Tool Tip
   openTooltip2 = setTimeout(function () {
