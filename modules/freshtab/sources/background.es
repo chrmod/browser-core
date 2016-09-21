@@ -46,7 +46,7 @@ export default {
         //   showOnboarding = true;
         // }
         var step = utils.getPref('cliqz-onboarding-v2-step', 1);
-        if(step === 1) {
+        if(step < 3) {
           showOnboarding = true;
         }
         return showOnboarding;
