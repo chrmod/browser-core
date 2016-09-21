@@ -36,8 +36,10 @@ var UI = {
         UI.DelayedImageLoader = DelayedImageLoader;
     },
     onBoardingSwipe: function () {
-      viewPager.goToIndex(1, 1000);
-      setTimeout(viewPager.goToIndex, 600, 0, 1000);
+      const DELAY = 1200;
+      const PAUSE = 1000;
+      setTimeout(viewPager.goToIndex, DELAY, 1, 1000)
+      setTimeout(viewPager.goToIndex, DELAY + PAUSE, 0, 1000);
     },
     setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth  -  2 * PEEK;
