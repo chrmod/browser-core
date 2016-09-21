@@ -1,3 +1,6 @@
+import console from "core/console";
+import prefs from "core/prefs";
+
 //TODO: get rid of me!
 var lastSucceededUrl;
 var latestUrl;
@@ -64,9 +67,6 @@ var CLIQZEnvironment = {
       'pattern-h1'
   ],
   GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
-  log: function(msg, key){
-    console.log('[[' + key + ']]', msg);
-  },
   //TODO: check if calling the bridge for each telemetry point is expensive or not
   telemetry: function(msg) {
     msg.ts = Date.now();
@@ -91,7 +91,7 @@ var CLIQZEnvironment = {
       var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) === 0 ) {
-        // CliqzUtils.log('jsBridge autocomplete value:'+val,'osAPI1');
+        // console.log('jsBridge autocomplete value:'+val,'osAPI1');
         osAPI.autocomplete(val);
       } else {
         var ls = JSON.parse(CLIQZEnvironment.getLocalStorage().recentQueries || '[]');
@@ -118,8 +118,8 @@ var CLIQZEnvironment = {
   },
   resultsHandler: function (r) {
 
-    if( CLIQZEnvironment.lastSearch !== r._searchString ){
-      CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
+    if( CLIQZEnvironment.lastSearch !== r._searchString  ){
+      console.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
@@ -160,18 +160,6 @@ var CLIQZEnvironment = {
 
     CLIQZEnvironment.SEARCH.search(e, CLIQZEnvironment.resultsHandler);
   },
-  getPref: function(pref, notFound){
-    var mypref;
-    if(mypref = CLIQZEnvironment.getLocalStorage().getItem(pref)) {
-      return mypref;
-    } else {
-      return notFound;
-    }
-  },
-  setPref: function(pref, val){
-    //CliqzUtils.log('setPrefs',arguments);
-    CLIQZEnvironment.getLocalStorage().setItem(pref,val);
-  },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
   clearTimeout: function(){ clearTimeout.apply(null, arguments); },
@@ -208,12 +196,12 @@ var CLIQZEnvironment = {
             window.dispatchEvent(new CustomEvent('connected'));
           }
           lastSucceededUrl = url;
-          CliqzUtils.log('status '+req.status, 'CLIQZEnvironment.httpHandler.onload');
+          console.log('status '+req.status, 'CLIQZEnvironment.httpHandler.onload');
         }
 
         callback && callback(req);
       } else {
-        CliqzUtils.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler.onload');
+        console.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler.onload');
         onerror && onerror();
       }
     };
@@ -230,13 +218,13 @@ var CLIQZEnvironment = {
         if(isMixerUrl(url)){
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, sync);
         }
-        CliqzUtils.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler,onerror');
+        console.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler,onerror');
         onerror && onerror();
       }
     };
     req.ontimeout = function(){
 
-      CliqzUtils.log('BEFORE', 'CLIQZEnvironment.httpHandler.ontimeout');
+      console.log('BEFORE', 'CLIQZEnvironment.httpHandler.ontimeout');
       if(latestUrl !== url || url === lastSucceededUrl || !isMixerUrl(url)) {
         return;
       }
@@ -248,7 +236,7 @@ var CLIQZEnvironment = {
         if(isMixerUrl(url)){
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, sync);
         }
-        CliqzUtils.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler.ontimeout');
+        console.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler.ontimeout');
         onerror && onerror();
       }
     };
@@ -292,7 +280,7 @@ var CLIQZEnvironment = {
       }
       return {results: res, query:data.query, ready:true};
     } catch (e) {
-      CliqzUtils.log('Error: ' + e, 'CLIQZEnvironment.processHistory');
+      console.log('Error: ' + e, 'CLIQZEnvironment.processHistory');
     }
   },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
@@ -366,7 +354,7 @@ var CLIQZEnvironment = {
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
 
-  if(CLIQZEnvironment.getPref('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
+  if(prefs.get('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
     return;
   }
 

@@ -46,6 +46,10 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js", this);
       Extension.System = this.System;
 
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/prefs.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/core/prefs.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/console.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/core/console.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/environment.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/utils.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/events.js", this);

@@ -1,4 +1,6 @@
 import CLIQZEnvironment from "platform/environment";
+import console from "core/console";
+import prefs from "core/prefs";
 
 var CliqzLanguage;
 
@@ -278,34 +280,13 @@ var CliqzUtils = {
     }
   },
   openTabInWindow: CLIQZEnvironment.openTabInWindow,
-  /**
-   * Get a value from preferences db
-   * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
-   * @param {string=} prefix - prefix for pref
-   */
-  getPref: CLIQZEnvironment.getPref,
-  /**
-   * Set a value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
-   * @param {string=} prefix - prefix for pref
-   */
-  setPref: CLIQZEnvironment.setPref,
-  /**
-   * Check if there is a value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {string=} prefix - prefix for pref
-   */
-  hasPref: CLIQZEnvironment.hasPref,
-  /**
-   * Clear value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {string=} prefix - prefix for pref
-   */
-  clearPref: CLIQZEnvironment.clearPref,
-  log: CLIQZEnvironment.log,
-  logError: CLIQZEnvironment.logError,
+  getPref: prefs.get,
+  setPref: prefs.set,
+  hasPref: prefs.has,
+  clearPref: prefs.clear,
+  log: function (msg, key) {
+    console.log(key, msg);
+  },
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },

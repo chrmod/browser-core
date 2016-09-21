@@ -17,7 +17,6 @@ export default class {
     const richHeaderUrl = `https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=hb-news.cliqz.com&lang=en%2Cde&locale=en-GB&q=[${hash}]`;
 
     if (!(hash in NEWS_DOMAINS)) {
-
       return Promise.resolve(null);
     }
 

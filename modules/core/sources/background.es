@@ -1,4 +1,5 @@
 import { utils, events, Promise } from "core/cliqz";
+import console from "core/console";
 import language from "platform/language";
 import config from "core/config";
 import ProcessScriptManager from "platform/process-script-manager";
@@ -114,16 +115,7 @@ export default {
         action: msg.data.payload.action,
         requestId,
       });
-    }).catch( e => {
-      utils.logError(
-        {
-          action,
-          module,
-          error: e
-        },
-        "Process Script"
-      )
-    });
+    }).catch(console.error.bind(null, "Process Script", `${action}/${module}`));
   },
 
   handleResponse(msg) {
