@@ -305,6 +305,7 @@ var CliqzUtils = {
    */
   clearPref: CLIQZEnvironment.clearPref,
   log: CLIQZEnvironment.log,
+  logError: CLIQZEnvironment.logError,
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },

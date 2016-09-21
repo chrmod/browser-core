@@ -12,7 +12,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/NewTabUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
 
-var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService);
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 var CLIQZEnvironment = {
     LOG: 'https://logging.cliqz.com',
@@ -85,10 +85,12 @@ var CLIQZEnvironment = {
     },
     log: function(msg, key){
       if(CLIQZEnvironment && CLIQZEnvironment.getPref('showConsoleLogs', false)){
-        _log.logStringMessage(
-          'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
-          (typeof msg == 'object'? JSON.stringify(msg): msg)
-        );
+        console.log(`CLIQZ ${key}`, msg);
+      }
+    },
+    logError: function(msg, key){
+      if(CLIQZEnvironment && CLIQZEnvironment.getPref('showConsoleLogs', false)){
+        console.error(`CLIQZ ${key}`, msg);
       }
     },
     __prefixPref: function (pref, prefix) {

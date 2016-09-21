@@ -15,11 +15,11 @@ const global = {
   clearTimeout: utils.clearTimeout,
   setTimeout: utils.setTimeout,
   console: {
-    log: function () {
-      utils.log(JSON.stringify(arguments), "PouchDB global")
+    log: function (...args) {
+      utils.log(args, "PouchDB global")
     },
-    error: function () {
-      utils.log(JSON.stringify(arguments), "PouchDB global error")
+    error: function (...args) {
+      utils.logError(args, "PouchDB global error")
     }
   },
   global: {

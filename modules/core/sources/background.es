@@ -114,7 +114,16 @@ export default {
         action: msg.data.payload.action,
         requestId,
       });
-    }).catch( e => utils.log(`${e.toString()}--${e.stack}`, "Problem with frameScript") );
+    }).catch( e => {
+      utils.logError(
+        {
+          action,
+          module,
+          error: e
+        },
+        "Process Script"
+      )
+    });
   },
 
   handleResponse(msg) {
