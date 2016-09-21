@@ -5,19 +5,7 @@
  */
 
 import DelayedImageLoader from 'mobile-ui/DelayedImageLoader';
-import handlebars from "core/templates";
 import { window, document } from 'mobile-ui/webview';
-
-//TODO: improve loading of these views!
-import v1 from 'mobile-ui/views/currency';
-import v2 from 'mobile-ui/views/entity-generic';
-import v3 from 'mobile-ui/views/generic';
-import v4 from 'mobile-ui/views/hq';
-import v6 from 'mobile-ui/views/local-data-sc';
-import v7 from 'mobile-ui/views/stocks';
-import v8 from 'mobile-ui/views/weatherAlert';
-import v9 from 'mobile-ui/views/weatherEZ';
-import v10 from 'mobile-ui/views/liveTicker';
 
 var resultsBox = null,
     viewPager = null,
@@ -35,19 +23,23 @@ var UI = {
     nCardsPerPage: 1,
     nPages: 1,
     DelayedImageLoader: null,
+    VIEWS: {},
     init: function () {
-        //check if loading is done
-        if (!handlebars.tplCache.main) return;
         let box = document.getElementById('results');
-        box.innerHTML = handlebars.tplCache.main();
+        box.innerHTML = CLIQZ.templates.main();
 
         resultsBox = document.getElementById('cliqz-results', box);
 
         resultsBox.addEventListener('click', resultClick);
 
         // FIXME: import does not work
-        UI.DelayedImageLoader = System.get('mobile-ui/DelayedImageLoader').default;
-        loadViews();
+        UI.DelayedImageLoader = DelayedImageLoader;
+    },
+    onBoardingSwipe: function () {
+      const DELAY = 1200;
+      const PAUSE = 1000;
+      setTimeout(viewPager.goToIndex, DELAY, 1, 1000)
+      setTimeout(viewPager.goToIndex, DELAY + PAUSE, 0, 1000);
     },
     setDimensions: function () {
       UI.CARD_WIDTH = window.innerWidth  -  2 * PEEK;
@@ -89,6 +81,9 @@ var UI = {
       }
     },
     results: function (r) {
+      if (r._results[0].data.template === "noResult") {
+        r._results.shift();
+      }
 
       UI.currentPage = 0;
       viewPager.goToIndex(UI.currentPage);
@@ -121,30 +116,30 @@ var UI = {
           background: logo.backgroundColor
         }
       };
-        var query = currentResults.searchString || '';
 
-        if (imgLoader) imgLoader.stop();
+      var query = currentResults.searchString || '';
 
-        // Results that are not ready (extra results, for which we received a callback_url)
-        var asyncResults = currentResults.results.filter(assessAsync(true));
-        currentResults.results = currentResults.results.filter(assessAsync(false));
+      if (imgLoader) imgLoader.stop();
 
-        redrawDropdown(handlebars.tplCache.results(currentResults), query);
+      // Results that are not ready (extra results, for which we received a callback_url)
+      var asyncResults = currentResults.results.filter(assessAsync(true));
+      currentResults.results = currentResults.results.filter(assessAsync(false));
 
-        if (asyncResults.length) loadAsyncResult(asyncResults, query);
+      redrawDropdown(CLIQZ.templates.results(currentResults), query);
 
-        imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
-        imgLoader.start();
+      if (asyncResults.length) loadAsyncResult(asyncResults, query);
 
-        crossTransform(resultsBox, 0);
+      imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
+      imgLoader.start();
 
-        setResultNavigation(currentResults.results);
+      crossTransform(resultsBox, 0);
 
-        return currentResults.results;
+      setResultNavigation(currentResults.results);
+
+      return currentResults.results;
     },
-    VIEWS: {},
     initViewpager: function () {
-        var views = {},
+        var views = { 0: 1 },
             pageShowTs = Date.now(),
             innerWidth = window.innerWidth,
             offset = 0;
@@ -166,16 +161,16 @@ var UI = {
             if (page === UI.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
+            const direction = page > UI.currentPage ? 'right' : 'left'
 
 
             CliqzUtils.telemetry({
-              type: 'activity',
-              action: 'swipe',
-              swipe_direction: page > UI.currentPage ? 'right' : 'left',
-              current_position: page,
-              views: views[page],
-              prev_position: UI.currentPage,
-              prev_display_time: Date.now() - pageShowTs
+              type: 'cards',
+              action: `swipe_${direction}`,
+              index: page,
+              show_count: views[page],
+              show_duration: Date.now() - pageShowTs,
+              count: currentResultsCount
             });
 
             pageShowTs = Date.now();
@@ -256,7 +251,7 @@ function loadAsyncResult(res, query) {
                   }, 100 /*smartCliqzWaitTime*/);
                 }
                 else if (!currentResults.results.length) {
-                  redrawDropdown(handlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                  redrawDropdown(CLIQZ.templates.results(currentResults), query);
                 }
             }
             else {
@@ -275,12 +270,7 @@ function loadAsyncResult(res, query) {
                   // add the current one on top of the list
                   currentResults.results.unshift(r);
 
-                  if (currentResults.results.length) {
-                    redrawDropdown(handlebars.tplCache.results(currentResults), query);
-                  }
-                  else {
-                    redrawDropdown(handlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
-                  }
+                  redrawDropdown(CLIQZ.templates.results(currentResults), query);
                   imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
                   imgLoader.start();
               }
@@ -292,9 +282,7 @@ function loadAsyncResult(res, query) {
           }
           else {
             res.splice(i,1);
-            if (!currentResults.results.length) {
-              redrawDropdown(handlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
-            }
+            redrawDropdown(CLIQZ.templates.results(currentResults), query);
           }
 
       };
@@ -353,12 +341,6 @@ function enhanceResults(results) {
 
   let filteredResults = enhancedResults.filter(function (r) { return !(r.data && r.data.adult); });
 
-  // if there no results after adult filter - show no results entry
-  if (!filteredResults.length) {
-    filteredResults.push(CliqzUtils.getNoResults());
-    filteredResults[0].vertical = 'noResult';
-  }
-
   return filteredResults;
 }
 
@@ -392,7 +374,6 @@ function enhanceSpecificResult(r) {
   }
 
   const template = r.vertical = getVertical(r);
-
   const specificView = UI.VIEWS[template] || UI.VIEWS.generic;
   specificView.enhanceResults && specificView.enhanceResults(r.data, contentArea);
 
@@ -532,28 +513,5 @@ window.addEventListener('connected', function () {
   elem && (elem.innerHTML = '');
 });
 
-function loadViews() {
-  UI.clickHandlers = {};
-  Object.keys(CliqzHandlebars.TEMPLATES).concat(CliqzHandlebars.MESSAGE_TEMPLATES).concat(CliqzHandlebars.PARTIALS).forEach(function (templateName) {
-    UI.VIEWS[templateName] = Object.create(null);
-    try {
-      let module = System.get('mobile-ui/views/' + templateName);
-      if (module) {
-        UI.VIEWS[templateName] = new module.default(window);
-
-        if (UI.VIEWS[templateName].events && UI.VIEWS[templateName].events.click) {
-          Object.keys(UI.VIEWS[templateName].events.click).forEach(function (selector) {
-            UI.clickHandlers[selector] = UI.VIEWS[templateName].events.click[selector];
-          });
-        }
-      } else {
-        CliqzUtils.log('failed to load ' + templateName, 'UI');
-      }
-    } catch (ex) {
-      CliqzUtils.log(ex, 'UI');
-    }
-  });
-}
-
 export default UI;
-    
+

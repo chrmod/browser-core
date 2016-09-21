@@ -22,13 +22,13 @@
                             {{ this.gameTimeHour }}
                         </td>
                         <td>
-                            {{ this.GUESS }}
+                            {{ this.HOST }}
                         </td>
                         <td class="cqz-score">
                             {{ this.scored }}
                         </td>
                         <td class="lastcell">
-                            {{ this.HOST }}
+                            {{ this.GUESS }}
                         </td>
                     </tr>
                 {{/each}}
