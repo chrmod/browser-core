@@ -87,17 +87,19 @@ export default background({
   },
 
   actions: {
-    moveToStep(step) {
-      utils.setPref('cliqz-onboarding-v2-step', step);
-    },
-
-    step1() {
+    initOnboarding() {
       utils.callWindowAction(
         utils.getWindow(),
         'core',
         'addClassToWindow',
         ['cqz-onboarding', 'cqz-step1']
       );
+
+      return this.actions._getStep();
+    },
+
+    _getStep() {
+      return Promise.resolve(utils.getPref('cliqz-onboarding-v2-step', 1))
     },
 
     step2() {

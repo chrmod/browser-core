@@ -21,11 +21,11 @@ window.addEventListener("message", function (ev) {
   } catch (e) {
     msg = {};
   }
-
   if (msg.type === "response") {
     var action = CALLBACKS[msg.action];
     if (action) {
-      action();
+      console.log(msg.response, "!!response")
+      action.call(null, msg.response);
     }
   }
 });
@@ -34,7 +34,10 @@ var openTooltip1, openTooltip2;
 // =================
 // ====== STEP 1 ===
 // =================
+
+
 function step1() {
+
   //=== STEP 1 Tooltip Trigger
   openTooltip1 = setTimeout(function () {
     $('#cqb-atr-on').tooltipster('open');
@@ -141,14 +144,23 @@ function autoQuery(val) {
   }), "*");
 }
 
+var stepPromise = new Promise(function (resolve, reject) {
+  CALLBACKS['initOnboarding'] = resolve;
+}).then(function (step) {
+  return step;
+});
 window.postMessage(JSON.stringify({
   target: 'cliqz',
   module: 'onboarding-v2',
-  action: 'step1'
+  action: 'initOnboarding'
 }), '*');
 
-$(document).ready(function () {
 
+Promise.all([
+  $(document).ready().promise(),
+  stepPromise
+]).then(function (resolvedPromises) {
+  var step = resolvedPromises[1];
   localizeDocument();
 
   $('#cqb-atr-on').tooltipster({
@@ -180,7 +192,11 @@ $(document).ready(function () {
     animationDuration: 250,
   });
 
-  step1();
+  if(step === 2) {
+    step2()
+  } else {
+    step1();
+  }
 
   //==== Step 2 Click
   $("#cqb-search-btn").click(function () {
