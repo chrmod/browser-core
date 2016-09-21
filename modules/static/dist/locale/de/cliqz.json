@@ -1371,25 +1371,25 @@
       "message": "Einstellungen"
     },
     "onboarding-step-1-msg": {
-      "message": "Wilkommen bei CLIQZ"
+      "message": "Willkommen bei CLIQZ"
     },
     "onboarding-step-1-btn": {
-      "message": " Aktievere deinen Privatsphäre-Schutz"
+      "message": " Aktiviere deinen Privatsphäre-Schutz"
     },
     "onboarding-step-1-tooltip": {
-      "message": "Hey there! <br> Ready to browse safely?"
+      "message": "Klick hier!"
     },
     "onboarding-step-2-msg": {
-      "message": "Privacy Control Center"
+      "message": "Der Privatsphäre-Schutz ist aktiviert!"
     },
     "onboarding-step-2-btn": {
-      "message": "Search the web"
+      "message": "Fang an zu surfen!"
     },
     "onboarding-step-2-tooltip": {
-      "message": "Holla! <br> Ready for your next step?"
+      "message": "Hola, Bist du bereit für den nächsten Schritt?"
     },
     "onboarding-step-3-msg": {
-      "message": "Try Cliqz Search"
+      "message": "Probiere die Cliqz Suchmaschine"
     },
     "onboarding-step-3-tooltip": {
       "message": ""
