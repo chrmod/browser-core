@@ -19,9 +19,11 @@ export default describeModule("autocomplete/mixer",
     }
   },
   function () {
+    let mixer;
     beforeEach(function() {
+      mixer = new (this.module().default)();
       // Disable cleaning of smartCLIQZ trigger URLs during testing
-      this.module().default._cleanTriggerUrls = function() {};
+      mixer._cleanTriggerUrls = function() {};
     });
 
     describe('prepareExtraResults', function() {
@@ -31,8 +33,8 @@ export default describeModule("autocomplete/mixer",
             data: { garbage: 'useless' },
           },
         ];
-        this.module().default._prepareExtraResults(input);
-        expect(this.module().default._prepareExtraResults(input)).to.be.empty;
+        mixer._prepareExtraResults(input);
+        expect(mixer._prepareExtraResults(input)).to.be.empty;
       });
 
       it('should add trigger_method to each result', function() {
@@ -67,7 +69,7 @@ export default describeModule("autocomplete/mixer",
 
         var expected = 'X|{"ez":"-6262111850032132334","trigger_method":"rh_query"}';
 
-        var results = this.module().default._prepareExtraResults(input);
+        var results = mixer._prepareExtraResults(input);
 
         results.forEach(function(result) {
           expect(result).to.contain.all.keys(input[0]);
@@ -109,7 +111,7 @@ export default describeModule("autocomplete/mixer",
           },
         ];
 
-        var results = this.module().default._prepareCliqzResults(input);
+        var results = mixer._prepareCliqzResults(input);
 
         results.forEach(function(result, i) {
           var parts = result.data.kind[0].split('|'),
@@ -122,28 +124,29 @@ export default describeModule("autocomplete/mixer",
 
     describe('isValidQueryForEZ', function() {
 
-      let subject, blacklist;
+      let subject, blacklist, mixer;
 
       beforeEach(function() {
-        subject = this.module().default._isValidQueryForEZ,
+        mixer = new (this.module().default)();
+        subject = (mixer._isValidQueryForEZ).bind(mixer),
                     blacklist;
 
-        blacklist = this.module().default.EZ_QUERY_BLACKLIST;
-        this.module().default.EZ_QUERY_BLACKLIST = ['xxx', 'yyy', 'ggg'];
+        blacklist = mixer.EZ_QUERY_BLACKLIST;
+        mixer.EZ_QUERY_BLACKLIST = ['xxx', 'yyy', 'ggg'];
       });
 
       afterEach(function() {
-        this.module().default.EZ_QUERY_BLACKLIST = blacklist;
+        mixer.EZ_QUERY_BLACKLIST = blacklist;
       });
 
       it('rejects queries in blacklist', function() {
-        this.module().default.EZ_QUERY_BLACKLIST.forEach(function(query) {
+        mixer.EZ_QUERY_BLACKLIST.forEach(function(query) {
           expect(subject(query)).to.be.false;
         });
       });
 
       it('ignores capitalization', function() {
-        this.module().default.EZ_QUERY_BLACKLIST.map(function(q) {return q.toUpperCase();})
+        mixer.EZ_QUERY_BLACKLIST.map(function(q) {return q.toUpperCase();})
                                  .forEach(function(query) {
           expect(subject(query)).to.be.false;
         });
@@ -153,7 +156,7 @@ export default describeModule("autocomplete/mixer",
       });
 
       it('ignores whitespace', function() {
-        this.module().default.EZ_QUERY_BLACKLIST.map(function(q) {return ' ' + q + ' ';})
+        mixer.EZ_QUERY_BLACKLIST.map(function(q) {return ' ' + q + ' ';})
                                 .forEach(function(query) {
           expect(subject(query)).to.be.false;
         });
@@ -209,7 +212,7 @@ export default describeModule("autocomplete/mixer",
 
         var extra = [];
 
-        this.module().default._addEZfromBM(extra, result);
+        mixer._addEZfromBM(extra, result);
 
         expect(extra).to.have.length(1);
         expect(extra[0].data.subType).to.equal(result.extra.subType);
@@ -219,7 +222,7 @@ export default describeModule("autocomplete/mixer",
       it('should add EZ to end of existing list', function() {
         var extra = [{test: 'abc'}];
 
-        this.module().default._addEZfromBM(extra, result);
+        mixer._addEZfromBM(extra, result);
 
         expect(extra).to.have.length(2);
         expect(extra[extra.length - 1].data.subType).to.equal(result.extra.subType);
@@ -238,7 +241,7 @@ export default describeModule("autocomplete/mixer",
             },
           },
         };
-        var sublinks = this.module().default._collectSublinks(data);
+        var sublinks = mixer._collectSublinks(data);
 
         expect(sublinks).to.be.empty;
       });
@@ -253,7 +256,7 @@ export default describeModule("autocomplete/mixer",
             },
           },
         };
-        var sublinks = this.module().default._collectSublinks(data);
+        var sublinks = mixer._collectSublinks(data);
 
         expect(sublinks).to.contain('http://www.test.com');
       });
@@ -268,7 +271,7 @@ export default describeModule("autocomplete/mixer",
             },
           },
         };
-        var sublinks = this.module().default._collectSublinks(data);
+        var sublinks = mixer._collectSublinks(data);
 
         expect(sublinks).to.contain('http://www.test.com');
       });
@@ -289,7 +292,7 @@ export default describeModule("autocomplete/mixer",
             ],
           },
         };
-        var sublinks = this.module().default._collectSublinks(data);
+        var sublinks = mixer._collectSublinks(data);
 
         expect(sublinks).to.contain('http://www.test.com');
         expect(sublinks).to.contain('http://aaa.com');
@@ -355,13 +358,13 @@ export default describeModule("autocomplete/mixer",
       });
 
       it('should find no duplicates', function() {
-        var duplicates = this.module().default._getDuplicates(results, cliqz);
+        var duplicates = mixer._getDuplicates(results, cliqz);
         expect(duplicates).to.be.empty;
       });
 
       it('should find one duplicate - main link', function() {
         cliqz[0].label = cliqz[0].val = results[0].label;
-        var duplicates = this.module().default._getDuplicates(results, cliqz);
+        var duplicates = mixer._getDuplicates(results, cliqz);
         expect(duplicates).to.have.length(1);
         expect(duplicates[0]).to.be.deep.equal(cliqz[0]);
       });
@@ -369,14 +372,14 @@ export default describeModule("autocomplete/mixer",
       it('should find one duplicate - sub link', function() {
         results[0].style = 'cliqz-pattern';
         results[0].data.urls = [{href: 'https://mail.facebook.com/'}];
-        var duplicates = this.module().default._getDuplicates(results, cliqz);
+        var duplicates = mixer._getDuplicates(results, cliqz);
         expect(duplicates).to.have.length(1);
         expect(duplicates[0]).to.be.deep.equal(cliqz[0]);
       });
 
       it('should find one duplicate - main link different country', function() {
         cliqz[0].label = cliqz[0].val = 'https://de-de.facebook.com/';
-        var duplicates = this.module().default._getDuplicates(results, cliqz);
+        var duplicates = mixer._getDuplicates(results, cliqz);
         expect(duplicates).to.have.length(1);
         expect(duplicates[0]).to.be.deep.equal(cliqz[0]);
       });
@@ -439,7 +442,7 @@ export default describeModule("autocomplete/mixer",
       });
 
       it('should leave both lists alone', function() {
-        var r = this.module().default._deduplicateResults(results, cliqz);
+        var r = mixer._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(2);
@@ -448,7 +451,7 @@ export default describeModule("autocomplete/mixer",
       it('should remove facebook from cliqz', function() {
         cliqz[0].label = cliqz[0].val = results[0].label;
 
-        var r = this.module().default._deduplicateResults(results, cliqz);
+        var r = mixer._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(1);
@@ -461,7 +464,7 @@ export default describeModule("autocomplete/mixer",
         results[0].style = 'cliqz-pattern';
         results[0].data.urls = [{href: 'https://mail.facebook.com/'}];
 
-        var r = this.module().default._deduplicateResults(results, cliqz);
+        var r = mixer._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(1);
@@ -470,7 +473,7 @@ export default describeModule("autocomplete/mixer",
       it('should remove facebook from cliqz because only different by country', function() {
         cliqz[0].label = cliqz[0].val = 'https://de-de.facebook.com/';
 
-        var r = this.module().default._deduplicateResults(results, cliqz);
+        var r = mixer._deduplicateResults(results, cliqz);
 
         expect(r.first).to.have.length(2);
         expect(r.second).to.have.length(1);
@@ -507,36 +510,36 @@ export default describeModule("autocomplete/mixer",
       });
 
       it('should accept good ez', function() {
-        expect(this.module().default._isValidEZ(result)).to.be.true;
+        expect(mixer._isValidEZ(result)).to.be.true;
       });
 
       it('should discard if url is missing', function() {
         delete result.val;
-        expect(this.module().default._isValidEZ(result)).to.be.false;
+        expect(mixer._isValidEZ(result)).to.be.false;
       });
 
       it('should discard if data is missing', function() {
         delete result.data;
-        expect(this.module().default._isValidEZ(result)).to.be.false;
+        expect(mixer._isValidEZ(result)).to.be.false;
       });
 
       it('should discard if subType is missing or unparsable', function() {
         result.data.subType = 'afsdfdasfdsfds{';
-        expect(this.module().default._isValidEZ(result)).to.be.false;
+        expect(mixer._isValidEZ(result)).to.be.false;
         delete result.subType;
-        expect(this.module().default._isValidEZ(result)).to.be.false;
+        expect(mixer._isValidEZ(result)).to.be.false;
       });
 
       it('should discard if __subType__ is missing or ID is missing', function() {
         delete result.data.__subType__.id;
-        expect(this.module().default._isValidEZ(result)).to.be.false;
+        expect(mixer._isValidEZ(result)).to.be.false;
         delete result.data.__subType__;
-        expect(this.module().default._isValidEZ(result)).to.be.false;
+        expect(mixer._isValidEZ(result)).to.be.false;
       });
     });
 
     describe('cacheEZs', function() {
-
+      let mixer;
       function getUrlfunction(smartCliqz) {
         //return CliqzUtils.generalizeUrl(smartCliqz.val, true);
       }
@@ -597,14 +600,14 @@ export default describeModule("autocomplete/mixer",
         };
         triggerUrlCache.isCached = () => false;
 
-        this.module().default.init({
+        mixer = new (this.module().default)({
           smartCliqzCache,
           triggerUrlCache,
         });
       });
 
       it('should cache 1 entry given 1', function() {
-        this.module().default._cacheEZs([results[0]]);
+        mixer._cacheEZs([results[0]]);
 
         expect(saved).to.be.true;
         expect(Object.keys(urls)).length.to.be(1);
@@ -615,7 +618,7 @@ export default describeModule("autocomplete/mixer",
       it('should cache 1 entry given 2 with same URL', function() {
         results.push(JSON.parse(JSON.stringify(results[0])));
         results[1].comment = 'Second entry';
-        this.module().default._cacheEZs(results);
+        mixer._cacheEZs(results);
 
         expect(saved).to.be.true;
         expect(Object.keys(urls)).length.to.be(1);
@@ -631,7 +634,7 @@ export default describeModule("autocomplete/mixer",
         results[1].data.trigger_urls[0] = 'test.com';
         results[1].data.__subType__ = { id: "1111111111" };
 
-        this.module().default._cacheEZs(results);
+        mixer._cacheEZs(results);
 
         expect(saved).to.be.true;
         expect(Object.keys(urls)).length.to.be(2);
@@ -649,6 +652,7 @@ export default describeModule("autocomplete/mixer",
           ezs = {},
           smartCliqzCache = {},
           triggerUrlCache = {};
+      let mixer;
 
       // Mock CliqzSmartCliqzCache
       beforeEach(function() {
@@ -716,33 +720,33 @@ export default describeModule("autocomplete/mixer",
         smartCliqzCache.retrieveAndUpdate = smartCliqzCache.retrieve;
 
         this.deps("core/cliqz").utils.generalizeUrl = () => "cliqz.com";
-        this.module().default.init({
+        mixer = new (this.module().default)({
           smartCliqzCache,
           triggerUrlCache,
         });
       });
 
       it('should trigger ez', function() {
-        var ez = this.module().default._historyTriggerEZ(result);
+        var ez = mixer._historyTriggerEZ(result);
         expect(ez).to.equal(ezs[urls['cliqz.com']]);
       });
 
       it('should not trigger ez but fetch', function() {
         ezs = {};
-        var ez = this.module().default._historyTriggerEZ(result);
+        var ez = mixer._historyTriggerEZ(result);
         expect(ez).to.be.undefined;
         expect(fetching).to.equal('cliqz.com');
       });
 
       it('should trigger ez because no cluster', function() {
         result.data.cluster = false;
-        var ez = this.module().default._historyTriggerEZ(result);
+        var ez = mixer._historyTriggerEZ(result);
         expect(ez).to.be.undefined;
       });
 
       it('should trigger ez because cluster base domain inferred', function() {
         result.data.autoAdd = true;
-        var ez = this.module().default._historyTriggerEZ(result);
+        var ez = mixer._historyTriggerEZ(result);
         expect(ez).to.be.undefined;
       });
     });
@@ -789,20 +793,20 @@ export default describeModule("autocomplete/mixer",
       });
 
       it('should not conflict if history matches', function() {
-        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = mixer._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.deep.equal(ezs);
       });
 
       it('should not conflict if no bet', function() {
         firstResult.val = 'http://facebook.com';
         firstResult.data.cluster = false;
-        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = mixer._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.deep.equal(ezs);
       });
 
       it('should conflict if history bet does not match', function() {
         firstResult.val = 'http://facebook.com';
-        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = mixer._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.have.length(0);
       });
 
@@ -811,7 +815,7 @@ export default describeModule("autocomplete/mixer",
         firstResult.val = 'http://facebook.com';
         firstResult.cluster = false;
         firstResult.autocompleted = true;
-        var finalExtra = this.module().default._filterConflictingEZ(ezs, firstResult);
+        var finalExtra = mixer._filterConflictingEZ(ezs, firstResult);
         expect(finalExtra).to.have.length(0);
       });
 

@@ -440,8 +440,8 @@ var UI = {
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true;
+                if (CliqzAutocomplete.spellCheck.state.on) {
+                    CliqzAutocomplete.spellCheck.state.override = true;
                 }
 
                 return true;
@@ -459,8 +459,8 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
-                    CliqzAutocomplete.spellCorr.override = true
+                if (CliqzAutocomplete.spellCheck.state.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCheck.state.correctBack).length != 0) {
+                    CliqzAutocomplete.spellCheck.state.override = true
                     // correct back the last word if it was changed
                     var words = urlbar.mInputField.value.split(' ');
                     var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
@@ -1100,7 +1100,7 @@ function enhanceResults(res){
     }
 
 
-    var spelC = CliqzAutocomplete.spellCorr;
+    var spelC = CliqzAutocomplete.spellCheck.state;
 
     //filter adult results
     if(adult) {
@@ -1355,25 +1355,25 @@ function urlIndexInHistory(url, urlList) {
 
                     case 'spellcorrect-revert':
                         var s = urlbar.value;
-                        for (var c in CliqzAutocomplete.spellCorr.correctBack) {
-                            s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                        for (var c in CliqzAutocomplete.spellCheck.state.correctBack) {
+                            s = s.replace(c, CliqzAutocomplete.spellCheck.state.correctBack[c]);
                         }
                         urlbar.mInputField.setUserInput(s);
-                        CliqzAutocomplete.spellCorr.override = true;
+                        CliqzAutocomplete.spellCheck.state.override = true;
                         clearMessage('bottom');
                         break;
                     case 'spellcorrect-keep':
-                        var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                        var spellCorData = CliqzAutocomplete.spellCheck.state.searchTerms;
                         for (var i = 0; i < spellCorData.length; i++) {
                             //delete terms that were found in correctBack dictionary. User accepted our correction:-)
-                            for (var c in CliqzAutocomplete.spellCorr.correctBack) {
-                                if (CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
-                                    delete CliqzAutocomplete.spellCorr.correctBack[c];
+                            for (var c in CliqzAutocomplete.spellCheck.state.correctBack) {
+                                if (CliqzAutocomplete.spellCheck.state.correctBack[c] === spellCorData[i].correctBack) {
+                                    delete CliqzAutocomplete.spellCheck.state.correctBack[c];
                                 }
                             }
                         }
 
-                        CliqzAutocomplete.spellCorr['userConfirmed'] = true;
+                        CliqzAutocomplete.spellCheck.state['userConfirmed'] = true;
                         clearMessage('bottom');
                         break;
 

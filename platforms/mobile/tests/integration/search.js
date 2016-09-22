@@ -64,15 +64,21 @@ function $(selector) {
 
 function injectSinon(win) {
   var resolver,
-      promise = new Promise(function (resolve) {
+      rejecter,
+      promise = new Promise(function (resolve, reject) {
         resolver = resolve;
+        rejecter = reject;
       });
 
   var sinonScript = win.document.createElement("script");
   sinonScript.src = "/bower_components/sinonjs/sinon.js";
   sinonScript.onload = function () {
-    window.sinon = contentWindow.sinon;
-    resolver();
+    if (win.sinon) {
+      window.sinon = win.sinon;
+      resolver();
+    } else {
+      rejecter("sinon not loaded");
+    }
   };
   win.document.body.appendChild(sinonScript);
 
@@ -80,32 +86,37 @@ function injectSinon(win) {
 }
 
 describe('Search View', function() {
+  let timeout = 15000;
   var testBox;
 
   beforeEach(function () {
     // startup can be quite slow for the first time. Maybe there is better way
     // to warm it up.
-    this.timeout(10000);
+    this.timeout(timeout);
     testBox = document.createElement("iframe");
     testBox.setAttribute("class", "testFrame");
     testBox.src = 	"/build/index.html";
-    document.body.appendChild(testBox);
-
-
-    contentWindow = testBox.contentWindow;
 
     function waitForWindow(win) {
-      return new Promise(function (res) {
-        win.addEventListener('newsLoadingDone', function () { res(); });
+      return new Promise(function (resolve, reject) {
+        const rejectTimeout = setTimeout(reject.bind(null, "did not initialize properly"), timeout);
+        win.addEventListener('newsLoadingDone', function () {
+          clearTimeout(rejectTimeout);
+          resolve();
+        });
       })
     }
 
-    return new Promise(function (resolve) {
-      contentWindow.onload = resolve;
+    return new Promise(function (resolve, reject) {
+      const rejectTimeout = setTimeout(reject.bind(null, "iframe contentWindow not loaded"), timeout);
+      testBox.addEventListener("load", () => {
+        clearTimeout(rejectTimeout);
+        resolve();
+      });
+      document.body.appendChild(testBox);
     }).then(function () {
-      return Promise.all([
-        injectSinon(contentWindow)
-      ])
+      contentWindow = testBox.contentWindow;
+      return injectSinon(contentWindow);
     }).then(function () {
       fakeServer = sinon.fakeServer.create({
         autoRespond: true,

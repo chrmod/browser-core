@@ -118,7 +118,7 @@ var CLIQZEnvironment = {
   },
   resultsHandler: function (r) {
 
-    if( CLIQZEnvironment.lastSearch !== r._searchString  ){
+    if( CLIQZEnvironment.lastSearch !== r._searchString ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
@@ -156,7 +156,9 @@ var CLIQZEnvironment = {
 
     // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //CliqzUtils.log(e,'XHR');
-    (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
+    if (!CLIQZEnvironment.SEARCH) { CLIQZEnvironment.SEARCH = new Search();}
+
+    CLIQZEnvironment.SEARCH.search(e, CLIQZEnvironment.resultsHandler);
   },
   getPref: function(pref, notFound){
     var mypref;

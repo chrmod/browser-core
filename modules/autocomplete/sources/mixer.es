@@ -7,8 +7,6 @@ import { utils } from "core/cliqz";
 import Result from "autocomplete/result";
 import UrlCompare from "autocomplete/url-compare";
 
-var CliqzSmartCliqzCache;
-var SmartCliqzTriggerUrlCache;
 
 function objectExtend(target, obj) {
   Object.keys(obj).forEach(function(key) {
@@ -33,26 +31,26 @@ function resultKindEnricher(newKindParams, result) {
   return result;
 }
 
-var Mixer = {
-  EZ_COMBINE: [
-    'entity-generic', 'ez-generic-2', 'entity-search-1',
-    'entity-portal', 'entity-banking-2',
-  ],
-  EZ_QUERY_BLACKLIST: [
-    'www', 'www.', 'http://www', 'https://www',
-    'http://www.', 'https://www.',
-  ],
-
-  init: function( { smartCliqzCache, triggerUrlCache } = {} ) {
-    CliqzSmartCliqzCache = smartCliqzCache;
-    SmartCliqzTriggerUrlCache = triggerUrlCache;
-  },
+export default class Mixer {
+  constructor({ smartCliqzCache, triggerUrlCache } = {}) {
+    this.EZ_COMBINE = [
+      'entity-generic', 'ez-generic-2', 'entity-search-1',
+      'entity-portal', 'entity-banking-2',
+    ];
+    this.EZ_QUERY_BLACKLIST = [
+      'www', 'www.', 'http://www', 'https://www',
+      'http://www.', 'https://www.',
+    ];
+    this.smartCliqzCache = smartCliqzCache;
+    this.triggerUrlCache = triggerUrlCache;
+  }
 
   // Prepare 'extra' results (dynamic results from Rich Header) for mixing
-  _prepareExtraResults: function(results) {
+  _prepareExtraResults(results) {
     // Remove invalid EZs
+    var mixer = this;
     results = results.filter(function(r) {
-      if (Mixer._isValidEZ(r)) {
+      if (mixer._isValidEZ(r)) {
         return true;
       } else {
         utils.log('Discarding bad EZ: ' + JSON.stringify(r), 'Mixer');
@@ -64,10 +62,10 @@ var Mixer = {
     return results.map(resultKindEnricher.bind(null, {
       trigger_method: 'rh_query',
     }));
-  },
+  }
 
   // Various checks to make sure the supplied EZ is valid
-  _isValidEZ: function(ez) {
+  _isValidEZ(ez) {
     if (!ez.val) {
       return false;
     }
@@ -85,7 +83,7 @@ var Mixer = {
     }
 
     try {
-      var ezId = Mixer._getSmartCliqzId(ez);
+      var ezId = this._getSmartCliqzId(ez);
       if (!ezId) {
         return false;
       }
@@ -98,36 +96,36 @@ var Mixer = {
     }
 
     return true;
-  },
+  }
 
   // Prepare backend results for mixing
-  _prepareCliqzResults: function(results) {
+  _prepareCliqzResults(results) {
     return results.map(function(result, i) {
       var subType = JSON.parse(result.subType || '{}');
       subType.i = i;
       result.subType = JSON.stringify(subType);
       return Result.cliqz(result);
     });
-  },
+  }
 
   // Prepare history results for mixing
-  _prepareHistoryResults: function(results) {
+  _prepareHistoryResults(results) {
     return results.map(Result.clone);
-  },
+  }
   // Is query valid for triggering an EZ?
   // Must have more than 2 chars and not in blacklist
   //  - avoids many unexpected EZ triggerings
-  _isValidQueryForEZ: function(q) {
+  _isValidQueryForEZ(q) {
     var trimmed = q.trim();
     if (trimmed.length <= utils.MIN_QUERY_LENGHT_FOR_EZ) {
       return false;
     }
 
-    return Mixer.EZ_QUERY_BLACKLIST.indexOf(trimmed.toLowerCase()) == -1;
-  },
+    return this.EZ_QUERY_BLACKLIST.indexOf(trimmed.toLowerCase()) == -1;
+  }
 
   // extract any entity zone accompanying the result, add to extraResults
-  _addEZfromBM: function(extraResults, result) {
+  _addEZfromBM(extraResults, result) {
     if (!result.extra) {
       return;
     }
@@ -135,27 +133,28 @@ var Mixer = {
     var extra = Result.cliqzExtra(result.extra, result.snippet);
     //resultKindEnricher({trigger_method: 'backend_url'}, extra);
     extraResults.push(extra);
-  },
+  }
 
   // Collect all sublinks and return a single list.
   //  - called recursively, looking for any keys that look like URLs
-  _collectSublinks: function(data) {
+  _collectSublinks(data) {
     var links = [];
 
     for (var key in data) {
       if (typeof (data[key]) == 'object') {
         // recurse
-        links = links.concat(Mixer._collectSublinks(data[key]));
+        links = links.concat(this._collectSublinks(data[key]));
       } else if (['url', 'href'].indexOf(key) != -1) {
         links.push(data[key]);
       }
     }
 
     return links;
-  },
+  }
 
   // mark entries in second that are found in first
-  _getDuplicates: function(first, second) {
+  _getDuplicates(first, second) {
+    var mixer = this;
     return second.map(function(c) {
       var duplicate = false;
       first.forEach(function(i) {
@@ -166,7 +165,7 @@ var Mixer = {
         }
 
         // Do any of the sublinks match?
-        var sublinks = Mixer._collectSublinks(i.data);
+        var sublinks = mixer._collectSublinks(i.data);
         sublinks.some(function(u) {
           if (UrlCompare.sameUrls(u, c.label)) {
             duplicate = true;
@@ -181,12 +180,12 @@ var Mixer = {
     }).filter(function(result) {
       return result;
     });
-  },
+  }
 
   // Remove results from second list that are present in the first
   // Copy some information (such as the kind) to entry in the first list
-  _deduplicateResults: function(first, second) {
-    var duplicates = Mixer._getDuplicates(first, second);
+  _deduplicateResults(first, second) {
+    var duplicates = this._getDuplicates(first, second);
 
     // remove duplicates from second list
     second = second.filter(function(c) {
@@ -206,17 +205,17 @@ var Mixer = {
     });
 
     return { first: first, second: second };
-  },
+  }
 
   // Special case deduplication: remove clustered links from history if already
   // somewhere else in the EZ
-  _deduplicateHistory: function(result) {
+  _deduplicateHistory(result) {
     // Collect sublinks not in history
     var otherLinks = [];
     Object.keys(result.data).filter(function(key) {
       return key != 'urls';
     }).forEach(function(key) {
-      var sublinks = Mixer._collectSublinks(result.data[key]);
+      var sublinks = this._collectSublinks(result.data[key]);
       otherLinks.concat(sublinks);
     });
 
@@ -232,62 +231,62 @@ var Mixer = {
 
       return !duplicate;
     });
-  },
-  _getSmartCliqzId: function(smartCliqz) {
+  }
+  _getSmartCliqzId(smartCliqz) {
     return smartCliqz.data.__subType__.id;
-  },
+  }
 
   // Find any entity zone in the results and cache them for later use.
   // Go backwards to prioritize the newest, which will be first in the list.
-  _cacheEZs: function(extraResults) {
-    if (!CliqzSmartCliqzCache || !SmartCliqzTriggerUrlCache) {
+  _cacheEZs(extraResults) {
+    if (!this.smartCliqzCache || !this.triggerUrlCache) {
       return;
     }
-
+    var mixer = this;
     // slice creates a shallow copy, so we don't reverse existing array.
     extraResults.slice().reverse().forEach(function(r) {
       var trigger_urls = r.data.trigger_urls || [];
       var wasCacheUpdated = false;
 
       trigger_urls.forEach(function(url) {
-        if (!SmartCliqzTriggerUrlCache.isCached(url)) {
-          SmartCliqzTriggerUrlCache.store(url, true);
+        if (!mixer.triggerUrlCache.isCached(url)) {
+          mixer.triggerUrlCache.store(url, true);
           wasCacheUpdated = true;
         }
       });
 
       if (wasCacheUpdated) {
-        SmartCliqzTriggerUrlCache.save();
+        mixer.triggerUrlCache.save();
       }
 
-      CliqzSmartCliqzCache.store(r);
+      mixer.smartCliqzCache.store(r);
     });
-  },
+  }
 
   // Take the first entry (if history cluster) and see if we can trigger an EZ
   // with it, this will override an EZ sent by backend.
-  _historyTriggerEZ: function(result) {
+  _historyTriggerEZ(result) {
     if (!result || !result.data ||
        !result.data.cluster || // if not history cluster
        result.data.autoAdd) { // if the base domain was auto added (guessed)
       return undefined;
     }
 
-    if (!CliqzSmartCliqzCache || !SmartCliqzTriggerUrlCache) {
+    if (!this.smartCliqzCache || !this.triggerUrlCache) {
       return undefined;
     }
 
     var url = utils.generalizeUrl(result.val, true),
       ez;
 
-    if (SmartCliqzTriggerUrlCache.isCached(url)) {
-      var ezId = SmartCliqzTriggerUrlCache.retrieve(url);
+    if (this.triggerUrlCache.isCached(url)) {
+      var ezId = this.triggerUrlCache.retrieve(url);
       // clear dirty data that got into the data base
       if (ezId === 'deprecated') {
-        SmartCliqzTriggerUrlCache.delete(url);
+        this.triggerUrlCache.delete(url);
         return undefined;
       }
-      ez = CliqzSmartCliqzCache.retrieveAndUpdate(url);
+      ez = this.smartCliqzCache.retrieveAndUpdate(url);
       if (ez) {
         // Cached EZ is available
         ez = Result.clone(ez);
@@ -302,19 +301,19 @@ var Mixer = {
         resultKindEnricher({trigger_method: 'history_url'}, ez);
       } else {
         // Not available: start fetching now so it is available soon
-        CliqzSmartCliqzCache.fetchAndStore(url);
+        this.smartCliqzCache.fetchAndStore(url);
       }
 
-      if (SmartCliqzTriggerUrlCache.isStale(url)) {
-        SmartCliqzTriggerUrlCache.delete(url);
+      if (this.triggerUrlCache.isStale(url)) {
+        this.triggerUrlCache.delete(url);
       }
     }
 
     return ez;
-  },
+  }
 
   // Filter out any EZs that conflict with the firstresult
-  _filterConflictingEZ: function(cliqzExtra, firstresult) {
+  _filterConflictingEZ(cliqzExtra, firstresult) {
     return cliqzExtra.filter(function(ez) {
 
       // Did we make a 'bet' on a url from history that does not match this EZ?
@@ -336,30 +335,30 @@ var Mixer = {
 
       return true;
     });
-  },
+  }
   // Mix together history, backend and custom results. Called twice per query:
   // once with only history (instant), second with all data.
-  mix: function(q, cliqz, cliqzExtra, history, customResults,
+  mix(q, cliqz, cliqzExtra, history, customResults,
                 only_history) {
 
-    if (!Mixer._isValidQueryForEZ(q)) {
+    if (!this._isValidQueryForEZ(q)) {
       cliqzExtra = [];
     } else {
       // Prepare incoming EZ results
-      cliqzExtra = Mixer._prepareExtraResults(cliqzExtra || []);
+      cliqzExtra = this._prepareExtraResults(cliqzExtra || []);
 
       // Add EZ from first cliqz results to list of EZs, if valid
       if (cliqz && cliqz.length > 0) {
-        Mixer._addEZfromBM(cliqzExtra, cliqz[0]);
+        this._addEZfromBM(cliqzExtra, cliqz[0]);
       }
 
       // Cache any EZs found
-      Mixer._cacheEZs(cliqzExtra);
+      this._cacheEZs(cliqzExtra);
     }
 
     // Prepare other incoming data
-    cliqz = Mixer._prepareCliqzResults(cliqz || []);
-    history = Mixer._prepareHistoryResults(history || []);
+    cliqz = this._prepareCliqzResults(cliqz || []);
+    history = this._prepareHistoryResults(history || []);
 
     utils.log('only_history:' + only_history +
                    ' history:' + history.length +
@@ -368,20 +367,20 @@ var Mixer = {
 
     // Were any history results also available as a cliqz result?
     //  if so, remove from backend list and combine sources in history result
-    var r = Mixer._deduplicateResults(history, cliqz);
+    var r = this._deduplicateResults(history, cliqz);
 
     // Prepare results: history (first) then backend results (second)
     var results = r.first.concat(r.second);
 
     // Trigger EZ with first entry
-    var historyEZ = Mixer._historyTriggerEZ(results[0]);
+    var historyEZ = this._historyTriggerEZ(results[0]);
     if (historyEZ) {
       cliqzExtra = [historyEZ];
     }
 
     // Filter conflicting EZs
     if (results.length > 0) {
-      cliqzExtra = Mixer._filterConflictingEZ(cliqzExtra, results[0]);
+      cliqzExtra = this._filterConflictingEZ(cliqzExtra, results[0]);
     }
 
 
@@ -394,7 +393,7 @@ var Mixer = {
     cliqzExtra = cliqzExtra.slice(0, 1);
 
     // remove any BM or simple history results covered by EZ
-    r = Mixer._deduplicateResults(cliqzExtra, results);
+    r = this._deduplicateResults(cliqzExtra, results);
     results = r.second;
     var ez = r.first[0];
 
@@ -404,12 +403,12 @@ var Mixer = {
 
       // Make a combined entry, if possible
       if (results.length > 0 && results[0].data.cluster &&
-         Mixer.EZ_COMBINE.indexOf(ez.data.template) !== -1 &&
+         this.EZ_COMBINE.indexOf(ez.data.template) !== -1 &&
          UrlCompare.sameUrls(results[0].val, ez.val)) {
 
         utils.log('Making combined entry.', 'Mixer');
         results[0] = Result.combine(ez, result[0]);
-        Mixer._deduplicateHistory(results[0]);
+        this._deduplicateHistory(results[0]);
       } else {
         // Add EZ to top of result list
         results = [ez].concat(results);
@@ -442,7 +441,5 @@ var Mixer = {
     }
 
     return results;
-  },
-};
-
-export default Mixer;
+  }
+}

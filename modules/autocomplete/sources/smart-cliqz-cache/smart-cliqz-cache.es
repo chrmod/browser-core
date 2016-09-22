@@ -421,7 +421,4 @@ export default class {
   _log(msg) {
     utils.log(msg, 'smart-cliqz-cache');
   }
-
-  unload() {
-  }
 }
