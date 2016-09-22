@@ -29,6 +29,11 @@
     }
 
     &.cqz-step3 {}
+
+}
+
+#UITourTooltip[target="cliqz"] .panel-arrowcontent {
+    --panel-arrowcontent-padding: 0px;
 }
 
 

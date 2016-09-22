@@ -147,6 +147,7 @@ export default background({
       var targetPromise = UITour.getTarget(utils.getWindow(), "cliqz");
         targetPromise.then(function(target) {
           UITour.hideHighlight(utils.getWindow(), target);
+          UITour.hideInfo(utils.getWindow(), target);
         });
 
       utils.setPref('cliqz-onboarding-v2-step', 3);
