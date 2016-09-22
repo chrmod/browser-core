@@ -1,5 +1,7 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
 import CliqzLanguage from 'platform/language';
+import platform from 'platform/platform';
+
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -62,14 +64,21 @@ class Checksums extends UpdateCallbackHandler {
         if (list === 'country_lists') {
           lang = data[list][asset].language;
         }
-
         const assetName = stripProtocol(asset);
+        let remoteURL = BASE_URL + assetName;
+        let flag = true;
 
-        if (lang === null || LANGS.indexOf(lang) > -1) {
+        if (list === 'mobile_customized') {
+          remoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
+          if (platform.isFirefox || platform.isChromium) {
+            flag = false;
+          }
+        }
+        if (flag && (lang === null || LANGS.indexOf(lang) > -1)) {
           this.triggerCallbacks({
             checksum,
             asset,
-            remoteURL: BASE_URL + assetName,
+            remoteURL: remoteURL,
             key: list,
           });
         }
