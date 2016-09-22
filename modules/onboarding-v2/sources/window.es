@@ -1,4 +1,6 @@
 import utils from "core/utils";
+import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
+
 const CLIQZ_ONBOARDING = "about:onboarding";
 
 export default class {
@@ -7,8 +9,11 @@ export default class {
   }
 
   init() {
-    var step = utils.getPref('cliqz-onboarding-v2-step', 1);
-    if(step < 3) {
+    if(onboardingVersion() !== "2.0") {
+      return;
+    }
+
+    if(shouldShowOnboardingV2()) {
       utils.openLink(this.window, CLIQZ_ONBOARDING);
     }
 

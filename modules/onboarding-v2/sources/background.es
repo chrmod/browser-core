@@ -1,5 +1,6 @@
 import background from "core/base/background";
 import utils from "core/utils";
+import UITour from 'platform/ui-tour';
 
 const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu, manager: Cm } =
     Components;
@@ -16,7 +17,6 @@ var CLIQZ_ONBOARDING = "about:onboarding",
     CLIQZ_ONBOARDING_URL = "chrome://cliqz/content/onboarding-v2/index.html"
 
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
-Cu.import('resource:///modules/UITour.jsm');
 
 function AboutURL() {}
 AboutURL.prototype = {

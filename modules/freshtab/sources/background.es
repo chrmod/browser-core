@@ -3,11 +3,14 @@ import News from 'freshtab/news';
 import History from 'freshtab/history';
 import { utils } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
+import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
+
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const FIVE_DAYS = 5 * ONE_DAY;
 const PREF_ONBOARDING = 'freshtabOnboarding';
+const CLIQZ_ONBOARDING = 'about:onboarding';
 
 const getInstallationDate = function() {
   return parseInt(utils.getPref(PREF_ONBOARDING, '0'));
@@ -40,20 +43,18 @@ export default {
 
   actions: {
     _showOnboarding() {
-        var showOnboarding = false;
-        // if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref('browserOnboarding')) {
-        //   utils.setPref('browserOnboarding', true);
-        //   showOnboarding = true;
-        // }
-        var step = utils.getPref('cliqz-onboarding-v2-step', 1);
-        if(step < 3) {
-          showOnboarding = true;
+      if(onboardingVersion() === '2.0') {
+        if(shouldShowOnboardingV2()) {
+          //TODO define CLIQZ_ONBOARDING globally
+          utils.openLink(utils.getWindow(), CLIQZ_ONBOARDING);
+          return;
         }
-        return showOnboarding;
-    },
-
-    displayOnboarding() {
-      utils.openLink(utils.getWindow(), 'about:onboarding')
+      } else if(onboardingVersion() === '1.2') {
+        if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref('browserOnboarding')) {
+          utils.setPref('browserOnboarding', true);
+          return true;
+        }
+      }
     },
 
     _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),
