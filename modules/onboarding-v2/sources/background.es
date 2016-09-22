@@ -16,6 +16,7 @@ var CLIQZ_ONBOARDING = "about:onboarding",
     CLIQZ_ONBOARDING_URL = "chrome://cliqz/content/onboarding-v2/index.html"
 
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
+Cu.import('resource:///modules/UITour.jsm');
 
 function AboutURL() {}
 AboutURL.prototype = {
@@ -95,6 +96,8 @@ export default background({
         ['cqz-onboarding', 'cqz-step1']
       );
 
+      UITour.targets.set("cliqz", { query: '#cliqz-cc-btn', widgetName: 'cliqz-cc-btn', allowAdd: true });
+
       return this.actions._getStep();
     },
 
@@ -119,13 +122,18 @@ export default background({
         );
       }, 400);
 
-      setTimeout(function() {
-        utils.callAction(
-          'control-center',
-          'setBadge',
-          [17]
-        );
-      }, 1000);
+
+      utils.callAction(
+        'control-center',
+        'setBadge',
+        [17]
+      );
+      utils.setTimeout(function() {
+        var targetPromise = UITour.getTarget(utils.getWindow(), "cliqz");
+        targetPromise.then(function(target) {
+          UITour.showHighlight(utils.getWindow(), target, "wobble");
+        });
+      }, 1500);
     },
 
     step3() {
@@ -135,6 +143,11 @@ export default background({
         'removeClassFromWindow',
         ['cqz-step1', 'cqz-step2']
       );
+
+      var targetPromise = UITour.getTarget(utils.getWindow(), "cliqz");
+        targetPromise.then(function(target) {
+          UITour.hideHighlight(utils.getWindow(), target);
+        });
 
       utils.setPref('cliqz-onboarding-v2-step', 3);
 
