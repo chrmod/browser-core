@@ -66,21 +66,21 @@ class Checksums extends UpdateCallbackHandler {
         }
         const assetName = stripProtocol(asset);
 
-        let remoteURL = BASE_URL + assetName;
-        let flag = true;
+        let filterRemoteURL = BASE_URL + assetName;
+        let loadFilter = true;
 
         if (list === 'mobile_customized') { 
-          remoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
+          filterRemoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
           if (platform.isFirefox || platform.isChromium) {
-            flag = false;
+            loadFilter = false;
           }
         }
           
-        if (flag && (lang === null || LANGS.indexOf(lang) > -1)) {
+        if (loadFilter && (lang === null || LANGS.indexOf(lang) > -1)) {
           this.triggerCallbacks({
             checksum,
             asset,
-            remoteURL: remoteURL,
+            remoteURL: filterRemoteURL,
             key: list,
           });
         }
