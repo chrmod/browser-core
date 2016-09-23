@@ -1107,7 +1107,7 @@
       "message": "Hier findest Du in Zukunft Deine Suchen und besuchten Seiten.<br />Bisher hast Du noch nicht gesucht und warst auf keinen Webseiten."
     },
     "mobile_no_favorites": {
-      "message": "Hier findest Du in Zukunft Deine Favoriten."
+      "message": "Hier findest Du in Zukunft Deine Favoriten.<br/>Bisher hast du noch keine Favoriten angelegt."
     },
     "mobile_history_title": {
       "message": "Besuchte Seiten"
