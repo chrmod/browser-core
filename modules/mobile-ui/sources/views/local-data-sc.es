@@ -97,5 +97,7 @@ export default class {
     }
 
     data.deepLinks = ((data.deepResults || []).find(res => res.type === 'buttons') || {}).links
+
+    data.escapedUrl = data.mu && escape(data.mu);
   }
 };
