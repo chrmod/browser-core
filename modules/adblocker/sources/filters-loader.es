@@ -65,15 +65,17 @@ class Checksums extends UpdateCallbackHandler {
           lang = data[list][asset].language;
         }
         const assetName = stripProtocol(asset);
+
         let remoteURL = BASE_URL + assetName;
         let flag = true;
 
-        if (list === 'mobile_customized') {
+        if (list === 'mobile_customized') { 
           remoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
           if (platform.isFirefox || platform.isChromium) {
             flag = false;
           }
         }
+          
         if (flag && (lang === null || LANGS.indexOf(lang) > -1)) {
           this.triggerCallbacks({
             checksum,
