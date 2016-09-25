@@ -1,3 +1,5 @@
+import { log } from 'adblocker/utils';
+
 // Some content policy types used in filters
 const CPT = {
   TYPE_OTHER: 1,

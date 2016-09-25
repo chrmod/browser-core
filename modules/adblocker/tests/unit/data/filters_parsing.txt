@@ -261,6 +261,8 @@
 # isComment #
 # > True
 {"filter": "# ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
+{"filter": "# ", "compiled": {"isComment": true}}
+{"filter": "#", "compiled": {"isComment": true}}
 {"filter": "! ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
 {"filter": "[Adblock] ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
 {"filter": "[Adblock Plus 2.0] ||cliqz.com^test/ad*|", "compiled": {"isComment": true}}
@@ -287,9 +289,9 @@
 
 ##########################
 # Comment at end of line #
-{"filter": "cliqz # Comment", "compiled": {"filterStr": "cliqz"}}
-{"filter": "cliqz #Comment", "compiled": {"filterStr": "cliqz"}}
-{"filter": "cliqz #", "compiled": {"filterStr": "cliqz"}}
+# {"filter": "cliqz # Comment", "compiled": {"filterStr": "cliqz"}}
+# {"filter": "cliqz #Comment", "compiled": {"filterStr": "cliqz"}}
+# {"filter": "cliqz #", "compiled": {"filterStr": "cliqz"}}
 
 
 ###############################################################################

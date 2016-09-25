@@ -6,20 +6,25 @@
 const fs = require('fs');
 
 
-
 function readFile(path) {
   return fs.readFileSync(path, 'utf8');
 }
 
 
 let isMobile;
-let isFirefox;
-let isChromium;
 let platformName;
 
 
+/* Checks that the two sets are equal. This is used to make sure
+ * the filter loader loads exactly the right lists, not more, no
+ * less.
+ */
 function allListsLoaded(listsToLoad, loadedLists) {
-  for (let elt of listsToLoad) {
+  if (listsToLoad.length !== loadedLists.length) {
+    return false;
+  }
+
+  for (const elt of listsToLoad) {
     if (!loadedLists.has(elt)) {
       return false;
     }
@@ -32,114 +37,106 @@ function platformSpecificLoadingTest(listsToLoad, FilterLoader) {
   const filtersLoader = new FilterLoader();
   const loadedLists = new Set();
 
-  return new Promise(function (resolve, reject) {
-    filtersLoader.onUpdate(update => {
-      const { asset, filters, isFiltersList } = update;
-      console.log(`ON UPDATE ${asset}`);
-      loadedLists.add(asset);
-
-      if (allListsLoaded(listsToLoad, loadedLists)) {
-        resolve();
-      }
+  return new Promise((resolve, reject) => {
+    filtersLoader.onUpdate(updates => {
+      updates.forEach(update => {
+        const { asset } = update;
+        loadedLists.add(asset);
+      });
     });
 
-    filtersLoader.load();
+    // Load filters, then check that loaded filter are
+    // the same as what we would expect.
+    filtersLoader.load().then(() => {
+      if (allListsLoaded(listsToLoad, loadedLists)) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
   });
 }
 
 
 export default describeModule('adblocker/filters-loader',
   () => ({
-    'platform/language': { 
+    'platform/language': {
       default: {
-        state() { return []; }
-      } 
+        state() { return []; },
+      },
     },
     'core/fs': {
-      readFile: function () { return Promise.reject(); },
-      writeFile: function () { return Promise.resolve(); },
-      mkdir: function () { return Promise.resolve(); }
+      readFile() { return Promise.reject(); },
+      writeFile() { return Promise.resolve(); },
+      mkdir() { return Promise.resolve(); },
     },
     'adblocker/utils': {
-      log: function (msg) {
-        console.log( `[adblocker] ${msg}`);
-      }
+      log() {
+        // console.log( `[adblocker] ${msg}`);
+      },
     },
     'core/cliqz': {
       utils: {
-        setInterval: function () {},
-        getPref: function (pref, defaultValue) {
+        setInterval() {},
+        getPref(pref, defaultValue) {
           return defaultValue;
         },
-        setPref: function () {},
-        httpGet: function (url, callback, reject) {
-          console.log('FETCH URL ' + url);
-          let content = "";
-          switch (url) {
-            case "https://cdn.cliqz.com/adblocking/undefined/allowed-lists.json":
-              if (isMobile) {
-                content = readFile('modules/adblocker/tests/unit/data/allowed-lists-mobile.json');
-              } else {
-                content = readFile('modules/adblocker/tests/unit/data/allowed-lists.json');
-              }
-              break;
-            case "https://cdn.cliqz.com/adblocking/undefined/allowed-lists.json":
+        setPref() {},
+        httpGet(url, callback) {
+          let content = '';
+          if (url.startsWith('https://cdn.cliqz.com/adblocking/undefined/allowed-lists.json')) {
+            if (isMobile) {
+              content = readFile('modules/adblocker/tests/unit/data/allowed-lists-mobile.json');
+            } else {
               content = readFile('modules/adblocker/tests/unit/data/allowed-lists.json');
-              break;
-            default:
-              break;
-          };
-          console.log(`READ FILE ${content.length}`)
-          callback({response: content});
-        }
-      }
+            }
+          }
+          callback({ response: content });
+        },
+      },
     },
     'core/platform': {
       default: {
-        platformName
-      }, 
+        platformName,
+      },
     },
   }),
-  function () {
-    describe('Test loading filters', function () {
+  () => {
+    describe('Test loading filters', () => {
       let FilterLoader;
 
       beforeEach(function importFiltersLoader() {
         FilterLoader = this.module().default;
       });
 
-      it('does not load mobile customized filters', function () {
-        isChromium = false;
-        isFirefox = false;
+      it('does not load mobile customized filters', () => {
         isMobile = true;
         platformName = 'mobile';
 
         return platformSpecificLoadingTest(new Set([
-          "https://easylist-downloads.adblockplus.org/antiadblockfilters.txt",
-          "https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
-          "https://s3.amazonaws.com/cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt"
-        ]), FilterLoader); 
+          'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
+          'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt',
+          'https://s3.amazonaws.com/cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
+        ]), FilterLoader);
       });
 
-      it('does not load firefox filters', function () {
-        isChromium = false;
-        isFirefox = true;
+      it('does not load firefox filters', () => {
         isMobile = false;
         platformName = 'firefox';
 
         return platformSpecificLoadingTest(new Set([
-          "https://easylist-downloads.adblockplus.org/antiadblockfilters.txt",
-          "https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
-          "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt"
+          'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
+          'https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt',
+          'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt',
         ]), FilterLoader);
-      }); 
+      });
     });
   }
 );

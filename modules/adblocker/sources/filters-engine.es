@@ -2,7 +2,9 @@ import { TLDs } from 'antitracking/domain';
 import { URLInfo } from 'antitracking/url';
 
 import { log } from 'adblocker/utils';
-import parseList, { parseJSResource } from 'adblocker/filters-parsing';
+import parseList, { parseJSResource
+                  , serializeFilter
+                  , deserializeFilter } from 'adblocker/filters-parsing';
 import match from 'adblocker/filters-matching';
 
 
@@ -140,6 +142,32 @@ class FuzzyIndex {
 }
 
 
+function serializeFuzzyIndex(fi, serializeBucket) {
+  const index = {};
+  fi.index.forEach((value, key) => {
+    index[key] = serializeBucket(value);
+  });
+
+  return {
+    index,
+    indexOnlyOne: fi.indexOnlyOne,
+    size: fi.size,
+  };
+}
+
+
+function deserializeFuzzyIndex(fi, serialized, deserializeBucket) {
+  const { index, indexOnlyOne, size } = serialized;
+  Object.keys(index).forEach(key => {
+    const value = index[key];
+    fi.index.set(key, deserializeBucket(value));
+  });
+
+  fi.size = size;
+  fi.indexOnlyOne = indexOnlyOne;
+}
+
+
 /* A filter reverse index is the lowest level of optimization we apply on filter
  * matching. To avoid inspecting filters that have no chance of matching, we
  * dispatch them in an index { ngram -> list of filter }.
@@ -223,6 +251,26 @@ class FilterReverseIndex {
 }
 
 
+function serializeFilterReverseIndex(fri) {
+  return {
+    name: fri.name,
+    size: fri.size,
+    miscFilters: fri.miscFilters.map(filter => filter.id),
+    index: serializeFuzzyIndex(fri.index, bucket => bucket.map(filter => filter.id)),
+  };
+}
+
+
+function deserializeFilterReverseIndex(serialized, filtersIndex) {
+  const { name, size, miscFilters, index } = serialized;
+  const fri = new FilterReverseIndex(name);
+  fri.size = size;
+  fri.miscFilters = miscFilters.map(id => filtersIndex[id]);
+  deserializeFuzzyIndex(fri.index, index, bucket => bucket.map(id => filtersIndex[id]));
+  return fri;
+}
+
+
 /* A Bucket manages a subsets of all the filters. To avoid matching too many
  * useless filters, there is a second level of dispatch here.
  *
@@ -282,7 +330,6 @@ class FilterHostnameDispatch {
   push(filter) {
     ++this.size;
 
-    log(`PUSH ${filter.rawLine}`);
     if (filter.hostname !== null) {
       this.hostnameAnchors.set(filter.hostname, filter);
     } else {
@@ -317,6 +364,30 @@ class FilterHostnameDispatch {
     log(`${this.name} bucket try to match misc`);
     return this.filters.match(request, checkedFilters);
   }
+}
+
+
+function serializeFilterHostnameDispatch(fhd) {
+  return {
+    name: fhd.name,
+    size: fhd.size,
+    hostnameAnchors: serializeFuzzyIndex(fhd.hostnameAnchors, bucket =>
+      serializeFilterReverseIndex(bucket)
+    ),
+    filters: serializeFilterReverseIndex(fhd.filters),
+  };
+}
+
+
+function deserializeFilterHostnameDispatch(serialized, filtersIndex) {
+  const { name, size, hostnameAnchors, filters } = serialized;
+  const fhd = new FilterHostnameDispatch(name);
+  fhd.size = size;
+  fhd.filters = deserializeFilterReverseIndex(filters, filtersIndex);
+  deserializeFuzzyIndex(fhd.hostnameAnchors, hostnameAnchors, bucket =>
+    deserializeFilterReverseIndex(bucket, filtersIndex)
+  );
+  return fhd;
 }
 
 
@@ -379,6 +450,36 @@ class FilterSourceDomainDispatch {
 }
 
 
+function serializeSourceDomainDispatch(sdd) {
+  const sourceDomainDispatch = {};
+  sdd.sourceDomainDispatch.forEach((value, key) => {
+    sourceDomainDispatch[key] = serializeFilterHostnameDispatch(value);
+  });
+
+  return {
+    sourceDomainDispatch,
+    miscFilters: serializeFilterHostnameDispatch(sdd.miscFilters),
+    name: sdd.name,
+    size: sdd.size,
+  };
+}
+
+
+function deserializeSourceDomainDispatch(serialized, filtersIndex) {
+  const { sourceDomainDispatch, miscFilters, name, size } = serialized;
+  const sdd = new FilterSourceDomainDispatch(name);
+
+  sdd.size = size;
+  sdd.miscFilters = deserializeFilterHostnameDispatch(miscFilters, filtersIndex);
+  Object.keys(sourceDomainDispatch).forEach(key => {
+    const value = sourceDomainDispatch[key];
+    sdd.sourceDomainDispatch.set(key, deserializeFilterHostnameDispatch(value, filtersIndex));
+  });
+
+  return sdd;
+}
+
+
 /**
  * Dispatch cosmetics filters on selectors
  */
@@ -408,7 +509,6 @@ class CosmeticBucket {
     const inserted = this.index.set(filter.selector, filter);
 
     if (!inserted) {
-      log(`${this.name} MISC FILTER ${filter.rawLine}`);
       this.miscFilters.push(filter);
     }
   }
@@ -478,6 +578,26 @@ class CosmeticBucket {
 
     return matchingRules;
   }
+}
+
+
+function serializeCosmeticBucket(cb) {
+  return {
+    name: cb.name,
+    size: cb.size,
+    miscFilters: cb.miscFilters.map(filter => filter.id),
+    index: serializeFuzzyIndex(cb.index, bucket => bucket.map(filter => filter.id)),
+  };
+}
+
+
+function deserializeCosmeticBucket(serialized, filtersIndex) {
+  const { name, size, miscFilters, index } = serialized;
+  const cb = new CosmeticBucket(name);
+  cb.size = size;
+  cb.miscFilters = miscFilters.map(id => filtersIndex[id]);
+  deserializeFuzzyIndex(cb.index, index, bucket => bucket.map(id => filtersIndex[id]));
+  return cb;
 }
 
 
@@ -584,6 +704,25 @@ class CosmeticEngine {
 }
 
 
+function serializeCosmeticEngine(cosmetics) {
+  return {
+    size: cosmetics.size,
+    miscFilters: serializeCosmeticBucket(cosmetics.miscFilters),
+    cosmetics: serializeFuzzyIndex(cosmetics.cosmetics, serializeCosmeticBucket),
+  };
+}
+
+
+function deserializeCosmeticEngine(engine, serialized, filtersIndex) {
+  const { size, miscFilters, cosmetics } = serialized;
+  engine.size = size;
+  engine.miscFilters = deserializeCosmeticBucket(miscFilters, filtersIndex);
+  deserializeFuzzyIndex(engine.cosmetics, cosmetics, bucket =>
+    deserializeCosmeticBucket(bucket, filtersIndex)
+  );
+}
+
+
 /* Manage a list of filters and match them in an efficient way.
  * To avoid inspecting to many filters for each request, we create
  * the following accelerating structure:
@@ -599,7 +738,10 @@ class CosmeticEngine {
 export default class {
   constructor() {
     this.lists = new Map();
+    this.resourceChecksum = null;
+
     this.size = 0;
+    this.updated = false;
 
     // *************** //
     // Network filters //
@@ -622,73 +764,120 @@ export default class {
     this.js = new Map();
   }
 
-  onUpdateResource(asset, data) {
-    // the resource containing javascirpts to be injected
-    const js = parseJSResource(data).get('application/javascript');
-    // TODO: handle other type
-    if (js) {
-      this.js = js;
+  hasList(asset, checksum) {
+    if (this.lists.has(asset)) {
+      return this.lists.get(asset).checksum === checksum;
     }
+    return false;
   }
 
-  onUpdateFilters(asset, newFilters) {
-    // Network filters
-    const filters = [];
-    const exceptions = [];
-    const importants = [];
+  onUpdateResource(resources) {
+    resources.forEach(resource => {
+      const { filters, checksum } = resource;
 
-    // Cosmetic filters
-    const cosmetics = [];
+      // NOTE: Here we can only handle one resource at a time.
+      this.resourceChecksum = checksum;
 
-    // Parse and dispatch filters depending on type
-    const parsed = parseList(newFilters);
-
-    parsed.networkFilters.forEach(filter => {
-      log(`ADD TO ENGINE ${filter}`);
-      if (filter.isException) {
-        exceptions.push(filter);
-      } else if (filter.isImportant) {
-        importants.push(filter);
-      } else {
-        filters.push(filter);
+      // the resource containing javascirpts to be injected
+      const js = parseJSResource(filters).get('application/javascript');
+      // TODO: handle other type
+      if (js) {
+        this.js = js;
       }
     });
+  }
 
-    parsed.cosmeticFilters.forEach(filter => {
-      cosmetics.push(filter);
-    });
-
-    if (!this.lists.has(asset)) {
-      log(`FILTER ENGINE ${asset} UPDATE`);
-      // If this is the first time we add this list => update data structures
-      this.size += filters.length + exceptions.length + importants.length + cosmetics.length;
-      filters.forEach(this.filters.push.bind(this.filters));
-      exceptions.forEach(this.exceptions.push.bind(this.exceptions));
-      importants.forEach(this.importants.push.bind(this.importants));
-      cosmetics.forEach(this.cosmetics.push.bind(this.cosmetics));
-
-      this.lists.set(asset, { filters, exceptions, importants, cosmetics });
-    } else {
-      log(`FILTER ENGINE ${asset} REBUILD`);
-      // Rebuild everything since this is an update for an existing list
-      for (const list of this.lists.values()) {
-        list.filters.forEach(filters.push.bind(filters));
-        list.exceptions.forEach(exceptions.push.bind(exceptions));
-        list.importants.forEach(importants.push.bind(importants));
-        list.cosmetics.forEach(cosmetics.push.bind(cosmetics));
-      }
-
-      this.size = filters.length + exceptions.length + importants.length + cosmetics.length;
-      this.filters = new FilterSourceDomainDispatch('filters', filters);
-      this.exceptions = new FilterSourceDomainDispatch('exceptions', exceptions);
-      this.importants = new FilterSourceDomainDispatch('importants', importants);
-      this.cosmetics = new CosmeticEngine(cosmetics);
+  onUpdateFilters(lists) {
+    // Mark the engine as updated, so that it will be serialized on disk
+    if (lists.length > 0) {
+      this.updated = true;
     }
 
-    log(`Filter engine updated with ${filters.length} filters, ` +
-        `${exceptions.length} exceptions, ` +
-        `${importants.length} importants and ` +
-        `${cosmetics.length} cosmetic filters`);
+    // Check if one of the list is an update to an existing list
+    let update = false;
+    lists.forEach(list => {
+      const { asset } = list;
+      if (this.lists.has(asset)) {
+        update = true;
+      }
+    });
+
+    // Parse all filters and update `this.lists`
+    lists.forEach(list => {
+      const { asset, filters, checksum } = list;
+
+      // Network filters
+      const miscFilters = [];
+      const exceptions = [];
+      const importants = [];
+
+      // Parse and dispatch filters depending on type
+      const parsed = parseList(filters);
+
+      // Cosmetic filters
+      const cosmetics = parsed.cosmeticFilters;
+
+      parsed.networkFilters.forEach(filter => {
+        if (filter.isException) {
+          exceptions.push(filter);
+        } else if (filter.isImportant) {
+          importants.push(filter);
+        } else {
+          miscFilters.push(filter);
+        }
+      });
+
+      this.lists.set(asset, {
+        checksum,
+        filters: miscFilters,
+        exceptions,
+        importants,
+        cosmetics,
+      });
+    });
+
+
+    // Update the engine with new rules
+
+    if (update) {
+      // If it's an update then recreate the whole engine
+      const allFilters = {
+        filters: [],
+        exceptions: [],
+        importants: [],
+        cosmetics: [],
+      };
+
+      this.lists.forEach(list => {
+        ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(listName => {
+          list[listName].forEach(filter => {
+            allFilters[listName].push(filter);
+          });
+        });
+      });
+
+      this.size = (allFilters.filters.length +
+                   allFilters.exceptions.length +
+                   allFilters.importants.length +
+                   allFilters.cosmetics.length);
+
+      this.filters = new FilterSourceDomainDispatch('filters', allFilters.filters);
+      this.exceptions = new FilterSourceDomainDispatch('exceptions', allFilters.exceptions);
+      this.importants = new FilterSourceDomainDispatch('importants', allFilters.importants);
+      this.cosmetics = new CosmeticEngine(allFilters.cosmetics);
+    } else {
+      // If it's not an update, just update existing engine
+      lists.forEach(list => {
+        const { asset } = list;
+        const { filters, exceptions, importants, cosmetics } = this.lists.get(asset);
+        // If this is the first time we add this list => update data structures
+        this.size += filters.length + exceptions.length + importants.length + cosmetics.length;
+        filters.forEach(this.filters.push.bind(this.filters));
+        exceptions.forEach(this.exceptions.push.bind(this.exceptions));
+        importants.forEach(this.importants.push.bind(this.importants));
+        cosmetics.forEach(this.cosmetics.push.bind(this.cosmetics));
+      });
+    }
   }
 
   getCosmeticsFilters(url, nodes) {
@@ -722,4 +911,96 @@ export default class {
     log(`Total filters ${checkedFilters.size}`);
     return result;
   }
+}
+
+
+export function serializeFiltersEngine(engine) {
+  // Serialize `engine.js`
+  const js = {};
+  engine.js.forEach((value, key) => {
+    js[key] = value;
+  });
+
+  // Create a global index of filters to avoid redundancy
+  const filters = {};
+  engine.lists.forEach(value => {
+    ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(key => {
+      value[key].forEach(filter => {
+        filters[filter.id] = serializeFilter(filter);
+      });
+    });
+  });
+
+  // Serialize `engine.lists`
+  const lists = {};
+  engine.lists.forEach((value, key) => {
+    const entry = { checksum: value.checksum };
+    ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(listName => {
+      entry[listName] = value[listName].map(filter => filter.id);
+    });
+    lists[key] = entry;
+  });
+
+  return {
+    resourceChecksum: engine.resourceChecksum,
+    cosmetics: serializeCosmeticEngine(engine.cosmetics),
+    js,
+    filtersIndex: filters,
+    size: engine.size,
+    lists,
+    exceptions: serializeSourceDomainDispatch(engine.exceptions),
+    importants: serializeSourceDomainDispatch(engine.importants),
+    filters: serializeSourceDomainDispatch(engine.filters),
+  };
+}
+
+
+export function deserializeFiltersEngine(engine, serialized) {
+  const { resourceChecksum
+        , cosmetics
+        , js
+        , filtersIndex
+        , size
+        , lists
+        , exceptions
+        , importants
+        , filters } = serialized;
+
+  engine.size = size;
+  engine.resourceChecksum = resourceChecksum;
+
+  // Deserialize filters
+  const filtersReverseIndex = {};
+  Object.keys(filtersIndex).forEach(id => {
+    const serializedFilter = filtersIndex[id];
+    filtersReverseIndex[id] = deserializeFilter(serializedFilter);
+  });
+
+  // Deserialize cosmetic engine
+  deserializeCosmeticEngine(engine.cosmetics, cosmetics, filtersReverseIndex);
+
+  // Deserialize engine.js
+  Object.keys(js).forEach(key => {
+    const value = js[key];
+    engine.js.set(key, value);
+  });
+
+  // Deserialize engine.lists
+  Object.keys(lists).forEach(asset => {
+    const entry = lists[asset];
+    log(`DESERIALIZE ASSET ${asset} ${entry.checksum}`);
+    ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(listName => {
+      log(`DESERIALIZE ASSET ${asset}->${listName}`);
+      const serializedList = entry[listName];
+      log(`DESERIALIZE LEN ${serializedList.length}`);
+      log(`DESERIALIZE LEN ${JSON.stringify(serializedList)}`);
+      entry[listName] = serializedList.map(id => filtersReverseIndex[id]);
+    });
+    engine.lists.set(asset, entry);
+  });
+
+  // Deserialize SourceDomainDispatch: exceptions, importants, filters
+  engine.exceptions = deserializeSourceDomainDispatch(exceptions, filtersReverseIndex);
+  engine.importants = deserializeSourceDomainDispatch(importants, filtersReverseIndex);
+  engine.filters = deserializeSourceDomainDispatch(filters, filtersReverseIndex);
 }
