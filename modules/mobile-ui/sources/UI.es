@@ -81,9 +81,6 @@ var UI = {
       }
     },
     results: function (r) {
-      if (r._results[0].data.template === "noResult") {
-        r._results.shift();
-      }
 
       UI.currentPage = 0;
       viewPager.goToIndex(UI.currentPage);
@@ -99,6 +96,8 @@ var UI = {
 
       var enhancedResults = enhanceResults(r._results);
 
+      const title = CliqzUtils.getLocalizedString(enhancedResults[0] ? 'mobile_more_results_title' : 'mobile_no_result_title');
+
       currentResults = {
         searchString: r._searchString,
         frameWidth: UI.CARD_WIDTH,
@@ -106,8 +105,7 @@ var UI = {
         isInstant: false,
         isMixed: true,
         googleThis: {
-          title: CliqzUtils.getLocalizedString('mobile_more_results_title'),
-          action: CliqzUtils.getLocalizedString('mobile_more_results_action', engine.name),
+          title,
           left: UI.CARD_WIDTH * enhancedResults.length,
           frameWidth: UI.CARD_WIDTH,
           searchString: encodeURIComponent(r._searchString),
@@ -121,9 +119,11 @@ var UI = {
 
       if (imgLoader) imgLoader.stop();
 
+
       // Results that are not ready (extra results, for which we received a callback_url)
       var asyncResults = currentResults.results.filter(assessAsync(true));
       currentResults.results = currentResults.results.filter(assessAsync(false));
+
 
       redrawDropdown(CLIQZ.templates.results(currentResults), query);
 
@@ -134,7 +134,9 @@ var UI = {
 
       crossTransform(resultsBox, 0);
 
-      setResultNavigation(currentResults.results);
+      currentResultsCount = enhancedResults.length;
+
+      setResultNavigation(currentResultsCount);
 
       return currentResults.results;
     },
@@ -454,27 +456,21 @@ function shiftResults() {
     UI.lastResults[i] && (UI.lastResults[i].left = left);
     frames[i].style.left = left + 'px';
   }
-  setResultNavigation(UI.lastResults);
+  currentResultsCount = UI.lastResults.length;
+
+  setResultNavigation(currentResultsCount);
 }
 
 
-function setResultNavigation(results) {
+function setResultNavigation(resultCount) {
 
-  var showGooglethis = 1;
-  if (!results[0] || results[0].data.template === 'noResult') {
-    showGooglethis = 0;
-  }
+  const showGooglethis = 1;
 
   resultsBox.style.width = window.innerWidth + 'px';
   resultsBox.style.marginLeft = PEEK + 'px';
 
-
-  var lastResultOffset = results.length ? results[results.length - 1].left || 0 : 0;
-
-  currentResultsCount = lastResultOffset / UI.CARD_WIDTH + showGooglethis + 1;
-
   // get number of pages according to number of cards per page
-  UI.nPages = Math.ceil(currentResultsCount / UI.nCardsPerPage);
+  UI.nPages = Math.ceil((currentResultsCount + showGooglethis) / UI.nCardsPerPage);
 
   if (document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
@@ -496,7 +492,7 @@ window.addEventListener('resize', function () {
       UI.lastResults[i] && (UI.lastResults[i].left = left);
       frames[i].style.width = UI.CARD_WIDTH + 'px';
     }
-    setResultNavigation(UI.lastResults);
+    setResultNavigation(currentResultsCount);
     UI.currentPage = Math.floor(UI.currentPage * lastnCardsPerPage / UI.nCardsPerPage);
     viewPager.goToIndex(UI.currentPage, 0);
   }, 200);

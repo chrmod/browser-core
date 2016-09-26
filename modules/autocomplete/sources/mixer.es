@@ -437,7 +437,7 @@ export default class Mixer {
 
     // Show no results message
     if (results.length === 0 && !only_history) {
-      results.push(utils.getNoResults());
+      utils.getNoResults && results.push(utils.getNoResults());
     }
 
     return results;

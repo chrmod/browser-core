@@ -318,7 +318,7 @@ describe('Search View', function() {
     });
 
     it("should filter all results", function () {
-      expect($("#cliqz-results")[0].innerHTML).to.contain('<!-- noResult.tpl -->');
+      expect($("#cliqz-results")[0].innerHTML).to.contain('<!-- googlethis -->');
     });
   });
 
