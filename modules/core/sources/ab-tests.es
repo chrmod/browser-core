@@ -302,6 +302,12 @@ var CliqzABTests = {
             case "1080_B":
                 CliqzUtils.setPref("freshtabNewBrand", true);
                 break;
+            case "1081_A":
+                CliqzUtils.setPref("attrackLogBreakage", false);
+                break;
+            case "1081_B":
+                CliqzUtils.setPref("attrackLogBreakage", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -472,6 +478,10 @@ var CliqzABTests = {
             case "1080_A":
             case "1080_B":
               CliqzUtils.clearPref("freshtabNewBrand");
+              break;
+            case "1081_A":
+            case "1081_B":
+              CliqzUtils.clearPref("attrackLogBreakage");
               break;
             default:
                 rule_executed = false;
