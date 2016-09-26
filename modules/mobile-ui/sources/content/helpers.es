@@ -61,10 +61,6 @@ export default {
     return Handlebars.helpers.local(type);
   },
 
-  noResult() {
-    return CliqzUtils.getNoResults();
-  },
-
   mobileWikipediaUrls(url) {
     return url.replace('http://de.wikipedia.org/wiki","https://de.m.wikipedia.org/wiki');
   },
