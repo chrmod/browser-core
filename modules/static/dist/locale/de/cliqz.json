@@ -1392,7 +1392,19 @@
       "message": "Probiere die Cliqz Suchmaschine"
     },
     "onboarding-step-3-tooltip": {
-      "message": ""
+      "message": "Nutze die CLIQZ Schnell-Suche"
+    },
+    "onboarding-step-3-tooltip-query-text": {
+      "message": "Probiere es mit:"
+    },
+    "onboarding-search-query1": {
+      "message": "Wetter München"
+    },
+    "onboarding-search-query2": {
+      "message": "Lasagne kochen"
+    },
+    "onboarding-search-query3": {
+      "message": "TV Programm"
     },
     "TEST": "OK"
 }

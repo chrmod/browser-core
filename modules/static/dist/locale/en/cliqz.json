@@ -1392,7 +1392,19 @@
       "message": "You are ready to go! Try Cliqz Search."
     },
     "onboarding-step-3-tooltip": {
-      "message": ""
+      "message": "Start searching the web"
+    },
+    "onboarding-step-3-tooltip-query-text": {
+      "message": "Try:"
+    },
+    "onboarding-search-query1": {
+      "message": "Weather Munich"
+    },
+    "onboarding-search-query2": {
+      "message": "Make lasagna"
+    },
+    "onboarding-search-query3": {
+      "message": "TV program"
     },
     "TEST": "OK"
 }
