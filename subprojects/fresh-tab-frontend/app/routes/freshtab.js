@@ -33,11 +33,8 @@ export default Ember.Route.extend({
   afterModel() {
     const config = this.get('config');
 
-    // if(config.showOnboarding) {
-    //   Ember.run.later(this.send.bind(this, 'openModal', 'onboarding'), 1000);
-    // }
     if(config.showOnboarding) {
-      this.get('cliqz').displayOnboarding();
+      Ember.run.later(this.send.bind(this, 'openModal', 'onboarding'), 1000);
     }
   },
 
