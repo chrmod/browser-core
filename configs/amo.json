@@ -25,7 +25,9 @@
     "performance",
     "hpn",
     "geolocation",
-    "freshtab"
+    "freshtab",
+    "control-center",
+    "onboarding-v2"
   ],
   "subprojects": [
     "fresh-tab-frontend"

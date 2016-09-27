@@ -56,29 +56,6 @@ $browser-top-bg-color: #ccc;
     list-style-image: url("../images/browser/mac/Toolbar.png");
 }
 
-.panel-arrowcontent {
-    /*padding: 0px;*/
-    --panel-arrowcontent-padding: 0px;
-}
-
-#UITourTooltipDescription iframe {
-    display: block;
-}
-
-#UITourTooltipTitle {
-    max-width: 420px;
-}
-
-#UITourTooltipTitleContainer {
-    margin-bottom: 0px;
-    display: none
-}
-
-#UITourTooltipClose {
-    margin-top: 0px;
-    display: none
-}
-
 /*.panel-arrow[side="top"] {
     margin-bottom: -1px;
 }*/
