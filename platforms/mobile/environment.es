@@ -1,5 +1,6 @@
 import console from "core/console";
 import prefs from "core/prefs";
+import storage from "core/storage";
 
 //TODO: get rid of me!
 var lastSucceededUrl;
@@ -94,7 +95,7 @@ var CLIQZEnvironment = {
         // console.log('jsBridge autocomplete value:'+val,'osAPI1');
         osAPI.autocomplete(val);
       } else {
-        var ls = JSON.parse(CLIQZEnvironment.getLocalStorage().recentQueries || '[]');
+        var ls = storage.getObject('recentQueries', []);
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osAPI.autocomplete(ls[i].query.toLowerCase());
@@ -167,9 +168,6 @@ var CLIQZEnvironment = {
   tldExtractor: function(host){
     //temp
     return host.split('.').splice(-1)[0];
-  },
-  getLocalStorage: function(url) {
-    return CLIQZEnvironment.storage;
   },
   OS: 'mobile',
   isPrivate: function(){ return false; },
@@ -291,7 +289,6 @@ var CLIQZEnvironment = {
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   historySearch: function(q, callback){
     CLIQZEnvironment.searchHistoryCallback = callback;
-    console.log(this, 'aaa');
     window.osAPI.searchHistory(q, 'CLIQZEnvironment.displayHistory');
   },
   //TODO: remove this dependency
@@ -322,10 +319,10 @@ var CLIQZEnvironment = {
     osAPI.getTopSites('News.startPageHandler', 15);
   },
   setDefaultSearchEngine: function(engine) {
-    CLIQZEnvironment.getLocalStorage().setObject('defaultSearchEngine', engine);
+    storage.setObject('defaultSearchEngine', engine);
   },
   getDefaultSearchEngine: function() {
-    return CLIQZEnvironment.getLocalStorage().getObject('defaultSearchEngine') || CLIQZEnvironment.GOOGLE_ENGINE;
+    return storage.getObject('defaultSearchEngine', CLIQZEnvironment.GOOGLE_ENGINE);
   },
 };
 
@@ -335,23 +332,23 @@ CLIQZEnvironment.setCurrentQuery = function(query) {
     return;
   }
 
-  var recentItems = CLIQZEnvironment.getLocalStorage().getObject('recentQueries', []);
+  var recentItems = storage.getObject('recentQueries', []);
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
-    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
+    storage.setObject('recentQueries', recentItems);
   } else if (recentItems[0].query === query && Date.now() - recentItems[0].timestamp < 10 * 1000 * 60) {
     // DO NOTHING
     // temporary work around repetitive queries coming from iOS
   } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
-    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
+    storage.setObject('recentQueries', recentItems);
   }
   else {
     recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
-    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
+    storage.setObject('recentQueries', recentItems);
   }
 };
 

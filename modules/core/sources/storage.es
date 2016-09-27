@@ -1,27 +1,24 @@
 import storage from "platform/storage";
+
+console.log("test")
 /**
 * @namespace core
 */
-export default class {
-  /**
-  * @class Storage
-  * @constructor
-  */
-	constructor() {
-		this.storage = storage;
-		this.getItem = this.storage.getItem.bind(this.storage);
-		this.setItem = this.storage.setItem.bind(this.storage);
-		this.removeItem = this.storage.removeItem.bind(this.storage);
-		this.clear = this.storage.clear.bind(this.storage);
-	}
+export default {
+  getItem: storage.getItem.bind(storage),
+  setItem: storage.setItem.bind(storage),
+  removeItem: storage.removeItem.bind(storage),
+  clear: storage.clear.bind(storage),
+
   /**
   * @method setObject
   * @param key {string}
   * @param object
   */
 	setObject(key, object) {
-		this.storage.setItem(key, JSON.stringify(object));
-	}
+		storage.setItem(key, JSON.stringify(object));
+	},
+
   /**
   * @method getObject
   * @param key {string}
