@@ -1,3 +1,8 @@
+import utils from "core/utils";
+import { version as onboardingVersion } from "core/onboarding";
+
+const CLIQZ_ONBOARDING = "about:onboarding";
+
 /**
 * @namespace onboarding
 */
@@ -19,6 +24,13 @@ export default class {
   * @method init
   */
   init() {
+    if(onboardingVersion() === "2.0") {
+      if(shouldShowOnboardingV2()) {
+        utils.openLink(utils.getWindow(), CLIQZ_ONBOARDING);
+        return;
+      }
+    }
+
     if(this.cliqzOnboarding || !this.onInstall){
       return;
     } else {

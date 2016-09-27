@@ -30,6 +30,28 @@
 
     &.cqz-step3 {}
 
+    .panel-arrowcontent {
+        padding: 0px;
+        --panel-arrowcontent-padding: 0px;
+    }
+
+    #UITourTooltipDescription iframe {
+        display: block;
+    }
+
+    #UITourTooltipTitle {
+        max-width: 420px;
+    }
+
+    #UITourTooltipTitleContainer {
+        margin-bottom: 0px;
+        display: none
+    }
+
+    #UITourTooltipClose {
+        margin-top: 0px;
+        display: none
+    }
 }
 
 #UITourTooltip[target="cliqz"] .panel-arrowcontent {
