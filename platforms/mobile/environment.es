@@ -321,29 +321,6 @@ var CLIQZEnvironment = {
     }
     osAPI.getTopSites('News.startPageHandler', 15);
   },
-  getNoResults: function() {
-    var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CLIQZEnvironment.getDetailsFromUrl(engine.url);
-    var logo = CLIQZEnvironment.getLogoDetails(details);
-
-    var result =  CLIQZEnvironment.Result.cliqzExtra(
-      {
-        data:
-          {
-            template:'noResult',
-            title: CLIQZEnvironment.getLocalizedString('mobile_no_result_title'),
-            action: CLIQZEnvironment.getLocalizedString('mobile_no_result_action', engine.name),
-            searchString: encodeURIComponent(CLIQZEnvironment.lastSearch),
-            searchEngineUrl: engine.url,
-            logo: logo,
-            background: logo.backgroundColor
-          },
-        subType: JSON.stringify({empty:true})
-      }
-    );
-    result.data.kind = ['CL'];
-    return result;
-  },
   setDefaultSearchEngine: function(engine) {
     CLIQZEnvironment.getLocalStorage().setObject('defaultSearchEngine', engine);
   },

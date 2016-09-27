@@ -1104,10 +1104,10 @@
       "message": "Re-establishing lost internet connection"
     },
     "mobile_no_history": {
-      "message": "Here you will find your history.<br />You haven't searched or navigated to websites yet."
+      "message": "Here you will find your history.<br />You haven't searched or visited any websites so far."
     },
     "mobile_no_favorites": {
-      "message": "Here you will find your favorites."
+      "message": "Here you will find your favorites.<br />You haven't created any favorites so far."
     },
     "mobile_history_title": {
       "message": "History"
