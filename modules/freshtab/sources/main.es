@@ -88,6 +88,8 @@ var FreshTab = {
     initialized: false,
     cliqzOnboarding: 0,
     isBrowser: false,
+    freshTabState: FRESH_TAB_STATE,
+    cliqzNewTab: CLIQZ_NEW_TAB,
 
     startup: function(hasButton, cliqzOnboarding, channel, showNewBrandAlert){
         var disable = false;
@@ -162,17 +164,15 @@ var FreshTab = {
       FreshTab.updateState();
     },
     updateState: function(){
-      if(isActive()){
+      if(this.isActive()){
         activate();
       } else {
         deactivate();
       }
+    },
+    isActive() {
+      return !HAS_BUTTON || CliqzUtils.getPref(FRESH_TAB_STATE);
     }
-}
-
-function isActive(){
-  //always active if the user doesn't have the activator button
-  return !HAS_BUTTON || CliqzUtils.getPref(FRESH_TAB_STATE);
 }
 
 function activate(){

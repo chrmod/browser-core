@@ -1,7 +1,5 @@
 import FreshTab from 'freshtab/main';
 import { checkBox } from 'q-button/buttons';
-const CLIQZ_NEW_TAB = "about:cliqz";
-
 /**
 * @namespace freshtab
 */
@@ -22,8 +20,9 @@ export default class {
   *@return null
   */
   init() {
-    if (this.window.gInitialPages && this.window.gInitialPages.indexOf(CLIQZ_NEW_TAB)===-1) {
-      this.window.gInitialPages.push(CLIQZ_NEW_TAB);
+    const cliqzNewTab = FreshTab.cliqzNewTab;
+    if (this.window.gInitialPages && this.window.gInitialPages.indexOf(cliqzNewTab)===-1) {
+      this.window.gInitialPages.push(cliqzNewTab);
     }
   }
 
@@ -39,5 +38,12 @@ export default class {
       true,
       FreshTab.toggleState
     );
+  }
+
+  status() {
+    return {
+      visible: true,
+      enabled: FreshTab.isActive()
+    }
   }
 };

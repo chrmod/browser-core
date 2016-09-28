@@ -36,8 +36,9 @@ function localizeDocument() {
   });
 }
 
-function isHttpsSection(section) {
-  return section === 'https';
+function isNonClickable(section) {
+  const nonClickableSections = ["https", "privacy-cc", "cliqz-tab"];
+  return nonClickableSections.indexOf(section) > -1;
 }
 
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
@@ -220,9 +221,16 @@ function draw(data){
   }
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
-  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
   document.getElementById('anti-phising').innerHTML = CLIQZ.templates['anti-phising'](data);
   document.getElementById('anti-tracking').innerHTML = CLIQZ.templates['anti-tracking'](data);
+
+  if(data.amo) {
+    document.getElementById('amo-privacy-cc').innerHTML = CLIQZ.templates['amo-privacy-cc']();
+    document.getElementById('cliqz-tab').innerHTML = CLIQZ.templates['amo-cliqz-tab'](data);
+  } else {
+    document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
+    document.getElementById('https').innerHTML = CLIQZ.templates['https']();
+  }
 
   function close_setting_accordion_section() {
     $('.setting-accordion .accordion-active-title').removeClass('active');
@@ -307,7 +315,7 @@ function draw(data){
         $section = $setting.attr('data-section'),
         $target = $setting.attr('data-target');
 
-    if (isHttpsSection($section)) {
+    if (isNonClickable($section)) {
       return;
     } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;

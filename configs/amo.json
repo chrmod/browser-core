@@ -25,7 +25,8 @@
     "performance",
     "hpn",
     "geolocation",
-    "freshtab"
+    "freshtab",
+    "control-center"
   ],
   "subprojects": [
     "fresh-tab-frontend"
