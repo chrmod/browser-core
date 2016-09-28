@@ -1,6 +1,6 @@
 import console from "core/console";
 import prefs from "core/prefs";
-import storage from "core/storage";
+import Storage from "core/storage";
 
 let eventIDs = {};
 const port = chrome.runtime.connect({name: "encrypted-query"});
@@ -297,6 +297,7 @@ const CLIQZEnvironment = {
     });
   },
   setDefaultSearchEngine: function(engine) {
+    const storage = new Storage();
     storage.setObject('defaultSearchEngine', engine);
   },
   getDefaultSearchEngine: function() {

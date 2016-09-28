@@ -2,6 +2,7 @@ export default describeModule('mobile-history/history',
   function () {
     return {
       'core/utils': { default: { } },
+      'core/storage': { default: function () {} },
       'core/templates': { default: { tplCache: { } } },
       'mobile-history/webview': {
         document: {
@@ -15,11 +16,10 @@ export default describeModule('mobile-history/history',
   function () {
     let _done;
     beforeEach(function () {
-      this.module().default.displayData = data => this.module().default.sendShowTelemetry(data); 
-      this.deps('core/utils').default.getLocalStorage = _  => { 
-        return { getObject() { return []; } };
-      };
+      this.module().default.displayData = data => this.module().default.sendShowTelemetry(data);
       this.deps('core/utils').default.BRANDS_DATABASE = { buttons: true };
+      this.deps('core/storage').default.prototype.getItem = () => [];
+      this.deps('core/storage').default.prototype.getObject = () => [];
       this.deps('core/utils').default.telemetry = msg => {
         chai.expect(msg).to.be.ok;
         chai.expect(msg.action).to.equal('show');

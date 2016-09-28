@@ -161,18 +161,6 @@ var CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    getLocalStorage: function(url) {
-      var uri = Services.io.newURI(url,"",null),
-          principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
-
-      if (typeof principalFunction != "function") return false
-
-      var principal = principalFunction(uri),
-          dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
-                .getService(Components.interfaces.nsIDOMStorageManager)
-
-      return dsm.getLocalStorageForPrincipal(principal, '')
-    },
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
       return new Promise( function(resolve, reject) {
        // gzip.compress may be false if there is no implementation for this platform

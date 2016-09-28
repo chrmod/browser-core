@@ -1,4 +1,6 @@
-import storage from "platform/storage";
+import Storage from "core/storage";
+
+const storage = new Storage();
 
 export function getPref(pref, notFound){
   var mypref;

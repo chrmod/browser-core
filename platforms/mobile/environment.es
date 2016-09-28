@@ -1,10 +1,11 @@
 import console from "core/console";
 import prefs from "core/prefs";
-import storage from "core/storage";
+import Storage from "core/storage";
 
 //TODO: get rid of me!
 var lastSucceededUrl;
 var latestUrl;
+const storage = new Storage();
 
 // END TEMP
 const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
@@ -95,7 +96,8 @@ var CLIQZEnvironment = {
         // console.log('jsBridge autocomplete value:'+val,'osAPI1');
         osAPI.autocomplete(val);
       } else {
-        var ls = storage.getObject('recentQueries', []);
+        var ls = storage;
+        ls.getObject('recentQueries', []);
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osAPI.autocomplete(ls[i].query.toLowerCase());

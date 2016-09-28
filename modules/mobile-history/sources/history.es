@@ -1,8 +1,11 @@
 'use strict';
 /* global osAPI, math */
 
-import { utils } from 'core/cliqz';
+import utils from 'core/utils';
 import { document, Hammer } from 'mobile-history/webview';
+import Storage from "core/storage";
+
+const storage = new Storage();
 
 let allHistory = [];
 let allFavorites = [];
@@ -13,7 +16,7 @@ function showHistory(history) {
   }
 
   allHistory = history;
-  const queries = utils.getLocalStorage().getObject('recentQueries', []).reverse();
+  const queries = storage.getObject('recentQueries', []).reverse();
 
   history.forEach(item => {
     item.domain = item.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i)[1];
@@ -147,10 +150,10 @@ function getDateFromTimestamp(time) {
     return formatedDate;
 }
 function removeQuery(id) {
-  let queries = utils.getLocalStorage().getObject('recentQueries', []);
+  let queries = storage.getObject('recentQueries', []);
 
   queries = queries.filter(query => id !== query.id);
-  utils.getLocalStorage().setObject('recentQueries', queries);
+  storage.setObject('recentQueries', queries);
 }
 
 function removeHistoryItem(id) {
@@ -181,11 +184,11 @@ function update() {
 }
 
 function clearHistory() {
-  utils.getLocalStorage().setObject('recentQueries', []);
+  storage.setObject('recentQueries', []);
 }
 
 function clearFavorites() {
-  utils.getLocalStorage().setObject('favoriteQueries', []);
+  storage.setObject('favoriteQueries', []);
 }
 
 function onElementClick(event) {
@@ -276,11 +279,11 @@ function sendSwipeTelemetry(targetType, tab, direction) {
   to extension version Mobile Extension 3.5.2
 **/
 function migrateQueries() {
-  if (utils.getLocalStorage().getItem('isFavoritesRefactored')) {
+  if (storage.getItem('isFavoritesRefactored')) {
     return;
   }
-  let queries = utils.getLocalStorage().getObject('recentQueries', []);
-  let favoriteQueries = utils.getLocalStorage().getObject('favoriteQueries', []);
+  let queries = storage.getObject('recentQueries', []);
+  let favoriteQueries = storage.getObject('favoriteQueries', []);
   queries = queries.map(query => {
     if (query.favorite) {
       favoriteQueries.unshift({query: query.query, timestamp: query.timestamp});
@@ -288,9 +291,9 @@ function migrateQueries() {
     delete query.favorite;
     return query;
   });
-  utils.getLocalStorage().setObject('recentQueries', queries);
-  utils.getLocalStorage().setObject('favoriteQueries', favoriteQueries);
-  utils.getLocalStorage().setItem('isFavoritesRefactored', true);
+  storage.setObject('recentQueries', queries);
+  storage.setObject('favoriteQueries', favoriteQueries);
+  storage.setItem('isFavoritesRefactored', true);
 }
 
 

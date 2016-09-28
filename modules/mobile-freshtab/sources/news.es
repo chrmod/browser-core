@@ -2,6 +2,9 @@
 
 import LongPress from 'mobile-touch/longpress';
 import CliqzUtils from 'core/utils';
+import Storage from 'core/storage';
+
+const storage = new Storage();
 
 var DEPENDENCY_STATUS = {
   NOT_LOADED: 'NOT_LOADED',
@@ -16,7 +19,7 @@ const TOPSITES_LIMIT = 5, NEWS_LIMIT = 2;
 
 function displayTopSites (list, isEditMode = false) {
 
-  const blockedTopSites = CliqzUtils.getLocalStorage().getObject('blockedTopSites', []);
+  const blockedTopSites = storage.getObject('blockedTopSites', []);
 
   list = deduplicateTopsites(list);
 
@@ -55,8 +58,8 @@ function displayTopSites (list, isEditMode = false) {
 
   CliqzUtils.addEventListenerToElements('#doneEditTopsites', 'click', _ => {
     const delete_count = tempBlockedTopSites.length;
-    const blockedTopSites = CliqzUtils.getLocalStorage().getObject('blockedTopSites', []);
-    CliqzUtils.getLocalStorage().setObject('blockedTopSites', blockedTopSites.concat(tempBlockedTopSites));
+    const blockedTopSites = storage.getObject('blockedTopSites', []);
+    storage.setObject('blockedTopSites', blockedTopSites.concat(tempBlockedTopSites));
     tempBlockedTopSites = [];
     displayTopSites(topSitesList);
     CliqzUtils.telemetry({

@@ -1,6 +1,7 @@
 import CLIQZEnvironment from "platform/environment";
 import console from "core/console";
 import prefs from "core/prefs";
+import Storage from "core/storage";
 
 var CliqzLanguage;
 
@@ -174,7 +175,6 @@ var CliqzUtils = {
   setSupportInfo: function(status){
     var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
         host = 'firefox', hostVersion='';
-
     //check if the prefs exist and if they are string
     if(prefs.getPrefType('distribution.id') == 32 && prefs.getPrefType('distribution.version') == 32){
       host = prefs.getCharPref('distribution.id');
@@ -189,7 +189,7 @@ var CliqzUtils = {
         sites = ["http://cliqz.com","https://cliqz.com"]
 
     sites.forEach(function(url){
-        var ls = CLIQZEnvironment.getLocalStorage(url)
+        var ls = new Storage(url)
 
         if (ls) ls.setItem("extension-info",info)
     })
@@ -259,7 +259,9 @@ var CliqzUtils = {
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
   },
-  getLocalStorage: CLIQZEnvironment.getLocalStorage,
+  getLocalStorage(url) {
+    return new Storage(url);
+  },
   /**
    * Loads a resource URL from the xpi.
    *

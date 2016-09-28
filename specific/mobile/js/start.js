@@ -29,16 +29,13 @@ window.CLIQZ = window.CLIQZ || {};
 Promise.all([
   System.import("platform/environment"),
   System.import("core/utils"),
-  System.import("core/storage"),
   System.import("core/events")
 ]).then(function (modules) {
   var environment = modules[0].default;
   var utils = modules[1].default;
-  var Storage = modules[2].default;
-  environment.storage = new Storage();
   window.CLIQZEnvironment = environment;
   window.CliqzUtils = utils;
-  var events = modules[3].default;
+  var events = modules[2].default;
   window.CliqzEvents  = events;
   utils.initPlatform(System);
 }).then(function () {
