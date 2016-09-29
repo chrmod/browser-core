@@ -6,6 +6,8 @@
 /*===== Onboarding =====*/
 
 #main-window.cqz-onboarding {
+    min-width: 1000px !important;
+
     &.cqz-step1 {
         #PanelUI-button {
             display: none;
