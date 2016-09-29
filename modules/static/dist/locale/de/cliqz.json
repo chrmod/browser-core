@@ -1061,6 +1061,9 @@
     "adb-menu-more": {
       "message": "Mehr erfahren"
     },
+    "new_tab": {
+      "message": "Neuer Tab"
+    },
     "freshtab_learn_more": {
       "message": "Mehr erfahren"
     },
@@ -1089,7 +1092,7 @@
       "message": "Abbrechen"
     },
     "mobile_freshtab_no_topsites": {
-      "message": "Hier werden Deine Topseiten erscheinen."
+      "message": "Hier werden Deine meist-besuchten Seiten erscheinen."
     },
     "mobile_history_card_title": {
       "message": "Verlauf-Ergebnisse"
@@ -1104,7 +1107,7 @@
       "message": "Hier findest Du in Zukunft Deine Suchen und besuchten Seiten.<br />Bisher hast Du noch nicht gesucht und warst auf keinen Webseiten."
     },
     "mobile_no_favorites": {
-      "message": "Hier findest Du in Zukunft Deine Favoriten."
+      "message": "Hier findest Du in Zukunft Deine Favoriten.<br/>Bisher hast du noch keine Favoriten angelegt."
     },
     "mobile_history_title": {
       "message": "Besuchte Seiten"

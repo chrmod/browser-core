@@ -1061,6 +1061,9 @@
     "adb-menu-more": {
       "message": "Learn more"
     },
+    "new_tab": {
+      "message": "New Tab"
+    },
     "freshtab_learn_more": {
       "message": "Learn more"
     },
@@ -1089,7 +1092,7 @@
       "message": "Cancel"
     },
     "mobile_freshtab_no_topsites": {
-      "message": "You will see your topsites here."
+      "message": "You will see your most visited sites here."
     },
     "mobile_history_card_title": {
       "message": "History Results"
@@ -1101,10 +1104,10 @@
       "message": "Re-establishing lost internet connection"
     },
     "mobile_no_history": {
-      "message": "Here you will find your history.<br />You haven't searched or navigated to websites yet."
+      "message": "Here you will find your history.<br />You haven't searched or visited any websites so far."
     },
     "mobile_no_favorites": {
-      "message": "Here you will find your favorites."
+      "message": "Here you will find your favorites.<br />You haven't created any favorites so far."
     },
     "mobile_history_title": {
       "message": "History"

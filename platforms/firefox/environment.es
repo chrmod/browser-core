@@ -1,3 +1,5 @@
+import autocomplete from "autocomplete/autocomplete";
+
 const {
   classes:    Cc,
   interfaces: Ci,
@@ -432,7 +434,6 @@ var CLIQZEnvironment = {
     //TODO: cache this
     getSearchEngines: function(){
         var defEngineName = Services.search.defaultEngine.name;
-
         return Services.search.getEngines()
                 .filter(function(e){
                     return !e.hidden && e.iconURI != null;
@@ -444,6 +445,7 @@ var CLIQZEnvironment = {
                         default: e.name == defEngineName,
                         icon: e.iconURI.spec,
                         base_url: e.searchForm,
+                        prefix: e.prefix,
                         getSubmissionForQuery: function(q){
                             //TODO: create the correct search URL
                             return e.getSubmission(q).uri.spec;
@@ -456,10 +458,10 @@ var CLIQZEnvironment = {
       Services.search.getEngineByName(name).alias = newAlias;
     },
     getEngineByAlias: function(alias) {
-     return Services.search.getEngineByAlias(alias);
+      return CLIQZEnvironment.getSearchEngines().find(engine => { return engine.alias === alias; });
     },
-    getEngineByName: function(engine) {
-      return Services.search.getEngineByName(engine);
+    getEngineByName: function(name) {
+      return CLIQZEnvironment.getSearchEngines().find(engine => { return engine.name === name; });
     },
     addEngineWithDetails: function(engine) {
       Services.search.addEngineWithDetails(

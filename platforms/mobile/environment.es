@@ -9,8 +9,6 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "EZ-history": true,
   "calculator": true,
   "celebrities": true,
-  "conversations": true,
-  "favorites": true,
   "currency": true,
   "emphasis": true,
   "empty": true,
@@ -120,7 +118,7 @@ var CLIQZEnvironment = {
   },
   resultsHandler: function (r) {
 
-    if( CLIQZEnvironment.lastSearch !== r._searchString  ){
+    if( CLIQZEnvironment.lastSearch !== r._searchString ){
       CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
@@ -133,7 +131,7 @@ var CLIQZEnvironment = {
 
     renderedResults[0] && CLIQZEnvironment.autoComplete(renderedResults[0].url, r._searchString);
   },
-  search: function(e, location_enabled, latitude, longitude) {
+  search: function(e) {
     if(!e || e === '') {
       // should be moved to UI except 'CLIQZEnvironment.initHomepage(true);'
       CLIQZEnvironment.lastSearch = '';
@@ -150,23 +148,17 @@ var CLIQZEnvironment = {
     e = e.toLowerCase().trim();
 
     CLIQZEnvironment.lastSearch = e;
-    CLIQZEnvironment.location_enabled = location_enabled;
-    if(location_enabled) {
-      CLIQZEnvironment.USER_LAT = latitude;
-      CLIQZEnvironment.USER_LNG = longitude;
-    } else {
-      delete CLIQZEnvironment.USER_LAT;
-      delete CLIQZEnvironment.USER_LNG;
-    }
 
-    window.document.getElementById('startingpoint').style.display = 'none';
+    News.hideFreshtab();
 
     CLIQZ.UI.startProgressBar();
 
 
     // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //CliqzUtils.log(e,'XHR');
-    (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
+    if (!CLIQZEnvironment.SEARCH) { CLIQZEnvironment.SEARCH = new Search();}
+
+    CLIQZEnvironment.SEARCH.search(e, CLIQZEnvironment.resultsHandler);
   },
   getPref: function(pref, notFound){
     var mypref;
@@ -340,29 +332,6 @@ var CLIQZEnvironment = {
       start && (start.style.display = 'none');
     }
     osAPI.getTopSites('News.startPageHandler', 15);
-  },
-  getNoResults: function() {
-    var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CLIQZEnvironment.getDetailsFromUrl(engine.url);
-    var logo = CLIQZEnvironment.getLogoDetails(details);
-
-    var result =  CLIQZEnvironment.Result.cliqzExtra(
-      {
-        data:
-          {
-            template:'noResult',
-            title: CLIQZEnvironment.getLocalizedString('mobile_no_result_title'),
-            action: CLIQZEnvironment.getLocalizedString('mobile_no_result_action', engine.name),
-            searchString: encodeURIComponent(CLIQZEnvironment.lastSearch),
-            searchEngineUrl: engine.url,
-            logo: logo,
-            background: logo.backgroundColor
-          },
-        subType: JSON.stringify({empty:true})
-      }
-    );
-    result.data.kind = ['CL'];
-    return result;
   },
   setDefaultSearchEngine: function(engine) {
     CLIQZEnvironment.getLocalStorage().setObject('defaultSearchEngine', engine);

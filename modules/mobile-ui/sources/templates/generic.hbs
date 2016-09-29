@@ -33,7 +33,7 @@
     <!-- main images -->
 
     <div class="card__gallery">
-		
+
 		{{#each data.richData.images}}
 			{{#if (limit @index 3)}}
 				<div class="image" data-style="background-image: url({{this}})">Image</div>
@@ -78,7 +78,6 @@
 					  {{#if (sec_to_duration duration)}}<span> {{ sec_to_duration duration}}</span>{{/if}}
 				  </div>
 				  <h1 class="main__headline">{{ title }}</h1>
-				  <!--<div class="main__meta">{{ views_helper views}}</div>-->
 				</div>
 
 			{{/each}}
@@ -118,7 +117,7 @@
 		{{else}}
 			{{#if data.richData.current_company}}
 			{{else}}
-				{{ emphasis data.description query 2 true }}
+				{{ emphasis data.shortDescription query 2 true }}
 			{{/if}}
 		{{/if}}
 
@@ -247,6 +246,6 @@
 
 {{>EZ-category}}
 
-{{partial 'history'}}
+{{>history}}
 
 <!-- end generic.tpl -->
