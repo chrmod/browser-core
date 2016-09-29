@@ -1391,6 +1391,9 @@
     "onboarding-step-3-msg": {
       "message": "Probiere die Cliqz Suchmaschine"
     },
+    "onboarding-step-3-btn": {
+      "message": "Los geht's"
+    },
     "onboarding-step-3-tooltip": {
       "message": "Nutze die CLIQZ Schnell-Suche"
     },
