@@ -76,14 +76,14 @@ export default describeModule('adblocker/filters-loader',
           console.log('FETCH URL ' + url);
           let content = "";
           switch (url) {
-            case "https://cdn.cliqz.com/adblocking/firefox/allowed-lists.json":
+            case "https://cdn.cliqz.com/adblocking/undefined/allowed-lists.json":
               if (isMobile) {
                 content = readFile('modules/adblocker/tests/unit/data/allowed-lists-mobile.json');
               } else {
                 content = readFile('modules/adblocker/tests/unit/data/allowed-lists.json');
               }
               break;
-            case "https://cdn.cliqz.com/adblocking/firefox/allowed-lists.json":
+            case "https://cdn.cliqz.com/adblocking/undefined/allowed-lists.json":
               content = readFile('modules/adblocker/tests/unit/data/allowed-lists.json');
               break;
             default:
@@ -96,13 +96,8 @@ export default describeModule('adblocker/filters-loader',
     },
     'core/platform': {
       default: {
-        default: {
-          isFirefox,
-          isMobile,
-          isChromium
-        },
-        platformName,
-      },
+        platformName
+      }, 
     },
   }),
   function () {
@@ -117,7 +112,7 @@ export default describeModule('adblocker/filters-loader',
         isChromium = false;
         isFirefox = false;
         isMobile = true;
-        platformName = 'android';
+        platformName = 'mobile';
 
         return platformSpecificLoadingTest(new Set([
           "https://easylist-downloads.adblockplus.org/antiadblockfilters.txt",
