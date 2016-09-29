@@ -1,7 +1,7 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-import CliqzLanguage from 'platform/language';
-import platform from 'platform/platform';
-
+import  CliqzLanguage from 'platform/language';
+import platform from 'core/platform';
+import { log } from 'adblocker/utils';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -33,11 +33,11 @@ function stripProtocol(url) {
 }
 
 
-class Checksums extends UpdateCallbackHandler {
+export class Checksums extends UpdateCallbackHandler {
   constructor() {
     super();
 
-    this.remoteURL = 'https://cdn.cliqz.com/adblocking/allowed-lists.json';
+    this.remoteURL = 'https://cdn.cliqz.com/adblocking/firefox/allowed-lists.json';
     this.loader = new ResourceLoader(
       RESOURCES_PATH.concat('checksums'),
       {
@@ -50,12 +50,14 @@ class Checksums extends UpdateCallbackHandler {
   }
 
   load() {
-    this.loader.load().then(this.updateChecksums.bind(this));
+    log(`CHECKSUMS load`);
+    return this.loader.load().then(this.updateChecksums.bind(this));
   }
 
   // Private API
 
   updateChecksums(data) {
+    log(`CHECKSUMS updateChecksums ${data}`);
     // Parse checksums
     Object.keys(data).forEach(list => {
       Object.keys(data[list]).forEach(asset => {
@@ -67,16 +69,16 @@ class Checksums extends UpdateCallbackHandler {
         const assetName = stripProtocol(asset);
 
         let filterRemoteURL = BASE_URL + assetName;
-        let loadFilter = true;
+        // let loadFilter = true;
 
-        if (list === 'mobile_customized') { 
-          filterRemoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
-          if (platform.isFirefox || platform.isChromium) {
-            loadFilter = false;
-          }
-        }
+        // if (list === 'mobile_customized') { 
+        //   filterRemoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
+        //   if (platform.isFirefox || platform.isChromium) {
+        //     loadFilter = false;
+        //   }
+        // }
           
-        if (loadFilter && (lang === null || LANGS.indexOf(lang) > -1)) {
+        if (lang === null || LANGS.indexOf(lang) > -1) {
           this.triggerCallbacks({
             checksum,
             asset,
@@ -105,6 +107,7 @@ class FiltersList extends UpdateCallbackHandler {
   }
 
   load() {
+    log(`FILTER LIST load`);
     this.resource.load().then(this.updateList.bind(this));
   }
 
@@ -144,7 +147,8 @@ export default class extends UpdateCallbackHandler {
   }
 
   load() {
-    this.checksums.load();
+    log(`FILTER LOADER load`);
+    return this.checksums.load();
   }
 
   updateList({ checksum, asset, remoteURL, key }) {

@@ -3,3 +3,5 @@ export default {
   isFirefox: true,
   isChromium: false,
 };
+
+export let platformName = "firefox";
