@@ -3,6 +3,10 @@ function localizeDocument() {
     var elArgs = el.dataset.i18n.split(','),
     key = elArgs.shift();
     el.textContent = chrome.i18n.getMessage(key, elArgs);
+
+  if(el.classList.contains('search-link')) {
+      el.setAttribute('href',chrome.i18n.getMessage(key, elArgs));
+    }
   });
 
   Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-title]'), el => {
@@ -48,6 +52,13 @@ function step1() {
     e.stopPropagation();
     step2();
   });
+
+  // Open Tooltip if user click
+  $(".cqb-steps .cqb-step1").click(function(e) {
+    if (e.target !== this)
+      return;
+    $('#cqb-atr-on').tooltipster('open');
+  });
 }
 
 // =================
@@ -76,6 +87,13 @@ function step2() {
     module: 'onboarding-v2',
     action: 'step2'
   }), '*');
+
+  //=== STEP 2 Tooltip Trigger
+  $(".cqb-steps .cqb-step2").click(function(e) {
+    if (e.target !== this)
+      return;
+    $('#cqb-search-btn').tooltipster('open');
+  });
 }
 
 
@@ -92,6 +110,11 @@ function step3() {
     action: 'step3',
   }), '*');
 
+  // Show search btn
+  var homeBtn = setTimeout(function () {
+     $('#cqb-fresh-tab').css('display', 'inline-block');
+  }, 7000);
+
   $("body").addClass("cqb-step3");
   $('#cqb-search-btn').tooltipster('close');
 
@@ -99,23 +122,19 @@ function step3() {
     $('.cqb-search-tooltip').tooltipster('open');
   }, 600);
 
+  //Click Search Suggestions
   $('.search-link').click(function (e) {
+    clearTimeout(homeBtn);
+
+    $(this).addClass('active');
+    
+    var homeBtn = setTimeout(function () {
+       $('#cqb-fresh-tab').css('display', 'inline-block');
+    }, 3000);
+
     e.preventDefault();
     var val = $(this).attr('href');
     autoQuery(val);
-  });
-
-  // Open Tooltip if user click
-  $(".cqb-steps .cqb-step1").click(function(e) {
-    if (e.target !== this)
-      return;
-    $('#cqb-atr-on').tooltipster('open');
-  });
-
-  $(".cqb-steps .cqb-step2").click(function(e) {
-    if (e.target !== this)
-      return;
-    $('#cqb-search-btn').tooltipster('open');
   });
 }
 

@@ -176,10 +176,15 @@ body.cqb-step3 {
     border-radius: 3px;
     text-decoration: none;
     color: #2D3E50;
+    cursor: pointer;
     background: #aeedef;
 
     &:hover {
         background: #71d8dd;
+    }
+
+    &.active {
+        text-decoration: line-through;
     }
 }
 
