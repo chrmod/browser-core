@@ -1,6 +1,6 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
 import  CliqzLanguage from 'platform/language';
-import platform from 'core/platform';
+import {platformName} from 'core/platform';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -36,7 +36,7 @@ export class Checksums extends UpdateCallbackHandler {
   constructor() {
     super();
 
-    this.remoteURL = 'https://cdn.cliqz.com/adblocking/firefox/allowed-lists.json';
+    this.remoteURL = `https://cdn.cliqz.com/adblocking/${platformName}/allowed-lists.json`;
     this.loader = new ResourceLoader(
       RESOURCES_PATH.concat('checksums'),
       {
