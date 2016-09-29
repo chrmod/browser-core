@@ -1,56 +1,57 @@
 const prefs = Components.classes['@mozilla.org/preferences-service;1']
   .getService(Components.interfaces.nsIPrefService).getBranch('');
 
-function prefixPref(pref, prefix) {
-  if ( !(typeof prefix === 'string') ) {
-    prefix = 'extensions.cliqz.';
-  }
-  return prefix + pref;
+function prefixPref(pref, prefix = 'extensions.cliqz.') {
+  return `${prefix}${pref}`;
 }
 
-export function getPref(pref, defaultValue, prefix) {
-  pref = prefixPref(pref, prefix);
+export function getPref(key, defaultValue, prefix) {
+  const pref = prefixPref(key, prefix);
   try {
-    switch(prefs.getPrefType(pref)) {
+    switch (prefs.getPrefType(pref)) {
       case 128: return prefs.getBoolPref(pref);
-      case 32:  {
-        var charVal = prefs.getCharPref(pref);
+      case 32: {
+        let charVal = prefs.getCharPref(pref);
 
         // it might be a complex value
-        if(charVal === "chrome://global/locale/intl.properties"){
+        if (charVal === 'chrome://global/locale/intl.properties') {
           try {
-            charVal = prefs.getComplexValue(pref, Components.interfaces.nsIPrefLocalizedString).data;
+            charVal = prefs.getComplexValue(
+              pref,
+              Components.interfaces.nsIPrefLocalizedString
+            ).data;
           } catch (e) {
-            CLIQZEnvironment.log("Error fetching pref: "  + pref);
+            CLIQZEnvironment.log(`Error fetching pref: ${pref}`);
           }
         }
 
         return charVal;
       }
-      case 64:  return prefs.getIntPref(pref);
-      default:  return defaultValue;
+      case 64: return prefs.getIntPref(pref);
+      default: return defaultValue;
     }
-  } catch(e) {
+  } catch (e) {
     return defaultValue;
   }
 }
 
-export function setPref(pref, value, prefix) {
-  pref = prefixPref(pref, prefix);
+export function setPref(key, value, prefix) {
+  const pref = prefixPref(key, prefix);
 
   switch (typeof value) {
     case 'boolean': prefs.setBoolPref(pref, value); break;
-    case 'number':  prefs.setIntPref(pref, value); break;
-    case 'string':  prefs.setCharPref(pref, value); break;
+    case 'number': prefs.setIntPref(pref, value); break;
+    case 'string': prefs.setCharPref(pref, value); break;
+    default: break;
   }
-};
+}
 
-export function hasPref(pref, prefix) {
-  pref = prefixPref(pref, prefix);
+export function hasPref(key, prefix) {
+  const pref = prefixPref(key, prefix);
   return prefs.getPrefType(pref) !== 0;
-};
+}
 
-export function clearPref(pref, prefix) {
-  pref = prefixPref(pref, prefix);
+export function clearPref(key, prefix) {
+  const pref = prefixPref(key, prefix);
   prefs.clearUserPref(pref);
-};
+}

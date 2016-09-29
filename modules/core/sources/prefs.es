@@ -11,7 +11,6 @@ export default {
   /**
    * Set a value in preferences db
    * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
    * @param {string=} prefix - prefix for pref
    */
   set: setPref,

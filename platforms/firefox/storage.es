@@ -19,4 +19,4 @@ export default function (url) {
     .getService(Components.interfaces.nsIDOMStorageManager);
 
   return dsm.getLocalStorageForPrincipal(principal, '');
-};
+}

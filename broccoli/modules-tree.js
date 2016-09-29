@@ -28,15 +28,27 @@ var babelOptions = {
 };
 
 function getPlatformTree() {
-  let platform = new Funnel(new WatchedDir('platforms/'+cliqzConfig.platform), {
-    exclude: ['tests/**/*']
+  let platform = new Funnel(new WatchedDir('platforms/'), {
+    exclude: ['tests/**/*'],
   });
-  platform = Babel(platform, Object.assign({}, babelOptions, {
+  let esLinterTree = eslint(platform, {
+    options: { configFile: process.cwd() + '/.eslintrc' }
+  });
+  esLinterTree.extensions = ['es'];
+
+  platform = Babel(esLinterTree, Object.assign({}, babelOptions, {
+    filterExtensions: ['js'],
     getModuleId(moduleId) {
-      return "platform/"+moduleId;
-    }
+      let moduleName = moduleId.split('/');
+      moduleName.shift();
+      return `platform/${moduleName.join('/')}`;
+    },
   }));
-  return new Funnel(platform, { destDir: "platform" });
+
+  return new Funnel(platform, {
+    srcDir: cliqzConfig.platform,
+    destDir: "platform"
+  });
 }
 
 // Attach subprojects
