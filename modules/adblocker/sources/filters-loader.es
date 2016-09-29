@@ -1,7 +1,6 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
 import  CliqzLanguage from 'platform/language';
 import platform from 'core/platform';
-import { log } from 'adblocker/utils';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -50,14 +49,12 @@ export class Checksums extends UpdateCallbackHandler {
   }
 
   load() {
-    log(`CHECKSUMS load`);
     return this.loader.load().then(this.updateChecksums.bind(this));
   }
 
   // Private API
 
   updateChecksums(data) {
-    log(`CHECKSUMS updateChecksums ${data}`);
     // Parse checksums
     Object.keys(data).forEach(list => {
       Object.keys(data[list]).forEach(asset => {
@@ -69,14 +66,6 @@ export class Checksums extends UpdateCallbackHandler {
         const assetName = stripProtocol(asset);
 
         let filterRemoteURL = BASE_URL + assetName;
-        // let loadFilter = true;
-
-        // if (list === 'mobile_customized') { 
-        //   filterRemoteURL = 'https://cdn.cliqz.com/adblocking/customized_filters_mobile_specific.txt';
-        //   if (platform.isFirefox || platform.isChromium) {
-        //     loadFilter = false;
-        //   }
-        // }
           
         if (lang === null || LANGS.indexOf(lang) > -1) {
           this.triggerCallbacks({
@@ -107,7 +96,6 @@ class FiltersList extends UpdateCallbackHandler {
   }
 
   load() {
-    log(`FILTER LIST load`);
     this.resource.load().then(this.updateList.bind(this));
   }
 
@@ -147,7 +135,6 @@ export default class extends UpdateCallbackHandler {
   }
 
   load() {
-    log(`FILTER LOADER load`);
     return this.checksums.load();
   }
 
