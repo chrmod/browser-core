@@ -62,44 +62,39 @@ var adbCosmFilter = function(url, window, send, windowId, throttle) {
     })
   }
 
-  var docMutation = [];
-
-  var checkMutation = function() {
-    if (!docMutation || docMutation.length === 0) {
+  var checkMutation = function(docMutation, nodeInfo) {
+    if (!docMutation || docMutation.size === 0) {
       return;
     }
-    for (let target of docMutation) {
+    for (let target of docMutation.values()) {
       nodes = target.querySelectorAll('*');
       for (let node of nodes) {
         addNodeName(node, nodeInfo);
       }
     }
-    sendNodeNames(nodeInfo);
-    docMutation = []
   }
 
   var onMutation = function(mutations) {
-    let nodeInfo = new Set();
+    var docMutation = new Set();
+    var nodeInfo = new Set();
+
     for (let m of mutations) {
       let target = m.target;
       if (target) {
-        docMutation.push(target);
-        throttle(checkMutation(), 200);
+        docMutation.add(target);
       }
     }
-  }
 
-  var doc = window.document;
-  var nodes = doc.querySelectorAll('*');
-  var nodeInfo = new Set();
-  for (let node of nodes) {
-    addNodeName(node, nodeInfo);
+    if (docMutation.size > 100) {
+      //in case there are too many mutations we will only check once the whole document
+      checkMutation(new Set([window.document]), nodeInfo);
+    }
+    checkMutation(docMutation, nodeInfo);
+    sendNodeNames(nodeInfo);
   }
-
-  sendNodeNames(nodeInfo);
 
   // attach mutation obsever in case new nodes are added
-  mutationObserver = new window.MutationObserver(mutations => throttle(onMutation(mutations), 200));
+  mutationObserver = new window.MutationObserver(mutations => onMutation(mutations));
   mutationObserver.observe(window.document, {childList: true, subtree: true});
 }
 
@@ -147,8 +142,12 @@ function handleRules(rules, window) {
     if (rule in injectedRules) {
       continue;
     } else {
-      let find = window.document.querySelectorAll(rule);
-      if (!find.length) {
+      try {
+        let find = window.document.querySelectorAll(rule);
+        if (!find.length) {
+          continue;
+        }
+      } catch(e) {  // invalid selector
         continue;
       }
       injectedRules[rule] = true;

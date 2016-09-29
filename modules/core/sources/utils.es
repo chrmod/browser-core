@@ -533,7 +533,6 @@ var CliqzUtils = {
     return false;
 
   },
-
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
     if(CliqzUtils.isUrl(value)){
@@ -647,10 +646,8 @@ var CliqzUtils = {
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
-  getBackendResults:  function(q, callback){
-
-  },
-  getCliqzResults: function(q, callback){
+  getBackendResults: function(q, callback){
+    CliqzUtils.log('This is the original CliqzUtils.getBackendResults', '============= DEBUG =============');
     CliqzUtils._sessionSeq++;
 
     // if the user sees the results more than 500ms we consider that he starts a new query
