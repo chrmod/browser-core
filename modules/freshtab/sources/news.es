@@ -1,7 +1,7 @@
 import {
-  utils as coreUtils,
   historyManager as coreHistoryManager,
 } from 'core/cliqz';
+import coreUtils from 'core/utils';
 
 import coreLanguage from 'platform/language';
 import PlacesUtils from 'platform/places-utils';
