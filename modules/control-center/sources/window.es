@@ -201,7 +201,7 @@ export default class {
         break;
       case 'moncomp':
         try {
-          var murl = utils.getPref('moncomp_endpoint', '') + this.window.gBrowser.selectedBrowser.contentDocument.location;
+          var murl = utils.getPref('moncomp_endpoint', '') + this.window.gBrowser.selectedBrowser.currentURI.spec;
           utils.openTabInWindow(this.window, murl);
           this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]").hidePopup();
         } catch(err) {}
