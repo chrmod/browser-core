@@ -21,6 +21,7 @@ export default class {
     }
 
     this.window = config.window;
+    this.channel = config.settings.channel;
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
@@ -34,7 +35,8 @@ export default class {
       "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": this.antitrackingStrict.bind(this),
       "sendTelemetry": this.sendTelemetry.bind(this),
-      "enableSearch": this.enableSearch.bind(this)
+      "enableSearch": this.enableSearch.bind(this),
+      "amo-cliqz-tab": this.amoCliqzTab.bind(this)
     }
   }
 
@@ -78,6 +80,16 @@ export default class {
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: 'attrack_fair',
+      action: 'click',
+      state: data.status === true ? 'on' : 'off'
+    });
+  }
+
+  amoCliqzTab(data) {
+    events.pub("control-center:amo-cliqz-tab");
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'cliqz_tab',
       action: 'click',
       state: data.status === true ? 'on' : 'off'
     });
@@ -242,7 +254,6 @@ export default class {
         // try to clean the url
         friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
       } catch (e) {}
-
       cb({
           activeURL: url,
           friendlyURL: friendlyURL,
@@ -250,7 +261,8 @@ export default class {
           generalState: generalState,
           feedbackURL: utils.FEEDBACK_URL,
           searchDisabled: utils.getPref('cliqz_core_disabled', false),
-          debug: utils.getPref('showConsoleLogs', false)
+          debug: utils.getPref('showConsoleLogs', false),
+          amo: config.settings.channel !== '40'
         });
     });
   }

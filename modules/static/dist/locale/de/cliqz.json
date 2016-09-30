@@ -1262,11 +1262,23 @@
     "control-center-info-ads": {
       "message": "Die integrierte Funktion zum „Ausschalten“ von Werbung ist aktuell noch in der Entwicklungs-Phase (BETA). Schon jetzt kann Werbung generell oder nur auf einer bestimmten Website blockiert oder zugelassen werden. Ein „fairer“ Modus, der Werbung nur nach bestimmten Kriterien zulässt, ist in Planung."
     },
+    "control-center-txt-privacy-cc": {
+      "message": "Schütze deine Privatsphäre"
+    },
+    "control-center-txt-privacy-cc-desc": {
+      "message": "Cliqz actively protects your personal data from being accessed by tracking companies."
+    },
     "control-center-info-https": {
       "message": "Diese Funktion erhöht die Sicherheit beim Surfen, indem sie immer verschlüsselte HTTPS Verbindungen zu Websites anfordert, wenn das möglich ist. Cliqz hat dazu den quelloffenen Service HTTPS Everywhere standardmäßig integriert."
     },
     "control-center-info-https-title": {
       "message": "HTTPS bevorzugen"
+    },
+    "control-center-info-cliqz-tab": {
+      "message": "Auf neuen Tabs zeigt dir Cliqz Tab Schnellzugriffe für deine meist besuchten und favorisierten Websites und bringt dich mit aktuellen News flott auf den neuesten Stand."
+    },
+    "control-center-txt-cliqz-tab-desc": {
+      "message": "Cliqz Tab zeigen"
     },
     "control-center-info-hpn-title": {
       "message": "Suche über Proxy"

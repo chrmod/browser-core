@@ -1262,11 +1262,23 @@
     "control-center-info-ads": {
       "message": "This integrated ad blocker function is currently in BETA status. You can choose to block or show advertisements in general or only on specific websites. A „fair“ mode that shows ads in clearly defined cases only will be added soon."
     },
+    "control-center-txt-privacy-cc": {
+      "message": "Protect your privacy"
+    },
+    "control-center-txt-privacy-cc-desc": {
+      "message": "Cliqz actively protects your personal data from being accessed by tracking companies."
+    },
     "control-center-info-https": {
       "message": "This function improves the level of security by forcing encrypted HTTPS connections to websites whenever possible. Cliqz has integrated the open-source service HTTPS Everywhere for this purpose."
     },
     "control-center-info-https-title": {
       "message": "Prefer HTTPS"
+    },
+    "control-center-info-cliqz-tab": {
+      "message": "Cliqz Tab enhances new tabs with short-cuts to your most visited and favorite websites, and curated top news to keep you up to speed."
+    },
+    "control-center-txt-cliqz-tab-desc": {
+      "message": "Show Cliqz Tab"
     },
     "control-center-info-hpn-title": {
       "message": "Search via Proxy"
