@@ -19,9 +19,11 @@ function format(currWin, url, md5, logging) {
         }
       }
       if (doc.referrer) {
-          currWin.location.replace(doc.referrer);
+        currWin.location.replace(doc.referrer);
+      } else if (currWin.history.length > 1) {
+        currWin.history.back();
       } else {
-          currWin.history.back();
+        currWin.location.replace('about:newtab');
       }
     };
     if (logging) {
