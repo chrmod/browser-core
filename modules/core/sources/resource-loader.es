@@ -69,6 +69,7 @@ export class Resource extends UpdateCallbackHandler {
     const dirPath = this.filePath.slice(0, -1);
     return makeDirRecursive(dirPath)
       .then(() => writeFile(this.filePath, (new TextEncoder()).encode(data)))
+      .catch(() => writeFile(this.filePath, data))
       .then(() => data);
   }
 
@@ -94,6 +95,7 @@ export class Resource extends UpdateCallbackHandler {
       .then(data => {
         this.triggerCallbacks(data);
         return data;
+      }).catch(ex => {
       });
   }
 

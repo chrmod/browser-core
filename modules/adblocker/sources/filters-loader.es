@@ -1,5 +1,6 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-import CliqzLanguage from 'platform/language';
+import  CliqzLanguage from 'platform/language';
+import {platformName} from 'core/platform';
 
 // Disk persisting
 const RESOURCES_PATH = ['antitracking', 'adblocking'];
@@ -31,11 +32,11 @@ function stripProtocol(url) {
 }
 
 
-class Checksums extends UpdateCallbackHandler {
+export class Checksums extends UpdateCallbackHandler {
   constructor() {
     super();
 
-    this.remoteURL = 'https://cdn.cliqz.com/adblocking/allowed-lists.json';
+    this.remoteURL = `https://cdn.cliqz.com/adblocking/${platformName}/allowed-lists.json`;
     this.loader = new ResourceLoader(
       RESOURCES_PATH.concat('checksums'),
       {
@@ -48,7 +49,7 @@ class Checksums extends UpdateCallbackHandler {
   }
 
   load() {
-    this.loader.load().then(this.updateChecksums.bind(this));
+    return this.loader.load().then(this.updateChecksums.bind(this));
   }
 
   // Private API
@@ -62,14 +63,15 @@ class Checksums extends UpdateCallbackHandler {
         if (list === 'country_lists') {
           lang = data[list][asset].language;
         }
-
         const assetName = stripProtocol(asset);
 
+        let filterRemoteURL = BASE_URL + assetName;
+          
         if (lang === null || LANGS.indexOf(lang) > -1) {
           this.triggerCallbacks({
             checksum,
             asset,
-            remoteURL: BASE_URL + assetName,
+            remoteURL: filterRemoteURL,
             key: list,
           });
         }
@@ -133,7 +135,7 @@ export default class extends UpdateCallbackHandler {
   }
 
   load() {
-    this.checksums.load();
+    return this.checksums.load();
   }
 
   updateList({ checksum, asset, remoteURL, key }) {
