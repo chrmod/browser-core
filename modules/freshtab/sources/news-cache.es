@@ -1,5 +1,4 @@
-import { utils } from 'core/cliqz';
-import environment from "platform/environment";
+import utils from 'core/utils';
 
 
 const CLIQZ_NEW_TAB_URL = 'chrome://cliqz/content/fresh-tab-frontend/index.html';
@@ -14,7 +13,7 @@ export default class {
     this.cacheName = cacheName;
     this.timerName = `${cacheName}_timer`;
     this.updateInterval = updateInterval;
-    this.localStore = environment.getLocalStorage(CLIQZ_NEW_TAB_URL);
+    this.localStore = utils.getLocalStorage(CLIQZ_NEW_TAB_URL);
     this.updateFunction = updateFunction;
 
     // remove old versions of the caches

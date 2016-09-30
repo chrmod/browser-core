@@ -13,7 +13,7 @@ export default describeModule("telemetry/storage",
       storage = new Storage(database);
     });
     afterEach(function() {
-      database.destroy();
+      return database.destroy();
     });
     describe("put and getTypesByTimespan", function () {
       it("should return records given complete timespan with records", function () {

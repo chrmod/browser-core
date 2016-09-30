@@ -12,7 +12,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/NewTabUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
 
-var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService);
+import console from "core/console";
+import prefs from "core/prefs";
+
 
 var CLIQZEnvironment = {
     LOG: 'https://logging.cliqz.com',
@@ -83,83 +85,19 @@ var CLIQZEnvironment = {
     },
     unload: function() {
     },
-    log: function(msg, key){
-      if(CLIQZEnvironment && CLIQZEnvironment.getPref('showConsoleLogs', false)){
-        _log.logStringMessage(
-          'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
-          (typeof msg == 'object'? JSON.stringify(msg): msg)
-        );
-      }
-    },
-    __prefixPref: function (pref, prefix) {
-        if ( !(typeof prefix === 'string') ) {
-          prefix = 'extensions.cliqz.';
-        }
-        return prefix + pref;
-    },
-    getPref: function(pref, defaultValue, prefix) {
-        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
-
-        var prefs = CLIQZEnvironment.prefs;
-
-        try {
-            switch(prefs.getPrefType(pref)) {
-                case 128: return prefs.getBoolPref(pref);
-                case 32:  {
-                  var charVal = prefs.getCharPref(pref);
-
-                  // it might be a complex value
-                  if(charVal === "chrome://global/locale/intl.properties"){
-                    try {
-                      charVal = prefs.getComplexValue(pref, Components.interfaces.nsIPrefLocalizedString).data;
-                    } catch (e) {
-                      CLIQZEnvironment.log("Error fetching pref: "  + pref);
-                    }
-                  }
-
-                  return charVal;
-                }
-                case 64:  return prefs.getIntPref(pref);
-                default:  return defaultValue;
-            }
-        } catch(e) {
-            return defaultValue;
-        }
-    },
-    setPref: function(pref, value, prefix){
-        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
-
-        var prefs = CLIQZEnvironment.prefs;
-
-        switch (typeof value) {
-            case 'boolean': prefs.setBoolPref(pref, value); break;
-            case 'number':  prefs.setIntPref(pref, value); break;
-            case 'string':  prefs.setCharPref(pref, value); break;
-        }
-    },
-    hasPref: function (pref, prefix) {
-        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
-
-        return CLIQZEnvironment.prefs.getPrefType(pref) !== 0;
-    },
-    clearPref: function (pref, prefix) {
-        pref = CLIQZEnvironment.__prefixPref(pref, prefix);
-
-        CLIQZEnvironment.prefs.clearUserPref(pref);
-    },
     getCliqzPrefs: function(){
-        return Cc['@mozilla.org/preferences-service;1']
-                 .getService(Ci.nsIPrefService)
-                 .getBranch('extensions.cliqz.')
-                 .getChildList('')
-                 .reduce(function (prev, curr) {
-                    // dont send any :
-                    //    - backup data like startpage to avoid privacy leaks
-                    //    - deep keys like "attrack.update" which are not needed
-                    if(curr.indexOf('backup') == -1 && curr.indexOf('.') == -1 )
-                      prev[curr] = CLIQZEnvironment.getPref(curr);
-                    return prev;
-                 }, {});
+      return Cc['@mozilla.org/preferences-service;1']
+        .getService(Ci.nsIPrefService)
+        .getBranch('extensions.cliqz.')
+        .getChildList('')
+        .reduce(function (prev, curr) {
+          // dont send any :
+          //    - backup data like startpage to avoid privacy leaks
+          //    - deep keys like "attrack.update" which are not needed
+          if(curr.indexOf('backup') == -1 && curr.indexOf('.') == -1 )
+            prev[curr] = prefs.get(curr);
+          return prev;
+        }, {});
     },
     isUnknownTemplate: function(template){
       return template &&
@@ -195,19 +133,19 @@ var CLIQZEnvironment = {
             if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
                 callback && callback(req);
             } else {
-                CLIQZEnvironment.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                console.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.onerror = function(){
             if(CLIQZEnvironment){
-                CLIQZEnvironment.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
+                console.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.ontimeout = function(){
             if(CLIQZEnvironment){ //might happen after disabling the extension
-                CLIQZEnvironment.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
+                console.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
@@ -223,18 +161,6 @@ var CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    getLocalStorage: function(url) {
-      var uri = Services.io.newURI(url,"",null),
-          principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
-
-      if (typeof principalFunction != "function") return false
-
-      var principal = principalFunction(uri),
-          dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
-                .getService(Components.interfaces.nsIDOMStorageManager)
-
-      return dsm.getLocalStorageForPrincipal(principal, '')
-    },
     promiseHttpHandler: function(method, url, data, timeout, compressedPost) {
       return new Promise( function(resolve, reject) {
        // gzip.compress may be false if there is no implementation for this platform
@@ -242,7 +168,7 @@ var CLIQZEnvironment = {
        if (CLIQZEnvironment.gzip && CLIQZEnvironment.gzip.compress && method === 'POST' && compressedPost) {
          const dataLength = data.length;
          data = CLIQZEnvironment.gzip.compress(data);
-         CLIQZEnvironment.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
+         console.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
          CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
        } else {
          CLIQZEnvironment.httpHandler(method, url, resolve, reject, timeout, data);
@@ -359,7 +285,7 @@ var CLIQZEnvironment = {
 
       function getNextSeq(){
         if(telemetrySeq == -1)
-          telemetrySeq = CLIQZEnvironment.getPref('telemetrySeq', 0)
+          telemetrySeq = prefs.get('telemetrySeq', 0)
 
         telemetrySeq = (telemetrySeq + 1) % 2147483647;
 
@@ -367,14 +293,14 @@ var CLIQZEnvironment = {
       }
 
       function pushTelemetry() {
-        CLIQZEnvironment.setPref('telemetrySeq', telemetrySeq);
+        prefs.set('telemetrySeq', telemetrySeq);
         if(telemetryReq) return;
 
         // put current data aside in case of failure
         telemetrySending = CLIQZEnvironment.trk.slice(0);
         CLIQZEnvironment.trk = [];
 
-        CLIQZEnvironment.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
+        console.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
 
         telemetryReq = CLIQZEnvironment.promiseHttpHandler('POST', CLIQZEnvironment.LOG, JSON.stringify(telemetrySending), 10000, true);
         telemetryReq.then( pushTelemetryCallback );
@@ -386,7 +312,7 @@ var CLIQZEnvironment = {
           var response = JSON.parse(req.response);
 
           if(response.new_session){
-            CLIQZEnvironment.setPref('session', response.new_session);
+            prefs.set('session', response.new_session);
           }
           telemetrySending = [];
           telemetryReq = null;
@@ -395,13 +321,13 @@ var CLIQZEnvironment = {
 
       function pushTelemetryError(req){
         // pushTelemetry failed, put data back in queue to be sent again later
-        CLIQZEnvironment.log('push telemetry failed: ' + telemetrySending.length + ' elements', "pushTelemetry");
+        console.log('push telemetry failed: ' + telemetrySending.length + ' elements', "pushTelemetry");
         CLIQZEnvironment.trk = telemetrySending.concat(CLIQZEnvironment.trk);
 
         // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
         var slice_pos = CLIQZEnvironment.trk.length - TELEMETRY_MAX_SIZE + 100;
         if(slice_pos > 0){
-          CLIQZEnvironment.log('discarding ' + slice_pos + ' old telemetry data', "pushTelemetry");
+          console.log('discarding ' + slice_pos + ' old telemetry data', "pushTelemetry");
           CLIQZEnvironment.trk = CLIQZEnvironment.trk.slice(slice_pos);
         }
 
@@ -412,9 +338,9 @@ var CLIQZEnvironment = {
       return function(msg, instantPush) {
         if(msg.type != 'environment' && CLIQZEnvironment.isPrivate()) return; // no telemetry in private windows
 
-        CLIQZEnvironment.log(msg, 'Utils.telemetry');
-        if(!CLIQZEnvironment.getPref('telemetry', true))return;
-        msg.session = CLIQZEnvironment.getPref('session');
+        console.log(msg, 'Utils.telemetry');
+        if(!prefs.get('telemetry', true))return;
+        msg.session = prefs.get('session');
         msg.ts = Date.now();
         msg.seq = getNextSeq();
 
@@ -494,7 +420,7 @@ var CLIQZEnvironment = {
     },
     disableCliqzResults: function (urlbar) {
       CliqzUtils.extensionRestart(function(){
-        CliqzUtils.setPref("cliqz_core_disabled", true);
+        prefs.set("cliqz_core_disabled", true);
       });
 
       // blur the urlbar so it picks up the default AutoComplete provider
@@ -505,7 +431,7 @@ var CLIQZEnvironment = {
       }, 0, urlbar);
     },
     enableCliqzResults: function (urlbar) {
-      CliqzUtils.setPref("cliqz_core_disabled", false);
+      prefs.set("cliqz_core_disabled", false);
       CliqzUtils.extensionRestart();
 
       // blur the urlbar so it picks up the new CLIQZ Autocomplete provider

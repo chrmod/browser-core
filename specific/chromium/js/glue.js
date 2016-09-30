@@ -48,15 +48,14 @@ System.baseURL = "modules/";
 
 console.log('LOADING ...')
 
-let acResults;
+let SEARCH;
 
 Promise.all([
-  System.import("core/utils"),
   System.import("core/templates")
   ])
   .then(function(modules){
-    window.CliqzUtils = modules[0].default;
-    window.CliqzHandlebars = modules[1].default;
+    window.CliqzHandlebars = modules[0].default;
+    window.CliqzUtils = System.get("core/utils").default;
   })
   .then(function(){
     return Promise.all([
@@ -116,7 +115,7 @@ Promise.all([
     // remove keydown handler from UI - the platform will do it
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
   }).then(function () {
-    acResults = new CliqzAutocomplete.CliqzResults();
+    SEARCH = new Search();
 
     handleSettings();
     whoAmI(true);
@@ -182,7 +181,7 @@ function updateSearchEngines(engines, defIdx) {
 function startAutocomplete(query) {
   settings.classList.remove("open");
   urlbar.value = query;
-  acResults.search(query, function(r) {
+  SEARCH.search(query, function(r) {
     CLIQZ.UI.setRawResults({
       q: r._searchString,
       results: r._results.map(function(r) {
@@ -325,7 +324,7 @@ function handleSettings() {
     CliqzUtils.setPref("adultContentFilter", ev.target.value);
   });
 
-  CLIQZEnvironment.addPrefListener(function(pref){
+  CliqzEvents.sub('prefchange', function(pref){
     // recreate the settings menu if relevant prefs change
     var relevantPrefs = [
       'share_location',

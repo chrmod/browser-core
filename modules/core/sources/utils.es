@@ -1,4 +1,7 @@
 import CLIQZEnvironment from "platform/environment";
+import console from "core/console";
+import prefs from "core/prefs";
+import Storage from "core/storage";
 
 var CliqzLanguage;
 
@@ -173,7 +176,6 @@ var CliqzUtils = {
   setSupportInfo: function(status){
     var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
         host = 'firefox', hostVersion='';
-
     //check if the prefs exist and if they are string
     if(prefs.getPrefType('distribution.id') == 32 && prefs.getPrefType('distribution.version') == 32){
       host = prefs.getCharPref('distribution.id');
@@ -188,7 +190,7 @@ var CliqzUtils = {
         sites = ["http://cliqz.com","https://cliqz.com"]
 
     sites.forEach(function(url){
-        var ls = CLIQZEnvironment.getLocalStorage(url)
+        var ls = new Storage(url)
 
         if (ls) ls.setItem("extension-info",info)
     })
@@ -258,7 +260,9 @@ var CliqzUtils = {
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
   },
-  getLocalStorage: CLIQZEnvironment.getLocalStorage,
+  getLocalStorage(url) {
+    return new Storage(url);
+  },
   /**
    * Loads a resource URL from the xpi.
    *
@@ -279,33 +283,13 @@ var CliqzUtils = {
     }
   },
   openTabInWindow: CLIQZEnvironment.openTabInWindow,
-  /**
-   * Get a value from preferences db
-   * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
-   * @param {string=} prefix - prefix for pref
-   */
-  getPref: CLIQZEnvironment.getPref,
-  /**
-   * Set a value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
-   * @param {string=} prefix - prefix for pref
-   */
-  setPref: CLIQZEnvironment.setPref,
-  /**
-   * Check if there is a value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {string=} prefix - prefix for pref
-   */
-  hasPref: CLIQZEnvironment.hasPref,
-  /**
-   * Clear value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {string=} prefix - prefix for pref
-   */
-  clearPref: CLIQZEnvironment.clearPref,
-  log: CLIQZEnvironment.log,
+  getPref: prefs.get,
+  setPref: prefs.set,
+  hasPref: prefs.has,
+  clearPref: prefs.clear,
+  log: function (msg, key) {
+    console.log(key, msg);
+  },
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },

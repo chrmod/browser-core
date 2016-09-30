@@ -39,7 +39,7 @@ describe("Startup", function () {
   });
 
   afterEach(function () {
-    contentWindow.CliqzUtils.getLocalStorage().clear();
+    localStorage.clear();
     fakeServer.restore();
     document.body.removeChild(testBox);
   });
