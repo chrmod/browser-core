@@ -62,7 +62,7 @@ export class Resource extends UpdateCallbackHandler {
     this.remoteURL = options.remoteURL;
     this.dataType = options.dataType || 'json';
     this.filePath = ['cliqz', ...this.name];
-    this.chromeURL = `chrome://cliqz/content/${this.name.join('/')}`;
+    this.chromeURL = options.chromeURL ||`chrome://cliqz/content/${this.name.join('/')}`;
   }
 
   persist(data) {

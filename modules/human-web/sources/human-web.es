@@ -3,7 +3,7 @@ import CliqzBloomFilter from "human-web/bloom-filter";
 import core from "core/background";
 import { utils } from "core/cliqz";
 import md5 from "core/helpers/md5";
-
+import ResourceLoader from 'core/resource-loader';
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
@@ -1831,13 +1831,6 @@ var CliqzHumanWeb = {
             }
         }
 
-        //Load patterns config
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 24) == 0) {
-            if (CliqzHumanWeb.debug) {
-                _log('Load pattern config');
-            }
-            CliqzHumanWeb.loadContentExtraction();
-        }
 
         //Load ts config
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0) {
@@ -2208,7 +2201,6 @@ var CliqzHumanWeb = {
         }
 
 
-        CliqzHumanWeb.loadContentExtraction();
         CliqzHumanWeb.fetchAndStoreConfig();
 
         if (CliqzHumanWeb.actionStats==null) CliqzHumanWeb.loadActionStats();
@@ -2221,6 +2213,36 @@ var CliqzHumanWeb = {
 
         // Load strict queries
         CliqzHumanWeb.loadStrictQueries();
+        let rsNormal = new ResourceLoader(
+            ["human-web","patterns"],
+            {
+                chromeURL: "chrome://cliqz/content/bower_components/patterns/index",
+                remoteURL : CliqzHumanWeb.patternsURL,
+                cron: 1 * 20 * 60 * 1000,
+            }
+
+        );
+        rsNormal.load().then( e => {
+          CliqzHumanWeb.loadContentExtraction(e, "normal")
+        });
+        rsNormal.onUpdate( e => CliqzHumanWeb.loadContentExtraction(e, "normal"));
+
+        let rsStrict = new ResourceLoader(
+            ["human-web","patterns-anon"],
+            {
+                chromeURL: "chrome://cliqz/content/bower_components/anonpatterns/index",
+                remoteURL : CliqzHumanWeb.anonPatternsURL,
+                cron: 1 * 20 * 60 * 1000,
+            }
+
+        );
+
+        rsStrict.load().then( e => {
+          CliqzHumanWeb.loadContentExtraction(e, "strict")
+        });
+
+        rsStrict.onUpdate( e => CliqzHumanWeb.loadContentExtraction(e, "strict"));
+
     },
     initAtBrowser: function(){
         if(CliqzUtils.getPref("dnt", false)) return;
@@ -3151,13 +3173,10 @@ var CliqzHumanWeb = {
         try{var win = ww.openWindow(null, "chrome://cliqzmodules/content/debugInterface",
                         "debugInterface", null, null);}catch(ee){_log(ee)}
     },
-    loadContentExtraction: function(){
+    loadContentExtraction: function(resp, mode){
         //Load content extraction.
-        CliqzUtils.httpGet(CliqzHumanWeb.patternsURL,
-          function success(req){
-            if(!CliqzHumanWeb) return;
-
-            var patternConfig = JSON.parse(req.response);
+        if (mode === "normal"){
+            var patternConfig = resp;
             CliqzHumanWeb.searchEngines = patternConfig["searchEngines"];
             CliqzHumanWeb.extractRules = patternConfig["scrape"];
             CliqzHumanWeb.payloads = patternConfig["payloads"];
@@ -3166,16 +3185,9 @@ var CliqzHumanWeb = {
             patternConfig["urlPatterns"].forEach(function(e){
               CliqzHumanWeb.rArray.push(new RegExp(e));
             })
-          },
-          function error(res){
-            _log('Error loading config. ')
-            });
-
-        // Load anon content extraction.
-        CliqzUtils.httpGet(CliqzHumanWeb.anonPatternsURL, function success(req) {
-            if (!CliqzHumanWeb) return;
-
-            var patternConfig = JSON.parse(req.response);
+        }
+        else if(mode === "strict"){
+            var patternConfig = resp;
             CliqzHumanWeb.anonSearchEngines = patternConfig["searchEngines"];
             CliqzHumanWeb.anonExtractRules = patternConfig["scrape"];
             CliqzHumanWeb.anonPayloads = patternConfig["payloads"];
@@ -3184,9 +3196,7 @@ var CliqzHumanWeb = {
             patternConfig["urlPatterns"].forEach(function (e) {
                 CliqzHumanWeb.anonRArray.push(new RegExp(e));
             });
-        }, function error(res) {
-            _log('Error loading config. ');
-        });
+        }
     },
     checkForEmail: function(str) {
         if (str.match(/[a-z0-9\-_@]+(@|%40|%(25)+40)[a-z0-9\-_]+\.[a-z0-9\-_]/i) != null) return true;
