@@ -187,6 +187,13 @@ export default class {
         //use firefox command to ensure compatibility
         this.window.document.getElementById("Tools:Sanitize").click();
         break;
+      case 'moncomp':
+        try {
+          var murl = utils.getPref('moncomp_endpoint', '') + this.window.gBrowser.selectedBrowser.contentDocument.location;
+          utils.openTabInWindow(this.window, murl);
+          this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]").hidePopup();
+        } catch(err) {}
+        break;
       default:
         var tab = utils.openLink(this.window, data.url, true),
             panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");

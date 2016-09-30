@@ -37,7 +37,8 @@
     "offers",
     "adblocker",
     "https-everywhere",
-    "telemetry"
+    "telemetry",
+    "moncomp"
   ],
   "subprojects": [
     "fresh-tab-frontend"
