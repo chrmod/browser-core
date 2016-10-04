@@ -354,8 +354,11 @@ const urlbarEventHandlers = {
   * @param ev
   */
   blur: function(ev) {
-    if (!autocomplete.spellCheck) { return; }
-    autocomplete.spellCheck.resetState();
+    if (autocomplete.spellCheck){
+      autocomplete.spellCheck.resetState();
+    }
+    // reset this flag as it can block the dropdown from opening
+    autocomplete.isPopupOpen = false;
 
     if(this.window.CLIQZ.Core.triggerLastQ)
         CliqzSearchHistory.lastQuery(this.window);

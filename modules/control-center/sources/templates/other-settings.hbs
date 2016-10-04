@@ -64,6 +64,7 @@
           {{/each}}
         </select>
       </span>
+      {{#if module.hpn.visible }}
       <span class="bullet"
             state="{{#if module.hpn.state}}active{{ else }}inactive{{/if}}"
             inactiveState="inactive">
@@ -98,6 +99,7 @@
           </span>
         </span>
       </span>
+      {{/if}}
     </div>
     {{/unless}}
   </div>
