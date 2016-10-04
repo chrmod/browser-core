@@ -246,7 +246,7 @@ export default class {
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
-      if(utils.hasPref('browser.privatebrowsing.apt', '')){
+      if(utils.hasPref('browser.privatebrowsing.apt', '') && config.settings.channel === '40'){
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 

@@ -479,6 +479,11 @@ var CLIQZEnvironment = {
                     onSearchResult: function(ctx, result) {
                         var res = [];
                         for (var i = 0; result && i < result.matchCount; i++) {
+                            if(result.getStyleAt(i).indexOf('heuristic') != -1 ||
+                               result.getStyleAt(i).indexOf('switchtab') != -1){
+                              // filter out "heuristic" results
+                              continue;
+                            }
                             res.push({
                                 style:   result.getStyleAt(i),
                                 value:   result.getValueAt(i),
