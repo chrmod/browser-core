@@ -15,6 +15,8 @@ var concat = require('broccoli-sourcemap-concat');
 
 var cliqzConfig = require('./config');
 
+var Instrument = require('./instrument');
+
 const bowerComponents = new UnwatchedDir('bower_components');
 const modulesTree = new WatchedDir('modules');
 const subprojectsTree = new UnwatchedDir('subprojects');
@@ -104,7 +106,10 @@ function getSourceTree() {
     options: { configFile: process.cwd() + '/.eslintrc' }
   });
   esLinterTree.extensions = ['es'];
-
+  if (cliqzConfig.instrumentFunctions !== undefined) {
+    let threshold = parseInt(cliqzConfig.instrumentFunctions)||0;
+    esLinterTree = new Instrument(esLinterTree, {threshold:threshold});
+  }
   let transpiledSources = Babel(
     esLinterTree,
     Object.assign({}, babelOptions, { filterExtensions: ['js']})
