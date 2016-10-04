@@ -1337,6 +1337,9 @@
     "control-center-searchoptions": {
       "message": "Mehr Suchoptionen"
     },
+    "control-center-search-engine": {
+      "message": "Ergänzende Suchmaschine"
+    },
     "control-center-humanweb": {
       "message": "Am Human Web teilnehmen"
     },

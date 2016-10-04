@@ -36,7 +36,8 @@ export default class {
       "antitracking-strict": this.antitrackingStrict.bind(this),
       "sendTelemetry": this.sendTelemetry.bind(this),
       "enableSearch": this.enableSearch.bind(this),
-      "amo-cliqz-tab": this.amoCliqzTab.bind(this)
+      "amo-cliqz-tab": this.amoCliqzTab.bind(this),
+      "complementary-search": this.complementarySearch.bind(this)
     }
   }
 
@@ -109,6 +110,16 @@ export default class {
       target: 'attrack_' + data.type,
       state: state,
       action: 'click',
+    });
+  }
+
+  complementarySearch(data) {
+    events.pub("control-center:setDefault-search", data.defaultSearch);
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'complementary_search',
+      state: 'search_engine_change_' + data.defaultSearch,
+      action: 'click'
     });
   }
 

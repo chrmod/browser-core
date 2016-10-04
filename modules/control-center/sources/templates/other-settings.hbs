@@ -112,6 +112,18 @@
       <span data-i18n="control-center-searchoptions"></span>
     </a>
     <div id="accordion-2" class="accordion-section-content">
+      {{#if module.autocomplete.visible}}
+      <span class="bullet">
+        <span data-i18n="control-center-search-engine"></span>
+        <select complementarySearchChanger
+                data-target="complementary_search">
+          {{#each module.autocomplete.state}}
+            <option {{#if default }}selected{{/if}} value={{ name }} >[{{ prefix }}] {{ name }}</option>
+          {{/each}}
+        </select>
+      </span>
+      {{/if}}
+
       {{#if module.human-web.visible }}
         <span class="bullet"
               state="{{#if module.human-web.state}}active{{ else }}inactive{{/if}}"

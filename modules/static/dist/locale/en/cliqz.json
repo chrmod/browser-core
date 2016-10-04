@@ -1337,6 +1337,9 @@
     "control-center-searchoptions": {
       "message": "More Search Options"
     },
+    "control-center-search-engine": {
+      "message": "Supplementary Search Engine"
+    },
     "control-center-humanweb": {
       "message": "Take part in Human Web"
     },

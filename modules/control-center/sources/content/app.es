@@ -78,6 +78,15 @@ $('#control-center').on('click', '[data-function]', function(ev){
   });
 });
 
+$('#control-center').on('click', '[complementarySearchChanger]', function(ev) {
+  sendMessageToWindow({
+    action: 'complementary-search',
+    data: {
+      defaultSearch: $(this).val()
+    }
+  });
+});
+
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
   var state,
       type = $(this).attr('data-type');

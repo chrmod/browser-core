@@ -3,6 +3,7 @@ import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
 
+
 var CliqzLanguage;
 
 var VERTICAL_ENCODINGS = {

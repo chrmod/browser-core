@@ -15,9 +15,6 @@ export default class {
     AutocompleteWindow.init(this.window);
     utils.log('-- INITIALIAZED WINDOW ---', 'DEBUG');
   }
-  //
-  //  this.window.CliqzAutocomplete = autocomplete;
-  // this.window.Search = Search;
 
   unload() {
     AutocompleteWindow.unload(this.window)
@@ -61,5 +58,12 @@ export default class {
     menu.appendChild(menupopup);
 
     return menu;
+  }
+
+  status() {
+    return {
+      visible: true,
+      state: autocomplete.CliqzResultProviders.getSearchEngines()
+    }
   }
 }
