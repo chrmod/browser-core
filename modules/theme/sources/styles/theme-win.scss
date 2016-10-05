@@ -5,6 +5,9 @@ $browser-top-bg-color: #ccc;
 
 @font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
+.cliqz-urlbar-Last-search {
+    padding-top: 3px;
+}
 
 :root {
     --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/win/menuPanel.png");
