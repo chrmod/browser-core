@@ -1,3 +1,12 @@
+var tlmTimer = 0;
+
+var tlmTimerFn = function () {
+  setTimeout(function () {
+    tlmTimer += 50;
+    tlmTimerFn();
+  }, 50);
+}
+
 function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
     var elArgs = el.dataset.i18n.split(','),
@@ -16,6 +25,24 @@ function localizeDocument() {
     el.setAttribute('title', chrome.i18n.getMessage(key, elArgs));
   });
 }
+
+function telemetrySig(msg) {
+  window.postMessage(JSON.stringify({
+    target: 'cliqz',
+    module: 'core',
+    action: 'sendTelemetry',
+    args: [{
+      type: 'onboarding',
+      version: '2.0',
+      action: msg.action,
+      view: msg.view,
+      target: msg.target,
+      timer: tlmTimer
+    }]
+  }), '*');
+}
+
+
 
 var CALLBACKS = {};
 window.addEventListener("message", function (ev) {
@@ -42,6 +69,14 @@ var openTooltip1, openTooltip2;
 
 function step1() {
 
+  //=== Telemetry
+  telemetrySig({
+    action: 'show',
+    view: 'intro',
+    target: 'page',
+    resumed: 'false'
+  });
+
   //=== STEP 1 Tooltip Trigger
   openTooltip1 = setTimeout(function () {
     $('#cqb-atr-on').tooltipster('open');
@@ -55,8 +90,16 @@ function step1() {
 
   // Open Tooltip if user click
   $(".cqb-steps .cqb-step1").click(function(e) {
-    if (e.target !== this)
-      return;
+
+    //=== Telemetry
+    telemetrySig({
+      type: 'onboarding',
+      version: '2.0',
+      action: 'click',
+      view: 'intro',
+      target: 'body_click',
+      timer: tlmTimer
+    });
     $('#cqb-atr-on').tooltipster('open');
   });
 }
@@ -67,6 +110,14 @@ function step1() {
 
 function step2() {
   clearTimeout(openTooltip1);
+
+  //=== Telemetry
+  telemetrySig({
+    action: 'show',
+    view: 'privacy',
+    target: 'page',
+    resumed: 'false'
+  });
 
   $("body").addClass("cqb-step2");
   $('#cqb-atr-on').tooltipster('close');
@@ -90,8 +141,17 @@ function step2() {
 
   //=== STEP 2 Tooltip Trigger
   $(".cqb-steps .cqb-step2").click(function(e) {
-    if (e.target !== this)
-      return;
+
+    //=== Telemetry
+    telemetrySig({
+      type: 'onboarding',
+      version: '2.0',
+      action: 'click',
+      view: 'privacy',
+      target: 'body_click',
+      timer: tlmTimer
+    });
+    $('#cqb-search-btn').css('opacity', '1')
     $('#cqb-search-btn').tooltipster('open');
   });
 }
@@ -104,6 +164,13 @@ function step2() {
 function step3() {
   clearTimeout(openTooltip2);
 
+  //=== Telemetry
+  telemetrySig({
+    action: 'show',
+    view: 'search',
+    target: 'page',
+    resumed: 'false'
+  });
   window.postMessage(JSON.stringify({
     target: 'cliqz',
     module: 'onboarding-v2',
@@ -127,7 +194,7 @@ function step3() {
     clearTimeout(homeBtn);
 
     $(this).addClass('active');
-    
+
     var homeBtn = setTimeout(function () {
        $('#cqb-fresh-tab').css('display', 'inline-block');
     }, 3000);
@@ -135,6 +202,22 @@ function step3() {
     e.preventDefault();
     var val = $(this).attr('href');
     autoQuery(val);
+  });
+
+
+  //=== STEP 3 Tooltip Trigger
+  $(".cqb-steps .cqb-step3").click(function(e) {
+    //=== Telemetry
+    telemetrySig({
+      type: 'onboarding',
+      version: '2.0',
+      action: 'click',
+      view: 'search',
+      target: 'body_click',
+      timer: tlmTimer
+    });
+    $('#cqb-search-btn').css('opacity', '1')
+    $('#cqb-search-btn').tooltipster('open');
   });
 }
 
@@ -163,6 +246,7 @@ function autoQuery(val) {
   }), "*");
 }
 
+
 var stepPromise = new Promise(function (resolve, reject) {
   CALLBACKS['initOnboarding'] = resolve;
 }).then(function (step) {
@@ -175,12 +259,29 @@ window.postMessage(JSON.stringify({
 }), '*');
 
 
+
+// =================
+// == Document Ready
+// =================
+
 Promise.all([
   $(document).ready().promise(),
   stepPromise
 ]).then(function (resolvedPromises) {
   var step = resolvedPromises[1];
   localizeDocument();
+
+
+  //Telemetry Trigger
+  $('[data-cqb-tlmtr-target]').click(function (e) {
+    e.stopPropagation();
+
+    telemetrySig({
+        action: 'click',
+        view: $(this).data('cqb-tlmtr-view'),
+        target: $(this).data('cqb-tlmtr-target')
+    });
+  });
 
   $('#cqb-atr-on').tooltipster({
     theme: 'tooltipster-light',
@@ -221,4 +322,7 @@ Promise.all([
   $("#cqb-search-btn").click(function () {
     step3();
   });
+
+  //Call Telemetry Timer
+  tlmTimerFn();
 });
