@@ -12,11 +12,5 @@ export default {
 
   beforeBrowserShutdown() {
 
-  },
-
-  actions: {
-    setBadge(info) {
-      utils.getWindow().document.querySelector('#cliqz-control-center-badge').textContent = info;
-    }
   }
 };

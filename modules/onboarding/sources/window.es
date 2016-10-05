@@ -1,5 +1,5 @@
 import utils from "core/utils";
-import { version as onboardingVersion } from "core/onboarding";
+import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 
 const CLIQZ_ONBOARDING = "about:onboarding";
 
