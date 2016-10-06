@@ -144,7 +144,7 @@ export default background({
         utils.getWindow(),
         'core',
         'removeClassFromWindow',
-        ['cqz-step1', 'cqz-step2']
+        ['cqz-onboarding', 'cqz-step1', 'cqz-step2']
       );
 
       var targetPromise = UITour.getTarget(utils.getWindow(), "cliqz");
