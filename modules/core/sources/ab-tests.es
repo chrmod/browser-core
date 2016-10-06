@@ -302,6 +302,12 @@ var CliqzABTests = {
             case "1080_B":
                 CliqzUtils.setPref("freshtabNewBrand", true);
                 break;
+            case "1082_A":
+                CliqzUtils.setPref("onboarding-v2", false);
+                break;
+            case "1082_B":
+                CliqzUtils.setPref("onboarding-v2", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -472,6 +478,10 @@ var CliqzABTests = {
             case "1080_A":
             case "1080_B":
               CliqzUtils.clearPref("freshtabNewBrand");
+              break;
+            case "1082_A":
+            case "1082_B":
+              CliqzUtils.clearPref("onboarding-v2");
               break;
             default:
                 rule_executed = false;
