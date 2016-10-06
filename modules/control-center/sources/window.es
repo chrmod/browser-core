@@ -406,7 +406,9 @@ export default class {
   }
 
   enableSearch() {
-    CLIQZEnvironment.enableCliqzResults(this.window.document.getElementById('urlbar'));
+    events.pub('autocomplete:enable-search',{
+      urlbar: this.window.document.getElementById('urlbar')
+    });
     let panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
     panel.hidePopup();
   }

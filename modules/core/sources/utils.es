@@ -3,7 +3,6 @@ import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
 
-
 var CliqzLanguage;
 
 var VERTICAL_ENCODINGS = {
@@ -632,33 +631,52 @@ var CliqzUtils = {
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
-  getBackendResults: function(q, callback){
-    CliqzUtils.log('This is the original CliqzUtils.getBackendResults', '============= DEBUG =============');
-    CliqzUtils._sessionSeq++;
+  getBackendResults: function(q) {
+    return new Promise(function(resolve, reject) {
+      if (!CliqzUtils.getPref('cliqzBackendProvider.enabled', true)) {
+        resolve({
+          response: {
+            results: [],
+          },
+          query: q
+        });
+      }
+      else {
+        CliqzUtils._sessionSeq++;
 
-    // if the user sees the results more than 500ms we consider that he starts a new query
-    if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
-      CliqzUtils._queryCount++;
-    }
-    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
-    CliqzUtils._queryLastLength = q.length;
+        // if the user sees the results more than 500ms we consider that he starts a new query
+        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
+          CliqzUtils._queryCount++;
+        }
+        CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
+        CliqzUtils._queryLastLength = q.length;
 
-    var url = CliqzUtils.RESULTS_PROVIDER +
-              encodeURIComponent(q) +
-              CliqzUtils.encodeSessionParams() +
-              CliqzLanguage.stateToQueryString() +
-              CliqzUtils.encodeLocale() +
-              CliqzUtils.encodeResultOrder() +
-              CliqzUtils.encodeCountry() +
-              CliqzUtils.encodeFilter() +
-              CliqzUtils.encodeLocation() +
-              CliqzUtils.encodeResultCount(7) +
-              CliqzUtils.disableWikiDedup();
-
-    var req = CliqzUtils.httpGet(url, function (res) {
-      callback && callback(res, q);
+        var url = CliqzUtils.RESULTS_PROVIDER +
+                  encodeURIComponent(q) +
+                  CliqzUtils.encodeSessionParams() +
+                  CliqzLanguage.stateToQueryString() +
+                  CliqzUtils.encodeLocale() +
+                  CliqzUtils.encodeResultOrder() +
+                  CliqzUtils.encodeCountry() +
+                  CliqzUtils.encodeFilter() +
+                  CliqzUtils.encodeLocation() +
+                  CliqzUtils.encodeResultCount(7) +
+                  CliqzUtils.disableWikiDedup();
+        CliqzUtils.httpGet(url, function (res) {
+          var resp = JSON.parse(res.response || '{}')
+          if (resp.result !== undefined && resp.results === undefined) {
+            resp.results = resp.result;
+            delete resp.result;
+          }
+          resolve({
+            response: resp,
+            query: q
+          });
+        });
+      }
     });
   },
+
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
     CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,

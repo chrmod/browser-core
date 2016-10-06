@@ -106,7 +106,7 @@
 	"max_age": -1,
 	"navigational": true,
 	"q": "spiegel.de",
-	"result": [
+	"results": [
 		{
 			"q": "spiegel.de",
 			"url": "http://www.spiegel.de/",

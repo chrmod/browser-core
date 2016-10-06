@@ -1345,7 +1345,9 @@ function urlIndexInHistory(url, urlList) {
                     //not supported country
                     case 'disable-cliqz':
                         clearMessage('bottom');
-                        CliqzUtils.disableCliqzResults(urlbar);
+                        CliqzEvents.pub('autocomplete:disable-search', {
+                          urlbar: urlbar
+                        });
                         break;
                     case 'keep-cliqz':
                         clearMessage('bottom');

@@ -309,12 +309,6 @@ const CLIQZEnvironment = {
   onRenderComplete: function(query, urls){
     chrome.cliqzSearchPrivate.processResults(query, urls);
   },
-  disableCliqzResults: function () {
-    CE.ExpansionsProvider.enable();
-  },
-  enableCliqzResults: function () {
-    CE.ExpansionsProvider.disable();
-  }
 };
 const CE = CLIQZEnvironment;  // Shorthand alias.
 

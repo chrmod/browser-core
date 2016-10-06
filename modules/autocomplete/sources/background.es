@@ -19,6 +19,7 @@ function onReady() {
   });
 }
 
+
 export default background({
 
   enabled() {
@@ -31,7 +32,7 @@ export default background({
       autocomplete.CliqzResultProviders = new ResultProviders();
       AutocompleteBackground.init();
       if (isFirefox) {
-        environment.RERANKERS.push(WikipediaDeduplication);
+        environment.RERANKERS.push(new WikipediaDeduplication());
       }
 
       autocomplete.CliqzHistoryCluster = historyCluster;
@@ -52,10 +53,17 @@ export default background({
   beforeBrowserShutdown() {
 
   },
-
   events: {
+    'autocomplete:disable-search': function({urlbar}){
+      utils.setPref('cliqzBackendProvider.enabled', false);
+      utils.disableCliqzResults && utils.disableCliqzResults(urlbar);
+    },
+    'autocomplete:enable-search': function({urlbar}){
+      utils.setPref('cliqzBackendProvider.enabled', true);
+      utils.enableCliqzResults && utils.enableCliqzResults(urlbar);
+    },
     'control-center:setDefault-search': function setDefaultSearchEngine(engine) {
       this.autocomplete.CliqzResultProviders.setCurrentSearchEngine(engine);
-    },
-  },
+    }
+  }
 });

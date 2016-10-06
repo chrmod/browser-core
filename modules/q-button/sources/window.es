@@ -230,9 +230,11 @@ export default class {
   createActivateButton(doc) {
     var button = doc.createElement('menuitem');
     button.setAttribute('label', utils.getLocalizedString('btnActivateCliqz'));
-    button.addEventListener('command', (function(event) {
-      CLIQZEnvironment.enableCliqzResults(doc.getElementById('urlbar'));
-    }).bind(this));
+    button.addEventListener('command', () => {
+      events.pub('autocomplete:enable-search',{
+        urlbar:doc.getElementById('urlbar')
+      });
+    });
     return button;
   }
 

@@ -10,11 +10,31 @@ import Result from "autocomplete/result";
 import Mixer from "autocomplete/mixer";
 import CliqzSpellCheck from "autocomplete/spell-check"
 
+class TimeoutError extends Error {}
+
 function isQinvalid(q){
     //TODO: add more
     if(q.indexOf('view-source:') === 0) return true;
 
     return false;
+}
+
+function delay(time) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, time);
+  });
+}
+
+function timeout(promise, time) {
+  const _timeout = delay(time).then( () => { throw new TimeoutError('Timeout') } );
+  return Promise.race([promise, _timeout]);
+}
+
+function handleError(e) {
+  return {
+    reason: e,
+    isInvalid: true,
+  };
 }
 
 class ProviderAutoCompleteResultCliqz {
@@ -93,6 +113,11 @@ export default class Search {
     this.instant = [];
     CliqzAutocomplete.spellCheck = this.spellCheck;
     this.resultProviders = new ResultProviders();
+    this.rerankerTimeouts = {
+      before: 30,
+      during: this.TIMEOUT,
+      after: 30
+    }
   }
 
   search(searchString, callback) {
@@ -196,8 +221,9 @@ export default class Search {
       this.createInstantResultCallback = this.createInstantResultCallback.bind(this);
       historyCluster.historyCallback = this.historyPatternCallback;
       if(searchString.trim().length){
-          // start fetching results
-          utils.getBackendResults(searchString, this.cliqzResultFetcher);
+
+          this.getSearchResults(searchString).then(this.cliqzResultFetcher);
+
           // if spell correction, no suggestions
           if (this.spellCheck.state.on && !this.spellCheck.state.override) {
               this.suggestionsRecieved = true;
@@ -310,6 +336,58 @@ export default class Search {
         });
       }
 
+  }
+
+  getSearchResults(searchString) {
+
+    const beforeResults = Promise.all(
+      utils.RERANKERS.map(reranker => {
+        const promise = reranker.beforeResults || Promise.resolve.bind(Promise);
+        return timeout(
+          promise({query: searchString}),
+          this.rerankerTimeouts.before
+        ).catch(handleError);
+      })
+    );
+
+    const duringResults = beforeResults.then(resultsArray => {
+      const duringResultsPromises = utils.RERANKERS.map((reranker, idx) => {
+        const promise = reranker.duringResults || Promise.resolve.bind(Promise);
+        return timeout(
+          promise(resultsArray[idx]),
+          this.rerankerTimeouts.during
+        );
+      });
+      return Promise.all(
+        [
+          ...duringResultsPromises,
+          utils.getBackendResults(searchString),
+        ].map(promise => promise.catch(handleError))
+      );
+    });
+
+    const afterResults = duringResults.then(results => {
+      const backendResults = results.pop();
+      return results.reduce((results, rerankerResults, index) => {
+        if (!utils.RERANKERS[index].afterResults) {
+          return results;
+        }
+
+        return results.then(x =>
+          timeout(
+            utils.RERANKERS[index].afterResults(rerankerResults, x),
+            this.rerankerTimeouts.after
+          ).catch(() => results).then((res) => {
+            if (!res.isInvalid && res.response && res.response.telemetrySignal) {
+              this.userRerankers[utils.RERANKERS[index].name] = res.response.telemetrySignal;
+            }
+            return res;
+          })
+        );
+      }, Promise.resolve(backendResults));
+    });
+
+    return afterResults;
   }
 
   historyTimeoutCallback(params) {
@@ -430,32 +508,19 @@ export default class Search {
 
 
   // handles fetched results from the cache
-  cliqzResultFetcher(req, q) {
-
+  cliqzResultFetcher(res) {
+      var json = res.response,
+          q = res.query;
       // be sure this is not a delayed result
       if(q != this.searchString) {
           this.discardedResults += 1; // count results discarded from backend because they were out of date
       } else {
           this.latency.backend = Date.now() - this.startTime;
           var results = [];
-          var json = JSON.parse(req.response);
 
-          // apply rerankers
-          for (var i = 0; i < utils.RERANKERS.length; i++){
-              var reranker = utils.RERANKERS[i];
-              if (reranker != null){
-                  var rerankerResults = reranker.doRerank(json.result);
-                  json.result = rerankerResults.response;
-                  if (Object.keys(rerankerResults.telemetrySignal).length > 0){
-                      this.userRerankers[reranker.name] = rerankerResults.telemetrySignal;
-                  }
-              }
+          utils.log(json.results ? json.results.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
 
-          }
-
-          utils.log(json.result ? json.result.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
-
-          results = json.result || [];
+          results = json.results || [];
 
           this.cliqzResultsExtra = [];
 
