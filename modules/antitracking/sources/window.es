@@ -5,9 +5,6 @@ import { simpleBtn } from 'q-button/buttons';
 import { URLInfo } from 'antitracking/url';
 
 function onLocationChange(ev) {
-  if (utils.getWindow().gBrowser.currentURI.spec === "about:onboarding") {
-    return;
-  }
   if(this.interval) { CliqzUtils.clearInterval(this.interval); }
 
   var counter = 8;

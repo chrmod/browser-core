@@ -40,6 +40,10 @@ function isHttpsSection(section) {
   return section === 'https';
 }
 
+function isOnboarding() {
+  return $('#control-center').hasClass('onboarding');
+}
+
 
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
 $(document).ready(function(resolvedPromises) {
@@ -52,7 +56,7 @@ $(document).ready(function(resolvedPromises) {
   resize();
   sendMessageToWindow({
     action: 'getData',
-    data: { }
+    data: {}
   });
 });
 
@@ -71,6 +75,9 @@ $('#control-center').on('click', '[openUrl]', function(ev){
 });
 
 $('#control-center').on('click', '[data-function]', function(ev){
+  if(isOnboarding()) {
+    return;
+  }
   sendMessageToWindow({
     action: ev.currentTarget.dataset.function,
     data: {
@@ -87,6 +94,11 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
   } else {
     state = $(this).attr('data-state');
   }
+
+  if(isOnboarding()) {
+    return;
+  }
+
   sendMessageToWindow({
     action: 'antitracking-activator',
     data: {
@@ -110,7 +122,9 @@ $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
   }
 
   frame.attr('data-visible', $(this).attr('data-state'));
-
+  if(isOnboarding()) {
+    return;
+  }
   sendMessageToWindow({
     action: 'adb-activator',
     data: {
@@ -149,6 +163,9 @@ function updateGeneralState() {
   }
 
   $('#header').attr('state', state);
+  if(isOnboarding()) {
+    return;
+  }
   sendMessageToWindow({
     action: 'updateState',
     data: state
@@ -376,6 +393,10 @@ function draw(data){
     });
 
     if(this.hasAttribute('updatePref')){
+      if(isOnboarding()) {
+        return;
+      }
+
       sendMessageToWindow({
         action: 'updatePref',
         data: {
