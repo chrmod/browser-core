@@ -204,12 +204,16 @@ program.command('build [file]')
        .option('--freshtab', 'enables ember fresh-tab-frontend build')
        .option('--prod', 'to generate comprehensive manifest.json')
        .option('--to-subdir', 'build into a subdirectory named after the config')
+       .option('--instrument-functions [ms]', 'log all modules function calls which take more than given ms')
        .action((configPath, options) => {
           var buildStart = Date.now();
           setConfigPath(configPath, options.toSubdir);
 
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
           process.env['CLIQZ_FRESHTAB'] = options.freshtab;
+          if (options.instrumentFunctions !== undefined) {
+            process.env['CLIQZ_INSTRUMENT_FUNCTIONS'] = options.instrumentFunctions;
+          }
 
           console.log("Starting build");
 
@@ -261,10 +265,14 @@ program.command('serve [file]')
        .option('--no-maps', 'disables source maps')
        .option('--version [version]', 'sets extension version', 'package')
        .option('--freshtab', 'disables ember fresh-tab-frontend build')
+       .option('--instrument-functions [ms]', 'log all modules function calls which take more than given ms')
        .action((configPath, options) => {
           setConfigPath(configPath);
           process.env['CLIQZ_SOURCE_MAPS'] = options.maps;
           process.env['CLIQZ_FRESHTAB'] = options.freshtab;
+          if (options.instrumentFunctions !== undefined) {
+            process.env['CLIQZ_INSTRUMENT_FUNCTIONS'] = options.instrumentFunctions;
+          }
           buildFreshtabFrontEnd();
 
           getExtensionVersion(options.version).then(tag => {

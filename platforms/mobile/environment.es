@@ -1,6 +1,11 @@
+import console from "core/console";
+import prefs from "core/prefs";
+import Storage from "core/storage";
+
 //TODO: get rid of me!
 var lastSucceededUrl;
 var latestUrl;
+const storage = new Storage();
 
 // END TEMP
 const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
@@ -9,8 +14,6 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "EZ-history": true,
   "calculator": true,
   "celebrities": true,
-  "conversations": true,
-  "favorites": true,
   "currency": true,
   "emphasis": true,
   "empty": true,
@@ -66,9 +69,6 @@ var CLIQZEnvironment = {
       'pattern-h1'
   ],
   GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
-  log: function(msg, key){
-    console.log('[[' + key + ']]', msg);
-  },
   //TODO: check if calling the bridge for each telemetry point is expensive or not
   telemetry: function(msg) {
     msg.ts = Date.now();
@@ -93,10 +93,11 @@ var CLIQZEnvironment = {
       var urlbarValue = CLIQZEnvironment.lastSearch.toLowerCase();
 
       if( val.indexOf(urlbarValue) === 0 ) {
-        // CliqzUtils.log('jsBridge autocomplete value:'+val,'osAPI1');
+        // console.log('jsBridge autocomplete value:'+val,'osAPI1');
         osAPI.autocomplete(val);
       } else {
-        var ls = JSON.parse(CLIQZEnvironment.getLocalStorage().recentQueries || '[]');
+        var ls = storage;
+        ls.getObject('recentQueries', []);
         for( var i in ls ) {
           if( ls[i].query.toLowerCase().indexOf(searchString.toLowerCase()) === 0 ) {
             osAPI.autocomplete(ls[i].query.toLowerCase());
@@ -121,7 +122,7 @@ var CLIQZEnvironment = {
   resultsHandler: function (r) {
 
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
-      CliqzUtils.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
+      console.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
 
@@ -133,7 +134,7 @@ var CLIQZEnvironment = {
 
     renderedResults[0] && CLIQZEnvironment.autoComplete(renderedResults[0].url, r._searchString);
   },
-  search: function(e, location_enabled, latitude, longitude) {
+  search: function(e) {
     if(!e || e === '') {
       // should be moved to UI except 'CLIQZEnvironment.initHomepage(true);'
       CLIQZEnvironment.lastSearch = '';
@@ -150,35 +151,17 @@ var CLIQZEnvironment = {
     e = e.toLowerCase().trim();
 
     CLIQZEnvironment.lastSearch = e;
-    CLIQZEnvironment.location_enabled = location_enabled;
-    if(location_enabled) {
-      CLIQZEnvironment.USER_LAT = latitude;
-      CLIQZEnvironment.USER_LNG = longitude;
-    } else {
-      delete CLIQZEnvironment.USER_LAT;
-      delete CLIQZEnvironment.USER_LNG;
-    }
 
-    window.document.getElementById('startingpoint').style.display = 'none';
+    News.hideFreshtab();
 
     CLIQZ.UI.startProgressBar();
 
 
     // start XHR call ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //CliqzUtils.log(e,'XHR');
-    (new CliqzAutocomplete.CliqzResults()).search(e, CLIQZEnvironment.resultsHandler);
-  },
-  getPref: function(pref, notFound){
-    var mypref;
-    if(mypref = CLIQZEnvironment.getLocalStorage().getItem(pref)) {
-      return mypref;
-    } else {
-      return notFound;
-    }
-  },
-  setPref: function(pref, val){
-    //CliqzUtils.log('setPrefs',arguments);
-    CLIQZEnvironment.getLocalStorage().setItem(pref,val);
+    if (!CLIQZEnvironment.SEARCH) { CLIQZEnvironment.SEARCH = new Search();}
+
+    CLIQZEnvironment.SEARCH.search(e, CLIQZEnvironment.resultsHandler);
   },
   setInterval: function(){ return setInterval.apply(null, arguments); },
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
@@ -187,9 +170,6 @@ var CLIQZEnvironment = {
   tldExtractor: function(host){
     //temp
     return host.split('.').splice(-1)[0];
-  },
-  getLocalStorage: function(url) {
-    return CLIQZEnvironment.storage;
   },
   OS: 'mobile',
   isPrivate: function(){ return false; },
@@ -216,12 +196,12 @@ var CLIQZEnvironment = {
             window.dispatchEvent(new CustomEvent('connected'));
           }
           lastSucceededUrl = url;
-          CliqzUtils.log('status '+req.status, 'CLIQZEnvironment.httpHandler.onload');
+          console.log('status '+req.status, 'CLIQZEnvironment.httpHandler.onload');
         }
 
         callback && callback(req);
       } else {
-        CliqzUtils.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler.onload');
+        console.log( 'loaded with non-200 ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler.onload');
         onerror && onerror();
       }
     };
@@ -238,13 +218,13 @@ var CLIQZEnvironment = {
         if(isMixerUrl(url)){
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, sync);
         }
-        CliqzUtils.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler,onerror');
+        console.log( 'error loading ' + url + ' (status=' + req.status + ' ' + req.statusText + ')', 'CLIQZEnvironment.httpHandler,onerror');
         onerror && onerror();
       }
     };
     req.ontimeout = function(){
 
-      CliqzUtils.log('BEFORE', 'CLIQZEnvironment.httpHandler.ontimeout');
+      console.log('BEFORE', 'CLIQZEnvironment.httpHandler.ontimeout');
       if(latestUrl !== url || url === lastSucceededUrl || !isMixerUrl(url)) {
         return;
       }
@@ -256,7 +236,7 @@ var CLIQZEnvironment = {
         if(isMixerUrl(url)){
           setTimeout(CLIQZEnvironment.httpHandler, 500, method, url, callback, onerror, timeout, data, sync);
         }
-        CliqzUtils.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler.ontimeout');
+        console.log( 'resending: timeout for ' + url, 'CLIQZEnvironment.httpHandler.ontimeout');
         onerror && onerror();
       }
     };
@@ -300,7 +280,7 @@ var CLIQZEnvironment = {
       }
       return {results: res, query:data.query, ready:true};
     } catch (e) {
-      CliqzUtils.log('Error: ' + e, 'CLIQZEnvironment.processHistory');
+      console.log('Error: ' + e, 'CLIQZEnvironment.processHistory');
     }
   },
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
@@ -311,7 +291,6 @@ var CLIQZEnvironment = {
   // TODO - SHOUD BE MOVED TO A LOGIC MODULE
   historySearch: function(q, callback){
     CLIQZEnvironment.searchHistoryCallback = callback;
-    console.log(this, 'aaa');
     window.osAPI.searchHistory(q, 'CLIQZEnvironment.displayHistory');
   },
   //TODO: remove this dependency
@@ -341,60 +320,37 @@ var CLIQZEnvironment = {
     }
     osAPI.getTopSites('News.startPageHandler', 15);
   },
-  getNoResults: function() {
-    var engine = CLIQZEnvironment.getDefaultSearchEngine();
-    var details = CLIQZEnvironment.getDetailsFromUrl(engine.url);
-    var logo = CLIQZEnvironment.getLogoDetails(details);
-
-    var result =  CLIQZEnvironment.Result.cliqzExtra(
-      {
-        data:
-          {
-            template:'noResult',
-            title: CLIQZEnvironment.getLocalizedString('mobile_no_result_title'),
-            action: CLIQZEnvironment.getLocalizedString('mobile_no_result_action', engine.name),
-            searchString: encodeURIComponent(CLIQZEnvironment.lastSearch),
-            searchEngineUrl: engine.url,
-            logo: logo,
-            background: logo.backgroundColor
-          },
-        subType: JSON.stringify({empty:true})
-      }
-    );
-    result.data.kind = ['CL'];
-    return result;
-  },
   setDefaultSearchEngine: function(engine) {
-    CLIQZEnvironment.getLocalStorage().setObject('defaultSearchEngine', engine);
+    storage.setObject('defaultSearchEngine', engine);
   },
   getDefaultSearchEngine: function() {
-    return CLIQZEnvironment.getLocalStorage().getObject('defaultSearchEngine') || CLIQZEnvironment.GOOGLE_ENGINE;
+    return storage.getObject('defaultSearchEngine', CLIQZEnvironment.GOOGLE_ENGINE);
   },
 };
 
 CLIQZEnvironment.setCurrentQuery = function(query) {
 
-  if(CLIQZEnvironment.getPref('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
+  if(prefs.get('incognito') === "true" || query.match(/http[s]{0,1}:/)) {
     return;
   }
 
-  var recentItems = CLIQZEnvironment.getLocalStorage().getObject('recentQueries', []);
+  var recentItems = storage.getObject('recentQueries', []);
 
   if(!recentItems[0]) {
     recentItems = [{id: 1, query:query, timestamp:Date.now()}];
-    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
+    storage.setObject('recentQueries', recentItems);
   } else if (recentItems[0].query === query && Date.now() - recentItems[0].timestamp < 10 * 1000 * 60) {
     // DO NOTHING
     // temporary work around repetitive queries coming from iOS
   } else if(recentItems[0].query.indexOf(query) + query.indexOf(recentItems[0].query) > -2 &&
           Date.now() - recentItems[0].timestamp < 5 * 1000) {
     recentItems[0] = {id: recentItems[0].id, query:query, timestamp:Date.now()};
-    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
+    storage.setObject('recentQueries', recentItems);
   }
   else {
     recentItems.unshift({id: recentItems[0].id + 1, query:query,timestamp:Date.now()});
     recentItems = recentItems.slice(0,60);
-    CLIQZEnvironment.getLocalStorage().setObject('recentQueries', recentItems);
+    storage.setObject('recentQueries', recentItems);
   }
 };
 

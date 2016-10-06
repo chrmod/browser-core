@@ -1,7 +1,7 @@
 import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
-import { utils } from 'core/cliqz';
+import { utils, events } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 
@@ -32,6 +32,10 @@ export default {
   init(settings) {
     utils.bindObjectFunctions(this.actions, this);
     FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
+    events.sub( "control-center:amo-cliqz-tab", function() {
+      FreshTab.toggleState();
+    })
+
   },
   /**
   * @method unload

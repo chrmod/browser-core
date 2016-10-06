@@ -37,7 +37,8 @@
     "campaign-manager",
     "message-center",
     "q-button",
-    "https-everywhere"
+    "https-everywhere",
+    "moncomp"
   ],
   "subprojects": [
     "fresh-tab-frontend"

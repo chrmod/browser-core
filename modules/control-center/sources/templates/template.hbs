@@ -3,7 +3,7 @@
 </header>
 
 <div id="currentsite">
-    <h3 class="truncate">{{ activeURL }}</h3>
+    <h3 class="truncate">{{ friendlyURL }}</h3>
 </div>
 
 <div id="settings" class="settings-section clearfix">
@@ -16,11 +16,20 @@
     {{> anti-tracking module.antitracking}}
   </div>
 
-  <div id="ad-blocking"
-       class="adblock setting"
-       data-target="adblock">
-    {{> ad-blocking }}
-  </div>
+  {{#if amo}}
+      <div id="amo-privacy-cc"
+           class="privacy-cc setting"
+           data-target="privacy-cc"
+           data-section="privacy-cc">
+        {{> amo-privacy-cc }}
+      </div>
+  {{else}}
+    <div id="ad-blocking"
+         class="adblock setting"
+         data-target="adblock">
+        {{> ad-blocking }}
+    </div>
+  {{/if}}
 
   <div id="anti-phising"
        data-section="antiphish"
@@ -29,12 +38,21 @@
     {{> anti-phising}}
   </div>
 
-  <div id="https"
-       class="setting"
-       data-section="https"
-       data-target="https">
-    {{> https module.https-everywhere}}
-  </div>
+  {{#if amo}}
+    <div class="setting"
+         id="cliqz-tab"
+         data-section="cliqz-tab"
+         data-target="cliqz-tab">
+      {{> amo-cliqz-tab }}
+    </div>
+  {{else}}
+    <div id="https"
+         class="setting"
+         data-section="https"
+         data-target="https">
+      {{> https module.https-everywhere}}
+    </div>
+  {{/if}}
 </div>
 
 <section id="othersettings">

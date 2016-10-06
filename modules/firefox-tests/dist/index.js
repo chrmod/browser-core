@@ -63,7 +63,7 @@ var runner;
 var CliqzUtils = loadModule("core/utils"),
     chrome = CliqzUtils.getWindow(),
     telemetry,
-    getCliqzResults,
+    getBackendResults,
     browserMajorVersion = parseInt(getBrowserVersion().split('.')[0]);
 
 mocha.setup({ ui: 'bdd', timeout: 10000 });
@@ -111,7 +111,7 @@ beforeEach(function () {
   return CliqzUtils.extensionRestart().then(function () {
     window.closeAllTabs(chrome.gBrowser);
 
-    getCliqzResults = CliqzUtils.getCliqzResults;
+    getBackendResults = CliqzUtils.getBackendResults;
 
     /* Turn off telemetry during tests */
     telemetry = CliqzUtils.telemetry;
@@ -128,7 +128,7 @@ beforeEach(function () {
 
 afterEach(function () {
   CliqzUtils.telemetry = telemetry;
-  CliqzUtils.getCliqzResults = getCliqzResults;
+  CliqzUtils.getBackendResults = getBackendResults;
 
   // clear urlbar
   fillIn("");

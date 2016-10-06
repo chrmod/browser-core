@@ -60,6 +60,7 @@ AboutURL.prototype = {
     var html =  [
         '<!DOCTYPE html><html><head><meta charset="UTF-8">',
         '<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>',
+        '<title>' + CliqzUtils.getLocalizedString('new_tab') + '</title>',
         `</head><body><iframe src="${src}">`,
         '</iframe></body></html>'
     ].join("");
@@ -87,6 +88,8 @@ var FreshTab = {
     initialized: false,
     cliqzOnboarding: 0,
     isBrowser: false,
+    freshTabState: FRESH_TAB_STATE,
+    cliqzNewTab: CLIQZ_NEW_TAB,
 
     startup: function(hasButton, cliqzOnboarding, channel, showNewBrandAlert){
         var disable = false;
@@ -161,17 +164,15 @@ var FreshTab = {
       FreshTab.updateState();
     },
     updateState: function(){
-      if(isActive()){
+      if(this.isActive()){
         activate();
       } else {
         deactivate();
       }
+    },
+    isActive() {
+      return !HAS_BUTTON || CliqzUtils.getPref(FRESH_TAB_STATE);
     }
-}
-
-function isActive(){
-  //always active if the user doesn't have the activator button
-  return !HAS_BUTTON || CliqzUtils.getPref(FRESH_TAB_STATE);
 }
 
 function activate(){

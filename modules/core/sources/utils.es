@@ -1,4 +1,7 @@
 import CLIQZEnvironment from "platform/environment";
+import console from "core/console";
+import prefs from "core/prefs";
+import Storage from "core/storage";
 
 var CliqzLanguage;
 
@@ -52,6 +55,7 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   hm: null,
+  mc: null,
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   TEMPLATES: CLIQZEnvironment.TEMPLATES,
   MESSAGE_TEMPLATES: CLIQZEnvironment.MESSAGE_TEMPLATES,
@@ -172,7 +176,6 @@ var CliqzUtils = {
   setSupportInfo: function(status){
     var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
         host = 'firefox', hostVersion='';
-
     //check if the prefs exist and if they are string
     if(prefs.getPrefType('distribution.id') == 32 && prefs.getPrefType('distribution.version') == 32){
       host = prefs.getCharPref('distribution.id');
@@ -187,7 +190,7 @@ var CliqzUtils = {
         sites = ["http://cliqz.com","https://cliqz.com"]
 
     sites.forEach(function(url){
-        var ls = CLIQZEnvironment.getLocalStorage(url)
+        var ls = new Storage(url)
 
         if (ls) ls.setItem("extension-info",info)
     })
@@ -257,7 +260,9 @@ var CliqzUtils = {
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
   },
-  getLocalStorage: CLIQZEnvironment.getLocalStorage,
+  getLocalStorage(url) {
+    return new Storage(url);
+  },
   /**
    * Loads a resource URL from the xpi.
    *
@@ -278,33 +283,13 @@ var CliqzUtils = {
     }
   },
   openTabInWindow: CLIQZEnvironment.openTabInWindow,
-  /**
-   * Get a value from preferences db
-   * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
-   * @param {string=} prefix - prefix for pref
-   */
-  getPref: CLIQZEnvironment.getPref,
-  /**
-   * Set a value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {*=}      defautlValue - returned value in case pref is not defined
-   * @param {string=} prefix - prefix for pref
-   */
-  setPref: CLIQZEnvironment.setPref,
-  /**
-   * Check if there is a value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {string=} prefix - prefix for pref
-   */
-  hasPref: CLIQZEnvironment.hasPref,
-  /**
-   * Clear value in preferences db
-   * @param {string}  pref - preference identifier
-   * @param {string=} prefix - prefix for pref
-   */
-  clearPref: CLIQZEnvironment.clearPref,
-  log: CLIQZEnvironment.log,
+  getPref: prefs.get,
+  setPref: prefs.set,
+  hasPref: prefs.has,
+  clearPref: prefs.clear,
+  log: function (msg, key) {
+    console.log(key, msg);
+  },
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },
@@ -533,7 +518,6 @@ var CliqzUtils = {
     return false;
 
   },
-
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
     if(CliqzUtils.isUrl(value)){
@@ -647,35 +631,52 @@ var CliqzUtils = {
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
-  getBackendResults:  function(q, callback){
+  getBackendResults: function(q) {
+    return new Promise(function(resolve, reject) {
+      if (!CliqzUtils.getPref('cliqzBackendProvider.enabled', true)) {
+        resolve({
+          response: {
+            results: [],
+          },
+          query: q
+        });
+      }
+      else {
+        CliqzUtils._sessionSeq++;
 
-  },
-  getCliqzResults: function(q, callback){
-    CliqzUtils._sessionSeq++;
+        // if the user sees the results more than 500ms we consider that he starts a new query
+        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
+          CliqzUtils._queryCount++;
+        }
+        CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
+        CliqzUtils._queryLastLength = q.length;
 
-    // if the user sees the results more than 500ms we consider that he starts a new query
-    if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
-      CliqzUtils._queryCount++;
-    }
-    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
-    CliqzUtils._queryLastLength = q.length;
-
-    var url = CliqzUtils.RESULTS_PROVIDER +
-              encodeURIComponent(q) +
-              CliqzUtils.encodeSessionParams() +
-              CliqzLanguage.stateToQueryString() +
-              CliqzUtils.encodeLocale() +
-              CliqzUtils.encodeResultOrder() +
-              CliqzUtils.encodeCountry() +
-              CliqzUtils.encodeFilter() +
-              CliqzUtils.encodeLocation() +
-              CliqzUtils.encodeResultCount(7) +
-              CliqzUtils.disableWikiDedup();
-
-    var req = CliqzUtils.httpGet(url, function (res) {
-      callback && callback(res, q);
+        var url = CliqzUtils.RESULTS_PROVIDER +
+                  encodeURIComponent(q) +
+                  CliqzUtils.encodeSessionParams() +
+                  CliqzLanguage.stateToQueryString() +
+                  CliqzUtils.encodeLocale() +
+                  CliqzUtils.encodeResultOrder() +
+                  CliqzUtils.encodeCountry() +
+                  CliqzUtils.encodeFilter() +
+                  CliqzUtils.encodeLocation() +
+                  CliqzUtils.encodeResultCount(7) +
+                  CliqzUtils.disableWikiDedup();
+        CliqzUtils.httpGet(url, function (res) {
+          var resp = JSON.parse(res.response || '{}')
+          if (resp.result !== undefined && resp.results === undefined) {
+            resp.results = resp.result;
+            delete resp.result;
+          }
+          resolve({
+            response: resp,
+            query: q
+          });
+        });
+      }
     });
   },
+
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
     CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,

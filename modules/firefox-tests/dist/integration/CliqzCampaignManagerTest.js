@@ -179,10 +179,3 @@ TESTS.CliqzCampaignManagerTestItegration = function (CliqzUtils, CliqzMsgCenter,
 */
   });
 };
-
-
-
-
-
-
-

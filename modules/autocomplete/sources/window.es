@@ -1,6 +1,9 @@
 import autocomplete from "autocomplete/autocomplete";
 import CliqzResultProviders from "autocomplete/result-providers";
-import { utils } from "core/cliqz";
+import { utils, environment } from "core/cliqz";
+import Search from "autocomplete/search";
+import {Window as AutocompleteWindow} from "platform/auto-complete-component";
+
 
 export default class {
   constructor(settings) {
@@ -8,11 +11,13 @@ export default class {
   }
 
   init() {
-    this.window.CliqzAutocomplete = autocomplete;
+    utils.log('-- INITIALIAZING WINDOW ---', 'DEBUG');
+    AutocompleteWindow.init(this.window);
+    utils.log('-- INITIALIAZED WINDOW ---', 'DEBUG');
   }
 
   unload() {
-    delete this.window.CliqzAutocomplete;
+    AutocompleteWindow.unload(this.window)
   }
 
   createButtonItem() {
@@ -21,7 +26,7 @@ export default class {
     const doc = this.window.document,
       menu = doc.createElement('menu'),
       menupopup = doc.createElement('menupopup'),
-      engines = CliqzResultProviders.getSearchEngines(),
+      engines = autocomplete.CliqzResultProviders.getSearchEngines(),
       def = Services.search.currentEngine.name;
 
     menu.setAttribute('label', utils.getLocalizedString('btnDefaultSearchEngine'));
@@ -38,7 +43,8 @@ export default class {
       }
       // TODO: Where is this listener removed?
       item.addEventListener('command', (function(event) {
-        CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+        autocomplete.CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+        utils.setTimeout(this.window.CLIQZ.Core.refreshButtons, 0);
         utils.telemetry({
           type: 'activity',
           action: 'cliqz_menu_button',
@@ -52,5 +58,12 @@ export default class {
     menu.appendChild(menupopup);
 
     return menu;
+  }
+
+  status() {
+    return {
+      visible: true,
+      state: autocomplete.CliqzResultProviders.getSearchEngines()
+    }
   }
 }

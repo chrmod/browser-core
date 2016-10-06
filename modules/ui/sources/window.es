@@ -6,7 +6,7 @@ import CliqzEvents from "core/events";
 function initPopup(popup, win) {
   //patch this method to avoid any caching FF might do for components.xml
   popup._appendCurrentResult = function(){
-    if(popup._matchCount > 0 && popup.mInput){
+    if(popup.mInput){
       //try to break the call stack which cause 'too much recursion' exception on linux systems
       utils.setTimeout(win.CLIQZ.UI.handleResults.bind(win), 0);
     }
@@ -354,7 +354,11 @@ const urlbarEventHandlers = {
   * @param ev
   */
   blur: function(ev) {
-    autocomplete.resetSpellCorr();
+    if (autocomplete.spellCheck){
+      autocomplete.spellCheck.resetState();
+    }
+    // reset this flag as it can block the dropdown from opening
+    autocomplete.isPopupOpen = false;
 
     if(this.window.CLIQZ.Core.triggerLastQ)
         CliqzSearchHistory.lastQuery(this.window);
@@ -362,7 +366,7 @@ const urlbarEventHandlers = {
     this.urlbarEvent('blur');
 
     autocomplete.lastFocusTime = null;
-    autocomplete.resetSpellCorr();
+    autocomplete.spellCheck.resetState();
     this.window.CLIQZ.UI.sessionEnd();
   },
   /**

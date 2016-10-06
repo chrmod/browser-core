@@ -18,12 +18,13 @@ export default function (background) {
       return;
     }
 
-    bgInit.apply(background, arguments);
+    return Promise.resolve(bgInit.apply(background, arguments)).then(() => {
 
-    Object.keys(bgEvents || {}).forEach( event => {
+      Object.keys(bgEvents || {}).forEach( event => {
 
-      bgEvents[event] = bgEvents[event].bind(background);
-      events.sub(event, bgEvents[event]);
+        bgEvents[event] = bgEvents[event].bind(background);
+        events.sub(event, bgEvents[event]);
+      });
     });
   };
 

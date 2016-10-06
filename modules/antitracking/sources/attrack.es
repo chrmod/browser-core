@@ -83,6 +83,10 @@ function anonymizeTrackerTokens(trackerData) {
   return anonymizedTrackerData;
 }
 
+function logBreakageEnabled() {
+  return utils.getPref('attrackLogBreakage', false);
+}
+
 var CliqzAttrack = {
     VERSION: '0.96',
     MIN_BROWSER_VERSION: 35,
@@ -497,7 +501,7 @@ var CliqzAttrack = {
 
 
                 // broken by attrack?
-                if (CliqzAttrack.recentlyModified.has(source_tab + url) && requestContext.channel.responseStatus >= 400) {
+                if (CliqzAttrack.recentlyModified.has(source_tab + url) && requestContext.channel.responseStatus >= 400 && logBreakageEnabled()) {
                   const dedupKey = [source_url, url_parts.hostname, url_parts.path].join('-');
                   CliqzAttrack.breakageCache[dedupKey] = CliqzAttrack.breakageCache[dedupKey] || {
                     hostname: md5(source_url_parts.hostname).substring(0, 16),

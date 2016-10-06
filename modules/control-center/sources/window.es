@@ -22,6 +22,7 @@ export default class {
     }
 
     this.window = config.window;
+    this.channel = config.settings.channel;
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
@@ -37,12 +38,19 @@ export default class {
       "sendTelemetry": this.sendTelemetry.bind(this),
       "openPopUp": this.openPopUp.bind(this),
       "openMockPopUp": this.openMockPopUp.bind(this),
-      "setMockBadge": this.setMockBadge.bind(this)
+      "setMockBadge": this.setMockBadge.bind(this),
+      "enableSearch": this.enableSearch.bind(this),
+      "amo-cliqz-tab": this.amoCliqzTab.bind(this),
+      "complementary-search": this.complementarySearch.bind(this)
     }
   }
 
   init() {
     if(background.buttonEnabled){
+      // stylesheet for control center button
+      this.window.CLIQZ.Core.addCSS(this.window.document,
+        'chrome://cliqz/content/control-center/styles/xul.css');
+
       this.addCCbutton();
       CliqzEvents.sub("core.location_change", this.actions.refreshState);
     }
@@ -51,6 +59,8 @@ export default class {
   unload() {
     if(background.buttonEnabled){
       CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+      this.panel.parentElement.removeChild(this.panel);
+      this.button.parentElement.removeChild(this.button);
     }
   }
 
@@ -80,6 +90,16 @@ export default class {
     });
   }
 
+  amoCliqzTab(data) {
+    events.pub("control-center:amo-cliqz-tab");
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'cliqz_tab',
+      action: 'click',
+      state: data.status === true ? 'on' : 'off'
+    });
+  }
+
   antitrackingActivator(data){
 
     events.pub("control-center:antitracking-activator", data);
@@ -95,6 +115,16 @@ export default class {
       target: 'attrack_' + data.type,
       state: state,
       action: 'click',
+    });
+  }
+
+  complementarySearch(data) {
+    events.pub("control-center:setDefault-search", data.defaultSearch);
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'complementary_search',
+      state: 'search_engine_change_' + data.defaultSearch,
+      action: 'click'
     });
   }
 
@@ -195,7 +225,19 @@ export default class {
   openURL(data){
     switch(data.url) {
       case 'history':
-        this.window.PlacesCommandHook.showPlacesOrganizer('History');
+        //use firefox command to ensure compatibility
+        this.window.document.getElementById("Browser:ShowAllHistory").click();
+        break;
+      case 'forget_history':
+        //use firefox command to ensure compatibility
+        this.window.document.getElementById("Tools:Sanitize").click();
+        break;
+      case 'moncomp':
+        try {
+          var murl = utils.getPref('moncomp_endpoint', '') + this.window.gBrowser.selectedBrowser.currentURI.spec;
+          utils.openTabInWindow(this.window, murl);
+          this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]").hidePopup();
+        } catch(err) {}
         break;
       default:
         var tab = utils.openLink(this.window, data.url, true),
@@ -217,7 +259,10 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
-      var generalState = 'active';
+      var url = this.window.gBrowser.currentURI.spec,
+          friendlyURL = url,
+          generalState = 'active';
+
       if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
         generalState = 'inactive';
       }
@@ -234,18 +279,26 @@ export default class {
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
-      if(utils.hasPref('browser.privatebrowsing.apt', '')){
+      if(utils.hasPref('browser.privatebrowsing.apt', '') && config.settings.channel === '40'){
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
+      try {
+        // try to clean the url
+        friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+      } catch (e) {}
+
       return {
-          activeURL: this.window.gBrowser.currentURI.spec,
-          module: moduleData,
-          generalState: generalState,
-          feedbackURL: utils.FEEDBACK_URL,
-          onboarding: this.isOnboarding(),
-          debug: utils.getPref('showConsoleLogs', false)
-        }
+        activeURL: url,
+        friendlyURL: friendlyURL,
+        module: moduleData,
+        generalState: generalState,
+        feedbackURL: utils.FEEDBACK_URL,
+        onboarding: this.isOnboarding(),
+        searchDisabled: utils.getPref('cliqz_core_disabled', false),
+        debug: utils.getPref('showConsoleLogs', false),
+        amo: config.settings.channel !== '40'
+      }
     });
   }
 
@@ -254,8 +307,9 @@ export default class {
   }
 
   _getMockData() {
-    var self = this;
-    var numberCounter = 0;
+    var self = this,
+        numberCounter = 0,
+        url = 'examplepage.de/webpage';
     var numberAnimation = function () {
       if(numberCounter === 27)
        return
@@ -267,7 +321,8 @@ export default class {
       self.sendMessageToPopup({
         action: 'pushData',
         data: {
-          activeURL: 'examplepage.de/webpage',
+          activeURL: url,
+          friendlyURL: url,
           module: self.mockedData,
           "generalState":"active",
           "feedbackURL":"https://cliqz.com/feedback/1.2.99-40",
@@ -339,14 +394,14 @@ export default class {
     button.setAttribute('id', BTN_ID);
     button.setAttribute('label', TOOLTIP_LABEL);
     button.setAttribute('tooltiptext', TOOLTIP_LABEL);
+    button.classList.add('toolbarbutton-1')
+    button.classList.add('chromeclass-toolbar-additional')
 
     var div = doc.createElement('div');
     div.setAttribute('id','cliqz-control-center-badge')
     div.setAttribute('class','cliqz-control-center')
     button.appendChild(div);
     div.textContent = BTN_LABEL;
-
-    this.badge = div;
 
     var panel = doc.createElement('panelview');
     panel.setAttribute('id', PANEL_ID);
@@ -419,32 +474,11 @@ export default class {
       }.bind(this));
     }.bind(this));
 
-    // we need more than default max-width
-    var style = `
-      #${PANEL_ID},
-      #${PANEL_ID} > iframe,
-      #${PANEL_ID} > panel-subview-body {
-        overflow: hidden !important;
-      }
-
-      panelmultiview[mainViewId="${PANEL_ID}"] > .panel-viewcontainer >
-        .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
-      panel[viewId="${PANEL_ID}"] .panel-mainview {
-        max-width: 50em !important;
-      }
-    `;
-
-    var styleURI = Services.io.newURI(
-        'data:text/css,' + encodeURIComponent(style),
-        null,
-        null
-    );
-
-    doc.defaultView.QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIDOMWindowUtils)
-      .loadSheet(styleURI, 1);
-
     ToolbarButtonManager.restorePosition(doc, button);
+
+    this.badge = div;
+    this.panel = panel;
+    this.button = button;
   }
 
   resizePopup({ width, height }) {
@@ -463,5 +497,13 @@ export default class {
 
   openPopUp() {
     this.window.document.querySelector('toolbarbutton#' + BTN_ID).click();
+  }
+
+  enableSearch() {
+    events.pub('autocomplete:enable-search',{
+      urlbar: this.window.document.getElementById('urlbar')
+    });
+    let panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
+    panel.hidePopup();
   }
 }

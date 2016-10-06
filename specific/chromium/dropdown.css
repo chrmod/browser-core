@@ -45,15 +45,16 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   position: relative;
   float: left;
   line-height: 26px;
-  padding-left: 84px;
+  margin-left: 84px;
   color: #b8b8b8;
+  text-decoration: none;
 }
 
 #cliqz-search-hint:after {
   position: relative;
   float:right;
   margin-left: 0.5ch;
-  top: 7px;
+  top: 8px;
   content: '';
   display: block;
   background-image: url("img/CLIQZ_logo.svg");
@@ -67,10 +68,15 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   right: 64px;  /* Keep in sync with side paddings of .cqz-main-result-wrapper */
   height: 26px;
   line-height: 26px;
-  padding: 0px 30px 0px 25px;
+  padding: 0px 30px 0px 12px;
   color: #959595;
   text-align: center;
   background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+#settingsButton:hover {
+    color: #757575;
 }
 
 #settingsButton:before {
@@ -79,16 +85,12 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   content: '';
   display: block;
   top: 7px;
-  background: url("img/settings_arrow_right.svg");
   width: 10px;
   height: 12px;
 }
 
-#settings-container.open #settingsButton:before {
-  top: 8px;
-  background: url("img/settings_arrow_down.svg");
-  width: 13px;
-  height: 10px;
+#settings-container.open #settingsButton:after {
+    background-image: url("img/settings_cogwheel_active.svg");
 }
 
 #settingsButton:after {
@@ -127,7 +129,7 @@ div#cliqz-results::-webkit-scrollbar-thumb {
 
 @media (max-width: 628px) {
   #cliqz-search-hint {
-    padding-left: calc((100% - 500px + 11px)/2 + 20px);
+    margin-left: calc((100% - 500px + 11px)/2 + 20px);
   }
 
   #settingsButton {
@@ -135,7 +137,7 @@ div#cliqz-results::-webkit-scrollbar-thumb {
   }
 
   #settings {
-    padding-left: calc((100% - 500px)/2 + 20px);
+    margin-left: calc((100% - 500px)/2 + 20px);
   }
 }
 

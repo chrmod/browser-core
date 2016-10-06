@@ -36,8 +36,9 @@ function localizeDocument() {
   });
 }
 
-function isHttpsSection(section) {
-  return section === 'https';
+function isNonClickable(section) {
+  const nonClickableSections = ["https", "privacy-cc", "cliqz-tab"];
+  return nonClickableSections.indexOf(section) > -1;
 }
 
 function isOnboarding() {
@@ -99,6 +100,15 @@ $('#control-center').on('click', '[data-function]', function(ev){
     action: ev.currentTarget.dataset.function,
     data: {
       status: $(this).prop('checked')
+    }
+  });
+});
+
+$('#control-center').on('click', '[complementarySearchChanger]', function(ev) {
+  sendMessageToWindow({
+    action: 'complementary-search',
+    data: {
+      defaultSearch: $(this).val()
     }
   });
 });
@@ -274,9 +284,16 @@ function draw(data){
   }
 
   document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
-  document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
   document.getElementById('anti-phising').innerHTML = CLIQZ.templates['anti-phising'](data);
   document.getElementById('anti-tracking').innerHTML = CLIQZ.templates['anti-tracking'](data);
+
+  if(data.amo) {
+    document.getElementById('amo-privacy-cc').innerHTML = CLIQZ.templates['amo-privacy-cc']();
+    document.getElementById('cliqz-tab').innerHTML = CLIQZ.templates['amo-cliqz-tab'](data);
+  } else {
+    document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
+    document.getElementById('https').innerHTML = CLIQZ.templates['https']();
+  }
 
   function close_setting_accordion_section() {
     $('.setting-accordion .accordion-active-title').removeClass('active');
@@ -319,6 +336,10 @@ function draw(data){
   }
 
   $('.accordion-section-title').click(function(e) {
+    if($(this).attr('data-disabled') == 'true') {
+      return;
+    }
+
     e.preventDefault();
     var currentAttrValue = $(this).attr('href'),
         state;
@@ -343,6 +364,12 @@ function draw(data){
     });
   });
 
+  $('.enable-search').click(function(e) {
+     sendMessageToWindow({
+      action: 'enableSearch'
+    });
+  });
+
   //====== SETTING SECTION =========//
   $('.setting').click(function(e) {
     var $main = $(this).closest('#control-center'),
@@ -351,7 +378,7 @@ function draw(data){
         $section = $setting.attr('data-section'),
         $target = $setting.attr('data-target');
 
-    if (isHttpsSection($section)) {
+    if (isNonClickable($section)) {
       return;
     } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;

@@ -130,19 +130,17 @@
 .cliqz-urlbar-Last-search-container {
     overflow: hidden;
     max-width: 220px;
-    margin: -2px 3px -1px 0;
+    margin: -2px 7px 0px 0px;
 }
 
 .cliqz-urlbar-Last-search {
     overflow: hidden;
     max-width: 200px;
-    padding: 2px 6px;
+    padding: 0px 6px 2px 6px;
     color: #fff;
     text-overflow: ellipsis;
     border-radius: 1px;
-    background-size: 14px 10px;
     background-color: grey;
-    line-height: 23px;
 }
 
 /* ====== End Last Search ====== */
@@ -237,10 +235,10 @@
     top: 10px;
     left: -20px;
 
-    border-top: 7px solid transparent;
-    border-bottom: 7px solid transparent;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
 
-    border-left: 7px solid #ccc;
+    border-left: 8px solid #777;
 }
 
 .cqz-results .cqz-result-selected[active="true"] {

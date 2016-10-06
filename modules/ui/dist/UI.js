@@ -440,8 +440,8 @@ var UI = {
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true;
+                if (CliqzAutocomplete.spellCheck.state.on) {
+                    CliqzAutocomplete.spellCheck.state.override = true;
                 }
 
                 return true;
@@ -459,8 +459,8 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
-                    CliqzAutocomplete.spellCorr.override = true
+                if (CliqzAutocomplete.spellCheck.state.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCheck.state.correctBack).length != 0) {
+                    CliqzAutocomplete.spellCheck.state.override = true
                     // correct back the last word if it was changed
                     var words = urlbar.mInputField.value.split(' ');
                     var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
@@ -689,7 +689,7 @@ function navigateToEZinput(element){
     var provider_name = element.getAttribute("search-provider"),
         search_url = element.getAttribute("search-url"),
         value = element.value,
-        search_engine = CLIQZEnvironment.getEngineByName(provider_name),
+        search_engine = CliqzUtils.getEngineByName(provider_name),
         dest_url = search_url + value;
 
     if (search_engine) {
@@ -1100,7 +1100,7 @@ function enhanceResults(res){
     }
 
 
-    var spelC = CliqzAutocomplete.spellCorr;
+    var spelC = CliqzAutocomplete.spellCheck.state;
 
     //filter adult results
     if(adult) {
@@ -1345,7 +1345,9 @@ function urlIndexInHistory(url, urlList) {
                     //not supported country
                     case 'disable-cliqz':
                         clearMessage('bottom');
-                        CliqzUtils.disableCliqzResults(urlbar);
+                        CliqzEvents.pub('autocomplete:disable-search', {
+                          urlbar: urlbar
+                        });
                         break;
                     case 'keep-cliqz':
                         clearMessage('bottom');
@@ -1355,25 +1357,25 @@ function urlIndexInHistory(url, urlList) {
 
                     case 'spellcorrect-revert':
                         var s = urlbar.value;
-                        for (var c in CliqzAutocomplete.spellCorr.correctBack) {
-                            s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                        for (var c in CliqzAutocomplete.spellCheck.state.correctBack) {
+                            s = s.replace(c, CliqzAutocomplete.spellCheck.state.correctBack[c]);
                         }
                         urlbar.mInputField.setUserInput(s);
-                        CliqzAutocomplete.spellCorr.override = true;
+                        CliqzAutocomplete.spellCheck.state.override = true;
                         clearMessage('bottom');
                         break;
                     case 'spellcorrect-keep':
-                        var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                        var spellCorData = CliqzAutocomplete.spellCheck.state.searchTerms;
                         for (var i = 0; i < spellCorData.length; i++) {
                             //delete terms that were found in correctBack dictionary. User accepted our correction:-)
-                            for (var c in CliqzAutocomplete.spellCorr.correctBack) {
-                                if (CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
-                                    delete CliqzAutocomplete.spellCorr.correctBack[c];
+                            for (var c in CliqzAutocomplete.spellCheck.state.correctBack) {
+                                if (CliqzAutocomplete.spellCheck.state.correctBack[c] === spellCorData[i].correctBack) {
+                                    delete CliqzAutocomplete.spellCheck.state.correctBack[c];
                                 }
                             }
                         }
 
-                        CliqzAutocomplete.spellCorr['userConfirmed'] = true;
+                        CliqzAutocomplete.spellCheck.state['userConfirmed'] = true;
                         clearMessage('bottom');
                         break;
 
@@ -1906,7 +1908,7 @@ function enginesClick(ev){
         engineName = getResultOrChildAttr(el, 'engine');
 
     if(engineName){
-        var engine = CLIQZEnvironment.getEngineByName(engineName);
+        var engine = CliqzUtils.getEngineByName(engineName);
         if(engine){
             var userInput = urlbar.value;
 
@@ -1928,7 +1930,7 @@ function enginesClick(ev){
                 CliqzUtils.openLink(window, url, true);
                 action.new_tab = true;
             } else {
-                CLIQZEnvironment.openLink(window, url);
+                CliqzUtils.openLink(window, url);
                 CLIQZ.Core.popup.closePopup();
                 action.new_tab = false;
             }
