@@ -282,15 +282,13 @@ export default class {
   }
 
   openMockPopUp(data) {
-    this.isMocked = true;
     this.mockedData = data;
     this.openPopUp();
   }
 
   getData() {
-    if(this.isMocked){
+    if(this.isOnboarding()){
       this._getMockData();
-      this.isMocked = false;
     } else {
       this.prepareData().then(data => {
         this.sendMessageToPopup({

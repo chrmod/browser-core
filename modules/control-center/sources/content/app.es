@@ -62,6 +62,23 @@ $(document).ready(function(resolvedPromises) {
 
 // actions
 
+$('body').on('click', function(ev) {
+  if(isOnboarding()) {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'core',
+      action: 'sendTelemetry',
+      args: [{
+        type: 'onboarding',
+        version: '2.0',
+        action: 'click',
+        view: 'privacy',
+        target: 'dashboard',
+      }]
+    }), '*');
+  }
+})
+
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
   sendMessageToWindow({
@@ -235,6 +252,20 @@ function draw(data){
   }
   if (data.module) {
     data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList);
+    if(data.module.antitracking.totalCount === 1) {
+      window.postMessage(JSON.stringify({
+        target: 'cliqz',
+        module: 'core',
+        action: 'sendTelemetry',
+        args: [{
+          type: 'onboarding',
+          version: '2.0',
+          action: 'show',
+          view: 'privacy',
+          target: 'dashboard',
+        }]
+      }), '*');
+    }
     compileAdblockInfo(data);
   }
 
