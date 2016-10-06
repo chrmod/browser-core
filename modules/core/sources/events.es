@@ -12,6 +12,7 @@
  *    module_name describes recipient (this is more like a RPC)
  */
 
+import console from "core/console";
 import CliqzUtils from "core/utils";
 
 var CliqzEvents = CliqzEvents || {
@@ -27,7 +28,7 @@ var CliqzEvents = CliqzEvents || {
         try {
           ev.apply(null, args);
         } catch(e) {
-          CliqzUtils.log(e.toString()+" -- "+e.stack, "CliqzEvents error: "+id);
+          console.error(`CliqzEvents error: ${id}`, e);
         }
       }, 0);
     });

@@ -10,7 +10,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
 
         context("api driven result", function () {
             var result = {
-                "result": [
+                "results": [
                     {
                         "q": "xx-face",
                         "url": "https://www.facebook.com/",
@@ -30,7 +30,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
                         }
                     }
                 ]
-            }, query = result.result[0].q;
+            }, query = result.results[0].q;
 
             beforeEach(function () {
                 respondWith(result);

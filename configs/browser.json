@@ -38,7 +38,8 @@
     "adblocker",
     "https-everywhere",
     "onboarding-v2",
-    "telemetry"
+    "telemetry",
+    "moncomp"
   ],
   "subprojects": [
     "fresh-tab-frontend"

@@ -53,6 +53,7 @@ export default describeModule('adblocker/filters-engine',
         it(`matches url: ${testCase.url}`,
             () => new Promise((resolve, reject) => {
               const shouldMatch = new Set(testCase.matches);
+              const shouldNotMatch = new Set(testCase.misMatches);
               const rules = engine.getCosmeticsFilters(testCase.url, [testCase.node]);
               chai.expect(shouldMatch.size).to.equal(rules.length);
               rules.forEach(rule => {
@@ -60,6 +61,11 @@ export default describeModule('adblocker/filters-engine',
                   reject(`Expected node ${testCase.url} + ` +
                          `${JSON.stringify(testCase.node)}` +
                          ` to match ${rule.rawLine}`);
+                }
+                if (shouldNotMatch.has(rule.rawLine)) {
+                  reject(`Expected node ${testCase.url} + ` +
+                         `${JSON.stringify(testCase.node)}` +
+                         ` not to match ${rule.rawLine}`);
                 }
               });
               resolve();

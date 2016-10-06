@@ -1,8 +1,23 @@
-#! /bin/sh
+#!/bin/bash
+
+declare -A versions
+versions['38.0.6']='https://ftp.mozilla.org/pub/firefox/releases/38.0.6/linux-x86_64/en-US/firefox-38.0.6.tar.bz2'
+versions['43.0.4']='https://ftp.mozilla.org/pub/firefox/releases/43.0.4/linux-x86_64/en-US/firefox-43.0.4.tar.bz2'
+versions['44.0.2']='https://ftp.mozilla.org/pub/firefox/releases/44.0.2/linux-x86_64/en-US/firefox-44.0.2.tar.bz2'
+versions['47.0.1']='https://ftp.mozilla.org/pub/firefox/releases/47.0.1/linux-x86_64/en-US/firefox-47.0.1.tar.bz2'
+versions['49.0.2']='http://archive.mozilla.org/pub/firefox/tinderbox-builds/mozilla-release-linux64-add-on-devel/1474711644/firefox-49.0.2.en-US.linux-x86_64-add-on-devel.tar.bz2'
 
 FIREFOX_VERSION=$1
-if [ -z $FIREFOX_VERSION ] ; then
-    echo "Please specify firefox version: $0 <VERSION>"
+FIREFOX_URL=${versions[$FIREFOX_VERSION]}
+
+if [ -z $FIREFOX_URL ] ; then
+  FIREFOX_URL=$2
+fi
+
+if [ -z $FIREFOX_URL ] ; then
+    echo "Please specify firefox version: $0 <VERSION> <URL> or just version $0 <VERSION>"
+    echo "Available versions: "
+    for version in "${!versions[@]}"; do echo "  $version - ${versions[$version]}"; done
 else
     # Make sure extension has been built
     if [ ! -d "build/cliqz@cliqz.com/" ]; then
@@ -32,7 +47,7 @@ else
     mkdir ${DOCKER_BUILD_DIR}
     cp Dockerfile.firefox ${DOCKER_BUILD_DIR}
     cd ${DOCKER_BUILD_DIR}
-    docker build  --build-arg UID=`id -u` --build-arg VERSION=$FIREFOX_VERSION --build-arg GID=`id -g` -f Dockerfile.firefox -t docker-firefox-extension-tests-${FIREFOX_VERSION} .
+    docker build  --build-arg UID=`id -u` --build-arg URL=$FIREFOX_URL --build-arg GID=`id -g` -f Dockerfile.firefox -t docker-firefox-extension-tests-${FIREFOX_VERSION} .
     cd ..
     rm -fr ${DOCKER_BUILD_DIR}
 

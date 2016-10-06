@@ -20,7 +20,7 @@ TESTS.CliqzCalculatorTest = function() {
 
     context("Calculator simple - 2*3333.2", function() {
       beforeEach(function() {
-        respondWith({result: []});
+        respondWith({results: []});
         fillIn("2*3333.2");
         return waitForPopup();
       });
@@ -36,7 +36,7 @@ TESTS.CliqzCalculatorTest = function() {
 
     context("Calculator simple DE format - 2*3222,2", function() {
       beforeEach(function() {
-        respondWith({result: []});
+        respondWith({results: []});
         fillIn("2*3222,2");
         return waitForPopup();
       });
@@ -52,7 +52,7 @@ TESTS.CliqzCalculatorTest = function() {
 
     context("Unit converter simple - 1m to mm", function() {
       beforeEach(function() {
-        respondWith({result: []});
+        respondWith({results: []});
         fillIn("1m to mm");
         return waitForPopup();
       });
@@ -72,7 +72,7 @@ TESTS.CliqzCalculatorTest = function() {
 
     context("Unit converter language specific - 1 mile to m", function() {
       beforeEach(function() {
-        respondWith({result: []});
+        respondWith({results: []});
         fillIn("1 mile to m");  // 1.609,34 m
         return waitForPopup();
       });
@@ -84,7 +84,7 @@ TESTS.CliqzCalculatorTest = function() {
 
     context("Unit converter singular/plural unit term - 1m to mile", function() {
       beforeEach(function() {
-        respondWith({result: []});
+        respondWith({results: []});
         fillIn("1 km to mile");
         return waitForPopup();
       });

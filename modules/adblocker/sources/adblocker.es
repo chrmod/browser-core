@@ -316,19 +316,15 @@ const CliqzADB = {
 
   httpopenObserver: {
     observe(requestDetails) {
-      if (!adbEnabled()) {
-        return {};
-      }
-
       const requestContext = new HttpRequestContext(requestDetails);
       const url = requestContext.url;
 
-      if (!url) {
-        return {};
-      }
-
       if (requestContext.isFullPage()) {
         CliqzADB.adbStats.addNewPage(url);
+      }
+
+      if (!adbEnabled() || !url) {
+        return {};
       }
 
       const sourceUrl = requestContext.getSourceURL();

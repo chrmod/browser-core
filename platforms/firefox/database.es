@@ -1,8 +1,8 @@
 /* global PouchDB */
-import { utils } from "core/cliqz";
+import environment from "platform/environment";
+import { log, error } from "platform/console";
 
 Cu.importGlobalProperties(['indexedDB', 'XMLHttpRequest']);
-//Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 // https://loune.net/2015/02/pouchdb-for-firefox-addon-sdk/
 const global = {
@@ -12,15 +12,11 @@ const global = {
   atob,        //global anyway, exporting to be sure
   escape,      //global anyway, exporting to be sure
   XMLHttpRequest,
-  clearTimeout: utils.clearTimeout,
-  setTimeout: utils.setTimeout,
+  clearTimeout: environment.clearTimeout,
+  setTimeout: environment.setTimeout,
   console: {
-    log: function () {
-      utils.log(JSON.stringify(arguments), "PouchDB global")
-    },
-    error: function () {
-      utils.log(JSON.stringify(arguments), "PouchDB global error")
-    }
+    log,
+    error
   },
   global: {
     // placeholder for PouchDB object

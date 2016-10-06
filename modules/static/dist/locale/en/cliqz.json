@@ -1061,6 +1061,9 @@
     "adb-menu-more": {
       "message": "Learn more"
     },
+    "new_tab": {
+      "message": "New Tab"
+    },
     "freshtab_learn_more": {
       "message": "Learn more"
     },
@@ -1089,7 +1092,7 @@
       "message": "Cancel"
     },
     "mobile_freshtab_no_topsites": {
-      "message": "You will see your topsites here."
+      "message": "You will see your most visited sites here."
     },
     "mobile_history_card_title": {
       "message": "History Results"
@@ -1101,10 +1104,10 @@
       "message": "Re-establishing lost internet connection"
     },
     "mobile_no_history": {
-      "message": "Here you will find your history.<br />You haven't searched or navigated to websites yet."
+      "message": "Here you will find your history.<br />You haven't searched or visited any websites so far."
     },
     "mobile_no_favorites": {
-      "message": "Here you will find your favorites."
+      "message": "Here you will find your favorites.<br />You haven't created any favorites so far."
     },
     "mobile_history_title": {
       "message": "History"
@@ -1259,8 +1262,23 @@
     "control-center-info-ads": {
       "message": "This integrated ad blocker function is currently in BETA status. You can choose to block or show advertisements in general or only on specific websites. A „fair“ mode that shows ads in clearly defined cases only will be added soon."
     },
+    "control-center-txt-privacy-cc": {
+      "message": "Protect your privacy"
+    },
+    "control-center-txt-privacy-cc-desc": {
+      "message": "Cliqz actively protects your personal data from being accessed by tracking companies."
+    },
     "control-center-info-https": {
-      "message": "This integrated open-source service improves the level of security by forcing encrypted https connections to websites whenever possible."
+      "message": "This function improves the level of security by forcing encrypted HTTPS connections to websites whenever possible. Cliqz has integrated the open-source service HTTPS Everywhere for this purpose."
+    },
+    "control-center-info-https-title": {
+      "message": "Prefer HTTPS"
+    },
+    "control-center-info-cliqz-tab": {
+      "message": "Cliqz Tab enhances new tabs with short-cuts to your most visited and favorite websites, and curated top news to keep you up to speed."
+    },
+    "control-center-txt-cliqz-tab-desc": {
+      "message": "Show Cliqz Tab"
     },
     "control-center-info-hpn-title": {
       "message": "Search via Proxy"
@@ -1304,6 +1322,9 @@
     "control-center-quicksearch": {
       "message": "Safe Quick-Search"
     },
+    "control-center-enable-search": {
+      "message": "Enable Cliqz Search"
+    },
     "control-center-location": {
       "message": "Share location"
     },
@@ -1315,6 +1336,9 @@
     },
     "control-center-searchoptions": {
       "message": "More Search Options"
+    },
+    "control-center-search-engine": {
+      "message": "Supplementary Search Engine"
     },
     "control-center-humanweb": {
       "message": "Take part in Human Web"

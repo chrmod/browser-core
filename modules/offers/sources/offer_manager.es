@@ -15,6 +15,7 @@ import LoggingHandler from 'offers/logging_handler';
 import { loadFileFromChrome } from 'offers/utils';
 import { VoucherDetector } from 'offers/voucher_detector';
 import ResourceLoader from 'core/resource-loader';
+import { EventHandler } from 'offers/event_handler';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 // needed for the history
@@ -140,7 +141,9 @@ function generateDBMap(dbsNamesList) {
 // @brief This class will be in charge of handling the offers and almost everything
 //        else. This is the main class.
 //
-export function OfferManager() {
+export function OfferManager(settings, aEventHandler) {
+  this.settings = settings;
+  this.eventHandler = aEventHandler;
   // the mappings we will use
   this.mappings = null;
   // the intent detectors mapping (clusterID -> intent detector)
@@ -149,7 +152,7 @@ export function OfferManager() {
   this.intentInputMap = {};
   this.offerFetcher = null;
   // the ui manager (we need to provide UI data for this)
-  this.uiManager = new UIManager();
+  this.uiManager = new UIManager(settings);
   this.uiManager.configureCallbacks({
     'show_coupon': this.checkButtonUICallback.bind(this),
     'not_interested': this.notInterestedUICallback.bind(this),
@@ -184,6 +187,10 @@ export function OfferManager() {
   // the checkout regex mapping
   this.checkoutRegexMap = null;
 
+  // subscribe to the event handler here
+  this.eventHandler.subscribeUrlChange(this.processNewEvent.bind(this));
+  this.eventHandler.subscribeTabUrlChange(this.onTabOrWinChanged.bind(this))
+  this.eventHandler.subscribeAllHttpReq(this.beforeRequestListener.bind(this));
 
   // voucher detector
   this.voucherDetector = new VoucherDetector();
@@ -646,6 +653,10 @@ OfferManager.prototype.destroy = function() {
     this.statsHandler.destroy();
   }
 
+  this.eventHandler.unsubscribeUrlChange(this.processNewEvent.bind(this));
+  this.eventHandler.unsubscribeTabUrlChange(this.onTabOrWinChanged.bind(this));
+  this.eventHandler.unsubscribeAllHttpReq(this.beforeRequestListener.bind(this));
+
 };
 
 
@@ -960,6 +971,7 @@ OfferManager.prototype.feedWithHistoryEvent = function(urlObject, timestamp) {
 //        (nasty but temporary).
 //
 OfferManager.prototype.onTabOrWinChanged = function(currUrl) {
+  currUrl = currUrl.url;
   if (!this.mappings || !currUrl || !currUrl.name) {
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.warning(MODULE_NAME, 'onTabOrWinChanged: null something');
@@ -1461,6 +1473,7 @@ OfferManager.prototype.intentLifeCycleStarted = function(clusterID) {
 // @brief get called before a request is made
 //
 OfferManager.prototype.beforeRequestListener = function(requestObj) {
+  requestObj = requestObj['req_obj'];
   if (!this.voucherDetector) {
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.error(MODULE_NAME,

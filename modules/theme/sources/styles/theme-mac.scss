@@ -8,6 +8,10 @@ $browser-top-bg-color: #ccc;
     src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
 }
 
+.cliqz-urlbar-Last-search {
+    padding-top: 3px;
+}
+
 :root {
     --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel.png");
     --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel@2x.png") !important;
@@ -124,6 +128,8 @@ $browser-top-bg-color: #ccc;
 #nav-bar .toolbarbutton-1:not([type="menu-button"]), #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button, #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
     padding: 5px 2px;
     -moz-box-pack: center;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
 }
 
 .findbar-button, #nav-bar .toolbarbutton-1, #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button {
@@ -348,6 +354,10 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     padding: 0 10px 1px;
 }
 
+#bookmarks-menu-button[cui-areatype="toolbar"] > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+    margin-top: 1px;
+}
+
 #nav-bar-customization-target {
     padding: 0 4px 0 0;
 }
@@ -483,7 +493,8 @@ notification {
 
     box-shadow: none !important;
     -moz-border-start: 1px solid #d8d8d8 !important;
-    background: transparent !important;
+    /* background: transparent !important; */
+    background: #fff !important;
 
 }
 
@@ -514,13 +525,24 @@ notification {
     padding-top: 5px !important;
 }
 
-#nav-bar .toolbarbutton-1:not(#back-button):not(#forward-button) {
-    margin-top: 1px; /*Remove space (padding) inside nav-bar*/
+#nav-bar .toolbarbutton-1:not(#back-button):not(#forward-button),
+toolbarbutton#cliqz-cc-btn {
+    margin-top: 0;
     margin-bottom: 0;
     border-radius: 0;
+    padding: 0 0px;
+    border-left: 1px solid transparent;
+    transition: none !important;
+    border-right: 1px solid transparent;
+
 
     &:hover {
+        border-color: #dfdfdf;
         background: $buttons-hover-color;
+    }
+
+    &[open="true"] {
+        background: #eee;
     }
 }
 
@@ -554,8 +576,7 @@ notification {
 
 #PersonalToolbar {
     border-top: 1px solid #e1e1e1 !important;
-    //box-shadow: 0px 1px 0.13em 0px rgba(0, 0, 0, 0.24);
-    box-shadow: none;
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, 0.35) !important;
     z-index: 1;
     -moz-box-ordinal-group: 101;
     content: "";

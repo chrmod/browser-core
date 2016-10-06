@@ -91,10 +91,13 @@ export default class {
 
     data.big_rs_size = isBigSnippet;
 
-    data.distance = CliqzUtils.distance(
-                        data.lon,
-                        data.lat)*1000;
+    const distance = CliqzUtils.distance(data.lon, data.lat) * 1000;
+    if (distance > -1) {
+      data.distance = distance;
+    }
 
     data.deepLinks = ((data.deepResults || []).find(res => res.type === 'buttons') || {}).links
+
+    data.escapedUrl = data.mu && escape(data.mu);
   }
 };

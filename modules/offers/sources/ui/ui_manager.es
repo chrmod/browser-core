@@ -1,5 +1,5 @@
 import { utils } from 'core/cliqz';
-import { loadFileFromChrome } from 'offers/utils';
+import { isCLIQZBrowser, loadFileFromChrome } from 'offers/utils';
 import LoggingHandler from 'offers/logging_handler';
 import CliqzHandlebars from 'core/templates';
 
@@ -16,9 +16,9 @@ function getIDNameFromOfferID(offerID) {
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
-export function UIManager() {
+export function UIManager(settings) {
+  this.settings = settings;
   // the current offer map clusterID -> offer
   this.currentOfferMap = {};
   // the callbacks list
@@ -74,7 +74,15 @@ UIManager.prototype.createCouponDisplay = function(offerInfo) {
     documentFragment = document.createDocumentFragment();
   }
 
-  messageContainer.innerHTML = this.voucherHandlebarTemplate({title: coupon.title, code: coupon.code, desc: coupon.desc, min_order_value: coupon.min_order_value, valid_for: coupon.valid_for, image_url: coupon.image_url});
+  let couponObj = {title: coupon.title, code: coupon.code, desc: coupon.desc,
+    min_order_value: coupon.min_order_value, valid_for: coupon.valid_for,
+    image_url: coupon.image_url}
+
+  if (isCLIQZBrowser(this.settings)) {
+      couponObj.is_cliqz = true;
+  }
+
+  messageContainer.innerHTML = this.voucherHandlebarTemplate(couponObj);
   documentFragment.appendChild(messageContainer);
 
   return documentFragment;
@@ -109,7 +117,14 @@ UIManager.prototype.createLeadDisplay = function(offerInfo) {
     documentFragment = document.createDocumentFragment();
   }
 
-  messageContainer.innerHTML = this.leadHandlebarTemplate({title: coupon.title, desc: coupon.desc, image_url: coupon.image_url});
+  let leadObj = {title: coupon.title,
+       desc: coupon.desc, image_url: coupon.image_url};
+
+  if (isCLIQZBrowser(this.settings)) {
+      leadObj.is_cliqz = true;
+  }
+
+  messageContainer.innerHTML = this.leadHandlebarTemplate(leadObj);
   documentFragment.appendChild(messageContainer);
 
   return documentFragment;

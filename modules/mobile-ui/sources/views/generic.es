@@ -1,38 +1,54 @@
-export default class {
-  enhanceResults(data, {width, height}) {
-    // trim description in case of embedded history results
-    if (data.template === 'pattern-h2' && data.description) {
+export class GenericResult {
+
+  get links() {
+    return this.categories || (this.richData && this.richData.categories);
+  }
+
+  get shortDescription() {
+    let description = this.description;
+    if (this.template === 'pattern-h2' && this.description) {
       // rough calculations to determine how much of description to show
       // line padding: 60, character width: 10, keyboard height: 400, line height: 20
-      const descLength = (width - 60) / 10 * Math.max((height - 400) / 20, 1);
-      if (data.description.length > descLength + 3) {
-        data.description = data.description.slice(0, descLength) + '...';
+      const descLength = ((this.screen.width - 60) / 10)
+                         * Math.max((this.screen.height - 400) / 20, 1);
+      if (this.description.length > descLength + 3) {
+        const shortDescription = this.description.slice(0, descLength);
+        description = `${shortDescription}...`;
       }
     }
+    return description;
+  }
+}
 
+function getLogoDetails(url) {
+  return CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url));
+}
 
-    for(var i in data.external_links) {
-      data.external_links[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.external_links[i].url));
-    }
+function attachLogoDetails(resources = []) {
+  return resources.map(resource => Object.assign({}, resource, {
+    logoDetails: getLogoDetails(resource.url),
+  }));
+}
 
-    if( data.richData && data.richData.additional_sources) {
-      for(var i in data.richData.additional_sources) {
-        data.richData.additional_sources[i].logoDetails = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.richData.additional_sources[i].url));
-      }
-    }
+export default class Generic {
 
-    (data.news || []).forEach(article => {
-      const urlDetails = CliqzUtils.getDetailsFromUrl(article.url);
-      article.logo = CliqzUtils.getLogoDetails(urlDetails);
-    });
+  enhanceResults(data, screen) {
+    const result = data;
+    result.richData = result.richData || {};
+    result.screen = screen;
+    Object.setPrototypeOf(result, GenericResult.prototype);
 
-    if(data.actions && data.external_links) {
-      data.actionsExternalMixed = data.actions.concat(data.external_links);
-      data.actionsExternalMixed.sort(function(a,b) {
-        if (a.rank < b.rank) {return 1;}
-        if (a.rank > b.rank) {return -1;}
+    result.external_links = attachLogoDetails(result.external_links);
+    result.richData.additional_sources = attachLogoDetails(result.richData.additional_sources);
+    result.news = attachLogoDetails(result.news);
+
+    if (result.actions && result.external_links) {
+      result.actionsExternalMixed = result.actions.concat(result.external_links);
+      result.actionsExternalMixed.sort((a, b) => {
+        if (a.rank < b.rank) { return 1; }
+        if (a.rank > b.rank) { return -1; }
         return 0;
       });
     }
   }
-};
+}

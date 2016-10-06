@@ -29,6 +29,7 @@ const ENGINES = [
   }
 ];
 
+
 export default describeModule("autocomplete/result-providers",
   function () {
     return {
@@ -39,9 +40,15 @@ export default describeModule("autocomplete/result-providers",
     }
   },
   function () {
+    let resultProviders, utils;
+    beforeEach(function() {
+      this.deps("core/cliqz").utils.getPref = () => {};
+      resultProviders = new (this.module().default)();
+    });
+
     describe('custom search - #team', function(){
       it('should return #team result', function(){
-        const team = this.module().default.customizeQuery('#team'),
+        const team = resultProviders.customizeQuery('#team'),
           expected = {"updatedQ":"#team","engineName":"CLIQZ","queryURI":"https://cliqz.com/team/","code":"#"}
         chai.expect(team).to.deep.equal(expected);
       });
@@ -49,8 +56,9 @@ export default describeModule("autocomplete/result-providers",
 
     describe('custom search - maps', function(){
       const queryURI = "https://maps.google.de/maps?q=wisen";
-
+      let resultProviders;
       beforeEach(function () {
+        this.deps("core/cliqz").utils.getPref = () => {};
         this.deps("core/cliqz").utils.getEngineByAlias = function (alias) {
           if (alias === "#gm") {
             return {
@@ -64,17 +72,18 @@ export default describeModule("autocomplete/result-providers",
             getSubmissionForQuery() { return queryURI; }
           }];
         };
+        resultProviders = new (this.module().default)();
       });
 
       it('should return google maps result for wisen', function(){
-        const customQuery = this.module().default.customizeQuery('#gm wisen'),
+        const customQuery = resultProviders.customizeQuery('#gm wisen'),
           expected = {"updatedQ":"wisen","engineName":"Google Maps", queryURI,"code":2};
 
         chai.expect(customQuery).to.deep.equal(expected);
       });
 
       it('should return google maps result for wisen when shortcut is in the end', function(){
-        const customQuery = this.module().default.customizeQuery('wisen #gm'),
+        const customQuery = resultProviders.customizeQuery('wisen #gm'),
           expected = {"updatedQ":"wisen","engineName":"Google Maps","queryURI":"https://maps.google.de/maps?q=wisen","code":2};
 
         chai.expect(customQuery).to.deep.equal(expected);
@@ -82,8 +91,9 @@ export default describeModule("autocomplete/result-providers",
     });
 
     describe('custom search - updateAliases', function() {
+
       beforeEach(function () {
-        const CliqzResultProviders = this.module().default;
+        const CliqzResultProviders = new (this.module().default)();
         this.deps("core/cliqz").utils.getEngineByName = function (name) {
           return ENGINES.find(engine => engine.name === name);
         };
@@ -103,7 +113,7 @@ export default describeModule("autocomplete/result-providers",
       });
 
       it('should update an empty alias to first 2 letters', function() {
-        const resultProviders = this.module().default;
+        var resultProviders = new (this.module().default)();
         //arrange
         const expected = "#go";
 

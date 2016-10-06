@@ -1,4 +1,3 @@
-import Storage from "core/storage";
 import utils from "core/utils";
 import ABTests from "core/ab-tests";
 

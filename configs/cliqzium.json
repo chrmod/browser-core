@@ -8,7 +8,8 @@
     "autocomplete",
     "static",
     "geolocation",
-    "ui"
+    "ui",
+    "expansions-provider"
   ],
   "subprojects": [
     "chrome-test-hw-hpn"
