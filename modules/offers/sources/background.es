@@ -4,7 +4,6 @@ import background from 'core/base/background';
 import LoggingHandler from 'offers/logging_handler';
 import OffersConfigs from 'offers/offers_configs';
 import { EventHandler } from 'offers/event_handler';
-import { storeSettings } from 'offers/utils';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,9 +101,6 @@ export default background({
       'dev_flag: ' + utils.getPref('offersDevFlag', false) + '\n' +
       '------------------------------------------------------------------------\n'
       );
-
-
-    storeSettings(settings);
 
     // to be checked on unload
     this.initialized = true;
