@@ -93,7 +93,7 @@ TESTS.AttrackTest = function (CliqzUtils) {
 
                 it('returns true for open tab id', function() {
                   return waitIfNotReady(function() {
-                    return CliqzAttrack.tab_listener.isWindowActive(tab_id) === true;
+                    return browser.isWindowActive(tab_id) === true;
                   });
                 });
 
