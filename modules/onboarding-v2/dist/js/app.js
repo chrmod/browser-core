@@ -80,6 +80,11 @@ function step1() {
   //=== STEP 1 Tooltip Trigger
   openTooltip1 = setTimeout(function () {
     $('#cqb-atr-on').tooltipster('open');
+    telemetrySig({
+      action: 'show',
+      view: 'intro',
+      target: 'tooltip'
+    });
   }, 1000);
 
   //==== Step 1 Click
@@ -124,12 +129,23 @@ function step2() {
 
   // Show search btn
   setTimeout(function () {
+      telemetrySig({
+        action: 'show',
+        view: 'privacy',
+        target: 'next'
+      });
      $('#cqb-search-btn').css('opacity', '1');
   }, 3000);
 
   // Open Tool Tip
   openTooltip2 = setTimeout(function () {
-     $('#cqb-search-btn').tooltipster('open');
+    $('#cqb-search-btn').tooltipster('open');
+    telemetrySig({
+      action: 'show',
+      view: 'privacy',
+      target: 'tooltip',
+      timer: tlmTimer
+    });
   }, 5000);
 
   //Open control center
@@ -196,7 +212,12 @@ function step3() {
     $(this).addClass('active');
 
     var homeBtn = setTimeout(function () {
-       $('#cqb-fresh-tab').css('display', 'inline-block');
+      $('#cqb-fresh-tab').css('display', 'inline-block');
+      telemetrySig({
+        action: 'show',
+        view: 'search',
+        target: 'next',
+      });
     }, 3000);
 
     e.preventDefault();
