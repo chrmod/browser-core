@@ -37,7 +37,7 @@ function telemetrySig(msg) {
       action: msg.action,
       view: msg.view,
       target: msg.target,
-      timer: tlmTimer
+      show_duration: tlmTimer
     }]
   }), '*');
 }
@@ -103,7 +103,7 @@ function step1() {
       action: 'click',
       view: 'intro',
       target: 'body_click',
-      timer: tlmTimer
+      show_duration: tlmTimer
     });
     $('#cqb-atr-on').tooltipster('open');
   });
@@ -144,7 +144,7 @@ function step2() {
       action: 'show',
       view: 'privacy',
       target: 'tooltip',
-      timer: tlmTimer
+      show_duration: tlmTimer
     });
   }, 5000);
 
@@ -165,7 +165,7 @@ function step2() {
       action: 'click',
       view: 'privacy',
       target: 'body_click',
-      timer: tlmTimer
+      show_duration: tlmTimer
     });
     $('#cqb-search-btn').css('opacity', '1')
     $('#cqb-search-btn').tooltipster('open');
@@ -235,7 +235,7 @@ function step3() {
       action: 'click',
       view: 'search',
       target: 'body_click',
-      timer: tlmTimer
+      show_duration: tlmTimer
     });
     $('#cqb-search-btn').css('opacity', '1')
     $('#cqb-search-btn').tooltipster('open');
@@ -257,7 +257,7 @@ function autoQuery(val) {
         }), "*");
         window.location.href = "about:cliqz";
       }, 600);
-    }, 30000);
+    }, 60000);
   };
   window.postMessage(JSON.stringify({
     target: 'cliqz',
