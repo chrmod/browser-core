@@ -104,7 +104,6 @@ var CliqzAttrack = {
     obsCounter: {},
     similarAddon: false,
     blockingFailed:{},
-    trackReload:{},
     reloadWhiteList:{},
     tokenDomainCountThreshold: 2,
     safeKeyExpire: 7,
@@ -887,14 +886,10 @@ var CliqzAttrack = {
           cleanTimestampCache(CliqzAttrack.visitCache, CliqzAttrack.timeCleaningCache, currTime);
           // reload whitelist
           cleanTimestampCache(CliqzAttrack.reloadWhiteList, CliqzAttrack.timeCleaningCache, currTime);
-          // track reload
-          cleanTimestampCache(CliqzAttrack.trackReload, CliqzAttrack.timeCleaningCache, currTime);
-          // blocked cache
+           // blocked cache
           cleanTimestampCache(CliqzAttrack.blockedCache, CliqzAttrack.timeCleaningCache, currTime);
           // record cache
           cleanTimestampCache(CliqzAttrack.linksRecorded, 1000, currTime);
-          // tab listener statuses
-          CliqzAttrack.tab_listener.cleanTabsStatus();
         }, two_mins);
 
         var bootup_task = pacemaker.register(function bootup_check(curr_time) {
@@ -1469,55 +1464,6 @@ var CliqzAttrack = {
             }
         }
         return false;
-    },
-    // Listens for requests initiated in tabs.
-    // Allows us to track tab windowIDs to urls.
-    tab_listener: {
-        _tabsStatus: {},
-
-        onStateChange: function(evnt) {
-            let {urlSpec, isNewPage, windowID} = evnt;
-            // check flags for started request
-            if (isNewPage && urlSpec && windowID && urlSpec.startsWith('http')) {
-                // add window -> url pair to tab cache.
-                this._tabsStatus[windowID] = urlSpec;
-                var _key = windowID + ":" + urlSpec;
-                if(!(CliqzAttrack.trackReload[_key])) {
-                    CliqzAttrack.trackReload[_key] = new Date();
-                } else {
-                    var t2 = new Date();
-                    var dur = (t2 -  CliqzAttrack.trackReload[_key]) / 1000;
-                    if(dur < 30000 && countReload && windowID in CliqzAttrack.tp_events._active){
-                        CliqzAttrack.tp_events._active[windowID]['ra'] = 1;
-                        CliqzAttrack.reloadWhiteList[_key] = t2;
-                    }
-                }
-                countReload = false;
-            }
-        },
-
-        // Get an array of windowIDs for tabs which a currently on the given URL.
-        getTabsForURL: function(url) {
-            var tabs = [];
-            for(var windowID in this._tabsStatus) {
-                var tabURL = this._tabsStatus[windowID];
-                if (url == tabURL || url == tabURL.split('#')[0]) {
-                    tabs.push(windowID);
-                }
-            }
-            return tabs;
-        },
-
-        cleanTabsStatus: function() {
-          for (let tabId of Object.keys(this._tabsStatus)) {
-            if (! this.isWindowActive(tabId) ) {
-              delete this._tabsStatus[tabId];
-            }
-          }
-        },
-
-        isWindowActive: browser.isWindowActive
-
     },
     /** Get info about trackers and blocking done in a specified tab.
      *
