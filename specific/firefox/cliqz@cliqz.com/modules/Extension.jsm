@@ -45,7 +45,7 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/runloop.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js", this);
       Extension.System = this.System;
-
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/bower_components/handlebars/handlebars.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/storage.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/storage.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/prefs.js", this);
@@ -56,6 +56,7 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/utils.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/events.js", this);
 
+      Extension.System.set('handlebars', {default: this.Handlebars});
       var environment = Extension.System.get("platform/environment").default;
       // must be set to this.Promise before anything else is called, so the proper Promise implementation can be used.
       environment.Promise = this.Promise;
