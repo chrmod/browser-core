@@ -292,6 +292,10 @@ Promise.all([
   var step = resolvedPromises[1];
   localizeDocument();
 
+  // Blocks the right click on the onboarding
+  $("*").on("contextmenu",function(){
+     return false;
+  });
 
   //Telemetry Trigger
   $('[data-cqb-tlmtr-target]').click(function (e) {
