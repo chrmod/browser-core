@@ -130,6 +130,13 @@ export default {
   },
 
   actions: {
+    broadcastMessage(url, message) {
+      this.mm.broadcast("cliqz:core", {
+        action: "postMessage",
+        url,
+        args: [JSON.stringify(message)],
+      });
+    },
     getWindowStatus(win) {
       return Promise
         .all(this.getWindowStatusFromModules(win))
@@ -152,7 +159,6 @@ export default {
       urlBar.focus();
       urlBar.mInputField.focus();
       urlBar.mInputField.setUserInput(query);
-      return Promise.resolve();
     },
 
     closePopup() {
@@ -176,6 +182,13 @@ export default {
 
     getFeedbackPage() {
       return utils.FEEDBACK_URL;
+    },
+
+    resizeWindow(width, height) {
+      utils.log(width, "!!width")
+      utils.log(height, "!!height")
+
+      utils.getWindow().resizeTo(width, height);
     }
   }
 };

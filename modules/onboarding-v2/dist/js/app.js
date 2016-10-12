@@ -1,10 +1,16 @@
 var tlmTimer = 0;
+const MIN_WIDTH = 1000;
+const MIN_HEIGHT = 700;
 
 var tlmTimerFn = function () {
   setTimeout(function () {
     tlmTimer += 50;
     tlmTimerFn();
   }, 50);
+}
+
+function getSearchBtn() {
+  return document.getElementById("cqb-search-btn");
 }
 
 function localizeDocument() {
@@ -51,6 +57,14 @@ window.addEventListener("message", function (ev) {
     msg = JSON.parse(ev.data);
   } catch (e) {
     msg = {};
+  }
+  if (msg.action === 'shakeIt') {
+    var btn = getSearchBtn();
+    btn.style.opacity = 1;
+    btn.classList.remove("cqz-shake-it");
+    setTimeout(function() {
+      btn.classList.add("cqz-shake-it")
+    }, 200);
   }
   if (msg.type === "response") {
     var action = CALLBACKS[msg.action];
@@ -279,7 +293,19 @@ window.postMessage(JSON.stringify({
   action: 'initOnboarding'
 }), '*');
 
-
+function setDimensions() {
+  console.log($(window).width());
+  if($(window).width() < MIN_WIDTH || $(window).height() < MIN_HEIGHT) {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'core',
+      action: 'resizeWindow',
+      args: [
+        MIN_WIDTH, MIN_HEIGHT
+      ]
+    }), '*');
+  }
+}
 
 // =================
 // == Document Ready
@@ -291,6 +317,7 @@ Promise.all([
 ]).then(function (resolvedPromises) {
   var step = resolvedPromises[1];
   localizeDocument();
+  setDimensions();
 
   // Blocks the right click on the onboarding
   $("*").on("contextmenu",function(){

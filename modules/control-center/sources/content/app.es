@@ -77,6 +77,13 @@ $('body').on('click', function(ev) {
         target: 'dashboard',
       }]
     }), '*');
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'onboarding-v2',
+      action: 'shakeIt'
+    }), '*');
+
   }
 })
 

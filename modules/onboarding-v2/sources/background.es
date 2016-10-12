@@ -176,6 +176,15 @@ export default background({
       var urlBar = utils.getWindow().CLIQZ.Core.urlbar;
       urlBar.focus();
       urlBar.mInputField.focus();
+    },
+
+    shakeIt() {
+      utils.callAction('core', 'broadcastMessage', [
+        CLIQZ_ONBOARDING,
+        {
+          action: 'shakeIt'
+        }
+      ]);
     }
 
   }
