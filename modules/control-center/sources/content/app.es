@@ -238,7 +238,7 @@ function draw(data){
     document.getElementById('cliqz-tab').innerHTML = CLIQZ.templates['amo-cliqz-tab'](data);
   } else {
     document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
-    document.getElementById('https').innerHTML = CLIQZ.templates['https']();
+    document.getElementById('https').innerHTML = CLIQZ.templates['https'](data);
   }
 
   function close_setting_accordion_section() {
