@@ -29,6 +29,17 @@
                 display: none;
             }
         }
+
+        //Hack disable click on CCenter btn
+        #nav-bar-customization-target:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            content: "";
+            width: 100%;
+            height: 100%;
+        }
     }
 
     &.cqz-step3 {}
