@@ -3,13 +3,8 @@
 */
 
 import CliqzUtils from "core/utils";
-import { isFirefox } from "core/platform";
-
-if (isFirefox) {
-  Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/handlebars/handlebars.js', this);
-}
-
-var CliqzHandlebars = Handlebars || this.Handlebars;
+import Handlebars from "handlebars";
+var CliqzHandlebars = Handlebars;
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
     MESSAGE_TEMPLATES = CliqzUtils.MESSAGE_TEMPLATES || [],
@@ -212,6 +207,29 @@ function registerHelpers(){
        return str.toUpperCase();
     });
 
+    function latinMap(str) {
+        const map = [
+          { "base":"a", "letters":/[\u00E4]|ae/g },
+          { "base":"o", "letters":/[\u00F6]|oe/g },
+          { "base":"u", "letters":/[\u00FC]|ue/g },
+          { "base":"s", "letters":/[\u00DF]|ss/g },
+        ];
+
+        map.forEach(mapper => {
+          str = str.replace(mapper.letters, mapper.base);
+        });
+
+        return str;
+    }
+
+    function countRemovedChars(indexes, lBound, hBound) {
+      let count = 0;
+      indexes.forEach(index => {
+        if (index >= lBound && index <= hBound) ++count;
+      });
+      return count;
+    }
+
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
         // lucian: questionable solution performance wise
         // strip out all the control chars
@@ -222,17 +240,35 @@ function registerHelpers(){
 
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
+        q = latinMap(q);
+
         var map = Array(text.length),
             tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t && t.length>1; }),
-            lowerText = text.toLowerCase(),
+            lowerText = latinMap(text.toLowerCase()),
             out, high = false;
+
+        // Store a list of index(es) where a character has been removed
+        var indexes = [],
+            patt = /ae|oe|ue|ss/g;
+
+        var match = null;
+
+        while (match = patt.exec(text.toLowerCase())) {
+          indexes.push(match.index);
+        }
+
+        var lastRemovedChars = 0;
 
         tokens.forEach(function(token){
             var poz = lowerText.indexOf(token);
             while(poz !== -1){
-                for(var i=poz; i<poz+token.length; i++)
+                //Number of characters have been remove in this token
+                var nRemovedChars = countRemovedChars(indexes, poz, poz + token.length);
+                for(var i=poz; i<poz+token.length+nRemovedChars+lastRemovedChars; i++)
                     map[i] = true;
                 poz = lowerText.indexOf(token, poz+1);
+                //Number of characters have been removed before this token
+                lastRemovedChars += nRemovedChars;
             }
         });
         out=[];
