@@ -161,7 +161,11 @@
       {{/if }}
       {{#unless searchDisabled }}
           <span class="bullet"
-                openUrl="https://cliqz.com/home/cliqz-triqz"
+                {{#if amo}}
+                    openUrl="https://cliqz.com/tips-firefox"
+                {{else}}
+                    openUrl="https://cliqz.com/tips"
+                {{/if}}
                 data-target="search_tips">
             <span data-i18n="control-center-best-cliqz"></span>
             <svg class="bulletarrow" width="9px" height="12px" viewBox="175 40 9 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">

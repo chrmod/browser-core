@@ -8,7 +8,7 @@ import background from 'q-button/background';
 const BTN_ID = 'cliqz-button',
       firstRunPref = 'firstStartDone',
       CC_ENABLE_PREF = 'controlCenter',
-      TRIQZ_URL = 'https://cliqz.com/home/cliqz-triqz',
+      TRIQZ_URL = 'https://cliqz.com/tips',
       TOUR_URL = 'chrome://cliqz/content/onboarding/onboarding.html',
       SEARCH_BAR_ID = 'search-container'
       dontHideSearchBar = 'dontHideSearchBar',
