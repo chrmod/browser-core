@@ -1400,5 +1400,44 @@
     "settings": {
       "message": "Einstellungen"
     },
+    "onboarding-step-1-msg": {
+      "message": "Willkommen bei CLIQZ"
+    },
+    "onboarding-step-1-btn": {
+      "message": " Aktiviere deinen Privatsphäre-Schutz"
+    },
+    "onboarding-step-1-tooltip": {
+      "message": "Klick hier!"
+    },
+    "onboarding-step-2-msg": {
+      "message": "Der Privatsphäre-Schutz ist aktiviert!"
+    },
+    "onboarding-step-2-btn": {
+      "message": "Fang an zu surfen!"
+    },
+    "onboarding-step-2-tooltip": {
+      "message": "Hola, Bist du bereit für den nächsten Schritt?"
+    },
+    "onboarding-step-3-msg": {
+      "message": "Probiere die Cliqz Suchmaschine"
+    },
+    "onboarding-step-3-btn": {
+      "message": "Los geht's"
+    },
+    "onboarding-step-3-tooltip": {
+      "message": "Nutze die CLIQZ Schnell-Suche"
+    },
+    "onboarding-step-3-tooltip-query-text": {
+      "message": "Probiere es mit:"
+    },
+    "onboarding-search-query1": {
+      "message": "Wetter München"
+    },
+    "onboarding-search-query2": {
+      "message": "Lasagne kochen"
+    },
+    "onboarding-search-query3": {
+      "message": "TV Programm"
+    },
     "TEST": "OK"
 }

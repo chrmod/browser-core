@@ -3,6 +3,76 @@
     src: url("../skin/fonts/Lato-Regular.ttf");
 }
 
+/*===== Onboarding =====*/
+
+#main-window.cqz-onboarding {
+    min-width: 1000px !important;
+    min-height: 760px !important;
+
+    &.cqz-step1 {
+        #PanelUI-button {
+            display: none;
+        }
+
+        #nav-bar > *:not(panel),
+        #urlbar-container {
+            visibility: hidden;
+
+        }
+    }
+
+    &.cqz-step2 {
+        #nav-bar #nav-bar-customization-target {
+            visibility: visible;
+
+            & > :not(#cliqz-cc-btn):not(#urlbar-container) {
+                display: none;
+            }
+        }
+
+        //Hack disable click on CCenter btn
+        #nav-bar-customization-target:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            content: "";
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &.cqz-step3 {}
+
+    .panel-arrowcontent {
+        padding: 0px;
+        --panel-arrowcontent-padding: 0px;
+    }
+
+    #UITourTooltipDescription iframe {
+        display: block;
+    }
+
+    #UITourTooltipTitle {
+        max-width: 420px;
+    }
+
+    #UITourTooltipTitleContainer {
+        margin-bottom: 0px;
+        display: none
+    }
+
+    #UITourTooltipClose {
+        margin-top: 0px;
+        display: none
+    }
+}
+
+#UITourTooltip[target="cliqz"] .panel-arrowcontent {
+    --panel-arrowcontent-padding: 0px;
+}
+
+
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("../../components.xml#autocomplete-rich-result-popup-cliqz");
     min-height: 350px; /* fixes bug with popup auto-sizing */

@@ -2,6 +2,7 @@ import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 import background from 'control-center/background';
+import UITour from 'platform/ui-tour';
 
 function toPx(pixels) {
   return pixels.toString() + 'px';
@@ -35,6 +36,9 @@ export default class {
       "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": this.antitrackingStrict.bind(this),
       "sendTelemetry": this.sendTelemetry.bind(this),
+      "openPopUp": this.openPopUp.bind(this),
+      "openMockPopUp": this.openMockPopUp.bind(this),
+      "setMockBadge": this.setMockBadge.bind(this),
       "enableSearch": this.enableSearch.bind(this),
       "amo-cliqz-tab": this.amoCliqzTab.bind(this),
       "complementary-search": this.complementarySearch.bind(this)
@@ -61,7 +65,7 @@ export default class {
   }
 
   refreshState() {
-    this.prepareData((data) => {
+    this.prepareData().then((data) => {
       this.setState(data.generalState);
     });
   }
@@ -97,6 +101,7 @@ export default class {
   }
 
   antitrackingActivator(data){
+
     events.pub("control-center:antitracking-activator", data);
     var state;
     if(data.type === 'switch') {
@@ -124,6 +129,7 @@ export default class {
   }
 
   adbActivator(data){
+
     events.pub("control-center:adb-activator", data);
     var state;
     if(data.type === 'switch') {
@@ -139,8 +145,23 @@ export default class {
     });
   }
 
-  setBadge(info){
+  setMockBadge(info) {
+    this.updateBadge(info);
+  }
+
+  updateBadge(info) {
     this.badge.textContent = info;
+  }
+
+  isOnboarding() {
+    var step = utils.getPref('cliqz-onboarding-v2-step', 1);
+    return this.window.gBrowser.currentURI.spec === "about:onboarding" && step === 2;
+  }
+
+  setBadge(info, mock){
+    if(!this.isOnboarding()) {
+      this.updateBadge(info);
+    }
   }
 
   updateState(state){
@@ -176,6 +197,7 @@ export default class {
   }
 
   updatePref(data){
+
     // NASTY!
     if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
 
@@ -231,8 +253,8 @@ export default class {
     })
   }
 
-  prepareData(cb){
-    utils.callAction(
+  prepareData(){
+    return utils.callAction(
       "core",
       "getWindowStatus",
       [this.window]
@@ -265,29 +287,75 @@ export default class {
         // try to clean the url
         friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
       } catch (e) {}
-      cb({
-          activeURL: url,
-          friendlyURL: friendlyURL,
-          module: moduleData,
-          generalState: generalState,
-          feedbackURL: utils.FEEDBACK_URL,
-          searchDisabled: utils.getPref('cliqz_core_disabled', false),
-          debug: utils.getPref('showConsoleLogs', false),
-          amo: config.settings.channel !== '40'
-        });
+
+      return {
+        activeURL: url,
+        friendlyURL: friendlyURL,
+        module: moduleData,
+        generalState: generalState,
+        feedbackURL: utils.FEEDBACK_URL,
+        onboarding: this.isOnboarding(),
+        searchDisabled: utils.getPref('cliqz_core_disabled', false),
+        debug: utils.getPref('showConsoleLogs', false),
+        amo: config.settings.channel !== '40'
+      }
     });
   }
 
-  getData(data){
-    this.prepareData((data) => {
-      this.sendMessageToPopup({
+  numberAnimation() {
+
+  }
+
+  _getMockData() {
+    var self = this,
+        numberCounter = 0,
+        url = 'examplepage.de/webpage';
+    var numberAnimation = function () {
+      if(numberCounter === 27)
+       return
+
+      if(numberCounter < 18)
+        self.mockedData.antitracking.totalCount = numberCounter;
+
+      self.mockedData.adblocker.totalCount = numberCounter;
+      self.sendMessageToPopup({
         action: 'pushData',
-        data: data
-      })
-    });
+        data: {
+          activeURL: url,
+          friendlyURL: url,
+          module: self.mockedData,
+          "generalState":"active",
+          "feedbackURL":"https://cliqz.com/feedback/1.2.99-40",
+          "onboarding": true
+        }
+      });
+
+      numberCounter++;
+      setTimeout(numberAnimation, 40);
+    }
+    numberAnimation();
+  }
+
+  openMockPopUp(data) {
+    this.mockedData = data;
+    this.openPopUp();
+  }
+
+  getData() {
+    if(this.isOnboarding()){
+      this._getMockData();
+    } else {
+      this.prepareData().then(data => {
+        this.sendMessageToPopup({
+          action: 'pushData',
+          data: data
+        })
+      }).catch(e => utils.log(e.toString(), "getData error"))
+    }
   }
 
   attachMessageHandlers(iframe){
+
     this.iframe = iframe;
     this.iframe.contentWindow.addEventListener('message', this.decodeMessagesFromPopup.bind(this))
   }
@@ -300,7 +368,8 @@ export default class {
     }
   }
 
-  handleMessagesFromPopup(message){
+  handleMessagesFromPopup(message) {
+
     this.actions[message.action](message.data);
   }
 
@@ -337,6 +406,10 @@ export default class {
     var panel = doc.createElement('panelview');
     panel.setAttribute('id', PANEL_ID);
     panel.setAttribute('flex', '1');
+    panel.setAttribute('panelopen', "true")
+    panel.setAttribute("animate", "true")
+    panel.setAttribute("type", "arrow");
+
 
     var vbox = doc.createElement("vbox");
     vbox.classList.add("panel-subview-body");
@@ -344,23 +417,27 @@ export default class {
     panel.appendChild(vbox);
 
     var iframe;
-    panel.addEventListener("ViewShowing", () => {
+    function onPopupReady() {
+      var body = iframe.contentDocument.body;
+      var clientHeight = body.scrollHeight;
+      var clientWidth = body.scrollWidth;
 
-      function onPopupReady() {
-        var body = iframe.contentDocument.body;
-        var clientHeight = body.scrollHeight;
-        var clientWidth = body.scrollWidth;
+      iframe.style.height = toPx(clientHeight);
+      iframe.style.width = toPx(clientWidth);
 
-        iframe.style.height = toPx(clientHeight);
-        iframe.style.width = toPx(clientWidth);
+      this.attachMessageHandlers(iframe);
+    }
 
-        this.attachMessageHandlers(iframe);
-      }
-
+    function createIframe() {
       iframe = doc.createElement('iframe');
       iframe.setAttribute('type', 'content');
       iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html');
+    }
+
+    panel.addEventListener("ViewShowing", () => {
+      createIframe();
       iframe.addEventListener('load', onPopupReady.bind(this), true);
+
       vbox.appendChild(iframe);
 
       utils.telemetry({
@@ -376,13 +453,26 @@ export default class {
 
     doc.getElementById('PanelUI-multiView').appendChild(panel);
 
-    button.addEventListener('command', () => {
-      this.window.PanelUI.showSubView(
-        PANEL_ID,
-        button,
-        this.window.CustomizableUI.AREA_NAVBAR
-      );
-    }, false);
+    UITour.targets.set("cliqz", { query: '#cliqz-cc-btn', widgetName: 'cliqz-cc-btn', allowAdd: true });
+    var promise = UITour.getTarget(this.window, "cliqz");
+    var win = this.window
+    promise.then(function(target) {
+      button.addEventListener('command', () => {
+
+        if (this.isOnboarding()) {
+          createIframe();
+          UITour.showInfo(win, target, "", "");
+          iframe.addEventListener('load', onPopupReady.bind(this), true);
+          doc.getElementById("UITourTooltipDescription").appendChild(iframe)
+        } else {
+          win.PanelUI.showSubView(
+            PANEL_ID,
+            button,
+            win.CustomizableUI.AREA_NAVBAR
+          );
+        }
+      }.bind(this));
+    }.bind(this));
 
     ToolbarButtonManager.restorePosition(doc, button);
 
@@ -403,6 +493,10 @@ export default class {
       action: 'click',
       state: data.state
     });
+  }
+
+  openPopUp() {
+    this.window.document.querySelector('toolbarbutton#' + BTN_ID).click();
   }
 
   enableSearch() {

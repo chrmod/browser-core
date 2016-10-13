@@ -41,8 +41,14 @@ function isNonClickable(section) {
   return nonClickableSections.indexOf(section) > -1;
 }
 
+function isOnboarding() {
+  return $('#control-center').hasClass('onboarding');
+}
+
+
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
 $(document).ready(function(resolvedPromises) {
+
   Object.keys(helpers).forEach(function (helperName) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
@@ -51,11 +57,35 @@ $(document).ready(function(resolvedPromises) {
   resize();
   sendMessageToWindow({
     action: 'getData',
-    data: { }
+    data: {}
   });
 });
 
 // actions
+
+$('body').on('click', function(ev) {
+  if(isOnboarding()) {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'core',
+      action: 'sendTelemetry',
+      args: [{
+        type: 'onboarding',
+        version: '2.0',
+        action: 'click',
+        view: 'privacy',
+        target: 'dashboard',
+      }]
+    }), '*');
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'onboarding-v2',
+      action: 'shakeIt'
+    }), '*');
+
+  }
+})
 
 // open URL
 $('#control-center').on('click', '[openUrl]', function(ev){
@@ -70,6 +100,9 @@ $('#control-center').on('click', '[openUrl]', function(ev){
 });
 
 $('#control-center').on('click', '[data-function]', function(ev){
+  if(isOnboarding()) {
+    return;
+  }
   sendMessageToWindow({
     action: ev.currentTarget.dataset.function,
     data: {
@@ -95,6 +128,11 @@ $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
   } else {
     state = $(this).attr('data-state');
   }
+
+  if(isOnboarding()) {
+    return;
+  }
+
   sendMessageToWindow({
     action: 'antitracking-activator',
     data: {
@@ -118,7 +156,9 @@ $('#control-center').on('click', '[adBlockerStatusChanger]', function(ev){
   }
 
   frame.attr('data-visible', $(this).attr('data-state'));
-
+  if(isOnboarding()) {
+    return;
+  }
   sendMessageToWindow({
     action: 'adb-activator',
     data: {
@@ -157,6 +197,9 @@ function updateGeneralState() {
   }
 
   $('#header').attr('state', state);
+  if(isOnboarding()) {
+    return;
+  }
   sendMessageToWindow({
     action: 'updateState',
     data: state
@@ -221,10 +264,28 @@ function compileAdblockInfo(data) {
 }
 
 function draw(data){
+  if(data.onboarding) {
+    document.getElementById('control-center').classList.add('onboarding');
+  }
   if (data.module) {
-    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList);
+    if(data.module.antitracking.totalCount === 1) {
+      window.postMessage(JSON.stringify({
+        target: 'cliqz',
+        module: 'core',
+        action: 'sendTelemetry',
+        args: [{
+          type: 'onboarding',
+          version: '2.0',
+          action: 'show',
+          view: 'privacy',
+          target: 'dashboard',
+        }]
+      }), '*');
+    }
     compileAdblockInfo(data);
   }
+
   if(data.debug){
     console.log('Drawing: ', data);
   }
@@ -397,6 +458,10 @@ function draw(data){
     });
 
     if(this.hasAttribute('updatePref')){
+      if(isOnboarding()) {
+        return;
+      }
+
       sendMessageToWindow({
         action: 'updatePref',
         data: {
