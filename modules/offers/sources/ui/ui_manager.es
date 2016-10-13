@@ -27,6 +27,17 @@ export function UIManager(settings) {
   this.leadHandlebarTemplate = null;
   this.voucherHandlebarTemplate = null;
 
+  // we will register this new method for the handlebars for the ui manager,
+  // this is related with #GR-238
+  CliqzHandlebars.registerHelper('enriched_content', function(text) {
+    // we need to do this first conversion for backward compatibility (we will)
+    // be able to remove this code later after 100% of the users got the new version
+    text = text.replace(/(<br\/>)/gm, '\n');
+    text = CliqzHandlebars.Utils.escapeExpression(text);
+    text = text.replace(/(\r\n|\n|\r)/gm, '<br/>');
+    return new CliqzHandlebars.SafeString(text);
+  });
+
   // load the html and compile the handlebars directly here only once
   var self = this;
   loadFileFromChrome(['offers', 'voucher.html']).then(html => {
