@@ -1,7 +1,7 @@
 import { utils } from "core/cliqz";
 
 export function version() {
-  return utils.getPref('onboarding-v2', "1.2") ? "2.0" : "1.2";
+  return utils.getPref('onboarding-v2', false) ? "2.0" : "1.2";
 }
 
 export function shouldShowOnboardingV2() {
