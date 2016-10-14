@@ -96,7 +96,7 @@ function step1() {
     telemetrySig({
       action: 'show',
       view: 'intro',
-      target: 'tooltip'
+      target: 'callout'
     });
   }, 1000);
 
@@ -115,7 +115,7 @@ function step1() {
       version: '2.0',
       action: 'click',
       view: 'intro',
-      target: 'body_click',
+      target: 'body',
       show_duration: tlmTimer
     });
     $('#cqb-atr-on').tooltipster('open');
@@ -130,6 +130,13 @@ function step2() {
   clearTimeout(openTooltip1);
 
   //=== Telemetry
+  telemetrySig({
+    action: 'hide',
+    view: 'intro',
+    target: 'page',
+  });
+
+  tlmTimer = 0;
   telemetrySig({
     action: 'show',
     view: 'privacy',
@@ -156,7 +163,7 @@ function step2() {
     telemetrySig({
       action: 'show',
       view: 'privacy',
-      target: 'tooltip',
+      target: 'callout',
       show_duration: tlmTimer
     });
   }, 5000);
@@ -177,7 +184,7 @@ function step2() {
       version: '2.0',
       action: 'click',
       view: 'privacy',
-      target: 'body_click',
+      target: 'body',
       show_duration: tlmTimer
     });
     $('#cqb-search-btn').css('opacity', '1')
@@ -195,11 +202,22 @@ function step3() {
 
   //=== Telemetry
   telemetrySig({
+    action: 'hide',
+    view: 'privacy',
+    target: 'page',
+    resumed: 'false'
+  });
+
+  tlmTimer = 0;
+
+  telemetrySig({
     action: 'show',
     view: 'search',
     target: 'page',
     resumed: 'false'
   });
+
+
   window.postMessage(JSON.stringify({
     target: 'cliqz',
     module: 'onboarding-v2',
@@ -208,7 +226,14 @@ function step3() {
 
   // Show search btn
   var homeBtn = setTimeout(function () {
-     $('#cqb-fresh-tab').css('display', 'inline-block');
+    if ($("#cqb-fresh-tab").is(":hidden")) {
+      $('#cqb-fresh-tab').css('display', 'inline-block');
+      telemetrySig({
+          action: 'show',
+          view: 'search',
+          target: 'next',
+        });
+    }
   }, 7000);
 
   $("body").addClass("cqb-step3");
@@ -224,14 +249,16 @@ function step3() {
 
     $(this).addClass('active');
 
-    var homeBtn = setTimeout(function () {
-      $('#cqb-fresh-tab').css('display', 'inline-block');
-      telemetrySig({
-        action: 'show',
-        view: 'search',
-        target: 'next',
-      });
-    }, 3000);
+    if($("#cqb-fresh-tab").is(":hidden")) {
+      var homeBtn = setTimeout(function () {
+        $('#cqb-fresh-tab').css('display', 'inline-block');
+        telemetrySig({
+          action: 'show',
+          view: 'search',
+          target: 'next',
+        });
+      }, 3000);
+    }
 
     e.preventDefault();
     var val = $(this).attr('href');
@@ -247,7 +274,7 @@ function step3() {
       version: '2.0',
       action: 'click',
       view: 'search',
-      target: 'body_click',
+      target: 'body',
       show_duration: tlmTimer
     });
     $('#cqb-search-btn').css('opacity', '1')
