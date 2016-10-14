@@ -254,6 +254,19 @@ function step3() {
     $('#cqb-search-btn').css('opacity', '1')
     $('#cqb-search-btn').tooltipster('open');
   });
+
+  $("#cqb-fresh-tab").on("click", function(e) {
+    e.preventDefault();
+    finishOnboarding();
+  });
+}
+
+function finishOnboarding() {
+  window.postMessage(JSON.stringify({
+    target: 'cliqz',
+    module: 'onboarding-v2',
+    action: 'finishOnboarding'
+  }), "*");
 }
 
 function autoQuery(val) {
@@ -269,7 +282,8 @@ function autoQuery(val) {
             action: 'closePopup',
             args: [val]
         }), "*");
-        window.location.href = "about:cliqz";
+
+        finishOnboarding();
       }, 600);
     }, 60000);
   };
