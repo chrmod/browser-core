@@ -1,5 +1,5 @@
 var tlmTimer = 0;
-const MIN_WIDTH = 1000;
+const MIN_WIDTH = 1050;
 const MIN_HEIGHT = 700;
 
 var tlmTimerFn = function () {
@@ -69,7 +69,6 @@ window.addEventListener("message", function (ev) {
   if (msg.type === "response") {
     var action = CALLBACKS[msg.action];
     if (action) {
-      console.log(msg.response, "!!response")
       action.call(null, msg.response);
     }
   }
@@ -308,7 +307,6 @@ window.postMessage(JSON.stringify({
 }), '*');
 
 function setDimensions() {
-  console.log($(window).width());
   if($(window).width() < MIN_WIDTH || $(window).height() < MIN_HEIGHT) {
     window.postMessage(JSON.stringify({
       target: 'cliqz',
