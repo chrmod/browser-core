@@ -290,12 +290,6 @@ var CliqzABTests = {
             case "1078_B":
                 CliqzUtils.setPref("telemetryNoSession", true);
                 break;
-            case "1079_A":
-                CliqzUtils.setPref("controlCenter", false);
-                break;
-            case "1079_B":
-                CliqzUtils.setPref("controlCenter", true);
-                break;
             case "1080_A":
                 CliqzUtils.setPref("freshtabNewBrand", false);
                 break;

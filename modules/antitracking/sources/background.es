@@ -21,11 +21,6 @@ export default background({
       return;
     }
 
-    this.buttonEnabled = utils.getPref('attrackUI', settings.antitrackingButton);
-
-    // if Control center is enabled Attrack button should be hidden
-    this.buttonEnabled = this.buttonEnabled && utils.getPref('controlCenter', false) == false;
-
     // fix for users without pref properly set: set to value from build config
     if (!utils.hasPref('attrackRemoveQueryStringTracking')) {
       utils.setPref('attrackRemoveQueryStringTracking', settings.antitrackingButton);
@@ -35,15 +30,6 @@ export default background({
     this.clickCache = {};
 
     utils.bindObjectFunctions( this.popupActions, this );
-
-    if (this.buttonEnabled) {
-      this.popup = new CliqzPopupButton({
-        name: 'antitracking',
-        actions: this.popupActions
-      });
-      this.popup.attach();
-      this.popup.updateState(utils.getWindow(), false);
-    }
 
     // inject configured telemetry module
     telemetry.loadFromProvider(settings.telemetryProvider || 'human-web/human-web');

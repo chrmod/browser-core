@@ -7,7 +7,6 @@ import background from 'q-button/background';
 
 const BTN_ID = 'cliqz-button',
       firstRunPref = 'firstStartDone',
-      CC_ENABLE_PREF = 'controlCenter',
       TRIQZ_URL = 'https://cliqz.com/tips',
       SEARCH_BAR_ID = 'search-container'
       dontHideSearchBar = 'dontHideSearchBar',
@@ -26,10 +25,6 @@ export default class {
   }
 
   init() {
-    // if Control center is enabled Q button is disabled
-    if(background.buttonEnabled){
-      this.addQbutton();
-    }
 
     // TODO: handle this help menu once ControlCenter goes 100%
     this.updateFFHelpMenu();
@@ -67,12 +62,10 @@ export default class {
   }
 
   unload() {
-    if(background.buttonEnabled){
-      // remove Q menu
-      var btn = this.window.document.getElementById(BTN_ID);
-      if (btn) {
-        btn.parentNode.removeChild(btn);
-      }
+    // remove Q menu
+    var btn = this.window.document.getElementById(BTN_ID);
+    if (btn) {
+      btn.parentNode.removeChild(btn);
     }
 
     //remove custom items from the Help Menu

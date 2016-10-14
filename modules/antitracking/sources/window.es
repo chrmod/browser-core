@@ -154,7 +154,6 @@ export default class {
   }
 
   createButtonItem() {
-    if (!background.buttonEnabled) return [];
 
     return [
       this.createAttrackButton()

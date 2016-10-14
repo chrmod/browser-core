@@ -17,10 +17,6 @@ const BTN_ID = 'cliqz-cc-btn',
 
 export default class {
   constructor(config) {
-    if(!background.buttonEnabled){
-      return;
-    }
-
     this.window = config.window;
     this.channel = config.settings.channel;
     this.actions = {
@@ -46,22 +42,18 @@ export default class {
   }
 
   init() {
-    if(background.buttonEnabled){
-      // stylesheet for control center button
-      this.window.CLIQZ.Core.addCSS(this.window.document,
-        'chrome://cliqz/content/control-center/styles/xul.css');
+    // stylesheet for control center button
+    this.window.CLIQZ.Core.addCSS(this.window.document,
+      'chrome://cliqz/content/control-center/styles/xul.css');
 
-      this.addCCbutton();
-      CliqzEvents.sub("core.location_change", this.actions.refreshState);
-    }
+    this.addCCbutton();
+    CliqzEvents.sub("core.location_change", this.actions.refreshState);
   }
 
   unload() {
-    if(background.buttonEnabled){
-      CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
-      this.panel.parentElement.removeChild(this.panel);
-      this.button.parentElement.removeChild(this.button);
-    }
+    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    this.panel.parentElement.removeChild(this.panel);
+    this.button.parentElement.removeChild(this.button);
   }
 
   refreshState() {
@@ -165,9 +157,6 @@ export default class {
   }
 
   updateState(state){
-    if(!background.buttonEnabled){
-      return;
-    }
 
     // set the state of the current window
     this.setState(state);
