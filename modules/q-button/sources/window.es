@@ -9,7 +9,6 @@ const BTN_ID = 'cliqz-button',
       firstRunPref = 'firstStartDone',
       CC_ENABLE_PREF = 'controlCenter',
       TRIQZ_URL = 'https://cliqz.com/tips',
-      TOUR_URL = 'chrome://cliqz/content/onboarding/onboarding.html',
       SEARCH_BAR_ID = 'search-container'
       dontHideSearchBar = 'dontHideSearchBar',
       //toolbar
@@ -64,7 +63,6 @@ export default class {
         .length > 0) return;
 
     this.helpMenu.insertBefore(this.tipsAndTricks(this.window), this.helpMenu.firstChild);
-    this.helpMenu.insertBefore(this.tour(this.window), this.helpMenu.firstChild);
     this.helpMenu.insertBefore(this.feedback(this.window), this.helpMenu.firstChild);
   }
 
@@ -183,14 +181,6 @@ export default class {
         CLIQZEnvironment.openTabInWindow(win, utils.FEEDBACK_URL);
       },
       'feedback'
-    );
-  }
-
-  tour(win) {
-    return simpleBtn(win.document,
-      "CLIQZ tour",
-      () => CLIQZEnvironment.openTabInWindow(win, TOUR_URL),
-      'tour'
     );
   }
 
