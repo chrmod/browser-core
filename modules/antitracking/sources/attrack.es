@@ -646,8 +646,8 @@ var CliqzAttrack = {
                 var diff = curr_time - (CliqzAttrack.cChecker.contextFromEvent.ts || 0);
                 if (diff < CliqzAttrack.timeAfterLink) {
 
-                    var host = getGeneralDomain(url_parts.hostname);
-                    if (host === CliqzAttrack.cChecker.contextFromEvent.gDM) {
+                    const hostGD = getGeneralDomain(url_parts.hostname);
+                    if (hostGD === CliqzAttrack.cChecker.contextFromEvent.cGD) {
                         CliqzAttrack.visitCache[host] = curr_time;
                         var src = null;
                         if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
@@ -812,20 +812,6 @@ var CliqzAttrack = {
                         CliqzAttrack.recordLinksForURL(url);
                     });
                 CliqzAttrack.clearDomLinks();
-            }
-        }
-
-        // New location, means a page loaded on the top window, visible tab
-        var activeURL = browser.currentURL();
-        var curr_time = Date.now();
-
-        if ((activeURL.indexOf('about:')!=0) && (activeURL.indexOf('chrome:')!=0)) {
-
-            var url_parts = parseURL(activeURL);
-
-            if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                var host = getGeneralDomain(url_parts.hostname);
-                CliqzAttrack.visitCache[host] = curr_time;
             }
         }
     },
