@@ -1298,6 +1298,12 @@
     "control-center-info-forget-mode": {
       "message": "Websites, die bekannt sind für nicht-jugendfreie Inhalte, werden automatisch in einem Vergessen Tab geöffnet. das heißt, Besuche dieser Seiten werden nicht in der Chronik gespeichert."
     },
+    "control-center-info-share-location-title": {
+      "message": "Standort Teilen"
+    },
+    "control-center-info-share-location": {
+      "message": "Genauere Suchergebnisse erhältst du, wenn du Immer Standort teilen auswählst. Deine Standort-Information dient nur der automatischen Verbesserung deiner Suchergebnisse und wird niemals weitergegeben oder anderweitig verwendet."
+    },
     "control-center-adblock-title": {
       "message": "Werbeblocker [BETA]"
     },
