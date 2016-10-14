@@ -12,7 +12,6 @@
     "showNewBrandAlert": false
   },
   "modules": [
-    "q-button",
     "static",
     "core",
     "autocomplete",
