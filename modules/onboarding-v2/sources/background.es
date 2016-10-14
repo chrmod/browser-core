@@ -172,6 +172,10 @@ export default background({
       );
     },
 
+    finishOnboarding() {
+      utils.openLink(utils.getWindow(), "about:cliqz");
+    },
+
     _focusUrlbar() {
       var urlBar = utils.getWindow().CLIQZ.Core.urlbar;
       urlBar.focus();
