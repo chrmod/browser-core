@@ -565,6 +565,9 @@ class CosmeticBucket {
             exception = true;
             h = h.substr(1);
           }
+          if (rule.unhide) {
+            exception = true;
+          }
           if (hostname === h || hostname.endsWith(`.${h}`)) {
             addRule(rule, h, exception);
           }
@@ -656,7 +659,7 @@ class CosmeticEngine {
         if (!r.exception && !uniqIds.has(r.rule.id)) {
           rules.push(r.rule);
           uniqIds.add(r.rule.id);
-        } else if (selector in miscRules) {  // handle exception rules
+        } else if (selector in miscMatchingRules) {  // handle exception rules
           delete miscMatchingRules[selector];
         }
       });
@@ -683,7 +686,7 @@ class CosmeticEngine {
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
       for (const value of bucket.index.index.values()) {
         value.forEach(rule => {
-          if (!uniqIds.has(rule.id)) {
+          if (!uniqIds.has(rule.id) && !rule.unhide) {
             if (rule.scriptInject) {
               // make sure the selector was replaced by javascript
               if (!rule.scriptReplaced) {
