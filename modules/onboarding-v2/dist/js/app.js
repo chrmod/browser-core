@@ -364,10 +364,16 @@ Promise.all([
     animationDuration: 250,
   });
 
-  if(step === 2) {
-    step2()
-  } else {
-    step1();
+  switch(step) {
+    case 1:
+      step1();
+      break;
+    case 2:
+      step2();
+      break;
+    case 3:
+      step3();
+      break;
   }
 
   //==== Step 2 Click
