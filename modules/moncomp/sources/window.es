@@ -1,5 +1,4 @@
 import { utils } from 'core/cliqz';
-import { simpleBtn, checkbox } from 'q-button/buttons';
 import CliqzMonComp from 'moncomp/moncomp';
 
 export default class {

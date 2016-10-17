@@ -1,4 +1,4 @@
-import ToolbarButtonManager from 'q-button/ToolbarButtonManager';
+import ToolbarButtonManager from 'control-center/ToolbarButtonManager';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 import background from 'control-center/background';
@@ -13,16 +13,22 @@ const BTN_ID = 'cliqz-cc-btn',
       firstRunPref = 'cliqz-cc-initialized',
       BTN_LABEL = 0,
       TOOLTIP_LABEL = 'CLIQZ',
-      TELEMETRY_TYPE = 'control_center';
+      TELEMETRY_TYPE = 'control_center',
+      SEARCH_BAR_ID = 'search-container',
+      TRIQZ_URL = 'https://cliqz.com/tips',
+      dontHideSearchBar = 'dontHideSearchBar',
+      //toolbar
+      searchBarPosition = 'defaultSearchBarPosition',
+      //next element in the toolbar
+      searchBarPositionNext = 'defaultSearchBarPositionNext';
 
 export default class {
   constructor(config) {
-    if(!background.buttonEnabled){
-      return;
-    }
-
     this.window = config.window;
+    this.settings = config.settings;
     this.channel = config.settings.channel;
+    this.createFFhelpMenu = this.createFFhelpMenu.bind(this);
+    this.helpMenu = config.window.document.getElementById("menu_HelpPopup");
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
@@ -46,22 +52,102 @@ export default class {
   }
 
   init() {
-    if(background.buttonEnabled){
-      // stylesheet for control center button
-      this.window.CLIQZ.Core.addCSS(this.window.document,
-        'chrome://cliqz/content/control-center/styles/xul.css');
+    // stylesheet for control center button
+    this.window.CLIQZ.Core.addCSS(this.window.document,
+      'chrome://cliqz/content/control-center/styles/xul.css');
 
-      this.addCCbutton();
-      CliqzEvents.sub("core.location_change", this.actions.refreshState);
+    this.addCCbutton();
+    CliqzEvents.sub("core.location_change", this.actions.refreshState);
+
+    this.updateFFHelpMenu();
+    if (!utils.getPref(dontHideSearchBar, false)) {
+      //try to hide quick search
+      try {
+        var doc = this.window.document;
+        var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+        if(toolbarID){
+            utils.setPref(searchBarPosition, toolbarID);
+        }
+        if(nextEl){
+            utils.setPref(searchBarPositionNext, nextEl);
+        }
+        utils.setPref(dontHideSearchBar, true);
+      } catch(e){}
     }
   }
 
-  unload() {
-    if(background.buttonEnabled){
-      CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
-      this.panel.parentElement.removeChild(this.panel);
-      this.button.parentElement.removeChild(this.button);
+  updateFFHelpMenu() {
+    if (this.helpMenu && this.settings.helpMenus) {
+      this.helpMenu.addEventListener('popupshowing', this.createFFhelpMenu);
     }
+  }
+
+  createFFhelpMenu(win){
+    if(this
+        .window
+        .document
+        .querySelectorAll("#menu_HelpPopup>.cliqz-item")
+        .length > 0) return;
+
+    this.helpMenu.insertBefore(this.tipsAndTricks(this.window), this.helpMenu.firstChild);
+    this.helpMenu.insertBefore(this.feedback(this.window), this.helpMenu.firstChild);
+  }
+
+  simpleBtn(doc, txt, func, action){
+    var item = doc.createElement('menuitem');
+    item.setAttribute('label', txt);
+    item.setAttribute('action', action);
+    item.classList.add('cliqz-item');
+
+    if(func)
+      item.addEventListener(
+          'command',
+          function() {
+              utils.telemetry({
+                  type: 'activity',
+                  action: 'cliqz_menu_button',
+                  button_name: action
+              });
+              func();
+          },
+          false);
+    else
+        item.setAttribute('disabled', 'true');
+
+    return item
+  }
+
+  tipsAndTricks(win) {
+    return this.simpleBtn(win.document,
+      utils.getLocalizedString('btnTipsTricks'),
+      () => CLIQZEnvironment.openTabInWindow(win, TRIQZ_URL),
+      'triqz'
+    );
+  }
+
+  feedback(win) {
+    return this.simpleBtn(win.document,
+      utils.getLocalizedString('btnFeedbackFaq'),
+      () => {
+        //TODO - use the original channel instead of the current one (it will be changed at update)
+        CLIQZEnvironment.openTabInWindow(win, utils.FEEDBACK_URL);
+      },
+      'feedback'
+    );
+  }
+
+  unload() {
+    CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
+    this.panel.parentElement.removeChild(this.panel);
+    this.button.parentElement.removeChild(this.button);
+
+    //remove custom items from the Help Menu
+    var nodes = this.helpMenu.querySelectorAll(".cliqz-item");
+
+    Array.prototype.slice.call(nodes, 0)
+      .forEach(node => this.helpMenu.removeChild(node));
+
+    this.helpMenu.removeEventListener('popupshowing', this.createFFhelpMenu);
   }
 
   refreshState() {
@@ -155,7 +241,7 @@ export default class {
 
   isOnboarding() {
     var step = utils.getPref('cliqz-onboarding-v2-step', 1);
-    return this.window.gBrowser.currentURI.spec === "about:onboarding" && step === 2;
+    return this.window.gBrowser.currentURI.spec === utils.CLIQZ_ONBOARDING && step === 2;
   }
 
   setBadge(info, mock){
@@ -165,9 +251,6 @@ export default class {
   }
 
   updateState(state){
-    if(!background.buttonEnabled){
-      return;
-    }
 
     // set the state of the current window
     this.setState(state);
@@ -199,7 +282,13 @@ export default class {
   updatePref(data){
 
     // NASTY!
-    if(data.pref == 'extensions.cliqz.dnt') data.value = !data.value;
+    if(data.pref == 'extensions.cliqz.dnt') {
+     data.value = !data.value;
+
+     events.pub("control-center:toggleHumanWeb");
+
+     return;
+   }
 
     utils.telemetry({
       type: TELEMETRY_TYPE,

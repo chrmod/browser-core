@@ -64,6 +64,8 @@ var CliqzUtils = {
   LOCALE_PATH: CLIQZEnvironment.LOCALE_PATH,
   RERANKERS: CLIQZEnvironment.RERANKERS,
   MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
+  CLIQZ_ONBOARDING: CLIQZEnvironment.CLIQZ_ONBOARDING,
+
 
   telemetryHandlers: [
     CLIQZEnvironment.telemetry

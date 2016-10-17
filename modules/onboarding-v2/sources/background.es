@@ -13,15 +13,14 @@ const InputStreamChannel = Cc["@mozilla.org/network/input-stream-channel;1"];
 const securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(
     Ci.nsIScriptSecurityManager);
 
-var CLIQZ_ONBOARDING = "about:onboarding",
-    CLIQZ_ONBOARDING_URL = "chrome://cliqz/content/onboarding-v2/index.html"
+var CLIQZ_ONBOARDING_URL = "chrome://cliqz/content/onboarding-v2/index.html"
 
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
 function AboutURL() {}
 AboutURL.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
-  classDescription: CLIQZ_ONBOARDING,
+  classDescription: utils.CLIQZ_ONBOARDING,
   classID: Components.ID("{be8a8710-7611-11e6-bdf4-0800200c9a66}"),
   contractID: "@mozilla.org/network/protocol/about;1?what=onboarding",
 
@@ -184,7 +183,7 @@ export default background({
 
     shakeIt() {
       utils.callAction('core', 'broadcastMessage', [
-        CLIQZ_ONBOARDING,
+        utils.CLIQZ_ONBOARDING,
         {
           action: 'shakeIt'
         }

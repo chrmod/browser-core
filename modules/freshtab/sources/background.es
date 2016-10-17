@@ -10,7 +10,6 @@ const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const FIVE_DAYS = 5 * ONE_DAY;
 const PREF_ONBOARDING = 'freshtabOnboarding';
-const CLIQZ_ONBOARDING = 'about:onboarding';
 
 const getInstallationDate = function() {
   return parseInt(utils.getPref(PREF_ONBOARDING, '0'));
@@ -49,14 +48,8 @@ export default {
     _showOnboarding() {
       if(onboardingVersion() === '2.0') {
         if(shouldShowOnboardingV2()) {
-          //TODO define CLIQZ_ONBOARDING globally
-          utils.openLink(utils.getWindow(), CLIQZ_ONBOARDING);
+          utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
           return;
-        }
-      } else if(onboardingVersion() === '1.2') {
-        if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref('browserOnboarding')) {
-          utils.setPref('browserOnboarding', true);
-          return true;
         }
       }
     },

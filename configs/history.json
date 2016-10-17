@@ -16,7 +16,6 @@
   "modules": [
     "core",
     "firefox-specific",
-    "q-button",
     "static",
     "autocomplete",
     "geolocation",
