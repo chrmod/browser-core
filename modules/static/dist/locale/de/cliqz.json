@@ -1410,22 +1410,22 @@
       "message": "Willkommen bei CLIQZ"
     },
     "onboarding-step-1-btn": {
-      "message": " Aktiviere deinen Privatsphäre-Schutz"
+      "message": "Aktiviere den Privatsphäre-Schutz"
     },
     "onboarding-step-1-tooltip": {
-      "message": "Klick hier!"
+      "message": "Hallo! Bereit für sicheres Surfen?"
     },
     "onboarding-step-2-msg": {
-      "message": "Der Privatsphäre-Schutz ist aktiviert!"
+      "message": "Dein Privatsphäre-Kontrollzentrum"
     },
     "onboarding-step-2-btn": {
       "message": "Fang an zu surfen!"
     },
     "onboarding-step-2-tooltip": {
-      "message": "Hola, Bist du bereit für den nächsten Schritt?"
+      "message": "Hey, bist du bereit für den nächsten Schritt?"
     },
     "onboarding-step-3-msg": {
-      "message": "Probiere die Cliqz Suchmaschine"
+      "message": "Es kann losgehen! Probiere die Cliqz Suche aus."
     },
     "onboarding-step-3-btn": {
       "message": "Los geht's"

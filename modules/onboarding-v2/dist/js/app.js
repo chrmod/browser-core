@@ -262,6 +262,7 @@ function step3() {
 
     e.preventDefault();
     var val = $(this).attr('href');
+    autoQuery('');
     autoQuery(val);
   });
 
