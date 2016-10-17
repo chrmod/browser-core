@@ -136,20 +136,84 @@ Promise.all([
           if (winId === currWinId)
             CLIQZ.UI.selectResultByIndex(toIndex);
         });
+
+    var isUrlbarFocused = false;
     chrome.cliqzSearchPrivate.onOmniboxFocusChanged.addListener(
         (winId, focused) => {
-          if (winId === currWinId && !focused) {
-            CLIQZ.UI.sessionEnd();
-            // Close settings section.
-            settingsContainer.classList.remove("open");
+          if (winId === currWinId) {
+            if (!focused) { //blur
+              CLIQZ.UI.sessionEnd();
+              urlbarEvent('blur');
+              // Close settings section.
+              settingsContainer.classList.remove("open");
+            }
+            else { //focus
+              CliqzAutocomplete.lastFocusTime = Date.now();
+              CliqzUtils.setSearchSession(CliqzUtils.rand(32));
+              urlbarEvent('focus');
+              isUrlbarFocused = true;
+            }
           }
         });
-
+    chrome.cliqzSearchPrivate.onMatchAccepted.addListener(
+        (winId, inputSize, autocompleted, position, isSearch, destURL) => {
+          if (winId !== currWinId)
+            return;
+          const details = {
+              action: "result_enter",
+              autocompleted: autocompleted,
+              urlbar_time: CliqzAutocomplete.lastFocusTime ?
+                  (new Date()).getTime() - CliqzAutocomplete.lastFocusTime :
+                  null,
+              position_type: [isSearch ? 'inbar_query' : 'inbar_url'],
+              source: CLIQZ.UI.getResultKind(CLIQZ.UI.getResultSelection()),
+              current_position: position,
+              new_tab: false // TODO: Pass whether it's opened in a new tab.
+            };
+          if (autocompleted) {
+            details.autocompleted_length = destURL.length;
+          }
+          const element = (position >= 0) ?
+              CLIQZ.UI.keyboardSelection : {url: destURL};
+          CLIQZ.UI.logUIEvent(
+              element,
+              "autocomplete",
+              details
+          );
+        });
     // TODO: Move these to CE inself and introduce module init().
     chrome.cliqzSearchPrivate.getSearchEngines(updateSearchEngines);
     chrome.cliqzSearchPrivate.onSearchEnginesChanged.addListener(
         updateSearchEngines);
     chrome.runtime.getPlatformInfo(v => CLIQZEnvironment.OS = v.os);
+
+
+    //TODO - make this more generic -> do not copy events from UI/window.js
+    function urlbarEvent(ev) {
+      var action = {
+        type: 'activity',
+        action: 'urlbar_' + ev
+      };
+
+      CliqzEvents.pub('core:urlbar_' + ev);
+      CliqzUtils.telemetry(action);
+    }
+
+    chrome.tabs.onCreated.addListener(function(tabId, changeInfo, tab) {
+      console.log("Tab created", arguments);
+
+      if (isUrlbarFocused){
+        // we try here to mimic what happens on Firefox
+        // blur first
+        urlbarEvent('blur');
+        CLIQZ.UI.sessionEnd();
+      }
+
+      // focus after
+      CliqzAutocomplete.lastFocusTime = Date.now();
+      CliqzUtils.setSearchSession(CliqzUtils.rand(32));
+      urlbarEvent('focus');
+    });
 
     console.log('Glue init complete!');
   });
@@ -240,6 +304,16 @@ const stubs = {
         addListener: 0
       },
       onSelectionMoved: {
+        addListener: 0
+      },
+      onOmniboxFocusChanged: {
+        addListener: 0
+      },
+      getSearchEngines: 0,
+      onSearchEnginesChanged: {
+        addListener: 0
+      },
+      onMatchAccepted: {
         addListener: 0
       }
     }

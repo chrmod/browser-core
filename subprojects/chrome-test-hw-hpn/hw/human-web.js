@@ -50,7 +50,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                 VERSION: '3.0',
                 WAIT_TIME: 2000,
                 LOG_KEY: 'humanweb',
-                debug: true,
+                debug: false,
                 httpCache: {},
                 httpCache401: {},
                 queryCache: {},
@@ -1640,7 +1640,7 @@ var __CliqzHumanWeb = function() { // (_export) {
                                 CliqzHumanWeb.state['v'][activeURL] = { 'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                                     'e': { 'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0 }, 'st': status, 'c': [], 'ref': referral, 'red': red };
 
-                                console.log('>>>>>', activeURL, referral);
+                                //console.log('>>>>>', activeURL, referral);
 
                                 if (referral) {
                                     // if there is a good referral, we must inherit the query if there is one
@@ -2163,7 +2163,6 @@ var __CliqzHumanWeb = function() { // (_export) {
                     return new Promise(function(resolve, reject){
                         background.getAllOpenPages()
                         .then( pages_arr => {
-                            _log(pages_arr.length);
                             resolve(pages_arr)
                         });
                     });
