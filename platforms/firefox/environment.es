@@ -79,6 +79,7 @@ var CLIQZEnvironment = {
         'partials/streaming',
         'partials/lyrics'
     ],
+    CLIQZ_ONBOARDING: "about:onboarding",
 
     init: function(){
 

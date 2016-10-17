@@ -241,7 +241,7 @@ export default class {
 
   isOnboarding() {
     var step = utils.getPref('cliqz-onboarding-v2-step', 1);
-    return this.window.gBrowser.currentURI.spec === "about:onboarding" && step === 2;
+    return this.window.gBrowser.currentURI.spec === utils.CLIQZ_ONBOARDING && step === 2;
   }
 
   setBadge(info, mock){
