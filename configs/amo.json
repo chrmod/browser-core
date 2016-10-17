@@ -12,6 +12,7 @@
     "showNewBrandAlert": false
   },
   "modules": [
+    "firefox-specific",
     "static",
     "core",
     "autocomplete",

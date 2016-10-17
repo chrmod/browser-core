@@ -14,8 +14,9 @@
     "showNewBrandAlert": true
   },
   "modules": [
-    "static",
     "core",
+    "firefox-specific",
+    "static",
     "autocomplete",
     "geolocation",
     "ui",

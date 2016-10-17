@@ -4,7 +4,8 @@
  *
  */
 
-import { utils } from "core/cliqz";
+import utils from "core/utils";
+import console from "core/console";
 import Result from "autocomplete/result";
 import CliqzCalculator from "autocomplete/calculator";
 import { setSearchEngine } from "core/search-engines";
@@ -54,7 +55,7 @@ var INIT_KEY = 'newProvidersAdded',
 
 class CliqzResultProviders {
   constructor() {
-    utils.log('CliqzResultProviders initialized', LOG_KEY);
+    console.log('CliqzResultProviders initialized', LOG_KEY);
     this.manageProviders();
   }
   manageProviders() {
@@ -77,18 +78,18 @@ class CliqzResultProviders {
     }
 
     NonDefaultProviders.forEach(function (extern) {
-      utils.log("NonDefaultProviders");
+      console.log("NonDefaultProviders");
       try {
-        utils.log('Analysing ' + extern.name, LOG_KEY);
+        console.log('Analysing ' + extern.name, LOG_KEY);
         if (!utils.getEngineByName(extern.name)) {
           if (providersAddedState < extern.state) {
             maxState = extern.state > maxState ? extern.state : maxState;
-            utils.log('Added ' + extern.name, LOG_KEY);
+            console.log('Added ' + extern.name, LOG_KEY);
             utils.addEngineWithDetails(extern);
           }
         }
       } catch (e) {
-        utils.log(e, 'err' + LOG_KEY);
+        console.log(e, 'err' + LOG_KEY);
       }
     });
 
@@ -110,7 +111,7 @@ class CliqzResultProviders {
   }
   updateAlias(name, newAlias) {
     utils.updateAlias(name, newAlias);
-    utils.log("Alias of engine  " + name + " was updated to " + newAlias, LOG_KEY);
+    console.log("Alias of engine  " + name + " was updated to " + newAlias, LOG_KEY);
   }
   getCustomResults (q) {
     var results = null;

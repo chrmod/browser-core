@@ -15,7 +15,7 @@ import { AttrackBloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
-import { utils, events, Promise } from 'core/cliqz';
+import { utils, events } from 'core/cliqz';
 import ResourceLoader from 'core/resource-loader';
 import core from 'core/background';
 import CookieChecker from 'antitracking/cookie-checker';
@@ -27,9 +27,6 @@ import telemetry from 'antitracking/telemetry';
 
 var countReload = false;
 
-function onUrlbarFocus(){
-    countReload = true;
-}
 
 /**
  * Add padding characters to the left of the given string.
@@ -144,8 +141,7 @@ var CliqzAttrack = {
     bootupWhitelistCache: {},
     blockedCache: {},
     visitCache: {},
-    contextOauth: {},
-    linksFromDom: {},
+    contextOauth: {}, linksFromDom: {},
     cookiesFromDom: {},
     loadedTabs: {},
     breakageCache: {},
@@ -976,7 +972,8 @@ var CliqzAttrack = {
         //this._blocked = new persist.AutoPersistentObject("blocked", (v) => CliqzAttrack.blocked = v, 300000);
 
         CliqzAttrack.qs_whitelist = CliqzAttrack.isBloomFilterEnabled() ? new AttrackBloomFilter() : new QSWhitelist();
-        CliqzAttrack.qs_whitelist.init();
+        const initPromises = [];
+        initPromises.push(CliqzAttrack.qs_whitelist.init());
         CliqzAttrack.blockLog = new BlockLog(CliqzAttrack.qs_whitelist);
         CliqzAttrack.blockLog.init();
 
@@ -1038,6 +1035,8 @@ var CliqzAttrack = {
 
         CliqzAttrack.trackerProxy = new TrackerProxy();
         CliqzAttrack.trackerProxy.init();
+
+        return Promise.all(initPromises);
     },
     /** Per-window module initialisation
      */
@@ -1045,9 +1044,6 @@ var CliqzAttrack = {
         if (CliqzAttrack.getBrowserMajorVersion() < CliqzAttrack.MIN_BROWSER_VERSION) {
             return;
         }
-        // Load listerners:
-        window.CLIQZ.Core.urlbar.addEventListener('focus', onUrlbarFocus);
-
         CliqzAttrack.getPrivateValues(window);
     },
     unload: function() {
@@ -1064,8 +1060,6 @@ var CliqzAttrack = {
         CliqzAttrack.blockLog.destroy();
         CliqzAttrack.qs_whitelist.destroy();
 
-        browser.forEachWindow(CliqzAttrack.unloadWindow);
-
         WebRequest.onBeforeRequest.removeListener(CliqzAttrack.httpopenObserver.observe);
         WebRequest.onBeforeSendHeaders.removeListener(CliqzAttrack.httpmodObserver.observe);
         WebRequest.onHeadersReceived.removeListener(CliqzAttrack.httpResponseObserver.observe);
@@ -1081,11 +1075,6 @@ var CliqzAttrack = {
         }
 
         events.un_sub("attrack:safekeys_updated");
-    },
-    unloadWindow: function(window) {
-        if (window.CLIQZ) {
-            window.CLIQZ.Core.urlbar.removeEventListener('focus', onUrlbarFocus);
-        }
     },
     checkInstalledAddons: function() {
         System.import('platform/antitracking/addon-check').then( (addons) => {
@@ -1683,6 +1672,9 @@ var CliqzAttrack = {
     removeSourceDomainFromWhitelist: function(domain) {
       CliqzAttrack.disabled_sites.delete(domain);
       CliqzAttrack.saveSourceDomainWhitelist();
+    },
+    onUrlbarFocus(){
+      countReload = true;
     }
 };
 

@@ -16,10 +16,7 @@ import { loadFileFromChrome } from 'offers/utils';
 import { VoucherDetector } from 'offers/voucher_detector';
 import ResourceLoader from 'core/resource-loader';
 import { EventHandler } from 'offers/event_handler';
-
-Components.utils.import('resource://gre/modules/Services.jsm');
-// needed for the history
-Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+import HistoryManager from 'core/history-manager';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -484,7 +481,7 @@ OfferManager.prototype.loadHistoryEvents = function() {
   LoggingHandler.info(MODULE_NAME, 'loading the history events now with query: ' + sqlQuery);
   // execute the query now
   let eventCounts = 0;
-  CliqzHistoryManager.PlacesInterestsStorage._execute(sqlQuery,
+  HistoryManager.PlacesInterestsStorage._execute(sqlQuery,
                                                       ['url', 'visit_date'],
                                                       function(result) {
       var urlObj = utils.getDetailsFromUrl(result.url);
@@ -580,9 +577,8 @@ OfferManager.prototype.generateIntentsDetector = function(clusterFilesMap) {
     // the map
     let dbInstancesMap = null;
     let dbsJson = null;
-    Promise.all([dbFilePromise]).then(function(results) {
+    dbFilePromise.then(function(dbsJson) {
       // we need now to build the intent detector
-      dbsJson = results[0];
       let dbsNames = Object.keys(dbsJson); // extract keys from json object
       return generateDBMap(dbsNames);
     }).then(function(dbInstancesMapResult) {

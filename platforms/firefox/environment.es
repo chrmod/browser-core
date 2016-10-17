@@ -10,7 +10,6 @@ const {
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/NewTabUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzPlacesAutoComplete.jsm');
 
 import console from "core/console";
 import prefs from "core/prefs";
@@ -453,7 +452,7 @@ var CLIQZEnvironment = {
             if(hist === null) { //lazy
               // history autocomplete provider is removed
               // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
-              if (CliqzUtils.autocomplete.AB_1076_ACTIVE){
+              if (CliqzUtils.AB_1076_ACTIVE){
                 CliqzUtils.log('AB - 1076: Initialize custom provider');
                 // If AB 1076 is not in B or firefox version less than 49 it will fall back to firefox history
                 var provider = Cc["@mozilla.org/autocomplete/search;1?name=cliqz-history-results"] ||

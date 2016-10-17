@@ -83,7 +83,16 @@ function describeModule(moduleName, loadDeps, testFn) {
 
     return Promise.all(
       Object.keys(depsRewrite).map(
-        dep => System.set(dep, System.newModule(depsRewrite[dep]))
+        dep => {
+          let depName;
+          // Handle relative imports
+          if (dep.startsWith('.')) {
+            depName = System.normalizeSync(dep, moduleName);
+          } else {
+            depName = dep;
+          }
+          System.set(System.normalizeSync(depName), System.newModule(depsRewrite[dep]))
+        }
       )
     ).then(() => System.import(moduleName));
   }

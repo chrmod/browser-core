@@ -1562,7 +1562,7 @@ function resultClick(ev) {
             CliqzUtils.openLink(window, url, newTab);
 
             //decouple!
-            window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
+            window.CliqzHistoryManager && window.CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if (!newTab) CliqzEvents.pub('ui:popup_hide');
             break;
         } else if (el.getAttribute('cliqz-action')) {
@@ -1902,7 +1902,7 @@ function onEnter(ev, item){
   }
 
   CliqzUtils.openLink(window, input, newTab);
-  CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
+  window.CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
 

@@ -24,8 +24,6 @@ function onPrefChange(pref) {
   if (pref == CliqzAttrack.ENABLE_PREF && CliqzAttrack.isEnabled() != this.enabled) {
     if (CliqzAttrack.isEnabled()) {
       CliqzAttrack.initWindow(this.window);
-    } else {
-      CliqzAttrack.unloadWindow(this.window);
     }
     this.enabled = CliqzAttrack.isEnabled();
   }
@@ -57,10 +55,6 @@ export default class {
   unload() {
     CliqzEvents.un_sub("core.location_change", this.onLocationChange);
     CliqzUtils.clearInterval(this.interval);
-
-    if (CliqzAttrack.isEnabled()) {
-      CliqzAttrack.unloadWindow(this.window);
-    }
     CliqzEvents.un_sub("prefchange", this.onPrefChange);
   }
 

@@ -173,6 +173,10 @@ class AdBlocker {
     this.initialized = true;
   }
 
+  unload() {
+    this.listsManager.stop();
+  }
+
   persistBlacklist() {
     this.blacklistPersist.setValue({ urls: [...this.blacklist.values()] });
   }
@@ -337,10 +341,11 @@ const CliqzADB = {
     if (adbEnabled()) {
       initAdBlocker();
     } else {
-      events.sub('prefchange', pref => {
+      this.onPrefChangeEvent = events.subscribe('prefchange', pref => {
         if ((pref === ADB_PREF || pref === ADB_ABTEST_PREF) &&
-            !CliqzADB.adblockInitialized &&
-            adbEnabled()) {
+          !CliqzADB.adblockInitialized &&
+          adbEnabled()) {
+          // FIXME
           initAdBlocker();
         }
       });
@@ -348,6 +353,12 @@ const CliqzADB = {
   },
 
   unload() {
+    CliqzADB.adBlocker.unload();
+    CliqzADB.adBlocker = null;
+    CliqzADB.adblockInitialized = false;
+    if (this.onPrefChangeEvent) {
+      this.onPrefChangeEvent.unsubscribe();
+    }
     CliqzADB.unloadPacemaker();
     browser.forEachWindow(CliqzADB.unloadWindow);
     WebRequest.onBeforeRequest.removeListener(CliqzADB.httpopenObserver.observe);

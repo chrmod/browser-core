@@ -1,4 +1,5 @@
 import FreshTab from 'freshtab/main';
+import prefs from '../core/prefs';
 /**
 * @namespace freshtab
 */
@@ -8,7 +9,7 @@ export default class {
   * @constructor
   */
   constructor(config) {
-    this.onInstall = config.onInstall;
+    this.onInstall = prefs.get('new_session');
     this.buttonEnabled = config.settings.freshTabButton;
     this.window = config.window;
     this.cliqzOnboarding = config.settings.cliqzOnboarding;

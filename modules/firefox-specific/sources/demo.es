@@ -1,5 +1,3 @@
-'use strict';
-
 /*
  * This module allows selected web pages to interact with the CLIQZ
  * extension, for example, to open the dropdown or to imulate typing
@@ -14,39 +12,31 @@
  *
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-var EXPORTED_SYMBOLS = ['CliqzDemo'];
-
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
-var CliqzUtils = CLIQZ.CliqzUtils;
+import utils from 'core/utils';
 
 var PROXY_ID = "cliqzDemoProxy",
 	FAKE_CURSOR_ID = "CliqzDemoCursor",
 	TYPING_INTERVAL = 1000.0 / 10;
 
 function _log(msg) {
-	CliqzUtils.log(msg, 'CliqzDemo');
+	utils.log(msg, 'CliqzDemo');
 }
 
 function _sendTelemetrySignal(action) {
 	var signal = {
 		type: "demo",
-		url: CliqzUtils.getWindow().gBrowser.selectedBrowser.currentURI.spec,
+		url: utils.getWindow().gBrowser.selectedBrowser.currentURI.spec,
 		action: action
 	};
 
-	CliqzUtils.telemetry(signal);
+	utils.telemetry(signal);
 }
 
 function _onPageLoad (aEvent) {
 	var doc = aEvent.target;
 
 	if (doc.nodeName != "#document") return;
-	var details = CliqzUtils.getDetailsFromUrl(doc.location.toString());
+	var details = utils.getDetailsFromUrl(doc.location.toString());
 	if (!(details.name == "cliqz" && details.tld == "com")) return;
 
 	var proxy = doc.getElementById(PROXY_ID);
@@ -89,7 +79,7 @@ function _destroyFakeCursor(win) {
 }
 
 function _dropdownHiddenListener() {
-	var win = CliqzUtils.getWindow(),
+	var win = utils.getWindow(),
 		cursor = _getFakeCursor(win);
 
 	if (cursor && cursor.state == "open") {
@@ -101,7 +91,7 @@ var initialized = false;
 
 var CliqzDemo = {
 	init: function (win) {
-    if(CliqzUtils.getPref("cliqz_core_disabled", false)) return;
+    if(utils.getPref("cliqz_core_disabled", false)) return;
 
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);
 		win.CLIQZ.Core.popup.
@@ -132,7 +122,7 @@ var CliqzDemo = {
 		CliqzDemo.openDropdown();
 		CliqzDemo.typeInUrlbar(query);
 
-		CliqzUtils.setTimeout(function () {
+		utils.setTimeout(function () {
 			CliqzDemo.demoClicking();
 		}, TYPING_INTERVAL * query.length + 750);
 
@@ -141,7 +131,7 @@ var CliqzDemo = {
 
 
 	demoClicking: function () {
-		var win = CliqzUtils.getWindow(),
+		var win = utils.getWindow(),
 			cursor = _getFakeCursor(win);
 
 		cursor.classList.remove("pulsate");
@@ -151,14 +141,14 @@ var CliqzDemo = {
 	},
 	clearDropdown: function () {
 		var results =
-			CliqzUtils.getWindow().CLIQZ.Core.popup.cliqzBox.resultsBox;
+			utils.getWindow().CLIQZ.Core.popup.cliqzBox.resultsBox;
 
 		while (results.firstChild) {
 			results.removeChild(results.firstChild);
 		}
 	},
 	openDropdown: function () {
-		var core = CliqzUtils.getWindow().CLIQZ.Core;
+		var core = utils.getWindow().CLIQZ.Core;
 		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
 	},
 	typeInUrlbar: function (text, pos, core) {
@@ -167,15 +157,17 @@ var CliqzDemo = {
 		}
 
 		if (!core) {
-			core = CliqzUtils.getWindow().CLIQZ.Core;
+			core = utils.getWindow().CLIQZ.Core;
 			core.urlbar.focus();
 		}
 
 		if (pos < text.length) {
-			CliqzUtils.setTimeout(function() {
+			utils.setTimeout(function() {
 				core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));
 				CliqzDemo.typeInUrlbar(text, pos, core);
 			}, TYPING_INTERVAL);
 		}
 	}
 }
+
+export default CliqzDemo;

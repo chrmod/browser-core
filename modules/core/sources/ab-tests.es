@@ -16,9 +16,6 @@ var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-    init: function(){
-        CliqzABTests.check();
-    },
     // Accessors to list of tests this user is current in
     getCurrent: function() {
         if(CliqzUtils.hasPref(CliqzABTests.PREF))

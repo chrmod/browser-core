@@ -1,14 +1,8 @@
-'use strict';
 /*
  * This module listens to the http traffic
  */
 
-Components.utils.import('resource://gre/modules/Services.jsm');
-
-Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
-var CliqzUtils = CLIQZ.CliqzUtils;
-
-var EXPORTED_SYMBOLS = ['CliqzRedirect'];
+import utils from "core/utils";
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
@@ -21,12 +15,12 @@ var CliqzRedirect = {
         // check the non 2xx page and report if this is one of the cliqz result
         observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
             if (nsIAO && aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
-                var autocomplete = CliqzUtils.autocomplete;
+                var autocomplete = utils.autocomplete;
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
                 var res = {url: aChannel.URI.spec,
                            status: aExtraStringData.split(" ")[1]}
                 if (Math.floor(res.status / 100) !=  2) {
-                    // CliqzUtils.log(JSON.stringify(res), "httpData")
+                    // utils.log(JSON.stringify(res), "httpData")
                     // Now that we see a 404, let's compare to the cliqz results we provided
                     for (var i=0;
                         autocomplete.lastResult &&
@@ -38,10 +32,10 @@ var CliqzRedirect = {
                                 type: "performance",
                                 action: "response",
                                 response_code: res.status,
-                                result_type: CliqzUtils.encodeResultType(r.style || r.type),
+                                result_type: utils.encodeResultType(r.style || r.type),
                                 v: 1
                             }
-                            CliqzUtils.telemetry(action);
+                            utils.telemetry(action);
                         }
                     }
                 }
@@ -58,3 +52,5 @@ var CliqzRedirect = {
         CliqzRedirect.removeHttpObserver();
     }
 }
+
+export default CliqzRedirect;

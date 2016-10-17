@@ -33,7 +33,8 @@ const ENGINES = [
 export default describeModule("autocomplete/result-providers",
   function () {
     return {
-      "core/cliqz": { utils: { log() {} } },
+      "core/utils": { default: { } },
+      "core/console": { default: { log() {} } },
       "autocomplete/result": { default: {} },
       "autocomplete/calculator": { default: {} },
       "core/search-engines": { setSearchEngine: function () {} }
@@ -42,7 +43,7 @@ export default describeModule("autocomplete/result-providers",
   function () {
     let resultProviders, utils;
     beforeEach(function() {
-      this.deps("core/cliqz").utils.getPref = () => {};
+      this.deps("core/utils").default.getPref = () => {};
       resultProviders = new (this.module().default)();
     });
 
@@ -58,15 +59,15 @@ export default describeModule("autocomplete/result-providers",
       const queryURI = "https://maps.google.de/maps?q=wisen";
       let resultProviders;
       beforeEach(function () {
-        this.deps("core/cliqz").utils.getPref = () => {};
-        this.deps("core/cliqz").utils.getEngineByAlias = function (alias) {
+        this.deps("core/utils").default.getPref = () => {};
+        this.deps("core/utils").default.getEngineByAlias = function (alias) {
           if (alias === "#gm") {
             return {
               name: "Google Maps",
             }
           }
         };
-        this.deps("core/cliqz").utils.getSearchEngines = function () {
+        this.deps("core/utils").default.getSearchEngines = function () {
           return [{
             name: "Google Maps",
             getSubmissionForQuery() { return queryURI; }
@@ -94,17 +95,17 @@ export default describeModule("autocomplete/result-providers",
 
       beforeEach(function () {
         const CliqzResultProviders = new (this.module().default)();
-        this.deps("core/cliqz").utils.getEngineByName = function (name) {
+        this.deps("core/utils").default.getEngineByName = function (name) {
           return ENGINES.find(engine => engine.name === name);
         };
-        this.deps("core/cliqz").utils.updateAlias = function (name, newAlias) {
+        this.deps("core/utils").default.updateAlias = function (name, newAlias) {
           for(var engine in ENGINES) {
             if(ENGINES[engine].name === name) {
               ENGINES[engine].alias = newAlias;
             }
           }
         };
-        this.deps("core/cliqz").utils.getSearchEngines = function () {
+        this.deps("core/utils").default.getSearchEngines = function () {
           return ENGINES.map(function(e){
             e.prefix = CliqzResultProviders.getShortcut(e.name);
             return e;

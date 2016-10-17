@@ -233,9 +233,6 @@ function compile(obj) {
 }
 
 function compileAdblockInfo(data) {
-  if (!data.module.adblocker) {
-    return;
-  }
   var advertisers = data.module.adblocker.advertisersList;
   var firstParty = advertisers['First party'];
   var unknown = advertisers['_Unknown']
@@ -266,9 +263,7 @@ function compileAdblockInfo(data) {
 function draw(data){
   if(data.onboarding) {
     document.getElementById('control-center').classList.add('onboarding');
-  }
-  if (data.module) {
-    data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList);
+
     if(data.module.antitracking.totalCount === 1) {
       window.postMessage(JSON.stringify({
         target: 'cliqz',
@@ -283,7 +278,23 @@ function draw(data){
         }]
       }), '*');
     }
-    compileAdblockInfo(data);
+  }
+
+  if (data.module) {
+    // antitracking default data
+    if (!data.module.antitracking.state) {
+      data.module.antitracking.visible = true
+      data.module.antitracking.state = "critical"
+      data.module.antitracking.totalCount = 0
+    }
+    if (data.module.antitracking.trackersList) {
+      data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    }
+
+
+    if (data.module.adblocker) {
+      compileAdblockInfo(data);
+    }
   }
 
   if(data.debug){

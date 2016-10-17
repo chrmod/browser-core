@@ -20,7 +20,7 @@ function injectTestHelpers(CliqzUtils) {
     function check() {
       if (fn()) {
         clearInterval(interval);
-        CliqzUtils.setTimeout(resolver, 100);
+        resolver()
       }
     }
     var interval = setInterval(check, 250);

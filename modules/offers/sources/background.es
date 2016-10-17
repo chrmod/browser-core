@@ -17,7 +17,6 @@ export default background({
   },
 
   init(settings) {
-
     // check if we need to do something or not
     if (!utils.getPref('grFeatureEnabled', false)) {
       this.initialized = false;

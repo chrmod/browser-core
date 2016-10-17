@@ -65,6 +65,7 @@ TESTS.WebRequestPageTest = function(CliqzUtils) {
         // send actual gif file
         testServer.writeFileResponse(request, imgFile, response);
       } else {
+        response.setHeader('Content-Type', 'application/json');
         response.write('{}');
       }
     };

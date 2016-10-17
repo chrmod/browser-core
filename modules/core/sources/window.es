@@ -1,5 +1,7 @@
 import utils from "core/utils";
+import events from "core/events";
 import ABTests from "core/ab-tests";
+import HistoryManager from "core/history-manager";
 
 export default class {
 
@@ -12,10 +14,19 @@ export default class {
   }
 
   init() {
+    // expose globals
+    this.window.CliqzUtils = utils;
+    this.window.CliqzEvents = events;
+    this.window.CliqzHistoryManager = HistoryManager;
+
+    // Do not wait for AB to load
     ABTests.check();
   }
 
   unload() {
+    delete this.window.CliqzUtils;
+    delete this.window.CliqzEvents;
+    delete this.window.CliqzHistoryManager;
   }
 
   addClassToWindow() {

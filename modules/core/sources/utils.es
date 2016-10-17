@@ -141,7 +141,7 @@ var CliqzUtils = {
   callAction(moduleName, actionName, args) {
     var module = CliqzUtils.System.get(moduleName+"/background");
     var action = module.default.actions[actionName];
-    return action.apply(null, args);
+    return Promise.resolve(action.apply(null, args));
   },
 
   callWindowAction(win, moduleName, actionName, args) {
@@ -680,23 +680,24 @@ var CliqzUtils = {
   },
 
   // IP driven configuration
-  fetchAndStoreConfig: function(callback){
-    CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,
-      function(res){
-        if(res && res.response){
-          try {
-            var config = JSON.parse(res.response);
-            for(var k in config){
-              CliqzUtils.setPref('config_' + k, config[k]);
-            }
-          } catch(e){}
-        }
-
-        callback();
-      },
-      callback, //on error the callback still needs to be called
-      2000
-    );
+  fetchAndStoreConfig(){
+    return new Promise(resolve => {
+      CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,
+        function(res){
+          if(res && res.response){
+            try {
+              var config = JSON.parse(res.response);
+              for(var k in config){
+                CliqzUtils.setPref('config_' + k, config[k]);
+              }
+            } catch(e){}
+          }
+          resolve();
+        },
+        resolve, //on error the callback still needs to be called
+        2000
+      );
+    });
   },
   encodeLocale: function() {
     // send browser language to the back-end
@@ -933,26 +934,33 @@ var CliqzUtils = {
     }
   },
   extensionRestart: function(changes){
-    var enumerator = Services.wm.getEnumerator('navigator:browser');
+    // unload windows
+    const enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
-      var win = enumerator.getNext();
+      const win = enumerator.getNext();
       if(win.CLIQZ && win.CLIQZ.Core){
-        win.CLIQZ.Core.unload(true);
+        CliqzUtils.Extension.app.unloadWindow(win);
       }
     }
+    // unload background
+    CliqzUtils.Extension.app.unload();
 
+    // apply changes
     changes && changes();
 
-    var corePromises = [];
-    enumerator = Services.wm.getEnumerator('navigator:browser');
-    while (enumerator.hasMoreElements()) {
-      var win = enumerator.getNext();
-      if(win.CLIQZ && win.CLIQZ.Core){
-        corePromises.push(win.CLIQZ.Core.init());
+    // load background
+    return CliqzUtils.Extension.app.load().then(() => {
+      // load windows
+      const corePromises = [];
+      const enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+        var win = enumerator.getNext();
+        corePromises.push(
+          CliqzUtils.Extension.app.loadWindow(win)
+        )
       }
-    }
-
-    return Promise.all(corePromises);
+      return CliqzUtils.Promise.all(corePromises);
+    });
   },
   isWindows: function(){
     return CLIQZEnvironment.OS.indexOf("win") === 0;

@@ -2,6 +2,7 @@ import ToolbarButtonManager from 'control-center/ToolbarButtonManager';
 import { utils, events } from 'core/cliqz';
 import CLIQZEnvironment from 'platform/environment';
 import background from 'control-center/background';
+import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 import UITour from 'platform/ui-tour';
 
 function toPx(pixels) {
@@ -27,8 +28,12 @@ export default class {
     this.window = config.window;
     this.settings = config.settings;
     this.channel = config.settings.channel;
+<<<<<<< HEAD
+    this.cssUrl = 'chrome://cliqz/content/control-center/styles/xul.css';
+=======
     this.createFFhelpMenu = this.createFFhelpMenu.bind(this);
     this.helpMenu = config.window.document.getElementById("menu_HelpPopup");
+>>>>>>> upstream/master
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
@@ -52,9 +57,15 @@ export default class {
   }
 
   init() {
+<<<<<<< HEAD
+    if(background.buttonEnabled){
+      // stylesheet for control center button
+      addStylesheet(this.window.document, this.cssUrl);
+=======
     // stylesheet for control center button
     this.window.CLIQZ.Core.addCSS(this.window.document,
       'chrome://cliqz/content/control-center/styles/xul.css');
+>>>>>>> upstream/master
 
     this.addCCbutton();
     CliqzEvents.sub("core.location_change", this.actions.refreshState);
@@ -137,6 +148,7 @@ export default class {
   }
 
   unload() {
+    removeStylesheet(this.window.document, this.cssUrl);
     CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
     this.panel.parentElement.removeChild(this.panel);
     this.button.parentElement.removeChild(this.button);
@@ -187,9 +199,28 @@ export default class {
   }
 
   antitrackingActivator(data){
+    switch(data.status) {
+      case 'active':
+        utils.callAction('core', 'enableModule', ['antitracking']).then(() => {
+          events.pub('antitracking:whitelist:remove', data.hostname);
+        });
+        break;
+      case 'inactive':
+        utils.callAction('core', 'enableModule', ['antitracking']).then(() => {
+          events.pub('antitracking:whitelist:add', data.hostname);
+        });
+        break;
+      case 'critical':
+        events.pub('antitracking:whitelist:remove', data.hostname);
+        events.nextTick(() => {
+          utils.callAction('core', 'disableModule', ['antitracking']);
+        });
+        break;
+      default:
+        break;
+    }
 
-    events.pub("control-center:antitracking-activator", data);
-    var state;
+    let state;
     if(data.type === 'switch') {
       state = data.state === 'active' ? 'on' : 'off';
     } else {

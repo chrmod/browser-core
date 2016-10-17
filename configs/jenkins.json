@@ -14,6 +14,8 @@
   "modules": [
     "static",
     "core",
+    "firefox-specific",
+    "static",
     "autocomplete",
     "geolocation",
     "ui",
@@ -21,7 +23,6 @@
     "freshtab",
     "unblock",
     "theme",
-    "firefox-tests",
     "telemetry-categories",
     "human-web",
     "offers",
@@ -32,11 +33,11 @@
     "hpn",
     "control-center",
     "adblocker",
-    "hm",
     "campaign-manager",
     "message-center",
     "https-everywhere",
-    "moncomp"
+    "moncomp",
+    "firefox-tests"
   ],
   "subprojects": [
     "fresh-tab-frontend"

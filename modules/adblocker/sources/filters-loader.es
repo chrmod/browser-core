@@ -1,5 +1,5 @@
 import ResourceLoader, { Resource, UpdateCallbackHandler } from 'core/resource-loader';
-import CliqzLanguage from 'platform/language';
+import Language from 'core/language';
 import { platformName } from 'core/platform';
 
 // Disk persisting
@@ -10,12 +10,12 @@ const RESOURCES_PATH = ['antitracking', 'adblocking'];
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 const ONE_HOUR = 60 * ONE_MINUTE;
-const ONE_DAY = 24 * ONE_HOUR;
 
 
 // URLs to fetch block lists
 const BASE_URL = 'https://cdn.cliqz.com/adblocking/latest-filters/';
-const LANGS = CliqzLanguage.state();
+
+const LANGS = Language.state();
 const EOL = '\n';
 
 
@@ -60,6 +60,9 @@ class FiltersList {
     return checksum !== this.checksum;
   }
 
+  stop() {
+  }
+
   updateFromChecksum(checksum) {
     this.resource.remoteURL = this.remoteURL();
     this.checksum = checksum;
@@ -101,6 +104,10 @@ export default class extends UpdateCallbackHandler {
 
   remoteURL() {
     return `https://cdn.cliqz.com/adblocking/${platformName}/allowed-lists.json?t=${parseInt(Date.now() / 60 / 60 / 1000, 10)}`;
+  }
+
+  stop() {
+    this.allowedListsLoader.stop();
   }
 
   load() {
