@@ -207,6 +207,7 @@ function registerHelpers(){
        return str.toUpperCase();
     });
 
+    // Make sure the input string is in lower case
     function latinMap(str) {
         const map = [
           { "base":"a", "letters":/[\u00E4]|ae/g },
@@ -240,35 +241,33 @@ function registerHelpers(){
 
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
-        q = latinMap(q);
-
         var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t && t.length>1; }),
+            tokens = latinMap(q.toLowerCase()).split(/\s+|\.+/).filter(function(t){ return t && t.length>1; }),
             lowerText = latinMap(text.toLowerCase()),
             out, high = false;
 
         // Store a list of index(es) where a character has been removed
         var indexes = [],
-            patt = /ae|oe|ue|ss/g;
-
-        var match = null;
+            patt = /ae|oe|ue|ss/g,
+            match = null;
 
         while (match = patt.exec(text.toLowerCase())) {
           indexes.push(match.index);
         }
 
-        var lastRemovedChars = 0;
+        var lastRemovedChars = 0,
+            currentRemovedChars = 0;
 
         tokens.forEach(function(token){
             var poz = lowerText.indexOf(token);
             while(poz !== -1){
+                //Number of characters have been removed before this token
+                lastRemovedChars = countRemovedChars(indexes, 0, poz-1);
                 //Number of characters have been remove in this token
-                var nRemovedChars = countRemovedChars(indexes, poz, poz + token.length);
-                for(var i=poz; i<poz+token.length+nRemovedChars+lastRemovedChars; i++)
+                currentRemovedChars = countRemovedChars(indexes, poz, poz + token.length);
+                for(var i=poz+lastRemovedChars; i<poz+token.length+currentRemovedChars+lastRemovedChars; i++)
                     map[i] = true;
                 poz = lowerText.indexOf(token, poz+1);
-                //Number of characters have been removed before this token
-                lastRemovedChars += nRemovedChars;
             }
         });
         out=[];
