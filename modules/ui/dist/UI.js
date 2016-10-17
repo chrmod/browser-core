@@ -682,7 +682,10 @@ var UI = {
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
     getElementByAttr: getElementByAttr,
-    enhanceResults: enhanceResults
+    enhanceResults: enhanceResults,
+    logUIEvent: logUIEvent,
+    getResultSelection: getResultSelection,
+    getResultKind: getResultKind
 };
 
 function navigateToEZinput(element){

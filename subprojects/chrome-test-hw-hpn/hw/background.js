@@ -97,7 +97,6 @@ chrome.runtime.onConnect.addListener(function(port) {
   // the tab as a result of the user pressing the browser action.
   port.onMessage.addListener(function(info) {
     if(info.type == "dom"){
-      console.log("current URL??", tab.url, tab);
       CliqzHumanWeb.tempCurrentURL = tab.url;
 
       aProgress["isLoadingDocument"] = tab.status;
