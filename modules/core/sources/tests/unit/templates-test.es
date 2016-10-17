@@ -53,7 +53,9 @@ export default describeModule("core/templates",
           { text: "Suddeutsche.de", q: "sud", expected: "<em>Sud</em>deutsche.de" },
           { text: "Sueddeutsche.de", q: "süd", expected: "<em>Sued</em>deutsche.de" },
           { text: "Sueddeutsche.de", q: "sud", expected: "<em>Sued</em>deutsche.de" },
-          { text: "sueddeutsche.de", q: "sueddeutsche.de", expected: "<em>sueddeutsche.de</em>" }
+          { text: "sueddeutsche.de", q: "sueddeutsche.de", expected: "<em>sueddeutsche</em>.<em>de</em>" },
+          { text: "fuersie.de", q: "FÜRSIE", expected: "<em>fuersie</em>.de" },
+          { text: "fuersie.de", q: "F R SIE de", expected: "fuer<em>sie</em>.<em>de</em>" }
         ];
 
         let emphasis;
