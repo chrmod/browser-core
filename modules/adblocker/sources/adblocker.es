@@ -271,11 +271,19 @@ class AdBlocker {
     // Process source url
     const sourceURL = httpContext.getSourceURL().toLowerCase();
     const sourceParts = URLInfo.get(sourceURL);
-    let sourceHostname = sourceParts.hostname;
-    if (sourceHostname.startsWith('www.')) {
-      sourceHostname = sourceHostname.substring(4);
+
+    // It can happen when source is not a valid URL, then we simply
+    // leave `sourceHostname` and `sourceGD` as undefined to allow
+    // some filter matching on the request URL itself.
+    if (sourceHostname !== undefined) {
+      let sourceHostname = sourceParts.hostname;
+      if (sourceHostname.startsWith('www.')) {
+        sourceHostname = sourceHostname.substring(4);
+      }
+      const sourceGD = getGeneralDomain(sourceHostname);
+    } else {
+      const sourceGD = undefined;
     }
-    const sourceGD = getGeneralDomain(sourceHostname);
 
     // Wrap informations needed to match the request
     const request = {
