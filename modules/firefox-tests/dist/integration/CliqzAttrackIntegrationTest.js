@@ -450,7 +450,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
     // Test each of the page_specs in various different configurations.
     Object.keys(page_specs).forEach(function (testpage) {
-      describe(testpage, function() {
+      // replaced by functional test, but still useful to have these cases
+      // for manual testing
+      describe.skip(testpage, function() {
 
         context('cookie tests', function() {
 
