@@ -28,12 +28,9 @@ export default class {
     this.window = config.window;
     this.settings = config.settings;
     this.channel = config.settings.channel;
-<<<<<<< HEAD
     this.cssUrl = 'chrome://cliqz/content/control-center/styles/xul.css';
-=======
     this.createFFhelpMenu = this.createFFhelpMenu.bind(this);
     this.helpMenu = config.window.document.getElementById("menu_HelpPopup");
->>>>>>> upstream/master
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
@@ -57,15 +54,8 @@ export default class {
   }
 
   init() {
-<<<<<<< HEAD
-    if(background.buttonEnabled){
-      // stylesheet for control center button
-      addStylesheet(this.window.document, this.cssUrl);
-=======
     // stylesheet for control center button
-    this.window.CLIQZ.Core.addCSS(this.window.document,
-      'chrome://cliqz/content/control-center/styles/xul.css');
->>>>>>> upstream/master
+    addStylesheet(this.window.document, this.cssUrl);
 
     this.addCCbutton();
     CliqzEvents.sub("core.location_change", this.actions.refreshState);

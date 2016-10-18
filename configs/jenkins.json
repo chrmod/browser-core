@@ -12,7 +12,6 @@
     "showNewBrandAlert": true
   },
   "modules": [
-    "static",
     "core",
     "firefox-specific",
     "static",
