@@ -227,13 +227,6 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
                 attrack.tokenDomainCountThreshold = 0;
               });
 
-              // it('pref check', function() {
-              //   chai.expect(attrack.isQSEnabled()).to.be.true;
-              //   chai.expect(attrack.getDefaultRule()).to.equal('placeholder');
-              //   chai.expect(attrack.qs_whitelist.isTrackerDomain(md5('localhost').substring(0, 16))).to.be.false;
-              //   chai.expect(attrack.qs_whitelist.isTrackerDomain(md5('127.0.0.1').substring(0, 16))).to.be.true;
-              // });
-
               it('blocks long tokens on tracker domain', function() {
                 var responses = simulatePageLoad(reqs);
                 responses.onBeforeRequest.forEach(expectThirdPartyBlock);
@@ -296,31 +289,8 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
               });
             });
           });
-
         });
-
       });
-      // it(testPage, function() {
-      //           var responses = simulatePageLoad(reqs);
-
-      //   responses.onBeforeRequest.forEach(function(resp) {
-      //     if (isThirdParty(resp.url)) {
-      //       chai.expect(resp.response).to.be.undefined;
-      //     } else if (resp.url.indexOf(FIRST_PARTY_HOST) > -1) {
-      //       chai.expect(resp.response).to.be.undefined;
-      //     }
-      //   });
-      //   responses.onBeforeSendHeaders.forEach(function(resp) {
-      //     if (isThirdParty(resp.url)) {
-      //       chai.expect(resp.response).to.not.be.undefined;
-      //       chai.expect(resp.response).to.have.property('requestHeaders');
-      //     } else if (resp.url.indexOf(FIRST_PARTY_HOST) > -1) {
-      //       chai.expect(resp.response).to.be.undefined;
-      //     }
-      //   });
-      // });
-
     });
-
   });
 };
