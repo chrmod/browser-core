@@ -204,7 +204,7 @@ var CliqzHumanWeb = {
             var pos_hash_char = aURI.indexOf('#');
 
             if (pos_hash_char > -1) {
-                if (CliqzHumanWeb.checkIfSearchURL(aURI)!=true && (aURI.length - pos_hash_char) >= 10) {
+                if (CliqzHumanWeb.checkSearchURL(aURI) == -1 && (aURI.length - pos_hash_char) >= 10) {
                     _log("Dropped because of # in url: " + decodeURIComponent(aURI));
                     return true;
                 }
@@ -569,19 +569,6 @@ var CliqzHumanWeb = {
         }
         catch(ee){};
         return res;
-    },
-    checkIfSearchURL:function(activeURL) {
-        var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
-        var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
-        var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
-        var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
-        if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)){
-            return true;
-        }
-        else{
-            return false;
-        }
     },
     userSearchTransition: function(rq){
         // now let's manage the userTransitions.search

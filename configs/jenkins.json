@@ -11,10 +11,14 @@
     "antitrackingButton": true,
     "showNewBrandAlert": true
   },
+  "default_prefs" : {
+    "modules.context-search.enabled": false
+  },
   "modules": [
     "core",
     "firefox-specific",
     "static",
+    "context-search",
     "autocomplete",
     "geolocation",
     "ui",

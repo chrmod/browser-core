@@ -34,7 +34,7 @@
                {{prefix_answer}} <span id='calc-answer'>{{answer}}</span>
            </div>
            <div class="expression">
-               {{expression}}
+               {{{expression}}}
 
                {{! Copy Message }}
                {{#if support_copy_ans}}

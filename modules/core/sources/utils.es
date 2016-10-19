@@ -640,6 +640,13 @@ var CliqzUtils = {
   },
 
   getResultsProviderQueryString: function(q) {
+    let numberResults = 5;
+    if (CliqzUtils.getPref('languageDedup', false)) {
+      numberResults = 7;
+    }
+    if (CliqzUtils.getPref('modules.context-search.enabled', false)) {
+      numberResults = 10;
+    }
     return encodeURIComponent(q) +
            CliqzUtils.encodeSessionParams() +
            CliqzLanguage.stateToQueryString() +
@@ -648,11 +655,18 @@ var CliqzUtils = {
            CliqzUtils.encodeCountry() +
            CliqzUtils.encodeFilter() +
            CliqzUtils.encodeLocation(true) + // @TODO: remove true
-           CliqzUtils.encodeResultCount(7) +
+           CliqzUtils.encodeResultCount(numberResults) +
            CliqzUtils.disableWikiDedup();
   },
 
   getRichHeaderQueryString: function(q, loc) {
+    let numberResults = 5;
+    if (CliqzUtils.getPref('languageDedup', false)) {
+      numberResults = 7;
+    }
+    if (CliqzUtils.getPref('modules.context-search.enabled', false)) {
+      numberResults = 10;
+    }
     return "&q=" + encodeURIComponent(q) + // @TODO: should start with &q=
             CliqzUtils.encodeSessionParams() +
             CliqzLanguage.stateToQueryString() +
@@ -661,7 +675,7 @@ var CliqzUtils = {
             CliqzUtils.encodeCountry() +
             CliqzUtils.encodeFilter() +
             CliqzUtils.encodeLocation(true, loc && loc.latitude, loc && loc.longitude) +
-            CliqzUtils.encodeResultCount(7) +
+            CliqzUtils.encodeResultCount(numberResults) +
             CliqzUtils.disableWikiDedup();
   },
 
@@ -684,7 +698,6 @@ var CliqzUtils = {
         }
         CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
         CliqzUtils._queryLastLength = q.length;
-
         var url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
         CliqzUtils.httpGet(url, function (res) {
           var resp = JSON.parse(res.response || '{}')
@@ -746,10 +759,8 @@ var CliqzUtils = {
     return '&adult='+state;
   },
   encodeResultCount: function(count) {
-    var doDedup = CliqzUtils.getPref("languageDedup", false);
     count = count || 5;
-    if (doDedup) return '&count=' + count;
-    else return ""
+    return '&count=' + count;
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];

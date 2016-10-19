@@ -314,7 +314,7 @@ export default class Search {
 
     const beforeResults = Promise.all(
       utils.RERANKERS.map(reranker => {
-        const promise = reranker.beforeResults || Promise.resolve.bind(Promise);
+        const promise = reranker.beforeResults ? reranker.beforeResults.bind(reranker) : Promise.resolve.bind(Promise);
         return timeout(
           promise({query: searchString}),
           this.rerankerTimeouts.before
@@ -324,7 +324,7 @@ export default class Search {
 
     const duringResults = beforeResults.then(resultsArray => {
       const duringResultsPromises = utils.RERANKERS.map((reranker, idx) => {
-        const promise = reranker.duringResults || Promise.resolve.bind(Promise);
+        const promise = reranker.duringResults ? reranker.duringResults.bind(reranker) : Promise.resolve.bind(Promise);
         return timeout(
           promise(resultsArray[idx]),
           this.rerankerTimeouts.during

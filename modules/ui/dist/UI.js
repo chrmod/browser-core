@@ -1750,7 +1750,10 @@ function onEnter(ev, item){
       current_position: -1
     });
 
-    CliqzEvents.pub("alternative_search", {});
+    CliqzEvents.pub("alternative_search", {
+        cleanInput: cleanInput,
+        lastAuto: lastAuto
+    });
 
     CLIQZ.Core.triggerLastQ = true;
 
@@ -1776,7 +1779,10 @@ function onEnter(ev, item){
     }, urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
 
-    CliqzEvents.pub("alternative_search", {});
+    CliqzEvents.pub("alternative_search", {
+        cleanInput: cleanInput,
+        lastAuto: lastAuto
+    });
 
   // Result
   } else {

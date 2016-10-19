@@ -27,7 +27,7 @@ var BROWSER_LANG = utils.getLocalizedString('locale_lang_code');
 function getEqualOperator(val, localizedStr){
   var valStr = val.toString().replace(",","").replace(".",""),
     normLocalizedStr = localizedStr.replace(",","").replace(".","");
-  return valStr === normLocalizedStr ? "=" : "\u2248";
+  return valStr === normLocalizedStr ? "=" : "&#x2248;";
 }
 
 var CliqzCalculator = {
