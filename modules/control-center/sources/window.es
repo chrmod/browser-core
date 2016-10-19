@@ -4,6 +4,7 @@ import CLIQZEnvironment from 'platform/environment';
 import background from 'control-center/background';
 import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 import UITour from 'platform/ui-tour';
+import Panel from '../core/ui/panel';
 
 function toPx(pixels) {
   return pixels.toString() + 'px';
@@ -51,9 +52,18 @@ export default class {
       "amo-cliqz-tab": this.amoCliqzTab.bind(this),
       "complementary-search": this.complementarySearch.bind(this)
     }
+
+    this.panel = new Panel(
+      this.window,
+      'chrome://cliqz/content/control-center/index.html',
+      PANEL_ID,
+      false,
+      this.actions
+    );
   }
 
   init() {
+    this.panel.attach();
     // stylesheet for control center button
     addStylesheet(this.window.document, this.cssUrl);
 
@@ -138,9 +148,10 @@ export default class {
   }
 
   unload() {
+    this.panel.attach();
     removeStylesheet(this.window.document, this.cssUrl);
     CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
-    this.panel.parentElement.removeChild(this.panel);
+
     this.button.parentElement.removeChild(this.button);
 
     //remove custom items from the Help Menu
@@ -346,13 +357,12 @@ export default class {
         try {
           var murl = utils.getPref('moncomp_endpoint', '') + this.window.gBrowser.selectedBrowser.currentURI.spec;
           utils.openTabInWindow(this.window, murl);
-          this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]").hidePopup();
+          this.panel.hide();
         } catch(err) {}
         break;
       default:
-        var tab = utils.openLink(this.window, data.url, true),
-            panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
-        if(data.closePopup == true) panel.hidePopup();
+        var tab = utils.openLink(this.window, data.url, true);
+        if(data.closePopup == true) panel.hide();
         this.window.gBrowser.selectedTab = tab;
     }
 
@@ -464,31 +474,12 @@ export default class {
     }
   }
 
-  attachMessageHandlers(iframe){
-
-    this.iframe = iframe;
-    this.iframe.contentWindow.addEventListener('message', this.decodeMessagesFromPopup.bind(this))
-  }
-
-  decodeMessagesFromPopup(ev){
-    var data = JSON.parse(ev.data);
-    if(data.target == 'cliqz-control-center' &&
-       data.origin == 'iframe'){
-      this.handleMessagesFromPopup(data.message);
-    }
-  }
-
-  handleMessagesFromPopup(message) {
-
-    this.actions[message.action](message.data);
-  }
-
   sendMessageToPopup(message) {
-    this.iframe.contentWindow.postMessage(JSON.stringify({
+    this.panel.sendMessage({
       target: 'cliqz-control-center',
       origin: 'window',
       message: message
-    }), '*')
+    });
   }
 
   addCCbutton() {
@@ -513,60 +504,19 @@ export default class {
     button.appendChild(div);
     div.textContent = BTN_LABEL;
 
-    var panel = doc.createElement('panelview');
-    panel.setAttribute('id', PANEL_ID);
-    panel.setAttribute('flex', '1');
-    panel.setAttribute('panelopen', "true")
-    panel.setAttribute("animate", "true")
-    panel.setAttribute("type", "arrow");
-
-
-    var vbox = doc.createElement("vbox");
-    vbox.classList.add("panel-subview-body");
-
-    panel.appendChild(vbox);
-
-    var iframe;
-    function onPopupReady() {
-      var body = iframe.contentDocument.body;
-      var clientHeight = body.scrollHeight;
-      var clientWidth = body.scrollWidth;
-
-      iframe.style.height = toPx(clientHeight);
-      iframe.style.width = toPx(clientWidth);
-
-      this.attachMessageHandlers(iframe);
-    }
-
-    function createIframe() {
-      iframe = doc.createElement('iframe');
-      iframe.setAttribute('type', 'content');
-      iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html');
-    }
-
-    panel.addEventListener("ViewShowing", () => {
-      createIframe();
-      iframe.addEventListener('load', onPopupReady.bind(this), true);
-
-      vbox.appendChild(iframe);
-
+      //this.attachMessageHandlers(iframe);
+    /*
       utils.telemetry({
         type: TELEMETRY_TYPE,
         target: 'icon',
         action: 'click',
       });
-    });
-
-    panel.addEventListener("ViewHiding", function () {
-      vbox.removeChild(iframe);
-    });
-
-    doc.getElementById('PanelUI-multiView').appendChild(panel);
+      */
 
     UITour.targets.set("cliqz", { query: '#cliqz-cc-btn', widgetName: 'cliqz-cc-btn', allowAdd: true });
     var promise = UITour.getTarget(this.window, "cliqz");
     var win = this.window
-    promise.then(function(target) {
+    promise.then(target => {
       button.addEventListener('command', () => {
 
         if (this.isOnboarding()) {
@@ -575,25 +525,20 @@ export default class {
           iframe.addEventListener('load', onPopupReady.bind(this), true);
           doc.getElementById("UITourTooltipDescription").appendChild(iframe)
         } else {
-          win.PanelUI.showSubView(
-            PANEL_ID,
-            button,
-            win.CustomizableUI.AREA_NAVBAR
-          );
+          this.panel.open(button);
         }
-      }.bind(this));
-    }.bind(this));
+      });
+    });
 
     ToolbarButtonManager.restorePosition(doc, button);
 
     this.badge = div;
-    this.panel = panel;
     this.button = button;
   }
 
   resizePopup({ width, height }) {
-    this.iframe.style.width = toPx(width);
-    this.iframe.style.height = toPx(height);
+    this.panel.iframe.style.width = toPx(width);
+    this.panel.iframe.style.height = toPx(height);
   }
 
   sendTelemetry(data) {
@@ -613,7 +558,6 @@ export default class {
     events.pub('autocomplete:enable-search',{
       urlbar: this.window.document.getElementById('urlbar')
     });
-    let panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
-    panel.hidePopup();
+    this.panel.hidePopup();
   }
 }

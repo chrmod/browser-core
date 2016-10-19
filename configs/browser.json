@@ -39,6 +39,7 @@
     "https-everywhere",
     "onboarding-v2",
     "telemetry",
+    "new-tab-button",
     "moncomp"
   ],
   "subprojects": [
