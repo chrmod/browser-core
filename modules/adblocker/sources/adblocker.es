@@ -323,7 +323,7 @@ const CliqzADB = {
   adbMem: {},
   adbStats: new AdbStats(),
   mutationLogger: null,
-  adbDebug: true,
+  adbDebug: false,
   MIN_BROWSER_VERSION: 35,
   timers: [],
 
