@@ -10,7 +10,10 @@ port.onMessage.addListener(function(response) {
     cb && cb(response.data)
 });
 
+
 const CLIQZEnvironment = {
+  RESULTS_PROVIDER: 'https://newbeta.cliqz.com/api/v2/results?nrh=1&q=',
+  RICH_HEADER: 'https://newbeta.cliqz.com/api/v2/rich-header?path=/v2/map',
   LOG: 'https://logging.cliqz.com',
   BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'modules/static/templates/',
@@ -23,21 +26,13 @@ const CLIQZEnvironment = {
     'spellcheck': 1,
     'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
     'pattern-hm': 1,
-    'entity-portal': 3, 'topsites': 3,
-    'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-    'entity-search-1': 2, 'flightStatusEZ-2': 2, 'weatherEZ': 2, 'commicEZ': 3,
+    'topsites': 3,
+    'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
+    'flightStatusEZ-2': 2, 'weatherEZ': 2,
     'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
     'ligaEZ1Game': 2,
-    'ligaEZUpcomingGames': 3,
     'ligaEZTable': 3,
-    'local-movie-sc':3,
-    'local-cinema-sc':3,
-    'local-data-sc': 2,
-    'recipe': 3,
     'rd-h3-w-rating': 1,
-    'ez-generic-2': 3,
-    'cpgame_movie': 3,
-    'delivery-tracking': 2,
     'vod': 3,
     'liveTicker': 3
   },
@@ -282,19 +277,23 @@ const CLIQZEnvironment = {
     });
     const defaultName = CE.getDefaultSearchEngine().name;
 
-    return CE.Result.cliqzExtra({
-      data: {
-        template: 'noResult',
-        text_line1: CE.getLocalizedString('noResultTitle'),
-        // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
-        // we should take care of CE specific case differently on alternative platforms
-        text_line2: CE.getLocalizedString('noResultMessage', defaultName),
-        search_engines: engines,
-        //use local image in case of no internet connection
-        cliqz_logo: CE.SKIN_PATH + "img/cliqz.svg"
-      },
-      subType: JSON.stringify({empty:true})
-    });
+    return CE.Result.cliqz(
+            {
+                template:'noResult',
+                snippet:
+                {
+                    text_line1: CE.getLocalizedString('noResultTitle'),
+                    // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
+                    // we should take care of this specific case differently on alternative platforms
+                    text_line2: CE.getLocalizedString('noResultMessage', defaultName),
+                    "search_engines": engines,
+                    //use local image in case of no internet connection
+                    "cliqz_logo": CE.SKIN_PATH + "img/cliqz.svg"
+                },
+                type: 'rh',
+                subType: {empty:true}
+            }
+        )
   },
   setDefaultSearchEngine: function(engine) {
     const storage = new Storage();

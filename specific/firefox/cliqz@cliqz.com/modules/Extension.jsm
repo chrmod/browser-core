@@ -50,6 +50,7 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/runloop.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqzmodules/content/extern/system-polyfill.js", this);
       Extension.System = this.System;
+      Extension.System.normalizeSync = function(modName) {return modName;};
       Extension.System.set('system', { default: Extension.System });
       Extension.System.set('promise', { default: this.Promise });
 

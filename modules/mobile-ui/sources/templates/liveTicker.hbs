@@ -4,16 +4,16 @@
         {{ text }}
     </div>
 {{/with}}
-    
+
 <section class="primary">
     <h1 extra="title" class="card__title">{{ data.title }}</h1>
     <div extra="url" class="card__meta">
-        <div>{{url}}</div>
+        <div>{{urlDetails.friendly_url}}</div>
     </div>
 </section>
 <section class="secondary">
     <div class="card__description bundesliga">
-        {{#each data.matches }}
+        {{#each data.extra.matches }}
             <h2>{{ data.spielTag }} {{ this.date }}</h2>
             <table cellspacing="0" cellpadding="0">
                 {{#each this.matches }}

@@ -2,89 +2,6 @@ var expect = chai.expect;
 
 var contentWindow, fakeServer;
 
-function cliqzResponse(query, results, extra) {
-  var results = JSON.stringify({
-    "cached": false,
-    "choice": "type1",
-    "completions": null,
-    "country": "de",
-    "duration": 52,
-    "extra": {
-      "durationTotal": 9,
-      "vertical_name": "extra",
-      "results": extra
-    },
-    "navigational": false,
-    "q": query,
-    "result": results
-  });
-
-  fakeServer.respondWith(
-    "GET",
-    new RegExp("^https:\/\/newbeta.cliqz.com\/api\/v1\/results\\?q="+encodeURIComponent(query)),
-    [ 200, { "Content-Type": "application/json" }, results ]
-  );
-}
-
-
-function newsResponse(articles) {
-  var response = JSON.stringify({
-    "results": [
-      {
-        "q": "",
-        "news_version": 1455885880,
-        "subType": "{\"class\": \"FreshTabNewsCache\", \"ez\": \"deprecated\"}",
-        "trigger_urls": [
-
-        ],
-        "articles": [
-          {
-            "domain": "www.focus.de",
-            "is_global": false,
-            "description": "",
-            "title": "USA bombardieren IS-St\u00fctzpunkt in Libyen",
-            "url": "http:\/\/www.focus.de\/politik\/ausland\/kampf-gegen-terrormiliz-medienbericht-usa-bombardieren-is-stuetzpunkt-in-libyen_id_5299559.html",
-            "short_title": "USA bombardieren IS-St\u00fctzpunkt in Libyen"
-          }
-        ]
-      }
-    ]
-  });
-
-  fakeServer.respondWith(
-    "GET",
-    new RegExp(".*rich-header.*"),
-    [ 200, { "Content-Type": "application/json" }, response ]
-  );
-}
-
-function $(selector) {
-	return contentWindow.document.querySelectorAll(selector)
-}
-
-function injectSinon(win) {
-  var resolver,
-      rejecter,
-      promise = new Promise(function (resolve, reject) {
-        resolver = resolve;
-        rejecter = reject;
-      });
-
-  var sinonScript = win.document.createElement("script");
-  sinonScript.src = "/bower_components/sinonjs/sinon.js";
-  sinonScript.onload = function () {
-    if (win.sinon) {
-      window.sinon = win.sinon;
-      resolver();
-    } else {
-      rejecter("sinon not loaded");
-    }
-  };
-  win.document.body.appendChild(sinonScript);
-
-  return promise;
-}
-
 describe('Search View', function() {
   let timeout = 15000;
   var testBox;
@@ -100,10 +17,10 @@ describe('Search View', function() {
     function waitForWindow(win) {
       return new Promise(function (resolve, reject) {
         const rejectTimeout = setTimeout(reject.bind(null, "did not initialize properly"), timeout);
-        win.addEventListener('newsLoadingDone', function () {
+				win.osAPI.isReady = function () {
           clearTimeout(rejectTimeout);
           resolve();
-        });
+        };
       })
     }
 
@@ -122,7 +39,7 @@ describe('Search View', function() {
         autoRespond: true,
         respondImmediately: true
       });
-      newsResponse([]);
+
       contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return !url.startsWith('https://newbeta.cliqz.com/api/v1/') });
       contentWindow.sinon.FakeXMLHttpRequest.useFilters = true;
       contentWindow.sinonLoaded = true;
@@ -146,37 +63,42 @@ describe('Search View', function() {
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
       extraResult = {
-        "q": "kino cadillac",
-        "ts": 1455892138,
-        "data": {
-          "__subType__": {
-            "class": "EntityLocal",
-            "id": "3087855600870963194",
-            "name": "cadillac.movieplace.de"
-          },
-          "address": "Rosenkavalierpl. 12, 81925 München, Germany",
-          "desc": "Cadillac Veranda Kino, München, Aktuelles Kinoprogramm, Kino, Film- und Kino-Infos, Online-Tickets, News, Events und vieles mehr...",
-          "description": "Cadillac Veranda Kino, München, Aktuelles Kinoprogramm, Kino, Film- und Kino-Infos, Online-Tickets, News, Events und vieles mehr...",
-          "friendly_url": "cadillac.movieplace.de",
-          "lat": 48.1517753,
-          "lon": 11.6197005,
-          "map_img": "http://maps.google.com/maps/api/staticmap?size=124x124\u0026zoom=16\u0026center=48.1517753,11.6197005\u0026format=png\u0026markers=size:mid|color:red|label:C|48.1517753,11.6197005",
-          "mu": "https://www.google.de/maps/place/cadillac+veranda/data=!4m2!3m1!1s0x0:0xec7891cbdf1a3b49?sa=X\u0026ved=0CFMQrwswAWoVChMI492LqdXuxwIVAtMUCh2-rwzi",
-          "opening_hours": [],
-          "phonenumber": "089 912000",
-          "rating": 4.6,
-          "superTemplate": "local-data-sc",
-          "t": "Cadillac \u0026 Veranda Kino",
-          "template": "generic",
-          "timestamp": 1.443973887175803e+09,
-          "title": "Kino in München: Cadillac Veranda Kino mit Kinoprogramm, Infos rund ums Kino und die Filme, Filmtrailern und vielem mehr.",
-          "u": "cadillac.movieplace.de"
-        },
         "url": "http://cadillac.movieplace.de/",
-        "subType": "{\"class\": \"EntityLocal\", \"ez\": \"deprecated\"}"
+        "trigger_method": "url",
+        "snippet": {
+          "friendlyUrl": "cadillac.movieplace.de",
+          "description": "Cadillac Veranda Kino, M\u00fcnchen, Aktuelles Kinoprogramm, Kino, Film- und Kino-Infos, Online-Tickets, News, Events und vieles mehr...",
+          "title": "Kino in M\u00fcnchen: Cadillac Veranda Kino mit Kinoprogramm, Infos rund ums Kino und die Filme, Filmtrailern und vielem mehr.",
+          "extra": {
+            "rating": 4.7,
+            "map_img": "http://maps.google.com/maps/api/staticmap?size=124x124&zoom=16&center=48.1517753,11.6197005&format=png&markers=size:mid|color:red|label:C|48.1517753,11.6197005",
+            "opening_hours": [
+
+            ],
+            "address": "Rosenkavalierpl. 12, 81925 M\u00fcnchen, Germany",
+            "lon": 11.6197005,
+            "superTemplate": "local-data-sc",
+            "mu": "https://www.google.de/maps/place/kino+aschheim+m%C3%BCnchen/@48.1517753,11.6197005,15z/data=!4m2!3m1!1s0x0:0xec7891cbdf1a3b49?sa=X&ved=0COsBEK8LMAZqFQoTCOu365-88cYCFcRXFAod7DsATg",
+            "u": "cadillac.movieplace.de",
+            "t": "Cadillac & Veranda Kino",
+            "timestamp": 1437816516.774708,
+            "lat": 48.1517753,
+            "phonenumber": "089 912000"
+          }
+        },
+        "subType": {
+          "id": "3087855600870963194",
+          "name": "cadillac.movieplace.de",
+          "class": "EntityLocal"
+        },
+        "trigger": [
+        ],
+        "template": "generic",
+        "type": "rh"
       };
 
-      cliqzResponse(query, [], [ extraResult ]);
+
+      cliqzResponse(query, [ extraResult ]);
 
       contentWindow.jsAPI.search(query, true, 48.151753799999994, 11.620054999999999);
     });
@@ -191,7 +113,7 @@ describe('Search View', function() {
 
       var addressText = address.lastChild.wholeText;
       expect(addressText).to.be.ok;
-      expect(addressText.trim()).to.equal(extraResult.data.address);
+      expect(addressText.trim()).to.equal(extraResult.snippet.extra.address);
     });
 
     it("shows local data image", function () {
@@ -210,71 +132,51 @@ describe('Search View', function() {
 
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
-      cliqzResponse(query, [], [
+      cliqzResponse(query, [
         {
-          "q": "amazon",
-          "ts": 1456133009,
-          "data": {
-            "__subType__": {
-              "class": "EntityGeneric",
-              "id": "3513337026156341491",
-              "name": "https://www.amazon.de/"
-            },
-            "actions": [
-              {
-                  "color": "",
-                  "title": "Mein Konto",
-                  "url": "http://www.amazon.de/mein-konto"
-              },
-              {
-                  "color": "",
-                  "title": "Einkaufswagen",
-                  "url": "http://www.amazon.de/gp/cart/view.html/ref=nav_cart"
-              },
-              {
-                  "color": "",
-                  "title": "Meine Bestellungen",
-                  "url": "https://www.amazon.de/gp/css/order-history"
-              },
-              {
-                  "color": "",
-                  "title": "Wunschzettel",
-                  "url": "http://www.amazon.de/gp/registry/wishlist"
-              }
-            ],
-            "description": "Entdecken, shoppen und einkaufen bei Amazon.de: Günstige Preise für Elektronik \u0026 Foto, Filme, Musik, Bücher, Games, Spielzeug, Sportartikel, Drogerie \u0026 mehr bei Amazon.de",
-            "friendly_url": "amazon.de",
-            "icon": "http://cdn.cliqz.com/extension/EZ/generic/EZ-shopping.svg",
-            "links": [
-              {
-                "icon": "http://cdn.cliqz.com/extension/EZ/generic/angebote.svg",
-                "title": "Sonderangebote",
-                "url": "http://www.amazon.de/gp/angebote/ref=nav_cs_top_nav_gb27"
-              },
-              {
-                "icon": "http://cdn.cliqz.com/extension/EZ/generic/clips.svg",
-                "title": "Prime Instant Video",
-                "url": "http://www.amazon.de/Prime-Instant-Video/b/ref=nav_shopall_aiv_piv?ie=UTF8\u0026node=3279204031"
-              },
-              {
-                "icon": "http://cdn.cliqz.com/extension/EZ/generic/music.svg",
-                "title": "Musik-Downloads",
-                "url": "http://www.amazon.de/MP3-Musik-Downloads/b/ref=nav_shopall_mp3_str?ie=UTF8\u0026node=77195031"
-              },
-              {
-                "icon": "http://cdn.cliqz.com/extension/EZ/generic/disc.svg",
-                "title": "DVD \u0026 Blu-ray",
-                "url": "http://www.amazon.de/dvd-blu-ray-filme-3D-vhs-video/b/ref=nav_shopall_dvd_blu?ie=UTF8\u0026node=284266"
-              }
-            ],
-            "name": "Amazon",
-            "template": "entity-generic"
-          },
           "url": "https://www.amazon.de/",
-          "subType": "{\"class\": \"EntityGeneric\", \"ez\": \"deprecated\"}",
-          "trigger_urls": [
-              "amazon.de"
-          ]
+          "trigger_method": "url",
+          "snippet": {
+            "friendlyUrl": "amazon.de",
+            "description": "Entdecken, shoppen und einkaufen bei Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug, Sportartikel, Drogerie & mehr bei Amazon.de",
+            "title": "Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug & mehr",
+            "extra": {
+              "og": {
+                "description": "Entdecken, shoppen und einkaufen bei Amazon.de: G\u00fcnstige Preise f\u00fcr Elektronik & Foto, Filme, Musik, B\u00fccher, Games, Spielzeug, Sportartikel, Drogerie & mehr bei Amazon.de"
+              },
+              "alternatives": [
+
+              ],
+              "language": {
+                "de": 1.0
+              }
+            },
+            "deepResults": [
+              {
+                "type": "buttons",
+                "links": [
+                  {
+                    "url": "https://partnernet.amazon.de",
+                    "title": "Partnerprogramm"
+                  },
+                  {
+                    "url": "https://payments.amazon.de?ld=AWREDEAPAFooter",
+                    "title": "Login und Bezahlen mit Amazon"
+                  }
+                ]
+              }
+            ]
+          },
+          "subType": {
+            "id": "-1884090464472778153",
+            "name": "amazon.de",
+            "class": "EntityGeneric"
+          },
+          "trigger": [
+            "amazon.de"
+          ],
+          "template": "generic",
+          "type": "rh"
         }
       ]);
 
@@ -296,23 +198,23 @@ describe('Search View', function() {
 
       cliqzResponse(query, [
         {
-          "q": "titten",
-          "url": "http://www.einfachporno.com/pornofilme/grosse-titten",
-          "score": 334.36624,
-          "source": "bm",
           "snippet": {
-            "adult": true,
-            "alternatives": [
-              "http://www.einfachporno.com/pornofilme/grosse-titten/"
-            ],
-            "desc": "Grosse Titten :: Kostenlose porno von Grosse Titten. Auf Einfachporno finden Sie alle Pornofilme von Grosse Titten die Sie sich können vorstellen. Nur hier Qualitätsporno.",
-            "language": {
-              "nl": 0.9594114735588574
-            },
-            "title": "Grosse Titten"
-          }
+            "description": "Grosse Titten :: Kostenlose porno von Grosse Titten. Auf Einfachporno finden Sie alle Pornofilme von Grosse Titten die Sie sich k\u00f6nnen vorstellen. Nur hier Qualit\u00e4tsporno.",
+            "title": "Grosse Titten",
+            "extra": {
+              "alternatives": [
+                "http://www.einfachporno.xxx/pornofilme/grosse-titten/"
+              ],
+              "adult": true,
+              "language": {
+                "de": 1.0
+              }
+            }
+          },
+          "url": "http://www.einfachporno.com/pornofilme/grosse-titten",
+          "type": "bm"
         }
-      ], []);
+      ]);
 
       contentWindow.jsAPI.search(query);
     });
@@ -330,88 +232,92 @@ describe('Search View', function() {
 
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
-      cliqzResponse(query, [], [
+      cliqzResponse(query, [
         {
-          "q": "wetter mun",
-          "ts": 1456133409,
-          "data": {
-            "__subType__": {
-              "class": "EntityWeather",
-              "id": "5138280142441694865",
-              "name": "weather EZ"
-            },
-            "alert": {
-              "alert-color": "#ffc802",
-              "des": "Wetterwarnung: Wind",
-              "icon_url": "http://cdn.cliqz.com/extension/EZ/weather-new2/warning_2.svg",
-              "time": "aktiv seit 22.02.16, 11:00 Uhr"
-            },
-            "api_returned_location": "München, Germany",
-            "forecast": [
-              {
-                "desc": "Rain",
-                "description": "Regen",
-                "icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/rain.svg",
-                "icon_bck": "http://icons.wxug.com/i/c/k/rain.gif",
-                "max": "9°",
-                "min": "0°",
-                "weekday": "Dienstag"
-              },
-              {
-                "desc": "Partly Cloudy",
-                "description": "Teilweise bewölkt",
-                "icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/mostly-sunny.svg",
-                "icon_bck": "http://icons.wxug.com/i/c/k/partlycloudy.gif",
-                "max": "7°",
-                "min": "-1°",
-                "weekday": "Mittwoch"
-              },
-              {
-                "desc": "Snow Showers",
-                "description": "Schneeregen",
-                "icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/snow.svg",
-                "icon_bck": "http://icons.wxug.com/i/c/k/snow.gif",
-                "max": "4°",
-                "min": "-2°",
-                "weekday": "Donnerstag"
-              },
-              {
-                "desc": "Partly Cloudy",
-                "description": "Teilweise bewölkt",
-                "icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/mostly-sunny.svg",
-                "icon_bck": "http://icons.wxug.com/i/c/k/partlycloudy.gif",
-                "max": "5°",
-                "min": "-3°",
-                "weekday": "Freitag"
-              }
-            ],
-            "forecast_url": "http://www.wunderground.com/global/stations/10865.html#forecast",
-            "friendly_url": "wunderground.com/global/stations/10865.html",
-            "meta": {
-              "cached_weather_data": "yes",
-              "lazy-RH": 0.008195161819458008,
-              "lazy-RH1": 0.007915019989013672,
-              "lazy-snpt1": 0.0010120868682861328,
-              "location": "München, Deutschland",
-              "version": "21Dec15"
-            },
-            "returned_location": "München, Deutschland",
-            "searched_city": "mun",
-            "searched_country": "Germany - default",
-            "template": "weatherAlert",
-            "title_icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/weather.svg",
-            "todayDesc": "Clear",
-            "todayDescription": "Klar",
-            "todayIcon": "http://cdn.cliqz.com/extension/EZ/weather-new2/clear---day.svg",
-            "todayIcon_bck": "http://icons.wxug.com/i/c/k/clear.gif",
-            "todayMax": "16°",
-            "todayMin": "7°",
-            "todayTemp": "15°",
-            "todayWeekday": "Heute"
-          },
-          "url": "http://www.wunderground.com/global/stations/10865.html",
-          "subType": "{\"class\": \"EntityWeather\", \"ez\": \"deprecated\"}"
-        }
+          "snippet": {
+    				"deepResults": [
+    					{
+    						"links": [
+    							{
+    								"title_key": "extended_forecast",
+    								"url": "https://www.wunderground.com/cgi-bin/findweather/getForecast?query=48.15,11.5833#forecast"
+    							}
+    						],
+    						"type": "buttons"
+    					}
+    				],
+    				"extra": {
+    					"api_returned_location": "Munich, Germany",
+    					"forecast": [
+    						{
+    							"desc": "Clear",
+    							"description": "Klar",
+    							"icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/clear---day.svg",
+    							"icon_bck": "http://icons.wxug.com/i/c/k/clear.gif",
+    							"max": "27°",
+    							"min": "14°",
+    							"weekday": "Mittwoch"
+    						},
+    						{
+    							"desc": "Clear",
+    							"description": "Klar",
+    							"icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/clear---day.svg",
+    							"icon_bck": "http://icons.wxug.com/i/c/k/clear.gif",
+    							"max": "27°",
+    							"min": "15°",
+    							"weekday": "Donnerstag"
+    						},
+    						{
+    							"desc": "Rain",
+    							"description": "Regen",
+    							"icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/rain.svg",
+    							"icon_bck": "http://icons.wxug.com/i/c/k/rain.gif",
+    							"max": "19°",
+    							"min": "12°",
+    							"weekday": "Freitag"
+    						},
+    						{
+    							"desc": "Rain",
+    							"description": "Regen",
+    							"icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/rain.svg",
+    							"icon_bck": "http://icons.wxug.com/i/c/k/rain.gif",
+    							"max": "16°",
+    							"min": "11°",
+    							"weekday": "Samstag"
+    						}
+    					],
+    					"meta": {
+    						"cached_weather_data": "yes",
+    						"lazy-RH": 0,
+    						"lazy-RH1": 0,
+    						"lazy-snpt1": 0,
+    						"location": "München, Deutschland",
+    						"version": "21Dec15"
+    					},
+    					"searched_city": "münchen, Deutschland",
+    					"searched_country": "Germany - default",
+    					"title_icon": "http://cdn.cliqz.com/extension/EZ/weather-new2/weather.svg",
+    					"todayDesc": "Clear",
+    					"todayDescription": "Klar",
+    					"todayIcon": "http://cdn.cliqz.com/extension/EZ/weather-new2/clear---day.svg",
+    					"todayIcon_bck": "http://icons.wxug.com/i/c/k/clear.gif",
+    					"todayMax": "30°",
+    					"todayMin": "13°",
+    					"todayTemp": "29°",
+    					"todayWeekday": "Heute"
+    				},
+    				"friendlyUrl": "wunderground.com/cgi-bin/findweather/getforecast",
+    				"title": "München, Deutschland"
+    			},
+    			"type": "rh",
+    			"subType": {
+    				"class": "EntityWeather",
+    				"id": "5138280142441694865",
+    				"name": "weather EZ"
+    			},
+    			"template": "weatherEZ",
+    			"trigger_method": "query"
+    		}
       ]);
 
       contentWindow.jsAPI.search(query);
@@ -431,68 +337,81 @@ describe('Search View', function() {
 
       contentWindow.addEventListener('imgLoadingDone', function () { done() });
 
-      cliqzResponse(query, [], [
+      cliqzResponse(query, [
         {
-          "q": "fcbayern",
-          "ts": 1456133742,
-          "data": {
-            "GUESS": "SV Darmstadt 98",
-            "HOST": "Bayern München",
-            "__subType__": {
-              "class": "SoccerEZ",
-              "id": "2296372664814577417",
-              "name": "1. Bundesliga EZ CLUB"
-            },
-            "club": "Bayern München",
-            "debug": {
-              "club_name_tmp3": "Bayern München"
-            },
-            "friendly_url": "fcbayern.de",
-            "gameTime": "Samstag 20 Februar, 15:30",
-            "leagueName": "1. Bundesliga",
-            "live_url": "http://www.kicker.de/news/fussball/bundesliga/spieltag/1-bundesliga/2015-16/22/2855122/spielbericht_bayern-muenchen-14_sv-darmstadt-98-98.html",
-            "location": "Allianz-Arena",
-            "rank": "1. Bundesliga Position: 1",
-            "scored": "3 - 1",
-            "spielTag": "22. Spieltag",
-            "static": {
-              "actions": [
-                {
-                  "color": "",
-                  "title": "Warenkorb",
-                  "url": "http://shop.fcbayern.de/?action=viewcart"
-                }
-              ],
-              "description": "Willkommen auf dem offiziellen Internetportal des FC Bayern München! Hier gibt es aktuelle News, Spielberichte, FCB.tv-Videos, Online-Shop, FCB Erlebniswelt u.v.m. Klicken Sie rein!",
-              "links": [
-                {
-                  "icon": "http://cdn.cliqz.com/extension/EZ/generic/note.svg",
-                  "title": "Tickets",
-                  "url": "http://www.fcbayern.de/de/tickets/"
-                },
-                {
-                  "icon": "http://cdn.cliqz.com/extension/EZ/generic/schedule.svg",
-                  "title": "Spielplan",
-                  "url": "http://www.fcbayern.de/de/spiele/spielplan/bundesliga/"
-                },
-                {
-                  "icon": "http://cdn.cliqz.com/extension/EZ/generic/television.svg",
-                  "title": "FCB.tv",
-                  "url": "http://www.fcb.tv/de/"
-                },
-                {
-                  "icon": "http://cdn.cliqz.com/extension/EZ/generic/shopping.svg",
-                  "title": "Fan Shop",
-                  "url": "http://shop.fcbayern.de/"
-                }
-              ],
-              "name": "FC Bayern München",
-              "url": "http://www.fcbayern.de/"
-            },
-            "template": "ligaEZ1Game"
-          },
           "url": "http://www.fcbayern.de/",
-          "subType": "{\"class\": \"SoccerEZ\", \"ez\": \"deprecated\"}"
+          "trigger_method": "url",
+          "snippet": {
+            "friendlyUrl": "fcbayern.de",
+            "description": "Willkommen auf dem offiziellen Internetportal des FC Bayern M\u00fcnchen! Hier gibt es aktuelle News, Spielberichte, FCB.tv-Videos, Online-Shop, FCB Erlebniswelt u.v.m. Klicken Sie rein!",
+            "title": "FC Bayern M\u00fcnchen - Offizielle Website",
+            "extra": {
+              "scored": "",
+              "status": "scheduled",
+              "GUESS": "FK Rostow",
+              "finalScore": "",
+              "club": "Bayern M\u00fcnchen",
+              "gameTime": "Dienstag 13 September, 20:45",
+              "halfTimeScore": "",
+              "spielTag": "Vorrunde, 1. Spieltag",
+              "live_url": "http://www.kicker.de/news/fussball/chleague/spielrunde/champions-league/2016-17/1/3685885/spielinfo_bayern-muenchen-14_fk-rostov-1574.html",
+              "HOST": "Bayern M\u00fcnchen",
+              "location": null,
+              "isLive": false,
+              "gameUtcTimestamp": 1473792300.0,
+              "leagueName": "Champions League"
+            },
+            "deepResults": [
+              {
+                "type": "buttons",
+                "links": [
+                  {
+                    "url": "http://www.fcbayern.de/de/tickets",
+                    "title": "Tickets"
+                  },
+                  {
+                    "url": "http://www.fcbayern.de/de/teams/profis",
+                    "title": "Profis"
+                  },
+                  {
+                    "url": "http://www.fcbayern.de/de/club/mitglied-werden",
+                    "title": "Mitglied werden"
+                  },
+                  {
+                    "url": "http://www.fcbayern.de/de/club/saebener-strasse",
+                    "title": "S\u00e4bener Stra\u00dfe"
+                  }
+                ]
+              },
+              {
+                "type": "news",
+                "links": [
+                  {
+                    "url": "http://www.stern.de/sport/fussball/bundesliga/fc-bayern-muenchen-von-loeschung-bedroht--jurist-sieht-rechtsformverfehlung-7049122.html",
+                    "extra": {
+                      "discovery_timestamp": 1473403816,
+                      "score": 8.215074,
+                      "source_name": "stern.de",
+                      "tweet_count": "6",
+                      "thumbnail": "http://image.stern.de/7049160/16x9-1200-675/f1802ea227b1acb01e4810649f340d1/fP/karl-heinz-rummenigge-und-carlo-ancelotti-fc-bayern-muenchen.jpg",
+                      "desc": "Dem FC Bayern M\u00fcnchen droht die L\u00f6schung aus dem Vereinsregister. Ein Jurist hat dies beim zust\u00e4ndigen Amtsgericht beantragt. Doch dabei gehe es ihm ..."
+                    },
+                    "title": "FC Bayern M\u00fcnchen von L\u00f6schung bedroht: Jurist sieht Rechtsformverfehlung - Fu\u00dfball-Bundesliga"
+                  }
+                ]
+              }
+            ]
+          },
+          "subType": {
+            "id": "-7574156205367822803",
+            "name": "TEAM: fcbayern.de",
+            "class": "SoccerEZ"
+          },
+          "trigger": [
+            "fcbayern.de"
+          ],
+          "template": "ligaEZ1Game",
+          "type": "rh"
         },
       ]);
 

@@ -27,8 +27,8 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
-  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
+  RESULTS_PROVIDER:               CLIQZEnvironment.RESULTS_PROVIDER,
+  RICH_HEADER:                    CLIQZEnvironment.RICH_HEADER,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -139,9 +139,10 @@ var CliqzUtils = {
   },
 
   callAction(moduleName, actionName, args) {
-    var module = CliqzUtils.System.get(moduleName+"/background");
-    var action = module.default.actions[actionName];
-    return Promise.resolve(action.apply(null, args));
+    return CliqzUtils.System.import(moduleName+"/background").then(module => {
+      var action = module.default.actions[actionName];
+      return action.apply(null, args);
+    });
   },
 
   callWindowAction(win, moduleName, actionName, args) {
@@ -261,6 +262,9 @@ var CliqzUtils = {
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
+  },
+  httpPut: function(url, callback, data, onerror, timeout) {
+    return CliqzUtils.httpHandler('PUT', url, callback, onerror, timeout, data);
   },
   getLocalStorage(url) {
     return new Storage(url);
@@ -629,10 +633,38 @@ var CliqzUtils = {
       return url;
     }
   },
+
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
+
+  getResultsProviderQueryString: function(q) {
+    return encodeURIComponent(q) +
+           CliqzUtils.encodeSessionParams() +
+           CliqzLanguage.stateToQueryString() +
+           CliqzUtils.encodeLocale() +
+           CliqzUtils.encodeResultOrder() +
+           CliqzUtils.encodeCountry() +
+           CliqzUtils.encodeFilter() +
+           CliqzUtils.encodeLocation(true) + // @TODO: remove true
+           CliqzUtils.encodeResultCount(7) +
+           CliqzUtils.disableWikiDedup();
+  },
+
+  getRichHeaderQueryString: function(q, loc) {
+    return "&q=" + encodeURIComponent(q) + // @TODO: should start with &q=
+            CliqzUtils.encodeSessionParams() +
+            CliqzLanguage.stateToQueryString() +
+            CliqzUtils.encodeLocale() +
+            CliqzUtils.encodeResultOrder() +
+            CliqzUtils.encodeCountry() +
+            CliqzUtils.encodeFilter() +
+            CliqzUtils.encodeLocation(true, loc && loc.latitude, loc && loc.longitude) +
+            CliqzUtils.encodeResultCount(7) +
+            CliqzUtils.disableWikiDedup();
+  },
+
   getBackendResults: function(q) {
     return new Promise(function(resolve, reject) {
       if (!CliqzUtils.getPref('cliqzBackendProvider.enabled', true)) {
@@ -653,17 +685,7 @@ var CliqzUtils = {
         CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
         CliqzUtils._queryLastLength = q.length;
 
-        var url = CliqzUtils.RESULTS_PROVIDER +
-                  encodeURIComponent(q) +
-                  CliqzUtils.encodeSessionParams() +
-                  CliqzLanguage.stateToQueryString() +
-                  CliqzUtils.encodeLocale() +
-                  CliqzUtils.encodeResultOrder() +
-                  CliqzUtils.encodeCountry() +
-                  CliqzUtils.encodeFilter() +
-                  CliqzUtils.encodeLocation() +
-                  CliqzUtils.encodeResultCount(7) +
-                  CliqzUtils.disableWikiDedup();
+        var url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
         CliqzUtils.httpGet(url, function (res) {
           var resp = JSON.parse(res.response || '{}')
           if (resp.result !== undefined && resp.results === undefined) {

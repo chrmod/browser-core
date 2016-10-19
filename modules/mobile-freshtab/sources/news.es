@@ -130,29 +130,38 @@ var News = {
   lastShowTime: 0,
   GENERIC_NEWS_URL: 'https://newbeta.cliqz.com/api/v1/rich-header?path=/map&bmresult=rotated-top-news.cliqz.com&lang=de,en&locale=de',
   _recentHistory: {},
-  getNews: function() {
+  getNews: function(url) {
     log('loading news');
 
-    let method = 'GET',
+    let method = 'PUT',
     callback = function(data) {
         try {
             const sResponse = JSON.parse(data.responseText);
-            newsVersion = sResponse.results[0].news_version;
-            News.displayTopNews(sResponse.results[0].articles);
+            console.log('---- RH Response ----', sResponse);
+            newsVersion = sResponse.results[0].snippet.extra.news_version;
+            News.displayTopNews(sResponse.results[0].snippet.extra.articles);
         } catch(e) {
             log(e);
         }
     },
     onerror = function() {
       log('news error', arguments);
-      setTimeout(News.getNews, 1500);
+      setTimeout(News.getNews, 1500, url);
     },
     timeout = function() {
       log('timeout error', arguments);
-      News.getNews();
+      News.getNews(url);
     },
-    data = null;
-    CliqzUtils.httpHandler(method, News.GENERIC_NEWS_URL, callback, onerror, timeout, data);
+    data = {
+      q: '',
+      results: [
+        {
+          url: 'rotated-top-news.cliqz.com',
+          snippet: {}
+        }
+      ]
+    };
+    CliqzUtils.httpHandler(method, url, callback, onerror, timeout, JSON.stringify(data));
 
   },
   displayTopNews: function(news) {
@@ -220,10 +229,9 @@ var News = {
     } else if(dependencyStatus === DEPENDENCY_STATUS.GIVE_UP) {
       return;
     }
-
     News.lastShowTime = Date.now();
 
-    News.getNews();
+    News.getNews(CliqzUtils.RICH_HEADER + CliqzUtils.getRichHeaderQueryString(''));
 
     topSitesList = [];
     let domain, domainArr, mainDomain;

@@ -18,6 +18,7 @@ import CliqzUtils from "core/utils";
 var CliqzEvents = CliqzEvents || {
   //use a javascript object to push the message ids and the callbacks
   cache: {},
+  tickCallbacks: [],
   /*
    * Publish events of interest with a specific id
    */

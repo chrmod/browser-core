@@ -7,7 +7,6 @@ function getFullPath(filePath) {
   if ( typeof filePath === 'string' ) {
     filePath = [filePath];
   }
-  CliqzUtils.log(JSON.stringify(filePath))
   return OS.Path.join(OS.Constants.Path.profileDir, ...filePath);
 }
 

@@ -45,73 +45,6 @@ export default class Mixer {
     this.triggerUrlCache = triggerUrlCache;
   }
 
-  // Prepare 'extra' results (dynamic results from Rich Header) for mixing
-  _prepareExtraResults(results) {
-    // Remove invalid EZs
-    var mixer = this;
-    results = results.filter(function(r) {
-      if (mixer._isValidEZ(r)) {
-        return true;
-      } else {
-        utils.log('Discarding bad EZ: ' + JSON.stringify(r), 'Mixer');
-        return false;
-      }
-    });
-
-    // set trigger method for EZs returned from RH
-    return results.map(resultKindEnricher.bind(null, {
-      trigger_method: 'rh_query',
-    }));
-  }
-
-  // Various checks to make sure the supplied EZ is valid
-  _isValidEZ(ez) {
-    if (!ez.val) {
-      return false;
-    }
-
-    if (!ez.data) {
-      return false;
-    }
-
-    if (!ez.data.subType) {
-      return false;
-    }
-
-    if (!ez.data.__subType__) {
-      return false;
-    }
-
-    try {
-      var ezId = this._getSmartCliqzId(ez);
-      if (!ezId) {
-        return false;
-      }
-      var ezClass = JSON.parse(ez.data.subType).class;
-      if (!ezClass) {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
-
-    return true;
-  }
-
-  // Prepare backend results for mixing
-  _prepareCliqzResults(results) {
-    return results.map(function(result, i) {
-      var subType = JSON.parse(result.subType || '{}');
-      subType.i = i;
-      result.subType = JSON.stringify(subType);
-      return Result.cliqz(result);
-    });
-  }
-
-  // Prepare history results for mixing
-  _prepareHistoryResults(results) {
-    return results.map(Result.clone);
-  }
   // Is query valid for triggering an EZ?
   // Must have more than 2 chars and not in blacklist
   //  - avoids many unexpected EZ triggerings
@@ -122,17 +55,6 @@ export default class Mixer {
     }
 
     return this.EZ_QUERY_BLACKLIST.indexOf(trimmed.toLowerCase()) == -1;
-  }
-
-  // extract any entity zone accompanying the result, add to extraResults
-  _addEZfromBM(extraResults, result) {
-    if (!result.extra) {
-      return;
-    }
-
-    var extra = Result.cliqzExtra(result.extra, result.snippet);
-    //resultKindEnricher({trigger_method: 'backend_url'}, extra);
-    extraResults.push(extra);
   }
 
   // Collect all sublinks and return a single list.
@@ -232,10 +154,10 @@ export default class Mixer {
       return !duplicate;
     });
   }
-  _getSmartCliqzId(smartCliqz) {
-    return smartCliqz.data.__subType__.id;
-  }
 
+  _getSmartCliqzId(smartCliqz) {
+    return smartCliqz.data.subType.id;
+  }
   // Find any entity zone in the results and cache them for later use.
   // Go backwards to prioritize the newest, which will be first in the list.
   _cacheEZs(extraResults) {
@@ -338,28 +260,16 @@ export default class Mixer {
   }
   // Mix together history, backend and custom results. Called twice per query:
   // once with only history (instant), second with all data.
-  mix(q, cliqz, cliqzExtra, history, customResults,
-                only_history) {
-
+  mix(q, cliqz, history, customResults, only_history) {
+    var cliqzExtra = cliqz && cliqz.length > 0 && cliqz[0].style == 'cliqz-extra' ? [cliqz.shift()] : [];
     if (!this._isValidQueryForEZ(q)) {
       cliqzExtra = [];
     } else {
-      // Prepare incoming EZ results
-      cliqzExtra = this._prepareExtraResults(cliqzExtra || []);
-
-      // Add EZ from first cliqz results to list of EZs, if valid
-      if (cliqz && cliqz.length > 0) {
-        this._addEZfromBM(cliqzExtra, cliqz[0]);
-      }
-
       // Cache any EZs found
       this._cacheEZs(cliqzExtra);
     }
 
     // Prepare other incoming data
-    cliqz = this._prepareCliqzResults(cliqz || []);
-    history = this._prepareHistoryResults(history || []);
-
     utils.log('only_history:' + only_history +
                    ' history:' + history.length +
                    ' cliqz:' + cliqz.length +
@@ -397,7 +307,7 @@ export default class Mixer {
     results = r.second;
     var ez = r.first[0];
 
-    // Add EZ to result list result list
+    // Add EZ to result list
     if (ez) {
       utils.log('EZ (' + ez.data.kind + ') for ' + ez.val, 'Mixer');
 
@@ -434,7 +344,6 @@ export default class Mixer {
       if (r.style.indexOf('cliqz-results ') === 0) cliqzRes++;
       return cliqzRes <= 3;
     });
-
     // Show no results message
     if (results.length === 0 && !only_history) {
       utils.getNoResults && results.push(utils.getNoResults());

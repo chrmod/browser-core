@@ -18,22 +18,16 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "emphasis": true,
   "empty": true,
   "entity-news-1": true,
-  "entity-search-1": true,
   "flightStatusEZ-2": true,
   "generic": true,
   "history": true,
   "ligaEZ1Game": true,
   "ligaEZTable": true,
-  "ligaEZUpcomingGames": true,
-  "local-cinema-sc": true,
-  "local-data-sc": true,
-  "local-movie-sc": true,
   "logo": true,
   "main": true,
   "noResult": true,
   "rd-h3-w-rating": true,
   "results": true,
-  "stocks": true,
   "topnews": true,
   "topsites": true,
   "url": true,
@@ -43,6 +37,8 @@ const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
 }));
 
 var CLIQZEnvironment = {
+  RESULTS_PROVIDER: 'https://newbeta.cliqz.com/api/v2/results?q=',
+  RICH_HEADER: 'https://newbeta.cliqz.com/api/v2/rich-header?path=/v2/map',
   BRANDS_DATA_URL: 'static/brands_database.json',
   TEMPLATES_PATH: 'mobile-ui/templates/',
   LOCALE_PATH: 'static/locale/',
@@ -53,11 +49,8 @@ var CLIQZEnvironment = {
   RESULTS_TIMEOUT: 60000, // 1 minute
   TEMPLATES: TEMPLATES,
   KNOWN_TEMPLATES: {
-      'entity-portal': true,
       'entity-generic': true,
       'entity-video-1': true,
-      'recipe': true,
-      'ez-generic-2': true,
       'vod': true
   },
   PARTIALS: [
@@ -66,7 +59,8 @@ var CLIQZEnvironment = {
       'EZ-category',
       'EZ-history',
       'rd-h3-w-rating',
-      'pattern-h1'
+      'pattern-h1',
+      "local-data-sc"
   ],
   GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
   //TODO: check if calling the bridge for each telemetry point is expensive or not
@@ -125,7 +119,6 @@ var CLIQZEnvironment = {
       console.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
-
     CLIQZEnvironment.putHistoryFirst(r);
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT);
@@ -245,7 +238,7 @@ var CLIQZEnvironment = {
       if(timeout){
         req.timeout = parseInt(timeout);
       } else {
-        req.timeout = (method === 'POST'? 10000 : 1000);
+        req.timeout = (['POST', 'PUT'].indexOf(method) >= 0 ? 10000 : 1000);
       }
     }
 

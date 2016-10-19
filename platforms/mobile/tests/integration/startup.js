@@ -15,7 +15,7 @@ describe("Startup", function () {
 
     function waitForWindow(win) {
       return new Promise(function (res) {
-        win.addEventListener('newsLoadingDone', function () { res(); });
+        win.osAPI.isReady = function () { res(); };
       });
     }
 
@@ -30,7 +30,6 @@ describe("Startup", function () {
         autoRespond: true,
         respondImmediately: true
       });
-      newsResponse([]);
       contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return !url.startsWith('https://newbeta.cliqz.com/api/v1/') });
       contentWindow.sinon.FakeXMLHttpRequest.useFilters = true;
       contentWindow.sinonLoaded = true;

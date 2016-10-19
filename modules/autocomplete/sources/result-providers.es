@@ -127,8 +127,11 @@ class CliqzResultProviders {
           null,
           null,
           {
-            q: customQuery.updatedQ,
-            engine: customQuery.engineName
+            extra: {
+              q: customQuery.updatedQ,
+              engine: customQuery.engineName,
+            },
+            template: 'custom'
           }
         )
       ];

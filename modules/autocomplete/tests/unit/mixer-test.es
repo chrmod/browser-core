@@ -26,101 +26,7 @@ export default describeModule("autocomplete/mixer",
       mixer._cleanTriggerUrls = function() {};
     });
 
-    describe('prepareExtraResults', function() {
-      it('should discard bad EZs', function() {
-        var input = [
-          {
-            data: { garbage: 'useless' },
-          },
-        ];
-        mixer._prepareExtraResults(input);
-        expect(mixer._prepareExtraResults(input)).to.be.empty;
-      });
 
-      it('should add trigger_method to each result', function() {
-        var input = [
-          {
-            style: 'cliqz-extra',
-            val: 'https://cliqz.com/',
-            comment: 'Cliqz',
-            label: 'https://cliqz.com/',
-            query: 'cliqz.c',
-            data: {
-              answer: '15:16',
-              expression: 'Mittwoch - 30 September 2015',
-              ez_type: 'time',
-              friendly_url: 'worldtime.io/current/WzUxLCA5XXw5fDUx',
-              is_calculus: true,
-              line3: 'Central European Summer Time (UTC/GMT +2:00)',
-              location: 'Deutschland',
-              mapped_location: 'DE',
-              meta: {
-                lazyRH_: '0.00108695030212'
-              },
-              prefix_answer: '',
-              support_copy_ans: null,
-              template: 'calculator',
-              subType: '{"ez": "-6262111850032132334"}',
-              ts: 1443619006,
-              kind: ['X|{"ez": "-6262111850032132334"}'],
-            },
-          },
-        ];
-
-        var expected = 'X|{"ez":"-6262111850032132334","trigger_method":"rh_query"}';
-
-        var results = mixer._prepareExtraResults(input);
-
-        results.forEach(function(result) {
-          expect(result).to.contain.all.keys(input[0]);
-          expect(result.data.kind[0]).to.equal(expected);
-        });
-      });
-    });
-
-    describe('prepareCliqzResults', function() {
-
-      it('should add i to each subtype', function() {
-        var input = [
-          {
-            q: 'cinema',
-            url: 'http://www.cinema.de/',
-            source: 'bm',
-            snippet: {
-              desc: 'Das Kinoprogramm in Deutschland mit allen Neustarts, Filmen, DVDs, dem Filmquiz und vielen Stars, News, Fotos und Insider-Infos: alles rund ums Kino bei CINEMA Online.',
-              title: 'Kino bei CINEMA: Kinoprogramm, Filme, DVDs, Stars, Trailer und mehr - Cinema.de',
-            },
-          },
-          {
-            q: 'cinema',
-            url: 'http://www.cinemaxx.de/',
-            source: 'bm',
-            snippet: {
-              desc: 'Aktuelles Kinoprogramm und Filmstarts. Kinotickets gleich online kaufen oder reservieren. Kino in bester Qualität - Willkommen bei CinemaxX',
-              title: 'Kino in bester Qualität - Herzlich willkommen in Ihrem CinemaxX.',
-            },
-          },
-          {
-            q: 'cinema',
-            url: 'http://www.cinema-muenchen.de/',
-            source: 'bm',
-            snippet: {
-              desc: 'Startseite',
-              title: 'Willkommen bei Cinema München - Cinema München',
-            },
-          },
-        ];
-
-        var results = mixer._prepareCliqzResults(input);
-
-        results.forEach(function(result, i) {
-          var parts = result.data.kind[0].split('|'),
-              params = JSON.parse(parts[1] || '{}');
-          expect(params).to.contain.key('i');
-          expect(params.i).to.equal(i);
-        });
-      });
-    });
 
     describe('isValidQueryForEZ', function() {
 
@@ -181,55 +87,6 @@ export default describeModule("autocomplete/mixer",
 
     });
 
-    describe('addEZfromBM', function() {
-      var result = {
-        url: 'http://www.bild.de/',
-        snippet: {
-          title: 'Bild',
-          desc: 'Bild News',
-        },
-        extra: {
-          data: {
-            domain: 'bild.de',
-            friendly_url: 'bild.de',
-            name: 'Bild',
-            template: 'entity-news-1',
-          },
-          url: 'http://www.bild.de',
-          subType: '{"ez": "4573617661040092857"}',
-          trigger_urls: [
-            'bild.de',
-          ],
-        },
-      };
-
-      beforeEach(function () {
-        this.deps("core/cliqz").utils.isCompleteUrl = () => true;
-        this.deps("core/cliqz").utils.getDetailsFromUrl = () => ({ name: 'bild' });
-      });
-
-      it('should add EZ to empty list', function() {
-
-        var extra = [];
-
-        mixer._addEZfromBM(extra, result);
-
-        expect(extra).to.have.length(1);
-        expect(extra[0].data.subType).to.equal(result.extra.subType);
-        expect(extra[0].comment).to.equal(result.snippet.title);
-      });
-
-      it('should add EZ to end of existing list', function() {
-        var extra = [{test: 'abc'}];
-
-        mixer._addEZfromBM(extra, result);
-
-        expect(extra).to.have.length(2);
-        expect(extra[extra.length - 1].data.subType).to.equal(result.extra.subType);
-        expect(extra[extra.length - 1].comment).to.equal(result.snippet.title);
-      });
-
-    });
 
     describe('collectSublinks', function() {
       it('should find nothing', function() {
@@ -483,61 +340,6 @@ export default describeModule("autocomplete/mixer",
       });
     });
 
-    describe('isValidEZ', function() {
-      var result;
-
-      beforeEach(function() {
-        result = {
-          style: 'cliqz-extra',
-          val: 'https://cliqz.com/',
-          comment: 'Cliqz',
-          label: 'https://cliqz.com/',
-          query: 'cliqz.c',
-          data: {
-            friendly_url: 'cliqz.com',
-            template: 'Cliqz',
-            subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
-            trigger_urls: ['cliqz.com'],
-            ts: 1447772162,
-            kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
-            __subType__: {
-              class: "CliqzEZ",
-              id: "2700150093133398460",
-              name: "Cliqz 1",
-            },
-          },
-        };
-      });
-
-      it('should accept good ez', function() {
-        expect(mixer._isValidEZ(result)).to.be.true;
-      });
-
-      it('should discard if url is missing', function() {
-        delete result.val;
-        expect(mixer._isValidEZ(result)).to.be.false;
-      });
-
-      it('should discard if data is missing', function() {
-        delete result.data;
-        expect(mixer._isValidEZ(result)).to.be.false;
-      });
-
-      it('should discard if subType is missing or unparsable', function() {
-        result.data.subType = 'afsdfdasfdsfds{';
-        expect(mixer._isValidEZ(result)).to.be.false;
-        delete result.subType;
-        expect(mixer._isValidEZ(result)).to.be.false;
-      });
-
-      it('should discard if __subType__ is missing or ID is missing', function() {
-        delete result.data.__subType__.id;
-        expect(mixer._isValidEZ(result)).to.be.false;
-        delete result.data.__subType__;
-        expect(mixer._isValidEZ(result)).to.be.false;
-      });
-    });
-
     describe('cacheEZs', function() {
       let mixer;
       function getUrlfunction(smartCliqz) {
@@ -564,11 +366,11 @@ export default describeModule("autocomplete/mixer",
           data: {
             friendly_url: 'cliqz.com',
             template: 'Cliqz',
-            subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
+            subType: {"class": "CliqzEZ", "ez": "deprecated"},
             trigger_urls: ['cliqz.com'],
             ts: 1447772162,
             kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
-            __subType__: {
+            subType: {
               class: "CliqzEZ",
               id: "2700150093133398460",
               name: "Cliqz 1",
@@ -632,7 +434,7 @@ export default describeModule("autocomplete/mixer",
         results.push(JSON.parse(JSON.stringify(results[0])));
         results[1].val = 'http://test.com';
         results[1].data.trigger_urls[0] = 'test.com';
-        results[1].data.__subType__ = { id: "1111111111" };
+        results[1].data.subType = { id: "1111111111" };
 
         mixer._cacheEZs(results);
 
@@ -678,11 +480,11 @@ export default describeModule("autocomplete/mixer",
             data: {
               friendly_url: 'cliqz.com',
               template: 'Cliqz',
-              subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
+              subType: {"class": "CliqzEZ", "ez": "deprecated"},
               trigger_urls: ['cliqz.com'],
               ts: 1447772162,
               kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
-              __subType__: {
+              subType: {
                 class: "CliqzEZ",
                 id: "2700150093133398460",
                 name: "Cliqz 1",
@@ -778,11 +580,11 @@ export default describeModule("autocomplete/mixer",
           data: {
               friendly_url: 'cliqz.com',
               template: 'Cliqz',
-              subType: '{"class": "CliqzEZ", "ez": "deprecated"}',
+              subType: {"class": "CliqzEZ", "ez": "deprecated"},
               trigger_urls: ['cliqz.com'],
               ts: 1447772162,
-              kind: ['X|{"ez":"-7290289273393613729","trigger_method":"rh_query"}'],
-              __subType__: {
+              kind: ['X|{"id":"-7290289273393613729","trigger_method":"rh_query"}'],
+              subType: {
                 class: "CliqzEZ",
                 id: "2700150093133398460",
                 name: "Cliqz 1",

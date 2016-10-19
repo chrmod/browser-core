@@ -15,7 +15,7 @@
         ' extra="url">
             {{ emphasis urlDetails.friendly_url text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
-        <div class='cqz-result-desc overflow' extra="des-nview">{{ views_helper data.richData.views }}</div>
+        <div class='cqz-result-desc overflow' extra="des-nview">{{ views_helper data.extra.rich_data.views }}</div>
     </div>
     {{> logo}}
 </div>

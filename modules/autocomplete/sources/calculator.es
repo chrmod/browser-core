@@ -141,15 +141,14 @@ var CliqzCalculator = {
     var expandedExpression = this.IS_UNIT_CONVERTER ? this.BASE_UNIT_CONVERTER : mathLib.parse(this.clean(q)).toString(),
       resultSign = this.shortenNumber()[0];
 
-    return Result.cliqzExtra(
+    return Result.cliqz(
       {
         url: "",
         q: q,
-        style: "cliqz-extra",
-        type: "cliqz-extra",
-        subType: JSON.stringify({type: 'calculator'}),
-        data: {
-          template: 'calculator',
+        type: "rh",
+        subType: {type: 'calculator'},
+        template: 'calculator',
+        snippet: {
           expression: expandedExpression,
           answer: this.CALCULATOR_RES,
           is_calculus: true,

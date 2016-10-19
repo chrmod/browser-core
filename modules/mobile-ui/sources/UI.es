@@ -119,15 +119,8 @@ var UI = {
 
       if (imgLoader) imgLoader.stop();
 
-
-      // Results that are not ready (extra results, for which we received a callback_url)
-      var asyncResults = currentResults.results.filter(assessAsync(true));
-      currentResults.results = currentResults.results.filter(assessAsync(false));
-
-
       redrawDropdown(CLIQZ.templates.results(currentResults), query);
 
-      if (asyncResults.length) loadAsyncResult(asyncResults, query);
 
       imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
       imgLoader.start();
@@ -225,80 +218,6 @@ function setCardCountPerPage(windowWidth) {
 }
 
 
-function loadAsyncResult(res, query) {
-    for (var i in res) {
-      var r = res[i];
-      var qt = query + ": " + new Date().getTime();
-      CliqzUtils.log(r,"LOADINGASYNC");
-      CliqzUtils.log(query,"loadAsyncResult");
-      var loop_count = 0;
-      var async_callback = function (req) {
-          CliqzUtils.log(query,"async_callback");
-          var resp = null;
-          try {
-            resp = JSON.parse(req.response).results[0];
-          }
-          catch(err) {
-            res.splice(i,1);
-          }
-          if (resp &&  CliqzAutocomplete.lastSearch === query) {
-
-            var kind = r.data.kind;
-            if ("__callback_url__" in resp.data) {
-                // If the result is again a promise, retry.
-                if (loop_count < 10 /*smartCliqzMaxAttempts*/) {
-                  setTimeout(function () {
-                    loop_count += 1;
-                    CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
-                  }, 100 /*smartCliqzWaitTime*/);
-                }
-                else if (!currentResults.results.length) {
-                  redrawDropdown(CLIQZ.templates.results(currentResults), query);
-                }
-            }
-            else {
-              r.data = resp.data;
-              r.url = resp.url;
-              r.data.kind = kind;
-              r.data.subType = resp.subType;
-              r.data.trigger_urls = resp.trigger_urls;
-              r.vertical = getVertical(r);
-              r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-              r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
-
-              if (resultsBox && CliqzAutocomplete.lastSearch === query) {
-                  // Remove all existing extra results
-                  currentResults.results = currentResults.results.filter(function (r) { return r.type !== 'cliqz-extra'; } );
-                  // add the current one on top of the list
-                  currentResults.results.unshift(r);
-
-                  redrawDropdown(CLIQZ.templates.results(currentResults), query);
-                  imgLoader = new UI.DelayedImageLoader('#cliqz-results img[data-src], #cliqz-results div[data-style], #cliqz-results span[data-style]');
-                  imgLoader.start();
-              }
-            }
-          }
-          // to handle broken promises (eg. Weather and flights) on mobile
-          else if (r.data && r.data.__callback_url__) {
-            shiftResults();
-          }
-          else {
-            res.splice(i,1);
-            redrawDropdown(CLIQZ.templates.results(currentResults), query);
-          }
-
-      };
-      CliqzUtils.httpGet(r.data.__callback_url__, async_callback, async_callback);
-    }
-}
-
-
-function assessAsync(getAsync) {
-    return function (result) {
-        var isAsync = result.type === 'cliqz-extra' && result.data && '__callback_url__' in result.data ;
-        return getAsync ? isAsync : !isAsync;
-    };
-}
 
 function redrawDropdown(newHTML) {
     resultsBox.style.display = 'block';
@@ -309,15 +228,14 @@ function redrawDropdown(newHTML) {
 function getVertical(result) {
   // if history records are less than 3 it goes to generic
   let template;
-  if (result.data.template === 'pattern-h3') {
+  if (result.template === 'pattern-h3') {
     template = 'history';
-  } else if (CliqzUtils.TEMPLATES[result.data.superTemplate]) {
-      template = result.data.superTemplate;
-  } else if(CliqzUtils.TEMPLATES[result.data.template]) {
-    template = result.data.template
+  } else if(CliqzUtils.TEMPLATES[result.template]) {
+    template = result.template;
   } else {
     template = 'generic';
   }
+  console.log('temp', template);
   return template;
 }
 
@@ -327,12 +245,12 @@ function enhanceResults(results) {
     const _tmp = getDebugMsg(r.comment || '');
     const url = r.val || '';
     const urlDetails = CliqzUtils.getDetailsFromUrl(url);
-
     enhancedResults.push(enhanceSpecificResult({
       query: r.query,
       type: r.style,
       left: (UI.CARD_WIDTH * index),
       data: r.data || {},
+      template: (r.data || {}).template,
       url,
       urlDetails,
       logo: CliqzUtils.getLogoDetails(urlDetails),
@@ -341,7 +259,7 @@ function enhanceResults(results) {
     }));
   });
 
-  let filteredResults = enhancedResults.filter(function (r) { return !(r.data && r.data.adult); });
+  let filteredResults = enhancedResults.filter(function (r) { return !(r.data && r.data.extra && r.data.extra.adult); });
 
   return filteredResults;
 }
@@ -370,7 +288,7 @@ function enhanceSpecificResult(r) {
     height: window.screen.height
   };
 
-  if (r.subType && JSON.parse(r.subType).ez) {
+  if (r.subType && r.subType.id) {
       // Indicate that this is a RH result.
       r.type = 'cliqz-extra';
   }
@@ -510,4 +428,3 @@ window.addEventListener('connected', function () {
 });
 
 export default UI;
-

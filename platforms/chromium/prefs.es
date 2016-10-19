@@ -1,6 +1,5 @@
 import Storage from 'core/storage';
 import events from 'core/events';
-
 const storage = new Storage();
 
 export function getPref(pref, notFound) {

@@ -31,7 +31,7 @@ describe("Freshtab", function () {
         respondImmediately: true
       });
       newsResponse([]);
-      contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return !url.startsWith('https://newbeta.cliqz.com/api/v1/') });
+      contentWindow.sinon.FakeXMLHttpRequest.addFilter(function (method, url) {return !url.startsWith('https://newbeta.cliqz.com/api/v2/') });
       contentWindow.sinon.FakeXMLHttpRequest.useFilters = true;
       contentWindow.sinonLoaded = true;
       return waitForWindow(contentWindow);

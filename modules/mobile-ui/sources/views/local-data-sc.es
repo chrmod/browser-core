@@ -78,12 +78,14 @@ export default class {
     rating_img = "http://cdn.cliqz.com/extension/EZ/richresult/stars" + Math.max(0, Math.min(Math.round(data.rating), 5)) + ".svg";
 
     if (!isBigSnippet) {
-      data.richData = {
-        image: data.image,
-        url_ratingimg: rating_img,
-        name: data.t,
-        des: data.desc
-      };
+      data.extra = {
+        rich_data: {
+          image: data.image,
+          url_ratingimg: rating_img,
+          name: data.t,
+          des: data.desc
+        }
+      }
     } else {
       data.url_ratingimg = rating_img;
     }
@@ -96,8 +98,7 @@ export default class {
       data.distance = distance;
     }
 
-    data.deepLinks = ((data.deepResults || []).find(res => res.type === 'buttons') || {}).links
-
     data.escapedUrl = data.mu && escape(data.mu);
+    return data;
   }
 };
