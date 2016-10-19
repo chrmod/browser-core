@@ -137,7 +137,6 @@ function isRegex(filter, start, end) {
 
 // TODO:
 // 1. Options not supported yet:
-//  - redirect
 //  - popup
 //  - popunder
 //  - generichide
@@ -172,6 +171,7 @@ class AdFilter {
 
     this.thirdParty = null;
     this.firstParty = null;
+    this.redirect = null;
 
     // Options on origin policy
     this.fromAny = true;
@@ -429,6 +429,16 @@ class AdFilter {
           this.firstParty = !negation;
           break;
         case 'collapse':
+          break;
+        case 'redirect':
+          // Negation of redirection doesn't make sense
+          this.supported = !negation;
+          // Ignore this filter if no redirection resource is specified
+          if (optionValues.length === 0) {
+            this.supported = false;
+          } else {
+            this.redirect = optionValues[0];
+          }
           break;
         // Disable this filter if any other option is encountered
         default:

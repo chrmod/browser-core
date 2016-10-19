@@ -420,9 +420,14 @@ const CliqzADB = {
         return {};
       }
 
-      if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-        CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
-        return { cancel: true };
+      if (adbEnabled()) {
+        const result = CliqzADB.adBlocker.match(requestContext);
+        if (result.redirect) {
+          return { redirectUrl: result.redirect };
+        } else if (result.match) {
+          CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
+          return { cancel: true };
+        }
       }
 
       return {};

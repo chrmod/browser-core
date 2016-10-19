@@ -71,7 +71,7 @@ export default describeModule('adblocker/filters-engine',
 
              // Check should match
              try {
-               if (!engine.match(testCase)) {
+               if (!engine.match(testCase).match) {
                  reject(`Expected ${testCase.filter} to match ${testCase.url}`);
                }
                resolve();
@@ -121,7 +121,7 @@ export default describeModule('adblocker/filters-engine',
            () => new Promise((resolve, reject) => {
              // Check should match
              try {
-               if (!engine.match(testCase)) {
+               if (!engine.match(testCase).match) {
                  reject(`Expected ${testCase.filter} to match ${testCase.url}`);
                }
                resolve();
@@ -164,13 +164,61 @@ export default describeModule('adblocker/filters-engine',
            () => new Promise((resolve, reject) => {
              // Check should match
              try {
-               if (engine.match(testCase)) {
+               if (engine.match(testCase).match) {
                  reject(`Expected to *not* match ${testCase.url}`);
                }
                resolve();
              } catch (ex) {
                reject(`Encountered exception ${ex} while matching ` +
                  `${testCase.filter} against ${testCase.url}`);
+             }
+           })
+         );
+      });
+    });
+
+    describe('Test filter engine should redirect', () => {
+      let FilterEngine;
+      let serializeEngine;
+      let deserializeEngine;
+      let engine = null;
+      const filterListPath = 'modules/adblocker/tests/unit/data/filters_list.txt';
+      const notMatchingPath = 'modules/adblocker/tests/unit/data/filters_redirect.txt';
+      const resourcesPath = 'modules/adblocker/tests/unit/data/resources.txt';
+
+      beforeEach(function initializeFilterEngine() {
+        if (engine === null) {
+          this.timeout(10000);
+          FilterEngine = this.module().default;
+          serializeEngine = this.module().serializeFiltersEngine;
+          deserializeEngine = this.module().deserializeFiltersEngine;
+
+          engine = new FilterEngine();
+          engine.onUpdateFilters([{ filters: loadLinesFromFile(filterListPath) }]);
+
+          // Serialize and deserialize engine
+          const serialized = serializeEngine(engine);
+          engine = new FilterEngine();
+          deserializeEngine(engine, serialized);
+          engine.onUpdateResource([{ filters: loadLinesFromFile(resourcesPath) }]);
+        }
+      });
+
+      loadTestCases(notMatchingPath).forEach(testCase => {
+        it(`${testCase.url} redirected`,
+           () => new Promise((resolve, reject) => {
+             // Check should match
+             try {
+               const result = engine.match(testCase);
+               if (result.redirect !== testCase.redirect) {
+                 reject(`Expected to redirect to ${testCase.redirect} instead` +
+                        ` of ${result.redirect} for ${testCase.url}`);
+               }
+               resolve();
+             } catch (ex) {
+               console.log(ex.stack);
+               reject(`Encountered exception ${ex} while checking redirect ` +
+                 `${testCase.redirect} against ${testCase.url}`);
              }
            })
          );

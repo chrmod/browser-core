@@ -1,4 +1,3 @@
-import { log } from 'adblocker/utils';
 
 // Some content policy types used in filters
 const CPT = {
@@ -122,7 +121,6 @@ function checkPattern(filter, request) {
       if (filter.isRegex) {
         return filter.regex.test(urlPattern);
       }
-      // TODO: Should startWith instead of includes?
       return urlPattern.startsWith(filter.filterStr);
     }
   } else {
