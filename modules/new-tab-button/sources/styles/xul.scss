@@ -1,0 +1,16 @@
+#new-tab-button-panel,
+#new-tab-button-panel > iframe,
+#new-tab-button-panel > panel-subview-body {
+    overflow: hidden !important;
+}
+
+.tabs-newtab-button {
+    &.has-notification {
+        background-color: #FFDC92;
+    }
+}
+
+panelmultiview[mainViewId="new-tab-button-panel"] > .panel-viewcontainer > .panel-viewstack > .panel-mainview:not([panelid="PanelUI-popup"]),
+panel[viewId="new-tab-button-panel"] .panel-mainview {
+    max-width: 50em !important;
+}

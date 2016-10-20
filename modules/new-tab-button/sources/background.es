@@ -1,4 +1,6 @@
-import background from "core/base/background";
+import background from '../core/base/background';
+import { forEachWindow } from '../platform/browser';
+import utils from '../core/utils';
 
 /**
   @namespace <namespace>
@@ -6,15 +8,11 @@ import background from "core/base/background";
  */
 export default background({
 
-  enabled() {
-    return true;
-  },
-
   /**
     @method init
     @param settings
   */
-  init(settings) {
+  init() {
 
   },
 
@@ -27,10 +25,18 @@ export default background({
   },
 
   events: {
-
+    'notifications:new-notification': function onNewNotification() {
+      forEachWindow(window => {
+        utils.callWindowAction(window, 'new-tab-button', 'lightUp');
+      });
+    },
+    'notifications:notifications-cleared': function onNotificationsCleared() {
+      forEachWindow(window => {
+        utils.callWindowAction(window, 'new-tab-button', 'lightDown');
+      });
+    },
   },
 
   actions: {
-
-  }
+  },
 });
