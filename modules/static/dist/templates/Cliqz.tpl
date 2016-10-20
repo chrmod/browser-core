@@ -22,19 +22,9 @@
     {{#each deepResults}}
       {{#if (logic type '===' 'buttons')}}
         {{#each links}}
-          {{#if (logic title '===' 'cliqz_common_questions')}}
-            <div arrow="false" class="cqz-ez-btn cliqz-brands-button-1" url="{{url}}" extra="common-questions">
-              {{local title}}
-            </div>
-          {{else if (logic title '===' 'cliqz_give_feedback')}}
-            <div arrow="false" class="cqz-ez-btn cliqz-brands-button-6" url="{{url}}" extra="common-questions">
-              {{local title}}
-            </div>
-          {{else}}
-            <div arrow="false" class="cqz-ez-btn cliqz-brands-button-10" url="{{url}}" extra="common-questions">
-              {{local title}}
-            </div>
-          {{/if}}
+        <div arrow="false" class="cqz-ez-btn" style="background-color:{{extra.background-color}}; color:{{extra.color}}; border: 1px solid {{extra.color}}" url="{{url}}" extra="common-questions">
+          {{local title}}
+        </div>
         {{/each}}
       {{/if}}
     {{/each}}
