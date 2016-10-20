@@ -24,7 +24,7 @@ export default class {
   init() {
     if(onboardingVersion() === "2.0") {
       if(shouldShowOnboardingV2()) {
-        utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
+        utils.openLink(this.window, utils.CLIQZ_ONBOARDING);
         return;
       }
     }
