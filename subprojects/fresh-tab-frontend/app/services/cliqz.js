@@ -24,9 +24,8 @@ export default Ember.Service.extend({
       }
 
       if (message.type === "response") {
-        const action = this.callbacks[message.action];
+        const action = (this.callbacks[message.module] || {})[message.action] || this.callbacks[message.action];
         const requestId = message.requestId;
-
         if (requestId) {
           action && action[requestId] && action[requestId].call(null, message.response);
         } else {
@@ -201,6 +200,35 @@ export default Ember.Service.extend({
       module: 'history',
       action: 'newTab'
     }), '*');
+  },
+
+  getNotificationsConfig() {
+    let promise = new Promise( resolve => {
+      this.callbacks.notifications = this.callbacks.notifications || {};
+      this.callbacks.notifications.getConfig = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'notifications',
+      action: 'getConfig'
+    }), '*');
+
+    return DS.PromiseObject.create({promise});
+  },
+
+  getNotificationsCount() {
+    let promise = new Promise( resolve => {
+      this.callbacks.getNotificationsCount = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+      target: "cliqz",
+      module: "notifications",
+      action: "getNotificationsCount",
+    }), "*");
+
+    return DS.PromiseObject.create({ promise });
   },
 
   getConfig() {

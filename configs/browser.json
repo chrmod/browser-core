@@ -17,6 +17,7 @@
     "core",
     "firefox-specific",
     "static",
+    "notifications",
     "autocomplete",
     "geolocation",
     "ui",
