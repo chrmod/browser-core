@@ -199,7 +199,9 @@ var CLIQZEnvironment = {
         }
         else {
             // Set urlbar value to url immediately
-            win.CLIQZ.Core.urlbar.value = url;
+            if(win.CLIQZ.Core.urlbar) {
+              win.CLIQZ.Core.urlbar.value = url;
+            }
             win.openUILink(url);
         }
     },
