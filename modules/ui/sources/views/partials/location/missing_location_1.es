@@ -160,7 +160,13 @@ export default class {
         }
         resp = this.CLIQZ.UI.enhanceResults(resp);
         r = resp.results[0];
-        if (container) container.innerHTML = CliqzHandlebars.tplCache[r.template](r);
+        // r.type === 'cliqz-extra' checks if the RH enhanced this result, or if it returned
+        // back the same snippet that it received (no local data)
+        if (r.type === 'cliqz-extra' && container) {
+          container.innerHTML = CliqzHandlebars.tplCache[r.template || 'generic'](r);
+        } else {
+          this.failedToLoadResults(el);
+        }
       } else {
         this.failedToLoadResults(el);
       }
