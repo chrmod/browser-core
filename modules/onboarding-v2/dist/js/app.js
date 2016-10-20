@@ -1,6 +1,6 @@
 var tlmTimer = 0;
 const MIN_WIDTH = 1050;
-const MIN_HEIGHT = 700;
+const MIN_HEIGHT = 768;
 
 var tlmTimerFn = function () {
   setTimeout(function () {
