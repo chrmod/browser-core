@@ -1302,7 +1302,10 @@
       "message": "Standort Teilen"
     },
     "control-center-info-share-location": {
-      "message": "Genauere Suchergebnisse erhältst du, wenn du Immer Standort teilen auswählst. Deine Standort-Information dient nur der automatischen Verbesserung deiner Suchergebnisse und wird niemals weitergegeben oder anderweitig verwendet."
+      "message": "CLIQZ kann jetzt auch nach Ergebnissen in deiner Nähe suchen. Genauere Suchergebnisse erhältst du, wenn du Immer Standort teilen auswählst. Deine Standort-Information dient nur der automatischen Verbesserung deiner Suchergebnisse und wird niemals weitergegeben oder anderweitig verwendet."
+    },
+    "control-center-info-share-location-link": {
+      "message": "Mehr erfahren"
     },
     "control-center-adblock-title": {
       "message": "Werbeblocker [BETA]"
