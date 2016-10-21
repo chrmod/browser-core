@@ -1,72 +1,83 @@
-import { utils } from 'core/cliqz';
-import background from "core/base/background";
-import { txtToDom } from 'core/dom-parser';
+import background from '../core/base/background';
+import Gmail from './providers/gmail';
+import { Cron } from '../core/anacron';
 
-class Gmail {
+const CONFIG = {
+  'watched-domains': ['gmail.com'],
+};
+
+const AVAILABLE_DOMAINS = {
+  'gmail.com': {
+    providerName: 'gmail',
+    config: {},
+    schedule: '*/10 *',
+  },
+  'mail.google.com': {
+    providerName: 'gmail',
+    config: {},
+    schedule: '*/10 *',
+  },
+};
+
+const AVAILABLE_PROVIDERS = {
+  'gmail': Gmail
+};
+
+class Storage {
   constructor() {
-    this.url = 'https://mail.google.com/mail/u/0/feed/atom' + '?rand=' + Math.round(Math.random() * 10000000);
+    const watchedDomains = ['gmail.com'];
+    this.watchedDomains = watchedDomains.reduce((domains, domain) => {
+      domains[domain] = Object.create(null);
+      return domains;
+    }, Object.create(null));
   }
 
-  count() {
-    return this.get(this.url).then(response => this.getNotificationCount(response.response));
+  watchedDomainNames() {
+    return Object.keys(this.watchedDomains);
   }
 
-  getNotificationCount(txt) {
-    var feed = txtToDom(txt);
-    var fullCount = 0;
-    var arr = feed.getElementsByTagName("fullcount");
-    if(arr && arr.length) {
-      var tmp = arr[0].textContent;
-      if(tmp) fullCount = parseInt(tmp) || 0;
-    }
-    return fullCount;
+  updateDomain(domain, data) {
+    this.watchedDomains[domain] = Object.assign(
+      this.watchedDomains[domain],
+      data
+    );
   }
 
-  get(url, headers, data, timeout) {
-    return new Promise(function(resolve, reject) {
-      headers = headers || {};
-
-      let req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1']
-        .createInstance(Ci.nsIXMLHttpRequest);
-      req.mozBackgroundRequest = true;  //No authentication
-      req.timeout = timeout;
-      req.open('GET', url, true);
-      for(let id in headers) {
-        req.setRequestHeader(id, headers[id]);
-      }
-
-      req.onreadystatechange = function() {
-        if (req.readyState === 4) {
-          resolve(req);
-        }
-      };
-
-      req.channel
-        .QueryInterface(Ci.nsIHttpChannelInternal)
-        .forceAllowThirdPartyCookie = true;
-      if(data) {
-        let arr = [];
-        for (let e in data) {
-          arr.push(e + '=' + data[e]);
-        }
-        data = arr.join('&');
-      }
-      req.send(data ? data : '');
-      return req;
-    });
+  counts() {
+    return this.watchedDomainNames().reduce((counts, domain) => {
+      counts[domain] = this.watchedDomains[domain].count;
+      return counts;
+    }, Object.create(null));
   }
 }
 
 export default background({
-  enabled() { return true; },
 
-  init(settings) {
-    this.providers = Object.create(null);
-    this.providers.gmail = new Gmail();
+  init() {
+    this.storage = new Storage();
+    this.cron = new Cron();
+
+    this.storage.watchedDomainNames()
+      .filter(domain => domain in AVAILABLE_DOMAINS)
+      .forEach(domain => {
+        const { providerName, config, schedule } = AVAILABLE_DOMAINS[domain];
+        const Provider = AVAILABLE_PROVIDERS[providerName];
+
+        this.cron.schedule(() => {
+          const provider = new Provider(config);
+          provider.count().then(count => {
+            this.storage.updateDomain(domain, { count });
+          });
+        }, schedule);
+      });
+
+    this.cron.run(new Date(), { force: true });
+
+    this.cron.start();
   },
 
   unload() {
-
+    this.cron.stop();
   },
 
   beforeBrowserShutdown() {
@@ -79,19 +90,15 @@ export default background({
     **/
     getConfig() {
       return {
-        sources: Object.keys(this.providers)
-      }
+        sources: this.storage.watchedDomainNames(),
+      };
     },
 
     /**
     * query store for notifications for specified sources
     */
     getNotificationsCount() {
-      return this.providers.gmail.count().then(count => {
-        return {
-          'gmail.com': count
-        }
-      })
+      return this.storage.counts();
     },
 
     /**
@@ -106,6 +113,6 @@ export default background({
     **/
     unwatch(url) {
 
-    }
-  }
-})
+    },
+  },
+});
