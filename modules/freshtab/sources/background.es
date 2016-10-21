@@ -57,6 +57,13 @@ export default background({
           utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
           return;
         }
+      } else if(onboardingVersion() === '1.2') {
+        // Adding this back to be able to rollback to previous popup Onboarding
+        // if numbers are not promising
+        if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref(utils.BROWSER_ONBOARDING_PREF)) {
+          utils.setPref(utils.BROWSER_ONBOARDING_PREF, true);
+          return true;
+        }
       }
     },
 
