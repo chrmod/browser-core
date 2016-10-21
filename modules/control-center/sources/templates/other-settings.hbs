@@ -60,7 +60,7 @@
           <span data-i18n="control-center-info-share-location"></span>
         </div>
         <span data-i18n="control-center-location"></span>
-        <select class="ask-dropdown"
+        <select class="custom-dropdown"
                 updatePref="extensions.cliqz.share_location"
                 data-target="search_location">
           {{#each module.geolocation.state}}
@@ -71,7 +71,7 @@
       </span>
       <span class="bullet">
         <span data-i18n="control-center-explicit"></span>
-        <select class="ask-dropdown"
+        <select class="custom-dropdown"
                 updatePref="extensions.cliqz.adultContentFilter"
                 data-target="search_adult">
           {{#each module.adult.state}}
@@ -133,6 +133,7 @@
       <span class="bullet">
         <span data-i18n="control-center-search-engine"></span>
         <select complementarySearchChanger
+                class="custom-dropdown"
                 data-target="complementary_search">
           {{#each module.autocomplete.state}}
             <option {{#if default }}selected{{/if}} value="{{ name }}">[{{ prefix }}] {{ name }}</option>
