@@ -9,8 +9,10 @@
        {{search-alias model=model type=type index=index alias=model.searchAlias}}
       {{/if}}
     </div>
-    <div class="title">{{model.displayTitle}}</div>
+    <div class="title">--{{model.count}}--{{model.displayTitle}}</div>
   </a>
+  <span style="position:absolute; top: 5px; left: 5px">{{model.count}}</span>
+
   <a class="delete" {{action "remove"}}>X</a>
 
   <menu type="context" id="speedDialCMenu-{{index}}-{{type}}">
@@ -20,3 +22,4 @@
      {{/unless}}
  </menu>
 </section>
+

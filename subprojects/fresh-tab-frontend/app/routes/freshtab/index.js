@@ -36,7 +36,15 @@ export default Ember.Route.extend({
   },
 
   afterModel(model) {
-
+    this.get('cliqz').getNotificationsCount().then(counts => {
+      const speedDials = model.get('speedDials.history').concat(model.get('speedDials.custom'));
+      Object.keys(counts).forEach(domain => {
+        const speedDial = speedDials.findBy('displayTitle', domain);
+        if (speedDial) {
+          speedDial.set('count', counts[domain]);
+        }
+      })
+    }).catch(e => console.error("err", e));
     this.get('cliqz').getNews().then( news => {
       model.get('news').setProperties({
         version: news.version,

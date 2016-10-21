@@ -150,7 +150,8 @@ export default background({
     }).then( response => {
       this.mm.broadcast(`window-${windowId}`, {
         response,
-        action: msg.data.payload.action,
+        action,
+        module,
         requestId,
       });
     }).catch(console.error.bind(null, "Process Script", `${action}/${module}`));
