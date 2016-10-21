@@ -135,7 +135,7 @@
         <select complementarySearchChanger
                 data-target="complementary_search">
           {{#each module.autocomplete.state}}
-            <option {{#if default }}selected{{/if}} value={{ name }} >[{{ prefix }}] {{ name }}</option>
+            <option {{#if default }}selected{{/if}} value="{{ name }}">[{{ prefix }}] {{ name }}</option>
           {{/each}}
         </select>
       </span>
