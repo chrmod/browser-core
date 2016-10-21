@@ -103,9 +103,9 @@ export class Cron {
     this.tasks.push(new Task(func, pattern));
   }
 
-  run(date) {
+  run(date, { force } = { force: false }) {
     this.tasks
-      .filter(task => task.shouldRun(date))
+      .filter(task => force || task.shouldRun(date))
       .forEach(task => utils.setTimeout(task.run, 0, date));
   }
 
@@ -116,7 +116,7 @@ export class Cron {
 
 // Anacron
 export default class extends Cron {
-  constructor(storage, { name = 'telemetry.anacron' } = { }) {
+  constructor(storage, { name = 'core.anacron' } = { }) {
     super();
     this.storage = storage;
     // TODO: test getting of setting

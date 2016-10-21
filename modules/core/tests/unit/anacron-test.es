@@ -1,4 +1,4 @@
-export default describeModule("telemetry/anacron",
+export default describeModule("core/anacron",
   function () {
     return {
       'core/cliqz': { utils: { } },
