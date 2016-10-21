@@ -26,7 +26,8 @@ var babelOptions = {
   filterExtensions: ['es'],
   modules: 'system',
   moduleIds: true,
-  compact: false
+  compact: false,
+  blacklist: ['regenerator'],
 };
 
 function getPlatformTree() {
