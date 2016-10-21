@@ -90,6 +90,12 @@ function step1() {
     resumed: 'false'
   });
 
+  window.postMessage(JSON.stringify({
+    target: 'cliqz',
+    module: 'onboarding-v2',
+    action: 'step1'
+  }), '*');
+
   //=== STEP 1 Tooltip Trigger
   openTooltip1 = setTimeout(function () {
     $('#cqb-atr-on').tooltipster('open');

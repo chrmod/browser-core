@@ -75,6 +75,8 @@ var CLIQZEnvironment = {
         'partials/lyrics'
     ],
     CLIQZ_ONBOARDING: "about:onboarding",
+    BROWSER_ONBOARDING_PREF: "browserOnboarding",
+    BROWSER_ONBOARDING_STEP_PREF: "browserOnboarding-step",
 
     init: function(){
 

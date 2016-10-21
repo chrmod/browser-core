@@ -1,6 +1,5 @@
 import prefs from '../core/prefs';
 import utils from "core/utils";
-import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 /**
 * @namespace onboarding
 */
@@ -22,13 +21,6 @@ export default class {
   * @method init
   */
   init() {
-    if(onboardingVersion() === "2.0") {
-      if(shouldShowOnboardingV2()) {
-        utils.openLink(this.window, utils.CLIQZ_ONBOARDING);
-        return;
-      }
-    }
-
     if(this.cliqzOnboarding || !this.onInstall){
       return;
     } else {
