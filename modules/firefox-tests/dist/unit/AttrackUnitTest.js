@@ -292,5 +292,46 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
         });
       });
     });
+
+    describe('onBeforeRequest', function() {
+
+        var uid = '04C2EAD03BAB7F5E-2E85855CF4C75134';
+
+        beforeEach(function() {
+          CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
+          attrack.qs_whitelist.addSafeToken(md5('tracker.com').substring(0, 16), '');
+          attrack.tokenDomainCountThreshold = 0; // block first time
+        });
+
+        it('removes all occurances of uid in the request', function() {
+          expect(attrack.httpopenObserver.observe({
+              tabId: 34,
+              frameId: 34,
+              parentFrameId: 34,
+              method: 'GET',
+              type: 6,
+              url: 'http://cliqztest.com/',
+              getRequestHeader: mockGetRequestHeader,
+              originUrl: '',
+              source: '',
+            })).to.be.undefined;
+          var response = attrack.httpopenObserver.observe({
+            tabId: 34,
+            frameId: 34,
+            parentFrameId: 34,
+            method: 'GET',
+            type: 11,
+            url: 'http://tracker.com/track;uid=' + uid + '?uid2=' + uid + '&encuid=' + encodeURIComponent(uid),
+            getRequestHeader: mockGetRequestHeader,
+            originUrl: 'http://cliqztest.com',
+            source: 'http://cliqztest.com',
+            isPrivate: false,
+          });
+          chai.expect(response).to.have.property('redirectUrl');
+          chai.expect(response.redirectUrl).to.not.contain(uid);
+          chai.expect(response.redirectUrl).to.not.contain(encodeURIComponent(uid));
+        });
+      });
+
   });
 };

@@ -924,7 +924,7 @@ html {
     background-position: 95% center;
 }
 
-.ask-dropdown {
+.custom-dropdown {
     cursor: pointer;
     margin-left: 5px;
     position: relative;
@@ -988,6 +988,11 @@ html {
             opacity: 1;
         }
     }
+}
+
+.location-more {
+    text-decoration: underline;
+    padding-left: 10px;
 }
 
 .clearfix:after {

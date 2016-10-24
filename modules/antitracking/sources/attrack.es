@@ -252,6 +252,10 @@ var CliqzAttrack = {
             if (source_url != null) {
                 source_url_parts = URLInfo.get(source_url);
 
+                // skip for chrome and resource protcols
+                if (source_url_parts.protocol === 'chrome' || source_url_parts.protocol === 'resource') {
+                    return;
+                }
                 // same general domain
                 same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd) {
@@ -587,6 +591,11 @@ var CliqzAttrack = {
 
             source_url_parts = URLInfo.get(source_url);
             var req_log = null;
+
+            // skip for chrome and resource protcols
+            if (source_url_parts.protocol === 'chrome' || source_url_parts.protocol === 'resource') {
+                return;
+            }
 
             var same_gd = false;
             if (url_parts.hostname!='' && source_url_parts && source_url_parts.hostname!='') {

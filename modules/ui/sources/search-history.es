@@ -5,6 +5,7 @@
  */
 
 import utils from 'core/utils';
+import config from "core/config";
 
 /* Responsible for managing the 'Letzte Eingabe' button/dropdown. */
 var CliqzSearchHistory = {
@@ -89,6 +90,7 @@ var CliqzSearchHistory = {
             lq = this.windows[window_id].lastSearchElement;
 
         this.windows[window_id].searchHistoryContainer.className = 'cliqz-urlbar-Last-search-container';
+        this.windows[window_id].searchHistoryContainer.setAttribute('channel', config.settings.channel);
         lq.textContent = q;
         lq.tooltipText = q;
         lq.query = q;

@@ -1254,7 +1254,7 @@
       "message": "Anti-Phishing"
     },
     "control-center-info-phishing": {
-      "message": "Potentiell betrügerische Websites, die es auf deine Passwörter und Kontodaten abgesehen haben, werden mit der Anti-Tracking Technologie vorzeitig erkannt und blockiert."
+      "message": "Potentiell betrügerische Websites, die es auf deine Passwörter und Kontodaten abgesehen haben, werden mit der Anti-Phishing Technologie vorzeitig erkannt und blockiert."
     },
     "control-center-info-ads-title": {
       "message": "Werbeblocker"

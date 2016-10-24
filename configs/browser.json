@@ -11,7 +11,8 @@
     "channel": "40",
     "antitrackingButton": true,
     "helpMenus": true,
-    "showNewBrandAlert": true
+    "showNewBrandAlert": true,
+    "onBoardingVersion": "2.0"
   },
   "default_prefs" : {
     "modules.context-search.enabled": false
@@ -27,7 +28,6 @@
     "human-web",
     "anti-phishing",
     "context-menu",
-    "onboarding",
     "freshtab",
     "unblock",
     "theme",
