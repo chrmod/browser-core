@@ -32,7 +32,8 @@ function localizeDocument() {
   Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), el => {
     var elArgs = el.dataset.i18n.split(','),
         key = elArgs.shift();
-    el.textContent = chrome.i18n.getMessage(key, elArgs);
+
+    el.innerHTML = chrome.i18n.getMessage(key, elArgs);
   });
 }
 
