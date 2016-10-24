@@ -1,7 +1,7 @@
 import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
-import { utils, events } from 'core/cliqz';
+import { utils } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 import { AdultDomain } from 'core/adult-domain';
@@ -32,10 +32,6 @@ export default background({
   */
   init(settings) {
     FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
-    events.sub( "control-center:amo-cliqz-tab", function() {
-      FreshTab.toggleState();
-    })
-
     this.adultDomainChecker = new AdultDomain();
   },
   /**
@@ -47,7 +43,7 @@ export default background({
   },
 
   isAdult(url) {
-    return this.adultDomainChecker.isAdult(CliqzUtils.getDetailsFromUrl(url).domain);
+    return this.adultDomainChecker.isAdult(utils.getDetailsFromUrl(url).domain);
   },
 
   actions: {
@@ -368,5 +364,11 @@ export default background({
       return Promise.resolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
     },
 
-  }
+  },
+
+  events: {
+    "control-center:amo-cliqz-tab": function () {
+      FreshTab.toggleState();
+    },
+  },
 });
