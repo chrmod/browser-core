@@ -1,48 +1,56 @@
 import { log } from 'adblocker/utils';
 
+
 // Uniq ID generator
 let uidGen = 0;
+function getUID() {
+  return uidGen++;
+}
+
 
 const SEPARATOR = /[/^*]/;
 
 
 export function serializeFilter(filter) {
-  const serialized = Object.assign({}, filter);
-  if (filter.optDomains) {
-    serialized.optDomains = [...serialized.optDomains.values()];
-  }
-  if (serialized.optNotDomains) {
-    serialized.optNotDomains = [...serialized.optNotDomains.values()];
-  }
-  if (serialized.regex) {
-    serialized.regex = serialized.regex.toString();
-  }
+  const serialized = Object.assign(Object.create(null), filter);
+  try {
+    if (filter.optDomains) {
+      serialized.optDomains = [...serialized.optDomains.values()];
+    }
+    if (serialized.optNotDomains) {
+      serialized.optNotDomains = [...serialized.optNotDomains.values()];
+    }
+    if (serialized.regex) {
+      serialized.regex = serialized.regex.toString();
+    }
+  } catch (e) { log(`EXCEPTION SERIALIZING ${e} ${e.stack}`); }
   return serialized;
 }
 
 
 export function deserializeFilter(serialized) {
+  const filter = serialized;
   try {
-  if (serialized.optDomains instanceof Array) {
-    serialized.optDomains = new Set(serialized.optDomains);
-  }
-  if (serialized.optNotDomains instanceof Array) {
-    serialized.optNotDomains = new Set(serialized.optNotDomains);
-  }
-  if (serialized.regex) {
-    const m = serialized.regex.match(/\/(.*)\/(.*)?/);
-    serialized.regex = new RegExp(m[1], m[2] || '');
-  }
-  // Assign a new id to the filter
-  serialized.id = uidGen++;
+    if (filter.optDomains instanceof Array) {
+      filter.optDomains = new Set(filter.optDomains);
+    }
+    if (filter.optNotDomains instanceof Array) {
+      filter.optNotDomains = new Set(filter.optNotDomains);
+    }
+    if (filter.regex) {
+      const m = filter.regex.match(/\/(.*)\/(.*)?/);
+      filter.regex = new RegExp(m[1], m[2] || '');
+    }
+    // Assign a new id to the filter
+    filter.id = getUID();
   } catch (e) { log(`EXCEPTION DESERIALIZE ${e} ${e.stack}`); }
-  return serialized;
+  return filter;
 }
 
 
 class AdCosmetics {
   constructor(line, sharpIndex) {
-    this.id = uidGen++;
+    this.id = getUID();
 
     this.rawLine = line;
     this.supported = true;
@@ -147,7 +155,7 @@ function isRegex(filter, start, end) {
 class AdFilter {
   constructor(line) {
     // Assign an id to the filter
-    this.id = uidGen++;
+    this.id = getUID();
 
     this.rawLine = line;
     this.filterStr = null;
@@ -341,7 +349,7 @@ class AdFilter {
   }
 
   parseOptions(rawOptions) {
-    rawOptions.split(',').forEach(rawOption => {
+    rawOptions.split(',').forEach((rawOption) => {
       let negation = false;
       let option = rawOption;
 
@@ -366,7 +374,7 @@ class AdFilter {
           this.optDomains = new Set();
           this.optNotDomains = new Set();
 
-          optionValues.forEach(value => {
+          optionValues.forEach((value) => {
             if (value) {
               if (value.startsWith('~')) {
                 this.optNotDomains.add(value.substring(1));
@@ -511,7 +519,7 @@ export default function parseList(list) {
     const networkFilters = [];
     const cosmeticFilters = [];
 
-    list.forEach(line => {
+    list.forEach((line) => {
       if (line) {
         const filter = parseFilter(line.trim());
         if (filter.supported && !filter.isComment) {
