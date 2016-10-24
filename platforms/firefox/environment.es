@@ -448,7 +448,7 @@ var CLIQZEnvironment = {
     historySearch: (function(){
         var hist = null;
 
-        return function(q, callback, sessionStart){
+        return function(q, callback){
             if(hist === null) { //lazy
               // history autocomplete provider is removed
               // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
@@ -469,38 +469,31 @@ var CLIQZEnvironment = {
             if(q.length != 0 && urlbar().value.length == 0)
               return;
 
-            if(q.length == 0 && sessionStart){
-                NewTabUtils.links.populateCache(function(){
-                    callback(null, getTopSites());
-                })
-            }
-            else {
-                hist.startSearch(q, 'enable-actions', null, {
-                    onSearchResult: function(ctx, result) {
-                        var res = [];
-                        for (var i = 0; result && i < result.matchCount; i++) {
-                            if(result.getStyleAt(i).indexOf('heuristic') != -1 ||
-                               result.getStyleAt(i).indexOf('switchtab') != -1){
-                              // filter out "heuristic" results
-                              continue;
-                            }
-                            res.push({
-                                style:   result.getStyleAt(i),
-                                value:   result.getValueAt(i),
-                                image:   result.getImageAt(i),
-                                comment: result.getCommentAt(i),
-                                label:   result.getLabelAt(i)
-                            });
+            hist.startSearch(q, 'enable-actions', null, {
+                onSearchResult: function(ctx, result) {
+                    var res = [];
+                    for (var i = 0; result && i < result.matchCount; i++) {
+                        if(result.getStyleAt(i).indexOf('heuristic') != -1 ||
+                           result.getStyleAt(i).indexOf('switchtab') != -1){
+                          // filter out "heuristic" results
+                          continue;
                         }
-                        callback({
-                            query: q,
-                            results: res,
-                            ready:  result.searchResult != result.RESULT_NOMATCH_ONGOING &&
-                                    result.searchResult != result.RESULT_SUCCESS_ONGOING
-                        })
+                        res.push({
+                            style:   result.getStyleAt(i),
+                            value:   result.getValueAt(i),
+                            image:   result.getImageAt(i),
+                            comment: result.getCommentAt(i),
+                            label:   result.getLabelAt(i)
+                        });
                     }
-                });
-            }
+                    callback({
+                        query: q,
+                        results: res,
+                        ready:  result.searchResult != result.RESULT_NOMATCH_ONGOING &&
+                                result.searchResult != result.RESULT_SUCCESS_ONGOING
+                    })
+                }
+            });
         }
     })(),
     getNoResults: function() {
@@ -556,6 +549,7 @@ function urlbar(){
   return CLIQZEnvironment.getWindow().CLIQZ.Core.urlbar;
 }
 
+// TODO - revive this one
 function getTopSites(){
     var results = NewTabUtils.links.getLinks().slice(0, 5);
     if(results.length>0){
