@@ -318,12 +318,36 @@ function draw(data){
     $('.setting-accordion .setting-accordion-section-content').slideUp(150).removeClass('open');
   }
 
-  $('.accordion-active-title').click(function(e) {
-    //temporary disable accordion for attrack EX-2875
-    if($(this).attr('data-target').indexOf('attrack') == 0) {
-      return;
+  $('.setting-accordion-section-title').on('click', function(e) {
+    e.stopPropagation();
+    let index = $(this).attr('data-index'),
+        url = e.currentTarget.getAttribute('openUrl'),
+        target = $(this).attr('data-target'),
+        closePopup = e.currentTarget.dataset.closepopup || true;
+    //openURL already sends telemetry data
+    if($(this).attr('openUrl')) {
+      sendMessageToWindow({
+        action: 'openURL',
+        data: {
+          url: url,
+          target: target,
+          closePopup: closePopup,
+          index: index
+        }
+      });
+    } else {
+      sendMessageToWindow({
+        action: 'sendTelemetry',
+        data: {
+          target: target,
+          action: 'click',
+          index: index
+        }
+      });
     }
+  });
 
+  $('.accordion-active-title').click(function(e) {
     e.preventDefault();
     var currentAttrValue = $(this).attr('href'),
         state;
@@ -337,15 +361,6 @@ function draw(data){
       $('.setting-accordion ' + currentAttrValue).slideDown(150).addClass('open');
       state = 'expanded';
     }
-
-    sendMessageToWindow({
-      action: 'sendTelemetry',
-      data: {
-        target: $(this).attr('data-target'),
-        state: state,
-        action: 'click'
-      }
-    });
   });
 
   function close_accordion_section() {
@@ -389,13 +404,12 @@ function draw(data){
   });
 
   //====== SETTING SECTION =========//
-  $('.setting').click(function(e) {
+  $('.setting').on('click', function(e) {
     var $main = $(this).closest('#control-center'),
         $othersettings = $main.find('#othersettings'),
         $setting = $(this).closest('.setting'),
         $section = $setting.attr('data-section'),
         $target = $setting.attr('data-target');
-
     if (isNonClickable($section)) {
       return;
     } else if ($(e.target).hasClass('cqz-switch-box')) {
@@ -412,8 +426,9 @@ function draw(data){
       return;
     } else if ($(e.target).hasClass('cqz-switch-box')) {
       return;
+    } else if($(e.target).hasClass('active-window-tracking')) {
+      return
     }
-
     sendMessageToWindow({
       action: 'sendTelemetry',
       data: {
