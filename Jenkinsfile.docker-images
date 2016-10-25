@@ -23,6 +23,15 @@ node('ubuntu && docker && !gpu') {
       app.push 'latest'
     }
 
+    stage('testem image') {
+      def app = docker.build(
+        'navigation-extension/testem',
+        "--build-arg UID=1001 --build-arg GID=1001 -f Dockerfile.testem ."
+      )
+
+      app.push 'latest'
+    }
+
     stage('firefox images') {
       firefoxVersions = helpers.firefoxVersions
 

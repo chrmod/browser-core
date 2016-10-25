@@ -1,5 +1,7 @@
 #!/bin/env groovy
 
+def gitCommit = ''
+
 node('ubuntu && docker && !gpu') {
   stage('checkout') {
     checkout scm
@@ -33,7 +35,11 @@ node('ubuntu && docker && !gpu') {
     parameters(params)
   ])
 
-  def gitCommit = helpers.getGitCommit()
+  gitCommit = helpers.getGitCommit()
+
+  // stash dockerfile for use on other nodes without checkout
+  stash name: "test-helpers", includes: "build-helpers.groovy"
+
   def imgName = "navigation-extension/base:latest"
 
   sh "`aws ecr get-login --region=$AWS_REGION`"
@@ -47,24 +53,33 @@ node('ubuntu && docker && !gpu') {
             sh './fern.js install'
           }
 
-          // Build extension for integration tests
+          // mobile build and stash
+          withEnv(['CLIQZ_CONFIG_PATH=./configs/mobile-dev.json']) {
+            stage('fern build mobile') {
+              sh './fern.js build > /dev/null'
+              // stage built files for mobile testem test
+              stash name: "mobile-testem-build", includes: "bower_components/,build/,tests/,testem.json"
+            }
+          }
+
+          // desktop build & test
           withEnv(['CLIQZ_CONFIG_PATH=./configs/jenkins.json']) {
-            stage('fern build') {
-              sh './fern.js build'
+            stage('fern build desktop') {
+              sh './fern.js build > /dev/null'
             }
 
             stage('fern test') {
+              sh 'rm -rf unittest-report.xml'
               try {
-                sh 'rm -rf unittest-report.xml'
-                  sh './fern.js test --ci unittest-report.xml'
+                sh './fern.js test --ci unittest-report.xml > /dev/null'
               } catch(err) {
                 print "TESTS FAILED"
-                  currentBuild.result = "FAILURE"
+                currentBuild.result = "FAILURE"
               } finally {
                 step([
-                    $class: 'JUnitResultArchiver',
-                    allowEmptyResults: false,
-                    testResults: 'unittest-report.xml',
+                  $class: 'JUnitResultArchiver',
+                  allowEmptyResults: false,
+                  testResults: 'unittest-report.xml',
                 ])
               }
             }
@@ -91,7 +106,6 @@ node('ubuntu && docker && !gpu') {
 stage('tests') {
   // Define version of firefox we want to test
   // Full list here: https://ftp.mozilla.org/pub/firefox/releases/
-
   // The extension will be tested on each specified firefox version in parallel
   def stepsForParallel = [:]
   def firefoxVersions = helpers.firefoxVersions
@@ -100,7 +114,7 @@ stage('tests') {
     def entry = firefoxVersions.get(i)
     def version = entry[0]
     def url = entry[1]
-    stepsForParallel[version] = {
+    stepsForParallel['Firefox ' + version] = {
       build(
         job: 'nav-ext-browser-matrix-v3',
         parameters: [
@@ -112,6 +126,44 @@ stage('tests') {
     }
   }
 
-  // Run tests in parallel
+  stepsForParallel['testem mobile'] = {
+    node('ubuntu && docker && !gpu') {
+      // load files for test into workspace
+      unstash "mobile-testem-build"
+      unstash "test-helpers"
+
+      def helpers = load 'build-helpers.groovy'
+      def imgName = "navigation-extension/testem"
+
+      sh "`aws ecr get-login --region=$AWS_REGION`"
+
+      docker.withRegistry(DOCKER_REGISTRY_URL) {
+        timeout(20) {
+          helpers.reportStatusToGithub 'testem mobile', gitCommit, {
+            def image = docker.image(imgName)
+            image.pull()
+            docker.image(image.imageName()).inside() {
+              sh 'rm -rf report.xml'
+              try {
+                sh 'xvfb-run --server-args="-screen 0 800x480x8" --auto-servernum testem ci -l Mocha,Chromium -R xunit -d > report.xml'
+                return 'report.xml'
+              } catch(err) {
+                print "TESTS FAILED"
+                currentBuild.result = "FAILURE"
+                throw err
+              } finally {
+                step([
+                  $class: 'JUnitResultArchiver',
+                  allowEmptyResults: false,
+                  testResults: 'report.xml',
+                ])
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   parallel stepsForParallel
 }

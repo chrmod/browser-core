@@ -47,4 +47,42 @@ def withCache(Closure body=null) {
   }
 }
 
+def reportStatusToGithub(String name, String commit, Closure test) {
+  setGithubCommitStatus(name, 'pending', '', commit)
+  def report = ''
+  try {
+    report = test()
+  } catch(err) {
+    setGithubCommitStatus(name, 'error', err, commit)
+    return
+  }
+  if (report == '') {
+    setGithubCommitStatus(name, 'error', 'no results found', commit)
+  } else {
+    try {
+      // check if there are no errors
+      sh('grep -v \'failures="0" errors="0"\' ' + report)
+      setGithubCommitStatus(name, 'success', 'finished without errors', commit)
+    } catch (err) {
+      setGithubCommitStatus(name, 'failure', 'some tests failed', commit)
+    }
+  }
+}
+
+def setGithubCommitStatus(context, status, description, COMMIT_ID) {
+  withCredentials([[$class: 'StringBinding', credentialsId: '5d3e0a3c-2490-491b-8a67-aa5eab2f27f2', variable: 'GITHUB_TOKEN']]) {
+    sh """
+      curl -XPOST \
+           -H "Authorization: token \$GITHUB_TOKEN" \
+           https://api.github.com/repos/cliqz/navigation-extension/statuses/${COMMIT_ID} \
+           -d '{ \
+                "state": "${status}", \
+                "target_url": "${env.BUILD_URL}", \
+                "description": "${description}", \
+                "context": "${context}" \
+              }'
+    """
+  }
+}
+
 return this
