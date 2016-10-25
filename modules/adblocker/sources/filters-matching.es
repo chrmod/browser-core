@@ -1,3 +1,5 @@
+import { TLDs } from 'antitracking/domain';
+
 
 // Some content policy types used in filters
 const CPT = {
@@ -146,13 +148,89 @@ function checkPattern(filter, request) {
 }
 
 
-export default function match(filter, request) {
+export function matchNetworkFilter(filter, request) {
   if (filter.supported) {
     if (!checkOptions(filter, request)) {
       return false;
     }
 
     return checkPattern(filter, request);
+  }
+
+  return false;
+}
+
+
+/* Checks that hostnamePattern matches at the end of the hostname.
+ * Partial matches are allowed, but hostname should be a valid
+ * subdomain of hostnamePattern.
+ */
+function checkHostnamesPartialMatch(hostname, hostnamePattern) {
+  if (hostname.endsWith(hostnamePattern)) {
+    const patternIndex = hostname.indexOf(hostnamePattern);
+    if (patternIndex === 0 || (patternIndex !== -1 && hostname.charAt(patternIndex - 1) === '.')) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+/* Checks if `hostname` matches `hostnamePattern`, which can appear as
+ * a domain selector in a cosmetic filter: hostnamePattern##selector
+ *
+ * It takes care of the concept of entities introduced by uBlock: google.*
+ * https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#entity-based-cosmetic-filters
+ */
+function matchHostname(hostname, hostnamePattern) {
+  const globIndex = hostnamePattern.indexOf('.*');
+  if (globIndex === (hostnamePattern.length - 2)) {
+    // Match entity:
+    const entity = hostnamePattern.substring(0, globIndex);
+
+    // Ignore TLDs suffix
+    const parts = hostname.split('.').reverse();
+    let i = 0;
+    while (i < parts.length && TLDs[parts[i]]) {
+      i += 1;
+    }
+
+    // Check if we have a match
+    if (i < parts.length) {
+      return checkHostnamesPartialMatch(parts.splice(i).reverse().join('.'), entity);
+    }
+
+    return false;
+  }
+
+  return checkHostnamesPartialMatch(hostname, hostnamePattern);
+}
+
+
+function matchHostnames(hostname, hostnames) {
+  // TODO: Do we want to return `true` when there is no hostname constraint?
+  if (!hostnames) {
+    return false;
+  }
+
+  for (const hn of hostnames) {
+    if (matchHostname(hostname, hn)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+export function matchCosmeticFilter(filter, hostname) {
+  if (filter.supported) {
+    if (filter.hostnames && hostname) {
+      return matchHostnames(hostname, filter.hostnames);
+    }
+
+    return true;
   }
 
   return false;
