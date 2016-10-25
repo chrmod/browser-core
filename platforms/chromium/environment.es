@@ -203,7 +203,7 @@ const CLIQZEnvironment = {
     }
   },
 
-  historySearch: function(q, callback, searchParam, sessionStart) {
+  historySearch: function(q, callback, searchParam) {
     chrome.cliqzSearchPrivate.queryHistory(q, (query, matches, finished) => {
       var res = matches.map(function(match) {
           return {

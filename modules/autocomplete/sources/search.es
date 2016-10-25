@@ -226,10 +226,7 @@ export default class Search {
       this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
       this.historyTimeout = false;
       // trigger history search
-      utils.historySearch(
-          searchString,
-          this.onHistoryDone.bind(this),
-          CliqzAutocomplete.sessionStart);
+      utils.historySearch(searchString, this.onHistoryDone.bind(this));
 
       var hist_search_type = utils.getPref('hist_search_type', 0);
       if (hist_search_type != 0) {
@@ -374,7 +371,7 @@ export default class Search {
       }
   }
 
-  onHistoryDone(result, resultExtra) {
+  onHistoryDone(result) {
       if(!this.startTime) {
           return; // no current search, just discard
       }
@@ -440,7 +437,7 @@ export default class Search {
 
         if((now > this.startTime + utils.RESULTS_TIMEOUT) ||
            (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
-            this.backendResultsReady) { // all results are ready
+            this.cliqzResults) { // all results are ready
           /// Push full result
           utils.clearTimeout(this.resultsTimer);
           utils.clearTimeout(this.historyTimer);
@@ -580,7 +577,6 @@ export default class Search {
                      (attemptsSoFar || 0) + 1);
           json.results = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
           this.cliqzResults = json.results;
-          this.backendResultsReady = true;
           utils.log(json.results ? json.results.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
 
           this.cliqzResultsParams = {
@@ -688,7 +684,6 @@ export default class Search {
   fullWrapup(obj) {
     if (!this.waitingForPromise) {
       obj.sendResultsSignal(obj, false);
-      obj.backendResultsReady = false;
       obj.startTime = null;
       utils.clearTimeout(obj.resultsTimer);
       utils.clearTimeout(obj.historyTimer);
