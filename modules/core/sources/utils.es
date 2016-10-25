@@ -55,6 +55,7 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   hm: null,
+  hw: null,
   mc: null,
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   TEMPLATES: CLIQZEnvironment.TEMPLATES,
