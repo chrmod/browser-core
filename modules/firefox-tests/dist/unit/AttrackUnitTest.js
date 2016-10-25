@@ -301,10 +301,11 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
           CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
           attrack.qs_whitelist.addSafeToken(md5('tracker.com').substring(0, 16), '');
           attrack.tokenDomainCountThreshold = 0; // block first time
+          attrack.initComponents();
         });
 
         it('removes all occurances of uid in the request', function() {
-          expect(attrack.httpopenObserver.observe({
+          var mainDoc = attrack.httpopenObserver.observe({
               tabId: 34,
               frameId: 34,
               parentFrameId: 34,
@@ -314,7 +315,10 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
               getRequestHeader: mockGetRequestHeader,
               originUrl: '',
               source: '',
-            })).to.be.undefined;
+            });
+          expect(mainDoc).to.not.have.property('cancel');
+          expect(mainDoc).to.not.have.property('redirectUrl');
+          expect(mainDoc).to.not.have.property('requestHeaders');
           var response = attrack.httpopenObserver.observe({
             tabId: 34,
             frameId: 34,
