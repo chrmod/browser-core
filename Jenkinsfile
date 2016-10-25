@@ -2,6 +2,32 @@
 
 @NonCPS def entries(m) {m.collect {k, v -> [k, v]}}
 
+props = entries([
+  'DOCKER_REGISTRY_URL': 'https://141047255820.dkr.ecr.us-east-1.amazonaws.com',
+  'AWS_REGION': 'us-east-1'
+])
+
+params = []
+
+for (int i = 0; i < props.size(); i++) {
+  def prop  = props.get(i)
+  def propName = prop[0]
+  def propValue = prop[1]
+  def binding = getBinding()
+
+  if (!binding.hasVariable(propName)) {
+    binding.setVariable(propName, propValue)
+  }
+
+  params.push(
+    string(defaultValue: propValue, description: '', name: propName)
+  )
+}
+
+properties([
+  parameters(params)
+])
+
 node('ubuntu && docker && !gpu') {
   stage('checkout') {
     checkout scm
@@ -9,50 +35,49 @@ node('ubuntu && docker && !gpu') {
 
   def helpers = load 'build-helpers.groovy'
   def gitCommit = helpers.getGitCommit()
-  def imgName = "cliqz/navigation-extension:${env.BUILD_TAG}"
+  def imgName = "navigation-extension/base:latest"
 
-  stage('docker build') {
-    sh "docker build -t ${imgName} --build-arg UID=`id -u` --build-arg GID=`id -g` ."
-    dockerFingerprintFrom dockerfile: './Dockerfile', image: imgName, toolName: env.DOCKER_TOOL_NAME
-  }
+  sh "`aws ecr get-login --region=$AWS_REGION`"
 
-  timeout(60) {
-    docker.image(imgName).inside() {
+  docker.withRegistry(DOCKER_REGISTRY_URL) {
+    timeout(60) {
+      docker.image(imgName).inside() {
 
-      helpers.withCache {
-        stage('fern install') {
-          sh './fern.js install'
-        }
-
-        // Build extension for integration tests
-        withEnv(['CLIQZ_CONFIG_PATH=./configs/jenkins.json']) {
-          stage('fern build') {
-            sh './fern.js build'
+        helpers.withCache {
+          stage('fern install') {
+            sh './fern.js install'
           }
 
-          stage('fern test') {
-            try {
-              sh 'rm -rf unittest-report.xml'
-              sh './fern.js test --ci unittest-report.xml'
-            } catch(err) {
-              print "TESTS FAILED"
-              currentBuild.result = "FAILURE"
-            } finally {
-              step([
-                $class: 'JUnitResultArchiver',
-                allowEmptyResults: false,
-                testResults: 'unittest-report.xml',
-              ])
+          // Build extension for integration tests
+          withEnv(['CLIQZ_CONFIG_PATH=./configs/jenkins.json']) {
+            stage('fern build') {
+              sh './fern.js build'
+            }
+
+            stage('fern test') {
+              try {
+                sh 'rm -rf unittest-report.xml'
+                  sh './fern.js test --ci unittest-report.xml'
+              } catch(err) {
+                print "TESTS FAILED"
+                  currentBuild.result = "FAILURE"
+              } finally {
+                step([
+                    $class: 'JUnitResultArchiver',
+                    allowEmptyResults: false,
+                    testResults: 'unittest-report.xml',
+                ])
+              }
             }
           }
         }
-      }
 
-      stage('package') {
-        sh """
-          cd build
-          fab package:beta=True,version=${gitCommit}
-        """
+        stage('package') {
+          sh """
+            cd build
+            fab package:beta=True,version=${gitCommit}
+          """
+        }
       }
     }
   }
