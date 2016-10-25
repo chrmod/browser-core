@@ -222,15 +222,14 @@ export default class Search {
           CliqzAutocomplete.spellCheck.resetState();
       }
 
+      utils.clearTimeout(this.historyTimer);
+      this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
+      this.historyTimeout = false;
       // trigger history search
       utils.historySearch(
           searchString,
           this.onHistoryDone.bind(this),
           CliqzAutocomplete.sessionStart);
-
-      utils.clearTimeout(this.historyTimer);
-      this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
-      this.historyTimeout = false;
 
       var hist_search_type = utils.getPref('hist_search_type', 0);
       if (hist_search_type != 0) {
