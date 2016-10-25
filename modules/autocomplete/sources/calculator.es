@@ -149,11 +149,13 @@ var CliqzCalculator = {
         subType: {type: 'calculator'},
         template: 'calculator',
         snippet: {
-          expression: expandedExpression,
-          answer: this.CALCULATOR_RES,
-          is_calculus: true,
-          // TODO: support_copy_ans should be platform specific
-          support_copy_ans: true
+          extra: {
+            expression: expandedExpression,
+            answer: this.CALCULATOR_RES,
+            is_calculus: true,
+            // TODO: support_copy_ans should be platform specific
+            support_copy_ans: true
+          }
         }
       }
     );

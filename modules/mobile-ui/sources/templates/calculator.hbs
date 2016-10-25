@@ -13,14 +13,14 @@
 <section class="primary">
 
     <h1 class="card__title">
-       {{timeOrCalculator data.ez_type}} {{data.location}}
+       {{timeOrCalculator data.extra.ez_type}} {{data.extra.location}}
     </h1>
 
 
     <div class="card__description">
-        {{#if data.is_calculus}}
+        {{#if data.extra.is_calculus}}
             <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
-            {{#with data}}
+            {{#with data.extra}}
                 <div class="main">
                    <div class="main__headline">{{prefix_answer}} <span id='calc-answer'>{{answer}}</span></div>
                    <div class="expression "> {{expression}}</div>
@@ -33,9 +33,9 @@
             </div>
         {{else}}
             <div class='cqz-result-h3 ez-calculator'>
-            {{#with data}}
+            {{#with data.extra}}
                 <div>
-                   <div class="answer">{{prefix_answer}} {{answer}}</div>
+                   <div class="answer calc-answer">{{prefix_answer}} {{answer}}</div>
                    <div class="expression">{{expression}}</div>
                 </div>
             {{/with}}

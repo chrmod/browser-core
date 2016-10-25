@@ -76,10 +76,7 @@ function getHbasedNewsObject() {
       return (hbasedResults
             && hbasedResults.results
             && hbasedResults.results[0]
-            && hbasedResults.results[0].snippet
-            && hbasedResults.results[0].snippet
-            && hbasedResults.results[0].snippet.extra
-            && hbasedResults.results[0].snippet.extra.news)
+            && hbasedResults.results[0].news)
             || {};
     }
 
@@ -119,7 +116,7 @@ function getHbasedNewsObject() {
             ]
           };
 
-      requestPromise = requestBackend(url, data)
+      requestPromise = requestBackend(url, JSON.stringify(data))
         .then((reqData) => filterNotRequiredDomains(reqData, hbasedRecom));
     }
 
