@@ -37,9 +37,11 @@ const baseDir = cliqzConfig.testsBasePath;
 
 log(`baseDir ${baseDir}`);
 
+const baseURL = baseDir + (cliqzConfig.platform === 'mobile' ? '/dev' : '');
+
 System.config({
   defaultJSExtensions: true,
-  baseURL: baseDir,
+  baseURL,
   meta: {
     '*': { format: 'register' },
   },
@@ -156,6 +158,9 @@ mocha.run = function () {
         path => System.import(path).then(function (testModule) {
           log(`load ${path}`);
           return testModule.default;
+        }).catch(function (e) {
+          console.error(e)
+          throw e
         })
       )
     ).then(function () {

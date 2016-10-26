@@ -2,7 +2,9 @@ import helpers from 'control-center/content/helpers';
 import { messageHandler, sendMessageToWindow } from 'control-center/content/data';
 import $ from 'jquery';
 import Handlebars from 'handlebars';
+import templates from 'control-center/templates';
 
+Handlebars.partials = templates;
 var slideUp = $.fn.slideUp;
 var slideDown = $.fn.slideDown;
 function resize() {
@@ -302,16 +304,16 @@ function draw(data){
     console.log('Drawing: ', data);
   }
 
-  document.getElementById('control-center').innerHTML = CLIQZ.templates['template'](data)
-  document.getElementById('anti-phising').innerHTML = CLIQZ.templates['anti-phising'](data);
-  document.getElementById('anti-tracking').innerHTML = CLIQZ.templates['anti-tracking'](data);
+  document.getElementById('control-center').innerHTML = templates['template'](data)
+  document.getElementById('anti-phising').innerHTML = templates['anti-phising'](data);
+  document.getElementById('anti-tracking').innerHTML = templates['anti-tracking'](data);
 
   if(data.amo) {
-    document.getElementById('amo-privacy-cc').innerHTML = CLIQZ.templates['amo-privacy-cc']();
-    document.getElementById('cliqz-tab').innerHTML = CLIQZ.templates['amo-cliqz-tab'](data);
+    document.getElementById('amo-privacy-cc').innerHTML = templates['amo-privacy-cc']();
+    document.getElementById('cliqz-tab').innerHTML = templates['amo-cliqz-tab'](data);
   } else {
-    document.getElementById('ad-blocking').innerHTML = CLIQZ.templates['ad-blocking'](data);
-    document.getElementById('https').innerHTML = CLIQZ.templates['https'](data);
+    document.getElementById('ad-blocking').innerHTML = templates['ad-blocking'](data);
+    document.getElementById('https').innerHTML = templates['https'](data);
   }
 
   function close_setting_accordion_section() {

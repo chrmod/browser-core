@@ -220,9 +220,6 @@ var CLIQZEnvironment = {
 
         return decodeURIComponent(eTLDService.getPublicSuffixFromHost(utf8str));
     },
-    getBrandsDBUrl: function(version){
-      return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
-    },
     isPrivate: function(win) {
         // try to get the current active window
         if(!win) win = CLIQZEnvironment.getWindow();

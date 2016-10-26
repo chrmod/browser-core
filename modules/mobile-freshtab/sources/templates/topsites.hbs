@@ -9,8 +9,9 @@
           <td align="center" valign="top">
             {{#if this}}
               <div class="blockTopsite" mainDomain="{{mainDomain}}" {{#unless ../isEditMode}} style="display: none;" {{/unless}} data-index="{{@index}}">X</div>
-              <div class="topSitesLink" url="{{url}}" data-index="{{@index}}">
+              <div class="topSitesLink" data-url="{{url}}" data-index="{{@index}}">
                   <div class="topsites__item"
+                   data-index="{{@index}}"
                    style="{{style}}"
                    show-status=""
                    extra="{{extra}}"
@@ -18,7 +19,7 @@
                   </div>
               </div>
             {{else}}
-              <div class="topsites__item {{../theme}}"></div>
+              <div class="topsites__item"></div>
             {{/if}}
           </td>
       {{/each}}

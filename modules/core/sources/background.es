@@ -1,14 +1,15 @@
 import { events, Promise } from "core/cliqz";
 import utils from "./utils";
-import console from "core/console";
-import language from "platform/language";
-import config from "core/config";
+import console from "./console";
+import language from "./language";
+import config from "./config";
 import ProcessScriptManager from "platform/process-script-manager";
 import HistoryManager from "./history-manager";
-import Language from "./language";
 import prefs from './prefs';
 import background from './base/background';
-import { Window, mapWindows } from '../platform/browser';
+import { Window, mapWindows } from 'platform/browser';
+import loadLogoDb from "platform/load-logo-db";
+import { isMobile } from "./platform";
 
 var lastRequestId = 0;
 var callbacks = {};
@@ -16,10 +17,17 @@ var callbacks = {};
 export default background({
 
   init(settings) {
-    this.checkSession();
-    Language.init();
-    HistoryManager.init();
+    if (!isMobile) {
+      this.checkSession();
+      language.init();
+      HistoryManager.init();
+    }
+    utils.CliqzLanguage = language;
     this.dispatchMessage = this.dispatchMessage.bind(this);
+
+    utils.bindObjectFunctions(this.actions, this);
+    loadLogoDb().then(utils.setLogoDb);
+
     this.mm = new ProcessScriptManager(this.dispatchMessage);
     this.mm.init();
 
@@ -28,7 +36,7 @@ export default background({
 
   unload() {
     utils.clearTimeout(this.report);
-    Language.unload();
+    language.unload();
     HistoryManager.unload();
     this.mm.unload();
   },
