@@ -7,53 +7,52 @@ const Ci = Components.interfaces;
 
 function format(currWin, url, md5, logging, domWinID) {
     let doc = currWin.document;
-
-    if (doc.getElementById('phishing-url')) {
-      doc.getElementById('phishing-url').innerText = url;
-    } else {
-      CliqzUtils.setTimeout(() => {
-        doc.getElementById('phishing-url').innerText = url;
+    if (!(doc.getElementById('phishing-url'))) {
+      setTimeout(() => {
+        format(currWin, url, md5, logging, domWinID);
       }, 100);
-    }
-    const validUrl = CliqzAntiPhishing.getValidUrl(domWinID);
-    delete CliqzAntiPhishing.history[domWinID];
-    doc.getElementsByClassName('cqz-button-save-out')[0].onclick = function() {
-      if (logging) {
-        CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'safe_out'});
-        // Modify human-web url to log the user interactions
-        // Note: there might be loss of data due to double fetch
-        if (CliqzHumanWeb && CliqzHumanWeb.state.v[url]) {
-          CliqzHumanWeb.state.v[url]['anti-phishing'] = 'safe_out';
+    } else {
+      doc.getElementById('phishing-url').innerText = url;
+      const validUrl = CliqzAntiPhishing.getValidUrl(domWinID);
+      delete CliqzAntiPhishing.history[domWinID];
+      doc.getElementsByClassName('cqz-button-save-out')[0].onclick = function() {
+        if (logging) {
+          CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'safe_out'});
+          // Modify human-web url to log the user interactions
+          // Note: there might be loss of data due to double fetch
+          if (CliqzHumanWeb && CliqzHumanWeb.state.v[url]) {
+            CliqzHumanWeb.state.v[url]['anti-phishing'] = 'safe_out';
+          }
         }
-      }
-      currWin.location.replace(validUrl);
-    };
+        currWin.location.replace(validUrl);
+      };
 
-    if (logging) {
-      doc.getElementById('learn-more').onclick = function() {
-        CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'learn_more'});
-      }
-    }
-    doc.getElementById('report-safe').onclick = function() {
       if (logging) {
-        CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'report'});
-        if (CliqzHumanWeb && CliqzHumanWeb.state.v[url]) {
-          CliqzHumanWeb.state.v[url]['anti-phishing'] = 'report';
+        doc.getElementById('learn-more').onclick = function() {
+          CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'learn_more'});
         }
       }
-      CliqzAntiPhishing.forceWhiteList[md5] = 1;
-      currWin.location.replace(url);
-    };
-    let proceedBt = doc.getElementById('proceed');
-    proceedBt.onclick = function() {
-      if (logging) {
-        CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'ignore'});
-        if (CliqzHumanWeb && CliqzHumanWeb.state.v[url]) {
-          CliqzHumanWeb.state.v[url]['anti-phishing'] = 'ignore';
+      doc.getElementById('report-safe').onclick = function() {
+        if (logging) {
+          CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'report'});
+          if (CliqzHumanWeb && CliqzHumanWeb.state.v[url]) {
+            CliqzHumanWeb.state.v[url]['anti-phishing'] = 'report';
+          }
         }
+        CliqzAntiPhishing.forceWhiteList[md5] = 1;
+        currWin.location.replace(url);
+      };
+      let proceedBt = doc.getElementById('proceed');
+      proceedBt.onclick = function() {
+        if (logging) {
+          CliqzUtils.telemetry({type: 'anti-phishing', action: 'click', target: 'ignore'});
+          if (CliqzHumanWeb && CliqzHumanWeb.state.v[url]) {
+            CliqzHumanWeb.state.v[url]['anti-phishing'] = 'ignore';
+          }
+        }
+        CliqzAntiPhishing.forceWhiteList[md5] = 2;
+        currWin.location.replace(url);
       }
-      CliqzAntiPhishing.forceWhiteList[md5] = 2;
-      currWin.location.replace(url);
     }
 };
 
