@@ -47,8 +47,8 @@ def withCache(Closure body=null) {
   }
 }
 
-def reportStatusToGithub(String name, String commit, Closure test) {
-  setGithubCommitStatus(name, 'pending', '', commit)
+def reportStatusToGithub(String name, String commit, String pending, Closure test) {
+  setGithubCommitStatus(name, 'pending', pending, commit)
   def report = ''
   try {
     report = test()

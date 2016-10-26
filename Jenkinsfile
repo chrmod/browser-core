@@ -38,7 +38,7 @@ node('ubuntu && docker && !gpu') {
   gitCommit = helpers.getGitCommit()
 
   // stash dockerfile for use on other nodes without checkout
-  stash name: "test-helpers", includes: "build-helpers.groovy"
+  stash name: "test-helpers", includes: "build-helpers.groovy,run_tests_testem.sh"
 
   def imgName = "navigation-extension/base"
 
@@ -129,7 +129,11 @@ stage('tests') {
   }
 
   stepsForParallel['testem mobile'] = {
-    node('ubuntu && docker && !gpu') {
+    node('ubuntu-docker-gpu') {
+      def HOST = sh(returnStdout: true, script: '/sbin/ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | awk \'{ print $1}\'').trim()
+      def NUMBER = env.BUILD_NUMBER.padLeft(5, "00000")
+      def VNC_PORT = "20${NUMBER[-3..-1]}"
+
       // load files for test into workspace
       unstash "mobile-testem-build"
       unstash "test-helpers"
@@ -141,13 +145,13 @@ stage('tests') {
 
       docker.withRegistry(DOCKER_REGISTRY_URL) {
         timeout(20) {
-          helpers.reportStatusToGithub 'testem mobile', gitCommit, {
+          helpers.reportStatusToGithub 'testem mobile', gitCommit, "VNC $HOST:$VNC_PORT", {
             def image = docker.image(imgName)
             image.pull()
-            docker.image(image.imageName()).inside() {
+            docker.image(image.imageName()).inside("-p $VNC_PORT:5900 --device /dev/nvidia0 --device /dev/nvidiactl") {
               sh 'rm -rf report.xml'
               try {
-                sh 'xvfb-run --server-args="-screen 0 800x480x8" --auto-servernum testem ci -l Mocha,Chromium -R xunit -d > report.xml'
+                sh './run_tests_testem.sh'
                 return 'report.xml'
               } catch(err) {
                 print "TESTS FAILED"

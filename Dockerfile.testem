@@ -2,7 +2,11 @@ FROM node:5.11.1
 
 # chromium in xvfb for browser tests
 RUN apt-get update && \
-  apt-get install -y chromium xvfb
+  apt-get install -y \
+  chromium \
+  x11vnc \
+  openbox \
+  xvfb
 
 # testem executable
 RUN npm install -g testem
@@ -17,3 +21,5 @@ RUN groupadd jenkins -g $GID \
 RUN mkdir /tmp/.X11-unix \
  && chmod 1777 /tmp/.X11-unix \
  && chown root /tmp/.X11-unix
+
+EXPOSE 5900
