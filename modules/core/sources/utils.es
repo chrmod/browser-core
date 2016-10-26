@@ -2,7 +2,9 @@ import CLIQZEnvironment from "platform/environment";
 import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
-import CliqzLanguage from "platform/language";
+//import CliqzLanguage from "platform/language";
+
+var CliqzLanguage;
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
@@ -86,7 +88,9 @@ var CliqzUtils = {
     CLIQZEnvironment.getLogoDetails = CliqzUtils.getLogoDetails.bind(CliqzUtils);
     CLIQZEnvironment.getDetailsFromUrl = CliqzUtils.getDetailsFromUrl.bind(CliqzUtils);
     CLIQZEnvironment.getLocalizedString = CliqzUtils.getLocalizedString.bind(CliqzUtils);
-
+    System.import('platform/language').then((module) => {
+      CliqzLanguage = module.default;
+    })
     CliqzUtils.log('Initialized', 'CliqzUtils');
 
     CliqzUtils.setLang(options.lang);
