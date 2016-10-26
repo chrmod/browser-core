@@ -40,13 +40,15 @@ node('ubuntu && docker && !gpu') {
   // stash dockerfile for use on other nodes without checkout
   stash name: "test-helpers", includes: "build-helpers.groovy"
 
-  def imgName = "navigation-extension/base:latest"
+  def imgName = "navigation-extension/base"
 
   sh "`aws ecr get-login --region=$AWS_REGION`"
 
   docker.withRegistry(DOCKER_REGISTRY_URL) {
     timeout(60) {
-      docker.image(imgName).inside() {
+      def image = docker.image(imgName)
+      image.pull()
+      docker.image(image.imageName()).inside() {
 
         helpers.withCache {
           stage('fern install') {
