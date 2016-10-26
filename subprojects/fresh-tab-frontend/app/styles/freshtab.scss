@@ -469,6 +469,18 @@ body.freshTabContainer {
       white-space: nowrap;
       overflow: hidden;
       max-width: 186px;
+
+      strong {
+        font-weight: bold;
+      }
+    }
+
+    .new-notifications {
+      .title {
+        strong {
+          color: red;
+        }
+      }
     }
   }
 

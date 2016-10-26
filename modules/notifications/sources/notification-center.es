@@ -1,17 +1,18 @@
-import Gmail from './providers/gmail';
+import console from '../core/console';
 import { Cron } from '../core/anacron';
+import Gmail from './providers/gmail';
 import Storage from './storage';
 
 const AVAILABLE_DOMAINS = {
   'gmail.com': {
     providerName: 'gmail',
     config: {},
-    schedule: '*/10 *',
+    schedule: '*/1 *',
   },
   'mail.google.com': {
     providerName: 'gmail',
     config: {},
-    schedule: '*/10 *',
+    schedule: '*/1 *',
   },
 };
 
@@ -32,8 +33,10 @@ export default class {
         const Provider = AVAILABLE_PROVIDERS[providerName];
 
         this.cron.schedule(() => {
+          console.log('Notification', `get notifications for ${domain}`);
           const provider = new Provider(config);
           provider.count().then(count => {
+            console.log('Notification', `notifications for ${domain} - count ${count}`);
             this.storage.updateDomain(domain, { count });
           });
         }, schedule);

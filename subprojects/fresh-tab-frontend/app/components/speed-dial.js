@@ -1,7 +1,10 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+
   cliqz: Ember.inject.service(),
+
+  classNames: ['new-notifications'],
 
   click(ev) {
     this.get('cliqz').sendTelemetry({
@@ -11,6 +14,7 @@ export default Ember.Component.extend({
       target_index: this.get('index')
     });
   },
+
   actions: {
     remove() {
       this.sendAction("removeAction", this.get('model'));
