@@ -17,7 +17,7 @@ node('ubuntu && docker && !gpu') {
     stage('base image') {
       def app = docker.build(
         'navigation-extension/base',
-        "--build-arg UID=1001 --build-arg GID=1001 ."
+        "--build-arg UID=1000 --build-arg GID=1000 ."
       )
 
       app.push 'latest'
@@ -26,7 +26,7 @@ node('ubuntu && docker && !gpu') {
     stage('testem image') {
       def app = docker.build(
         'navigation-extension/testem',
-        "--build-arg UID=1001 --build-arg GID=1001 -f Dockerfile.testem ."
+        "--build-arg UID=1000 --build-arg GID=1000 -f Dockerfile.testem ."
       )
 
       app.push 'latest'
