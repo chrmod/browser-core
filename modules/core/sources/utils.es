@@ -2,6 +2,7 @@ import CLIQZEnvironment from "platform/environment";
 import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
+import CliqzEvents from 'core/events';
 //import CliqzLanguage from "platform/language";
 
 var CliqzLanguage;
@@ -843,6 +844,21 @@ var CliqzUtils = {
     CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
     CliqzUtils.setResultOrder('');
     CliqzUtils.log(params, 'Utils.resultTelemetry');
+    CliqzEvents.pub("human-web:sanitize-result-telemetry",
+      { type: 'extension-result-telemetry',
+        q: query,
+        s: CliqzUtils.encodeSessionParams(),
+        msg: {
+          i: resultIndex,
+          o: CliqzUtils.encodeResultOrder(),
+          u: (resultUrl ? resultUrl : ''),
+          a: (queryAutocompleted ? queryAutocompleted : ''),
+          e: (extra ? extra : '')
+        },
+        endpoint: CliqzUtils.RESULTS_PROVIDER_LOG,
+        method: "GET",
+      }
+    );
   },
   _resultOrder: '',
   setResultOrder: function(resultOrder) {

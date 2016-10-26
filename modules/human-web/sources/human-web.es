@@ -4,12 +4,15 @@ import core from "core/background";
 import { utils } from "core/cliqz";
 import md5 from "core/helpers/md5";
 import ResourceLoader from 'core/resource-loader';
+import CliqzEvents from 'core/events';
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
+const dnsService = Components.classes["@mozilla.org/network/dns-service;1"]
+  .createInstance(Components.interfaces.nsIDNSService);
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 var refineFuncMappings ;
@@ -2032,6 +2035,7 @@ var CliqzHumanWeb = {
     unloadAtBrowser: function(){
         try {
             CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
+            CliqzEvents.un_sub("human-web:sanitize-result-telemetry", CliqzHumanWeb.sanitizeResultTelemetry);
         } catch(e){}
     },
     currentURL: function() {
@@ -2342,11 +2346,11 @@ var CliqzHumanWeb = {
         });
 
         rsStrict.onUpdate( e => CliqzHumanWeb.loadContentExtraction(e, "strict"));
-
     },
     initAtBrowser: function(){
         if(CliqzUtils.getPref("dnt", false)) return;
         CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
+        CliqzEvents.sub("human-web:sanitize-result-telemetry", CliqzHumanWeb.sanitizeResultTelemetry);
     },
     state: {'v': {}, 'm': [], '_id': Math.floor( Math.random() * 1000 ) },
     hashCode: function(s) {
@@ -4150,6 +4154,160 @@ var CliqzHumanWeb = {
                 CliqzHumanWeb.saveStrictQueries();
             }
         })
+    },
+    isSuspiciousQuery: function(query) {
+        //Remove the msg if the query is too long,
+        if (query.length > 50) return true;
+        if (query.split(' ').length > 7) return true;
+
+        // Remove the msg if the query contains a number longer than 7 digits
+        // can be 666666 but also things like (090)90-2, 5555 3235
+        // note that full dates will be removed 2014/12/12
+        //
+        var haslongnumber = CliqzHumanWeb.checkForLongNumber(query, 7);
+        if (haslongnumber!=null) return true;
+
+
+        //Remove if email (exact), even if not totally well formed
+        if (CliqzHumanWeb.checkForEmail(query)) return true;
+        //Remove if query looks like an http pass
+        if (/[^:]+:[^@]+@/.test(query)) return true;
+        //Remove if email
+        if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(query)) return true;
+
+        var v = query.split(' ');
+        for(let i=0;i<v.length;i++) {
+            if (v[i].length > 20) return true;
+            if (/[^:]+:[^@]+@/.test(v[i])) return true;
+            if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v[i])) return true;
+        }
+
+        if (query.length > 12) {
+
+            var cquery = query.replace(/[^A-Za-z0-9]/g,'');
+
+            if (cquery.length > 12) {
+                var pp = CliqzHumanWeb.isHashProb(cquery);
+                // we are a bit more strict here because the query
+                // can have parts well formed
+                if (pp < CliqzHumanWeb.probHashThreshold*1.5) return true;
+            }
+        }
+        return false;
+    },
+    fetchDNS: function(host){
+        let promise = new Promise(function(resolve, reject){
+        dnsService.asyncResolve(host,
+                                0,
+                                {
+                                    onLookupComplete: function(request, record, status) {
+                                        if (!Components.isSuccessCode(status)) {
+                                            // Handle error here
+                                            return;
+                                        }
+                                        let address = record.getNextAddrAsString();
+                                        CliqzUtils.log(host + " = " + address);
+                                        if (CliqzHumanWeb.isIPInternal(address)) {
+                                            resolve(true);
+                                            return;
+                                        } else {
+                                            resolve(false);
+                                        }
+                                    }
+                                },
+                                null
+                                );
+        });
+        return promise;
+    },
+    isIPInternal: function(ip) {
+        // Need to check for ipv6.
+        const ipSplit = ip.split(".");
+        if(ipSplit[0] === "10" ||
+            (ipSplit[0] === "172" && (ipSplit[1] >= "16" && ipSplit[1] <= "31")) ||
+            (ipSplit[0] === "192" && ipSplit[1] === "168")) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    sanitizeResultTelemetry: function(data) {
+        /*
+            1. Check if there is a query.
+            2. Check if the query is a URL.
+            3. Check the length of the query.
+            4. Check if the URL is suspicious / private.
+            5. Check if URL is too long too be masked.
+        */
+        const msg = data.msg;
+        const msgType = data.type;
+
+        let query = data.q;
+        let url = msg.u;
+
+        // Check if there is a query.
+        if (!query || query.length == 0) {
+            CliqzUtils.log("No Query");
+            return;
+        }
+
+        // If suspicious query.
+         if (CliqzHumanWeb.isSuspiciousQuery(query)) {
+            CliqzUtils.log("Query is suspicious");
+            return;
+        }
+
+        // Check if query is like a URL.
+        let query_parts = CliqzHumanWeb.parseURL(query);
+        let queryLikeURL = false;
+        if ( query_parts.protocol === "http"  || query_parts.protocol === "https"  || query_parts.protocol === "www") {
+            queryLikeURL = true;
+        }
+
+        if (queryLikeURL &&
+            (CliqzHumanWeb.isSuspiciousURL(query) || CliqzHumanWeb.dropLongURL(query))) {
+            CliqzUtils.log("Query is dangerous");
+            // return;
+        };
+
+        // Check if query and url are same
+        if (queryLikeURL && (query === url)) {
+            CliqzUtils.log("Query same as URL");
+            // return;
+        }
+
+        if (url && url.length > 0) {
+            // Check if the URL is marked as already private.
+            const urlPrivate = CliqzHumanWeb.bloomFilter.testSingle(md5(url));
+            if (urlPrivate) {
+                CliqzUtils.log("Url is marked private");
+                return;
+            }
+
+            // Check URL is suspicious
+            if (CliqzHumanWeb.isSuspiciousURL(url)) {
+                CliqzUtils.log("Url is suspicious");
+                return;
+            }
+
+            // Check for DNS.
+            const host = CliqzHumanWeb.parseURL(url).hostname;
+            CliqzHumanWeb.fetchDNS(host).then( res => {
+                if (res) {
+                    return;
+                } else {
+                    // Mask URL.
+                    url = CliqzHumanWeb.maskURL(url);
+                    CliqzUtils.log(">> URL :" + url + " Query: " + query );
+                    // CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
+
+                }
+            });
+        } else {
+            CliqzUtils.log(">> URL :" + url + " Query: " + query );
+        }
+
+
     }
 };
 
