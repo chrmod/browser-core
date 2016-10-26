@@ -359,7 +359,8 @@ export default class {
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: data.target,
-      action: 'click'
+      action: 'click',
+      index: data.index
     })
   }
 
@@ -597,12 +598,19 @@ export default class {
   }
 
   sendTelemetry(data) {
-    utils.telemetry({
-      type: TELEMETRY_TYPE,
-      target: data.target,
-      action: 'click',
-      state: data.state
-    });
+    let signal = {
+          type: TELEMETRY_TYPE,
+          target: data.target,
+          action: 'click'
+        },
+        state = data.state;
+    if (state) {
+      signal.state = state;
+    }
+    if (data.index) {
+      signal.index = data.index;
+    }
+    utils.telemetry(signal);
   }
 
   openPopUp() {
