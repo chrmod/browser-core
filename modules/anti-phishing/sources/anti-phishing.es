@@ -6,10 +6,15 @@ const WARNING = 'chrome://cliqz/content/anti-phishing/phishing-warning.html';
 const Ci = Components.interfaces;
 
 function format(currWin, url, md5, logging, domWinID) {
-    currWin.stop();
     let doc = currWin.document;
 
-    doc.getElementById('phishing-url').innerText = url;
+    if (doc.getElementById('phishing-url')) {
+      doc.getElementById('phishing-url').innerText = url;
+    } else {
+      CliqzUtils.setTimeout(() => {
+        doc.getElementById('phishing-url').innerText = url;
+      }, 100);
+    }
     const validUrl = CliqzAntiPhishing.getValidUrl(domWinID);
     delete CliqzAntiPhishing.history[domWinID];
     doc.getElementsByClassName('cqz-button-save-out')[0].onclick = function() {
@@ -87,6 +92,7 @@ function alert(aProgress, url, md5, logging, domWinID) {
     }
     return;
   }
+  currWin.stop();
   aProgress.loadURI(WARNING, Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_HISTORY, null, null, null);
 
   CliqzUtils.setTimeout(function (currWin, url, md5){
@@ -95,7 +101,7 @@ function alert(aProgress, url, md5, logging, domWinID) {
     urlbar.textValue = url;
     urlbar.value = url;
     urlbar.mInputField.value = url;
-  }, 100, currWin, url, md5);
+  }, 150, currWin, url, md5);
 };
 
 function checkPassword(url, callback) {
