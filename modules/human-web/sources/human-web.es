@@ -4157,7 +4157,6 @@ var CliqzHumanWeb = {
     },
     isSuspiciousQuery: function(query) {
         let query_parts = CliqzHumanWeb.parseURL(query);
-        CliqzUtils.log(">>>>> " + JSON.stringify(query_parts));
         if ( query_parts.hostname.indexOf('localhost') > -1){
             return true;
         }
