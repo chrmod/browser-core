@@ -5,7 +5,8 @@ import { log } from 'adblocker/utils';
 import parseList, { parseJSResource
                   , serializeFilter
                   , deserializeFilter } from 'adblocker/filters-parsing';
-import match from 'adblocker/filters-matching';
+import { matchNetworkFilter
+       , matchCosmeticFilter } from 'adblocker/filters-matching';
 
 
 const TOKEN_BLACKLIST = new Set([
@@ -219,7 +220,7 @@ class FilterReverseIndex {
       const filter = list[i];
       if (!checkedFilters.has(filter.id)) {
         checkedFilters.add(filter.id);
-        if (match(filter, request)) {
+        if (matchNetworkFilter(filter, request)) {
           log(`INDEX ${this.name} MATCH ${filter.rawLine} ~= ${request.url}`);
           return filter;
         }
@@ -525,7 +526,7 @@ class CosmeticBucket {
    * @param {Array} nodeInfo - Array of tuples [id, tagName, className].
   **/
   getMatchingRules(hostname, nodeInfo) {
-    const rules = [...this.miscFilters];
+    const rules = [...this.miscFilters.filter(filter => matchCosmeticFilter(filter, hostname))];
     const uniqIds = new Set();
 
     nodeInfo.forEach(node => {
@@ -533,7 +534,7 @@ class CosmeticBucket {
       node.forEach(token => {
         this.index.getFromKey(token).forEach(bucket => {
           bucket.forEach(rule => {
-            if (!uniqIds.has(rule.id)) {
+            if (!uniqIds.has(rule.id) && matchCosmeticFilter(rule, hostname)) {
               rules.push(rule);
               uniqIds.add(rule.id);
             }
@@ -698,7 +699,7 @@ class CosmeticEngine {
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
       for (const value of bucket.index.index.values()) {
         value.forEach(rule => {
-          if (!uniqIds.has(rule.id) && !rule.unhide) {
+          if (!uniqIds.has(rule.id) && !rule.unhide && matchCosmeticFilter(rule, hostname)) {
             if (rule.scriptInject) {
               // make sure the selector was replaced by javascript
               if (!rule.scriptReplaced) {
