@@ -1302,7 +1302,7 @@
       "message": "Automatischer Vergessen Modus"
     },
     "control-center-info-forget-mode": {
-      "message": "Websites, die bekannt sind für nicht-jugendfreie Inhalte, werden automatisch in einem Vergessen Tab geöffnet. das heißt, Besuche dieser Seiten werden nicht in der Chronik gespeichert."
+      "message": "Websites, die bekannt sind für nicht-jugendfreie Inhalte, werden automatisch in einem Vergessen Tab geöffnet. Das heißt, Besuche dieser Seiten werden nicht in der Chronik gespeichert."
     },
     "control-center-info-share-location-title": {
       "message": "Standort Teilen"
