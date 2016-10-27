@@ -4356,6 +4356,7 @@ var CliqzHumanWeb = {
                         data.msg.o +
                         (data.msg.e ? '&e=' + data.msg.e : '');
         const payLoadURL = data.endpoint + params;
+        _log(payLoadURL);
         CliqzUtils.httpGet(payLoadURL);
     }
 };
