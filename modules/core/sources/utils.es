@@ -834,16 +834,6 @@ var CliqzUtils = {
   },
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     CliqzUtils.setResultOrder(resultOrder);
-    var params = encodeURIComponent(query) +
-      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
-      '&i=' + resultIndex +
-      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeSessionParams() +
-      CliqzUtils.encodeResultOrder() +
-      (extra ? '&e=' + extra : '')
-    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
-    CliqzUtils.setResultOrder('');
-    CliqzUtils.log(params, 'Utils.resultTelemetry');
     CliqzEvents.pub("human-web:sanitize-result-telemetry",
       { type: 'extension-result-telemetry',
         q: query,
@@ -852,13 +842,14 @@ var CliqzUtils = {
           i: resultIndex,
           o: CliqzUtils.encodeResultOrder(),
           u: (resultUrl ? resultUrl : ''),
-          a: (queryAutocompleted ? queryAutocompleted : ''),
-          e: (extra ? extra : '')
+          a: queryAutocompleted,
+          e: extra
         },
         endpoint: CliqzUtils.RESULTS_PROVIDER_LOG,
         method: "GET",
       }
     );
+    CliqzUtils.setResultOrder('');
   },
   _resultOrder: '',
   setResultOrder: function(resultOrder) {

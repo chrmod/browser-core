@@ -4156,6 +4156,9 @@ var CliqzHumanWeb = {
         })
     },
     isSuspiciousQuery: function(query) {
+        // Query looks like internal page
+        if (query.indexOf('about:') == 0) return true;
+
         //Remove the msg if the query is too long,
         if (query.length > 50) return true;
         if (query.split(' ').length > 7) return true;
@@ -4198,25 +4201,25 @@ var CliqzHumanWeb = {
     fetchDNS: function(host){
         let promise = new Promise(function(resolve, reject){
         dnsService.asyncResolve(host,
-                                0,
-                                {
-                                    onLookupComplete: function(request, record, status) {
-                                        if (!Components.isSuccessCode(status)) {
-                                            // Handle error here
-                                            return;
-                                        }
-                                        let address = record.getNextAddrAsString();
-                                        CliqzUtils.log(host + " = " + address);
-                                        if (CliqzHumanWeb.isIPInternal(address)) {
-                                            resolve(true);
-                                            return;
-                                        } else {
-                                            resolve(false);
-                                        }
-                                    }
-                                },
-                                null
-                                );
+            0,
+            {
+                onLookupComplete: function(request, record, status) {
+                    if (!Components.isSuccessCode(status)) {
+                        // Handle error here
+                        resolve(false);
+                    }
+                    let address = record.getNextAddrAsString();
+                    _log("Host= " + host + " Address: " + address);
+                    if (CliqzHumanWeb.isIPInternal(address)) {
+                        resolve(true);
+                        return;
+                    } else {
+                        resolve(false);
+                    }
+                }
+            },
+            null
+            );
         });
         return promise;
     },
@@ -4233,27 +4236,24 @@ var CliqzHumanWeb = {
     },
     sanitizeResultTelemetry: function(data) {
         /*
-            1. Check if there is a query.
-            2. Check if the query is a URL.
-            3. Check the length of the query.
-            4. Check if the URL is suspicious / private.
-            5. Check if URL is too long too be masked.
+        Sanitize result telemetry before sending to the backend.
         */
         const msg = data.msg;
         const msgType = data.type;
 
         let query = data.q;
         let url = msg.u;
+        const hostName = CliqzHumanWeb.parseURL(url).hostname;
 
         // Check if there is a query.
         if (!query || query.length == 0) {
-            CliqzUtils.log("No Query");
+            _log("No Query");
             return;
         }
 
         // If suspicious query.
          if (CliqzHumanWeb.isSuspiciousQuery(query)) {
-            CliqzUtils.log("Query is suspicious");
+            _log("Query is suspicious");
             return;
         }
 
@@ -4266,48 +4266,60 @@ var CliqzHumanWeb = {
 
         if (queryLikeURL &&
             (CliqzHumanWeb.isSuspiciousURL(query) || CliqzHumanWeb.dropLongURL(query))) {
-            CliqzUtils.log("Query is dangerous");
-            // return;
+            _log("Query is dangerous");
+            return;
         };
 
         // Check if query and url are same
         if (queryLikeURL && (query === url)) {
-            CliqzUtils.log("Query same as URL");
-            // return;
+            _log("Query same as URL");
+            return;
         }
 
-        if (url && url.length > 0) {
+
+        // Queries also appear on the URL, in which
+        // case we need to check whether it's a URL or not.
+        if (hostName.length > 0 && url && url.length > 0) {
             // Check if the URL is marked as already private.
             const urlPrivate = CliqzHumanWeb.bloomFilter.testSingle(md5(url));
             if (urlPrivate) {
-                CliqzUtils.log("Url is marked private");
+                _log("Url is already marked private");
                 return;
             }
 
             // Check URL is suspicious
             if (CliqzHumanWeb.isSuspiciousURL(url)) {
-                CliqzUtils.log("Url is suspicious");
+                _log("Url is suspicious");
                 return;
             }
 
             // Check for DNS.
-            const host = CliqzHumanWeb.parseURL(url).hostname;
-            CliqzHumanWeb.fetchDNS(host).then( res => {
+            CliqzHumanWeb.fetchDNS(hostName).then( res => {
                 if (res) {
+                    _log("Private Domain");
                     return;
                 } else {
                     // Mask URL.
                     url = CliqzHumanWeb.maskURL(url);
-                    CliqzUtils.log(">> URL :" + url + " Query: " + query );
-                    // CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
-
+                    CliqzHumanWeb.sendResultTelemetry(query, url, data);
                 }
             });
         } else {
-            CliqzUtils.log(">> URL :" + url + " Query: " + query );
+            CliqzHumanWeb.sendResultTelemetry(query, url, data);
         }
 
 
+    },
+    sendResultTelemetry: function(query, url, data){
+        const params = encodeURIComponent(query) +
+                        (data.msg.a ? '&a=' + encodeURIComponent(data.msg.a) : '') +
+                        '&i=' + data.msg.i +
+                        (url ? '&u=' + encodeURIComponent(url) : '') +
+                        data.s +
+                        data.msg.o +
+                        (data.msg.e ? '&e=' + data.msg.e : '');
+        const payLoadURL = data.endpoint + params;
+        CliqzUtils.httpGet(payLoadURL);
     }
 };
 
