@@ -587,11 +587,6 @@ export default class Search {
       this.pushResults(q);
   }
 
-  createFavicoUrl(url) {
-      return 'http://cdnfavicons.cliqz.com/' +
-              url.replace('http://','').replace('https://','').split('/')[0];
-  }
-
   prepareResults(q) {
     this.instant = (this.instant || []).map(function(r) {
       r = Result.clone(r);
