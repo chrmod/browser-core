@@ -118,6 +118,9 @@ class AdBlocker {
             const totalTime = Date.now() - t0;
             this.log(`Serialized filters engine on disk (${totalTime} ms)`);
             this.engine.updated = false;
+          })
+          .catch((e) => {
+            CliqzUtils.log(`Failed to serialize filters engine on disk ${e}`, 'adblocker');
           });
       } else {
         this.log('Engine has not been updated, do not serialize');
@@ -159,7 +162,7 @@ class AdBlocker {
     // Load serialized engine from disk, then init filters manager
     new Resource(SERIALIZED_ENGINE_PATH)
       .load()
-      .then(serializedEngine => {
+      .then((serializedEngine) => {
         if (serializedEngine !== undefined) {
           try {
             const t0 = Date.now();
@@ -177,7 +180,11 @@ class AdBlocker {
         } else {
           this.log('No filter engine was serialized on disk');
         }
-
+      })
+      .catch((e) => {
+        this.log(`Failed to load filters engine from disk ${e}`, 'adblocker');
+      })
+      .then(() => {
         // Load files from disk, then check if we should update
         this.listsManager
           .load()
