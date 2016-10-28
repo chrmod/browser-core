@@ -1,6 +1,7 @@
 $urlbar-holder: 33px;
 $urlbar-elms-height: 32px;
-$buttons-hover-color: #fff;
+$buttons-hover-color: #e7e7e7;
+$buttons-hover-border-color: #dfdfdf;
 $browser-top-bg-color: #ccc;
 
 $tabs-height: 36px;
@@ -518,7 +519,7 @@ toolbarbutton#cliqz-cc-btn {
 
 
     &:hover {
-        border-color: #dfdfdf;
+        border-color: $buttons-hover-border-color;
         background: $buttons-hover-color;
     }
 
