@@ -3,6 +3,7 @@ $urlbar-elms-height: 32px;
 $buttons-hover-color: #fff;
 $browser-top-bg-color: #ccc;
 
+$tabs-height: 36px;
 $tab-border-color: #afafaf;
 $tab-selected-bg-color: #fff;
 $tab-bg-color: rgba(255, 255, 255, 0.1);
@@ -307,12 +308,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 .tabbrowser-tabs[positionpinnedtabs] > .tabbrowser-tab[pinned] {
-        .tab-stack {
-            margin: 0;
-        }
-        .tab-content {
-            height: $urlbar-elms-height;
-        }
+    .tab-stack {
+        margin: 0;
+        height: $tabs-height;
+    }
 }
 
 /*======== Removes Tabs Border ==========*/
@@ -381,20 +380,6 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     padding: 0 4px 0 0;
 }
 
-/*========== Tabs undeer window buttons*/
-
-/*#titlebar-placeholder-on-TabsToolbar-for-captions-buttons {*/
-/*display: none;*/
-/*}*/
-/*#TabsToolbar { padding-top: 7px; }*/
-/*.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox { -moz-padding-start: 2px; }*/
-
-/*#main-window[tabsintitlebar] > #titlebar {*/
-/*min-height: 0;*/
-/*margin-bottom: 0 !important;*/
-/*}*/
-
-/*========== END Tabs undeer window buttons*/
 
 @media (min-resolution: 2dppx) {
     .tabs-newtab-button,
@@ -629,7 +614,7 @@ toolbarbutton#cliqz-cc-btn {
 
 #TabsToolbar {
     padding-right: 60px; /*Reserve some space for dragging the window*/
-    min-height: 36px;
+    min-height: $tabs-height;
 }
 
 #navigator-toolbox:not([inFullscreen]) #tabbrowser-tabs {
