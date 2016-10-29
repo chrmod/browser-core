@@ -1772,7 +1772,7 @@ function onEnter(ev, item){
   }
   // Typed
   else if (!getResultSelection()){
-    if (dns.lookup(CliqzUtils.getDetailsFromUrl(input).domain)) {
+    if (!CliqzUtils.getPref("dnsLookup", false) || dns.lookup(CliqzUtils.getDetailsFromUrl(input).domain)) {
       logUIEvent({url: input}, "typed", {
         action: "result_enter",
         position_type: ['inbar_url'],
@@ -1787,7 +1787,6 @@ function onEnter(ev, item){
         lastAuto: lastAuto
       });
     } else {
-      // TODO: make DRY
       logUIEvent({url: input}, "google", {
         action: "result_enter",
         position_type: ['inbar_query'],
