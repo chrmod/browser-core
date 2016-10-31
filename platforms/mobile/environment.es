@@ -57,9 +57,7 @@ var CLIQZEnvironment = {
       'url',
       'logo',
       'EZ-category',
-      'EZ-history',
       'rd-h3-w-rating',
-      'pattern-h1',
       "local-data-sc"
   ],
   GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
@@ -100,25 +98,12 @@ var CLIQZEnvironment = {
       }
     }
   },
-  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
-  putHistoryFirst: function(r) {
-    var history = [], backend = [];
-    r._results.forEach(function (res) {
-      if(res.style === 'cliqz-pattern' || res.style === 'favicon') {
-        history.push(res);
-      } else {
-        backend.push(res);
-      }
-    });
-    r._results = history.concat(backend);
-  },
   resultsHandler: function (r) {
 
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
       console.log("u='"+CLIQZEnvironment.lastSearch+"'' s='"+r._searchString+"', returning","urlbar!=search");
       return;
     }
-    CLIQZEnvironment.putHistoryFirst(r);
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT);
 

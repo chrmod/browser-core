@@ -250,11 +250,8 @@ function redrawDropdown(newHTML) {
 }
 
 function getVertical(result) {
-  // if history records are less than 3 it goes to generic
   let template;
-  if (result.template === 'pattern-h3') {
-    template = 'history';
-  } else if(CliqzUtils.TEMPLATES[result.template]) {
+  if (CliqzUtils.TEMPLATES[result.template]) {
     template = result.template;
   } else {
     template = 'generic';
@@ -269,9 +266,9 @@ function enhanceResults(results) {
   let filteredResults = results.filter(function (r) { return !(r.data && r.data.extra && r.data.extra.adult); });
 
   filteredResults.forEach((r, index) => {
-    const _tmp = getDebugMsg(r.comment || '');
     const url = r.val || '';
-    const urlDetails = CliqzUtils.getDetailsFromUrl(url);
+    const urlDetails = url && CliqzUtils.getDetailsFromUrl(url);
+    const logo = urlDetails && CliqzUtils.getLogoDetails(urlDetails);
     const kind = r.data.kind[0];
     let historyStyle = '';
     if (kind === 'H' || kind === 'C') {
@@ -287,9 +284,8 @@ function enhanceResults(results) {
       historyStyle,
       url,
       urlDetails,
-      logo: CliqzUtils.getLogoDetails(urlDetails),
-      title: _tmp[0],
-      debug: _tmp[1]
+      logo,
+      title: r.title,
     }));
   });
 
