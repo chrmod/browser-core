@@ -151,7 +151,9 @@
 .cliqz-urlbar-Last-search {
     overflow: hidden;
     max-width: 200px;
-    padding: 5px 6px 0px 6px;
+    height: 24px;
+    line-height: 22px;
+    padding: 0 6px 0 6px;
     color: #fff;
     text-overflow: ellipsis;
     border-radius: 1px;
