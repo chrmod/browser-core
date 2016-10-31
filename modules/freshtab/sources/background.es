@@ -161,14 +161,12 @@ export default {
      * @param {item}  The item to be removed.
      */
     removeSpeedDial(item) {
-      var isCustom = item.custom,
-          url = isCustom ? item.url : utils.hash(item.url),
-          dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
-          found = false,
-          type = isCustom ? 'custom' : 'history';
+      const isCustom = item.custom;
+      const url = isCustom ? item.url : utils.hash(item.url);
+      const dialUps = JSON.parse(utils.getPref(DIALUPS, '{}', ''));
 
       if(isCustom) {
-        dialUps.custom = dialUps.custom.filter(function(dialup) {
+        dialUps.custom = dialUps.custom.filter(dialup => {
           return utils.tryDecodeURIComponent(dialup.url) !== url
         });
       } else {
