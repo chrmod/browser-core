@@ -11,13 +11,16 @@ var focusTotalTime = 0,
     focus = true;
 
 export default Ember.Route.extend({
-  cliqz: Ember.inject.service('cliqz'),
+  cliqz: Ember.inject.service(),
+  notifications: Ember.inject.service(),
 
   activate() {
+    this.get('notifications').start();
     Ember.$('body').addClass('freshTabContainer');
   },
 
   deactivate() {
+    this.get('notifications').stop();
     Ember.$('body').removeClass('freshTabContainer');
   },
 
@@ -48,16 +51,6 @@ export default Ember.Route.extend({
   },
 
   afterModel(model) {
-    this.get('cliqz').getNotificationsCount().then(counts => {
-      Object.keys(counts).forEach(domain => {
-        const speedDial = this.store.peekAll('speed-dial').forEach(dial => {
-          if (dial.get('displayTitle') === domain) {
-            dial.set('notificationCount', counts[domain]);
-          }
-        });
-      })
-    }).catch(e => console.error("err", e));
-
     this.get('cliqz').getNews().then( news => {
       model.get('news').setProperties({
         version: news.version,

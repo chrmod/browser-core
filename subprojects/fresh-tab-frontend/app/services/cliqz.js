@@ -217,15 +217,15 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({promise});
   },
 
-  getNotificationsCount() {
+  getNotifications() {
     let promise = new Promise( resolve => {
-      this.callbacks.getNotificationsCount = resolve;
+      this.callbacks.getNotifications = resolve;
     });
 
     window.postMessage(JSON.stringify({
       target: "cliqz",
       module: "notifications",
-      action: "getNotificationsCount",
+      action: "getNotifications",
     }), "*");
 
     return DS.PromiseObject.create({ promise });

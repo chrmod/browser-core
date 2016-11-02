@@ -8,6 +8,7 @@ export default Model.extend({
   title: attr(),
   logo: attr(),
   notificationCount: attr(),
+  hasNewNotifications: attr(),
   custom: attr(),
   searchAlias: attr(),
 });

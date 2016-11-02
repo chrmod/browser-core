@@ -1,4 +1,5 @@
 import utils from '../core/utils';
+import events from '../core/events';
 import background from '../core/base/background';
 import NotificationCenter from './notification-center';
 
@@ -6,10 +7,26 @@ export default background({
 
   init() {
     this.notificationCenter = new NotificationCenter();
+
+    this.onNewNotification = events.proxyEvent(
+      'notifications:new-notification',
+      this.notificationCenter,
+      'new-notification'
+    );
+
+    this.onNotificationsCleared = events.proxyEvent(
+      'notifications:notifications-cleared',
+      this.notificationCenter,
+      'notifications-cleared'
+    );
+
     this.notificationCenter.start();
   },
 
   unload() {
+    this.onNewNotification.unsubscribe();
+    this.onNotificationsCleared.unsubscribe();
+
     this.notificationCentera.stop();
     delete this.notificationCentera;
   },
@@ -31,29 +48,38 @@ export default background({
     /**
     * query store for notifications for specified sources
     */
-    getNotificationsCount() {
-      return this.notificationCenter.counts();
+    getNotifications() {
+      return this.notificationCenter.notifications();
     },
 
     /**
     * Add a new source to configuration
     **/
     watch(url) {
-      const domain = utils.getDetailsFromUrl(url);
-      return this.notificationCenter.addDomain(domain);
+      const domainDetails = utils.getDetailsFromUrl(url);
+      return this.notificationCenter.addDomain(domainDetails.host);
     },
 
     /**
     * Remove a url from notification sources
     **/
     unwatch(url) {
-      const domain = utils.getDetailsFromUrl(url);
-      return this.notificationCenter.removeDomain(domain);
+      return this.notificationCenter.removeDomain(domainDetails.host);
     },
 
     ignore(url) {
-      const domain = utils.getDetailsFromUrl(url);
-      return this.notificationCenter.ignoreDomain(domain);
+      const domainDetails = utils.getDetailsFromUrl(url);
+      return this.notificationCenter.ignoreDomain(domainDetails.host);
+    },
+  },
+
+  events: {
+    /*
+     * Clears unread status for domain at currently open tab
+     */
+    'core.location_change': function onLocationChange(url) {
+      const domainDetails = utils.getDetailsFromUrl(url);
+      this.notificationCenter.clearDomainUnread(domainDetails.host);
     },
   },
 });
