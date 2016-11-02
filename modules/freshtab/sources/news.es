@@ -338,18 +338,18 @@ function composeHistoryBasedRecommendations(globalVisitCount) {
     return i.count < j.count;
   }
 
-
   function getPressClipping(glVisitCount) {
     function getPressClipMapping(domain) {
       return PRESS_CLIPPING_MAPPING[parseInt(coreUtils.hash(domain), 10)] || false;
     }
     const glVisit = glVisitCount;
     const pressClipList = [];
+    const prClipThreshold = 5 ;
 
     let pressClipMapping;
     Object.keys(glVisit).forEach((domain) => {
       pressClipMapping = getPressClipMapping(domain);
-      if (typeof pressClipMapping === 'string') {
+      if ((typeof pressClipMapping === 'string') && (glVisit[domain].count > prClipThreshold)) {
         glVisit[domain].key = pressClipMapping;
         pressClipList.push(glVisit[domain]);
       }
