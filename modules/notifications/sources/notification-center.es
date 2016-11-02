@@ -2,6 +2,10 @@ import console from '../core/console';
 import { Cron } from '../core/anacron';
 import Gmail from './providers/gmail';
 import Storage from './storage';
+import Evented from '../core/mixins/evented';
+
+// TODO: find a way to handle aliases, example: gmail.com === mail.google.com
+
 
 const AVAILABLE_DOMAINS = {
   'gmail.com': {
@@ -20,7 +24,7 @@ const AVAILABLE_PROVIDERS = {
   'gmail': Gmail
 };
 
-export default class {
+export default Evented(class {
 
   constructor() {
     this.storage = new Storage();
@@ -37,7 +41,13 @@ export default class {
           const provider = new Provider(config);
           provider.count().then(count => {
             console.log('Notification', `notifications for ${domain} - count ${count}`);
-            this.storage.updateDomain(domain, { count });
+            const isChanged = this.storage.updateDomain(domain, { count });
+
+            if (isChanged) {
+              // TODO: remove double update
+              this.storage.updateDomain(domain, { unread: true });
+              this.updateUnreadStatus();
+            }
           });
         }, schedule);
       });
@@ -56,8 +66,26 @@ export default class {
     return this.storage.watchedDomainNames();
   }
 
-  counts() {
-    return this.storage.counts();
+  notifications() {
+    return this.storage.notifications();
+  }
+
+  updateUnreadStatus() {
+    const hasUnread = this.storage.hasUnread();
+    const eventName = hasUnread ? 'new-notification' : 'notifications-cleared';
+    this.publishEvent(eventName);
+  }
+
+  clearDomainUnread(domain) {
+    const isWatched = this.domainList().indexOf(domain) !== 1;
+    if (!isWatched) {
+      return;
+    }
+
+    const isChanged = this.storage.updateDomain(domain, { unread: false });
+    if (isChanged) {
+      this.updateUnreadStatus();
+    }
   }
 
   addDomain(domain) {
@@ -71,4 +99,4 @@ export default class {
   ignoreDomain(domain) {
 
   }
-}
+});

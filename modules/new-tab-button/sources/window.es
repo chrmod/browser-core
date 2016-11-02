@@ -20,13 +20,19 @@ export default class {
     this.actions = {
 
       lightUp: () => {
-        maybe(this, 'button').then(button => {
+        maybe(this, 'buttonA').then(button => {
+          button.classList.add('has-notification');
+        });
+        maybe(this, 'buttonB').then(button => {
           button.classList.add('has-notification');
         });
       },
 
       lightDown: () => {
-        maybe(this, 'button').then(button => {
+        maybe(this, 'buttonA').then(button => {
+          button.classList.remove('has-notification');
+        });
+        maybe(this, 'buttonB').then(button => {
           button.classList.remove('has-notification');
         });
       },
@@ -39,7 +45,7 @@ export default class {
     addStylesheet(this.window.document, this.cssUrl);
     this.panel.attach();
 
-    maybe(this, 'button').then(button => {
+    maybe(this, 'buttonA').then(button => {
       button.addEventListener('mouseover', this.onMouseOver);
       button.addEventListener('mouseout', this.onMouseOut);
     });
@@ -48,7 +54,7 @@ export default class {
   unload() {
     removeStylesheet(this.window.document, this.cssUrl);
 
-    maybe(this, 'button').then(button => {
+    maybe(this, 'buttonA').then(button => {
       button.removeEventListener('mouseover', this.onMouseOver);
       button.addEventListener('mouseout', this.onMouseOut);
 
@@ -57,7 +63,7 @@ export default class {
   }
 
   onMouseOver() {
-    maybe(this, 'button').then(button => {
+    maybe(this, 'buttonA').then(button => {
       //this.panel.open(button);
     });
   }
@@ -66,8 +72,12 @@ export default class {
     //this.panel.hide();
   }
 
-  button() {
+  buttonA() {
     return this.window.document.getAnonymousElementByAttribute(
       this.window.gBrowser.tabContainer, 'anonid', 'tabs-newtab-button');
+  }
+
+  buttonB() {
+    return this.window.document.getElementById('new-tab-button');
   }
 }

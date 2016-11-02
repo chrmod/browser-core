@@ -4,7 +4,8 @@ export default Ember.Component.extend({
 
   cliqz: Ember.inject.service(),
 
-  classNames: ['new-notifications'],
+  classNameBindings: ['model.hasNewNotifications:new-notifications'],
+
 
   click(ev) {
     this.get('cliqz').sendTelemetry({
