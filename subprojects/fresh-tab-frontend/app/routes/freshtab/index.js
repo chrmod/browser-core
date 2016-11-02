@@ -1,5 +1,4 @@
 import Ember from "ember";
-import SpeedDials from "../../models/speed-dials";
 
 var focusTotalTime = 0,
     displayTotalTime = 0,
@@ -23,11 +22,24 @@ export default Ember.Route.extend({
   },
 
   model() {
-    return this.get('cliqz').getSpeedDials().then( speedDials => {
+    return this.get('cliqz').getSpeedDials().then(speedDials => {
+      const allDials = speedDials.history.concat(speedDials.custom);
+      this.store.push({
+        data: allDials.map(dial => {
+          return {
+            id: dial.url,
+            type: 'speed-dial',
+            attributes: Object.assign({
+              type: dial.custom ? 'custom' : 'history',
+            }, dial),
+          };
+        })
+      });
+
       return Ember.Object.create({
         speedDials: {
-          history: speedDials.history.map(dial => Ember.Object.create(dial)),
-          custom: speedDials.custom.map(dial => Ember.Object.create(dial)),
+          history: this.store.peekAll('speed-dial').filterBy('type', 'history').toArray(),
+          custom: this.store.peekAll('speed-dial').filterBy('type', 'custom').toArray(),
         },
         news: Ember.ArrayProxy.create()
       });
@@ -37,14 +49,15 @@ export default Ember.Route.extend({
 
   afterModel(model) {
     this.get('cliqz').getNotificationsCount().then(counts => {
-      const speedDials = model.get('speedDials.history').concat(model.get('speedDials.custom'));
       Object.keys(counts).forEach(domain => {
-        const speedDial = speedDials.findBy('displayTitle', domain);
-        if (speedDial) {
-          speedDial.set('count', counts[domain]);
-        }
+        const speedDial = this.store.peekAll('speed-dial').forEach(dial => {
+          if (dial.get('displayTitle') === domain) {
+            dial.set('notificationCount', counts[domain]);
+          }
+        });
       })
     }).catch(e => console.error("err", e));
+
     this.get('cliqz').getNews().then( news => {
       model.get('news').setProperties({
         version: news.version,
