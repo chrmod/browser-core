@@ -1,8 +1,10 @@
 $urlbar-holder: 33px;
 $urlbar-elms-height: 32px;
-$buttons-hover-color: #fff;
+$buttons-hover-color: #e7e7e7;
+$buttons-hover-border-color: #dfdfdf;
 $browser-top-bg-color: #ccc;
 
+$tabs-height: 36px;
 $tab-border-color: #afafaf;
 $tab-selected-bg-color: #fff;
 $tab-bg-color: rgba(255, 255, 255, 0.1);
@@ -17,10 +19,6 @@ $url-bar-hover-shadow: inset 0 0 2px #aec6de;
 @font-face {
     font-family: "Lato";
     src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
-}
-
-.cliqz-urlbar-Last-search {
-    padding-top: 3px;
 }
 
 :root {
@@ -307,12 +305,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 .tabbrowser-tabs[positionpinnedtabs] > .tabbrowser-tab[pinned] {
-        .tab-stack {
-            margin: 0;
-        }
-        .tab-content {
-            height: $urlbar-elms-height;
-        }
+    .tab-stack {
+        margin: 0;
+        height: $tabs-height;
+    }
 }
 
 /*======== Removes Tabs Border ==========*/
@@ -375,26 +371,13 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 
 #bookmarks-menu-button[cui-areatype="toolbar"] > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
     margin-top: 1px;
+    height: 19px;
 }
 
 #nav-bar-customization-target {
     padding: 0 4px 0 0;
 }
 
-/*========== Tabs undeer window buttons*/
-
-/*#titlebar-placeholder-on-TabsToolbar-for-captions-buttons {*/
-/*display: none;*/
-/*}*/
-/*#TabsToolbar { padding-top: 7px; }*/
-/*.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox { -moz-padding-start: 2px; }*/
-
-/*#main-window[tabsintitlebar] > #titlebar {*/
-/*min-height: 0;*/
-/*margin-bottom: 0 !important;*/
-/*}*/
-
-/*========== END Tabs undeer window buttons*/
 
 @media (min-resolution: 2dppx) {
     .tabs-newtab-button,
@@ -533,7 +516,7 @@ toolbarbutton#cliqz-cc-btn {
 
 
     &:hover {
-        border-color: #dfdfdf;
+        border-color: $buttons-hover-border-color;
         background: $buttons-hover-color;
     }
 
@@ -616,7 +599,7 @@ toolbarbutton#cliqz-cc-btn {
 #nav-bar #PanelUI-menu-button {
     height: $urlbar-elms-height !important;
     -moz-margin-start: 0;
-    margin: 0 1px !important;
+    margin: 0 0 0 1px !important;
     min-width: 37px !important;
     border-radius: 0 !important;;
     border-left: 1px solid #ccc !important;
@@ -629,7 +612,7 @@ toolbarbutton#cliqz-cc-btn {
 
 #TabsToolbar {
     padding-right: 60px; /*Reserve some space for dragging the window*/
-    min-height: 36px;
+    min-height: $tabs-height;
 }
 
 #navigator-toolbox:not([inFullscreen]) #tabbrowser-tabs {

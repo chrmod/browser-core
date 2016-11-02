@@ -22,10 +22,6 @@ $url-bar-hover-shadow: inset 0 0 2px #aec6de;
     src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
 }
 
-.cliqz-urlbar-Last-search {
-    padding-top: 3px;
-}
-
 :root {
     --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/linux/menuPanel.png");
     --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/linux/menuPanel@2x.png") !important;
@@ -343,13 +339,13 @@ notification[type="warning"] .messageText {
 	height: 40px;
 }
 
-#navigator-toolbox::after {
-    position: relative;
-    margin-top: -3px !important;
-    background-image: none;
-    box-shadow: 0 1px 2px 0px rgba(0, 0, 0, 0.9);
-    z-index: 0;
-}
+//#navigator-toolbox::after {
+//    position: relative;
+//    margin-top: -3px !important;
+//    background-image: none;
+//    box-shadow: 0 1px 2px 0px rgba(0, 0, 0, 0.9);
+//    z-index: 0;
+//}
 
 .urlbar-input {
     padding-bottom: 2px !important;
