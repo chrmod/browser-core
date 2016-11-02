@@ -276,7 +276,7 @@ class AdBlocker {
     // leave `sourceHostname` and `sourceGD` as undefined to allow
     // some filter matching on the request URL itself.
     let sourceHostname = sourceParts.hostname;
-    let sourceGD = undefined;
+    let sourceGD;
     if (sourceHostname !== undefined) {
       if (sourceHostname.startsWith('www.')) {
         sourceHostname = sourceHostname.substring(4);
@@ -299,7 +299,7 @@ class AdBlocker {
     };
 
     const t0 = Date.now();
-    const isAd = this.isInBlacklist(request) ? false : this.cache.get(request);
+    const isAd = this.isInBlacklist(request) ? { match: false } : this.cache.get(request);
     const totalTime = Date.now() - t0;
 
     log(`BLOCK AD ${JSON.stringify({

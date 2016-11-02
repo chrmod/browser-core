@@ -192,6 +192,7 @@ class AdFilter {
     this.fromScript = null;
     this.fromStylesheet = null;
     this.fromSubdocument = null;
+    this.fromWebsocket = null;
     this.fromXmlHttpRequest = null;
 
     // Kind of pattern
@@ -436,6 +437,9 @@ class AdFilter {
         case 'first-party':
           this.firstParty = !negation;
           break;
+        case 'websocket':
+          this.fromWebsocket = !negation;
+          break;
         case 'collapse':
           break;
         case 'redirect':
@@ -467,6 +471,7 @@ class AdFilter {
       this.fromScript === null &&
       this.fromStylesheet === null &&
       this.fromSubdocument === null &&
+      this.fromWebsocket === null &&
       this.fromXmlHttpRequest === null);
   }
 }
