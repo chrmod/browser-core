@@ -2,6 +2,7 @@ import { HttpRequestContext } from 'platform/antitracking/http-request-context';
 import { ChannelListener } from 'platform/antitracking/channel-listener';
 import { utils } from 'core/cliqz';
 import console from 'core/console';
+import * as tabListener from 'platform/antitracking/tab-listener';
 
 Cu.import("resource://gre/modules/Services.jsm");
 
@@ -124,6 +125,7 @@ var httpContextManager = {
   notifyAdd: function() {
     if ( this.listenerCtr === 0 ) {
       HttpRequestContext.initCleaner();
+      tabListener.init();
     }
     this.listenerCtr++;
   },
@@ -131,6 +133,7 @@ var httpContextManager = {
     this.listenerCtr--;
     if ( this.listenerCtr === 0 ) {
       HttpRequestContext.unloadCleaner();
+      tabListener.unload();
     }
   }
 }

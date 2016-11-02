@@ -1,11 +1,7 @@
-// TODO dependency on CliqzAttrack.tab_listener
-import CliqzAttrack from 'antitracking/attrack';
 import HeaderInfoVisitor from 'platform/antitracking/header-info-visitor';
 import * as browser from 'platform/browser';
-import md5 from 'antitracking/md5';
-import {parseURL, dURIC, getHeaderMD5, URLInfo} from 'antitracking/url';
-import {getGeneralDomain, sameGeneralDomain} from 'antitracking/domain';
 import { utils } from 'core/cliqz';
+import { getTabsForURL } from 'platform/antitracking/tab-listener';
 
 // An abstraction layer for extracting contextual information
 // from the HttpChannel on various Firefox versions.
@@ -123,18 +119,6 @@ function HttpRequestContext(subject) {
   this._parsedURL = undefined;
   this._legacy_source = undefined;
   this.source = this.getSourceURL();
-  if (this.url) {
-    this.urlParts = URLInfo.get(this.url);
-    this.hostname = this.urlParts.hostname;
-    this.hostGD = getGeneralDomain(this.hostname);
-  }
-  if (this.source && this.source !== 'null') {
-    this.sourceParts = URLInfo.get(this.source);
-    this.sourceHostname = this.sourceParts.hostname;
-    if (this.sourceHostname) {
-      this.sourceGD = getGeneralDomain(this.sourceHostname);
-    }
-  }
 
   this.oriWin = this.getOriginWindowID();
   this.cpt = this.getContentPolicyType();
@@ -237,9 +221,11 @@ HttpRequestContext.prototype = {
       if (!refstr) {
         return;
       }
-      referrer = dURIC(refstr);
-    } catch(ee) {}
-    return referrer;
+      referrer = decodeURIComponent(refstr);
+      return referrer;
+    } catch(ee) {
+      return refstr
+    }
   },
   getRequestHeader: function(header) {
     let header_value = null;
@@ -291,12 +277,6 @@ HttpRequestContext.prototype = {
     } else {
       return loadingDocument;
     }
-  },
-  isTracker: function() {
-    if (this.hostGD === this.sourceGD) {
-      return false;
-    }
-    return CliqzAttrack.qs_whitelist.isTrackerDomain(md5(this.hostGD).substr(0, 16));
   },
   _legacyGetSource: function() {
     if (this._legacy_source === undefined) {
@@ -382,7 +362,7 @@ function getRefToSource(subject, refstr){
   if(!source_url && refstr != '') source_url = refstr;
 
   if(source_tab == -1) {
-    var source_tabs = CliqzAttrack.tab_listener.getTabsForURL(source_url);
+    var source_tabs = getTabsForURL(source_url);
     if(source_tabs.length > 0) {
       source_tab = source_tabs[0];
     }
