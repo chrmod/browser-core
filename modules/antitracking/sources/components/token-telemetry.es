@@ -2,7 +2,28 @@ import md5 from 'antitracking/md5';
 import * as datetime from 'antitracking/time';
 import * as persist from 'antitracking/persistent-state';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64 } from 'antitracking/utils';
+import pacemaker from 'antitracking/pacemaker';
 
+/**
+ * Add padding characters to the left of the given string.
+ *
+ * @param {string} str  - original string.
+ * @param {string} char - char used for padding the string.
+ * @param {number} size - desired size of the resulting string (after padding)
+**/
+function leftpad(str, char, size) {
+  // This function only makes sens if `char` is a character.
+  if (char.length != 1) {
+    throw new Error("`char` argument must only contain one character");
+  }
+
+  if (str.length >= size) {
+    return str;
+  }
+  else {
+    return (char.repeat(size - str.length) + str);
+  }
+}
 
 /**
  * Remove any trace of source domains, or hashes of source domains
@@ -42,6 +63,14 @@ export default class {
     this.telemetry = telemetryProvider;
     this.tokens = {};
     this._tokens = new persist.AutoPersistentObject("tokens", (v) => this.tokens = v, 60000);
+  }
+
+  init() {
+    this._pmsend = pacemaker.register(this.sendTokens.bind(this), 5 * 60 * 1000);
+  }
+
+  unload() {
+    pacemaker.deregister(this._pmsend);
   }
 
   extractKeyTokens(state) {

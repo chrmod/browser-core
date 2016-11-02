@@ -33,67 +33,16 @@ import TokenTelemetry from 'antitracking/components/token-telemetry';
 import DomChecker from 'antitracking/components/dom-checker';
 import TokenChecker from 'antitracking/components/token-checker';
 import BlockRules from 'antitracking/components/block-rules';
+import CookieContext from 'antitracking/components/cookie-context';
 
 var countReload = false;
-
-/**
- * Add padding characters to the left of the given string.
- *
- * @param {string} str  - original string.
- * @param {string} char - char used for padding the string.
- * @param {number} size - desired size of the resulting string (after padding)
-**/
-function leftpad(str, char, size) {
-  // This function only makes sens if `char` is a character.
-  if (char.length != 1) {
-    throw new Error("`char` argument must only contain one character");
-  }
-
-  if (str.length >= size) {
-    return str;
-  }
-  else {
-    return (char.repeat(size - str.length) + str);
-  }
-}
-
-/**
- * Remove any trace of source domains, or hashes of source domains
- * from the data to be sent to the backend. This is made to ensure
- * there is no way to backtrack to user's history using data sent to
- * the backend.
- *
- * Replace all the keys of `trackerData` (which are 16-chars prefixes of
- * hash of the source domain) by unique random strings of size 16 (which is
- * expected by backend). We don't have to make them unique among all data,
- * it is enough to ensure unicity on a per-tracker basis.
- *
- * @param {Object} trackerData - associate source domains to key/value pairs.
-**/
-function anonymizeTrackerTokens(trackerData) {
-  // Random base id
-  const min = 1;
-  const max = Number.MAX_SAFE_INTEGER;
-  let randId = Math.floor(Math.random() * (max - min + 1)) + min;
-
-  // Anonymize the given tracker data
-  let anonymizedTrackerData = {};
-
-  for (let originalKey in trackerData) {
-    const newRandomKey = leftpad(randId.toString().substr(0, 16), '0', 16);
-    randId = (randId + 1) % max;
-    anonymizedTrackerData[newRandomKey] = trackerData[originalKey];
-  }
-
-  return anonymizedTrackerData;
-}
 
 function logBreakageEnabled() {
   return utils.getPref('attrackLogBreakage', false);
 }
 
 var CliqzAttrack = {
-    VERSION: '0.96',
+    VERSION: '0.97',
     MIN_BROWSER_VERSION: 35,
     LOG_KEY: 'attrack',
     VERSIONCHECK_URL: 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
@@ -112,7 +61,6 @@ var CliqzAttrack = {
     obsCounter: {},
     similarAddon: false,
     blockingFailed:{},
-    reloadWhiteList:{},
     tokenDomainCountThreshold: 2,
     safeKeyExpire: 7,
     localBlockExpire: 24,
@@ -146,7 +94,6 @@ var CliqzAttrack = {
         }
     },
     bootupWhitelistCache: {},
-    blockedCache: {},
     visitCache: {},
     contextOauth: {}, linksFromDom: {},
     cookiesFromDom: {},
@@ -171,42 +118,6 @@ var CliqzAttrack = {
         }
         CliqzAttrack.privateValues = p;
     },
-    getCookieValues: function(c, url) {
-        if (c == null) {
-            return {};
-        }
-        var v = 0, cookies = {};
-        if (c.match(/^\s*\$Version=(?:"1"|1);\s*(.*)/)) {
-            c = RegExp.$1;
-            v = 1;
-        }
-        if (v === 0) {
-            c.split(/[,;]/).map(function(cookie) {
-                var parts = cookie.split(/=/);
-                if (parts.length > 1) parts[1] = parts.slice(1).join('=');
-                var name = dURIC(parts[0].trimLeft()),
-                    value = parts.length > 1 ? dURIC(parts[1].trimRight()) : null;
-                cookies[name] = value;
-            });
-        } else {
-            c.match(/(?:^|\s+)([!#$%&'*+\-.0-9A-Z^`a-z|~]+)=([!#$%&'*+\-.0-9A-Z^`a-z|~]*|"(?:[\x20-\x7E\x80\xFF]|\\[\x00-\x7F])*")(?=\s*[,;]|$)/g).map(function($0, $1) {
-            var name = $0,
-                value = $1.charAt(0) === '"'
-                          ? $1.substr(1, -1).replace(/\\(.)/g, "$1")
-                          : $1;
-                cookies[name] = value;
-            });
-        }
-        // return cookies;
-        var cookieVal = {};
-        for (var key in cookies) {
-            if (url.indexOf(cookies[key]) == -1) { // cookies save as part of the url is allowed
-                cookieVal[cookies[key]] = true;
-            }
-        }
-        return cookieVal;
-    },
-    onOpenRequest: [],
     executeComponentStack: function(components, initialState, logKey) {
       const state = initialState;
       const response = {};
@@ -313,37 +224,8 @@ var CliqzAttrack = {
           return CliqzAttrack.executeComponentStack(CliqzAttrack.onModifyRequest, requestDetails, 'ATTRACK.MOD');
         }
     },
-    allowCookie: function(url, req_metadata, reason) {
-        if (CliqzAttrack.debug) CliqzUtils.log("ALLOWING because of " + reason + " " + req_metadata['dst'] + ' %% ' + url, CliqzAttrack.LOG_KEY);
-    },
-    blockCookie: function(url, req_metadata, reason) {
-        if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie REMOVED (" + reason + "): "  + req_metadata['dst'] + " >>> " + url, CliqzAttrack.LOG_KEY);
-        CliqzAttrack.blockedCache[req_metadata['dst']] = req_metadata['ts'];
-    },
     onTabLocationChange: function(evnt) {
         CliqzAttrack.domChecker.onTabLocationChange(evnt);
-        var url = evnt.url;
-
-        CliqzAttrack.linksFromDom[url] = {};
-
-        if (evnt.isLoadingDocument) {
-            // when a new page is loaded, try to extract internal links and cookies
-            var doc = evnt.document;
-            CliqzAttrack.loadedTabs[url] = false;
-
-            if(doc) {
-                if (doc.body) {
-                    CliqzAttrack.recordLinksForURL(url);
-                }
-                doc.addEventListener(
-                    'DOMContentLoaded',
-                    function(ev) {
-                        CliqzAttrack.loadedTabs[url] = true;
-                        CliqzAttrack.recordLinksForURL(url);
-                    });
-                CliqzAttrack.clearDomLinks();
-            }
-        }
     },
     getDefaultRule: function() {
         if (CliqzAttrack.isForceBlockEnabled()) {
@@ -396,8 +278,6 @@ var CliqzAttrack = {
 
         pacemaker.register(CliqzAttrack.updateConfig, 3 * 60 * 60 * 1000);
 
-        // send instant cache tokens whenever hour changes
-        pacemaker.register(CliqzAttrack.sendTokens, 5 * 60 * 1000);
         // if the hour has changed
         pacemaker.register(CliqzAttrack.hourChanged, two_mins, timeChangeConstraint("hourChanged", "hour"));
 
@@ -415,12 +295,6 @@ var CliqzAttrack = {
         pacemaker.register(function clean_caches(currTime) {
           // visit cache
           cleanTimestampCache(CliqzAttrack.visitCache, CliqzAttrack.timeCleaningCache, currTime);
-          // reload whitelist
-          cleanTimestampCache(CliqzAttrack.reloadWhiteList, CliqzAttrack.timeCleaningCache, currTime);
-           // blocked cache
-          cleanTimestampCache(CliqzAttrack.blockedCache, CliqzAttrack.timeCleaningCache, currTime);
-          // record cache
-          cleanTimestampCache(CliqzAttrack.linksRecorded, 1000, currTime);
         }, two_mins);
 
         var bootup_task = pacemaker.register(function bootup_check(curr_time) {
@@ -587,9 +461,10 @@ var CliqzAttrack = {
       CliqzAttrack.domChecker = new DomChecker();
       const tokenChecker = new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, CliqzAttrack.tokenDomainCountThreshold, CliqzAttrack.shortTokenLength, {}, CliqzAttrack.hashProb);
       const blockRules = new BlockRules();
+      CliqzAttrack.cookieContext = new CookieContext();
 
       CliqzAttrack.components = [pageLogger, tokenExaminer, tokenTelemetry, CliqzAttrack.domChecker,
-          tokenChecker, blockRules];
+          tokenChecker, blockRules, CliqzAttrack.cookieContext];
 
       CliqzAttrack.components.forEach((comp) => {
         if (comp.init) {
@@ -634,7 +509,7 @@ var CliqzAttrack = {
         blockRules.applyBlockRules.bind(blockRules),
         function checkQSEnabled(state) {
           const _key = state.requestContext.getOriginWindowID() + ":" + state.sourceUrl;
-          return CliqzAttrack.isQSEnabled() && !(CliqzAttrack.reloadWhiteList[_key]);
+          return CliqzAttrack.isQSEnabled();
         },
         function checkSourceWhitelisted(state) {
           if (CliqzAttrack.isSourceWhitelisted(state.sourceUrlParts.hostname)) {
@@ -736,46 +611,8 @@ var CliqzAttrack = {
           }
           return true;
         },
-        function checkVisitCache(state) {
-          state.hostGD = getGeneralDomain(state.urlParts.hostname);
-          state.sourceGD = getGeneralDomain(state.sourceUrlParts.hostname);
-          const diff = Date.now() - (CliqzAttrack.visitCache[state.hostGD] || 0);
-          if (diff < CliqzAttrack.timeActive && CliqzAttrack.visitCache[state.sourceGD]) {
-            state.incrementStat('cookie_allow_visitcache');
-            return false;
-          }
-          return true;
-        },
-        function checkContextFromEvent(state) {
-          if (CliqzAttrack.cChecker.contextFromEvent) {
-            const time = Date.now();
-            const url = state.url;
-
-            var diff = time - (CliqzAttrack.cChecker.contextFromEvent.ts || 0);
-            if (diff < CliqzAttrack.timeAfterLink) {
-
-                const hostGD = getGeneralDomain(state.urlParts.hostname);
-                if (hostGD === CliqzAttrack.cChecker.contextFromEvent.cGD) {
-                    CliqzAttrack.visitCache[state.hostGD] = time;
-                    var src = null;
-                    state.incrementStat('cookie_allow_userinit_same_context_gd');
-                    return false;
-                }
-                var pu = url.split(/[?&;]/)[0];
-                if (CliqzAttrack.cChecker.contextFromEvent.html.indexOf(pu)!=-1) {
-                    if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED (type2): " + pu + " " + CliqzAttrack.cChecker.contextFromEvent.html, CliqzAttrack.LOG_KEY);
-
-                    // the url is in pu
-                    if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                        CliqzAttrack.visitCache[state.hostGD] = time;
-                        stateincrementStat('cookie_allow_userinit_same_gd_link');
-                        return false;
-                    }
-                }
-            }
-          }
-          return true;
-        },
+        CliqzAttrack.cookieContext.checkVisitCache.bind(CliqzAttrack.cookieContext),
+        CliqzAttrack.cookieContext.checkContextFromEvent.bind(CliqzAttrack.cookieContext),
         function checkOAuth(state) {
           if (CliqzAttrack.contextOauth) {
               const time = Date.now();
@@ -797,7 +634,6 @@ var CliqzAttrack = {
                               if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                               tp_events.incrementStat(req_log, 'cookie_allow_oauth');
                               tp_events.incrementStat(req_log, 'req_oauth');
-                              CliqzAttrack.allowCookie(url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextOauth");
                               return false;
                           }
                           else {
@@ -811,7 +647,7 @@ var CliqzAttrack = {
         },
         function shouldBlockCookie(state) {
           const _key = state.requestContext.getOriginWindowID() + ":" + state.sourceUrl;
-          const shouldBlock = CliqzAttrack.isCookieEnabled(state.sourceUrlParts.hostname) && !(CliqzAttrack.reloadWhiteList[_key]);
+          const shouldBlock = CliqzAttrack.isCookieEnabled(state.sourceUrlParts.hostname);
           if (!shouldBlock) {
             state.incrementStat('bad_cookie_sent');
           }
@@ -887,51 +723,6 @@ var CliqzAttrack = {
         extraAttrs.ver = CliqzAttrack.VERSION;
         ts = ts || datetime.getHourTimestamp();
         return generatePayload(data, ts, false, extraAttrs);
-    },
-    sendTokens: function() {
-        // send tokens every 5 minutes
-        let data = {},
-            hour = datetime.getTime(),
-            limit = Object.keys(CliqzAttrack.tokens).length / 12;
-
-        // sort tracker keys by lastSent, i.e. send oldest data first
-        let sortedTrackers = Object.keys(CliqzAttrack.tokens).sort((a, b) => {
-            return parseInt(CliqzAttrack.tokens[a].lastSent || 0) - parseInt(CliqzAttrack.tokens[b].lastSent || 0)
-        });
-
-        for (let i in sortedTrackers) {
-            let tracker = sortedTrackers[i];
-
-            if (limit > 0 && Object.keys(data).length > limit) {
-                break;
-            }
-
-            let tokenData = CliqzAttrack.tokens[tracker];
-            if (!(tokenData.lastSent) || tokenData.lastSent < hour) {
-                delete(tokenData.lastSent);
-                data[tracker] = anonymizeTrackerTokens(tokenData);
-                delete(CliqzAttrack.tokens[tracker]);
-            }
-        }
-
-        if (Object.keys(data).length > 0) {
-            const compress = compressionAvailable();
-
-            splitTelemetryData(data, 20000).map((d) => {
-                const payl = CliqzAttrack.generateAttrackPayload(d);
-                const msg = {
-                    'type': telemetry.msgType,
-                    'action': 'attrack.tokens',
-                    'payload': payl
-                };
-                if ( compress ) {
-                    msg.compressed = true;
-                    msg.payload = compressJSONToBase64(payl);
-                }
-                telemetry.telemetry(msg);
-            });
-        }
-        CliqzAttrack._tokens.setDirty();
     },
     hourChanged: function() {
         // trigger other hourly events
@@ -1197,70 +988,6 @@ var CliqzAttrack = {
         CliqzAttrack._tokens.setDirty();
     },
     linksRecorded: {}, // cache when we recorded links for each url
-    recordLinksForURL(url) {
-      if (CliqzAttrack.loadedTabs[url]) {
-        return;
-      }
-      const now = Date.now();
-      const lastQuery = CliqzAttrack.linksRecorded[url] || 0;
-      if (now - lastQuery < 1000) {
-        return
-      }
-      CliqzAttrack.linksRecorded[url] = now;
-      return Promise.all([
-
-        core.getCookie(url).then(
-          cookie => CliqzAttrack.cookiesFromDom[url] = cookie
-        ),
-
-        Promise.all([
-          core.queryHTML(url, 'a[href]', 'href'),
-          core.queryHTML(url, 'link[href]', 'href'),
-          core.queryHTML(url, 'script[src]', 'src').then(function (hrefs) {
-            return hrefs.filter( href => href.indexOf('http') === 0 );
-          }),
-        ]).then(function (reflinks) {
-          var hrefSet = reflinks.reduce((hrefSet, hrefs) => {
-            hrefs.forEach( href => hrefSet[href] = true );
-            return hrefSet;
-          }, {});
-
-          CliqzAttrack.linksFromDom[url] = hrefSet;
-        })
-
-      ]);
-    },
-    clearDomLinks: function() {
-        for (var url in CliqzAttrack.linksFromDom) {
-            if (!CliqzAttrack.isTabURL(url)) {
-                delete CliqzAttrack.linksFromDom[url];
-                delete CliqzAttrack.cookiesFromDom[url];
-                delete CliqzAttrack.loadedTabs[url];
-            }
-        }
-    },
-    isTabURL: function(url) {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-        var browserEnumerator = wm.getEnumerator("navigator:browser");
-
-        while (browserEnumerator.hasMoreElements()) {
-            var browserWin = browserEnumerator.getNext();
-            var tabbrowser = browserWin.gBrowser;
-
-            var numTabs = tabbrowser.browsers.length;
-            for (var index = 0; index < numTabs; index++) {
-                var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-                if (currentBrowser) {
-                    var tabURL = currentBrowser.currentURI.spec;
-                    if (url == tabURL || url == tabURL.split('#')[0]) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    },
     /** Get info about trackers and blocking done in a specified tab.
      *
      *  Returns an object describing anti-tracking actions for this page, with keys as follows:

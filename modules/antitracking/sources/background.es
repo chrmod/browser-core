@@ -210,4 +210,12 @@ export default background({
       utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
     },
   },
+
+  actions: {
+    recordMouseDown() {
+      if (CliqzAttrack.cookieContext) {
+        CliqzAttrack.cookieContext.setContextFromEvent.apply(CliqzAttrack.cookieContext, arguments);
+      }
+    }
+  }
 });
