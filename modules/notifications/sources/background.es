@@ -27,8 +27,8 @@ export default background({
     this.onNewNotification.unsubscribe();
     this.onNotificationsCleared.unsubscribe();
 
-    this.notificationCentera.stop();
-    delete this.notificationCentera;
+    this.notificationCenter.stop();
+    delete this.notificationCenter;
   },
 
   beforeBrowserShutdown() {
@@ -48,8 +48,21 @@ export default background({
     /**
     * query store for notifications for specified sources
     */
-    getNotifications() {
-      return this.notificationCenter.notifications();
+    getNotifications(urls = []) {
+      const domainsForUrls = urls.reduce((hash, url) => {
+        const domainDetails = utils.getDetailsFromUrl(url);
+        hash[url] = domainDetails.host;
+        return hash;
+      }, Object.create(null));
+      // Set guarantees uniquenes
+      const domains = new Set(urls.map(url => domainsForUrls[url]));
+      const notifications = this.notificationCenter.notifications([...domains]);
+
+      return urls.reduce((hash, url) => {
+        const domain = domainsForUrls[url];
+        hash[url] = notifications[domain];
+        return hash;
+      }, Object.create(null));
     },
 
     /**
@@ -64,12 +77,8 @@ export default background({
     * Remove a url from notification sources
     **/
     unwatch(url) {
-      return this.notificationCenter.removeDomain(domainDetails.host);
-    },
-
-    ignore(url) {
       const domainDetails = utils.getDetailsFromUrl(url);
-      return this.notificationCenter.ignoreDomain(domainDetails.host);
+      return this.notificationCenter.removeDomain(domainDetails.host);
     },
   },
 

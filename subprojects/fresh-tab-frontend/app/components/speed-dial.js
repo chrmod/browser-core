@@ -3,9 +3,9 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
   cliqz: Ember.inject.service(),
+  notifications: Ember.inject.service(),
 
   classNameBindings: ['model.hasNewNotifications:new-notifications'],
-
 
   click(ev) {
     this.get('cliqz').sendTelemetry({
@@ -17,6 +17,16 @@ export default Ember.Component.extend({
   },
 
   actions: {
+    enableNotifications() {
+      const model = this.get('model');
+      this.get('notifications').enableNotifications(model);
+    },
+
+    disableNotifications() {
+      const model = this.get('model');
+      this.get('notifications').disableNotifications(model);
+    },
+
     remove() {
       this.sendAction("removeAction", this.get('model'));
     },
