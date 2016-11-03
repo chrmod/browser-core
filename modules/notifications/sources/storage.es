@@ -3,11 +3,32 @@ import equal from './lib/deep-equal';
 
 export default class {
   constructor() {
-    this.storage = new Storage('chrome://cliqz/content/notifications');
+    this.storage = new Storage('chrome://cliqz-notifications/content/');
+  }
+
+  addWatchedDomain(domain) {
+    const watchedDomainsList = this.watchedDomainNames();
+    const watchedDomains = new Set(watchedDomainsList);
+    const isChanged = watchedDomains.has(domain);
+    if (!isChanged) {
+      watchedDomains.add(domain);
+      this.storage.setObject('watchedDomains', [...watchedDomains]);
+    }
+    return isChanged;
+  }
+
+  removeWatchedDomain(domain) {
+    const watchedDomainsList = this.watchedDomainNames();
+    const watchedDomains = new Set(watchedDomainsList);
+    const isChanged = watchedDomains.delete(domain);
+    if (isChanged) {
+      this.storage.setObject('watchedDomains', [...watchedDomains]);
+    }
+    return isChanged;
   }
 
   watchedDomainNames() {
-    return this.storage.getObject('watchedDomains', ['mail.google.com']);
+    return this.storage.getObject('watchedDomains', []);
   }
 
   /*
@@ -31,8 +52,8 @@ export default class {
     return isChanged;
   }
 
-  notifications() {
-    return this.watchedDomainNames().reduce((counts, domain) => {
+  notifications(domains) {
+    return domains.reduce((counts, domain) => {
       const key = `watchedDomains.${domain}`;
       const domainData = this.storage.getObject(key, {
         count: 0,
@@ -42,6 +63,7 @@ export default class {
         [domain]: {
           count: domainData.count,
           unread: domainData.unread,
+          status: 'enabled',
         }
       });
     }, Object.create(null));

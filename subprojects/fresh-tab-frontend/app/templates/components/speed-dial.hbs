@@ -11,8 +11,18 @@
     </div>
     <div class="title">
       {{model.displayTitle}}
-      {{#if model.notificationCount}}
-        <strong>({{model.notificationCount}})</strong>
+      {{#if model.notificationsEnabled}}
+        {{#if model.notificationCount}}
+          <strong>({{model.notificationCount}})</strong>
+        {{/if}}
+        <br>
+        <br>
+        <button {{action 'disableNotifications'}}>Stop notifications</button>
+      {{/if}}
+      {{#if model.notificationsAvailable}}
+        <br>
+        <br>
+        <button {{action 'enableNotifications'}}>Enable notifications</button>
       {{/if}}
     </div>
   </a>

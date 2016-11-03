@@ -100,7 +100,16 @@ export class Cron {
   }
 
   schedule(func, pattern) {
-    this.tasks.push(new Task(func, pattern));
+    const task = new Task(func, pattern);
+    this.tasks.push(task);
+    return task;
+  }
+
+  unschedule(task) {
+    const index = this.tasks.indexOf(task);
+    if (index >= 0) {
+      this.tasks.splice(index, 1);
+    }
   }
 
   run(date, { force } = { force: false }) {

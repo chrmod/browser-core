@@ -9,6 +9,10 @@ export default Model.extend({
   logo: attr(),
   notificationCount: attr(),
   hasNewNotifications: attr(),
+  notificationStatus: attr(),
   custom: attr(),
   searchAlias: attr(),
+
+  notificationsAvailable: Ember.computed.equal('notificationStatus', 'available'),
+  notificationsEnabled: Ember.computed.equal('notificationStatus', 'enabled'),
 });
