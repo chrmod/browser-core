@@ -181,6 +181,9 @@ export default background({
   },
 
   actions: {
+    recordMouseDown(...args) {
+      events.pub('core:mouse-down', ...args);
+    },
     restart() {
       return utils.extensionRestart();
     },

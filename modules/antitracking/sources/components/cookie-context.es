@@ -60,7 +60,7 @@ export default class {
     return true;
   }
 
-  setContextFromEventw(ev, contextHTML) {
+  setContextFromEvent(ev, contextHTML) {
     try {
       if (contextHTML) {
         // don't log the event if it's not 3rd party

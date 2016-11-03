@@ -209,13 +209,10 @@ export default background({
     "control-center:antitracking-strict": function () {
       utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
     },
-  },
-
-  actions: {
-    recordMouseDown() {
+    "core:mouse-down": function() {
       if (CliqzAttrack.cookieContext) {
         CliqzAttrack.cookieContext.setContextFromEvent.apply(CliqzAttrack.cookieContext, arguments);
       }
     }
-  }
+  },
 });
