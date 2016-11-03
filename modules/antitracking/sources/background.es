@@ -210,8 +210,8 @@ export default background({
       utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
     },
     "core:mouse-down": function() {
-      if (CliqzAttrack.cookieContext) {
-        CliqzAttrack.cookieContext.setContextFromEvent.apply(CliqzAttrack.cookieContext, arguments);
+      if (CliqzAttrack.pipelineSteps.cookieContext) {
+        CliqzAttrack.pipelineSteps.cookieContext.setContextFromEvent.apply(CliqzAttrack.pipelineSteps.cookieContext, arguments);
       }
     }
   },

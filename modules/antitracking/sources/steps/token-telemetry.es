@@ -1,7 +1,7 @@
 import md5 from 'antitracking/md5';
 import * as datetime from 'antitracking/time';
 import * as persist from 'antitracking/persistent-state';
-import { compressionAvailable, splitTelemetryData, compressJSONToBase64 } from 'antitracking/utils';
+import { splitTelemetryData } from 'antitracking/utils';
 import pacemaker from 'antitracking/pacemaker';
 
 /**

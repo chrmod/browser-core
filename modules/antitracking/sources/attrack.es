@@ -4,13 +4,12 @@
 import pacemaker from 'antitracking/pacemaker';
 import * as persist from 'antitracking/persistent-state';
 import TempSet from 'antitracking/temp-set';
-import HttpRequestContext from 'antitracking/webrequest-context';
 import PageEventTracker from 'antitracking/tp_events';
 import md5 from 'antitracking/md5';
-import { parseURL, dURIC, getHeaderMD5, URLInfo, shuffle, findOauth } from 'antitracking/url';
-import { getGeneralDomain, sameGeneralDomain } from 'antitracking/domain';
+import { URLInfo, shuffle } from 'antitracking/url';
+import { getGeneralDomain } from 'antitracking/domain';
 import { HashProb } from 'antitracking/hash';
-import { TrackerTXT, sleep, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
+import { TrackerTXT, getDefaultTrackerTxtRule } from 'antitracking/tracker-txt';
 import { AttrackBloomFilter } from 'antitracking/bloom-filter';
 import * as datetime from 'antitracking/time';
 import QSWhitelist from 'antitracking/qs-whitelists';
@@ -18,7 +17,7 @@ import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import ResourceLoader from 'core/resource-loader';
 import core from 'core/background';
-import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
+import { compressionAvailable, compressJSONToBase64, generatePayload } from 'antitracking/utils';
 import * as browser from 'platform/browser';
 import WebRequest from 'core/webrequest';
 import telemetry from 'antitracking/telemetry';
@@ -101,11 +100,12 @@ var CliqzAttrack = {
       const state = initialState;
       const response = {};
       for (let i=0; i<pipeline.length; i++) {
-        // console.log(logKey, state.url, 'Step: ' + pipeline[i].name);
         try {
           const cont = pipeline[i](state, response);
           if (!cont) {
-            console.log(logKey, state.url, 'Break at', pipeline[i].name);
+            if (CliqzAttrack.debug) {
+              console.log(logKey, state.url, 'Break at', pipeline[i].name);
+            }
             break;
           }
         } catch(e) {
@@ -113,20 +113,21 @@ var CliqzAttrack = {
           break;
         }
       }
-      console.log(logKey, state.url, response);
       return response;
     },
     httpopenObserver: function(requestDetails) {
-      return CliqzAttrack.executePipeline(CliqzAttrack.onOpenRequest, requestDetails, 'ATTRACK.OPEN');
+      return CliqzAttrack.executePipeline(CliqzAttrack.onOpenPipeline, requestDetails, 'ATTRACK.OPEN');
     },
     httpResponseObserver: function(requestDetails) {
       return CliqzAttrack.executePipeline(CliqzAttrack.responsePipeline, requestDetails, 'ATTRACK.RESP');
     },
     httpmodObserver: function(requestDetails) {
-      return CliqzAttrack.executePipeline(CliqzAttrack.onModifyRequest, requestDetails, 'ATTRACK.MOD');
+      return CliqzAttrack.executePipeline(CliqzAttrack.onModifyPipeline, requestDetails, 'ATTRACK.MOD');
     },
     onTabLocationChange: function(evnt) {
-        CliqzAttrack.domChecker.onTabLocationChange(evnt);
+      if(CliqzAttrack.pipelineSteps.domChecker) {
+        CliqzAttrack.pipelineSteps.domChecker.onTabLocationChange(evnt);
+      }
     },
     getDefaultRule: function() {
         if (CliqzAttrack.isForceBlockEnabled()) {
@@ -199,7 +200,6 @@ var CliqzAttrack = {
         message.compressed = true;
         message.payload = compressJSONToBase64(message.payload);
       }
-      console.log(message);
       telemetry.telemetry(message);
     },
     /** Global module initialisation.
@@ -308,54 +308,47 @@ var CliqzAttrack = {
     initPipeline: function() {
       CliqzAttrack.unloadPipeline();
 
-      const pageLogger = new PageLogger(CliqzAttrack.tp_events, CliqzAttrack.blockLog);
-      CliqzAttrack.tokenExaminer = new TokenExaminer(CliqzAttrack.qs_whitelist, CliqzAttrack.shortTokenLength, CliqzAttrack.safekeyValuesThreshold, CliqzAttrack.safeKeyExpire);
-      const tokenTelemetry = new TokenTelemetry(CliqzAttrack.telemetry);
-      CliqzAttrack.domChecker = new DomChecker();
-      const tokenChecker = new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, CliqzAttrack.tokenDomainCountThreshold, CliqzAttrack.shortTokenLength, {}, CliqzAttrack.hashProb);
-      const blockRules = new BlockRules();
-      CliqzAttrack.cookieContext = new CookieContext();
-      CliqzAttrack.trackerProxy = new TrackerProxy();
+      // initialise classes which are used as steps in listeners
+      const steps = {
+        pageLogger: new PageLogger(CliqzAttrack.tp_events, CliqzAttrack.blockLog),
+        tokenExaminer: new TokenExaminer(CliqzAttrack.qs_whitelist, CliqzAttrack.shortTokenLength, CliqzAttrack.safekeyValuesThreshold, CliqzAttrack.safeKeyExpire),
+        tokenTelemetry: new TokenTelemetry(CliqzAttrack.telemetry),
+        domChecker: new DomChecker(),
+        tokenChecker: new TokenChecker(CliqzAttrack.qs_whitelist, CliqzAttrack.blockLog, CliqzAttrack.tokenDomainCountThreshold, CliqzAttrack.shortTokenLength, {}, CliqzAttrack.hashProb),
+        blockRules: new BlockRules(),
+        cookieContext: new CookieContext(),
+        trackerProxy: new TrackerProxy(),
+      }
+      CliqzAttrack.pipelineSteps = steps;
 
-      CliqzAttrack.pipelineSteps = [pageLogger, CliqzAttrack.tokenExaminer, tokenTelemetry, CliqzAttrack.domChecker,
-          tokenChecker, blockRules, CliqzAttrack.cookieContext, CliqzAttrack.trackerProxy];
-
-      CliqzAttrack.pipelineSteps.forEach((comp) => {
-        if (comp.init) {
-          comp.init();
+      // initialise step objects
+      Object.keys(steps).forEach((key) => {
+        const step = steps[key];
+        if (step.init) {
+          step.init();
         }
       });
 
-      function cancelRecentlyModified(state, response) {
-        const sourceTab = state.requestContext.getOriginWindowID();
-        const url = state.url;
-        if (CliqzAttrack.recentlyModified.contains(sourceTab + url)) {
-          CliqzAttrack.recentlyModified.delete(sourceTab + url);
-          response.cancel = true;
-          return false;
-        }
-        return true;
-      };
-
-      CliqzAttrack.onOpenRequest = [
+      // create pipeline for on open request
+      CliqzAttrack.onOpenPipeline = [
         CliqzAttrack.qs_whitelist.isReady.bind(CliqzAttrack.qs_whitelist),
         determineContext,
-        pageLogger.checkIsMainDocument.bind(pageLogger),
+        steps.pageLogger.checkIsMainDocument.bind(steps.pageLogger),
         skipInternalProtocols,
         checkSameGeneralDomain,
-        cancelRecentlyModified,
-        CliqzAttrack.tokenExaminer.examineTokens.bind(CliqzAttrack.tokenExaminer),
-        tokenTelemetry.extractKeyTokens.bind(tokenTelemetry),
-        pageLogger.attachStatCounter.bind(pageLogger),
-        pageLogger.logRequestMetadata.bind(pageLogger),
-        CliqzAttrack.domChecker.checkDomLinks.bind(CliqzAttrack.domChecker),
-        CliqzAttrack.domChecker.parseCookies.bind(CliqzAttrack.domChecker),
-        tokenChecker.findBadTokens.bind(tokenChecker),
-        CliqzAttrack.trackerProxy.checkShouldProxy.bind(CliqzAttrack.trackerProxy),
+        CliqzAttrack.cancelRecentlyModified.bind(CliqzAttrack),
+        steps.tokenExaminer.examineTokens.bind(steps.tokenExaminer),
+        steps.tokenTelemetry.extractKeyTokens.bind(steps.tokenTelemetry),
+        steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
+        steps.pageLogger.logRequestMetadata.bind(steps.pageLogger),
+        steps.domChecker.checkDomLinks.bind(steps.domChecker),
+        steps.domChecker.parseCookies.bind(steps.domChecker),
+        steps.tokenChecker.findBadTokens.bind(steps.tokenChecker),
+        steps.trackerProxy.checkShouldProxy.bind(steps.trackerProxy),
         function checkHasBadTokens(state) {
           return (state.badTokens.length > 0)
         },
-        blockRules.applyBlockRules.bind(blockRules),
+        steps.blockRules.applyBlockRules.bind(steps.blockRules),
         CliqzAttrack.isQSEnabled.bind(CliqzAttrack),
         function checkSourceWhitelisted(state) {
           if (CliqzAttrack.isSourceWhitelisted(state.sourceUrlParts.hostname)) {
@@ -370,14 +363,15 @@ var CliqzAttrack = {
         CliqzAttrack.applyBlock.bind(CliqzAttrack),
       ];
 
-      CliqzAttrack.onModifyRequest = [
+      // create pipeline for on modify request
+      CliqzAttrack.onModifyPipeline = [
         determineContext,
         function checkIsMainDocument(state) {
           return !state.requestContext.isFullPage();
         },
         skipInternalProtocols,
         checkSameGeneralDomain,
-        pageLogger.attachStatCounter.bind(pageLogger),
+        steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
         function catchMissedOpenListener(state, response) {
           if (state.reqLog && state.reqLog.c === 0) {
             // take output from httpopenObserver and copy into our response object
@@ -404,10 +398,9 @@ var CliqzAttrack = {
           }
           return true;
         },
-        CliqzAttrack.cookieContext.checkVisitCache.bind(CliqzAttrack.cookieContext),
-        CliqzAttrack.cookieContext.checkContextFromEvent.bind(CliqzAttrack.cookieContext),
+        steps.cookieContext.checkVisitCache.bind(steps.cookieContext),
+        steps.cookieContext.checkContextFromEvent.bind(steps.cookieContext),
         function shouldBlockCookie(state) {
-          const _key = state.requestContext.getOriginWindowID() + ":" + state.sourceUrl;
           const shouldBlock = CliqzAttrack.isCookieEnabled(state.sourceUrlParts.hostname);
           if (!shouldBlock) {
             state.incrementStat('bad_cookie_sent');
@@ -421,9 +414,10 @@ var CliqzAttrack = {
           response.requestHeaders.push({name: 'Cookie', value: ''});
           response.requestHeaders.push({name: CliqzAttrack.cliqzHeader, value: ' '});
           return true;
-        }
+        },
       ];
 
+      // create pipeline for on response received
       CliqzAttrack.responsePipeline = [
         CliqzAttrack.qs_whitelist.isReady.bind(CliqzAttrack.qs_whitelist),
         determineContext,
@@ -450,7 +444,7 @@ var CliqzAttrack = {
           return state.sourceUrl !== '' && state.sourceUrl.indexOf('about:') === -1;
         },
         checkSameGeneralDomain,
-        pageLogger.attachStatCounter.bind(pageLogger),
+        steps.pageLogger.attachStatCounter.bind(steps.pageLogger),
         function logResponseStats(state) {
           if (state.incrementStat) {
             state.incrementStat('resp_ob');
@@ -458,16 +452,17 @@ var CliqzAttrack = {
             state.incrementStat(`status_${state.requestContext.channel.responseStatus}`)
             state.incrementStat(state.requestContext.isCached ? 'cached' : 'not_cached');
           }
-        }
+        },
       ]
     },
     unloadPipeline: function() {
-      (CliqzAttrack.pipelineSteps || []).forEach((comp) => {
-        if (comp.unload) {
-          comp.unload();
+      Object.keys(CliqzAttrack.pipelineSteps || {}).forEach((key) => {
+        const step = CliqzAttrack.pipelineSteps[key];
+        if (step.unload) {
+          step.unload();
         }
       });
-      CliqzAttrack.pipelineSteps = [];
+      CliqzAttrack.pipelineSteps = {};
     },
     /** Per-window module initialisation
      */
@@ -499,9 +494,6 @@ var CliqzAttrack = {
 
         this._trackerLoader.stop();
         this._cookieWhitelistLoader.stop();
-        if (this._blockRulesLoader) {
-          this._blockRulesLoader.stop();
-        }
 
         CliqzAttrack.unloadPipeline();
 
@@ -566,6 +558,16 @@ var CliqzAttrack = {
         }
         return false;
     },
+    cancelRecentlyModified: function(state, response) {
+      const sourceTab = state.requestContext.getOriginWindowID();
+      const url = state.url;
+      if (CliqzAttrack.recentlyModified.contains(sourceTab + url)) {
+        CliqzAttrack.recentlyModified.delete(sourceTab + url);
+        response.cancel = true;
+        return false;
+      }
+      return true;
+    },
     applyBlock: function(state, response) {
       const badTokens = state.badTokens;
       var rule = CliqzAttrack.getDefaultRule(),
@@ -578,7 +580,9 @@ var CliqzAttrack = {
           }
           rule = _trackerTxt.getRule(state.urlParts.hostname);
       }
-      console.log('ATTRACK', rule, 'URL:', state.urlParts.hostname, state.urlParts.path, 'TOKENS:', badTokens);
+      if (CliqzAttrack.debug) {
+        console.log('ATTRACK', rule, 'URL:', state.urlParts.hostname, state.urlParts.path, 'TOKENS:', badTokens);
+      }
       if (rule == 'block') {
           state.incrementStat('token_blocked_' + rule);
           response.cancel = true;
@@ -602,7 +606,7 @@ var CliqzAttrack = {
           state.incrementStat('token_blocked_' + rule);
 
           // TODO: do this nicer
-          if (CliqzAttrack.trackerProxy.shouldProxy(tmp_url)) {
+          if (CliqzAttrack.pipelineSteps.trackerProxy && CliqzAttrack.pipelineSteps.trackerProxy.shouldProxy(tmp_url)) {
               state.incrementStat('proxy');
           }
           CliqzAttrack.recentlyModified.add(state.requestContext.getOriginWindowID() + state.url, 30000);
