@@ -35,10 +35,6 @@ import TrackerProxy from 'antitracking/steps/tracker-proxy';
 
 var countReload = false;
 
-function logBreakageEnabled() {
-  return utils.getPref('attrackLogBreakage', false);
-}
-
 var CliqzAttrack = {
     VERSION: '0.97',
     MIN_BROWSER_VERSION: 35,
@@ -231,8 +227,8 @@ var CliqzAttrack = {
 
         // force clean requestKeyValue
         events.sub("attrack:safekeys_updated", (version, forceClean) => {
-            if (forceClean) {
-                CliqzAttrack.tokenExaminer.clearCache();
+            if (forceClean && CliqzAttrack.pipelineSteps.tokenExaminer) {
+                CliqzAttrack.pipelineSteps.tokenExaminer.clearCache();
             }
         });
 
@@ -521,6 +517,7 @@ var CliqzAttrack = {
         utils.httpGet(CliqzAttrack.VERSIONCHECK_URL +"?"+ today, function(req) {
             // on load
             var versioncheck = JSON.parse(req.response);
+            const requiresReload = parseInt(versioncheck.shortTokenLength) !== CliqzAttrack.shortTokenLength || parseInt(versioncheck.safekeyValuesThreshold) !== CliqzAttrack.safekeyValuesThreshold;
 
             // config in versioncheck
             if (versioncheck.placeHolder) {
@@ -543,6 +540,10 @@ var CliqzAttrack = {
                 CliqzAttrack.cliqzHeader = versioncheck.cliqzHeader;
             }
 
+            // refresh pipeline if config changed
+            if (requiresReload) {
+              CliqzAttrack.initPipeline();
+            }
             // fire events for list update
             events.pub("attrack:updated_config", versioncheck);
         }, utils.log, 10000);
