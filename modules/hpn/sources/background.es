@@ -29,7 +29,7 @@ export default {
       CliqzSecureMessage.init();
       CliqzSecureMessage.wCrypto = new Worker('crypto-worker.js');
       CliqzSecureMessage.wCrypto.onmessage = function (e) {
-        if (e.data.type === 'query') {
+        if (e.data.type === 'instant') {
           const callback = CliqzSecureMessage.queriesID[e.data.uid];
           delete CliqzSecureMessage.queriesID[e.data.uid];
           callback && callback({ response: e.data.res });

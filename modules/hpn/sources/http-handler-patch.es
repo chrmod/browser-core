@@ -2,19 +2,19 @@ import CliqzSecureMessage from 'hpn/main';
 import utils from 'core/utils';
 import environment from 'platform/environment';
 
-
+const BW_URL = 'https://antiphishing.cliqz.com/api/bwlist?md5=';
 export function overRideCliqzResults() {
   if (utils.getPref('proxyNetwork', true) === false) return;
 
   if (!environment.proxyHttpHandler) environment.proxyHttpHandler = environment.httpHandler;
   environment.httpHandler = function (method, url, callback, onerror, timeout, data, sync) {
-    if (url.indexOf(utils.RESULTS_PROVIDER) > -1 &&
+    if (url.startsWith(utils.RESULTS_PROVIDER) &&
         utils.getPref('hpn-query', false)) {
       const query = url.replace((utils.RESULTS_PROVIDER), '');
       const uid = Math.floor(Math.random() * 10000000);
       CliqzSecureMessage.queriesID[uid] = callback;
       CliqzSecureMessage.wCrypto.postMessage({
-        msg: { action: 'extension-query',
+        msg: { action: 'instant',
               type: 'cliqz',
               ts: '',
               ver: '1.5',
@@ -22,7 +22,7 @@ export function overRideCliqzResults() {
               rp: utils.RESULTS_PROVIDER,
         },
         uid: uid,
-        type: 'query',
+        type: 'instant',
         sourcemap: CliqzSecureMessage.sourceMap,
         upk: CliqzSecureMessage.uPK,
         dspk: CliqzSecureMessage.dsPK,
@@ -30,7 +30,7 @@ export function overRideCliqzResults() {
         queryproxyip: CliqzSecureMessage.queryProxyIP,
       });
       return null;
-    } else if (url.indexOf(utils.RESULTS_PROVIDER_LOG) > -1 &&
+    } else if (url.startsWith(utils.RESULTS_PROVIDER_LOG) &&
                utils.getPref('hpn-telemetry', false)) {
       const query = url.replace((utils.RESULTS_PROVIDER_LOG), '');
       const uid = Math.floor(Math.random() * 10000000);
@@ -43,7 +43,29 @@ export function overRideCliqzResults() {
               payload: query,
         },
         uid: uid,
-        type: 'query',
+        type: 'instant',
+        sourcemap: CliqzSecureMessage.sourceMap,
+        upk: CliqzSecureMessage.uPK,
+        dspk: CliqzSecureMessage.dsPK,
+        sspk: CliqzSecureMessage.secureLogger,
+        queryproxyip: CliqzSecureMessage.queryProxyIP,
+      });
+      return null;
+    } else if (url.startsWith(BW_URL) &&
+               utils.getPref('hpn-telemetry', false)) {
+      const query = url.replace(BW_URL, '');
+      const uid = Math.floor(Math.random() * 10000000);
+      CliqzSecureMessage.queriesID[uid] = callback;
+      CliqzSecureMessage.wCrypto.postMessage({
+        msg: { action: 'instant',
+              type: 'cliqz',
+              ts: '',
+              ver: '1.5',
+              payload: query,
+              rp: BW_URL,
+        },
+        uid: uid,
+        type: 'instant',
         sourcemap: CliqzSecureMessage.sourceMap,
         upk: CliqzSecureMessage.uPK,
         dspk: CliqzSecureMessage.dsPK,
