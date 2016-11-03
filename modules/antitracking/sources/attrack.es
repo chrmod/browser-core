@@ -99,15 +99,15 @@ var CliqzAttrack = {
         }
         CliqzAttrack.privateValues = p;
     },
-    executeComponentStack: function(components, initialState, logKey) {
+    executePipeline: function(pipeline, initialState, logKey) {
       const state = initialState;
       const response = {};
-      for (let i=0; i<components.length; i++) {
-        // console.log(logKey, state.url, 'Step: ' + components[i].name);
+      for (let i=0; i<pipeline.length; i++) {
+        // console.log(logKey, state.url, 'Step: ' + pipeline[i].name);
         try {
-          const cont = components[i](state, response);
+          const cont = pipeline[i](state, response);
           if (!cont) {
-            console.log(logKey, state.url, 'Break at', components[i].name);
+            console.log(logKey, state.url, 'Break at', pipeline[i].name);
             break;
           }
         } catch(e) {
@@ -119,87 +119,13 @@ var CliqzAttrack = {
       return response;
     },
     httpopenObserver: function(requestDetails) {
-      return CliqzAttrack.executeComponentStack(CliqzAttrack.onOpenRequest, requestDetails, 'ATTRACK.OPEN');
+      return CliqzAttrack.executePipeline(CliqzAttrack.onOpenRequest, requestDetails, 'ATTRACK.OPEN');
     },
-    httpResponseObserver: {
-        observe: function(requestDetails) {
-            if (!CliqzAttrack.qs_whitelist.isReady()) {
-                return;
-            }
-            var requestContext = new HttpRequestContext(requestDetails),
-                url = requestContext.url;
-
-            if (!url) return;
-            var url_parts = URLInfo.get(url);
-            var referrer = requestContext.getReferrer();
-            var same_gd = false;
-
-            var source_url = requestContext.getSourceURL(),
-                source_url_parts = null,
-                source_tab = requestContext.getOriginWindowID();
-
-            // full page
-            if (requestContext.isFullPage()) {
-                if ([300, 301, 302, 303, 307].indexOf(requestContext.channel.responseStatus) >= 0) {
-                    // redirect, update location for tab
-                    // if no redirect location set, stage the tab id so we don't get false data
-                    let redirect_url = requestContext.getResponseHeader("Location");
-                    let redirect_url_parts = URLInfo.get(redirect_url);
-                    // if redirect is relative, use source domain
-                    if (!redirect_url_parts.hostname) {
-                        redirect_url_parts.hostname = url_parts.hostname;
-                        redirect_url_parts.path = redirect_url;
-                    }
-                    CliqzAttrack.tp_events.onRedirect(redirect_url_parts, requestContext.getOuterWindowID(), requestContext.isChannelPrivate());
-                }
-                return;
-            }
-
-            if (source_url == '' || source_url.indexOf('about:')==0) return;
-
-            if (source_url != null) {
-                source_url_parts = URLInfo.get(source_url);
-                // extract and save tokens
-                same_gd = sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
-                if (same_gd) return;
-
-                if(url_parts.hostname != source_url_parts.hostname)
-                    var req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                if (req_log) {
-                    CliqzAttrack.tp_events.incrementStat(req_log, 'resp_ob');
-                    CliqzAttrack.tp_events.incrementStat(req_log, 'content_length', parseInt(requestContext.getResponseHeader('Content-Length')) || 0);
-                    CliqzAttrack.tp_events.incrementStat(req_log, `status_${requestContext.channel.responseStatus}`);
-                }
-
-                // is cached?
-                let cached = requestContext.isCached;
-                CliqzAttrack.tp_events.incrementStat(req_log, cached ? 'cached' : 'not_cached');
-
-
-                // broken by attrack?
-                if (CliqzAttrack.recentlyModified.has(source_tab + url) && requestContext.channel.responseStatus >= 400 && logBreakageEnabled()) {
-                  const dedupKey = [source_url, url_parts.hostname, url_parts.path].join('-');
-                  CliqzAttrack.breakageCache[dedupKey] = CliqzAttrack.breakageCache[dedupKey] || {
-                    hostname: md5(source_url_parts.hostname).substring(0, 16),
-                    path: md5(source_url_parts.path),
-                    status: requestContext.channel.responseStatus,
-                    url_info: {
-                      protocol: url_parts.protocol,
-                      hostname: url_parts.hostname,
-                      path: md5(url_parts.path),
-                      params: url_parts.getKeyValuesMD5(),
-                      status: requestContext.channel.responseStatus
-                    },
-                    context: requestContext.getWindowDepth(),
-                    count: 0
-                  };
-                  CliqzAttrack.breakageCache[dedupKey].count += 1;
-                }
-            }
-        }
+    httpResponseObserver: function(requestDetails) {
+      return CliqzAttrack.executePipeline(CliqzAttrack.responsePipeline, requestDetails, 'ATTRACK.RESP');
     },
     httpmodObserver: function(requestDetails) {
-      return CliqzAttrack.executeComponentStack(CliqzAttrack.onModifyRequest, requestDetails, 'ATTRACK.MOD');
+      return CliqzAttrack.executePipeline(CliqzAttrack.onModifyRequest, requestDetails, 'ATTRACK.MOD');
     },
     onTabLocationChange: function(evnt) {
         CliqzAttrack.domChecker.onTabLocationChange(evnt);
@@ -355,7 +281,7 @@ var CliqzAttrack = {
 
         WebRequest.onBeforeRequest.addListener(CliqzAttrack.httpopenObserver, undefined, ['blocking']);
         WebRequest.onBeforeSendHeaders.addListener(CliqzAttrack.httpmodObserver, undefined, ['blocking']);
-        WebRequest.onHeadersReceived.addListener(CliqzAttrack.httpResponseObserver.observe);
+        WebRequest.onHeadersReceived.addListener(CliqzAttrack.httpResponseObserver);
 
         try {
             CliqzAttrack.disabled_sites = new Set(JSON.parse(CliqzUtils.getPref(CliqzAttrack.DISABLED_SITES_PREF, "[]")));
@@ -413,10 +339,10 @@ var CliqzAttrack = {
       CliqzAttrack.cookieContext = new CookieContext();
       const trackerProxy = new TrackerProxy();
 
-      CliqzAttrack.components = [pageLogger, CliqzAttrack.tokenExaminer, tokenTelemetry, CliqzAttrack.domChecker,
+      CliqzAttrack.pipelineSteps = [pageLogger, CliqzAttrack.tokenExaminer, tokenTelemetry, CliqzAttrack.domChecker,
           tokenChecker, blockRules, CliqzAttrack.cookieContext, trackerProxy];
 
-      CliqzAttrack.components.forEach((comp) => {
+      CliqzAttrack.pipelineSteps.forEach((comp) => {
         if (comp.init) {
           comp.init();
         }
@@ -452,7 +378,7 @@ var CliqzAttrack = {
           return (state.badTokens.length > 0)
         },
         blockRules.applyBlockRules.bind(blockRules),
-        CliqzAttrack.isQSEnabled,
+        CliqzAttrack.isQSEnabled.bind(CliqzAttrack),
         function checkSourceWhitelisted(state) {
           if (CliqzAttrack.isSourceWhitelisted(state.sourceUrlParts.hostname)) {
             state.incrementStat('source_whitelisted');
@@ -566,18 +492,50 @@ var CliqzAttrack = {
         }
       ];
 
-      CliqzAttrack.onResponse = [
+      CliqzAttrack.responsePipeline = [
         CliqzAttrack.qs_whitelist.isReady.bind(CliqzAttrack.qs_whitelist),
         determineContext,
+        function checkMainDocumentRedirects(state) {
+          if (state.requestContext.isFullPage()) {
+            if ([300, 301, 302, 303, 307].indexOf(state.requestContext.channel.responseStatus) >= 0) {
+              // redirect, update location for tab
+              // if no redirect location set, stage the tab id so we don't get false data
+              let redirect_url = state.requestContext.getResponseHeader("Location");
+              let redirect_url_parts = URLInfo.get(redirect_url);
+              // if redirect is relative, use source domain
+              if (!redirect_url_parts.hostname) {
+                redirect_url_parts.hostname = url_parts.hostname;
+                redirect_url_parts.path = redirect_url;
+              }
+              CliqzAttrack.tp_events.onRedirect(redirect_url_parts, state.requestContext.getOuterWindowID(), state.requestContext.isChannelPrivate());
+            }
+            return false;
+          }
+          return true;
+        },
+        skipInternalProtocols,
+        function skipBadSource(state) {
+          return state.sourceUrl !== '' && state.sourceUrl.indexOf('about:') === -1;
+        },
+        checkSameGeneralDomain,
+        pageLogger.attachStatCounter.bind(pageLogger),
+        function logResponseStats(state) {
+          if (state.incrementStat) {
+            state.incrementStat('resp_ob');
+            state.incrementStat('content_length', parseInt(state.requestContext.getResponseHeader('Content-Length')) || 0);
+            state.incrementStat(`status_${state.requestContext.channel.responseStatus}`)
+            state.incrementStat(state.requestContext.isCached ? 'cached' : 'not_cached');
+          }
+        }
       ]
     },
     unloadPipeline: function() {
-      (CliqzAttrack.components || []).forEach((comp) => {
+      (CliqzAttrack.pipelineSteps || []).forEach((comp) => {
         if (comp.unload) {
           comp.unload();
         }
       });
-      CliqzAttrack.components = [];
+      CliqzAttrack.pipelineSteps = [];
     },
     /** Per-window module initialisation
      */
@@ -603,7 +561,7 @@ var CliqzAttrack = {
 
         WebRequest.onBeforeRequest.removeListener(CliqzAttrack.httpopenObserver);
         WebRequest.onBeforeSendHeaders.removeListener(CliqzAttrack.httpmodObserver);
-        WebRequest.onHeadersReceived.removeListener(CliqzAttrack.httpResponseObserver.observe);
+        WebRequest.onHeadersReceived.removeListener(CliqzAttrack.httpResponseObserver);
 
         pacemaker.stop();
 

@@ -81,18 +81,18 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
       return {
         onBeforeRequest: pageSpec.onBeforeRequest.map(function(reqData) {
             reqData.getRequestHeader = mockGetRequestHeader;
-            var response = attrack.httpopenObserver.observe(reqData);
+            var response = attrack.httpopenObserver(reqData);
             return {url: reqData.url, response};
           }),
         onBeforeSendHeaders: pageSpec.onBeforeSendHeaders.map(function(reqData) {
           reqData.getRequestHeader = mockGetRequestHeader;
-          var response = attrack.httpmodObserver.observe(reqData);
+          var response = attrack.httpmodObserver(reqData);
           return {url: reqData.url, response};
         }),
         onHeadersReceived: pageSpec.onHeadersReceived.map(function(reqData) {
           reqData.getRequestHeader = mockGetRequestHeader;
           reqData.getResponseHeader = mockGetResponseHeader;
-          var response = attrack.httpResponseObserver.observe(reqData);
+          var response = attrack.httpResponseObserver(reqData);
           return {url: reqData.url, response};
         }),
       };
@@ -305,7 +305,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
         });
 
         it('removes all occurances of uid in the request', function() {
-          var mainDoc = attrack.httpopenObserver.observe({
+          var mainDoc = attrack.httpopenObserver({
               tabId: 34,
               frameId: 34,
               parentFrameId: 34,
@@ -319,7 +319,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
           expect(mainDoc).to.not.have.property('cancel');
           expect(mainDoc).to.not.have.property('redirectUrl');
           expect(mainDoc).to.not.have.property('requestHeaders');
-          var response = attrack.httpopenObserver.observe({
+          var response = attrack.httpopenObserver({
             tabId: 34,
             frameId: 34,
             parentFrameId: 34,
