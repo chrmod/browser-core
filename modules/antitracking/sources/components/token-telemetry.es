@@ -70,6 +70,7 @@ export default class {
   }
 
   unload() {
+    this._tokens.save();
     pacemaker.deregister(this._pmsend);
   }
 

@@ -29,6 +29,10 @@ export default class {
     pacemaker.deregister(this._pmAnnotate);
   }
 
+  clearCache() {
+    this._requestKeyValue.clear();
+  }
+
   examineTokens(state) {
     if (!state.requestContext.isChannelPrivate()) {
       this._examineTokens(state.urlParts);

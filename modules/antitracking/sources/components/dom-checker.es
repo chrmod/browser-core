@@ -69,7 +69,7 @@ export default class {
 
   constructor() {
     this.loadedTabs = {};
-    this.linksRecorded = {};
+    this.linksRecorded = {};// cache when we recorded links for each url
     this.linksFromDom = {};
     this.cookiesFromDom = {}
   }
