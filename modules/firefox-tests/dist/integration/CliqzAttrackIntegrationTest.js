@@ -139,7 +139,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       trackertxt.setDefaultTrackerTxtRule('replace');
 
       console.log("----- TEST ----");
-      CliqzAttrack.initComponents();
+      CliqzAttrack.initPipeline();
     });
 
     afterEach(function() {
@@ -904,7 +904,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         context("Bloom filter disabled", function() {
           beforeEach(function() {
             CliqzUtils.setPref('attrackBloomFilter', false);
-            CliqzAttrack.initComponents();
+            CliqzAttrack.initPipeline();
           });
           describe('QS blocking enabled', QSBlocking);
         });
@@ -917,7 +917,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             CliqzAttrack.qs_whitelist.bloomFilter = new BloomFilter('0000000000000000000', 5);
             CliqzAttrack.qs_whitelist.lastUpdate = hour;
 
-            CliqzAttrack.initComponents();
+            CliqzAttrack.initPipeline();
           });
           afterEach(function() {
             CliqzUtils.setPref('attrackBloomFilter', false);
@@ -935,7 +935,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
       beforeEach(function() {
         CliqzAttrack.safekeyValuesThreshold = 2;
-        CliqzAttrack.initComponents();
+        CliqzAttrack.initPipeline();
       });
 
       it('adds local safekey if 3 different values seen', function(done) {

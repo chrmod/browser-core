@@ -24,15 +24,15 @@ import WebRequest from 'core/webrequest';
 import telemetry from 'antitracking/telemetry';
 import console from 'core/console';
 
-import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from 'antitracking/components/context';
-import PageLogger from 'antitracking/components/page-logger';
-import TokenExaminer from 'antitracking/components/token-examiner';
-import TokenTelemetry from 'antitracking/components/token-telemetry';
-import DomChecker from 'antitracking/components/dom-checker';
-import TokenChecker from 'antitracking/components/token-checker';
-import BlockRules from 'antitracking/components/block-rules';
-import CookieContext from 'antitracking/components/cookie-context';
-import TrackerProxy from 'antitracking/components/tracker-proxy';
+import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from 'antitracking/steps/context';
+import PageLogger from 'antitracking/steps/page-logger';
+import TokenExaminer from 'antitracking/steps/token-examiner';
+import TokenTelemetry from 'antitracking/steps/token-telemetry';
+import DomChecker from 'antitracking/steps/dom-checker';
+import TokenChecker from 'antitracking/steps/token-checker';
+import BlockRules from 'antitracking/steps/block-rules';
+import CookieContext from 'antitracking/steps/cookie-context';
+import TrackerProxy from 'antitracking/steps/tracker-proxy';
 
 var countReload = false;
 
@@ -118,10 +118,8 @@ var CliqzAttrack = {
       console.log(logKey, state.url, response);
       return response;
     },
-    httpopenObserver: {
-        observe : function(requestDetails) {
-          return CliqzAttrack.executeComponentStack(CliqzAttrack.onOpenRequest, requestDetails, 'ATTRACK.OPEN');
-        }
+    httpopenObserver: function(requestDetails) {
+      return CliqzAttrack.executeComponentStack(CliqzAttrack.onOpenRequest, requestDetails, 'ATTRACK.OPEN');
     },
     httpResponseObserver: {
         observe: function(requestDetails) {
@@ -200,10 +198,8 @@ var CliqzAttrack = {
             }
         }
     },
-    httpmodObserver: {
-        observe : function(requestDetails) {
-          return CliqzAttrack.executeComponentStack(CliqzAttrack.onModifyRequest, requestDetails, 'ATTRACK.MOD');
-        }
+    httpmodObserver: function(requestDetails) {
+      return CliqzAttrack.executeComponentStack(CliqzAttrack.onModifyRequest, requestDetails, 'ATTRACK.MOD');
     },
     onTabLocationChange: function(evnt) {
         CliqzAttrack.domChecker.onTabLocationChange(evnt);
@@ -357,8 +353,8 @@ var CliqzAttrack = {
         CliqzAttrack.initPacemaker();
         pacemaker.start();
 
-        WebRequest.onBeforeRequest.addListener(CliqzAttrack.httpopenObserver.observe, undefined, ['blocking']);
-        WebRequest.onBeforeSendHeaders.addListener(CliqzAttrack.httpmodObserver.observe, undefined, ['blocking']);
+        WebRequest.onBeforeRequest.addListener(CliqzAttrack.httpopenObserver, undefined, ['blocking']);
+        WebRequest.onBeforeSendHeaders.addListener(CliqzAttrack.httpmodObserver, undefined, ['blocking']);
         WebRequest.onHeadersReceived.addListener(CliqzAttrack.httpResponseObserver.observe);
 
         try {
@@ -397,12 +393,12 @@ var CliqzAttrack = {
           });
         });
 
-        CliqzAttrack.initComponents();
+        CliqzAttrack.initPipeline();
 
         return Promise.all(initPromises);
     },
-    initComponents: function() {
-      CliqzAttrack.unloadComponents();
+    initPipeline: function() {
+      CliqzAttrack.unloadPipeline();
 
       const pageLogger = new PageLogger(CliqzAttrack.tp_events, CliqzAttrack.blockLog);
       CliqzAttrack.tokenExaminer = new TokenExaminer(CliqzAttrack.qs_whitelist, CliqzAttrack.shortTokenLength, CliqzAttrack.safekeyValuesThreshold, CliqzAttrack.safeKeyExpire);
@@ -456,9 +452,7 @@ var CliqzAttrack = {
           return (state.badTokens.length > 0)
         },
         blockRules.applyBlockRules.bind(blockRules),
-        function checkQSEnabled(state) {
-          return CliqzAttrack.isQSEnabled();
-        },
+        CliqzAttrack.isQSEnabled,
         function checkSourceWhitelisted(state) {
           if (CliqzAttrack.isSourceWhitelisted(state.sourceUrlParts.hostname)) {
             state.incrementStat('source_whitelisted');
@@ -517,9 +511,9 @@ var CliqzAttrack = {
           }
         }
       ];
+
       CliqzAttrack.onModifyRequest = [
         determineContext,
-        // pageLogger.checkIsMainDocument.bind(pageLogger),
         function checkIsMainDocument(state) {
           return !state.requestContext.isFullPage();
         },
@@ -529,7 +523,7 @@ var CliqzAttrack = {
         function catchMissedOpenListener(state, response) {
           if (state.reqLog && state.reqLog.c === 0) {
             // take output from httpopenObserver and copy into our response object
-            const openResponse = CliqzAttrack.httpopenObserver.observe(state) || {};
+            const openResponse = CliqzAttrack.httpopenObserver(state) || {};
             Object.keys(openResponse).forEach((k) => {
               response[k] = openResponse[k];
             });
@@ -571,8 +565,13 @@ var CliqzAttrack = {
           return true;
         }
       ];
+
+      CliqzAttrack.onResponse = [
+        CliqzAttrack.qs_whitelist.isReady.bind(CliqzAttrack.qs_whitelist),
+        determineContext,
+      ]
     },
-    unloadComponents: function() {
+    unloadPipeline: function() {
       (CliqzAttrack.components || []).forEach((comp) => {
         if (comp.unload) {
           comp.unload();
@@ -602,8 +601,8 @@ var CliqzAttrack = {
         CliqzAttrack.blockLog.destroy();
         CliqzAttrack.qs_whitelist.destroy();
 
-        WebRequest.onBeforeRequest.removeListener(CliqzAttrack.httpopenObserver.observe);
-        WebRequest.onBeforeSendHeaders.removeListener(CliqzAttrack.httpmodObserver.observe);
+        WebRequest.onBeforeRequest.removeListener(CliqzAttrack.httpopenObserver);
+        WebRequest.onBeforeSendHeaders.removeListener(CliqzAttrack.httpmodObserver);
         WebRequest.onHeadersReceived.removeListener(CliqzAttrack.httpResponseObserver.observe);
 
         pacemaker.stop();
@@ -614,7 +613,7 @@ var CliqzAttrack = {
           this._blockRulesLoader.stop();
         }
 
-        CliqzAttrack.unloadComponents();
+        CliqzAttrack.unloadPipeline();
 
         events.un_sub("attrack:safekeys_updated");
     },

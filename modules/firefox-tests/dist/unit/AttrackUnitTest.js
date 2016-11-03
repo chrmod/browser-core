@@ -301,7 +301,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
           CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
           attrack.qs_whitelist.addSafeToken(md5('tracker.com').substring(0, 16), '');
           attrack.tokenDomainCountThreshold = 0; // block first time
-          attrack.initComponents();
+          attrack.initPipeline();
         });
 
         it('removes all occurances of uid in the request', function() {
