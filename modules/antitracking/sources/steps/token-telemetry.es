@@ -59,8 +59,8 @@ function anonymizeTrackerTokens(trackerData) {
 
 export default class {
 
-  constructor(telemetryProvider) {
-    this.telemetry = telemetryProvider;
+  constructor(telemetry) {
+    this.telemetry = telemetry;
     this.tokens = {};
     this._tokens = new persist.AutoPersistentObject("tokens", (v) => this.tokens = v, 60000);
   }
@@ -136,20 +136,16 @@ export default class {
     }
 
     if (Object.keys(data).length > 0) {
-        const compress = compressionAvailable();
-
         splitTelemetryData(data, 20000).map((d) => {
-            const payl = this.telemetry.generateAttrackPayload(d);
             const msg = {
                 'type': this.telemetry.msgType,
                 'action': 'attrack.tokens',
-                'payload': payl
+                'payload': d
             };
-            if ( compress ) {
-                msg.compressed = true;
-                msg.payload = compressJSONToBase64(payl);
-            }
-            this.telemetry.telemetry(msg);
+            this.telemetry({
+              message: msg,
+              compress: true,
+            });
         });
     }
     this._tokens.setDirty();

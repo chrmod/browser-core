@@ -1,6 +1,8 @@
 import { getGeneralDomain } from 'antitracking/domain';
 import { URLInfo } from 'antitracking/url';
 import { utils } from 'core/cliqz';
+import { cleanTimestampCache } from 'antitracking/utils';
+import pacemaker from 'antitracking/pacemaker';
 
 // moved from cookie-checker
 function currentGD() {
@@ -18,6 +20,18 @@ export default class {
     this.visitCache = {};
     this.contextFromEvent = null;
     this.timeAfterLink = 5*1000;
+    this.timeCleaningCache = 180*1000;
+  }
+
+  init() {
+    this._pmclean = pacemaker.register(function clean_caches(currTime) {
+      // visit cache
+      cleanTimestampCache(this.visitCache, this.timeCleaningCache, currTime);
+    }.bind(this), 2 * 60 * 1000);
+  }
+
+  unload() {
+    pacemaker.deregister(this._pmclean);
   }
 
   checkVisitCache(state) {
