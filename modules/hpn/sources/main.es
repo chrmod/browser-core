@@ -233,10 +233,10 @@ const CliqzSecureMessage = {
   unload: function() {
     hpnUtils.saveLocalCheckTable();
     CliqzSecureMessage.pushTelemetry();
-    CliqzUtils.clearInterval(this.sourceMapLoader.intervalTimer);
-    CliqzUtils.clearInterval(this.proxyListLoader.intervalTimer);
-    CliqzUtils.clearInterval(this.routeTableLoader.intervalTimer);
-    CliqzUtils.clearInterval(this.secureKeysLoader.intervalTimer);
+    this.sourceMapLoader.stop();
+    this.proxyListLoader.stop();
+    this.routeTableLoader.stop();
+    this.secureKeysLoader.stop();
     CliqzUtils.clearTimeout(CliqzSecureMessage.pacemakerId);
   },
   dbConn: null,
