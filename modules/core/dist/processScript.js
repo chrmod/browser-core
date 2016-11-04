@@ -206,9 +206,12 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
-    if ( msg.data.url !== currentURL() &&
-      // TEMP: Human web decodes the URI for internal storage
-      (msg.data.action == "getHTML" && msg.data.url !== decodeURIComponent(currentURL()))) {
+    var isCurrentUrl = msg.data.url === currentURL();
+    var isGetHTML = msg.data.action === 'getHTML';
+    // TEMP: Human web decodes the URI for internal storage
+    var isCurrentUrlBis = msg.data.url === decodeURIComponent(currentURL());
+
+    if (!isCurrentUrl || (isGetHTML && !isCurrentUrlBis)) {
       return;
     }
 
