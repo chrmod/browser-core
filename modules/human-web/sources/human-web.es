@@ -38,6 +38,10 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function getHTML(...args) {
+  return utils.callAction('core', 'getHTML', args);
+}
+
 var CliqzHumanWeb = {
     VERSION: '2.2',
     WAIT_TIME: 2000,
@@ -1384,7 +1388,7 @@ var CliqzHumanWeb = {
       ];
 
       function getDoc(url) {
-        return core.getHTML(url).then( docs => {
+        return getHTML(url).then( docs => {
           const doc = docs[0];
           if (doc) {
             return doc;

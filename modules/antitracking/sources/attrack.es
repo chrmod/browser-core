@@ -17,7 +17,6 @@ import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import ResourceLoader from 'core/resource-loader';
-import core from 'core/background';
 import CookieChecker from 'antitracking/cookie-checker';
 import TrackerProxy from 'antitracking/tracker-proxy';
 import { compressionAvailable, splitTelemetryData, compressJSONToBase64, generatePayload } from 'antitracking/utils';
@@ -27,6 +26,13 @@ import telemetry from 'antitracking/telemetry';
 
 var countReload = false;
 
+function queryHTML(...args) {
+  return utils.callAction('core', 'queryHTML', args);
+}
+
+function getCookie(...args) {
+  return utils.callAction('core', 'getCookie', args);
+}
 
 /**
  * Add padding characters to the left of the given string.
@@ -1432,14 +1438,14 @@ var CliqzAttrack = {
       CliqzAttrack.linksRecorded[url] = now;
       return Promise.all([
 
-        core.getCookie(url).then(
+        getCookie(url).then(
           cookie => CliqzAttrack.cookiesFromDom[url] = cookie
         ),
 
         Promise.all([
-          core.queryHTML(url, 'a[href]', 'href'),
-          core.queryHTML(url, 'link[href]', 'href'),
-          core.queryHTML(url, 'script[src]', 'src').then(function (hrefs) {
+          queryHTML(url, 'a[href]', 'href'),
+          queryHTML(url, 'link[href]', 'href'),
+          queryHTML(url, 'script[src]', 'src').then(function (hrefs) {
             return hrefs.filter( href => href.indexOf('http') === 0 );
           }),
         ]).then(function (reflinks) {

@@ -7,7 +7,7 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 const REFRESH_RETRIES = 2;
 
 function queryHTML(...args) {
-  return utils.callActions('core', 'queryHTML', args);
+  return utils.callAction('core', 'queryHTML', args);
 }
 
 export default class {

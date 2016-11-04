@@ -1,9 +1,17 @@
 import CliqzHumanWeb from "human-web/human-web";
-import core from "core/background";
+import utils from 'core/utils';
 
 const BW_URL = "https://antiphishing.cliqz.com/api/bwlist?md5=";
 const WARNING = 'chrome://cliqz/content/anti-phishing/phishing-warning.html';
 const Ci = Components.interfaces;
+
+function queryHTML(...args) {
+  return utils.callAction('core', 'queryHTML', args);
+}
+
+function getHTML(...args) {
+  return utils.callAction('core', 'getHTML', args);
+}
 
 function format(currWin, url, md5, logging) {
     let doc = currWin.document;
@@ -102,7 +110,7 @@ function alert(aProgress, url, md5, logging) {
 };
 
 function checkPassword(url, callback) {
-  const suspicious = core.queryHTML(url, "input", "type,value,name").then(
+  const suspicious = queryHTML(url, "input", "type,value,name").then(
     inputs => inputs.some(
       input => Object.keys(input).some(
         attr => attr === "password" || attr === "passwort"
@@ -136,7 +144,7 @@ function checkSingleScript(script) {
 }
 
 function checkHTML(url, callback){
-  core.getHTML(url).then( htmls => {
+  getHTML(url).then( htmls => {
     var html = htmls[0];
 
     if (!html) {
@@ -165,7 +173,7 @@ function checkScript(url, callback) {
   const domain = url.replace('http://', '')
     .replace('https://', '').split("/")[0];
 
-  core.queryHTML(url, "script", "src").then( srcs => {
+  queryHTML(url, "script", "src").then( srcs => {
     const suspicious = srcs.filter( src => src ).some( src => {
       // if the script is from the same domain, fetch it
       var dm = src.replace('http://', '').replace('https://', '').split("/")[0];
@@ -187,7 +195,7 @@ function checkScript(url, callback) {
     }
   });
 
-  core.queryHTML(url, "script", "innerHTML").then( scripts => {
+  queryHTML(url, "script", "innerHTML").then( scripts => {
     if (scripts.some( checkSingleScript )) {
       callback(url, 'script');
     };
