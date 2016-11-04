@@ -139,9 +139,23 @@ var CliqzUtils = {
   },
 
   callAction(moduleName, actionName, args) {
-    var module = CliqzUtils.System.get(moduleName+"/background");
-    var action = module.default.actions[actionName];
-    return Promise.resolve(action.apply(null, args));
+    const module = CliqzUtils.System.get(`${moduleName}/background`);
+    if (!module) {
+      return Promise.reject(`module "${moduleName}" does not exist`);
+    }
+
+    const action = module.default.actions[actionName];
+    if (!action) {
+      return Promise.reject(`module ${moduleName} does not implement action "${actionName}"`);
+    }
+
+    try {
+      const response = action.apply(null, args);
+      return Promise.resolve(response);
+    } catch (e) {
+      console.error(`callAction`, moduleName, actionName, e);
+      return Promise.reject(e);
+    }
   },
 
   callWindowAction(win, moduleName, actionName, args) {
