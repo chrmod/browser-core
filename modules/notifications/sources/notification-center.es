@@ -28,7 +28,7 @@ const AVAILABLE_DOMAINS = {
     },
     schedule: '*/1 *',
   },
-  'facebook.com': {
+  'www.facebook.com': {
     providerName: 'pin-tab',
     config: {
       domain: 'www.facebook.com',
