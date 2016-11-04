@@ -28,6 +28,15 @@ const AVAILABLE_DOMAINS = {
     },
     schedule: '*/1 *',
   },
+  'facebook.com': {
+    providerName: 'pin-tab',
+    config: {
+      domain: 'www.facebook.com',
+      selector: '[data-tooltip-content="Messages"] span span',
+      attribute: 'innerText',
+    },
+    schedule: '*/1 *',
+  },
 };
 
 const AVAILABLE_PROVIDERS = {
@@ -98,7 +107,9 @@ export default Evented(class {
         this.storage.updateDomain(domain, { unread: true });
         this.updateUnreadStatus();
       }
-    });
+    }).catch(
+      e => console.error(`notifications provider "${providerName}" fail`, e)
+    );
   }
 
   createSchedule(domain) {
