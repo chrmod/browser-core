@@ -271,7 +271,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 
     &:hover:not([visuallyselected="true"]) .tab-content,
     .tabs-newtab-button:hover {
-        background-color: #ccc !important;
+        background-color: $browser-top-bg-color !important;
     }
 
     &:first-child .tab-content {

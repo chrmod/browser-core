@@ -1,7 +1,14 @@
 $urlbar-holder: 33px;
 $urlbar-elms-height: 32px;
-$buttons-hover-color: #fff;
+$buttons-hover-color: #e7e7e7;
+$buttons-hover-border-color: #dfdfdf;
 $browser-top-bg-color: #ccc;
+
+
+$tab-border-color: #afafaf;
+$tab-selected-bg-color: #fff;
+$tab-bg-color: rgba(255, 255, 255, 0.1);
+$tab-font-size: 1.09em;
 
 @font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
@@ -93,40 +100,6 @@ $browser-top-bg-color: #ccc;
 	min-height: var(--tab-min-height);
 }
 .tab-background-middle[visuallyselected="true"] { background: none; }
-
-.tab-content {
-    padding-bottom: 1px;
-    border: none;
-    border-radius: 0;
-    background: rgba(255, 255, 255, 0.35) !important;
-}
-
-//====== Selected Tab
-.tabbrowser-tab[visuallyselected="true"] .tab-content {
-    background: -moz-linear-gradient(top, #ffffff 0%, #f6f6f6 100%) !important;
-}
-
-.tabbrowser-tab {
-    margin: 0;
-
-
-    .tab-stack {
-        margin: 0;
-        padding-right: 1px;
-        width: 100%;
-    }
-}
-.tabbrowser-tab:not([pinned]) {
-    max-width: 195px;
-}
-
-.tabbrowser-tab:hover > .tab-stack > .tab-background:not([visuallyselected="true"]) { background: none; }
-
-.tabs-newtab-button {
-    width: 30px;
-    border: 1px solid #d0d0d0;
-    -moz-margin-start: 2px;
-}
 
 #nav-bar .toolbarbutton-1:not([type="menu-button"]), #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button, #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
     padding: 5px 2px;
@@ -234,16 +207,65 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     margin-top: 0 !important;
     min-height: $urlbar-elms-height;
 }
+.tabbrowser-tab {
+    margin: 0;
 
-.tabbrowser-tab[visuallyselected="true"] {
-    position: static !important;
+    .tab-content {
+        padding-bottom: 1px;
+        border: none;
+        border-radius: 0;
+        background: $tab-bg-color !important;
+
+        .tab-label {
+            font-size: 12px;
+            text-align: left;
+        }
+    }
+
+    &[visuallyselected="true"] {
+        position: static !important;
+
+        .tab-content {
+            background: $tab-selected-bg-color !important;
+        }
+    }
+
+    &:not([visuallyselected="true"]):hover .tab-content,
+    .tabs-newtab-button:hover {
+        background-color: $browser-top-bg-color !important;
+    }
+
+    &[pinned] {
+        width: 37px;
+    }
+
+    &:not([pinned]) {
+        max-width: 235px;
+    }
+
+
+    .tab-stack {
+        margin: 0;
+        padding-right: 1px;
+        width: 100%;
+    }
+
+    &:hover > .tab-stack > .tab-background:not([visuallyselected="true"]) {
+        background: none;
+    }
+
 }
 
-.tabbrowser-tab[visuallyselected="true"] .tab-content,
-#PersonalToolbar {
-    background: #fff !important;
-}
+.tabs-newtab-button {
+    width: 30px;
+    -moz-margin-start: 2px;
+    border: none !important;
+    background: none;
 
+    &:hover {
+        background: $browser-top-bg-color !important;
+    }
+}
 
 tab {
     color: #202020;
@@ -254,13 +276,21 @@ tab {
     color: rgba(0, 0, 0, 0.7);
 }
 
-.tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
-.tabs-newtab-button:hover {
-    background: rgba(255, 255, 255, 0.75) !important;
+
+.tabs-newtab-button,
+#TabsToolbar > #new-tab-button,
+#TabsToolbar > toolbarpaletteitem > #new-tab-button {
+    margin-left: 3px; /*To have some space (line) between new-tab button and opened tabs*/
 }
 
-.tabbrowser-tab[pinned] {
-    width: 37px;
+/*======== Many Tabs Nav ==========*/
+#TabsToolbar .toolbarbutton-1:hover:not([disabled="true"]),
+#TabsToolbar .toolbarbutton-1[open],
+#TabsToolbar .toolbarbutton-1 > .toolbarbutton-menubutton-button:hover:not([disabled="true"]),
+.tabbrowser-arrowscrollbox > .scrollbutton-up:hover:not([disabled="true"]),
+.tabbrowser-arrowscrollbox > .scrollbutton-down:hover:not([disabled="true"]) {
+    background: $buttons-hover-color;
+    border-color: $buttons-hover-border-color;
 }
 
 /*======== Removes Tabs Border ==========*/
@@ -269,9 +299,7 @@ tab {
 #tabbrowser-tabs:not([overflow]) > .tabbrowser-tab[last-visible-tab]:not([visuallyselected]):not([beforehovered]):not(:hover)::after {
     display: none;
 }
-.tabs-newtab-button {
-    border: none !important;
-}
+
 
 /*========== End Tabs =========*/
 
@@ -475,7 +503,7 @@ toolbarbutton#cliqz-cc-btn {
     transition: none !important;
 
     &:hover {
-        border-color: #dfdfdf;
+        border-color: $buttons-hover-border-color;
         background: $buttons-hover-color;
     }
 }
@@ -550,26 +578,8 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     padding-right: 10px !important;
 }
 
-
-.tab-label {
-    font-size: 12px; /*Increase tab fontsize*/
-    text-align: left;
-}
-
-.tabbrowser-tab:hover:not([visuallyselected="true"]) .tab-content,
-.tabs-newtab-button:hover {
-    background-color: #dfdfdf !important;
-}
-
-.tabbrowser-tab:not([pinned]) {
-    max-width: 235px; /*Increase tab max width*/
-}
-
-.tabs-newtab-button,
-#TabsToolbar > #new-tab-button,
-#TabsToolbar > toolbarpaletteitem > #new-tab-button {
-    padding-bottom: 3px;
-    margin-left: 3px; /*To have some space (line) between new-tab button and opened tabs*/
+#alltabs-button {
+    padding-top: 3px;
 }
 
 .close-icon,
@@ -584,10 +594,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper > #urlbar > #identity-box 
     width: auto;
 	max-width: 20px;
 }
-
-//#tabbrowser-tabs[overflow="true"] .tabbrowser-tab[pinned="true"] .tab-stack {
-//    margin: 0 0 0 -1px;
-//}
 
 .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
     -moz-padding-start: 0;
@@ -695,7 +701,7 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker[label='Bookmarks
 
 @media (-moz-os-version: windows-win8) {
     #forward-button > .toolbarbutton-icon {
-        padding: 6px 6px 6px 5px !important;
+        padding: 6px !important;
     }
 
     #urlbar, .searchbar-textbox {
@@ -863,7 +869,7 @@ vbox[sidebarcommand=historybroadcaster] {
 
     #back-button > .toolbarbutton-icon,
     #forward-button > .toolbarbutton-icon {
-        padding: 8px 4px 8px 8px !important;
+        padding: 8px 6px !important;
     }
 
     #main-window:not([sizemode="maximized"]) {
