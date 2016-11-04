@@ -21,6 +21,7 @@ export default class {
     this.contextFromEvent = null;
     this.timeAfterLink = 5*1000;
     this.timeCleaningCache = 180*1000;
+    this.timeActive = 20*1000;
   }
 
   init() {
