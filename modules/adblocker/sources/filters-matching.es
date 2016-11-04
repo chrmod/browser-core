@@ -13,6 +13,7 @@ const CPT = {
   TYPE_XMLHTTPREQUEST: 11,
   TYPE_OBJECT_SUBREQUEST: 12,
   TYPE_MEDIA: 15,
+  TYPE_WEBSOCKET: 16,
 };
 
 
@@ -30,6 +31,7 @@ function checkContentPolicy(filter, cpt) {
       [filter.fromPing, CPT.TYPE_PING],
       [filter.fromScript, CPT.TYPE_SCRIPT],
       [filter.fromStylesheet, CPT.TYPE_STYLESHEET],
+      [filter.fromWebsocket, CPT.TYPE_WEBSOCKET],
       [filter.fromXmlHttpRequest, CPT.TYPE_XMLHTTPREQUEST],
     ];
 
