@@ -1,6 +1,7 @@
 import console from '../core/console';
 import { Cron } from '../core/anacron';
-import Gmail from './providers/gmail';
+import GmailProvider from './providers/gmail';
+import PinTabProvider from './providers/pin-tab';
 import Storage from './storage';
 import Evented from '../core/mixins/evented';
 
@@ -19,15 +20,19 @@ const AVAILABLE_DOMAINS = {
     schedule: '*/1 *',
   },
   'twitter.com': {
-    providerName: 'twitter',
-    config: {},
+    providerName: 'pin-tab',
+    config: {
+      domain: 'twitter.com',
+      selector: '.with-count .count-inner',
+      attribute: 'innerText',
+    },
     schedule: '*/1 *',
   },
 };
 
 const AVAILABLE_PROVIDERS = {
-  'gmail': Gmail,
-  'twitter': Gmail,
+  'gmail': GmailProvider,
+  'pin-tab': PinTabProvider,
 };
 
 export default Evented(class {
