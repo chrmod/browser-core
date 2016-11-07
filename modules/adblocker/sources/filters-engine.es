@@ -634,6 +634,8 @@ class CosmeticEngine {
 
   push(filter) {
     let inserted = false;
+    this.size += 1;
+
     if (filter.hostnames.length > 0) {
       filter.hostnames.forEach(hostname => {
         inserted = this.cosmetics.set(hostname, filter) || inserted;
