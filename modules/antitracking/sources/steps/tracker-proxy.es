@@ -40,10 +40,6 @@ export default class {
       this.pps.unregisterFilter(this);
       this.proxy = null;
     }
-  }
-
-  destroy() {
-    this.unload();
     events.un_sub('prefchange', this.prefListener);
   }
 
@@ -70,7 +66,14 @@ export default class {
     return this.proxy && this.proxy !== null;
   }
 
-  checkShouldProxy(url) {
+  checkShouldProxy(state) {
+    if (this.shouldProxy(state.url)) {
+      state.incrementStat('proxy');
+    }
+    return true;
+  }
+
+  shouldProxy(url) {
     // Check if a url should be proxied. We have to do two lookups in the
     // set of domains `trackerDomains`, one for the full hostname, and one
     // for the general domain (the list contains several general domains for
