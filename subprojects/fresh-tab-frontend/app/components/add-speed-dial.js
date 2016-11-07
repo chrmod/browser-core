@@ -4,9 +4,11 @@ export default Ember.Component.extend({
   cliqz: Ember.inject.service('cliqz'),
   store: Ember.inject.service(),
 
-  isHidden: Ember.computed.not("isVisible"),
+  tagName: 'li',
 
-  classNameBindings: ['isHidden:hidden'],
+  classNames: 'add-speed-dial',
+
+  classNameBindings: ['showFrom:addDialBox:addFrame'],
 
   observeNewSpeedDial: Ember.observer("newSpeedDial", function () {
     const url = this.get("newSpeedDial"),
