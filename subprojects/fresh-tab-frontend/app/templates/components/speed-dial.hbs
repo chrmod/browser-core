@@ -2,11 +2,9 @@
   <a class="historyLink {{if model.searchAlias "historyWithSearch"}}" data-index="{{index}}" href="{{model.url}}" title="{{model.title}}">
 
     <div class="dialIconHolder {{if model.searchAlias "dialWithSearch"}}">
-      <div class="cliqz-brand-logo" style="{{model.logo.style}}">
-        {{model.logo.text}}
-      </div>
+      {{cliqz-logo model=model.logo}}
       {{#if model.searchAlias}}
-       {{search-alias model=model type=type index=index alias=model.searchAlias}}
+        {{search-alias model=model type=type index=index alias=model.searchAlias}}
       {{/if}}
     </div>
     <div class="title">

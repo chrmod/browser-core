@@ -8,9 +8,7 @@ export default Ember.Component.extend({
 
   classNames: 'add-speed-dial',
 
-  isHidden: Ember.computed.not("isVisible"),
-
-  classNameBindings: ['isHidden:hidden', 'showFrom:addDialBox:addFrame'],
+  classNameBindings: ['showFrom:addDialBox:addFrame'],
 
   observeNewSpeedDial: Ember.observer("newSpeedDial", function () {
     const url = this.get("newSpeedDial"),

@@ -310,7 +310,7 @@ body.freshTabContainer {
       }
     }
 
-    .cliqz-brand-logo {
+    .logo {
       box-sizing: border-box;
       overflow: hidden;
       height: 50px;
@@ -484,9 +484,10 @@ body.freshTabContainer {
 
       .article-content {
         position: relative;
+        & > a {
+          position: relative;
+        }
       }
-
-
 
       .description {
         opacity: 0;

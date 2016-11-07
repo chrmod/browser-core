@@ -10,6 +10,8 @@ export default Ember.Component.extend({
     })
   }.on("init"),
 
+  showAddButton: Ember.computed.and('isCustom', 'displayAddBtn'),
+
   displayAddBtn: Ember.computed.lt('speedDials.length', 5),
 
   displayHistoryLabel: Ember.computed('speedDials.length', 'removedSpeedDials.length', function() {
