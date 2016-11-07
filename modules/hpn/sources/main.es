@@ -34,15 +34,19 @@ const CliqzSecureMessage = {
   uPK: {},
   dsPK: {},
   routeTable: null,
+  routeTableLoader: null,
   RSAKey: '',
   eventID: {},
   sourceMap: null,
+  sourceMapLoader: null,
+  secureKeysLoader: null,
   tmult: 4,
   tpace: 250,
   SOURCE_MAP_PROVIDER: 'https://hpn-collector.cliqz.com/sourcemapjson?q=1',
   LOOKUP_TABLE_PROVIDER: 'https://hpn-collector.cliqz.com/lookuptable?q=1',
   KEYS_PROVIDER: 'https://hpn-collector.cliqz.com/signerKey?q=1',
   proxyList: null,
+  proxyListLoader: null,
   proxyStats: {},
   PROXY_LIST_PROVIDER: 'https://hpn-collector.cliqz.com/proxyList?q=1',
   BLIND_SIGNER: 'https://hpn-sign.cliqz.com/sign',
@@ -145,21 +149,21 @@ const CliqzSecureMessage = {
     if (!CliqzSecureMessage.localTemporalUniq) hpnUtils.loadLocalCheckTable();
 
     // Load source map. Update it once an hour.
-    let sourceMap = new ResourceLoader(
+    this.sourceMapLoader = new ResourceLoader(
         ["hpn","sourcemap"],
         {
           remoteURL: CliqzSecureMessage.SOURCE_MAP_PROVIDER
         }
     );
 
-    sourceMap.load().then( e => {
+    this.sourceMapLoader.load().then( e => {
       CliqzSecureMessage.sourceMap = e;
     })
 
-    sourceMap.onUpdate(e => CliqzSecureMessage.sourceMap = e);
+    this.sourceMapLoader.onUpdate(e => CliqzSecureMessage.sourceMap = e);
 
     // Load proxy list. Update every 5 minutes.
-    let proxyList = new ResourceLoader(
+    this.proxyListLoader = new ResourceLoader(
         ["hpn","proxylist"],
         {
           remoteURL: CliqzSecureMessage.PROXY_LIST_PROVIDER,
@@ -168,14 +172,14 @@ const CliqzSecureMessage = {
         }
     );
 
-    proxyList.load().then( e => {
+    this.proxyListLoader.load().then( e => {
       CliqzSecureMessage.proxyList = e;
     })
 
-    proxyList.onUpdate(e => CliqzSecureMessage.proxyList = e);
+    this.proxyListLoader.onUpdate(e => CliqzSecureMessage.proxyList = e);
 
     // Load lookuptable. Update every 5 minutes.
-    let routeTable = new ResourceLoader(
+    this.routeTableLoader = new ResourceLoader(
         ["hpn","routeTable"],
         {
           remoteURL: CliqzSecureMessage.LOOKUP_TABLE_PROVIDER,
@@ -184,26 +188,26 @@ const CliqzSecureMessage = {
         }
     );
 
-    routeTable.load().then( e => {
+    this.routeTableLoader.load().then( e => {
       CliqzSecureMessage.routeTable = e;
     })
 
-    routeTable.onUpdate(e => CliqzSecureMessage.routeTable = e);
+    this.routeTableLoader.onUpdate(e => CliqzSecureMessage.routeTable = e);
 
     // Load secure keys. Update every one hour.
-    let secureKeys = new ResourceLoader(
+    this.secureKeysLoader = new ResourceLoader(
         ["hpn","securekeys"],
         {
           remoteURL: CliqzSecureMessage.KEYS_PROVIDER
         }
     );
 
-    secureKeys.load().then( e => {
+    this.secureKeysLoader.load().then( e => {
       CliqzSecureMessage.dsPK.pubKeyB64 = e.signerB64;
       CliqzSecureMessage.secureLogger.publicKeyB64 = e.secureloggerB64;
     })
 
-    secureKeys.onUpdate(e => {
+    this.secureKeysLoader.onUpdate(e => {
       CliqzSecureMessage.dsPK.pubKeyB64 = e.signerB64;
       CliqzSecureMessage.secureLogger.publicKeyB64 = e.secureloggerB64;
     });
@@ -229,6 +233,10 @@ const CliqzSecureMessage = {
   unload: function() {
     hpnUtils.saveLocalCheckTable();
     CliqzSecureMessage.pushTelemetry();
+    this.sourceMapLoader.stop();
+    this.proxyListLoader.stop();
+    this.routeTableLoader.stop();
+    this.secureKeysLoader.stop();
     CliqzUtils.clearTimeout(CliqzSecureMessage.pacemakerId);
   },
   dbConn: null,
