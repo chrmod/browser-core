@@ -80,6 +80,11 @@ export default background({
       const domainDetails = utils.getDetailsFromUrl(url);
       return this.notificationCenter.removeDomain(domainDetails.host);
     },
+
+    activate(url) {
+      const domainDetails = utils.getDetailsFromUrl(url);
+      return this.notificationCenter.activateDomain(domainDetails.host);
+    }
   },
 
   events: {

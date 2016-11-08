@@ -84,7 +84,7 @@ export default background({
         module,
         requestId,
       });
-    }).catch(console.error.bind(null, "Process Script", `${action}/${module}`));
+    }).catch(console.error.bind(null, "Process Script", `${modules}/${action}`));
   },
 
   handleResponse(msg) {

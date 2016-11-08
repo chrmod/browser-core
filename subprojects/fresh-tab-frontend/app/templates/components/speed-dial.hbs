@@ -22,6 +22,12 @@
         <br>
         <button {{action 'enableNotifications'}}>Enable notifications</button>
       {{/if}}
+      <br>
+      {{model.notificationStatus}}
+      {{#if model.canBeActivated}}
+        <br>
+        <button {{action 'activateNotification'}}>Reactivate</button>
+      {{/if}}
     </div>
   </a>
 

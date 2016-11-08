@@ -30,6 +30,7 @@ export default Ember.Service.extend({
           notificationCount: speedDialNotification.count,
           hasNewNotifications: speedDialNotification.unread,
           notificationStatus: speedDialNotification.status,
+          notificationError: speedDialNotification.error,
         });
       });
 
@@ -46,9 +47,19 @@ export default Ember.Service.extend({
 
   disableNotifications(speedDial) {
     const cliqz = this.get('cliqz');
-    cliqz.unwatch(speedDial.get('url'))
+    cliqz.unwatch(speedDial.get('url'));
     speedDial.setProperties({
       notificationStatus: 'available'
+    });
+  },
+  activateNotification(speedDial) {
+    const cliqz = this.get('cliqz');
+    speedDial.setProperties({
+      notificationStatus: 'available',
+      notificationError: null,
+    });
+    cliqz.activateNotification(speedDial.get('url')).then(() => {
+      return this.getNotifications();
     });
   },
 });

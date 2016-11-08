@@ -10,7 +10,8 @@
     "publish-release": "cd build/firefox; fab publish:beta=False,pre=False; cp latest.xpi ../../; cd ../..",
     "deploy-mobile-release": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/extension",
     "deploy-mobile-beta": "export CLIQZ_BUILD_ENV=production && ./fern.js build configs/mobile.json && python specific/mobile/deploy-mobile.py -b build/mobile/search -k mobile/beta",
-    "doc": "yuidoc"
+    "doc": "yuidoc",
+    "start": "./fern.js serve configs/browser.json --freshtab"
   },
   "author": "Cliqz GmbH",
   "dependencies": {
