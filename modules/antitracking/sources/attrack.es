@@ -95,19 +95,20 @@ var CliqzAttrack = {
     executePipeline: function(pipeline, initialState, logKey) {
       const state = initialState;
       const response = {};
-      for (let i=0; i<pipeline.length; i++) {
+      let i = 0;
+      for (; i<pipeline.length; i++) {
         try {
           const cont = pipeline[i](state, response);
           if (!cont) {
-            if (CliqzAttrack.debug) {
-              console.log(logKey, state.url, 'Break at', pipeline[i].name);
-            }
             break;
           }
         } catch(e) {
-          console.error(logKey, 'Step exception', e);
+          console.error(logKey, state.url, 'Step exception', e);
           break;
         }
+      }
+      if (CliqzAttrack.debug) {
+        console.log(logKey, state.url, 'Break at', (pipeline[i] || {name: "end"}).name);
       }
       return response;
     },
@@ -254,9 +255,9 @@ var CliqzAttrack = {
         CliqzAttrack.initPacemaker();
         pacemaker.start();
 
-        WebRequest.onBeforeRequest.addListener(CliqzAttrack.httpopenObserver, undefined, ['blocking']);
-        WebRequest.onBeforeSendHeaders.addListener(CliqzAttrack.httpmodObserver, undefined, ['blocking']);
-        WebRequest.onHeadersReceived.addListener(CliqzAttrack.httpResponseObserver);
+        WebRequest.onBeforeRequest.addListener(CliqzAttrack.httpopenObserver, undefined, ['blocking', 'requestHeaders']);
+        WebRequest.onBeforeSendHeaders.addListener(CliqzAttrack.httpmodObserver, undefined, ['blocking', 'requestHeaders']);
+        WebRequest.onHeadersReceived.addListener(CliqzAttrack.httpResponseObserver, undefined, ['responseHeaders']);
 
         try {
             CliqzAttrack.disabled_sites = new Set(JSON.parse(CliqzUtils.getPref(CliqzAttrack.DISABLED_SITES_PREF, "[]")));
@@ -359,6 +360,8 @@ var CliqzAttrack = {
         CliqzAttrack.applyBlock.bind(CliqzAttrack),
       ];
 
+
+
       // create pipeline for on modify request
       CliqzAttrack.onModifyPipeline = [
         determineContext,
@@ -378,22 +381,27 @@ var CliqzAttrack = {
           }
           return true;
         },
+        function overrideUserAgent(state, response) {
+          if (utils.getPref('attrackOverrideUserAgent', false) === true) {
+            const domainHash = md5(getGeneralDomain(state.urlParts.hostname)).substring(0, 16);
+            if (CliqzAttrack.qs_whitelist.isTrackerDomain(domainHash)) {
+              response.requestHeaders = response.requestHeaders || [];
+              response.requestHeaders.push({name: 'User-Agent', value: 'CLIQZ'});
+              state.incrementStat('override_user_agent');
+            }
+          }
+          return true;
+        },
         function checkHasCookie(state) {
           state.cookieData = state.requestContext.getCookieData();
-          if (state.cookieData && state.cookieData.length>10) {
+          if (state.cookieData && state.cookieData.length>5) {
             state.incrementStat('cookie_set');
             return true;
           } else {
             return false;
           }
         },
-        function checkIsWhitelisted(state) {
-          if (CliqzAttrack.isInWhitelist(state.urlParts.hostname)) {
-            state.incrementStat('cookie_allow_whitelisted');
-            return false;
-          }
-          return true;
-        },
+        CliqzAttrack.checkIsCookieWhitelisted.bind(CliqzAttrack),
         steps.cookieContext.checkVisitCache.bind(steps.cookieContext),
         steps.cookieContext.checkContextFromEvent.bind(steps.cookieContext),
         function shouldBlockCookie(state) {
@@ -426,7 +434,7 @@ var CliqzAttrack = {
               let redirect_url_parts = URLInfo.get(redirect_url);
               // if redirect is relative, use source domain
               if (!redirect_url_parts.hostname) {
-                redirect_url_parts.hostname = url_parts.hostname;
+                redirect_url_parts.hostname = state.urlParts.hostname;
                 redirect_url_parts.path = redirect_url;
               }
               CliqzAttrack.tp_events.onRedirect(redirect_url_parts, state.requestContext.getOuterWindowID(), state.requestContext.isChannelPrivate());
@@ -448,6 +456,27 @@ var CliqzAttrack = {
             state.incrementStat(`status_${state.requestContext.channel.responseStatus}`)
             state.incrementStat(state.requestContext.isCached ? 'cached' : 'not_cached');
           }
+          return true;
+        },
+        function checkSetCookie(state) {
+          // if there is a set-cookie header, continue
+          const setCookie = state.requestContext.getResponseHeader("Set-Cookie");
+          if (setCookie) {
+            state.incrementStat('set_cookie_set');
+            return true;
+          }
+          return false;
+        },
+        function shouldBlockCookie(state) {
+          return CliqzAttrack.isCookieEnabled(state.sourceUrlParts.hostname);
+        },
+        CliqzAttrack.checkIsCookieWhitelisted.bind(CliqzAttrack),
+        steps.cookieContext.checkVisitCache.bind(steps.cookieContext),
+        steps.cookieContext.checkContextFromEvent.bind(steps.cookieContext),
+        function blockSetCookie(state, response) {
+          response.responseHeaders = [{name: 'Set-Cookie', value: ''}];
+          state.incrementStat('set_cookie_blocked');
+          return true;
         },
       ]
     },
@@ -618,6 +647,14 @@ var CliqzAttrack = {
           response.requestHeaders.push({name: CliqzAttrack.cliqzHeader, value: ' '})
           return true;
       }
+    },
+    checkIsCookieWhitelisted: function(state) {
+      if (CliqzAttrack.isInWhitelist(state.urlParts.hostname)) {
+        const stage = state.responseStatus !== undefined ? 'set_cookie' : 'cookie';
+        state.incrementStat(`${stage}_allow_whitelisted`);
+        return false;
+      }
+      return true;
     },
     /** Get info about trackers and blocking done in a specified tab.
      *

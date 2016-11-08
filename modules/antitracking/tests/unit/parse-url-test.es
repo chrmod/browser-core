@@ -1,5 +1,3 @@
-'use strict';
-
 // Specs for URLs to test:
 // "url" specifies the input url
 // "url_parts" specifies the expected output values
@@ -413,6 +411,32 @@ var combined = [
 }
 ]
 
+var special = [{
+    url: "https://apis.google.com/_/scs/apps-static/_/js/k=oz.gapi.de.qTommvXNk3Y.O/m=gapi_iframes_style_common,plusone/rt=j/sv=1/d=1/ed=1/am=AQ/rs=AGLTcCPFQTY3xyU4E7vwFYmIgrjbG0BFEA/cb=gapi.loaded_0",
+    url_parts: {
+        protocol: "https",
+        hostname: "apis.google.com",
+        path: "/_/scs/apps-static/_/js/k=oz.gapi.de.qTommvXNk3Y.O/m=gapi_iframes_style_common,plusone/rt=j/sv=1/d=1/ed=1/am=AQ/rs=AGLTcCPFQTY3xyU4E7vwFYmIgrjbG0BFEA/cb=gapi.loaded_0"
+    }
+}, {
+    url: "https://accounts.google.com/o/oauth2/postmessageRelay?parent=https%3A%2F%2Fwww.blogger.com&jsh=m%3B%2F_%2Fscs%2Fapps-static%2F_%2Fjs%2Fk%3Doz.gapi.de.qTommvXNk3Y.O%2Fm%3D__features__%2Fam%3DAQ%2Frt%3Dj%2Fd%3D1%2Frs%3DAGLTcCPFQTY3xyU4E7vwFYmIgrjbG0BFEA#rpctoken=686210141&forcesecure=1",
+    url_parts: {
+        protocol: "https",
+        hostname: "accounts.google.com",
+        path: "/o/oauth2/postmessageRelay",
+        query: "parent=https%3A%2F%2Fwww.blogger.com&jsh=m%3B%2F_%2Fscs%2Fapps-static%2F_%2Fjs%2Fk%3Doz.gapi.de.qTommvXNk3Y.O%2Fm%3D__features__%2Fam%3DAQ%2Frt%3Dj%2Fd%3D1%2Frs%3DAGLTcCPFQTY3xyU4E7vwFYmIgrjbG0BFEA",
+        query_keys: {
+            "parent": "https://www.blogger.com",
+            "jsh": "m;/_/scs/apps-static/_/js/k=oz.gapi.de.qTommvXNk3Y.O/m=__features__/am=AQ/rt=j/d=1/rs=AGLTcCPFQTY3xyU4E7vwFYmIgrjbG0BFEA",
+        },
+        fragment: "rpctoken=686210141&forcesecure=1",
+        fragment_keys: {
+          rpctoken: "686210141",
+          forcesecure: "1"
+        }
+    }
+}];
+
 var empty_parts = {
     "protocol": "",
     "username": "",
@@ -435,49 +459,53 @@ function fillInSpec(spec) {
     return spec;
 }
 
-function testSpecArray(testFn, name, spec) {
-    describe(name, function() {
-        spec.forEach(function(testcase) {
-            var url_desc = testcase['url'];
-            if(url_desc.length > 180) url_desc = url_desc.substring(0, 180) + '...';
-            it(url_desc, function() {
-                CliqzUtils.getWindow().console.log(testFn(testcase['url']));
-                CliqzUtils.getWindow().console.log(fillInSpec(testcase['url_parts']));
+export default describeModule('antitracking/url',
+  () => ({
+    'antitracking/md5': {},
+  }),
+  () => {
+      describe('CliqzAttrack.parseURL', function() {
+        let testFn;
+
+        beforeEach(function() {
+          testFn = this.module().parseURL;
+        });
+
+        describe('invalid inputs', function() {
+          it('null: should throw exception', function() {
+              chai.expect(function() { return testFn(null) }).to.throw;
+          });
+          it('empty string: should return null', function() {
+              chai.expect(testFn('')).to.be.null;
+          });
+          ['http://', 'example.com', '/path/to/index.html'].map(function(url) {
+              it(url +': should return null', function() {
+                  chai.expect(testFn(url)).to.be.null;
+              });
+          });
+        });
+
+        function testSpecArray(name, spec) {
+          describe(name, function() {
+            spec.forEach(function(testcase) {
+              var url_desc = testcase['url'];
+              if(url_desc.length > 180) url_desc = url_desc.substring(0, 180) + '...';
+              it(url_desc, function() {
+                console.log(testFn(testcase['url']));
+                console.log(fillInSpec(testcase['url_parts']));
                 chai.expect(testFn(testcase['url'])).to.deep.equal(fillInSpec(testcase['url_parts']));
+              });
             });
-        });
-    });
-};
+          });
+        };
 
-function fullTest(testFn) {
-    // behavioural tests
-    describe('invalid inputs', function() {
-        it('null: should throw exception', function() {
-            chai.expect(function() { return testFn(null) }).to.throw('url is null')
-        });
-        it('empty string: should return null', function() {
-            chai.expect(testFn('')).to.be.null;
-        });
-        ['http://', 'example.com', '/path/to/index.html'].map(function(url) {
-            it(url +': should return null', function() {
-                chai.expect(testFn(url)).to.be.null;
-            });
-        });
-    });
-    // test examples
-    testSpecArray(testFn, 'plain urls', plain_urls);
-    testSpecArray(testFn, 'query strings', query_strings);
-    testSpecArray(testFn, 'parameter strings', parameters);
-    testSpecArray(testFn, 'fragment strings', fragments);
-    testSpecArray(testFn, 'combined', combined);
-}
-
-DEPS.CliqzParseUrlTest = ["core/utils"];
-TESTS.CliqzParseUrlTest = function (CliqzUtils) {
-  var parseURL = CliqzUtils.getWindow().CLIQZ.System.get("antitracking/url").parseURL;
-
-  describe('CliqzAttrack.parseURL', function() {
-    fullTest(parseURL);
-  });
-
-};
+        // test examples
+        testSpecArray('plain urls', plain_urls);
+        testSpecArray('query strings', query_strings);
+        testSpecArray('parameter strings', parameters);
+        testSpecArray('fragment strings', fragments);
+        testSpecArray('combined', combined);
+        testSpecArray('special', special);
+      });
+  }
+);

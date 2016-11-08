@@ -239,7 +239,7 @@ TESTS.WebRequestTest = function(CliqzUtils) {
       }
 
       beforeEach( function() {
-        webrequest.onBeforeRequest.addListener(changeHeaders, undefined, ['blocking']);
+        webrequest.onBeforeRequest.addListener(changeHeaders, undefined, ['requestHeaders']);
       });
 
       afterEach( function() {

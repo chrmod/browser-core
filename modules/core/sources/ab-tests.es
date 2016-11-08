@@ -308,6 +308,9 @@ var CliqzABTests = {
             case "1083_B":
                 CliqzUtils.setPref("dnsLookup", true);
                 break;
+            case "1084_B":
+                CliqzUtils.setPref("attrackOverrideUserAgent", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -490,6 +493,9 @@ var CliqzABTests = {
             case "1083_A":
             case "1083_B":
               CliqzUtils.clearPref("dnsLookup");
+              break;
+            case "1084_B":
+              CliqzUtils.clearPref("attrackOverrideUserAgent");
               break;
             default:
                 rule_executed = false;

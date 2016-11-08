@@ -36,11 +36,14 @@ export default class {
   }
 
   checkVisitCache(state) {
+    // check if the response has been received yet
+    const stage = state.responseStatus !== undefined ? 'set_cookie' : 'cookie';
+    const tabId = state.tabId;
     state.hostGD = getGeneralDomain(state.urlParts.hostname);
     state.sourceGD = getGeneralDomain(state.sourceUrlParts.hostname);
-    const diff = Date.now() - (this.visitCache[state.hostGD] || 0);
-    if (diff < this.timeActive && this.visitCache[state.sourceGD]) {
-      state.incrementStat('cookie_allow_visitcache');
+    const diff = Date.now() - (this.visitCache[`${tabId}:${state.hostGD}`] || 0);
+    if (diff < this.timeActive && this.visitCache[`${tabId}:${state.sourceGD}`]) {
+      state.incrementStat(`${stage}_allow_visitcache`);
       return false;
     }
     return true;
@@ -48,25 +51,26 @@ export default class {
 
   checkContextFromEvent(state) {
     if (this.contextFromEvent) {
+      const stage = state.responseStatus !== undefined ? 'set_cookie' : 'cookie';
       const time = Date.now();
       const url = state.url;
+      const tabId = state.tabId;
+      const hostGD = state.hostGD || getGeneralDomain(state.urlParts.hostname);
 
       var diff = time - (this.contextFromEvent.ts || 0);
       if (diff < this.timeAfterLink) {
 
-          const hostGD = getGeneralDomain(state.urlParts.hostname);
           if (hostGD === this.contextFromEvent.cGD) {
-              this.visitCache[state.hostGD] = time;
-              var src = null;
-              state.incrementStat('cookie_allow_userinit_same_context_gd');
+              this.visitCache[`${tabId}:${hostGD}`] = time;
+              state.incrementStat(`${stage}_allow_userinit_same_context_gd`);
               return false;
           }
           var pu = url.split(/[?&;]/)[0];
           if (this.contextFromEvent.html.indexOf(pu)!=-1) {
               // the url is in pu
               if (url_parts && url_parts.hostname && url_parts.hostname!='') {
-                  this.visitCache[state.hostGD] = time;
-                  state.incrementStat('cookie_allow_userinit_same_gd_link');
+                  this.visitCache[`${tabId}:${hostGD}`] = time;
+                  state.incrementStat(`${stage}_allow_userinit_same_gd_link`);
                   return false;
               }
           }

@@ -48,18 +48,21 @@ var observer = {
       const {fn, filter, extraInfo} = listener;
       const blockingResponse = fn(requestInfo);
 
-      if (extraInfo && extraInfo.indexOf('blocking') > -1 && blockingResponse) {
-
-        if ( blockingResponse.cancel === true ) {
-          subject.cancel(Components.results.NS_BINDING_ABORTED);
-          return;
-        }
+      if (extraInfo && extraInfo.indexOf('requestHeaders') > -1 && blockingResponse) {
 
         if ( blockingResponse.requestHeaders ) {
           // channel listener for post redirect?
           blockingResponse.requestHeaders.forEach((h) => {
             aChannel.setRequestHeader(h.name, h.value, false);
           });
+        }
+      }
+
+      if (extraInfo && extraInfo.indexOf('blocking') > -1 && blockingResponse) {
+
+        if ( blockingResponse.cancel === true ) {
+          subject.cancel(Components.results.NS_BINDING_ABORTED);
+          return;
         }
 
         if ( blockingResponse.redirectUrl ) {
@@ -72,6 +75,15 @@ var observer = {
           if ( blockingResponse.requestHeaders ) {
             aChannel.notificationCallbacks = new ChannelListener(blockingResponse.requestHeaders);
           }
+        }
+      }
+
+      if (extraInfo && extraInfo.indexOf('responseHeaders') > -1 && blockingResponse) {
+
+        if (blockingResponse.responseHeaders) {
+          blockingResponse.responseHeaders.forEach((h) => {
+            aChannel.setResponseHeader(h.name, h.value, false);
+          });
         }
       }
     }
