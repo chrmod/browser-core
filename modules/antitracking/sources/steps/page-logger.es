@@ -47,6 +47,9 @@ export default class {
     if (urlParts.fragment.length > 0) {
       incrementStat('has_fragment');
     }
+    if (state.method === 'POST') {
+      incrementStat('has_post');
+    }
     const displayContentType = (contentType) => (!contentType ? 'unknown': '' + contentType);
     incrementStat('type_' + displayContentType(state.requestContext.getContentPolicyType()));
 
