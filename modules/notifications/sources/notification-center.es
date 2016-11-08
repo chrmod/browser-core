@@ -91,25 +91,45 @@ export default Evented(class {
     return Object.assign({}, notifications, availableNotifications);
   }
 
-  updateDomain(domain) {
+  getProvider(domain) {
     const { providerName, config } = AVAILABLE_DOMAINS[domain];
     const Provider = AVAILABLE_PROVIDERS[providerName];
-    const provider = new Provider(config);
+    return new Provider(config);
+  }
 
+  activateDomain(domain) {
+    const provider = this.getProvider(domain);
+    provider.activate();
+    return this.updateDomain(domain).then(() => {
+      return this.updateUnreadStatus();
+    });
+  }
+
+  updateDomain(domain) {
+    const provider = this.getProvider(domain);
     console.log('Notification', `get notifications for ${domain}`);
 
     return provider.count().then(count => {
       console.log('Notification', `notifications for ${domain} - count ${count}`);
-      const isChanged = this.storage.updateDomain(domain, { count });
+      const isChanged = this.storage.updateDomain(domain, {
+        count,
+        status: 'enabled',
+        error: null,
+      });
 
       if (isChanged) {
         // TODO: remove double update
         this.storage.updateDomain(domain, { unread: true });
         this.updateUnreadStatus();
       }
-    }).catch(
-      e => console.error(`notifications provider "${providerName}" fail`, e)
-    );
+    }).catch(e => {
+      this.storage.updateDomain(domain, {
+        unread: false,
+        status: 'inaccessible',
+        error: e,
+      });
+      console.error(`notifications for domain "${domain}" fail`, e);
+    });
   }
 
   createSchedule(domain) {

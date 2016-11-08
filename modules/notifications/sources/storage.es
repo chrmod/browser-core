@@ -60,11 +60,7 @@ export default class {
         unread: false
       });
       return Object.assign({}, counts, {
-        [domain]: {
-          count: domainData.count,
-          unread: domainData.unread,
-          status: 'enabled',
-        }
+        [domain]: domainData,
       });
     }, Object.create(null));
   }

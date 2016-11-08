@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "rm -rf dist; ember build --output-path=dist --env=production;",
-    "start": "ember server",
+    "start": "ember server -p 3000",
     "test": "ember test"
   },
   "repository": "",
