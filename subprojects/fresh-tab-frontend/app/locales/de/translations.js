@@ -62,6 +62,11 @@ export default {
     "hdr-new-brand": "CLIQZ bekommt einen neuen Look!",
     "txt-new-brand1": "In Kürze werden wir das CLIQZ Browser Logo aktualisieren.",
     "cta-new-brand": "Erfahre mehr",
-    "txt-new-brand2": "darüber und zu den neuesten Änderungen"
+    "txt-new-brand2": "darüber und zu den neuesten Änderungen",
+    "hdr-share-location": "Mit geteiltem Standort erhältst du bessere Suchergebnisse!",
+    "txt-share-location": "Deine Privatsphäre bleibt geschützt.",
+    "cta-share-location": "So funktioniert's",
+    "btn-always-share": "Immer Standort teilen",
+    "btn-never-share": "Niemals Standort teilen"
   }
 };

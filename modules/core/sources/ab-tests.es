@@ -305,6 +305,12 @@ var CliqzABTests = {
             case "1084_B":
                 CliqzUtils.setPref("attrackOverrideUserAgent", true);
                 break;
+            case "1085_A":
+                CliqzUtils.setPref('extOnboardShareLocation', false);
+                break;
+            case "1085_B":
+                CliqzUtils.setPref('extOnboardShareLocation', true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -490,6 +496,10 @@ var CliqzABTests = {
               break;
             case "1084_B":
               CliqzUtils.clearPref("attrackOverrideUserAgent");
+              break;
+            case "1085_A":
+            case "1085_B":
+              CliqzUtils.clearPref("extOnboardShareLocation");
               break;
             default:
                 rule_executed = false;

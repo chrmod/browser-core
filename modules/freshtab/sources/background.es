@@ -1,7 +1,7 @@
 import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
-import { utils } from 'core/cliqz';
+import { utils, events } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 import { AdultDomain } from 'core/adult-domain';
@@ -9,6 +9,7 @@ import background from 'core/base/background';
 
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
+const DISMISSED_ALERTS = 'dismissedAlerts';
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const FIVE_DAYS = 5 * ONE_DAY;
 const PREF_ONBOARDING = 'freshtabOnboarding';
@@ -34,6 +35,7 @@ export default background({
     FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
     this.adultDomainChecker = new AdultDomain();
     this.settings = settings;
+    this.messages = {};
   },
   /**
   * @method unload
@@ -87,12 +89,29 @@ export default background({
       const isDismissed = utils.getPref('freshtabNewBrandDismissed', false);
       return FreshTab.showNewBrandAlert && isInABTest && !isDismissed;
     },
-    dismissAlert() {
+    dismissMessage(messageId) {
       try {
-        utils.setPref('freshtabNewBrandDismissed', true);
+        const dismissedAlerts = JSON.parse(utils.getPref(DISMISSED_ALERTS, '{}'));
+
+        if(!dismissedAlerts[messageId]) {
+          dismissedAlerts[messageId] = {
+            'scope': 'freshtab',
+            'count': 0
+          }
+        }
+        dismissedAlerts[messageId]['count']++;
+        utils.setPref(DISMISSED_ALERTS, JSON.stringify(dismissedAlerts));
+        events.pub('msg_center:hide_message', { id: messageId }, 'MESSAGE_HANDLER_FRESHTAB');
+        utils.telemetry({
+          type: 'notification',
+          topic: 'share-location',
+          context: 'home',
+          action: 'click',
+          target: 'hide'
+        });
 
       } catch (e) {
-        console.log(e, "freshtab error setting dismiss pref")
+        utils.log(e, `Freshtab error setting ${message.id} dismiss pref`)
       }
     },
 
@@ -325,6 +344,7 @@ export default background({
       });
 
     },
+
     /**
     * Get configuration regarding locale, onBoarding and browser
     * @method getConfig
@@ -339,7 +359,8 @@ export default background({
         showHelp: self.actions._showHelp(),
         isBrowser: self.actions._isBrowser(),
         showFeedback: self.actions._showFeedback(),
-        showNewBrandAlert: self.actions._showNewBrandAlert()
+        showNewBrandAlert: self.actions._showNewBrandAlert(),
+        messages: this.messages
       };
       return Promise.resolve(config);
     },
@@ -370,11 +391,50 @@ export default background({
       return Promise.resolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
     },
 
+    shareLocation(decision) {
+      events.pub('msg_center:hide_message', {'id': 'share-location' }, 'MESSAGE_HANDLER_FRESHTAB');
+      utils.callAction('geolocation', 'setLocationPermission', [decision]);
+
+      const target = (decision === 'yes') ?
+        'always_share' : 'never_share';
+
+      utils.telemetry({
+        type: 'notification',
+        action: 'click',
+        topic: 'share-location',
+        context: 'home',
+        target: target
+      });
+    }
+
   },
 
   events: {
     "control-center:amo-cliqz-tab": function () {
       FreshTab.toggleState();
+    },
+    "message-center:handlers-freshtab:new-message": function onNewMessage(message) {
+      if( !(message.id in this.messages )) {
+        this.messages[message.id] = message;
+        utils.callAction('core', 'broadcastMessage', [
+          'about:cliqz',
+          {
+            action: 'addMessage',
+            message: message,
+          }
+        ]);
+      }
+    },
+    "message-center:handlers-freshtab:clear-message": function onMessageClear(message) {
+
+      delete this.messages[message.id];
+      utils.callAction('core', 'broadcastMessage', [
+        'about:cliqz',
+        {
+          action: 'closeNotification',
+          messageId: message.id,
+        }
+      ]);
     },
   },
 });
