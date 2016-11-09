@@ -1376,7 +1376,6 @@ var CliqzHumanWeb = {
         try {
             frames = cd.getElementsByTagName('frame') || [];
             frames_same_host = 0;
-            CliqzUtils.log('FRAME >>>> ' + frames.length);
             for(var i=0;i<frames.length;i++) {
                 if (frames[i]['src']) {
                     if (!frames[i]['src'].startsWith('http')) frames_same_host++;
@@ -1393,20 +1392,13 @@ var CliqzHumanWeb = {
         }
         catch(ee) {}
 
-        // CliqzUtils.hw.auxGetPageData('http://www.vilaweb.cat/', {}, 'http://www.vilaweb.cat/', function(a,b,c,d) { console.log('success', a,b,c,d )}, function(a,b,c,d) { console.log('error', a,b,c,d)});
-
         try {
             frames = cd.getElementsByTagName('iframe') || [];
             iframes_same_host = 0;
-            CliqzUtils.log('IFRAME >>>> ' + frames.length);
             for(var i=0;i<frames.length;i++) {
-                CliqzUtils.log('IFRAME >>>> ' + frames[i]['src']);
-
                 if (frames[i]['src']) {
                     if (!frames[i]['src'].startsWith('http')) iframes_same_host++;
                     else {
-                        CliqzUtils.log('>>>> ' + frames[i]['src'] + ' ' + url_host + ' >> ' + url, CliqzHumanWeb.LOG_KEY);
-
                         try {
                             frame_host = CliqzHumanWeb.parseURL(frames[i]['src']).hostname;
                         } catch(ee) {
@@ -2411,7 +2403,6 @@ var CliqzHumanWeb = {
                 })
             }
 
-            // MOZCHECK
             // Remove continuations if not in the same domain for extra safety,
             if(msg.payload.c) {
                 var cleanCont = [];
