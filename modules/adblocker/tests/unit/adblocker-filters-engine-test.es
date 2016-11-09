@@ -40,6 +40,7 @@ export default describeModule('adblocker/filters-engine',
     'core/cliqz': {
       utils: {},
     },
+    'platform/public-suffix-list': {},
   }),
   () => {
     describe('Test filter engine one filter at a time', () => {

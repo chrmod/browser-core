@@ -32,6 +32,7 @@ export default describeModule('adblocker/filters-engine',
     'core/cliqz': {
       utils: {},
     },
+    'platform/public-suffix-list': {},
   }),
   () => {
     describe('Test cosmetic engine', () => {
