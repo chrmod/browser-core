@@ -730,9 +730,6 @@ var CliqzHumanWeb = {
         //req.withCredentials = false;
         //req.setRequestHeader("Authorization", "true");
 
-        // CliqzHumanWeb.auxGetPageData('http://github.com/cliqz/navigation-extension/', function(x) {console.log(x);}, function(y) {})
-        // CliqzHumanWeb.auxGetPageData('https://www.google.de/?gfe_rd=cr&ei=zk_bVNiXIMGo8wfwkYHwBQ&gws_rd=ssl', function(x) {console.log(x);}, function(y) {})
-
         req.onload = function(){
 
             if (req.status != 200 && req.status != 0 /* local files */){
@@ -1419,7 +1416,7 @@ var CliqzHumanWeb = {
         // extract if indexable, no noindex on robots meta tag
         try {
             for (let i=0;i<metas.length;i++) {
-                var cnt = metas[i].getAttribute('content');
+                var cnt = metas[i].getAttribute('content').toLowerCase();
                 if (cnt!=null && cnt.indexOf('noindex') > -1) {
                     iall = false;
                 }
@@ -2358,11 +2355,9 @@ var CliqzHumanWeb = {
 
         try {msg.ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
 
-
         if(!msg.ts || msg.ts == ''){
             return null;
         }
-
 
         // Adding anti-duplicate key, so to detect duplicate messages on the backend.
         msg['anti-duplicates'] = Math.floor(Math.random() * 10000000);
@@ -2401,6 +2396,17 @@ var CliqzHumanWeb = {
                         }
                     }
                 })
+            }
+
+            // MOZCHECK
+            // Remove continuations if not in the same domain for extra safety,
+            if(msg.payload.c) {
+                var cleanCont = [];
+                var mainDom = CliqzHumanWeb.parseURL(msg.payload.url).hostname;
+                msg.payload.c.forEach(function(e){
+                    if (CliqzHumanWeb.parseURL(e.l).hostname == mainDom) cleanCont.push(e);
+                })
+                msg.payload.c = cleanCont;  
             }
 
             // Check for title.
