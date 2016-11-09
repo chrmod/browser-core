@@ -9,6 +9,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+const dnsService = Components.classes["@mozilla.org/network/dns-service;1"]
+  .createInstance(Components.interfaces.nsIDNSService);
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
@@ -2406,7 +2408,7 @@ var CliqzHumanWeb = {
                 msg.payload.c.forEach(function(e){
                     if (CliqzHumanWeb.parseURL(e.l).hostname == mainDom) cleanCont.push(e);
                 })
-                msg.payload.c = cleanCont;  
+                msg.payload.c = cleanCont;
             }
 
             // Check for title.
@@ -2504,6 +2506,13 @@ var CliqzHumanWeb = {
           }
         }
 
+        // Check if qr.q is suspicious.
+        if(msg.payload.qr){
+          if (CliqzHumanWeb.isSuspiciousQuery(msg.payload.qr.q)) {
+            delete msg.payload.qr;
+          }
+        }
+
         //Check for doorway action durl
         if(msg.action=='doorwaypage') {
             if((CliqzHumanWeb.isSuspiciousURL(msg.payload['durl'])) || (CliqzHumanWeb.isSuspiciousURL(msg.payload['url']))){
@@ -2523,47 +2532,11 @@ var CliqzHumanWeb = {
                 return null;
             }
             else {
-                //Remove the msg if the query is too long,
-                if (msg.payload.q.length > 50) return null;
-                if (msg.payload.q.split(' ').length > 7) return null;
-
-                // Remove the msg if the query contains a number longer than 7 digits
-                // can be 666666 but also things like (090)90-2, 5555 3235
-                // note that full dates will be removed 2014/12/12
-                //
-                var haslongnumber = CliqzHumanWeb.checkForLongNumber(msg.payload.q, 7);
-                if (haslongnumber!=null) return null;
-
-
-                //Remove if email (exact), even if not totally well formed
-                if (CliqzHumanWeb.checkForEmail(msg.payload.q)) return null;
-                //Remove if query looks like an http pass
-                if (/[^:]+:[^@]+@/.test(msg.payload.q)) return null;
-                //Remove if email
-                if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(msg.payload.q)) return null;
-
-                var v = msg.payload.q.split(' ');
-                for(let i=0;i<v.length;i++) {
-                    if (v[i].length > 20) return null;
-                    if (/[^:]+:[^@]+@/.test(v[i])) return null;
-                    if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v[i])) return null;
+                if (CliqzHumanWeb.isSuspiciousQuery(msg.payload.q)) {
+                    return null;
                 }
-
-                if (msg.payload.q.length > 12) {
-
-                    var cquery = msg.payload.q.replace(/[^A-Za-z0-9]/g,'');
-
-                    if (cquery.length > 12) {
-                        var pp = CliqzHumanWeb.isHashProb(cquery);
-                        // we are a bit more strict here because the query
-                        // can have parts well formed
-                        if (pp < CliqzHumanWeb.probHashThreshold*1.5) return null;
-                    }
-                }
-
             }
         }
-
 
         return msg;
 
@@ -2589,16 +2562,21 @@ var CliqzHumanWeb = {
             CliqzUtils.getPref('dnt', false) ||
             CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
 
-        msg.ver = CliqzHumanWeb.VERSION;
-        msg = CliqzHumanWeb.msgSanitize(msg);
-        if (msg) CliqzHumanWeb.incrActionStats(msg.action);
-        if (msg) CliqzHumanWeb.trk.push(msg);
-        CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
-        if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
-            CliqzHumanWeb.pushTelemetry();
-        } else {
-            CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
-        }
+                // Check if host is private or not.
+        CliqzHumanWeb.isLocalURL(msg).then( status => {
+            if (!status) {
+                msg.ver = CliqzHumanWeb.VERSION;
+                msg = CliqzHumanWeb.msgSanitize(msg);
+                if (msg) CliqzHumanWeb.incrActionStats(msg.action);
+                if (msg) CliqzHumanWeb.trk.push(msg);
+            }
+            CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+            if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
+                CliqzHumanWeb.pushTelemetry();
+            } else {
+                CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+            }
+        });
     },
     _telemetry_req: null,
     _telemetry_sending: [],
@@ -4156,7 +4134,136 @@ var CliqzHumanWeb = {
                 CliqzHumanWeb.saveStrictQueries();
             }
         })
-    }
+    },
+    isSuspiciousQuery: function(query) {
+        //Remove the msg if the query is too long,
+        if (query.length > 50) return true;
+        if (query.split(' ').length > 7) return true;
+
+        // Remove the msg if the query contains a number longer than 7 digits
+        // can be 666666 but also things like (090)90-2, 5555 3235
+        // note that full dates will be removed 2014/12/12
+        //
+        var haslongnumber = CliqzHumanWeb.checkForLongNumber(query, 7);
+        if (haslongnumber!=null) return true;
+
+
+        //Remove if email (exact), even if not totally well formed
+        if (CliqzHumanWeb.checkForEmail(query)) return true;
+        //Remove if query looks like an http pass
+        if (/[^:]+:[^@]+@/.test(query)) return true;
+        //Remove if email
+        if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(query)) return true;
+
+        var v = query.split(' ');
+        for(let i=0;i<v.length;i++) {
+            if (v[i].length > 20) return true;
+            if (/[^:]+:[^@]+@/.test(v[i])) return true;
+            if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v[i])) return true;
+        }
+
+        if (query.length > 12) {
+
+            var cquery = query.replace(/[^A-Za-z0-9]/g,'');
+
+            if (cquery.length > 12) {
+                var pp = CliqzHumanWeb.isHashProb(cquery);
+                // we are a bit more strict here because the query
+                // can have parts well formed
+                if (pp < CliqzHumanWeb.probHashThreshold*1.5) return true;
+            }
+        }
+        return false;
+    },
+    isLocalURL: function(msg){
+        // We need to check for action page, if the URLs in the message
+        // are not private because of local domains. like fritzbox or admin.example.com.
+
+        let promise = new Promise(function(resolve, reject){
+            if (msg.action == 'page') {
+                // Get all the urls in the payload.
+                let urls = [];
+                urls.push(msg.payload.url);
+                if (msg.payload.ref) urls.push(msg.payload.ref);
+                if (msg.payload.red) {
+                    msg.payload.red.forEach( redURL => {
+                        urls.push(redURL);
+                    })
+                }
+
+                _log("All urls in the message:" + JSON.stringify(urls));
+
+                // Check for each URL if the host is public or private,
+                // If any of the host is private then it should resolve as true and exit.
+                // Else should resolve as not private.
+
+                Promise.all(urls.map(CliqzHumanWeb.isHostNamePrivate)).then(results => {
+                    _log(JSON.stringify(results));
+                    // Now that we have checked all the URLS, if any of the URL resulted as private
+                    // We drop the message.
+                    if (results.indexOf(true) > -1) {
+                        _log("Contains private URL");
+                        resolve(true);
+                    } else {
+                        _log("URLs are public");
+                        resolve(false);
+                    }
+                });
+            } else {
+                resolve(false);
+            }
+        });
+        return promise;
+    },
+    isHostNamePrivate: function(url){
+        let promise = new Promise(function(resolve, reject){
+        const host = CliqzHumanWeb.parseURL(url).hostname;
+
+        // If the parsing of the host fails for some reason,
+        // we would mark it as private.
+
+        if(!host || host === '') {
+            resolve(true);
+        }
+
+        dnsService.asyncResolve(host,
+            0,
+            {
+                onLookupComplete: function(request, record, status) {
+                    if (!Components.isSuccessCode(status)) {
+                        // Handle error here
+                        resolve(false);
+                    }
+                    let address = record.getNextAddrAsString();
+                    _log("Host= " + host + " Address: " + address);
+                    if (CliqzHumanWeb.isIPInternal(address)) {
+                        _log("Host= " + host + " Address: " + address + "private");
+                        resolve(true);
+                        return;
+                    } else {
+                        _log("Host= " + host + " Address: " + address + "public");
+                        resolve(false);
+                    }
+                }
+            },
+            null
+            );
+        });
+        return promise;
+    },
+    isIPInternal: function(ip) {
+        // Need to check for ipv6.
+        const ipSplit = ip.split(".");
+        if (parseInt(ipSplit[0]) === 10 ||
+            (parseInt(ipSplit[0]) === 172 && (parseInt(ipSplit[1]) >= 16 && parseInt(ipSplit[1]) <= 31)) ||
+            (parseInt(ipSplit[0]) === 192 && parseInt(ipSplit[1]) === 168) ||
+            (parseInt(ipSplit[0]) === 127) ||
+            (parseInt(ipSplit[0]) === 0)) {
+            return true;
+        } else {
+            return false;
+        }
+    },
 };
 
 export default CliqzHumanWeb;
