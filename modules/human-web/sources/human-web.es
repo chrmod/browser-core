@@ -129,6 +129,9 @@ var CliqzHumanWeb = {
         // url_parts = CliqzHumanWeb.parseUri(url);
         url_parts = CliqzHumanWeb.parseURL(url);
 
+        // TO BE FIXED
+        if (!url_parts) return '';
+
         // Fix
         if (CliqzHumanWeb.dropLongURL(url)) {
            //Explicit check for google search url.
@@ -150,6 +153,8 @@ var CliqzHumanWeb = {
     isShortenerURL: function(url) {
         try {
             var url_parts = CliqzHumanWeb.parseURL(url);
+            if (!url_parts) return true;
+
             if ((url_parts.hostname.length < 8) && (url_parts.path.length > 4)) {
                 var v = url_parts.path.split('/')
                 for(var i=0;i<v.length;i++) if (CliqzHumanWeb.isHash(v[i])) return true;
@@ -184,6 +189,8 @@ var CliqzHumanWeb = {
         try {
             var url_parts = {};
             url_parts = CliqzHumanWeb.parseURL(aURI);
+
+            if (!url_parts) return true;
 
             _log(JSON.stringify(url_parts));
             if (aURI.indexOf('about:') == 0) return true;
@@ -235,6 +242,8 @@ var CliqzHumanWeb = {
             var can_url_parts = CliqzHumanWeb.parseURL(page_doc['x']['canonical_url']);
             var url_parts = CliqzHumanWeb.parseURL(url);
 
+            if (!url_parts || !can_url_parts) return true;
+
             if (url_parts.hostname!=null && url_parts.hostname!='' && url_parts.hostname==can_url_parts.hostname) {
                 // both canonical and url have a hostname and is the same,
 
@@ -255,6 +264,7 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.checkForEmail(url)) return true;
 
             var url_parts = CliqzHumanWeb.parseURL(url);
+            if (!url_parts) return true;
 
             if (options.strict == true) {
                 if (url_parts.query_string && url_parts.query_string.length > CliqzHumanWeb.qs_len*0.75) return true;
@@ -709,8 +719,6 @@ var CliqzHumanWeb = {
                 var parser = new hiddenWindow.DOMParser();
                 var doc  = parser.parseFromString(req.responseText, "text/html");
 
-                _log(req.responseText);
-
                 var x = CliqzHumanWeb.getPageData(url, doc);
 
                 CliqzHumanWeb.docCache[url] = {'time': CliqzHumanWeb.counter, 'doc': doc};
@@ -936,6 +944,7 @@ var CliqzHumanWeb = {
         // check first if there is a query string,
 
         var url_parts = CliqzHumanWeb.parseURL(url);
+        if (!url_parts) return null;
 
         if (url_parts && url_parts.query_string && url_parts.query_string != '') {
             // it has a query string, either by ? # or ;
@@ -1256,8 +1265,12 @@ var CliqzHumanWeb = {
 
             var target_url_no_protocol = target_url.replace(/^http(s?)\:\/\//, '');
             var target_url_relative = null;
-            var source_hostname = CliqzHumanWeb.parseURL(source_url).hostname;
-            var target_hostname = CliqzHumanWeb.parseURL(target_url).hostname;
+            try {
+                var source_hostname = CliqzHumanWeb.parseURL(source_url).hostname;
+                var target_hostname = CliqzHumanWeb.parseURL(target_url).hostname;
+            } catch(ee) {    
+                return false;
+            }
 
             if (source_hostname == target_hostname) {
                 // same domain, path could be relative
@@ -1378,14 +1391,13 @@ var CliqzHumanWeb = {
             frames_same_host = 0;
             for(var i=0;i<frames.length;i++) {
                 if (frames[i]['src']) {
-                    if (!frames[i]['src'].startsWith('http')) frames_same_host++;
-                    else {
-                        try {
-                            frame_host = CliqzHumanWeb.parseURL(frames[i]['src']).hostname;
-                        } catch(ee) {
-                            frame_host = null;
-                        }
-                        if (frame_host===url_host) frames_same_host++;
+                    var tsrc = frames[i]['src'];
+                    if (frames[i]['src'].startsWith('//')) tsrc = 'http:' + frames[i]['src'];
+                    try {
+                        frame_host = CliqzHumanWeb.parseURL(tsrc).hostname;
+                        if (frame_host===url_host || frame_host=='browser') frames_same_host++;
+                    } catch(ee) {                        
+                        frames_same_host++;
                     }
                 }
             }
@@ -1397,14 +1409,13 @@ var CliqzHumanWeb = {
             iframes_same_host = 0;
             for(var i=0;i<frames.length;i++) {
                 if (frames[i]['src']) {
-                    if (!frames[i]['src'].startsWith('http')) iframes_same_host++;
-                    else {
-                        try {
-                            frame_host = CliqzHumanWeb.parseURL(frames[i]['src']).hostname;
-                        } catch(ee) {
-                            frame_host = null;
-                        }
-                        if (frame_host==url_host) iframes_same_host++;
+                    var tsrc = frames[i]['src'];
+                    if (frames[i]['src'].startsWith('//')) tsrc = 'http:' + frames[i]['src'];
+                    try {
+                        frame_host = CliqzHumanWeb.parseURL(tsrc).hostname;
+                        if (frame_host===url_host || frame_host=='browser') iframes_same_host++;
+                    } catch(ee) {                        
+                        iframes_same_host++;
                     }
                 }
             }
@@ -1463,9 +1474,11 @@ var CliqzHumanWeb = {
         if (canonical_url != null && canonical_url.length > 0) {
             // check that is not relative
             if (canonical_url[0] == '/') {
-                var ourl = CliqzHumanWeb.parseURL(url);
-                // ignore if httpauth or if non standard port
-                canonical_url = ourl['protocol'] + '://' + ourl['hostname'] + canonical_url;
+                try {
+                    var ourl = CliqzHumanWeb.parseURL(url);
+                    // ignore if httpauth or if non standard port
+                    canonical_url = ourl['protocol'] + '://' + ourl['hostname'] + canonical_url;
+                } catch(ee) {}
             }
         }
 
@@ -1668,14 +1681,16 @@ var CliqzHumanWeb = {
 
                             let anonSe = CliqzHumanWeb.checkAnonSearchURL(url);
                             if(anonSe > -1){
-                                let hostName = CliqzHumanWeb.parseURL(url)['hostname'];
-                                let qurl = "https://" + hostName + "/search?q=" + CliqzHumanWeb.searchCache[se]['q'];
-                                let qObj = {};
-                                qObj['qurl'] = qurl;
-                                qObj['ts'] = Date.now();
-                                qObj['tDiff'] = getRandomIntInclusive(1, 20);
-                                CliqzHumanWeb.strictQueries.push(qObj);
-                                CliqzHumanWeb.saveStrictQueries();
+                                try {
+                                    let hostName = CliqzHumanWeb.parseURL(url)['hostname'];
+                                    let qurl = "https://" + hostName + "/search?q=" + CliqzHumanWeb.searchCache[se]['q'];
+                                    let qObj = {};
+                                    qObj['qurl'] = qurl;
+                                    qObj['ts'] = Date.now();
+                                    qObj['tDiff'] = getRandomIntInclusive(1, 20);
+                                    CliqzHumanWeb.strictQueries.push(qObj);
+                                    CliqzHumanWeb.saveStrictQueries();
+                                } catch(ee) {}
                             }
 
                           });
@@ -1737,8 +1752,12 @@ var CliqzHumanWeb = {
                                 delete CliqzHumanWeb.state['v'][activeURL]['qr'];
                             }
                             else if(CliqzHumanWeb.state['v'][activeURL]['qr']['d'] == 2){
-                                if(CliqzHumanWeb.parseURL(activeURL)['hostname'] != CliqzHumanWeb.parseURL(referral)['hostname']){
-                                    delete CliqzHumanWeb.state['v'][activeURL]['qr'];
+                                try {
+                                    if(CliqzHumanWeb.parseURL(activeURL)['hostname'] != CliqzHumanWeb.parseURL(referral)['hostname']){
+                                        delete CliqzHumanWeb.state['v'][activeURL]['qr'];
+                                    }
+                                } catch(ee) {
+                                    delete CliqzHumanWeb.state['v'][activeURL]['qr']; 
                                 }
                             }
                         }
@@ -2406,10 +2425,13 @@ var CliqzHumanWeb = {
             // Remove continuations if not in the same domain for extra safety,
             if(msg.payload.c) {
                 var cleanCont = [];
-                var mainDom = CliqzHumanWeb.parseURL(msg.payload.url).hostname;
-                msg.payload.c.forEach(function(e){
-                    if (CliqzHumanWeb.parseURL(e.l).hostname == mainDom) cleanCont.push(e);
-                })
+                try {
+                    var mainDom = CliqzHumanWeb.parseURL(msg.payload.url).hostname;
+                    msg.payload.c.forEach(function(e){
+                        if (CliqzHumanWeb.parseURL(e.l).hostname == mainDom) cleanCont.push(e);
+                    });
+                } catch(ee) {};
+
                 msg.payload.c = cleanCont;
             }
 
@@ -2641,9 +2663,13 @@ var CliqzHumanWeb = {
     },
     dbConn: null,
     auxSameDomain: function(url1, url2) {
-        var d1 = CliqzHumanWeb.parseURL(url1).hostname.replace('www.','');
-        var d2 = CliqzHumanWeb.parseURL(url2).hostname.replace('www.','');
-        return d1==d2;
+        try {
+            var d1 = CliqzHumanWeb.parseURL(url1).hostname.replace('www.','');
+            var d2 = CliqzHumanWeb.parseURL(url2).hostname.replace('www.','');
+            return d1==d2;
+        } catch(ee) {
+            return false;
+        }
     },
     getPageFromDB: function(url, callback) {
         var res = [];
@@ -4227,39 +4253,45 @@ var CliqzHumanWeb = {
         return promise;
     },
     isHostNamePrivate: function(url){
+    
         let promise = new Promise(function(resolve, reject){
-        const host = CliqzHumanWeb.parseURL(url).hostname;
+            var host = null;
+            try {
+                host = CliqzHumanWeb.parseURL(url).hostname;
+            } catch(ee) {
+                resolve(true);
+            };
 
-        // If the parsing of the host fails for some reason,
-        // we would mark it as private.
+            // If the parsing of the host fails for some reason,
+            // we would mark it as private.
 
-        if(!host || host === '') {
-            resolve(true);
-        }
+            if(!host || host === '') {
+                resolve(true);
+            }
 
-        dnsService.asyncResolve(host,
-            0,
-            {
-                onLookupComplete: function(request, record, status) {
-                    if (!Components.isSuccessCode(status)) {
-                        // Handle error here
-                        resolve(false);
+            dnsService.asyncResolve(host,
+                0,
+                {
+                    onLookupComplete: function(request, record, status) {
+                        if (!Components.isSuccessCode(status)) {
+                            // Handle error here
+                            resolve(false);
+                        }
+                        let address = record.getNextAddrAsString();
+                        _log("Host= " + host + " Address: " + address);
+                        if (CliqzHumanWeb.isIPInternal(address)) {
+                            _log("Host= " + host + " Address: " + address + "private");
+                            resolve(true);
+                            return;
+                        } else {
+                            _log("Host= " + host + " Address: " + address + "public");
+                            resolve(false);
+                        }
                     }
-                    let address = record.getNextAddrAsString();
-                    _log("Host= " + host + " Address: " + address);
-                    if (CliqzHumanWeb.isIPInternal(address)) {
-                        _log("Host= " + host + " Address: " + address + "private");
-                        resolve(true);
-                        return;
-                    } else {
-                        _log("Host= " + host + " Address: " + address + "public");
-                        resolve(false);
-                    }
-                }
-            },
-            null
-            );
-        });
+                },
+                null
+                );
+            });
         return promise;
     },
     isIPInternal: function(ip) {
