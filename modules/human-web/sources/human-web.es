@@ -430,21 +430,9 @@ var CliqzHumanWeb = {
                     CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter};
                 }
 
-                if (CliqzHumanWeb.cdActive) {
-                  // controlled by ABtest "1082_A": false, "1082_B": true
-                  if (CliqzHumanWeb.cdForegroundURL && !CliqzHumanWeb.cdCache[url] && CliqzHumanWeb.cdRecord(url)) {
-                    if (!CliqzHumanWeb.cdRecord(CliqzHumanWeb.cdForegroundURL)) {
-                      if (!CliqzHumanWeb.cdRecordVisible(CliqzHumanWeb.cdForegroundURL)) {
-                          CliqzHumanWeb.cdCache[url] = {'time': CliqzHumanWeb.counter, 'source': CliqzHumanWeb.cdForegroundURL};
-                      }
-                    }
-                  }
-                }
-
               } catch(ee){};
         }
     },
-    cdForegroundURL: null,
     cdRecord: function(url) {
       try {
 
@@ -492,42 +480,6 @@ var CliqzHumanWeb = {
       } catch(ee) {};
 
       return
-    },
-    cdActive: false,
-    cdCache: {},
-    cdCleanCache: function() {
-      // remove any entry of less than 1 minute ago,
-      // FIXME, that removes independently of the target
-      var currTime = CliqzHumanWeb.counter;
-      for(var key in CliqzHumanWeb.cdCache) {
-        if ((currTime - CliqzHumanWeb.cdCache[key]['time']) < 60*CliqzHumanWeb.tmult) {
-          delete CliqzHumanWeb.cdCache[key];
-          //CliqzHumanWeb.cdCache[key]['removed'] = true;
-        }
-      }
-    },
-    cdSend: function() {
-      var seen = {}
-      var currTime = CliqzHumanWeb.counter;
-      for(var key in CliqzHumanWeb.cdCache) {
-        if ((currTime - CliqzHumanWeb.cdCache[key]['time']) > 120*CliqzHumanWeb.tmult) {
-          // The source is suspicious of doing cookie dropping, might not be as 1st party,
-          // external 3rd parties can have this malicous behavior. Need to collect the url
-          // url to investigate further
-          //
-          //var dest_dom = CliqzHumanWeb.parseUri(key).host;
-          var payload = {'source': CliqzHumanWeb.cdCache[key], 'dest': key}
-
-          var tmp_key = payload['source'] + '--' + payload['dest'];
-          if (!seen[tmp_key]) {
-            seen[tmp_key] = true;
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'cookie-dropping-watcher', 'payload': payload});
-
-          }
-
-          delete CliqzHumanWeb.cdCache[key];
-        }
-      }
     },
     historyTimeFrame: function(callback) {
         Cu.import('resource://gre/modules/PlacesUtils.jsm');
@@ -1623,15 +1575,6 @@ var CliqzHumanWeb = {
 
             var activeURL = CliqzHumanWeb.cleanCurrentUrl(aURI.spec);
 
-            if (activeURL.indexOf('about:')!=0) {
-              CliqzHumanWeb.cdForegroundURL = activeURL;
-
-              if (CliqzHumanWeb.cdRecordVisible(activeURL)) {
-                CliqzUtils.setTimeout(CliqzHumanWeb.cdCleanCache, 5000);
-              }
-
-            }
-
             //Check if the URL is know to be bad: private, about:, odd ports, etc.
             if (CliqzHumanWeb.isSuspiciousURL(activeURL)) return;
 
@@ -1883,11 +1826,6 @@ var CliqzHumanWeb = {
             }
         }
 
-
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % 180 == 0) {
-          CliqzHumanWeb.cdSend();
-        }
-
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % 10 == 0) {
             if (CliqzHumanWeb.debug) {
                 _log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id);
@@ -1899,9 +1837,6 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.cleanHttpCache();
             CliqzHumanWeb.cleanDocCache();
             CliqzHumanWeb.cleanLinkCache();
-
-
-            CliqzHumanWeb.cdActive = CliqzUtils.getPref('experimentalCookieDroppingDetection', false);
 
         }
 
