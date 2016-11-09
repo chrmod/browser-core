@@ -39,7 +39,7 @@ function getRandomIntInclusive(min, max) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '2.2',
+    VERSION: '2.3',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -706,6 +706,8 @@ var CliqzHumanWeb = {
                 var parser = new hiddenWindow.DOMParser();
                 var doc  = parser.parseFromString(req.responseText, "text/html");
 
+                _log(req.responseText);
+
                 var x = CliqzHumanWeb.getPageData(url, doc);
 
                 CliqzHumanWeb.docCache[url] = {'time': CliqzHumanWeb.counter, 'doc': doc};
@@ -757,8 +759,6 @@ var CliqzHumanWeb = {
         // compares the structure of the page when rendered in Firefox with the structure of
         // the page after.
 
-
-
         _log("xbef: " + JSON.stringify(struct_bef));
         _log("xaft: " + JSON.stringify(struct_aft));
 
@@ -778,6 +778,21 @@ var CliqzHumanWeb = {
         // if any of the two struct has a iall to false decline
         if (!(struct_bef['iall'] && struct_aft['iall'])) {
             _log("fovalidDoubleFetch: found a noindex");
+            return false;
+        }
+
+        // check that there are not different number of frames (or iframes) with an internal
+        // link on the two different loads (with and with session), if so, the frame (iframe)
+        // might contain a password field. Cannot afford to fetch all iframes on page. Only
+        // internal are considered, externals are likely to vary a lot due to advertisement.
+        // 
+        if (struct_bef['nfsh']==null || struct_aft['nfsh']==null || struct_bef['nfsh']!=struct_aft['nfsh']) {
+            _log("fovalidDoubleFetch: number of internal frames does not match");
+            return false;
+        }
+
+        if (struct_bef['nifsh']==null || struct_aft['nifsh']==null || struct_bef['nifsh']!=struct_aft['nifsh']) {
+            _log("fovalidDoubleFetch: number of internal iframes does not match");
             return false;
         }
 
@@ -1318,6 +1333,9 @@ var CliqzHumanWeb = {
         var inputs = null;
         var inputs_nh = null;
         var inputs_pwd = null;
+        var frames_same_host = null;
+        var iframes_same_host = null;
+        var frames = null;
         var forms = null;
         var pg_l = null;
         var metas = null;
@@ -1325,6 +1343,15 @@ var CliqzHumanWeb = {
         var iall = true;
         var all = null;
         var canonical_url = null;
+
+        var url_host = null;
+        var frame_host = null;
+
+        try {
+            url_host = CliqzHumanWeb.parseURL(url).hostname;
+        } catch(ee) {
+            url_host = null;
+        }
 
         try { len_html = cd.documentElement.innerHTML.length; } catch(ee) {}
         try { len_text = cd.documentElement.textContent.length; } catch(ee) {}
@@ -1341,6 +1368,55 @@ var CliqzHumanWeb = {
                 if (inputs[i]['type'] && inputs[i]['type']=='password') inputs_pwd+=1;
             }
         } catch(ee) {}
+
+
+        try {
+            frames = cd.getElementsByTagName('frame') || [];
+            frames_same_host = 0;
+            CliqzUtils.log('FRAME >>>> ' + frames.length);
+            for(var i=0;i<frames.length;i++) {
+                if (frames[i]['src']) {
+                    if (!frames[i]['src'].startsWith('http')) frames_same_host++;
+                    else {
+                        try {
+                            frame_host = CliqzHumanWeb.parseURL(frames[i]['src']).hostname;
+                        } catch(ee) {
+                            frame_host = null;
+                        }
+                        if (frame_host===url_host) frames_same_host++;
+                    }
+                }
+            }
+        }
+        catch(ee) {}
+
+        // CliqzUtils.hw.auxGetPageData('http://www.vilaweb.cat/', {}, 'http://www.vilaweb.cat/', function(a,b,c,d) { console.log('success', a,b,c,d )}, function(a,b,c,d) { console.log('error', a,b,c,d)});
+
+        try {
+            frames = cd.getElementsByTagName('iframe') || [];
+            iframes_same_host = 0;
+            CliqzUtils.log('IFRAME >>>> ' + frames.length);
+            for(var i=0;i<frames.length;i++) {
+                CliqzUtils.log('IFRAME >>>> ' + frames[i]['src']);
+
+                if (frames[i]['src']) {
+                    if (!frames[i]['src'].startsWith('http')) iframes_same_host++;
+                    else {
+                        CliqzUtils.log('>>>> ' + frames[i]['src'] + ' ' + url_host + ' >> ' + url, CliqzHumanWeb.LOG_KEY);
+
+                        try {
+                            frame_host = CliqzHumanWeb.parseURL(frames[i]['src']).hostname;
+                        } catch(ee) {
+                            frame_host = null;
+                        }
+                        if (frame_host==url_host) iframes_same_host++;
+                    }
+                }
+            }
+        }
+        catch(ee) {}
+
+
 
         try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
 
@@ -1401,9 +1477,8 @@ var CliqzHumanWeb = {
         // extract the location of the user (country level)
         try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){}
 
+        var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url, 'nfsh': frames_same_host, 'nifsh': iframes_same_host};
 
-        var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
-        //_log("Testing" + x.ctry);
         return x;
     },
     getHTML(url) {
