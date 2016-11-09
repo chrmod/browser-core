@@ -185,6 +185,7 @@ var CliqzHumanWeb = {
             var url_parts = {};
             url_parts = CliqzHumanWeb.parseURL(aURI);
 
+            _log(JSON.stringify(url_parts));
             if (aURI.indexOf('about:') == 0) return true;
 
             if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(url_parts.hostname)) {
@@ -2767,11 +2768,19 @@ var CliqzHumanWeb = {
         var o = {};
 
         var v = url.split('://');
-        if (v.length >= 1) {
+        if (v.length >= 2) {
 
             o['protocol'] = v[0];
             var s = v.slice(1, v.length).join('://');
             v = s.split('/');
+
+            // Check for hostname, if not present then return null.
+            if (v[0] === '') return null;
+
+            // Check if the hostname is invalid by checking for special characters.
+            // Only special characters like - and _ are allowed.
+            var hostnameRegex = /[?!@#\$\^\&*\)\(+=]/g;
+            if (hostnameRegex.test(v[0])) return null;
 
             var oh = CliqzHumanWeb.parseHostname(v[0]);
             o['hostname'] = oh['hostname'];
@@ -2780,6 +2789,7 @@ var CliqzHumanWeb = {
             o['password'] = oh['password'];
             o['path'] = '/';
             o['query_string'] = null;
+
 
             if (v.length>1) {
                 s = v.splice(1, v.length).join('/');
