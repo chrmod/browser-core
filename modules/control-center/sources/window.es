@@ -378,15 +378,12 @@ export default class {
         generalState = 'inactive';
       }
 
-      if(moduleData.antitracking && !moduleData.antitracking.enabled){
-        if(moduleData.antitracking.isWhitelisted){
-          // only this website is whitelisted
-          generalState = 'inactive';
-        }
-        else {
-          // completely disabled
-          generalState = 'critical';
-        }
+      if (!moduleData.antitracking){
+        // completely disabled
+        generalState = 'critical';
+      } else if(moduleData.antitracking.isWhitelisted) {
+        // only this website is whitelisted
+        generalState = 'inactive';
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
@@ -569,7 +566,6 @@ export default class {
     var win = this.window
     promise.then(function(target) {
       button.addEventListener('command', () => {
-
         if (this.isOnboarding()) {
           createIframe();
           UITour.showInfo(win, target, "", "");
@@ -582,7 +578,7 @@ export default class {
             win.CustomizableUI.AREA_NAVBAR
           );
         }
-      }.bind(this));
+      });
     }.bind(this));
 
     ToolbarButtonManager.restorePosition(doc, button);
