@@ -3,6 +3,7 @@ import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
 //import CliqzLanguage from "platform/language";
+import { httpHandler, promiseHttpHandler } from 'core/http';
 
 var CliqzLanguage;
 
@@ -246,7 +247,7 @@ var CliqzUtils = {
   httpHandler: function () {
     var errorHandler = arguments[3]; // see httpGet or httpPost arguments
     try {
-      return CLIQZEnvironment.httpHandler.apply(CLIQZEnvironment, arguments);
+      return httpHandler.apply(undefined, arguments);
     } catch(e) {
       if(errorHandler) {
         errorHandler(e);
@@ -1134,7 +1135,7 @@ var CliqzUtils = {
   getSearchEngines: CLIQZEnvironment.getSearchEngines,
   updateAlias: CLIQZEnvironment.updateAlias,
   openLink: CLIQZEnvironment.openLink,
-  promiseHttpHandler: CLIQZEnvironment.promiseHttpHandler,
+  promiseHttpHandler: promiseHttpHandler,
   registerResultProvider: function (o) {
     CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;
     CLIQZEnvironment.Result = o.Result;
