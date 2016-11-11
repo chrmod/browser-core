@@ -168,17 +168,18 @@ HttpRequestContext.prototype = {
     return this.loadInfo ? this.loadInfo.innerWindowID : 0;
   },
   getOuterWindowID: function() {
-    if (!this.loadInfo || this.loadInfo.outerWindowID === undefined) {
-      return this._legacyGetWindowId();
+    if (this.loadInfo && (this.loadInfo.frameOuterWindowID || this.loadInfo.outerWindowID)) {
+      // use frameOuterWindowID over outerWindowID as per: https://dxr.mozilla.org/mozilla-beta/source/toolkit/modules/addons/WebRequest.jsm#543
+      return this.loadInfo.frameOuterWindowID ? this.loadInfo.frameOuterWindowID : this.loadInfo.outerWindowID;
     } else {
-      return this.loadInfo.outerWindowID;
+      return this._legacyGetWindowId();
     }
   },
   getParentWindowID: function() {
-    if (!this.loadInfo || this.loadInfo.parentOuterWindowID === undefined) {
-      return this.getOuterWindowID();
+    if (this.loadInfo && (this.loadInfo.frameOuterWindowID || this.loadInfo.outerWindowID)) {
+      return this.loadInfo.frameOuterWindowID ? this.loadInfo.outerWindowID : this.loadInfo.parentOuterWindowID
     } else {
-      return this.loadInfo.parentOuterWindowID;
+      return this.getOuterWindowID();
     }
   },
   getLoadingDocument: function() {
