@@ -1,4 +1,5 @@
 import autocomplete from "autocomplete/autocomplete";
+import { promiseHttpHandler } from "core/http";
 
 const {
   classes:    Cc,
@@ -240,7 +241,7 @@ var CLIQZEnvironment = {
 
         console.log('push telemetry data: ' + telemetrySending.length + ' elements', "pushTelemetry");
 
-        telemetryReq = CLIQZEnvironment.promiseHttpHandler('POST', CLIQZEnvironment.LOG, JSON.stringify(telemetrySending), 10000, true);
+        telemetryReq = promiseHttpHandler('POST', CLIQZEnvironment.LOG, JSON.stringify(telemetrySending), 10000, true);
         telemetryReq.then( pushTelemetryCallback );
         telemetryReq.catch( pushTelemetryError );
       }
