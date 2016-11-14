@@ -5,11 +5,8 @@ export function getGeneralDomain(domain) {
   try {
     return psl.getGeneralDomain(domain);
   } catch(e) {
-    if (isIpAddress(domain)) {
-      return domain
-    } else {
-      return '';
-    }
+    // invalid hostname
+    return '';
   }
 }
 
@@ -22,9 +19,11 @@ export function sameGeneralDomain(dom1, dom2) {
   }
 };
 
-export function isIpAddress(domain) {
+export function isIpv4Address(domain) {
   const digits = domain.split('.');
   return digits.length === 4 && digits.map(Number).every(function(d) {
     return d >= 0 && d < 256;
   });
 }
+
+
