@@ -24,9 +24,7 @@ export function sameGeneralDomain(dom1, dom2) {
 
 export function isIpAddress(domain) {
   const digits = domain.split('.');
-  return digits.length === 4 && digits.map(function(s) {
-    return parseInt(s);
-  }).every(function(d) {
+  return digits.length === 4 && digits.map(Number).every(function(d) {
     return d >= 0 && d < 256;
   });
 }
