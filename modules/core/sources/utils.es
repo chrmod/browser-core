@@ -98,7 +98,7 @@ var CliqzUtils = {
   getLanguageFromLocale: function(locale) {
     return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
   },
-  SUPPORTED_LANGS: {'de':'de', 'en':'en'},
+  SUPPORTED_LANGS: {'de':'de', 'en':'en', 'fr':'fr'},
   getSupportedLanguage: function(lang) {
     return CliqzUtils.SUPPORTED_LANGS[lang] || 'en';
   },
