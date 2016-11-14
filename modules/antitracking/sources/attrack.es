@@ -21,6 +21,7 @@ import * as browser from 'platform/browser';
 import WebRequest from 'core/webrequest';
 import telemetry from 'antitracking/telemetry';
 import console from 'core/console';
+import { fetch } from 'core/http';
 
 import { determineContext, skipInternalProtocols, checkSameGeneralDomain } from 'antitracking/steps/context';
 import PageLogger from 'antitracking/steps/page-logger';
@@ -545,39 +546,42 @@ var CliqzAttrack = {
     },
     updateConfig: function() {
         var today = datetime.getTime().substring(0, 10);
-        utils.httpGet(CliqzAttrack.VERSIONCHECK_URL +"?"+ today, function(req) {
-            // on load
-            var versioncheck = JSON.parse(req.response);
-            const requiresReload = parseInt(versioncheck.shortTokenLength) !== CliqzAttrack.shortTokenLength || parseInt(versioncheck.safekeyValuesThreshold) !== CliqzAttrack.safekeyValuesThreshold;
+        return fetch(CliqzAttrack.VERSIONCHECK_URL +"?"+ today, {
+          credentials: 'omit',
+          cache: 'default',
+        }).then((resp) => resp.json()).then((versioncheck) => {
+          const requiresReload = parseInt(versioncheck.shortTokenLength) !== CliqzAttrack.shortTokenLength || parseInt(versioncheck.safekeyValuesThreshold) !== CliqzAttrack.safekeyValuesThreshold;
 
-            // config in versioncheck
-            if (versioncheck.placeHolder) {
-                persist.setValue('placeHolder', versioncheck.placeHolder);
-                CliqzAttrack.placeHolder = versioncheck.placeHolder;
-            }
+          // config in versioncheck
+          if (versioncheck.placeHolder) {
+              persist.setValue('placeHolder', versioncheck.placeHolder);
+              CliqzAttrack.placeHolder = versioncheck.placeHolder;
+          }
 
-            if (versioncheck.shortTokenLength) {
-                persist.setValue('shortTokenLength', versioncheck.shortTokenLength);
-                CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength) || CliqzAttrack.shortTokenLength;
-            }
+          if (versioncheck.shortTokenLength) {
+              persist.setValue('shortTokenLength', versioncheck.shortTokenLength);
+              CliqzAttrack.shortTokenLength = parseInt(versioncheck.shortTokenLength) || CliqzAttrack.shortTokenLength;
+          }
 
-            if (versioncheck.safekeyValuesThreshold) {
-                persist.setValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
-                CliqzAttrack.safekeyValuesThreshold = parseInt(versioncheck.safekeyValuesThreshold) || CliqzAttrack.safekeyValuesThreshold;
-            }
+          if (versioncheck.safekeyValuesThreshold) {
+              persist.setValue('safekeyValuesThreshold', versioncheck.safekeyValuesThreshold);
+              CliqzAttrack.safekeyValuesThreshold = parseInt(versioncheck.safekeyValuesThreshold) || CliqzAttrack.safekeyValuesThreshold;
+          }
 
-            if (versioncheck.cliqzHeader) {
-                persist.setValue('cliqzHeader', versioncheck.cliqzHeader);
-                CliqzAttrack.cliqzHeader = versioncheck.cliqzHeader;
-            }
+          if (versioncheck.cliqzHeader) {
+              persist.setValue('cliqzHeader', versioncheck.cliqzHeader);
+              CliqzAttrack.cliqzHeader = versioncheck.cliqzHeader;
+          }
 
-            // refresh pipeline if config changed
-            if (requiresReload) {
-              CliqzAttrack.initPipeline();
-            }
-            // fire events for list update
-            events.pub("attrack:updated_config", versioncheck);
-        }, utils.log, 10000);
+          // refresh pipeline if config changed
+          if (requiresReload) {
+            CliqzAttrack.initPipeline();
+          }
+          // fire events for list update
+          events.pub("attrack:updated_config", versioncheck);
+        }).catch((err) => {
+          console.error('versioncheck fetch error', err);
+        });
     },
     isInWhitelist: function(domain) {
         if(!CliqzAttrack.whitelist) return false;
