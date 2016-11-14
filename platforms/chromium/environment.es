@@ -161,47 +161,6 @@ const CLIQZEnvironment = {
   isOnPrivateTab: function(win) { return CE.isPrivate(); },
   getWindow: function(){ return { document: { getElementById() {} } } },
   XMLHttpRequest: XMLHttpRequest,
-  httpHandler: function(method, url, callback, onerror, timeout, data, sync) {
-    // Check if its a query and needs to sent via the encrypted channel.
-    if(url.indexOf('newbeta.cliqz.com') > -1 && prefs.get("hpn-query", false)) {
-        let eID = Math.floor(Math.random() * 1000);
-        eventIDs[eID] = {"cb": callback};
-        let _q = url.replace(('https://newbeta.cliqz.com/api/v1/results?q='),"")
-        let encrypted_query = {"action": "extension-query", "type": "cliqz", "ts": "", "ver": "1.5", "payload":_q }
-        port.postMessage({msg: encrypted_query, eventID:eID});
-    }
-    else{
-        var req = new CE.XMLHttpRequest();
-        req.open(method, url, !sync)
-        req.overrideMimeType && req.overrideMimeType('application/json');
-        req.onload = function(){
-          var statusClass = parseInt(req.status / 100);
-          if(statusClass === 2 || statusClass === 3 || statusClass === 0 /* local files */){
-            callback && callback(req);
-          } else {
-            onerror && onerror();
-          }
-        };
-        req.onerror = function(){
-          onerror && onerror();
-        };
-
-        req.ontimeout = function(){
-          onerror && onerror();
-        };
-
-        if(callback && !sync){
-          if(timeout){
-            req.timeout = parseInt(timeout);
-          } else {
-            req.timeout = (method === 'POST'? 10000 : 1000);
-          }
-        }
-
-        req.send(data);
-        return req;
-    }
-  },
 
   historySearch: function(q, callback, searchParam) {
     chrome.cliqzSearchPrivate.queryHistory(q, (query, matches, finished) => {
