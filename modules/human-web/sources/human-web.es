@@ -2227,7 +2227,7 @@ var CliqzHumanWeb = {
                 const openTabs = queryActiveTabs(win);
                 openTabs.forEach(data => {
                     const url = data.url;
-                    if (url && urls.indexOf(url) === -1 && url.indexOf('about:')!= 0) {
+                    if (url && urls.indexOf(url) === -1 && url.startsWith('about:') === false) {
                         urls.push(decodeURIComponent(url));
                     }
                 });
