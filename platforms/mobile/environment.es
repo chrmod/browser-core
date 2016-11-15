@@ -75,28 +75,6 @@ var CLIQZEnvironment = {
     //TODO - consider the version !!
     return 'static/brands_database.json'
   },
-  // TODO - SHOUD BE MOVED TO A LOGIC MODULE
-  autoComplete: function (val, searchString) {
-
-    if(val && val.length > 0) {
-      val = val.replace(/http([s]?):\/\/(www.)?/,'');
-      val = val.toLowerCase();
-      const searchLower = searchString.toLowerCase();
-
-      if(val.startsWith(searchLower)) {
-        osAPI.autocomplete(val);
-      } else {
-        storage.getObject('recentQueries', []).some(item => {
-          const queryLower = item.query.toLowerCase();
-          if(queryLower !== searchLower && queryLower.startsWith(searchLower)) {
-            osAPI.autocomplete(queryLower);
-            return true;
-          }
-          return false;
-        });
-      }
-    }
-  },
   resultsHandler: function (r) {
 
     if( CLIQZEnvironment.lastSearch !== r._searchString  ){
@@ -106,9 +84,7 @@ var CLIQZEnvironment = {
 
     r._results.splice(CLIQZEnvironment.RESULTS_LIMIT);
 
-    const renderedResults = window.CLIQZ.UI.renderResults(r);
-
-    renderedResults[0] && CLIQZEnvironment.autoComplete(renderedResults[0].url, r._searchString);
+    window.CLIQZ.UI.renderResults(r);
   },
   search: function(e) {
     if(!e || e === '') {

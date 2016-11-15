@@ -24,6 +24,7 @@ var UI = {
     isIncognito: false,
     currentPage: 0,
     lastResults: null,
+    lastSearch: '',
     CARD_WIDTH: 0,
     nCardsPerPage: 1,
     nPages: 1,
@@ -57,13 +58,15 @@ var UI = {
         viewPager = UI.initViewpager();
       }
 
+      UI.lastsearch = r._searchString;
+
       const renderedResults = UI.results(r);
 
       UI.lastResults = renderedResults;
 
       CLIQZ.UI.stopProgressBar();
 
-      return renderedResults;
+      autoComplete(renderedResults[0] && renderedResults[0].url);
     },
     setTheme: function (incognito = false) {
       UI.isIncognito = incognito;
@@ -188,7 +191,8 @@ var UI = {
             pageShowTs = Date.now();
 
             UI.currentPage = page;
-          }
+            autoComplete(UI.lastResults[page] && UI.lastResults[page].url);
+          },
         });
     },
     hideResultsBox: function () {
@@ -420,6 +424,24 @@ function setResultNavigation(resultCount) {
 
   if (document.getElementById('currency-tpl')) {
     document.getElementById('currency-tpl').parentNode.removeAttribute('url');
+  }
+}
+
+function autoComplete(val) {
+  const query = UI.lastsearch;
+
+  if(val && val.length > 0) {
+    val = val.replace(/http([s]?):\/\/(www.)?/,'');
+    val = val.toLowerCase();
+    const searchLower = query.toLowerCase();
+
+    if(val.startsWith(searchLower)) {
+      osAPI.autocomplete(val);
+    } else {
+      osAPI.autocomplete(query);
+    }
+  } else {
+    osAPI.autocomplete(query);
   }
 }
 
