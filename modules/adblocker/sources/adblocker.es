@@ -259,6 +259,10 @@ class AdBlocker {
       return false;
     }
 
+    if (httpContext.isFullPage()) {
+      // allow loading document
+      return false;
+    }
     // Process endpoint URL
     const url = httpContext.url.toLowerCase();
     const urlParts = URLInfo.get(url);
