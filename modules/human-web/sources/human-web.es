@@ -105,21 +105,6 @@ var CliqzHumanWeb = {
     _md5: function(str) {
         return md5(str);
     },
-    parseUri: function (str) {
-        //var o   = parseUri.options,
-        var m = null;
-        var _uri = null;
-        var i = null;
-        var m   = CliqzHumanWeb.parser[CliqzHumanWeb.strictMode ? "strict" : "loose"].exec(str);
-        var _uri = {};
-        var i   = 14;
-
-        while (i--) _uri[CliqzHumanWeb.key[i]] = m[i] || "";
-
-        _uri[CliqzHumanWeb.q.name] = {};
-        _uri[CliqzHumanWeb.key[12]].replace(CliqzHumanWeb.q.parser, function ($0, $1, $2) { if ($1) { _uri[CliqzHumanWeb.q.name][$1] = $2; }});
-        return _uri;
-    },
     maskURL: function(url){
         var url_parts = null;
         var masked_url = null;
@@ -1353,8 +1338,8 @@ var CliqzHumanWeb = {
         var url = cd.location.href;
         var doorwayURL = cd.getElementsByTagName('a')[0].href;
         try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-        var orignalDomain = CliqzHumanWeb.parseUri(url).host;
-        var dDomain = CliqzHumanWeb.parseUri(doorwayURL).host;
+        var orignalDomain = CliqzHumanWeb.parseURL(url).hostname;
+        var dDomain = CliqzHumanWeb.parseURL(doorwayURL).hostname;
         if(orignalDomain == dDomain) return;
         payload = {"url":url, "durl":doorwayURL,"ctry": location};
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'doorwaypage', 'payload': payload});
@@ -1397,9 +1382,11 @@ var CliqzHumanWeb = {
 
         //Detect doorway pages
         // TBF : Need to make detecting of doorway page more strong. Currently lot of noise getting through.
+        /*
         if(numlinks == 1 && cd.location){
             CliqzHumanWeb.eventDoorWayPage(cd);
         }
+        */
 
         var metas = cd.getElementsByTagName('meta');
 
@@ -3640,24 +3627,20 @@ var CliqzHumanWeb = {
         }
     },
     refineParseURIFunc: function(url, extractType, keyName){
-        var result = CliqzHumanWeb.parseUri(url);
-        if(extractType == 'key'){
-            if(result[keyName]){
-                return decodeURIComponent(result[keyName]);
+        var urlParts = CliqzHumanWeb.parseURL(url);
+        if(urlParts && urlParts.query_string) {
+            var result = CliqzHumanWeb.parseQueryString(urlParts.query_string);
+            if(extractType == 'qs'){
+                if(result[keyName]){
+                    return decodeURIComponent(result[keyName][0]);
+                }
+                else{
+                    return url;
+                }
             }
-            else{
-                return url;
-            }
+        } else {
+            return url;
         }
-        else if(extractType == 'qs'){
-            if(result['queryKey'][keyName]){
-                return decodeURIComponent(result['queryKey'][keyName]);
-            }
-            else{
-                return url;
-            }
-        }
-
     },
     refineReplaceFunc: function(replaceString, replaceWhat, replaceWith ){
         var result = decodeURIComponent(replaceString.replace("",replaceWhat,replaceWith));
