@@ -2234,7 +2234,6 @@ var CliqzHumanWeb = {
             });
         } catch (ee) {
          // do nothing, return empty set
-         CliqzUtils.log(">>>>>> " + ee);
         }
         return urls;
 
