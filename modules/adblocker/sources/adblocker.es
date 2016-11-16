@@ -153,10 +153,19 @@ class AdBlocker {
       .load()
       .then(serializedEngine => {
         if (serializedEngine !== undefined) {
-          const t0 = Date.now();
-          deserializeFiltersEngine(this.engine, serializedEngine);
-          const totalTime = Date.now() - t0;
-          CliqzUtils.log(`Loaded filters engine from disk (${totalTime} ms)`, 'adblocker');
+          try {
+            const t0 = Date.now();
+            deserializeFiltersEngine(this.engine, serializedEngine);
+            const totalTime = Date.now() - t0;
+            CliqzUtils.log(`Loaded filters engine from disk (${totalTime} ms)`, 'adblocker');
+          } catch (e) {
+            // In case there is a mismatch between the version of the code
+            // and the serialization format of the engine on disk, we might
+            // not be able to load the engine from disk. Then we just start
+            // fresh!
+            this.engine = new FilterEngine();
+            CliqzUtils.log(`Exception while loading engine from disk ${e} ${e.stack}`, 'adblocker');
+          }
         } else {
           CliqzUtils.log('No filter engine was serialized on disk', 'adblocker');
         }
