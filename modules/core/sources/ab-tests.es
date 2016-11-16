@@ -299,6 +299,18 @@ var CliqzABTests = {
             case "1081_B":
                 CliqzUtils.setPref("attrackLogBreakage", true);
                 break;
+            case "1082_A":
+                CliqzUtils.setPref("experimentalCookieDroppingDetection", false);
+                break;
+            case "1082_B":
+                CliqzUtils.setPref("experimentalCookieDroppingDetection", true);
+                break;
+            case "1083_B":
+                CliqzUtils.setPref("dnsLookup", true);
+                break;
+            case "1084_B":
+                CliqzUtils.setPref("attrackOverrideUserAgent", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -473,6 +485,17 @@ var CliqzABTests = {
             case "1081_A":
             case "1081_B":
               CliqzUtils.clearPref("attrackLogBreakage");
+              break;
+            case "1082_A":
+            case "1082_B":
+              CliqzUtils.clearPref("experimentalCookieDroppingDetection");
+              break;
+            case "1083_A":
+            case "1083_B":
+              CliqzUtils.clearPref("dnsLookup");
+              break;
+            case "1084_B":
+              CliqzUtils.clearPref("attrackOverrideUserAgent");
               break;
             default:
                 rule_executed = false;

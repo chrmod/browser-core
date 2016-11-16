@@ -259,6 +259,10 @@ class AdBlocker {
       return false;
     }
 
+    if (httpContext.isFullPage()) {
+      // allow loading document
+      return false;
+    }
     // Process endpoint URL
     const url = httpContext.url.toLowerCase();
     const urlParts = URLInfo.get(url);
@@ -271,11 +275,18 @@ class AdBlocker {
     // Process source url
     const sourceURL = httpContext.getSourceURL().toLowerCase();
     const sourceParts = URLInfo.get(sourceURL);
+
+    // It can happen when source is not a valid URL, then we simply
+    // leave `sourceHostname` and `sourceGD` as undefined to allow
+    // some filter matching on the request URL itself.
     let sourceHostname = sourceParts.hostname;
-    if (sourceHostname.startsWith('www.')) {
-      sourceHostname = sourceHostname.substring(4);
+    let sourceGD;
+    if (sourceHostname !== undefined) {
+      if (sourceHostname.startsWith('www.')) {
+        sourceHostname = sourceHostname.substring(4);
+      }
+      sourceGD = getGeneralDomain(sourceHostname);
     }
-    const sourceGD = getGeneralDomain(sourceHostname);
 
     // Wrap informations needed to match the request
     const request = {
@@ -292,7 +303,7 @@ class AdBlocker {
     };
 
     const t0 = Date.now();
-    const isAd = this.isInBlacklist(request) ? false : this.cache.get(request);
+    const isAd = this.isInBlacklist(request) ? { match: false } : this.cache.get(request);
     const totalTime = Date.now() - t0;
 
     log(`BLOCK AD ${JSON.stringify({
@@ -315,7 +326,7 @@ const CliqzADB = {
   adbMem: {},
   adbStats: new AdbStats(),
   mutationLogger: null,
-  adbDebug: true,
+  adbDebug: false,
   MIN_BROWSER_VERSION: 35,
   timers: [],
 
@@ -412,9 +423,14 @@ const CliqzADB = {
         return {};
       }
 
-      if (adbEnabled() && CliqzADB.adBlocker.match(requestContext)) {
-        CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
-        return { cancel: true };
+      if (adbEnabled()) {
+        const result = CliqzADB.adBlocker.match(requestContext);
+        if (result.redirect) {
+          return { redirectUrl: result.redirect };
+        } else if (result.match) {
+          CliqzADB.adbStats.addBlockedUrl(sourceUrl, url);
+          return { cancel: true };
+        }
       }
 
       return {};

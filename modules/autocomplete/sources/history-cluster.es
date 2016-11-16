@@ -587,6 +587,7 @@ var CliqzHistoryCluster = {
     } else if (results.length < 3) {
       for (var i = 0; i < results.length; i++) {
         var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
+        instant.data.title = instant.comment;
         instant.comment += ' (history generic)!';
         instant.data.kind = ['H'];
         //promises.push(CliqzHistoryCluster._getDescription(instant));
@@ -595,7 +596,7 @@ var CliqzHistoryCluster = {
     } else {
       // 3-up combined generic history entry
       var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
-      instant.data.title = '';
+      instant.data.title = instant.comment;
       instant.comment += ' (history generic)!';
       instant.data.template = 'pattern-h3';
       instant.data.generic = true;
@@ -630,7 +631,7 @@ var CliqzHistoryCluster = {
 
       // 3-up combined generic history entry
       var instant = Result.generic('cliqz-pattern', '', null, '', null, searchString);
-      instant.data.title = '';
+      instant.data.title = instant.comment;
       instant.comment += ' (history generic)!';
 
       //

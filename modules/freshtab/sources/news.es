@@ -41,41 +41,35 @@ const hbasedNewsCacheObject = new NewsCache('freshTab-hbased-cache',
                                           getHbasedNewsObject,
                                           true);
 
-function requestBackend(url) {
+function requestBackend(url, data) {
   log(`Request url: ${url}`);
-  return coreUtils.promiseHttpHandler('GET', url)
+  return coreUtils.promiseHttpHandler('PUT', url, data)
     .then((response) => {
       const resData = JSON.parse(response.response);
       if (!resData.results || resData.results.length === 0) {
         throw(`Backend response from ${url} is not valid "${JSON.stringify(resData)}."`);
       }
-      return resData;
+      return {
+        results: [resData.results[0].snippet.extra]
+      };
     });
 }
 
 function getTopNewsList() {
-  function getTopNewsUrl() {
-    return [
-      coreUtils.RICH_HEADER,
-      '&bmresult=rotated-top-news.cliqz.com',
-      coreLanguage.stateToQueryString(),
-      coreUtils.encodeLocale(),
-    ].join('');
-  }
-
-  return requestBackend(getTopNewsUrl());
+  var url = coreUtils.RICH_HEADER + coreUtils.getRichHeaderQueryString(''),
+      data = {
+        q: '',
+        results: [
+          {
+            url: 'rotated-top-news.cliqz.com',
+            snippet: {}
+          }
+        ]
+      };
+  return requestBackend(url, JSON.stringify(data));
 }
 
 function getHbasedNewsObject() {
-  function getHbasedNewsUrl(hashList) {
-    return [
-      coreUtils.RICH_HEADER,
-      '&bmresult=hb-news.cliqz.com',
-      coreLanguage.stateToQueryString(),
-      coreUtils.encodeLocale(),
-      '&q=' + JSON.stringify(hashList),
-      ].join('');
-  }
 
   function filterNotRequiredDomains(reqData, hbasedRecom) {
     function getHbasedNewsDict(hbasedResults) {
@@ -110,7 +104,19 @@ function getHbasedNewsObject() {
     if (hbasedRecom.hashList.length === 0) {
       requestPromise = Promise.resolve({});
     } else {
-      requestPromise = requestBackend(getHbasedNewsUrl(hbasedRecom.hashList))
+      var query = JSON.stringify(hbasedRecom.hashList),
+          url = coreUtils.RICH_HEADER + coreUtils.getRichHeaderQueryString(query),
+          data = {
+            q: query,
+            results: [
+              {
+                url: 'hb-news.cliqz.com',
+                snippet: {}
+              }
+            ]
+          };
+
+      requestPromise = requestBackend(url, JSON.stringify(data))
         .then((reqData) => filterNotRequiredDomains(reqData, hbasedRecom));
     }
 
@@ -332,18 +338,18 @@ function composeHistoryBasedRecommendations(globalVisitCount) {
     return i.count < j.count;
   }
 
-
   function getPressClipping(glVisitCount) {
     function getPressClipMapping(domain) {
       return PRESS_CLIPPING_MAPPING[parseInt(coreUtils.hash(domain), 10)] || false;
     }
     const glVisit = glVisitCount;
     const pressClipList = [];
+    const prClipThreshold = 5 ;
 
     let pressClipMapping;
     Object.keys(glVisit).forEach((domain) => {
       pressClipMapping = getPressClipMapping(domain);
-      if (typeof pressClipMapping === 'string') {
+      if ((typeof pressClipMapping === 'string') && (glVisit[domain].count > prClipThreshold)) {
         glVisit[domain].key = pressClipMapping;
         pressClipList.push(glVisit[domain]);
       }

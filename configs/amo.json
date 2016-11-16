@@ -9,7 +9,8 @@
     "cliqzOnboarding": false,
     "channel": "04",
     "antitrackingButton": true,
-    "showNewBrandAlert": false
+    "showNewBrandAlert": false,
+    "onBoardingVersion": "1.1"
   },
   "modules": [
     "firefox-specific",

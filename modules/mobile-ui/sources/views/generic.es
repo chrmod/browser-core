@@ -1,7 +1,14 @@
+import localView from 'mobile-ui/views/local-data-sc';
+
 export class GenericResult {
 
   get links() {
-    return this.categories || (this.richData && this.richData.categories);
+    return (this.deepResults || []).reduce((previous, current) => {
+      if (current.type === 'buttons' || current.type === 'simple_links') {
+        previous = previous.concat(current.links);
+      }
+      return previous;
+    }, []);
   }
 
   get shortDescription() {
@@ -30,25 +37,18 @@ function attachLogoDetails(resources = []) {
   }));
 }
 
-export default class Generic {
+export default class Generic extends localView {
 
   enhanceResults(data, screen) {
+    if (data.subType && data.subType.class === 'EntityLocal') {
+      super.enhanceResults(data.extra);
+    }
     const result = data;
-    result.richData = result.richData || {};
+    if (result.extra) {
+      result.extra.rich_data = result.extra.rich_data || {};
+    }
     result.screen = screen;
     Object.setPrototypeOf(result, GenericResult.prototype);
 
-    result.external_links = attachLogoDetails(result.external_links);
-    result.richData.additional_sources = attachLogoDetails(result.richData.additional_sources);
-    result.news = attachLogoDetails(result.news);
-
-    if (result.actions && result.external_links) {
-      result.actionsExternalMixed = result.actions.concat(result.external_links);
-      result.actionsExternalMixed.sort((a, b) => {
-        if (a.rank < b.rank) { return 1; }
-        if (a.rank > b.rank) { return -1; }
-        return 0;
-      });
-    }
   }
 }

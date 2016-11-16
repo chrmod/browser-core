@@ -8,15 +8,14 @@ about:Cliqz omnibox popup page
 <head>
     <meta charset='utf-8'>
     <title i18n-content='title'></title>
-    <script src='js/libs/system-polyfill.js'></script>
-    <script src='bower_components/mathjs/dist/math.min.js'></script>
+    <script src='bower_components/system.js/dist/system.js'></script>
     <script src='bower_components/handlebars/handlebars.js'></script>
     <link rel='stylesheet' type='text/css' href='dropdown.css'/>
     <link rel='stylesheet' type='text/css' href='modules/static/styles/styles.css'/>
     <link rel='stylesheet' type='text/css' href='modules/static/styles/chromium.css'/>
 </head>
 <body>
-<input id='urlbar' style='display:none;' />
+<input id='urlbar'/>
 <div id='results' class='cqz-chromium'></div>
 <div id="settings-container" class="">
     <div class="cqz-settings-header">

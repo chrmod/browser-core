@@ -139,6 +139,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       trackertxt.setDefaultTrackerTxtRule('replace');
 
       console.log("----- TEST ----");
+      CliqzAttrack.initPipeline();
     });
 
     afterEach(function() {
@@ -291,7 +292,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 2,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_0': 1
+                'window_depth_0': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -309,7 +311,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 2,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_0': 1
+                'window_depth_0': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -327,7 +330,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 42,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_0': 1
+                'window_depth_0': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -345,7 +349,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 2,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_0': 1
+                'window_depth_0': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -361,7 +366,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'type_7': 1,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_1': 1
+                'window_depth_1': 1,
+                'set_cookie_set': 1,
               },
               '/test': {
                 'c': 1,
@@ -371,7 +377,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 2,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_1': 1
+                'window_depth_1': 1,
+                'set_cookie_set': 1,
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
@@ -379,7 +386,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_1': 1
+                'window_depth_1': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -397,7 +405,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 42,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_0': 1
+                'window_depth_0': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -413,7 +422,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'type_7': 1,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_2': 1
+                'window_depth_2': 1,
+                'set_cookie_set': 1,
               },
               '/test': {
                 'c': 1,
@@ -423,7 +433,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'content_length': 2,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_2': 1
+                'window_depth_2': 1,
+                'set_cookie_set': 1,
               },
               '/bower_components/jquery/dist/jquery.js': {
                 'c': 1,
@@ -431,7 +442,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'cookie_set': 1,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_2': 1
+                'window_depth_2': 1,
+                'set_cookie_set': 1,
               }
             },
             'cliqztest.de': {
@@ -440,7 +452,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
                 'type_7': 1,
                 'status_200': 1,
                 'scheme_http': 1,
-                'window_depth_1': 1
+                'window_depth_1': 1,
+                'set_cookie_set': 1,
               }
             }
           }
@@ -450,7 +463,9 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
     // Test each of the page_specs in various different configurations.
     Object.keys(page_specs).forEach(function (testpage) {
-      describe(testpage, function() {
+      // replaced by functional test, but still useful to have these cases
+      // for manual testing
+      describe.skip(testpage, function() {
 
         context('cookie tests', function() {
 
@@ -536,7 +551,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
               // cookie blocking will be done by the 'tp1' block.
               var tp_event_expectation = new tp_events_expectations(testpage, test_domain);
-              tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1);
+              tp_event_expectation.if('cookie_set', 1).set('cookie_blocked', 1).set('cookie_block_tp1', 1).set('set_cookie_blocked', 1);
 
               expectNRequests(2).assertEach(onlyLocalhostCookie, function(e) {
                 if(e) {
@@ -901,6 +916,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
         context("Bloom filter disabled", function() {
           beforeEach(function() {
             CliqzUtils.setPref('attrackBloomFilter', false);
+            CliqzAttrack.initPipeline();
           });
           describe('QS blocking enabled', QSBlocking);
         });
@@ -912,6 +928,8 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
             CliqzAttrack.qs_whitelist = new AttrackBloomFilter();
             CliqzAttrack.qs_whitelist.bloomFilter = new BloomFilter('0000000000000000000', 5);
             CliqzAttrack.qs_whitelist.lastUpdate = hour;
+
+            CliqzAttrack.initPipeline();
           });
           afterEach(function() {
             CliqzUtils.setPref('attrackBloomFilter', false);
@@ -929,6 +947,7 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
 
       beforeEach(function() {
         CliqzAttrack.safekeyValuesThreshold = 2;
+        CliqzAttrack.initPipeline();
       });
 
       it('adds local safekey if 3 different values seen', function(done) {

@@ -190,7 +190,6 @@ export default background({
     },
     "core:urlbar_focus": CliqzAttrack.onUrlbarFocus,
     "core.tab_location_change": CliqzAttrack.onTabLocationChange,
-    "core.tab_state_change": CliqzAttrack.tab_listener.onStateChange.bind(CliqzAttrack.tab_listener),
     "antitracking:whitelist:add": function (hostname) {
       CliqzAttrack.addSourceDomainToWhitelist(hostname);
       this.popupActions.telemetry({
@@ -210,5 +209,10 @@ export default background({
     "control-center:antitracking-strict": function () {
       utils.setPref('attrackForceBlock', !utils.getPref('attrackForceBlock', false));
     },
+    "core:mouse-down": function() {
+      if (CliqzAttrack.pipelineSteps.cookieContext) {
+        CliqzAttrack.pipelineSteps.cookieContext.setContextFromEvent.apply(CliqzAttrack.pipelineSteps.cookieContext, arguments);
+      }
+    }
   },
 });

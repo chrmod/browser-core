@@ -158,7 +158,7 @@ export default class {
   * @param smartCliqz
   */
   getId(smartCliqz) {
-    return smartCliqz.data.__subType__.id;
+    return smartCliqz.data.subType.id;
   }
 
   /**
