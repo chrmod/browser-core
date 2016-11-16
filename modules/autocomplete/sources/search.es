@@ -649,6 +649,7 @@ export default class Search {
           discarded: obj.discardedResults,
           user_rerankers: obj.userRerankers,
           backend_params: obj.cliqzResultsParams,
+          proxied: utils.getPref('hpn-query', false),
           v: 1
       };
 
