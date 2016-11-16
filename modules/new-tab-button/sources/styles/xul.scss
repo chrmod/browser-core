@@ -6,7 +6,30 @@
 
 .tabs-newtab-button, #new-tab-button {
     &.has-notification {
-        background-color: #FFDC92;
+        &:before {
+            content: " ";
+            display: inline-block;
+            height: 8px;
+            width: 8px;
+            border-radius: 8px;
+            background-color: red;
+        }
+    }
+}
+
+.tabs-newtab-button {
+    padding-left: 3px;
+    padding-right: 3px;
+    &:before {
+        margin-top: 3px;
+        margin-left: 2px;
+        margin-right: 3px;
+    }
+}
+
+#new-tab-button {
+    &:before {
+        margin-top: 0px;
     }
 }
 

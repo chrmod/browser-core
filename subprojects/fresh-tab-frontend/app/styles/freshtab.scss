@@ -1,4 +1,5 @@
 @import './freshtab/add-speed-dial';
+@import './freshtab/speed-dial';
 
  /* common */
 *,
@@ -422,14 +423,6 @@ body.freshTabContainer {
 
         &:hover {
           text-decoration: underline;
-        }
-      }
-    }
-
-    .new-notifications {
-      .title {
-        strong {
-          color: red;
         }
       }
     }

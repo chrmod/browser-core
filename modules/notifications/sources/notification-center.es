@@ -9,34 +9,34 @@ import Evented from '../core/mixins/evented';
 
 
 const AVAILABLE_DOMAINS = {
-  'gmail.com': {
-    providerName: 'gmail',
-    config: {},
-    schedule: '*/1 *',
-  },
+  //'gmail.com': {
+    //providerName: 'gmail',
+    //config: {},
+    //schedule: '*/1 *',
+  //},
   'mail.google.com': {
     providerName: 'gmail',
     config: {},
     schedule: '*/1 *',
   },
-  'twitter.com': {
-    providerName: 'pin-tab',
-    config: {
-      domain: 'twitter.com',
-      selector: '.with-count .count-inner',
-      attribute: 'innerText',
-    },
-    schedule: '*/1 *',
-  },
-  'www.facebook.com': {
-    providerName: 'pin-tab',
-    config: {
-      domain: 'www.facebook.com',
-      selector: '[data-tooltip-content="Messages"] span span',
-      attribute: 'innerText',
-    },
-    schedule: '*/1 *',
-  },
+  //'twitter.com': {
+    //providerName: 'pin-tab',
+    //config: {
+      //domain: 'twitter.com',
+      //selector: '.with-count .count-inner',
+      //attribute: 'innerText',
+    //},
+    //schedule: '*/1 *',
+  //},
+  //'www.facebook.com': {
+    //providerName: 'pin-tab',
+    //config: {
+      //domain: 'www.facebook.com',
+      //selector: '[data-tooltip-content="Messages"] span span',
+      //attribute: 'innerText',
+    //},
+    //schedule: '*/1 *',
+  //},
 };
 
 const AVAILABLE_PROVIDERS = {

@@ -44,7 +44,9 @@ export default {
     "undo": "Rückgängig",
     "search-on": "Suche auf",
     "shortcuts-one-removed": "Seite wurde entfernt",
-    "shortcuts-many-removed": "Seiten wurden entfernt"
+    "shortcuts-many-removed": "Seiten wurden entfernt",
+    "notifications-disable": "Benachrichtigungen deaktivieren",
+    "notifications-enable": "Benachrichtigungen aktivieren",
   },
   urlBar: {
     "search-address": "Suche oder Adresse eingeben"
