@@ -4,6 +4,8 @@ import core from "core/background";
 import { utils } from "core/cliqz";
 import md5 from "core/helpers/md5";
 import ResourceLoader from 'core/resource-loader';
+import { queryActiveTabs } from 'core/tabs';
+import { forEachWindow } from 'platform/browser';
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
@@ -2219,6 +2221,23 @@ var CliqzHumanWeb = {
     lastActive: null,
     lastActiveAll: null,
     getAllOpenPages: function() {
+        const urls = [];
+        try {
+            forEachWindow(win => {
+                const openTabs = queryActiveTabs(win);
+                openTabs.forEach(data => {
+                    const url = data.url;
+                    if (url && urls.indexOf(url) === -1 && url.startsWith('about:') === false) {
+                        urls.push(decodeURIComponent(url));
+                    }
+                });
+            });
+        } catch (ee) {
+         // do nothing, return empty set
+        }
+        return urls;
+
+        /*
         var res = [];
         try {
             var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -2242,6 +2261,7 @@ var CliqzHumanWeb = {
         catch(ee) {
             return [];
         }
+        */
     },
     init: function(window) {
         if(CliqzUtils.getPref("dnt", false)) return;
