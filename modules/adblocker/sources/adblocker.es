@@ -61,6 +61,7 @@ export function adbEnabled() {
  */
 class AdBlocker {
   constructor() {
+    this.logs = [];
     this.engine = new FilterEngine();
 
     // Plug filters lists manager with engine to update it
@@ -73,7 +74,7 @@ class AdBlocker {
       const filtersLists = updates.filter(update => {
         const { asset, checksum, isFiltersList } = update;
         if (isFiltersList && !this.engine.hasList(asset, checksum)) {
-          CliqzUtils.log(`Filters list ${asset} (${checksum}) will be updated`, 'adblocker');
+          this.log(`Filters list ${asset} (${checksum}) will be updated`);
           return true;
         }
         return false;
@@ -82,8 +83,8 @@ class AdBlocker {
       if (filtersLists.length > 0) {
         const startFiltersUpdate = Date.now();
         this.engine.onUpdateFilters(filtersLists);
-        CliqzUtils.log(`Engine updated with ${filtersLists.length} lists` +
-                       ` (${Date.now() - startFiltersUpdate} ms)`, 'adblocker');
+        this.log(`Engine updated with ${filtersLists.length} lists` +
+                 ` (${Date.now() - startFiltersUpdate} ms)`);
       }
 
       // ---------------------- //
@@ -92,7 +93,7 @@ class AdBlocker {
       const resourcesLists = updates.filter(update => {
         const { isFiltersList, asset, checksum } = update;
         if (!isFiltersList && this.engine.resourceChecksum !== checksum) {
-          CliqzUtils.log(`Resources list ${asset} (${checksum}) will be updated`, 'adblocker');
+          this.log(`Resources list ${asset} (${checksum}) will be updated`);
           return true;
         }
         return false;
@@ -101,8 +102,8 @@ class AdBlocker {
       if (resourcesLists.length > 0) {
         const startResourcesUpdate = Date.now();
         this.engine.onUpdateResource(resourcesLists);
-        CliqzUtils.log(`Engine updated with ${resourcesLists.length} resources` +
-                       ` (${Date.now() - startResourcesUpdate} ms)`, 'adblocker');
+        this.log(`Engine updated with ${resourcesLists.length} resources` +
+                 ` (${Date.now() - startResourcesUpdate} ms)`);
       }
 
       // Flush the cache since the engine is now different
@@ -115,11 +116,11 @@ class AdBlocker {
           .persist(JSON.stringify(serializeFiltersEngine(this.engine)))
           .then(() => {
             const totalTime = Date.now() - t0;
-            CliqzUtils.log(`Serialized filters engine on disk (${totalTime} ms)`, 'adblocker');
+            this.log(`Serialized filters engine on disk (${totalTime} ms)`);
             this.engine.updated = false;
           });
       } else {
-        CliqzUtils.log('Engine has not been updated, do not serialize', 'adblocker');
+        this.log('Engine has not been updated, do not serialize');
       }
     });
 
@@ -129,6 +130,11 @@ class AdBlocker {
 
     // Is the adblocker initialized
     this.initialized = false;
+  }
+
+  log(msg) {
+    this.logs.push(msg);
+    CliqzUtils.log(msg, 'adblocker');
   }
 
   initCache() {
@@ -157,17 +163,17 @@ class AdBlocker {
             const t0 = Date.now();
             deserializeFiltersEngine(this.engine, serializedEngine);
             const totalTime = Date.now() - t0;
-            CliqzUtils.log(`Loaded filters engine from disk (${totalTime} ms)`, 'adblocker');
+            this.log(`Loaded filters engine from disk (${totalTime} ms)`);
           } catch (e) {
             // In case there is a mismatch between the version of the code
             // and the serialization format of the engine on disk, we might
             // not be able to load the engine from disk. Then we just start
             // fresh!
             this.engine = new FilterEngine();
-            CliqzUtils.log(`Exception while loading engine from disk ${e} ${e.stack}`, 'adblocker');
+            this.log(`Exception while loading engine from disk ${e} ${e.stack}`);
           }
         } else {
-          CliqzUtils.log('No filter engine was serialized on disk', 'adblocker');
+          this.log('No filter engine was serialized on disk');
         }
 
         // Load files from disk, then check if we should update
