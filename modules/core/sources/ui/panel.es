@@ -144,7 +144,7 @@ export default class {
     });
   }
 
-  deattach() {
+  detach() {
     maybe(this, 'panelUI').then(panelui => {
       panelui.removeChild(this.panel);
       this.destroyPanel();

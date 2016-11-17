@@ -58,7 +58,7 @@ export default class {
       button.removeEventListener('mouseover', this.onMouseOver);
       button.addEventListener('mouseout', this.onMouseOut);
 
-      this.panel.deattach();
+      this.panel.detach();
     });
   }
 

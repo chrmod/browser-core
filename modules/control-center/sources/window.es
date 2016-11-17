@@ -148,7 +148,7 @@ export default class {
   }
 
   unload() {
-    this.panel.attach();
+    this.panel.detach();
     removeStylesheet(this.window.document, this.cssUrl);
     CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
 
