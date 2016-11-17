@@ -736,6 +736,9 @@ var CliqzHumanWeb = {
         // might contain a password field. Cannot afford to fetch all iframes on page. Only
         // internal are considered, externals are likely to vary a lot due to advertisement.
         //
+
+        /*
+        Adding key to check how many pages will we loose if frame check is turned on
         if (struct_bef['nfsh']==null || struct_aft['nfsh']==null || struct_bef['nfsh']!=struct_aft['nfsh']) {
             _log("fovalidDoubleFetch: number of internal frames does not match");
             return false;
@@ -745,7 +748,7 @@ var CliqzHumanWeb = {
             _log("fovalidDoubleFetch: number of internal iframes does not match");
             return false;
         }
-
+        */
         if (struct_bef['canonical_url'] != struct_aft['canonical_url']) {
             // if canonicals are different, in principle are different pages,
 
@@ -998,6 +1001,24 @@ var CliqzHumanWeb = {
                 _log("success on doubleFetch, need further validation" + url);
 
                 if (CliqzHumanWeb.validDoubleFetch(page_doc['x'], data, {'structure_strict': false})) {
+
+
+                    //
+                    // If the double fetch is validated, we will now check for the iFrame and frameSets
+                    // Since we only need the telemetry for now, this seems to be the right place
+                    // we need to inject the page structure. The final event will have an extra key
+                    // nifshmatch : true / false , nfshmatch: true / false.,
+                    // nifshbf : Iframe count in struct_bef, nifshbf : framsetcount in before.
+                    // This key is added to both page_doc and data.
+                    //
+
+                    let nifshmatch = CliqzHumanWeb.validFrameCount(page_doc['x'], data);
+                    let nfshmatch = CliqzHumanWeb.validFrameSetCount(page_doc['x'], data);
+
+                    data.nifshmatch = nifshmatch;
+                    data.nfshmatch = nfshmatch;
+                    data.nifshbf = page_doc.x.nifsh;
+                    data.nfshbf = page_doc.x.nifsh;
 
                     //
                     // url, we should have the data of the double for the referral in CliqzHumanWeb.docCache
@@ -4261,6 +4282,35 @@ var CliqzHumanWeb = {
             return false;
         }
     },
+    validFrameCount: function(struct_bef, struct_aft) {
+        //
+        // To take into account, the transition state, when the extension is updated
+        // Data saved in the DB will not have the key nifsh, hence we should return true
+        // for those cases.
+        //
+
+        if (struct_bef.nifsh == null || struct_aft.nifsh == null || struct_bef.nifsh !=struct_aft.nifsh) {
+            _log("fovalidDoubleFetch: number of internal iframes does not match");
+            return false;
+        }
+
+        return true;
+    },
+    validFrameSetCount: function(struct_bef, struct_aft) {
+        //
+        // To take into account, the transition state, when the extension is updated
+        // Data saved in the DB will not have the key nfsh, hence we should return true
+        // for those cases.
+        //
+
+        if (struct_bef.nfsh ==null || struct_aft.nfsh==null || struct_bef.nfsh!=struct_aft.nfsh) {
+            _log("fovalidDoubleFetch: number of internal frameset does not match");
+            return false;
+        }
+
+        return true;
+
+    }
 };
 
 export default CliqzHumanWeb;
