@@ -431,54 +431,6 @@ var CliqzHumanWeb = {
               } catch(ee){};
         }
     },
-    cdRecord: function(url) {
-      try {
-
-        var ind = url.indexOf('//rover.ebay.');
-        if (ind > 0 && ind < 10) return true;
-
-        ind = url.indexOf('//www.amazon.');
-        if (ind > 0 && ind < 10) {
-          if (url.indexOf('?tag=')>0 || url.indexOf('&tag=')>0) return true;
-          else return false;
-        }
-
-        /*
-        var u = CliqzHumanWeb.parseUri(url);
-        if (u.host.indexOf('rover.ebay')>=0) {
-          return true;
-        }
-        else if (u.host.indexOf('www.amazon.')>=0) {
-          if (url.indexOf('?tag=')>0 || url.indexOf('&tag=')>0) return true;
-          else return false;
-        }
-        */
-
-      } catch(ee) {};
-
-      return false;
-    },
-    cdRecordVisible: function(url) {
-      try {
-        var ind = url.indexOf('//www.ebay.');
-        if (ind > 0 && ind < 10) return true;
-
-        ind = url.indexOf('//www.amazon.');
-        if (ind > 0 && ind < 10) return true;
-
-        /*
-        var u = CliqzHumanWeb.parseUri(url);
-        if (u.host.indexOf('www.ebay.')>=0) {
-          return true;
-        }
-        else if (u.host.indexOf('www.amazon.')>=0) {
-          return true;
-        }
-        */
-      } catch(ee) {};
-
-      return
-    },
     historyTimeFrame: function(callback) {
         Cu.import('resource://gre/modules/PlacesUtils.jsm');
         var history = [];
@@ -783,7 +735,7 @@ var CliqzHumanWeb = {
         // link on the two different loads (with and with session), if so, the frame (iframe)
         // might contain a password field. Cannot afford to fetch all iframes on page. Only
         // internal are considered, externals are likely to vary a lot due to advertisement.
-        // 
+        //
         if (struct_bef['nfsh']==null || struct_aft['nfsh']==null || struct_bef['nfsh']!=struct_aft['nfsh']) {
             _log("fovalidDoubleFetch: number of internal frames does not match");
             return false;
@@ -1255,7 +1207,7 @@ var CliqzHumanWeb = {
             try {
                 var source_hostname = CliqzHumanWeb.parseURL(source_url).hostname;
                 var target_hostname = CliqzHumanWeb.parseURL(target_url).hostname;
-            } catch(ee) {    
+            } catch(ee) {
                 return false;
             }
 
@@ -1383,7 +1335,7 @@ var CliqzHumanWeb = {
                     try {
                         frame_host = CliqzHumanWeb.parseURL(tsrc).hostname;
                         if (frame_host===url_host || frame_host=='browser') frames_same_host++;
-                    } catch(ee) {                        
+                    } catch(ee) {
                         frames_same_host++;
                     }
                 }
@@ -1401,7 +1353,7 @@ var CliqzHumanWeb = {
                     try {
                         frame_host = CliqzHumanWeb.parseURL(tsrc).hostname;
                         if (frame_host===url_host || frame_host=='browser') iframes_same_host++;
-                    } catch(ee) {                        
+                    } catch(ee) {
                         iframes_same_host++;
                     }
                 }
@@ -1746,7 +1698,7 @@ var CliqzHumanWeb = {
                                         delete CliqzHumanWeb.state['v'][activeURL]['qr'];
                                     }
                                 } catch(ee) {
-                                    delete CliqzHumanWeb.state['v'][activeURL]['qr']; 
+                                    delete CliqzHumanWeb.state['v'][activeURL]['qr'];
                                 }
                             }
                         }
@@ -1913,7 +1865,6 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.cleanHttpCache();
             CliqzHumanWeb.cleanDocCache();
             CliqzHumanWeb.cleanLinkCache();
-
         }
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (1*60) == 0) {
@@ -4256,7 +4207,7 @@ var CliqzHumanWeb = {
         return promise;
     },
     isHostNamePrivate: function(url){
-    
+
         let promise = new Promise(function(resolve, reject){
             var host = null;
             try {
