@@ -12,6 +12,7 @@ $tab-font-size: 1.09em;
 
 $url-bar-font-size: 1.27em;
 $url-bar-bg-color: #fff;
+$url-bar-bg-private-color: #bec9d7;
 $url-bar-hover-bg-color: #fff;
 $url-bar-hover-border-color: #7aa8d9;
 $url-bar-hover-shadow: inset 0 0 2px #aec6de;
@@ -525,6 +526,7 @@ toolbarbutton#cliqz-cc-btn {
     }
 }
 
+#main-window[privatebrowsingmode="temporary"],
 #navigator-toolbox[on_private_tab="true"] {
     #notification-popup-box {
         border-image: url("../images/browser/mac/urlbar-arrow.png") 0 8 0 0 fill;
@@ -545,7 +547,7 @@ toolbarbutton#cliqz-cc-btn {
     }
 
     #urlbar {
-        background-color: #bec9d7 !important;
+        background-color: $url-bar-bg-private-color !important;
     }
 }
 
