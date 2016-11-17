@@ -133,14 +133,14 @@ export default class {
     this.linksRecorded[url] = now;
     return Promise.all([
 
-      core.getCookie(url).then(
+      core.actions.getCookie(url).then(
         cookie => self.cookiesFromDom[url] = cookie
       ),
 
       Promise.all([
-        core.queryHTML(url, 'a[href]', 'href'),
-        core.queryHTML(url, 'link[href]', 'href'),
-        core.queryHTML(url, 'script[src]', 'src').then(function (hrefs) {
+        core.actions.queryHTML(url, 'a[href]', 'href'),
+        core.actions.queryHTML(url, 'link[href]', 'href'),
+        core.actions.queryHTML(url, 'script[src]', 'src').then(function (hrefs) {
           return hrefs.filter( href => href.indexOf('http') === 0 );
         }),
       ]).then(function (reflinks) {

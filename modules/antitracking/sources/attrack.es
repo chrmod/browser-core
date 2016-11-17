@@ -16,7 +16,6 @@ import QSWhitelist from 'antitracking/qs-whitelists';
 import BlockLog from 'antitracking/block-log';
 import { utils, events } from 'core/cliqz';
 import ResourceLoader from 'core/resource-loader';
-import core from 'core/background';
 import { compressionAvailable, compressJSONToBase64, generatePayload } from 'antitracking/utils';
 import * as browser from 'platform/browser';
 import WebRequest from 'core/webrequest';
@@ -34,6 +33,14 @@ import CookieContext from 'antitracking/steps/cookie-context';
 import TrackerProxy from 'antitracking/steps/tracker-proxy';
 
 var countReload = false;
+
+function queryHTML(...args) {
+  return utils.callAction('core', 'queryHTML', args);
+}
+
+function getCookie(...args) {
+  return utils.callAction('core', 'getCookie', args);
+}
 
 var CliqzAttrack = {
     VERSION: '0.97',

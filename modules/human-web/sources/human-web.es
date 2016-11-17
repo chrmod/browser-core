@@ -1,6 +1,5 @@
 import CliqzEvents from "core/events";
 import CliqzBloomFilter from "human-web/bloom-filter";
-import core from "core/background";
 import { utils } from "core/cliqz";
 import md5 from "core/helpers/md5";
 import ResourceLoader from 'core/resource-loader';
@@ -40,6 +39,10 @@ function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getHTML(...args) {
+  return utils.callAction('core', 'getHTML', args);
 }
 
 var CliqzHumanWeb = {
@@ -1459,7 +1462,7 @@ var CliqzHumanWeb = {
       ];
 
       function getDoc(url) {
-        return core.getHTML(url).then( docs => {
+        return getHTML(url).then( docs => {
           const doc = docs[0];
           if (doc) {
             return doc;

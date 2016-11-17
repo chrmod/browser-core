@@ -1,7 +1,12 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+
   cliqz: Ember.inject.service(),
+  notifications: Ember.inject.service(),
+
+  classNames: ['speed-dial'],
+  classNameBindings: ['model.hasNewNotifications:new-notifications'],
 
   click(ev) {
     this.get('cliqz').sendTelemetry({
@@ -11,7 +16,23 @@ export default Ember.Component.extend({
       target_index: this.get('index')
     });
   },
+
   actions: {
+    enableNotifications() {
+      const model = this.get('model');
+      this.get('notifications').enableNotifications(model);
+    },
+
+    disableNotifications() {
+      const model = this.get('model');
+      this.get('notifications').disableNotifications(model);
+    },
+
+    activateNotification() {
+      const model = this.get('model');
+      this.get('notifications').activateNotification(model);
+    },
+
     remove() {
       this.sendAction("removeAction", this.get('model'));
     },
