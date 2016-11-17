@@ -144,7 +144,7 @@ export class EventHandler {
   subscribeAllHttpReq(cb) {
     this.callbacksMap['http_req_all'].push(cb);
   }
-  unsuscribeAllHttpReq(cb) {
+  unsubscribeAllHttpReq(cb) {
     this._unsubscribeCallback('http_req_all', cb);
   }
 

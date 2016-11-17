@@ -1,6 +1,6 @@
 var tlmTimer = 0;
-const MIN_WIDTH = 1050;
-const MIN_HEIGHT = 700;
+const MIN_WIDTH = 1100;
+const MIN_HEIGHT = 768;
 
 var tlmTimerFn = function () {
   setTimeout(function () {
@@ -89,6 +89,12 @@ function step1() {
     target: 'page',
     resumed: 'false'
   });
+
+  window.postMessage(JSON.stringify({
+    target: 'cliqz',
+    module: 'onboarding-v2',
+    action: 'step1'
+  }), '*');
 
   //=== STEP 1 Tooltip Trigger
   openTooltip1 = setTimeout(function () {

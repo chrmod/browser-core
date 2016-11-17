@@ -16,7 +16,7 @@ function loadTestCases(path) {
   const testCases = [];
 
   // Parse test cases
-  loadLinesFromFile(path).forEach(line => {
+  loadLinesFromFile(path).forEach((line) => {
     try {
       const testCase = JSON.parse(line);
       testCases.push(testCase);
@@ -55,7 +55,7 @@ export default describeModule('adblocker/filters-engine',
         deserializeEngine = this.module().deserializeFiltersEngine;
       });
 
-      loadTestCases(matchingPath).forEach(testCase => {
+      loadTestCases(matchingPath).forEach((testCase) => {
         it(`matches ${testCase.filter} correctly`,
            () => new Promise((resolve, reject) => {
              // Create filter engine with only one filter
@@ -65,13 +65,13 @@ export default describeModule('adblocker/filters-engine',
              }]);
 
              // Serialize and deserialize engine
-             const serialized = serializeEngine(engine);
+             const serialized = JSON.stringify(serializeEngine(engine, true));
              engine = new FilterEngine();
-             deserializeEngine(engine, serialized);
+             deserializeEngine(engine, JSON.parse(serialized), true);
 
              // Check should match
              try {
-               if (!engine.match(testCase)) {
+               if (!engine.match(testCase).match) {
                  reject(`Expected ${testCase.filter} to match ${testCase.url}`);
                }
                resolve();
@@ -97,7 +97,7 @@ export default describeModule('adblocker/filters-engine',
 
       // Load filters
       const filters = [];
-      testCases.forEach(testCase => {
+      testCases.forEach((testCase) => {
         filters.push(testCase.filter);
       });
 
@@ -107,21 +107,31 @@ export default describeModule('adblocker/filters-engine',
           serializeEngine = this.module().serializeFiltersEngine;
           deserializeEngine = this.module().deserializeFiltersEngine;
           engine = new FilterEngine();
-          engine.onUpdateFilters([{ filters }]);
+
+          // Try update mechanism of filter engine
+          engine.onUpdateFilters([{ filters, asset: 'list1', checksum: 1 }]);
+          engine.onUpdateFilters([{ filters, asset: 'list2', checksum: 1 }]);
+          engine.onUpdateFilters([{ filters, asset: 'list1', checksum: 2 }]);
+          engine.onUpdateFilters([{ filters: [], asset: 'list2', checksum: 2 }]);
 
           // Serialize and deserialize engine
-          const serialized = serializeEngine(engine);
+          const serialized = JSON.stringify(serializeEngine(engine, true));
           engine = new FilterEngine();
-          deserializeEngine(engine, serialized);
+          deserializeEngine(engine, JSON.parse(serialized, true));
+
+          // Try to update after deserialization
+          engine.onUpdateFilters([{ filters, asset: 'list3', checksum: 1 }]);
+          engine.onUpdateFilters([{ filters, asset: 'list1', checksum: 3 }]);
+          engine.onUpdateFilters([{ filters: [], asset: 'list3', checksum: 2 }]);
         }
       });
 
-      loadTestCases(matchingPath).forEach(testCase => {
+      loadTestCases(matchingPath).forEach((testCase) => {
         it(`${testCase.filter} matches correctly against full engine`,
            () => new Promise((resolve, reject) => {
              // Check should match
              try {
-               if (!engine.match(testCase)) {
+               if (!engine.match(testCase).match) {
                  reject(`Expected ${testCase.filter} to match ${testCase.url}`);
                }
                resolve();
@@ -153,24 +163,72 @@ export default describeModule('adblocker/filters-engine',
           engine.onUpdateFilters([{ filters: loadLinesFromFile(filterListPath) }]);
 
           // Serialize and deserialize engine
-          const serialized = serializeEngine(engine);
+          const serialized = JSON.stringify(serializeEngine(engine, true));
           engine = new FilterEngine();
-          deserializeEngine(engine, serialized);
+          deserializeEngine(engine, JSON.parse(serialized), true);
         }
       });
 
-      loadTestCases(notMatchingPath).forEach(testCase => {
+      loadTestCases(notMatchingPath).forEach((testCase) => {
         it(`${testCase.url} does not match`,
            () => new Promise((resolve, reject) => {
              // Check should match
              try {
-               if (engine.match(testCase)) {
+               if (engine.match(testCase).match) {
                  reject(`Expected to *not* match ${testCase.url}`);
                }
                resolve();
              } catch (ex) {
                reject(`Encountered exception ${ex} while matching ` +
                  `${testCase.filter} against ${testCase.url}`);
+             }
+           })
+         );
+      });
+    });
+
+    describe('Test filter engine should redirect', () => {
+      let FilterEngine;
+      let serializeEngine;
+      let deserializeEngine;
+      let engine = null;
+      const filterListPath = 'modules/adblocker/tests/unit/data/filters_list.txt';
+      const notMatchingPath = 'modules/adblocker/tests/unit/data/filters_redirect.txt';
+      const resourcesPath = 'modules/adblocker/tests/unit/data/resources.txt';
+
+      beforeEach(function initializeFilterEngine() {
+        if (engine === null) {
+          this.timeout(10000);
+          FilterEngine = this.module().default;
+          serializeEngine = this.module().serializeFiltersEngine;
+          deserializeEngine = this.module().deserializeFiltersEngine;
+
+          engine = new FilterEngine();
+          engine.onUpdateFilters([{ filters: loadLinesFromFile(filterListPath) }]);
+
+          // Serialize and deserialize engine
+          const serialized = JSON.stringify(serializeEngine(engine, true));
+          engine = new FilterEngine();
+          deserializeEngine(engine, JSON.parse(serialized), true);
+          engine.onUpdateResource([{ filters: loadLinesFromFile(resourcesPath) }]);
+        }
+      });
+
+      loadTestCases(notMatchingPath).forEach((testCase) => {
+        it(`${testCase.url} redirected`,
+           () => new Promise((resolve, reject) => {
+             // Check should match
+             try {
+               const result = engine.match(testCase);
+               if (result.redirect !== testCase.redirect) {
+                 reject(`Expected to redirect to ${testCase.redirect} instead` +
+                        ` of ${result.redirect} for ${testCase.url}`);
+               }
+               resolve();
+             } catch (ex) {
+               console.log(ex.stack);
+               reject(`Encountered exception ${ex} while checking redirect ` +
+                 `${testCase.redirect} against ${testCase.url}`);
              }
            })
          );

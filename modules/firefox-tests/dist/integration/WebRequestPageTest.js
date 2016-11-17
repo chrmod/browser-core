@@ -93,7 +93,7 @@ TESTS.WebRequestPageTest = function(CliqzUtils) {
     }
 
     function isTestServerAddress(u) {
-      return !u.endsWith('favicon.ico') && ['localhost', '127.0.0.1', 'cliqztest.de'].some( function(d) {
+      return u.indexOf('favicon.ico') === -1 && ['localhost', '127.0.0.1', 'cliqztest.de'].some( function(d) {
         return u.startsWith('http://' + d + ':' + testServer.port);
       });
     }

@@ -11,20 +11,24 @@
     "channel": "40",
     "antitrackingButton": true,
     "helpMenus": true,
-    "showNewBrandAlert": true
+    "showNewBrandAlert": true,
+    "onBoardingVersion": "2.0"
+  },
+  "default_prefs" : {
+    "modules.context-search.enabled": false
   },
   "modules": [
     "core",
     "firefox-specific",
     "static",
     "notifications",
+    "context-search",
     "autocomplete",
     "geolocation",
     "ui",
     "human-web",
     "anti-phishing",
     "context-menu",
-    "onboarding",
     "freshtab",
     "unblock",
     "theme",

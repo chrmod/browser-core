@@ -2,6 +2,11 @@
 # Options
 ###############################################################################
 
+############
+# Redirect #
+{"filter": "||cliqz.com$redirect=blackhole.js", "compiled": {"supported": true, "redirect": "blackhole.js"}}
+{"filter": "||cliqz.com$~redirect", "compiled": {"supported": false}}
+
 #############
 # matchCase #
 # > True    #
@@ -173,9 +178,6 @@
 
 ##############################################################
 # supported / not supported (unsupported options) #
-# > Redirect
-{"filter": "||cliqz.com$redirect", "compiled": {"supported": false}}
-{"filter": "||cliqz.com$~redirect", "compiled": {"supported": false}}
 # > generichide
 {"filter": "||cliqz.com$generichide", "compiled": {"supported": false}}
 {"filter": "||cliqz.com$~generichide", "compiled": {"supported": false}}

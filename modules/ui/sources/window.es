@@ -5,6 +5,7 @@ import CliqzEvents from "core/events";
 import SearchHistory from "./search-history";
 import { addStylesheet, removeStylesheet } from "../core/helpers/stylesheet";
 import System from 'system';
+import dns from "platform/dns";
 
 function initPopup(popup, win) {
   //patch this method to avoid any caching FF might do for components.xml
@@ -72,6 +73,7 @@ export default class {
 
     Services.scriptloader.loadSubScript(System.baseURL + 'ui/UI.js', this.window);
     this.window.CLIQZ.UI.preinit(autocomplete, CliqzHandlebars, CliqzEvents);
+    this.window.CLIQZ.UI.preinit(autocomplete, CliqzHandlebars, CliqzEvents, dns);
     Services.scriptloader.loadSubScript(System.baseURL + 'ui/ContextMenu.js', this.window);
     //create a new panel for cliqz to avoid inconsistencies at FF startup
     var document = this.window.document,

@@ -2,26 +2,16 @@ var expect = chai.expect;
 
 var contentWindow, fakeServer;
 
-function cliqzResponse(query, results, extra) {
+function cliqzResponse(query, results) {
   var results = JSON.stringify({
-    "cached": false,
-    "choice": "type1",
-    "completions": null,
-    "country": "de",
-    "duration": 52,
-    "extra": {
-      "durationTotal": 9,
-      "vertical_name": "extra",
-      "results": extra
-    },
-    "navigational": false,
-    "q": query,
-    "result": results
+    q: query,
+    results: results,
+    schema_valid: true
   });
 
   fakeServer.respondWith(
     "GET",
-    new RegExp("^https:\/\/newbeta.cliqz.com\/api\/v1\/results\\?q="+encodeURIComponent(query)),
+    new RegExp(".*api\/v2\/results.*"),
     [ 200, { "Content-Type": "application/json" }, results ]
   );
 }
@@ -29,34 +19,53 @@ function cliqzResponse(query, results, extra) {
 
 function newsResponse(articles) {
   var response = JSON.stringify({
+    "q": "",
     "results": [
       {
-        "q": "",
-        "news_version": 1455885880,
-        "subType": "{\"class\": \"FreshTabNewsCache\", \"ez\": \"deprecated\"}",
-        "trigger_urls": [
+        "url": "rotated-top-news.cliqz.com",
+        "trigger_method": "url",
+        "snippet": {
+          "friendlyUrl": "rotated-top-news.cliqz.com",
+          "extra": {
+            "news_version": 1473768540,
+            "articles": [
+              {
+                "domain": "tagesschau.de",
+                "breaking": false,
+                "description": "Sollte Ungarn wegen seines Umgangs mit Fl\\u00fcchtlingen aus der EU ausgeschlossen werden? Ja, findet Luxemburgs Au\\u00dfenminister Asselborn. Nein, meint Bundesau\\u00dfenminister Steinmeier. In wenigen Tagen treffen sich 27 EU-Staats- und Regierungschefs in Bratislava.",
+                "title": "Steinmeier ist gegen EU-Ausschluss Ungarns",
+                "url": "https://www.tagesschau.de/ausland/asselborn-ungarn-103.html",
+                "media": "https://www.tagesschau.de/multimedia/bilder/steinmeier-259~_v-videowebm.jpg",
+                "amp_url": "http://www.tagesschau.de/ausland/asselborn-ungarn-103~amp.html",
+                "mobile_url": "",
+                "short_title": "Steinmeier ist gegen EU-Ausschluss Ungarns"
+              }
+            ],
+            "template": "hb-news",
+            "last_update": 1473771022
+          }
+        },
+        "subType": {
+          "class": "FreshTabNewsCache",
+          "id": "5796769761289695642",
+          "name": "Rotated Top News"
+        },
+        "trigger": [
 
         ],
-        "articles": [
-          {
-            "domain": "www.focus.de",
-            "is_global": false,
-            "description": "",
-            "title": "USA bombardieren IS-St\u00fctzpunkt in Libyen",
-            "url": "http:\/\/www.focus.de\/politik\/ausland\/kampf-gegen-terrormiliz-medienbericht-usa-bombardieren-is-stuetzpunkt-in-libyen_id_5299559.html",
-            "short_title": "USA bombardieren IS-St\u00fctzpunkt in Libyen"
-          }
-        ]
+        "type": "rh"
       }
-    ]
+    ],
+    "schema_valid": true
   });
 
   fakeServer.respondWith(
-    "GET",
-    new RegExp(".*rich-header.*"),
+    "PUT",
+    new RegExp(".*api\/v2\/rich-header.*"),
     [ 200, { "Content-Type": "application/json" }, response ]
   );
 }
+
 
 function $(selector) {
   return contentWindow.document.querySelectorAll(selector)

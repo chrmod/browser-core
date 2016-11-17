@@ -50,6 +50,22 @@ export default {
     return '';
   },
 
+  logic(lvalue, operator, rvalue, options) {
+      switch(operator) {
+          case "|":           return lvalue | rvalue;
+          case "||":          return lvalue || rvalue;
+          case "&":           return lvalue & rvalue;
+          case "&&":          return lvalue && rvalue;
+          case "^":           return lvalue ^ rvalue;
+          case "is":          return lvalue == rvalue;
+          case "starts_with": return lvalue.indexOf(rvalue) == 0;
+          case "===":         return lvalue === rvalue;
+          case "!=":          return lvalue != rvalue;
+          case "<":           return lvalue < rvalue;
+          case ">":           return lvalue > rvalue;
+      }
+  },
+
   debug() {
     /* eslint-disable */
     console.log("%c Template Data " + this.vertical + " ","color:#fff;background:green",this);

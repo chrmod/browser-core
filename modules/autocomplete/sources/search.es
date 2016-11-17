@@ -1,5 +1,4 @@
 import { utils, events } from "core/cliqz";
-import environment from "platform/environment";
 import { isFirefox } from "core/platform";
 import SmartCliqzCache from 'autocomplete/smart-cliqz-cache/smart-cliqz-cache';
 import TriggerUrlCache from 'autocomplete/smart-cliqz-cache/trigger-url-cache';
@@ -61,8 +60,7 @@ class ProviderAutoCompleteResultCliqz {
 
   setResults(results){
 
-      this._results = this.filterUnexpected(results);
-
+      this._results = results;
       CliqzAutocomplete.lastResult = this;
       events.pub('autocomplete.new_result', { result: this, isPopupOpen: CliqzAutocomplete.isPopupOpen });
       var order = CliqzAutocomplete.getResultsOrder(this._results);
@@ -72,28 +70,6 @@ class ProviderAutoCompleteResultCliqz {
       this.isMixed = true;
   }
 
-  filterUnexpected(results){
-      // filter out ununsed/unexpected results
-      var ret=[];
-      for(var i=0; i < results.length; i++){
-          var r = results[i];
-          if(r.style == 'cliqz-extra'){
-              if(r.data){
-                  // override the template if the superTemplate is known
-                  if(environment.isUnknownTemplate(r.data.template)){
-                      // unexpected/unknown template
-                      continue;
-                  }
-              }
-          }
-          // If one of the results is data.only = true Remove all others.
-          // if (!r.invalid && r.data && r.data.only) {
-          //  return [r];
-          //}
-          ret.push(r);
-      }
-      return ret;
-  }
 }
 
 export default class Search {
@@ -121,7 +97,6 @@ export default class Search {
   }
 
   search(searchString, callback) {
-
       CliqzAutocomplete.lastQueryTime = Date.now();
       CliqzAutocomplete.lastDisplayTime = null;
       CliqzAutocomplete.lastResult = null;
@@ -190,11 +165,10 @@ export default class Search {
           utils.telemetry(action);
           this.spellCheck.state.on = true;
           searchString = newSearchString;
-          this.spellCheck.state['userConfirmed'] = false;
+          this.spellCheck.state.userConfirmed = false;
       }
 
       this.cliqzResults = null;
-      this.cliqzResultsExtra = null;
       this.cliqzResultsParams = { };
       this.cliqzCache = null;
       this.historyResults = null;
@@ -221,7 +195,6 @@ export default class Search {
       this.createInstantResultCallback = this.createInstantResultCallback.bind(this);
       historyCluster.historyCallback = this.historyPatternCallback;
       if(searchString.trim().length){
-
           this.getSearchResults(searchString).then(this.cliqzResultFetcher);
 
           // if spell correction, no suggestions
@@ -246,19 +219,14 @@ export default class Search {
           this.resultsTimer = utils.setTimeout(this.pushTimeoutCallback, utils.RESULTS_TIMEOUT, this.searchString);
       } else {
           this.cliqzResults = [];
-          this.cliqzResultsExtra = [];
-          CliqzAutocomplete.resetSpellCorr();
+          CliqzAutocomplete.spellCheck.resetState();
       }
-
-      // trigger history search
-      utils.historySearch(
-          searchString,
-          this.onHistoryDone.bind(this),
-          CliqzAutocomplete.sessionStart);
 
       utils.clearTimeout(this.historyTimer);
       this.historyTimer = utils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
       this.historyTimeout = false;
+      // trigger history search
+      utils.historySearch(searchString, this.onHistoryDone.bind(this));
 
       var hist_search_type = utils.getPref('hist_search_type', 0);
       if (hist_search_type != 0) {
@@ -270,12 +238,13 @@ export default class Search {
 
   cliqz_hm_search(_this, res, hist_search_type) {
       var data = null;
+      var query = res.query || res.q; // query will be called q if RH is down
       if (hist_search_type === 1) {
-        data = CliqzUtils.hm.do_search(res.query, false);
+        data = CliqzUtils.hm.do_search(query, false);
         data['cont'] = null;
       }
       else {
-        data = CliqzUtils.hm.do_search(res.query, true);
+        data = CliqzUtils.hm.do_search(query, true);
       }
 
       var urlAuto = CliqzUtils.hm.urlForAutoLoad(data);
@@ -324,10 +293,10 @@ export default class Search {
       }
 
       if(patterns.length >0){
-        var res3 = historyCluster._simplePreparePatterns(patterns, res.query);
+        var res3 = historyCluster._simplePreparePatterns(patterns, query);
         // This is also causing undefined issue. Specifically when the res.length == 0;
         if(res3.results.length == 0){
-          res3.results.push({"url": res.query,"title": "Found no result in local history for query: ","favicon": "","_genUrl": "","base": true,"debug": ""})
+          res3.results.push({"url": query,"title": "Found no result in local history for query: ","favicon": "","_genUrl": "","base": true,"debug": ""})
         }
         historyCluster.simpleCreateInstantResult(res3, cont,  _this.searchString, function(kk2) {
           var vjoin = [];
@@ -342,7 +311,7 @@ export default class Search {
 
     const beforeResults = Promise.all(
       utils.RERANKERS.map(reranker => {
-        const promise = reranker.beforeResults || Promise.resolve.bind(Promise);
+        const promise = reranker.beforeResults ? reranker.beforeResults.bind(reranker) : Promise.resolve.bind(Promise);
         return timeout(
           promise({query: searchString}),
           this.rerankerTimeouts.before
@@ -352,7 +321,7 @@ export default class Search {
 
     const duringResults = beforeResults.then(resultsArray => {
       const duringResultsPromises = utils.RERANKERS.map((reranker, idx) => {
-        const promise = reranker.duringResults || Promise.resolve.bind(Promise);
+        const promise = reranker.duringResults ? reranker.duringResults.bind(reranker) : Promise.resolve.bind(Promise);
         return timeout(
           promise(resultsArray[idx]),
           this.rerankerTimeouts.during
@@ -403,7 +372,7 @@ export default class Search {
       }
   }
 
-  onHistoryDone(result, resultExtra) {
+  onHistoryDone(result) {
       if(!this.startTime) {
           return; // no current search, just discard
       }
@@ -428,14 +397,15 @@ export default class Search {
   }
 
   historyPatternCallback(res) {
-    // abort if we already have results
+      // abort if we already have results
+    var query = res.query || res.q; // query will be called q if RH is down
     if(this.mixedResults.matchCount > 0) return;
 
-    if (res.query == this.searchString) {
+    if (query == this.searchString) {
       CliqzAutocomplete.lastPattern = res;
       var latency = 0;
-      if (historyCluster.latencies[res.query]) {
-          latency = (new Date()).getTime() - historyCluster.latencies[res.query];
+      if (historyCluster.latencies[query]) {
+        latency = (new Date()).getTime() - historyCluster.latencies[query];
       }
       this.latency.patterns = latency;
       // Create instant result
@@ -458,112 +428,181 @@ export default class Search {
   }
 
   pushTimeoutCallback(params) {
-      utils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
-      this.pushResults(params);
+    utils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
+    this.pushResults(params);
   }
 
   // checks if all the results are ready or if the timeout is exceeded
   pushResults(q) {
-    if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
-      var now = Date.now();
-      if((now > this.startTime + utils.RESULTS_TIMEOUT) ||
-       (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
-       this.cliqzResults) { // all results are ready
-        /// Push full result
-        utils.clearTimeout(this.resultsTimer);
-        utils.clearTimeout(this.historyTimer);
+      if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
+        var now = Date.now();
 
-        this.mixResults(false);
+        if((now > this.startTime + utils.RESULTS_TIMEOUT) ||
+           (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
+            this.cliqzResults) { // all results are ready
+          /// Push full result
+          utils.clearTimeout(this.resultsTimer);
+          utils.clearTimeout(this.historyTimer);
+          this.prepareResults(q);
+          this.mixResults(false);
 
-        this.latency.mixed = Date.now() - this.startTime;
+          this.latency.mixed = Date.now() - this.startTime;
 
-        this.callback(this.mixedResults, this);
+          this.callback(this.mixedResults, this);
 
-        this.latency.all = Date.now() - this.startTime;
+          this.latency.all = Date.now() - this.startTime;
 
-        // delay wrapping to make sure rendering is complete
-        // otherwise we don't get up to date autocomplete stats
-        utils.setTimeout(this.fullWrapup, 0, this);
+          // delay wrapping to make sure rendering is complete
+          // otherwise we don't get up to date autocomplete stats
+          utils.setTimeout(this.fullWrapup.bind(this), 0, this);
 
-        return;
-      } else if(this.isHistoryReady()) {
-        /// Push instant result
-        this.latency.mixed = Date.now() - this.startTime;
+          return;
+        } else if(this.isHistoryReady()) {
+          /// Push instant result
+          this.latency.mixed = Date.now() - this.startTime;
+          this.prepareResults(q);
+          this.mixResults(true);
 
-        this.mixResults(true);
+          // try to update as offen as possible if new results are ready
+          // TODO - try to check if the same results are currently displaying
+          this.mixedResults.matchCount && this.callback(this.mixedResults, this);
 
-        // try to update as offen as possible if new results are ready
-        // TODO - try to check if the same results are currently displaying
-        this.mixedResults.matchCount && this.callback(this.mixedResults, this);
+          this.latency.all = Date.now() - this.startTime;
 
-        this.latency.all = Date.now() - this.startTime;
-
-        // Do partial wrapup, final wrapup will happen after all results are received
-        utils.setTimeout(this.instantWrapup, 0, this);
-      } else {
-          /// Nothing to push yet, probably only cliqz results are received, keep waiting
-      }
+          // Do partial wrapup, final wrapup will happen after all results are received
+          utils.setTimeout(this.instantWrapup, 0, this);
+        } else {
+            /// Nothing to push yet, probably only cliqz results are received, keep waiting
+        }
     }
   }
 
+  loadIncompleteResults(resp, q, attemptsSoFar) {
+    if (attemptsSoFar > this.REFETCH_MAX_ATTEMPTS) {
+      return;
+    }
+
+    var json = JSON.parse(resp),
+        incompleteResults = {};
+    json.results.forEach(function(r, i) {
+      if (r._incomplete) {
+        var key = r.trigger_method == 'query' ? 'query': r.url;
+        incompleteResults[key] = {
+          index: i,
+          result: r
+        };
+      }
+    });
+
+    if (Object.keys(incompleteResults).length > 0) {
+      this.waitingForPromise = true;
+      var data = JSON.stringify({
+        q: q,
+        results: Object.keys(incompleteResults).map(k=>incompleteResults[k]).filter(
+          r => this.isReadyToRender(r.result)
+        ).map(
+          r => ({
+            snippet: r.result.snippet,
+            template: r.result.template,
+            url: r.result.url
+          })
+        )
+      });
+      var url = utils.RICH_HEADER + utils.getRichHeaderQueryString(q);
+
+
+      utils.httpPut(url, (req) => {
+        var resp = JSON.parse(req.response);
+        var newResultSetIndex = {};
+        resp.results.forEach(function(result) {
+          var key = result.trigger_method == 'query' ? 'query': result.url;
+          var oldRes = incompleteResults[key];
+          newResultSetIndex[key] = result;
+          if (oldRes) {
+            json.results[oldRes.index] = result;
+          }
+        });
+        /* We need to remove results that were promised, but didn't arrive */
+        Object.keys(incompleteResults).forEach(function(key) {
+          if (newResultSetIndex[key] == undefined) {
+            json.results.splice(incompleteResults[key].index, 1);
+          }
+        });
+        /*
+           Now json.results contains only ready results & NEW promises
+           (promises from the previous result set were removed)
+        */
+        this.waitingForPromise = false;
+        this.cliqzResultFetcher({response: json, query: q}, attemptsSoFar);
+      }, data);
+    }
+  }
+
+  isReadyToRender(result) {
+    /*
+      RH promises that were triggered by query should not be rendered
+      immediately. The ones that were triggered by the BM url can be
+      rendered as a generic result.
+    */
+    return result && result.url != 'n/a' && !(
+      result._incomplete &&
+      result.type == 'rh'  &&
+      result.trigger_method == 'query'
+    );
+  }
+
+  enhanceResult(r, i) {
+    var subType = r.subType || {};
+    if (r.type == 'rh') {
+      subType.trigger_method = 'rh_query';
+      delete subType.id;
+      delete subType.name;
+      subType.ez = 'deprecated';
+    }
+    subType.i = i;
+    r.subType = subType;
+    return r;
+  }
 
   // handles fetched results from the cache
-  cliqzResultFetcher(res) {
+  cliqzResultFetcher(res, attemptsSoFar) {
       var json = res.response,
-          q = res.query;
+          q = res.query || res.q; // query will be called q if RH is down
       // be sure this is not a delayed result
       if(q != this.searchString) {
           this.discardedResults += 1; // count results discarded from backend because they were out of date
       } else {
           this.latency.backend = Date.now() - this.startTime;
-          var results = [];
-
+          setTimeout(this.loadIncompleteResults.bind(this), 0,
+                     JSON.stringify(json),
+                     q,
+                     (attemptsSoFar || 0) + 1);
+          json.results = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
+          this.cliqzResults = json.results;
           utils.log(json.results ? json.results.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
-
-          results = json.results || [];
-
-          this.cliqzResultsExtra = [];
-
-          if(json.images && json.images.results && json.images.results.length >0){
-              var imgs = json.images.results.filter(function(r){
-                  //ignore empty results
-                  return Object.keys(r).length != 0;
-              });
-
-              this.cliqzResultsExtra =imgs.map(Result.cliqzExtra);
-          }
-
-          var hasExtra = function(el){
-              if(!el || !el.results || el.results.length == 0) return false;
-              el.results = el.results.filter(function(r){
-                  //ignore empty results
-                  return r.hasOwnProperty('url');
-              });
-
-              return el.results.length != 0;
-          };
-
-          if(hasExtra(json.extra)) {
-              this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
-          }
-          this.latency.cliqz = json.duration;
-
-          this.cliqzResults = results.filter(function(r){
-              // filter results with no or empty url
-              return r.url != undefined && r.url != '';
-          });
 
           this.cliqzResultsParams = {
             choice: json.choice,
           };
+          this.latency.cliqz = json.duration;
       }
       this.pushResults(q);
   }
 
-  createFavicoUrl(url){
-      return 'http://cdnfavicons.cliqz.com/' +
-              url.replace('http://','').replace('https://','').split('/')[0];
+  prepareResults(q) {
+    this.instant = (this.instant || []).map(function(r) {
+      r = Result.clone(r);
+      if (!r.data.template || utils.isUnknownTemplate(r.data.template)) {
+        r.data.template = 'generic';
+      }
+      return r;
+    });
+
+    this.cliqzResults = (this.cliqzResults || []).map(function(r, i) {
+      return Result.cliqz(r, q);
+    });
   }
+
 
   // mixes backend results, entity zones, history and custom results
   mixResults(only_instant) {
@@ -576,83 +615,82 @@ export default class Search {
     var results = this.mixer.mix(
                 this.searchString,
                 this.cliqzResults,
-                this.cliqzResultsExtra,
                 this.instant,
                 this.customResults,
                 only_instant
         );
     CliqzAutocomplete.lastResultIsInstant = only_instant;
     CliqzAutocomplete.afterQueryCount = 0;
-
     this.mixedResults.setResults(results);
+
   }
 
-  analyzeQuery(q) {
-    var parts = this.resultProviders.getCustomResults(q);
-    this.customResults = parts[1];
-    return parts[0];
+  analyzeQuery(q){
+      var parts = this.resultProviders.getCustomResults(q);
+      this.customResults = parts[1];
+      return parts[0];
   }
 
   sendResultsSignal(obj, instant) {
-    var results = obj.mixedResults._results;
-    var action = {
-      type: 'activity',
-      action: 'results',
-      query_length: CliqzAutocomplete.lastSearch.length,
-      result_order: CliqzAutocomplete.prepareResultOrder(results),
-      instant: instant,
-      popup: CliqzAutocomplete.isPopupOpen ? true : false,
-      latency_cliqz: obj.latency.cliqz,
-      latency_history: obj.historyTimeout ? null : obj.latency.history,
-      latency_patterns: obj.latency.patterns,
-      latency_backend: obj.latency.backend,
-      latency_mixed: obj.latency.mixed,
-      latency_all: obj.startTime? Date.now() - obj.startTime : null,
-      discarded: obj.discardedResults,
-      user_rerankers: obj.userRerankers,
-      backend_params: obj.cliqzResultsParams,
-      v: 1
-    };
+      var results = obj.mixedResults._results;
+      var action = {
+          type: 'activity',
+          action: 'results',
+          query_length: CliqzAutocomplete.lastSearch.length,
+          result_order: CliqzAutocomplete.prepareResultOrder(results),
+          instant: instant,
+          popup: CliqzAutocomplete.isPopupOpen ? true : false,
+          latency_cliqz: obj.latency.cliqz,
+          latency_history: obj.historyTimeout ? null : obj.latency.history,
+          latency_patterns: obj.latency.patterns,
+          latency_backend: obj.latency.backend,
+          latency_mixed: obj.latency.mixed,
+          latency_all: obj.startTime? Date.now() - obj.startTime : null,
+          discarded: obj.discardedResults,
+          user_rerankers: obj.userRerankers,
+          backend_params: obj.cliqzResultsParams,
+          v: 1
+      };
 
-    // reset count of discarded backend results
-    obj.discardedResults = 0;
+      // reset count of discarded backend results
+      obj.discardedResults = 0;
 
-    if (CliqzAutocomplete.lastAutocompleteActive) {
-      action.autocompleted = CliqzAutocomplete.lastAutocompleteActive;
-      action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
-    }
+      if (CliqzAutocomplete.lastAutocompleteActive) {
+        action.autocompleted = CliqzAutocomplete.lastAutocompleteActive;
+        action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
+      }
 
-    if (action.result_order.indexOf('C') > -1 && utils.getPref('logCluster', false)) {
-      action.Ctype = utils.getClusteringDomain(results[0].val);
-    }
+      if (action.result_order.indexOf('C') > -1 && utils.getPref('logCluster', false)) {
+          action.Ctype = utils.getClusteringDomain(results[0].val);
+      }
 
-    if (CliqzAutocomplete.isPopupOpen) {
-      // don't mark as done if popup closed as the user does not see anything
-      CliqzAutocomplete.markResultsDone(Date.now());
-    }
+      if (CliqzAutocomplete.isPopupOpen) {
+          // don't mark as done if popup closed as the user does not see anything
+          CliqzAutocomplete.markResultsDone(Date.now());
+      }
 
-    // remembers if the popup was open for last result
-    CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
-    if (results.length > 0) {
-        CliqzAutocomplete.lastDisplayTime = Date.now();
-    }
-    utils.telemetry(action);
+      // remembers if the popup was open for last result
+      CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
+      if (results.length > 0) {
+          CliqzAutocomplete.lastDisplayTime = Date.now();
+      }
+      utils.telemetry(action);
   }
 
   // Wrap up after a completed search
   fullWrapup(obj) {
+    if (!this.waitingForPromise) {
       obj.sendResultsSignal(obj, false);
-
       obj.startTime = null;
       utils.clearTimeout(obj.resultsTimer);
       utils.clearTimeout(obj.historyTimer);
       obj.resultsTimer = null;
       obj.historyTimer = null;
       obj.cliqzResults = null;
-      obj.cliqzResultsExtra = null;
       obj.cliqzCache = null;
       obj.historyResults = null;
       obj.instant = [];
+    }
   }
 
   // Wrap up after instant results are shown

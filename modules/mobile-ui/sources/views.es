@@ -4,7 +4,6 @@ import localDataSc from 'mobile-ui/views/local-data-sc';
 import generic from 'mobile-ui/views/generic';
 import hq from 'mobile-ui/views/hq';
 import stocks from 'mobile-ui/views/stocks';
-import weatherEZ from 'mobile-ui/views/weatherEZ';
 import liveTicker from 'mobile-ui/views/liveTicker';
 
 export default {
@@ -14,6 +13,5 @@ export default {
   generic,
   hq,
   stocks,
-  weatherEZ,
   liveTicker,
 };

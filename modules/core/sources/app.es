@@ -29,22 +29,34 @@ export default class {
     return this.modules().filter(module => module.isEnabled);
   }
 
+  setDefaultPrefs() {
+    if ('default_prefs' in config) {
+      Object.keys(config.default_prefs).forEach(pref => {
+        if (!prefs.has(pref)) {
+          console.log('App', 'set up preference', `"${pref}"`);
+          prefs.set(pref, config.default_prefs[pref]);
+        }
+      });
+    }
+  }
+
   load() {
+    console.log('App', 'Set up default parameters for new modules');
+    this.setDefaultPrefs();
     console.log('App', 'Loading modules started');
     const backgroundPromises = this.modules()
       .map(module => {
-        if ( shouldEnableModule(module.name)) {
+        if (shouldEnableModule(module.name)) {
           try {
             return module.enable()
               .catch(e => console.error('App', 'Error on loading module:', module.name, e));
           } catch (e) {
-
             console.error('App module:', `"${module.name}"`, ' -- something went wrong', e);
             return Promise.resolve();
           }
         } else {
           // TODO: should not be here
-          return System.import(module.name+'/background');
+          return System.import(module.name + '/background');
         }
       });
 
@@ -64,7 +76,7 @@ export default class {
     this.enabledModules().reverse().forEach(module => {
       try {
         console.log('App', 'unload background module: ', module.name);
-        module.disable({ quick })
+        module.disable({ quick });
       } catch (e) {
         console.error(`Error unloading module: ${module.name}`, e);
       }
@@ -91,7 +103,7 @@ export default class {
       return module.loadWindow(window)
         .catch(e => {
           console.error('App window', `Error loading module: ${module.name}`, e);
-        })
+        });
     });
 
     return Promise.all(windowModulePromises).then(() => {
@@ -167,7 +179,7 @@ export default class {
     }
 
     forEachWindow(module.unloadWindow.bind(module));
-    module.disable()
+    module.disable();
     prefs.set(`modules.${moduleName}.enabled`, false);
   }
 }
@@ -192,7 +204,7 @@ class Module {
       .then(() => {
         this.isEnabled = true;
         this.loadingTime = Date.now() - loadingStartedAt;
-        console.log('Module: ', this.name, ' -- Background loaded')
+        console.log('Module: ', this.name, ' -- Background loaded');
       });
   }
 
@@ -243,7 +255,7 @@ class Module {
     const win = new Window(window);
     console.log('Module window', `"${this.name}"`, 'unloading');
     window.CLIQZ.Core.windowModules[this.name].unload();
-    delete window.CLIQZ.Core.windowModules[this.name]
+    delete window.CLIQZ.Core.windowModules[this.name];
     delete this.windows[win.id];
     console.log('Module window', `"${this.name}"`, 'unloading finished');
   }

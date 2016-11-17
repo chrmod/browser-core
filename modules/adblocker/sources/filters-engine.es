@@ -5,7 +5,8 @@ import { log } from 'adblocker/utils';
 import parseList, { parseJSResource
                   , serializeFilter
                   , deserializeFilter } from 'adblocker/filters-parsing';
-import match from 'adblocker/filters-matching';
+import { matchNetworkFilter
+       , matchCosmeticFilter } from 'adblocker/filters-matching';
 
 
 const TOKEN_BLACKLIST = new Set([
@@ -143,7 +144,7 @@ class FuzzyIndex {
 
 
 function serializeFuzzyIndex(fi, serializeBucket) {
-  const index = {};
+  const index = Object.create(null);
   fi.index.forEach((value, key) => {
     index[key] = serializeBucket(value);
   });
@@ -158,7 +159,7 @@ function serializeFuzzyIndex(fi, serializeBucket) {
 
 function deserializeFuzzyIndex(fi, serialized, deserializeBucket) {
   const { index, indexOnlyOne, size } = serialized;
-  Object.keys(index).forEach(key => {
+  Object.keys(index).forEach((key) => {
     const value = index[key];
     fi.index.set(key, deserializeBucket(value));
   });
@@ -219,7 +220,7 @@ class FilterReverseIndex {
       const filter = list[i];
       if (!checkedFilters.has(filter.id)) {
         checkedFilters.add(filter.id);
-        if (match(filter, request)) {
+        if (matchNetworkFilter(filter, request)) {
           log(`INDEX ${this.name} MATCH ${filter.rawLine} ~= ${request.url}`);
           return filter;
         }
@@ -238,15 +239,16 @@ class FilterReverseIndex {
 
     for (const bucket of buckets) {
       log(`INDEX ${this.name} BUCKET => ${bucket.length}`);
-      if (this.matchList(request, bucket, checkedFilters) !== null) {
-        return true;
+      const result = this.matchList(request, bucket, checkedFilters);
+      if (result !== null) {
+        return result;
       }
     }
 
     log(`INDEX ${this.name} ${this.miscFilters.length} remaining filters checked`);
 
     // If no match found, check regexes
-    return this.matchList(request, this.miscFilters, checkedFilters) !== null;
+    return this.matchList(request, this.miscFilters, checkedFilters);
   }
 }
 
@@ -330,9 +332,12 @@ class FilterHostnameDispatch {
   push(filter) {
     ++this.size;
 
+    let inserted = false;
     if (filter.hostname !== null) {
-      this.hostnameAnchors.set(filter.hostname, filter);
-    } else {
+      inserted = this.hostnameAnchors.set(filter.hostname, filter);
+    }
+
+    if (!inserted) {
       this.filters.push(filter);
     }
   }
@@ -342,13 +347,14 @@ class FilterHostnameDispatch {
     for (const bucket of buckets) {
       if (bucket !== undefined) {
         log(`${this.name} bucket try to match hostnameAnchors (${domain}/${bucket.name})`);
-        if (bucket.match(request, checkedFilters)) {
-          return true;
+        const result = bucket.match(request, checkedFilters);
+        if (result !== null) {
+          return result;
         }
       }
     }
 
-    return false;
+    return null;
   }
 
   match(request, checkedFilters) {
@@ -356,13 +362,14 @@ class FilterHostnameDispatch {
       checkedFilters = new Set();
     }
 
-    if (this.matchWithDomain(request, request.hostname, checkedFilters)) {
-      return true;
+    let result = this.matchWithDomain(request, request.hostname, checkedFilters);
+    if (result === null) {
+      // Try to find a match with remaining filters
+      log(`${this.name} bucket try to match misc`);
+      result = this.filters.match(request, checkedFilters);
     }
 
-    // Try to find a match with remaining filters
-    log(`${this.name} bucket try to match misc`);
-    return this.filters.match(request, checkedFilters);
+    return result;
   }
 }
 
@@ -434,24 +441,24 @@ class FilterSourceDomainDispatch {
   match(request, checkedFilters) {
     // Check bucket for source domain
     const bucket = this.sourceDomainDispatch.get(request.sourceGD);
-    let foundMatch = false;
+    let result = null;
     if (bucket !== undefined) {
       log(`Source domain dispatch ${request.sourceGD} size ${bucket.length}`);
-      foundMatch = bucket.match(request, checkedFilters);
+      result = bucket.match(request, checkedFilters);
     }
 
-    if (!foundMatch) {
+    if (result === null) {
       log(`Source domain dispatch misc size ${this.miscFilters.length}`);
-      foundMatch = this.miscFilters.match(request, checkedFilters);
+      result = this.miscFilters.match(request, checkedFilters);
     }
 
-    return foundMatch;
+    return result;
   }
 }
 
 
 function serializeSourceDomainDispatch(sdd) {
-  const sourceDomainDispatch = {};
+  const sourceDomainDispatch = Object.create(null);
   sdd.sourceDomainDispatch.forEach((value, key) => {
     sourceDomainDispatch[key] = serializeFilterHostnameDispatch(value);
   });
@@ -519,7 +526,7 @@ class CosmeticBucket {
    * @param {Array} nodeInfo - Array of tuples [id, tagName, className].
   **/
   getMatchingRules(hostname, nodeInfo) {
-    const rules = [...this.miscFilters];
+    const rules = [...this.miscFilters.filter(filter => matchCosmeticFilter(filter, hostname))];
     const uniqIds = new Set();
 
     nodeInfo.forEach(node => {
@@ -527,7 +534,7 @@ class CosmeticBucket {
       node.forEach(token => {
         this.index.getFromKey(token).forEach(bucket => {
           bucket.forEach(rule => {
-            if (!uniqIds.has(rule.id)) {
+            if (!uniqIds.has(rule.id) && matchCosmeticFilter(rule, hostname)) {
               rules.push(rule);
               uniqIds.add(rule.id);
             }
@@ -605,7 +612,7 @@ function deserializeCosmeticBucket(serialized, filtersIndex) {
 
 
 class CosmeticEngine {
-  constructor() {
+  constructor(filters) {
     this.size = 0;
 
     this.miscFilters = new CosmeticBucket('misc');
@@ -615,6 +622,10 @@ class CosmeticEngine {
       },
       token => new CosmeticBucket(`${token}_cosmetics`)
     );
+
+    if (filters) {
+      filters.forEach(filter => this.push(filter));
+    }
   }
 
   get length() {
@@ -622,12 +633,17 @@ class CosmeticEngine {
   }
 
   push(filter) {
-    if (filter.hostnames.length === 0) {
-      this.miscFilters.push(filter);
-    } else {
+    let inserted = false;
+    this.size += 1;
+
+    if (filter.hostnames.length > 0) {
       filter.hostnames.forEach(hostname => {
-        this.cosmetics.set(hostname, filter);
+        inserted = this.cosmetics.set(hostname, filter) || inserted;
       });
+    }
+
+    if (!inserted) {
+      this.miscFilters.push(filter);
     }
   }
 
@@ -639,7 +655,6 @@ class CosmeticEngine {
   **/
   getMatchingRules(url, nodeInfo) {
     const uniqIds = new Set();
-    const miscRules = {};
     const rules = [];
     let hostname = URLInfo.get(url).hostname;
     if (hostname.startsWith('www.')) {
@@ -686,7 +701,7 @@ class CosmeticEngine {
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
       for (const value of bucket.index.index.values()) {
         value.forEach(rule => {
-          if (!uniqIds.has(rule.id) && !rule.unhide) {
+          if (!uniqIds.has(rule.id) && !rule.unhide && matchCosmeticFilter(rule, hostname)) {
             if (rule.scriptInject) {
               // make sure the selector was replaced by javascript
               if (!rule.scriptReplaced) {
@@ -730,7 +745,7 @@ function deserializeCosmeticEngine(engine, serialized, filtersIndex) {
  * To avoid inspecting to many filters for each request, we create
  * the following accelerating structure:
  *
- * [ Importants ]    [ Exceptions ]    [ Remaining filters ]
+ * [ Importants ]    [ Exceptions ] [ Redirect ] [ Remaining filters ]
  *
  * Each of theses is a `FilterHostnameDispatch`, which manage a subset of filters.
  *
@@ -754,6 +769,8 @@ export default class {
     this.exceptions = new FilterSourceDomainDispatch('exceptions');
     // $important
     this.importants = new FilterSourceDomainDispatch('importants');
+    // $redirect
+    this.redirect = new FilterSourceDomainDispatch('redirect');
     // All other filters
     this.filters = new FilterSourceDomainDispatch('filters');
 
@@ -765,6 +782,7 @@ export default class {
 
     // injections
     this.js = new Map();
+    this.resources = new Map();
   }
 
   hasList(asset, checksum) {
@@ -774,19 +792,29 @@ export default class {
     return false;
   }
 
-  onUpdateResource(resources) {
-    resources.forEach(resource => {
+  onUpdateResource(updates) {
+    updates.forEach((resource) => {
       const { filters, checksum } = resource;
 
-      // NOTE: Here we can only handle one resource at a time.
+      // NOTE: Here we can only handle one resource file at a time.
       this.resourceChecksum = checksum;
+      const typeToResource = parseJSResource(filters);
 
       // the resource containing javascirpts to be injected
-      const js = parseJSResource(filters).get('application/javascript');
-      // TODO: handle other type
-      if (js) {
-        this.js = js;
+      if (typeToResource.has('application/javascript')) {
+        this.js = typeToResource.get('application/javascript');
       }
+
+      // Create a mapping from resource name to { contentType, data }
+      // used for request redirection.
+      typeToResource.forEach((resources, contentType) => {
+        resources.forEach((data, name) => {
+          this.resources.set(name, {
+            contentType,
+            data,
+          });
+        });
+      });
     });
   }
 
@@ -798,7 +826,7 @@ export default class {
 
     // Check if one of the list is an update to an existing list
     let update = false;
-    lists.forEach(list => {
+    lists.forEach((list) => {
       const { asset } = list;
       if (this.lists.has(asset)) {
         update = true;
@@ -806,13 +834,14 @@ export default class {
     });
 
     // Parse all filters and update `this.lists`
-    lists.forEach(list => {
+    lists.forEach((list) => {
       const { asset, filters, checksum } = list;
 
       // Network filters
       const miscFilters = [];
       const exceptions = [];
       const importants = [];
+      const redirect = [];
 
       // Parse and dispatch filters depending on type
       const parsed = parseList(filters);
@@ -820,11 +849,13 @@ export default class {
       // Cosmetic filters
       const cosmetics = parsed.cosmeticFilters;
 
-      parsed.networkFilters.forEach(filter => {
+      parsed.networkFilters.forEach((filter) => {
         if (filter.isException) {
           exceptions.push(filter);
         } else if (filter.isImportant) {
           importants.push(filter);
+        } else if (filter.redirect !== null && filter.redirect !== undefined) {
+          redirect.push(filter);
         } else {
           miscFilters.push(filter);
         }
@@ -835,6 +866,7 @@ export default class {
         filters: miscFilters,
         exceptions,
         importants,
+        redirect,
         cosmetics,
       });
     });
@@ -848,36 +880,48 @@ export default class {
         filters: [],
         exceptions: [],
         importants: [],
+        redirect: [],
         cosmetics: [],
       };
 
-      this.lists.forEach(list => {
-        ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(listName => {
-          list[listName].forEach(filter => {
-            allFilters[listName].push(filter);
+      let newSize = 0;
+      this.lists.forEach((list) => {
+        Object.keys(list)
+          .filter(key => list[key] instanceof Array)
+          .forEach((key) => {
+            list[key].forEach((filter) => {
+              newSize += 1;
+              allFilters[key].push(filter);
+            });
           });
-        });
       });
 
-      this.size = (allFilters.filters.length +
-                   allFilters.exceptions.length +
-                   allFilters.importants.length +
-                   allFilters.cosmetics.length);
-
+      this.size = newSize;
       this.filters = new FilterSourceDomainDispatch('filters', allFilters.filters);
       this.exceptions = new FilterSourceDomainDispatch('exceptions', allFilters.exceptions);
       this.importants = new FilterSourceDomainDispatch('importants', allFilters.importants);
+      this.redirect = new FilterSourceDomainDispatch('redirect', allFilters.redirect);
       this.cosmetics = new CosmeticEngine(allFilters.cosmetics);
     } else {
-      // If it's not an update, just update existing engine
-      lists.forEach(list => {
+      // If it's not an update, just add new lists in engine.
+      lists.forEach((list) => {
         const { asset } = list;
-        const { filters, exceptions, importants, cosmetics } = this.lists.get(asset);
-        // If this is the first time we add this list => update data structures
-        this.size += filters.length + exceptions.length + importants.length + cosmetics.length;
+        const { filters
+              , exceptions
+              , importants
+              , redirect
+              , cosmetics } = this.lists.get(asset);
+
+        this.size += (filters.length +
+                      exceptions.length +
+                      redirect.length +
+                      importants.length +
+                      cosmetics.length);
+
         filters.forEach(this.filters.push.bind(this.filters));
         exceptions.forEach(this.exceptions.push.bind(this.exceptions));
         importants.forEach(this.importants.push.bind(this.importants));
+        redirect.forEach(this.redirect.push.bind(this.redirect));
         cosmetics.forEach(this.cosmetics.push.bind(this.cosmetics));
       });
     }
@@ -896,114 +940,161 @@ export default class {
     request.tokens = tokenizeURL(request.url);
 
     const checkedFilters = new Set();
-    let result = false;
+    let result = null;
 
-    if (this.importants.match(request, checkedFilters)) {
-      log('IMPORTANT');
-      result = true;
-    } else if (this.filters.match(request, checkedFilters)) {
-      log('FILTER');
-      if (this.exceptions.match(request, checkedFilters)) {
-        log('EXCEPTION');
-        result = false;
-      } else {
-        result = true;
+    // Check the filters in the following order:
+    // 1. redirection ($redirect=resource)
+    // 2. $important (not subject to exceptions)
+    // 3. normal filters
+    // 4. exceptions
+    result = this.redirect.match(request, checkedFilters);
+    if (result === null) {
+      result = this.importants.match(request, checkedFilters);
+      if (result === null) {
+        result = this.filters.match(request, checkedFilters);
+        if (result !== null) {
+          if (this.exceptions.match(request, checkedFilters)) {
+            result = null;
+          }
+        }
       }
     }
 
     log(`Total filters ${checkedFilters.size}`);
-    return result;
+    if (result !== null) {
+      if (result.redirect !== null) {
+        const { data, contentType } = this.resources.get(result.redirect);
+        let dataUrl;
+        if (contentType.includes(';')) {
+          dataUrl = `data:${contentType},${data}`;
+        } else {
+          dataUrl = `data:${contentType};base64,${btoa(data)}`;
+        }
+
+        return {
+          match: true,
+          redirect: dataUrl.trim(),
+        };
+      }
+      return { match: true };
+    }
+
+    return { match: false };
   }
 }
 
 
-export function serializeFiltersEngine(engine) {
-  // Serialize `engine.js`
-  const js = {};
-  engine.js.forEach((value, key) => {
-    js[key] = value;
-  });
+function checkEngineRec(serialized, validFilterIds) {
+  Object.keys(serialized)
+    .filter(key => key !== 'size')
+    .forEach((key) => {
+      const value = serialized[key];
+      if (typeof value === 'number') {
+        if (validFilterIds[value] === undefined) {
+          throw new Error(`Filter ${serialized} was not found in serialized engine`);
+        }
+      } else if (typeof value === 'object') {
+        checkEngineRec(value, validFilterIds);
+      }
+    });
+}
 
+
+function serializedEngineSanityCheck(serialized) {
+  const { cosmetics
+        , filtersIndex
+        , exceptions
+        , importants
+        , redirect
+        , filters } = serialized;
+
+  [cosmetics, exceptions, importants, redirect, filters].forEach((bucket) => {
+    checkEngineRec(bucket, filtersIndex);
+  });
+}
+
+
+export function serializeFiltersEngine(engine, checkEngine = false) {
   // Create a global index of filters to avoid redundancy
-  const filters = {};
-  engine.lists.forEach(value => {
-    ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(key => {
-      value[key].forEach(filter => {
-        filters[filter.id] = serializeFilter(filter);
+  // From `engine.lists` create a mapping: uid => filter
+  const filters = Object.create(null);
+  engine.lists.forEach((entry) => {
+    Object.keys(entry)
+      .filter(key => entry[key] instanceof Array)
+      .forEach((key) => {
+        entry[key].forEach((filter) => {
+          filters[filter.id] = serializeFilter(filter);
+        });
       });
-    });
   });
 
-  // Serialize `engine.lists`
-  const lists = {};
-  engine.lists.forEach((value, key) => {
-    const entry = { checksum: value.checksum };
-    ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(listName => {
-      entry[listName] = value[listName].map(filter => filter.id);
-    });
-    lists[key] = entry;
+  // Serialize `engine.lists` but replacing each filter by its uid
+  const lists = Object.create(null);
+  engine.lists.forEach((entry, asset) => {
+    lists[asset] = { checksum: entry.checksum };
+    Object.keys(entry)
+      .filter(key => entry[key] instanceof Array)
+      .forEach((key) => {
+        lists[asset][key] = entry[key].map(filter => filter.id);
+      });
   });
 
-  return {
-    resourceChecksum: engine.resourceChecksum,
+
+  const serializedEngine = {
     cosmetics: serializeCosmeticEngine(engine.cosmetics),
-    js,
     filtersIndex: filters,
     size: engine.size,
     lists,
     exceptions: serializeSourceDomainDispatch(engine.exceptions),
     importants: serializeSourceDomainDispatch(engine.importants),
+    redirect: serializeSourceDomainDispatch(engine.redirect),
     filters: serializeSourceDomainDispatch(engine.filters),
   };
+
+  if (checkEngine) {
+    serializedEngineSanityCheck(serializedEngine);
+  }
+
+  return serializedEngine;
 }
 
 
-export function deserializeFiltersEngine(engine, serialized) {
-  const { resourceChecksum
-        , cosmetics
-        , js
+export function deserializeFiltersEngine(engine, serialized, checkEngine = false) {
+  if (checkEngine) {
+    serializedEngineSanityCheck(serialized);
+  }
+
+  const { cosmetics
         , filtersIndex
         , size
         , lists
         , exceptions
         , importants
+        , redirect
         , filters } = serialized;
 
-  engine.size = size;
-  engine.resourceChecksum = resourceChecksum;
-
-  // Deserialize filters
-  const filtersReverseIndex = {};
-  Object.keys(filtersIndex).forEach(id => {
-    const serializedFilter = filtersIndex[id];
-    filtersReverseIndex[id] = deserializeFilter(serializedFilter);
-  });
-
-  // Deserialize cosmetic engine
-  deserializeCosmeticEngine(engine.cosmetics, cosmetics, filtersReverseIndex);
-
-  // Deserialize engine.js
-  Object.keys(js).forEach(key => {
-    const value = js[key];
-    engine.js.set(key, value);
+  // Deserialize filters index
+  const filtersReverseIndex = Object.create(null);
+  Object.keys(filtersIndex).forEach((id) => {
+    filtersReverseIndex[id] = deserializeFilter(filtersIndex[id]);
   });
 
   // Deserialize engine.lists
-  Object.keys(lists).forEach(asset => {
+  Object.keys(lists).forEach((asset) => {
     const entry = lists[asset];
-    log(`DESERIALIZE ASSET ${asset} ${entry.checksum}`);
-    ['filters', 'exceptions', 'importants', 'cosmetics'].forEach(listName => {
-      log(`DESERIALIZE ASSET ${asset}->${listName}`);
-      const serializedList = entry[listName];
-      log(`DESERIALIZE LEN ${serializedList.length}`);
-      log(`DESERIALIZE LEN ${JSON.stringify(serializedList)}`);
-      entry[listName] = serializedList.map(id => filtersReverseIndex[id]);
-    });
+    Object.keys(entry)
+      .filter(key => entry[key] instanceof Array)
+      .forEach((key) => {
+        entry[key] = entry[key].map(id => filtersReverseIndex[id]);
+      });
     engine.lists.set(asset, entry);
   });
 
-  // Deserialize SourceDomainDispatch: exceptions, importants, filters
+  // Deserialize cosmetic engine and filters
+  deserializeCosmeticEngine(engine.cosmetics, cosmetics, filtersReverseIndex);
   engine.exceptions = deserializeSourceDomainDispatch(exceptions, filtersReverseIndex);
   engine.importants = deserializeSourceDomainDispatch(importants, filtersReverseIndex);
+  engine.redirect = deserializeSourceDomainDispatch(redirect, filtersReverseIndex);
   engine.filters = deserializeSourceDomainDispatch(filters, filtersReverseIndex);
+  engine.size = size;
 }

@@ -11,15 +11,19 @@
     "antitrackingButton": true,
     "showNewBrandAlert": true
   },
+  "default_prefs" : {
+    "modules.context-search.enabled": false
+  },
   "modules": [
     "core",
     "firefox-specific",
     "static",
+    "context-search",
     "autocomplete",
     "geolocation",
+    "freshtab",
     "ui",
     "context-menu",
-    "freshtab",
     "unblock",
     "theme",
     "telemetry-categories",
@@ -29,9 +33,10 @@
     "anti-phishing",
     "privacy-dashboard",
     "performance",
-    "hpn",
     "control-center",
     "adblocker",
+    "hm",
+    "hpn",
     "campaign-manager",
     "message-center",
     "https-everywhere",

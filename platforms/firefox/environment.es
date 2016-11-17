@@ -16,36 +16,31 @@ import prefs from "core/prefs";
 
 
 var CLIQZEnvironment = {
+    RESULTS_PROVIDER: 'https://newbeta.cliqz.com/api/v2/results?nrh=1&q=',
+    RICH_HEADER: 'https://newbeta.cliqz.com/api/v2/rich-header?path=/v2/map',
     LOG: 'https://logging.cliqz.com',
     LOCALE_PATH: 'chrome://cliqz/content/static/locale/',
     TEMPLATES_PATH: 'chrome://cliqz/content/static/templates/',
     SKIN_PATH: 'chrome://cliqz/content/static/skin/',
     SYSTEM_BASE_URL: 'chrome://cliqz/content/',
-    MIN_QUERY_LENGHT_FOR_EZ: 2,
     prefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch(''),
     OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     RERANKERS: [],
     RESULTS_TIMEOUT: 1000, // 1 second
     TEMPLATES: {'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
-      'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
+      'generic': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'pattern-hm': 1,
-      'entity-portal': 3, 'topsites': 3,
-      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'flightStatusEZ-2': 2, 'weatherEZ': 2, 'commicEZ': 3,
-      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
+      'topsites': 3,
+      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
+      'flightStatusEZ-2': 2, 'weatherEZ': 2,
+      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 2,
       'ligaEZ1Game': 2,
-      'ligaEZUpcomingGames': 3,
       'ligaEZTable': 3,
-      'local-movie-sc':3,
-      'local-cinema-sc':3,
-      'local-data-sc': 2,
-      'recipe': 3,
+      'recipeRD': 3,
       'rd-h3-w-rating': 1,
-      'ez-generic-2': 3,
-      'cpgame_movie': 3,
-      'delivery-tracking': 2,
+      'movie': 3,
       'vod': 3,
       'liveTicker': 3
     },
@@ -79,6 +74,8 @@ var CLIQZEnvironment = {
         'partials/lyrics'
     ],
     CLIQZ_ONBOARDING: "about:onboarding",
+    BROWSER_ONBOARDING_PREF: "browserOnboarding",
+    BROWSER_ONBOARDING_STEP_PREF: "browserOnboarding-step",
 
     init: function(){
 
@@ -154,7 +151,7 @@ var CLIQZEnvironment = {
             if(timeout){
                 req.timeout = parseInt(timeout)
             } else {
-                req.timeout = (method == 'POST'? 10000 : 1000);
+                req.timeout = (['POST', 'PUT'].indexOf(method) >= 0 ? 10000 : 1000);
             }
         }
 
@@ -203,7 +200,9 @@ var CLIQZEnvironment = {
         }
         else {
             // Set urlbar value to url immediately
-            win.CLIQZ.Core.urlbar.value = url;
+            if(win.CLIQZ.Core.urlbar) {
+              win.CLIQZ.Core.urlbar.value = url;
+            }
             win.openUILink(url);
         }
     },
@@ -219,9 +218,6 @@ var CLIQZEnvironment = {
             utf8str = idnService.convertACEtoUTF8(encodeURIComponent(host));
 
         return decodeURIComponent(eTLDService.getPublicSuffixFromHost(utf8str));
-    },
-    getBrandsDBUrl: function(version){
-      return 'https://cdn.cliqz.com/brands-database/database/' + version + '/data/database.json'
     },
     isPrivate: function(win) {
         // try to get the current active window
@@ -448,7 +444,7 @@ var CLIQZEnvironment = {
     historySearch: (function(){
         var hist = null;
 
-        return function(q, callback, sessionStart){
+        return function(q, callback){
             if(hist === null) { //lazy
               // history autocomplete provider is removed
               // https://hg.mozilla.org/mozilla-central/rev/44a989cf6c16
@@ -469,38 +465,31 @@ var CLIQZEnvironment = {
             if(q.length != 0 && urlbar().value.length == 0)
               return;
 
-            if(q.length == 0 && sessionStart){
-                NewTabUtils.links.populateCache(function(){
-                    callback(null, getTopSites());
-                })
-            }
-            else {
-                hist.startSearch(q, 'enable-actions', null, {
-                    onSearchResult: function(ctx, result) {
-                        var res = [];
-                        for (var i = 0; result && i < result.matchCount; i++) {
-                            if(result.getStyleAt(i).indexOf('heuristic') != -1 ||
-                               result.getStyleAt(i).indexOf('switchtab') != -1){
-                              // filter out "heuristic" results
-                              continue;
-                            }
-                            res.push({
-                                style:   result.getStyleAt(i),
-                                value:   result.getValueAt(i),
-                                image:   result.getImageAt(i),
-                                comment: result.getCommentAt(i),
-                                label:   result.getLabelAt(i)
-                            });
+            hist.startSearch(q, 'enable-actions', null, {
+                onSearchResult: function(ctx, result) {
+                    var res = [];
+                    for (var i = 0; result && i < result.matchCount; i++) {
+                        if(result.getStyleAt(i).indexOf('heuristic') != -1 ||
+                           result.getStyleAt(i).indexOf('switchtab') != -1){
+                          // filter out "heuristic" results
+                          continue;
                         }
-                        callback({
-                            query: q,
-                            results: res,
-                            ready:  result.searchResult != result.RESULT_NOMATCH_ONGOING &&
-                                    result.searchResult != result.RESULT_SUCCESS_ONGOING
-                        })
+                        res.push({
+                            style:   result.getStyleAt(i),
+                            value:   result.getValueAt(i),
+                            image:   result.getImageAt(i),
+                            comment: result.getCommentAt(i),
+                            label:   result.getLabelAt(i)
+                        });
                     }
-                });
-            }
+                    callback({
+                        query: q,
+                        results: res,
+                        ready:  result.searchResult != result.RESULT_NOMATCH_ONGOING &&
+                                result.searchResult != result.RESULT_SUCCESS_ONGOING
+                    })
+                }
+            });
         }
     })(),
     getNoResults: function() {
@@ -533,11 +522,11 @@ var CLIQZEnvironment = {
 
 
 
-      return CLIQZEnvironment.Result.cliqzExtra(
+      return CLIQZEnvironment.Result.cliqz(
               {
-                  data:
+                  template:'noResult',
+                  snippet:
                   {
-                      template:'noResult',
                       text_line1: CLIQZEnvironment.getLocalizedString('noResultTitle'),
                       // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
                       // we should take care of this specific case differently on alternative platforms
@@ -546,7 +535,8 @@ var CLIQZEnvironment = {
                       //use local image in case of no internet connection
                       "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
                   },
-                  subType: JSON.stringify({empty:true})
+                  type: 'rh',
+                  subType: {empty:true}
               }
           )
     }
@@ -555,6 +545,7 @@ function urlbar(){
   return CLIQZEnvironment.getWindow().CLIQZ.Core.urlbar;
 }
 
+// TODO - revive this one
 function getTopSites(){
     var results = NewTabUtils.links.getLinks().slice(0, 5);
     if(results.length>0){

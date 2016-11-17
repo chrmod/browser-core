@@ -272,7 +272,7 @@ export default class {
   }
 
   isOnboarding() {
-    var step = utils.getPref('cliqz-onboarding-v2-step', 1);
+    var step = utils.getPref(utils.BROWSER_ONBOARDING_STEP_PREF, 1);
     return this.window.gBrowser.currentURI.spec === utils.CLIQZ_ONBOARDING && step === 2;
   }
 
@@ -369,7 +369,8 @@ export default class {
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: data.target,
-      action: 'click'
+      action: 'click',
+      index: data.index
     })
   }
 
@@ -387,15 +388,12 @@ export default class {
         generalState = 'inactive';
       }
 
-      if(moduleData.antitracking && !moduleData.antitracking.enabled){
-        if(moduleData.antitracking.isWhitelisted){
-          // only this website is whitelisted
-          generalState = 'inactive';
-        }
-        else {
-          // completely disabled
-          generalState = 'critical';
-        }
+      if (!moduleData.antitracking){
+        // completely disabled
+        generalState = 'critical';
+      } else if(moduleData.antitracking.isWhitelisted) {
+        // only this website is whitelisted
+        generalState = 'inactive';
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
@@ -518,7 +516,6 @@ export default class {
     var win = this.window
     promise.then(target => {
       button.addEventListener('command', () => {
-
         if (this.isOnboarding()) {
           createIframe();
           UITour.showInfo(win, target, "", "");
@@ -542,12 +539,19 @@ export default class {
   }
 
   sendTelemetry(data) {
-    utils.telemetry({
-      type: TELEMETRY_TYPE,
-      target: data.target,
-      action: 'click',
-      state: data.state
-    });
+    let signal = {
+          type: TELEMETRY_TYPE,
+          target: data.target,
+          action: 'click'
+        },
+        state = data.state;
+    if (state) {
+      signal.state = state;
+    }
+    if (data.index) {
+      signal.index = data.index;
+    }
+    utils.telemetry(signal);
   }
 
   openPopUp() {

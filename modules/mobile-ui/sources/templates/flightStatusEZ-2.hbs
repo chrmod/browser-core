@@ -3,7 +3,7 @@
 {{#with logo}}
 	<div extra="logo" class="card__logo {{#if backgroundImage}}bg{{/if}}" style="{{#if backgroundImage}}background-image:{{backgroundImage}};{{#if backgroundColor}} background-color:#{{backgroundColor}};{{/if}}{{else}}{{ style }};{{/if}}">{{ text }}</div>
  {{/with}}
-{{#with data}}
+{{#with data.extra}}
     <section class="primary">
 
         <h1 extra="title" class="card__title">
@@ -42,12 +42,10 @@
               <div>{{local 'Gate'}} {{depart_arrive.1.gate}}</div>
              </div>
         </div>
-    
+
 
     <div url="http://www.flightstats.com" extra="url" class="poweredby">
         {{local 'mobile_calc_more'}} Flightstats
     </div>
 </section>
 {{/with}}
-
-

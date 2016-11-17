@@ -2,6 +2,7 @@ import CLIQZEnvironment from "platform/environment";
 import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
+//import CliqzLanguage from "platform/language";
 
 var CliqzLanguage;
 
@@ -18,17 +19,15 @@ var VERTICAL_ENCODINGS = {
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
-    BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false,
-    MINUTE = 60*1e3,
+    BRANDS_DATABASE = { domains: {}, palette: ["999"] },
     ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", // numbers 0 - 255
     ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "([:]([0-9])+)?$"), // port number
     ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$");
 
 
 var CliqzUtils = {
-  LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
-  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
+  RESULTS_PROVIDER:               CLIQZEnvironment.RESULTS_PROVIDER,
+  RICH_HEADER:                    CLIQZEnvironment.RICH_HEADER,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -43,7 +42,7 @@ var CliqzUtils = {
   BRANDS_DATABASE: BRANDS_DATABASE,
 
   //will be updated from the mixer config endpoint every time new logos are generated
-  BRANDS_DATABASE_VERSION: 1457952995848,
+  BRANDS_DATABASE_VERSION: 1473867650984,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -55,6 +54,7 @@ var CliqzUtils = {
         'o': 'cpgame_movie'
     },
   hm: null,
+  hw: null,
   mc: null,
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   TEMPLATES: CLIQZEnvironment.TEMPLATES,
@@ -63,15 +63,15 @@ var CliqzUtils = {
   SKIN_PATH: CLIQZEnvironment.SKIN_PATH,
   LOCALE_PATH: CLIQZEnvironment.LOCALE_PATH,
   RERANKERS: CLIQZEnvironment.RERANKERS,
-  MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
   CLIQZ_ONBOARDING: CLIQZEnvironment.CLIQZ_ONBOARDING,
-
+  BROWSER_ONBOARDING_PREF: CLIQZEnvironment.BROWSER_ONBOARDING_PREF,
+  BROWSER_ONBOARDING_STEP_PREF: CLIQZEnvironment.BROWSER_ONBOARDING_STEP_PREF,
 
   telemetryHandlers: [
     CLIQZEnvironment.telemetry
   ],
 
-  init: function(options){
+  init: function(options) {
     options = options || {};
 
     if (!options.lang) {
@@ -83,50 +83,29 @@ var CliqzUtils = {
       //no gzip, do nothing
     });
 
-    // FIXME: `import CliqzLanguage from "platform/language";` does not work
-    CliqzUtils.importModule('platform/language').then(function(language) {
-      CliqzLanguage = language.default;
-    }).catch(function () {
-      CliqzUtils.log('error: cannot load CliqzLanguage');
-    });
-
     // cutting cyclic dependency
     CLIQZEnvironment.getLogoDetails = CliqzUtils.getLogoDetails.bind(CliqzUtils);
     CLIQZEnvironment.getDetailsFromUrl = CliqzUtils.getDetailsFromUrl.bind(CliqzUtils);
     CLIQZEnvironment.getLocalizedString = CliqzUtils.getLocalizedString.bind(CliqzUtils);
-    CLIQZEnvironment.SKIN_PATH = CliqzUtils.SKIN_PATH;
-
-    if(!brand_loaded){
-      brand_loaded = true;
-
-      var config = this.getPref("config_logoVersion"), dev = this.getPref("brands-database-version");
-
-      if (dev) this.BRANDS_DATABASE_VERSION = dev
-      else if (config) this.BRANDS_DATABASE_VERSION = config
-
-      var retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
-
-      (function getLogoDB(url){
-
-          CliqzUtils && CliqzUtils.httpGet(url,
-          function(req){
-            CliqzUtils.BRANDS_DATABASE =  BRANDS_DATABASE = JSON.parse(req.response); },
-          function(){
-            var retry = retryPattern.pop();
-            if(retry) CliqzUtils.setTimeout(getLogoDB, retry, url);
-          }
-          , MINUTE/2);
-      })(CLIQZEnvironment.getBrandsDBUrl(this.BRANDS_DATABASE_VERSION));
-    }
-
+    System.import('platform/language').then((module) => {
+      CliqzLanguage = module.default;
+    })
     CliqzUtils.log('Initialized', 'CliqzUtils');
 
     CliqzUtils.setLang(options.lang);
   },
-
-  setLang: function (lang) {
-     CliqzUtils.PREFERRED_LANGUAGE = lang;
-     CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
+  getLanguageFromLocale: function(locale) {
+    return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
+  },
+  SUPPORTED_LANGS: {'de':'de', 'en':'en', 'fr':'fr'},
+  getSupportedLanguage: function(lang) {
+    return CliqzUtils.SUPPORTED_LANGS[lang] || 'en';
+  },
+  setLang: function (locale) {
+    const lang = CliqzUtils.getLanguageFromLocale(locale);
+    const supportedLang = CliqzUtils.getSupportedLanguage(lang);
+    CliqzUtils.PREFERRED_LANGUAGE = locale;
+    CliqzUtils.getLocaleFile(supportedLang);
   },
 
   initPlatform: function(System) {
@@ -211,6 +190,9 @@ var CliqzUtils = {
         if (ls) ls.setItem("extension-info",info)
     })
   },
+  setLogoDb: function (db) {
+    BRANDS_DATABASE = CliqzUtils.BRANDS_DATABASE = db;
+  },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
         baseCore = base.replace(/[-]/g, ""),
@@ -275,6 +257,9 @@ var CliqzUtils = {
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
+  },
+  httpPut: function(url, callback, data, onerror, timeout) {
+    return CliqzUtils.httpHandler('PUT', url, callback, onerror, timeout, data);
   },
   getLocalStorage(url) {
     return new Storage(url);
@@ -643,10 +628,52 @@ var CliqzUtils = {
       return url;
     }
   },
+
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
+
+  getResultsProviderQueryString: function(q) {
+    let numberResults = 5;
+    if (CliqzUtils.getPref('languageDedup', false)) {
+      numberResults = 7;
+    }
+    if (CliqzUtils.getPref('modules.context-search.enabled', false)) {
+      numberResults = 10;
+    }
+    return encodeURIComponent(q) +
+           CliqzUtils.encodeSessionParams() +
+           CliqzLanguage.stateToQueryString() +
+           CliqzUtils.encodeLocale() +
+           CliqzUtils.encodeResultOrder() +
+           CliqzUtils.encodeCountry() +
+           CliqzUtils.encodeFilter() +
+           CliqzUtils.encodeLocation(true) + // @TODO: remove true
+           CliqzUtils.encodeResultCount(numberResults) +
+           CliqzUtils.disableWikiDedup();
+  },
+
+  getRichHeaderQueryString: function(q, loc) {
+    let numberResults = 5;
+    if (CliqzUtils.getPref('languageDedup', false)) {
+      numberResults = 7;
+    }
+    if (CliqzUtils.getPref('modules.context-search.enabled', false)) {
+      numberResults = 10;
+    }
+    return "&q=" + encodeURIComponent(q) + // @TODO: should start with &q=
+            CliqzUtils.encodeSessionParams() +
+            CliqzLanguage.stateToQueryString() +
+            CliqzUtils.encodeLocale() +
+            CliqzUtils.encodeResultOrder() +
+            CliqzUtils.encodeCountry() +
+            CliqzUtils.encodeFilter() +
+            CliqzUtils.encodeLocation(true, loc && loc.latitude, loc && loc.longitude) +
+            CliqzUtils.encodeResultCount(numberResults) +
+            CliqzUtils.disableWikiDedup();
+  },
+
   getBackendResults: function(q) {
     return new Promise(function(resolve, reject) {
       if (!CliqzUtils.getPref('cliqzBackendProvider.enabled', true)) {
@@ -666,18 +693,7 @@ var CliqzUtils = {
         }
         CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
         CliqzUtils._queryLastLength = q.length;
-
-        var url = CliqzUtils.RESULTS_PROVIDER +
-                  encodeURIComponent(q) +
-                  CliqzUtils.encodeSessionParams() +
-                  CliqzLanguage.stateToQueryString() +
-                  CliqzUtils.encodeLocale() +
-                  CliqzUtils.encodeResultOrder() +
-                  CliqzUtils.encodeCountry() +
-                  CliqzUtils.encodeFilter() +
-                  CliqzUtils.encodeLocation() +
-                  CliqzUtils.encodeResultCount(7) +
-                  CliqzUtils.disableWikiDedup();
+        var url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
         CliqzUtils.httpGet(url, function (res) {
           var resp = JSON.parse(res.response || '{}')
           if (resp.result !== undefined && resp.results === undefined) {
@@ -738,10 +754,8 @@ var CliqzUtils = {
     return '&adult='+state;
   },
   encodeResultCount: function(count) {
-    var doDedup = CliqzUtils.getPref("languageDedup", false);
     count = count || 5;
-    if (doDedup) return '&count=' + count;
-    else return ""
+    return '&count=' + count;
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
@@ -856,53 +870,17 @@ var CliqzUtils = {
   Promise: CLIQZEnvironment.Promise,
   locale: {},
   currLocale: null,
-  loadLocale: function (lang_locale) {
-    var locales = {
-      "en-US": "en"
-    };
-    lang_locale = locales[lang_locale] || lang_locale;
-
-    if (!CliqzUtils.locale.hasOwnProperty(lang_locale)
-      && !CliqzUtils.locale.hasOwnProperty('default')) {
-      try {
-        CliqzUtils.getLocaleFile(encodeURIComponent(lang_locale), lang_locale);
-      } catch(e) {
-        var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
-        try {
-          CliqzUtils.getLocaleFile(loc, lang_locale);
-        } catch(e) {
-          try {
-            CliqzUtils.getLocaleFile('de', 'default');
-          } catch(e) {
-
-          }
-        }
-      }
-    }
-  },
-  getLocaleFile: function (locale_path, locale_key) {
+  getLocaleFile: function (locale) {
     function callback(req) {
         if (CliqzUtils){
-          if (locale_key !== 'default') {
-            CliqzUtils.currLocale = locale_key;
-          }
-          CliqzUtils.locale[locale_key] = JSON.parse(req.response);
+          CliqzUtils.currLocale = locale;
+          CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
         }
     }
     function onerror(err) {
     }
-    var url = CLIQZEnvironment.LOCALE_PATH + locale_path + '/cliqz.json';
+    var url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
     var response = CliqzUtils.httpGet(url, callback, onerror, 3000, null, true);
-    if (response.readyState !== 2) {
-      throw "Error";
-    }
-    return response;
-  },
-  getLanguageFromLocale: function(locale){
-    return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
-  },
-  getLanguage: function(win){
-    return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
   getLocalizedString: function(key, substitutions){
     if(!key) return '';

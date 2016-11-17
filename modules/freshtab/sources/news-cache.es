@@ -57,7 +57,7 @@ export default class {
   }
 
   putDataToCache(data) {
-    log('put data to cache' + this.cacheName);
+    log('put data to cache ' + this.cacheName);
     this.localStore.setItem(this.cacheName, JSON.stringify(data));
     this.updateLastUpdateTime();
   }

@@ -129,15 +129,19 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('wikiEZ_height', function(data_richData){
-        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0){
-            if ( (this.type === 'cliqz-extra') || (this.url === CliqzUtils.autocomplete.lastResult._results[0].val))  // is the first result in the show list
-                return 'cqz-result-h2';
-            // BM hq result, but not the 1st result -> remove images
-            data_richData.images = [];
+    Handlebars.registerHelper('wikiEZ_height', function(result) {
+      var data = result.data;
+      for (var i in (data.deepResults || [])) {
+        var dr = data.deepResults[i];
+        if (dr.type === 'images') {
+          if (dr.links.length > 0 && result.maxNumberOfSlots > 1) {
+            return 'cqz-result-h2';
+          } else {
+            dr.links = [];
+          }
         }
-
-        return 'cqz-result-h3';
+      }
+      return 'cqz-result-h3';
     });
 
     Handlebars.registerHelper('recipe_rd_template', function(data_richData) {
@@ -156,7 +160,7 @@ function registerHelpers(){
         var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
 
-        return (CliqzUtils.autocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
+        return (minimalData_pcgame || minimalData_movie); // is the only result in the show list
     });
 
     Handlebars.registerHelper('image_rd_specification', function(richData){
@@ -353,9 +357,6 @@ function registerHelpers(){
         return kind ? kind.join(';'): '';
     });
 
-    Handlebars.registerHelper('links_or_sources', function(richData) {
-        return richData ? ((richData.internal_links && richData.internal_links.length > 0) ? richData.internal_links : (richData.additional_sources ? richData.additional_sources : [])) : 0;
-    });
 
     Handlebars.registerHelper('pref', function(key) {
         return CliqzUtils.getPref(key, false);

@@ -6,16 +6,8 @@
 import { utils } from "core/cliqz";
 import Result from "autocomplete/result";
 import { isFirefox } from "core/platform";
+import mathLib from 'math';
 
-let mathLib;
-
-if (isFirefox) {
-  const global = {};
-  Services.scriptloader.loadSubScript('chrome://cliqz/content/bower_components/mathjs/dist/math.min.js', global);
-  mathLib = global.math;
-} else {
-  mathLib = window.math;
-}
 
 // REF:
 //      http://mathjs.org/docs/index.html
@@ -27,7 +19,7 @@ var BROWSER_LANG = utils.getLocalizedString('locale_lang_code');
 function getEqualOperator(val, localizedStr){
   var valStr = val.toString().replace(",","").replace(".",""),
     normLocalizedStr = localizedStr.replace(",","").replace(".","");
-  return valStr === normLocalizedStr ? "=" : "\u2248";
+  return valStr === normLocalizedStr ? "=" : "&#x2248;";
 }
 
 var CliqzCalculator = {
@@ -141,20 +133,21 @@ var CliqzCalculator = {
     var expandedExpression = this.IS_UNIT_CONVERTER ? this.BASE_UNIT_CONVERTER : mathLib.parse(this.clean(q)).toString(),
       resultSign = this.shortenNumber()[0];
 
-    return Result.cliqzExtra(
+    return Result.cliqz(
       {
         url: "",
         q: q,
-        style: "cliqz-extra",
-        type: "cliqz-extra",
-        subType: JSON.stringify({type: 'calculator'}),
-        data: {
-          template: 'calculator',
-          expression: expandedExpression,
-          answer: this.CALCULATOR_RES,
-          is_calculus: true,
-          // TODO: support_copy_ans should be platform specific
-          support_copy_ans: true
+        type: "rh",
+        subType: {type: 'calculator'},
+        template: 'calculator',
+        snippet: {
+          extra: {
+            expression: expandedExpression,
+            answer: this.CALCULATOR_RES,
+            is_calculus: true,
+            // TODO: support_copy_ans should be platform specific
+            support_copy_ans: true
+          }
         }
       }
     );

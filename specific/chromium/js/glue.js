@@ -45,40 +45,55 @@ CLIQZ.Core = {
 }
 
 System.baseURL = "modules/";
+System.config({
+  defaultJSExtensions: true,
+  map: {
+    'math': "../bower_components/mathjs/dist/math.min.js"
+  }
+})
 
 console.log('LOADING ...')
 
 let SEARCH;
-
+System.set('handlebars', System.newModule({default: Handlebars}));
 Promise.all([
-  System.import("core/templates")
+  System.import("core/cliqz"),
+  System.import("core/templates"),
   ])
   .then(function(modules){
-    window.CliqzHandlebars = modules[0].default;
-    window.CliqzUtils = System.get("core/utils").default;
+    window.CliqzHandlebars = System.get(System.normalizeSync('handlebars')).default;
+    window.CliqzUtils = System.get(System.normalizeSync("core/utils")).default;
+
   })
   .then(function(){
     return Promise.all([
       System.import("platform/environment"),
       System.import("autocomplete/mixer"),
       System.import("autocomplete/autocomplete"),
-      System.import("ui/background"),
+      System.import("autocomplete/result-providers"),
       System.import("core/events"),
-      System.import("platform/expansions-provider"),
+      System.import("ui/background"),
+      System.import("expansions-provider/expansions-provider"),
       System.import("core/config"),
-      System.import("geolocation/background")
+      System.import("geolocation/background"),
+      System.import("autocomplete/search"),
+      System.import("platform/load-logo-db"),
     ])
   }).then(function (modules) {
     window.CLIQZEnvironment = modules[0].default;
     window.Mixer = modules[1].default;
     window.CliqzAutocomplete = modules[2].default;
+    window.ResultProviders = modules[3].default;
     window.CliqzEvents = modules[4].default;
+    CLIQZ.config = modules[7].default;
+    window.Search = modules[9].default;
+    modules[10].default().then(CliqzUtils.setLogoDb);
 
 
     CliqzUtils.System = System;
     CliqzAutocomplete.Mixer = Mixer;
-    CLIQZEnvironment.ExpansionsProvider = modules[5].default;
-    CLIQZ.config = modules[6].default;
+    //CLIQZEnvironment.ExpansionsProvider = modules[5].default;
+
 
     // initiaize geolocation window
     CliqzUtils.callAction("geolocation", "updateGeoLocation", []);
@@ -104,13 +119,13 @@ Promise.all([
     // localize
     CliqzUtils.localizeDoc(document);
 
-    CLIQZ.UI.preinit(CliqzAutocomplete, CliqzHandlebars, CliqzEvents);
+    CLIQZ.UI.preinit(CliqzAutocomplete, window.CliqzHandlebars, CliqzEvents);
     CLIQZ.UI.init(urlbar);
     CLIQZ.UI.main(document.getElementById('results'));
     // Initialization of the ExpansionProvider should be after
     // the initialization of the autocomplete otherwise
     // CliqzUtils.getBackendResults gets blindly overwriten
-    CLIQZEnvironment.ExpansionsProvider.init();
+    //CLIQZEnvironment.ExpansionsProvider.init();
 
     // remove keydown handler from UI - the platform will do it
     urlbar.removeEventListener('keydown', CLIQZ.UI.urlbarkeydown)
@@ -245,13 +260,24 @@ function updateSearchEngines(engines, defIdx) {
 function startAutocomplete(query) {
   settings.classList.remove("open");
   urlbar.value = query;
-  SEARCH.search(query, function(r) {
+  SEARCH.search(query, function(r, i) {
     CLIQZ.UI.setRawResults({
       q: r._searchString,
       results: r._results.map(function(r) {
         r.type = r.style;
+        delete r.style;
+
+        r.text = r.query;
+        delete r.query;
+        delete r.label;
+
         r.url = r.val || '';
+        delete r.val;
+
         r.title = r.comment || '';
+        delete r.comment;
+
+        r.maxNumberOfSlots = (i == 0 ? 3 : 1 )
         return r;
       }),
       isInstant: false,

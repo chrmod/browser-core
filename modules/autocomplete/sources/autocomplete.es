@@ -7,11 +7,13 @@ import { utils, events } from "core/cliqz";
 import historyCluster from "autocomplete/history-cluster";
 import Result from "autocomplete/result";
 import resultProviders from "autocomplete/result-providers";
+import language from "platform/language";
 
 var CliqzAutocomplete = {
     LOG_KEY: 'CliqzAutocomplete',
     HISTORY_TIMEOUT: 200,
     SCROLL_SIGNAL_MIN_TIME: 500,
+    REFETCH_MAX_ATTEMPTS: 10, // How many times should we try fetching incomplete (promised) results before giving up?
     lastPattern: null,
     lastSearch: '',
     lastResult: null,
@@ -34,7 +36,6 @@ var CliqzAutocomplete = {
     getResultsOrder: function(results){
         return CliqzAutocomplete.prepareResultOrder(results);
     },
-
     // SOURCE: http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
 
     // a result is done once a new result comes in, or once the popup closes
@@ -93,7 +94,6 @@ var CliqzAutocomplete = {
 
         return resultOrder;
     },
-
 };
 
 export default CliqzAutocomplete;
