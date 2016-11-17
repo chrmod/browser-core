@@ -1,16 +1,18 @@
+$browser-font-family: "Segoe UI", "Arial", sans;
+
 $urlbar-holder: 33px;
 $urlbar-elms-height: 32px;
+$urlbar-font-size: 15px;
 $buttons-hover-color: #e7e7e7;
-$buttons-hover-border-color: #dfdfdf;
+$buttons-hover-border-color: #dedede;
 $browser-top-bg-color: #ccc;
 
 
-$tab-border-color: #afafaf;
+$tab-border-color: #bbb;
 $tab-selected-bg-color: #fff;
 $tab-bg-color: rgba(255, 255, 255, 0.1);
-$tab-font-size: 1.09em;
+$tab-font-size: 12.5px;
 
-@font-face { font-family: "Lato"; src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf"); }
 
 .cliqz-urlbar-Last-search {
     padding-top: 3px;
@@ -65,7 +67,7 @@ $tab-font-size: 1.09em;
 }
 
 #main-window {
-    font-family: "Lato";
+    font-family: $browser-font-family;
 }
 
 #main-window:not([chromehidden~="toolbar"]) {
@@ -151,6 +153,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     &[focused="true"] {
         background: #fff !important;;
     }
+
+    .textbox-input {
+        margin-top: -1px !important;
+    }
 }
 
 #urlbar[focused="true"],
@@ -181,7 +187,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 #urlbar, .searchbar-textbox {
-    font-size: 1.3em;
+    font-size: $urlbar-font-size;
 }
 
 #urlbar .urlbar-input-box {
@@ -210,10 +216,16 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 .tabbrowser-tab {
     margin: 0;
 
+    .tab-stack {
+        width: 100%;
+        margin: 0;
+    }
+
     .tab-content {
-        padding-bottom: 1px;
-        border: none;
+        border-width: 0 1px 0 0;
+        border-style: solid;
         border-radius: 0;
+        border-color: $tab-border-color;
         background: $tab-bg-color !important;
 
         .tab-label {
@@ -243,12 +255,6 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
         max-width: 235px;
     }
 
-
-    .tab-stack {
-        margin: 0;
-        padding-right: 1px;
-        width: 100%;
-    }
 
     &:hover > .tab-stack > .tab-background:not([visuallyselected="true"]) {
         background: none;
@@ -826,7 +832,7 @@ vbox[sidebarcommand=historybroadcaster] {
 
 
     #forward-button > .toolbarbutton-icon {
-        padding: 8px 6px !important;
+        padding: 7px 6px !important;
     }
 
     /*==== FF Color */
