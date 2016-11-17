@@ -170,7 +170,17 @@ class AdBlocker {
           CliqzUtils.log('No filter engine was serialized on disk', 'adblocker');
         }
 
-        this.listsManager.load();
+        // Load files from disk, then check if we should update
+        this.listsManager
+          .load()
+          .then(() => {
+            // Update check should be performed after a short while
+            CliqzUtils.log('Check for updates', 'adblocker');
+            setTimeout(
+              () => this.listsManager.update(),
+              30 * 1000
+            );
+          });
       });
 
     this.blacklistPersist.load().then(value => {
