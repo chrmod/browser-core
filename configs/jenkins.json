@@ -41,6 +41,7 @@
     "message-center",
     "https-everywhere",
     "new-tab-button",
+    "notifications",
     "moncomp",
     "firefox-tests"
   ],
