@@ -7,7 +7,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
 
 var CLIQZ_NEW_TAB = "about:cliqz",
-    CLIQZ_NEW_TAB_URL = "chrome://cliqz/content/fresh-tab-frontend/index.html",
+    CLIQZ_NEW_TAB_URL = "resource://cliqz/fresh-tab-frontend/index.html",
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
@@ -57,13 +57,20 @@ AboutURL.prototype = {
 
   newChannel: function(uri) {
     var src = CLIQZ_NEW_TAB_URL + "?cliqzOnboarding=" + FreshTab.cliqzOnboarding;
-    var html =  [
-        '<!DOCTYPE html><html><head><meta charset="UTF-8">',
-        '<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>',
-        '<title>' + CliqzUtils.getLocalizedString('new_tab') + '</title>',
-        `</head><body><iframe src="${src}">`,
-        '</iframe></body></html>'
-    ].join("");
+    var html = `<!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>
+      <title>${CliqzUtils.getLocalizedString('new_tab')}</title>
+    </head>
+    <body>
+      <iframe
+        type="content"
+        src="${src}">
+      </iframe>
+    </body>
+</html>`;
 
     let channel = InputStreamChannel.createInstance(Ci.nsIInputStreamChannel).
         QueryInterface(Ci.nsIChannel);
