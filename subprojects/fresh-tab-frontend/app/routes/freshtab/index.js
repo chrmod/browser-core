@@ -58,8 +58,7 @@ export default Ember.Route.extend({
       });
 
       var historySites = model.getWithDefault("speedDials.history.length", 0) < 5 ? model.get("speedDials.history.length") : 5,
-          customSites = model.getWithDefault("speedDials.custom.length", 0),
-          self = this;
+          customSites = model.getWithDefault("speedDials.custom.length", 0);
 
       this.get('cliqz').getTabIndex().then(function(tabIndex){
         const telemetry = {

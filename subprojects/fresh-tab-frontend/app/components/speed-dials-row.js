@@ -40,7 +40,7 @@ export default Ember.Component.extend({
     reAddSpeedDial(speedDial) {
       const index = speedDial.get('removedAt');
       const model = this.get('model');
-      this.get('cliqz').addSpeedDial(speedDial.get('url'), index).then(obj => {
+      this.get('cliqz').addSpeedDial(speedDial.get('url'), index).then(() => {
         this.get("removedSpeedDials").removeObject(speedDial);
         model.insertAt(index, speedDial);
       });

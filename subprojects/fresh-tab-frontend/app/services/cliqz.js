@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import DS from 'ember-data';
 
+const Promise = Ember.RSVP.Promise;
+
 function nextId() {
   if(!nextId.id) {
     nextId.id = 1;
@@ -62,7 +64,7 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({ promise });
   },
 
-  restart(moduleName) {
+  restart() {
     let promise = new Promise( resolve => {
       this.callbacks.restart = resolve;
     });

@@ -51,7 +51,7 @@ export default Ember.Route.extend({
   actions: {
 
     toggleBackground() {
-      const $background = $('.optinBackground');
+      const $background = Ember.$('.optinBackground');
 
       if($background.hasClass('transparent')) {
         return;
