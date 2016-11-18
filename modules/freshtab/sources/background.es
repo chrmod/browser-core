@@ -31,7 +31,13 @@ export default background({
   * @method init
   */
   init(settings) {
-    FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
+    FreshTab.startup(
+      settings.freshTabButton,
+      settings.cliqzOnboarding,
+      settings.channel,
+      settings.showNewBrandAlert,
+      settings.freshTabInitialState);
+
     this.adultDomainChecker = new AdultDomain();
     this.settings = settings;
   },
