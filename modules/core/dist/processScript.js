@@ -15,7 +15,8 @@ if (config.modules.indexOf('adblocker') > -1) {
 }
 
 var whitelist = [
-  "chrome://cliqz/"
+  "chrome://cliqz/",
+  "resource://cliqz/"
 ].concat(config.settings.frameScriptWhitelist);
 
 /**
