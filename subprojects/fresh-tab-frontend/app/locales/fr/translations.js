@@ -44,7 +44,9 @@ export default {
     "undo": "Annuler",
     "search-on": "Rehercher avec",
     "shortcuts-one-removed": "Le site a été retiré",
-    "shortcuts-many-removed": "Les sites ont a été retirés"
+    "shortcuts-many-removed": "Les sites ont a été retirés",
+    "notifications-disable": "Désactiver les notifications",
+    "notifications-enable": "Activer les notifications"
   },
   urlBar: {
     "search-address": "Recherchez ou saississez une adresse"
