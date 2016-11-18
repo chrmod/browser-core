@@ -267,7 +267,7 @@ function draw(data){
   if(data.onboarding) {
     document.getElementById('control-center').classList.add('onboarding');
 
-    if(data.module.antitracking.totalCount === 1) {
+    if(data.module.antitracking && data.module.antitracking.totalCount === 1) {
       window.postMessage(JSON.stringify({
         target: 'cliqz',
         module: 'core',
@@ -285,13 +285,15 @@ function draw(data){
 
   if (data.module) {
     // antitracking default data
-    if (!data.module.antitracking.state) {
-      data.module.antitracking.visible = true
-      data.module.antitracking.state = "critical"
-      data.module.antitracking.totalCount = 0
-    }
-    if (data.module.antitracking.trackersList) {
-      data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+    if (data.module.antitracking){
+      if (!data.module.antitracking.state) {
+        data.module.antitracking.visible = true
+        data.module.antitracking.state = "critical"
+        data.module.antitracking.totalCount = 0
+      }
+      if (data.module.antitracking.trackersList) {
+        data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
+      }
     }
 
 
