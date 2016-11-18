@@ -201,6 +201,51 @@
           </svg>
         </span>
       {{/if}}
+      {{#if module.type-filter}}
+          {{#if module.type-filter.visible }}
+            <span class="bullet">
+            <span class="cliqz-tab">
+              <span class="squaredFour">
+                <input type="checkbox"
+                       id="squaredFour6"
+                       name="check"
+                       data-function="type-filter"
+                       data-target="type1"
+                       {{#if module.type-filter.type1 }}checked{{/if}}
+                />
+                <label for="squaredFour6"></label>
+                <span id="strict">Type 1</span>
+              </span>
+            </span>
+            <span class="cliqz-tab">
+              <span class="squaredFour">
+                <input type="checkbox"
+                       id="squaredFour7"
+                       name="check"
+                       data-function="type-filter"
+                       data-target="type2"
+                       {{#if module.type-filter.type2 }}checked{{/if}}
+                />
+                <label for="squaredFour7"></label>
+                <span id="strict">Type 2</span>
+              </span>
+            </span>
+            <span class="cliqz-tab">
+              <span class="squaredFour">
+                <input type="checkbox"
+                       id="squaredFour8"
+                       name="check"
+                       data-function="type-filter"
+                       data-target="type3"
+                       {{#if module.type-filter.type3 }}checked{{/if}}
+                />
+                <label for="squaredFour8"></label>
+                <span id="strict">Type 3</span>
+              </span>
+            </span>
+          </span>
+          {{/if}}
+      {{/if}}
     </div>
   </div>
   <div class="accordion-section">

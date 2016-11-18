@@ -15,7 +15,8 @@
     "onBoardingVersion": "2.0"
   },
   "default_prefs" : {
-    "modules.context-search.enabled": false
+    "modules.context-search.enabled": false,
+    "modules.type-filter.enabled": false
   },
   "modules": [
     "core",
@@ -45,7 +46,8 @@
     "onboarding-v2",
     "telemetry",
     "new-tab-button",
-    "moncomp"
+    "moncomp",
+    "type-filter"
   ],
   "subprojects": [
     "fresh-tab-frontend"

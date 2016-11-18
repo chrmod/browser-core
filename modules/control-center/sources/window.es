@@ -50,7 +50,8 @@ export default class {
       "setMockBadge": this.setMockBadge.bind(this),
       "enableSearch": this.enableSearch.bind(this),
       "amo-cliqz-tab": this.amoCliqzTab.bind(this),
-      "complementary-search": this.complementarySearch.bind(this)
+      "complementary-search": this.complementarySearch.bind(this),
+      'type-filter': this.typeFilter.bind(this),
     }
 
     this.panel = new Panel(
@@ -197,6 +198,11 @@ export default class {
       action: 'click',
       state: data.status === true ? 'on' : 'off'
     });
+  }
+
+  typeFilter(data){
+    utils.setPref(`type_filter_${data.target}`, data.status);
+    events.pub('type_filter:change', { target: data.target, status: data.status});
   }
 
   antitrackingActivator(data){

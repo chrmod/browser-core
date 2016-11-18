@@ -109,7 +109,8 @@ $('#control-center').on('click', '[data-function]', function(ev){
   sendMessageToWindow({
     action: ev.currentTarget.dataset.function,
     data: {
-      status: $(this).prop('checked')
+      status: $(this).prop('checked'),
+      target: ev.currentTarget.getAttribute('data-target')
     }
   });
 });

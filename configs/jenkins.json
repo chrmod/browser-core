@@ -12,7 +12,8 @@
     "showNewBrandAlert": true
   },
   "default_prefs" : {
-    "modules.context-search.enabled": false
+    "modules.context-search.enabled": false,
+    "modules.type-filter.enabled": false
   },
   "modules": [
     "core",
@@ -43,7 +44,8 @@
     "new-tab-button",
     "notifications",
     "moncomp",
-    "firefox-tests"
+    "firefox-tests",
+    "type-filter"
   ],
   "subprojects": [
     "fresh-tab-frontend"
