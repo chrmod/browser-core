@@ -10,30 +10,25 @@ const storage = new Storage();
 // END TEMP
 const TEMPLATES = Object.freeze(Object.assign(Object.create(null), {
   "Cliqz": true,
-  "EZ-category": true,
   "EZ-history": true,
   "calculator": true,
-  "celebrities": true,
   "currency": true,
   "emphasis": true,
   "empty": true,
-  "entity-news-1": true,
   "flightStatusEZ-2": true,
   "generic": true,
   "history": true,
-  "ligaEZ1Game": true,
-  "ligaEZTable": true,
-  "logo": true,
   "main": true,
   "noResult": true,
   "rd-h3-w-rating": true,
   "results": true,
   "topnews": true,
   "topsites": true,
-  "url": true,
   "weatherAlert": true,
   "weatherEZ": true,
-  "liveTicker": true
+  "liveTicker": true,
+  "ligaEZ1Game": true,
+  "ligaEZTable": true
 }));
 
 var CLIQZEnvironment = {
@@ -57,7 +52,6 @@ var CLIQZEnvironment = {
       'logo',
       'EZ-category',
       'rd-h3-w-rating',
-      "local-data-sc"
   ],
   GOOGLE_ENGINE: {name:'Google', url: 'http://www.google.com/search?q='},
   //TODO: check if calling the bridge for each telemetry point is expensive or not
