@@ -56,8 +56,8 @@ AboutURL.prototype = {
   contractID: "@mozilla.org/network/protocol/about;1?what=cliqz",
 
   newChannel: function(uri) {
-    var src = CLIQZ_NEW_TAB_URL + "?cliqzOnboarding=" + FreshTab.cliqzOnboarding;
-    var html = `<!DOCTYPE html>
+    const src = `${CLIQZ_NEW_TAB_URL}?cliqzOnboarding=${FreshTab.cliqzOnboarding}&t=${Date.now()}`;
+    const html = `<!DOCTYPE html>
   <html>
     <head>
       <meta charset="UTF-8">
