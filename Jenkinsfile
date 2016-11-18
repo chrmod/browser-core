@@ -86,6 +86,24 @@ node('ubuntu && docker && !gpu') {
               }
             }
           }
+
+          stage('fresh-tab-frontend tests') {
+            try {
+              sh '''
+                cd subprojects/fresh-tab-frontend
+                ember test ci --silent > ember-report.xml
+              '''
+            } catch(err) {
+              print "Ember TESTS FAILED"
+              currentBuild.result = "FAILURE"
+            } finally {
+              step([
+                $class: 'JUnitResultArchiver',
+                allowEmptyResults: false,
+                testResults: 'subprojects/fresh-tab-frontend/ember-report.xml',
+              ])
+            }
+          }
         }
 
         stage('package') {
