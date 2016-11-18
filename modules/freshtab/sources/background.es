@@ -373,7 +373,7 @@ export default background({
   },
 
   events: {
-    "control-center:amo-cliqz-tab": function () {
+    "control-center:cliqz-tab": function () {
       FreshTab.toggleState();
     },
   },
