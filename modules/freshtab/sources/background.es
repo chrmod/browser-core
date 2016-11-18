@@ -33,6 +33,7 @@ export default background({
   init(settings) {
     FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
     this.adultDomainChecker = new AdultDomain();
+    this.settings = settings;
   },
   /**
   * @method unload
@@ -295,6 +296,13 @@ export default background({
     * @method getNews
     */
     getNews() {
+      //disables the whole news block if required by the config
+      if(!this.settings.freshTabNews) {
+        return {
+          version: -1,
+          news: []
+        };
+      }
 
       return News.getNews().then(function(news) {
         News.init();
