@@ -3,9 +3,16 @@ import Ember from "ember";
 export default Ember.Route.extend({
   cliqz: Ember.inject.service(),
   i18n: Ember.inject.service(),
+  messageCenter: Ember.inject.service('message-center'),
+
 
   beforeModel() {
+    const messageCenter = this.get('messageCenter');
+
     return this.get('cliqz').getConfig().then( config => {
+
+      messageCenter.addMessages(config.messages);
+
       this.set('config', config);
       var locale = config.locale,
           defaultLocale = this.get('i18n.locale');
@@ -21,12 +28,15 @@ export default Ember.Route.extend({
 
   model: function() {
     const config = this.get('config');
+    const messages = this.get('messageCenter.messages');
+
     return Ember.Object.create({
       miniOnboarding: config.miniOnboarding,
       isBrowser: config.isBrowser,
       showHelp: config.showHelp,
       showFeedback: config.showFeedback,
-      showNewBrandAlert: config.showNewBrandAlert
+      showNewBrandAlert: config.showNewBrandAlert,
+      messageCenter: this.get('messageCenter'),
     });
   },
 

@@ -32,7 +32,14 @@ var CliqzAutocomplete = {
     highlightFirstElement: false,
     hm: null,
     currentAutoLoadURL: null,
-
+    hasLastSearchAskedForLocation() {
+      const lastSearch = CliqzAutocomplete.lastResult;
+      return lastSearch
+        && lastSearch._results[0]
+        && lastSearch._results[0].data
+        && lastSearch._results[0].data.extra
+        && lastSearch._results[0].data.extra.no_location;
+    },
     getResultsOrder: function(results){
         return CliqzAutocomplete.prepareResultOrder(results);
     },

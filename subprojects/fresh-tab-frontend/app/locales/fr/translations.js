@@ -60,6 +60,11 @@ export default {
     "hdr-new-brand": "CLIQZ sera bientôt relooké!",
     "txt-new-brand1": "Nous allons mettre à jour les icônes du navigateur CLIQZ ainsi que son aspect général.",
     "cta-new-brand": "En savoir plus",
-    "txt-new-brand2": "En savoir plus sur les changements précédents"
+    "txt-new-brand2": "En savoir plus sur les changements précédents",
+    "hdr-share-location": "Partager sa position signifie améliorer les résultats de recherche!",
+    "txt-share-location": "Votre vie privée ne sera pas compromise.",
+    "cta-share-location": "En savoir plus",
+    "btn-always-share": "Toujours partager sa position",
+    "btn-never-share": "Ne jamais partager sa position"
   }
 };

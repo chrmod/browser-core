@@ -9,6 +9,8 @@ function nextId() {
 }
 
 export default Ember.Service.extend({
+  messageCenter: Ember.inject.service('message-center'),
+
   init() {
     this._super(...arguments);
 
@@ -22,6 +24,14 @@ export default Ember.Service.extend({
       } catch (e) {
         // non CLIQZ or invalid message should be ignored
       }
+
+      if(message.action === "closeNotification") {
+        this.get('messageCenter').remove(message.messageId);
+      }
+      if(message.action === "addMessage") {
+        this.get('messageCenter').addMessages({ [message.message.id]: message.message });
+      }
+
 
       if (message.type === "response") {
         const action = (this.callbacks[message.module] || {})[message.action] || this.callbacks[message.action];
@@ -151,12 +161,18 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({ promise });
   },
 
-  dismissAlert() {
+  dismissMessage(message) {
+    let promise = new Promise( resolve => {
+      this.callbacks.dismissMessage = resolve;
+    })
     window.postMessage(JSON.stringify({
       target: 'cliqz',
       module: 'freshtab',
-      action: 'dismissAlert'
+      action: 'dismissMessage',
+      args: [message]
     }), '*');
+
+    return DS.PromiseObject.create({ promise });
   },
 
   getQuery(query) {
@@ -318,6 +334,15 @@ export default Ember.Service.extend({
       target: 'cliqz',
       module: 'freshtab',
       action: 'takeFullTour'
+    }), '*');
+  },
+
+  shareLocation(decission = 'no') {
+    window.postMessage(JSON.stringify({
+      target: 'cliqz',
+      module: 'freshtab',
+      action: 'shareLocation',
+      args: [decission]
     }), '*');
   },
 
