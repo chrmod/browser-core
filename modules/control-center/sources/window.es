@@ -523,10 +523,10 @@ export default class {
     promise.then(target => {
       button.addEventListener('command', () => {
         if (this.isOnboarding()) {
-          createIframe();
+          this.panel.createIframe();
+
           UITour.showInfo(win, target, "", "");
-          iframe.addEventListener('load', onPopupReady.bind(this), true);
-          doc.getElementById("UITourTooltipDescription").appendChild(iframe)
+          doc.getElementById("UITourTooltipDescription").appendChild(this.panel.iframe)
         } else {
           this.panel.open(button);
         }
