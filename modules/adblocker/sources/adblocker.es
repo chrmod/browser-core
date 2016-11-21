@@ -224,6 +224,9 @@ class AdBlocker {
   isDomainInBlacklist(url) {
     // Should all this domain stuff be extracted into a function?
     // Why is CliqzUtils.detDetailsFromUrl not used?
+    if (!utils.isUrl(url)) {
+      return false;
+    }
     const urlParts = URLInfo.get(url);
     let hostname = urlParts.hostname || url;
     if (hostname.startsWith('www.')) {
@@ -253,7 +256,9 @@ class AdBlocker {
     if (domain) {
       // Should all this domain stuff be extracted into a function?
       // Why is CliqzUtils.getDetailsFromUrl not used?
-      processedURL = URLInfo.get(url).hostname;
+      if (utils.isUrl(processedURL)) {
+        processedURL = URLInfo.get(url).hostname;
+      }
       if (processedURL.startsWith('www.')) {
         processedURL = processedURL.substring(4);
       }
