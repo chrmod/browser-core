@@ -508,19 +508,15 @@ export default class {
     button.classList.add('chromeclass-toolbar-additional')
 
     var div = doc.createElement('div');
-    div.setAttribute('id','cliqz-control-center-badge')
-    div.setAttribute('class','cliqz-control-center')
+    div.setAttribute('class','cliqz-control-center');
+    div.setAttribute('state','off');
+    if(this.settings.controlCenterSecurity == true){
+      div.textContent = BTN_LABEL;
+    } else {
+      // default state for Control center without security features is "off"
+      div.setAttribute('state','off');
+    }
     button.appendChild(div);
-    div.textContent = BTN_LABEL;
-
-      //this.attachMessageHandlers(iframe);
-    /*
-      utils.telemetry({
-        type: TELEMETRY_TYPE,
-        target: 'icon',
-        action: 'click',
-      });
-      */
 
     UITour.targets.set("cliqz", { query: '#cliqz-cc-btn', widgetName: 'cliqz-cc-btn', allowAdd: true });
     var promise = UITour.getTarget(this.window, "cliqz");
