@@ -444,7 +444,10 @@ var messageContext = class messageContext {
                                       _this.signedMessageProxy);
       return _http(_this.proxyCoordinator)
               .post(JSON.stringify(payload))
-              .then(() => resolve(this));
+              .then(() => resolve(this))
+              .catch(err => {
+                reject(err);
+              });
     });
     return promise;
   }
