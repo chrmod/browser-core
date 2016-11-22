@@ -234,6 +234,8 @@ describe('Search View', function() {
 
       cliqzResponse(query, [
         {
+          "url": "https://www.wunderground.com/cgi-bin/findweather/getForecast?query=48.15,11.5833",
+          "score": 0,
           "snippet": {
     				"deepResults": [
     					{

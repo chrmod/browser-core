@@ -61,8 +61,13 @@ def reportStatusToGithub(String name, String commit, String pending, Closure tes
   } else {
     try {
       // check if there are no errors
-      sh('grep -v \'failures="0" errors="0"\' ' + report)
-      setGithubCommitStatus(name, 'success', 'finished without errors', commit)
+      def status = sh(returnStatus: true, script: 'grep -v \'failures="0" errors="0"\' ' + report)
+
+      if (status == 0) {
+        setGithubCommitStatus(name, 'success', 'finished without errors', commit)
+      } else {
+        throw new Exception()
+      }
     } catch (err) {
       setGithubCommitStatus(name, 'failure', 'some tests failed', commit)
     }
