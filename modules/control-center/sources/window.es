@@ -328,6 +328,13 @@ export default class {
      return;
    }
 
+   if(data.target === 'search_location') {
+    events.pub("message-center:handlers-freshtab:clear-message", {
+      id: 'share-location',
+      template: 'share-location'
+    });
+   }
+
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: data.target,
