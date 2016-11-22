@@ -22,12 +22,14 @@
   <menu type="context" id="speedDialCMenu-{{index}}-{{type}}">
      <menuitem label="{{t 'speedDials.topsite-remove'}}" {{action "remove"}}></menuitem>
      {{#unless isCustom}}
-      <menuitem label="{{t 'speedDials.reset-all'}}" {{action "resetAll"}}></menuitem>
-      {{/unless}}
-     {{#if model.notificationsEnabled}}
-       <menuitem label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
-     {{else}}
-       <menuitem label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
+       <menuitem label="{{t 'speedDials.reset-all'}}" {{action "resetAll"}}></menuitem>
+     {{/unless}}
+     {{#if model.notificationsAvailable}}
+       {{#if model.notificationsEnabled}}
+         <menuitem class="action-notifications-enable" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+       {{else}}
+         <menuitem class="action-notifications-disable" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
+       {{/if}}
      {{/if}}
  </menu>
 </section>
