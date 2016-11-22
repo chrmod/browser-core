@@ -28,7 +28,6 @@ export default Ember.Route.extend({
 
   model: function() {
     const config = this.get('config');
-    const messages = this.get('messageCenter.messages');
 
     return Ember.Object.create({
       miniOnboarding: config.miniOnboarding,
@@ -51,7 +50,7 @@ export default Ember.Route.extend({
   actions: {
 
     toggleBackground() {
-      const $background = $('.optinBackground');
+      const $background = Ember.$('.optinBackground');
 
       if($background.hasClass('transparent')) {
         return;

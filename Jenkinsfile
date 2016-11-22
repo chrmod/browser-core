@@ -86,6 +86,29 @@ node('ubuntu && docker && !gpu') {
               }
             }
           }
+
+          stage('fresh-tab-frontend tests') {
+            helpers.reportStatusToGithub 'fresh-tab-frontend', gitCommit, "pending", {
+              try {
+                sh 'rm -rf subprojects/fresh-tab-frontend/ember-report.xml'
+                sh '''
+                  cd subprojects/fresh-tab-frontend
+                  ember test ci --silent > ember-report.xml
+                '''
+                return 'subprojects/fresh-tab-frontend/ember-report.xml'
+              } catch(err) {
+                print "Ember TESTS FAILED"
+                currentBuild.result = "FAILURE"
+                throw err
+              } finally {
+                step([
+                  $class: 'JUnitResultArchiver',
+                  allowEmptyResults: false,
+                  testResults: 'subprojects/fresh-tab-frontend/ember-report.xml',
+                ])
+              }
+            }
+          }
         }
 
         stage('package') {

@@ -35,7 +35,7 @@ export default Ember.Service.extend({
       });
 
       this.set('nextCheck', Ember.run.later(this, 'getNotifications', 5000));
-    }).catch(e => console.error("err", e));
+    });
   },
 
   enableNotifications(speedDial) {

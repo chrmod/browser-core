@@ -8,7 +8,7 @@ export default Ember.Component.extend({
   classNames: ['speed-dial'],
   classNameBindings: ['model.hasNewNotifications:new-notifications'],
 
-  click(ev) {
+  click() {
     this.get('cliqz').sendTelemetry({
       type: 'home',
       action: 'click',
