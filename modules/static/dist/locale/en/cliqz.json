@@ -1347,7 +1347,7 @@
       "message": "Enable Cliqz Search"
     },
     "control-center-location": {
-      "message": "Share location for search results"
+      "message": "Share location"
     },
     "control-center-explicit": {
       "message": "Block adult websites in results"
