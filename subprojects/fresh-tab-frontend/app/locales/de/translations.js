@@ -66,7 +66,7 @@ export default {
     "hdr-share-location": "Mit geteiltem Standort erhältst du bessere Suchergebnisse!",
     "txt-share-location": "Deine Privatsphäre bleibt geschützt.",
     "cta-share-location": "So funktioniert's",
-    "btn-always-share": "Immer Standort teilen",
-    "btn-never-share": "Niemals Standort teilen"
+    "btn-always-share": "Immer",
+    "btn-never-share": "Niemals"
   }
 };
