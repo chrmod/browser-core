@@ -21,12 +21,13 @@ export default background({
   },
 
   actions: {
-    checkShareLocationTrigger() {
+    checkShareLocationTrigger(result) {
       const dismissedAlerts = JSON.parse(utils.getPref(DISMISSED_ALERTS, '{}'));
       const messageType = 'share-location';
       const isDismissed = dismissedAlerts[messageType] && dismissedAlerts[messageType]['count'] >= 2 || false;
       const shouldTrigger = utils.getPref('extOnboardShareLocation', false)
-            && autocomplete.hasLastSearchAskedForLocation()
+            && result.isLocal
+            && result.hasAskedForLocation
             && !isDismissed;
       if (shouldTrigger) {
         events.pub("ui:missing_location_shown");
@@ -35,14 +36,14 @@ export default background({
   },
 
   events: {
-    "result_click": function onClick() {
-      this.actions.checkShareLocationTrigger();
+    "result_click": function onClick(result) {
+      this.actions.checkShareLocationTrigger(result);
     },
-    "result_enter": function onEnter() {
-      this.actions.checkShareLocationTrigger();
+    "result_enter": function onEnter(result) {
+      this.actions.checkShareLocationTrigger(result);
     },
-    "autocomplete": function onAutoComplete() {
-      this.actions.checkShareLocationTrigger();
+    "autocomplete": function onAutoComplete(result) {
+      this.actions.checkShareLocationTrigger(result);
     }
   }
 });
