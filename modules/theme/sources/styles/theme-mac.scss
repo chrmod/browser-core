@@ -676,10 +676,8 @@ vbox[sidebarcommand=historybroadcaster] {
 }
 
 //=== FULL SCREEN
-#main-window[inFullscreen="true"] {
-    .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
-        -moz-padding-start: 0;
-    }
+.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
+    padding: 0;
 }
 
 #navigator-toolbox[inFullscreen="true"] > #TabsToolbar {
