@@ -318,22 +318,34 @@ export default class {
   }
 
   updatePref(data){
+    switch (data.pref){
+      case 'extensions.cliqz.dnt':
+        data.value = !data.value;
 
-    // NASTY!
-    if(data.pref == 'extensions.cliqz.dnt') {
-     data.value = !data.value;
+        // human Web toggle triggers an extension restart
+        // so we should hide ControlCenter
+        this.panel.hide();
 
-     events.pub("control-center:toggleHumanWeb");
+        // allow the Control Center to close
+        utils.setTimeout(function(){
+          events.pub("control-center:toggleHumanWeb");
+        }, 1000);
+        break;
+      case 'extensions.cliqz.share_location':
+        utils.callAction(
+          "geolocation",
+          "setLocationPermission",
+          [data.value]
+        );
 
-     return;
-   }
-
-   if(data.target === 'search_location') {
-    events.pub("message-center:handlers-freshtab:clear-message", {
-      id: 'share-location',
-      template: 'share-location'
-    });
-   }
+        events.pub("message-center:handlers-freshtab:clear-message", {
+          id: 'share-location',
+          template: 'share-location'
+        });
+        break;
+      default:
+        utils.setPref(data.pref, data.value, '' /* full pref name required! */);
+    }
 
     utils.telemetry({
       type: TELEMETRY_TYPE,
@@ -341,19 +353,6 @@ export default class {
       state: data.value,
       action: 'click'
     });
-
-    // more NASTY
-    if(data.pref == 'extensions.cliqz.share_location'){
-      utils.callAction(
-        "geolocation",
-        "setLocationPermission",
-        [data.value]
-      );
-
-      return;
-    }
-
-    utils.setPref(data.pref, data.value, '' /* full pref name required! */);
   }
 
   openURL(data){
@@ -375,7 +374,7 @@ export default class {
         break;
       default:
         var tab = utils.openLink(this.window, data.url, true);
-        if(data.closePopup == true) panel.hide();
+        if(data.closePopup == true) this.panel.hide();
         this.window.gBrowser.selectedTab = tab;
     }
 
