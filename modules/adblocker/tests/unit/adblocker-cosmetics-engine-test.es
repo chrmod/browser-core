@@ -41,6 +41,7 @@ export default describeModule('adblocker/filters-engine',
       let engine = null;
       const cosmeticsPath = 'modules/adblocker/tests/unit/data/cosmetics.txt';
       const cosmeticMatches = 'modules/adblocker/tests/unit/data/cosmetics_matching.txt';
+      const domainMatches = 'modules/adblocker/tests/unit/data/domain_matching.txt';
 
       beforeEach(function initializeCosmeticEngine() {
         this.timeout(10000);
@@ -86,6 +87,28 @@ export default describeModule('adblocker/filters-engine',
                 if (shouldNotMatch.has(rule.rawLine)) {
                   reject(`Expected node ${testCase.url} + ` +
                          `${JSON.stringify(testCase.node)}` +
+                         ` not to match ${rule.rawLine}`);
+                }
+              });
+              resolve();
+            })
+        );
+      });
+
+      loadTestCases(domainMatches).forEach((testCase) => {
+        it(`matches url: ${testCase.url}`,
+            () => new Promise((resolve, reject) => {
+              const shouldMatch = new Set(testCase.matches);
+              const shouldNotMatch = new Set(testCase.misMatches);
+              const rules = engine.getDomainFilters(testCase.url);
+              chai.expect(shouldMatch.size).to.equal(rules.length);
+              rules.forEach((rule) => {
+                if (!shouldMatch.has(rule.rawLine)) {
+                  reject(`Expected node ${testCase.url} ` +
+                         ` to match ${rule.rawLine}`);
+                }
+                if (shouldNotMatch.has(rule.rawLine)) {
+                  reject(`Expected node ${testCase.url} ` +
                          ` not to match ${rule.rawLine}`);
                 }
               });

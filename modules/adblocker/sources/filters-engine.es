@@ -701,16 +701,25 @@ class CosmeticEngine {
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
       for (const value of bucket.index.index.values()) {
         value.forEach(rule => {
-          if (!uniqIds.has(rule.id) && !rule.unhide && matchCosmeticFilter(rule, hostname)) {
-            if (rule.scriptInject) {
-              // make sure the selector was replaced by javascript
-              if (!rule.scriptReplaced) {
-                rule.selector = js.get(rule.selector);
-                rule.scriptReplaced = true;
+          if (!uniqIds.has(rule.id)) {
+          // check if one of the preceeding rules has the same selector
+            let selectorMatched = rules.find(r => r.unhide !== rule.unhide && r.selector === rule.selector);
+            if (!selectorMatched) {
+              // if not then check if it should be added to the rules
+              if (rule.scriptInject) {
+                // make sure the selector was replaced by javascript
+                if (!rule.scriptReplaced) {
+                  rule.selector = js.get(rule.selector);
+                  rule.scriptReplaced = true;
+                }
               }
-            }
-            if (rule.selector) {
-              rules.push(rule);
+              if (rule.selector) {
+                rules.push(rule);
+                uniqIds.add(rule.id);
+              }
+            } else {
+              // otherwise, then this implies that the two rules negating each others and should be removed
+              rules.splice(rules.indexOf(selectorMatched), 1);
               uniqIds.add(rule.id);
             }
           }
