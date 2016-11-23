@@ -5,13 +5,15 @@
   "settings": {
     "freshTabButton": false,
     "freshTabNews": true,
+    "freshTabInitialState": true,
     "unblockUI": false,
     "showDataCollectionMessage": false,
     "cliqzOnboarding": true,
     "channel": "40",
     "antitrackingButton": true,
     "helpMenus": true,
-    "showNewBrandAlert": true
+    "showNewBrandAlert": true,
+    "controlCenterSecurity": true
   },
   "modules": [
     "core",

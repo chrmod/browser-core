@@ -32,7 +32,13 @@ export default background({
   * @method init
   */
   init(settings) {
-    FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
+    FreshTab.startup(
+      settings.freshTabButton,
+      settings.cliqzOnboarding,
+      settings.channel,
+      settings.showNewBrandAlert,
+      settings.freshTabInitialState);
+
     this.adultDomainChecker = new AdultDomain();
     this.settings = settings;
     this.messages = {};
@@ -410,7 +416,7 @@ export default background({
   },
 
   events: {
-    "control-center:amo-cliqz-tab": function () {
+    "control-center:cliqz-tab": function () {
       FreshTab.toggleState();
     },
     "message-center:handlers-freshtab:new-message": function onNewMessage(message) {

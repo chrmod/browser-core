@@ -5,12 +5,14 @@
   "settings": {
     "freshTabButton": true,
     "freshTabNews": false,
+    "freshTabInitialState": true,
     "showDataCollectionMessage": true,
     "cliqzOnboarding": false,
     "channel": "TP01",
     "antitrackingButton": true,
     "showNewBrandAlert": false,
-    "onBoardingVersion": "1.1"
+    "onBoardingVersion": "1.1",
+    "controlCenterSecurity": false
   },
   "modules": [
     "firefox-specific",

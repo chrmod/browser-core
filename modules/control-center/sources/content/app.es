@@ -57,7 +57,6 @@ $(document).ready(function(resolvedPromises) {
   });
 
   draw({});
-  resize();
   sendMessageToWindow({
     action: 'getData',
     data: {}
@@ -308,15 +307,17 @@ function draw(data){
   }
 
   document.getElementById('control-center').innerHTML = templates['template'](data)
-  document.getElementById('anti-phising').innerHTML = templates['anti-phising'](data);
-  document.getElementById('anti-tracking').innerHTML = templates['anti-tracking'](data);
+  if(data.securityON){
+    document.getElementById('anti-phising').innerHTML = templates['anti-phising'](data);
+    document.getElementById('anti-tracking').innerHTML = templates['anti-tracking'](data);
 
-  if(data.amo) {
-    document.getElementById('amo-privacy-cc').innerHTML = templates['amo-privacy-cc']();
-    document.getElementById('cliqz-tab').innerHTML = templates['amo-cliqz-tab'](data);
-  } else {
-    document.getElementById('ad-blocking').innerHTML = templates['ad-blocking'](data);
-    document.getElementById('https').innerHTML = templates['https'](data);
+    if(data.amo) {
+      document.getElementById('amo-privacy-cc').innerHTML = templates['amo-privacy-cc']();
+      document.getElementById('cliqz-tab').innerHTML = templates['cliqz-tab'](data);
+    } else {
+      document.getElementById('ad-blocking').innerHTML = templates['ad-blocking'](data);
+      document.getElementById('https').innerHTML = templates['https'](data);
+    }
   }
 
   function close_setting_accordion_section() {
@@ -524,6 +525,7 @@ function draw(data){
   });
 
   localizeDocument();
+  resize();
 }
 
 window.draw = draw;

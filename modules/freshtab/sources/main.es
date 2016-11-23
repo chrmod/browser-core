@@ -98,7 +98,7 @@ var FreshTab = {
     freshTabState: FRESH_TAB_STATE,
     cliqzNewTab: CLIQZ_NEW_TAB,
 
-    startup: function(hasButton, cliqzOnboarding, channel, showNewBrandAlert){
+    startup: function(hasButton, cliqzOnboarding, channel, showNewBrandAlert, initialState){
         var disable = false;
 
         // checking if this is the first install happens in background._showOnboarding()
@@ -130,7 +130,7 @@ var FreshTab = {
 
         // first start
         if(HAS_BUTTON && !CliqzUtils.hasPref(FRESH_TAB_STATE)){
-          CliqzUtils.setPref(FRESH_TAB_STATE,  false); //opt-in
+          CliqzUtils.setPref(FRESH_TAB_STATE,  initialState);
         }
 
         Cm.registerFactory(
@@ -233,7 +233,7 @@ function deactivate(){
       }
   }
   else {//FF40 and older
-      CLiqzUtils.setPref(DEF_NEWTAB, CliqzUtils.getPref(BAK_NEWTAB), '');
+      CliqzUtils.setPref(DEF_NEWTAB, CliqzUtils.getPref(BAK_NEWTAB), '');
   }
 }
 
