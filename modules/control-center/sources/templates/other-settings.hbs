@@ -34,7 +34,7 @@
             </text>
           </g>
         </svg>
-        <div class="tooltip top share-location">
+        <div class="tooltip share-location {{#if securityON}}top{{else}}right{{/if}}">
           <span class="title" data-i18n="control-center-info-share-location-title"></span>
           <span data-i18n="control-center-info-share-location"></span>
         </div>
@@ -121,39 +121,6 @@
       </span>
       {{/if}}
 
-      {{#if module.human-web.visible }}
-        <span class="bullet"
-              state="{{#if module.human-web.state}}active{{ else }}inactive{{/if}}"
-              inactiveState="inactive">
-          <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <defs></defs>
-            <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
-              <ellipse id="Oval-2" fill="#999" cx="7.56817127" cy="7.39375789" rx="7" ry="7"></ellipse>
-              <text id="i-copy" font-family="AmericanTypewriter-Bold, American Typewriter" font-size="11.2" font-weight="bold" fill="#FFFFFF">
-                <tspan x="5.50934774" y="11.3937579">i</tspan>
-              </text>
-            </g>
-          </svg>
-          <div class="tooltip top">
-            <span class="title" data-i18n="control-center-info-hw-title"></span>
-            <span data-i18n="control-center-info-hw"></span>
-          </div>
-          <span class="cqz-switch-label"
-                updatePref="extensions.cliqz.dnt"
-                data-i18n="control-center-humanweb"
-                data-target="search_humanweb">
-          </span>
-          <span class="switches-grey">
-            <span class="cqz-switch-grey"
-                  updatePref='extensions.cliqz.dnt'
-                  data-target="search_humanweb">
-              <span class="cqz-switch-box-grey"></span>
-            </span>
-            <span class="cqz-switch-label" updatePref="extensions.cliqz.dnt" visible-on-state="active" data-i18n="control-center-switch-on"></span>
-            <span class="cqz-switch-label" updatePref="extensions.cliqz.dnt" visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
-          </span>
-        </span>
-      {{/if }}
       {{#unless searchDisabled }}
           <span class="bullet"
                 {{#if amo}}
@@ -225,6 +192,39 @@
           </span>
           {{/if}}
       {{/if}}
+      {{#if module.human-web.visible }}
+        <span class="bullet human-web"
+              state="{{#if module.human-web.state}}active{{ else }}inactive{{/if}}"
+              inactiveState="inactive">
+          <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs></defs>
+            <g id="Group-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1829.000000, 359.000000)">
+              <ellipse id="Oval-2" fill="#999" cx="7.56817127" cy="7.39375789" rx="7" ry="7"></ellipse>
+              <text id="i-copy" font-family="AmericanTypewriter-Bold, American Typewriter" font-size="11.2" font-weight="bold" fill="#FFFFFF">
+                <tspan x="5.50934774" y="11.3937579">i</tspan>
+              </text>
+            </g>
+          </svg>
+          <div class="tooltip top">
+            <span class="title" data-i18n="control-center-info-hw-title"></span>
+            <span data-i18n="control-center-info-hw"></span>
+          </div>
+          <span class="cqz-switch-label"
+                updatePref="extensions.cliqz.dnt"
+                data-i18n="control-center-humanweb"
+                data-target="search_humanweb">
+          </span>
+          <span class="switches-grey">
+            <span class="cqz-switch-grey"
+                  updatePref='extensions.cliqz.dnt'
+                  data-target="search_humanweb">
+              <span class="cqz-switch-box-grey"></span>
+            </span>
+            <span class="cqz-switch-label" updatePref="extensions.cliqz.dnt" visible-on-state="active" data-i18n="control-center-switch-on"></span>
+            <span class="cqz-switch-label" updatePref="extensions.cliqz.dnt" visible-on-state="inactive" data-i18n="control-center-switch-off"></span>
+          </span>
+        </span>
+      {{/if }}
     </div>
   </div>
   <div class="accordion-section">
