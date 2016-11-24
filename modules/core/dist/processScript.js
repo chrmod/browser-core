@@ -207,12 +207,12 @@ function onDOMWindowCreated(ev) {
       return;
     }
 
-    var isCurrentUrl = msg.data.url === currentURL();
+    var matchesCurrentUrl = globsMatch(msg.data.url,currentURL());
     var isGetHTML = msg.data.action === 'getHTML';
     // TEMP: Human web decodes the URI for internal storage
     var isCurrentUrlBis = msg.data.url === decodeURIComponent(currentURL());
 
-    if (!isCurrentUrl || (isGetHTML && !isCurrentUrlBis)) {
+    if (!matchesCurrentUrl || (isGetHTML && !isCurrentUrlBis)) {
       return;
     }
 
