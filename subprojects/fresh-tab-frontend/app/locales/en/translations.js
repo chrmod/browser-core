@@ -66,7 +66,7 @@ export default {
     "hdr-share-location": "Location sharing means better search results!",
     "txt-share-location": "Your privacy will not be compromised.",
     "cta-share-location": "Learn how it works",
-    "btn-always-share": "Always",
-    "btn-never-share": "Never"
+    "btn-always-share": "Always share location",
+    "btn-never-share": "Never share location"
   }
 };
