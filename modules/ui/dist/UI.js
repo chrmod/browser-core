@@ -606,6 +606,18 @@ var UI = {
         specificView.enhanceResults(r.data);
       }
     },
+    isLocal: function(result) {
+      return result
+             && result.data
+             && result.data.subType
+             && result.data.subType.class === "EntityLocal";
+    },
+    hasAskedForLocation: function(result) {
+      return result
+             && result.data
+             && result.data.extra
+             && result.data.extra.no_location;
+    },
     sessionEnd: sessionEnd,
     getResultOrChildAttr: getResultOrChildAttr,
     getElementByAttr: getElementByAttr,
@@ -1458,10 +1470,13 @@ function resultClick(ev) {
                 mouse: coordinate,
                 position_type: getResultKind(el)
             };
-
             logUIEvent(el, "result", signal, CliqzAutocomplete.lastSearch);
 
             //publish result_click
+            const lastResults = CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results;
+            const result = lastResults.find(res => res.label === url);
+            signal.isLocal = UI.isLocal(result);
+            signal.hasAskedForLocation = UI.hasAskedForLocation(result);
             CliqzEvents.pub("result_click", signal, {});
 
             var url = CliqzUtils.cleanMozillaActions(url)[1];
