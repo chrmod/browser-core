@@ -133,7 +133,9 @@ class AdBlocker {
   }
 
   log(msg) {
-    this.logs.push(msg);
+    const date = new Date();
+    const message = `${date.getHours()}:${date.getMinutes()} ${msg}`
+    this.logs.push(message);
     CliqzUtils.log(msg, 'adblocker');
   }
 
@@ -181,7 +183,7 @@ class AdBlocker {
           .load()
           .then(() => {
             // Update check should be performed after a short while
-            CliqzUtils.log('Check for updates', 'adblocker');
+            this.log('Check for updates');
             setTimeout(
               () => this.listsManager.update(),
               30 * 1000
