@@ -4,7 +4,6 @@ export default Ember.Component.extend({
 
   cliqz: Ember.inject.service(),
   notifications: Ember.inject.service(),
-
   classNames: ['speed-dial'],
   classNameBindings: ['model.hasNewNotifications:new-notifications'],
 
@@ -36,7 +35,7 @@ export default Ember.Component.extend({
     remove() {
       const model = this.get('model');
       this.sendAction("removeAction", model);
-      if( model.get('notificationsAvailable')) {
+      if( model.get('notificationsEnabled')) {
         this.get('notifications').disableNotifications(model);
       }
     },

@@ -37,7 +37,7 @@ describeComponent('speed-dial', 'Unit | Component | speed dial',
 
         it('calls disable notification if it was enabled', function(done) {
           const model = Ember.Object.create({
-            notificationsAvailable: true
+            notificationsEnabled: true
           });
           const component = this.subject({
             model
@@ -56,7 +56,7 @@ describeComponent('speed-dial', 'Unit | Component | speed dial',
         it('doesnt call disable notification if it was disabled', function() {
           let called = false;
           const model = Ember.Object.create({
-            notificationsAvailable: false,
+            notificationsEnabled: false,
             notifications: Ember.Object.create({
               disableNotifications() {
                 called = true;

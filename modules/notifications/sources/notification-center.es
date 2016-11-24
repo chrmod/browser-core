@@ -74,7 +74,7 @@ export default Evented(class {
     const allWatchedDomains = new Set(this.domainList());
     const allAvailabledDomains = new Set(Object.keys(AVAILABLE_DOMAINS));
     const watchedDomains = domains.filter(
-      domain => allWatchedDomains.has(domain)
+      domain => allWatchedDomains.has(domain) && (domain in AVAILABLE_DOMAINS)
     );
     const availableDomains = domains.filter(
       domain => allAvailabledDomains.has(domain) &&
