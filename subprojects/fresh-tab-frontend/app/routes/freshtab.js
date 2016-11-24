@@ -40,11 +40,6 @@ export default Ember.Route.extend({
   },
 
   afterModel() {
-    const config = this.get('config');
-
-    if(config.showOnboarding) {
-      Ember.run.later(this.send.bind(this, 'openModal', 'onboarding'), 1000);
-    }
   },
 
   actions: {
@@ -76,7 +71,6 @@ export default Ember.Route.extend({
 
     openModal(modalName) {
       if (modalName === "onboarding") {
-        //this.get('cliqz').setCliqzOnboarding();
         this.get('cliqz').sendTelemetry({
           type: "onboarding",
           product: "cliqz",
