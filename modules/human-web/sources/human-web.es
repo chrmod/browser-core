@@ -5,6 +5,7 @@ import md5 from "core/helpers/md5";
 import ResourceLoader from 'core/resource-loader';
 import { queryActiveTabs } from 'core/tabs';
 import { forEachWindow } from 'platform/browser';
+import CliqzSecureMessage from 'hpn/main';
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
@@ -109,6 +110,10 @@ var CliqzHumanWeb = {
     bloomFilter: null,
     bf:null,
     strictQueries:[],
+    oc: null,
+    SAFE_QUORUM_PROVIDER: "https://safe-browsing-quorum.cliqz.com/config",
+    SAFE_QUORUM_CONSENT: "https://safe-browsing-quorum.cliqz.com/checkquorum",
+    localTemporalUniq: {},
     _md5: function(str) {
         return md5(str);
     },
@@ -2349,6 +2354,29 @@ var CliqzHumanWeb = {
 
         rsStrict.onUpdate( e => CliqzHumanWeb.loadContentExtraction(e, "strict"));
 
+
+        // Load quorum config. Update every 20 minutes.
+        this.safeQuorumProvider = new ResourceLoader(
+            ["hw","quorum-config"],
+            {
+              remoteURL: this.SAFE_QUORUM_PROVIDER,
+              cron: 1 * 20 * 60 * 1000,
+              updateInterval: 1 * 20 * 60 * 1000,
+            }
+        );
+
+        this.safeQuorumProvider.load().then( e => {
+            this.keyExpire = e.expiry;
+            this.oc = e.oc;
+            this.quorumThreshold = e.threshold;
+        });
+
+        this.safeQuorumProvider.onUpdate(e => {
+            this.keyExpire = e.expiry;
+            this.oc = e.oc;
+            this.quorumThreshold = e.threshold;
+        });
+
     },
     initAtBrowser: function(){
         if(CliqzUtils.getPref("dnt", false)) return;
@@ -4316,6 +4344,84 @@ var CliqzHumanWeb = {
 
         return true;
 
+    },
+    safeQuorumCheck: function(msg) {
+        //
+        // Check for conditions.
+        //
+
+        let url = msg.payload.url;
+        this.sha1(url).then( hashedUrl => {
+            CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
+                if (status) {
+                    // Send message to backend for increment
+                    CliqzUtils.log(">>> Send message for increment" + hashedUrl);
+                    CliqzHumanWeb.localTemporalUniq[hashedUrl] = 1;
+                }
+                CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
+                    let result = JSON.parse(e.response).success;
+                    CliqzUtils.log(">>> Quorum consent: " + result);
+                });
+            });
+        });
+    },
+    sha1: function(s) {
+        // Pass the message to the web-worker for SHA-1.
+        var promise = new Promise(function(resolve, reject){
+            let wCrypto = new Worker('chrome://cliqz/content/hpn/crypto-worker.js');
+
+            wCrypto.onmessage = function(e){
+                let result = e.data.result;
+                wCrypto.terminate();
+                resolve(result);
+            };
+
+            wCrypto.postMessage({
+                "msg":s,
+                "type":"hw-sha1"
+            });
+        });
+        return promise;
+    },
+    sendQuorumIncrement: function(hashedUrl){
+        let localTemporalUniq = this.localTemporalUniq;
+        let promise = new Promise(function(resolve, reject){
+          // Check for hashed URL in local temporal queue.
+          if(localTemporalUniq && Object.keys(localTemporalUniq).indexOf(hashedUrl) > -1) {
+            resolve(false);
+          }
+          else{
+            let payload = "hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
+            CliqzHumanWeb.sendInstantMessage(payload, e => {
+                resolve(true);
+            });
+          }
+        });
+        return promise;
+    },
+    getQuorumConsent: function(hashedUrl, callback){
+        let payload = "hu=" + hashedUrl;
+        this.sendInstantMessage(payload, callback);
+    },
+    sendInstantMessage: function(payload, callback){
+        const uid = Math.floor(Math.random() * 10000000);
+        CliqzSecureMessage.queriesID[uid] = callback;
+        CliqzSecureMessage.wCrypto.postMessage({
+            msg: { action: 'instant',
+                  type: 'cliqz',
+                  ts: '',
+                  ver: '1.5',
+                  payload: payload,
+                  rp: this.SAFE_QUORUM_CONSENT,
+            },
+            uid: uid,
+            type: 'instant',
+            sourcemap: CliqzSecureMessage.sourceMap,
+            upk: CliqzSecureMessage.uPK,
+            dspk: CliqzSecureMessage.dsPK,
+            sspk: CliqzSecureMessage.secureLogger,
+            queryproxyip: CliqzSecureMessage.queryProxyIP,
+        });
     }
 };
 
