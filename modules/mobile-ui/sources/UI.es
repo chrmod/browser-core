@@ -25,6 +25,7 @@ var UI = {
     currentPage: 0,
     lastResults: null,
     lastSearch: '',
+    lastAutocompletion: '',
     CARD_WIDTH: 0,
     nCardsPerPage: 1,
     nPages: 1,
@@ -58,7 +59,7 @@ var UI = {
         viewPager = UI.initViewpager();
       }
 
-      UI.lastsearch = r._searchString;
+      UI.lastSearch = r._searchString;
 
       const renderedResults = UI.results(r);
 
@@ -110,13 +111,13 @@ var UI = {
 
       UI.setDimensions();
 
-      var engine = CliqzUtils.getDefaultSearchEngine();
-      var details = CliqzUtils.getDetailsFromUrl(engine.url);
-      var logo = CliqzUtils.getLogoDetails(details);
+      var engine = utils.getDefaultSearchEngine();
+      var details = utils.getDetailsFromUrl(engine.url);
+      var logo = utils.getLogoDetails(details);
 
       var enhancedResults = enhanceResults(r._results);
 
-      const title = CliqzUtils.getLocalizedString(enhancedResults[0] ? 'mobile_more_results_title' : 'mobile_no_result_title');
+      const title = utils.getLocalizedString(enhancedResults[0] ? 'mobile_more_results_title' : 'mobile_no_result_title');
 
       currentResults = {
         searchString: r._searchString,
@@ -179,7 +180,7 @@ var UI = {
             const direction = page > UI.currentPage ? 'right' : 'left'
 
 
-            CliqzUtils.telemetry({
+            utils.telemetry({
               type: 'cards',
               action: `swipe_${direction}`,
               index: page,
@@ -255,7 +256,7 @@ function redrawDropdown(newHTML) {
 
 function getVertical(result) {
   let template;
-  if (CliqzUtils.TEMPLATES[result.template]) {
+  if (utils.TEMPLATES[result.template]) {
     template = result.template;
   } else {
     template = 'generic';
@@ -271,8 +272,8 @@ function enhanceResults(results) {
 
   filteredResults.forEach((r, index) => {
     const url = r.val || '';
-    const urlDetails = url && CliqzUtils.getDetailsFromUrl(url);
-    const logo = urlDetails && CliqzUtils.getLogoDetails(urlDetails);
+    const urlDetails = url && utils.getDetailsFromUrl(url);
+    const logo = urlDetails && utils.getLogoDetails(urlDetails);
     const kind = r.data.kind[0];
     let historyStyle = '';
     if (kind === 'H' || kind === 'C') {
@@ -366,6 +367,7 @@ function resultClick(ev) {
             var card = document.getElementsByClassName('card')[UI.currentPage];
             var cardPosition = card.getBoundingClientRect();
             var coordinate = [ev.clientX - cardPosition.left, ev.clientY - cardPosition.top, UI.CARD_WIDTH];
+            const result_order = currentResults && CliqzAutocomplete.prepareResultOrder(UI.lastResults);
 
             var signal = {
                 type: 'activity',
@@ -376,8 +378,20 @@ function resultClick(ev) {
                 current_position: UI.currentPage
             };
 
-            CliqzUtils.telemetry(signal);
-            CliqzUtils.openLink(window, url);
+            if(!UI.isIncognito) {
+              utils.resultTelemetry(
+                UI.lastSearch,
+                UI.lastAutocompletion,
+                UI.currentPage,
+                utils.isPrivateResultType(signal.position_type) ? '' : url,
+                result_order,
+                signal.extra,
+              );
+
+              utils.telemetry(signal);
+            }
+
+            utils.openLink(window, url);
             return;
 
         } else if (action) {
@@ -385,7 +399,7 @@ function resultClick(ev) {
                 case 'stop-click-event-propagation':
                     return;
                 case 'copy-calc-answer':
-                    CliqzUtils.copyResult(document.getElementById('calc-answer').innerHTML);
+                    utils.copyResult(document.getElementById('calc-answer').innerHTML);
                     document.getElementById('calc-copied-msg').style.display = '';
                     document.getElementById('calc-copy-msg').style.display = 'none';
                     break;
@@ -428,7 +442,7 @@ function setResultNavigation(resultCount) {
 }
 
 function autoComplete(val) {
-  const query = UI.lastsearch;
+  const query = UI.lastSearch;
 
   if(val && val.length > 0) {
     val = val.replace(/http([s]?):\/\/(www.)?/,'');
@@ -437,11 +451,14 @@ function autoComplete(val) {
 
     if(val.startsWith(searchLower)) {
       osAPI.autocomplete(val);
+      UI.lastAutocompletion = val;
     } else {
       osAPI.autocomplete(query);
+      UI.lastAutocompletion = query;
     }
   } else {
     osAPI.autocomplete(query);
+    UI.lastAutocompletion = query;
   }
 }
 
@@ -469,7 +486,7 @@ window.addEventListener('resize', function () {
 
 window.addEventListener('disconnected', function () {
   let elem = document.getElementById('reconnecting');
-  elem && (elem.innerHTML = '<h3>'+CliqzUtils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
+  elem && (elem.innerHTML = '<h3>'+utils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
 });
 
 window.addEventListener('connected', function () {
