@@ -15,6 +15,7 @@ export default class {
     this.onHiding = this.onHiding.bind(this);
     this.onMouseOver = this.onMouseOver.bind(this);
     this.onMouseOut = this.onMouseOut.bind(this);
+    this.onMessage = this.onMessage.bind(this);
   }
 
   createPanel() {
@@ -47,7 +48,7 @@ export default class {
       iframe.style.height = `${clientHeight}px`;
       iframe.style.width = `${clientWidth}px`;
 
-      iframe.contentWindow.addEventListener('message', this.onMessage.bind(this));
+      iframe.contentWindow.addEventListener('message', this.onMessage);
     }
 
     iframe.setAttribute('type', 'content');
@@ -145,9 +146,10 @@ export default class {
   }
 
   detach() {
-    maybe(this, 'panelUI').then(panelui => {
+    const panelui = this.panelUI();
+    if (panelui) {
       panelui.removeChild(this.panel);
       this.destroyPanel();
-    });
+    }
   }
 }
