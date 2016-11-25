@@ -441,17 +441,17 @@ function setResultNavigation(resultCount) {
   }
 }
 
-function autoComplete(val) {
+function autoComplete(url) {
   const query = UI.lastSearch;
 
-  if(val && val.length > 0) {
-    val = val.replace(/http([s]?):\/\/(www.)?/,'');
-    val = val.toLowerCase();
+  if(url && url.length > 0) {
+    url = url.replace(/http([s]?):\/\/(www.)?/,'');
+    url = url.toLowerCase();
     const searchLower = query.toLowerCase();
 
-    if(val.startsWith(searchLower)) {
-      osAPI.autocomplete(val);
-      UI.lastAutocompletion = val;
+    if(url.startsWith(searchLower)) {
+      osAPI.autocomplete(url);
+      UI.lastAutocompletion = url;
     } else {
       osAPI.autocomplete(query);
       UI.lastAutocompletion = query;
