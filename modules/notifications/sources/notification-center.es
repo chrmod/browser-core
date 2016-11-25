@@ -14,11 +14,11 @@ const AVAILABLE_DOMAINS = {
     //config: {},
     //schedule: '*/1 *',
   //},
-  // 'mail.google.com': {
-  //   providerName: 'gmail',
-  //   config: {},
-  //   schedule: '*/1 *',
-  // },
+  'mail.google.com': {
+    providerName: 'gmail',
+    config: {},
+    schedule: '*/1 *',
+  },
   //'twitter.com': {
     //providerName: 'pin-tab',
     //config: {
