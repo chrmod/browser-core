@@ -56,9 +56,8 @@ $(document).ready(function(resolvedPromises) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
 
-  draw({});
   sendMessageToWindow({
-    action: 'getData',
+    action: 'getEmptyFrameAndData',
     data: {}
   });
 });

@@ -35,6 +35,7 @@ export default class {
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
+      getEmptyFrameAndData: this.getEmptyFrameAndData.bind(this),
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
@@ -385,6 +386,31 @@ export default class {
       index: data.index
     })
   }
+  // creates the static frame data without any module details
+  // re-used for fast first render and onboarding
+  getFrameData(){
+    var url = this.window.gBrowser.currentURI.spec,
+        friendlyURL = url;
+
+    try {
+      // try to clean the url
+      friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+    } catch (e) {}
+
+
+    return {
+      activeURL: url,
+      friendlyURL: friendlyURL,
+      module: {}, //will be filled later
+      generalState: 'active',
+      feedbackURL: utils.FEEDBACK_URL,
+      onboarding: this.isOnboarding(),
+      searchDisabled: utils.getPref('cliqz_core_disabled', false),
+      debug: utils.getPref('showConsoleLogs', false),
+      amo: config.settings.channel !== '40',
+      securityON: this.settings.controlCenterSecurity
+    }
+  }
 
   prepareData(){
     return utils.callAction(
@@ -392,24 +418,22 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
-      var url = this.window.gBrowser.currentURI.spec,
-          friendlyURL = url,
-          generalState = 'active';
+      var ccData = this.getFrameData();
 
       if(this.settings.controlCenterSecurity == true){
         if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
-          generalState = 'inactive';
+          ccData.generalState = 'inactive';
         }
 
         if (!moduleData.antitracking){
           // completely disabled
-          generalState = 'critical';
+          ccData.generalState = 'critical';
         } else if(moduleData.antitracking.isWhitelisted) {
           // only this website is whitelisted
-          generalState = 'inactive';
+          ccData.generalState = 'inactive';
         }
       } else {
-        generalState = 'off';
+        ccData.generalState = 'off';
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
@@ -417,23 +441,9 @@ export default class {
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
-      try {
-        // try to clean the url
-        friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
-      } catch (e) {}
+      ccData.module = moduleData;
 
-      return {
-        activeURL: url,
-        friendlyURL: friendlyURL,
-        module: moduleData,
-        generalState: generalState,
-        feedbackURL: utils.FEEDBACK_URL,
-        onboarding: this.isOnboarding(),
-        searchDisabled: utils.getPref('cliqz_core_disabled', false),
-        debug: utils.getPref('showConsoleLogs', false),
-        amo: config.settings.channel !== '40',
-        securityON: this.settings.controlCenterSecurity
-      }
+      return ccData;
     });
   }
 
@@ -444,26 +454,28 @@ export default class {
   _getMockData() {
     var self = this,
         numberCounter = 0,
-        url = 'examplepage.de/webpage';
+        ccDataMocked = this.getFrameData();
+
+    ccDataMocked.module = this.mockedData;
+    // we also need to override some of the frame Data
+    ccDataMocked.activeURL = 'examplepage.de/webpage';
+    ccDataMocked.friendlyURL = 'examplepage.de/webpage';
+    ccDataMocked.onboarding = true;
+
     var numberAnimation = function () {
       if(numberCounter === 27)
        return
 
-      if(numberCounter < 18)
-        self.mockedData.antitracking.totalCount = numberCounter;
+      if(numberCounter < 18){
+        ccDataMocked.module.antitracking.totalCount = numberCounter;
+      }
 
-      self.mockedData.adblocker.totalCount = numberCounter;
+      ccDataMocked.module.adblocker.totalCount = numberCounter;
+
       self.sendMessageToPopup({
         action: 'pushData',
-        data: {
-          activeURL: url,
-          friendlyURL: url,
-          module: self.mockedData,
-          "generalState":"active",
-          "feedbackURL":"https://cliqz.com/feedback/1.2.99-40",
-          "onboarding": true
-        }
-      });
+        data: ccDataMocked
+      })
 
       numberCounter++;
       setTimeout(numberAnimation, 40);
@@ -487,6 +499,16 @@ export default class {
         })
       }).catch(e => utils.log(e.toString(), "getData error"))
     }
+  }
+
+  // used for a first faster rendering
+  getEmptyFrameAndData(){
+    this.sendMessageToPopup({
+      action: 'pushData',
+      data: this.getFrameData()
+    });
+
+    this.getData();
   }
 
   sendMessageToPopup(message) {
