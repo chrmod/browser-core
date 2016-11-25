@@ -17,14 +17,37 @@ $url-bar-hover-bg-color: #fff;
 $url-bar-hover-border-color: #7aa8d9;
 $url-bar-hover-shadow: inset 0 0 2px #aec6de;
 
-@font-face {
-    font-family: "Lato";
-    src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
+#main-window:not([cliqzBrowser="true"]),
+#main-window:not([cliqzBrowser="true"]) * :root {
+  --cliqz-close-image: url("../images/browser/mac/close.png");
+  --cliqz-close-image-2x: url("../images/browser/mac/close@2x.png");
+  --cliqz-font-lato-regular: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
+  --cliqz-newtab-image: url("../images/browser/mac/newtab.png");
+  --cliqz-newtab-image-2x: url("../images/browser/mac/newtab@2x.png");
+  --cliqz-toolbar-image: url("../images/browser/mac/Toolbar.png");
+  --cliqz-toolbar-image-2x: url("../images/browser/mac/Toolbar@2x.png");
+  --cliqz-urlbar-arrow-image: url("../images/browser/mac/urlbar-arrow.png");
+  --cliqz-urlbar-arrow-image-2x: url("../images/browser/mac/urlbar-arrow@2x.png");
+  --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel.png");
+  --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel@2x.png") !important;
 }
 
-:root {
-    --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel.png");
-    --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/mac/menuPanel@2x.png") !important;
+#main-window[cliqzBrowser="true"],
+#main-window[cliqzBrowser="true"] * :root {
+  --cliqz-close-image: url("close.png");
+  --cliqz-close-image-2x: url("close@2x.png");
+  --cliqz-font-lato-regular: url("Lato-Regular.ttf");
+  --cliqz-newtab-image: url("newtab.png");
+  --cliqz-newtab-image-2x: url("newtab@2x.png");
+  --cliqz-toolbar-image: url("../Toolbar.png");
+  --cliqz-toolbar-image-2x: url("../Toolbar@2x.png");
+  --cliqz-urlbar-arrow-button: url("urlbar-arrow.png");
+  --cliqz-urlbar-arrow-button-2x: url("urlbar-arrow@2x.png");
+}
+
+@font-face {
+    font-family: "Lato";
+    src: var(--cliqz-font-lato-regular);
 }
 
 :-moz-any(#back-button,
@@ -67,7 +90,7 @@ $url-bar-hover-shadow: inset 0 0 2px #aec6de;
 #pocket-button,
 #restore-button),
 #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    list-style-image: url("../images/browser/mac/Toolbar.png");
+    list-style-image: var(--cliqz-toolbar-image);
 }
 
 /*.panel-arrow[side="top"] {
@@ -324,7 +347,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     width: 30px;
     border: none !important;
     background: none !important;
-    list-style-image: url("../images/browser/mac/newtab.png");
+    list-style-image: var(--cliqz-newtab-image);
 
     .toolbarbutton-icon {
         padding-top: 8px;
@@ -334,7 +357,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 }
 
 .close-icon {
-    list-style-image: url("../images/browser/mac/close.png");
+    list-style-image: var(--cliqz-close-image);
 }
 
 /*========== End Tabs =========*/
@@ -384,11 +407,11 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     .tabs-newtab-button,
     #TabsToolbar > #new-tab-button,
     #TabsToolbar > toolbarpaletteitem > #new-tab-button {
-        list-style-image: url("../images/browser/mac/newtab@2x.png");
+        list-style-image: var(--cliqz-newtab-image-2x);
     }
 
     .close-icon {
-        list-style-image: url("../images/browser/mac/close@2x.png");
+        list-style-image: var(--cliqz-close-image-2x);
     }
 }
 
@@ -433,7 +456,7 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     #pocket-button,
     #restore-button),
     #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-        list-style-image: url("../images/browser/mac/Toolbar@2x.png");
+        list-style-image: var(--cliqz-toolbar-image-2x);
     }
 }
 
@@ -529,12 +552,12 @@ toolbarbutton#cliqz-cc-btn {
 #main-window[privatebrowsingmode="temporary"],
 #navigator-toolbox[on_private_tab="true"] {
     #notification-popup-box {
-        border-image: url("../images/browser/mac/urlbar-arrow.png") 0 8 0 0 fill;
+        border-image: var(--cliqz-urlbar-arrow-image) 0 8 0 0 fill;
     }
 
     @media (min-resolution: 1.1dppx) {
         #notification-popup-box {
-            border-image: url("../images/browser/mac/urlbar-arrow@2x.png") 0 16 0 0 fill;
+            border-image: var(--cliqz-urlbar-arrow-image-2x) 0 16 0 0 fill;
         }
     }
 

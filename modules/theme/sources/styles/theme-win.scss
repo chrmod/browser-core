@@ -18,9 +18,26 @@ $tab-font-size: 12.5px;
     padding-top: 3px;
 }
 
-:root {
-    --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/win/menuPanel.png");
-    --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/win/menuPanel@2x.png") !important;
+#main-window:not([cliqzBrowser="true"]),
+#main-window:not([cliqzBrowser="true"]) * :root {
+  --cliqz-close-image: url("../images/browser/win/close.png");
+  --cliqz-close-image-2x: url("../images/browser/win/close@2x.png");
+  --cliqz-toolbar-image: url("../images/browser/win/Toolbar.png");
+  --cliqz-toolbar-image-2x: url("../images/browser/win/Toolbar@2x.png");
+  --cliqz-urlbar-arrow-image: url("../images/browser/win/urlbar-arrow.png");
+  --cliqz-urlbar-arrow-image-2x: url("../images/browser/win/urlbar-arrow@2x.png");
+  --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/win/menuPanel.png");
+  --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/win/menuPanel@2x.png") !important;
+}
+
+#main-window[cliqzBrowser="true"],
+#main-window[cliqzBrowser="true"] * :root {
+  --cliqz-close-image: url("close.png");
+  --cliqz-close-image-2x: url("close@2x.png");
+  --cliqz-toolbar-image: url("../Toolbar.png");
+  --cliqz-toolbar-image-2x: url("../Toolbar@2x.png");
+  --cliqz-urlbar-arrow-image: url("urlbar-arrow.png");
+  --cliqz-urlbar-arrow-image-2x: url("urlbar-arrow@2x.png");
 }
 
 :-moz-any(#back-button,
@@ -63,7 +80,7 @@ $tab-font-size: 12.5px;
 #pocket-button,
 #restore-button),
 #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    list-style-image: url("../images/browser/win/Toolbar.png");
+    list-style-image: var(--cliqz-toolbar-image);
 }
 
 #main-window {
@@ -463,7 +480,7 @@ notification[type="warning"] .notification-inner {
     #pocket-button,
     #restore-button),
     #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-        list-style-image: url("../images/browser/win/Toolbar@2x.png");
+        list-style-image: var(--cliqz-toolbar-image-2x);
     }
 }
 
@@ -527,12 +544,12 @@ toolbarbutton#cliqz-cc-btn {
 
 #navigator-toolbox[on_private_tab="true"] {
     #notification-popup-box {
-        border-image: url("../images/browser/win/urlbar-arrow.png") 0 8 0 0 fill;
+        border-image: var(--cliqz-urlbar-arrow-image) 0 8 0 0 fill;
     }
 
     @media (min-resolution: 1.1dppx) {
         #notification-popup-box {
-            border-image: url("../images/browser/win/urlbar-arrow@2x.png") 0 16 0 0 fill;
+            border-image: var(--cliqz-urlbar-arrow-image-2x) 0 16 0 0 fill;
         }
     }
 
@@ -655,7 +672,7 @@ toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker[label='Bookmarks
 
         .tab-close-button:-moz-lwtheme-brighttext,
         #TabsToolbar[brighttext] .tab-close-button:not([visuallyselected="true"]) {
-            list-style-image: url("../images/browser/win/close.png");
+            list-style-image: var(--cliqz-close-image);
         }
 
         #nav-bar {
