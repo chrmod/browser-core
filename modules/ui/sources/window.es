@@ -123,6 +123,9 @@ export default class {
 
     }.bind(this));
 
+    //mock default FF function
+    this.popup.enableOneOffSearches = function() {}
+
     this.reloadUrlbar(this.urlbar);
 
     // Add search history dropdown
