@@ -15,12 +15,12 @@ export default Ember.Route.extend({
   notifications: Ember.inject.service(),
 
   activate() {
-    this.get('notifications').start();
+    //this.get('notifications').start();
     Ember.$('body').addClass('freshTabContainer');
   },
 
   deactivate() {
-    this.get('notifications').stop();
+    //this.get('notifications').stop();
     Ember.$('body').removeClass('freshTabContainer');
   },
 
