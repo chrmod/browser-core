@@ -107,11 +107,18 @@ export default background({
   },
 
   events: {
-    'prefchange': function onPrefChange() {
-    }
+    'core:tab_select': function onTabSelect({ url, isPrivate }) {
+      events.pub('core.location_change', url, isPrivate);
+    },
+    'core:location-change': function onLocationChange({ url, isPrivate }) {
+      events.pub('core.location_change', url, isPrivate);
+    },
   },
 
   actions: {
+    notifyLocationChange(...args) {
+      events.pub('core:location-change', ...args);
+    },
     recordMouseDown(...args) {
       events.pub('core:mouse-down', ...args);
     },

@@ -79,16 +79,27 @@ export default background({
     unwatch(url) {
       const domainDetails = utils.getDetailsFromUrl(url);
       return this.notificationCenter.removeDomain(domainDetails.host);
-    }
+    },
+
+    activate(url) {
+      const domainDetails = utils.getDetailsFromUrl(url);
+      return this.notificationCenter.activateDomain(domainDetails.host);
+    },
+
+    clearUnread(url) {
+      const domainDetails = utils.getDetailsFromUrl(url);
+      this.notificationCenter.clearDomainUnread(domainDetails.host);
+    },
   },
 
   events: {
     /*
      * Clears unread status for domain at currently open tab
      */
-    'core.location_change': function onLocationChange(url) {
-      const domainDetails = utils.getDetailsFromUrl(url);
-      this.notificationCenter.clearDomainUnread(domainDetails.host);
+    'core.location_change': function onLocationChange(url, isPrivate) {
+      if (!isPrivate) {
+        this.actions.clearUnread(url);
+      }
     },
   },
 });
