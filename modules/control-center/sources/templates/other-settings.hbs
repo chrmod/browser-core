@@ -22,7 +22,8 @@
       <span class="enable-search" data-i18n="control-center-enable-search"></span>
       {{/if}}
     </a>
-    <div id="accordion-1" class="accordion-section-content {{#unless securityON }}open{{/unless}}" style="display: block;">
+    <div id="accordion-1" class="accordion-section-content {{#unless securityON }}open{{/unless}}"
+         {{#unless securityON }}style="display: block;"{{/unless}}>
       {{#unless searchDisabled }}
       <span class="bullet">
         <svg class="infobutton" width="15px" height="15px" viewBox="1829 359 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
