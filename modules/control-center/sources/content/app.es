@@ -73,7 +73,7 @@ $('body').on('click', function(ev) {
       action: 'sendTelemetry',
       args: [{
         type: 'onboarding',
-        version: '2.0',
+        version: '2.1',
         action: 'click',
         view: 'privacy',
         target: 'dashboard',
@@ -274,7 +274,7 @@ function draw(data){
         action: 'sendTelemetry',
         args: [{
           type: 'onboarding',
-          version: '2.0',
+          version: '2.1',
           action: 'show',
           view: 'privacy',
           target: 'dashboard',
