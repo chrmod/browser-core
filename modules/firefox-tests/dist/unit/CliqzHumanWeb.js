@@ -1,10 +1,11 @@
 var expect = chai.expect;
 
-DEPS.HumanWebTest = ["core/utils"];
-TESTS.HumanWebTest = function (CliqzUtils) {
-    var System = CliqzUtils.getWindow().CLIQZ.System,
-        CliqzHumanWeb = System.get("human-web/human-web").default;
+DEPS.HumanWebTest = ["core/utils", "human-web/human-web"];
+TESTS.HumanWebTest = function (CliqzUtils, CliqzHumanWeb) {
+    // var System = CliqzUtils.getWindow().CLIQZ.System,
+    //    CliqzHumanWeb = System.get("human-web/human-web").default;
 
+    return CliqzUtils.getPref("humanWeb", false);
 	describe('human-web.isHash', function() {
         var not_hash = ['',
             'Firefox',

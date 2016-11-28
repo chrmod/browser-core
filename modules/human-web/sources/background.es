@@ -37,6 +37,8 @@ export default background({
       HumanWeb.initAtBrowser();
       utils.bindObjectFunctions(this.actions, this);
       hs.addObserver(HumanWeb.historyObserver, false);
+    } else {
+      utils.setPref("humanWeb", false);
     }
   },
 
