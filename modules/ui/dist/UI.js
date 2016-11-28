@@ -1139,14 +1139,18 @@ function getRandomForCurrentTime(range) {
 function notSupported(r){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     // or he is in germany
+    var supportedIndexCountries = JSON.parse(CliqzUtils.getPref("config_backends", '["de"]'))
     if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        CliqzUtils.getPref("config_location", "de") == 'de' ||
+        supportedIndexCountries.indexOf(CliqzUtils.getPref("backend_country", "de")) > -1 ||
         // in case location is unknown do not show the message
-        CliqzUtils.getPref("config_location", "de") == '') return false
+        CliqzUtils.getPref("backend_country", "de") == '') return false
 
-    //if he is not in germany he might still be  german speaking
+    //if he is not in germany he might still be  speaking the language 
+    // of one of the supported countries
+    // doesn't work for countries where the country iso 
+    // doesnt match the language one
     var lang = navigator.language.toLowerCase();
-    return lang != 'de' && lang.split('-')[0] != 'de';
+    return supportedIndexCountries.indexOf(lang) < 0  && supportedIndexCountries.indexOf(lang.split('-')[0]) < 0;
 }
 
 function getNotSupported(){
@@ -1338,7 +1342,7 @@ function urlIndexInHistory(url, urlList) {
                         }
                         clearMessage('bottom');
                         UI.render();
-                        if (user_location != "de" && user_location != "" && !ignored_location_warning)
+                        if (notSupported())
                             updateMessage('bottom', {
                                 "footer-message": getNotSupported()
                             });

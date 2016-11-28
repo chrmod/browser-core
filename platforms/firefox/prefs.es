@@ -42,7 +42,8 @@ export function setPref(key, value, prefix) {
     case 'boolean': prefs.setBoolPref(pref, value); break;
     case 'number': prefs.setIntPref(pref, value); break;
     case 'string': prefs.setCharPref(pref, value); break;
-    default: break;
+    case 'object': prefs.setCharPref(pref, JSON.stringify(value)); break;
+    default: ClizUtils.log('WARNING: Unable to save "' + pref + '" with value ' + value);break;
   }
 }
 
