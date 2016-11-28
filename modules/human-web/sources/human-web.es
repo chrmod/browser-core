@@ -47,7 +47,7 @@ function getHTML(...args) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '2.3',
+    VERSION: '2.4',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -1929,6 +1929,7 @@ var CliqzHumanWeb = {
                 _log('Load ts config');
             }
             CliqzHumanWeb.fetchAndStoreConfig();
+            CliqzHumanWeb.prunelocalTemporalUniq();
         }
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
@@ -2356,27 +2357,34 @@ var CliqzHumanWeb = {
 
 
         // Load quorum config. Update every 20 minutes.
-        this.safeQuorumProvider = new ResourceLoader(
+        CliqzHumanWeb.safeQuorumProvider = new ResourceLoader(
             ["hw","quorum-config"],
             {
-              remoteURL: this.SAFE_QUORUM_PROVIDER,
+              remoteURL: CliqzHumanWeb.SAFE_QUORUM_PROVIDER,
               cron: 1 * 20 * 60 * 1000,
               updateInterval: 1 * 20 * 60 * 1000,
             }
         );
 
-        this.safeQuorumProvider.load().then( e => {
-            this.keyExpire = e.expiry;
-            this.oc = e.oc;
-            this.quorumThreshold = e.threshold;
+        CliqzHumanWeb.safeQuorumProvider.load().then( e => {
+            CliqzHumanWeb.keyExpire = e.expiry;
+            CliqzHumanWeb.oc = e.oc;
+            CliqzHumanWeb.quorumThreshold = e.threshold;
         });
 
-        this.safeQuorumProvider.onUpdate(e => {
-            this.keyExpire = e.expiry;
-            this.oc = e.oc;
-            this.quorumThreshold = e.threshold;
+        CliqzHumanWeb.safeQuorumProvider.onUpdate(e => {
+            CliqzHumanWeb.keyExpire = e.expiry;
+            CliqzHumanWeb.oc = e.oc;
+            CliqzHumanWeb.quorumThreshold = e.threshold;
         });
 
+        // Load local temp queue.
+        CliqzHumanWeb.loadRecord('hashedurlinc', function(data) {
+            if (data) {
+                _log("Loading data for temporal uniq.");
+                CliqzHumanWeb.localTemporalUniq = JSON.parse(data);
+            }
+        });
     },
     initAtBrowser: function(){
         if(CliqzUtils.getPref("dnt", false)) return;
@@ -2599,13 +2607,22 @@ var CliqzHumanWeb = {
             CliqzUtils.getPref('dnt', false) ||
             CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
 
-                // Check if host is private or not.
+        // Check if host is private or not.
         CliqzHumanWeb.isLocalURL(msg).then( status => {
             if (!status) {
-                msg.ver = CliqzHumanWeb.VERSION;
-                msg = CliqzHumanWeb.msgSanitize(msg);
-                if (msg) CliqzHumanWeb.incrActionStats(msg.action);
-                if (msg) CliqzHumanWeb.trk.push(msg);
+                 _log("Check safe quorum");
+                CliqzHumanWeb.safeQuorumCheck(msg).then( safe => {
+                    _log("Need Quorum ?" + safe);
+                    if (safe) {
+                        msg.ver = CliqzHumanWeb.VERSION;
+                        msg = CliqzHumanWeb.msgSanitize(msg);
+                        if (msg) CliqzHumanWeb.incrActionStats(msg.action);
+                        if (msg) CliqzHumanWeb.trk.push(msg);
+                    } else {
+                        // Send telemetry.
+                    }
+                });
+
             }
             CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
             if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
@@ -4345,29 +4362,52 @@ var CliqzHumanWeb = {
         return true;
 
     },
+    performQC: function(msg){
+        if (msg.action === "page") {
+            let parse_url = CliqzHumanWeb.parseURL(msg.payload.url);
+
+            if (msg.payload.qr && (msg.payload.qr.t === "cl" || msg.payload.qr.t === "othr")) {
+                if (parse_url && parse_url.path.length > 1) return true;
+            } else if (!msg.payload.qr) {
+                if (parse_url && parse_url.path.length > 1) return true;
+            }
+        }
+        return false;
+    },
     safeQuorumCheck: function(msg) {
         //
         // Check for conditions.
         //
 
-        let url = msg.payload.url;
-        this.sha1(url).then( hashedUrl => {
-            CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
-                if (status) {
-                    // Send message to backend for increment
-                    CliqzUtils.log(">>> Send message for increment" + hashedUrl);
-                    CliqzHumanWeb.localTemporalUniq[hashedUrl] = 1;
-                }
-                CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
-                    let result = JSON.parse(e.response).success;
-                    CliqzUtils.log(">>> Quorum consent: " + result);
+        let promise = new Promise( (resolve, reject) => {
+            if (CliqzHumanWeb.performQC(msg)) {
+                _log("Perform QC");
+                let url = msg.payload.url;
+                CliqzHumanWeb.sha1(url).then( hashedUrl => {
+                    CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
+                        if (status) {
+                            // Send message to backend for increment
+                            _log("Send message for increment" + hashedUrl);
+                            CliqzHumanWeb.localTemporalUniq[hashedUrl] = {ts: Date.now()};
+                            CliqzHumanWeb.saveRecord('hashedurlinc', JSON.stringify(CliqzHumanWeb.localTemporalUniq));
+                            // Need to check here aswell.
+                        }
+                        CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
+                            let result = JSON.parse(e.response).success;
+                            _log("Quorum consent: " + result);
+                            resolve(result);
+                        });
+                    });
                 });
-            });
+            } else {
+                resolve(true);
+            }
         });
+        return promise;
     },
     sha1: function(s) {
         // Pass the message to the web-worker for SHA-1.
-        var promise = new Promise(function(resolve, reject){
+        let promise = new Promise( (resolve, reject) => {
             let wCrypto = new Worker('chrome://cliqz/content/hpn/crypto-worker.js');
 
             wCrypto.onmessage = function(e){
@@ -4384,8 +4424,8 @@ var CliqzHumanWeb = {
         return promise;
     },
     sendQuorumIncrement: function(hashedUrl){
-        let localTemporalUniq = this.localTemporalUniq;
-        let promise = new Promise(function(resolve, reject){
+        let localTemporalUniq = CliqzHumanWeb.localTemporalUniq;
+        let promise = new Promise( (resolve, reject) => {
           // Check for hashed URL in local temporal queue.
           if(localTemporalUniq && Object.keys(localTemporalUniq).indexOf(hashedUrl) > -1) {
             resolve(false);
@@ -4401,7 +4441,7 @@ var CliqzHumanWeb = {
     },
     getQuorumConsent: function(hashedUrl, callback){
         let payload = "hu=" + hashedUrl;
-        this.sendInstantMessage(payload, callback);
+        CliqzHumanWeb.sendInstantMessage(payload, callback);
     },
     sendInstantMessage: function(payload, callback){
         const uid = Math.floor(Math.random() * 10000000);
@@ -4412,7 +4452,7 @@ var CliqzHumanWeb = {
                   ts: '',
                   ver: '1.5',
                   payload: payload,
-                  rp: this.SAFE_QUORUM_CONSENT,
+                  rp: CliqzHumanWeb.SAFE_QUORUM_CONSENT,
             },
             uid: uid,
             type: 'instant',
@@ -4422,6 +4462,21 @@ var CliqzHumanWeb = {
             sspk: CliqzSecureMessage.secureLogger,
             queryproxyip: CliqzSecureMessage.queryProxyIP,
         });
+    },
+    prunelocalTemporalUniq: function () {
+        if (CliqzHumanWeb.localTemporalUniq) {
+            const currTime = Date.now();
+            let pi = 0;
+            Object.keys(CliqzHumanWeb.localTemporalUniq).forEach( e => {
+              const d = CliqzHumanWeb.localTemporalUniq[e].ts;
+              const diff = (currTime - d);
+              if (diff >= CliqzHumanWeb.keyExpire) {
+                delete CliqzHumanWeb.localTemporalUniq[e];
+                pi += 1;
+              }
+            });
+            CliqzHumanWeb.saveRecord('hashedurlinc', JSON.stringify(CliqzHumanWeb.localTemporalUniq));
+        }
     }
 };
 
