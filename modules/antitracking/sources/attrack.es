@@ -529,7 +529,7 @@ var CliqzAttrack = {
 
         CliqzAttrack.unloadPipeline();
 
-        events.un_sub("attrack:safekeys_updated");
+        events.clean_channel("attrack:safekeys_updated");
     },
     checkInstalledAddons: function() {
         System.import('platform/antitracking/addon-check').then( (addons) => {
