@@ -88,10 +88,10 @@ var CLIQZEnvironment = {
   },
   search: function(e) {
     if(!e || e === '') {
-      // should be moved to UI except 'CLIQZEnvironment.initHomepage(true);'
+      // should be moved to UI except 'CLIQZEnvironment.initHomepage();'
       CLIQZEnvironment.lastSearch = '';
       CLIQZ.UI.hideResultsBox();
-      CLIQZEnvironment.initHomepage(true);
+      CLIQZEnvironment.initHomepage();
       CLIQZ.UI.stopProgressBar();
       CLIQZ.UI.lastResults = null;
       return;
@@ -264,12 +264,10 @@ var CLIQZEnvironment = {
     });
   },
 
-  initHomepage: function(hideLastState) {
-    if(hideLastState) {
-      var start = document.getElementById('resetState');
-      start && (start.style.display = 'none');
+  initHomepage: function() {
+    if (!CLIQZ.UI.isIncognito) {
+      osAPI.getTopSites('onNews', 15);
     }
-    osAPI.getTopSites('onNews', 15);
   },
   setDefaultSearchEngine: function(engine) {
     storage.setObject('defaultSearchEngine', engine);
