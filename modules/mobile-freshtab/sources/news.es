@@ -212,6 +212,10 @@ var News = {
     history.results.forEach(result => News._recentHistory[result.url] = true);
   },
   startPageHandler: function (list) {
+    if (CliqzUtils.getPref("incognito") === "true") {
+      return;
+    }
+
     News.lastShowTime = Date.now();
 
     News.getNews(CliqzUtils.RICH_HEADER + CliqzUtils.getRichHeaderQueryString(''));
