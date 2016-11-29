@@ -27,11 +27,6 @@ export default Ember.Component.extend({
       this.get('notifications').disableNotifications(model);
     },
 
-    activateNotification() {
-      const model = this.get('model');
-      this.get('notifications').activateNotification(model);
-    },
-
     remove() {
       const model = this.get('model');
       this.sendAction("removeAction", model);

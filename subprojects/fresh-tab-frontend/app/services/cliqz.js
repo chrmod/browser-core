@@ -221,21 +221,6 @@ export default Ember.Service.extend({
     }), '*');
   },
 
-  getNotificationsConfig() {
-    let promise = new Promise( resolve => {
-      this.callbacks.notifications = this.callbacks.notifications || {};
-      this.callbacks.notifications.getConfig = resolve;
-    });
-
-    window.postMessage(JSON.stringify({
-      target: 'cliqz',
-      module: 'notifications',
-      action: 'getConfig'
-    }), '*');
-
-    return DS.PromiseObject.create({promise});
-  },
-
   watch(url) {
     const requestId = nextId();
 
@@ -250,26 +235,6 @@ export default Ember.Service.extend({
       target: "cliqz",
       module: "notifications",
       action: "watch",
-      args: [url],
-    }), "*");
-
-    return DS.PromiseObject.create({ promise });
-  },
-
-  activateNotification(url) {
-    const requestId = nextId();
-
-    let promise = new Ember.RSVP.Promise( resolve => {
-      this.callbacks.notifications = this.callbacks.notifications || {};
-      this.callbacks.notifications.activateNotification = this.callbacks.notifications.activateNotification || {};
-      this.callbacks.notifications.activateNotification[requestId] = resolve;
-    });
-
-    window.postMessage(JSON.stringify({
-      requestId,
-      target: "cliqz",
-      module: "notifications",
-      action: "activate",
       args: [url],
     }), "*");
 

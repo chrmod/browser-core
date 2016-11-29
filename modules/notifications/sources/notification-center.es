@@ -56,6 +56,22 @@ export default Evented(class {
       .forEach(this.createSchedule.bind(this));
   }
 
+  availableProviders() {
+    return AVAILABLE_PROVIDERS;
+  }
+
+  availableDomains() {
+    return AVAILABLE_DOMAINS;
+  }
+
+  availableDomain(domain) {
+    return AVAILABLE_DOMAINS[domain];
+  }
+
+  availableProvider(name) {
+    return AVAILABLE_PROVIDERS[name];
+  }
+
   start() {
     this.cron.run(new Date(), { force: true });
     this.cron.start();
@@ -72,14 +88,17 @@ export default Evented(class {
 
   notifications(domains = []) {
     const allWatchedDomains = new Set(this.domainList());
-    const allAvailabledDomains = new Set(Object.keys(AVAILABLE_DOMAINS));
+    const allAvailabledDomains = new Set(Object.keys(this.availableDomains()));
+    var self = this;
     const watchedDomains = domains.filter(
-      domain => allWatchedDomains.has(domain) && (domain in AVAILABLE_DOMAINS)
+      domain => allWatchedDomains.has(domain) && (domain in self.availableDomains())
     );
+
     const availableDomains = domains.filter(
       domain => allAvailabledDomains.has(domain) &&
         !allWatchedDomains.has(domain)
     );
+
     const notifications = this.storage.notifications(watchedDomains);
     const availableNotifications = availableDomains.reduce((hash, domain) => {
       return Object.assign({}, hash, {
@@ -92,8 +111,8 @@ export default Evented(class {
   }
 
   getProvider(domain) {
-    const { providerName, config } = AVAILABLE_DOMAINS[domain];
-    const Provider = AVAILABLE_PROVIDERS[providerName];
+    const { providerName, config } = this.availableDomain(domain);
+    const Provider = this.availableProvider(providerName);
     return new Provider(config);
   }
 
