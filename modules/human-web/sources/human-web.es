@@ -2467,7 +2467,7 @@ var CliqzHumanWeb = {
 
             // Remove C
             if(msg.payload.c) {
-                msg,payload.c = null;
+                msg.payload.c = null;
             }
 
             if (CliqzHumanWeb.dropLongURL(msg.payload.url)==true) {
@@ -2614,23 +2614,25 @@ var CliqzHumanWeb = {
             if (!status) {
                  _log("Check safe quorum");
                 CliqzHumanWeb.safeQuorumCheck(msg).then( safe => {
-                    _log("Need Quorum ?" + safe);
+                    _log("Quorum consent ?" + safe);
                     if (safe) {
                         msg.ver = CliqzHumanWeb.VERSION;
                         msg = CliqzHumanWeb.msgSanitize(msg);
+                        _log("Message sanitized");
                         if (msg) CliqzHumanWeb.incrActionStats(msg.action);
                         if (msg) CliqzHumanWeb.trk.push(msg);
+                        _log("Added to the queue");
+                        CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+                        if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
+                            CliqzHumanWeb.pushTelemetry();
+                        } else {
+                            CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                        }
                     } else {
                         // Send telemetry.
                     }
                 });
 
-            }
-            CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
-            if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
-                CliqzHumanWeb.pushTelemetry();
-            } else {
-                CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
             }
         });
     },
@@ -4383,7 +4385,7 @@ var CliqzHumanWeb = {
 
         let promise = new Promise( (resolve, reject) => {
             if (CliqzHumanWeb.performQC(msg)) {
-                _log("Perform QC");
+                _log("Perform QC: true");
                 let url = msg.payload.url;
                 CliqzHumanWeb.sha1(url).then( hashedUrl => {
                     CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
@@ -4397,6 +4399,7 @@ var CliqzHumanWeb = {
                     });
                 });
             } else {
+                _log("Perform QC: false");
                 resolve(true);
             }
         });
@@ -4465,7 +4468,6 @@ var CliqzHumanWeb = {
         let promise = new Promise( (resolve, reject) => {
             // Check for current date.
             let currentDay = CliqzHumanWeb.getTime().slice(0,8);
-
             // Check if quorumBF exists for current date.
             if (Object.keys(CliqzHumanWeb.quorumBloomFilters).indexOf(currentDay) === -1) {
                 _log("Need to create quorum bloom filter for: " + currentDay);

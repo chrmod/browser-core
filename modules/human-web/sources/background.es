@@ -34,11 +34,12 @@ export default background({
     } catch (e) { CliqzUtils.log(e); }
 
     if (FF48_OR_ABOVE) {
+      this.enabled = true;
       HumanWeb.initAtBrowser();
       utils.bindObjectFunctions(this.actions, this);
       hs.addObserver(HumanWeb.historyObserver, false);
     } else {
-      // utils.setPref("humanWeb", false);
+      this.enabled = false;
     }
   },
 
