@@ -68,3 +68,5 @@ TESTS.HumanWebTest = function (CliqzUtils, CliqzHumanWeb) {
 	});
 
 };
+
+TESTS.HumanWebTest.MIN_BROWSER_VERSION = 48;
