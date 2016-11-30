@@ -113,7 +113,7 @@ var CliqzHumanWeb = {
     oc: null,
     SAFE_QUORUM_PROVIDER: "https://safe-browsing-quorum.cliqz.com/config",
     SAFE_QUORUM_CONSENT: "https://safe-browsing-quorum.cliqz.com/checkquorum",
-    localTemporalUniq: {},
+    quorumBloomFilters: {},
     _md5: function(str) {
         return md5(str);
     },
@@ -1929,7 +1929,7 @@ var CliqzHumanWeb = {
                 _log('Load ts config');
             }
             CliqzHumanWeb.fetchAndStoreConfig();
-            CliqzHumanWeb.prunelocalTemporalUniq();
+            CliqzHumanWeb.expireQuorumBloomFilter();
         }
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
@@ -2378,13 +2378,8 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.quorumThreshold = e.threshold;
         });
 
-        // Load local temp queue.
-        CliqzHumanWeb.loadRecord('hashedurlinc', function(data) {
-            if (data) {
-                _log("Loading data for temporal uniq.");
-                CliqzHumanWeb.localTemporalUniq = JSON.parse(data);
-            }
-        });
+        // Load quorum bloom filter
+        CliqzHumanWeb.loadQuorumBloomFilter();
     },
     initAtBrowser: function(){
         if(CliqzUtils.getPref("dnt", false)) return;
@@ -2444,6 +2439,7 @@ var CliqzHumanWeb = {
             }
 
             // Remove continuations if not in the same domain for extra safety,
+            /*
             if(msg.payload.c) {
                 var cleanCont = [];
                 try {
@@ -2466,6 +2462,12 @@ var CliqzHumanWeb = {
             else{
                 _log("Missing Title: " + msg.payload.x.t);
                 return null;
+            }
+            */
+
+            // Remove C
+            if(msg.payload.c) {
+                msg,payload.c = null;
             }
 
             if (CliqzHumanWeb.dropLongURL(msg.payload.url)==true) {
@@ -4386,17 +4388,12 @@ var CliqzHumanWeb = {
                 CliqzHumanWeb.sha1(url).then( hashedUrl => {
                     CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
                         if (status) {
-                            // Send message to backend for increment
-                            _log("Send message for increment" + hashedUrl);
-                            CliqzHumanWeb.localTemporalUniq[hashedUrl] = {ts: Date.now()};
-                            CliqzHumanWeb.saveRecord('hashedurlinc', JSON.stringify(CliqzHumanWeb.localTemporalUniq));
-                            // Need to check here aswell.
+                            CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
+                                let result = JSON.parse(e.response).success;
+                                _log("Quorum consent: " + result);
+                                resolve(result);
+                            });
                         }
-                        CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
-                            let result = JSON.parse(e.response).success;
-                            _log("Quorum consent: " + result);
-                            resolve(result);
-                        });
                     });
                 });
             } else {
@@ -4424,18 +4421,19 @@ var CliqzHumanWeb = {
         return promise;
     },
     sendQuorumIncrement: function(hashedUrl){
-        let localTemporalUniq = CliqzHumanWeb.localTemporalUniq;
         let promise = new Promise( (resolve, reject) => {
-          // Check for hashed URL in local temporal queue.
-          if(localTemporalUniq && Object.keys(localTemporalUniq).indexOf(hashedUrl) > -1) {
-            resolve(false);
-          }
-          else{
-            let payload = "hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
-            CliqzHumanWeb.sendInstantMessage(payload, e => {
+          // Check for hashed URL in quorum bloom filter;
+          CliqzHumanWeb.isPageVisitedQuorumBloomFilter(hashedUrl).then( status => {
+            if (status) {
                 resolve(true);
-            });
-          }
+            } else {
+                let payload = "hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
+                CliqzHumanWeb.sendInstantMessage(payload, e => {
+                    CliqzHumanWeb.setPageVisitQuorumBloomFilter(hashedUrl);
+                    resolve(true);
+                });
+            }
+          });
         });
         return promise;
     },
@@ -4463,21 +4461,83 @@ var CliqzHumanWeb = {
             queryproxyip: CliqzSecureMessage.queryProxyIP,
         });
     },
-    prunelocalTemporalUniq: function () {
-        if (CliqzHumanWeb.localTemporalUniq) {
-            const currTime = Date.now();
-            let pi = 0;
-            Object.keys(CliqzHumanWeb.localTemporalUniq).forEach( e => {
-              const d = CliqzHumanWeb.localTemporalUniq[e].ts;
-              const diff = (currTime - d);
-              if (diff >= CliqzHumanWeb.keyExpire) {
-                delete CliqzHumanWeb.localTemporalUniq[e];
-                pi += 1;
-              }
+    registerQuorumBloomFilters: function(){
+        let promise = new Promise( (resolve, reject) => {
+            // Check for current date.
+            let currentDay = CliqzHumanWeb.getTime().slice(0,8);
+
+            // Check if quorumBF exists for current date.
+            if (Object.keys(CliqzHumanWeb.quorumBloomFilters).indexOf(currentDay) === -1) {
+                _log("Need to create quorum bloom filter for: " + currentDay);
+                let bloomFilterSize = 10000; // User is unlikely to visit more than 10000 URLs in day. Size is approx. 12 KB. per Bloom filter.
+                let bloomFilter = new CliqzBloomFilter.BloomFilter(Array(bloomFilterSize).join('0'),bloomFilterNHashes);
+                CliqzHumanWeb.quorumBloomFilters[currentDay] = bloomFilter;
+            }
+
+            let bf = CliqzHumanWeb.quorumBloomFilters[currentDay];
+            resolve(bf);
+        });
+
+        return promise;
+    },
+    setPageVisitQuorumBloomFilter: function(hashedUrl) {
+        CliqzHumanWeb.registerQuorumBloomFilters().then( bf => {
+            if (bf) {
+                bf.addSingle(hashedUrl);
+                CliqzHumanWeb.dumpQuorumBloomFilter();
+                return true;
+            }
+        });
+    },
+    isPageVisitedQuorumBloomFilter: function(hashedUrl) {
+        let promise = new Promise( (resolve, reject) => {
+            Object.keys(CliqzHumanWeb.quorumBloomFilters).forEach( eachDay => {
+                var status = CliqzHumanWeb.quorumBloomFilters[eachDay].testSingle(hashedUrl);
+                if (status) {
+                    resolve(true);
+                }
             });
-            CliqzHumanWeb.saveRecord('hashedurlinc', JSON.stringify(CliqzHumanWeb.localTemporalUniq));
-        }
-    }
+            resolve(false);
+        });
+        return promise;
+    },
+    dumpQuorumBloomFilter: function(){
+        let quorumBF = {};
+
+        Object.keys(CliqzHumanWeb.quorumBloomFilters).forEach( eachDay => {
+            let _bf = [].slice.call(CliqzHumanWeb.quorumBloomFilters[eachDay].buckets);
+            quorumBF[eachDay] = _bf.join("|");
+        });
+        CliqzHumanWeb.saveRecord('quorumbf', JSON.stringify(quorumBF));
+    },
+    loadQuorumBloomFilter: function(){
+        CliqzHumanWeb.loadRecord('quorumbf', function(data) {
+            if (data) {
+                let jData = JSON.parse(data);
+                _log("Loading quorum bloom filter");
+                Object.keys(jData).forEach( eachDay => {
+                    let _data = jData[eachDay].split("|").map(Number);
+                    let bloomFilter = new CliqzBloomFilter.BloomFilter(_data,bloomFilterNHashes);
+                    CliqzHumanWeb.quorumBloomFilters[eachDay] = bloomFilter;
+                });
+            }
+        });
+
+    },
+    expireQuorumBloomFilter: function(){
+        // Need to pass the string as YYYY, MM-1, DD to convert to date object.
+        let currentDay = CliqzHumanWeb.getTime().slice(0,8);
+        let dateToday = new Date(currentDay.slice(0,4), currentDay.slice(4,6)-1, currentDay.slice(6,8));
+
+        Object.keys(CliqzHumanWeb.quorumBloomFilters).forEach( eachDay => {
+            let registerDate = new Date(eachDay.slice(0,4), eachDay.slice(4,6)-1, eachDay.slice(6,8));
+            let diff = (dateToday - registerDate);
+            if (diff > CliqzHumanWeb.keyExpire) {
+                delete CliqzHumanWeb.quorumBloomFilters[eachDay];
+            }
+        });
+        CliqzHumanWeb.dumpQuorumBloomFilter();
+    },
 };
 
 export default CliqzHumanWeb;
