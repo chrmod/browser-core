@@ -5,7 +5,6 @@ TESTS.HumanWebTest = function (CliqzUtils, CliqzHumanWeb) {
     // var System = CliqzUtils.getWindow().CLIQZ.System,
     //    CliqzHumanWeb = System.get("human-web/human-web").default;
 
-    return CliqzUtils.getPref("humanWeb", false);
 	describe('human-web.isHash', function() {
         var not_hash = ['',
             'Firefox',

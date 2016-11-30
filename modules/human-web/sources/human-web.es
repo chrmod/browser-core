@@ -111,8 +111,8 @@ var CliqzHumanWeb = {
     bf:null,
     strictQueries:[],
     oc: null,
+    SAFE_QUORUM_ENDPOINT: "https://safe-browsing-quorum.cliqz.com/",
     SAFE_QUORUM_PROVIDER: "https://safe-browsing-quorum.cliqz.com/config",
-    SAFE_QUORUM_CONSENT: "https://safe-browsing-quorum.cliqz.com/checkquorum",
     quorumBloomFilters: {},
     _md5: function(str) {
         return md5(str);
@@ -2367,13 +2367,13 @@ var CliqzHumanWeb = {
         );
 
         CliqzHumanWeb.safeQuorumProvider.load().then( e => {
-            CliqzHumanWeb.keyExpire = e.expiry;
+            CliqzHumanWeb.keyExpire = e.expiry * (24 * 60 * 60 * 1000); // Backend sends it in days;
             CliqzHumanWeb.oc = e.oc;
             CliqzHumanWeb.quorumThreshold = e.threshold;
         });
 
         CliqzHumanWeb.safeQuorumProvider.onUpdate(e => {
-            CliqzHumanWeb.keyExpire = e.expiry;
+            CliqzHumanWeb.keyExpire = e.expiry * (24 * 60 * 60 * 1000); // Backend sends it in days;
             CliqzHumanWeb.oc = e.oc;
             CliqzHumanWeb.quorumThreshold = e.threshold;
         });
@@ -2630,6 +2630,7 @@ var CliqzHumanWeb = {
                         }
                     } else {
                         // Send telemetry.
+                        CliqzHumanWeb.incrActionStats("droppedQC");
                     }
                 });
 
@@ -4391,9 +4392,9 @@ var CliqzHumanWeb = {
                     CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
                         if (status) {
                             CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
-                                let result = JSON.parse(e.response).success;
-                                _log("Quorum consent: " + result);
-                                resolve(result);
+                                let _result = JSON.parse(e.response).result;
+                                _log("Quorum consent: " + _result);
+                                resolve(_result);
                             });
                         }
                     });
@@ -4430,8 +4431,9 @@ var CliqzHumanWeb = {
             if (status) {
                 resolve(true);
             } else {
-                let payload = "hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
-                CliqzHumanWeb.sendInstantMessage(payload, e => {
+                let payload = "?hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
+                let _rp = CliqzHumanWeb.SAFE_QUORUM_ENDPOINT + "incrquorum";
+                CliqzHumanWeb.sendInstantMessage(_rp, payload, e => {
                     CliqzHumanWeb.setPageVisitQuorumBloomFilter(hashedUrl);
                     resolve(true);
                 });
@@ -4441,10 +4443,11 @@ var CliqzHumanWeb = {
         return promise;
     },
     getQuorumConsent: function(hashedUrl, callback){
-        let payload = "hu=" + hashedUrl;
-        CliqzHumanWeb.sendInstantMessage(payload, callback);
+        let payload = "?hu=" + hashedUrl;
+        let _rp = CliqzHumanWeb.SAFE_QUORUM_ENDPOINT + "checkquorum";
+        CliqzHumanWeb.sendInstantMessage(_rp, payload, callback);
     },
-    sendInstantMessage: function(payload, callback){
+    sendInstantMessage: function(_rp, payload, callback){
         const uid = Math.floor(Math.random() * 10000000);
         CliqzSecureMessage.queriesID[uid] = callback;
         CliqzSecureMessage.wCrypto.postMessage({
@@ -4453,7 +4456,7 @@ var CliqzHumanWeb = {
                   ts: '',
                   ver: '1.5',
                   payload: payload,
-                  rp: CliqzHumanWeb.SAFE_QUORUM_CONSENT,
+                  rp: _rp,
             },
             uid: uid,
             type: 'instant',
