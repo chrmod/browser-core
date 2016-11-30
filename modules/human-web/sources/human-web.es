@@ -114,6 +114,7 @@ var CliqzHumanWeb = {
     SAFE_QUORUM_ENDPOINT: "https://safe-browsing-quorum.cliqz.com/",
     SAFE_QUORUM_PROVIDER: "https://safe-browsing-quorum.cliqz.com/config",
     quorumBloomFilters: {},
+    safeQuorumProvider: null,
     _md5: function(str) {
         return md5(str);
     },
@@ -1947,6 +1948,11 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.sendActionStatsIfNeeded();
         }
 
+        // To avoid sending duplicate call when extension starts, it's already in init.
+        if (CliqzHumanWeb.counter > 10 && ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0)) {
+            CliqzHumanWeb.fetchSafeQuorumConfig();
+        }
+
         CliqzHumanWeb.counter += 1;
 
     },
@@ -2354,29 +2360,6 @@ var CliqzHumanWeb = {
         });
 
         rsStrict.onUpdate( e => CliqzHumanWeb.loadContentExtraction(e, "strict"));
-
-
-        // Load quorum config. Update every 20 minutes.
-        CliqzHumanWeb.safeQuorumProvider = new ResourceLoader(
-            ["hw","quorum-config"],
-            {
-              remoteURL: CliqzHumanWeb.SAFE_QUORUM_PROVIDER,
-              cron: 1 * 20 * 60 * 1000,
-              updateInterval: 1 * 20 * 60 * 1000,
-            }
-        );
-
-        CliqzHumanWeb.safeQuorumProvider.load().then( e => {
-            CliqzHumanWeb.keyExpire = e.expiry * (24 * 60 * 60 * 1000); // Backend sends it in days;
-            CliqzHumanWeb.oc = e.oc;
-            CliqzHumanWeb.quorumThreshold = e.threshold;
-        });
-
-        CliqzHumanWeb.safeQuorumProvider.onUpdate(e => {
-            CliqzHumanWeb.keyExpire = e.expiry * (24 * 60 * 60 * 1000); // Backend sends it in days;
-            CliqzHumanWeb.oc = e.oc;
-            CliqzHumanWeb.quorumThreshold = e.threshold;
-        });
 
         // Load quorum bloom filter
         CliqzHumanWeb.loadQuorumBloomFilter();
@@ -4542,6 +4525,22 @@ var CliqzHumanWeb = {
             }
         });
         CliqzHumanWeb.dumpQuorumBloomFilter();
+    },
+    fetchSafeQuorumConfig: function(){
+        //Load latest config.
+        CliqzUtils.httpGet(CliqzHumanWeb.SAFE_QUORUM_PROVIDER,
+          function success(req){
+            if(!CliqzHumanWeb) return;
+                try {
+                    let resp = JSON.parse(req.response);
+                    CliqzHumanWeb.keyExpire = resp.expiry * (24 * 60 * 60 * 1000); // Backend sends it in days;
+                    CliqzHumanWeb.oc = resp.oc;
+                    CliqzHumanWeb.quorumThreshold = resp.threshold;
+                } catch(e){};
+          },
+          function error(res){
+            _log('Error loading config. ')
+          }, 5000);
     },
 };
 
