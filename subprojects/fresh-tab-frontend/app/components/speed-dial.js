@@ -4,7 +4,6 @@ export default Ember.Component.extend({
 
   cliqz: Ember.inject.service(),
   notifications: Ember.inject.service(),
-
   classNames: ['speed-dial'],
   classNameBindings: ['model.hasNewNotifications:new-notifications'],
 
