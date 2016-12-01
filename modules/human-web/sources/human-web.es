@@ -2361,6 +2361,9 @@ var CliqzHumanWeb = {
 
         rsStrict.onUpdate( e => CliqzHumanWeb.loadContentExtraction(e, "strict"));
 
+        // Load config from the backend
+        CliqzHumanWeb.fetchSafeQuorumConfig();
+
         // Load quorum bloom filter
         CliqzHumanWeb.loadQuorumBloomFilter();
     },
