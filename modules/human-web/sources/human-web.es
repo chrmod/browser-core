@@ -2596,32 +2596,35 @@ var CliqzHumanWeb = {
             CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
 
         // Check if host is private or not.
-        CliqzHumanWeb.isLocalURL(msg).then( status => {
-            if (!status) {
-                 _log("Check safe quorum");
-                CliqzHumanWeb.safeQuorumCheck(msg).then( safe => {
-                    _log("Quorum consent ?" + safe);
-                    if (safe) {
-                        msg.ver = CliqzHumanWeb.VERSION;
-                        msg = CliqzHumanWeb.msgSanitize(msg);
-                        _log("Message sanitized");
-                        if (msg) CliqzHumanWeb.incrActionStats(msg.action);
-                        if (msg) CliqzHumanWeb.trk.push(msg);
-                        _log("Added to the queue");
-                        CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
-                        if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
-                            CliqzHumanWeb.pushTelemetry();
-                        } else {
-                            CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
-                        }
-                    } else {
-                        // Send telemetry.
-                        CliqzHumanWeb.incrActionStats("droppedQC");
-                    }
-                });
+        CliqzHumanWeb.isPublicDomain(msg)
+            .then( success => CliqzHumanWeb.safeQuorumCheck(msg), fail => Promise.reject("localcheck") )
+            .then( isSafe => {
+                _log("Quorum consent ?" + isSafe);
+                if (isSafe) {
+                    msg.ver = CliqzHumanWeb.VERSION;
+                    msg = CliqzHumanWeb.msgSanitize(msg);
+                    _log("Message sanitized");
 
-            }
-        });
+                    if (msg) CliqzHumanWeb.incrActionStats(msg.action);
+                    if (msg) CliqzHumanWeb.trk.push(msg);
+                    _log("Added to the queue");
+
+                    CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
+                    if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
+                        CliqzHumanWeb.pushTelemetry();
+                    } else {
+                        CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
+                    }
+                } else {
+                    // Send telemetry.
+                    _log("Dropping data as quorum check failed");
+                    CliqzHumanWeb.incrActionStats("droppedQC");
+                }
+            })
+            .catch( err => {
+                _log("Error while safe quorum check: " + err);
+                CliqzHumanWeb.incrActionStats("dropped-" + err);
+            });
     },
     _telemetry_req: null,
     _telemetry_sending: [],
@@ -4229,7 +4232,7 @@ var CliqzHumanWeb = {
         }
         return false;
     },
-    isLocalURL: function(msg){
+    isPublicDomain: function(msg){
         // We need to check for action page, if the URLs in the message
         // are not private because of local domains. like fritzbox or admin.example.com.
 
@@ -4257,14 +4260,14 @@ var CliqzHumanWeb = {
                     // We drop the message.
                     if (results.indexOf(true) > -1) {
                         _log("Contains private URL");
-                        resolve(true);
+                        reject(false);
                     } else {
                         _log("URLs are public");
-                        resolve(false);
+                        resolve(true);
                     }
                 });
             } else {
-                resolve(false);
+                reject(false);
             }
         });
         return promise;
@@ -4374,17 +4377,16 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.performQC(msg)) {
                 _log("Perform QC: true");
                 let url = msg.payload.url;
-                CliqzHumanWeb.sha1(url).then( hashedUrl => {
-                    CliqzHumanWeb.sendQuorumIncrement(hashedUrl).then( status => {
-                        if (status) {
-                            CliqzHumanWeb.getQuorumConsent(hashedUrl, e => {
-                                let _result = JSON.parse(e.response).result;
-                                _log("Quorum consent: " + _result);
-                                resolve(_result);
-                            });
-                        }
+
+                return CliqzHumanWeb.sha1(url)
+                    .then( CliqzHumanWeb.sendQuorumIncrement )
+                    .then( CliqzHumanWeb.getQuorumConsent )
+                    .then( result => resolve(result))
+                    .catch( err => {
+                        _log("Error while safe quorum check: " + err);
+                        reject("quorumcheck");
                     });
-                });
+
             } else {
                 _log("Perform QC: false");
                 resolve(true);
@@ -4400,6 +4402,7 @@ var CliqzHumanWeb = {
             wCrypto.onmessage = function(e){
                 let result = e.data.result;
                 wCrypto.terminate();
+                _log("Got result for sha1:" + result);
                 resolve(result);
             };
 
@@ -4413,45 +4416,65 @@ var CliqzHumanWeb = {
     sendQuorumIncrement: function(hashedUrl){
         let promise = new Promise( (resolve, reject) => {
           // Check for hashed URL in quorum bloom filter;
-          CliqzHumanWeb.isPageVisitedQuorumBloomFilter(hashedUrl).then( status => {
-            if (status) {
-                resolve(true);
-            } else {
-                let payload = "?hu=" + hashedUrl + "&oc=" + CliqzHumanWeb.oc;
-                let _rp = CliqzHumanWeb.SAFE_QUORUM_ENDPOINT + "incrquorum";
-                CliqzHumanWeb.sendInstantMessage(_rp, payload, e => {
-                    CliqzHumanWeb.setPageVisitQuorumBloomFilter(hashedUrl);
-                    resolve(true);
-                });
-            }
-          });
+          CliqzHumanWeb.isPageVisitedQuorumBloomFilter(hashedUrl)
+            .then( status => {
+                _log("Page already visited: " + status);
+                if (status) {
+                    resolve(hashedUrl);
+                } else {
+                    let payload = `?hu=${hashedUrl}&oc=${CliqzHumanWeb.oc}`;
+                    let _rp = `${CliqzHumanWeb.SAFE_QUORUM_ENDPOINT}incrquorum`;
+                    return CliqzHumanWeb.sendInstantMessage(_rp, payload);
+                }
+             })
+            .then( CliqzHumanWeb.setPageVisitQuorumBloomFilter(hashedUrl))
+            .then( () => resolve(hashedUrl))
+            .catch( err => {
+                _log("Error while sending send quorum increment" + err);
+                reject("quorumincr");
+            });
         });
         return promise;
     },
-    getQuorumConsent: function(hashedUrl, callback){
+    getQuorumConsent: function(hashedUrl){
         let payload = "?hu=" + hashedUrl;
         let _rp = CliqzHumanWeb.SAFE_QUORUM_ENDPOINT + "checkquorum";
-        CliqzHumanWeb.sendInstantMessage(_rp, payload, callback);
-    },
-    sendInstantMessage: function(_rp, payload, callback){
-        const uid = Math.floor(Math.random() * 10000000);
-        CliqzSecureMessage.queriesID[uid] = callback;
-        CliqzSecureMessage.wCrypto.postMessage({
-            msg: { action: 'instant',
-                  type: 'cliqz',
-                  ts: '',
-                  ver: '1.5',
-                  payload: payload,
-                  rp: _rp,
-            },
-            uid: uid,
-            type: 'instant',
-            sourcemap: CliqzSecureMessage.sourceMap,
-            upk: CliqzSecureMessage.uPK,
-            dspk: CliqzSecureMessage.dsPK,
-            sspk: CliqzSecureMessage.secureLogger,
-            queryproxyip: CliqzSecureMessage.queryProxyIP,
+
+        return new Promise( (resolve, reject) => {
+            CliqzHumanWeb.sendInstantMessage(_rp, payload)
+                .then( result => resolve(result))
+                .catch( err => reject("quorumconsent"));
         });
+    },
+    sendInstantMessage: function(_rp, payload){
+        let promise = new Promise( (resolve, reject) => {
+            let wCrypto = new Worker('chrome://cliqz/content/hpn/crypto-worker.js');
+
+            wCrypto.onmessage = function(e){
+                let _result = JSON.parse(e.data.res).result;
+                wCrypto.terminate();
+                _log("Got result for: " + _rp + " : " + _result);
+                resolve(_result);
+            };
+
+            wCrypto.postMessage({
+                msg: { action: 'instant',
+                      type: 'cliqz',
+                      ts: '',
+                      ver: '1.5',
+                      payload: payload,
+                      rp: _rp,
+                },
+                uid: "",
+                type: 'instant',
+                sourcemap: CliqzSecureMessage.sourceMap,
+                upk: CliqzSecureMessage.uPK,
+                dspk: CliqzSecureMessage.dsPK,
+                sspk: CliqzSecureMessage.secureLogger,
+                queryproxyip: CliqzSecureMessage.queryProxyIP,
+            });
+        });
+        return promise;
     },
     registerQuorumBloomFilters: function(){
         let promise = new Promise( (resolve, reject) => {
@@ -4476,7 +4499,7 @@ var CliqzHumanWeb = {
             if (bf) {
                 bf.addSingle(hashedUrl);
                 CliqzHumanWeb.dumpQuorumBloomFilter();
-                return true;
+                Promise.resolve(true);
             }
         });
     },
