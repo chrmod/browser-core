@@ -710,7 +710,7 @@ var CliqzAttrack = {
 
       trackers.forEach(function(dom) {
         result.trackers[dom] = {};
-        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs'].forEach(function (k) {
+        ['c', 'cookie_set', 'cookie_blocked', 'bad_cookie_sent', 'bad_qs', 'set_cookie_blocked'].forEach(function (k) {
           result.trackers[dom][k] = plain_data.tps[dom][k] || 0;
         });
         // actual block count can be in several different signals, depending on configuration. Aggregate them into one.
@@ -718,10 +718,13 @@ var CliqzAttrack = {
             return cumsum + (plain_data.tps[dom]['token_blocked_' + action] || 0);
         }, 0);
 
-        result.cookies.allowed += result.trackers[dom]['cookie_set'] - result.trackers[dom]['cookie_blocked'];
-        result.cookies.blocked += result.trackers[dom]['cookie_blocked'];
-        result.requests.safe += result.trackers[dom]['c'] - result.trackers[dom].tokens_removed;
+        result.cookies.allowed += result.trackers[dom].cookie_set - result.trackers[dom].cookie_blocked;
+        result.cookies.blocked += result.trackers[dom].cookie_blocked + result.trackers[dom].set_cookie_blocked;
+        result.requests.safe += result.trackers[dom].c - result.trackers[dom].tokens_removed;
         result.requests.unsafe += result.trackers[dom].tokens_removed;
+
+        // add set cookie blocks to cookie blocked count
+        result.trackers[dom].cookie_blocked += result.trackers[dom].set_cookie_blocked;
 
         let tld = getGeneralDomain(dom),
           company = tld;
