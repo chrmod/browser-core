@@ -1,6 +1,9 @@
 export default describeModule("ui/background",
   function() {
     return {
+      "core/base/background": {
+        default: b => b
+      },
       "core/events": {},
       "core/cliqz": {
         utils: {},

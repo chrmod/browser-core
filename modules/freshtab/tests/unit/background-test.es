@@ -29,6 +29,9 @@ export default describeModule("freshtab/background",
       "core/adult-domain": {
         AdultDomain: function () {}
       },
+      "core/base/background": {
+        default: b => b
+      }
     }
   },
   function () {
