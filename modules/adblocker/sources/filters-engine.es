@@ -524,9 +524,20 @@ class CosmeticBucket {
    * @param {Array} nodeInfo - Array of tuples [id, tagName, className].
   **/
   getMatchingRules(hostname, nodeInfo) {
-    const rules = [...this.miscFilters.filter(filter => matchCosmeticFilter(filter, hostname))];
+    const rules = [];
     const uniqIds = new Set();
 
+    // Deal with misc filters
+    this.miscFilters
+      .filter(rule => matchCosmeticFilter(rule, hostname))
+      .forEach(rule => {
+        if (!uniqIds.has(rule.id)) {
+          rules.push(rule);
+          uniqIds.add(rule.id);
+        }
+      });
+
+    // Find other matching rules in engine
     nodeInfo.forEach(node => {
       // [id, tagName, className] = node
       node.forEach(token => {
@@ -543,27 +554,22 @@ class CosmeticBucket {
 
     const matchingRules = {};
     function addRule(rule, matchingHost, exception) {
+      const value = { rule, matchingHost, exception };
       if (rule.selector in matchingRules) {
         const oldMatchingHost = matchingRules[rule.selector].matchingHost;
         if (matchingHost.length > oldMatchingHost.length) {
-          matchingRules[rule.selector] = {
-            rule,
-            exception,
-            matchingHost,
-          };
+          matchingRules[rule.selector] = value;
         }
       } else {
-        matchingRules[rule.selector] = {
-          rule,
-          exception,
-          matchingHost,
-        };
+        matchingRules[rule.selector] = value;
       }
     }
 
     // filter by hostname
-    if (hostname !== '') {
-      rules.forEach(rule => {
+    rules.forEach(rule => {
+      if (rule.hostnames.length === 0) {
+        addRule(rule, '', false);
+      } else {
         rule.hostnames.forEach(h => {
           let exception = false;
           if (h.startsWith('~')) {
@@ -577,12 +583,8 @@ class CosmeticBucket {
             addRule(rule, h, exception);
           }
         });
-      });
-    } else {  // miscFilters
-      rules.forEach(rule => {
-        addRule(rule, '', false);
-      });
-    }
+      }
+    });
 
     return matchingRules;
   }
@@ -661,7 +663,7 @@ class CosmeticEngine {
     log(`getMatchingRules ${url} => ${hostname} (${JSON.stringify(nodeInfo)})`);
 
     // Check misc bucket
-    const miscMatchingRules = this.miscFilters.getMatchingRules('', nodeInfo);
+    const miscMatchingRules = this.miscFilters.getMatchingRules(hostname, nodeInfo);
 
     // Check hostname buckets
     this.cosmetics.getFromKey(hostname).forEach(bucket => {
@@ -700,8 +702,8 @@ class CosmeticEngine {
       for (const value of bucket.index.index.values()) {
         value.forEach(rule => {
           if (!uniqIds.has(rule.id)) {
-          // check if one of the preceeding rules has the same selector
-            let selectorMatched = rules.find(r => r.unhide !== rule.unhide && r.selector === rule.selector);
+            // check if one of the preceeding rules has the same selector
+            const selectorMatched = rules.find(r => r.unhide !== rule.unhide && r.selector === rule.selector);
             if (!selectorMatched) {
               // if not then check if it should be added to the rules
               if (rule.scriptInject) {
@@ -716,7 +718,8 @@ class CosmeticEngine {
                 uniqIds.add(rule.id);
               }
             } else {
-              // otherwise, then this implies that the two rules negating each others and should be removed
+              // otherwise, then this implies that the two rules
+              // negating each others and should be removed
               rules.splice(rules.indexOf(selectorMatched), 1);
               uniqIds.add(rule.id);
             }

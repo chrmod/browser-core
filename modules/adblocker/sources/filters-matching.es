@@ -211,9 +211,9 @@ function matchHostname(hostname, hostnamePattern) {
 
 
 function matchHostnames(hostname, hostnames) {
-  // TODO: Do we want to return `true` when there is no hostname constraint?
-  if (!hostnames) {
-    return false;
+  // If there is no constraint, then this is a match
+  if (hostnames.length === 0) {
+    return true;
   }
 
   for (const hn of hostnames) {
@@ -227,13 +227,15 @@ function matchHostnames(hostname, hostnames) {
 
 
 export function matchCosmeticFilter(filter, hostname) {
-  if (filter.supported) {
-    if (filter.hostnames && hostname) {
-      return matchHostnames(hostname, filter.hostnames);
-    }
+  let result = false;
 
-    return true;
+  if (filter.supported) {
+    if (filter.hostnames.length !== 0 && hostname) {
+      result = matchHostnames(hostname, filter.hostnames);
+    } else {
+      result = true;
+    }
   }
 
-  return false;
+  return result;
 }
