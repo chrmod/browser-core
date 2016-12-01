@@ -223,6 +223,8 @@ export default class {
         events.nextTick(() => {
           utils.callAction('core', 'disableModule', ['antitracking']);
         });
+        //reset the badge when the anti tracking module gets offline
+        this.updateBadge('0');
         break;
       default:
         break;
