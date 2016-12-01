@@ -54,12 +54,18 @@ export default class {
   unload() {
     removeStylesheet(this.window.document, this.cssUrl);
 
-    maybe(this, 'buttonA').then(button => {
+    try {
+      const button = this.buttonA();
       button.removeEventListener('mouseover', this.onMouseOver);
       button.addEventListener('mouseout', this.onMouseOut);
+    } catch (e) {
+      // no button no problem
+    }
 
+    if (this.panel) {
       this.panel.detach();
-    });
+      destroy this.panel;
+    };
   }
 
   onMouseOver() {
