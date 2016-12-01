@@ -425,7 +425,7 @@ export default class {
           ccData.generalState = 'inactive';
         }
 
-        if (!moduleData.antitracking){
+        if (!moduleData.antitracking || Object.keys(moduleData.antitracking).length == 0){
           // completely disabled
           ccData.generalState = 'critical';
         } else if(moduleData.antitracking.isWhitelisted) {
