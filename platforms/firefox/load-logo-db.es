@@ -16,7 +16,7 @@ export default function () {
   if (dev) {
     version = dev;
   } else if (config) {
-    version = config;
+    version = config || '1473867650984';
   }
 
   return new Promise((resolve, reject) => {
