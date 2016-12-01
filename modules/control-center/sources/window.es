@@ -425,12 +425,14 @@ export default class {
           ccData.generalState = 'inactive';
         }
 
-        if (!moduleData.antitracking || Object.keys(moduleData.antitracking).length == 0){
-          // completely disabled
-          ccData.generalState = 'critical';
-        } else if(moduleData.antitracking.isWhitelisted) {
-          // only this website is whitelisted
-          ccData.generalState = 'inactive';
+        if(moduleData.antitracking && !moduleData.antitracking.enabled){
+          if(moduleData.antitracking.isWhitelisted){
+            // only this website is whitelisted
+            ccData.generalState = 'inactive';
+          }
+          else {
+            ccData.generalState = 'critical';
+          }
         }
       } else {
         ccData.generalState = 'off';
