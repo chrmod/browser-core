@@ -76,7 +76,7 @@ export default background({
         url: info.hostname,
         cookiesCount: info.cookies.blocked,
         requestsCount: info.requests.unsafe,
-        enabled: utils.getPref('antiTrackTest'),
+        enabled: utils.getPref('modules.antitracking.enabled'),
         isWhitelisted: CliqzAttrack.isSourceWhitelisted(info.hostname),
         reload: info.reload || false,
         trakersList: info,
@@ -100,7 +100,7 @@ export default background({
     * @param cb Callback
     */
     toggleAttrack(args, cb) {
-      var currentState = utils.getPref('antiTrackTest');
+      var currentState = utils.getPref('modules.antitracking.enabled');
 
       if (currentState) {
         CliqzAttrack.disableModule();

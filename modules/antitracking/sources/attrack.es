@@ -49,7 +49,7 @@ var CliqzAttrack = {
     VERSIONCHECK_URL: 'https://cdn.cliqz.com/anti-tracking/whitelist/versioncheck.json',
     URL_ALERT_RULES: 'chrome://cliqz/content/anti-tracking-rules.json',
     URL_BLOCK_RULES: 'https://cdn.cliqz.com/anti-tracking/whitelist/anti-tracking-block-rules.json',
-    ENABLE_PREF: 'antiTrackTest',
+    ENABLE_PREF: 'modules.antitracking.enabled',
     debug: false,
     msgType:'attrack',
     whitelist: null,
