@@ -265,7 +265,7 @@ var CLIQZEnvironment = {
   },
 
   initHomepage: function() {
-    if (!CLIQZ.UI.isIncognito) {
+    if (!CLIQZ.UI  || !CLIQZ.UI.isIncognito) {
       osAPI.getTopSites('onNews', 15);
     }
   },
