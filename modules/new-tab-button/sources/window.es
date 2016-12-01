@@ -64,7 +64,7 @@ export default class {
 
     if (this.panel) {
       this.panel.detach();
-      destroy this.panel;
+      delete this.panel;
     };
   }
 
