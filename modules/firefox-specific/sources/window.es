@@ -14,15 +14,9 @@ export default class {
   }
 
   init() {
-    // Create observers
     const tabObserver = new TabObserver(this.window);
 
     // Create event proxies
-    this.tabLocationChangeEvent = events.proxyEvent(
-      'core.tab_location_change',
-      tabObserver,
-      'location_change'
-    );
     this.tabStateChangeEvent = events.proxyEvent(
       'core.tab_state_change',
       tabObserver,
@@ -37,13 +31,12 @@ export default class {
         const tab = event.target;
         const browser = tab.linkedBrowser;
         const win = new Window(tab.ownerGlobal);
-        return [
-          {
-            windowId: win.id,
-            url: browser.currentURI.spec,
-            isPrivate: browser.loadContext.usePrivateBrowsing,
-          }
-        ];
+        const msg = {
+          windowId: win.id,
+          url: browser.currentURI.spec,
+          isPrivate: browser.loadContext.usePrivateBrowsing,
+        };
+        return [msg];
       }
     );
 
@@ -59,7 +52,6 @@ export default class {
 
   unload() {
     // Unsubsribe event proxies
-    this.tabLocationChangeEvent.unsubscribe();
     this.tabStateChangeEvent.unsubscribe();
     this.tabSelectEventProxy.unsubscribe();
     Demo.unload(this.window);

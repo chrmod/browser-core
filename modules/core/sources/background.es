@@ -110,14 +110,14 @@ export default background({
     'core:tab_select': function onTabSelect({ url, isPrivate }) {
       events.pub('core.location_change', url, isPrivate);
     },
-    'core:location-change': function onLocationChange({ url, isPrivate }) {
+    'content:location-change': function onLocationChange({ url, isPrivate }) {
       events.pub('core.location_change', url, isPrivate);
     },
   },
 
   actions: {
     notifyLocationChange(...args) {
-      events.pub('core:location-change', ...args);
+      events.pub('content:location-change', ...args);
     },
     recordMouseDown(...args) {
       events.pub('core:mouse-down', ...args);
@@ -195,6 +195,7 @@ export default background({
       return this.actions.queryCliqz(value);
     },
     recordLang(url, lang) {
+      events.pub('content:dom-ready', url);
       if (lang) {
         language.addLocale(url, lang);
       }

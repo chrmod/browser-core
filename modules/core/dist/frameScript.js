@@ -34,7 +34,7 @@ LocationObserver.prototype.stop = function () {
   this.webProgress.removeProgressListener(this);
 };
 
-LocationObserver.prototype.onLocationChange = function (aProgress, aRequest, aURI, flags) {
+LocationObserver.prototype.onLocationChange = function (aProgress, aRequest, aURI, aFlags) {
   if ( !aProgress.isTopLevel ) {
     return;
   }
@@ -56,8 +56,13 @@ LocationObserver.prototype.onLocationChange = function (aProgress, aRequest, aUR
   var msg = {
     url: aURI.spec,
     referrer: referrer,
-    isPrivate: aProgress.usePrivateBrowsing
+    isPrivate: aProgress.usePrivateBrowsing,
+    flags: aFlags,
+    isLoadingDocument: aProgress.isLoadingDocument,
+    domWindowId: aProgress.DOMWindowID
   };
+
+  //log('msg', JSON.stringify(msg))
 
   send({
     module: 'core',
@@ -66,7 +71,7 @@ LocationObserver.prototype.onLocationChange = function (aProgress, aRequest, aUR
   });
 };
 
-log('new')
+//log('new')
 
 var webProgress = this.docShell
   .QueryInterface(Ci.nsIInterfaceRequestor)
