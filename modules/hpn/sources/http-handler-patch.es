@@ -30,8 +30,7 @@ export function overRideCliqzResults() {
         queryproxyip: CliqzSecureMessage.queryProxyIP,
       });
       return null;
-    } else if (url.startsWith(utils.RESULTS_PROVIDER_LOG) &&
-               utils.getPref('hpn-telemetry', false)) {
+    } else if (url.startsWith(utils.RESULTS_PROVIDER_LOG)) {
       const query = url.replace((utils.RESULTS_PROVIDER_LOG), '');
       const uid = Math.floor(Math.random() * 10000000);
       CliqzSecureMessage.queriesID[uid] = callback;
@@ -51,8 +50,7 @@ export function overRideCliqzResults() {
         queryproxyip: CliqzSecureMessage.queryProxyIP,
       });
       return null;
-    } else if (url.startsWith(BW_URL) &&
-               utils.getPref('hpn-telemetry', false)) {
+    } else if (url.startsWith(BW_URL)) {
       const query = url.replace(BW_URL, '');
       const uid = Math.floor(Math.random() * 10000000);
       CliqzSecureMessage.queriesID[uid] = callback;
@@ -73,8 +71,7 @@ export function overRideCliqzResults() {
         queryproxyip: CliqzSecureMessage.queryProxyIP,
       });
       return null;
-    } else if (url === utils.SAFE_BROWSING &&
-               utils.getPref('hpn-telemetry', false)) {
+    } else if (url === utils.SAFE_BROWSING) {
       const batch = JSON.parse(data);
       if (batch.length > 0) {
         batch.forEach(eachMsg => {
@@ -91,8 +88,7 @@ export function overRideCliqzResults() {
     environment.proxyPromiseHttpHandler = environment.promiseHttpHandler;
   }
   utils.promiseHttpHandler = function (method, url, data, timeout, compressedPost) {
-    if (url === utils.SAFE_BROWSING &&
-        utils.getPref('hpn-telemetry', false)) {
+    if (url === utils.SAFE_BROWSING) {
       return environment.proxyPromiseHttpHandler(method, url, data, timeout, false);
     } else {
       return environment.proxyPromiseHttpHandler.apply(utils, arguments);

@@ -20,9 +20,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 /* Global variables
 */
 let proxyCounter = 0;
-// hpn-query pref is to encrypt queries
-// hpn-telemetry is to encrypt telemetry data.
-CliqzUtils.setPref('hpn-query', CliqzUtils.getPref('hpn-query', false));
+
 
 const CliqzSecureMessage = {
   VERSION: '0.1',
@@ -212,7 +210,6 @@ const CliqzSecureMessage = {
     });
 
     if (CliqzUtils.getPref('proxyNetwork', true)) {
-      CliqzUtils.setPref('hpn-telemetry', CliqzUtils.getPref('hpn-telemetry', true));
       overRideCliqzResults();
     }
 

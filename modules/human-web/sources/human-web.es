@@ -4267,7 +4267,7 @@ var CliqzHumanWeb = {
                     }
                 });
             } else {
-                reject(false);
+                resolve(true);
             }
         });
         return promise;
