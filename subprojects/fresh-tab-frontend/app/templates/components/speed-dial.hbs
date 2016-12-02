@@ -1,5 +1,5 @@
 <section contextmenu="speedDialCMenu-{{index}}-{{type}}">
-  <a class="historyLink {{if model.searchAlias "historyWithSearch"}}" data-index="{{index}}" href="{{model.url}}" title="{{model.title}}">
+  <a {{action "click" preventDefault=false}} class="historyLink {{if model.searchAlias "historyWithSearch"}}" data-index="{{index}}" href="{{model.url}}" title="{{model.title}}">
 
     <div class="dialIconHolder {{if model.searchAlias "dialWithSearch"}}">
       {{cliqz-logo model=model.logo}}

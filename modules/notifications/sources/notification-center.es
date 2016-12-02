@@ -1,4 +1,5 @@
 import console from '../core/console';
+import {utils} from '../core/cliqz'
 import { Cron } from '../core/anacron';
 import GmailProvider from './providers/gmail';
 import PinTabProvider from './providers/pin-tab';
