@@ -13,11 +13,17 @@ function get(url, headers, data, timeout) {
       req.setRequestHeader(id, headers[id]);
     }
 
-    req.onreadystatechange = function() {
-      if (req.readyState === 4) {
+    req.onload = function() {
+      if (req.status === 200) {
         resolve(req);
+      } else {
+        reject('cannot-fetch-count');
       }
     };
+
+    req.onerror = function () {
+      reject('cannot-fetch-count');
+    }
 
     req.channel
       .QueryInterface(Ci.nsIHttpChannelInternal)
@@ -48,9 +54,15 @@ export default class {
     var fullCount = 0;
     var arr = feed.getElementsByTagName("fullcount");
     if(arr && arr.length) {
-      var tmp = arr[0].textContent;
-      if(tmp) fullCount = parseInt(tmp) || 0;
+      var text = arr[0].textContent;
+      if (text) {
+        fullCount = parseInt(text);
+      }
     }
-    return fullCount;
+    if (fullCount >= 0) {
+      return fullCount;
+    } else {
+      throw 'cannot-get-count';
+    }
   }
 }

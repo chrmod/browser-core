@@ -52,6 +52,11 @@ export default class {
     return isChanged;
   }
 
+  deleteDomain(domain) {
+    const key = `watchedDomains.${domain}`;
+    this.storage.removeItem(key);
+  }
+
   notifications(domains) {
     return domains.reduce((counts, domain) => {
       const key = `watchedDomains.${domain}`;

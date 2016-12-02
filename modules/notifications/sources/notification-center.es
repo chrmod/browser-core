@@ -169,8 +169,9 @@ export default Evented(class {
   removeDomain(domain) {
     const task = this.tasks.get(domain);
     this.cron.unschedule(task);
-    this.tasks.delete(task);
+    this.tasks.delete(domain);
     this.clearDomainUnread(domain);
     this.storage.removeWatchedDomain(domain);
+    this.storage.deleteDomain(domain);
   }
 });
