@@ -255,7 +255,7 @@ export default class {
   }
 
   searchIndexCountry(data) {
-    events.pub('control-center:setDeafult-indexCountry', data.defaultCountry);
+    events.pub('control-center:setDefault-indexCountry', data.defaultCountry);
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: 'search-index-country',

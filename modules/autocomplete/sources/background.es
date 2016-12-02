@@ -67,7 +67,7 @@ export default background({
     'control-center:setDefault-search': function setDefaultSearchEngine(engine) {
       this.autocomplete.CliqzResultProviders.setCurrentSearchEngine(engine);
     },
-    'control-center:setDeafult-indexCountry': function setDefaultIndexCountry(country) {
+    'control-center:setDefault-indexCountry': function setDefaultIndexCountry(country) {
       utils.setDefaultIndexCountry(country);
     }
   }
