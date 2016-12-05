@@ -60,6 +60,7 @@ export default class {
       this.window,
       'chrome://cliqz/content/control-center/index.html',
       PANEL_ID,
+      'control-center',
       false,
       this.actions
     );
