@@ -119,6 +119,14 @@ export default background({
     notifyLocationChange(...args) {
       events.pub('content:location-change', ...args);
     },
+    notifyStateChange(...args) {
+      // TODO: design proper property list for the event
+      events.pub('content:state-change', {
+        url: args[0].url
+      });
+      // DEPRECATED - use content:state-change instead
+      events.pub('core.tab_state_change', ...args);
+    },
     recordMouseDown(...args) {
       events.pub('core:mouse-down', ...args);
     },

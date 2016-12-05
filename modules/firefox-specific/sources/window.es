@@ -4,7 +4,6 @@ import utils from '../core/utils';
 import events from '../core/events';
 import HistoryManager from '../core/history-manager';
 import { Services } from '../platform/globals';
-import TabObserver from '../platform/tab-observer';
 import { Window } from '../core/browser';
 
 export default class {
@@ -14,14 +13,6 @@ export default class {
   }
 
   init() {
-    const tabObserver = new TabObserver(this.window);
-
-    // Create event proxies
-    this.tabStateChangeEvent = events.proxyEvent(
-      'core.tab_state_change',
-      tabObserver,
-      'state_change'
-    );
     this.tabSelectEventProxy = events.proxyEvent(
       'core:tab_select',
       this.window.gBrowser.tabContainer,
@@ -52,7 +43,6 @@ export default class {
 
   unload() {
     // Unsubsribe event proxies
-    this.tabStateChangeEvent.unsubscribe();
     this.tabSelectEventProxy.unsubscribe();
     Demo.unload(this.window);
     Redirect.unload();
