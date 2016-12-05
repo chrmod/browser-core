@@ -6,6 +6,7 @@ import SpeedDial from 'freshtab/speed-dial';
 import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 import { AdultDomain } from 'core/adult-domain';
 import background from 'core/base/background';
+import { forEachWindow } from 'core/browser';
 
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
@@ -403,6 +404,18 @@ export default background({
         context: 'home',
         target: target
       });
+    },
+
+    refreshFrontend() {
+      forEachWindow(window => {
+        const tabs = [...window.gBrowser.tabs];
+        tabs.forEach(tab => {
+          const browser = tab.linkedBrowser;
+          if (browser.currentURI.spec === 'about:cliqz') {
+            browser.reload();
+          }
+        });
+      })
     }
 
   },
@@ -433,6 +446,11 @@ export default background({
           messageId: message.id,
         }
       ]);
+    },
+    "geolocation:wake-notification": function onWake(timestamp) {
+      this.actions.getNews().then(() => {
+        this.actions.refreshFrontend();
+      });
     },
   },
 });
