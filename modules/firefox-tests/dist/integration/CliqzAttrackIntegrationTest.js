@@ -12,14 +12,14 @@ TESTS.CliqzAttrackIntegrationTest = function(CliqzUtils) {
       datetime = System.get("antitracking/time"),
       trackertxt = System.get("antitracking/tracker-txt");
   // make sure that module is loaded (default it is not initialised on extension startup)
-  CliqzUtils.setPref('antiTrackTest', true);
+  CliqzUtils.setPref('modules.antitracking.enabled', true);
 
   describe('CliqzAttrack_integration', function() {
     this.retries(3);
 
     var echoed = [],
       md5 = CliqzHumanWeb._md5,
-      module_enabled = CliqzUtils.getPref('antiTrackTest', false),
+      module_enabled = CliqzUtils.getPref('modules.antitracking.enabled', false),
       window = CliqzUtils.getWindow(),
       hour = datetime.hourString(datetime.newUTCDate()),
       versionUnderTest = parseInt(getBrowserVersion().substring(0, 2));

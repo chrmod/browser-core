@@ -35,9 +35,9 @@ TESTS.AttrackTest = function (CliqzUtils) {
         pacemaker = System.get("antitracking/pacemaker").default;
 
 
-    var module_enabled = CliqzUtils.getPref('antiTrackTest', false);
+    var module_enabled = CliqzUtils.getPref('modules.antitracking.enabled', false);
     // make sure that module is loaded (default it is not initialised on extension startup)
-    CliqzUtils.setPref('antiTrackTest', true);
+    CliqzUtils.setPref('modules.antitracking.enabled', true);
 
     before(function() {
       // pause pacemaker to prevent external list updates

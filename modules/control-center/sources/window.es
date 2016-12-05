@@ -225,6 +225,8 @@ export default class {
         events.nextTick(() => {
           utils.callAction('core', 'disableModule', ['antitracking']);
         });
+        //reset the badge when the anti tracking module gets offline
+        this.updateBadge('0');
         break;
       default:
         break;
@@ -437,12 +439,14 @@ export default class {
           ccData.generalState = 'inactive';
         }
 
-        if (!moduleData.antitracking || Object.keys(moduleData.antitracking).length == 0){
-          // completely disabled
-          ccData.generalState = 'critical';
-        } else if(moduleData.antitracking.isWhitelisted) {
-          // only this website is whitelisted
-          ccData.generalState = 'inactive';
+        if(moduleData.antitracking && !moduleData.antitracking.enabled){
+          if(moduleData.antitracking.isWhitelisted){
+            // only this website is whitelisted
+            ccData.generalState = 'inactive';
+          }
+          else {
+            ccData.generalState = 'critical';
+          }
         }
       } else {
         ccData.generalState = 'off';

@@ -90,7 +90,8 @@ export default class {
     var info = CliqzAttrack.getCurrentTabBlockingInfo(this.window.gBrowser),
         ps = info.ps,
         hostname = URLInfo.get(this.window.gBrowser.currentURI.spec).hostname,
-        isWhitelisted = CliqzAttrack.isSourceWhitelisted(hostname);
+        isWhitelisted = CliqzAttrack.isSourceWhitelisted(hostname),
+        enabled = utils.getPref('modules.antitracking.enabled', true) && !isWhitelisted;
 
     return {
       visible: true,
@@ -99,12 +100,12 @@ export default class {
       cookiesCount: info.cookies.blocked,
       requestsCount: info.requests.unsafe,
       totalCount: info.cookies.blocked + info.requests.unsafe,
-      enabled: true,
-      isWhitelisted: isWhitelisted,
+      enabled: enabled,
+      isWhitelisted: isWhitelisted || enabled,
       reload: info.reload || false,
       trackersList: info,
       ps: ps,
-      state: isWhitelisted ? 'inactive' : 'active',
+      state: enabled ? 'active' : isWhitelisted ? 'inactive' : 'critical'
     }
   }
 };
