@@ -52,6 +52,7 @@ export default class {
       "enableSearch": this.enableSearch.bind(this),
       "cliqz-tab": this.cliqzTab.bind(this),
       "complementary-search": this.complementarySearch.bind(this),
+      "search-index-country": this.searchIndexCountry.bind(this),
       'type-filter': this.typeFilter.bind(this),
     }
 
@@ -249,6 +250,16 @@ export default class {
       type: TELEMETRY_TYPE,
       target: 'complementary_search',
       state: 'search_engine_change_' + data.defaultSearch,
+      action: 'click'
+    });
+  }
+
+  searchIndexCountry(data) {
+    events.pub('control-center:setDefault-indexCountry', data.defaultCountry);
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'search-index-country',
+      state: 'search_index_country_' + data.defaultCountry,
       action: 'click'
     });
   }

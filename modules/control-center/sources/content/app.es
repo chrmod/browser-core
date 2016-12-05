@@ -122,6 +122,15 @@ $('#control-center').on('click', '[complementarySearchChanger]', function(ev) {
   });
 });
 
+$('#control-center').on('click', '[searchIndexCountryChanger]', function(ev) {
+  sendMessageToWindow({
+    action: 'search-index-country',
+    data: {
+      defaultCountry: $(this).val()
+    }
+  });
+});
+
 $('#control-center').on('click', '[antiTrackingStatusChanger]', function(ev){
   var state,
       type = $(this).attr('data-type');
