@@ -1,24 +1,27 @@
-import Aggregator from 'telemetry/aggregators/base';
-import Stats from 'telemetry/simple-statistics';
+import Stats from 'anolysis/simple-statistics';
 
-export default class extends Aggregator {
-  // TODO: rename 'records' to 'data'?
-  // TODO: include telemetry signal version?
-  aggregate(records) {
+
+export default class {
+  constructor(keyBlackList = ['id', 'ts', 'session', 'seq', '_id', '_rev']) {
+    this.keyBlacklist = keyBlackList;
+  }
+
+  aggregate(data) {
     const aggregation = {
       // TODO: keep DRY (same logic as in retention)
-      empty: Object.keys(records).length === 0 ||
-           !Object.keys(records).some(key => records[key].length),
+      empty: Object.keys(data).length === 0 ||
+           !Object.keys(data).some(key => data[key].length),
       types: { },
     };
 
-    Object.keys(records).forEach((type) => {
+    Object.keys(data).forEach((type) => {
       // TODO: combine getting keys and series (for efficiency)
-      const keys = this.getAllKeys(records[type], { blacklist: this.keyBlacklist });
+      const records = data[type].map(record => record.behavior || {});
+      const keys = this.getAllKeys(records, { blacklist: this.keyBlacklist });
 
-      aggregation.types[type] = { count: records[type].length, keys: { } };
+      aggregation.types[type] = { count: records.length, keys: { } };
       keys.forEach((key) => {
-        const series = this.getValuesForKey(records[type], key);
+        const series = this.getValuesForKey(records, key);
         if (this.isIntervalSeries(series)) {
           aggregation.types[type].keys[key] = this.describeIntervalSeries(series);
         } else {
@@ -30,20 +33,38 @@ export default class extends Aggregator {
     return aggregation;
   }
 
-  getValuesForKey(objects, key) {
-    return objects.filter(o => o.hasOwnProperty(key)).map(o => o[key]);
+  // ----------------------------------------------------------------------- //
+  // Private API - Kept in the class for unit tests
+  // ----------------------------------------------------------------------- //
+
+  getAllKeys(objects, { blacklist = [] } = { }) {
+    const keys = new Set();
+    objects.forEach(o => Object.keys(o).forEach(key => keys.add(key)));
+    blacklist.forEach(key => keys.delete(key));
+    return keys;
   }
+
+
+  getValuesForKey(objects, key) {
+    return objects
+      .filter(o => Object.prototype.hasOwnProperty.call(o, key))
+      .map(o => o[key]);
+  }
+
 
   isIntervalSeries(series) {
     return series.every(e => e === null || typeof e === 'number');
   }
 
+
   countOccurences(array) {
+    /* eslint no-param-reassign: off */
     return array.reduce((counts, value) => {
       counts[value] = (counts[value] || 0) + 1;
       return counts;
     }, Object.create(null));
   }
+
 
   describeCategoricalSeries(series) {
     return Object.assign(Object.create(null), {
@@ -51,6 +72,7 @@ export default class extends Aggregator {
       categories: this.countOccurences(series),
     });
   }
+
 
   // TODO: add histogram
   describeIntervalSeries(series) {
@@ -61,7 +83,7 @@ export default class extends Aggregator {
       if (typeof value === 'number') {
         numbers.push(value);
       } else if (value === null) {
-        nullCount++;
+        nullCount += 1;
       }
     });
 
