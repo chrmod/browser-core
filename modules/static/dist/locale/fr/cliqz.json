@@ -630,7 +630,7 @@
         "message": "P/E ratio(ttm)"
     },
     "OutOfCoverageWarning": {
-       "message": "Les résultats de CLIQZ ne sont pas encore optimisés pour votre pays, mais le seront très prochainement."
+       "message": "Les résultats de Cliqz ne sont pas encore optimisés pour votre pays. Nous travaillons dur pour les améliorer."
     },
     "keep-cliqz": {
       "message": "OK"
@@ -1351,6 +1351,9 @@
     },
     "control-center-search-engine": {
       "message": "Moteurs de recherche complémentaires"
+    },
+    "control-center-backend-country": {
+      "message": "Résultats de la recherche pour"
     },
     "control-center-humanweb": {
       "message": "Faire partie du « Human Web »"

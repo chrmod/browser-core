@@ -723,7 +723,12 @@ var CliqzUtils = {
               for(var k in config){
                 CliqzUtils.setPref('config_' + k, config[k]);
               }
-            } catch(e){}
+              if (CliqzUtils.getPref('backend_country', '') === '') {
+                CliqzUtils.setPref('backend_country', CliqzUtils.getPref('config_location', ''));
+              }
+            } catch(e){
+              CliqzUtils.log(e);
+            }
           }
           resolve();
         },
@@ -732,13 +737,16 @@ var CliqzUtils = {
       );
     });
   },
+  setDefaultIndexCountry: function(country) {
+    CliqzUtils.setPref('backend_country', country);
+  },
   encodeLocale: function() {
     // send browser language to the back-end
     return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
     //international results not supported
-    return '&force_country=true';
+    return '&country=' + CliqzUtils._country;
   },
   disableWikiDedup: function() {
     // disable wikipedia deduplication on the backend side
@@ -800,6 +808,7 @@ var CliqzUtils = {
   // number of queries in search session
   _queryCount: null,
   setSearchSession: function(rand){
+    CliqzUtils._country = CliqzUtils.getPref('backend_country');
     CliqzUtils._searchSession = rand;
     CliqzUtils._sessionSeq = 0;
     CliqzUtils._queryCount = 0;
