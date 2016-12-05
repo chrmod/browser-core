@@ -549,7 +549,12 @@ var CliqzAttrack = {
         return fetch(CliqzAttrack.VERSIONCHECK_URL +"?"+ today, {
           credentials: 'omit',
           cache: 'default',
-        }).then((resp) => resp.json()).then((versioncheck) => {
+        }).then((resp) => {
+          if (!resp.ok) {
+            throw "Request not ok: " + resp.status;
+          }
+          return resp.json()
+        }).then((versioncheck) => {
           const requiresReload = parseInt(versioncheck.shortTokenLength) !== CliqzAttrack.shortTokenLength || parseInt(versioncheck.safekeyValuesThreshold) !== CliqzAttrack.safekeyValuesThreshold;
 
           // config in versioncheck
