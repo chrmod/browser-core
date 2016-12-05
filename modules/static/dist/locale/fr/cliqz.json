@@ -630,7 +630,7 @@
         "message": "P/E ratio(ttm)"
     },
     "OutOfCoverageWarning": {
-       "message": "Les résultats de Cliqz ne sont pas encore optimisés pour votre pays. Nous travaillons dur pour les améliorer."
+       "message": "Les résultats de Cliqz ne sont pas encore optimisés pour votre pays. Nous faisons actuellement tout notre possible pour y remédier."
     },
     "keep-cliqz": {
       "message": "OK"
