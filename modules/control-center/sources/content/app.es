@@ -483,7 +483,11 @@ function draw(data){
   $('.cqz-switch').click(function() {
 
     var target = $(this).closest('.frame-container'),
-        type = 'switch';
+        type = 'switch',
+        dropdown = target.find('.dropdown-scope');
+
+    //select first option "this website" by default
+    dropdown.find('option:eq(0)').prop('selected', true);
 
     target.attr('state', function(idx, attr){
         return attr !== 'active' ? 'active': target.attr('inactiveState');

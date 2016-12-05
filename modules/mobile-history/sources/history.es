@@ -260,7 +260,7 @@ function sendClickTelemetry(element, targetType, tab) {
     utils.telemetry({
       type: tab,
       action: 'click',
-      target_type: targetType,
+      target: targetType,
       element: element.dataset.name
     });
 }

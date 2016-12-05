@@ -2,16 +2,16 @@
   &.new-notifications {
     color: red;
     .title {
-      span {
-        font-weight: bold;
-      }
-      &:before {
-        content: '';
+      span.redDot {
         display: inline-block;
         background-color: red;
         height: 8px;
         width: 8px;
         border-radius: 8px;
+        font-weight: normal;
+      }
+      span {
+        font-weight: bold;
       }
     }
   }

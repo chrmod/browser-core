@@ -8,6 +8,11 @@
       {{/if}}
     </div>
     <div class="title">
+      {{#if model.notificationsEnabled}}
+        {{#if model.notificationCount}}
+        <span class="redDot"></span>
+        {{/if}}
+      {{/if}}
       {{model.displayTitle}}
       {{#if model.notificationsEnabled}}
         {{#if model.notificationCount}}

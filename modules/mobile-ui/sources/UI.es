@@ -177,7 +177,9 @@ var UI = {
             if (page === UI.currentPage || !UI.isSearch()) return;
 
             views[page] = (views[page] || 0) + 1;
-            const direction = page > UI.currentPage ? 'right' : 'left'
+            const direction = page > UI.currentPage ? 'right' : 'left';
+            const shownCardId = page < UI.lastResults.length - 1 ? `cqz-result-box-${page}` : 'defaultEngine';
+            const position_type = getResultKind(document.getElementById(shownCardId));
 
 
             utils.telemetry({
@@ -186,7 +188,8 @@ var UI = {
               index: page,
               show_count: views[page],
               show_duration: Date.now() - pageShowTs,
-              count: currentResultsCount
+              card_count: currentResultsCount,
+              position_type,
             });
 
             pageShowTs = Date.now();

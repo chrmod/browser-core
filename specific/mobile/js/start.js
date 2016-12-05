@@ -32,7 +32,7 @@ function onNews() {
   resolver();
 }
 
-let startup, loadModule;
+var startup, loadModule;
 
 document.addEventListener("DOMContentLoaded", function () {
   System.import("platform/startup").then(function (startupModule) {
