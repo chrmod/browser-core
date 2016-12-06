@@ -5,6 +5,9 @@ import background from 'control-center/background';
 import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 import UITour from 'platform/ui-tour';
 import Panel from '../core/ui/panel';
+import console from 'core/console';
+import { queryActiveTabs } from '../core/tabs';
+import { Window } from '../core/browser';
 
 function toPx(pixels) {
   return pixels.toString() + 'px';
@@ -167,10 +170,13 @@ export default class {
     this.helpMenu.removeEventListener('popupshowing', this.createFFhelpMenu);
   }
 
-  refreshState() {
-    this.prepareData().then((data) => {
-      this.setState(data.generalState);
-    });
+  refreshState(url) {
+    const affectsCurrentWindow = queryActiveTabs(this.window).some(tab => tab.url === url);
+    if (affectsCurrentWindow) {
+      this.prepareData().then((data) => {
+        this.setState(data.generalState);
+      });
+    }
   }
 
   adbOptimized(data) {

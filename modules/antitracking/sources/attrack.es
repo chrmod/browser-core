@@ -128,11 +128,6 @@ var CliqzAttrack = {
     httpmodObserver: function(requestDetails) {
       return CliqzAttrack.executePipeline(CliqzAttrack.onModifyPipeline, requestDetails, 'ATTRACK.MOD');
     },
-    onTabLocationChange: function(evnt) {
-      if(CliqzAttrack.pipelineSteps.domChecker) {
-        CliqzAttrack.pipelineSteps.domChecker.onTabLocationChange(evnt);
-      }
-    },
     getDefaultRule: function() {
         if (CliqzAttrack.isForceBlockEnabled()) {
             return 'block';

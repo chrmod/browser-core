@@ -107,11 +107,26 @@ export default background({
   },
 
   events: {
-    'prefchange': function onPrefChange() {
-    }
+    'core:tab_select': function onTabSelect({ url, isPrivate }) {
+      events.pub('core.location_change', url, isPrivate);
+    },
+    'content:location-change': function onLocationChange({ url, isPrivate }) {
+      events.pub('core.location_change', url, isPrivate);
+    },
   },
 
   actions: {
+    notifyLocationChange(...args) {
+      events.pub('content:location-change', ...args);
+    },
+    notifyStateChange(...args) {
+      // TODO: design proper property list for the event
+      events.pub('content:state-change', {
+        url: args[0].url
+      });
+      // DEPRECATED - use content:state-change instead
+      events.pub('core.tab_state_change', ...args);
+    },
     recordMouseDown(...args) {
       events.pub('core:mouse-down', ...args);
     },
@@ -188,6 +203,7 @@ export default background({
       return this.actions.queryCliqz(value);
     },
     recordLang(url, lang) {
+      events.pub('content:dom-ready', url);
       if (lang) {
         language.addLocale(url, lang);
       }
