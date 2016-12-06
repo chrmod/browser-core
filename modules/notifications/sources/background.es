@@ -45,6 +45,10 @@ export default background({
       };
     },
 
+    updateUnreadStatus() {
+      return this.notificationCenter.updateUnreadStatus();
+    },
+
     /**
     * query store for notifications for specified sources
     */
