@@ -1,7 +1,8 @@
 import * as ftch from 'platform/fetch';
 import console from 'core/console';
-import gzip from 'core/gzip';
+import { compress } from 'core/gzip';
 import { XMLHttpRequest, setPrivateFlags, setBackgroundRequest } from 'platform/xmlhttprequest';
+import { Promise } from 'core/utils';
 
 
 export let fetch = ftch.fetch;
@@ -73,7 +74,7 @@ export function overrideHttpHandler(fn) {
   activeHandler = fn;
 }
 
-const compressionAvailable = gzip && gzip.compress;
+const compressionAvailable = Boolean(compress);
 let compressionExclusions = new Set();
 
 function compressionEnabled(url) {
@@ -91,9 +92,9 @@ export function promiseHttpHandler(method, url, data, timeout, compressedPost) {
   return new Promise( function(resolve, reject) {
    // gzip.compress may be false if there is no implementation for this platform
    // or maybe it is not loaded yet
-   if (method === 'POST' && compressionEnabled(url)) {
+   if (method === 'POST' && compressedPost && compressionEnabled(url)) {
      const dataLength = data.length;
-     data = gzip.compress(data);
+     data = compress(data);
      console.log("Compressed request to "+ url +", bytes saved = "+ (dataLength - data.length) + " (" + (100*(dataLength - data.length)/ dataLength).toFixed(1) +"%)", "CLIQZEnvironment.httpHandler");
      httpHandler(method, url, resolve, reject, timeout, data, undefined, 'gzip');
    } else {
