@@ -29,7 +29,7 @@ export default describeModule("ui/background",
           subject = this.module().default.actions.checkShareLocationTrigger;
 
           const events = this.deps('core/cliqz').events;
-          spy = chai.spy(events.pub);
+          spy = sinon.spy(events.pub);
           events.pub = spy;
 
           this.deps("core/cliqz").utils.getPref = function (prefName) {
@@ -46,7 +46,7 @@ export default describeModule("ui/background",
         context("not in AB test", function() {
           it("does not publish ui:missing_location_shown event", function () {
             subject();
-            chai.expect(spy).to.not.have.been.called();
+            chai.expect(spy).to.not.have.been.called;
           });
         });
 
@@ -61,8 +61,8 @@ export default describeModule("ui/background",
               }
 
               subject(result);
-              chai.expect(spy).to.have.been.called();
-              chai.expect(spy).to.have.been.called.with('ui:missing_location_shown');
+              chai.expect(spy).to.have.been.called;
+              chai.expect(spy).to.have.been.calledWith('ui:missing_location_shown');
             });
 
             it('should not trigger if user selects in the dropdown a local result with no alert', function() {
@@ -72,7 +72,7 @@ export default describeModule("ui/background",
               }
 
               subject(result);
-              chai.expect(spy).to.not.have.been.called();
+              chai.expect(spy).to.not.have.been.called;
             });
 
             it('should not trigger if user selects in the dropdown a non local result', function() {
@@ -82,7 +82,7 @@ export default describeModule("ui/background",
               }
 
               subject(result);
-              chai.expect(spy).to.not.have.been.called();
+              chai.expect(spy).to.not.have.been.called;
             });
           });
 
@@ -99,8 +99,8 @@ export default describeModule("ui/background",
                 }
               }
               subject(result);
-              chai.expect(spy).to.have.been.called();
-              chai.expect(spy).to.have.been.called.with('ui:missing_location_shown');
+              chai.expect(spy).to.have.been.called;
+              chai.expect(spy).to.have.been.calledWith('ui:missing_location_shown');
             });
 
             it('should not trigger if user dismissed twice', function() {
@@ -112,7 +112,7 @@ export default describeModule("ui/background",
               };
 
               subject(result);
-              chai.expect(spy).to.not.have.been.called();
+              chai.expect(spy).to.not.have.been.called;
             });
           });
         });

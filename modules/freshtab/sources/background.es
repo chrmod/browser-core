@@ -26,7 +26,6 @@ const isWithinNDaysAfterInstallation = function(days) {
 * @namespace freshtab
 * @class Background
 */
-
 export default background({
   /**
   * @method init
