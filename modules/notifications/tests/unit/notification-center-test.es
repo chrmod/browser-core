@@ -20,6 +20,8 @@ export default describeModule("notifications/notification-center",
         default: class {
           watchedDomainNames() { return []; }
           notifications() { return {} }
+          saveDomain(domain) { return {}; }
+          updateDomain(domain) { return {}; }
         }
       },
       "core/mixins/evented": {
@@ -172,6 +174,182 @@ export default describeModule("notifications/notification-center",
 
 
       });
+    });
+
+    describe('#updateDomain', function() {
+      context('#new domain', function() {
+        describe('no new emails', function() {
+          const domain = 'mail.google.com';
+          const count = 0;
+          const oldData = false;
+
+          it('calls storage/saveDomain', function() {
+            var spy = sinon.spy(nc.storage, 'saveDomain');
+            nc.storage.saveDomain = spy;
+
+            nc.updateDomain(domain, count, oldData);
+
+            chai.expect(spy).to.have.been.called;
+          });
+
+          it('enables the domain and updates the count', function() {
+            let spy = sinon.spy(nc.storage, 'saveDomain');
+            nc.storage.saveDomain = spy;
+
+            nc.updateDomain(domain, count, oldData);
+
+            chai.expect(spy).to.have.been.calledWithExactly(domain,
+            {
+              count,
+              status: 'enabled',
+              error: null
+            });
+          });
+
+        });
+
+        describe('new emails', function() {
+          const domain = 'mail.google.com';
+          const count = 1;
+          const oldData = false;
+
+          it('updates status to unread and count to new count', function() {
+            const saveSpy = sinon.spy(nc.storage, 'saveDomain');
+            const updateSpy = sinon.spy(nc.storage, 'updateDomain');
+            const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
+              .returns(true);
+
+            nc.storage.saveDomain = saveSpy;
+            nc.storage.updateDomain = updateSpy;
+
+            nc.updateDomain(domain, count, oldData);
+
+            chai.expect(updateSpy).to.have.been.calledTwice;
+            chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
+            {
+              unread: true
+            });
+
+            chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
+            {
+              count: count
+            });
+          });
+        });
+      });
+
+      context('#existing domain', function() {
+        const domain = 'mail.google.com';
+
+        it('does not call saveDomain', function() {
+          const count = 3;
+          const oldData = {
+            count: 2,
+            status: 'enabled',
+            error: null
+          }
+
+          const saveSpy = sinon.spy(nc.storage, 'saveDomain');
+          nc.storage.saveDomain = saveSpy;
+
+          chai.expect(saveSpy);
+
+        });
+
+        it('updates unread status if new count is bigger than old count', function() {
+          const count = 3;
+          const oldData = {
+            count: 2,
+            status: 'enabled',
+            error: null
+          }
+
+          const saveSpy = sinon.spy(nc.storage, 'saveDomain');
+          const updateSpy = sinon.spy(nc.storage, 'updateDomain');
+          const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
+            .returns(true);
+
+          nc.storage.saveDomain = saveSpy
+          nc.storage.updateDomain = updateSpy;
+
+          nc.updateDomain(domain, count, oldData);
+
+          chai.expect(updateSpy).to.have.been.calledTwice;
+
+          chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
+          {
+            unread: true
+          });
+        });
+
+        it('does not update unread status if new count is smaller than old count', function() {
+          const count = 2;
+          const oldData = {
+            count: 3,
+            status: 'enabled',
+            error: null
+          }
+
+          const saveSpy = sinon.spy(nc.storage, 'saveDomain');
+          const updateSpy = sinon.spy(nc.storage, 'updateDomain');
+          const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
+            .returns(true);
+
+          nc.storage.saveDomain = saveSpy;
+          nc.storage.updateDomain = updateSpy;
+
+          nc.updateDomain(domain, count, oldData);
+
+          chai.expect(updateSpy).to.have.been.calledOnce;
+        });
+
+        it('updates count if new and old count are different', function() {
+          const count = 3;
+          const oldData = {
+            count: 5,
+            status: 'enabled',
+            error: null
+          }
+
+          const saveSpy = sinon.spy(nc.storage, 'saveDomain');
+          const updateSpy = sinon.spy(nc.storage, 'updateDomain');
+          const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
+            .returns(true);
+
+          nc.storage.saveDomain = saveSpy
+          nc.storage.updateDomain = updateSpy;
+
+          nc.updateDomain(domain, count, oldData);
+
+          chai.expect(updateSpy).to.have.been.calledOnce;
+          chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
+          {
+            count: count
+          });
+        });
+
+        it('does not update count if new and old count are equal', function() {
+          const count = 3;
+          const oldData = {
+            count: 3,
+            status: 'enabled',
+            error: null
+          }
+
+          const saveSpy = sinon.spy(nc.storage, 'saveDomain');
+          const updateSpy = sinon.spy(nc.storage, 'updateDomain');
+          const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
+            .returns(true);
+
+          nc.storage.saveDomain = saveSpy;
+          nc.storage.updateDomain = updateSpy;
+
+          nc.updateDomain(domain, count, oldData);
+
+          chai.expect(updateSpy).to.have.not.been.called;
+        });
+      });
+
     });
   }
 );
