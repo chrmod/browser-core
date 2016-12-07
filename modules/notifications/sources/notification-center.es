@@ -50,7 +50,6 @@ export default Evented(class {
     this.storage = new Storage();
     this.cron = new Cron();
     this.tasks = new Map();
-
     this.domainList()
       .filter(domain => domain in AVAILABLE_DOMAINS)
       .forEach(this.createSchedule.bind(this));
@@ -124,37 +123,64 @@ export default Evented(class {
     });
   }
 
-  updateDomain(domain) {
+  getProviderCount(domain) {
     const provider = this.getProvider(domain);
     console.log('Notification', `get notifications for ${domain}`);
 
-    return provider.count().then(count => {
-      console.log('Notification', `notifications for ${domain} - count ${count}`);
-      const isChanged = this.storage.updateDomain(domain, {
-        count,
+    return new Promise(function(resolve, reject) {
+      provider.count().then((count) => {
+        console.log('Notification', `get notifications for ${domain}`);
+        resolve(count)
+      }).catch(e => {
+        this.storage.updateDomain(domain, {
+          unread: false,
+          status: 'inaccessible',
+          error: e
+        });
+        console.error(`!notifications for domain "${domain}" fail`, e);
+      });
+    });
+  }
+
+  updateDomain(domain, newCount, oldData) {
+    const oldCount = oldData.count ? oldData.count : 0;
+    if(!oldData) {
+      this.storage.saveDomain(domain, {
+        count: oldCount,
         status: 'enabled',
         error: null,
       });
-
-      if (isChanged) {
-        // TODO: remove double update
-        this.storage.updateDomain(domain, { unread: true });
+    }
+    if (newCount !== oldCount) {
+      if(newCount > oldCount) {
+        this.storage.updateDomain(domain, {
+          unread: true,
+        });
         this.updateUnreadStatus();
       }
-    }).catch(e => {
       this.storage.updateDomain(domain, {
-        unread: false,
-        status: 'inaccessible',
-        error: e,
+        count: newCount,
       });
-      console.error(`notifications for domain "${domain}" fail`, e);
-    });
+    }
   }
 
   createSchedule(domain) {
     const { schedule } = AVAILABLE_DOMAINS[domain];
     const task = this.cron.schedule(
-      this.updateDomain.bind(this, domain),
+      () => {
+        const oldCount = this.storage.getDomainData(domain);
+        return this.getProviderCount(domain).then( newCount => {
+          this.updateDomain(domain, newCount, oldCount);
+        }).catch(e => {
+          this.storage.updateDomain(domain, {
+            unread: false,
+            status: 'inaccessible',
+            error: e
+          });
+          console.error(`notifications for domain "${domain}" fail`, e);
+
+        });
+      },
       schedule
     );
     this.tasks.set(domain, task);
@@ -180,9 +206,7 @@ export default Evented(class {
 
   addDomain(domain) {
     this.storage.addWatchedDomain(domain);
-    return this.updateDomain(domain).then(() => {
-      this.createSchedule(domain);
-    });
+    this.createSchedule(domain);
   }
 
   removeDomain(domain) {
