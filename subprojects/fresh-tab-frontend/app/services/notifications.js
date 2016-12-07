@@ -75,4 +75,14 @@ export default Ember.Service.extend({
       notificationStatus: 'available'
     });
   },
+  activateNotification(speedDial) {
+    const cliqz = this.get('cliqz');
+    speedDial.setProperties({
+      notificationStatus: 'available',
+      notificationError: null,
+    });
+    cliqz.activateNotification(speedDial.get('url')).then(() => {
+      return this.getNotifications();
+    });
+   },
 });

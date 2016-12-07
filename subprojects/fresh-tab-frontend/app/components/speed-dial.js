@@ -42,6 +42,11 @@ export default Ember.Component.extend({
       });
     },
 
+    activateNotification() {
+      const model = this.get('model');
+      this.get('notifications').activateNotification(model);
+    },
+
     remove() {
       const model = this.get('model');
       this.sendAction("removeAction", model);
