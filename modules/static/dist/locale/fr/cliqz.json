@@ -1304,6 +1304,9 @@
     "control-center-info-share-location": {
       "message": "Obtenez de meilleurs résultats en sélectionnant « Toujours partager ma position ». Votre position sera uniquement utilisée afin d'améliorer les résultats. Elle ne sera jamais partagée ou utilisée à d'autres fins."
     },
+    "control-center-info-share-location-link": {
+      "message": "En savoir plus"
+    },
     "control-center-adblock-title": {
       "message": "Bloqueur de publicité [BETA]"
     },
