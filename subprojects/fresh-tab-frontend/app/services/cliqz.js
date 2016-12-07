@@ -241,6 +241,26 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({ promise });
   },
 
+  activateNotification(url) {
+    const requestId = nextId();
+
+    let promise = new Ember.RSVP.Promise( resolve => {
+     this.callbacks.notifications = this.callbacks.notifications || {};
+     this.callbacks.notifications.activateNotification = this.callbacks.notifications.activateNotification || {};
+     this.callbacks.notifications.activateNotification[requestId] = resolve;
+    });
+
+    window.postMessage(JSON.stringify({
+     requestId,
+     target: "cliqz",
+     module: "notifications",
+     action: "activate",
+     args: [url],
+    }), "*");
+
+    return DS.PromiseObject.create({ promise });
+  },
+
   unwatch(url) {
     const requestId = nextId();
 
