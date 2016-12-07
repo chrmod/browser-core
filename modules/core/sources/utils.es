@@ -721,7 +721,11 @@ var CliqzUtils = {
             try {
               var config = JSON.parse(res.response);
               for(var k in config){
-                CliqzUtils.setPref('config_' + k, config[k]);
+                if (typeof config[k] == 'object') {
+                  CliqzUtils.setPref('config_' + k, JSON.stringify(config[k]));
+                } else {
+                  CliqzUtils.setPref('config_' + k, config[k]);
+                }
               }
               if (CliqzUtils.getPref('backend_country', '') === '') {
                 CliqzUtils.setPref('backend_country', CliqzUtils.getPref('config_location', ''));
