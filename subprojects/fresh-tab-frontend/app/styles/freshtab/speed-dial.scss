@@ -1,18 +1,25 @@
 .speed-dial {
+  .notifyDot {
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    border-radius: 8px;
+    font-weight: normal;
+  }
+
   &.new-notifications {
     color: red;
     .title {
-      span.redDot {
-        display: inline-block;
+      .newEmail {
         background-color: red;
-        height: 8px;
-        width: 8px;
-        border-radius: 8px;
-        font-weight: normal;
       }
       span {
         font-weight: bold;
       }
     }
+  }
+
+  .inaccessible {
+    background-color: #999999;
   }
 }
