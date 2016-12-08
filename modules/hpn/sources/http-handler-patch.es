@@ -9,7 +9,7 @@ export function overRideCliqzResults() {
   if (!environment.proxyHttpHandler) environment.proxyHttpHandler = environment.httpHandler;
   environment.httpHandler = function (method, url, callback, onerror, timeout, data, sync) {
     if (url.startsWith(utils.RESULTS_PROVIDER) &&
-        utils.getPref('hpn-query', false)) {
+        utils.getPref('hpn-queryv2', false)) {
       const query = url.replace((utils.RESULTS_PROVIDER), '');
       const uid = Math.floor(Math.random() * 10000000);
       CliqzSecureMessage.queriesID[uid] = callback;
