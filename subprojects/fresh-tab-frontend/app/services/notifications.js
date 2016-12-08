@@ -36,7 +36,6 @@ export default Ember.Service.extend({
         const speedDialNotification = notifications[url];
         const hadNotifications = speedDial.get('hasNewNotifications');
         const hasNotifications = Boolean(speedDialNotification.unread);
-
         speedDial.setProperties({
           notificationCount: speedDialNotification.count,
           hasNewNotifications: speedDialNotification.unread,
@@ -48,8 +47,7 @@ export default Ember.Service.extend({
           this.get('cliqz').sendTelemetry({
             type: 'home',
             action: 'notify',
-            target_type: speedDial.get('type'),
-            //target_index: TODO how to get the index
+            target_type: speedDial.get('type')
           });
         }
       });

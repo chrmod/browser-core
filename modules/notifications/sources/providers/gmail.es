@@ -1,5 +1,5 @@
 import { txtToDom } from '../../core/dom-parser';
-
+import utils from 'core/utils'
 function get(url, headers, data, timeout) {
   return new Promise(function(resolve, reject) {
     headers = headers || {};
@@ -59,6 +59,7 @@ export default class {
         fullCount = parseInt(text);
       }
     }
+    utils.log(fullCount, "getNotificationCount")
     if (fullCount >= 0) {
       return fullCount;
     } else {

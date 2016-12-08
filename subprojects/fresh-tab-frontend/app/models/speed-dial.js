@@ -17,8 +17,9 @@ export default Model.extend({
 
   notificationsAvailable: Ember.computed('notificationStatus', function() {
     const status = this.get('notificationStatus');
-    return  status === 'available' || status === 'enabled';
+    return  status !== undefined;
   }),
   notificationsEnabled: Ember.computed.equal('notificationStatus', 'enabled'),
   canBeActivated: Ember.computed.equal('notificationError', 'no-data'),
+  notificationInaccesible: Ember.computed.equal('notificationError', 'cannot-fetch-count')
 });

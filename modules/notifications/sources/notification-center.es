@@ -127,10 +127,10 @@ export default Evented(class {
     const provider = this.getProvider(domain);
     console.log('Notification', `get notifications for ${domain}`);
 
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       provider.count().then((count) => {
         console.log('Notification', `get notifications for ${domain}`);
-        resolve(count)
+        return resolve(count)
       }).catch(e => {
         this.storage.updateDomain(domain, {
           unread: false,
@@ -151,16 +151,18 @@ export default Evented(class {
         error: null,
       });
     }
-    if (newCount !== oldCount) {
-      if(newCount > oldCount) {
-        this.storage.updateDomain(domain, {
-          unread: true,
-        });
-        this.updateUnreadStatus();
-      }
+
+    if(newCount > oldCount) {
+      this.updateUnreadStatus();
+    }
+
+    if (newCount !== oldCount || oldData && oldData.status != 'enabled') {
       this.storage.updateDomain(domain, {
-        count: newCount,
-      });
+         count: newCount,
+         status: 'enabled',
+         error: null,
+         unread: newCount > oldCount
+       });
     }
   }
 
@@ -171,14 +173,6 @@ export default Evented(class {
         const oldCount = this.storage.getDomainData(domain);
         return this.getProviderCount(domain).then( newCount => {
           this.updateDomain(domain, newCount, oldCount);
-        }).catch(e => {
-          this.storage.updateDomain(domain, {
-            unread: false,
-            status: 'inaccessible',
-            error: e
-          });
-          console.error(`notifications for domain "${domain}" fail`, e);
-
         });
       },
       schedule

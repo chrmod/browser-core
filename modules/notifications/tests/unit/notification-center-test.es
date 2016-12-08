@@ -224,15 +224,13 @@ export default describeModule("notifications/notification-center",
 
             nc.updateDomain(domain, count, oldData);
 
-            chai.expect(updateSpy).to.have.been.calledTwice;
+            chai.expect(updateSpy).to.have.been.called;
             chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
             {
+              count: count,
+              status: 'enabled',
+              error: null,
               unread: true
-            });
-
-            chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
-            {
-              count: count
             });
           });
         });
@@ -253,7 +251,6 @@ export default describeModule("notifications/notification-center",
           nc.storage.saveDomain = saveSpy;
 
           chai.expect(saveSpy);
-
         });
 
         it('updates unread status if new count is bigger than old count', function() {
@@ -274,10 +271,13 @@ export default describeModule("notifications/notification-center",
 
           nc.updateDomain(domain, count, oldData);
 
-          chai.expect(updateSpy).to.have.been.calledTwice;
+          chai.expect(updateSpy).to.have.been.called;
 
           chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
           {
+            count,
+            status: 'enabled',
+            error: null,
             unread: true
           });
         });
@@ -300,7 +300,9 @@ export default describeModule("notifications/notification-center",
 
           nc.updateDomain(domain, count, oldData);
 
-          chai.expect(updateSpy).to.have.been.calledOnce;
+          chai.expect(updateSpy).to.have.been.calledWithMatch(domain, {
+            unread: false
+          });
         });
 
         it('updates count if new and old count are different', function() {
@@ -321,8 +323,7 @@ export default describeModule("notifications/notification-center",
 
           nc.updateDomain(domain, count, oldData);
 
-          chai.expect(updateSpy).to.have.been.calledOnce;
-          chai.expect(updateSpy).to.have.been.calledWithExactly(domain,
+          chai.expect(updateSpy).to.have.been.calledWithMatch(domain,
           {
             count: count
           });
@@ -347,6 +348,33 @@ export default describeModule("notifications/notification-center",
           nc.updateDomain(domain, count, oldData);
 
           chai.expect(updateSpy).to.have.not.been.called;
+        });
+
+        context('user was previously logged out', function() {
+          it('does update the count if user was previously logged out and now is logged in', function() {
+            const count = 2;
+            const oldData = {
+              count: null,
+              status: 'inaccessible',
+              error: 'cannot-fetch-count',
+              unread: null
+            };
+
+            const updateSpy = sinon.spy(nc.storage, 'updateDomain');
+            const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
+              .returns(false);
+            nc.storage.updateDomain = updateSpy;
+
+            nc.updateDomain(domain, count, oldData);
+
+            chai.expect(updateSpy).to.have.been.calledWithExactly(domain, {
+              count,
+              status: 'enabled',
+              error: null,
+              unread: true
+            });
+          });
+
         });
       });
 
