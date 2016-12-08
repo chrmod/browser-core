@@ -31,9 +31,14 @@
      {{/unless}}
      {{#if model.notificationsAvailable}}
        {{#if model.notificationsEnabled}}
-         <menuitem class="action-notifications-enable" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+         <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
        {{else}}
-         <menuitem class="action-notifications-disable" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
+         {{#if model.notificationInaccesible}}
+            <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+         {{else}}
+            <menuitem class="action-notifications-disabled" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
+         {{/if}}
+
        {{/if}}
       {{/if}}
  </menu>
