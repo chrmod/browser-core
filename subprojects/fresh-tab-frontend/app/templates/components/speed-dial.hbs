@@ -8,14 +8,7 @@
       {{/if}}
     </div>
     <div class="title">
-      {{#if model.notificationsEnabled}}
-        {{#if model.notificationCount}}
-        <span class="notifyDot newEmail"></span>
-        {{/if}}
-      {{/if}}
-      {{#if model.notificationInaccesible}}
-        <span class="notifyDot inaccessible"></span>
-      {{/if}}
+      {{email-notifications model=model tagName="span"}}
       {{model.displayTitle}}
       {{#if model.notificationsEnabled}}
         {{#if model.notificationCount}}
