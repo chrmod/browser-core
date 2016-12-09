@@ -371,11 +371,9 @@ body.freshTabContainer {
     ul {
       max-width: 1024px;
       margin: -10px auto 2px;
-      overflow: hidden;
     }
 
     li {
-      overflow: hidden;
       position: relative;
       float: left;
       width: 18.6%;
@@ -396,7 +394,6 @@ body.freshTabContainer {
 
     #historyTiles {
       max-height: 140px;
-      overflow: hidden;
     }
 
     #customTiles {

@@ -67,6 +67,7 @@ export default {
     "txt-share-location": "Deine Privatsphäre bleibt geschützt.",
     "cta-share-location": "So funktioniert's",
     "btn-always-share": "Immer Standort teilen",
-    "btn-never-share": "Niemals Standort teilen"
+    "btn-never-share": "Niemals Standort teilen",
+    "txt-email-inaccessible": "Logg dich ein um über neue E-Mails benachrichtigt zu werden"
   }
 };

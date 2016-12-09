@@ -67,6 +67,7 @@ export default {
     "txt-share-location": "Your privacy will not be compromised.",
     "cta-share-location": "Learn how it works",
     "btn-always-share": "Always share location",
-    "btn-never-share": "Never share location"
+    "btn-never-share": "Never share location",
+    "txt-email-inaccessible": "Please log in to see email notifications"
   }
 };
