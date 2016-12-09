@@ -152,10 +152,6 @@ export default Evented(class {
       });
     }
 
-    if(newCount > oldCount) {
-      this.updateUnreadStatus();
-    }
-
     if (newCount !== oldCount || oldData && oldData.status != 'enabled') {
       this.storage.updateDomain(domain, {
          count: newCount,
@@ -163,6 +159,10 @@ export default Evented(class {
          error: null,
          unread: newCount > oldCount
        });
+
+      if(newCount > oldCount) {
+        this.updateUnreadStatus();
+      }
     }
   }
 
