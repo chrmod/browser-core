@@ -2,8 +2,6 @@ import * as ftch from 'platform/fetch';
 import console from 'core/console';
 import { compress } from 'core/gzip';
 import { XMLHttpRequest, setPrivateFlags, setBackgroundRequest } from 'platform/xmlhttprequest';
-import { Promise } from 'core/utils';
-
 
 export let fetch = ftch.fetch;
 export let Headers = ftch.Headers;
