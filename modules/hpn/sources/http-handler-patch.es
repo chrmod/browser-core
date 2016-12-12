@@ -1,13 +1,15 @@
 import CliqzSecureMessage from 'hpn/main';
 import utils from 'core/utils';
-import environment from 'platform/environment';
+import * as http from 'core/http';
 
 const BW_URL = 'https://antiphishing.cliqz.com/api/bwlist?md5=';
+let proxyHttpHandler = null;
 export function overRideCliqzResults() {
   if (utils.getPref('proxyNetwork', true) === false) return;
 
-  if (!environment.proxyHttpHandler) environment.proxyHttpHandler = environment.httpHandler;
-  environment.httpHandler = function (method, url, callback, onerror, timeout, data, sync) {
+  if (!proxyHttpHandler) proxyHttpHandler = http.defaultHttpHandler;
+
+  function httpHandler(method, url, callback, onerror, timeout, data, sync) {
     if (url.startsWith(utils.RESULTS_PROVIDER) &&
         utils.getPref('hpn-queryv2', false)) {
       const query = url.replace((utils.RESULTS_PROVIDER), '');
@@ -80,18 +82,12 @@ export function overRideCliqzResults() {
       }
       callback && callback({ 'response': '{"success":true}' });
     } else {
-      return environment.proxyHttpHandler.apply(utils, arguments);
+      return proxyHttpHandler.apply(undefined, arguments);
     }
     return null;
   };
-  if (!environment.proxyPromiseHttpHandler) {
-    environment.proxyPromiseHttpHandler = environment.promiseHttpHandler;
-  }
-  utils.promiseHttpHandler = function (method, url, data, timeout, compressedPost) {
-    if (url === utils.SAFE_BROWSING) {
-      return environment.proxyPromiseHttpHandler(method, url, data, timeout, false);
-    } else {
-      return environment.proxyPromiseHttpHandler.apply(utils, arguments);
-    }
-  };
+
+  http.overrideHttpHandler(httpHandler);
+  http.addCompressionExclusion(utils.SAFE_BROWSING);
+
 }
