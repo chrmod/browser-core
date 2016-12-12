@@ -502,6 +502,11 @@ function draw(data){
         return attr !== 'active' ? 'active': target.attr('inactiveState');
     });
 
+    //reset adblock dropdown option
+    if(target.attr('state') === 'off') {
+      target.attr('data-visible', 'off_website')
+    }
+
     if(this.hasAttribute('updatePref')){
       if(isOnboarding()) {
         return;
