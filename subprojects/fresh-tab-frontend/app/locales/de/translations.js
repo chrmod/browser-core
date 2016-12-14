@@ -68,6 +68,7 @@ export default {
     "cta-share-location": "So funktioniert's",
     "btn-always-share": "Immer Standort teilen",
     "btn-never-share": "Niemals Standort teilen",
-    "txt-email-inaccessible": "Logg dich ein um über neue E-Mails benachrichtigt zu werden"
+    "txt-email-inaccessible": "Logg dich ein um über neue E-Mails benachrichtigt zu werden",
+    "txt-email-available": "E-Mail Benachrichtigungen kannst du im Kontextmenü (Klick mit rechter Maustaste) aktivieren"
   }
 };

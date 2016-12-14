@@ -25,17 +25,19 @@
      {{#unless isCustom}}
        <menuitem label="{{t 'speedDials.reset-all'}}" {{action "resetAll"}}></menuitem>
      {{/unless}}
-     {{#if model.notificationsAvailable}}
-       {{#if model.notificationsEnabled}}
-         <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
-       {{else}}
-         {{#if model.notificationInaccesible}}
-            <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
-         {{else}}
-            <menuitem class="action-notifications-disabled" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
-         {{/if}}
 
-       {{/if}}
-      {{/if}}
+        {{#if model.notificationsEnabled}}
+          <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+        {{/if}}
+
+        {{#if model.notificationInaccesible}}
+          <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+        {{/if}}
+
+        {{#if model.notificationsAvailable}}
+          <menuitem class="action-notifications-disabled" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
+        {{/if}}
+
+
  </menu>
 </section>

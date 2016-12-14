@@ -14,11 +14,7 @@ export default Model.extend({
   notificationError: attr(),
   custom: attr(),
   searchAlias: attr(),
-
-  notificationsAvailable: Ember.computed('notificationStatus', function() {
-    const status = this.get('notificationStatus');
-    return  status !== undefined;
-  }),
+  notificationsAvailable: Ember.computed.equal('notificationStatus', 'available'),
   notificationsEnabled: Ember.computed.equal('notificationStatus', 'enabled'),
   canBeActivated: Ember.computed.equal('notificationError', 'no-data'),
   notificationInaccesible: Ember.computed.equal('notificationError', 'cannot-fetch-count')
