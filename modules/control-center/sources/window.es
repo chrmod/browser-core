@@ -75,6 +75,7 @@ export default class {
     addStylesheet(this.window.document, this.cssUrl);
 
     this.addCCbutton();
+    this.actions.refreshState(this.window.gBrowser.currentURI.spec);
     CliqzEvents.sub("core.location_change", this.actions.refreshState);
 
     this.updateFFHelpMenu();
