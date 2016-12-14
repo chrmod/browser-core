@@ -66,9 +66,9 @@ export default describeModule('adblocker/filters-engine',
              }]);
 
              // Serialize and deserialize engine
-             const serialized = JSON.stringify(serializeEngine(engine, true));
+             const serialized = JSON.stringify(serializeEngine(engine, undefined, true));
              engine = new FilterEngine();
-             deserializeEngine(engine, JSON.parse(serialized), true);
+             deserializeEngine(engine, JSON.parse(serialized), undefined, true);
 
              // Check should match
              try {
@@ -117,9 +117,9 @@ export default describeModule('adblocker/filters-engine',
           engine.onUpdateFilters([{ filters: [], asset: 'list2', checksum: 2 }]);
 
           // Serialize and deserialize engine
-          const serialized = JSON.stringify(serializeEngine(engine, true));
+          const serialized = JSON.stringify(serializeEngine(engine, undefined, true));
           engine = new FilterEngine();
-          deserializeEngine(engine, JSON.parse(serialized, true));
+          deserializeEngine(engine, JSON.parse(serialized, undefined, true));
 
           // Try to update after deserialization
           engine.onUpdateFilters([{ filters, asset: 'list3', checksum: 1 }]);
@@ -165,9 +165,9 @@ export default describeModule('adblocker/filters-engine',
           engine.onUpdateFilters([{ filters: loadLinesFromFile(filterListPath) }]);
 
           // Serialize and deserialize engine
-          const serialized = JSON.stringify(serializeEngine(engine, true));
+          const serialized = JSON.stringify(serializeEngine(engine, undefined, true));
           engine = new FilterEngine();
-          deserializeEngine(engine, JSON.parse(serialized), true);
+          deserializeEngine(engine, JSON.parse(serialized), undefined, true);
         }
       });
 
@@ -209,9 +209,9 @@ export default describeModule('adblocker/filters-engine',
           engine.onUpdateFilters([{ filters: loadLinesFromFile(filterListPath) }]);
 
           // Serialize and deserialize engine
-          const serialized = JSON.stringify(serializeEngine(engine, true));
+          const serialized = JSON.stringify(serializeEngine(engine, undefined, true));
           engine = new FilterEngine();
-          deserializeEngine(engine, JSON.parse(serialized), true);
+          deserializeEngine(engine, JSON.parse(serialized), undefined, true);
           engine.onUpdateResource([{ filters: loadLinesFromFile(resourcesPath) }]);
         }
       });

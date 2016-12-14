@@ -5,7 +5,9 @@ import parseList, { parseJSResource
                   , serializeFilter
                   , deserializeFilter } from 'adblocker/filters-parsing';
 import { matchNetworkFilter
-       , matchCosmeticFilter, TLDs } from 'adblocker/filters-matching';
+       , matchCosmeticFilter } from 'adblocker/filters-matching';
+import { TLDs } from 'adblocker/tld';
+
 
 const TOKEN_BLACKLIST = new Set([
   'com',
@@ -30,7 +32,7 @@ function tokenizeHostname(hostname) {
 
 
 export function tokenizeURL(pattern) {
-  return pattern.match(/[a-zA-Z0-9]+/g) || [];
+  return (pattern.match(/[a-zA-Z0-9]+/g) || []).filter(token => token.length > 1);
 }
 
 
@@ -64,9 +66,9 @@ class FuzzyIndex {
 
   set(key, value) {
     // Only true if we insert something (we have at least 1 token)
-    log(`SET ${key}`);
+    log(`SET ${key} => ${JSON.stringify(value)}`);
     let inserted = false;
-    const insertValue = token => {
+    const insertValue = (token) => {
       log(`FOUND TOKEN ${token}`);
       if (!(this.indexOnlyOne && inserted)) {
         inserted = true;
@@ -89,7 +91,7 @@ class FuzzyIndex {
     const goodTokens = [];
     const commonTokens = [];
     const tldTokens = [];
-    this.tokenizer(key, token => {
+    this.tokenizer(key, (token) => {
       if (TOKEN_BLACKLIST.has(token)) {
         commonTokens.push(token);
       } else if (TLDs[token]) {
@@ -117,7 +119,7 @@ class FuzzyIndex {
 
   getFromKey(key) {
     const buckets = [];
-    this.tokenizer(key, token => {
+    this.tokenizer(key, (token) => {
       const bucket = this.index.get(token);
       if (bucket !== undefined) {
         log(`BUCKET ${token} size ${bucket.length}`);
@@ -129,7 +131,7 @@ class FuzzyIndex {
 
   getFromTokens(tokens) {
     const buckets = [];
-    tokens.forEach(token => {
+    tokens.forEach((token) => {
       const bucket = this.index.get(token);
       if (bucket !== undefined) {
         log(`BUCKET ${token} size ${bucket.length}`);
@@ -148,15 +150,15 @@ function serializeFuzzyIndex(fi, serializeBucket) {
   });
 
   return {
-    index,
-    indexOnlyOne: fi.indexOnlyOne,
-    size: fi.size,
+    i: index,
+    o: fi.indexOnlyOne,
+    s: fi.size,
   };
 }
 
 
 function deserializeFuzzyIndex(fi, serialized, deserializeBucket) {
-  const { index, indexOnlyOne, size } = serialized;
+  const { i: index, o: indexOnlyOne, s: size } = serialized;
   Object.keys(index).forEach((key) => {
     const value = index[key];
     fi.index.set(key, deserializeBucket(value));
@@ -186,7 +188,7 @@ class FilterReverseIndex {
 
     // Tokenizer used on patterns for fuzzy matching
     this.tokenizer = (pattern, cb) => {
-      pattern.split(/[*^]/g).forEach(part => {
+      pattern.split(/[*^]/g).forEach((part) => {
         tokenizeURL(part).forEach(cb);
       });
     };
@@ -203,23 +205,26 @@ class FilterReverseIndex {
   }
 
   push(filter) {
-    log(`REVERSE INDEX ${this.name} INSERT ${filter.rawLine}`);
-    ++this.size;
-    const inserted = this.index.set(filter.filterStr, filter);
+    log(`REVERSE INDEX ${this.name} INSERT ${JSON.stringify(filter)}`);
+    this.size += 1;
+    let inserted = false;
+    if (filter.filterStr) {
+      inserted = this.index.set(filter.filterStr, filter);
+    }
 
     if (!inserted) {
-      log(`${this.name} MISC FILTER ${filter.rawLine}`);
+      log(`${this.name} MISC FILTER ${JSON.stringify(filter)}`);
       this.miscFilters.push(filter);
     }
   }
 
   matchList(request, list, checkedFilters) {
-    for (let i = 0; i < list.length; i++) {
+    for (let i = 0; i < list.length; i += 1) {
       const filter = list[i];
       if (!checkedFilters.has(filter.id)) {
         checkedFilters.add(filter.id);
         if (matchNetworkFilter(filter, request)) {
-          log(`INDEX ${this.name} MATCH ${filter.rawLine} ~= ${request.url}`);
+          log(`INDEX ${this.name} MATCH ${JSON.stringify(filter)} ~= ${request.url}`);
           return filter;
         }
       }
@@ -253,16 +258,16 @@ class FilterReverseIndex {
 
 function serializeFilterReverseIndex(fri) {
   return {
-    name: fri.name,
-    size: fri.size,
-    miscFilters: fri.miscFilters.map(filter => filter.id),
-    index: serializeFuzzyIndex(fri.index, bucket => bucket.map(filter => filter.id)),
+    n: fri.name,
+    s: fri.size,
+    m: fri.miscFilters.map(filter => filter.id),
+    i: serializeFuzzyIndex(fri.index, bucket => bucket.map(filter => filter.id)),
   };
 }
 
 
 function deserializeFilterReverseIndex(serialized, filtersIndex) {
-  const { name, size, miscFilters, index } = serialized;
+  const { n: name, s: size, m: miscFilters, i: index } = serialized;
   const fri = new FilterReverseIndex(name);
   fri.size = size;
   fri.miscFilters = miscFilters.map(id => filtersIndex[id]);
@@ -308,7 +313,7 @@ class FilterHostnameDispatch {
         tokenizeHostname(hostname).forEach(cb);
       },
       // Create a new empty bucket
-      token => new FilterReverseIndex(`${token}_${name}`)
+      token => new FilterReverseIndex(`${token}_${name}`),
     );
 
     // All other filters
@@ -328,10 +333,10 @@ class FilterHostnameDispatch {
   }
 
   push(filter) {
-    ++this.size;
+    this.size += 1;
 
     let inserted = false;
-    if (filter.hostname !== null) {
+    if (filter.hostname) {
       inserted = this.hostnameAnchors.set(filter.hostname, filter);
     }
 
@@ -374,23 +379,26 @@ class FilterHostnameDispatch {
 
 function serializeFilterHostnameDispatch(fhd) {
   return {
-    name: fhd.name,
-    size: fhd.size,
-    hostnameAnchors: serializeFuzzyIndex(fhd.hostnameAnchors, bucket =>
-      serializeFilterReverseIndex(bucket)
+    n: fhd.name,
+    s: fhd.size,
+    h: serializeFuzzyIndex(
+      fhd.hostnameAnchors,
+      bucket => serializeFilterReverseIndex(bucket),
     ),
-    filters: serializeFilterReverseIndex(fhd.filters),
+    f: serializeFilterReverseIndex(fhd.filters),
   };
 }
 
 
 function deserializeFilterHostnameDispatch(serialized, filtersIndex) {
-  const { name, size, hostnameAnchors, filters } = serialized;
+  const { n: name, s: size, h: hostnameAnchors, f: filters } = serialized;
   const fhd = new FilterHostnameDispatch(name);
   fhd.size = size;
   fhd.filters = deserializeFilterReverseIndex(filters, filtersIndex);
-  deserializeFuzzyIndex(fhd.hostnameAnchors, hostnameAnchors, bucket =>
-    deserializeFilterReverseIndex(bucket, filtersIndex)
+  deserializeFuzzyIndex(
+    fhd.hostnameAnchors,
+    hostnameAnchors,
+    bucket => deserializeFilterReverseIndex(bucket, filtersIndex),
   );
   return fhd;
 }
@@ -416,12 +424,12 @@ class FilterSourceDomainDispatch {
   }
 
   push(filter) {
-    ++this.size;
+    this.size += 1;
 
-    if (filter.optNotDomains === null &&
-        filter.optDomains !== null) {
-      filter.optDomains.forEach(domain => {
-        log(`SOURCE DOMAIN DISPATCH ${domain} filter: ${filter.rawLine}`);
+    if (filter.optNotDomains.length === 0 &&
+        filter.optDomains.length > 0) {
+      filter.optDomains.split('|').forEach((domain) => {
+        log(`SOURCE DOMAIN DISPATCH ${domain} filter: ${JSON.stringify(filter)}`);
         const bucket = this.sourceDomainDispatch.get(domain);
         if (bucket === undefined) {
           const newIndex = new FilterHostnameDispatch(`${this.name}_${domain}`);
@@ -462,21 +470,21 @@ function serializeSourceDomainDispatch(sdd) {
   });
 
   return {
-    sourceDomainDispatch,
-    miscFilters: serializeFilterHostnameDispatch(sdd.miscFilters),
-    name: sdd.name,
-    size: sdd.size,
+    sd: sourceDomainDispatch,
+    m: serializeFilterHostnameDispatch(sdd.miscFilters),
+    n: sdd.name,
+    s: sdd.size,
   };
 }
 
 
 function deserializeSourceDomainDispatch(serialized, filtersIndex) {
-  const { sourceDomainDispatch, miscFilters, name, size } = serialized;
+  const { sd: sourceDomainDispatch, m: miscFilters, n: name, s: size } = serialized;
   const sdd = new FilterSourceDomainDispatch(name);
 
   sdd.size = size;
   sdd.miscFilters = deserializeFilterHostnameDispatch(miscFilters, filtersIndex);
-  Object.keys(sourceDomainDispatch).forEach(key => {
+  Object.keys(sourceDomainDispatch).forEach((key) => {
     const value = sourceDomainDispatch[key];
     sdd.sourceDomainDispatch.set(key, deserializeFilterHostnameDispatch(value, filtersIndex));
   });
@@ -497,7 +505,7 @@ class CosmeticBucket {
     this.index = new FuzzyIndex(
       (selector, cb) => {
         selector.split(/[^#.\w_-]/g).filter(token => token.length > 0).forEach(cb);
-      }
+      },
     );
 
     if (filters) {
@@ -510,7 +518,7 @@ class CosmeticBucket {
   }
 
   push(filter) {
-    ++this.size;
+    this.size += 1;
     const inserted = this.index.set(filter.selector, filter);
 
     if (!inserted) {
@@ -530,7 +538,7 @@ class CosmeticBucket {
     // Deal with misc filters
     this.miscFilters
       .filter(rule => matchCosmeticFilter(rule, hostname))
-      .forEach(rule => {
+      .forEach((rule) => {
         if (!uniqIds.has(rule.id)) {
           rules.push(rule);
           uniqIds.add(rule.id);
@@ -538,11 +546,11 @@ class CosmeticBucket {
       });
 
     // Find other matching rules in engine
-    nodeInfo.forEach(node => {
+    nodeInfo.forEach((node) => {
       // [id, tagName, className] = node
-      node.forEach(token => {
-        this.index.getFromKey(token).forEach(bucket => {
-          bucket.forEach(rule => {
+      node.forEach((token) => {
+        this.index.getFromKey(token).forEach((bucket) => {
+          bucket.forEach((rule) => {
             if (!uniqIds.has(rule.id) && matchCosmeticFilter(rule, hostname)) {
               rules.push(rule);
               uniqIds.add(rule.id);
@@ -566,11 +574,11 @@ class CosmeticBucket {
     }
 
     // filter by hostname
-    rules.forEach(rule => {
+    rules.forEach((rule) => {
       if (rule.hostnames.length === 0) {
         addRule(rule, '', false);
       } else {
-        rule.hostnames.forEach(h => {
+        rule.hostnames.forEach((h) => {
           let exception = false;
           if (h.startsWith('~')) {
             exception = true;
@@ -593,16 +601,16 @@ class CosmeticBucket {
 
 function serializeCosmeticBucket(cb) {
   return {
-    name: cb.name,
-    size: cb.size,
-    miscFilters: cb.miscFilters.map(filter => filter.id),
-    index: serializeFuzzyIndex(cb.index, bucket => bucket.map(filter => filter.id)),
+    n: cb.name,
+    s: cb.size,
+    m: cb.miscFilters.map(filter => filter.id),
+    i: serializeFuzzyIndex(cb.index, bucket => bucket.map(filter => filter.id)),
   };
 }
 
 
 function deserializeCosmeticBucket(serialized, filtersIndex) {
-  const { name, size, miscFilters, index } = serialized;
+  const { n: name, s: size, m: miscFilters, i: index } = serialized;
   const cb = new CosmeticBucket(name);
   cb.size = size;
   cb.miscFilters = miscFilters.map(id => filtersIndex[id]);
@@ -620,7 +628,7 @@ class CosmeticEngine {
       (hostname, cb) => {
         tokenizeHostname(hostname).forEach(cb);
       },
-      token => new CosmeticBucket(`${token}_cosmetics`)
+      token => new CosmeticBucket(`${token}_cosmetics`),
     );
 
     if (filters) {
@@ -637,7 +645,7 @@ class CosmeticEngine {
     this.size += 1;
 
     if (filter.hostnames.length > 0) {
-      filter.hostnames.forEach(hostname => {
+      filter.hostnames.forEach((hostname) => {
         inserted = this.cosmetics.set(hostname, filter) || inserted;
       });
     }
@@ -666,10 +674,10 @@ class CosmeticEngine {
     const miscMatchingRules = this.miscFilters.getMatchingRules(hostname, nodeInfo);
 
     // Check hostname buckets
-    this.cosmetics.getFromKey(hostname).forEach(bucket => {
+    this.cosmetics.getFromKey(hostname).forEach((bucket) => {
       log(`Found bucket ${bucket.size}`);
       const matchingRules = bucket.getMatchingRules(hostname, nodeInfo);
-      Object.keys(matchingRules).forEach(selector => {
+      Object.keys(matchingRules).forEach((selector) => {
         const r = matchingRules[selector];
         if (!r.exception && !uniqIds.has(r.rule.id)) {
           rules.push(r.rule);
@@ -680,7 +688,7 @@ class CosmeticEngine {
       });
     });
 
-    Object.keys(miscMatchingRules).forEach(selector => {
+    Object.keys(miscMatchingRules).forEach((selector) => {
       rules.push(miscMatchingRules[selector].rule);
     });
 
@@ -698,9 +706,9 @@ class CosmeticEngine {
     const rules = [];
     const uniqIds = new Set();
     log(`getDomainRules ${url} => ${hostname}`);
-    this.cosmetics.getFromKey(hostname).forEach(bucket => {
+    this.cosmetics.getFromKey(hostname).forEach((bucket) => {
       for (const value of bucket.index.index.values()) {
-        value.forEach(rule => {
+        value.forEach((rule) => {
           if (!uniqIds.has(rule.id)) {
             // check if one of the preceeding rules has the same selector
             const selectorMatched = rules.find(r => r.unhide !== rule.unhide && r.selector === rule.selector);
@@ -743,19 +751,21 @@ class CosmeticEngine {
 
 function serializeCosmeticEngine(cosmetics) {
   return {
-    size: cosmetics.size,
-    miscFilters: serializeCosmeticBucket(cosmetics.miscFilters),
-    cosmetics: serializeFuzzyIndex(cosmetics.cosmetics, serializeCosmeticBucket),
+    s: cosmetics.size,
+    m: serializeCosmeticBucket(cosmetics.miscFilters),
+    c: serializeFuzzyIndex(cosmetics.cosmetics, serializeCosmeticBucket),
   };
 }
 
 
 function deserializeCosmeticEngine(engine, serialized, filtersIndex) {
-  const { size, miscFilters, cosmetics } = serialized;
+  const { s: size, m: miscFilters, c: cosmetics } = serialized;
   engine.size = size;
   engine.miscFilters = deserializeCosmeticBucket(miscFilters, filtersIndex);
-  deserializeFuzzyIndex(engine.cosmetics, cosmetics, bucket =>
-    deserializeCosmeticBucket(bucket, filtersIndex)
+  deserializeFuzzyIndex(
+    engine.cosmetics,
+    cosmetics,
+    bucket => deserializeCosmeticBucket(bucket, filtersIndex),
   );
 }
 
@@ -837,7 +847,7 @@ export default class {
     });
   }
 
-  onUpdateFilters(lists) {
+  onUpdateFilters(lists, debug = false) {
     // Mark the engine as updated, so that it will be serialized on disk
     if (lists.length > 0) {
       this.updated = true;
@@ -863,7 +873,7 @@ export default class {
       const redirect = [];
 
       // Parse and dispatch filters depending on type
-      const parsed = parseList(filters);
+      const parsed = parseList(filters, debug);
 
       // Cosmetic filters
       const cosmetics = parsed.cosmeticFilters;
@@ -873,7 +883,7 @@ export default class {
           exceptions.push(filter);
         } else if (filter.isImportant) {
           importants.push(filter);
-        } else if (filter.redirect !== null && filter.redirect !== undefined) {
+        } else if (filter.redirect) {
           redirect.push(filter);
         } else {
           miscFilters.push(filter);
@@ -981,7 +991,7 @@ export default class {
 
     log(`Total filters ${checkedFilters.size}`);
     if (result !== null) {
-      if (result.redirect !== null) {
+      if (result.redirect) {
         const { data, contentType } = this.resources.get(result.redirect);
         let dataUrl;
         if (contentType.includes(';')) {
@@ -1005,7 +1015,7 @@ export default class {
 
 function checkEngineRec(serialized, validFilterIds) {
   Object.keys(serialized)
-    .filter(key => key !== 'size')
+    .filter(key => key !== 's')
     .forEach((key) => {
       const value = serialized[key];
       if (typeof value === 'number') {
@@ -1033,7 +1043,7 @@ function serializedEngineSanityCheck(serialized) {
 }
 
 
-export function serializeFiltersEngine(engine, checkEngine = false) {
+export function serializeFiltersEngine(engine, adbVersion, checkEngine = false) {
   // Create a global index of filters to avoid redundancy
   // From `engine.lists` create a mapping: uid => filter
   const filters = Object.create(null);
@@ -1060,6 +1070,7 @@ export function serializeFiltersEngine(engine, checkEngine = false) {
 
 
   const serializedEngine = {
+    version: adbVersion,
     cosmetics: serializeCosmeticEngine(engine.cosmetics),
     filtersIndex: filters,
     size: engine.size,
@@ -1078,12 +1089,13 @@ export function serializeFiltersEngine(engine, checkEngine = false) {
 }
 
 
-export function deserializeFiltersEngine(engine, serialized, checkEngine = false) {
+export function deserializeFiltersEngine(engine, serialized, adbVersion, checkEngine = false) {
   if (checkEngine) {
     serializedEngineSanityCheck(serialized);
   }
 
-  const { cosmetics
+  const { version
+        , cosmetics
         , filtersIndex
         , size
         , lists
@@ -1091,6 +1103,11 @@ export function deserializeFiltersEngine(engine, serialized, checkEngine = false
         , importants
         , redirect
         , filters } = serialized;
+
+  if (version !== adbVersion) {
+    // If the version does not match, then we invalidate the engine and start fresh
+    return;
+  }
 
   // Deserialize filters index
   const filtersReverseIndex = Object.create(null);

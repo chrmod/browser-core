@@ -53,7 +53,7 @@ class FiltersList {
       .load()
       .then(this.updateList.bind(this))
       .catch((e) => {
-        log(`exception while loading ${this.assetName} ${e}`);
+        log(`exception while loading ${this.assetName} ${e} ${e.stack}`);
       });
   }
 
@@ -62,7 +62,7 @@ class FiltersList {
       .updateFromRemote()
       .then(this.updateList.bind(this))
       .catch((e) => {
-        log(`exception while updating ${this.assetName} ${e}`);
+        log(`exception while updating ${this.assetName} ${e} ${e.stack}`);
       });
   }
 
@@ -125,7 +125,7 @@ export default class extends UpdateCallbackHandler {
       .load()
       .then(this.updateChecksums.bind(this))
       .catch((e) => {
-        log(`exception while loading allowed lists ${e}`);
+        log(`exception while loading allowed lists ${e} ${e.stack}`);
       });
   }
 
@@ -133,7 +133,7 @@ export default class extends UpdateCallbackHandler {
     return this.allowedListsLoader
       .updateFromRemote()
       .catch((e) => {
-        log(`exception while updating allowed lists ${e}`);
+        log(`exception while updating allowed lists ${e} ${e.stack}`);
       });
   }
 
