@@ -711,17 +711,21 @@ var CliqzUtils = {
         CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
         CliqzUtils._queryLastLength = q.length;
         var url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
-        CliqzUtils.httpGet(url, function (res) {
-          var resp = JSON.parse(res.response || '{}')
-          if (resp.result !== undefined && resp.results === undefined) {
-            resp.results = resp.result;
-            delete resp.result;
-          }
-          resolve({
-            response: resp,
-            query: q
-          });
-        });
+        CliqzUtils.httpGet(
+          url,
+          function (res) {
+            var resp = JSON.parse(res.response || '{}')
+            if (resp.result !== undefined && resp.results === undefined) {
+              resp.results = resp.result;
+              delete resp.result;
+            }
+            resolve({
+              response: resp,
+              query: q
+            });
+          },
+          reject
+        );
       }
     });
   },
@@ -897,16 +901,11 @@ var CliqzUtils = {
   locale: {},
   currLocale: null,
   getLocaleFile: function (locale) {
-    function callback(req) {
-        if (CliqzUtils){
-          CliqzUtils.currLocale = locale;
-          CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
-        }
-    }
-    function onerror(err) {
-    }
-    var url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
-    var response = CliqzUtils.httpGet(url, callback, onerror, 3000, null, true);
+    const url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
+    // Synchronous request is depricated
+    const req = CliqzUtils.httpGet(url, null, null, null, null, true);
+    CliqzUtils.currLocale = locale;
+    CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
   },
   getLocalizedString: function(key, substitutions){
     if(!key) return '';

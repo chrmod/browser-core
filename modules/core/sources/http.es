@@ -13,7 +13,7 @@ export let Response = ftch.Response;
  *  If you want to make HTTP requests, please check out the fetch API (platform/fetch)
  */
 export function defaultHttpHandler(method, url, callback, onerror, timeout, data, sync, encoding, background) {
-  var req = XMLHttpRequest();
+  var req = new XMLHttpRequest();
   req.timestamp = + new Date();
   if (background) {
     setBackgroundRequest(req);
@@ -23,11 +23,11 @@ export function defaultHttpHandler(method, url, callback, onerror, timeout, data
   req.overrideMimeType('application/json');
 
   // headers for compressed data
-  if ( encoding ) {
+  if (encoding) {
       req.setRequestHeader('Content-Encoding', encoding);
   }
 
-  req.onload = function(){
+  req.onload = function () {
       if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
 
       var statusClass = parseInt(req.status / 100);
@@ -38,17 +38,17 @@ export function defaultHttpHandler(method, url, callback, onerror, timeout, data
           onerror && onerror();
       }
   }
-  req.onerror = function(){
+  req.onerror = function () {
     console.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
     onerror && onerror();
   }
-  req.ontimeout = function(){
+  req.ontimeout = function () {
     console.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
     onerror && onerror();
   }
 
-  if(callback){
-      if(timeout){
+  if (callback) {
+      if (timeout) {
           req.timeout = parseInt(timeout)
       } else {
           req.timeout = (['POST', 'PUT'].indexOf(method) >= 0 ? 10000 : 1000);
