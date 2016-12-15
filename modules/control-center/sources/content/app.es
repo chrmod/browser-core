@@ -321,7 +321,7 @@ function draw(data){
 
     if(data.amo) {
       document.getElementById('amo-privacy-cc').innerHTML = templates['amo-privacy-cc']();
-      document.getElementById('cliqz-tab').innerHTML = templates['cliqz-tab'](data);
+      document.getElementById('cliqz-tab').innerHTML = templates['cliqz-tab'](data.module.freshtab);
     } else {
       document.getElementById('ad-blocking').innerHTML = templates['ad-blocking'](data);
       document.getElementById('https').innerHTML = templates['https'](data);
