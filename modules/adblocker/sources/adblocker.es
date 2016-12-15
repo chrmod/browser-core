@@ -55,6 +55,17 @@ export function adbEnabled() {
 }
 
 
+function extractGeneralDomain(uri) {
+  const url = uri.toLowerCase();
+  const urlParts = URLInfo.get(url);
+  let hostname = urlParts.hostname;
+  if (hostname.startsWith('www.')) {
+    hostname = hostname.substring(4);
+  }
+  return getGeneralDomain(hostname);
+}
+
+
 /* Wraps filter-based adblocking in a class. It has to handle both
  * the management of lists (fetching, updating) using a FiltersLoader
  * and the matching using a FilterEngine.
@@ -233,13 +244,11 @@ class AdBlocker {
   isDomainInBlacklist(url) {
     // Should all this domain stuff be extracted into a function?
     // Why is CliqzUtils.detDetailsFromUrl not used?
-    if (!utils.isUrl(url)) {
-      return false;
-    }
-    const urlParts = URLInfo.get(url);
-    let hostname = urlParts.hostname || url;
-    if (hostname.startsWith('www.')) {
-      hostname = hostname.substring(4);
+    let hostname = url;
+    try {
+      hostname = extractGeneralDomain(url);
+    } catch (e) {
+      // In case of ill-formed URL, just do a normal loopup
     }
 
     return this.blacklist.has(hostname);
@@ -263,14 +272,15 @@ class AdBlocker {
   toggleUrl(url, domain) {
     let processedURL = url;
     if (domain) {
-      // Should all this domain stuff be extracted into a function?
-      // Why is CliqzUtils.getDetailsFromUrl not used?
-      if (utils.isUrl(processedURL)) {
-        processedURL = URLInfo.get(url).hostname;
+      try {
+        processedURL = extractGeneralDomain(processedURL);
+      } catch (e) {
+        // If there is no general domain to be extracted, it means the URL is
+        // not correct. Hence we can just ignore it. (eg: about:config).
+        return;
       }
-      if (processedURL.startsWith('www.')) {
-        processedURL = processedURL.substring(4);
-      }
+    } else {
+      processedURL = utils.cleanUrlProtocol(processedURL, true);
     }
 
     const existHW = CliqzHumanWeb && CliqzHumanWeb.state.v[url];
