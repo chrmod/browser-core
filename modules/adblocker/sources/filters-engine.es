@@ -709,7 +709,16 @@ class CosmeticEngine {
               if (rule.scriptInject) {
                 // make sure the selector was replaced by javascript
                 if (!rule.scriptReplaced) {
+                  if (rule.selector.includes(',')) {
+                    rule.scriptArguments = rule.selector.split(',').slice(1).map(String.trim);
+                    rule.selector = rule.selector.split(',')[0];
+                  }
                   rule.selector = js.get(rule.selector);
+                  if (rule.scriptArguments) {
+                    rule.scriptArguments.forEach((e, idx) => {
+                      rule.selector = rule.selector.replace('{{' + ++idx + '}}', e);
+                    });
+                  }
                   rule.scriptReplaced = true;
                 }
               }
