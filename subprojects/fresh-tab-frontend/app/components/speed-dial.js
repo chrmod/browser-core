@@ -42,6 +42,18 @@ export default Ember.Component.extend({
       });
     },
 
+    refreshNotifications() {
+      const model = this.get('model');
+      this.get('notifications').refreshNotifications(model);
+      this.get('cliqz').sendTelemetry({
+        type: 'home',
+        action: 'click',
+        target_type: 'refresh_email_notification',
+        context: model.get('type'),
+        target_index: this.get('index')
+      });
+    },
+
     activateNotification() {
       const model = this.get('model');
       this.get('notifications').activateNotification(model);

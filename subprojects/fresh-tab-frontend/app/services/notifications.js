@@ -9,11 +9,10 @@ export default Ember.Service.extend({
     const loadingPromise = new Ember.RSVP.Promise(resolve => resolver = resolve);
     this.set("loadingPromiseResolver", resolver)
     this.set("loadingPromise", loadingPromise);
-    Ember.run.later(this, 'getNotifications', 0);
+    this.getNotifications();
   },
 
   stop() {
-    Ember.run.cancel(this.get('nextCheck'));
   },
 
   waitForFirstFetch() {
@@ -21,13 +20,12 @@ export default Ember.Service.extend({
   },
 
   getNotifications() {
-    // clear next scheduled check
-    Ember.run.cancel(this.get('nextCheck'));
-
     const cliqz = this.get('cliqz');
     const store = this.get('store');
     const speedDials = new Map(
-      store.peekAll('speed-dial').map(dial => [dial.get('url'), dial])
+      store.peekAll('speed-dial').map(dial => {
+        return [dial.get('id'), dial]
+      })
     );
 
     return cliqz.getNotifications([...speedDials.keys()]).then(notifications => {
@@ -52,7 +50,6 @@ export default Ember.Service.extend({
         }
       });
 
-      this.set('nextCheck', Ember.run.later(this, 'getNotifications', 5000));
     }).then(() => {
       this.get("loadingPromiseResolver")();
     });
@@ -60,6 +57,11 @@ export default Ember.Service.extend({
 
   enableNotifications(speedDial) {
     const cliqz = this.get('cliqz');
+    speedDial.setProperties({
+      notificationStatus: 'enabled',
+      notificationError: null,
+    });
+
     cliqz.watch(speedDial.get('url')).then(() => {
       this.getNotifications();
     });
@@ -70,9 +72,16 @@ export default Ember.Service.extend({
     const cliqz = this.get('cliqz');
     cliqz.unwatch(speedDial.get('url'));
     speedDial.setProperties({
-      notificationStatus: 'available'
+      notificationStatus: 'available',
+      notificationError: null
     });
   },
+
+  refreshNotifications(speedDial) {
+    const cliqz = this.get('cliqz');
+    cliqz.refreshNotifications(speedDial.get('url'));
+  },
+
   activateNotification(speedDial) {
     const cliqz = this.get('cliqz');
     speedDial.setProperties({
@@ -83,4 +92,39 @@ export default Ember.Service.extend({
       return this.getNotifications();
     });
    },
+   newNotification(domain, count) {
+    const store = this.get('store');
+    let dial = store.peekRecord('speed-dial', domain);
+    dial.setProperties({
+       notificationStatus: 'enabled',
+       notificationCount: count,
+       hasNewNotifications: true,
+       notificationError: null,
+    });
+   },
+   clearNotification(domain) {
+    const store = this.get('store');
+    let dial = store.peekRecord('speed-dial', domain);
+    dial.setProperties({
+      hasNewNotifications: false
+    });
+   },
+   inaccessibleNotification(domain) {
+    const store = this.get('store');
+    let dial = store.peekRecord('speed-dial', domain);
+    dial.setProperties({
+      notificationStatus: 'inaccessible',
+      notificationError: 'cannot-fetch-count'
+    });
+   },
+   accessibleNotification(domain, count) {
+    const store = this.get('store');
+    let dial = store.peekRecord('speed-dial', domain);
+    dial.setProperties({
+      notificationStatus: 'enabled',
+      notificationCount: count,
+      hasNewNotifications: false,
+      notificationError: 'null'
+    });
+   }
 });
