@@ -9,7 +9,13 @@ export default describeModule("ui/background",
         utils: {},
         events: {}
       },
-      "ui/views/partials/location/missing_location_1": {}
+      "ui/views/partials/location/missing_location_1": {},
+      "core/utils": {
+        default: {
+          getDetailsFromUrl() {},
+          getLogoDetails() {}
+        }
+      }
     }
   },
   function() {
