@@ -1248,7 +1248,7 @@
       "message": "Vos données ne sont pas protégées"
     },
     "control-center-datapoints": {
-      "message": "Les données personnelles ont été sécurisées"
+      "message": "Données personnelles sécurisées"
     },
     "control-center-datapoints-inactive": {
       "message": "Désactiver pour ce site"
@@ -1356,7 +1356,7 @@
       "message": "Partager ma position"
     },
     "control-center-explicit": {
-      "message": "Masquer les résultats à caractère pornographique"
+      "message": "Masquer les résultats pornographiques"
     },
     "control-center-proxy": {
       "message": "Rechercher via un réseau de proxys"
