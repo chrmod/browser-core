@@ -6,7 +6,7 @@ import parseList, { parseJSResource
                   , deserializeFilter } from 'adblocker/filters-parsing';
 import { matchNetworkFilter
        , matchCosmeticFilter } from 'adblocker/filters-matching';
-import { TLDs } from 'adblocker/tld';
+import { TLDs } from 'core/tlds';
 
 
 const TOKEN_BLACKLIST = new Set([

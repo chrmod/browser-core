@@ -81,6 +81,12 @@ export function serializeFilter(filter) {
   if (serialized.regex !== undefined) {
     delete serialized.regex;
   }
+  if (serialized._nds !== undefined) {
+    delete serialized._nds;
+  }
+  if (serialized._ds !== undefined) {
+    delete serialized._ds;
+  }
 
   return serialized;
 }
@@ -450,11 +456,27 @@ class NetworkFilter {
   }
 
   get optNotDomains() {
-    return this._nd || '';
+    if (this._nds === undefined) {
+      if (!this._nd) {
+        this._nds = new Set();
+      } else if (typeof this._nd === 'string') {
+        this._nds = new Set(this._nd.split('|'));
+      }
+    }
+
+    return this._nds;
   }
 
   get optDomains() {
-    return this._d || '';
+    if (this._ds === undefined) {
+      if (!this._d) {
+        this._ds = new Set();
+      } else if (typeof this._d === 'string') {
+        this._ds = new Set(this._d.split('|'));
+      }
+    }
+
+    return this._ds;
   }
 
   get regex() {

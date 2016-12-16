@@ -1,5 +1,5 @@
 
-import { TLDs } from 'adblocker/tld';
+import { TLDs } from 'core/tlds';
 
 
 // Some content policy types used in filters
@@ -91,16 +91,16 @@ function checkOptions(filter, request) {
   }
 
   // URL must be among these domains to match
-  if (filter.optDomains.length > 0 &&
-      !(filter.optDomains.includes(sHostGD) ||
-        filter.optDomains.includes(sHost))) {
+  if (filter.optDomains.size > 0 &&
+      !(filter.optDomains.has(sHostGD) ||
+        filter.optDomains.has(sHost))) {
     return false;
   }
 
   // URL must not be among these domains to match
-  if (filter.optNotDomains.length > 0 &&
-      (filter.optNotDomains.includes(sHostGD) ||
-       filter.optNotDomains.includes(sHost))) {
+  if (filter.optNotDomains.size > 0 &&
+      (filter.optNotDomains.has(sHostGD) ||
+       filter.optNotDomains.has(sHost))) {
     return false;
   }
 
