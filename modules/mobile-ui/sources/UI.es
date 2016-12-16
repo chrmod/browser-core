@@ -9,9 +9,25 @@ import { window, document } from 'mobile-ui/webview';
 import utils from 'core/utils';
 import ViewPager from 'viewpager';
 
+const ErrorHandlerReranker = {
+  name: 'error-handler-reranker',
+
+  afterResults: function (myResults, backendResults) {
+    if (backendResults.isInvalid && myResults.query.length === utils._queryLastLength) {
+      setTimeout(utils.search, 500, myResults.query, true);
+      reconnectingDiv.innerHTML = '<h3>'+utils.getLocalizedString('mobile_reconnecting_msg')+'</h3>'
+    } else {
+      reconnectingDiv.innerHTML = '';
+    }
+    return Promise.resolve(backendResults);
+  }
+}
+
+
 var resultsBox = null,
     freshtabDiv = window.document.getElementById('startingpoint'),
     incognitoDiv = window.document.getElementById('incognito'),
+    reconnectingDiv = window.document.getElementById('reconnecting'),
     currentResults = null,
     imgLoader = null,
     progressBarInterval = null,
@@ -33,15 +49,17 @@ var UI = {
     VIEWS: {},
     init: function () {
 
-        let box = document.getElementById('results');
-        box.innerHTML = CLIQZ.templates.main();
+      utils.RERANKERS.push(ErrorHandlerReranker);
 
-        resultsBox = document.getElementById('cliqz-results', box);
+      let box = document.getElementById('results');
+      box.innerHTML = CLIQZ.templates.main();
 
-        resultsBox.addEventListener('click', resultClick);
+      resultsBox = document.getElementById('cliqz-results', box);
 
-        // FIXME: import does not work
-        UI.DelayedImageLoader = DelayedImageLoader;
+      resultsBox.addEventListener('click', resultClick);
+
+      // FIXME: import does not work
+      UI.DelayedImageLoader = DelayedImageLoader;
     },
     onBoardingSwipe: function () {
       const DELAY = 1200;
@@ -467,16 +485,6 @@ window.addEventListener('resize', function () {
     viewPager.goToIndex(UI.currentPage, 0);
   }, 200);
 
-});
-
-window.addEventListener('disconnected', function () {
-  let elem = document.getElementById('reconnecting');
-  elem && (elem.innerHTML = '<h3>'+utils.getLocalizedString('mobile_reconnecting_msg')+'</h3>');
-});
-
-window.addEventListener('connected', function () {
-  let elem = document.getElementById('reconnecting');
-  elem && (elem.innerHTML = '');
 });
 
 export default UI;
