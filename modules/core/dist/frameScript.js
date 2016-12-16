@@ -78,7 +78,7 @@ LocationObserver.prototype.onLocationChange = function onLocationChange(aWebProg
   });
 };
 
-LocationObserver.prototype.onStateChange = function onStateChange(aBrowser, aWebProgress, aRequest, aStateFlag, aStatus) {
+LocationObserver.prototype.onStateChange = function onStateChange(aWebProgress, aRequest, aStateFlag, aStatus) {
   var msg = {
     url: aRequest && aRequest.name,
     urlSpec: aRequest && aRequest.URI && aRequest.URI.spec,
