@@ -294,6 +294,11 @@ class AdFilter {
         }
       }
 
+      // Strip www from hostname if present
+      if (this.isHostnameAnchor && this.hostname.startsWith("www.")) {
+        this.hostname = this.hostname.slice(4);
+      }
+
       if (this.filterStr === null) {
         this.filterStr = line.substring(filterIndexStart, filterIndexEnd);
       }
