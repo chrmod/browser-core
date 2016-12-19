@@ -226,6 +226,9 @@ function notifyHumanWeb(p) {
 
 function updateSuspiciousStatus(url, status) {
     var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
+    if (!(md5Prefix in CliqzAntiPhishing.blackWhiteList)) {
+      CliqzAntiPhishing.blackWhiteList[md5Prefix] = {};
+    }
     if (CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix]) {
       // don't update if the status is already set
       return;
