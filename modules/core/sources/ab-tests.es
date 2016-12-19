@@ -311,13 +311,18 @@ var CliqzABTests = {
             case "1085_B":
                 CliqzUtils.setPref('extOnboardShareLocation', true);
                 break;
+            case "1086_A":
+                CliqzUtils.setPref("checkLogos", '1');
+                break;
+            case "1086_B":
+                CliqzUtils.setPref("checkLogos", '0');
+                break;
             case "1087_A":
                 CliqzUtils.setPref('modules.context-search.enabled', false);
                 break;
             case "1087_B":
                 CliqzUtils.setPref('modules.context-search.enabled', true);
-                break;
-
+                break
             default:
                 rule_executed = false;
         }
@@ -508,10 +513,13 @@ var CliqzABTests = {
             case "1085_B":
               CliqzUtils.clearPref("extOnboardShareLocation");
               break;
+            case "1086_A":
+            case "1086_B":
+              CliqzUtils.clearPref("checkLogos");
+              break;
             case "1087_B":
               CliqzUtils.setPref('modules.context-search.enabled', false);
               break;
-
             default:
                 rule_executed = false;
         }

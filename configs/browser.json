@@ -57,7 +57,8 @@
     "telemetry",
     "new-tab-button",
     "moncomp",
-    "type-filter"
+    "type-filter",
+    "telemetry-speed-dial"
   ],
   "subprojects": [
     "fresh-tab-frontend"

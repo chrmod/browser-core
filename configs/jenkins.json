@@ -52,7 +52,8 @@
     "notifications",
     "moncomp",
     "firefox-tests",
-    "type-filter"
+    "type-filter",
+    "telemetry-speed-dial"
   ],
   "subprojects": [
     "fresh-tab-frontend"
