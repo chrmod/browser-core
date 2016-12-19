@@ -81,7 +81,7 @@ export default describeModule('adblocker/filters-engine',
                reject(`Encountered exception ${ex} while matching ` +
                  `${testCase.filter} against ${testCase.url}`);
              }
-           })
+           }),
         );
       });
     });
@@ -104,6 +104,7 @@ export default describeModule('adblocker/filters-engine',
 
       beforeEach(function initializeFilterEngine() {
         if (engine === null) {
+          this.timeout(20000);
           FilterEngine = this.module().default;
           serializeEngine = this.module().serializeFiltersEngine;
           deserializeEngine = this.module().deserializeFiltersEngine;
@@ -140,7 +141,7 @@ export default describeModule('adblocker/filters-engine',
                reject(`Encountered exception ${ex} while matching ` +
                  `${testCase.filter} against ${testCase.url}`);
              }
-           })
+           }),
         );
       });
     });
@@ -155,7 +156,7 @@ export default describeModule('adblocker/filters-engine',
 
       beforeEach(function initializeFilterEngine() {
         if (engine === null) {
-          this.timeout(10000);
+          this.timeout(20000);
           FilterEngine = this.module().default;
           serializeEngine = this.module().serializeFiltersEngine;
           deserializeEngine = this.module().deserializeFiltersEngine;
@@ -183,7 +184,7 @@ export default describeModule('adblocker/filters-engine',
                reject(`Encountered exception ${ex} while matching ` +
                  `${testCase.filter} against ${testCase.url}`);
              }
-           })
+           }),
          );
       });
     });
@@ -199,7 +200,7 @@ export default describeModule('adblocker/filters-engine',
 
       beforeEach(function initializeFilterEngine() {
         if (engine === null) {
-          this.timeout(10000);
+          this.timeout(20000);
           FilterEngine = this.module().default;
           serializeEngine = this.module().serializeFiltersEngine;
           deserializeEngine = this.module().deserializeFiltersEngine;
@@ -231,9 +232,9 @@ export default describeModule('adblocker/filters-engine',
                reject(`Encountered exception ${ex} while checking redirect ` +
                  `${testCase.redirect} against ${testCase.url}`);
              }
-           })
+           }),
          );
       });
     });
-  }
+  },
 );
