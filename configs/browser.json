@@ -24,6 +24,9 @@
     "modules.context-search.enabled": false,
     "modules.type-filter.enabled": false
   },
+  "default_prefs" : {
+    "modules.context-search.enabled": false
+  },
   "modules": [
     "core",
     "firefox-specific",
