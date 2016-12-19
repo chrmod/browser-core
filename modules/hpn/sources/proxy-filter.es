@@ -38,9 +38,10 @@ export default class {
   */
 
   applyFilter(pps, url, default_proxy) {
+
     if(url.scheme === "https" &&
-        CliqzSecureMessage.servicesToProxy.indexOf(url.host) > -1 &&
-        CliqzUtils.getPref('hpn-query', false)
+        (CliqzSecureMessage.servicesToProxy.indexOf(url.host) > -1) &&
+        (CliqzUtils.getPref('hpn-query', false) || CliqzUtils.isOnPrivateTab(CliqzUtils.getWindow()))
       ) {
       return this.getQueryProxy();
     } else {
