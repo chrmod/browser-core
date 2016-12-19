@@ -105,11 +105,7 @@ export default background({
                   humanWeb.telemetry(msg);
                   console.log(`Logo for domain ${eachDomain} is missing`)
               });
-<<<<<<< HEAD
               utils.setPref('checkLogos', '2');
-=======
-              utils.setPref('logosChecked', true);
->>>>>>> Get domains from speed-dial which do not have logos.
             })
             .catch( err => utils.log(err));
         })
