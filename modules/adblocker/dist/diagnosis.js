@@ -35,7 +35,7 @@ function generateDiagnosis() {
 
   content.push(`<h2>Updates</h2>`);
   content.push(`<div>current timestamp = ${timestamp}</div>`);
-  content.push(`<div>last update = ${lastUpdate} (${Math.floor(hours)}h ${Math.floor(minutes)}m ago)</div>`);
+  content.push(`<div>last update = ${lastUpdate} (${Math.floor(hours)}h ago)</div>`);
 
   // Engine stats
   content.push(`<h2>Loaded filters</h2>`);
