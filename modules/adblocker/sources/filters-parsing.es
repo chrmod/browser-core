@@ -94,11 +94,12 @@ class AdCosmetics {
       //                    ^      ^
       //   script:contains(/......./)
       //                    ^      ^
-      //    script:contains(selector)
-      //           ^        ^       ^^
-      //           |        |       ||
-      //           |        |       |this.selector.length
-      //           |        |       scriptSelectorIndexEnd
+      //    script:contains(selector[, args])
+      //           ^        ^               ^^
+      //           |        |          |    ||
+      //           |        |          |    |this.selector.length
+      //           |        |          |    scriptSelectorIndexEnd
+      //           |        |          |scriptArguments
       //           |        scriptSelectorIndexStart
       //           scriptMethodIndex
       const scriptMethodIndex = 'script:'.length;
