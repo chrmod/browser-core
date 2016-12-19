@@ -118,10 +118,6 @@ var CLIQZEnvironment = {
   setTimeout: function(){ return setTimeout.apply(null, arguments); },
   clearTimeout: function(){ clearTimeout.apply(null, arguments); },
   Promise: Promise,
-  tldExtractor: function(host){
-    //temp
-    return host.split('.').splice(-1)[0];
-  },
   OS: 'mobile',
   isPrivate: function(){ return false; },
   isOnPrivateTab: function(win) { return false; },

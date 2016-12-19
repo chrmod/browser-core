@@ -98,7 +98,7 @@ function displayTopSites (list, isEditMode = false) {
     });
   }
 
-  function onTap ({ srcEvent: { currentTarget: element } }) {
+  function onTap ({ target: element }) {
     osAPI.openLink(element.dataset.url);
     CliqzUtils.telemetry({
       type: 'home',
