@@ -495,17 +495,19 @@ function draw(data){
         type = 'switch',
         dropdown = target.find('.dropdown-scope');
 
-    //select first option "This domain" by default
-    dropdown.find('option:eq(1)').prop('selected', true);
+    if (target.parent().attr('data-target') === 'adblock') {
+      //select first option "This domain" by default
+      dropdown.find('option:eq(1)').prop('selected', true);
+      target.attr('data-visible', 'off_domain');
+    } else {
+      //select first option "this website" by default
+      dropdown.find('option:eq(0)').prop('selected', true);
+    }
+
 
     target.attr('state', function(idx, attr){
         return attr !== 'active' ? 'active': target.attr('inactiveState');
     });
-
-    //reset adblock dropdown option
-    if(target.attr('state') === 'off') {
-      target.attr('data-visible', 'off_website')
-    }
 
     if(this.hasAttribute('updatePref')){
       if(isOnboarding()) {
