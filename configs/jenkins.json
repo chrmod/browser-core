@@ -53,7 +53,8 @@
     "moncomp",
     "firefox-tests",
     "type-filter",
-    "telemetry-speed-dial"
+    "telemetry-speed-dial",
+    "video-downloader"
   ],
   "subprojects": [
     "fresh-tab-frontend"

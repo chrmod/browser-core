@@ -1472,5 +1472,17 @@
     "onboarding-search-query3": {
       "message": "TV Programm"
     },
+    "video-downloader-title": {
+      "message": "Video herunterladen"
+    },
+    "video-downloader-more-formats": {
+      "message": "Weitere Formate"
+    },
+    "video-downloader-send-to-mobile": {
+      "message": "An Smartphone senden"
+    },
+    "video-downloader-unsupported-format": {
+      "message": "Sorry! Wir können das Video leider nicht herunterladen."
+    },
     "TEST": "OK"
 }

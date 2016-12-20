@@ -58,7 +58,8 @@
     "moncomp",
     "type-filter",
     "offers-v2",
-    "telemetry-speed-dial"
+    "telemetry-speed-dial",
+    "video-downloader"
   ],
   "subprojects": [
     "fresh-tab-frontend"
