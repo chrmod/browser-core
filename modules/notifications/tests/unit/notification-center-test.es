@@ -221,7 +221,7 @@ export default describeModule("notifications/notification-center",
 
             nc.storage.saveDomain = saveSpy;
             nc.storage.updateDomain = updateSpy;
-
+            nc.publishEvent = function() {};
             nc.updateDomain(domain, count, oldData);
 
             chai.expect(updateSpy).to.have.been.called;
@@ -364,7 +364,7 @@ export default describeModule("notifications/notification-center",
             const unreadSpy = sinon.stub(nc, 'updateUnreadStatus')
               .returns(false);
             nc.storage.updateDomain = updateSpy;
-
+            nc.publishEvent = function() {}
             nc.updateDomain(domain, count, oldData);
 
             chai.expect(updateSpy).to.have.been.calledWithExactly(domain, {

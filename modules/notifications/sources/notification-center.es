@@ -137,13 +137,14 @@ export default Evented(class {
           status: 'inaccessible',
           error: e
         });
-        console.error(`!notifications for domain "${domain}" fail`, e);
+        console.error(`!!notifications for domain "${domain}" fail`, e);
+        return reject(e)
       });
     });
   }
 
   updateDomain(domain, newCount, oldData) {
-    const oldCount = oldData.count ? oldData.count : 0;
+    const oldCount = (oldData && oldData.count) ? oldData.count : 0;
     if(!oldData) {
       this.storage.saveDomain(domain, {
         count: oldCount,
@@ -151,8 +152,7 @@ export default Evented(class {
         error: null,
       });
     }
-
-    if (newCount !== oldCount || oldData && oldData.status != 'enabled') {
+    if (newCount !== oldCount || oldData && oldData.status !== 'enabled') {
       this.storage.updateDomain(domain, {
          count: newCount,
          status: 'enabled',
@@ -161,8 +161,13 @@ export default Evented(class {
        });
 
       if(newCount > oldCount) {
-        this.updateUnreadStatus();
+        this.updateUnreadStatus(domain, newCount);
       }
+    }
+
+    if(oldData && oldData.status === 'inaccessible') {
+      //broadcast user has logged in again
+      this.publishEvent('notifications-accessible', domain, newCount);
     }
   }
 
@@ -173,6 +178,9 @@ export default Evented(class {
         const oldCount = this.storage.getDomainData(domain);
         return this.getProviderCount(domain).then( newCount => {
           this.updateDomain(domain, newCount, oldCount);
+        }).catch( e => {
+          //broadcast user is loggeout out
+          this.publishEvent('notifications-inaccessible', domain);
         });
       },
       schedule
@@ -180,10 +188,20 @@ export default Evented(class {
     this.tasks.set(domain, task);
   }
 
-  updateUnreadStatus() {
+  refresh(domain) {
+    const oldCount = this.storage.getDomainData(domain);
+    return this.getProviderCount(domain).then( newCount => {
+      this.updateDomain(domain, newCount, oldCount);
+    }).catch( e => {
+      //broadcast user is loggeout out
+      this.publishEvent('notifications-inaccessible', domain);
+    });
+  }
+
+  updateUnreadStatus(domain, count) {
     const hasUnread = this.storage.hasUnread();
     const eventName = hasUnread ? 'new-notification' : 'notifications-cleared';
-    this.publishEvent(eventName);
+    this.publishEvent(eventName, domain, count);
   }
 
   clearDomainUnread(domain) {
@@ -194,13 +212,22 @@ export default Evented(class {
 
     const isChanged = this.storage.updateDomain(domain, { unread: false });
     if (isChanged) {
-      this.updateUnreadStatus();
+      this.updateUnreadStatus(domain);
     }
   }
 
   addDomain(domain) {
     this.storage.addWatchedDomain(domain);
-    this.createSchedule(domain);
+    return new Promise((resolve, reject) => {
+      this.getProviderCount(domain).then((count) => {
+        this.updateDomain(domain, count);
+        this.createSchedule(domain);
+        return resolve();
+      }).catch(e => {
+        console.log("promt user to login", e)
+        return resolve(e);
+      });
+    });
   }
 
   removeDomain(domain) {

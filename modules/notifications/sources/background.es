@@ -20,12 +20,26 @@ export default background({
       'notifications-cleared'
     );
 
+    this.onNotificationsInaccessible = events.proxyEvent(
+      'notifications:notifications-inaccessible',
+      this.notificationCenter,
+      'notifications-inaccessible'
+    );
+
+    this.onNotificationsAccessible = events.proxyEvent(
+      'notifications:notifications-accessible',
+      this.notificationCenter,
+      'notifications-accessible'
+    );
+
     this.notificationCenter.start();
   },
 
   unload() {
     this.onNewNotification.unsubscribe();
     this.onNotificationsCleared.unsubscribe();
+    this.onNotificationsInaccessible.unsubscribe();
+    this.onNotificationsAccessible.unsubscribe();
 
     this.notificationCenter.stop();
     delete this.notificationCenter;
@@ -33,6 +47,16 @@ export default background({
 
   beforeBrowserShutdown() {
 
+  },
+
+  broadcastMessage(action, message) {
+    utils.callAction('core', 'broadcastMessage', [
+      utils.CLIQZ_NEW_TAB_URL + '?cliqzOnboarding=1',
+      {
+        action: action,
+        message
+      }
+    ]);
   },
 
   actions: {
@@ -94,6 +118,11 @@ export default background({
       const domainDetails = utils.getDetailsFromUrl(url);
       this.notificationCenter.clearDomainUnread(domainDetails.host);
     },
+
+    refresh(url) {
+      const domainDetails = utils.getDetailsFromUrl(url);
+      this.notificationCenter.refresh(domainDetails.host);
+    }
   },
 
   events: {
@@ -105,5 +134,27 @@ export default background({
         this.actions.clearUnread(url);
       }
     },
+    'notifications:new-notification': function onNewNotification(domain, count) {
+      this.broadcastMessage('newNotification', {
+        domain,
+        count
+      });
+    },
+    'notifications:notifications-cleared': function onClearNotification(domain) {
+      this.broadcastMessage('clearNotification', {
+        domain
+      });
+    },
+    'notifications:notifications-inaccessible': function onInaccessibleNotification(domain) {
+      this.broadcastMessage('inaccessibleNotification', {
+        domain
+      });
+    },
+    'notifications:notifications-accessible': function onAccessibleNotification(domain, count) {
+      this.broadcastMessage('accessibleNotification', {
+        domain,
+        count
+      });
+    }
   },
 });

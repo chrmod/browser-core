@@ -26,17 +26,19 @@
        <menuitem label="{{t 'speedDials.reset-all'}}" {{action "resetAll"}}></menuitem>
      {{/unless}}
 
-        {{#if model.notificationsEnabled}}
-          <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
-        {{/if}}
+      {{#if model.notificationsEnabled}}
+        <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+        <menuitem label="{{t 'notifications.txt-email-refresh'}}" {{action "refreshNotifications"}}></menuitem>
+      {{/if}}
 
-        {{#if model.notificationInaccesible}}
-          <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
-        {{/if}}
+      {{#if model.notificationInaccesible}}
+        <menuitem class="action-notifications-enabled" label="{{t 'speedDials.notifications-disable'}}" {{action "disableNotifications"}}></menuitem>
+        <menuitem label="{{t 'notifications.txt-email-refresh'}}" {{action "refreshNotifications"}}></menuitem>
+      {{/if}}
 
-        {{#if model.notificationsAvailable}}
-          <menuitem class="action-notifications-disabled" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
-        {{/if}}
+      {{#if model.notificationsAvailable}}
+        <menuitem class="action-notifications-disabled" label="{{t 'speedDials.notifications-enable'}}" {{action "enableNotifications"}}></menuitem>
+      {{/if}}
 
 
  </menu>

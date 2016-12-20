@@ -30,7 +30,7 @@ export default Ember.Route.extend({
       this.store.push({
         data: allDials.map(dial => {
           return {
-            id: dial.url,
+            id: dial.id,
             type: 'speed-dial',
             attributes: Object.assign({
               type: dial.custom ? 'custom' : 'history',
