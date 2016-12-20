@@ -82,10 +82,7 @@ var CLIQZEnvironment = {
   },
   search: function(e) {
     if(!e || e === '') {
-      // should be moved to UI except 'CLIQZEnvironment.initHomepage();'
       CLIQZEnvironment.lastSearch = '';
-      CLIQZ.UI.hideResultsBox();
-      CLIQZEnvironment.initHomepage();
       CLIQZ.UI.stopProgressBar();
       CLIQZ.UI.lastResults = null;
       return;
@@ -96,8 +93,6 @@ var CLIQZEnvironment = {
     e = e.toLowerCase().trim();
 
     CLIQZEnvironment.lastSearch = e;
-
-    News.sendHideTelemetry();
 
     window.CLIQZ.UI.startProgressBar();
 
@@ -175,12 +170,6 @@ var CLIQZEnvironment = {
     Array.prototype.slice.call(document.querySelectorAll(elementSelector)).forEach(function (element) {
       element.addEventListener(eventType, listener);
     });
-  },
-
-  initHomepage: function() {
-    if (!CLIQZ.UI  || !CLIQZ.UI.isIncognito) {
-      osAPI.getTopSites('onNews', 15);
-    }
   },
   setDefaultSearchEngine: function(engine) {
     storage.setObject('defaultSearchEngine', engine);

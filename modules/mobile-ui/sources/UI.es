@@ -25,8 +25,6 @@ const ErrorHandlerReranker = {
 
 
 var resultsBox = null,
-    freshtabDiv = window.document.getElementById('startingpoint'),
-    incognitoDiv = window.document.getElementById('incognito'),
     reconnectingDiv = window.document.getElementById('reconnecting'),
     currentResults = null,
     imgLoader = null,
@@ -90,16 +88,6 @@ var UI = {
     setTheme: function (incognito = false) {
       UI.isIncognito = incognito;
       window.document.body.style.backgroundColor = incognito ? '#4a4a4a' : '#E8E8E8';
-      if (!UI.isSearch()) {
-        if (incognito) {
-          incognitoDiv.innerHTML = utils.getLocalizedString('mobile_incognito');
-          freshtabDiv.style.display = 'none';
-          incognitoDiv.style.display = 'block';
-        } else {
-          freshtabDiv.style.display = 'block';
-          incognitoDiv.style.display = 'none';
-        }
-      }
     },
     results: function (r) {
 
@@ -198,14 +186,6 @@ var UI = {
           },
         });
     },
-    hideResultsBox: function () {
-      if (UI.isIncognito) {
-        incognitoDiv.style.display = 'block';
-      } else {
-        freshtabDiv.style.display = 'block';
-      }
-      resultsBox.style.display = 'none';
-    },
     updateSearchCard: function (engine) {
       var engineDiv = document.getElementById('defaultEngine');
       if (engineDiv && CliqzAutocomplete.lastSearch) {
@@ -249,11 +229,7 @@ function setCardCountPerPage(windowWidth) {
 
 
 function redrawDropdown(newHTML) {
-    resultsBox.style.display = 'block';
-    freshtabDiv.style.display = 'none';
-    incognitoDiv.style.display = 'none';
-
-    resultsBox.innerHTML = newHTML;
+  resultsBox.innerHTML = newHTML;
 }
 
 function getVertical(result) {

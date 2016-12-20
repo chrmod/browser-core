@@ -1091,9 +1091,6 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "Subscribe NOW"
     },
-    "mobile_incognito": {
-      "message": "<strong>Forget Tab</strong><br /><br />Web sites are not saved to your history. Likewise, temporary files and cookies are not saved. However, downloads and bookmarks are saved.<br />Your Internet service provider, employer or the sites themselves can still track which pages you visit."
-    },
     "mobile_freshtab_breaking_news": {
       "message": "BREAKING NEWS:"
     },

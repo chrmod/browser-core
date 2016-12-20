@@ -46,11 +46,7 @@ var jsAPI = {
     CliqzUtils.getLocalStorage().setObject('blockedTopSites', []);
   },
   onShow: function () {
-    if (CLIQZ.UI) { // search view
-      if (!CLIQZ.UI.isSearch()) { // freshtab
-        CliqzUtils.initHomepage();
-      }
-    } else { // history view
+    if (!CLIQZ.UI) { // history view
       History.update();
     }
   },

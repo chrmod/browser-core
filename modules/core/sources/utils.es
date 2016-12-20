@@ -1169,7 +1169,6 @@ var CliqzUtils = {
   isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
   getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,
   isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser,
-  initHomepage: CLIQZEnvironment.initHomepage,
   setDefaultSearchEngine: CLIQZEnvironment.setDefaultSearchEngine,
   isUnknownTemplate: CLIQZEnvironment.isUnknownTemplate,
   historySearch: CLIQZEnvironment.historySearch,

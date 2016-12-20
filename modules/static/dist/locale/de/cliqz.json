@@ -1091,9 +1091,6 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "JETZT abonnieren"
     },
-    "mobile_incognito": {
-      "message": "<strong>Vergessen Tab</strong><br /><br />Websites werden nicht in deinem Verlauf gespeichert. Ebenso werden temporäre Dateien und Cookies nicht gespeichert. Downloads und Lesezeichen werden aber gespeichert.<br />Dein Internetdienstanbieter oder Arbeitgeber können weiterhin nachvollziehen, welche Seiten du besucht hast."
-    },
     "mobile_freshtab_breaking_news": {
       "message": "EILMELDUNG:"
     },
