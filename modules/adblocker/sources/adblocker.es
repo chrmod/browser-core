@@ -24,7 +24,7 @@ const SERIALIZED_ENGINE_PATH = ['antitracking', 'adblocking', 'engine.json'];
 
 
 // adb version
-export const ADB_VERSION = 1;
+export const ADB_VERSION = 2;
 
 // Preferences
 export const ADB_PREF = 'cliqz-adb';
