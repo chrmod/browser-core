@@ -164,11 +164,12 @@ var News = {
       return;
     }
 
-    news = news.map(function(r){
+    news = news.map(function(r) {
       const details = CliqzUtils.getDetailsFromUrl(r.url);
       const logo = CliqzUtils.getLogoDetails(details);
       const type = r.breaking ? 'breakingnews' : 'topnews';
       return {
+        breaking_label: r.breaking_label,
         breaking: r.breaking,
         title: r.title,
         description: r.description,
