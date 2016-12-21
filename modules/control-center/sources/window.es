@@ -75,7 +75,7 @@ export default class {
     addStylesheet(this.window.document, this.cssUrl);
 
     this.addCCbutton();
-    this.actions.refreshState(this.window.gBrowser.currentURI.spec);
+    setTimeout(this.actions.refreshState, 100);
     CliqzEvents.sub("core.location_change", this.actions.refreshState);
 
     this.updateFFHelpMenu();
@@ -171,13 +171,10 @@ export default class {
     this.helpMenu.removeEventListener('popupshowing', this.createFFhelpMenu);
   }
 
-  refreshState(url) {
-    const affectsCurrentWindow = queryActiveTabs(this.window).some(tab => tab.url === url);
-    if (affectsCurrentWindow) {
-      this.prepareData().then((data) => {
-        this.setState(data.generalState);
-      });
-    }
+  refreshState() {
+    this.prepareData().then((data) => {
+      this.setState(data.generalState);
+    });
   }
 
   adbOptimized(data) {
@@ -327,7 +324,7 @@ export default class {
             'refreshState',
             []
           );
-        }, 200, win);
+        }, 3000 /* some modules need time to start eg: antitracking */, win);
       }
       else {
         // current window - nothing to do
@@ -446,14 +443,10 @@ export default class {
           ccData.generalState = 'inactive';
         }
 
-        if(moduleData.antitracking && !moduleData.antitracking.enabled){
-          if(moduleData.antitracking.isWhitelisted){
-            // only this website is whitelisted
-            ccData.generalState = 'inactive';
-          }
-          else {
-            ccData.generalState = 'critical';
-          }
+        if(!moduleData.antitracking){
+          ccData.generalState = 'critical';
+        } else if(!moduleData.antitracking.enabled && moduleData.antitracking.isWhitelisted){
+          ccData.generalState = 'inactive';
         }
       } else {
         ccData.generalState = 'off';
