@@ -210,6 +210,12 @@ function onDOMWindowCreated(ev) {
     }
 
     var matchesCurrentUrl = msg.data.url === currentURL();
+   // wild card for cliqz URLS
+   if(msg.data.url.indexOf('resource://cliqz') === 0){
+     if(currentURL().indexOf(msg.data.url) === 0){
+       matchesCurrentUrl = true;
+     }
+   }
     var isGetHTML = msg.data.action === 'getHTML';
     // TEMP: Human web decodes the URI for internal storage
     var isCurrentUrlBis = msg.data.url === decodeURIComponent(currentURL());
