@@ -324,7 +324,7 @@ export default class {
             'refreshState',
             []
           );
-        }, 200, win);
+        }, 3000 /* some modules need time to start eg: antitracking */, win);
       }
       else {
         // current window - nothing to do
