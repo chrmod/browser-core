@@ -78,8 +78,8 @@ export function serializeFilter(filter) {
 
   // Remove useless attributes
   delete serialized.id;
-  if (serialized.regex !== undefined) {
-    delete serialized.regex;
+  if (serialized._r !== undefined) {
+    delete serialized._r;
   }
   if (serialized._nds !== undefined) {
     delete serialized._nds;
