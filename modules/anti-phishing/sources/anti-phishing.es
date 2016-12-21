@@ -352,6 +352,9 @@ var CliqzAntiPhishing = {
         return CliqzUtils.getPref('cliqz-anti-phishing-enabled', false);
     },
     addPageLoad(domWinID, url, ts) {
+      if (!CliqzUtils.getWindow().gBrowser.getBrowserForOuterWindowID) {
+        return;
+      }
       if (!(domWinID in CliqzAntiPhishing.history)) {
         CliqzAntiPhishing.history[domWinID] = [{url, ts}];
       } else {
@@ -367,7 +370,8 @@ var CliqzAntiPhishing = {
       }
       // clear closed tabs
       Object.keys(CliqzAntiPhishing.history).forEach(domWinID => {
-        if (!CliqzUtils.getWindow().gBrowser.getBrowserForOuterWindowID(parseInt(domWinID))) {
+        if (CliqzUtils.getWindow().gBrowser.getBrowserForOuterWindowID &&
+        !CliqzUtils.getWindow().gBrowser.getBrowserForOuterWindowID(parseInt(domWinID))) {
           delete CliqzAntiPhishing.history[domWinID];
         }
       });
