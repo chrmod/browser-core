@@ -62,7 +62,7 @@ export default Ember.Component.extend({
     remove() {
       const model = this.get('model');
       this.sendAction("removeAction", model);
-      if( model.get('notificationsEnabled')) {
+      if( model.get('notificationsEnabled') || model.get('notificationInaccesible')) {
         this.get('notifications').disableNotifications(model);
       }
     },
