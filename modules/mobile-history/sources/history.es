@@ -232,6 +232,7 @@ function attachListeners(list) {
       hammer.on('pan', onSwipe);
       hammer.on('panend', onSwipeEnd);
       hammer.on('tap', onElementClick);
+      hammer.get('tap').set({time: 400});
     }
   }
 }

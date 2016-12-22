@@ -110,8 +110,11 @@ function displayTopSites (list, isEditMode = false) {
 
   const elements = document.querySelectorAll('.topSitesLink');
   for (let i = 0; i < elements.length; i++) {
-    new Hammer(elements[i]).on('tap', onTap);
-    new Hammer(elements[i]).on('press', onLongpress);
+    const hammer = new Hammer(elements[i]);
+    hammer.on('tap', onTap);
+    hammer.on('press', onLongpress);
+    hammer.get('tap').set({time: 400});
+    hammer.get('press').set({time: 401});
   }
 
 }
