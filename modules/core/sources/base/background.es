@@ -1,4 +1,5 @@
 import events from 'core/events';
+import { promiseResolve } from 'core/promises';
 
 export default function (originalBackground) {
   const background = Object.assign({}, originalBackground);
@@ -12,7 +13,7 @@ export default function (originalBackground) {
   });
 
   background.init = function init(...args) {
-    const promise = Promise.resolve(bgInit.apply(background, args));
+    const promise = promiseResolve(bgInit.apply(background, args));
 
     Object.keys(bgEvents || {}).forEach(event => {
       bgEvents[event] = bgEvents[event].bind(background);

@@ -3,6 +3,7 @@ import utils from "./utils";
 import console from "./console";
 import language from "./language";
 import config from "./config";
+import { promiseResolve } from "./promises";
 import ProcessScriptManager from "platform/process-script-manager";
 import HistoryManager from "./history-manager";
 import prefs from './prefs';
@@ -184,7 +185,7 @@ export default background({
     },
     sendTelemetry(msg) {
       utils.telemetry(msg);
-      return Promise.resolve();
+      return promiseResolve();
     },
     queryCliqz(query) {
       let urlBar = utils.getWindow().document.getElementById("urlbar")
@@ -207,7 +208,7 @@ export default background({
       if (lang) {
         language.addLocale(url, lang);
       }
-      return Promise.resolve();
+      return promiseResolve();
     },
     recordMeta(url, meta) {
       events.pub("core:url-meta", url, meta);

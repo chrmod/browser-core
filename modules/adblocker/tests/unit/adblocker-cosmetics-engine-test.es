@@ -45,7 +45,7 @@ export default describeModule('adblocker/filters-engine',
       const domainMatches = 'modules/adblocker/tests/unit/data/domain_matching.txt';
 
       beforeEach(function initializeCosmeticEngine() {
-        this.timeout(10000);
+        this.timeout(20000);
         FilterEngine = this.module().default;
         serializeEngine = this.module().serializeFiltersEngine;
         deserializeEngine = this.module().deserializeFiltersEngine;

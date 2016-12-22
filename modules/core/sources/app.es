@@ -1,6 +1,7 @@
 import System from 'system';
 import config from './config';
 import console from './console';
+import { promiseResolve } from './promises';
 import { subscribe } from './events';
 import prefs from './prefs';
 import { Window, mapWindows, forEachWindow } from '../platform/browser';
@@ -52,7 +53,7 @@ export default class {
               .catch(e => console.error('App', 'Error on loading module:', module.name, e));
           } catch (e) {
             console.error('App module:', `"${module.name}"`, ' -- something went wrong', e);
-            return Promise.resolve();
+            return promiseResolve();
           }
         } else {
           // TODO: should not be here
@@ -158,7 +159,7 @@ export default class {
     const module = this.availableModules[moduleName];
 
     if (module.isEnabled) {
-      return Promise.resolve();
+      return promiseResolve();
     }
 
     return module.enable().then(() => {
@@ -175,7 +176,7 @@ export default class {
     const module = this.availableModules[moduleName];
 
     if (!module.isEnabled) {
-      return Promise.resolve();
+      return promiseResolve();
     }
 
     forEachWindow(module.unloadWindow.bind(module));
@@ -239,7 +240,7 @@ class Module {
         })
       )
       .then(module => {
-        return Promise.resolve(module.init()).then(() => module);
+        return promiseResolve(module.init()).then(() => module);
       })
       .then(windowModule => {
         const win = new Window(window);
