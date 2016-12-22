@@ -1,23 +1,6 @@
 import { readFile, writeFile, mkdir } from 'core/fs';
 import { utils } from 'core/cliqz';
-
-
-/* Because of crazy monky patching of Promises in the tests,
- * we need to implement our own `reject` and `resolve` functions
- * to be sure it always works...
- */
-function promiseReject(...args) {
-  return new Promise((resolve, reject) => {
-    reject(...args);
-  });
-}
-
-
-function promiseResolve(...args) {
-  return new Promise((resolve, reject) => {
-    resolve(...args);
-  });
-}
+import { promiseReject, promiseResolve } from 'core/promises';
 
 
 // Common durations
