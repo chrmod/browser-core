@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 import { utils } from 'core/cliqz';
 import background from 'core/base/background';
 
@@ -27,7 +28,7 @@ class TypeRemover {
       telemetrySignal,
     });
 
-    return Promise.resolve(Object.assign({}, originalResults, {
+    return promiseResolve(Object.assign({}, originalResults, {
       response,
     }));
   }

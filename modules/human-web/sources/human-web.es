@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 import CliqzEvents from "core/events";
 import CliqzBloomFilter from "human-web/bloom-filter";
 import { utils } from "core/cliqz";
@@ -2597,7 +2598,7 @@ var CliqzHumanWeb = {
 
         // Check if host is private or not.
         CliqzHumanWeb.isPublicDomain(msg)
-            .then( success => CliqzHumanWeb.safeQuorumCheck(msg), fail => Promise.reject("localcheck") )
+            .then( success => CliqzHumanWeb.safeQuorumCheck(msg), fail => promiseReject("localcheck") )
             .then( isSafe => {
                 _log("Quorum consent ?" + isSafe);
                 if (isSafe) {
@@ -4499,7 +4500,7 @@ var CliqzHumanWeb = {
             if (bf) {
                 bf.addSingle(hashedUrl);
                 CliqzHumanWeb.dumpQuorumBloomFilter();
-                Promise.resolve(true);
+                promiseResolve(true);
             }
         });
     },

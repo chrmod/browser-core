@@ -63,10 +63,12 @@ function injectTestHelpers(CliqzUtils) {
 
   window.respondWith = function respondWith(res) {
     CliqzUtils.getBackendResults = function (q) {
-      return Promise.resolve({
-        response: res,
-        query: q,
-        status: 200
+      return new Promise(function (resolve, reject) {
+        resolve({
+          response: res,
+          query: q,
+          status: 200,
+        });
       });
     };
   };

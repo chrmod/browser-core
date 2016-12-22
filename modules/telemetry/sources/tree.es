@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 import { readFile, writeFile } from 'core/fs';
 
 export default class {
@@ -15,7 +16,7 @@ export default class {
       const nodes = JSON.parse(data);
       this.reset();
       this.insertNodes(nodes);
-      return Promise.resolve('loaded');
+      return promiseResolve('loaded');
     });
   }
 

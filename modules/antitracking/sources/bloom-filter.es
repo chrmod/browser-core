@@ -1,4 +1,4 @@
-import Promise from 'promise';
+import { promiseResolve, promiseReject } from "core/promises";
 import md5 from 'antitracking/md5';
 import * as datetime from 'antitracking/time';
 import pacemaker from 'antitracking/pacemaker';
@@ -210,7 +210,7 @@ export class AttrackBloomFilter extends QSWhitelistBase {
       }
       self.version.major = major;
       self.version.minor = minor;
-      return Promise.resolve();
+      return promiseResolve();
     };
 
     // load the filter, if possible from the CDN, otherwise grab a cached local version
@@ -238,7 +238,7 @@ export class AttrackBloomFilter extends QSWhitelistBase {
 
   checkUpdate(version) {
     if (version === undefined) {
-      return Promise.reject('version undefined');
+      return promiseReject('version undefined');
     }
     var self = this;
     if (self.version === null || self.bloomFilter === null) {  // load the first time
@@ -247,7 +247,7 @@ export class AttrackBloomFilter extends QSWhitelistBase {
     }
     if (self.version.major === version.major &&
       self.version.minor === version.minor) {  // already at the latest version
-      return Promise.resolve();
+      return promiseResolve();
     }
     if (self.version.major !== version.major) {
       return self.remoteUpdate(version.major, 0);

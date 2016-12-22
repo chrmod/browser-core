@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 /*
  * This is the module which creates the UI for the results
  *   - uses handlebars templates
@@ -19,7 +20,7 @@ const ErrorHandlerReranker = {
     } else {
       reconnectingDiv.innerHTML = '';
     }
-    return Promise.resolve(backendResults);
+    return promiseResolve(backendResults);
   }
 }
 
