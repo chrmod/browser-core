@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 import { utils } from "core/cliqz";
 import { NEWS_DOMAINS_LIST as NEWS_DOMAINS } from "freshtab/news";
 
@@ -17,11 +18,11 @@ export default class {
     const richHeaderUrl = utils.RICH_HEADER + utils.getRichHeaderQueryString(`[${hash}]`);
 
     if (!(hash in NEWS_DOMAINS)) {
-      return Promise.resolve(null);
+      return promiseResolve(null);
     }
 
     if (domain in this.newsCache) {
-      return Promise.resolve(this.newsCache[domain]);
+      return promiseResolve(this.newsCache[domain]);
     } else {
       return utils.promiseHttpHandler("PUT", richHeaderUrl, JSON.stringify({
         q: `[${hash}]`,

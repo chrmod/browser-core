@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 /*
  * This module implements the fetching of suggestions from the default search engine of the user
  * It returns the suggestions formated as Cliqz results so that they can be display on the dropdown
@@ -39,7 +40,7 @@ class ExpansionsProviderReranker {
   }
 
   afterResults(myResults, backendResults) {
-    return Promise.resolve(myResults);
+    return promiseResolve(myResults);
   }
 }
 

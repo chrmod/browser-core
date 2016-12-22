@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 import { getSmartCliqz } from 'autocomplete/smart-cliqz-cache/rich-header';
 import { utils } from 'core/cliqz';
 import Cache from 'autocomplete/smart-cliqz-cache/cache';
@@ -98,11 +99,11 @@ export default class extends Cache {
       cleaners.push(() => {
         utils.log('done cleaning SmartCliqz trigger URLs');
         resolve();
-        return Promise.resolve();
+        return promiseResolve();
       });
       // execute sequentually
       cleaners.reduce((current, next) =>
-        current.then(_ => next(), e => { reject(e); return Promise.reject(); }), Promise.resolve());
+        current.then(_ => next(), e => { reject(e); return promiseReject(); }), promiseResolve());
     });
   }
 }

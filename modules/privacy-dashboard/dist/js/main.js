@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 Components.utils.import('chrome://cliqzmodules/content/CLIQZ.jsm');
 var CliqzUtils = CLIQZ.System.get("core/utils").default;
 var CliqzEvents = CLIQZ.System.get("core/events").default;
@@ -28,7 +29,7 @@ var CliqzPrivacyRep = CLIQZ.System.get("privacy-dashboard/main").default;
       templates.map(function (tpl) {
         TEMPLATE_CACHE[tpl.name] = CliqzHandlebars.compile(tpl.html)
       });
-      return Promise.resolve();
+      return promiseResolve();
     });
   }
 

@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 /**
  * This modules implements reranking of results using user specific data
  */
@@ -193,7 +194,7 @@ export default class WikipediaDedupReranker {
       results: reranked.response,
       telemetrySignal: reranked.telemetrySignal
     });
-    return Promise.resolve(Object.assign({}, backendResults, {
+    return promiseResolve(Object.assign({}, backendResults, {
       response: response
     }));
   }

@@ -1,3 +1,4 @@
+import { promiseResolve, promiseReject } from "core/promises";
 import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
@@ -362,7 +363,7 @@ export default background({
         showNewBrandAlert: self.actions._showNewBrandAlert(),
         messages: this.messages
       };
-      return Promise.resolve(config);
+      return promiseResolve(config);
     },
     /**
     * @method takeFullTour
@@ -388,7 +389,7 @@ export default background({
     },
 
     getTabIndex() {
-      return Promise.resolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
+      return promiseResolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
     },
 
     shareLocation(decision) {
