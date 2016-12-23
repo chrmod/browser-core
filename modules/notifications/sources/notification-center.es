@@ -1,4 +1,5 @@
 import console from '../core/console';
+import utils from '../core/utils';
 import { Cron } from '../core/anacron';
 import GmailProvider from './providers/gmail';
 import PinTabProvider from './providers/pin-tab';
@@ -17,7 +18,7 @@ const AVAILABLE_DOMAINS = {
   'mail.google.com': {
     providerName: 'gmail',
     config: {},
-    schedule: '*/1 *',
+    schedule: utils.getPref('gmailNotificationsInterval', '*/30 *'),
   },
   //'twitter.com': {
     //providerName: 'pin-tab',
