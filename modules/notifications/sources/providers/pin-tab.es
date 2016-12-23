@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import utils from '../../core/utils';
 import { mapWindows } from '../../core/browser';
 import { queryActiveTabs as getTabs, pinTab } from '../../core/tabs';
@@ -30,7 +29,7 @@ export default class {
       .callAction('core', 'queryHTML', [url, this.selector, this.attribute]);
 
     if (!this.canCount()) {
-      return promiseReject('no-data');
+      return Promise.reject('no-data');
     }
 
     return Promise.all(urls.map(countForUrl))

@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 'use strict';
 /*
  This module is used for sending the events for purpose of
@@ -131,7 +130,7 @@ const CliqzSecureMessage = {
     if (nextMsg) {
       return sendM(nextMsg);
     }
-    return promiseResolve([]);
+    return Promise.resolve([]);
   },
   nextMessage: function() {
     if (CliqzSecureMessage._telemetry_sending.length > 0) {

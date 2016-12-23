@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import { utils } from "core/cliqz";
 
 export default class {
@@ -11,7 +10,7 @@ export default class {
     const mixerUrl = `https://newbeta.cliqz.com/api/v1/results?q=${url}`;
 
     if (url in this.cache) {
-      return promiseResolve(this.cache[url]);
+      return Promise.resolve(this.cache[url]);
     } else {
       return utils.promiseHttpHandler("GET", mixerUrl, {}, 2000).then( response => {
         const payload = JSON.parse(response.response);

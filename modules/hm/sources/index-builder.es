@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import TableChangeObserver from 'hm/table-change-observer';
 import IncrementalStorage from 'hm/incremental-storage';
 import SimpleStorage from 'hm/simple-storage';
@@ -708,7 +707,7 @@ export default class IndexBuilder {
         if (Object.keys(this.storage.obj).length === 0) {
           return this.storage.snapshot(makeEmptyIndex());
         }
-        return promiseResolve();
+        return Promise.resolve();
       })
       .then(() => {
           // TODO: Should we wait for all these inits in a Promise.all?

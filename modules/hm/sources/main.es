@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 /*
  * This module is the replacement for Firefox History Manager
  *
@@ -81,7 +80,7 @@ const CliqzHM = {
   },
   buildIndex() {
     if (!CliqzHM.indexBuilder) {
-      return promiseReject('no IndexBuilder found');
+      return Promise.reject('no IndexBuilder found');
     }
     return CliqzHM.indexBuilder.buildIndex();
   },

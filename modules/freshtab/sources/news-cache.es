@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import utils from 'core/utils';
 
 
@@ -36,8 +35,8 @@ export default class {
       this.updateTimer = utils.setTimeout(this.asynchronousUpdate.bind(this), 5 * ONE_MINUTE);
     } else {
       this.cacheWasRetrieved = false;
-      promiseResolve(this.isStale())
-        .then(isStale => isStale ? this.updateCache() : promiseResolve())
+      Promise.resolve(this.isStale())
+        .then(isStale => isStale ? this.updateCache() : Promise.resolve())
         .then(() =>
           this.updateTimer =
             utils.setTimeout(this.asynchronousUpdate.bind(this), Math.max(this.getTimeToNextUpdate(), 1000))
@@ -92,7 +91,7 @@ export default class {
     if (this.isStale()) {
       updatePromise = this.updateCache();
     } else {
-      updatePromise = promiseResolve();
+      updatePromise = Promise.resolve();
     }
     return updatePromise.then(() => this.parseDataFromCache());
   }

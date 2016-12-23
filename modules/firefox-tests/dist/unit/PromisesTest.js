@@ -1,7 +1,7 @@
 // ES6Promise tests, copied from https://github.com/stefanpenner/es6-promise/blob/ad25a4b7a13e7724c8e3767b75df2660878da913/test/extension-test.js
 // and adapted for our test framework
 
-/*global describe, it, it, assert */
+/*global describe, specify, it, assert */
 
 function keysOf(object) {
   var results = [];
@@ -537,7 +537,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         ]).then(function(){ done(); });
       });
 
-      it('fulfilled only after all of the other promises are fulfilled', function(done) {
+      specify('fulfilled only after all of the other promises are fulfilled', function(done) {
         var firstResolved, secondResolved, firstResolver, secondResolver;
 
         var first = new Promise(function(resolve) {
@@ -569,7 +569,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('rejected as soon as a promise is rejected', function(done) {
+      specify('rejected as soon as a promise is rejected', function(done) {
         var firstResolver, secondResolver;
 
         var first = new Promise(function(resolve, reject) {
@@ -605,7 +605,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('passes the resolved values of each promise to the callback in the correct order', function(done) {
+      specify('passes the resolved values of each promise to the callback in the correct order', function(done) {
         var firstResolver, secondResolver, thirdResolver;
 
         var first = new Promise(function(resolve, reject) {
@@ -633,21 +633,21 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('resolves an empty array passed to all()', function(done) {
+      specify('resolves an empty array passed to all()', function(done) {
         all([]).then(function(results) {
           assert(results.length === 0);
           done();
         });
       });
 
-      it('works with null', function(done) {
+      specify('works with null', function(done) {
         all([null]).then(function(results) {
           assert.equal(results[0], null);
           done();
         });
       });
 
-      it('works with a mix of promises and thenables and non-promises', function(done) {
+      specify('works with a mix of promises and thenables and non-promises', function(done) {
         var promise = new Promise(function(resolve) { resolve(1); });
         var syncThenable = { then: function (onFulfilled) { onFulfilled(2); } };
         var asyncThenable = { then: function (onFulfilled) { setTimeout(function() { onFulfilled(3); }, 0); } };
@@ -661,7 +661,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
     }
 
     describe("reject", function(){
-      it("it should exist", function(){
+      specify("it should exist", function(){
         assert(Promise.reject);
       });
 
@@ -703,7 +703,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         ]).then(function(){ done(); });
       });
 
-      it('fulfilled after one of the other promises are fulfilled', function(done) {
+      specify('fulfilled after one of the other promises are fulfilled', function(done) {
         var firstResolved, secondResolved, firstResolver, secondResolver;
 
         var first = new Promise(function(resolve) {
@@ -735,7 +735,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('the race begins on nextTurn and prioritized by array entry', function(done) {
+      specify('the race begins on nextTurn and prioritized by array entry', function(done) {
         var firstResolver, secondResolver, nonPromise = 5;
 
         var first = new Promise(function(resolve, reject) {
@@ -752,7 +752,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('rejected as soon as a promise is rejected', function(done) {
+      specify('rejected as soon as a promise is rejected', function(done) {
         var firstResolver, secondResolver;
 
         var first = new Promise(function(resolve, reject) {
@@ -788,7 +788,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('resolves an empty array to forever pending Promise', function(done) {
+      specify('resolves an empty array to forever pending Promise', function(done) {
         var foreverPendingPromise = Promise.race([]),
             wasSettled            = false;
 
@@ -804,7 +804,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         }, 50);
       });
 
-      it('works with a mix of promises and thenables', function(done) {
+      specify('works with a mix of promises and thenables', function(done) {
         var promise = new Promise(function(resolve) { setTimeout(function() { resolve(1); }, 10); }),
             syncThenable = { then: function (onFulfilled) { onFulfilled(2); } };
 
@@ -814,7 +814,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
       });
 
-      it('works with a mix of thenables and non-promises', function (done) {
+      specify('works with a mix of thenables and non-promises', function (done) {
         var asyncThenable = { then: function (onFulfilled) { setTimeout(function() { onFulfilled(3); }, 0); } },
             nonPromise = 4;
 
@@ -826,12 +826,12 @@ TESTS.PromiseTest = function(CliqzUtils) {
     });
 
     describe("resolve", function(){
-      it("it should exist", function(){
+      specify("it should exist", function(){
         assert(Promise.resolve);
       });
 
       describe("1. If x is a promise, adopt its state ", function(){
-        it("1.1 If x is pending, promise must remain pending until x is fulfilled or rejected.", function(done){
+        specify("1.1 If x is pending, promise must remain pending until x is fulfilled or rejected.", function(done){
           var expectedValue, resolver, thenable, wrapped;
 
           expectedValue = 'the value';
@@ -853,7 +853,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
           }, 10);
         });
 
-        it("1.2 If/when x is fulfilled, fulfill promise with the same value.", function(done){
+        specify("1.2 If/when x is fulfilled, fulfill promise with the same value.", function(done){
           var expectedValue, thenable, wrapped;
 
           expectedValue = 'the value';
@@ -871,7 +871,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
           })
         });
 
-        it("1.3 If/when x is rejected, reject promise with the same reason.", function(done){
+        specify("1.3 If/when x is rejected, reject promise with the same reason.", function(done){
           var expectedError, thenable, wrapped;
 
           expectedError =  new Error();
@@ -891,7 +891,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
       });
 
       describe("2. Otherwise, if x is an object or function,", function(){
-        it("2.1 Let then x.then", function(done){
+        specify("2.1 Let then x.then", function(done){
           var accessCount, resolver, wrapped, thenable;
 
           accessCount = 0;
@@ -921,7 +921,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
           done();
         });
 
-        it("2.2 If retrieving the property x.then results in a thrown exception e, reject promise with e as the reason.", function(done){
+        specify("2.2 If retrieving the property x.then results in a thrown exception e, reject promise with e as the reason.", function(done){
           var wrapped, thenable, expectedError;
 
           expectedError = new Error();
@@ -945,7 +945,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
         });
 
         describe('2.3. If then is a function, call it with x as this, first argument resolvePromise, and second argument rejectPromise, where', function(){
-          it('2.3.1 If/when resolvePromise is called with a value y, run Resolve(promise, y)', function(done){
+          specify('2.3.1 If/when resolvePromise is called with a value y, run Resolve(promise, y)', function(done){
             var expectedSuccess, resolver, rejector, thenable, wrapped, calledThis;
 
             thenable = {
@@ -970,7 +970,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
             }, 20);
           });
 
-          it('2.3.2 If/when rejectPromise is called with a reason r, reject promise with r.', function(done){
+          specify('2.3.2 If/when rejectPromise is called with a reason r, reject promise with r.', function(done){
             var expectedError, resolver, rejector, thenable, wrapped, calledThis;
 
             thenable = {
@@ -995,7 +995,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
             }, 20);
           });
 
-          it("2.3.3 If both resolvePromise and rejectPromise are called, or multiple calls to the same argument are made, the first call takes precedence, and any further calls are ignored", function(done){
+          specify("2.3.3 If both resolvePromise and rejectPromise are called, or multiple calls to the same argument are made, the first call takes precedence, and any further calls are ignored", function(done){
             var expectedError, expectedSuccess, resolver, rejector, thenable, wrapped, calledThis,
             calledRejected, calledResolved;
 
@@ -1041,7 +1041,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
           });
 
           describe("2.3.4 If calling then throws an exception e", function(){
-            it("2.3.4.1 If resolvePromise or rejectPromise have been called, ignore it.", function(done){
+            specify("2.3.4.1 If resolvePromise or rejectPromise have been called, ignore it.", function(done){
               var expectedSuccess, resolver, rejector, thenable, wrapped, calledThis,
               calledRejected, calledResolved;
 
@@ -1062,7 +1062,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
               });
             });
 
-            it("2.3.4.2 Otherwise, reject promise with e as the reason.", function(done) {
+            specify("2.3.4.2 Otherwise, reject promise with e as the reason.", function(done) {
               var expectedError, resolver, rejector, thenable, wrapped, calledThis, callCount;
 
               expectedError = new Error();
@@ -1083,7 +1083,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
           });
         });
 
-        it("2.4 If then is not a function, fulfill promise with x", function(done){
+        specify("2.4 If then is not a function, fulfill promise with x", function(done){
           var expectedError, resolver, rejector, thenable, wrapped, calledThis, callCount;
 
           thenable = { then: 3 };
@@ -1101,7 +1101,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
       });
 
       describe("3. If x is not an object or function, ", function(){
-        it("fulfill promise with x.", function(done){
+        specify("fulfill promise with x.", function(done){
           var thenable, callCount, wrapped;
 
           thenable = null;
@@ -1175,7 +1175,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
 
   // Kudos to @Octane at https://github.com/getify/native-promise-only/issues/5 for this, and @getify for pinging me.
   describe("Thenables should not be able to run code during assimilation", function () {
-      it("resolving to a thenable", function () {
+      specify("resolving to a thenable", function () {
           var thenCalled = false;
           var thenable = {
               then: function () {
@@ -1187,7 +1187,7 @@ TESTS.PromiseTest = function(CliqzUtils) {
           assert.strictEqual(thenCalled, false);
       });
 
-      it("resolving to an evil promise", function () {
+      specify("resolving to an evil promise", function () {
           var thenCalled = false;
           var evilPromise = Promise.resolve();
           evilPromise.then = function () {
