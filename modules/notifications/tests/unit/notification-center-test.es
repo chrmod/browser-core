@@ -1,6 +1,11 @@
 export default describeModule("notifications/notification-center",
   function() {
     return {
+      "core/utils": {
+        default: {
+          getPref() {}
+        }
+      },
       "core/console": {
         default: {}
       },
