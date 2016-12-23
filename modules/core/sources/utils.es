@@ -3,7 +3,6 @@ import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
 import { TLDs } from "core/tlds";
-import { promiseResolve, promiseReject } from "core/promises";
 //import CliqzLanguage from "platform/language";
 import { httpHandler, promiseHttpHandler } from 'core/http';
 
@@ -81,7 +80,7 @@ var CliqzUtils = {
     options = options || {};
 
     if (!options.lang) {
-      return promiseReject("lang missing");
+      return Promise.reject("lang missing");
     }
     CliqzUtils.importModule('core/gzip').then(function(gzip) {
       CLIQZEnvironment.gzip = gzip;
@@ -128,20 +127,20 @@ var CliqzUtils = {
   callAction(moduleName, actionName, args) {
     const module = CliqzUtils.System.get(`${moduleName}/background`);
     if (!module) {
-      return promiseReject(`module "${moduleName}" does not exist`);
+      return Promise.reject(`module "${moduleName}" does not exist`);
     }
 
     const action = module.default.actions[actionName];
     if (!action) {
-      return promiseReject(`module ${moduleName} does not implement action "${actionName}"`);
+      return Promise.reject(`module ${moduleName} does not implement action "${actionName}"`);
     }
 
     try {
       const response = action.apply(null, args);
-      return promiseResolve(response);
+      return Promise.resolve(response);
     } catch (e) {
       console.error(`callAction`, moduleName, actionName, e);
-      return promiseReject(e);
+      return Promise.reject(e);
     }
   },
 
