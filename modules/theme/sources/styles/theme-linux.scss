@@ -13,27 +13,47 @@ $pin-tab-width: 37px;
 
 $url-bar-font-size: 14px;
 $url-bar-bg-color: #fff;
+$url-bar-bg-private-color: #bec9d7;
 $url-bar-hover-bg-color: #fff;
 $url-bar-hover-border-color: #7aa8d9;
 $url-bar-hover-shadow: inset 0 0 2px #aec6de;
 
+#main-window:not([cliqzBrowser="true"]),
+#main-window:not([cliqzBrowser="true"]) * :root {
+  --cliqz-close-image: url("../images/browser/linux/close.png");
+  --cliqz-font-lato-regular: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
+  --cliqz-loading-image: url("../images/browser/linux/loading.png");
+  --cliqz-menuPanel-svg: url("../images/browser/linux/menuPanel.svg");
+  --cliqz-newtab-image: url("../images/browser/linux/newtab.png");
+  --cliqz-toolbar-image: url("../images/browser/linux/Toolbar.png");
+  --cliqz-toolbar-image-2x: url("../images/browser/linux/Toolbar@2x.png");
+  --cliqz-urlbar-arrow-image: url("../images/browser/linux/urlbar-arrow.png");
+  --cliqz-urlbar-arrow-image-2x: url("../images/browser/linux/urlbar-arrow@2x.png");
+  --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/linux/menuPanel.png");
+  --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/linux/menuPanel@2x.png") !important;
+}
+
+#main-window[cliqzBrowser="true"],
+#main-window[cliqzBrowser="true"] * :root {
+  --cliqz-close-image: url("close.png");
+  --cliqz-font-lato-regular: url("Lato-Regular.ttf");
+  --cliqz-loading-image: url("loading.png");
+  --cliqz-menuPanel-svg: url("menuPanel.svg");
+  --cliqz-newtab-image: url("newtab.png");
+  --cliqz-toolbar-image: url("../Toolbar.png");
+  --cliqz-toolbar-image-2x: url("../Toolbar@2x.png");
+  --cliqz-urlbar-arrow-image: url("urlbar-arrow.png");
+  --cliqz-urlbar-arrow-image-2x: url("urlbar-arrow@2x.png");
+}
+
 @font-face {
     font-family: "Lato";
-    src: url("chrome://cliqz/content/static/skin/fonts/Lato-Regular.ttf");
-}
-
-.cliqz-urlbar-Last-search {
-    padding-top: 3px;
-}
-
-:root {
-    --menupanel-list-style-image: url("chrome://cliqz/content/theme/images/browser/linux/menuPanel.png");
-    --menupanel-list-style-image-2x: url("chrome://cliqz/content/theme/images/browser/linux/menuPanel@2x.png") !important;
+    src: var(--cliqz-font-lato-regular);
 }
 
 :-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #webide-button, #containers-panelmenu),
 #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    list-style-image: url("../images/browser/linux/Toolbar.png");
+    list-style-image: var(--cliqz-toolbar-image);
 }
 
 
@@ -321,7 +341,7 @@ notification[type="warning"] .messageText {
 }
 
 .tab-throbber[progress] {
-    list-style-image: url("../images/browser/linux/loading.png");
+    list-style-image: var(--cliqz-loading-image);
 }
 
 
@@ -344,11 +364,12 @@ notification[type="warning"] .messageText {
 }
 
 #navigator-toolbox::after {
-    position: relative;
-    margin-top: -3px !important;
-    background-image: none;
-    box-shadow: 0 1px 2px 0px rgba(0, 0, 0, 0.9);
-    z-index: 0;
+    //position: relative;
+    //margin-top: -3px !important;
+    //background-image: none;
+    //box-shadow: 0 1px 2px 0px rgba(0, 0, 0, 0.9);
+    //z-index: 0;
+    border-color: #dfdfdf;
 }
 
 .urlbar-input {
@@ -381,14 +402,15 @@ notification[type="warning"] .messageText {
     background-color: rgba(255, 255, 255, 0);
 }
 
+#main-window[privatebrowsingmode="temporary"],
 #navigator-toolbox[on_private_tab="true"] {
     #notification-popup-box {
-        border-image: url("../images/browser/linux/urlbar-arrow.png") 0 8 0 0 fill;
+        border-image: var(--cliqz-urlbar-arrow-image) 0 8 0 0 fill;
     }
 
     @media (min-resolution: 1.1dppx) {
         #notification-popup-box {
-            border-image: url("../images/browser/linux/urlbar-arrow@2x.png") 0 16 0 0 fill;
+            border-image: var(--cliqz-urlbar-arrow-image-2x) 0 16 0 0 fill;
         }
     }
 
@@ -398,6 +420,10 @@ notification[type="warning"] .messageText {
 
     #identity-box:hover:active, #identity-box[open="true"] {
         background-color: rgba(255, 255, 255, 0);
+    }
+
+    #urlbar {
+        background-color: $url-bar-bg-private-color !important;
     }
 }
 /* END URL BAR */
@@ -526,7 +552,7 @@ notification[type="warning"] .messageText {
 }
 
 #new-tab-button {
-    list-style-image: url("../images/browser/linux/newtab.png") !important;
+    list-style-image: var(--cliqz-newtab-image) !important;
     background: $browser-top-bg-color;
 }
 
@@ -535,7 +561,7 @@ notification[type="warning"] .messageText {
     width: 30px;
     border: none !important;
     background: none !important;
-    list-style-image: url("../images/browser/linux/newtab.png") !important;
+    list-style-image: var(--cliqz-newtab-image) !important;
 
     .toolbarbutton-icon {
         padding-top: 5px;
@@ -545,7 +571,7 @@ notification[type="warning"] .messageText {
 }
 
 .close-icon {
-    list-style-image: url("../images/browser/linux/close.png");
+    list-style-image: var(--cliqz-close-image);
     -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
@@ -582,11 +608,61 @@ vbox[sidebarcommand=historybroadcaster] {
 }
 
 toolbaritem[sdkstylewidget="true"] > toolbarbutton, [cui-areatype="menu-panel"]:-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #webide-button, #containers-panelmenu), toolbarpaletteitem[place="palette"] > :-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #webide-button, #containers-panelmenu) {
-    list-style-image: url("../images/browser/linux/menuPanel.svg");
+    list-style-image: var(--cliqz-menuPanel-svg);
 }
 
 #main-window[privatebrowsingmode="temporary"] #private-browsing-indicator {
     width: $pin-tab-width;
     background-color: #e0e0e0;
     border-right: 1px solid $tab-border-color;
+}
+
+
+@media (min-resolution: 1.1dppx) {
+    :-moz-any(#back-button,
+    #forward-button,
+    #home-button,
+    #print-button,
+    #downloads-button,
+    #bookmarks-menu-button,
+    #new-tab-button,
+    #new-window-button,
+    #fullscreen-button,
+    #sync-button,
+    #feed-button,
+    #tabview-button,
+    #social-share-button,
+    #open-file-button,
+    #find-button,
+    #developer-button,
+    #preferences-button,
+    #privatebrowsing-button,
+    #save-page-button,
+    #add-ons-button,
+    #history-panelmenu,
+    #nav-bar-overflow-button,
+    #PanelUI-menu-button,
+    #characterencoding-button,
+    #email-link-button,
+    #sidebar-button,
+    #zoom-out-button,
+    #zoom-reset-button,
+    #zoom-in-button,
+    #cut-button,
+    #copy-button,
+    #paste-button,
+    #e10s-button,
+    #panic-button,
+    #web-apps-button,
+    #webide-button,
+    #loop-button,
+    #pocket-button,
+    #restore-button),
+    #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+        list-style-image: var(--cliqz-toolbar-image-2x);
+    }
+
+    toolbaritem[sdkstylewidget="true"] > toolbarbutton, [cui-areatype="menu-panel"]:-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #webide-button, #containers-panelmenu), toolbarpaletteitem[place="palette"] > :-moz-any(#back-button, #forward-button, #home-button, #print-button, #downloads-button, #bookmarks-menu-button, #new-tab-button, #new-window-button, #fullscreen-button, #sync-button, #feed-button, #social-share-button, #open-file-button, #find-button, #developer-button, #preferences-button, #privatebrowsing-button, #save-page-button, #add-ons-button, #history-panelmenu, #nav-bar-overflow-button, #PanelUI-menu-button, #characterencoding-button, #email-link-button, #sidebar-button, #zoom-out-button, #zoom-reset-button, #zoom-in-button, #cut-button, #copy-button, #paste-button, #e10s-button, #panic-button, #webide-button, #containers-panelmenu) {
+        list-style-image: var(--menupanel-list-style-image-2x);
+    }
 }

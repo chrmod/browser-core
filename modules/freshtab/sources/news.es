@@ -55,6 +55,11 @@ function requestBackend(url, data) {
     });
 }
 
+function checkNewsTypeForHbasedRequest(newsPlacingRecord){
+  return (newsPlacingRecord.type === hbasedNewsTypeKey)
+        ||(newsPlacingRecord.type === prClBurdaNewsTypeKey);
+}
+
 function getTopNewsList() {
   var url = coreUtils.RICH_HEADER + coreUtils.getRichHeaderQueryString(''),
       data = {
@@ -84,7 +89,7 @@ function getHbasedNewsObject() {
       let hbNewsDict = getHbasedNewsDict(reqData);
       let newsPlacing = hbasedRecom.newsPlacing || [];
 
-      const reqDomains = newsPlacing.filter(r => r.type === hbasedNewsTypeKey)
+      const reqDomains = newsPlacing.filter(checkNewsTypeForHbasedRequest)
         .map((r) => r.domain.split('/')[0]);
 
       let cleanhbNewsDict = {};
@@ -276,7 +281,7 @@ function composeDomainHasheList(newsPlacing, historyBasedRecommendationsCache) {
 
 
   // extract domains' hashes for history based news
-  const domainHashList = newsPlacing.filter(r => r.type === hbasedNewsTypeKey).map(getDomainHash);
+  const domainHashList = newsPlacing.filter(checkNewsTypeForHbasedRequest).map(getDomainHash);
   const cachedHashList = (historyBasedRecommendationsCache && historyBasedRecommendationsCache.hashList) || [];
 
   if (domainHashList.length !== 0) {
@@ -338,18 +343,18 @@ function composeHistoryBasedRecommendations(globalVisitCount) {
     return i.count < j.count;
   }
 
-
   function getPressClipping(glVisitCount) {
     function getPressClipMapping(domain) {
       return PRESS_CLIPPING_MAPPING[parseInt(coreUtils.hash(domain), 10)] || false;
     }
     const glVisit = glVisitCount;
     const pressClipList = [];
+    const prClipThreshold = 5 ;
 
     let pressClipMapping;
     Object.keys(glVisit).forEach((domain) => {
       pressClipMapping = getPressClipMapping(domain);
-      if (typeof pressClipMapping === 'string') {
+      if ((typeof pressClipMapping === 'string') && (glVisit[domain].count > prClipThreshold)) {
         glVisit[domain].key = pressClipMapping;
         pressClipList.push(glVisit[domain]);
       }
@@ -482,7 +487,7 @@ export function composeNewsList(historyObject, topNewsCache, hbasedResults) {
 
   function mergeToList(articlesToMerge, freshtabArticlesList, numberOfNewsToMerge, sourceArticleType, checkIfAlreadyInHistory, urlPatern) {
     function mergeCheck(article, checkHist, urlDomainPatern) {
-      return (!(checkHist && article.isVisited) &&
+      return (!(!(article.breaking === true) && checkHist && article.isVisited) &&
             (notAlreadyInList(article.url, freshtabArticlesList)) &&
             (article.url.indexOf(urlDomainPatern) !== -1));
     }

@@ -16,10 +16,10 @@
                         </div>
                     {{/if}}
                     <div class="url"><div data-extra="url">{{displayUrl}}</div></div>
-                    <h1 class="item__head" data-extra="head">
+                    <h1 class="item__head" data-extra="title">
                         {{#if breaking}}
                             <span class="breaking_news">
-                                {{local 'mobile_freshtab_breaking_news'}}
+                                {{ breaking_label }}:
                             </span>
                         {{/if}}
                         {{ short_title }}

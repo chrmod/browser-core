@@ -2,8 +2,6 @@ import { utils } from "core/cliqz";
 import background from "core/base/background";
 import HumanWeb from "human-web/human-web";
 import hs from "core/history-service";
-import Attrack from "antitracking/attrack";
-
 
 /**
 * @namespace human-web
@@ -22,9 +20,27 @@ export default background({
   * @method init
   */
   init(settings) {
-    HumanWeb.initAtBrowser();
-    utils.bindObjectFunctions(this.actions, this);
-    hs.addObserver(HumanWeb.historyObserver, false);
+    let FF48_OR_ABOVE = false;
+
+    try {
+      const appInfo = Components.classes['@mozilla.org/xre/app-info;1']
+        .getService(Components.interfaces.nsIXULAppInfo);
+      const versionChecker = Components.classes['@mozilla.org/xpcom/version-comparator;1']
+        .getService(Components.interfaces.nsIVersionComparator);
+
+      if (versionChecker.compare(appInfo.version, '48.0') >= 0) {
+        FF48_OR_ABOVE = true;
+      }
+    } catch (e) { CliqzUtils.log(e); }
+
+    if (FF48_OR_ABOVE) {
+      this.enabled = true;
+      HumanWeb.initAtBrowser();
+      utils.bindObjectFunctions(this.actions, this);
+      hs.addObserver(HumanWeb.historyObserver, false);
+    } else {
+      this.enabled = false;
+    }
   },
 
   unload() {
@@ -63,7 +79,10 @@ export default background({
      utils.extensionRestart(function() {
        utils.setPref('dnt', !utils.getPref('dnt', false));
      });
-    }
+    },
+    "core:mouse-down": function onMouseDown() {
+      HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);
+    },
   },
 
   actions: {
@@ -78,13 +97,6 @@ export default background({
     */
     recordMouseMove() {
       HumanWeb.captureMouseMovePage.apply(HumanWeb, arguments);
-    },
-    /**
-    * @method actions.recordMouseDown
-    */
-    recordMouseDown() {
-      HumanWeb.captureMouseClickPage.apply(HumanWeb, arguments);
-      Attrack.cChecker.setContextFromEvent.apply(Attrack.cChecker, arguments);
     },
     /**
     * @method actions.recordScroll

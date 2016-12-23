@@ -4,6 +4,10 @@ import CLIQZEnvironment from 'platform/environment';
 import background from 'control-center/background';
 import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 import UITour from 'platform/ui-tour';
+import Panel from '../core/ui/panel';
+import console from 'core/console';
+import { queryActiveTabs } from '../core/tabs';
+import { Window } from '../core/browser';
 
 function toPx(pixels) {
   return pixels.toString() + 'px';
@@ -16,12 +20,7 @@ const BTN_ID = 'cliqz-cc-btn',
       TOOLTIP_LABEL = 'CLIQZ',
       TELEMETRY_TYPE = 'control_center',
       SEARCH_BAR_ID = 'search-container',
-      TRIQZ_URL = 'https://cliqz.com/tips',
-      dontHideSearchBar = 'dontHideSearchBar',
-      //toolbar
-      searchBarPosition = 'defaultSearchBarPosition',
-      //next element in the toolbar
-      searchBarPositionNext = 'defaultSearchBarPositionNext';
+      TRIQZ_URL = 'https://cliqz.com/tips';
 
 export default class {
   constructor(config) {
@@ -34,6 +33,7 @@ export default class {
     this.actions = {
       setBadge: this.setBadge.bind(this),
       getData: this.getData.bind(this),
+      getEmptyFrameAndData: this.getEmptyFrameAndData.bind(this),
       openURL: this.openURL.bind(this),
       updatePref: this.updatePref.bind(this),
       updateState: this.updateState.bind(this),
@@ -48,33 +48,32 @@ export default class {
       "openMockPopUp": this.openMockPopUp.bind(this),
       "setMockBadge": this.setMockBadge.bind(this),
       "enableSearch": this.enableSearch.bind(this),
-      "amo-cliqz-tab": this.amoCliqzTab.bind(this),
-      "complementary-search": this.complementarySearch.bind(this)
+      "cliqz-tab": this.cliqzTab.bind(this),
+      "complementary-search": this.complementarySearch.bind(this),
+      "search-index-country": this.searchIndexCountry.bind(this),
+      'type-filter': this.typeFilter.bind(this),
     }
+
+    this.panel = new Panel(
+      this.window,
+      'chrome://cliqz/content/control-center/index.html',
+      PANEL_ID,
+      'control-center',
+      false,
+      this.actions
+    );
   }
 
   init() {
+    this.panel.attach();
     // stylesheet for control center button
     addStylesheet(this.window.document, this.cssUrl);
 
     this.addCCbutton();
+    setTimeout(this.actions.refreshState, 100);
     CliqzEvents.sub("core.location_change", this.actions.refreshState);
 
     this.updateFFHelpMenu();
-    if (!utils.getPref(dontHideSearchBar, false)) {
-      //try to hide quick search
-      try {
-        var doc = this.window.document;
-        var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
-        if(toolbarID){
-            utils.setPref(searchBarPosition, toolbarID);
-        }
-        if(nextEl){
-            utils.setPref(searchBarPositionNext, nextEl);
-        }
-        utils.setPref(dontHideSearchBar, true);
-      } catch(e){}
-    }
   }
 
   updateFFHelpMenu() {
@@ -138,9 +137,10 @@ export default class {
   }
 
   unload() {
+    this.panel.detach();
     removeStylesheet(this.window.document, this.cssUrl);
     CliqzEvents.un_sub("core.location_change", this.actions.refreshState);
-    this.panel.parentElement.removeChild(this.panel);
+
     this.button.parentElement.removeChild(this.button);
 
     //remove custom items from the Help Menu
@@ -178,14 +178,19 @@ export default class {
     });
   }
 
-  amoCliqzTab(data) {
-    events.pub("control-center:amo-cliqz-tab");
+  cliqzTab(data) {
+    events.pub("control-center:cliqz-tab");
     utils.telemetry({
       type: TELEMETRY_TYPE,
       target: 'cliqz_tab',
       action: 'click',
       state: data.status === true ? 'on' : 'off'
     });
+  }
+
+  typeFilter(data){
+    utils.setPref(`type_filter_${data.target}`, data.status);
+    events.pub('type_filter:change', { target: data.target, status: data.status});
   }
 
   antitrackingActivator(data){
@@ -205,6 +210,8 @@ export default class {
         events.nextTick(() => {
           utils.callAction('core', 'disableModule', ['antitracking']);
         });
+        //reset the badge when the anti tracking module gets offline
+        this.updateBadge('0');
         break;
       default:
         break;
@@ -231,6 +238,16 @@ export default class {
       type: TELEMETRY_TYPE,
       target: 'complementary_search',
       state: 'search_engine_change_' + data.defaultSearch,
+      action: 'click'
+    });
+  }
+
+  searchIndexCountry(data) {
+    events.pub('control-center:setDefault-indexCountry', data.defaultCountry);
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      target: 'search-index-country',
+      state: 'search_index_country_' + data.defaultCountry,
       action: 'click'
     });
   }
@@ -288,7 +305,7 @@ export default class {
             'refreshState',
             []
           );
-        }, 200, win);
+        }, 3000 /* some modules need time to start eg: antitracking */, win);
       }
       else {
         // current window - nothing to do
@@ -301,15 +318,34 @@ export default class {
   }
 
   updatePref(data){
+    switch (data.pref){
+      case 'extensions.cliqz.dnt':
+        data.value = !data.value;
 
-    // NASTY!
-    if(data.pref == 'extensions.cliqz.dnt') {
-     data.value = !data.value;
+        // human Web toggle triggers an extension restart
+        // so we should hide ControlCenter
+        this.panel.hide();
 
-     events.pub("control-center:toggleHumanWeb");
+        // allow the Control Center to close
+        utils.setTimeout(function(){
+          events.pub("control-center:toggleHumanWeb");
+        }, 1000);
+        break;
+      case 'extensions.cliqz.share_location':
+        utils.callAction(
+          "geolocation",
+          "setLocationPermission",
+          [data.value]
+        );
 
-     return;
-   }
+        events.pub("message-center:handlers-freshtab:clear-message", {
+          id: 'share-location',
+          template: 'share-location'
+        });
+        break;
+      default:
+        utils.setPref(data.pref, data.value, '' /* full pref name required! */);
+    }
 
     utils.telemetry({
       type: TELEMETRY_TYPE,
@@ -317,19 +353,6 @@ export default class {
       state: data.value,
       action: 'click'
     });
-
-    // more NASTY
-    if(data.pref == 'extensions.cliqz.share_location'){
-      utils.callAction(
-        "geolocation",
-        "setLocationPermission",
-        [data.value]
-      );
-
-      return;
-    }
-
-    utils.setPref(data.pref, data.value, '' /* full pref name required! */);
   }
 
   openURL(data){
@@ -346,13 +369,12 @@ export default class {
         try {
           var murl = utils.getPref('moncomp_endpoint', '') + this.window.gBrowser.selectedBrowser.currentURI.spec;
           utils.openTabInWindow(this.window, murl);
-          this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]").hidePopup();
+          this.panel.hide();
         } catch(err) {}
         break;
       default:
-        var tab = utils.openLink(this.window, data.url, true),
-            panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
-        if(data.closePopup == true) panel.hidePopup();
+        var tab = utils.openLink(this.window, data.url, true);
+        if(data.closePopup == true) this.panel.hide();
         this.window.gBrowser.selectedTab = tab;
     }
 
@@ -363,6 +385,31 @@ export default class {
       index: data.index
     })
   }
+  // creates the static frame data without any module details
+  // re-used for fast first render and onboarding
+  getFrameData(){
+    var url = this.window.gBrowser.currentURI.spec,
+        friendlyURL = url;
+
+    try {
+      // try to clean the url
+      friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+    } catch (e) {}
+
+
+    return {
+      activeURL: url,
+      friendlyURL: friendlyURL,
+      module: {}, //will be filled later
+      generalState: 'active',
+      feedbackURL: utils.FEEDBACK_URL,
+      onboarding: this.isOnboarding(),
+      searchDisabled: utils.getPref('cliqz_core_disabled', false),
+      debug: utils.getPref('showConsoleLogs', false),
+      amo: config.settings.channel !== '40',
+      securityON: this.settings.controlCenterSecurity
+    }
+  }
 
   prepareData(){
     return utils.callAction(
@@ -370,23 +417,20 @@ export default class {
       "getWindowStatus",
       [this.window]
     ).then((moduleData) => {
-      var url = this.window.gBrowser.currentURI.spec,
-          friendlyURL = url,
-          generalState = 'active';
+      var ccData = this.getFrameData();
 
-      if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
-        generalState = 'inactive';
-      }
+      if(this.settings.controlCenterSecurity == true){
+        if(moduleData['anti-phishing'] && !moduleData['anti-phishing'].active){
+          ccData.generalState = 'inactive';
+        }
 
-      if(moduleData.antitracking && !moduleData.antitracking.enabled){
-        if(moduleData.antitracking.isWhitelisted){
-          // only this website is whitelisted
-          generalState = 'inactive';
+        if(!moduleData.antitracking){
+          ccData.generalState = 'critical';
+        } else if(!moduleData.antitracking.enabled && moduleData.antitracking.isWhitelisted){
+          ccData.generalState = 'inactive';
         }
-        else {
-          // completely disabled
-          generalState = 'critical';
-        }
+      } else {
+        ccData.generalState = 'off';
       }
 
       moduleData.adult = { visible: true, state: utils.getAdultFilterState() };
@@ -394,22 +438,9 @@ export default class {
         moduleData.apt = { visible: true, state: utils.getPref('browser.privatebrowsing.apt', false, '') }
       }
 
-      try {
-        // try to clean the url
-        friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
-      } catch (e) {}
+      ccData.module = moduleData;
 
-      return {
-        activeURL: url,
-        friendlyURL: friendlyURL,
-        module: moduleData,
-        generalState: generalState,
-        feedbackURL: utils.FEEDBACK_URL,
-        onboarding: this.isOnboarding(),
-        searchDisabled: utils.getPref('cliqz_core_disabled', false),
-        debug: utils.getPref('showConsoleLogs', false),
-        amo: config.settings.channel !== '40'
-      }
+      return ccData;
     });
   }
 
@@ -420,26 +451,28 @@ export default class {
   _getMockData() {
     var self = this,
         numberCounter = 0,
-        url = 'examplepage.de/webpage';
+        ccDataMocked = this.getFrameData();
+
+    ccDataMocked.module = this.mockedData;
+    // we also need to override some of the frame Data
+    ccDataMocked.activeURL = 'examplepage.de/webpage';
+    ccDataMocked.friendlyURL = 'examplepage.de/webpage';
+    ccDataMocked.onboarding = true;
+
     var numberAnimation = function () {
       if(numberCounter === 27)
        return
 
-      if(numberCounter < 18)
-        self.mockedData.antitracking.totalCount = numberCounter;
+      if(numberCounter < 18){
+        ccDataMocked.module.antitracking.totalCount = numberCounter;
+      }
 
-      self.mockedData.adblocker.totalCount = numberCounter;
+      ccDataMocked.module.adblocker.totalCount = numberCounter;
+
       self.sendMessageToPopup({
         action: 'pushData',
-        data: {
-          activeURL: url,
-          friendlyURL: url,
-          module: self.mockedData,
-          "generalState":"active",
-          "feedbackURL":"https://cliqz.com/feedback/1.2.99-40",
-          "onboarding": true
-        }
-      });
+        data: ccDataMocked
+      })
 
       numberCounter++;
       setTimeout(numberAnimation, 40);
@@ -465,31 +498,22 @@ export default class {
     }
   }
 
-  attachMessageHandlers(iframe){
+  // used for a first faster rendering
+  getEmptyFrameAndData(){
+    this.sendMessageToPopup({
+      action: 'pushData',
+      data: this.getFrameData()
+    });
 
-    this.iframe = iframe;
-    this.iframe.contentWindow.addEventListener('message', this.decodeMessagesFromPopup.bind(this))
-  }
-
-  decodeMessagesFromPopup(ev){
-    var data = JSON.parse(ev.data);
-    if(data.target == 'cliqz-control-center' &&
-       data.origin == 'iframe'){
-      this.handleMessagesFromPopup(data.message);
-    }
-  }
-
-  handleMessagesFromPopup(message) {
-
-    this.actions[message.action](message.data);
+    this.getData();
   }
 
   sendMessageToPopup(message) {
-    this.iframe.contentWindow.postMessage(JSON.stringify({
+    this.panel.sendMessage({
       target: 'cliqz-control-center',
       origin: 'window',
       message: message
-    }), '*')
+    });
   }
 
   addCCbutton() {
@@ -509,92 +533,40 @@ export default class {
     button.classList.add('chromeclass-toolbar-additional')
 
     var div = doc.createElement('div');
-    div.setAttribute('id','cliqz-control-center-badge')
-    div.setAttribute('class','cliqz-control-center')
+    div.setAttribute('class','cliqz-control-center');
+    if(this.settings.controlCenterSecurity == true){
+      div.textContent = BTN_LABEL;
+    } else {
+      // default state for Control center without security features is "off"
+      div.setAttribute('state','off');
+    }
     button.appendChild(div);
-    div.textContent = BTN_LABEL;
-
-    var panel = doc.createElement('panelview');
-    panel.setAttribute('id', PANEL_ID);
-    panel.setAttribute('flex', '1');
-    panel.setAttribute('panelopen', "true")
-    panel.setAttribute("animate", "true")
-    panel.setAttribute("type", "arrow");
-
-
-    var vbox = doc.createElement("vbox");
-    vbox.classList.add("panel-subview-body");
-
-    panel.appendChild(vbox);
-
-    var iframe;
-    function onPopupReady() {
-      var body = iframe.contentDocument.body;
-      var clientHeight = body.scrollHeight;
-      var clientWidth = body.scrollWidth;
-
-      iframe.style.height = toPx(clientHeight);
-      iframe.style.width = toPx(clientWidth);
-
-      this.attachMessageHandlers(iframe);
-    }
-
-    function createIframe() {
-      iframe = doc.createElement('iframe');
-      iframe.setAttribute('type', 'content');
-      iframe.setAttribute('src','chrome://cliqz/content/control-center/index.html');
-    }
-
-    panel.addEventListener("ViewShowing", () => {
-      createIframe();
-      iframe.addEventListener('load', onPopupReady.bind(this), true);
-
-      vbox.appendChild(iframe);
-
-      utils.telemetry({
-        type: TELEMETRY_TYPE,
-        target: 'icon',
-        action: 'click',
-      });
-    });
-
-    panel.addEventListener("ViewHiding", function () {
-      vbox.removeChild(iframe);
-    });
-
-    doc.getElementById('PanelUI-multiView').appendChild(panel);
 
     UITour.targets.set("cliqz", { query: '#cliqz-cc-btn', widgetName: 'cliqz-cc-btn', allowAdd: true });
     var promise = UITour.getTarget(this.window, "cliqz");
     var win = this.window
-    promise.then(function(target) {
+    promise.then(target => {
       button.addEventListener('command', () => {
-
         if (this.isOnboarding()) {
-          createIframe();
+          this.panel.createIframe();
+
           UITour.showInfo(win, target, "", "");
-          iframe.addEventListener('load', onPopupReady.bind(this), true);
-          doc.getElementById("UITourTooltipDescription").appendChild(iframe)
+          doc.getElementById("UITourTooltipDescription").appendChild(this.panel.iframe)
         } else {
-          win.PanelUI.showSubView(
-            PANEL_ID,
-            button,
-            win.CustomizableUI.AREA_NAVBAR
-          );
+          this.panel.open(button);
         }
-      }.bind(this));
-    }.bind(this));
+      });
+    });
 
     ToolbarButtonManager.restorePosition(doc, button);
 
     this.badge = div;
-    this.panel = panel;
     this.button = button;
   }
 
   resizePopup({ width, height }) {
-    this.iframe.style.width = toPx(width);
-    this.iframe.style.height = toPx(height);
+    this.panel.iframe.style.width = toPx(width);
+    this.panel.iframe.style.height = toPx(height);
   }
 
   sendTelemetry(data) {
@@ -621,7 +593,6 @@ export default class {
     events.pub('autocomplete:enable-search',{
       urlbar: this.window.document.getElementById('urlbar')
     });
-    let panel = this.window.document.querySelector("panel[viewId=" + PANEL_ID + "]");
-    panel.hidePopup();
+    this.panel.hidePopup();
   }
 }

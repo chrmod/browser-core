@@ -56,10 +56,8 @@ $(document).ready(function(resolvedPromises) {
     Handlebars.registerHelper(helperName, helpers[helperName]);
   });
 
-  draw({});
-  resize();
   sendMessageToWindow({
-    action: 'getData',
+    action: 'getEmptyFrameAndData',
     data: {}
   });
 });
@@ -74,7 +72,7 @@ $('body').on('click', function(ev) {
       action: 'sendTelemetry',
       args: [{
         type: 'onboarding',
-        version: '2.0',
+        version: '2.1',
         action: 'click',
         view: 'privacy',
         target: 'dashboard',
@@ -109,7 +107,8 @@ $('#control-center').on('click', '[data-function]', function(ev){
   sendMessageToWindow({
     action: ev.currentTarget.dataset.function,
     data: {
-      status: $(this).prop('checked')
+      status: $(this).prop('checked'),
+      target: ev.currentTarget.getAttribute('data-target')
     }
   });
 });
@@ -119,6 +118,15 @@ $('#control-center').on('click', '[complementarySearchChanger]', function(ev) {
     action: 'complementary-search',
     data: {
       defaultSearch: $(this).val()
+    }
+  });
+});
+
+$('#control-center').on('click', '[searchIndexCountryChanger]', function(ev) {
+  sendMessageToWindow({
+    action: 'search-index-country',
+    data: {
+      defaultCountry: $(this).val()
     }
   });
 });
@@ -192,10 +200,10 @@ function updateGeneralState() {
     return el.getAttribute('state');
   }), state = 'active';
 
-  if(states.includes('critical')){
+  if(states.indexOf('critical') != -1){
     state = 'critical';
   }
-  else if(states.includes('inactive')){
+  else if(states.indexOf('inactive') != -1){
     state = 'inactive';
   }
 
@@ -266,15 +274,14 @@ function compileAdblockInfo(data) {
 function draw(data){
   if(data.onboarding) {
     document.getElementById('control-center').classList.add('onboarding');
-
-    if(data.module.antitracking.totalCount === 1) {
+    if(data.module.antitracking && data.module.antitracking.totalCount === 1) {
       window.postMessage(JSON.stringify({
         target: 'cliqz',
         module: 'core',
         action: 'sendTelemetry',
         args: [{
           type: 'onboarding',
-          version: '2.0',
+          version: '2.1',
           action: 'show',
           view: 'privacy',
           target: 'dashboard',
@@ -284,13 +291,13 @@ function draw(data){
   }
 
   if (data.module) {
-    // antitracking default data
-    if (!data.module.antitracking.state) {
+    if ( !data.module.antitracking ) {
+      data.module.antitracking = {};
       data.module.antitracking.visible = true
       data.module.antitracking.state = "critical"
       data.module.antitracking.totalCount = 0
     }
-    if (data.module.antitracking.trackersList) {
+    if ( data.module.antitracking && data.module.antitracking.trackersList) {
       data.module.antitracking.trackersList.companiesArray = compile(data.module.antitracking.trackersList)
     }
 
@@ -305,15 +312,17 @@ function draw(data){
   }
 
   document.getElementById('control-center').innerHTML = templates['template'](data)
-  document.getElementById('anti-phising').innerHTML = templates['anti-phising'](data);
-  document.getElementById('anti-tracking').innerHTML = templates['anti-tracking'](data);
+  if(data.securityON){
+    document.getElementById('anti-phising').innerHTML = templates['anti-phising'](data);
+    document.getElementById('anti-tracking').innerHTML = templates['anti-tracking'](data);
 
-  if(data.amo) {
-    document.getElementById('amo-privacy-cc').innerHTML = templates['amo-privacy-cc']();
-    document.getElementById('cliqz-tab').innerHTML = templates['amo-cliqz-tab'](data);
-  } else {
-    document.getElementById('ad-blocking').innerHTML = templates['ad-blocking'](data);
-    document.getElementById('https').innerHTML = templates['https'](data);
+    if(data.amo) {
+      document.getElementById('amo-privacy-cc').innerHTML = templates['amo-privacy-cc']();
+      document.getElementById('cliqz-tab').innerHTML = templates['cliqz-tab'](data.module.freshtab);
+    } else {
+      document.getElementById('ad-blocking').innerHTML = templates['ad-blocking'](data);
+      document.getElementById('https').innerHTML = templates['https'](data);
+    }
   }
 
   function close_setting_accordion_section() {
@@ -480,7 +489,18 @@ function draw(data){
   $('.cqz-switch').click(function() {
 
     var target = $(this).closest('.frame-container'),
-        type = 'switch';
+        type = 'switch',
+        dropdown = target.find('.dropdown-scope');
+
+    if (target.parent().attr('data-target') === 'adblock') {
+      //select first option "This domain" by default
+      dropdown.find('option:eq(1)').prop('selected', true);
+      target.attr('data-visible', 'off_domain');
+    } else {
+      //select first option "this website" by default
+      dropdown.find('option:eq(0)').prop('selected', true);
+    }
+
 
     target.attr('state', function(idx, attr){
         return attr !== 'active' ? 'active': target.attr('inactiveState');
@@ -521,6 +541,7 @@ function draw(data){
   });
 
   localizeDocument();
+  resize();
 }
 
 window.draw = draw;

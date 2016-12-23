@@ -1,4 +1,7 @@
 
+import { TLDs } from 'core/tlds';
+
+
 // Some content policy types used in filters
 const CPT = {
   TYPE_OTHER: 1,
@@ -11,6 +14,7 @@ const CPT = {
   TYPE_XMLHTTPREQUEST: 11,
   TYPE_OBJECT_SUBREQUEST: 12,
   TYPE_MEDIA: 15,
+  TYPE_WEBSOCKET: 16,
 };
 
 
@@ -28,6 +32,7 @@ function checkContentPolicy(filter, cpt) {
       [filter.fromPing, CPT.TYPE_PING],
       [filter.fromScript, CPT.TYPE_SCRIPT],
       [filter.fromStylesheet, CPT.TYPE_STYLESHEET],
+      [filter.fromWebsocket, CPT.TYPE_WEBSOCKET],
       [filter.fromXmlHttpRequest, CPT.TYPE_XMLHTTPREQUEST],
     ];
 
@@ -36,7 +41,7 @@ function checkContentPolicy(filter, cpt) {
     // - If more than one policy type is valid, we must find at least one
     // - If we found a blacklisted policy type we can return `false`
     let foundValidCP = null;
-    for (let i = 0; i < options.length; i++) {
+    for (let i = 0; i < options.length; i += 1) {
       const [option, policyType] = options[i];
 
       // Found a fromX matching the origin policy of the request
@@ -86,14 +91,14 @@ function checkOptions(filter, request) {
   }
 
   // URL must be among these domains to match
-  if (filter.optDomains !== null &&
-     !(filter.optDomains.has(sHostGD) ||
-       filter.optDomains.has(sHost))) {
+  if (filter.optDomains.size > 0 &&
+      !(filter.optDomains.has(sHostGD) ||
+        filter.optDomains.has(sHost))) {
     return false;
   }
 
   // URL must not be among these domains to match
-  if (filter.optNotDomains !== null &&
+  if (filter.optNotDomains.size > 0 &&
       (filter.optNotDomains.has(sHostGD) ||
        filter.optNotDomains.has(sHost))) {
     return false;
@@ -146,14 +151,86 @@ function checkPattern(filter, request) {
 }
 
 
-export default function match(filter, request) {
-  if (filter.supported) {
-    if (!checkOptions(filter, request)) {
-      return false;
-    }
+export function matchNetworkFilter(filter, request) {
+  if (!checkOptions(filter, request)) {
+    return false;
+  }
 
-    return checkPattern(filter, request);
+  return checkPattern(filter, request);
+}
+
+
+/* Checks that hostnamePattern matches at the end of the hostname.
+ * Partial matches are allowed, but hostname should be a valid
+ * subdomain of hostnamePattern.
+ */
+function checkHostnamesPartialMatch(hostname, hostnamePattern) {
+  if (hostname.endsWith(hostnamePattern)) {
+    const patternIndex = hostname.indexOf(hostnamePattern);
+    if (patternIndex === 0 || (patternIndex !== -1 && hostname.charAt(patternIndex - 1) === '.')) {
+      return true;
+    }
   }
 
   return false;
+}
+
+
+/* Checks if `hostname` matches `hostnamePattern`, which can appear as
+ * a domain selector in a cosmetic filter: hostnamePattern##selector
+ *
+ * It takes care of the concept of entities introduced by uBlock: google.*
+ * https://github.com/gorhill/uBlock/wiki/Static-filter-syntax#entity-based-cosmetic-filters
+ */
+function matchHostname(hostname, hostnamePattern) {
+  const globIndex = hostnamePattern.indexOf('.*');
+  if (globIndex === (hostnamePattern.length - 2)) {
+    // Match entity:
+    const entity = hostnamePattern.substring(0, globIndex);
+
+    // Ignore TLDs suffix
+    const parts = hostname.split('.').reverse();
+    let i = 0;
+    while (i < parts.length && TLDs[parts[i]]) {
+      i += 1;
+    }
+
+    // Check if we have a match
+    if (i < parts.length) {
+      return checkHostnamesPartialMatch(parts.splice(i).reverse().join('.'), entity);
+    }
+
+    return false;
+  }
+
+  return checkHostnamesPartialMatch(hostname, hostnamePattern);
+}
+
+
+function matchHostnames(hostname, hostnames) {
+  // If there is no constraint, then this is a match
+  if (hostnames.length === 0) {
+    return true;
+  }
+
+  for (const hn of hostnames) {
+    if (matchHostname(hostname, hn)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+export function matchCosmeticFilter(filter, hostname) {
+  let result = false;
+
+  if (filter.hostnames.length > 0 && hostname) {
+    result = matchHostnames(hostname, filter.hostnames);
+  } else {
+    result = true;
+  }
+
+  return result;
 }

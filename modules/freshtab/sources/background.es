@@ -1,14 +1,16 @@
 import FreshTab from 'freshtab/main';
 import News from 'freshtab/news';
 import History from 'freshtab/history';
-import { utils } from 'core/cliqz';
+import { utils, events } from 'core/cliqz';
 import SpeedDial from 'freshtab/speed-dial';
 import { version as onboardingVersion, shouldShowOnboardingV2 } from "core/onboarding";
 import { AdultDomain } from 'core/adult-domain';
 import background from 'core/base/background';
+import { forEachWindow } from 'core/browser';
 
 
 const DIALUPS = 'extensions.cliqzLocal.freshtab.speedDials';
+const DISMISSED_ALERTS = 'dismissedAlerts';
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const FIVE_DAYS = 5 * ONE_DAY;
 const PREF_ONBOARDING = 'freshtabOnboarding';
@@ -25,14 +27,21 @@ const isWithinNDaysAfterInstallation = function(days) {
 * @namespace freshtab
 * @class Background
 */
-
 export default background({
   /**
   * @method init
   */
   init(settings) {
-    FreshTab.startup(settings.freshTabButton, settings.cliqzOnboarding, settings.channel, settings.showNewBrandAlert);
+    FreshTab.startup(
+      settings.freshTabButton,
+      settings.cliqzOnboarding,
+      settings.channel,
+      settings.showNewBrandAlert,
+      settings.freshTabInitialState);
+
     this.adultDomainChecker = new AdultDomain();
+    this.settings = settings;
+    this.messages = {};
   },
   /**
   * @method unload
@@ -48,21 +57,15 @@ export default background({
 
   actions: {
     _showOnboarding() {
-      if(onboardingVersion() === '2.0') {
-        if(shouldShowOnboardingV2()) {
-          utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
-          return;
-        }
-      } else if(onboardingVersion() === '1.2') {
-        // Adding this back to be able to rollback to previous popup Onboarding
-        // if numbers are not promising
-        if(FreshTab.cliqzOnboarding === 1 && !utils.hasPref(utils.BROWSER_ONBOARDING_PREF)) {
-          utils.setPref(utils.BROWSER_ONBOARDING_PREF, true);
-          return true;
-        }
+      if (onboardingVersion() === '2.1') {
+        shouldShowOnboardingV2().then((show) => {
+          if (show) {
+            utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
+            return;
+          }
+        });
       }
     },
-
     _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),
 
     _showMiniOnboarding() {
@@ -86,12 +89,29 @@ export default background({
       const isDismissed = utils.getPref('freshtabNewBrandDismissed', false);
       return FreshTab.showNewBrandAlert && isInABTest && !isDismissed;
     },
-    dismissAlert() {
+    dismissMessage(messageId) {
       try {
-        utils.setPref('freshtabNewBrandDismissed', true);
+        const dismissedAlerts = JSON.parse(utils.getPref(DISMISSED_ALERTS, '{}'));
+
+        if(!dismissedAlerts[messageId]) {
+          dismissedAlerts[messageId] = {
+            'scope': 'freshtab',
+            'count': 0
+          }
+        }
+        dismissedAlerts[messageId]['count']++;
+        utils.setPref(DISMISSED_ALERTS, JSON.stringify(dismissedAlerts));
+        events.pub('msg_center:hide_message', { id: messageId }, 'MESSAGE_HANDLER_FRESHTAB');
+        utils.telemetry({
+          type: 'notification',
+          topic: 'share-location',
+          context: 'home',
+          action: 'click',
+          target: 'hide'
+        });
 
       } catch (e) {
-        console.log(e, "freshtab error setting dismiss pref")
+        utils.log(e, `Freshtab error setting ${message.id} dismiss pref`)
       }
     },
 
@@ -173,14 +193,12 @@ export default background({
      * @param {item}  The item to be removed.
      */
     removeSpeedDial(item) {
-      var isCustom = item.custom,
-          url = isCustom ? item.url : utils.hash(item.url),
-          dialUps = utils.hasPref(DIALUPS, '') ? JSON.parse(utils.getPref(DIALUPS, '', '')) : {},
-          found = false,
-          type = isCustom ? 'custom' : 'history';
+      const isCustom = item.custom;
+      const url = isCustom ? item.url : utils.hash(item.url);
+      const dialUps = JSON.parse(utils.getPref(DIALUPS, '{}', ''));
 
       if(isCustom) {
-        dialUps.custom = dialUps.custom.filter(function(dialup) {
+        dialUps.custom = dialUps.custom.filter(dialup => {
           return utils.tryDecodeURIComponent(dialup.url) !== url
         });
       } else {
@@ -297,6 +315,13 @@ export default background({
     * @method getNews
     */
     getNews() {
+      //disables the whole news block if required by the config
+      if(!this.settings.freshTabNews) {
+        return {
+          version: -1,
+          news: []
+        };
+      }
 
       return News.getNews().then(function(news) {
         News.init();
@@ -319,6 +344,7 @@ export default background({
       });
 
     },
+
     /**
     * Get configuration regarding locale, onBoarding and browser
     * @method getConfig
@@ -333,7 +359,8 @@ export default background({
         showHelp: self.actions._showHelp(),
         isBrowser: self.actions._isBrowser(),
         showFeedback: self.actions._showFeedback(),
-        showNewBrandAlert: self.actions._showNewBrandAlert()
+        showNewBrandAlert: self.actions._showNewBrandAlert(),
+        messages: this.messages
       };
       return Promise.resolve(config);
     },
@@ -364,11 +391,67 @@ export default background({
       return Promise.resolve(utils.getWindow().gBrowser.tabContainer.selectedIndex);
     },
 
+    shareLocation(decision) {
+      events.pub('msg_center:hide_message', {'id': 'share-location' }, 'MESSAGE_HANDLER_FRESHTAB');
+      utils.callAction('geolocation', 'setLocationPermission', [decision]);
+
+      const target = (decision === 'yes') ?
+        'always_share' : 'never_share';
+
+      utils.telemetry({
+        type: 'notification',
+        action: 'click',
+        topic: 'share-location',
+        context: 'home',
+        target: target
+      });
+    },
+
+    refreshFrontend() {
+      forEachWindow(window => {
+        const tabs = [...window.gBrowser.tabs];
+        tabs.forEach(tab => {
+          const browser = tab.linkedBrowser;
+          if (browser.currentURI.spec === 'about:cliqz') {
+            browser.reload();
+          }
+        });
+      })
+    }
+
   },
 
   events: {
-    "control-center:amo-cliqz-tab": function () {
+    "control-center:cliqz-tab": function () {
       FreshTab.toggleState();
+    },
+    "message-center:handlers-freshtab:new-message": function onNewMessage(message) {
+      if( !(message.id in this.messages )) {
+        this.messages[message.id] = message;
+        utils.callAction('core', 'broadcastMessage', [
+          utils.CLIQZ_NEW_TAB_URL + '?cliqzOnboarding=1',
+          {
+            action: 'addMessage',
+            message: message,
+          }
+        ]);
+      }
+    },
+    "message-center:handlers-freshtab:clear-message": function onMessageClear(message) {
+
+      delete this.messages[message.id];
+      utils.callAction('core', 'broadcastMessage', [
+        utils.CLIQZ_NEW_TAB_URL + '?cliqzOnboarding=1',
+        {
+          action: 'closeNotification',
+          messageId: message.id,
+        }
+      ]);
+    },
+    "geolocation:wake-notification": function onWake(timestamp) {
+      this.actions.getNews().then(() => {
+        this.actions.refreshFrontend();
+      });
     },
   },
 });

@@ -1,3 +1,4 @@
+
 'use strict';
 /*
  * This module handles the loading and the unloading of the extension
@@ -57,6 +58,8 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/bower_components/handlebars/handlebars.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/bower_components/mathjs/dist/math.min.js", this);
 
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/xmlhttprequest.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/fetch.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/storage.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/storage.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/prefs.js", this);
@@ -64,6 +67,9 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/console.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/console.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/environment.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/gzip.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/core/gzip.js", this);
+      Services.scriptloader.loadSubScript("chrome://cliqz/content/core/http.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/utils.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/events.js", this);
 
@@ -192,6 +198,56 @@ var Extension = {
 
         Extension.unloadJSMs();
     },
+    tryHideSearchBar: function(win){
+      if (CliqzUtils.getPref(dontHideSearchBar, false)) {
+        return;
+      }
+      try {
+        function getCurrentset(toolbar) {
+          return (toolbar.getAttribute("currentset") ||
+                  toolbar.getAttribute("defaultset")).split(",");
+        }
+
+        function $(sel, all){
+          return doc[all ? "querySelectorAll" : "getElementById"](sel);
+        }
+
+        let doc = win.document,
+            toolbar, currentset, idx, next, toolbarID,
+            toolbars = $("toolbar", true);
+
+        for (let i = 0; i < toolbars.length; ++i) {
+          let tb = toolbars[i];
+          currentset = getCurrentset(tb);
+          idx = currentset.indexOf(SEARCH_BAR_ID);
+          if (idx != -1) {
+            //store exact position
+            if(currentset.length > idx+1)next = currentset[idx+1];
+
+            currentset.splice(idx, 1);
+            currentset = currentset.join(",");
+            tb.currentSet = currentset;
+            tb.setAttribute("currentset", currentset);
+            doc.persist(tb.id, "currentset");
+
+            toolbarID = tb.id;
+            break;
+          }
+        }
+
+        if(toolbarID){
+          CliqzUtils.setPref(searchBarPosition, toolbarID);
+        }
+
+        if(next){
+          CliqzUtils.setPref(searchBarPositionNext, next);
+        }
+
+        CliqzUtils.setPref(dontHideSearchBar, true);
+      } catch(e){
+        CliqzUtils.log(e, 'Search bar hiding failed!');
+      }
+    },
     restoreSearchBar: function(win){
         var toolbarId = CliqzUtils.getPref(searchBarPosition, '');
         CliqzUtils.setPref(dontHideSearchBar, false);
@@ -244,6 +300,8 @@ var Extension = {
           .catch(function (e) {
             CliqzUtils.log(e, 'Extension filed loaded window modules');
           });
+
+        Extension.tryHideSearchBar(win);
       }
 
       if (!win.document || win.document.readyState !== "complete") {

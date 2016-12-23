@@ -1,12 +1,15 @@
 import Ember from 'ember';
-import SpeedDial from '../models/speed-dial';
 
 export default Ember.Component.extend({
   cliqz: Ember.inject.service('cliqz'),
+  store: Ember.inject.service(),
+  notifications: Ember.inject.service('notifications'),
 
-  isHidden: Ember.computed.not("isVisible"),
+  tagName: 'li',
 
-  classNameBindings: ['isHidden:hidden'],
+  classNames: 'add-speed-dial',
+
+  classNameBindings: ['showFrom:addDialBox:addFrame'],
 
   observeNewSpeedDial: Ember.observer("newSpeedDial", function () {
     const url = this.get("newSpeedDial"),
@@ -24,10 +27,12 @@ export default Ember.Component.extend({
   actions: {
     save() {
       const url = this.get("newSpeedDial") && this.get('newSpeedDial').trim();
+      const notifications = this.get('notifications');
+
       if(!url) {
         return;
       }
-      const speedDial = SpeedDial.create({
+      const speedDial = this.get('store').createRecord('speed-dial', {
         url,
         cliqz: this.get("cliqz")
       });
@@ -35,6 +40,7 @@ export default Ember.Component.extend({
         this.reset();
         this.toggleProperty('showForm');
         this.sendAction("addToCustomAction", speedDial);
+        notifications.getNotifications();
       }, () => {
         this.set('error', true);
       });

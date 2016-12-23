@@ -98,7 +98,7 @@ function displayTopSites (list, isEditMode = false) {
     });
   }
 
-  function onTap ({ srcEvent: { currentTarget: element } }) {
+  function onTap ({ target: element }) {
     osAPI.openLink(element.dataset.url);
     CliqzUtils.telemetry({
       type: 'home',
@@ -110,8 +110,11 @@ function displayTopSites (list, isEditMode = false) {
 
   const elements = document.querySelectorAll('.topSitesLink');
   for (let i = 0; i < elements.length; i++) {
-    new Hammer(elements[i]).on('tap', onTap);
-    new Hammer(elements[i]).on('press', onLongpress);
+    const hammer = new Hammer(elements[i]);
+    hammer.on('tap', onTap);
+    hammer.on('press', onLongpress);
+    hammer.get('tap').set({time: 400});
+    hammer.get('press').set({time: 401});
   }
 
 }
@@ -164,11 +167,12 @@ var News = {
       return;
     }
 
-    news = news.map(function(r){
+    news = news.map(function(r) {
       const details = CliqzUtils.getDetailsFromUrl(r.url);
       const logo = CliqzUtils.getLogoDetails(details);
       const type = r.breaking ? 'breakingnews' : 'topnews';
       return {
+        breaking_label: r.breaking_label,
         breaking: r.breaking,
         title: r.title,
         description: r.description,
@@ -212,6 +216,10 @@ var News = {
     history.results.forEach(result => News._recentHistory[result.url] = true);
   },
   startPageHandler: function (list) {
+    if (CliqzUtils.getPref("incognito") === "true") {
+      return;
+    }
+
     News.lastShowTime = Date.now();
 
     News.getNews(CliqzUtils.RICH_HEADER + CliqzUtils.getRichHeaderQueryString(''));

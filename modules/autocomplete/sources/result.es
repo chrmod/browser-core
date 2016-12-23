@@ -32,7 +32,6 @@ var Result = {
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
-    CLIQZICON: 'http://cliqz.com/favicon.ico',
     RULES: {
         'video': [
             { 'domain': 'youtube.com', 'ogtypes': ['video', 'youtube'] },
@@ -86,6 +85,13 @@ var Result = {
     },
     cliqz: function(result, q){
         var resStyle;
+        if (!result.type) {
+          result.type = 'bm'; // result.type will not be set if RH is down
+        }
+        if (result.snippet && result.snippet.desc) {
+          // description will be called desc if RH is down
+          result.snippet.description = result.snippet.desc;
+        }
         if (result.type == 'bm') {
           resStyle = Result.CLIQZR + ' sources-' + utils.encodeSources(getSuperType(result) || result.type).join('');
         }

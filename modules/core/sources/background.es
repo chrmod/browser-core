@@ -68,76 +68,6 @@ export default background({
     }
   },
 
-  queryHTML(url, selector, attribute) {
-    const requestId = lastRequestId++,
-          documents = [];
-
-    this.mm.broadcast("cliqz:core", {
-      action: "queryHTML",
-      url,
-      args: [selector, attribute],
-      requestId
-    });
-
-    return new Promise( (resolve, reject) => {
-      callbacks[requestId] = function (attributeValues) {
-        delete callbacks[requestId];
-        resolve(attributeValues);
-      };
-
-      utils.setTimeout(function () {
-        delete callbacks[requestId];
-        reject();
-      }, 1000);
-    });
-  },
-
-  getHTML(url, timeout = 1000) {
-    const requestId = lastRequestId++,
-          documents = [];
-
-    this.mm.broadcast("cliqz:core", {
-      action: "getHTML",
-      url,
-      args: [],
-      requestId
-    });
-
-    callbacks[requestId] = function (doc) {
-      documents.push(doc);
-    };
-
-    return new Promise( resolve => {
-      utils.setTimeout(function () {
-        delete callbacks[requestId];
-        resolve(documents);
-      }, timeout);
-    });
-  },
-
-  getCookie(url) {
-    const requestId = lastRequestId++,
-          documents = [];
-
-    this.mm.broadcast("cliqz:core", {
-      action: "getCookie",
-      url,
-      args: [],
-      requestId
-    });
-
-    return new Promise( (resolve, reject) => {
-      callbacks[requestId] = function (attributeValues) {
-        delete callbacks[requestId];
-        resolve(attributeValues);
-      };
-
-      utils.setTimeout(function () {
-        delete callbacks[requestId];
-        reject();
-      }, 1000);
-    });
-  },
 
   dispatchMessage(msg) {
     if (typeof msg.data.requestId === "number") {
@@ -150,18 +80,23 @@ export default background({
   },
 
   handleRequest(msg) {
-    const { action, module, args, requestId } = msg.data.payload,
-          windowId = msg.data.windowId;
+    const payload = msg.data.payload;
+    if (!payload) {
+      return;
+    }
+    const { action, module, args, requestId } = payload,
+      windowId = msg.data.windowId;
     utils.importModule(`${module}/background`).then( module => {
       const background = module.default;
       return background.actions[action].apply(null, args);
     }).then( response => {
       this.mm.broadcast(`window-${windowId}`, {
         response,
-        action: msg.data.payload.action,
+        action,
+        module,
         requestId,
       });
-    }).catch(console.error.bind(null, "Process Script", `${action}/${module}`));
+    }).catch(console.error.bind(null, "Process Script", `${modules}/${action}`));
   },
 
   handleResponse(msg) {
@@ -171,16 +106,34 @@ export default background({
   getWindowStatusFromModules(win){
     return config.modules.map((moduleName) => {
       var module = win.CLIQZ.Core.windowModules[moduleName];
-      return module && module.status ? module.status() : {}
+      return module && module.status ? module.status() : null;
     })
   },
 
   events: {
-    'prefchange': function onPrefChange() {
-    }
+    'core:tab_select': function onTabSelect({ url, isPrivate }) {
+      events.pub('core.location_change', url, isPrivate);
+    },
+    'content:location-change': function onLocationChange({ url, isPrivate }) {
+      events.pub('core.location_change', url, isPrivate);
+    },
   },
 
   actions: {
+    notifyLocationChange(...args) {
+      events.pub('content:location-change', ...args);
+    },
+    notifyStateChange(...args) {
+      // TODO: design proper property list for the event
+      events.pub('content:state-change', {
+        url: args[0].url
+      });
+      // DEPRECATED - use content:state-change instead
+      events.pub('core.tab_state_change', ...args);
+    },
+    recordMouseDown(...args) {
+      events.pub('core:mouse-down', ...args);
+    },
     restart() {
       return utils.extensionRestart();
     },
@@ -254,6 +207,7 @@ export default background({
       return this.actions.queryCliqz(value);
     },
     recordLang(url, lang) {
+      events.pub('content:dom-ready', url);
       if (lang) {
         language.addLocale(url, lang);
       }
@@ -273,6 +227,76 @@ export default background({
     },
     resizeWindow(width, height) {
       utils.getWindow().resizeTo(width, height);
+    },
+    queryHTML(url, selector, attribute) {
+      const requestId = lastRequestId++,
+        documents = [];
+
+      this.mm.broadcast("cliqz:core", {
+        action: "queryHTML",
+        url,
+        args: [selector, attribute],
+        requestId
+      });
+
+      return new Promise( (resolve, reject) => {
+        callbacks[requestId] = function (attributeValues) {
+          delete callbacks[requestId];
+          resolve(attributeValues);
+        };
+
+        utils.setTimeout(function () {
+          delete callbacks[requestId];
+          reject();
+        }, 1000);
+      });
+    },
+
+    getHTML(url, timeout = 1000) {
+      const requestId = lastRequestId++,
+        documents = [];
+
+      this.mm.broadcast("cliqz:core", {
+        action: "getHTML",
+        url,
+        args: [],
+        requestId
+      });
+
+      callbacks[requestId] = function (doc) {
+        documents.push(doc);
+      };
+
+      return new Promise( resolve => {
+        utils.setTimeout(function () {
+          delete callbacks[requestId];
+          resolve(documents);
+        }, timeout);
+      });
+    },
+
+    getCookie(url) {
+      const requestId = lastRequestId++,
+        documents = [];
+
+      this.mm.broadcast("cliqz:core", {
+        action: "getCookie",
+        url,
+        args: [],
+        requestId
+      });
+
+      return new Promise( (resolve, reject) => {
+        callbacks[requestId] = function (attributeValues) {
+          delete callbacks[requestId];
+          resolve(attributeValues);
+        };
+
+        utils.setTimeout(function () {
+          delete callbacks[requestId];
+          reject();
+        }, 1000);
+      });
     },
   },
 });

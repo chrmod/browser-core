@@ -17,7 +17,7 @@ CliqzSecureMessage.USER_REG = 'https://hpn-sign.cliqz.com/register';
 self.onmessage = function(e) {
   const msgType = e.data.type;
 
-  if( msgType === 'query' ) {
+  if( msgType === 'instant' ) {
     const msg = e.data.msg;
     const uid =  e.data.uid;
     const response = {};
@@ -31,7 +31,7 @@ self.onmessage = function(e) {
     mc.query().then( result => {
       response.res = result;
       response.uid = uid;
-      response.type = 'query';
+      response.type = 'instant';
       postMessage(response);
     });
   }
@@ -92,7 +92,7 @@ self.onmessage = function(e) {
       });
   }
 
-  if (msgType === 'test-sha1') {
+  if (msgType === 'test-sha1' || msgType === 'hw-sha1') {
     sha1(e.data.msg)
       .then( result => {
         const response = {};

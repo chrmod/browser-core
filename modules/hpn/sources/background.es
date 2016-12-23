@@ -22,14 +22,14 @@ export default {
       }
     } catch (e) { CliqzUtils.log(e); }
 
-    if (FF48_OR_ABOVE && CliqzUtils.getPref('proxyNetwork', true)) {
+    if (FF48_OR_ABOVE) {
       // We need to use this function, 'load' events do not seem to be firing...
       this.enabled = true;
       this.CliqzSecureMessage = CliqzSecureMessage;
       CliqzSecureMessage.init();
       CliqzSecureMessage.wCrypto = new Worker('crypto-worker.js');
       CliqzSecureMessage.wCrypto.onmessage = function (e) {
-        if (e.data.type === 'query') {
+        if (e.data.type === 'instant') {
           const callback = CliqzSecureMessage.queriesID[e.data.uid];
           delete CliqzSecureMessage.queriesID[e.data.uid];
           callback && callback({ response: e.data.res });

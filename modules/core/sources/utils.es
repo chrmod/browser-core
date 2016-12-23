@@ -3,7 +3,9 @@ import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
 import CliqzEvents from 'core/events';
+import { TLDs } from "core/tlds";
 //import CliqzLanguage from "platform/language";
+import { httpHandler, promiseHttpHandler } from 'core/http';
 
 var CliqzLanguage;
 
@@ -43,7 +45,7 @@ var CliqzUtils = {
   BRANDS_DATABASE: BRANDS_DATABASE,
 
   //will be updated from the mixer config endpoint every time new logos are generated
-  BRANDS_DATABASE_VERSION: 1473867650984,
+  BRANDS_DATABASE_VERSION: 1481799943898,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -64,10 +66,12 @@ var CliqzUtils = {
   SKIN_PATH: CLIQZEnvironment.SKIN_PATH,
   LOCALE_PATH: CLIQZEnvironment.LOCALE_PATH,
   RERANKERS: CLIQZEnvironment.RERANKERS,
-  MIN_QUERY_LENGHT_FOR_EZ: CLIQZEnvironment.MIN_QUERY_LENGHT_FOR_EZ,
   CLIQZ_ONBOARDING: CLIQZEnvironment.CLIQZ_ONBOARDING,
+  CLIQZ_ONBOARDING_URL: CLIQZEnvironment.CLIQZ_ONBOARDING_URL,
   BROWSER_ONBOARDING_PREF: CLIQZEnvironment.BROWSER_ONBOARDING_PREF,
   BROWSER_ONBOARDING_STEP_PREF: CLIQZEnvironment.BROWSER_ONBOARDING_STEP_PREF,
+  CLIQZ_NEW_TAB: "about:cliqz",
+  CLIQZ_NEW_TAB_URL: CLIQZEnvironment.CLIQZ_NEW_TAB_URL,
 
   telemetryHandlers: [
     CLIQZEnvironment.telemetry
@@ -95,11 +99,13 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
 
     CliqzUtils.setLang(options.lang);
+
+    CliqzUtils.tldExtractor = CLIQZEnvironment.tldExtractor || CliqzUtils.genericTldExtractor;
   },
   getLanguageFromLocale: function(locale) {
     return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
   },
-  SUPPORTED_LANGS: {'de':'de', 'en':'en'},
+  SUPPORTED_LANGS: {'de':'de', 'en':'en', 'fr':'fr'},
   getSupportedLanguage: function(lang) {
     return CliqzUtils.SUPPORTED_LANGS[lang] || 'en';
   },
@@ -120,10 +126,23 @@ var CliqzUtils = {
   },
 
   callAction(moduleName, actionName, args) {
-    return CliqzUtils.System.import(moduleName+"/background").then(module => {
-      var action = module.default.actions[actionName];
-      return action.apply(null, args);
-    });
+    const module = CliqzUtils.System.get(`${moduleName}/background`);
+    if (!module) {
+      return Promise.reject(`module "${moduleName}" does not exist`);
+    }
+
+    const action = module.default.actions[actionName];
+    if (!action) {
+      return Promise.reject(`module ${moduleName} does not implement action "${actionName}"`);
+    }
+
+    try {
+      const response = action.apply(null, args);
+      return Promise.resolve(response);
+    } catch (e) {
+      console.error(`callAction`, moduleName, actionName, e);
+      return Promise.reject(e);
+    }
   },
 
   callWindowAction(win, moduleName, actionName, args) {
@@ -232,7 +251,7 @@ var CliqzUtils = {
   httpHandler: function () {
     var errorHandler = arguments[3]; // see httpGet or httpPost arguments
     try {
-      return CLIQZEnvironment.httpHandler.apply(CLIQZEnvironment, arguments);
+      return httpHandler.apply(undefined, arguments);
     } catch(e) {
       if(errorHandler) {
         errorHandler(e);
@@ -319,6 +338,22 @@ var CliqzUtils = {
 
     return url;
   },
+  genericTldExtractor: function (host) {
+    var v = host.toLowerCase().split('.'),
+        tld = '';
+
+    var first_level = TLDs[v[v.length - 1]];
+    tld = v[v.length - 1];
+
+    if ((v.length > 2) && (first_level == 'cc')) {
+      // check if we also have to remove the second level, only if 3 or more
+      //  levels and the first_level was a country code
+      if (TLDs[v[v.length - 2]]) {
+        tld = v[v.length - 2] + '.' + tld;
+      }
+    }
+    return tld;
+  },
   getDetailsFromUrl: function(originalUrl){
     var [action, originalUrl] = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
@@ -397,7 +432,7 @@ var CliqzUtils = {
     // find parts of hostname
     if (!isIPv4 && !isIPv6 && !isLocalhost) {
       try {
-        tld = CLIQZEnvironment.tldExtractor(host);
+        tld = CliqzUtils.tldExtractor(host);
 
         // Get the domain name w/o subdomains and w/o TLD
         name = host.slice(0, -(tld.length+1)).split('.').pop(); // +1 for the '.'
@@ -510,8 +545,21 @@ var CliqzUtils = {
   },
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
-    if(CliqzUtils.isUrl(value)){
-       return CliqzUtils.getDetailsFromUrl(value).host.indexOf('google') === 0 ? true: false;
+    if (CliqzUtils.isUrl(value)) {
+      const {name, subdomains, path} = CliqzUtils.getDetailsFromUrl(value);
+      // allow only 'www' and 'de' (for Yahoo) subdomains to exclude 'maps.google.com' etc.
+      // and empty path only to exclude 'www.google.com/maps' etc.
+      const firstSubdomain = subdomains.length ? subdomains[0] : '';
+      return (!path || (path.length === 1 && path[0] === '/')) && (
+        (
+          name === 'google' ||
+          name === 'bing' ||
+          name === 'duckduckgo' ||
+          name === 'startpage'
+        ) && (!firstSubdomain || firstSubdomain === 'www') ||
+        (
+          name === 'yahoo'
+        ) && (!firstSubdomain || firstSubdomain === 'de'));
     }
     return false;
   },
@@ -683,17 +731,21 @@ var CliqzUtils = {
         CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
         CliqzUtils._queryLastLength = q.length;
         var url = CliqzUtils.RESULTS_PROVIDER + CliqzUtils.getResultsProviderQueryString(q);
-        CliqzUtils.httpGet(url, function (res) {
-          var resp = JSON.parse(res.response || '{}')
-          if (resp.result !== undefined && resp.results === undefined) {
-            resp.results = resp.result;
-            delete resp.result;
-          }
-          resolve({
-            response: resp,
-            query: q
-          });
-        });
+        CliqzUtils.httpGet(
+          url,
+          function (res) {
+            var resp = JSON.parse(res.response || '{}')
+            if (resp.result !== undefined && resp.results === undefined) {
+              resp.results = resp.result;
+              delete resp.result;
+            }
+            resolve({
+              response: resp,
+              query: q
+            });
+          },
+          reject
+        );
       }
     });
   },
@@ -707,9 +759,18 @@ var CliqzUtils = {
             try {
               var config = JSON.parse(res.response);
               for(var k in config){
-                CliqzUtils.setPref('config_' + k, config[k]);
+                if (typeof config[k] == 'object') {
+                  CliqzUtils.setPref('config_' + k, JSON.stringify(config[k]));
+                } else {
+                  CliqzUtils.setPref('config_' + k, config[k]);
+                }
               }
-            } catch(e){}
+              if (CliqzUtils.getPref('backend_country', '') === '') {
+                CliqzUtils.setPref('backend_country', CliqzUtils.getPref('config_location', ''));
+              }
+            } catch(e){
+              CliqzUtils.log(e);
+            }
           }
           resolve();
         },
@@ -718,13 +779,16 @@ var CliqzUtils = {
       );
     });
   },
+  setDefaultIndexCountry: function(country) {
+    CliqzUtils.setPref('backend_country', country);
+  },
   encodeLocale: function() {
     // send browser language to the back-end
     return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
   },
   encodeCountry: function() {
     //international results not supported
-    return '&force_country=true';
+    return '&country=' + CliqzUtils._country;
   },
   disableWikiDedup: function() {
     // disable wikipedia deduplication on the backend side
@@ -786,6 +850,7 @@ var CliqzUtils = {
   // number of queries in search session
   _queryCount: null,
   setSearchSession: function(rand){
+    CliqzUtils._country = CliqzUtils.getPref('backend_country');
     CliqzUtils._searchSession = rand;
     CliqzUtils._sessionSeq = 0;
     CliqzUtils._queryCount = 0;
@@ -866,16 +931,11 @@ var CliqzUtils = {
   locale: {},
   currLocale: null,
   getLocaleFile: function (locale) {
-    function callback(req) {
-        if (CliqzUtils){
-          CliqzUtils.currLocale = locale;
-          CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
-        }
-    }
-    function onerror(err) {
-    }
-    var url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
-    var response = CliqzUtils.httpGet(url, callback, onerror, 3000, null, true);
+    const url = CliqzUtils.LOCALE_PATH + locale + '/cliqz.json';
+    // Synchronous request is depricated
+    const req = CliqzUtils.httpGet(url, null, null, null, null, true);
+    CliqzUtils.currLocale = locale;
+    CliqzUtils.locale.default = CliqzUtils.locale[locale] = JSON.parse(req.response);
   },
   getLocalizedString: function(key, substitutions){
     if(!key) return '';
@@ -1117,7 +1177,7 @@ var CliqzUtils = {
   getSearchEngines: CLIQZEnvironment.getSearchEngines,
   updateAlias: CLIQZEnvironment.updateAlias,
   openLink: CLIQZEnvironment.openLink,
-  promiseHttpHandler: CLIQZEnvironment.promiseHttpHandler,
+  promiseHttpHandler: promiseHttpHandler,
   registerResultProvider: function (o) {
     CLIQZEnvironment.CliqzResultProviders = o.ResultProviders;
     CLIQZEnvironment.Result = o.Result;
