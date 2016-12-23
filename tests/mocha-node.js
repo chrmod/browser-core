@@ -10,6 +10,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const chaiAsPromised = require('chai-as-promised');
+const sinonAsPromised = require('sinon-as-promised');
 chai.config.truncateThreshold = 0
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

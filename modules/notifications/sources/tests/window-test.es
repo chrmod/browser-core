@@ -20,9 +20,12 @@ export default describeModule("notifications/window",
 
       it('calls action: notifications/updateUnreadStatus', function() {
         const utils = this.deps('core/utils').default
-        const spy = sinon.spy(utils, 'callAction');
+        const stub = sinon.stub(utils, 'callAction').resolves(true);
         subject.init();
-        chai.expect(spy).to.have.been.calledWith('notifications', 'updateUnreadStatus')
+        stub().then(function(value) {
+         chai.expect(spy).to.have.been.calledWith('notifications', 'updateUnreadStatus')
+        })
+
       });
 
     });
