@@ -5,7 +5,11 @@ export default class {
   }
 
   init() {
-    utils.callAction('notifications', 'updateUnreadStatus');
+    utils.callAction('notifications', 'hasNotifications').then( (res) => {
+      if (res) {
+        utils.callAction('notifications', 'updateUnreadStatus');
+      }
+    });
   }
 
   unload() {

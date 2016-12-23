@@ -69,6 +69,10 @@ export default background({
       };
     },
 
+    hasNotifications() {
+      return this.notificationCenter.storage.watchedDomainNames().length > 0;
+    },
+
     updateUnreadStatus() {
       return this.notificationCenter.updateUnreadStatus();
     },
