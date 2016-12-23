@@ -154,10 +154,11 @@ export default background({
         domain
       });
     },
-    'notifications:notifications-accessible': function onAccessibleNotification(domain, count) {
+    'notifications:notifications-accessible': function onAccessibleNotification(domain, count, hasUnread) {
       this.broadcastMessage('accessibleNotification', {
         domain,
-        count
+        count,
+        hasUnread
       });
     }
   },
