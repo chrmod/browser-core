@@ -117,13 +117,13 @@ export default Ember.Service.extend({
       notificationError: 'cannot-fetch-count'
     });
    },
-   accessibleNotification(domain, count) {
+   accessibleNotification(domain, count, hasUnread) {
     const store = this.get('store');
     let dial = store.peekRecord('speed-dial', domain);
     dial.setProperties({
       notificationStatus: 'enabled',
       notificationCount: count,
-      hasNewNotifications: false,
+      hasNewNotifications: hasUnread,
       notificationError: 'null'
     });
    }

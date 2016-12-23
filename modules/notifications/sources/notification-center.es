@@ -168,7 +168,7 @@ export default Evented(class {
 
     if(oldData && oldData.status === 'inaccessible') {
       //broadcast user has logged in again
-      this.publishEvent('notifications-accessible', domain, newCount);
+      this.publishEvent('notifications-accessible', domain, newCount, newCount > oldCount);
     }
   }
 
