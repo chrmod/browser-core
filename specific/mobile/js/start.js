@@ -81,5 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }).then(function () {
     osAPI.isReady();
+    CliqzUtils.fetchAndStoreConfig();
   });
 });
