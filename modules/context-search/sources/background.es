@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import { utils } from 'core/cliqz';
 import background from 'core/base/background';
 import ContextSearch from 'context-search/context-search';
@@ -21,7 +20,7 @@ class ContextSearchReranker {
         utils.getBackendResults(qExt).then(resolve);
       });
     }
-    return promiseResolve(input);
+    return Promise.resolve(input);
   }
 
   afterResults(myResults, originalResults) {

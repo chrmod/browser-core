@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import background from "core/base/background";
 import utils from "core/utils";
 import UITour from 'platform/ui-tour';
@@ -100,7 +99,7 @@ export default background({
     },
 
     _getStep() {
-      return promiseResolve(utils.getPref(utils.BROWSER_ONBOARDING_STEP_PREF, 1));
+      return Promise.resolve(utils.getPref(utils.BROWSER_ONBOARDING_STEP_PREF, 1));
     },
 
     step1() {

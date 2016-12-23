@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import {
   historyManager as coreHistoryManager,
 } from 'core/cliqz';
@@ -108,7 +107,7 @@ function getHbasedNewsObject() {
     let requestPromise;
 
     if (hbasedRecom.hashList.length === 0) {
-      requestPromise = promiseResolve({});
+      requestPromise = Promise.resolve({});
     } else {
       var query = JSON.stringify(hbasedRecom.hashList),
           url = coreUtils.RICH_HEADER + coreUtils.getRichHeaderQueryString(query),
@@ -689,7 +688,7 @@ function checkTopNewsIfInHistory(topNewsCache) {
 
 function checkHbasedNewsIfInHistory(hbNewsDict) {
   const promiseList = Object.keys(hbNewsDict).map(domain => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       addVisitedFlagToArticles(hbNewsDict[domain]).then(articlesList => {
         resolve([domain, articlesList]);
       });

@@ -1,3 +1,5 @@
+
+'use strict';
 /*
  * This module handles the loading and the unloading of the extension
  * It injects all the needed scripts into the chrome context
@@ -59,7 +61,6 @@ var Extension = {
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/xmlhttprequest.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/fetch.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/storage.js", this);
-      Services.scriptloader.loadSubScript("chrome://cliqz/content/core/promises.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/storage.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/platform/prefs.js", this);
       Services.scriptloader.loadSubScript("chrome://cliqz/content/core/prefs.js", this);

@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import { utils, events } from 'core/cliqz';
 import WebRequest from 'core/webrequest';
 
@@ -198,7 +197,7 @@ class AdBlocker {
         });
     }
 
-    return promiseResolve();
+    return Promise.resolve();
   }
 
   init() {

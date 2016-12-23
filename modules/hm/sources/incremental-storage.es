@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import md5 from 'core/helpers/md5';
 import utils from 'core/utils';
 import { renameFile, fileExists, readFile, write, removeFile, createFile,
@@ -55,7 +54,7 @@ export default class IncrementalStorage {
       return this.flush()
         .then(() => closeFD(this.journalFile));
     }
-    return promiseResolve();
+    return Promise.resolve();
   }
   destroy(corrupt = false) {
     this.stopFlushes();
@@ -96,7 +95,7 @@ export default class IncrementalStorage {
     this.eventsQueue = [];
     this.scheduledSnapshot = true;
     this.dirty = true; // Small hack
-    return promiseResolve(this.obj);
+    return Promise.resolve(this.obj);
   }
 
 // PRIVATE
@@ -148,7 +147,7 @@ export default class IncrementalStorage {
         if (this.dirty && (this.immediateSnap || this.scheduledSnapshot || this.acumTime >= 1000)) {
           return this.doRealSnapshot();
         }
-        return promiseResolve();
+        return Promise.resolve();
       })
       .then(() => this.startFlushes());
   }
@@ -167,14 +166,14 @@ export default class IncrementalStorage {
             return write(s, JSON.stringify(this.obj), { isText: true })
               .then(() => createFile(j));
           } else if (present[0]) {
-            return promiseResolve();
+            return Promise.resolve();
           }
           throw new Error('unknown file state(1)');
         } else if (present[0] && present[1]) { // Rollback
           return Promise.all([removeFile(sn), removeFile(jn)]);
         } else if (!present[0]) { // Commit
           // TODO: This stage is already in snapshot, refactor
-          return promiseResolve(present[3] ? renameFile(jn, j) : null)
+          return Promise.resolve(present[3] ? renameFile(jn, j) : null)
             .then(() => renameFile(sn, s));
         }
         throw new Error('unknown file state(2)');
@@ -187,7 +186,7 @@ export default class IncrementalStorage {
           return write(jn, data.slice(0, lastEndline), { isText: true })
             .then(() => renameFile(jn, j));
         }
-        return promiseResolve();
+        return Promise.resolve();
       });
   }
   // Pre: !this.isOpen

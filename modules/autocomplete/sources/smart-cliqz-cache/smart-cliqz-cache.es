@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import { getSmartCliqz } from 'autocomplete/smart-cliqz-cache/rich-header'
 import { utils } from 'core/cliqz';
 import { mkdir } from 'core/fs';
@@ -250,7 +249,7 @@ export default class {
     getSmartCliqz(url)
       .then((smartCliqz) => {
         const domain = this.getDomain(smartCliqz);
-        return Promise.all([promiseResolve(smartCliqz), this._fetchVisitedUrls(domain)]);
+        return Promise.all([Promise.resolve(smartCliqz), this._fetchVisitedUrls(domain)]);
       })
       // (2) fetch history for SmartCliqz domain
       .then(([smartCliqz, urls]) => {

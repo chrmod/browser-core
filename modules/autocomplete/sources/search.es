@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import { utils, events } from "core/cliqz";
 import { isFirefox } from "core/platform";
 import SmartCliqzCache from 'autocomplete/smart-cliqz-cache/smart-cliqz-cache';
@@ -312,7 +311,7 @@ export default class Search {
 
     const beforeResults = Promise.all(
       utils.RERANKERS.map(reranker => {
-        const promise = reranker.beforeResults ? reranker.beforeResults.bind(reranker) : promiseResolve;
+        const promise = reranker.beforeResults ? reranker.beforeResults.bind(reranker) : Promise.resolve.bind(Promise);
         return timeout(
           promise({query: searchString}),
           this.rerankerTimeouts.before
@@ -322,7 +321,7 @@ export default class Search {
 
     const duringResults = beforeResults.then(resultsArray => {
       const duringResultsPromises = utils.RERANKERS.map((reranker, idx) => {
-        const promise = reranker.duringResults ? reranker.duringResults.bind(reranker) : promiseResolve;
+        const promise = reranker.duringResults ? reranker.duringResults.bind(reranker) : Promise.resolve.bind(Promise);
         return timeout(
           promise(resultsArray[idx]),
           this.rerankerTimeouts.during
@@ -354,7 +353,7 @@ export default class Search {
             return res;
           })
         );
-      }, promiseResolve(backendResults));
+      }, Promise.resolve(backendResults));
     });
 
     return afterResults;

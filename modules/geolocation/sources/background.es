@@ -1,4 +1,3 @@
-import { promiseResolve, promiseReject } from "core/promises";
 import background from "core/base/background";
 import { isFirefox } from "core/platform";
 import { events, utils } from "core/cliqz";
@@ -119,7 +118,7 @@ export default background({
     getGeo() {
       if (utils.getPref('share_location') !== 'yes' &&
           !utils.SHARE_LOCATION_ONCE) {
-        return promiseReject("No permission to get user's location");
+        return Promise.reject("No permission to get user's location");
       }
 
       const telemetryEvent = {
@@ -140,7 +139,7 @@ export default background({
         .catch(error => {
           telemetryEvent.is_success = false;
           utils.telemetry(telemetryEvent);
-          return promiseReject(error);
+          return Promise.reject(error);
         });
     },
 
