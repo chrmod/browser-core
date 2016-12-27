@@ -322,7 +322,13 @@ var CliqzABTests = {
                 break;
             case "1087_B":
                 CliqzUtils.setPref('modules.context-search.enabled', true);
-                break
+                break;
+            case "1088_A":
+                CliqzUtils.setPref('offers2FeatureEnabled', false);
+                break;
+            case "1088_B":
+                CliqzUtils.setPref('offers2FeatureEnabled', true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -519,6 +525,10 @@ var CliqzABTests = {
               break;
             case "1087_B":
               CliqzUtils.setPref('modules.context-search.enabled', false);
+              break;
+            case "1088_A":
+            case "1088_B":
+              CliqzUtils.clearPref('offers2FeatureEnabled');
               break;
             default:
                 rule_executed = false;

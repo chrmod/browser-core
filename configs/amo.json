@@ -35,7 +35,8 @@
     "freshtab",
     "control-center",
     "offers",
-    "message-center"
+    "message-center",
+    "offers-v2"
   ],
   "subprojects": [
     "fresh-tab-frontend"
