@@ -3,7 +3,6 @@ import { messageHandler, sendMessageToWindow } from 'video-downloader/content/da
 import $ from 'jquery';
 import Handlebars from 'handlebars';
 import templates from 'video-downloader/templates';
-import { saveFileAs } from 'video-downloader/content/save-file-from-url';
 
 Handlebars.partials = templates;
 
@@ -45,6 +44,13 @@ $(document).on('click', '#more-formats-btn', function(e) {
   $('#download-links .hidden').attr('class', '');
   $('#more-formats-btn').css('display', 'none');
   resize();
+  sendMessageToWindow({
+    action: 'sendTelemetry',
+    data: {
+      action: 'click',
+      target: 'more_formats'
+    }
+  });
 });
 
 $(document).on('click', '#send-to-mobile-btn', function(e) {
@@ -63,8 +69,16 @@ $(document).on('click', '#send-to-mobile-btn', function(e) {
 
 $(document).on('click', '#download-links li', function(e) {
   e.stopPropagation();
+  sendMessageToWindow({
+    action: 'download',
+    data: {
+      url: $(this).find('p').attr('data-href'),
+      filename: $(this).find('p').attr('download'),
+      size: $(this).find('span').text(),
+      format: $(this).find('p').attr('data-format').toLowerCase().replace(" ", "_")
+    }
+  });
   hidePopup();
-  saveFileAs($(this).find('p').attr('data-href'), $(this).find('p').attr('download'));
 });
 
 $(document).on('click', '#pairing-dashboard', function(){
@@ -81,9 +95,9 @@ function hidePopup () {
 function draw(data) {
   if(data.sendingStatus) {
     if(data.sendingStatus === 'success') {
-      $('#sending-status').attr('src', 'chrome://cliqz/content/video-downloader/images/checkbox-green.svg');
+      $('#sending-status').attr('src', 'images/checkbox-green.svg');
     } else {
-      $('#sending-status').attr('src', 'chrome://cliqz/content/video-downloader/images/checkbox-red.svg');
+      $('#sending-status').attr('src', 'images/checkbox-red.svg');
     }
   } else {
     $('#video-downloader').html(templates['template'](data));

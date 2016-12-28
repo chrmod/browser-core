@@ -60,7 +60,8 @@ export default class {
       PANEL_ID,
       'control-center',
       false,
-      this.actions
+      this.actions,
+      1 // telemetry version
     );
   }
 

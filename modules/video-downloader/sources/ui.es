@@ -4,6 +4,9 @@ import { isVideoURL, getVideoInfo } from 'video-downloader/video-downloader';
 import Panel from '../core/ui/panel';
 import { addStylesheet, removeStylesheet } from '../core/helpers/stylesheet';
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import("resource://gre/modules/Downloads.jsm");
+
 function toPx(pixels) {
   return `${pixels.toString()}px`;
 }
@@ -24,6 +27,8 @@ const BTN_ID = 'cliqz-vd-btn';
 const PANEL_ID = `${BTN_ID}-panel`;
 const firstRunPref = 'cliqz-vd-initialized';
 const TOOLTIP_LABEL = 'CLIQZ Video Downloader';
+const TELEMETRY_VERSION = 1;
+const TELEMETRY_TYPE = 'video_downloader';
 
 export default class UI {
   constructor(PeerComm, window) {
@@ -38,15 +43,18 @@ export default class UI {
       resize: this.resizePopup.bind(this),
       sendToMobile: this.sendToMobile.bind(this),
       hidePopup: this.hidePopup.bind(this),
+      "sendTelemetry": this.sendTelemetry.bind(this),
+      download: this.download.bind(this),
     };
 
     this.panel = new Panel(
       this.window,
       'chrome://cliqz/content/video-downloader/index.html',
       PANEL_ID,
-      'video-downloader',
+      TELEMETRY_TYPE,
       false,
-      this.actions
+      this.actions,
+      TELEMETRY_VERSION
     );
   }
 
@@ -76,6 +84,21 @@ export default class UI {
 
   hidePopup() {
     this.panel.hide();
+  }
+
+  showButton(isCustomizing) {
+    if(isCustomizing) {
+      this.button.setAttribute('class',
+        'cliqz-video-downloader customizing toolbarbutton-1 chromeclass-toolbar-additional');
+    } else {
+      this.button.setAttribute('class',
+        'cliqz-video-downloader toolbarbutton-1 chromeclass-toolbar-additional');
+    }
+  }
+
+  hideButton() {
+    this.button.setAttribute('class',
+      'hidden toolbarbutton-1 chromeclass-toolbar-additional');
   }
 
   sendToMobile({ url, format, title }) {
@@ -126,12 +149,12 @@ export default class UI {
 
     const isCustomizing = this.window.document.documentElement.hasAttribute("customizing");
 
-    if (isVideoURL(url) || isCustomizing) {
-      this.button.setAttribute('class',
-        'cliqz-video-downloader toolbarbutton-1 chromeclass-toolbar-additional');
+    if (isVideoURL(url)) {
+      this.showButton();
+    } else if (isCustomizing) {
+      this.showButton(true);
     } else {
-      this.button.setAttribute('class',
-        'hidden toolbarbutton-1 chromeclass-toolbar-additional');
+      this.hideButton();
     }
   }
 
@@ -178,7 +201,6 @@ export default class UI {
     .then(() => getVideoInfo(url))
     .then(info => {
       if (info.formats.length > 0) {
-        utils.log('All video formats: ', info.formats);
         const videos = [];
         let audio;
         const videosOnly = [];
@@ -235,9 +257,31 @@ export default class UI {
               unSupportedFormat: true,
             },
           });
+          utils.telemetry({
+            type: TELEMETRY_TYPE,
+            version: TELEMETRY_VERSION,
+            action: 'popup_open',
+            is_downloadable: 'false'
+          });
         }
       }
     });
+  }
+
+  sendTelemetry(data) {
+    const signal = {
+      type: TELEMETRY_TYPE,
+      version: TELEMETRY_VERSION,
+      target: data.target,
+      action: data.action
+    };
+    if (data.format) {
+      signal.format = data.format;
+    }
+    if (data.size) {
+      signal.size = data.size;
+    }
+    utils.telemetry(signal);
   }
 
   sendMessageToPopup(message) {
@@ -248,4 +292,70 @@ export default class UI {
     });
   }
 
+  download({ url, filename, size, format }) {
+    utils.telemetry({
+      type: TELEMETRY_TYPE,
+      version: TELEMETRY_VERSION,
+      target: 'download',
+      action: 'click',
+      format: format
+    });
+
+    const nsIFilePicker = Ci.nsIFilePicker;
+    const fp = Cc['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+    fp.defaultString = filename;
+
+    const pos = filename.lastIndexOf('.');
+    const extension = (pos >- 1) ? filename.substring(pos + 1) : '*';
+    fp.appendFilter((extension === 'm4a') ? 'Audio' : 'Video', '*.' + extension);
+
+    const windowMediator = Cc['@mozilla.org/appshell/window-mediator;1'].
+    getService(Ci.nsIWindowMediator);
+    const window = windowMediator.getMostRecentWindow(null);
+
+    fp.init(window, null, nsIFilePicker.modeSave);
+    const fileBox = fp.show();
+    if ((fileBox === nsIFilePicker.returnOK) || (fileBox === nsIFilePicker.returnReplace)) {
+      let download;
+      const downloadPromise = Downloads.createDownload({
+          source: url,
+          target: fp.file
+        });
+
+      Promise.all([
+        Downloads.getList(Downloads.ALL),
+        downloadPromise,
+      ]).then(([list, d]) => {
+        download = d;
+        download.start();
+        list.add(download);
+        return download.whenSucceeded();
+      }).then(() => {
+        utils.telemetry({
+          type: TELEMETRY_TYPE,
+          version: TELEMETRY_VERSION,
+          action: 'download',
+          size: size,
+          is_success: true
+        });
+      }, e => {
+        utils.telemetry({
+          type: TELEMETRY_TYPE,
+          version: TELEMETRY_VERSION,
+          action: 'download',
+          size: size,
+          is_success: false
+        });
+      }).then(() => {
+        download.finalize(true);
+      });
+
+    } else {
+      utils.telemetry({
+        type: TELEMETRY_TYPE,
+        version: TELEMETRY_VERSION,
+        action: 'download_cancel',
+      });
+    }
+  }
 }

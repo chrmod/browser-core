@@ -39,7 +39,7 @@ ul#download-links > li {
 }
 
 ul#download-links > li:hover {
-    background: url('chrome://cliqz/content/video-downloader/images/download.svg') no-repeat right center;
+    background: url('../images/download.svg') no-repeat right center;
     border-right: 10px solid transparent;
     background-color: #EDEDED;
     cursor: pointer;

@@ -1,3 +1,7 @@
+#PanelUI-contents #wrapper-cliqz-vd-btn, #PanelUI-contents #cliqz-vd-btn {
+    vertical-align: top;
+}
+
 #cliqz-vd-btn {
     padding: 0;
 }
@@ -18,6 +22,11 @@
 
 .hidden {
     display: none;
+}
+
+#cliqz-vd-btn.customizing {
+    -moz-animation:    none;
+    animation:         none;
 }
 
 #cliqz-vd-btn {
