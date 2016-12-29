@@ -37,10 +37,13 @@ export class EventHandler {
     // - new query has being performed
     // - new http / post request has being done in a particular domain
     //
+    this.onTabOrWinChangedHandler = this.onTabOrWinChangedHandler.bind(this);
+    this.onTabLocChanged = this.onTabLocChanged.bind(this);
+    this.onTabSelectionChangedHandler = this.onTabSelectionChangedHandler.bind(this);
 
-    events.sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
-    events.sub('content:location-change', this.onTabLocChanged.bind(this));
-    events.sub('core:tab_select', this.onTabSelectionChangedHandler.bind(this));
+    events.sub('core.location_change', this.onTabOrWinChangedHandler);
+    events.sub('content:location-change', this.onTabLocChanged);
+    events.sub('core:tab_select', this.onTabSelectionChangedHandler);
 
     this.beforeRequestListener = this.beforeRequestListener.bind(this)
     WebRequest.onBeforeRequest.addListener(this.beforeRequestListener);
@@ -50,9 +53,9 @@ export class EventHandler {
   // @brief destructor
   //
   destroy() {
-    events.un_sub('core.location_change', this.onTabOrWinChangedHandler.bind(this));
-    events.un_sub('content:location-change', this.onTabLocChanged.bind(this));
-    events.un_sub('core:tab_select', this.onTabSelectionChangedHandler.bind(this));
+    events.un_sub('core.location_change', this.onTabOrWinChangedHandler);
+    events.un_sub('content:location-change', this.onTabLocChanged);
+    events.un_sub('core:tab_select', this.onTabSelectionChangedHandler);
 
     WebRequest.onBeforeRequest.removeListener(this.beforeRequestListener);
   }

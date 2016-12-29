@@ -71,7 +71,8 @@ export default background({
 
 
     // TODO: GR-137 && GR-140: temporary fix
-    events.sub('core.window_closed', this.onWindowClosed.bind(this));
+    this.onWindowClosed = this.onWindowClosed.bind(this);
+    events.sub('core.window_closed', this.onWindowClosed);
 
     // print the timestamp
     LoggingHandler.LOG_ENABLED &&
@@ -94,7 +95,8 @@ export default background({
     this.env = new ExtensionEnvironment();
     this.el = new EventLoop(this.env);
 
-    this.eventHandler.subscribeUrlChange(this.onUrlChange.bind(this))
+    this.onUrlChange = this.onUrlChange.bind(this);
+    this.eventHandler.subscribeUrlChange(this.onUrlChange);
 
     // for the new ui system
     this.signalsHandler = new SignalHandler();
@@ -119,7 +121,7 @@ export default background({
     }
 
     // TODO: GR-137 && GR-140: temporary fix
-    events.un_sub('core.window_closed', this.onWindowClosed.bind(this));
+    events.un_sub('core.window_closed', this.onWindowClosed);
 
     if (this.uiOfferProc) {
       this.uiOfferProc.destroy();
