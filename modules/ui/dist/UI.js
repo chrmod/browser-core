@@ -1766,7 +1766,11 @@ function onEnter(ev, item){
   }
   // Google
   else if ((!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) || input.endsWith('.')) {
-    if(currentResults && CliqzUtils.getPref("double-enter2", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+    if(currentResults &&
+      CliqzUtils.getPref("double-enter2", false) &&
+      input.indexOf('about:') !== 0 &&
+      !currentResults.blocked && // ignore enter only once
+      (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
 
       var r = currentResults.results;
       if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
