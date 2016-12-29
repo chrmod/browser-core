@@ -8,7 +8,8 @@ body {
 
 .cqz-offers-wrapper {
     overflow: auto;
-    max-height: 180px;
+    max-height: 200px;
+    min-width: 675px;
     border-bottom: 1px solid #efefef;
 }
 
@@ -17,7 +18,7 @@ body {
     max-width: 1000px;
     margin: 0 auto;
     max-height: 180px;
-    padding: 10px 200px 10px 220px;
+    padding: 10px 20px 10px 220px;
 
     .cqz-logo-holder {
         overflow: hidden;
