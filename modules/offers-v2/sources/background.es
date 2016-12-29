@@ -122,10 +122,6 @@ export default background({
       this.eventHandler.destroy();
       delete this.eventHandler;
     }
-
-    this.env.destroy();
-    this.el.destroy();
-
   },
 
   //////////////////////////////////////////////////////////////////////////////
