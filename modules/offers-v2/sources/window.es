@@ -291,6 +291,9 @@ export default class {
 
   getLastDataToShow(data) {
     if (this.lastDataToShow) {
+      // #EX-3655 check if the id is properly set
+      const offerIDToSet = this.lastDataToShow.template_data.offer_id;
+      this.setOfferID(offerIDToSet);
       this.sendTemplateDataToIframe(this.lastDataToShow.template_name,
                                     this.lastDataToShow.template_data);
     }
