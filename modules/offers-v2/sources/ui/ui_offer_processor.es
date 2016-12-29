@@ -115,8 +115,10 @@ export class UIOfferProcessor {
   //   }
   // }
   addOffer(offerInfo) {
-    if (!offerInfo || !offerInfo.offer_id) {
-      lwarn('addOffer: no offer info provided? or null id?');
+    if (!offerInfo ||
+        (offerInfo.offer_id === undefined || offerInfo.offer_id === null) ||
+        (offerInfo.display_id === undefined || offerInfo.display_id === null)) {
+      lwarn('addOffer: no offer info provided? or null id? or null display_id');
       return;
     }
 
@@ -141,9 +143,13 @@ export class UIOfferProcessor {
 
     this.activeOffers[offerInfo.offer_id] = offerInfo;
 
-    // track the last time we show this
+    // track the last time we show this particular offer and displayid
+    const displayID = offerInfo.display_id;
     this.offersHistory.incHistorySignal(offerInfo.offer_id, HistorySignalID.HSIG_OFFER_ADDED);
+    this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_ADDED);
 
+    // to track we use the offer_id
+    this.sigHandler.trackOfferSignal(offerInfo.offer_id, TrackSignalID.TSIG_OFFER_ADDED);
   }
 
   //
@@ -246,10 +252,12 @@ export class UIOfferProcessor {
   // the processing methods should go here
   //
   _processUISignal(offerID, signalType, signalData) {
+    const displayID = this._getDisplayIDFromOfferID(offerID);
     switch (signalType) {
       case SignalType.OFFER_DISPLAYED:
         //
         this.sigHandler.trackOfferSignal(offerID, TrackSignalID.TSIG_OFFER_SHOWN);
+        this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_SHOWN);
         this.offersHistory.incHistorySignal(offerID, HistorySignalID.HSIG_OFFER_SHOWN);
       break;
 
@@ -259,6 +267,7 @@ export class UIOfferProcessor {
 
       case SignalType.OFFER_DISPLAY_TIMEOUT:
         // increase the times of closed?
+        this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_TIMEOUT);
         this.offersHistory.incHistorySignal(offerID, HistorySignalID.HSIG_OFFER_TIMEOUT);
         this.sigHandler.trackOfferSignal(offerID, TrackSignalID.TSIG_OFFER_TIMEOUT);
         // remove the offer from active ones
@@ -296,8 +305,19 @@ export class UIOfferProcessor {
       return false;
     }
     const rules = offerInfo.filter_info;
-    const offerID = offerInfo.offer_id;
-    return this.filterRuleEval.shouldWeShowOffer(offerID, rules);
+    const offerDisplayID = offerInfo.display_id;
+    return this.filterRuleEval.shouldWeShowOffer(offerDisplayID, rules);
+  }
+
+  //
+  // return the display id from an offer id
+  //
+  _getDisplayIDFromOfferID(offerID) {
+    const offerInfo = this.activeOffers[offerID];
+    if (!offerInfo) {
+      return null;
+    }
+    return offerInfo.display_id;
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -329,6 +349,8 @@ export class UIOfferProcessor {
   _uiFunCloseOffer(offerID, data) {
     linfo('_uiFunCloseOffer: called for offer id: ' + offerID);
     this.sigHandler.trackOfferSignal(offerID, TrackSignalID.TSIG_OFFER_CLOSED);
+    const displayID = this._getDisplayIDFromOfferID(offerID);
+    this.offersHistory.incHistorySignal(displayID, HistorySignalID.HSIG_OFFER_CLOSED);
     this.offersHistory.incHistorySignal(offerID, HistorySignalID.HSIG_OFFER_CLOSED);
 
     // close the offer?

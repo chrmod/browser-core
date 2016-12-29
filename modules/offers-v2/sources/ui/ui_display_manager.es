@@ -1,5 +1,6 @@
 import { utils, events } from 'core/cliqz';
 import LoggingHandler from 'offers-v2/logging_handler';
+import OffersConfigs from 'offers-v2/offers_configs';
 import { forEachWindow } from 'platform/browser';
 import { queryActiveTabs } from 'core/tabs';
 
@@ -340,7 +341,11 @@ export class UIDisplayManager {
       return;
     }
     // add timer
-    this._addDisplayTimer(offerInfo, offerInfo.rule_info.display_time_secs);
+    var timeToSet = offerInfo.rule_info.display_time_secs;
+    if (OffersConfigs.OFFERS_OVERRIDE_TIMEOUT > 0) {
+      timeToSet = OffersConfigs.OFFERS_OVERRIDE_TIMEOUT;
+    }
+    this._addDisplayTimer(offerInfo, timeToSet);
   }
 
   //

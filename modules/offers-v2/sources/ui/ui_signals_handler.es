@@ -36,6 +36,7 @@ var TrackSignalID = {
   TSIG_OFFER_MORE_INFO:             'offer_more_info',
   TSIG_OFFER_MORE_ABT_CLIQZ:        'offer_more_cliqz',
   TSIG_OFFER_CALL_TO_ACTION:        'offer_ca_action',
+  TSIG_OFFER_ADDED:                 'offer_added',
 };
 
 
@@ -101,6 +102,27 @@ export class UISignalsHandler {
 
     // merge (update) signal
     addOrCreate(offerSigInfo, signalKey, 1);
+
+    // set it back to the sig handler
+    this.sigHandler.addSignal(OffersConfigs.SIGNALS_OFFERS_BUCKET_NAME, offerID, offerSigInfo);
+  }
+
+  //
+  // @brief this will set an attribute to an offer id, like offer_source
+  //
+  setOfferAttribute(offerID, attrName, attrValue) {
+    if (!offerID || !attrName) {
+      lwarn('setOfferAttribute: the offerID or attrName are null?');
+      return;
+    }
+    // get the offer related info
+    var offerSigInfo = this.sigHandler.getSignal(OffersConfigs.SIGNALS_OFFERS_BUCKET_NAME, offerID);
+    if (!offerSigInfo) {
+      offerSigInfo = this._createOfferSignalData();
+    }
+
+    // set attribute
+    offerSigInfo[attrName] = attrValue;
 
     // set it back to the sig handler
     this.sigHandler.addSignal(OffersConfigs.SIGNALS_OFFERS_BUCKET_NAME, offerID, offerSigInfo);

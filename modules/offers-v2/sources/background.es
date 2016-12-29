@@ -52,6 +52,16 @@ export default background({
       OffersConfigs.BACKEND_URL = utils.getPref('triggersBE');
     }
 
+    // set some extra variables
+    if(utils.getPref('offersTelemetryFreq')) {
+      OffersConfigs.SIGNALS_OFFERS_FREQ_SECS = utils.getPref('offersTelemetryFreq');
+    }
+    if(utils.getPref('offersOverrideTimeout')) {
+      OffersConfigs.OFFERS_OVERRIDE_TIMEOUT = utils.getPref('offersOverrideTimeout');
+    }
+
+
+
     // init the logging
     LoggingHandler.init();
     LoggingHandler.LOG_ENABLED && LoggingHandler.info(MODULE_NAME, 'init');

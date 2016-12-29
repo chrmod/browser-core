@@ -73,15 +73,15 @@ export class UIOffersHistory {
   //
   // @brief increase the counter of a history signal
   //
-  incHistorySignal(offerID, historySignal) {
-    linfo('incHistorySignal: adding history sig in offer: ' + offerID + ' - sig: ' + historySignal);
-    if (!offerID || historySignal === undefined || historySignal === null) {
-      lerr('incHistorySignal: offerID or historySignal null: ' + offerID + ' - ' + historySignal);
+  incHistorySignal(elementID, historySignal) {
+    linfo('incHistorySignal: adding history sig in offer: ' + elementID + ' - sig: ' + historySignal);
+    if (!elementID || historySignal === undefined || historySignal === null) {
+      lerr('incHistorySignal: elementID or historySignal null: ' + elementID + ' - ' + historySignal);
       return;
     }
-    var offerData = this.offersHistory[offerID];
+    var offerData = this.offersHistory[elementID];
     if (!offerData) {
-      offerData = this.offersHistory[offerID] = this._createNewOfferData();
+      offerData = this.offersHistory[elementID] = this._createNewOfferData();
     }
     var signalData = offerData[historySignal];
     if (!signalData) {
@@ -96,12 +96,12 @@ export class UIOffersHistory {
   }
 
   // return a history signal value or null if not found
-  getHistorySignal(offerID, historySignal) {
-    if (!offerID || historySignal === undefined || historySignal === null) {
-      lerr('getHistorySignal: offerID or historySignal null');
+  getHistorySignal(elementID, historySignal) {
+    if (!elementID || historySignal === undefined || historySignal === null) {
+      lerr('getHistorySignal: elementID or historySignal null');
       return null;
     }
-    var offerData = this.offersHistory[offerID];
+    var offerData = this.offersHistory[elementID];
     if (!offerData) {
       return null
     }
@@ -114,12 +114,12 @@ export class UIOffersHistory {
   }
 
   // get the last time a history signal was stored ?
-  getLastUpdateOf(offerID, historySignal) {
-    if (!offerID || historySignal === undefined || historySignal === null) {
-      lerr('getLastUpdateOf: offerID or historySignal null');
+  getLastUpdateOf(elementID, historySignal) {
+    if (!elementID || historySignal === undefined || historySignal === null) {
+      lerr('getLastUpdateOf: elementID or historySignal null');
       return null;
     }
-    var offerData = this.offersHistory[offerID];
+    var offerData = this.offersHistory[elementID];
     if (!offerData) {
       return null
     }
@@ -133,18 +133,49 @@ export class UIOffersHistory {
 
   // returns the TS when the offer was created (for the first time)
   // returns null otherwise
-  getCreationTime(offerID) {
-    const offerData = this.offersHistory[offerID];
+  getCreationTime(elementID) {
+    const offerData = this.offersHistory[elementID];
     if (!offerData) {
-      lwarn('getCreationTime: there is no offer associated with offer id: ' + offerID);
+      lwarn('getCreationTime: there is no offer associated with offer id: ' + elementID);
       return null;
     }
     return offerData.creation_ts;
   }
 
-  hasHistoryForOffer(offerID) {
-    return this.offersHistory[offerID] !== undefined;
+  hasHistoryForOffer(elementID) {
+    return this.offersHistory[elementID] !== undefined;
   }
+
+  // add / get an attribute for a particular offer
+  //
+  addElementAttribute(elementID, attrName, attrData) {
+    linfo('addElementAttribute: adding attribute in offer: ' + elementID + ' - attr: ' + attrName);
+    if (!elementID || attrName === undefined || attrName === null) {
+      lerr('addElementAttribute: elementID or attrName null: ' + elementID + ' - ' + attrName);
+      return;
+    }
+    var offerData = this.offersHistory[elementID];
+    if (!offerData) {
+      offerData = this.offersHistory[elementID] = this._createNewOfferData();
+    }
+
+    // set it
+    if (!offerData.attrs) {
+      offerData.attrs = {};
+    }
+
+    offerData.attrs[attrName] = attrData;
+  }
+
+  getElementAttribute(elementID, attrName) {
+    const offerData = this.offersHistory[elementID];
+    if (!offerData || !offerData.attrs) {
+      lwarn('getElementAttribute: there is no offer or attrs associated with offer id: ' + elementID);
+      return null;
+    }
+    return offerData.attrs[attrName];
+  }
+
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -164,7 +195,8 @@ export class UIOffersHistory {
   _createNewOfferData() {
     // default values
     var data = {
-      creation_ts: Date.now()
+      creation_ts: Date.now(),
+      attrs: {}
     };
     for (var k in HistorySignalID) {
       if (!HistorySignalID.hasOwnProperty(k)) {

@@ -38,7 +38,14 @@ var OffersConfigs = {
   // one hour
   SIGNALS_OFFERS_FREQ_SECS: 60 * 60,
   SIGNALS_OFFERS_BUCKET_NAME: 'sig-offers',
-  SIGNALS_TRIGGERS_BUCKET_NAME: 'sig-triggers'
+  SIGNALS_TRIGGERS_BUCKET_NAME: 'sig-triggers',
+
+  //////////////////////////////////////////////////////////////////////////////
+  // CONFIG / DEBUG variables
+  //
+
+  // override the timeout time of the offers only if this is > 0
+  OFFERS_OVERRIDE_TIMEOUT: -1
 
 
 };

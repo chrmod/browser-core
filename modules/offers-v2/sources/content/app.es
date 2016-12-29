@@ -39,9 +39,8 @@ function cqzOfferBtnClicked(ev) {
 
 $(document).ready(function(resolvedPromises) {
   // on load we ask the browser window for data
-  // TODO: remove this if not debug
   sendMessageToWindow({
-    action: 'testAction',
+    action: 'get_last_data',
     data: {}
   });
 

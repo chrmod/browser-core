@@ -1,6 +1,7 @@
 [
   {
     "offer_id": "2",
+    "display_id" : "2",
     "ui_info": {
       "template_name": "default_template",
       "template_data": {
@@ -30,12 +31,13 @@
     },
     "filter_info": {
       "not_closed_mt": 3,
-      "not_created_last_secs": 10,
+      "not_created_last_secs": 50,
       "not_timedout_mt": 2
     }
   },
   {
     "offer_id": "1",
+    "display_id" : "2",
     "ui_info": {
       "template_name": "default_template",
       "template_data": {
@@ -61,6 +63,10 @@
           }
         ]
       }
+    },
+    "filter_info": {
+      "not_closed_mt": 3,
+      "not_timedout_mt": 2
     },
     "rule_info": {
       "type": "exact_match",

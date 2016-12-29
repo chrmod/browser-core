@@ -33,10 +33,11 @@ export default class {
     // actions we will execute coming from the iframe
     this.iframeActions = {
       button_pressed: this.iframeButtonPressedAction.bind(this),
-      testAction: this.testAction.bind(this)
+      get_last_data: this.getLastDataToShow.bind(this)
     }
 
     this.onIframeMessage = this.onIframeMessage.bind(this);
+    this.lastDataToShow = null;
   }
 
   init() {
@@ -67,7 +68,7 @@ export default class {
   hideIframe() {
     if (!this.iframe) {
       LoggingHandler.LOG_ENABLED &&
-      LoggingHandler.warning(MODULE_NAME, 'no iframe found?');
+      LoggingHandler.warning(MODULE_NAME, 'hideIframe:  no iframe found?');
       return;
     }
     this.iframe.style.width = '0';
@@ -80,6 +81,8 @@ export default class {
 
   showIframe() {
     if (!this.iframe) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.warning(MODULE_NAME, 'showIframe: no iframe found?');
       return;
     }
     this.iframe.style.height = OffersConfigs.UI_IFRAME_HEIGHT_DEF;
@@ -218,6 +221,9 @@ export default class {
       return;
     }
 
+    // store it for later usage
+    this.lastDataToShow = offerData;
+
     const offerID = offerData.template_data.offer_id;
     const currentOfferID = this.getCurrentOfferID();
 
@@ -234,15 +240,12 @@ export default class {
       });
     }
 
-    // TODO: OPTIMIZATION: check if the current template being shown (offer id)
-    // is the same than the current one
-    //       use: getCurrentOfferID()
-
     // set the current offer id
     this.setOfferID(offerID);
 
     this.sendTemplateDataToIframe(offerData.template_name, offerData.template_data);
     this.showIframe();
+
 
     // TODO: if we could show properly and was not shown before, we need to notify
     // here that the offer was shown with the given id
@@ -255,6 +258,13 @@ export default class {
   hideOfferCoreHandler() {
     LoggingHandler.LOG_ENABLED &&
     LoggingHandler.info(MODULE_NAME, 'hideOfferCoreHandler called');
+
+    // delete old data
+    if (this.lastDataToShow) {
+      delete this.lastDataToShow;
+      this.lastDataToShow = null;
+    }
+
     const offerID = this.getCurrentOfferID();
 
     if (!offerID) {
@@ -279,13 +289,11 @@ export default class {
     this.sendToCoreUIHandler(data)
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  // TEST action
-  //
-  testAction(offerData) {
-    LoggingHandler.LOG_ENABLED &&
-    LoggingHandler.info(MODULE_NAME, '#testAction offerData: ' + JSON.stringify(offerData));
-    // nothing to do
+  getLastDataToShow(data) {
+    if (this.lastDataToShow) {
+      this.sendTemplateDataToIframe(this.lastDataToShow.template_name,
+                                    this.lastDataToShow.template_data);
+    }
   }
 
 }
