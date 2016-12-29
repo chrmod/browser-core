@@ -77,6 +77,11 @@ function getContextHTML(ev) {
 function onDOMWindowCreated(ev) {
   var window = ev.target.defaultView;
 
+  // we only handle HTML documents for now
+  if(window.document.documentElement.nodeName.toLowerCase() !== 'html'){
+    return;
+  }
+
   var currentURL = function(){return window.location.href};
 
   var windowId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
