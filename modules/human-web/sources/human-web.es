@@ -4340,7 +4340,14 @@ var CliqzHumanWeb = {
         let query = data.q;
         let sanitisedQuery = null;
         let url = msg.u;
-        const hostName = CliqzHumanWeb.parseURL(url).hostname;
+
+        const hostNameDetails = CliqzUtils.getDetailsFromUrl(url);
+        if(!hostNameDetails) {
+            _log("Invalid URL, should be dropped");
+            return;
+        }
+
+        const hostName = hostNameDetails.host;
 
         // Check if there is a query.
         if (!query || query.length == 0) {
