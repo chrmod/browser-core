@@ -403,7 +403,6 @@ const urlbarEventHandlers = {
     this.urlbarEvent('blur');
 
     autocomplete.lastFocusTime = null;
-    autocomplete.spellCheck.resetState();
     this.window.CLIQZ.UI.sessionEnd();
   },
   /**
