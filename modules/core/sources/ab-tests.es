@@ -228,9 +228,6 @@ var CliqzABTests = {
             case "1066_B":
                 CliqzUtils.setPref("proxyNetwork", true);
                 break;
-            case "1067_B":
-                CliqzUtils.setPref("attrackProxyTrackers", true);
-                break;
             case "1069_A":
                 CliqzUtils.setPref("grOfferSwitchFlag", false);
                 break;
@@ -447,9 +444,6 @@ var CliqzABTests = {
             case "1065_A":
             case "1065_B":
                 CliqzUtils.clearPref("freshTabNewsEmail");
-                break;
-            case "1067_B":
-                CliqzUtils.clearPref("attrackProxyTrackers");
                 break;
             case "1068_A":
             case "1068_B":
