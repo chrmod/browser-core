@@ -400,6 +400,7 @@ export default class {
     return {
       activeURL: url,
       friendlyURL: friendlyURL,
+      hostname: utils.getDetailsFromUrl(url).host,
       module: {}, //will be filled later
       generalState: 'active',
       feedbackURL: utils.FEEDBACK_URL,
