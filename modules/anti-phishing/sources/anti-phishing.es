@@ -300,7 +300,7 @@ var CliqzAntiPhishing = {
     blackWhiteList: {},
     history: {},
     minStay: 2000,  // 2 seconds
-    fallbackUrl: 'about:cliqz',
+    fallbackUrl: utils.CLIQZ_NEW_TAB,
     /**
     * @method auxOnPageLoad
     * @param url {string}

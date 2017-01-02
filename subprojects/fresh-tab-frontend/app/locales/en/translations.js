@@ -71,5 +71,6 @@ export default {
     "txt-email-inaccessible": "Please log in to see email notifications",
     "txt-email-available": "Right-click and enable notifications to get email alerts",
     "txt-email-refresh": "Refresh notifications"
-  }
+  },
+  title: 'New Tab',
 };

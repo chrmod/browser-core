@@ -71,5 +71,6 @@ export default {
     "txt-email-inaccessible": "Logg dich ein um über neue E-Mails benachrichtigt zu werden",
     "txt-email-available": "E-Mail Benachrichtigungen kannst du im Kontextmenü (Klick mit rechter Maustaste) aktivieren",
     "txt-email-refresh": "Benachrichtigungen aktualisieren"
-  }
+  },
+  title: 'Neuer Tab',
 };

@@ -149,12 +149,13 @@ export default background({
     newTab() {
       const window = utils.getWindow();
       const activeTabs = queryActiveTabs(window);
-      const freshTab = activeTabs.find( tab => tab.url === "about:cliqz" );
+      const newTabUrl = utils.CLIQZ_NEW_TAB;
+      const freshTab = activeTabs.find( tab => tab.url === newTabUrl);
 
       if ( freshTab ) {
         window.gBrowser.selectTabAtIndex(freshTab.index);
       } else {
-        const tab = utils.openLink(window, "about:cliqz", true);
+        const tab = utils.openLink(window, newTabUrl, true);
         window.gBrowser.selectedTab = tab;
       }
     },

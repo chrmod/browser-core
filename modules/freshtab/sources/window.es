@@ -1,5 +1,9 @@
 import FreshTab from 'freshtab/main';
 import prefs from '../core/prefs';
+import utils from '../core/utils';
+
+const { CLIQZ_NEW_TAB, CLIQZ_NEW_TAB_RESOURCE_URL } = utils;
+
 /**
 * @namespace freshtab
 */
@@ -20,9 +24,18 @@ export default class {
   *@return null
   */
   init() {
-    const cliqzNewTab = FreshTab.cliqzNewTab;
-    if (this.window.gInitialPages && this.window.gInitialPages.indexOf(cliqzNewTab)===-1) {
-      this.window.gInitialPages.push(cliqzNewTab);
+    const initialPages = this.window.gInitialPages;
+
+    if (!initialPages) {
+      return;
+    }
+
+    if (initialPages.indexOf(CLIQZ_NEW_TAB) === -1) {
+      initialPages.push(CLIQZ_NEW_TAB);
+    }
+
+    if (initialPages.indexOf(CLIQZ_NEW_TAB_RESOURCE_URL) === -1) {
+      initialPages.push(CLIQZ_NEW_TAB_RESOURCE_URL);
     }
   }
 

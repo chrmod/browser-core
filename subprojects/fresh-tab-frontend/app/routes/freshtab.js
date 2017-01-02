@@ -5,6 +5,9 @@ export default Ember.Route.extend({
   i18n: Ember.inject.service(),
   messageCenter: Ember.inject.service('message-center'),
 
+  activate() {
+    document.title = this.get('i18n').t('title');
+  },
 
   beforeModel() {
     const messageCenter = this.get('messageCenter');

@@ -7,7 +7,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
 
 var CLIQZ_NEW_TAB = CliqzUtils.CLIQZ_NEW_TAB,
-    CLIQZ_NEW_TAB_URL = CliqzUtils.CLIQZ_NEW_TAB_URL,
+    CLIQZ_NEW_TAB_RESOURCE_URL = CliqzUtils.CLIQZ_NEW_TAB_RESOURCE_URL,
     DEF_HOMEPAGE = "browser.startup.homepage",
     DEF_NEWTAB = "browser.newtab.url",
     DEF_STARTUP = "browser.startup.page",
@@ -45,65 +45,82 @@ try{
   }
 } catch(e){}
 
+// https://developer.mozilla.org/en-US/docs/Custom_about:_URLs
+class Factory {
+  constructor(component) {
+    this.component = component;
+  }
 
-Cm.QueryInterface(Ci.nsIComponentRegistrar);
+  createInstance(outer, iid) {
+    if (outer) {
+      throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
+    return new this.component();
+  }
 
-function AboutURL() {}
-AboutURL.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
-  classDescription: CLIQZ_NEW_TAB,
-  classID: Components.ID("{D5889F72-0F01-4aee-9B88-FEACC5038C34}"),
-  contractID: "@mozilla.org/network/protocol/about;1?what=cliqz",
+  register() {
+    Cm.registerFactory(
+      this.component.prototype.classID,
+      this.component.prototype.classDescription,
+      this.component.prototype.contractID,
+      this);
+  }
 
-  newChannel: function(uri) {
-    const src = `${CLIQZ_NEW_TAB_URL}?cliqzOnboarding=${FreshTab.cliqzOnboarding}&e10s=${Services.appinfo.browserTabsRemoteAutostart}`;
-    const html = `<!DOCTYPE html>
-  <html>
-    <head>
-      <meta charset="UTF-8">
-      <style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>
-      <title>${CliqzUtils.getLocalizedString('new_tab')}</title>
-    </head>
-    <body>
-      <iframe
-        type="content"
-        src="${src}">
-      </iframe>
-      <script type="text/javascript">
-        // https://github.com/cliqz-oss/browser-core/issues/4
-        var iframe = document.querySelector('iframe');
-        window.onload = function(){
-          iframe.contentWindow.addEventListener('message', function(msg) {
-            var data = JSON.parse(msg.data);
-            if(data.message === 'replaceURL'){
-              // on e10s we must open a new tab from freshtab otherwise
-              // the freshtab fails to load when navigating back
-              window.open(data.url);
-              window.close();
-            }
-          });
-        };
+  unregister() {
+    Cm.unregisterFactory(this.component.prototype.classID, this);
+  }
+}
+
+class AboutCliqz {
+  get classDescription() {
+    return 'CLIQZ New Tab Page';
+  }
+
+  get contractID() {
+    return '@mozilla.org/network/protocol/about;1?what=cliqz';
+  }
+
+  get classID() {
+    return Components.ID('{D5889F72-0F01-4aee-9B88-FEACC5038C34}');
+  }
+
+  get QueryInterface() {
+    return XPCOMUtils.generateQI([Ci.nsIAboutModule]);
+  }
+
+  newChannel(aURI, aLoadInfo, aResult) {
+    /* all this is plain bad, please fix me */
+    /* the point is to have 'about:cliqz' that redirects to resource:// url */
+    const fakePage = `data:text/html,
+      <script>
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+          .getService(Components.interfaces.nsIWindowMediator);
+        var w = wm.getMostRecentWindow('navigator:browser');
+        var url = '${CLIQZ_NEW_TAB_RESOURCE_URL}';
+        w.gBrowser.addTab(url);
+        window.close();
       </script>
-    </body>
-</html>`;
+    `;
+;
+    let channel;
 
-    let channel = InputStreamChannel.createInstance(Ci.nsIInputStreamChannel).
-        QueryInterface(Ci.nsIChannel);
-    channel.setURI(uri);
-    channel.originalURI = uri;
-    channel.contentStream = new StringInputStream(html, html.length);
-    channel.owner = securityManager.getSystemPrincipal();
+    if (Services.vc.compare(Services.appinfo.version, '47.*') > 0) {
+      const uri = Services.io.newURI(fakePage, null, null);
+      channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);
+    } else {
+      channel = Services.io.newChannel(fakePage, null, null);
+    }
+
+    channel.owner = Services.scriptSecurityManager.getSystemPrincipal();
+    //channel.cancel(Cr.NS_BINDING_ABORTED);
 
     return channel;
-  },
+  }
 
-  getURIFlags: function(uri) {
+  getURIFlags() {
     return Ci.nsIAboutModule.ALLOW_SCRIPT;
   }
-};
-
-const AboutURLFactory =
-    XPCOMUtils.generateNSGetFactory([AboutURL])(AboutURL.prototype.classID);
+}
 
 var FreshTab = {
     signalType: "home",
@@ -111,7 +128,6 @@ var FreshTab = {
     cliqzOnboarding: 0,
     isBrowser: false,
     freshTabState: FRESH_TAB_STATE,
-    cliqzNewTab: CLIQZ_NEW_TAB,
 
     startup: function(hasButton, cliqzOnboarding, channel, showNewBrandAlert, initialState){
         var disable = false;
@@ -148,12 +164,8 @@ var FreshTab = {
           CliqzUtils.setPref(FRESH_TAB_STATE,  initialState);
         }
 
-        Cm.registerFactory(
-            AboutURL.prototype.classID,
-            AboutURL.prototype.classDescription,
-            AboutURL.prototype.contractID,
-            AboutURLFactory
-        );
+        this.aboutCliqzComponent = new Factory(AboutCliqz);
+        this.aboutCliqzComponent.register();
 
         // reset preferences in case of inconsistency
         if(CliqzUtils.hasPref(OLD_FRESH_TAB) || //  old FreshTab settings
@@ -177,7 +189,7 @@ var FreshTab = {
     shutdown: function(){
         if(!FreshTab.initialized) return;
 
-        Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
+        this.aboutCliqzComponent.unregister();
 
         deactivate();
     },
@@ -214,14 +226,14 @@ function activate(){
       }
 
       if(versionChecker.compare(appInfo.version, "44.0") < 0){
-        NewTabURL.override(CLIQZ_NEW_TAB);
+        NewTabURL.override(CLIQZ_NEW_TAB_RESOURCE_URL);
       } else {
         const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1'].getService(Ci.nsIAboutNewTabService);
-        aboutNewTabService.newTabURL = CLIQZ_NEW_TAB;
+        aboutNewTabService.newTabURL = CLIQZ_NEW_TAB_RESOURCE_URL;
       }
   } else { //FF 40 or older
       if(firstStart) CliqzUtils.setPref(BAK_NEWTAB, CliqzUtils.getPref(DEF_NEWTAB, null, ''));
-      CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB, '');
+      CliqzUtils.setPref(DEF_NEWTAB, CLIQZ_NEW_TAB_RESOURCE_URL, '');
   }
 
   if(firstStart){

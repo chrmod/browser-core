@@ -70,5 +70,6 @@ export default {
     "btn-never-share": "Ne jamais partager sa position",
     "txt-email-inaccessible": "Please log in to see email notifications",
     "txt-email-refresh": "Actualiser les notifications"
-  }
+  },
+  title: 'Nouvel onglet',
 };

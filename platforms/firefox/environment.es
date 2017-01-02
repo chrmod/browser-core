@@ -77,7 +77,7 @@ var CLIQZEnvironment = {
     CLIQZ_ONBOARDING: "about:onboarding",
     CLIQZ_ONBOARDING_URL: "chrome://cliqz/content/onboarding-v2/index.html",
     CLIQZ_NEW_TAB: "about:cliqz",
-    CLIQZ_NEW_TAB_URL: "resource://cliqz/fresh-tab-frontend/index.html",
+    CLIQZ_NEW_TAB_RESOURCE_URL: 'resource://cliqz/fresh-tab-frontend/index.html?cliqzOnboarding=1',
     BROWSER_ONBOARDING_PREF: "browserOnboarding",
     BROWSER_ONBOARDING_STEP_PREF: "browserOnboarding-step",
 

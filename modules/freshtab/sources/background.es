@@ -412,7 +412,7 @@ export default background({
         const tabs = [...window.gBrowser.tabs];
         tabs.forEach(tab => {
           const browser = tab.linkedBrowser;
-          if (browser.currentURI.spec === 'about:cliqz') {
+          if (browser.currentURI.spec === utils.CLIQZ_NEW_TAB_RESOURCE_URL) {
             browser.reload();
           }
         });
@@ -429,7 +429,7 @@ export default background({
       if( !(message.id in this.messages )) {
         this.messages[message.id] = message;
         utils.callAction('core', 'broadcastMessage', [
-          utils.CLIQZ_NEW_TAB_URL + '?cliqzOnboarding=1',
+          utils.CLIQZ_NEW_TAB_RESOURCE_URL,
           {
             action: 'addMessage',
             message: message,
@@ -441,7 +441,7 @@ export default background({
 
       delete this.messages[message.id];
       utils.callAction('core', 'broadcastMessage', [
-        utils.CLIQZ_NEW_TAB_URL + '?cliqzOnboarding=1',
+        utils.CLIQZ_NEW_TAB_RESOURCE_URL,
         {
           action: 'closeNotification',
           messageId: message.id,
@@ -452,6 +452,6 @@ export default background({
       this.actions.getNews().then(() => {
         this.actions.refreshFrontend();
       });
-    },
+    }
   },
 });
