@@ -216,8 +216,14 @@ export default background({
     recordMeta(url, meta) {
       events.pub("core:url-meta", url, meta);
     },
-    getFeedbackPage() {
-      return utils.FEEDBACK_URL;
+    openFeedbackPage() {
+      const window = utils.getWindow();
+      const tab = utils.openLink(
+        window,
+        utils.FEEDBACK_URL,
+        true
+      );
+      window.gBrowser.selectedTab = tab;
     },
     enableModule(moduleName) {
       return utils.Extension.app.enableModule(moduleName);
