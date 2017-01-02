@@ -445,7 +445,7 @@ export default Ember.Service.extend({
     return DS.PromiseObject.create({ promise });
   },
 
-  getFeedbackPage() {
+  openFeedbackPage() {
     let promise = new Promise( resolve => {
       this.callbacks.getFeedbackPage = resolve;
     });
@@ -453,7 +453,7 @@ export default Ember.Service.extend({
     window.postMessage(JSON.stringify({
       target: "cliqz",
       module: "core",
-      action: "getFeedbackPage"
+      action: "openFeedbackPage"
     }), "*");
 
     return DS.PromiseObject.create({ promise });
