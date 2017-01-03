@@ -16,6 +16,7 @@
 import { utils } from 'core/cliqz';
 import LoggingHandler from 'offers-v2/logging_handler';
 import  OffersConfigs  from 'offers-v2/offers_configs';
+import config from 'core/config';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +121,7 @@ class SignalBucket {
   sendSignalsToBE() {
     // this will send all telemetry and remove all the data
     linfo('sendSignalsToBE: SENDING SIGNAL TO BE!!!: sending signal with id: ' + this.id);
+    const isDebug = utils.getPref('offersDevFlag', false);
     for (var k in this.elems) {
       if (!this.elems.hasOwnProperty(k)) {
         continue;
@@ -128,6 +130,9 @@ class SignalBucket {
       var signal = {
         type: 'offers',
         v : OffersConfigs.CURRENT_VERSION,
+        ex_v: config.EXTENSION_VERSION,
+        bucket_freq_secs: this.expireTimeSecs,
+        is_debug: isDebug,
         data: {}
       };
       signal.data[k] = this.elems[k];
