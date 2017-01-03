@@ -28,17 +28,32 @@ var firefoxLibs = new MergeTrees([
   new Funnel(nodeModules, { srcDir: 'es6-micro-loader/dist', include: ['system-polyfill.js'] }),
 ]);
 
+var src = new Funnel(modules.modules, {
+  destDir: 'chrome/content',
+  exclude: ['tests/*/content/**/*']
+});
+
+var contentTestsTree = new Funnel(modules.modules, {
+  include: ['tests/*/content/**/*']
+});
+var contentTests = concat(contentTestsTree, {
+  header: ";System = { register: function () {arguments[2]().execute(); }};",
+  inputFiles: "**/*.js",
+  outputFile: 'tests/tests.js'
+})
+
 var firefoxTree = new MergeTrees([
   firefoxSpecific,
   new Funnel(config,      { destDir: 'chrome/content'}),
   new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
   new Funnel(modules.bower,   { destDir: 'chrome/content/bower_components' }),
-  new Funnel(modules.modules,     { destDir: 'chrome/content' }),
+  src,
   new Funnel(modules.static,     { destDir: 'chrome/content' }),
 ], { overwrite: true } );
 
 var firefox = new MergeTrees([
   new Funnel(firefoxTree, { destDir: cliqzConfig.settings.id }),
+  contentTests,
   firefoxPackage,
 ]);
 

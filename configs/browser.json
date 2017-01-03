@@ -1,7 +1,8 @@
 {
   "platform": "firefox",
   "testsBasePath": "./build/cliqz@cliqz.com/chrome/content",
-  "testem_launchers": ["Mocha"],
+  "testem_launchers": ["Mocha", "Chrome"],
+  "testem_launchers_ci": ["Mocha"],
   "settings": {
     "id": "cliqz@cliqz.com",
     "name": "Cliqz",

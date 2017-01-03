@@ -1,8 +1,8 @@
-import helpers from 'control-center/content/helpers';
-import { messageHandler, sendMessageToWindow } from 'control-center/content/data';
 import $ from 'jquery';
 import Handlebars from 'handlebars';
-import templates from 'control-center/templates';
+import { messageHandler, sendMessageToWindow } from './data';
+import helpers from './helpers';
+import templates from '../templates';
 
 Handlebars.partials = templates;
 var slideUp = $.fn.slideUp;
