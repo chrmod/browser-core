@@ -471,64 +471,64 @@
       "message":"Automatic"
     },
     "country_code_AT": {
-      "message":"Österreich - Austria"
+      "message":"Austria"
     },
     "country_code_BR": {
-      "message":"Brazil - Brasil"
+      "message":"Brasil"
     },
     "country_code_CA": {
-      "message":"Canada - Canada"
+      "message":"Canada"
     },
     "country_code_HR": {
-      "message":"Hrvatska - Croatia"
+      "message":"Croatia"
     },
     "country_code_EE": {
-      "message":"Eesti - Estonia"
+      "message":"Estonia"
     },
     "country_code_FR": {
-      "message":"France - France"
+      "message":"France"
     },
     "country_code_DE": {
-      "message":"Deutschland - Germany"
+      "message":"Germany"
     },
     "country_code_GR": {
-      "message":"Ελλάδα - Greece"
+      "message":"Greece"
     },
     "country_code_HU": {
-      "message":"Magyarország - Hungary"
+      "message":"Hungary"
     },
     "country_code_ID": {
       "message":"Indonesia"
     },
     "country_code_IT": {
-      "message":"Italia - Italy"
+      "message":"Italy"
     },
     "country_code_PS": {
       "message":"Palestine"
     },
     "country_code_RO": {
-      "message":"România - Romania"
+      "message":"Romania"
     },
     "country_code_RU": {
-      "message":"Россия - Russia"
+      "message":"Russia"
     },
     "country_code_RS": {
-      "message":"Србија - Serbia"
+      "message":"Serbia"
     },
     "country_code_SG": {
-      "message":"Singapore - Singapore"
+      "message":"Singapore"
     },
     "country_code_ES": {
-      "message":"España - Spain"
+      "message":"Spain"
     },
     "country_code_CH": {
-      "message":"Schweiz - Switzerland"
+      "message":"Switzerland"
     },
     "country_code_TH": {
-      "message":"ประเทศไทย - Thailand"
+      "message":"Thailand"
     },
     "country_code_TR": {
-      "message":"Türkiye - Turkey"
+      "message":"Turkey"
     },
     "country_code_GB": {
       "message":"United Kingdom"
@@ -537,7 +537,7 @@
       "message":"United States"
     },
     "country_code_VN": {
-      "message":"Việt Nam - Vietnam"
+      "message":"Vietnam"
     },
     "statsShareMsg": {
         "message": "@cliqz saved me $1 minutes over the last 7 days"
