@@ -16,7 +16,6 @@ export default class {
     this.onInstall = prefs.get('new_session');
     this.buttonEnabled = config.settings.freshTabButton;
     this.window = config.window;
-    this.cliqzOnboarding = config.settings.cliqzOnboarding;
     this.showNewBrandAlert = config.settings.showNewBrandAlert;
   }
   /**

@@ -73,15 +73,6 @@ export default Ember.Route.extend({
     },
 
     openModal(modalName) {
-      if (modalName === "onboarding") {
-        this.get('cliqz').sendTelemetry({
-          type: "onboarding",
-          product: "cliqz",
-          action: "show",
-          version: "2.0"
-        });
-      }
-
       return this.render(modalName, {
         into: "freshtab",
         outlet: "modal"
@@ -89,14 +80,6 @@ export default Ember.Route.extend({
     },
 
     closeModal() {
-      this.get('cliqz').sendTelemetry({
-        type: "onboarding",
-        product: "cliqz",
-        action: "click",
-        action_target: "confirm",
-        version: "2.0"
-      });
-
       return this.disconnectOutlet({
         outlet: "modal",
         parentView: "freshtab"

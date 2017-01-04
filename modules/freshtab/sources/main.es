@@ -125,15 +125,12 @@ class AboutCliqz {
 var FreshTab = {
     signalType: "home",
     initialized: false,
-    cliqzOnboarding: 0,
     isBrowser: false,
     freshTabState: FRESH_TAB_STATE,
 
-    startup: function(hasButton, cliqzOnboarding, channel, showNewBrandAlert, initialState){
+    startup: function(hasButton, channel, showNewBrandAlert, initialState){
         var disable = false;
 
-        // checking if this is the first install happens in background._showOnboarding()
-        FreshTab.cliqzOnboarding = cliqzOnboarding ? 1 : 0;
         FreshTab.showNewBrandAlert = showNewBrandAlert;
         HAS_BUTTON = hasButton;
 
