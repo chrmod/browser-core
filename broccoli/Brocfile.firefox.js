@@ -44,11 +44,12 @@ var contentTests = concat(contentTestsTree, {
 
 var firefoxTree = new MergeTrees([
   firefoxSpecific,
-  new Funnel(config,      { destDir: 'chrome/content'}),
-  new Funnel(firefoxLibs, { destDir: 'modules/extern' }),
-  new Funnel(modules.bower,   { destDir: 'chrome/content/bower_components' }),
+  new Funnel(config,              { destDir: 'chrome/content'}),
+  new Funnel(firefoxLibs,         { destDir: 'modules/extern' }),
+  new Funnel(modules.bower,       { destDir: 'chrome/content/bower_components' }),
   src,
-  new Funnel(modules.static,     { destDir: 'chrome/content' }),
+  new Funnel(modules.static,      { destDir: 'chrome/content' }),
+  new Funnel(modules.styleTests,  { destDir: 'chrome/content' }),
 ], { overwrite: true } );
 
 var firefox = new MergeTrees([
