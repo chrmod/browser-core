@@ -236,7 +236,7 @@ html {
 
         .antiphishing {
             float: left;
-            width: 226px;
+            width: 227px;
             height: 74.5px;
             border-bottom: 0.5px solid #e4e4e4;
             border-right: 0.5px solid #e4e4e4;
@@ -244,7 +244,7 @@ html {
 
         .antitracker {
             float: left;
-            width: 226px;
+            width: 227px;
             height: 174.5px;
             border-right: 0.5px solid #e4e4e4;
             border-bottom: 0.5px solid #e4e4e4;
@@ -261,14 +261,14 @@ html {
         .adblock,
         .privacy-cc {
             float: right;
-            width: 226.5px;
+            width: 227px;
             height: 174.5px;
             border-bottom: 0.5px solid #e4e4e4;
         }
 
         #https,
         #cliqz-tab {
-            width: 226.5px;
+            width: 227px;
             height: 74.5px;
             float: right;
             border-bottom: 0.5px solid #e4e4e4;
@@ -355,7 +355,7 @@ html {
                 display: none;
                 #companies-title {
                     background-color: #9f9f9f;
-                    height: 50px;
+                    height: 51px;
                     p {
                         color: #fff;
                         float: left;
@@ -372,7 +372,7 @@ html {
                 #companies {
                     width: 100%;
                     height: 250px;
-                    background-color: #F4F4F4;
+                    background: linear-gradient(to bottom, rgba(207,207,207,1) 0%,rgba(233,233,233,1) 1.6%,rgba(233,233,233,1) 98.8%,rgba(221,221,221,1) 100%);
                     overflow: auto;
                 }
                 #bottom-part {
