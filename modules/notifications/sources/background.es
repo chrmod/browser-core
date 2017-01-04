@@ -51,7 +51,7 @@ export default background({
 
   broadcastMessage(action, message) {
     utils.callAction('core', 'broadcastMessage', [
-      utils.CLIQZ_NEW_TAB,
+      utils.CLIQZ_NEW_TAB_RESOURCE_URL,
       {
         action: action,
         message
