@@ -14,7 +14,6 @@
     "freshTabInitialState": true,
     "unblockUI": true,
     "showDataCollectionMessage": true,
-    "cliqzOnboarding": false,
     "antitrackingButton": true,
     "showNewBrandAlert": true,
     "controlCenterSecurity": true

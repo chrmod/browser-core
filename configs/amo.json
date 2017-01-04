@@ -11,7 +11,6 @@
     "freshTabNews": true,
     "freshTabInitialState": false,
     "showDataCollectionMessage": true,
-    "cliqzOnboarding": false,
     "antitrackingButton": true,
     "showNewBrandAlert": false,
     "onBoardingVersion": "1.1",

@@ -34,7 +34,6 @@ export default background({
   init(settings) {
     FreshTab.startup(
       settings.freshTabButton,
-      settings.cliqzOnboarding,
       settings.channel,
       settings.showNewBrandAlert,
       settings.freshTabInitialState);
