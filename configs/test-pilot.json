@@ -31,8 +31,7 @@
     "hpn",
     "geolocation",
     "notifications",
-    "freshtab",
-    "offers"
+    "freshtab"
   ],
   "subprojects": [
     "fresh-tab-frontend"
