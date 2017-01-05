@@ -1,4 +1,4 @@
-import { log } from 'adblocker/utils';
+import log from 'adblocker/utils';
 
 
 // Uniq ID generator

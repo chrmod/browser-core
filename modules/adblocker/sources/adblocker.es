@@ -9,7 +9,7 @@ import { LazyPersistentObject } from 'antitracking/persistent-state';
 import LRUCache from 'antitracking/fixed-size-cache';
 import HttpRequestContext from 'antitracking/webrequest-context';
 
-import { log } from 'adblocker/utils';
+import log from 'adblocker/utils';
 import FilterEngine, { serializeFiltersEngine
                      , deserializeFiltersEngine } from 'adblocker/filters-engine';
 import FiltersLoader from 'adblocker/filters-loader';
@@ -71,7 +71,8 @@ function extractGeneralDomain(uri) {
  * and the matching using a FilterEngine.
  */
 class AdBlocker {
-  constructor() {
+  constructor(onDiskCache) {
+    this.onDiskCache = onDiskCache;
     this.logs = [];
     this.engine = new FilterEngine();
 
@@ -121,7 +122,7 @@ class AdBlocker {
       this.initCache();
 
       // Serialize new version of the engine on disk if needed
-      if (CliqzADB.onDiskCache) {
+      if (this.onDiskCache) {
         if (this.engine.updated) {
           const t0 = Date.now();
           new Resource(SERIALIZED_ENGINE_PATH)
@@ -170,7 +171,7 @@ class AdBlocker {
   }
 
   loadEngineFromDisk() {
-    if (CliqzADB.onDiskCache) {
+    if (this.onDiskCache) {
       return new Resource(SERIALIZED_ENGINE_PATH)
         .load()
         .then((serializedEngine) => {
@@ -507,7 +508,7 @@ const CliqzADB = {
       const tabbrowser = browserWin.gBrowser;
 
       const numTabs = tabbrowser.browsers.length;
-      for (let index = 0; index < numTabs; index++) {
+      for (let index = 0; index < numTabs; index += 1) {
         const currentBrowser = tabbrowser.getBrowserAtIndex(index);
         if (currentBrowser) {
           const tabURL = currentBrowser.currentURI.spec;
