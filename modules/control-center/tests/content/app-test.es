@@ -115,38 +115,181 @@ describe("Control Center App", function () {
     });
 
     context("with security on", function () {
-      beforeEach(() => {
-        return subject.pushData({
-          securityON: true,
-          onboarding: false,
-          generalState: "active",
-          module: {
-            antitracking: {
-              visible: true,
-              totalCount: 11,
-              enabled: true,
-              isWhitelisted: false,
-              state: "active"
+      context("with antitracking on", function() {
+        beforeEach(() => {
+          return subject.pushData({
+            securityON: true,
+            onboarding: false,
+            generalState: "active",
+            module: {
+              antitracking: {
+                visible: true,
+                totalCount: 11,
+                enabled: true,
+                isWhitelisted: false,
+                state: "active"
+              }
             }
-          }
+          })
         })
-      })
 
-      it("renders antitracking box", function () {
-        chai.expect(subject.query('#anti-tracking')).to.not.be.null;
-      });
+        it("renders antitracking box", function () {
+          chai.expect(subject.query('#anti-tracking')).to.not.be.null;
+        });
 
-      describe("click on antitracking on/off", function () {
-        it("sends message to deactive antitracking", function () {
-          subject.query('.antitracking .cqz-switch-box').click();
+        describe("click on antitracking on", function () {
+          it("sends message to update general state", function () {
+            subject.query('.antitracking .cqz-switch-box').click();
 
-          return waitFor(
-            () => subject.messages.find(message => message.message.action === "updateState")
-          ).then(
-            message => chai.expect(message).to.have.deep.property("message.data", "inactive")
-          );
+            return waitFor(
+              () => subject.messages.find(message => message.message.action === "updateState")
+            ).then(
+              message => chai.expect(message).to.have.deep.property("message.data", "inactive")
+            );
+          });
+
+          it("sends message to deactivate antitracking", function () {
+            subject.query('.antitracking .cqz-switch-box').click();
+
+            return waitFor(
+              () => subject.messages.find(message => message.message.action === "antitracking-activator")
+            ).then(
+              message => {
+                chai.expect(message).to.have.deep.property("message.data.state", "inactive");
+                chai.expect(message).to.have.deep.property("message.data.status", "inactive");
+              }
+            );
+          });
         });
       });
+
+      context("with antitracking off", function() {
+        beforeEach(() => {
+          return subject.pushData({
+            securityON: true,
+            onboarding: false,
+            generalState: "active",
+            module: {
+              antitracking: {
+                visible: true,
+                totalCount: 11,
+                enabled: true,
+                isWhitelisted: false,
+                state: "inactive"
+              }
+            }
+          })
+        })
+
+        it("renders antitracking box", function () {
+          chai.expect(subject.query('#anti-tracking')).to.not.be.null;
+        });
+
+        describe("click on antitracking off", function () {
+          it("sends message to update general state", function () {
+            subject.query('.antitracking .cqz-switch-box').click();
+
+            return waitFor(
+              () => subject.messages.find(message => message.message.action === "updateState")
+            ).then(
+              message => chai.expect(message).to.have.deep.property("message.data", "active")
+            );
+          });
+
+          it("sends message to activate antitracking", function () {
+            subject.query('.antitracking .cqz-switch-box').click();
+
+            return waitFor(
+              () => subject.messages.find(message => message.message.action === "antitracking-activator")
+            ).then(
+              message => {
+                chai.expect(message).to.have.deep.property("message.data.state", "active");
+                chai.expect(message).to.have.deep.property("message.data.status", "active");
+              }
+            );
+          });
+        });
+      });
+
+    });
+  });
+
+  context("adblocking", function() {
+    context("security off", function () {
+      beforeEach(() => {
+        return subject.pushData();
+      });
+
+      it("does not render adblocking box", function () {
+        chai.expect(subject.query('#ad-blocking')).to.be.null;
+      });
+    });
+
+    context("with security on and antitracking off", function () {
+      context("with adblocking", function() {
+        beforeEach(() => {
+          return subject.pushData({
+            securityON: true,
+            onboarding: false,
+            generalState: "active",
+            module: {
+              antitracking: {
+                state: 'active'
+              },
+              adblocker: {
+                "visible": true,
+                "enabled": true,
+                "optimized": false,
+                "disabledForUrl": false,
+                "disabledForDomain": false,
+                "disabledEverywhere": false,
+                "totalCount": 2,
+                "advertisersList": {
+                    "companiesArray": [{
+                        "name": "First Party",
+                        "count": 1
+                    }, {
+                        "name": "Other",
+                        "count": 1
+                    }]
+                },
+                "state": "active",
+                "off_state": "off_website"
+              }
+            }
+          })
+        });
+
+        it("renders adblocking box", function () {
+          chai.expect(subject.query('#ad-blocking')).to.not.be.null;
+        });
+
+        describe("click on adblocking on", function () {
+          it("sends message to update general state", function () {
+            subject.query('.adblocker .cqz-switch-box').click();
+
+            return waitFor(
+              () => subject.messages.find(message => message.message.action === "updateState")
+            ).then(
+              message => chai.expect(message).to.have.deep.property("message.data", "active")
+            );
+          });
+
+          it("sends message to deactivate adblocking", function () {
+            subject.query('.adblocker .cqz-switch-box').click();
+
+            return waitFor(
+              () => subject.messages.find(message => message.message.action === "adb-activator")
+            ).then(
+              message => {
+                chai.expect(message).to.have.deep.property("message.data.state", "off");
+                chai.expect(message).to.have.deep.property("message.data.status", "off");
+              }
+            );
+          });
+        });
+      });
+
     });
 
   });
