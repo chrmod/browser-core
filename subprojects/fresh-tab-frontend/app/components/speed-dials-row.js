@@ -21,7 +21,7 @@ export default Ember.Component.extend({
   isCustom: Ember.computed.equal("type", "custom"),
 
   speedDials: Ember.computed('model.[]', 'limit', function () {
-    return this.get("model").slice(0, this.get("limit"));
+    return this.getWithDefault("model", []).slice(0, this.get("limit"));
   }),
 
   manyRemoved: Ember.computed.gt('removedSpeedDials.length', 1),
