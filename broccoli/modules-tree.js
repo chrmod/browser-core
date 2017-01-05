@@ -38,7 +38,7 @@ const eslintOptions = {
 
 function getPlatformFunnel() {
   return new Funnel(new WatchedDir('platforms/'), {
-    exclude: ['tests/**/*'],
+    exclude: ['**/tests/**/*'],
   });
 }
 
