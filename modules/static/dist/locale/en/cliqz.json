@@ -1406,6 +1406,9 @@
     "control-center-check-strict": {
       "message": "Strict"
     },
+    "control-center-check-hideMyIP": {
+      "message": "Hide My IP"
+    },
     "control-center-this-site": {
       "message": "This page"
     },
@@ -1414,6 +1417,9 @@
     },
     "control-center-all-sites": {
       "message": "All websites"
+    },
+    "control-center-clear-trCache": {
+      "message": "Clear Tracking Cache"
     },
     "download": {
       "message": "Download from: "

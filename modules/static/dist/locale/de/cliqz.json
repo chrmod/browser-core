@@ -1406,6 +1406,9 @@
     "control-center-check-strict": {
       "message": "Streng"
     },
+    "control-center-check-hideMyIP": {
+      "message": "IP maskieren"
+    },
     "control-center-this-site": {
       "message": "Diese Seite"
     },
@@ -1414,6 +1417,9 @@
     },
     "control-center-all-sites": {
       "message": "Alle Websites"
+    },
+    "control-center-clear-trCache": {
+      "message": "Tracking Cache leeren"
     },
     "download": {
       "message": "Herunterladen von: "

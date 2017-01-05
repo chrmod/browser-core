@@ -1406,6 +1406,9 @@
     "control-center-check-strict": {
       "message": "Strict"
     },
+    "control-center-check-hideMyIP": {
+      "message": "Masquer l'IP"
+    },
     "control-center-this-site": {
       "message": "Cette page"
     },
@@ -1414,6 +1417,9 @@
     },
     "control-center-all-sites": {
       "message": "Tous les sites"
+    },
+    "control-center-clear-trCache": {
+      "message": "Vider le cache"
     },
     "download": {
       "message": "Télécharger depuis : "
