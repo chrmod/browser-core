@@ -229,7 +229,7 @@ function attachListeners(list) {
     if(!isElementDate(listItems[i])) {
       const hammer = new Hammer(listItems[i]);
       hammer.on('panstart', onSwipeStart);
-      hammer.on('pan', onSwipe);
+      hammer.on('panmove', onSwipe);
       hammer.on('panend', onSwipeEnd);
       hammer.on('tap', onElementClick);
       hammer.get('tap').set({time: 400});
