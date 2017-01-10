@@ -25,8 +25,6 @@ const ErrorHandlerReranker = {
 
 
 var resultsBox = null,
-    freshtabDiv = window.document.getElementById('startingpoint'),
-    incognitoDiv = window.document.getElementById('incognito'),
     reconnectingDiv = window.document.getElementById('reconnecting'),
     currentResults = null,
     imgLoader = null,
@@ -90,40 +88,11 @@ var UI = {
     setTheme: function (incognito = false) {
       UI.isIncognito = incognito;
       window.document.body.style.backgroundColor = incognito ? '#4a4a4a' : '#E8E8E8';
-      if (!UI.isSearch()) {
-        if (incognito) {
-          incognitoDiv.innerHTML = utils.getLocalizedString('mobile_incognito');
-          freshtabDiv.style.display = 'none';
-          incognitoDiv.style.display = 'block';
-        } else {
-          freshtabDiv.style.display = 'block';
-          incognitoDiv.style.display = 'none';
-        }
-      }
-    },
-    setMobileBasedUrls: function  (o) {
-      if (!o) return;
-      const url = o.data && o.data.mobile_url;
-      if (o.val) {
-        o.val = url || o.val;
-      }
-      if (o.url) {
-        o.url = url || o.url;
-      }
-      if (o.url && o.m_url) {
-        o.url = o.m_url;
-      }
-      for (let i in o) {
-        if (typeof(o[i]) === 'object') {
-            UI.setMobileBasedUrls(o[i]);
-        }
-      }
     },
     results: function (r) {
 
       UI.currentPage = 0;
       viewPager.goToIndex(UI.currentPage);
-      UI.setMobileBasedUrls(r);
 
       setCardCountPerPage(window.innerWidth);
 
@@ -217,14 +186,6 @@ var UI = {
           },
         });
     },
-    hideResultsBox: function () {
-      if (UI.isIncognito) {
-        incognitoDiv.style.display = 'block';
-      } else {
-        freshtabDiv.style.display = 'block';
-      }
-      resultsBox.style.display = 'none';
-    },
     updateSearchCard: function (engine) {
       var engineDiv = document.getElementById('defaultEngine');
       if (engineDiv && CliqzAutocomplete.lastSearch) {
@@ -268,11 +229,7 @@ function setCardCountPerPage(windowWidth) {
 
 
 function redrawDropdown(newHTML) {
-    resultsBox.style.display = 'block';
-    freshtabDiv.style.display = 'none';
-    incognitoDiv.style.display = 'none';
-
-    resultsBox.innerHTML = newHTML;
+  resultsBox.innerHTML = newHTML;
 }
 
 function getVertical(result) {
@@ -293,24 +250,21 @@ function enhanceResults(results) {
 
   filteredResults.forEach((r, index) => {
     const url = r.val || '';
-    const urlDetails = url && utils.getDetailsFromUrl(url);
-    const logo = urlDetails && utils.getLogoDetails(urlDetails);
+    r.data.urlDetails = url && utils.getDetailsFromUrl(url);
+    r.data.logo = r.data.urlDetails && utils.getLogoDetails(r.data.urlDetails);
     const kind = r.data.kind[0];
     let historyStyle = '';
     if (kind === 'H' || kind === 'C') {
-      historyStyle = 'history';
+      r.data.historyStyle = 'history';
     }
 
     enhancedResults.push(enhanceSpecificResult({
       query: r.query,
       type: r.style,
       left: (UI.CARD_WIDTH * index),
-      data: r.data || {},
-      template: (r.data || {}).template,
-      historyStyle,
+      data: r.data,
+      template: r.data.template,
       url,
-      urlDetails,
-      logo,
       title: r.title,
     }));
   });

@@ -45,7 +45,7 @@ var CliqzUtils = {
   BRANDS_DATABASE: BRANDS_DATABASE,
 
   //will be updated from the mixer config endpoint every time new logos are generated
-  BRANDS_DATABASE_VERSION: 1481799943898,
+  BRANDS_DATABASE_VERSION: 1483980213630,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   VERTICAL_TEMPLATES: {
         'n': 'news'    ,
@@ -1169,7 +1169,6 @@ var CliqzUtils = {
   isOnPrivateTab: CLIQZEnvironment.isOnPrivateTab,
   getCliqzPrefs: CLIQZEnvironment.getCliqzPrefs,
   isDefaultBrowser: CLIQZEnvironment.isDefaultBrowser,
-  initHomepage: CLIQZEnvironment.initHomepage,
   setDefaultSearchEngine: CLIQZEnvironment.setDefaultSearchEngine,
   isUnknownTemplate: CLIQZEnvironment.isUnknownTemplate,
   historySearch: CLIQZEnvironment.historySearch,
