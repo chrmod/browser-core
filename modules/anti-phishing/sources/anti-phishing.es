@@ -158,7 +158,7 @@ const CliqzAntiPhishing = {
     return CliqzUtils.getPref('cliqz-anti-phishing-enabled', false);
   },
 
-  updateSuspiciousStatus(url) {
+  updateSuspiciousStatus(url, status) {
     const [md5Prefix, md5Surfix] = CliqzAntiPhishing.getSplitMd5(url);
     if (!(md5Prefix in CliqzAntiPhishing.blackWhiteList)) {
       CliqzAntiPhishing.blackWhiteList[md5Prefix] = {};
