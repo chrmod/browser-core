@@ -35,6 +35,8 @@ export default {
 
   actions: {
     isPhishingURL(url) {
+      if(!CliqzAntiPhishing.isAntiPhishingActive()) return;
+
       const [md5Prefix, md5Surfix] = CliqzAntiPhishing.getSplitMd5(url);
 
       // check if whitelisted

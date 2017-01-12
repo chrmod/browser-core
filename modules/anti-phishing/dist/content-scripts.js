@@ -1,4 +1,4 @@
-const WARNINGURL = 'chrome://cliqz/content/anti-phishing/phishing-warning.html?u=';
+var WARNINGURL = 'chrome://cliqz/content/anti-phishing/phishing-warning.html?u=';
 
 function isPhishingUrl(url, windowId, send) {
   if (!url.startsWith('http')) {
