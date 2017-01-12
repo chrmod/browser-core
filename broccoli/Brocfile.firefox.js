@@ -33,14 +33,6 @@ var src = new Funnel(modules.modules, {
   exclude: ['tests/*/content/**/*']
 });
 
-var contentTestsTree = new Funnel(modules.modules, {
-  include: ['tests/*/content/**/*']
-});
-var contentTests = concat(contentTestsTree, {
-  header: ";System = { register: function () {arguments[2]().execute(); }};",
-  inputFiles: "**/*.js",
-  outputFile: 'tests/tests.js'
-})
 
 var firefoxTree = new MergeTrees([
   firefoxSpecific,
@@ -52,11 +44,25 @@ var firefoxTree = new MergeTrees([
   new Funnel(modules.styleTests,  { destDir: 'chrome/content' }),
 ], { overwrite: true } );
 
-var firefox = new MergeTrees([
+var firefoxOutputTrees = [
   new Funnel(firefoxTree, { destDir: cliqzConfig.settings.id }),
-  contentTests,
   firefoxPackage,
-]);
+];
+
+// TODO: move to modules-tree
+if (cliqzConfig.environment !== 'production') {
+  var contentTestsTree = new Funnel(modules.modules, {
+    include: ['tests/*/content/**/*']
+  });
+  var contentTests = concat(contentTestsTree, {
+    header: ";System = { register: function () {arguments[2]().execute(); }};",
+    inputFiles: "**/*.js",
+    outputFile: 'tests/tests.js'
+  })
+  firefoxOutputTrees.push(contentTests);
+}
+
+var firefox = new MergeTrees(firefoxOutputTrees);
 
 var configTree = util.injectConfig(firefox, config, 'cliqz.json', [
   cliqzConfig.settings.id + '/modules/Extension.jsm',
