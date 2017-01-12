@@ -127,6 +127,7 @@ export default class {
     iframe.style.width = OffersConfigs.UI_IFRAME_WIDTH_DEF;
     iframe.style.overflow = "visible";
     iframe.style.position = "relative";
+    iframe.style.minHeight = "0";
     iframe.style.zIndex = "99999";
     iframe.style.background = "#fff";
     iframe.src = OffersConfigs.UI_IFRAME_SRC_DEF;
