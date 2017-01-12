@@ -57,7 +57,7 @@ export default class {
   }
 
   unload() {
-
+    this.iframe.parentElement.removeChild(this.iframe);
   }
 
    //////////////////////////////////////////////////////////////////////////////
@@ -119,6 +119,14 @@ export default class {
     const panel = doc.getElementById("browser-panel"),
           contentDeck = doc.getElementById("content-deck"),
           iframe = doc.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
+
+    // remove iframe from previous version
+    try {
+      const oldIframe = doc.getElementById('cqz-of-iframe', panel);
+      if(oldIframe){
+        oldIframe.parentElement.removeChild(oldIframe);
+      }
+    } catch(e) { /* bummer */ }
 
     // set the cliqz offers iframe
     // TODO: avoid some hardcoded values here
