@@ -27,6 +27,7 @@ const SERIALIZED_ENGINE_PATH = ['antitracking', 'adblocking', 'engine.json'];
 export const ADB_VERSION = 2;
 
 // Preferences
+export const ADB_DISK_CACHE = 'cliqz-adb-disk-cache';
 export const ADB_PREF = 'cliqz-adb';
 export const ADB_PREF_OPTIMIZED = 'cliqz-adb-optimized';
 export const ADB_ABTEST_PREF = 'cliqz-adb-abtest';
@@ -378,7 +379,7 @@ class AdBlocker {
 }
 
 const CliqzADB = {
-  onDiskCache: true,
+  onDiskCache: CliqzUtils.getPref(ADB_DISK_CACHE, true),
   adblockInitialized: false,
   adbMem: {},
   adbStats: new AdbStats(),
@@ -393,7 +394,7 @@ const CliqzADB = {
       CliqzUtils.setPref(ADB_PREF, ADB_PREF_VALUES.Disabled);
     }
 
-    CliqzADB.adBlocker = new AdBlocker();
+    CliqzADB.adBlocker = new AdBlocker(CliqzADB.onDiskCache);
 
     const initAdBlocker = () => {
       CliqzADB.adBlocker.init();
