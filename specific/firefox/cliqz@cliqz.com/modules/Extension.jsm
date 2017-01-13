@@ -359,6 +359,10 @@ var Extension = {
           CliqzUtils.setPref('unifiedcomplete', true);
           urlBarPref.setBoolPref("unifiedcomplete", false)
         }
+      
+        if (this.config.environment === 'development') {
+          CliqzUtils.setPref('user-is-developer', true);
+        }
     },
     /** Reset changed prefs on uninstall */
     resetOriginalPrefs: function() {
