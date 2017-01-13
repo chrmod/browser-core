@@ -12,7 +12,8 @@ export default describeModule("autocomplete/search",
           getDetailsFromUrl: function (url) { return { extra: "", path: "", host: "" }; },
           encodeResultType() { return ""; },
           isCompleteUrl() { return true; },
-          generalizeUrl() { }
+          generalizeUrl() { },
+          setInterval() {},
         }
       },
       "core/console": { default: { log() {} } },

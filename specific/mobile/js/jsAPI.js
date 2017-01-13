@@ -22,6 +22,8 @@ var jsAPI = {
     }
   },
   setClientPreferences: function(prefs) {
+    // clear cache with every visit to tab overiew and settings
+    Search && Search.clearResultCache();
     CLIQZ.UI && CLIQZ.UI.setTheme(prefs.incognito);
     for (var key in prefs) {
       if (prefs.hasOwnProperty(key)) {

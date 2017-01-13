@@ -7,7 +7,8 @@ import historyCluster from "autocomplete/history-cluster";
 import ResultProviders from "autocomplete/result-providers";
 import Result from "autocomplete/result";
 import Mixer from "autocomplete/mixer";
-import SpellCheck from "autocomplete/spell-check"
+import SpellCheck from "autocomplete/spell-check";
+import console from "core/console";
 
 class TimeoutError extends Error {}
 
@@ -112,7 +113,7 @@ export default class Search {
       };
       this.userRerankers = {};
 
-      utils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
+      console.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
       var invalidQ = isQinvalid(searchString.trim()),
           action = {
@@ -208,7 +209,7 @@ export default class Search {
               }
               this.cliqzSuggestions = [searchString, this.wrongSearchString];
               CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
-              utils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
+              console.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
 
               //TODO: extract spell corrector out of CliqzAutocomplete
               if(urlbar)urlbar.mInputField.value = searchString;
@@ -230,10 +231,14 @@ export default class Search {
 
       var hist_search_type = utils.getPref('hist_search_type', 0);
       if (hist_search_type != 0) {
-        CliqzUtils.log('Calling CliqzHM.cliqz_hm_search for: ' + searchString, 'CliqzHM');
+        console.log('Calling CliqzHM.cliqz_hm_search for: ' + searchString, 'CliqzHM');
         this.cliqz_hm_search(this, {'query': searchString}, hist_search_type);
       }
 
+  }
+
+  static fetchAndCacheResult(query, fun) {
+    return fun(query);
   }
 
   cliqz_hm_search(_this, res, hist_search_type) {
@@ -252,7 +257,7 @@ export default class Search {
         var win = CliqzUtils.getWindow().gBrowser.contentWindow;
         //if (CliqzAutocomplete.currentAutoLoadURL==null || win.location.href=='about:cliqz') {
           if (win.location.href!=urlAuto) {
-              CliqzUtils.log(">> AUTOLOAD LAUNCH: " + urlAuto, 'CliqzHM');
+              console.log(">> AUTOLOAD LAUNCH: " + urlAuto, 'CliqzHM');
               win.location.href = urlAuto;
               CliqzAutocomplete.currentAutoLoadURL = urlAuto;
           }
@@ -330,7 +335,7 @@ export default class Search {
       return Promise.all(
         [
           ...duringResultsPromises,
-          utils.getBackendResults(searchString),
+          Search.fetchAndCacheResult(searchString, utils.getBackendResults),
         ].map(promise => promise.catch(handleError))
       );
     });
@@ -360,13 +365,13 @@ export default class Search {
   }
 
   historyTimeoutCallback(params) {
-      utils.log('history timeout', CliqzAutocomplete.LOG_KEY);
+      console.log('history timeout', CliqzAutocomplete.LOG_KEY);
       this.historyTimeout = true;
       // History timed out but maybe we have some results already
       // So show what you have - AB 1073
       if (this.historyResults && CliqzUtils.getPref("history.timeouts", false)) {
           historyCluster.addFirefoxHistory(this.historyResults);
-          CliqzUtils.log('historyTimeoutCallback: push collected results:' + this.historyResults.results.length, CliqzAutocomplete.LOG_KEY);
+          console.log('historyTimeoutCallback: push collected results:' + this.historyResults.results.length, CliqzAutocomplete.LOG_KEY);
       } else {
           this.pushResults(this.searchString);
       }
@@ -382,7 +387,7 @@ export default class Search {
       this.historyResults = result;
       this.latency.history = now - this.startTime;
 
-      //utils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
+      //console.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
       //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
       // Choose an instant result if we have all history results (timeout)
       // and we haven't already chosen one
@@ -428,7 +433,7 @@ export default class Search {
   }
 
   pushTimeoutCallback(params) {
-    utils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
+    console.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
     this.pushResults(params);
   }
 
@@ -477,13 +482,12 @@ export default class Search {
     }
   }
 
-  loadIncompleteResults(resp, q, attemptsSoFar) {
+  loadIncompleteResults(json, q, attemptsSoFar) {
     if (attemptsSoFar > this.REFETCH_MAX_ATTEMPTS) {
       return;
     }
 
-    var json = JSON.parse(resp),
-        incompleteResults = {};
+    var incompleteResults = {};
     json.results.forEach(function(r, i) {
       if (r._incomplete) {
         var key = r.trigger_method == 'query' ? 'query': r.url;
@@ -575,17 +579,18 @@ export default class Search {
       } else {
           this.latency.backend = Date.now() - this.startTime;
           setTimeout(this.loadIncompleteResults.bind(this), 0,
-                     JSON.stringify(json),
+                     json,
                      q,
                      (attemptsSoFar || 0) + 1);
-          json.results = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
-          this.cliqzResults = json.results;
-          utils.log(json.results ? json.results.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
+          this.cliqzResults = json.results.filter(this.isReadyToRender).map(this.enhanceResult);
+          console.log(this.cliqzResults ? this.cliqzResults.length : 0,"CliqzAutocomplete.cliqzResultFetcher");
 
           this.cliqzResultsParams = {
             choice: json.choice,
           };
           this.latency.cliqz = json.duration;
+
+          this.client_cached = json.isClientCached;
       }
       this.pushResults(q);
   }
@@ -651,7 +656,8 @@ export default class Search {
           user_rerankers: obj.userRerankers,
           backend_params: obj.cliqzResultsParams,
           proxied: utils.getPref('hpn-query', false),
-          v: 1
+          client_cached: Boolean(obj.client_cached),
+          v: 1,
       };
 
       // reset count of discarded backend results
