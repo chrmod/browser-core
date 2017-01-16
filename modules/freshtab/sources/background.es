@@ -57,10 +57,12 @@ export default background({
   actions: {
     _showOnboarding() {
       if (onboardingVersion() === '2.1') {
-        if (shouldShowOnboardingV2()) {
-          utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
-          return;
-        }
+        shouldShowOnboardingV2().then((show) => {
+          if (show) {
+            utils.openLink(utils.getWindow(), utils.CLIQZ_ONBOARDING);
+            return;
+          }
+        });
       }
     },
     _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),
