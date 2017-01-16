@@ -20,7 +20,6 @@ export default describeModule("autocomplete/search",
       "autocomplete/calculator": {
         default: {}
       },
-      "core/prefs": {},
       "core/search-engines": {
         default: {}
       },
@@ -44,7 +43,8 @@ export default describeModule("autocomplete/search",
       },
       "autocomplete/history-cluster": {
         default: {}
-      }
+      },
+      "platform/window": { default: {} },
     }
   },
   function () {

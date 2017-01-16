@@ -2,7 +2,7 @@
 /* global osAPI, math */
 
 import utils from 'core/utils';
-import { document, Hammer } from 'mobile-history/webview';
+import window from "platform/window";
 import Storage from "core/storage";
 
 const storage = new Storage();
@@ -114,22 +114,22 @@ function mixHistoryWithQueries(queries, history) {
 function displayData(data, isFavorite = false) {
 
   const template = isFavorite ? 'favorites' : 'conversations';
-  document.body.innerHTML = CLIQZ.templates[template]({data: data});
+  window.document.body.innerHTML = CLIQZ.templates[template]({data: data});
 
-  const B = document.body,
-      H = document.documentElement;
+  const B = window.document.body,
+      H = window.document.documentElement;
 
   let height;
 
-  if (typeof document.height !== 'undefined') {
-      height = document.height; // For webkit browsers
+  if (typeof window.document.height !== 'undefined') {
+      height = window.document.height; // For webkit browsers
   } else {
       height = Math.max( B.scrollHeight, B.offsetHeight,H.clientHeight, H.scrollHeight, H.offsetHeight );
   }
 
-  document.body.scrollTop = height + 100;
+  window.document.body.scrollTop = height + 100;
 
-  attachListeners(document.getElementById('container'));
+  attachListeners(window.document.getElementById('container'));
 
   const type = isFavorite ? 'favorites' : 'history';
   History.sendShowTelemetry(data, type);
@@ -227,7 +227,7 @@ function attachListeners(list) {
   var listItems = list.getElementsByTagName("li");
   for (let i = 0; i < listItems.length; i++) {
     if(!isElementDate(listItems[i])) {
-      const hammer = new Hammer(listItems[i]);
+      const hammer = new window.Hammer(listItems[i]);
       hammer.on('panstart', onSwipeStart);
       hammer.on('panmove', onSwipe);
       hammer.on('panend', onSwipeEnd);

@@ -4,7 +4,7 @@ export default describeModule('mobile-history/history',
       'core/utils': { default: { } },
       'core/storage': { default: function () {} },
       'core/templates': { default: { tplCache: { } } },
-      'mobile-history/webview': {
+      'platform/window': {
         document: {
           body: { },
           documentElement: { },
