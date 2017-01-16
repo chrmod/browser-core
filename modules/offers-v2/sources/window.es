@@ -51,13 +51,13 @@ export default class {
       LoggingHandler.info(MODULE_NAME, 'we are in private mode, avoid any logic here');
       return;
     }
-
-    // new ui system
-    this.injectNotificationFrame(this.window.document);
   }
 
   unload() {
-    this.iframe.parentElement.removeChild(this.iframe);
+    if (this.iframe) {
+      this.iframe.parentElement.removeChild(this.iframe);
+      delete this.iframe;
+    }
   }
 
    //////////////////////////////////////////////////////////////////////////////
@@ -90,6 +90,11 @@ export default class {
   }
 
   setOfferID(offerID) {
+    if (!this.iframe) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.warning(MODULE_NAME, 'getCurrentOfferID: no iframe found?');
+      return null;
+    }
     this.rootDocElem = this.iframe.contentDocument || this.iframe.contentWindow.document;
     this.rootDocElem = this.rootDocElem.getElementById('cliqz-offers');
 
@@ -102,6 +107,11 @@ export default class {
   // return the current offer ID of the offer being displayed or null if not
   //
   getCurrentOfferID() {
+    if (!this.iframe) {
+      LoggingHandler.LOG_ENABLED &&
+      LoggingHandler.warning(MODULE_NAME, 'getCurrentOfferID: no iframe found?');
+      return null;
+    }
     this.rootDocElem = this.iframe.contentDocument || this.iframe.contentWindow.document;
     this.rootDocElem = this.rootDocElem.getElementById('cliqz-offers');
     if (!this.rootDocElem) {
@@ -114,7 +124,13 @@ export default class {
   //
   // @brief Inject the notification iframe wherever we should put it
   //
-  injectNotificationFrame(doc){
+  injectNotificationFrameIfNeeded(doc){
+    // check if we have it already
+    if (this.iframe) {
+      // nothing to do
+      return;
+    }
+
     // we inject the message container at browser window level
     const panel = doc.getElementById("browser-panel"),
           contentDeck = doc.getElementById("content-deck"),
@@ -230,6 +246,8 @@ export default class {
       return;
     }
 
+    this.injectNotificationFrameIfNeeded(this.window.document);
+
     // store it for later usage
     this.lastDataToShow = offerData;
 
@@ -300,6 +318,8 @@ export default class {
 
   getLastDataToShow(data) {
     if (this.lastDataToShow) {
+      // # GR-293
+      this.injectNotificationFrameIfNeeded(this.window.document);
       // #EX-3655 check if the id is properly set
       const offerIDToSet = this.lastDataToShow.template_data.offer_id;
       this.setOfferID(offerIDToSet);
