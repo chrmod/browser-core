@@ -13,10 +13,11 @@ body {
 }
 
 .cqz-offers-wrapper {
+    position: relative;
     overflow: auto;
     max-height: 200px;
     min-width: 500px;
-    padding-right: 15px;
+    padding: 0 15px 0 20px;
     border-bottom: none;
 }
 
@@ -153,11 +154,18 @@ body {
         margin-bottom: 10px;
 
         .cqz-offer-code-info {
+            opacity: 0;
             display: block;
             font-size: 10px;
-            margin-top: -10px;
+            margin-top: -7px;
+            margin-bottom: -3px;
             line-height: 1em;
             background: #fff;
+            transition: 0.3s all;
+
+            &.copied {
+                opacity: 1;
+            }
         }
 
         .cqz-offer-code {
@@ -229,8 +237,8 @@ body {
 .cqz-close {
     cursor: pointer;
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 0;
+    right: 0;
     width: 20px;
     height: 20px;
     line-height: 20px;
