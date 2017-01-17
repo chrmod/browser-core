@@ -239,8 +239,16 @@ function getVertical(result) {
   } else {
     template = 'generic';
   }
-  console.log('temp', template);
   return template;
+}
+
+function getView(template) {
+  let view = {};
+  // don't pass Cliqz to generic view because it's mostly hardcoded
+  if (template !== 'Cliqz') {
+    view = UI.VIEWS[template] || UI.VIEWS.generic;
+  }
+  return view;
 }
 
 function enhanceResults(results) {
@@ -284,7 +292,7 @@ function enhanceSpecificResult(r) {
   }
 
   const template = r.vertical = getVertical(r);
-  const specificView = UI.VIEWS[template] || UI.VIEWS.generic;
+  const specificView = getView(template);
   specificView.enhanceResults && specificView.enhanceResults(r.data, contentArea);
 
   return r;
