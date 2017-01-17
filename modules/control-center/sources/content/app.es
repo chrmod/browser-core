@@ -247,6 +247,7 @@ function compile(obj) {
           count: 0
         };
         company.count = company.domains.reduce(function (prev, curr) { return prev + curr.count }, 0)
+        company.isInactive = company.count === 0;
         return company;
       })
       .sort(function (a,b) {
@@ -255,29 +256,35 @@ function compile(obj) {
 }
 
 function compileAdblockInfo(data) {
-  var advertisers = data.module.adblocker.advertisersList;
-  var firstParty = advertisers['First party'];
-  var unknown = advertisers['_Unknown']
+  var advertisers = data.module.adblocker.advertisersList,
+      firstParty = advertisers['First party'],
+      unknown = advertisers['_Unknown'],
+      firstPartyCount = firstParty && firstParty.length,
+      unknownCount = unknown && unknown.length;
   delete advertisers['First party'];
   delete advertisers['_Unknown'];
   data.module.adblocker.advertisersList.companiesArray = Object.keys(advertisers).map(function (advertiser) {
-    var resources = advertisers[advertiser];
+    var resources = advertisers[advertiser],
+        count = resources.length;
     return {
       name: advertiser,
-      count: resources.length
+      count: count,
+      isInactive: count === 0
     }
   }).sort((a,b) => a.count < b.count);
 
   if (firstParty) {
     data.module.adblocker.advertisersList.companiesArray.unshift({
       name: 'First Party', // i18n
-      count: firstParty.length
+      count: firstPartyCount,
+      isInactive: firstPartyCount === 0
     });
   }
   if (unknown) {
     data.module.adblocker.advertisersList.companiesArray.push({
       name: 'Other', // i18n
-      count: unknown.length
+      count: unknownCount,
+      isInactive: unknownCount === 0
     });
   }
 }
