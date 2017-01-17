@@ -15,7 +15,6 @@ export default Ember.Route.extend({
   notifications: Ember.inject.service(),
 
   activate() {
-    this.get('notifications').start();
     Ember.$('body').addClass('freshTabContainer');
   },
 
@@ -39,6 +38,7 @@ export default Ember.Route.extend({
         return this.store.createRecord('speed-dial', Object.assign({ type }, dial));
       });
     }).then(dials => {
+      this.get('notifications').start();
       model.get("speedDials.history").addObjects(dials.filterBy('type', 'history'));
       model.get("speedDials.custom").addObjects(dials.filterBy('type', 'custom'));
       model.setProperties({
