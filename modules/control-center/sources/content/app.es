@@ -43,6 +43,11 @@ function isOnboarding() {
   return $('#control-center').hasClass('onboarding');
 }
 
+function close_accordion_section() {
+  $('.accordion .accordion-section-title').removeClass('active');
+  $('.accordion .accordion-section-content').slideUp(150).removeClass('open');
+}
+
 //====== GENERIC SETTING ACCORDION FUNCTIONALITY =========//
 $(document).ready(function(resolvedPromises) {
   Object.keys(helpers).forEach(function (helperName) {
@@ -393,11 +398,6 @@ function draw(data){
     }
   });
 
-  function close_accordion_section() {
-    $('.accordion .accordion-section-title').removeClass('active');
-    $('.accordion .accordion-section-content').slideUp(150).removeClass('open');
-  }
-
   $('.accordion-section-title').click(function(e) {
     if($(this).attr('data-disabled') == 'true') {
       return;
@@ -447,7 +447,7 @@ function draw(data){
         action: 'click'
       }
     });
-
+    close_accordion_section();
     $settings.addClass('open');
     $setting.addClass('active');
     $othersettings.css('display', 'none');
