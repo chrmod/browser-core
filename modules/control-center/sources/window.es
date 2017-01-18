@@ -400,7 +400,7 @@ export default class {
           isSpecialUrl = true;
           break;
         case 'resource':
-          friendlyURL = 'CliqzTab';
+          friendlyURL = 'Cliqz Tab';
           isSpecialUrl = true;
           break;
       }
