@@ -129,6 +129,11 @@ html {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #999;
+
+            .dark {
+                color: #000;
+            }
         }
     }
 
