@@ -208,6 +208,8 @@ html {
                 cursor: pointer;
                 border: 0.5px solid #A4A4A4;
                 border-radius: 5px;
+                min-width: 106px;
+                text-align: left;
 
                 &:hover {
                     border: 0.5px solid #777777;
@@ -553,8 +555,7 @@ html {
             position: absolute;
             background-color: #ffffff;
             width: 100%;
-            box-shadow: 0 0 2px 0 rgba(#000000, 0.2);
-            border: 0.5px solid #f1f1f1;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
             border-radius: 5px;
             font-size: 14px;
             font-weight:300;
@@ -566,18 +567,32 @@ html {
 
             a {
                 color: black;
-                padding: 6px 8px;
+                padding: 6px 7px;
                 text-decoration: none;
                 display: block;
                 cursor: pointer;
                 font-size: 13px;
                 &:hover {
-                    color: #000;
-                    background-color: #eee !important;
-                }
-                &.selected {
-                    background-color: #747474 !important;
+                    background-color: #747474;
                     color: #ffffff;
+                }
+
+                &:before {
+                    width: 10px;
+                    height: 10px;
+                    content: " ";
+                    display:inline-block;
+                    padding:0 4px 0 0;
+                    color: #000000;
+                }
+
+                &.selected:hover:before {
+                    color: #fff;
+                }
+
+                &.selected:before {
+                    content:'\2713';
+                    color:#000;
                 }
             }
         }
@@ -909,8 +924,8 @@ html {
             margin-right: 12px;
 
       		.arr {
-      			margin-bottom: 1px;
-      			margin-left: 2px;
+                margin: 5px 0 1px 2px;
+                float: right;
       		}
         }
 
@@ -951,8 +966,8 @@ html {
             padding: 1px 3px;
 
             .arr {
-                margin-bottom: 1px;
-                margin-left: 1px;
+                margin: 5px 0 1px 1px;
+                float: right;
             }
         }
     }
@@ -988,8 +1003,8 @@ html {
             padding: 1px 3px;
 
             .arr {
-                margin-bottom: 1px;
-                margin-left: 1px;
+                margin: 5px 0 1px 1px;
+                float: right;
             }
         }
 
