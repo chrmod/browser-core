@@ -56,6 +56,9 @@
     "Photos":{
         "message": "Bilder"
     },
+    "lang_code":{
+        "message": "de"
+    },
     "locale_lang_code":{
         "message": "de-DE"
     },
