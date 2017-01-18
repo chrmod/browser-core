@@ -546,6 +546,10 @@ function draw(data){
     localizeDocument();
   });
 
+  $('.clickableLabel').click(function() {
+    $(this).siblings('input').click();
+  });
+
   localizeDocument();
   resize();
 }
