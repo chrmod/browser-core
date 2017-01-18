@@ -1316,7 +1316,7 @@ a
       color: #000
 
 .cqz-local-result
-  padding: 0 1rem
+  margin: 0 1rem
   overflow: hidden
   .local__head
     word-break: break-all
@@ -1324,32 +1324,44 @@ a
     box-sizing: border-box
     .map__img
       overflow: hidden
-      width: 3rem
-      height: 3rem
+      width: 4rem
+      height: 4rem
       box-sizing: border-box
-      margin-right: 0.25rem
+      margin: 0 1rem
     .address__details
+      margin-left: 0.5rem
       box-sizing: border-box
       word-break: break-word
       overflow: hidden
+    .local-distance
+      text-align: center
+      text-indent: -5px
+      color: #45C2CC
   .local__details
-    padding-top: 10px
-    width: 100%
-  .cqz-local-info
-    .cqz-local-address, .phone_num, .cqz-local-info-right, .local-distance
-      padding: 0 0 16px 24px
-      position: relative
-    .local-distance .icon, .phone_num .icon, .cqz-local-info-right .icon
-      width: 16px
-      float: left
-      background-position: center
-      background-size: contain
-      text-indent: -9999px
+    width: 90%
+    margin: 0.5rem 0
+    .time-icon-cell
+      vertical-align: top
       margin-right: 16px
-      background-repeat: no-repeat
-      position: absolute
-      top: 0
-      left: 0
+      .icon
+        background-position: center
+        background-size: contain
+        text-indent: -9999px
+        background-repeat: no-repeat
+        height: 1rem
+        width: 1rem
+    .phone-num-cell
+      text-align: center
+      .icon
+        background-position: center
+        background-size: contain
+        background-repeat: no-repeat
+        width: 1.5rem
+        height: 1.5rem
+        margin: auto
+      .call-text
+        margin-top: 5px
+        color: #45C2CC
 
 #cliqz-message-container
   position: absolute

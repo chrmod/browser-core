@@ -1091,6 +1091,9 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "S'abonner MAINTENANT"
     },
+    "mobile_local_card_call": {
+      "message": "Appeler"
+    },
     "mobile_freshtab_breaking_news": {
       "message": "BREAKING NEWS :"
     },

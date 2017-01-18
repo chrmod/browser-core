@@ -25,10 +25,10 @@ export default class {
         ].join("."),
         open_stt, timeInfos = [],
         openingColors =  {
-          open: "#74d463",
-          closed: "#E92207",
-          open_soon: "#FFC802",
-          close_soon: "#FFC802"
+          open: "#45C2CC",
+          closed: "#E64C66",
+          open_soon: "#E64C66",
+          close_soon: "#45C2CC"
         };
 
     data.phone_address = data.phonenumber || data.address;

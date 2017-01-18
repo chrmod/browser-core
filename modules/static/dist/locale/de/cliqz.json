@@ -1091,6 +1091,9 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "JETZT abonnieren"
     },
+    "mobile_local_card_call": {
+      "message": "Anrufen"
+    },
     "mobile_freshtab_breaking_news": {
       "message": "EILMELDUNG:"
     },

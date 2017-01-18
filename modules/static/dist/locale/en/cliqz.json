@@ -1091,6 +1091,9 @@
     "freshtab_abTest_btn_subscribe": {
       "message": "Subscribe NOW"
     },
+    "mobile_local_card_call": {
+      "message": "Call"
+    },
     "mobile_freshtab_breaking_news": {
       "message": "BREAKING NEWS:"
     },
