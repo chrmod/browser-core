@@ -731,6 +731,13 @@ html {
 }
 
 .setting-accordion-section {
+    &.inactive {
+        .setting-accordion-section-title,
+        .company-count {
+            color: #999999;
+        }
+    }
+
     .setting-accordion-section-title {
         padding: 6px 10px 6px 0px;
         display: inline-block;
