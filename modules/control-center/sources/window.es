@@ -388,19 +388,31 @@ export default class {
   // creates the static frame data without any module details
   // re-used for fast first render and onboarding
   getFrameData(){
-    var url = this.window.gBrowser.currentURI.spec,
-        friendlyURL = url;
-
+   var url = this.window.gBrowser.currentURI.spec,
+        friendlyURL = url,
+        isSpecialUrl = false,
+        urlDetails;
     try {
-      // try to clean the url
-      friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+      urlDetails = utils.getDetailsFromUrl(url);
+      switch(urlDetails.name) {
+        case 'about':
+          friendlyURL = utils.stripTrailingSlash(utils.cleanUrlProtocol(url, true))
+          isSpecialUrl = true;
+          break;
+        case 'resource':
+          friendlyURL = 'CliqzTab';
+          isSpecialUrl = true;
+          break;
+      }
     } catch (e) {}
-
 
     return {
       activeURL: url,
       friendlyURL: friendlyURL,
-      hostname: utils.getDetailsFromUrl(url).host,
+      isSpecialUrl: isSpecialUrl,
+      domain: urlDetails.domain,
+      extraUrl: urlDetails.extra === '/' ? '' : urlDetails.extra,
+      hostname: urlDetails.host,
       module: {}, //will be filled later
       generalState: 'active',
       feedbackURL: utils.FEEDBACK_URL,
@@ -457,7 +469,9 @@ export default class {
     ccDataMocked.module = this.mockedData;
     // we also need to override some of the frame Data
     ccDataMocked.activeURL = 'examplepage.de/webpage';
-    ccDataMocked.friendlyURL = 'examplepage.de/webpage';
+    ccDataMocked.isSpecialUrl = false;
+    ccDataMocked.domain = 'examplepage.de';
+    ccDataMocked.extraUrl = '/webpage';
     ccDataMocked.onboarding = true;
 
     var numberAnimation = function () {
