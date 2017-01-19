@@ -245,7 +245,7 @@ class AdBlocker {
   }
 
   isInBlacklist(request) {
-    return (this.blacklist.has(request.sourceURL) ||
+    return (this.isUrlInBlacklist(request.sourceURL) ||
             this.blacklist.has(request.sourceGD));
   }
 
@@ -263,7 +263,8 @@ class AdBlocker {
   }
 
   isUrlInBlacklist(url) {
-    return this.blacklist.has(url);
+    const processedURL = utils.cleanUrlProtocol(url, true);
+    return this.blacklist.has(processedURL);
   }
 
   logActionHW(url, action, domain) {
