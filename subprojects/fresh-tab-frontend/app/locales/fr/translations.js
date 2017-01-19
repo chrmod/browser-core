@@ -8,6 +8,13 @@ export default {
   // },
   //
   // "key.with.interpolation": "Text with {{anInterpolation}}"
+  general: {
+    "switch-on": "ON",
+    "switch-off": "OFF",
+    "en-language": "Anglais",
+    "de-language": "Allemand",
+    "fr-language": "Français"
+  },
   onboarding: {
     "title": "Wouhou ! CLIQZ a été installé.",
     "hdr-privacy": "Tu es en sûreté avec CLIQZ.",
@@ -78,4 +85,14 @@ export default {
     "cta-learn-more": "EN APPRENDRE PLUS"
   },
   title: 'Nouvel onglet',
+  settings: {
+    "hdr-customize": "Customize Cliqz Tab",
+    "hdr-top-sites": "Top Sites",
+    "txt-show-mail-notifications": "Show email notifications",
+    "tooltip-mail-notifications": "To see notifications of new emails on Cliqz Tab, your email service provider needs to be one of your Top Sites and you need to be logged into your email account. Notifications will appear next to the Top Site tile and on the New tab button. Currently we only support Gmail (mail.google.com)",
+    "hdr-news-feed": "News feed",
+    "txt-top-news-edition": "Top News edition",
+    "tooltip-top-news": "Les Top News que nous vous proposons par défaut sont uniquement basées sur le langage de votre navigateur. Vous pouvez changer d'édition ici.",
+    "send-us-feedback": "Send us feedback"
+  }
 };
