@@ -304,7 +304,8 @@ export default class Mixer {
         results = r.first.concat(r.second);
       }
     }
-    r = this._deduplicateResults(history, cliqz);
+    // start with the richer result
+    r = this._deduplicateResults(cliqz, history);
 
     // Prepare results: history (first) then backend results (second)
     results = customResults.concat(r.first).concat(r.second);
