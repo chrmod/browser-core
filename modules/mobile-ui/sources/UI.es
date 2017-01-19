@@ -252,9 +252,9 @@ function enhanceResults(results) {
     const url = r.val || '';
     r.data.urlDetails = url && utils.getDetailsFromUrl(url);
     r.data.logo = r.data.urlDetails && utils.getLogoDetails(r.data.urlDetails);
-    const kind = r.data.kind[0];
+
     let historyStyle = '';
-    if (kind === 'H' || kind === 'C') {
+    if ((r.data.kind || []).find(kind => kind === 'C' || kind === 'H')) {
       r.data.historyStyle = 'history';
     }
 
