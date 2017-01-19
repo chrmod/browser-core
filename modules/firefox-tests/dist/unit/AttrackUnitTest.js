@@ -69,6 +69,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
 
       attrack.recentlyModified.clear();
 
+      attrack.initPipeline();
     });
 
     after(function() {
@@ -202,6 +203,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
               attrack.qs_whitelist.addSafeToken(tracker_hash, "");
               attrack.tokenDomainCountThreshold = 2;
               attrack.blockLog.clear();
+              attrack.initPipeline();
             });
 
             it('allows QS first time on tracker', function() {
@@ -225,6 +227,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
 
               beforeEach(function() {
                 attrack.tokenDomainCountThreshold = 0;
+                attrack.initPipeline();
               });
 
               it('blocks long tokens on tracker domain', function() {
