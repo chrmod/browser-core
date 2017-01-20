@@ -61,6 +61,10 @@ export default background({
   },
 
   actions: {
+    _getNewsLanguage() {
+      utils.log("!!get news language", utils.getPref('news_language', 'de'));
+      return utils.getPref('news_language', 'de');
+    },
     _showOnboarding() {
       if (onboardingVersion() === '2.1') {
         shouldShowOnboardingV2().then((show) => {
@@ -316,6 +320,11 @@ export default background({
       return this.actions.getSpeedDials();
     },
 
+    setNewsLanguage(language) {
+      utils.setPref('news_language', language);
+      this.actions.refreshFrontend();
+    },
+
     /**
     * Get list with top & personalized news
     * @method getNews
@@ -366,7 +375,8 @@ export default background({
         isBrowser: self.actions._isBrowser(),
         showFeedback: self.actions._showFeedback(),
         showNewBrandAlert: self.actions._showNewBrandAlert(),
-        messages: this.messages
+        messages: this.messages,
+        newsLanguage: self.actions._getNewsLanguage()
       };
       return Promise.resolve(config);
     },

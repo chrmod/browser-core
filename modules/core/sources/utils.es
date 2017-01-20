@@ -624,7 +624,7 @@ var CliqzUtils = {
            CliqzUtils.disableWikiDedup();
   },
 
-  getRichHeaderQueryString: function(q, loc) {
+  getRichHeaderQueryString: function(q, loc, locale) {
     let numberResults = 5;
     if (CliqzUtils.getPref('languageDedup', false)) {
       numberResults = 7;
@@ -635,7 +635,7 @@ var CliqzUtils = {
     return "&q=" + encodeURIComponent(q) + // @TODO: should start with &q=
             CliqzUtils.encodeSessionParams() +
             CliqzLanguage.stateToQueryString() +
-            CliqzUtils.encodeLocale() +
+            CliqzUtils.encodeLocale(locale) +
             CliqzUtils.encodeResultOrder() +
             CliqzUtils.encodeCountry() +
             CliqzUtils.encodeFilter() +
@@ -760,9 +760,14 @@ var CliqzUtils = {
       }, 0);
     }
   },
-  encodeLocale: function() {
+  encodeLocale: function(locale) {
+    var preferred = (CliqzUtils.PREFERRED_LANGUAGE || "");
+    if(locale) {
+      preferred = locale;
+    }
     // send browser language to the back-end
-    return '&locale='+ (CliqzUtils.PREFERRED_LANGUAGE || "");
+    //return '&locale=' + (locale ? locale : (CliqzUtils.PREFERRED_LANGUAGE || ""));
+    return '&locale='+ preferred;
   },
   encodeCountry: function() {
     //international results not supported
