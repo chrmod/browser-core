@@ -310,7 +310,6 @@ var CLIQZEnvironment = {
                         default: e.name == defEngineName,
                         icon: e.iconURI.spec,
                         base_url: e.searchForm,
-                        prefix: e.prefix,
                         getSubmissionForQuery: function(q){
                             //TODO: create the correct search URL
                             return e.getSubmission(q).uri.spec;
@@ -480,7 +479,7 @@ var CLIQZEnvironment = {
 
               def.code = e.code;
               def.style = CLIQZEnvironment.getLogoDetails(CLIQZEnvironment.getDetailsFromUrl(url)).style;
-              def.text = e.prefix.slice(1);
+              def.text = e.alias.slice(1);
 
               chosen.push(def)
           }
