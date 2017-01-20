@@ -43,6 +43,7 @@ export default class {
       "antitracking-activator": this.antitrackingActivator.bind(this),
       "adb-activator": this.adbActivator.bind(this),
       "antitracking-strict": this.antitrackingStrict.bind(this),
+      "antitracking-clearcache": this.antitrackingClearCache.bind(this),
       "sendTelemetry": this.sendTelemetry.bind(this),
       "openPopUp": this.openPopUp.bind(this),
       "openMockPopUp": this.openMockPopUp.bind(this),
@@ -177,6 +178,10 @@ export default class {
       action: 'click',
       state: data.status === true ? 'on' : 'off'
     });
+  }
+
+  antitrackingClearCache() {
+    events.pub("control-center:antitracking-clearcache");
   }
 
   cliqzTab(data) {

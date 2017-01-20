@@ -201,7 +201,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
 
             beforeEach(function() {
               attrack.qs_whitelist.addSafeToken(tracker_hash, "");
-              attrack.tokenDomainCountThreshold = 2;
+              attrack.config.tokenDomainCountThreshold = 2;
               attrack.blockLog.clear();
               attrack.initPipeline();
             });
@@ -226,8 +226,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
               }
 
               beforeEach(function() {
-                attrack.tokenDomainCountThreshold = 0;
-                attrack.initPipeline();
+                attrack.config.tokenDomainCountThreshold = 0;
               });
 
               it('blocks long tokens on tracker domain', function() {
@@ -303,7 +302,7 @@ TESTS.AttrackUnitTest = function(CliqzUtils) {
         beforeEach(function() {
           CliqzUtils.setPref('attrackRemoveQueryStringTracking', true);
           attrack.qs_whitelist.addSafeToken(md5('tracker.com').substring(0, 16), '');
-          attrack.tokenDomainCountThreshold = 0; // block first time
+          attrack.config.tokenDomainCountThreshold = 0; // block first time
           attrack.initPipeline();
         });
 

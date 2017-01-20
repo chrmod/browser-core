@@ -35,6 +35,7 @@
             'ForInStatement',
             'LabeledStatement',
             'WithStatement',
-        ]
+        ],
+        "no-underscore-dangle": "off",
     }
 }
