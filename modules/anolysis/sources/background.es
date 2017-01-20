@@ -11,7 +11,7 @@ import GIDManager from 'anolysis/gid-manager';
 import Preprocessor, { parseABTests } from 'anolysis/preprocessor';
 import SignalQueue from 'anolysis/signals-queue';
 import Storage from 'anolysis/storage';
-import analyses from 'anolysis/analysis';
+import analyses from 'anolysis/analyses';
 import log from 'anolysis/logging';
 
 
@@ -98,7 +98,7 @@ export default background({
 
 
     /* [async]
-     * Get read of data older than 30 days
+     * Get rid of data older than 30 days
      */
     this.behaviorStorage
       .deleteByTimespan({ to: Date.now() - (30 * ONE_DAY) })

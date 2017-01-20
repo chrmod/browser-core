@@ -42,6 +42,7 @@ export default class {
                         });
                     }
                   } catch (ex) {
+                    log(`Exception in signal queue ${ex} ${ex.stack}`);
                     this.storage.remove(doc);
                   }
                 });

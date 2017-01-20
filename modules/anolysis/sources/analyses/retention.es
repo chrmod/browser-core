@@ -5,6 +5,7 @@ export default class {
     // - day
     // - weeks
     // - month
+    // End generate signals accordingly
     this.name = 'retention';
     this.needs_gid = true;
   }

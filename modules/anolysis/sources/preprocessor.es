@@ -59,6 +59,8 @@ function isString(value) {
 
 
 // Parse version in format A.B.C.1bN
+// TODO: Add unit tests to make sure any extension version
+// is parsed successfully by this function.
 function parseExtensionVersion(version) {
   /* eslint no-param-reassign: off */
 
@@ -231,6 +233,9 @@ export default class {
     if (isString(signal.distribution) !== null && signal.distribution !== undefined) {
       const rawDistribution = signal.distribution;
 
+      // TODO: Use brands.json to generate/update this data
+      // TODO: Make this implementation nicer by using a loop and extraction the
+      // data about each distribution separately.
       if (CHANNELS.COMPUTER_BILD.has(channel) || (channel === '40' && rawDistribution.startsWith('CB0'))) {
         // TODO: Check interval CB0001
         distribution = 'third-party/portal/ComputerBild';
@@ -397,6 +402,7 @@ export default class {
         /* Ignore if the channel is not an integer */
       }
 
+      // TODO: Should we create a set of possible values at the top of the file?
       if (channel === '40') {
         const prefix = 'CLIQZ/desktop';
         // Desktop browser

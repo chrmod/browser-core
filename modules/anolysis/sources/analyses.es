@@ -1,11 +1,11 @@
 
 import ABTestsAnalysis from 'anolysis/analyses/abtests';
 import EmptySchema from 'anolysis/analyses/empty';
-import EverythingSchema from 'anolysis/analyses/everything';
+import EverythingAnalysis from 'anolysis/analyses/everything';
 import RetentionAnalysis from 'anolysis/analyses/retention';
 
 
-class AnalysisWrapper {
+class SchemaAnalysis {
   constructor(schema) {
     this.schema = schema;
     this.name = schema.name;
@@ -31,8 +31,8 @@ class AnalysisWrapper {
 * to the backend.
 */
 const analyses = [
-  new AnalysisWrapper(EverythingSchema),
-  new AnalysisWrapper(EmptySchema),
+  new SchemaAnalysis(EmptySchema),
+  new EverythingAnalysis(),
   new RetentionAnalysis(), // Generates retention signals
   new ABTestsAnalysis(),
 ];
