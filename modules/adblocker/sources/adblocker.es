@@ -134,7 +134,7 @@ class AdBlocker {
               this.engine.updated = false;
             })
             .catch((e) => {
-              CliqzUtils.log(`Failed to serialize filters engine on disk ${e}`, 'adblocker');
+              this.log(`Failed to serialize filters engine on disk ${e}`);
             });
         } else {
           this.log('Engine has not been updated, do not serialize');
