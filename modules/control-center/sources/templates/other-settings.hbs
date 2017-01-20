@@ -63,7 +63,7 @@
             <option {{#if selected }}selected{{/if}} value="{{ @key }}" >{{ name }}</option>
           {{/each}}
         </select>
-        
+
       </span>
       {{#if module.hpn.visible }}
       <span class="bullet"
@@ -122,7 +122,7 @@
                 class="custom-dropdown"
                 data-target="complementary_search">
           {{#each module.autocomplete.state}}
-            <option {{#if default }}selected{{/if}} value="{{ name }}">[{{ prefix }}] {{ name }}</option>
+            <option {{#if default }}selected{{/if}} value="{{ name }}">[{{ alias }}] {{ name }}</option>
           {{/each}}
         </select>
       </span>

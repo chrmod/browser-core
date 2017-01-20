@@ -368,7 +368,7 @@ var UI = {
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
-                CliqzAutocomplete.spellCheck.override();
+                CliqzAutocomplete.spellCheck.state.override = true;
                 return true;
             case KeyEvent.DOM_VK_HOME:
                 if (ev.shiftKey) {
