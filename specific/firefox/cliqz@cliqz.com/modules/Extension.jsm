@@ -107,12 +107,13 @@ var Extension = {
       Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
         CliqzUtils.setSupportInfo()
       }, 30000);
-
+      
+      // Load Config - Synchronous!
+      this.config = {{CONFIG}};
+      
       // Ensure prefs are set to our custom values
       Extension.setOurOwnPrefs();
 
-      // Load Config - Synchronous!
-      this.config = {{CONFIG}};
       CliqzUtils.RICH_HEADER = this.config.settings['richheader-url'] || CliqzUtils.RICH_HEADER;
       CliqzUtils.RESULTS_PROVIDER = this. config.settings['resultsprovider-url'] || CliqzUtils.RESULTS_PROVIDER;
       CliqzUtils.FEEDBACK_URL = CliqzUtils.FEEDBACK + CliqzUtils.extensionVersion + '-' + this.config.settings.channel;
@@ -361,7 +362,7 @@ var Extension = {
         }
       
         if (this.config.environment === 'development') {
-          CliqzUtils.setPref('user-is-developer', true);
+          CliqzUtils.setPref('developer', true);
         }
     },
     /** Reset changed prefs on uninstall */
