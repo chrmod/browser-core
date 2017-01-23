@@ -151,6 +151,11 @@ body.freshTabContainer {
     font-size: 14px;
     float: left;
     width: calc(100% - 400px); // 10px for the close btn
+
+    &.fullWidth {
+      width: 100%;
+      padding-right: 0;
+    }
    }
 
   a {

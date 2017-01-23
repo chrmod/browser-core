@@ -41,6 +41,7 @@ export default background({
     this.adultDomainChecker = new AdultDomain();
     this.settings = settings;
     this.messages = {};
+
   },
   /**
   * @method unload
@@ -65,6 +66,7 @@ export default background({
         });
       }
     },
+
     _showHelp: isWithinNDaysAfterInstallation.bind(null, 5),
 
     _showMiniOnboarding() {
@@ -103,7 +105,7 @@ export default background({
         events.pub('msg_center:hide_message', { id: messageId }, 'MESSAGE_HANDLER_FRESHTAB');
         utils.telemetry({
           type: 'notification',
-          topic: 'share-location',
+          topic: messageId,
           context: 'home',
           action: 'click',
           target: 'hide'

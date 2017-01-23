@@ -69,7 +69,10 @@ export default {
     "btn-always-share": "Toujours partager sa position",
     "btn-never-share": "Ne jamais partager sa position",
     "txt-email-inaccessible": "Please log in to see email notifications",
-    "txt-email-refresh": "Actualiser les notifications"
+    "txt-email-refresh": "Actualiser les notifications",
+    "hdr-video-downloader": "Télécharger des vidéos de Youtube",
+    "txt-video-downloader": "À la grande demande de nos utilisateurs, tu peux maintenant télécharger des vidéos YouTube sur ton ordinateur. Vas simplement sur une vidéo sur youtube.com et clique sur l'icône qui apparaîtra dans la barre de navigation.",
+    "cta-video-downloader": "En savoir plus..."
   },
   title: 'Nouvel onglet',
 };

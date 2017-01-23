@@ -317,6 +317,12 @@ var CliqzABTests = {
             case "1088_B":
                 CliqzUtils.setPref('offers2FeatureEnabled', true);
                 break;
+            case "1092_A":
+                CliqzUtils.setPref("extOnboardVideoDownloader", false);
+                break;
+            case "1092_B":
+                CliqzUtils.setPref("extOnboardVideoDownloader", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -510,6 +516,10 @@ var CliqzABTests = {
             case "1088_A":
             case "1088_B":
               CliqzUtils.clearPref('offers2FeatureEnabled');
+              break;
+            case "1092_A":
+            case "1092_B":
+              CliqzUtils.clearPref('extOnboardVideoDownloader');
               break;
             default:
                 rule_executed = false;
