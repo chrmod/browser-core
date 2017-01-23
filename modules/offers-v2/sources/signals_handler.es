@@ -137,7 +137,23 @@ class SignalBucket {
       };
       signal.data[k] = this.elems[k];
       utils.telemetry(signal);
-      linfo('sendSignalsToBE: ' + JSON.stringify(signal));
+      linfo('sendSignalsToBE: telemetry: ' + JSON.stringify(signal));
+
+      // #GR-294: sending also to the hpn proxy, we need to remove the telemetry
+      //          on the future once this is stable
+      const hpnStrSignal = JSON.stringify([
+        {
+          action: OffersConfigs.SIGNALS_HPN_BE_ACTION,
+          signal_id: k,
+          timestamp: Date.now(),
+          payload: signal
+        }
+      ]);
+      utils.httpPost(OffersConfigs.SIGNALS_HPN_BE_ADDR,
+                     success => {linfo('sendSignalsToBE: hpn signal sent')},
+                     hpnStrSignal,
+                     err => {lerr('sendSignalsToBE: error sending signal to hpn: ' + err)});
+      linfo('sendSignalsToBE: hpn: ' + hpnStrSignal);
     }
 
     return true;
