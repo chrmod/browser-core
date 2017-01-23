@@ -154,7 +154,7 @@ export default class {
         return;
       }
       if (resp && resp.results && resp.results.length > 0) {
-        while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
+        while (container && !container.classList.contains("cqz-result-box")) {
           container = container.parentElement;
           if (!container || container.id == "cliqz-results") return;
         }

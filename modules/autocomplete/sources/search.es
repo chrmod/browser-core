@@ -51,12 +51,26 @@ class ProviderAutoCompleteResultCliqz {
   get defaultIndex() { return this._defaultIndex; }
   get errorDescription() { return this._errorDescription; }
   get matchCount() { return this._results.length; }
-  getValueAt(index) { return (this._results[index] || {}).val; }
-  getFinalCompleteValueAt(index) { return null; } //FF31+
+  getValueAt(index) {
+    var val = (this._results[index] || {}).val;
+    if (this.getStyleAt(index).indexOf('switchtab') >= 0 && utils.dropDownStyle === 'ff') {
+      val = "moz-action:switchtab," + JSON.stringify({url: val});
+    }
+    return val;
+  }
+  getFinalCompleteValueAt(index) { return this.getValueAt(index); }
   getCommentAt(index) { return (this._results[index] || {}).comment; }
   getStyleAt(index) { return (this._results[index] || {}).style; }
-  getImageAt (index) { return ''; }
-  getLabelAt(index) { return (this._results[index] || {}).label; }
+  getImageAt (index) { return (this._results[index] || {}).image || ''; }
+  getLabelAt(index) {
+    const val = this.getValueAt(index);
+    if (val.indexOf('moz-action:') == 0 && utils.dropDownStyle === 'ff') {
+      return val;
+    } else {
+      return (this._results[index] || {}).label;
+    }
+
+  }
   getDataAt(index) { return (this._results[index] || {}).data; }
 
   setResults(results){
@@ -178,11 +192,11 @@ export default class Search {
       this.callback = callback;
       this.searchString = searchString;
       this.searchStringSuggest = null;
-
+      const defaultIndex = utils.dropDownStyle == 'ff' ? 0 : -2; // -2 blocks default FF autocomplete
       this.mixedResults = new ProviderAutoCompleteResultCliqz(
               this.searchString,
               Components.interfaces.nsIAutoCompleteResult.RESULT_SUCCESS,
-              -2, // blocks autocomplete
+              defaultIndex, // blocks autocomplete
               '');
 
       this.startTime = Date.now();
@@ -573,6 +587,12 @@ export default class Search {
   cliqzResultFetcher(res, attemptsSoFar) {
       var json = res.response,
           q = res.query || res.q; // query will be called q if RH is down
+      if (['simple', 'ff'].indexOf(utils.dropDownStyle) > -1) {
+        // Remove query-triggered RH results (smart cliqz) in simple UI && FF UI
+        json.results = json.results.filter((r) => {
+          return !(r.type === 'rh' && r.trigger_method === 'query');
+        });
+      }
       // be sure this is not a delayed result
       if(q != this.searchString) {
           this.discardedResults += 1; // count results discarded from backend because they were out of date
@@ -617,7 +637,6 @@ export default class Search {
        CliqzAutocomplete.lastAutocompleteActive && !only_instant) {
       this.instant[0].autocompleted = true;
     }
-
     var results = this.mixer.mix(
                 this.searchString,
                 this.cliqzResults,

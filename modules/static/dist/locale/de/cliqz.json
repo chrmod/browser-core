@@ -200,6 +200,9 @@
     "noResultMessage":{
         "message": "Versuche es mit ,Enter' bei $1 oder per Klick auf:"
     },
+    "searchOn": {
+        "message": "Suche mit $1"
+    },
     "noResults": {
         "message":"Keine Ergebnisse"
     },

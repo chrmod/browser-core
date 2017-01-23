@@ -43,7 +43,10 @@ var CLIQZEnvironment = {
       'rd-h3-w-rating': 1,
       'movie': 3,
       'vod': 3,
-      'liveTicker': 3
+      'liveTicker': 3,
+      'simple-ui/result': 1,
+      'simple-ui/results': 1,
+      'simple-ui/main': 1
     },
     MESSAGE_TEMPLATES: [
       'footer-message',
@@ -72,7 +75,8 @@ var CLIQZEnvironment = {
         'partials/bottom-data-sc',
         'partials/download',
         'partials/streaming',
-        'partials/lyrics'
+        'partials/lyrics',
+        'simple-ui/logo'
     ],
     CLIQZ_ONBOARDING: "about:onboarding",
     CLIQZ_ONBOARDING_URL: "chrome://cliqz/content/onboarding-v2/index.html",
@@ -462,7 +466,7 @@ var CLIQZEnvironment = {
             });
         }
     })(),
-    getNoResults: function() {
+    getNoResults: function(q) {
       var se = [// default
               {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
               {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
@@ -492,23 +496,29 @@ var CLIQZEnvironment = {
 
 
 
-      return CLIQZEnvironment.Result.cliqz(
-              {
-                  template:'noResult',
-                  snippet:
-                  {
-                      text_line1: CLIQZEnvironment.getLocalizedString('noResultTitle'),
-                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
-                      // we should take care of this specific case differently on alternative platforms
-                      text_line2: CLIQZEnvironment.getLocalizedString('noResultMessage', defaultName),
-                      "search_engines": chosen,
-                      //use local image in case of no internet connection
-                      "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg"
-                  },
-                  type: 'rh',
-                  subType: {empty:true}
-              }
-          )
+      var res = CLIQZEnvironment.Result.cliqz(
+        {
+          template:'noResult',
+          snippet:
+          {
+            text_line1: CLIQZEnvironment.getLocalizedString('noResultTitle'),
+            // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
+            // we should take care of this specific case differently on alternative platforms
+            text_line2: CLIQZEnvironment.getLocalizedString('noResultMessage', defaultName),
+            "search_engines": chosen,
+            //use local image in case of no internet connection
+            "cliqz_logo": CLIQZEnvironment.SKIN_PATH + "img/cliqz.svg",
+          },
+          type: 'rh',
+          subType: {empty:true}
+        },
+        q
+      );
+      const engine = this.getDefaultSearchEngine();
+      res.val = engine.getSubmissionForQuery(q);
+      res.label = CLIQZEnvironment.getLocalizedString('searchOn', engine.name);
+      res.text = res.comment = q;
+      return res;
     }
 }
 function urlbar(){

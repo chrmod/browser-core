@@ -1023,9 +1023,6 @@ var CliqzUtils = {
   },
   getWindow: CLIQZEnvironment.getWindow,
   getWindowID: CLIQZEnvironment.getWindowID,
-  hasClass: function(element, className) {
-    return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
-  },
   /**
    * Bind functions contexts to a specified object.
    * @param {Object} from - An object, whose function properties will be processed.

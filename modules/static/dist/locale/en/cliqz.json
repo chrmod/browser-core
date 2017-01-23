@@ -200,6 +200,9 @@
     "noResultMessage":{
         "message":"press enter to search on $1, or try one of these:"
     },
+    "searchOn": {
+        "message": "Search on $1"
+    },
     "noResults": {
         "message":"No results"
     },

@@ -122,9 +122,9 @@ class CliqzResultProviders {
         Result.generic(
           Result.CLIQZC + ' sources-' + customQuery.code,
           customQuery.queryURI,
-          null,
-          null,
-          null,
+          q,
+          customQuery.updatedQ,
+          customQuery.queryURI,
           null,
           {
             extra: {

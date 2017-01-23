@@ -317,6 +317,15 @@ var CliqzABTests = {
             case "1088_B":
                 CliqzUtils.setPref('offers2FeatureEnabled', true);
                 break;
+            case "1091_A":
+                CliqzUtils.clearPref('dropDownStyle');
+                break;
+            case "1091_B":
+                CliqzUtils.setPref('dropDownStyle', 'simple');
+                break;
+            case "1091_C":
+                CliqzUtils.setPref('dropDownStyle', 'ff');
+                break;
             case "1092_A":
                 CliqzUtils.setPref("extOnboardVideoDownloader", false);
                 break;
@@ -516,6 +525,11 @@ var CliqzABTests = {
             case "1088_A":
             case "1088_B":
               CliqzUtils.clearPref('offers2FeatureEnabled');
+              break;
+            case "1091_A":
+            case "1091_B":
+            case "1091_C":
+              CliqzUtils.clearPref('dropDownStyle');
               break;
             case "1092_A":
             case "1092_B":

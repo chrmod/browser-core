@@ -141,6 +141,7 @@ var CliqzCalculator = {
         subType: {type: 'calculator'},
         template: 'calculator',
         snippet: {
+          title: this.CALCULATOR_RES,
           extra: {
             expression: expandedExpression,
             answer: this.CALCULATOR_RES,

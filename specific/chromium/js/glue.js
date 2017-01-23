@@ -97,7 +97,8 @@ Promise.all([
 
 
     // initiaize geolocation window
-    CliqzUtils.callAction("geolocation", "updateGeoLocation", []);
+    const geolocation = modules[8].default;
+    geolocation.actions.updateGeoLocation();
 
     return System.import("core/startup")
   }).then(function (startupModule) {

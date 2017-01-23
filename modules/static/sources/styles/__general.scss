@@ -92,7 +92,7 @@
     color: #333333;
     font-size: 14px;
     line-height: 1.2em;
-    font-family: Lato, Helvetica, sans-serif;
+    font-family: -apple-system, "Segoe UI", "Oxygen", sans-serif, arial;
     border-top: none;
     background: #fff; /* override linux default grey color */
 }
@@ -210,6 +210,9 @@
 .cqz-results .cqz-result-title:visited,
 .cqz-results .cliqz-pattern-element-title {
     color: #8c275f !important;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .cqz-popup a:hover,
