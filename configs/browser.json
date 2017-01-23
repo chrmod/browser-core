@@ -27,6 +27,16 @@
   "default_prefs" : {
     "modules.context-search.enabled": false
   },
+  "priority": [
+    "core",
+    "firefox-specific",
+    "static",
+    "autocomplete",
+    "ui",
+    "human-web",
+    "freshtab",
+    "hpn"
+  ],
   "modules": [
     "core",
     "firefox-specific",

@@ -17,6 +17,16 @@
     "onBoardingVersion": "1.1",
     "controlCenterSecurity": false
   },
+  "priority": [
+    "core",
+    "firefox-specific",
+    "static",
+    "autocomplete",
+    "ui",
+    "human-web",
+    "freshtab",
+    "hpn"
+  ],
   "modules": [
     "firefox-specific",
     "static",
@@ -31,7 +41,9 @@
     "hpn",
     "geolocation",
     "notifications",
-    "freshtab"
+    "message-center",
+    "freshtab",
+    "offers"
   ],
   "subprojects": [
     "fresh-tab-frontend"

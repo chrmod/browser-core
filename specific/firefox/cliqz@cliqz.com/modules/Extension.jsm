@@ -6,7 +6,11 @@
  *
  */
 
-Components.utils.importGlobalProperties(['crypto'])
+try {
+  // not present in older FF versions
+  Components.utils.importGlobalProperties(['crypto']);
+} catch(e){  }
+
 var EXPORTED_SYMBOLS = ['Extension'];
 const {
   classes: Cc,

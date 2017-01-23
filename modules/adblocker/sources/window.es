@@ -1,7 +1,6 @@
 import { utils } from 'core/cliqz';
 import CliqzADB,
-     { adbEnabled,
-       adbABTestEnabled,
+     { adbABTestEnabled,
        ADB_PREF_VALUES,
        ADB_PREF_OPTIMIZED,
        ADB_PREF } from 'adblocker/adblocker';
@@ -13,17 +12,9 @@ export default class {
   }
 
   init() {
-    if (adbEnabled()) {
-      CliqzADB.initWindow(this.window);
-      this.window.adbinit = true;
-    }
   }
 
   unload() {
-    if (adbEnabled()) {
-      CliqzADB.unloadWindow(this.window);
-      this.window.adbinit = false;
-    }
   }
 
   status() {

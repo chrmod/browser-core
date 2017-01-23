@@ -91,6 +91,13 @@ if (!CliqzUtils) {
 injectTestHelpers(CliqzUtils);
 initHttpServer();
 
+function start() {
+
+if (!CliqzUtils.Extension.app.isFullyLoaded) {
+  setTimeout(start, 2000);
+  return;
+}
+
 // Load Tests and inject their dependencies
 Object.keys(window.TESTS).forEach(function (testName) {
   var testFunction = window.TESTS[testName],
@@ -197,3 +204,5 @@ runner.on('end', function () {
   writeLogsToFile(logs);
   if(getParameterByName('closeOnFinish') === "1") { closeBrowser(); }
 });
+}
+start()

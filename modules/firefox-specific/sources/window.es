@@ -47,7 +47,7 @@ export default class {
     Demo.unload(this.window);
     Redirect.unload();
 
-    clearTimeout(this.whoAmItimer);
+    utils.clearTimeout(this.whoAmItimer);
   }
 
   whoAmI(startup) {

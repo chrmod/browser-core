@@ -16,6 +16,16 @@
     "onBoardingVersion": "1.1",
     "controlCenterSecurity": true
   },
+  "priority": [
+    "core",
+    "firefox-specific",
+    "static",
+    "autocomplete",
+    "ui",
+    "human-web",
+    "freshtab",
+    "hpn"
+  ],
   "modules": [
     "firefox-specific",
     "static",

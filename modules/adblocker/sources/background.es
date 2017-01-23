@@ -17,9 +17,9 @@ export default background({
 
   init() {
     if (CliqzADB.getBrowserMajorVersion() < CliqzADB.MIN_BROWSER_VERSION) {
-      return;
+      return Promise.resolve();
     }
-    CliqzADB.init();
+    return CliqzADB.init();
   },
 
   unload() {

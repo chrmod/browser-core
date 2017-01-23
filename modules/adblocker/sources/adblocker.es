@@ -145,9 +145,6 @@ class AdBlocker {
     // Blacklists to disable adblocking on certain domains/urls
     this.blacklist = new Set();
     this.blacklistPersist = new LazyPersistentObject('adb-blacklist');
-
-    // Is the adblocker initialized
-    this.initialized = false;
   }
 
   log(msg) {
@@ -205,28 +202,24 @@ class AdBlocker {
   init() {
     this.initCache();
 
-    // Load serialized engine from disk, then init filters manager
-    this.loadEngineFromDisk()
-      .then(() => this.listsManager.load())
-      .then(() => {
-        // Update check should be performed after a short while
-        this.log('Check for updates');
-        setTimeout(
-          () => this.listsManager.update(),
-          30 * 1000,
-        );
-      });
-
-    this.blacklistPersist.load().then((value) => {
+    return this.blacklistPersist.load().then((value) => {
       // Set value
       if (value.urls !== undefined) {
         this.blacklist = new Set(value.urls);
       }
-    });
-    this.initialized = true;
+    }).then(() => this.loadEngineFromDisk())
+      .then(() => this.listsManager.load())
+      .then(() => {
+        // Update check should be performed after a short while
+        this.log('Check for updates');
+        this.loadingTimer = utils.setTimeout(
+          () => this.listsManager.update(),
+          30 * 1000);
+      });
   }
 
   unload() {
+    utils.clearTimeout(this.loadingTimer);
     this.listsManager.stop();
   }
 
@@ -312,11 +305,6 @@ class AdBlocker {
   /* @param {webrequest-context} httpContext - Context of the request
    */
   match(httpContext) {
-    // Check if the adblocker is initialized
-    if (!this.initialized) {
-      return false;
-    }
-
     if (httpContext.isFullPage()) {
       // allow loading document
       return false;
@@ -397,8 +385,7 @@ const CliqzADB = {
 
     CliqzADB.adBlocker = new AdBlocker(CliqzADB.onDiskCache);
 
-    const initAdBlocker = () => {
-      CliqzADB.adBlocker.init();
+    const initAdBlocker = () => CliqzADB.adBlocker.init().then(() => {
       CliqzADB.adblockInitialized = true;
       CliqzADB.initPacemaker();
       WebRequest.onBeforeRequest.addListener(
@@ -406,20 +393,21 @@ const CliqzADB = {
         undefined,
         ['blocking'],
       );
-    };
+    });
 
     if (adbEnabled()) {
-      initAdBlocker();
-    } else {
-      this.onPrefChangeEvent = events.subscribe('prefchange', (pref) => {
-        if ((pref === ADB_PREF || pref === ADB_ABTEST_PREF) &&
-          !CliqzADB.adblockInitialized &&
-          adbEnabled()) {
-          // FIXME
-          initAdBlocker();
-        }
-      });
+      return initAdBlocker();
     }
+
+    this.onPrefChangeEvent = events.subscribe('prefchange', (pref) => {
+      if ((pref === ADB_PREF || pref === ADB_ABTEST_PREF) &&
+        !CliqzADB.adblockInitialized &&
+        adbEnabled()) {
+        // FIXME
+        initAdBlocker();
+      }
+    });
+    return Promise.resolve();
   },
 
   unload() {
@@ -430,14 +418,7 @@ const CliqzADB = {
       this.onPrefChangeEvent.unsubscribe();
     }
     CliqzADB.unloadPacemaker();
-    browser.forEachWindow(CliqzADB.unloadWindow);
     WebRequest.onBeforeRequest.removeListener(CliqzADB.httpopenObserver.observe);
-  },
-
-  initWindow(/* window */) {
-  },
-
-  unloadWindow(/* window */) {
   },
 
   initPacemaker() {
