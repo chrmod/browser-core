@@ -38,7 +38,7 @@ function openLink(url) {
   const id = parseInt(6 + (100 * Math.random()), 10);
   mockedHistory.unshift({
     id,
-    title: `History item ${id}`,
+    title: url,
     mainDomain: url,
     url,
     timestamp: Date.now(),
