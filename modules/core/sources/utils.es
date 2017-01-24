@@ -126,7 +126,8 @@ var CliqzUtils = {
   },
 
   callAction(moduleName, actionName, args) {
-    const module = CliqzUtils.System.get(`${moduleName}/background`);
+    const module = CliqzUtils.System.get(
+        CliqzUtils.System.normalizeSync(`${moduleName}/background`));
     if (!module) {
       return Promise.reject(`module "${moduleName}" does not exist`);
     }

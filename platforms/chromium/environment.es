@@ -1,6 +1,7 @@
 import console from "core/console";
 import prefs from "core/prefs";
 import Storage from "core/storage";
+import CliqzUtils from "core/utils"
 
 let eventIDs = {};
 const port = chrome.runtime.connect({name: "encrypted-query"});
@@ -76,8 +77,8 @@ const CLIQZEnvironment = {
       telemetrySending = CE.trk.slice(0);
       CE.trk = [];
 
-      CE.httpHandler('POST', CE.LOG, pushTelemetryCallback,
-          pushTelemetryError, 10000, JSON.stringify(telemetrySending));
+      CliqzUtils.httpPost(CE.LOG, pushTelemetryCallback, JSON.stringify(telemetrySending),
+          pushTelemetryError, 10000);
 
       console.log('Telemetry', 'push telemetry data: ' + telemetrySending.length + ' elements');
     }
@@ -140,7 +141,6 @@ const CLIQZEnvironment = {
   isPrivate: function() { return chrome.extension.inIncognitoContext; },
   isOnPrivateTab: function(win) { return CE.isPrivate(); },
   getWindow: function(){ return { document: { getElementById() {} } } },
-  XMLHttpRequest: XMLHttpRequest,
 
   historySearch: function(q, callback, searchParam) {
     chrome.cliqzSearchPrivate.queryHistory(q, (query, matches, finished) => {

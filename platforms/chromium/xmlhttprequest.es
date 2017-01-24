@@ -1,5 +1,5 @@
 
-export let XMLHttpRequest = XMLHttpRequest;
+export let XMLHttpRequest = window.XMLHttpRequest;
 
 export function setPrivateFlags(request) {}
 
