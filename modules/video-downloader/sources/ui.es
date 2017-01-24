@@ -62,16 +62,18 @@ export default class UI {
     this.panel.attach();
     // stylesheet for control center button
     addStylesheet(this.window.document, this.cssUrl);
-
     this.addVDbutton();
 
     CliqzEvents.sub('core.location_change', this.actions.checkForVideoLink);
+    CliqzEvents.sub("core.tab_state_change", this.actions.checkForVideoLink);
   }
 
   unload() {
     this.panel.detach();
     removeStylesheet(this.window.document, this.cssUrl);
     this.button.parentElement.removeChild(this.button);
+    CliqzEvents.un_sub("core.tab_state_change", this.actions.checkForVideoLink);
+    CliqzEvents.un_sub("core.location_change", this.actions.checkForVideoLink);
   }
 
   resizePopup({ width, height }) {
