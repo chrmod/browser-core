@@ -39,7 +39,7 @@ var OffersConfigs = {
   SIGNALS_OFFERS_FREQ_SECS: 60 * 60,
   SIGNALS_OFFERS_BUCKET_NAME: 'sig-offers',
   SIGNALS_TRIGGERS_BUCKET_NAME: 'sig-triggers',
-  SIGNALS_HPN_BE_ADDR: 'https://offers-api.cliqz.com/api/v1/savesignals',
+  SIGNALS_HPN_BE_ADDR: 'https://offers-api.cliqz.com/api/v1/savesignal',
   SIGNALS_HPN_BE_ACTION: 'offers-signal',
 
   //////////////////////////////////////////////////////////////////////////////

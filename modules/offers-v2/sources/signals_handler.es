@@ -122,6 +122,7 @@ class SignalBucket {
     // this will send all telemetry and remove all the data
     linfo('sendSignalsToBE: SENDING SIGNAL TO BE!!!: sending signal with id: ' + this.id);
     const isDebug = utils.getPref('offersDevFlag', false);
+    const isDeveloper = utils.getPref('developer', false);
     for (var k in this.elems) {
       if (!this.elems.hasOwnProperty(k)) {
         continue;
@@ -133,6 +134,7 @@ class SignalBucket {
         ex_v: config.EXTENSION_VERSION,
         bucket_freq_secs: this.expireTimeSecs,
         is_debug: isDebug,
+        is_developer: isDeveloper,
         data: {}
       };
       signal.data[k] = this.elems[k];
@@ -141,14 +143,21 @@ class SignalBucket {
 
       // #GR-294: sending also to the hpn proxy, we need to remove the telemetry
       //          on the future once this is stable
-      const hpnStrSignal = JSON.stringify([
-        {
+      const hpnSignal = {
           action: OffersConfigs.SIGNALS_HPN_BE_ACTION,
           signal_id: k,
           timestamp: Date.now(),
-          payload: signal
-        }
-      ]);
+          payload: {
+            v : OffersConfigs.CURRENT_VERSION,
+            ex_v: config.EXTENSION_VERSION,
+            bucket_freq_secs: this.expireTimeSecs,
+            is_debug: isDebug,
+            is_developer: isDeveloper,
+            data: {}
+          }
+        };
+      hpnSignal.payload.data[k] = this.elems[k];
+      const hpnStrSignal = JSON.stringify([hpnSignal]);
       utils.httpPost(OffersConfigs.SIGNALS_HPN_BE_ADDR,
                      success => {linfo('sendSignalsToBE: hpn signal sent')},
                      hpnStrSignal,
