@@ -182,7 +182,7 @@ var UI = {
             pageShowTs = Date.now();
 
             UI.currentPage = page;
-            autoComplete(UI.lastResults[page] && UI.lastResults[page].url);
+            autoComplete(UI.lastResults[page * UI.nCardsPerPage] && UI.lastResults[page * UI.nCardsPerPage].url);
           },
         });
     },

@@ -65,7 +65,7 @@ export default class Generic {
 
     // history
     if (data.urls) {
-      partials.push({type: 'history', data: data.urls});
+      partials.push({type: 'history', data: data.urls.slice(0, 3)});
     }
 
     // put streaming first
